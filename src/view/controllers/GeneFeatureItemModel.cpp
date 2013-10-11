@@ -1,0 +1,239 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms. 
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
+#include <QDebug>
+#include "utils/DebugHelper.h"
+
+#include "GeneFeatureItemModel.h"
+
+const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("application/gene.list");
+
+GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
+    : QAbstractTableModel(parent)
+{
+    //NOTE do not like this, memory leak when I re-asign
+    genelist = DataProxy::GeneListPtr(new DataProxy::GeneList());
+}
+
+GeneFeatureItemModel::~GeneFeatureItemModel()
+{
+
+}
+
+QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
+{
+    if (!index.isValid() || genelist.isNull())
+    {
+        return QVariant(QVariant::Invalid);
+    }
+
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    {
+        QSharedPointer<Gene> item = (*genelist)[index.row()];
+
+        QVariant value;
+        switch(index.column())
+        {
+            case Name:
+                value = item->name();
+                break;
+            case Show:
+                value = item->selected() ? Qt::Checked : Qt::Unchecked;
+                break;
+            case Color:
+                value = item->color();
+                break;
+            default:
+                return QVariant(QVariant::Invalid);
+        }
+        return value;
+    }
+
+    // return invalid value
+    return QVariant(QVariant::Invalid);
+}
+
+QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+    {
+        return QVariant(QVariant::Invalid);
+    }
+    
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    {
+        QVariant value;
+        switch (section)
+        {
+            case Name:
+                value = tr("Name");
+                break;
+            case Show:
+                value = tr("Show");
+                break;
+            case Color:
+                value = tr("Color");
+                break;
+            default:
+                return QVariant(QVariant::Invalid);
+        }
+        return value;
+    }
+    else if (orientation == Qt::Vertical && role == Qt::DisplayRole)
+    {
+        // return row number as label
+        QVariant value(QVariant::Int);
+        value = section + 1;
+        return value;
+    }
+
+    // return invalid value
+    return QVariant(QVariant::Invalid);
+}
+
+bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+   
+    if (!index.isValid() || genelist.isNull())
+    {
+        return false;
+    }
+
+    int row = index.row();
+    int column = index.column();
+
+    if (role == Qt::EditRole)
+    {
+        DataProxy::GenePtr item = (*genelist)[row];
+        
+        switch(column)
+        {
+            case Show:
+                if (item->selected() != value.toBool())
+                {
+                    item->selected(value.toBool());
+                    emit signalSelectionChanged(item);
+                    emit dataChanged(index, index);
+                    return true;
+                }
+                break;
+            case Color:
+            {
+                const QColor color = qvariant_cast<QColor>(value);
+                if (color.isValid() && item->color() != color)
+                {
+                    item->color(color);
+                    emit signalColorChanged(item);
+                    emit dataChanged(index, index);
+                    return true;
+                }
+            }
+            default:
+                return false;
+        }
+    }
+    
+    return false;
+}
+
+void GeneFeatureItemModel::sort(int column, Qt::SortOrder order)
+{
+    QAbstractItemModel::sort(column, order);
+}
+
+int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
+{
+    return parent.isValid() ? 0 : genelist->count();
+}
+
+int GeneFeatureItemModel::columnCount(const QModelIndex& parent) const
+{
+    return parent.isValid() ? 0 : COLUMN_NUMBER;
+}
+
+Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
+{
+    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+    if (!index.isValid())
+    {
+        return defaultFlags;
+    }
+    
+    switch (index.column())
+    {
+        case Name:
+            return Qt::ItemIsDragEnabled | defaultFlags;
+            break;
+        case Show:
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | defaultFlags;
+            break;
+        case Color:
+            return Qt::ItemIsEditable | Qt::ItemIsDragEnabled | defaultFlags;
+            break;
+        default:
+            Q_ASSERT(false && "[GeneFeatureItemModel] Invalid column index!");
+    }
+    
+    return defaultFlags;
+}
+
+void GeneFeatureItemModel::loadGenes(const QString& datasetid)
+{    
+    beginResetModel();
+    genelist.clear();
+    DataProxy* dataProxy = DataProxy::getInstance();
+    genelist = dataProxy->getGeneList(datasetid);
+    endResetModel();
+}
+
+void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
+{    
+    if(genelist.isNull())
+    {
+        return;
+    }
+    
+    const int size = genelist->count();
+    for (int i = 0; i < size; ++i)
+    {
+        DataProxy::GenePtr gene = (*genelist)[i];
+        if(!gene.isNull())
+        {
+            QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
+            if (gene->selected() != selected)
+            {
+                gene->selected(selected);
+                emit signalSelectionChanged(gene);
+                emit dataChanged(index,index);
+            }
+        }
+    }
+    
+}
+
+void GeneFeatureItemModel::setColorGenes(const QColor& color)
+{   
+    if(genelist.isNull())
+    {
+        return;
+    }
+    
+    const int size = genelist->count();
+    
+    for (int i = 0; i < size; ++i)
+    {
+        DataProxy::GenePtr gene = (*genelist)[i];
+        if(!gene.isNull())
+        {
+            QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
+            gene->color(color);
+            emit signalColorChanged(gene);
+            emit dataChanged(index,index);
+        }
+    }
+}

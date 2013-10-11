@@ -1,0 +1,116 @@
+******************************************************************************************************************************
+
+BUILDING (from source bundle or the repository)
+
+Install the necessary dependencies :
+
+cmake (Version 2.8.9), Git, OpenGL, Qt5 and a C++ (gcc 4.7 or gcc 4.6 or Visual Studio) compiler are required
+
+Ubuntu (10.xx , 11.xx , 12.xx) :
+
+Download and install qt5 binaries from http://qt-project.org/downloads
+
+Issue the following to install the necessary dependencies for stVi:
+
+   $ sudo apt-get install cmake git ubuntu-dev-tools 
+
+Install OpenGL:
+ 
+   $ sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+
+Mac OSX (Lion, Darwin) :
+
+Download and install qt5 binaries from : http://qt-project.org/downloads
+
+Issue the following to install the necessary dependencies for stVi:
+
+E.x (Assuming MacPorts is installed, otherwise http://www.macports.org/install.php)
+  
+$ sudo port install xcode cmake git 
+
+Windows 7
+
+You need to install cmake for windows :
+
+    http://www.cmake.org/cmake/resources/software.html
+
+You need to install git for windows :
+
+    http://git-scm.com/downloads
+
+You need Microsoft Visual Studio 2010 or 2012
+    
+    http://www.microsoft.com/visualstudio/eng/visual-studio-2013
+
+You need to download the windows binaries for visual studio and opengl of qt5 from : 
+
+    http://qt-project.org/downloads
+
+Install NSI installers in Windows :
+
+    http://nsis.sourceforge.net/Download
+
+Install Windows SDK
+
+    http://www.microsoft.com/en-us/download/details.aspx?id=3138
+
+Install Visual Studio Redis package
+
+    http://www.microsoft.com/en-us/download/details.aspx?id=29
+    
+
+Build from the source (windows) :
+
+Open CMake GUI:
+add the path to the source
+add the path to a build folder
+add variable CMAKE_PREFIX_PATH to qt5/libs/cmake
+add variable CMAKE_BUILD_TYPE to Debug or Release
+add variable CMAKE_LIBRARY_PAHT to path of windows SDK libraries (e.x C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib )
+
+Configure the cmake project and click generate, open Visual Studio and load the solution file generated from cmake in the build directory. Then you can build different targets and/or access the source and header files 
+Build from the source
+
+The following instructions are for Ubuntu (versions 10.xx, 11.xx and 12.xx) and
+MAC OSX (versions Darwin and Lion).
+
+NOTE: if you CMake installation does not contain macros to find qt5 packages, you will have to tell cmake to use the macros included in the qt5 binaries :
+
+  -DCMAKE_PREFIX_PATH = /path-to-qt5/path-to-cmake-folder
+
+We will now proceed to build stVi in "/path/to/build", but any directory where the
+user has read/write privileges can be chosen. Issue the following:
+
+  $ cd /path/to/build
+  $ cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
+               [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
+               [-DCMAKE_PREFIX_PATH="/path/to/libraries"]
+                 [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”]
+                 [-DCMAKE_OSX_DEPLOYMENT_TARGET=version]
+                /path/to/source
+  $ make -j8 && make install
+
+NOTE that all the params between [] are just optional
+
+/path/to/source = refers to the source of the client which should be :
+  
+    /st_viewer/src/client
+
+DCMAKE_INSTALL_PREFIX = indicates where to install stVi
+CMAKE_BUILD_TYPE = indicates the type of building (Release by default)
+CMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the binaries of Qt5.
+DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used
+eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/
+DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
+    eg: 10.7 or 10.8
+
+stVi will detect automatically the platform where it is building on and it will generate
+the binaries automatically as well.
+
+How to run a test
+
+Assuming stVi has been installed as explained above, it can be
+automatically tested by issuing:
+
+  $ cd /path/to/build
+  $ make test

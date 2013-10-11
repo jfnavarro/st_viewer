@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <application>
+        <name>${PROJECT}</name>
+        <version>${PROJECT_VERSION}</version>
+    </application>
+    <oauth>
+        <clientid>${CLIENTID}</clientid>
+        <scope>read</scope>
+        <secret>${SECRETID}</secret>
+        <endpoints>
+            <authorize>${ENDPOINT}/${APIPATH}/oauth/authorize</authorize>
+            <token>${ENDPOINT}/${APIPATH}/oauth/token</token>
+        </endpoints>
+    </oauth>
+    <data>
+        <endpoints>
+            <chip>${ENDPOINT}/${APIPATH}/rest/chip</chip>
+            <dataset>${ENDPOINT}/${APIPATH}/rest/dataset</dataset>
+            <feature>${ENDPOINT}/${APIPATH}/rest/feature</feature>
+            <gene>${ENDPOINT}/${APIPATH}/rest/gene</gene>
+            <hitcount>${ENDPOINT}/${APIPATH}/rest/hitcount</hitcount>
+            <user>${ENDPOINT}/${APIPATH}/rest/account/current/user</user>
+            <figure>${ENDPOINT}/${APIPATH}/rest/image</figure>
+            <version>${ENDPOINT}/${APIPATH}/rest/versionsupportinfo</version>
+        </endpoints>
+    </data>
+</configuration>

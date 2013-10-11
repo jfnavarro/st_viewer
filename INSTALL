@@ -1,0 +1,20 @@
+Install on Mac OS X
+
+Download Mac installer from http://download.spatialtranscriptomics.com 
+Double-click .dmg file
+Drag stVi application icon on Application folder
+Start stVi application from your Applications folder
+(press CTRL to open it the first time it you get a message saying that the tool is not certified)
+
+Install on Ubuntu
+
+Download Ubuntu application package from http://download.spatialtranscriptomics.com
+Extract the archive to a location where you would like to store the program
+To start the stVi application open the Terminal at the extracted directory and type ‘./stVi’
+
+Install on Windows
+
+Download Windows client installer from http://download.spatialtranscriptomics.com
+Double click on
+Follow the instructions to install stVi on your Windows machine
+Search for stVi on your applications folder and launch it

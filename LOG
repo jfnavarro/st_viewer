@@ -1,0 +1,15 @@
+v0.1.1
+	* first stable version
+v0.2.0 
+	* improvements on data proxy
+	* improvements on error manager
+ 	* improvements on network manager
+	* improvements in security (ssl, https)
+	* general improvements
+    * improve installers
+	* lay out improvements
+	* created encryption component (images encrypted)
+	* created new log in component (no authorization needed)
+	* bug fixes
+	* new visual features (selection, composite genes, export selection and heat map)
+
