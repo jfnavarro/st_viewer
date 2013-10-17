@@ -10,12 +10,12 @@
 
 #include <QObject>
 #include <QNetworkReply>
-#include <QJsonDocument>
 #include <QPointer>
-#include <QSslError>
 #include <QList>
 
 class Error; 
+class QSslError;
+class QJsonDocument;
 
 // ContentType provides convenience functionality for managing content-type
 // information. Currently it only supports parsing and extracting mime-data.
@@ -96,7 +96,7 @@ private:
     inline void registerError(Error* error) { m_errors += error; }
     
     // QT network reply
-    QSharedPointer<QNetworkReply> m_reply;
+    QScopedPointer<QNetworkReply> m_reply;
     
     // derived data
     mutable ContentType *m_contentType;

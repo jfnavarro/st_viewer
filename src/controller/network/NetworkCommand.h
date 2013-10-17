@@ -58,7 +58,7 @@ private:
   
     typedef Globals::HttpRequestType Type;
     QUrl m_url;
-    Type  m_type;
+    Type m_type;
     QUrlQuery m_query;
 };
 

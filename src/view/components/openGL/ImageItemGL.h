@@ -49,7 +49,6 @@ public:
 
 public slots:
     
-    void setDataset(const QString& datasetId);
     void visible(bool);
 
 private:
@@ -63,9 +62,6 @@ private:
 
     void rebuildTextureData();
     void generateTextureData();
-
-    // selected dataset id
-    QString m_datasetId;
 };
 
 #endif // IMAGEITEMGL_H

@@ -10,7 +10,7 @@
 
 #include <QWidget>
 
-#include "view/components/openGL/GenePlotterGL.h"
+#include "controller/data/DataProxy.h"
 
 class QMenu;
 class QActionGroup;
@@ -18,11 +18,9 @@ class QAction;
 class QWidgetAction;
 class QColorDialog;
 class QToolBar;
-
 class SelectionDialog;
-
 class GeneFeatureItemModel;
-
+class Error;
 class GraphicsViewGL;
 class GraphicsSceneGL;
 class GenePlotterGL;
@@ -59,9 +57,6 @@ signals:
 
 public slots:
 
-    // slot called when a dataset is selected in dataset view
-    void datasetSelected(const QString& datasetId);
-
     void onInit();
     void onEnter();
     void onExit();
@@ -71,8 +66,10 @@ private slots:
     // navigation
     void goBackClicked(bool clicked);
 
-    // load the cell tissue figure into the stage
-    void loadCellFigurePre();
+    // load the cell tissue figure into the stage (can be done sync and async)
+    void loadCellFigure();
+    
+    // callback when the image loading is done sync
     void loadCellFigurePost();
 
     // save current scene
@@ -139,6 +136,7 @@ protected:
     QActionGroup *actionGroup_toggleVisualMode;
     QAction *actionShow_toggleNormal;
     QAction *actionShow_toggleDynamicRange;
+    QAction *actionShow_toggleDynamicRangeGenes;
     QAction *actionShow_toggleHeatMap;
     
     QWidgetAction *actionWidget_geneHitsThreshold;
@@ -164,8 +162,13 @@ protected:
     bool m_selection_mode;
 
 private:
+    
     const DataProxy::FeatureList lookupFeatures(const QList<QString> &featureIdList) const;
 
+    //image loading functions that make use of async or not
+    void loadCellFigureSync(QIODevice *device);
+    void loadCellFigureAsync(QIODevice *device);
+    
     Ui::CellView *ui;
 };
 

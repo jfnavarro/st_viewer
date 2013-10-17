@@ -5,15 +5,7 @@ set(LIB STCoreWidgets)
 message(STATUS "Building ${LIB}")
 
 set(SRC_${LIB}
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/Core.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/CorePrivate.cpp
-#     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/CorePrivate.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditButton.cpp
-#     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditButton.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditButtonPrivate.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditClear.cpp
-#     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditClear.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/LineEditClearPrivate.h
+
 )
 
 # Add library and include directory

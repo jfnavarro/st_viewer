@@ -20,7 +20,7 @@
 
 namespace async
 {
-
+    
     ImageRequest *ImageProcess::createOpenGLImage(QIODevice *device)
     {
         DEBUG_FUNC_NAME
@@ -44,6 +44,9 @@ namespace async
         QImageReader reader(device);
         QImage image = reader.read();
 
+        //deallocate device
+        device->deleteLater();
+        
         // early out
         if (image.isNull())
         {
@@ -80,12 +83,14 @@ namespace async
 
     void ImageRequest::signalImageFinished()
     {
-
-        QFutureWatcher<ImageProcess::TransformedImage> *watcher = dynamic_cast<QFutureWatcher<ImageProcess::TransformedImage>*>(sender());
+        QFutureWatcher<ImageProcess::TransformedImage> *watcher = 
+            dynamic_cast<QFutureWatcher<ImageProcess::TransformedImage>*>(sender());
         m_image = watcher->result().first;
         m_transform = watcher->result().second;
-        //emit signalFinished(QVariant::fromValue<int>(AsyncRequest::CodeSuccess), QVariant::fromValue<QImage>(m_image));
         emit signalFinished();
     }
+    
+    
+    
 
 } // namespace async //

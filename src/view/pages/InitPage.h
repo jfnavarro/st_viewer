@@ -8,9 +8,6 @@
 #ifndef STARTPAGE_H
 #define	STARTPAGE_H
 
-#include <QStackedWidget>
-#include "controller/data/DataProxy.h"
-
 #include <QWidget>
 
 class QVBoxLayout;
@@ -26,7 +23,7 @@ namespace Ui
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 
-class InitPage : public QStackedWidget 
+class InitPage : public QWidget 
 {
     Q_OBJECT
     
@@ -64,9 +61,7 @@ private slots:
 
 private:
     
-    QWidget *m_loginWidget;
     Ui::InitPage *m_startWidget;
-    QVBoxLayout *vlayout_login;
     
     void setWaiting(bool waiting = true);
 };

@@ -6,21 +6,23 @@
 */
 
 #include <QApplication>
-
 #include <QStringList>
 #include <QDebug>
 #include "utils/DebugHelper.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+
 #include "controller/network/NetworkCommand.h"
 #include "controller/error/Error.h"
 #include "controller/error/JSONError.h"
 #include "controller/error/NetworkError.h"
-#include "NetworkReply.h"
 #include "controller/error/SSLNetworkError.h"
+
 #include "model/dto/ErrorDTO.h"
 #include "model/ObjectParser.h"
+
+#include "NetworkReply.h"
 
 ContentType::ContentType(QObject* parent)
     : QObject(parent), m_mime()
@@ -116,7 +118,6 @@ void NetworkReply::slotFinished()
             break;
         default:
             ret = CodeError;
-            break;
     }
     emit signalFinished(QVariant::fromValue<int>(ret), m_data);
 }

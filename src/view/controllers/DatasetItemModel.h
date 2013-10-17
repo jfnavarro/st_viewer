@@ -8,9 +8,10 @@
 #ifndef DATASETITEMMODEL_H
 #define DATASETITEMMODEL_H
 
-#include <QStandardItemModel>
-
 #include "controller/data/DataProxy.h"
+
+class QModelIndex;
+class QStandardItemModel;
 
 // Wrapper model class for the dataset data in the data proxy. Provides an easy
 // means of enumerating all the data sets connected to a single user.
@@ -50,9 +51,16 @@ public:
 public slots:
     
     void loadDatasets();
-        
+    
+    void datasetSelected(const QModelIndex&);
+
+signals:
+    
+    void datasetSelected(DataProxy::DatasetPtr);
+    
 private:
     
+    DataProxy::DatasetListPtr m_datasets_reference;
     static const int MColumns = 10;
 };
 

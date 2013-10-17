@@ -3,6 +3,7 @@
     <application>
         <name>${PROJECT}</name>
         <version>${PROJECT_VERSION}</version>
+        <url>${ENDPOINT}</url>
     </application>
     <oauth>
         <clientid>${CLIENTID}</clientid>

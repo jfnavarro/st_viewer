@@ -41,6 +41,7 @@ public:
     {
         NormalMode,
         DynamicRangeMode,
+        DynamicRangeModeGenes,
         HeatMapMode
     };
     
@@ -82,15 +83,14 @@ public:
 
 public slots:
     
-    void setDataset(const QString& datasetId);
     void setHitCount(int min, int max, int sum);
 
     // update selection
     void setSelectionArea(const SelectionEvent *event);
 
     // update gene render list
-    void updateGeneColor(QSharedPointer<Gene> gene);
-    void updateGeneSelection(QSharedPointer<Gene> gene);
+    void updateGeneColor(QScopedPointer<Gene> gene);
+    void updateGeneSelection(QScopedPointer<Gene> gene);
 
     void setGeneVisible(bool geneVisible);
     void setGeneShape(int geneShape);
@@ -216,9 +216,6 @@ private:
     ColorScheme *m_colorScheme;
     VisualMode m_visualMode;
     int m_hitCountMin, m_hitCountMax, m_hitCountSum;
-
-    // selected dataset id
-    QString m_datasetId;
 };
 
 #endif // GENEPLOTTERGL_H

@@ -228,13 +228,6 @@ set(SRC_CONTROLLER_IO
     controller/io/GeneTXTExporter.cpp
 )
 
-set(INC_CONTROLLER_LINK
-    controller/link/StringLink.h
-)
-set(SRC_CONTROLLER_LINK
-    controller/link/StringLink.cpp
-)
-
 set(INC_CONTROLLER_NETWORK
     controller/network/NetworkCommand.h
     controller/network/NetworkManager.h
@@ -287,7 +280,6 @@ set(INCLUDES
     ${INC_CONTROLLER_AUTH}
     ${INC_CONTROLLER_DATA}
     ${INC_CONTROLLER_IO}
-    ${INC_CONTROLLER_LINK}
     ${INC_CONTROLLER_NETWORK}
     ${INC_CONTROLLER_ERROR}
 )
@@ -307,7 +299,6 @@ set(SOURCES
     ${SRC_CONTROLLER_AUTH}
     ${SRC_CONTROLLER_DATA}
     ${SRC_CONTROLLER_IO}
-    ${SRC_CONTROLLER_LINK}
     ${SRC_CONTROLLER_NETWORK}
     ${SRC_CONTROLLER_ERROR}
 )
@@ -390,6 +381,7 @@ set(FORMS
     "${PROJECT_SOURCE_DIR}/assets/ui/experiments.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/initpage.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/selectiondialog.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
 )
 
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts")
@@ -406,7 +398,7 @@ include("libs/QtDebugHelper/CMakeLists.cmake")
 include("libs/QtSingleApplication/CMakeLists.cmake")
 include("libs/QtUnitTest/CMakeLists.cmake")
 include("libs/STCore/CMakeLists.cmake")
-include("libs/STCoreWidgets/CMakeLists.cmake")
+#include("libs/STCoreWidgets/CMakeLists.cmake")
 include("libs/STOpenGL/CMakeLists.cmake")
 
 ## create main library
@@ -568,22 +560,7 @@ if(APPLE)
 #         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
-
-#     # Plugins 
-#     OS_X_CLEAN_UP_FILE_WITH_QT_DEPENDENCIES(${OS_X_PROJECT_BINARY_DIR}/Contents/MacOS ${PROJECT_NAME}
-#                                                 QtConcurrent QtCore QtGui QtHelp QtNetwork QtOpenGL QtPrintSupport
-#                                                 QtSvg QtWebKit QtWebKitWidgets QtWidgets QtV8 QtCLucene QtQml QtQuick QtSql QtSensors) 
-# 
-#     # Deploy Qt dependencies
-#     OS_X_DEPLOY_QT_LIBRARIES(QtConcurrent QtCore QtGui QtHelp QtNetwork QtOpenGL
-#                             QtPrintSupport QtSvg QtWebKit
-#                             QtWebKitWidgets QtWidgets QtV8 QtCLucene QtQml QtQuick QtSql QtSensors) 
-# 
-#     # Deploy some plugins
-#     OS_X_DEPLOY_QT_PLUGIN(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp ) 
-#     OS_X_DEPLOY_QT_PLUGIN(platforms qcocoa)
-#     OS_X_DEPLOY_QT_PLUGIN(printsupport cocoaprintersupport)
-#     
+  
     # build dmg
     add_custom_target(dmg
         COMMAND mkdir -p ${DMG_DIR}

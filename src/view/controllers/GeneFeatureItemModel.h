@@ -8,12 +8,11 @@
 #ifndef GENEFEATUREITEMMODEL_H
 #define GENEFEATUREITEMMODEL_H
 
-#include <QModelIndex>
-#include <QMimeData>
-#include <QStringList>
 #include "controller/data/DataProxy.h"
 
-#include <QModelIndex>
+class QModelIndex;
+class QStringList;
+class QMimeData;
 
 // Wrapper model class for the gene data (specific to a dataset) found in the
 // data proxy. Primarily used to enumerate the genes in the cell view.
@@ -43,20 +42,21 @@ public:
     void loadGenes(const QString& datasetid);
 
 signals:
+    
     void signalSelectionChanged(QSharedPointer<Gene> gene);
     void signalColorChanged(QSharedPointer<Gene> gene);
 
 public slots:
 
     void selectAllGenesPressed(bool selected);
-    void setColorGenes (const QColor& color);
+    void setColorGenes(const QColor& color);
 
 private:
     
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
     
-    QSharedPointer<DataProxy::GeneList> genelist; //NOTE member function so we dont need to call getDatasetsbyID all the time
+    DataProxy::GeneListPtr m_genelist_reference; 
 };
 
 #endif // GENEFEATUREITEMMODEL_H

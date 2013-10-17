@@ -16,9 +16,6 @@
 
 #include "unit/libs/STCore/tst_simplecryptdevicetest.h"
 #include "unit/libs/STCore/tst_simplecrypttest.h"
-
-#include "unit/libs/STCoreWidgets/tst_lineeditcleartest.h"
-
 #include "unit/libs/STOpenGL/compression/tst_glcolortest.h"
 #include "unit/libs/STOpenGL/math/tst_glaabbtest.h"
 #include "unit/libs/STOpenGL/math/tst_glfloattest.h"
@@ -73,9 +70,6 @@ int main(int argc, char **argv)
 
     suite.addTest(new AuthTest, "Authorization");
     suite.addTest(new RestTest, "REST Services");
-    
-    //TODO init application before testing gui objects
-    //suite.addTest(new LineEditClearTest, "LineEditClear");
 
     return suite.exec();
 }

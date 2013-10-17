@@ -14,6 +14,14 @@
 #include <QAbstractButton>
 #include <QApplication>
 #include <QStyle>
+#include <QStackedWidget>
+#include <QIcon>
+
+#include "view/pages/InitPage.h"
+#include "view/pages/DatasetPage.h"
+#include "view/pages/CellViewPage.h"
+#include "view/pages/ExperimentPage.h"
+
 #include "ExtendedTabWidget.h"
 
 bool ExtendedButtonGroup::event(QEvent *event)

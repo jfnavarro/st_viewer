@@ -10,7 +10,7 @@
 
 #include <QDialog>
 
-#include <QSharedPointer>
+#include <QScopedPointer>
 #include <QList>
 
 #include <controller/data/DataProxy.h>

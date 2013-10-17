@@ -9,11 +9,11 @@
 #define	TOKENSTORAGE_H
 
 #include <QSettings>
-#include <QString>
-#include <QDebug>
-#include <QUuid>
-#include "utils/Utils.h"
 #include <QPointer>
+#include "utils/Utils.h"
+
+class QUuid;
+class QString;
 
 // TokenStorage provides a data model for authentication data.
 class TokenStorage : public QObject
@@ -37,11 +37,12 @@ public:
     inline const bool hasAccessToken() const { return m_storage->contains(Globals::SettingsAcessToken); }
     inline const bool hasRefreshToken() const { return m_storage->contains(Globals::SettingsRefreshToken); }
 
+    //cleans the content of the accesstoken
     void cleanAll();
     
 private:
 
-    QPointer<QSettings> m_storage;
+    QScopedPointer<QSettings> m_storage;
 };
 
 #endif	/* TOKENSTORAGE_H */

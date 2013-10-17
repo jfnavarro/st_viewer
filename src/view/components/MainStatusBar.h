@@ -29,6 +29,10 @@ public:
 public slots:
     
     void onDownloadProgress(const QString &fileName, qint64 bytesReceived, qint64 bytesTotal);
+    
+private:
+    
+    Q_DISABLE_COPY(MainStatusBar);
   
 };
 

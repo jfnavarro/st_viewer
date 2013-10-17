@@ -5,22 +5,25 @@
 
 */
 
-#include "TokenStorage.h"
+#include <QString>
+#include <QDebug>
+#include <QUuid>
 #include <QDateTime>
+
+#include "utils/Utils.h"
+
+#include "TokenStorage.h"
+
 
 TokenStorage::TokenStorage(QObject* parent)
     : QObject(parent), m_storage(0)
 {
-    m_storage = QPointer<QSettings>(new QSettings());
+    m_storage.reset(new QSettings());
 }
     
 TokenStorage::~TokenStorage()
 {
-  //m_storage is smart pointer
-  if(!m_storage.isNull())
-  {
-        m_storage.clear();
-  }
+    //m_storage is scoepd pointer
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken)

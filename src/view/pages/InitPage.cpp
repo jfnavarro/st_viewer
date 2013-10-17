@@ -8,13 +8,17 @@
 #include <QWidget>
 #include <QDebug>
 #include "utils/DebugHelper.h"
+
 #include "controller/error/Error.h"
 #include "controller/auth/AuthorizationManager.h"
-#include "ui_initpage.h"
+#include "controller/network/DownloadManager.h"
+#include "controller/data/DataProxy.h"
+
 #include "InitPage.h"
 
-InitPage::InitPage(QWidget *parent)
-    : QStackedWidget(parent)
+#include "ui_initpage.h"
+
+InitPage::InitPage(QWidget *parent) : QWidget(parent)
 {
     onInit();
 }
@@ -31,16 +35,6 @@ void InitPage::onInit()
     //create the start widget
     m_startWidget = new Ui::InitPage(); 
     m_startWidget->setupUi(this);
-    
-    //create login widget
-    m_loginWidget = new QWidget(this);
-    
-    //add widgets to the page
-    addWidget(m_startWidget->widget);
-    addWidget(m_loginWidget);
-    
-    //current is the login by default
-    setCurrentWidget(m_loginWidget);
     m_startWidget->user_name->setText("");
     m_startWidget->newExpButt->setEnabled(false);
     
@@ -51,9 +45,8 @@ void InitPage::onInit()
     AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
     connect(authorizationManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
     connect(authorizationManager, SIGNAL(signalError(Error*)), this, SLOT(slotAuthorizationError(Error*)));
-    connect(authorizationManager, SIGNAL(signalLoginAborted()), this, SLOT(slotAuthorizationExit()));
     
-    authorizationManager->start(m_loginWidget);  //start the authorization
+    authorizationManager->start();  //start the authorization (NOTE move outside of constructor??)
 }
 
 void InitPage::onEnter()
@@ -71,17 +64,9 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(Error *error)
 {
-    
-    // there was an error authorizing so we force log in or switch to start page??
-    
-    //m_startWidget->user_name->setText("");
-    //m_startWidget->newExpButt->setEnabled(false);
-    //setCurrentWidget(m_startWidget->widget);
-    
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
-    auth->forceAuthentication(); //authorize again
-    setCurrentWidget(m_loginWidget);   
+    auth->forceAuthentication(); //authorize again  
     emit signalError(error);
 }
 
@@ -95,7 +80,7 @@ void InitPage::slotAuthorized()
 {   
     //I have been authorized, clean data proxy and load
     
-    //NOTE user no need for this when dataproxy is completed
+    //NOTE no need for this when dataproxy is completed
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
     
@@ -120,14 +105,6 @@ void InitPage::slotAuthorized()
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotNetworkError(Error*)));
         setWaiting(true);
     }
-    
-    setCurrentWidget(m_startWidget->widget);
-}
-
-void InitPage::slotAuthorizationExit()
-{
-    //user clicked exit on login widget
-    setCurrentWidget(m_startWidget->widget);
 }
 
 void InitPage::slotUserLoaded()
@@ -190,7 +167,6 @@ void InitPage::slotLogOutButton()
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
     auth->forceAuthentication(); //authorize again
-    setCurrentWidget(m_loginWidget);
 }
 
 void InitPage::setWaiting(bool waiting)

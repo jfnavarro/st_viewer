@@ -22,14 +22,14 @@ namespace async
     class ImageProcess
     {
         public:
+            
             // Load given image from stream and convert it to an OpenGL friendly format.
             // Returns an ImageRequest object which provides a handle to the async request.
             static ImageRequest *createOpenGLImage(QIODevice *device);
+            
             // result is returned as a QImage, QTransform touple
             typedef QPair<QImage, QTransform> TransformedImage;
 
-        private:
-            // asynchroneous jobs
 		    static TransformedImage convertToGLFormat(QIODevice *device);
 	};
             
@@ -54,15 +54,13 @@ namespace async
             void signalFinished();
             
         private:
-            
-        //    friend ImageRequest *::async::createOpenGLImage(const QImage &);
 
             //NOTE OpenGL formatted image, may be huge so dont forget to delete ImageRequest
             QImage m_image;         // image data
             QTransform m_transform; // transformation data (scaling)
 
             QSize m_originalSize;
-            QSize m_scaledSize();
+            QSize m_scaledSize;
     };
 
 } // namespace async //

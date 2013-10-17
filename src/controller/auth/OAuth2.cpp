@@ -5,7 +5,12 @@
 
 */
 
+
+
 #include <QDebug>
+#include <QJsonDocument>
+#include <QString>
+#include <QUuid>
 
 #include "utils/DebugHelper.h"
 
@@ -25,23 +30,15 @@
 
 #include "OAuth2.h"
 
-OAuth2::OAuth2(QObject* parent, QWidget* parentContainer) : 
-    QObject(parent), 
-    m_loginDialog(0), 
-    m_parentContainer(parentContainer)
+OAuth2::OAuth2(QObject* parent) 
+    : QObject(parent), m_loginDialog(0)
 {
 
 }
 
 OAuth2::~OAuth2()
 {
-    //m_loginDialog will be destroyed when parent is destroyed but if parent is not given...
-    if(!m_loginDialog.isNull())
-    {
-        m_loginDialog.clear();
-    }
-    
-    //no need to delete parentContainer since it is a qwidget part of the mainwindow
+    //m_loginDialog is scoped pointer
 }
 
 void OAuth2::startQuietLogin(const QUuid& refreshToken)
@@ -73,9 +70,10 @@ void OAuth2::startInteractiveLogin()
     // lazy init 
     if(m_loginDialog.isNull())
     {
-        m_loginDialog = QPointer<LoginDialog>(new LoginDialog(m_parentContainer));
+        m_loginDialog.reset(new LoginDialog());
         connect(m_loginDialog.data(), SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
-        connect(m_loginDialog.data(), SIGNAL(acceptLogin(QString,QString)), this, SLOT(slotEnterDialog(QString,QString)));
+        connect(m_loginDialog.data(), SIGNAL(acceptLogin(const QString&, const QString&)), this, 
+                SLOT(slotEnterDialog(const QString&, const QString&)));
     }
     
     m_loginDialog->clear();
@@ -84,7 +82,7 @@ void OAuth2::startInteractiveLogin()
     m_loginDialog->activateWindow();
 }
 
-void OAuth2::slotEnterDialog(QString username, QString password)
+void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 {   
     qDebug() << "[OAuth2] Trying to log in with = " << username << " " << password;
     
@@ -115,7 +113,7 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
         connect(request, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
     }
     
-    delete cmd;
+    cmd->deleteLater();
 }
 
 void OAuth2::slotNetworkReply(QVariant code, QVariant data)
@@ -153,9 +151,6 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         QUuid accessToken = QUuid(dto.accessToken());
         int expiresIn = dto.expiresIn();
         QUuid refreshToken = QUuid(dto.refreshToken());
-        
-//         //add the acepted username to the list of valid users
-//         m_loginDialog->setUsername(m_loginDialog->getCurrentUser());
         
         if (!accessToken.isNull() && (expiresIn >= 0) && !refreshToken.isNull())
         {

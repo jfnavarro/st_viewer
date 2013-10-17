@@ -36,14 +36,13 @@ namespace async
             CodeTimedOut = 0x08,
             CodePresent = 0x16
         };
-        Q_DECLARE_FLAGS(ReturnCodes, Code); 
+        Q_DECLARE_FLAGS(ReturnCodes, Code);
         
+        inline ReturnCodes return_code() { return m_return_code; }
+       
         explicit DataRequest(QObject* parent = 0);
         virtual ~DataRequest();
-        
-        inline void return_code(Code code){m_return_code = code;}
-        inline ReturnCodes return_code(){return m_return_code;}
-        
+
     public slots:
         
         //this is to be used from a page
@@ -66,6 +65,8 @@ namespace async
         ReturnCodes m_return_code;
         
     };
+    
+    Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes)
     
     class DownloadManager: public QObject
     {

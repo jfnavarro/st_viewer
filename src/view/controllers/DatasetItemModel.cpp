@@ -7,10 +7,14 @@
 
 #include "model/Dataset.h"
 
+#include <QModelIndex>
+#include <QModelIndex>
+#include <QStandardItemModel>
+
 #include "DatasetItemModel.h"
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
-    : QAbstractTableModel(parent)
+    : QAbstractTableModel(parent),m_datasets_reference(0)
 {
 
 }
@@ -25,15 +29,15 @@ bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, 
     return QAbstractItemModel::setData(index, value, role);
 }
 
-QVariant DatasetItemModel::data ( const QModelIndex& index, int role ) const
+QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
 {
     // early out
-    if (!index.isValid())
+    if (!index.isValid() || m_datasets_reference.isNull())
     {
         return QVariant(QVariant::Invalid);
     }
 
-    DataProxy::DatasetPtr item = DataProxy::getInstance()->getDatasetMap()->values().at(index.row()); //TODO too much exposure..
+    DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
     
     if (role == Qt::DisplayRole)
     {
@@ -95,7 +99,7 @@ int DatasetItemModel::columnCount(const QModelIndex& parent) const
 
 int DatasetItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : DataProxy::getInstance()->getDatasetMap()->count();
+    return parent.isValid() ? 0 : m_datasets_reference->count();
 }
 
 Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
@@ -112,5 +116,17 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
 void DatasetItemModel::loadDatasets()
 {
     beginResetModel();
+    m_datasets_reference.clear(); //NOTE genelist is just a reference
+    DataProxy* dataProxy = DataProxy::getInstance();
+    m_datasets_reference = dataProxy->getDatasetList();
     endResetModel();
+}
+
+void DatasetItemModel::datasetSelected(const QModelIndex &index)
+{   
+    if(index.isValid())
+    {
+        DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
+        emit datasetSelected(item);
+    }
 }

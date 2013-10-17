@@ -5,7 +5,6 @@
 
 */
 
-
 #ifndef DATASTORE_H
 #define DATASTORE_H
 
@@ -29,6 +28,7 @@ class DataStore : public ResourceStore, public Singleton<DataStore>
     Q_OBJECT
 
 public:
+    
     explicit DataStore(QObject* parent = 0);
     virtual ~DataStore();
 
@@ -41,9 +41,13 @@ public:
     virtual void clearResources();
     
 signals:
+    
     void signalError(Error* error);
 
 private:
+    
+    Q_DISABLE_COPY(DataStore);
+    
     void loadResourceMap();
     void saveResourceMap();
 

@@ -19,13 +19,17 @@
 #include <QAuthenticator>
 #include <QNetworkDiskCache>
 #include <QDesktopServices>
+#include <QHostInfo>
 
 #include "utils/DebugHelper.h"
+
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
 #include "NetworkManager.h"
+
 #include "controller/auth/AuthorizationManager.h"
 #include "controller/error/Error.h"
+
 #include "utils/config/Configuration.h"
 
 NetworkManager::NetworkManager(QObject* parent): QObject(parent), m_nam(0)
@@ -50,29 +54,30 @@ void NetworkManager::init()
         m_nam->setProxy(proxy);
     #endif
 
-    //add ssl support  (we need the public key) //TODO finish and try this (me dunno like ignoring ssl errors)
+    //TODO I should only use optimization features if the flags tell me to do so
+    
+    Configuration* config = Configuration::getInstance();
+    
+    //NOTE make DND look up ahead of time
+    QHostInfo::lookupHost(config->EndPointUrl(),0,0);
+    
+    //NOTE connect to the HTTPS TCP port ahead of time
+    m_nam->connectToHostEncrypted(config->EndPointUrl());
+    
+    //NOTE add ssl support  (we need the public key) //TODO finish and try this (me dunno like ignoring ssl errors)
     //QFile cafile(":public_key.pem");
     //cafile.open(QIODevice::ReadOnly);
     //QSslCertificate cert(&cafile);
     //QSslSocket::addDefaultCaCertificate(cert);
 
-    //add cache support (not really useful for downloading data)
-//     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
-//     QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-//     diskCache->setCacheDirectory(location);
-//     diskCache->setMaximumCacheSize(1000*1024*1024); // 1GB
-//     m_nam->setCache(diskCache);
-    
-    //add https proxy (could be useful to avoid the authentication)
-//     Configuration* config = Configuration::getInstance();
-//     QNetworkProxy proxy(QNetworkProxy::HttpProxy," ",0,
-//                         config->oauthClientID(),
-//                         config->oauthSecret());
-//     m_nam->setProxy(proxy);  
+    //NOTE add cache support (not really useful for downloading data)
+    QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
+    QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    diskCache->setCacheDirectory(location);
+    diskCache->setMaximumCacheSize(1000*1024*1024); // 1GB
+    m_nam->setCache(diskCache);
     
     //we want to provide Authentication to our oAuth based servers       
-    connect(m_nam, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)), 
-            SLOT(provideProxyAuthentication(const QNetworkProxy &, QAuthenticator *)));
     connect(m_nam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
             SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
 }
@@ -83,13 +88,6 @@ void NetworkManager::finalize()
     {
         m_nam.clear();
     }
-}
-
-void NetworkManager::provideProxyAuthentication(const QNetworkProxy &proxy, QAuthenticator *authenticator)
-{
-    Configuration* config = Configuration::getInstance();
-    authenticator->setUser(config->oauthClientID());
-    authenticator->setPassword(config->oauthSecret());
 }
 
 void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
@@ -125,9 +123,17 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     //creating the request
     QNetworkRequest request;
     
+    //TODO I should only use optimization features if the flags tell me to do so
+    
     //NOTE add caching to request (only if network caching is active)
-    //request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
 
+    //NOTE add pipeline to the request
+    request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute,true);
+    
+    //NOTE add high priority 
+    request.setPriority(QNetworkRequest::HighPriority);
+    
     switch (cmd->type())
     {
         case Globals::HttpRequestTypeGet:

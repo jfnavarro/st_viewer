@@ -9,10 +9,7 @@
 #define GENEEXPORTER_H
 
 #include <QObject>
-#include <QSharedPointer>
-#include <QVector>
-
-#include "model/FeatureExtended.h"
+#include "controller/data/DataProxy.h"
 
 class QIODevice;
 
@@ -20,15 +17,11 @@ class QIODevice;
 class GeneExporter : public QObject
 {
 public:
-    
-    typedef FeatureExtended FeatureType;
-    typedef QSharedPointer<FeatureType> FeaturePtr;
-    typedef QVector<FeaturePtr> FeatureList;
 
     GeneExporter(QObject *parent = 0);
     virtual ~GeneExporter();
 
-    virtual void exportItem(QIODevice *device, const FeatureList &featureList, const QObject &context) const = 0;
+    virtual void exportItem(QIODevice *device, const DataProxy::FeatureList&, const QObject &context) const = 0;
 
     typedef QList<QString> PropertyList;
     void addExportProperty(const QString &property);

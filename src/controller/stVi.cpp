@@ -36,6 +36,10 @@
 #include "controller/error/ErrorManager.h"
 #include "controller/error/ServerError.h"
 #include "controller/network/RESTCommandFactory.h"
+#include "controller/network/NetworkManager.h"
+#include "controller/network/NetworkReply.h"
+#include "controller/network/NetworkCommand.h"
+#include "controller/data/DataProxy.h"
 
 #include "data/DataStore.h"
 
@@ -43,8 +47,6 @@
 #include "view/components/MainMenuBar.h"
 #include "view/components/ExtendedTabWidget.h"
 #include "view/components/MainStatusBar.h"
-
-
 
 #include "stVi.h"
 
@@ -121,20 +123,6 @@ int stVi::checkSystemRequirements()
         return 0;
     }    
     
-    //NOTE disabled for now
-    size_t ram_memory = Utils::getMemorySize();
-    //size_t limit = 2147483648u; // < 2GB (should get this from config file)
-	size_t limit = 1073741824u; // < 1GB (should get this from config file)
-    
-    if(ram_memory != 0L && ram_memory < limit) 
-    {
-        //QMessageBox::information(0, "MEMORY",
-        //                         "This system does not have enough RAM Memory");
-        //return 0;        
-        qDebug() << "[Main] System RAM : " << ram_memory;
-    }
-    
-    
     //TODO move this network call to dataproxy and and oject parser
     
     // check if the version is supported in the server and check for updates    
@@ -145,7 +133,7 @@ int stVi::checkSystemRequirements()
     connect(reply, SIGNAL(signalFinished(QVariant,QVariant)), &loop, SLOT(quit()));  
     loop.exec();
     
-    delete cmd;
+    cmd->deleteLater();
     
     if(!reply)
     {

@@ -8,51 +8,24 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QWidget>
-#include <QString>
+#include <QDialog>
 
-class QLineEdit;
-class QLabel;
-class QDialogButtonBox;
 class QCompleter;
+class QString;
 
-class LoginDialog : public QWidget
+namespace Ui
+{
+    class LogIn;
+} // namespace Ui //
+
+class LoginDialog : public QDialog
 {
 
     Q_OBJECT
     
-private:
-
-    QLabel* labelUsername;
-    
-    QLabel* labelPassword;
-    
-    QLabel* labelHeader;
-    
-    QLabel* labelError;
-    
-    QCompleter *completer;
-    
-    QLineEdit* editPassword;
-
-    QLineEdit* editUSerName;
-    
-    QDialogButtonBox* buttons;
-
-    //init graphic stuff
-    void setUpGUI();
-    
-    //load users from qsettings
-    void loadUsers();
-    
-    //save users from qsettings
-    void saveUsers();
-    
-    virtual void keyPressEvent(QKeyEvent *e);
-    
 public:
     
-    explicit LoginDialog(QWidget *parent = 0);
+    explicit LoginDialog(QDialog *parent = 0);
     
 	virtual ~LoginDialog();
     
@@ -69,25 +42,37 @@ public:
     
     const QString getCurrentPassword() const;
     
-    //Sets the current header of the login form
-    void setLabelHeader(const QString& header);
-    
-    //Sets the error message (if any) of the login form
-    void setLabelError(const QString& error);
-    
 signals:
     
     //A signal emitted when the login is performed.
-    void acceptLogin(QString username, QString password);
+    void acceptLogin(const QString&, const QString&);
     
     //A signal emitted when the login is closed
     void exitLogin();
     
 public slots:
     
-    //A lot to adjust the emitting of the signal.
-    void slotAcceptLogin();
+    //A slot to adjust the emitting of the signal.
+    void slotAcceptLogin();   
     
+private:
+    
+    Ui::LogIn *ui;
+    
+    QCompleter *m_completer;
+    
+    //init graphic stuff
+    void setUpGUI();
+    
+    //load users from qsettings
+    void loadUsers();
+    
+    //save users from qsettings
+    void saveUsers();
+    
+protected:
+    
+    virtual void keyPressEvent(QKeyEvent *e);
 };
 
 

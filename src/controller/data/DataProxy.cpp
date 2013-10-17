@@ -46,7 +46,7 @@ DataProxy::DataProxy()
 
 DataProxy::~DataProxy()
 {
-    //NOTE every allocation is done with QSharedPointer, thus
+    //NOTE every allocation is done with QScopedPointer, thus
     // there should not be memory leaks
     
     //TODO clean download pool ?
@@ -55,16 +55,16 @@ DataProxy::~DataProxy()
 void DataProxy::init()
 {
     // initialize data containers
-    m_datasetMap = QSharedPointer<DatasetMap>(new DatasetMap());
-    m_geneMap = QSharedPointer<GeneMapMap>(new GeneMapMap());
-    m_geneListMap = QSharedPointer<GeneListMap>(new GeneListMap());
-    m_chipMap = QSharedPointer<ChipMap>(new ChipMap());
-    m_featureMap = QSharedPointer<FeatureMapMap>(new FeatureMapMap());
-    m_featureListMap = QSharedPointer<FeatureListMap>(new FeatureListMap());
-    m_geneFeatureListMap = QSharedPointer<FeatureListGeneMap>(new FeatureListGeneMap());
-    m_userExperimentMap = QSharedPointer<UserExperimentMap>(new UserExperimentMap());
-    m_user = QSharedPointer<User>(new User());
-    m_hitCountMap = QSharedPointer<HitCountMap>(new HitCountMap());
+    m_datasetMap = QScopedPointer<DatasetMap>(new DatasetMap());
+    m_geneMap = QScopedPointer<GeneMapMap>(new GeneMapMap());
+    m_geneListMap = QScopedPointer<GeneListMap>(new GeneListMap());
+    m_chipMap = QScopedPointer<ChipMap>(new ChipMap());
+    m_featureMap = QScopedPointer<FeatureMapMap>(new FeatureMapMap());
+    m_featureListMap = QScopedPointer<FeatureListMap>(new FeatureListMap());
+    m_geneFeatureListMap = QScopedPointer<FeatureListGeneMap>(new FeatureListGeneMap());
+    m_userExperimentMap = QScopedPointer<UserExperimentMap>(new UserExperimentMap());
+    m_user = QScopedPointer<User>(new User());
+    m_hitCountMap = QScopedPointer<HitCountMap>(new HitCountMap());
 }
 
 void DataProxy::finalize()
@@ -534,7 +534,7 @@ async::DataRequest* DataProxy::loadDatasets()
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -557,7 +557,7 @@ async::DataRequest* DataProxy::loadDatasetByDatasetId(const QString& datasetId)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -578,7 +578,7 @@ async::DataRequest* DataProxy::updateDataset(const Dataset& dataset)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -607,7 +607,7 @@ async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -635,7 +635,7 @@ async::DataRequest* DataProxy::loadChipById(const QString& chipId)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -664,7 +664,7 @@ async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -695,7 +695,7 @@ async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& data
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -724,7 +724,7 @@ async::DataRequest* DataProxy::loadHitCountByDatasetId(const QString& datasetId)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -740,7 +740,7 @@ async::DataRequest* DataProxy::loadUser()
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -770,7 +770,7 @@ async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
     NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
     
     //delete the command
-    delete cmd;
+    cmd->deleteLater();
     
     return createRequest(reply);
 }
@@ -793,7 +793,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
-        delete cmd;
+        cmd->deleteLater();
     }
     
     DataProxy::UserPtr current_user = getUser();
@@ -807,7 +807,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
-        delete cmd;
+        cmd->deleteLater();
     }
     
      if(!(bool)hasHitCount(datasetId))
@@ -831,7 +831,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
-        delete cmd;
+        cmd->deleteLater();
     }
     
     if(!(bool)hasChip(dataset->chipId()))
@@ -842,7 +842,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
-        delete cmd;
+        cmd->deleteLater();
     }
     
     if(!(bool)hasGene(datasetId))
@@ -854,7 +854,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
-        delete cmd;
+        cmd->deleteLater();
     }
     
     if(replies.isEmpty())

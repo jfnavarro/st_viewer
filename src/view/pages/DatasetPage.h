@@ -10,7 +10,12 @@
 
 #include <QWidget>
 
+#include "controller/data/DataProxy.h"
+
+class QItemSelectionModel;
 class DatasetItemModel;
+class QItemSelection;
+
 namespace Ui
 {
     class DataSets;
@@ -39,8 +44,6 @@ signals:
     void moveToNextPage();
     void moveToPreviousPage();
 
-    void datasetSelected(const QString& datasetId);
-
 public slots:
 
     void onInit();
@@ -48,27 +51,21 @@ public slots:
     void onExit();
 
     void slotDataError(Error*);
-    
-    void datasetSelected(QModelIndex index);
+
+    void datasetSelected(DataProxy::DatasetPtr);
     
     void refreshDatasets();
     
     void loadData();
     void dataLoaded();
     
-protected:
-
-    DatasetItemModel *datasetModel;
-
 private:
     
     Ui::DataSets *ui;
-
-    //TODO move to abstract super class!
+    DatasetItemModel *m_datasetModel;
+    
     void setWaiting(bool waiting = true);
 
-    /* selected dataset */
-    QString m_datasetId;
 };
 
 #endif	/* DATASETPAGE_H */

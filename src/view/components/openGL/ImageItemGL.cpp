@@ -45,9 +45,6 @@ void ImageItemGL::clear()
     // image data
     m_texture.deallocate();
     m_image = QImage();
-
-    // dataset reference
-    m_datasetId.clear();
 }
 
 void ImageItemGL::reset()
@@ -132,14 +129,6 @@ QPainterPath ImageItemGL::opaqueArea() const
     return QGraphicsItem::opaqueArea();
 }
 
-void ImageItemGL::setDataset(const QString& datasetId) 
-{
-    if (datasetId != m_datasetId)
-    {
-        clear();
-        m_datasetId = datasetId;
-    }
-}
 void ImageItemGL::visible(bool visible)
 {
     setVisible(visible);

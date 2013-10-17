@@ -6,7 +6,13 @@
 */
 
 #include <QDebug>
+#include <QUuid>
+
 #include "utils/DebugHelper.h"
+
+#include "controller/auth/OAuth2.h"
+
+
 #include "AuthorizationManager.h"
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
@@ -22,31 +28,21 @@ AuthorizationManager::~AuthorizationManager()
 
 void AuthorizationManager::finalize()
 {
-    //m_oAuth2 will be deleted when parent container is deleted but 
-    //if only if parent container has been passed
-    if(!m_oAuth2.isNull())
-    {
-        m_oAuth2.clear();
-    }
-
-    if(!m_tokenStorage.isNull())
-    {
-        m_tokenStorage.clear();
-    }
+    //m_oAuth2 and m_tokenStorage are scoped pointers
 }
 
 
 void AuthorizationManager::init()
 {
-    m_tokenStorage = QPointer<TokenStorage>(new TokenStorage());
+    m_tokenStorage.reset(new TokenStorage());
 }
 
-void AuthorizationManager::start(QWidget* parentContainer)
+void AuthorizationManager::start()
 {
     //lazy init
     if(m_oAuth2.isNull())
     {
-        m_oAuth2 = QPointer<OAuth2>(new OAuth2(this,parentContainer));
+        m_oAuth2.reset(new OAuth2(this));
         
         connect(m_oAuth2.data(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));

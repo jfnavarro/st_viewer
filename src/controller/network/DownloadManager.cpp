@@ -47,9 +47,10 @@ namespace async
     {
         if(!m_request.isNull())
         {
-            m_request.clear();
+            delete m_request;
         }
         
+        //NOTE elements of replies and errors are deleted by their owners
         m_reply_list.clear();
         m_error_list.clear();
     }

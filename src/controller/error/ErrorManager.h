@@ -32,11 +32,11 @@ public slots:
     
     void slotHandleError(Error* error);
 
-private slots:
-
 private:
     
-    QPointer<QErrorMessage>  m_errorDialog;
+    Q_DISABLE_COPY(ErrorManager);
+    
+    QPointer<QErrorMessage> m_errorDialog;
     QPointer<QWidget> m_parentContainer;
 };
 

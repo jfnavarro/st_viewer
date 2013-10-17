@@ -33,7 +33,10 @@ public:
     enum NetworkFlag
     {
         Empty = 0x0,
-        UseAuthentication = 0x1
+        UseAuthentication = 0x1,
+        UseCache = 0x2,
+        UsePipelineMode = 0x4,
+        UseHighPriority = 0x8
     };
     
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
@@ -50,8 +53,8 @@ public:
 
 private slots:
     
+    //if remote server requires authentication
     void provideAuthentication(QNetworkReply*, QAuthenticator*); 
-    void provideProxyAuthentication(const QNetworkProxy&, QAuthenticator*);
     
 private:
     

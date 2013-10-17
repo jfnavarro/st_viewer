@@ -22,9 +22,9 @@
 #include "ui_datasets.h"
 
 DatasetPage::DatasetPage(QWidget *parent)
-    : QWidget(parent), ui(new Ui::DataSets), m_datasetId("")
+    : QWidget(parent), ui(new Ui::DataSets), m_datasetModel(0)
 {
-    ui->setupUi(this);
+    
     onInit();
 }
 
@@ -37,9 +37,12 @@ void DatasetPage::onInit()
 {
     DEBUG_FUNC_NAME
     
-    /* model view for the collections tree */
-    datasetModel = new DatasetItemModel();
-    ui->datasets_tableview->setModel(datasetModel);
+    ui->setupUi(this);
+    
+    //crearte model for the table view
+    m_datasetModel = new DatasetItemModel(this);
+    //create selection model for table view
+    ui->datasets_tableview->setModel(m_datasetModel);
     
     //NOTE item delegate is not finished yet
     //ui->datasets_tableview->setItemDelegate(new DatasetsViewItemDelegate(this));
@@ -63,11 +66,15 @@ void DatasetPage::onInit()
     ui->datasets_tableview->verticalHeader()->hide();
     ui->datasets_tableview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->datasets_tableview->setSelectionMode(QAbstractItemView::SingleSelection);
-    datasetModel->sort(0, Qt::AscendingOrder);
+    m_datasetModel->sort(0, Qt::AscendingOrder);
     
-    //dataset list view signlas
+    //notify the model I have selected a dataset TODO should be a better way to do this
     connect(ui->datasets_tableview, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(datasetSelected(QModelIndex)));
+           m_datasetModel ,SLOT(datasetSelected(QModelIndex)));
+    
+    connect(m_datasetModel, SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
+            this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
+    
     connect(ui->backtodatasets, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()));
 }
@@ -77,7 +84,7 @@ void DatasetPage::onEnter()
     DEBUG_FUNC_NAME
 
     // refresh datasets on the model and clear selection/focus
-    datasetModel->loadDatasets();
+    m_datasetModel->loadDatasets();
     ui->datasets_tableview->clearSelection();  
     ui->datasets_tableview->clearFocus();
     ui->abort->clearFocus();
@@ -96,28 +103,25 @@ void DatasetPage::slotDataError(Error *error)
     emit signalError(error);
 }
 
-void DatasetPage::datasetSelected(QModelIndex index)
+void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 {
-    if (index.isValid())
-    {
-        //TODO dont expose internal structure (send dataset object from datasetModel instead)
-        m_datasetId = DataProxy::getInstance()->getDatasetMap()->values().at(index.row())->id();
 
-        if (m_datasetId.isEmpty())
-        {
-            emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));
-        }
-        else
-        {
-            loadData();
-        }
+    if(item.isNull() || item->id().isEmpty())
+    {
+        emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));
     }
+    else
+    {
+        DataProxy::getInstance()->setSelectedDataset(item->id());
+        loadData();
+    }
+    
 }
 
 void DatasetPage::loadData()
 {
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(m_datasetId);
+    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
 
     if (dataset.isNull())
     {
@@ -138,7 +142,6 @@ void DatasetPage::loadData()
     }
     else if(request->return_code() == async::DataRequest::CodePresent)
     {    
-        emit datasetSelected(m_datasetId);
         emit moveToNextPage();
     }
     else
@@ -159,7 +162,6 @@ void DatasetPage::dataLoaded()
 
     if(request->return_code() == async::DataRequest::CodeSuccess) //ignore when abort/timedout or error
     {
-        emit datasetSelected(m_datasetId);
         emit moveToNextPage();
     }
 }
@@ -182,11 +184,11 @@ void DatasetPage::refreshDatasets()
     else if(request->return_code() == async::DataRequest::CodePresent)
     {
         //NOTE this should not happen (dataproxy was cleaned)
-        datasetModel->loadDatasets();
+        m_datasetModel->loadDatasets();
     }
     else
     {    
-        connect(request, SIGNAL(signalFinished()), datasetModel, SLOT(loadDatasets())); 
+        connect(request, SIGNAL(signalFinished()), m_datasetModel, SLOT(loadDatasets())); 
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotDataError(Error*)));
         //no need to wait here, if error it will load nothing, no abort signal neither
     }

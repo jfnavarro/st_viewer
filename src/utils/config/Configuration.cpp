@@ -22,7 +22,7 @@ Configuration::Configuration(QObject *parent)
 
 Configuration::~Configuration()
 {
-
+    //no need to delete m_settings
 }
 
 void Configuration::init()
@@ -30,7 +30,7 @@ void Configuration::init()
     QSettings::Format format = QSettings::registerFormat(
         "conf", &SettingsFormatXML::readXMLFile,
         &SettingsFormatXML::writeXMLFile);
-    m_settings = new QSettings(":/config/application.conf", format, this);
+    m_settings = QPointer<QSettings>(new QSettings(":/config/application.conf", format, this));
 }
 
 void Configuration::finalize()

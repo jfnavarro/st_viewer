@@ -8,16 +8,17 @@
 #ifndef AUTHORIZATIONMANAGER_H
 #define	AUTHORIZATIONMANAGER_H
 
-#include <QDebug> 
+
 #include <QObject>
-#include <QUuid>
 #include <QPointer>
+#include <QUuid>
 
-#include "utils/Singleton.h"
-#include "controller/auth/OAuth2.h"
 #include "controller/auth/TokenStorage.h"
+#include "utils/Singleton.h"
 
+class OAuth2;
 class QWidget; 
+class Error;
 
 //  This class implements singleton pattern. It gives an interface for oAuth2 authorization 
 //  trough the objects OAuth2 and TokenStorage.
@@ -37,14 +38,15 @@ public:
     void finalize();
     void init();
     
-    //initilize the log in over a QWidget container
-    void start(QWidget* parentContainer = 0);
+    //initilize the log in on the QApp (modal)
+    void start();
     
     //clean access token
     void cleanAccesToken();
     
     inline const bool isAuthenticated() const { return m_tokenStorage->hasAccessToken() 
                                                 && !m_tokenStorage->isExpired(); }
+    //force to log out and clean cache
     void forceAuthentication();
 
     inline const bool hasAccessToken() const { return m_tokenStorage->hasAccessToken(); }
@@ -62,8 +64,10 @@ private slots:
 
 private:
     
-    QPointer<OAuth2> m_oAuth2;
-    QPointer<TokenStorage> m_tokenStorage;
+    Q_DISABLE_COPY(AuthorizationManager);
+    
+    QScopedPointer<OAuth2> m_oAuth2;
+    QScopedPointer<TokenStorage> m_tokenStorage;
 
 };
 

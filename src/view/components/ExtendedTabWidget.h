@@ -9,17 +9,15 @@
 #define EXTENDEDTABWIDGET_H
 
 #include <QWidget>
-#include <QIcon>
 #include <QButtonGroup>
 #include <QPushButton>
 #include <QMouseEvent>
 
-#include "view/pages/InitPage.h"
-#include "view/pages/DatasetPage.h"
-#include "view/pages/CellViewPage.h"
-#include "view/pages/ExperimentPage.h"
-
-
+class InitPage;
+class DatasetPage;
+class CellViewPage;
+class ExperimentPage;
+class QIcon;
 class QComboBox;
 class QStackedWidget;
 class QVBoxLayout;

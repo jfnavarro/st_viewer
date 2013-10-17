@@ -127,9 +127,6 @@ void GenePlotterGL::clear()
     m_geneInfoReverse.clear();
     m_geneInfoByIdx.clear();
     m_geneInfoQuadTree.clear();
-
-    // dataset reference
-    m_datasetId = QString();
 }
 
 void GenePlotterGL::reset()
@@ -231,15 +228,6 @@ QPainterPath GenePlotterGL::opaqueArea() const
     return QGraphicsObject::opaqueArea();
 }
 
-void GenePlotterGL::setDataset(const QString& datasetId)
-{
-    if (datasetId != m_datasetId)
-    {
-        clear();
-        m_datasetId = datasetId;
-    }
-}
-
 void GenePlotterGL::setHitCount(int min, int max, int sum)
 {
     m_hitCountMin = min;
@@ -300,10 +288,10 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
     }
 }
 
-void GenePlotterGL::updateGeneColor(QSharedPointer<Gene> gene)
+void GenePlotterGL::updateGeneColor(QScopedPointer<Gene> gene)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(m_datasetId, gene->name());
+    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     
     GL::GLElementRectangleFactory factory(m_geneData);
 
@@ -349,10 +337,10 @@ void GenePlotterGL::updateGeneColor(QSharedPointer<Gene> gene)
 
     update(boundingRect());
 }
-void GenePlotterGL::updateGeneSelection(QSharedPointer<Gene> gene)
+void GenePlotterGL::updateGeneSelection(QScopedPointer<Gene> gene)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(m_datasetId, gene->name());
+    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     
     GL::GLElementRectangleFactory factory(m_geneData);
 
@@ -436,7 +424,7 @@ void GenePlotterGL::updateGeneData()
 void GenePlotterGL::updateChipSize()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetMap()->value(m_datasetId);
+    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     const QString chipId = (dataset != 0) ? dataset->chipId() : QString();
     DataProxy::ChipPtr currentChip = dataProxy->getChip(chipId);
 
@@ -471,7 +459,7 @@ void GenePlotterGL::updateChipSize()
 void GenePlotterGL::updateTransformation()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetMap()->value(m_datasetId);
+    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
 
     // early out
     if (dataset.isNull())
@@ -505,7 +493,7 @@ void GenePlotterGL::selectAll(const DataProxy::GeneList &geneList)
     DataProxy::FeatureList aggregateFeatureList;
     foreach (DataProxy::GenePtr gene, geneList)
     {
-        aggregateFeatureList << *(dataProxy->getGeneFeatureList(m_datasetId, gene->name()));
+        aggregateFeatureList << *(dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name()));
     }
     selectAll(aggregateFeatureList);
 }
@@ -648,7 +636,7 @@ void GenePlotterGL::generateGridData()
 void GenePlotterGL::generateGeneData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(m_datasetId);
+    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     const GL::GLflag flags =
         GL::GLElementShapeFactory::AutoAddColor |
@@ -707,7 +695,7 @@ void GenePlotterGL::generateGeneData()
 void GenePlotterGL::updateGeneVisualData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(m_datasetId);
+    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     GL::GLElementRectangleFactory factory(m_geneData);
 
@@ -729,7 +717,7 @@ void GenePlotterGL::updateGeneVisualData()
         const GL::GLindex vdi = lookup->vertexDataIndex;
         const GL::GLindex idi = lookup->indexDataIndex;
 
-        DataProxy::GenePtr gene = dataProxy->getGene(m_datasetId, feature->gene());
+        DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
         const bool selected = gene->selected();
 
         // bump ref count
@@ -754,7 +742,7 @@ void GenePlotterGL::updateGeneVisualData()
 void GenePlotterGL::updateGeneSizeData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(m_datasetId);
+    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     GL::GLElementRectangleFactory factory(m_geneData);
 

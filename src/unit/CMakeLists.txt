@@ -27,8 +27,6 @@ set(LIB_ST_CORE
 )
 
 set(LIB_ST_CORE_WIDGETS 
-	libs/STCoreWidgets/tst_lineeditcleartest.cpp
-	libs/STCoreWidgets/tst_lineeditcleartest.h
 )
 
 set(LIB_ST_NETWORK

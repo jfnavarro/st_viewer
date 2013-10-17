@@ -10,6 +10,7 @@
 
 #include <QSettings>
 #include <QString>
+#include <QPointer>
 
 #include "utils/Singleton.h"
 
@@ -21,7 +22,7 @@ class Configuration : public QObject, public Singleton<Configuration>
     Q_OBJECT
 public:
 
-    Configuration(QObject *parent = 0);
+    explicit Configuration(QObject *parent = 0);
     virtual ~Configuration();
 
 	// singleton initialize/finalize
@@ -34,7 +35,10 @@ public:
 	//     configurations store the access string literals as static values
 	//     and make readSetting public instead. doesn't make sense to provide
 	//     each setting as a function.
-
+    
+    //url 
+    inline const QString EndPointUrl() const { return readSetting(QStringLiteral("application/url")); };
+    
     //version
     inline const QString dataEndpointMinVersion() const { return readSetting(QStringLiteral("data/endpoints/version")); }
     
@@ -58,9 +62,11 @@ public:
 
 private:
 
+    Q_DISABLE_COPY(Configuration);
+    
     const QString readSetting(const QString& key) const;
 
-    QSettings* m_settings;
+    QPointer<QSettings> m_settings;
 };
 
 #endif	/* CONFIGURATION_H */

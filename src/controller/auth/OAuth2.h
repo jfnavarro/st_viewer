@@ -9,13 +9,12 @@
 #define OAUTH2_H
 
 #include <QObject>
-#include <QString>
-#include <QUuid>
-#include <QDebug>
 #include <QPointer>
 
 class LoginDialog;
 class Error;
+class QUuid;
+class QString;
 
 // simple class that handles OAuth2 authorization requests
 // it contains a LogIn widget to let the user input the credentials
@@ -30,7 +29,7 @@ public:
     typedef QPair<QString,QString> StringPair;
     
     //parent container should be qwidget
-    OAuth2(QObject* parent, QWidget* parentContainer = 0);
+    explicit OAuth2(QObject* parent);
     
     virtual ~OAuth2();
     
@@ -51,7 +50,7 @@ private slots:
     void slotNetworkReply(QVariant code, QVariant data);
 
     //user enters log in (called from log in component) can be used to try log in with hardcoded credentials
-    void slotEnterDialog(QString,QString);
+    void slotEnterDialog(const QString&, const QString&);
 
 private:
     
@@ -59,10 +58,7 @@ private:
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 
     // login dialog component
-    QPointer<LoginDialog> m_loginDialog;
-    
-    // parent container for login dialog
-    QWidget *m_parentContainer;
+    QScopedPointer<LoginDialog> m_loginDialog;
 };
 
 #endif // OAUTH2_H
