@@ -284,8 +284,8 @@ void ExtendedTabWidget::createPages()
     cellview = new CellViewPage(stackWidget);
     addTab(cellview, QIcon(QStringLiteral(":/images/gene.png")), "Cell View");
     
-    //     experiments = new ExperimentPage(this);
-    //     addTab(experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Experiments");
+    experiments = new ExperimentPage(this);
+    addTab(experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
 }
 
 void ExtendedTabWidget::createActions()
@@ -297,17 +297,14 @@ void ExtendedTabWidget::createActions()
     connect(datasets, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
     connect(cellview, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
     connect(cellview, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
-    //connect(experiments, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()) );
-    //connect(experiments, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()) );
+    connect(experiments, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()) );
+    connect(experiments, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()) );
     
     // propagate error signals
     connect(startpage, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     connect(datasets, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     connect(cellview, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
-    //connect(experiments,SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)) );
-    
-    // signal to pass the selected dataset id from dataset page to cell view page
-    connect(datasets, SIGNAL(datasetSelected(QString)), cellview, SLOT(datasetSelected(QString)) );
+    connect(experiments,SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)) ); 
 }
 
 void ExtendedTabWidget::resetStatus()

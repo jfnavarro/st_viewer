@@ -89,8 +89,8 @@ public slots:
     void setSelectionArea(const SelectionEvent *event);
 
     // update gene render list
-    void updateGeneColor(QScopedPointer<Gene> gene);
-    void updateGeneSelection(QScopedPointer<Gene> gene);
+    void updateGeneColor(DataProxy::GenePtr gene);
+    void updateGeneSelection(DataProxy::GenePtr gene);
 
     void setGeneVisible(bool geneVisible);
     void setGeneShape(int geneShape);

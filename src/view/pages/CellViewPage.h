@@ -156,8 +156,7 @@ protected:
 
     // selection dialogs
     SelectionDialog *selectionDialog;
-    // selected dataset
-    mutable QString m_datasetId;
+
     // is in selection mode?
     bool m_selection_mode;
 

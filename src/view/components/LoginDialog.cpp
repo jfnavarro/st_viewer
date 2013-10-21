@@ -10,36 +10,36 @@
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
-#include <QHBoxLayout>
 #include <QDesktopWidget>
-#include <QLineEdit>
-#include <QLabel>
-#include <QPushButton>
-#include <QVariant>
-#include <QButtonGroup>
-#include <QDialogButtonBox>
-#include <QGridLayout>
 #include <QSettings>
 #include <QKeyEvent>
 #include <QCompleter>
 #include <QString>
+#include <QApplication>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QSet>
 
 #include "utils/Utils.h"
 #include "ui_login.h"
 
 LoginDialog::LoginDialog(QDialog *parent): QDialog(parent),ui(0)
 {
+    
+    //init UI
+    ui = new Ui::LogIn();
+    ui->setupUi(this);
+
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
     //load users and create completer
     loadUsers();
+    //set the completer to the username field
+    ui->username->setCompleter(m_completer);
     
-    //inig gui elements
-    setUpGUI();
-    
-    //wrap widget into parent widget
-    QHBoxLayout *hlayout = new QHBoxLayout(parent);
-    hlayout->addWidget(this);
-//     setWindowFlags(Qt::Widget);  
-    setFixedSize(360,200);
+    // connects slots
+    //TODO user QDialog signals instead
+    connect(ui->buttons->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SIGNAL(exitLogin()));
+    connect(ui->buttons->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(slotAcceptLogin()));
 }
 
 LoginDialog::~LoginDialog()
@@ -51,20 +51,6 @@ LoginDialog::~LoginDialog()
     
     delete m_completer;
     delete ui;
-}
-
-void LoginDialog::setUpGUI()
-{
-    //TODO improve style and layout
-    
-    // set up the layout
-    //TODO should pass QMainWindows as parent and make it modal
-    ui = new Ui::LogIn();
-    ui->setupUi(this);
-    
-//     QVBoxLayout *vlayout = new QVBoxLayout(this);
-//     vlayout->addLayout(formGridLayout);
-//     setLayout(vlayout);
 }
 
 void LoginDialog::clear()
@@ -92,10 +78,10 @@ const QString LoginDialog::getCurrentPassword() const
 
 void LoginDialog::loadUsers()
 {
-    //TODO check if the user is present already
     QSettings settings;
     QStringList userlist = settings.value(Globals::SettingsUsers,QStringList()).toStringList();
-    m_completer = new QCompleter(userlist);
+    QSet<QString> stringSet = QSet<QString>::fromList(userlist);
+    m_completer = new QCompleter(stringSet.toList());
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
 }
 

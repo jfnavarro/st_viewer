@@ -43,8 +43,8 @@ public:
 
 signals:
     
-    void signalSelectionChanged(QSharedPointer<Gene> gene);
-    void signalColorChanged(QSharedPointer<Gene> gene);
+    void signalSelectionChanged(DataProxy::GenePtr gene);
+    void signalColorChanged(DataProxy::GenePtr gene);
 
 public slots:
 

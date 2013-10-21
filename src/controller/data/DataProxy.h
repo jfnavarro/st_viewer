@@ -68,15 +68,18 @@ public:
     typedef QVector<GenePtr> GeneList; //list of unique genes
     typedef QSharedPointer<GeneList> GeneListPtr; //pointer to list of unique genes
     typedef QMap<QString, GenePtr> GeneMap; //map of unique genes
-    typedef QMap<QString, GeneMap> GeneMapMap; //gene map hashed by dataset id
+    typedef QSharedPointer<GeneMap> GeneMapPtr;
+    typedef QMap<QString, GeneMapPtr> GeneMapMap; //gene map hashed by dataset id
     typedef QMap<QString, GeneListPtr> GeneListMap; //gene list hashed by dataset id
       
     typedef QVector<FeaturePtr> FeatureList; //list of features (extended with color)
     typedef QSharedPointer<FeatureList> FeatureListPtr;    
     typedef QMap<QString, FeaturePtr> FeatureMap; // map of features give feature id
+    typedef QSharedPointer<FeatureMap> FeatureMapPtr;
     typedef QMap<QString, FeatureListPtr> FeatureListMap; //features hashed by dataset id
-    typedef QMap<QString, FeatureMap> FeatureMapMap; // feature map by dataset id
-    typedef QMap<QString, FeatureListMap> FeatureListGeneMap; //features hashed by dataset id and gene name
+    typedef QSharedPointer<FeatureListMap> FeatureListMapPtr;
+    typedef QMap<QString, FeatureMapPtr> FeatureMapMap; // feature map by dataset id
+    typedef QMap<QString, FeatureListMapPtr> FeatureListGeneMap; //features hashed by dataset id and gene name
     
     typedef QMap<QString, ChipPtr> ChipMap; //chip hashed by dataset id
     
@@ -171,18 +174,22 @@ private:
     DownLoadQueueMap m_download_pool; // we store here every active download manager item with a hash key
 
     DatasetMap m_datasetMap;                    // available datasets mapped by dataset id
+    DatasetListPtr m_datasetListPtr;            // available datasets on a list
     GeneMapMap m_geneMap;                       // gene mapped by dataset id and gene id
     GeneListMap m_geneListMap;                  // present genes and whether its to be shown or not
     ChipMap m_chipMap;                          // chip arrays mapped by dataset id
     FeatureMapMap m_featureMap;                 // feature mapped by dataset id and feature id
     FeatureListMap m_featureListMap;            // map dataset id to list of features
     FeatureListGeneMap m_geneFeatureListMap;    // map dataset id and gene name to list of features
-    UserExperimentMap m_userExperimentMap;      // user experiments mapped by dataset id
     UserPtr m_user;                             // the current user logged in
     HitCountMap m_hitCountMap;                  // map dataset id to list of Hits
     
     mutable QString m_selected_datasetId;       // the current selected dataset
 
+protected:
+    
+	GeneMapPtr getGeneMap(const QString &datasetId);
+    FeatureMapPtr getFeatureMap(const QString &datasetId);
 };
 
 #endif	/* DATAPROXY_H */

@@ -25,7 +25,7 @@ InitPage::InitPage(QWidget *parent) : QWidget(parent)
 
 InitPage::~InitPage()
 {
-    //NOTE no neeed to delete m_startWidget and m_loginWidget since they are children of this class
+    delete ui;
 }
 
 void InitPage::onInit()
@@ -33,14 +33,14 @@ void InitPage::onInit()
     DEBUG_FUNC_NAME
     
     //create the start widget
-    m_startWidget = new Ui::InitPage(); 
-    m_startWidget->setupUi(this);
-    m_startWidget->user_name->setText("");
-    m_startWidget->newExpButt->setEnabled(false);
+    ui = new Ui::InitPage(); 
+    ui->setupUi(this);
+    ui->user_name->setText("");
+    ui->newExpButt->setEnabled(false);
     
     //connect signals
-    connect(m_startWidget->newExpButt, SIGNAL(released()), this, SLOT(slotLoadData()));
-    connect(m_startWidget->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
+    connect(ui->newExpButt, SIGNAL(released()), this, SLOT(slotLoadData()));
+    connect(ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
     
     AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
     connect(authorizationManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
@@ -52,8 +52,8 @@ void InitPage::onInit()
 void InitPage::onEnter()
 {
     DEBUG_FUNC_NAME
-    m_startWidget->newExpButt->clearFocus();
-    m_startWidget->logoutButt->clearFocus();
+    ui->newExpButt->clearFocus();
+    ui->logoutButt->clearFocus();
 }
 
 void InitPage::onExit()
@@ -67,7 +67,7 @@ void InitPage::slotAuthorizationError(Error *error)
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
     auth->forceAuthentication(); //authorize again  
-    emit signalError(error);
+    //emit signalError(error); //NOTE what to do here?
 }
 
 void InitPage::slotNetworkError(Error *error)
@@ -96,8 +96,8 @@ void InitPage::slotAuthorized()
     else if(request->return_code() == async::DataRequest::CodePresent)
     {
         DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
-        m_startWidget->user_name->setText(user.data()->username());
-        m_startWidget->newExpButt->setEnabled(true);
+        ui->user_name->setText(user.data()->username());
+        ui->newExpButt->setEnabled(true);
     }
     else
     {
@@ -118,8 +118,8 @@ void InitPage::slotUserLoaded()
     {
         //User has been loaded succesfully, go to logged mode
         DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
-        m_startWidget->user_name->setText(user.data()->username());
-        m_startWidget->newExpButt->setEnabled(true);
+        ui->user_name->setText(user.data()->username());
+        ui->newExpButt->setEnabled(true);
     }
 }
 
@@ -162,8 +162,8 @@ void InitPage::slotDataLoaded()
 void InitPage::slotLogOutButton()
 {
     //go to log in mode and force authorization
-    m_startWidget->newExpButt->setEnabled(false);
-    m_startWidget->user_name->setText("");
+    ui->newExpButt->setEnabled(false);
+    ui->user_name->setText("");
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
     auth->forceAuthentication(); //authorize again
@@ -171,8 +171,8 @@ void InitPage::slotLogOutButton()
 
 void InitPage::setWaiting(bool waiting)
 {
-    m_startWidget->logoutButt->setEnabled(!waiting);
-    m_startWidget->newExpButt->setEnabled(!waiting);
+    ui->logoutButt->setEnabled(!waiting);
+    ui->newExpButt->setEnabled(!waiting);
     
     if(waiting)
     {

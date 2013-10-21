@@ -21,7 +21,7 @@ DatasetItemModel::DatasetItemModel(QObject* parent)
 
 DatasetItemModel::~DatasetItemModel()
 {
-
+  
 }
 
 bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -99,7 +99,7 @@ int DatasetItemModel::columnCount(const QModelIndex& parent) const
 
 int DatasetItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : m_datasets_reference->count();
+    return parent.isValid() || m_datasets_reference.isNull() ? 0 : m_datasets_reference->count();
 }
 
 Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
@@ -116,9 +116,8 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
 void DatasetItemModel::loadDatasets()
 {
     beginResetModel();
-    m_datasets_reference.clear(); //NOTE genelist is just a reference
-    DataProxy* dataProxy = DataProxy::getInstance();
-    m_datasets_reference = dataProxy->getDatasetList();
+    m_datasets_reference.clear(); //NOTE m_datasets_reference is just a reference
+    m_datasets_reference = DataProxy::getInstance()->getDatasetList();
     endResetModel();
 }
 

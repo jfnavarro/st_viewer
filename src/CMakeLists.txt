@@ -117,6 +117,7 @@ set(SRC_VIEW_COMPONENTS
     view/components/MainMenuBar.cpp
     view/components/MainStatusBar.cpp
     view/components/SelectionDialog.cpp
+    view/components/QDoubleSlider.cpp 
 )
 
 set(INC_VIEW_DELEGATES
@@ -400,6 +401,7 @@ include("libs/QtUnitTest/CMakeLists.cmake")
 include("libs/STCore/CMakeLists.cmake")
 #include("libs/STCoreWidgets/CMakeLists.cmake")
 include("libs/STOpenGL/CMakeLists.cmake")
+set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore) #STCoreWidgets
 
 ## create main library
 add_library(STMain STATIC ${SOURCES} ${INCLUDES} ${QT_FORMS} ${QT_LOCALES})
@@ -426,7 +428,7 @@ endif()
 # endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} STMain QtDebugHelper QtSingleApplication STOpenGL STCore STCoreWidgets) 
+target_link_libraries(${PROJECT_NAME} STMain ${LIB_COMPONENTS}) 
 
 ### UNIT TESTS ################################################################
 

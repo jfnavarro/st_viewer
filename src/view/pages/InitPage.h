@@ -52,7 +52,6 @@ private slots:
     void slotLogOutButton();
     
     void slotAuthorized();
-    void slotAuthorizationExit();
     
     void slotLoadData();
     
@@ -61,7 +60,7 @@ private slots:
 
 private:
     
-    Ui::InitPage *m_startWidget;
+    Ui::InitPage *ui;
     
     void setWaiting(bool waiting = true);
 };

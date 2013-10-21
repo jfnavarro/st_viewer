@@ -19,8 +19,7 @@ const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("appli
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
     : QAbstractTableModel(parent),m_genelist_reference(0)
 {
-    //NOTE do not like this, memory leak when I re-asign
-    //genelist = DataProxy::GeneListPtr(new DataProxy::GeneList());
+
 }
 
 GeneFeatureItemModel::~GeneFeatureItemModel()
@@ -153,7 +152,7 @@ void GeneFeatureItemModel::sort(int column, Qt::SortOrder order)
 
 int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : m_genelist_reference->count();
+    return parent.isValid() || m_genelist_reference.isNull() ? 0 : m_genelist_reference->count();
 }
 
 int GeneFeatureItemModel::columnCount(const QModelIndex& parent) const

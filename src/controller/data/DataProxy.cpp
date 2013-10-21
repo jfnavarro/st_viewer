@@ -36,56 +36,133 @@
 // expered or pudated data will be re-downloaded
 
 
-DataProxy::DataProxy()
-    : m_datasetMap(0), m_geneListMap(0), m_chipMap(0), m_featureMap(0),
-      m_featureListMap(0), m_geneFeatureListMap(0), m_userExperimentMap(0),
-      m_user(0), m_hitCountMap(0)
-{
+DataProxy::DataProxy() : m_user(0), m_datasetListPtr(0)
+{    
     init();
 }
 
 DataProxy::~DataProxy()
 {
-    //NOTE every allocation is done with QScopedPointer, thus
-    // there should not be memory leaks
-    
-    //TODO clean download pool ?
+
 }
 
 void DataProxy::init()
 {
-    // initialize data containers
-    m_datasetMap = QScopedPointer<DatasetMap>(new DatasetMap());
-    m_geneMap = QScopedPointer<GeneMapMap>(new GeneMapMap());
-    m_geneListMap = QScopedPointer<GeneListMap>(new GeneListMap());
-    m_chipMap = QScopedPointer<ChipMap>(new ChipMap());
-    m_featureMap = QScopedPointer<FeatureMapMap>(new FeatureMapMap());
-    m_featureListMap = QScopedPointer<FeatureListMap>(new FeatureListMap());
-    m_geneFeatureListMap = QScopedPointer<FeatureListGeneMap>(new FeatureListGeneMap());
-    m_userExperimentMap = QScopedPointer<UserExperimentMap>(new UserExperimentMap());
-    m_user = QScopedPointer<User>(new User());
-    m_hitCountMap = QScopedPointer<HitCountMap>(new HitCountMap());
+    //initialize data containers
+    m_user = QSharedPointer<User>(new User());
+    m_datasetListPtr = QSharedPointer<QVector<DatasetPtr>>(new QVector<DatasetPtr>());
 }
 
 void DataProxy::finalize()
 {
-
+    
+    //NOTE I do not think there is a need to iterate all the containers to free memory
+    // but it is good to do it since we will probably replace the containers at some point
+    
+    //clearning user container
+    m_user.clear();
+    //cleaning datasets map
+    for(auto record : m_datasetMap.toStdMap())
+    {
+        record.second.clear();
+    }
+    m_datasetMap.clear();
+    //cleaning dataset list (just in case)
+    foreach(DataProxy::DatasetPtr record, (*m_datasetListPtr))
+    {
+        record.clear();
+    }
+    m_datasetListPtr.clear();
+    
+    //cleaning geneMap
+    for(auto record : m_geneMap.toStdMap())
+    {
+        for(auto record2 : record.second->toStdMap())
+        {
+            record2.second.clear();
+        }
+        record.second.clear();
+    }
+    m_geneMap.clear();
+    
+    //clearning gene list map
+    for(auto record : m_geneListMap.toStdMap())
+    {
+        foreach(DataProxy::GenePtr gene, (*record.second))
+        {
+            gene.clear();
+        }
+        record.second.clear();
+    }
+    m_geneListMap.clear();
+    
+    //clearning chips map
+    for(auto record : m_chipMap.toStdMap())
+    {
+        record.second.clear();
+    }
+    m_chipMap.clear();
+    
+    //cleaning feature maps
+    for(auto record : m_featureMap.toStdMap())
+    {
+        for(auto record2 : record.second->toStdMap())
+        {
+            record2.second.clear();
+        }
+        record.second.clear();
+    }
+    m_featureMap.clear();
+    
+    //clearning feature list map
+    for(auto record : m_featureListMap.toStdMap())
+    {
+        foreach(DataProxy::FeaturePtr feature, (*record.second))
+        {
+            feature.clear();
+        }
+        record.second.clear();
+    }
+    m_featureListMap.clear();
+    
+    //clearning gene feature list map
+    for(auto record : m_geneFeatureListMap.toStdMap())
+    {
+        for(auto record2 : record.second->toStdMap())
+        {
+            foreach(DataProxy::FeaturePtr feature, (*record2.second))
+            {
+                feature.clear();
+            }
+            record2.second.clear();
+        }
+        record.second.clear();
+    }
+    m_geneFeatureListMap.clear();
+    
+    //cleaning hitcount maps
+    for(auto record : m_hitCountMap.toStdMap())
+    {
+        record.second.clear();
+    }   
+    m_hitCountMap.clear();
+    
+    //cleaning download pool
+    for(auto record : m_download_pool.values().toStdList())
+    {
+        record.clear();
+    } 
+    m_download_pool.clear(); 
 }
 
 void DataProxy::clean()
 {
     qDebug() << "Cleaning memory cache in Dataproxy";
-    m_datasetMap.clear();
-    m_geneMap.clear();
-    m_geneListMap.clear();
-    m_chipMap.clear();
-    m_featureMap.clear();
-    m_featureListMap.clear();
-    m_geneFeatureListMap.clear();
-    m_userExperimentMap.clear();
-    m_user.clear();
-    m_hitCountMap.clear();
-    m_download_pool.clear(); //leak with the qpointer to downloadmanager?
+    
+    // clean up containers
+    finalize();
+    
+    //init containers
     init();
 }
 
@@ -110,7 +187,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
         return;
     }
 
-    unsigned key = qvariant_cast<unsigned>(reply->property("key"));
+    const unsigned key = qvariant_cast<unsigned>(reply->property("key"));
     qDebug() << "[DataProxy] : restoring manager hash key = " << key;
     Q_ASSERT(m_download_pool.contains(key));
     QPointer<async::DownloadManager> manager = m_download_pool[key];
@@ -124,7 +201,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     }
     else
     {
-        int returnCode = qvariant_cast<int>(code);
+        const int returnCode = qvariant_cast<int>(code);
         if (returnCode == NetworkReply::CodeError) 
         {
             Error* error = new Error("Data Error", "There was an error downloading data", this);
@@ -219,8 +296,10 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             foreach(QVariant var, list)
             {
                 ObjectParser::parseObject(var, &dto);
-                DatasetPtr dataset = getDatasetMap()->value(dto.id());
-                (*m_datasetMap)[dto.id()] = DatasetPtr(new Dataset(dto.dataset()));
+                //TODO should remove previous dataset pointer if it exists
+                DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
+                m_datasetMap.insert(dto.id(),dataset);
+                m_datasetListPtr->append(dataset);
                 dirty = true;
             }
             break;
@@ -245,8 +324,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             {
                 ObjectParser::parseObject(var, &dto);
                 GenePtr gene = GenePtr(new Gene(dto.gene()));
-
                 geneListByDatasetId->append(gene);
+                //TODO should remove previous gene pointer if it exists
                 geneMapByDatasetId->insert(gene->name(), gene);
                 dirty = true;
             }
@@ -258,15 +337,14 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             QJsonDocument doc = reply->getJSON();
             // intermediary parse object
             ChipDTO dto;
-
             // ensure even single items are encapsulated in a variant list
             QVariant root = doc.toVariant();
             QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
             foreach(QVariant var, list)
             {
                 ObjectParser::parseObject(var, &dto);
-                ChipPtr chip = getChip(dto.id());
-                (*m_chipMap)[dto.id()] = ChipPtr(new Chip(dto.chip()));
+                //TODO should remove previous chip pointer if it exists
+                m_chipMap.insert(dto.id(), ChipPtr(new Chip(dto.chip())));
                 dirty = true;
             }
             break;
@@ -290,10 +368,10 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             foreach(QVariant var, list)
             {
                 ObjectParser::parseObject(var, &dto);
+                
                 FeaturePtr feature = FeaturePtr(new FeatureExtended(dto.feature()));
-
                 FeatureListPtr featureListByGeneIdAndDatasetId = getGeneFeatureList(datasetId, dto.gene());
-
+                //TODO should remove previous feature pointer if it exists
                 featureMapByDatasetId->insert(feature->id(), feature);
                 featureListByDatasetId->append(feature);
                 featureListByGeneIdAndDatasetId->append(feature);
@@ -311,8 +389,6 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
             // intermediary parse object
             HitCountDTO dto;
-            HitCountPtr hit = getHitCount(datasetId);
-            hit.clear();
 
             // ensure even single items are encapsulated in a variant list
             QVariant root = doc.toVariant();
@@ -320,7 +396,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             foreach(QVariant var, list)
             {
                 ObjectParser::parseObject(var, &dto);
-                (*m_hitCountMap)[datasetId] = HitCountPtr(new HitCount(dto.hitCount()));
+                //TODO should remove previous hitcout pointer if it exits
+                m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount(dto.hitCount())));
                 dirty = true;
             }
             break;
@@ -337,6 +414,7 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             foreach(QVariant var, list)
             {
                 ObjectParser::parseObject(var, &dto);
+                //TODO should remove previous user pointer if it exits
                 m_user = UserPtr(new User(dto.user()));
                 dirty = true;
             }
@@ -373,53 +451,54 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
 DataProxy::GeneMapPtr DataProxy::getGeneMap(const QString& datasetId)
 {
-    GeneMapMap::iterator it = m_geneMap->find(datasetId), end = m_geneMap->end();
+    GeneMapMap::iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
     if (it == end)
     {
-        it = m_geneMap->insert(datasetId, GeneMapPtr(new GeneMap()));
+        it = m_geneMap.insert(datasetId, GeneMapPtr(new GeneMap()));
     }
     return it.value();
 }
 
 DataProxy::GeneListPtr DataProxy::getGeneList(const QString& datasetId)
 {
-    GeneListMap::iterator it = m_geneListMap->find(datasetId), end = m_geneListMap->end();
+    GeneListMap::iterator it = m_geneListMap.find(datasetId), end = m_geneListMap.end();
     if (it == end)
     {
-        it = m_geneListMap->insert(datasetId, GeneListPtr(new GeneList()));
+        it = m_geneListMap.insert(datasetId, GeneListPtr(new GeneList()));
     }
     return it.value();
 }
 
 DataProxy::FeatureListPtr DataProxy::getFeatureList(const QString& datasetId)
 {
-    FeatureListMap::iterator it = m_featureListMap->find(datasetId), end = m_featureListMap->end();
+    FeatureListMap::iterator it = m_featureListMap.find(datasetId), end = m_featureListMap.end();
     if (it == end)
     {
-        it = m_featureListMap->insert(datasetId, FeatureListPtr(new FeatureList()));
+        it = m_featureListMap.insert(datasetId, FeatureListPtr(new FeatureList()));
     }
     return it.value();
 }
 
 DataProxy::FeatureMapPtr DataProxy::getFeatureMap(const QString& datasetId)
 {
-    FeatureMapMap::iterator it = m_featureMap->find(datasetId), end = m_featureMap->end();
+    FeatureMapMap::iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
     if (it == end)
     {
-        it = m_featureMap->insert(datasetId, FeatureMapPtr(new FeatureMap()));
+        it = m_featureMap.insert(datasetId, FeatureMapPtr(new FeatureMap()));
     }
     return it.value();
 }
 
 DataProxy::GenePtr DataProxy::getGene(const QString& datasetId, const QString& geneName)
 {
-    GeneMapMap::const_iterator it = m_geneMap->find(datasetId), end = m_geneMap->end();
+    GeneMapMap::const_iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
     if (it == end) //check if dataset key no present at all, create
     {
         GeneMapPtr genemap = GeneMapPtr(new GeneMap());
         genemap->insert(geneName, GenePtr(new Gene()));
-        it = m_geneMap->insert(datasetId, genemap);
+        it = m_geneMap.insert(datasetId, genemap);
     }
+    
     GeneMap::iterator it2 = it.value()->find(geneName), end2 = it.value()->end();
     if (it2 == end2) //check if gene id key no present at all
     {
@@ -431,12 +510,12 @@ DataProxy::GenePtr DataProxy::getGene(const QString& datasetId, const QString& g
 
 DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId, const QString &geneName)
 {
-    FeatureListGeneMap::iterator it = m_geneFeatureListMap->find(datasetId), end = m_geneFeatureListMap->end();
+    FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId), end = m_geneFeatureListMap.end();
     if (it == end) //check if dataset key no present at all, create
     {
         FeatureListMapPtr featuremap = FeatureListMapPtr(new FeatureListMap());
         featuremap->insert(geneName, FeatureListPtr(new FeatureList()));
-        it = m_geneFeatureListMap->insert(datasetId, featuremap);
+        it = m_geneFeatureListMap.insert(datasetId, featuremap);
     }
     FeatureListMap::iterator it2 = it.value()->find(geneName), end2 = it.value()->end();
     if (it2 == end2) //check if gene key no present at all
@@ -447,14 +526,19 @@ DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId
     return it2.value();
 }
 
+DataProxy::GenePtr DataProxy::getGeneByIndex(const QString& datasetId, const int index)
+{
+    //TODO implement
+}
+
 DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId, const QString &featureId)
 {
-    FeatureMapMap::const_iterator it = m_featureMap->find(datasetId), end = m_featureMap->end();
+    FeatureMapMap::const_iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
     if (it == end) //check if dataset key no present at all, create
     {
         FeatureMapPtr featuremap = FeatureMapPtr(new FeatureMap());
         featuremap->insert(featureId, FeaturePtr(new FeatureExtended()));
-        it = m_featureMap->insert(datasetId, featuremap);
+        it = m_featureMap.insert(datasetId, featuremap);
     }
     FeatureMap::iterator it2 = it.value()->find(featureId), end2 = it.value()->end();
     if (it2 == end2) //check if feature id key no present at all
@@ -465,14 +549,14 @@ DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId, const QStr
     return it2.value();
 }
 
-DataProxy::DatasetMapPtr DataProxy::getDatasetMap()
+DataProxy::DatasetListPtr DataProxy::getDatasetList()
 {
-    return m_datasetMap;
+    return m_datasetListPtr;
 }
 
 DataProxy::DatasetPtr DataProxy::getDatasetById(const QString& datasetId)
 {
-    return m_datasetMap.data()->value(datasetId);
+    return m_datasetMap.value(datasetId);
 }
 
 DataProxy::UserPtr DataProxy::getUser()
@@ -482,20 +566,20 @@ DataProxy::UserPtr DataProxy::getUser()
 
 DataProxy::ChipPtr DataProxy::getChip(const QString& chipId)
 {
-    ChipMap::iterator it = m_chipMap->find(chipId), end = m_chipMap->end();
+    ChipMap::iterator it = m_chipMap.find(chipId), end = m_chipMap.end();
     if (it == end)
     {
-        it = m_chipMap->insert(chipId, ChipPtr(new Chip()));
+        it = m_chipMap.insert(chipId, ChipPtr(new Chip()));
     }
     return it.value();
 }
 
 DataProxy::HitCountPtr DataProxy::getHitCount(const QString& datasetId)
 {
-    HitCountMap::iterator it = m_hitCountMap->find(datasetId), end = m_hitCountMap->end();
+    HitCountMap::iterator it = m_hitCountMap.find(datasetId), end = m_hitCountMap.end();
     if (it == end)
     {
-        it = m_hitCountMap->insert(datasetId, HitCountPtr(new HitCount()));
+        it = m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount()));
     }
     return it.value();
 }
@@ -508,12 +592,12 @@ QIODevice *DataProxy::getFigure(const QString& figureId)
 
 bool DataProxy::hasDatasets() const
 {
-    return !m_datasetMap->isEmpty();
+    return !m_datasetMap.isEmpty();
 }
 
 bool DataProxy::hasDataset(const QString& datasetId) const
 {
-    return m_datasetMap->contains(datasetId);
+    return m_datasetMap.contains(datasetId);
 }
 
 async::DataRequest* DataProxy::loadDatasets()
@@ -585,7 +669,7 @@ async::DataRequest* DataProxy::updateDataset(const Dataset& dataset)
 
 bool DataProxy::hasGene(const QString& datasetId) const
 {
-    return m_geneListMap.data()->contains(datasetId);
+    return m_geneListMap.contains(datasetId);
 }
 
 async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
@@ -614,7 +698,7 @@ async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
 
 bool DataProxy::hasChip(const QString& chipId) const
 {
-    return m_chipMap.data()->contains(chipId);
+    return m_chipMap.contains(chipId);
 }
 
 async::DataRequest* DataProxy::loadChipById(const QString& chipId)
@@ -642,7 +726,7 @@ async::DataRequest* DataProxy::loadChipById(const QString& chipId)
 
 bool DataProxy::hasFeature(const QString& datasetId) const
 {
-    return m_featureListMap.data()->contains(datasetId);
+    return m_featureListMap.contains(datasetId);
 }
 
 async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
@@ -671,8 +755,8 @@ async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 
 bool DataProxy::hasFeature(const QString& datasetId, const QString& gene) const
 {
-    const FeatureListGeneMap::const_iterator it = m_geneFeatureListMap->find(datasetId);
-    return (it != m_geneFeatureListMap->end() ? it.value()->contains(gene) : false);
+    const FeatureListGeneMap::const_iterator it = m_geneFeatureListMap.find(datasetId);
+    return (it != m_geneFeatureListMap.end() ? it.value()->contains(gene) : false);
 }
 
 async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene)
@@ -702,7 +786,7 @@ async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& data
 
 bool DataProxy::hasHitCount(const QString& datasetId) const
 {
-    return m_hitCountMap.data()->contains(datasetId);
+    return m_hitCountMap.contains(datasetId);
 }
 
 async::DataRequest* DataProxy::loadHitCountByDatasetId(const QString& datasetId)

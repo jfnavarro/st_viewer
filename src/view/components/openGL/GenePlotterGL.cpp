@@ -288,7 +288,7 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
     }
 }
 
-void GenePlotterGL::updateGeneColor(QScopedPointer<Gene> gene)
+void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
@@ -337,7 +337,7 @@ void GenePlotterGL::updateGeneColor(QScopedPointer<Gene> gene)
 
     update(boundingRect());
 }
-void GenePlotterGL::updateGeneSelection(QScopedPointer<Gene> gene)
+void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());

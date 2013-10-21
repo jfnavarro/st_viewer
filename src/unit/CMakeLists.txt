@@ -76,7 +76,7 @@ else()
     add_executable(${TARGET_NAME} unit_main.cpp ${SRC_${TARGET_NAME}})
 endif()
 
-target_link_libraries(${TARGET_NAME} STMain QtDebugHelper QtUnitTest STOpenGL STCore STCoreWidgets)
+target_link_libraries(${TARGET_NAME} STMain QtDebugHelper QtUnitTest STOpenGL STCore ) #STCoreWidgets
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})
