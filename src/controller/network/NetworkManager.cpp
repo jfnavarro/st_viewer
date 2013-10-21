@@ -61,8 +61,10 @@ void NetworkManager::init()
     //NOTE make DND look up ahead of time
     QHostInfo::lookupHost(config->EndPointUrl(),0,0);
     
+    #if QT_VERSION >= 0x050200
     //NOTE connect to the HTTPS TCP port ahead of time
     m_nam->connectToHostEncrypted(config->EndPointUrl());
+    #endif
     
     //NOTE add ssl support  (we need the public key) //TODO finish and try this (me dunno like ignoring ssl errors)
     //QFile cafile(":public_key.pem");

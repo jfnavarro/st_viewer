@@ -304,7 +304,7 @@ void stVi::initStyle()
 //         QApplication::setAttribute(Qt::AA_Use96Dpi,true); //for mac retina compatibility
 //         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar,false); //false
 //         QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings,false); //false
-        QApplication::setCursorFlashTime(0);
+//         QApplication::setCursorFlashTime(0);
         setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
     #endif
      

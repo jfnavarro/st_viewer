@@ -104,10 +104,10 @@ void CellViewPage::onInit()
     ui->genes_treeview->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
     ui->genes_treeview->verticalHeader()->hide();
     ui->genes_treeview->model()->submit(); //support for caching (speed up)
-    
+    #if QT_VERSION >= 0x050200    
     //gene search displays a clear button
     ui->lineEdit->setClearButtonEnabled(true);
-    
+    #endif
     //mouse tracking could cause problems on OSX
     #if defined Q_OS_MAC
     ui->lineEdit->setMouseTracking(false);
