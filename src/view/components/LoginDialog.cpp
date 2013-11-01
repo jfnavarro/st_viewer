@@ -23,7 +23,7 @@
 #include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QDialog *parent): QDialog(parent),ui(0)
+LoginDialog::LoginDialog(QDialog *parent): QDialog(parent), ui(0)
 {
     
     //init UI
@@ -119,8 +119,7 @@ void LoginDialog::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Return:
         case Qt::Key_Enter:
             slotAcceptLogin();
-            break;
-            
+            break;          
         default:
             QWidget::keyPressEvent(e);
     }

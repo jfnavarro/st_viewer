@@ -8,7 +8,7 @@
 #ifndef STARTPAGE_H
 #define	STARTPAGE_H
 
-#include <QWidget>
+#include "Page.h"
 
 class QVBoxLayout;
 class Error;
@@ -23,20 +23,15 @@ namespace Ui
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 
-class InitPage : public QWidget 
+class InitPage : public Page
 {
-    Q_OBJECT
-    
+
+   Q_OBJECT
+
 public: 
     
     explicit InitPage(QWidget *parent = 0);
     virtual ~InitPage();
-
-signals:
-    
-    void signalError(Error* error);
-    void moveToNextPage();
-    void moveToPreviousPage();
 
 public slots:
 
@@ -44,25 +39,24 @@ public slots:
     void onEnter();
     void onExit();
 
-private slots:
+protected slots:
     
     void slotAuthorizationError(Error*);
     void slotNetworkError(Error*);
-    
     void slotLogOutButton();
-    
     void slotAuthorized();
-    
     void slotLoadData();
-    
     void slotUserLoaded();
     void slotDataLoaded();
+
+protected:
+
+    void setWaiting(bool waiting = true);
 
 private:
     
     Ui::InitPage *ui;
-    
-    void setWaiting(bool waiting = true);
+
 };
 
 #endif	// STARTPAGE_H //

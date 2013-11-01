@@ -51,10 +51,6 @@ public:
     Q_PROPERTY(QString stat_created READ statCreated WRITE statCreated)
     Q_PROPERTY(QString stat_comments READ statComments WRITE statComments)
 
-private:
-    
-    Q_DISABLE_COPY(DatasetDTO)
-
 public:
     
     explicit DatasetDTO(QObject* parent = 0);

@@ -35,6 +35,8 @@ public:
 private:
     
     void details( QString text, QFont font, const QStyleOptionViewItem &option, int *lineCount, int *widthUsed ) const;
+
+    Q_DISABLE_COPY(DatasetsViewItemDelegate);
 };
 
 #endif // DATASETSVIEWITEMDELEGATE

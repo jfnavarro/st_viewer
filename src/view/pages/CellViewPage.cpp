@@ -48,11 +48,11 @@
 #include "ui_cellview.h"
 
 CellViewPage::CellViewPage(QWidget *parent)
-    : QWidget(parent), ui(new Ui::CellView), m_selection_mode(false),
-    scene(0), cell_tissue(0), gene_plotter_gl(0), colorDialog_genes(0), colorDialog_grid(0),
+    : Page(parent), m_selection_mode(false),
+    scene(0), cell_tissue(0), gene_plotter_gl(0),
+    colorDialog_genes(0), colorDialog_grid(0),
     m_heatmap(0)
 {
-    ui->setupUi(this);
     onInit();
 }
 
@@ -79,6 +79,9 @@ void CellViewPage::onInit()
 {
     DEBUG_FUNC_NAME
    
+    ui = new Ui::CellView;
+    ui->setupUi(this);
+
     // model view for genes list selector
     BooleanItemDelegate* booleanItemDelegate = new BooleanItemDelegate(this);
     GeneViewDelegate* geneViewDelegate = new GeneViewDelegate(this);
@@ -161,15 +164,20 @@ void CellViewPage::onEnter()
     
     // load gui elements
     gene_plotter_gl->reset();
-    gene_plotter_gl->setHitCount(hitCount->min(), hitCount->max(), hitCount->sum());
+    //gene_plotter_gl->setHitCount(hitCount->min(), hitCount->max(), hitCount->sum());
     gene_plotter_gl->updateChipSize();
     gene_plotter_gl->updateGeneData();
     gene_plotter_gl->updateTransformation();
+    //this will make the gene visual data to be regenerated
+    gene_plotter_gl->setGeneLowerLimit(hitCount->min());
+    gene_plotter_gl->setGeneUpperLimit(hitCount->max());
 
     //heat map
     m_heatmap->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
+    m_heatmap->setLowerLimit(hitCount->min());
+    m_heatmap->setUpperLimit(hitCount->max());
     
-    loadCellFigure();
+    slotLoadCellFigure();
 }
 
 void CellViewPage::onExit()
@@ -183,11 +191,6 @@ void CellViewPage::onExit()
 void CellViewPage::wheelEvent(QWheelEvent* event)
 {
     event->ignore();
-}
-
-void CellViewPage::goBackClicked(bool clicked)
-{
-    emit moveToPreviousPage();
 }
 
 void CellViewPage::createActions()
@@ -241,7 +244,7 @@ void CellViewPage::createConnections()
     DEBUG_FUNC_NAME
     
     // go back signal
-    connect(actionNavigate_goBack, SIGNAL(triggered(bool)), this, SLOT(goBackClicked(bool)));
+    connect(actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
     
     // gene model signals
     QSortFilterProxyModel *proxyModel = dynamic_cast<QSortFilterProxyModel*>(ui->genes_treeview->model());
@@ -251,26 +254,27 @@ void CellViewPage::createConnections()
     connect(colorDialog_genes, SIGNAL(colorSelected(QColor)), geneModel, SLOT(setColorGenes(const QColor&))); //NOTE dangerous (change all??)
     
     // cell tissue
-    connect(actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(loadCellFigure()));
-    connect(actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(loadCellFigure()));
+    connect(actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+    connect(actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
     
     // graphic view signals
     connect(actionZoom_zoomIn, SIGNAL(triggered(bool)), ui->view, SLOT(zoomIn()));
     connect(actionZoom_zoomOut, SIGNAL(triggered(bool)), ui->view, SLOT(zoomOut()));
     
     // print canvas
-    connect(actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(saveImage()));
-    connect(actionSave_print, SIGNAL(triggered(bool)), this, SLOT(printImage()));
+    connect(actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
+    connect(actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
+
     // export
-    connect(actionExport_selection, SIGNAL(triggered(bool)), this, SLOT(exportSelection()));
+    connect(actionExport_selection, SIGNAL(triggered(bool)), this, SLOT(slotExportSelection()));
     
     // selection mode
-    connect(actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(activateSelection(bool)));
-    connect(actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(selectByRegExp()));
+    connect(actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
+    connect(actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
     
     //color selectors
-    connect(actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(loadColor()));
-    connect(actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(loadColor()));
+    connect(actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+    connect(actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
 }
 
 void CellViewPage::resetActionStates()
@@ -281,7 +285,7 @@ void CellViewPage::resetActionStates()
     //reset selection mode
     // selection mode
     actionSelection_toggleSelectionMode->setChecked(false);
-    activateSelection(false);
+    slotActivateSelection(false);
     
     // load gene model (need to be done first)
     geneModel->loadGenes(dataProxy->getSelectedDataset());
@@ -317,18 +321,22 @@ void CellViewPage::resetActionStates()
     // adapt to hit count
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     
-    QDoubleSlider* geneHitsThreshold = dynamic_cast<QDoubleSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
+    QSlider* geneHitsThresholdDown = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdDown->defaultWidget());
+    QSlider* geneHitsThresholdUp = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdUp->defaultWidget());
     QSlider* geneIntensity = dynamic_cast<QSlider*>(actionWidget_geneIntensity->defaultWidget());
     QSlider* geneSize = dynamic_cast<QSlider*>(actionWidget_geneSize->defaultWidget());
     QComboBox* geneShape = dynamic_cast<QComboBox*>(actionWidget_geneShape->defaultWidget());
     
-//     geneHitsThreshold->setMinimum(hitCount->min());
-//     geneHitsThreshold->setMaximum(hitCount->max());
-//     geneHitsThreshold->setValue(hitCount->min());
-//     geneHitsThreshold->setTickInterval(hitCount->max() / 10);
-//     geneHitsThreshold->setLowerValue(hitCount->min());
-//     geneHitsThreshold->setUpperValue(hitCount->max());
+    geneHitsThresholdDown->setMinimum(hitCount->min());
+    geneHitsThresholdDown->setMaximum(hitCount->max());
+    geneHitsThresholdDown->setValue(hitCount->min());
+    geneHitsThresholdDown->setTickInterval(hitCount->max() / 10);
     
+    geneHitsThresholdUp->setMinimum(hitCount->min());
+    geneHitsThresholdUp->setMaximum(hitCount->max());
+    geneHitsThresholdUp->setValue(hitCount->max());
+    geneHitsThresholdUp->setTickInterval(hitCount->max() / 10);
+
     geneIntensity->setValue(Globals::gene_intensity);
     geneSize->setValue(Globals::gene_size);
     geneShape->setCurrentIndex(Globals::gene_shape);
@@ -376,18 +384,35 @@ void CellViewPage::createToolBar()
     menu_genePlotter->addSeparator();
     
     // transcripts cut off
-    QDoubleSlider *geneHitsThresholdSelector = new QDoubleSlider();
-    geneHitsThresholdSelector->setRange(1, 0x7FFFFFFF);
-    geneHitsThresholdSelector->setSingleStep(1);
-    geneHitsThresholdSelector->setValue(1);
-    geneHitsThresholdSelector->setOrientation(Qt::Horizontal);
-    geneHitsThresholdSelector->setTickInterval(10);
-    geneHitsThresholdSelector->setTickPosition(QSlider::TicksAbove);
-    geneHitsThresholdSelector->setToolTip(tr("Cut off the number of transcripts."));
-    actionWidget_geneHitsThreshold = new QWidgetAction(menu_genePlotter);
-    actionWidget_geneHitsThreshold->setDefaultWidget(geneHitsThresholdSelector); //NOTE relinquish ownership
-    menu_genePlotter->addAction(tr("Transcripts Threshold:"));
-    menu_genePlotter->addAction(actionWidget_geneHitsThreshold);
+    QSlider *geneHitsThresholdSelectorDown = new QSlider();
+    geneHitsThresholdSelectorDown->setRange(1, 0x7FFFFFFF);
+    geneHitsThresholdSelectorDown->setSingleStep(1);
+    geneHitsThresholdSelectorDown->setValue(1);
+    geneHitsThresholdSelectorDown->setOrientation(Qt::Horizontal);
+    geneHitsThresholdSelectorDown->setInvertedAppearance(false);
+    geneHitsThresholdSelectorDown->setInvertedControls(false);
+    geneHitsThresholdSelectorDown->setTickInterval(10);
+    geneHitsThresholdSelectorDown->setTickPosition(QSlider::TicksAbove);
+    geneHitsThresholdSelectorDown->setToolTip(tr("Lower limit of the number of transcripts."));
+    actionWidget_geneHitsThresholdDown = new QWidgetAction(menu_genePlotter);
+    actionWidget_geneHitsThresholdDown->setDefaultWidget(geneHitsThresholdSelectorDown);
+    menu_genePlotter->addAction(tr("Transcripts Lower Threshold:"));
+    menu_genePlotter->addAction(actionWidget_geneHitsThresholdDown);
+
+    QSlider *geneHitsThresholdSelectorUp = new QSlider();
+    geneHitsThresholdSelectorUp->setRange(1, 0x7FFFFFFF);
+    geneHitsThresholdSelectorUp->setSingleStep(1);
+    geneHitsThresholdSelectorUp->setValue(1);
+    geneHitsThresholdSelectorUp->setOrientation(Qt::Horizontal);
+    geneHitsThresholdSelectorUp->setInvertedAppearance(false);
+    geneHitsThresholdSelectorUp->setInvertedControls(false);
+    geneHitsThresholdSelectorUp->setTickInterval(10);
+    geneHitsThresholdSelectorUp->setTickPosition(QSlider::TicksAbove);
+    geneHitsThresholdSelectorUp->setToolTip(tr("Upper limit of the number of transcripts."));
+    actionWidget_geneHitsThresholdUp = new QWidgetAction(menu_genePlotter);
+    actionWidget_geneHitsThresholdUp->setDefaultWidget(geneHitsThresholdSelectorUp);
+    menu_genePlotter->addAction(tr("Transcripts Upper Threshold:"));
+    menu_genePlotter->addAction(actionWidget_geneHitsThresholdUp);
     
     // transcripts intensity
     QSlider *geneIntesitySelector = new QSlider();
@@ -403,7 +428,7 @@ void CellViewPage::createToolBar()
     geneIntesitySelector->setTickInterval(1);
     geneIntesitySelector->setToolTip(tr("Intensity of the transcripts."));
     actionWidget_geneIntensity = new QWidgetAction(menu_genePlotter);
-    actionWidget_geneIntensity->setDefaultWidget(geneIntesitySelector); //NOTE relinquish ownership
+    actionWidget_geneIntensity->setDefaultWidget(geneIntesitySelector);
     menu_genePlotter->addAction(tr("Opacity:"));
     menu_genePlotter->addAction(actionWidget_geneIntensity);
     
@@ -418,7 +443,7 @@ void CellViewPage::createToolBar()
     geneSizeSelector->setTickInterval(1);
     geneSizeSelector->setToolTip(tr("Size of the transcripts."));
     actionWidget_geneSize = new QWidgetAction(menu_genePlotter);
-    actionWidget_geneSize->setDefaultWidget(geneSizeSelector); //NOTE relinquish ownership
+    actionWidget_geneSize->setDefaultWidget(geneSizeSelector);
     menu_genePlotter->addAction(tr("Size:"));
     menu_genePlotter->addAction(actionWidget_geneSize);
     menu_genePlotter->addSeparator();
@@ -431,7 +456,7 @@ void CellViewPage::createToolBar()
     geneShapeSelector->setCurrentIndex(Globals::gene_shape);
     geneShapeSelector->setToolTip(tr("Shape of the genes."));
     actionWidget_geneShape = new QWidgetAction(menu_genePlotter);
-    actionWidget_geneShape->setDefaultWidget(geneShapeSelector); //NOTE relinquish ownership
+    actionWidget_geneShape->setDefaultWidget(geneShapeSelector);
     menu_genePlotter->addAction(tr("Shape:"));
     menu_genePlotter->addAction(actionWidget_geneShape);
     
@@ -441,7 +466,7 @@ void CellViewPage::createToolBar()
     toolButtonGene->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));
     toolButtonGene->setToolTip(tr("Configuration of Genes"));
     toolButtonGene->setText(tr("Configuration of Genes"));
-    toolBar->addWidget(toolButtonGene); //NOTE relinquish ownership
+    toolBar->addWidget(toolButtonGene);
     toolBar->addSeparator();
     
     // cell tissue menu
@@ -460,7 +485,7 @@ void CellViewPage::createToolBar()
     toolButtonCell->setIcon(QIcon(QStringLiteral(":/images/settings.png")));
     toolButtonCell->setToolTip(tr("Configuration of Cell Tissue"));
     toolButtonCell->setText(tr("Configuration of Cell Tissue"));
-    toolBar->addWidget(toolButtonCell); //NOTE relinquish ownership
+    toolBar->addWidget(toolButtonCell);
     toolBar->addSeparator();
     
     // add tool bar to the layout
@@ -477,13 +502,16 @@ void CellViewPage::initGLView()
     {
         m_heatmap = new HeatMapLegendGL();
         m_heatmap->setTransform(QTransform::fromTranslate(-10.0, 10.0));
+        //TODO move the anchor to settings
         m_heatmap->setAnchor(ViewItemGL::NorthEast);
         m_heatmap->setVisible(false);
         ui->view->addViewItem(m_heatmap); //NOTE relinquish ownership
         // connect
         connect(actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
-        QDoubleSlider* geneHitsThreshold = dynamic_cast<QDoubleSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
-        connect(geneHitsThreshold, SIGNAL(valueChanged(int)), m_heatmap, SLOT(setHitCount(int)));
+        QSlider *geneHitsThresholdDown = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdDown->defaultWidget());
+        QSlider *geneHitsThresholdUp = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdUp->defaultWidget());
+        connect(geneHitsThresholdDown, SIGNAL(valueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
+        connect(geneHitsThresholdUp, SIGNAL(valueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
     }
     
     m_heatmap->setVisible(false);
@@ -492,7 +520,7 @@ void CellViewPage::initGLView()
 void CellViewPage::initGLModel()
 {
     DEBUG_FUNC_NAME
-    
+
     // creates graphic canvas scene and view
     scene = new GraphicsSceneGL();
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -520,19 +548,21 @@ void CellViewPage::initGLConnections()
             gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
     
     // gene plot signals files
-    QDoubleSlider* geneHitsThreshold = dynamic_cast<QDoubleSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
+    QSlider* geneHitsThresholdDown = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdDown->defaultWidget());
+    QSlider* geneHitsThresholdUp = dynamic_cast<QSlider*>(actionWidget_geneHitsThresholdUp->defaultWidget());
     QSlider* geneIntensity = dynamic_cast<QSlider*>(actionWidget_geneIntensity->defaultWidget());
     QSlider* geneSize = dynamic_cast<QSlider*>(actionWidget_geneSize->defaultWidget());
     QComboBox* geneShape = dynamic_cast<QComboBox*>(actionWidget_geneShape->defaultWidget());
     
-    connect(geneHitsThreshold, SIGNAL(valueChanged(int)), gene_plotter_gl, SLOT(setGeneLimit(int)));
+    connect(geneHitsThresholdDown, SIGNAL(valueChanged(int)), gene_plotter_gl, SLOT(setGeneLowerLimit(int)));
+    connect(geneHitsThresholdUp, SIGNAL(valueChanged(int)), gene_plotter_gl, SLOT(setGeneUpperLimit(int)));
     connect(geneIntensity, SIGNAL(valueChanged(int)), gene_plotter_gl, SLOT(setGeneIntensity(int)));
     connect(geneSize, SIGNAL(valueChanged(int)), gene_plotter_gl, SLOT(setGeneSize(int)));
     connect(geneShape, SIGNAL(currentIndexChanged(int)), gene_plotter_gl, SLOT(setGeneShape(int)));
 
     connect(actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
 
-    connect(actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(setGeneVisualMode(QAction*)));
+    connect(actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
 
     // grid signals
     connect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
@@ -552,7 +582,7 @@ void CellViewPage::finalizeGL()
     //NOTE scene will delete its children
 }
 
-void CellViewPage::loadCellFigure()
+void CellViewPage::slotLoadCellFigure()
 {
     DEBUG_FUNC_NAME
     
@@ -616,7 +646,7 @@ void CellViewPage::loadCellFigureSync(QIODevice* device)
     actionGroup_cellTissue->setEnabled(true);
 }
 
-void CellViewPage::loadCellFigurePost()
+void CellViewPage::slotLoadCellFigurePost()
 {
     // recreate variables
     async::ImageRequest *imageRequest = dynamic_cast<async::ImageRequest *>(sender());
@@ -638,7 +668,7 @@ void CellViewPage::loadCellFigurePost()
     imageRequest->deleteLater();
 }
 
-void CellViewPage::printImage()
+void CellViewPage::slotPrintImage()
 {
     QPrinter printer;
     printer.setOrientation(QPrinter::Landscape);
@@ -661,7 +691,7 @@ void CellViewPage::printImage()
     painter.drawImage(0, 0, image);
 }
 
-void CellViewPage::saveImage()
+void CellViewPage::slotSaveImage()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), 
                                                     QString("%1;;%2").arg(tr("JPEG Image Files (*.jpg *.jpeg)")).arg(tr("PNG Image Files (*.png)")));
@@ -688,7 +718,7 @@ void CellViewPage::saveImage()
     }
 }
 
-void CellViewPage::exportSelection()
+void CellViewPage::slotExportSelection()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(), 
                                                     QString("%1;;%2").arg(tr("Text Files (*.txt)")).arg(tr("XML Files (*.xml)")));
@@ -735,13 +765,13 @@ void CellViewPage::exportSelection()
     textFile.close();
 }
 
-void CellViewPage::activateSelection(bool status)
+void CellViewPage::slotActivateSelection(bool status)
 {
     ui->view->setDragMode(status ? QGraphicsView::RubberBandDrag : QGraphicsView::ScrollHandDrag);
     m_selection_mode = status;
 }
 
-void CellViewPage::setGeneVisualMode(QAction *action)
+void CellViewPage::slotSetGeneVisualMode(QAction *action)
 {
     QVariant variant = action->property("mode");
     if (variant.canConvert(QVariant::Int))
@@ -755,7 +785,7 @@ void CellViewPage::setGeneVisualMode(QAction *action)
     }
 }
 
-void CellViewPage::loadColor()
+void CellViewPage::slotLoadColor()
 {
     if (QObject::sender() == actionColor_selectColorGenes)
     {
@@ -769,7 +799,7 @@ void CellViewPage::loadColor()
     }
 }
 
-void CellViewPage::selectByRegExp()
+void CellViewPage::slotSelectByRegExp()
 {
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::GeneList geneList = SelectionDialog::selectGenes(dataProxy->getSelectedDataset(), this);
@@ -779,7 +809,6 @@ void CellViewPage::selectByRegExp()
 const DataProxy::FeatureList CellViewPage::lookupFeatures(const QList<QString> &featureIdList) const
 {
     DataProxy *dataProxy = DataProxy::getInstance();
-
     DataProxy::FeatureList featureList;
     foreach (const QString &featureId, featureIdList)
     {

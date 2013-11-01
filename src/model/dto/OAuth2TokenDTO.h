@@ -40,7 +40,7 @@ public:
     inline const QString& refreshToken() const { return m_refreshToken; }
     inline const QString& scope() const { return m_scope; }
     inline const int expiresIn() const { return m_expiresIn; }
-
+    // getters
     inline void accessToken(const QString& accessToken) { m_accessToken = accessToken; }
     inline void tokenType(const QString& tokenType) { m_tokenType = tokenType; }
     inline void refreshToken(const QString& refreshToken) { m_refreshToken = refreshToken; }
@@ -49,8 +49,6 @@ public:
 
 private:
     
-    Q_DISABLE_COPY(OAuth2TokenDTO)
-
     QString m_accessToken;
     QString m_tokenType;
     QString m_refreshToken;

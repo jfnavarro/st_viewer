@@ -23,7 +23,7 @@ TokenStorage::TokenStorage(QObject* parent)
     
 TokenStorage::~TokenStorage()
 {
-    //m_storage is scoepd pointer
+    //m_storage is scoped pointer
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken)

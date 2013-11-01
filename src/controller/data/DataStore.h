@@ -46,8 +46,6 @@ signals:
 
 private:
     
-    Q_DISABLE_COPY(DataStore);
-    
     void loadResourceMap();
     void saveResourceMap();
 

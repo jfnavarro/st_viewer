@@ -34,10 +34,6 @@ public:
     Q_PROPERTY(QString inputData READ inputData WRITE inputData)
     Q_PROPERTY(QString outputData READ outputData WRITE outputData)
 
-private:
-  
-    Q_DISABLE_COPY(UserExperimentDTO)
-
 public:
   
     explicit UserExperimentDTO(QObject* parent = 0);

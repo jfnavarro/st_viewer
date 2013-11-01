@@ -152,8 +152,6 @@ private slots:
     
 private:
     
-    Q_DISABLE_COPY(DataProxy);
-    
     bool hasCellTissue(const QString& name) const;
     bool hasHitCount(const QString& datasetId) const;
     bool hasGene(const QString& datasetId) const;

@@ -36,30 +36,38 @@ public:
 public slots:
     
     void setHitCountLimits(int min, int max, int sum);
-    void setHitCount(int hitCount);
+    void setLowerLimit(int limit);
+    void setUpperLimit(int limit);
 
 private:
     
     static const QRectF DEFAULT_BOUNDS;
 
     QRectF m_bounds;
-
     QRectF m_rect;
-    int m_hitCountMin, m_hitCountMax, m_hitCountSum, m_hitCount;
-    qreal m_threshold;
+
+    //limit variables
+    int m_hitCountMin;
+    int m_hitCountMax;
+    int m_hitCountSum;
+    int m_lowerLimit;
+    int m_upperLimit;
+    qreal m_lower_threshold;
+    qreal m_upper_threshold;
 
     // render data
     GL::GLElementData m_data;
     GL::GLElementRenderQueue m_queue;
     GL::GLimage m_image;
     GL::GLtexture m_texture;
-
     QPainterPath m_text;
 
+    //rendering functions
     void rebuildHeatMapData();
     void generateHeatMapData();
     void rebuildHeatMapText();
     void generateHeatMapText();
+    void rebuildHeatMapStaticData();
     void generateStaticHeatMapData();
 };
 

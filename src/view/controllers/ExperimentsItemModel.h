@@ -22,8 +22,8 @@ class ExperimentsItemModel : public QAbstractTableModel
 public:
 
     explicit ExperimentsItemModel(QObject* parent = 0);
-        
-private:
+
+    Q_DISABLE_COPY(ExperimentsItemModel);
         
 };
 

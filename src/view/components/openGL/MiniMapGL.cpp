@@ -19,7 +19,9 @@
 
 #include "MiniMapGL.h"
 
-const QRectF MiniMapGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f, 100.0f, 100.0f);
+const QRectF MiniMapGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f,
+                                                Globals::minimap_height,
+                                                Globals::minimap_width);
 
 MiniMapGL::MiniMapGL(QObject* parent)
     : ViewItemGL(parent), m_selecting(false), m_bounds(DEFAULT_BOUNDS), 
@@ -188,11 +190,10 @@ void MiniMapGL::generateMinimapData()
     // draw scene rectangle
     if (m_scene.isValid())
     {
-        const GL::GLpoint
-            stl = GL::toGLpoint(m_scene.topLeft()),
-            str = GL::toGLpoint(m_scene.topRight()),
-            sbr = GL::toGLpoint(m_scene.bottomRight()),
-            sbl = GL::toGLpoint(m_scene.bottomLeft());
+        const GL::GLpoint stl = GL::toGLpoint(m_scene.topLeft());
+        const GL::GLpoint str = GL::toGLpoint(m_scene.topRight());
+        const GL::GLpoint sbr = GL::toGLpoint(m_scene.bottomRight());
+        const GL::GLpoint sbl = GL::toGLpoint(m_scene.bottomLeft());
 
         const GL::GLcolor sceneColor = GL::toGLcolor(m_sceneColor);
         factory.setColor(0.2f * sceneColor);
@@ -208,11 +209,10 @@ void MiniMapGL::generateMinimapData()
     // draw view rectangle
     if (m_view.isValid())
     {
-        const GL::GLpoint
-            vtl = GL::toGLpoint(m_view.topLeft()),
-            vtr = GL::toGLpoint(m_view.topRight()),
-            vbr = GL::toGLpoint(m_view.bottomRight()),
-            vbl = GL::toGLpoint(m_view.bottomLeft());
+        const GL::GLpoint vtl = GL::toGLpoint(m_view.topLeft());
+        const GL::GLpoint vtr = GL::toGLpoint(m_view.topRight());
+        const GL::GLpoint vbr = GL::toGLpoint(m_view.bottomRight());
+        const GL::GLpoint vbl = GL::toGLpoint(m_view.bottomLeft());
 
         const GL::GLcolor viewColor = GL::toGLcolor(m_viewColor);
         factory.setColor(0.2f * viewColor);

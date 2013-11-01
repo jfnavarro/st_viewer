@@ -23,10 +23,6 @@ public:
     void finalize(){};
     
     void init();
-
-private:
-    
-    Q_DISABLE_COPY(MainMenuBar);
 };
 
 #endif	/* // MAINMENUBAR_H */

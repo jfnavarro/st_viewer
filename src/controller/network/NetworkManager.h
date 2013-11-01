@@ -57,8 +57,6 @@ private slots:
     void provideAuthentication(QNetworkReply*, QAuthenticator*); 
     
 private:
-    
-    Q_DISABLE_COPY(NetworkManager)
 
     QPointer<QNetworkAccessManager> m_nam;
 };

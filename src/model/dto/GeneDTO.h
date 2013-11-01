@@ -49,8 +49,6 @@ public:
     Gene& gene() { return m_gene; }
 
 private:
-    
-    Q_DISABLE_COPY(GeneDTO)
   
     Gene m_gene;
 };

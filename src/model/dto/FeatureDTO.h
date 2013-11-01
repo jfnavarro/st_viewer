@@ -36,10 +36,6 @@ public:
     Q_PROPERTY(int x READ x WRITE x)
     Q_PROPERTY(int y READ y WRITE y)
 
-private:
-  
-    Q_DISABLE_COPY(FeatureDTO)
-
 public:
   
     explicit FeatureDTO(QObject* parent = 0);

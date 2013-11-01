@@ -26,6 +26,7 @@ class ErrorDTO : public QObject
     Q_PROPERTY(QString error_description READ errorDescription WRITE errorDescription)
 
 public:
+
     explicit ErrorDTO(QObject* parent = 0);
     virtual ~ErrorDTO();
 
@@ -37,8 +38,6 @@ public:
     inline void errorDescription(const QString& errorDescription) { m_errorDescription = errorDescription; }
 
 private:
-    
-    Q_DISABLE_COPY(ErrorDTO)
 
     QString m_errorName;
     QString m_errorDescription;

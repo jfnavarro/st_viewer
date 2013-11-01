@@ -31,10 +31,6 @@ public:
     Q_PROPERTY(QString username READ username WRITE username)
     Q_PROPERTY(QString role READ role WRITE role)
 
-private:
-  
-    Q_DISABLE_COPY(UserDTO)
-
 public:
   
     explicit UserDTO(QObject* parent = 0);

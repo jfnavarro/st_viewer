@@ -13,15 +13,18 @@
 namespace GL
 {
 
-const bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode)
+const bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode,
+                                         int lowerbound, int upperbound)
 {
     bool ret;
     GLimagewriter writer(image);
-
     GLsizei h = image.height();
     for (GLsizei i = 0; i<h; ++i)
     {
-        const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1, 0, h-1);
+        //const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1, 0, h-1);
+        //I want to bget the color of each line of the image as the heatmap
+        //color normalized to the lower and upper bound
+        const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1,lowerbound,upperbound);
         const GLfloat nw = GLheatmap::generateHeatMapWavelength(nh, mode);
         const GLcolor color = GLheatmap::createHeatMapColor(nw);
         if (!(ret = writer.writeLine(color)))

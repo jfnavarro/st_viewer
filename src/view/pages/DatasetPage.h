@@ -8,9 +8,8 @@
 #ifndef DATASETPAGE_H
 #define	DATASETPAGE_H
 
-#include <QWidget>
-
 #include "controller/data/DataProxy.h"
+#include "Page.h"
 
 class QItemSelectionModel;
 class DatasetItemModel;
@@ -28,7 +27,7 @@ namespace Ui
 
 class Error;
 
-class DatasetPage : public QWidget
+class DatasetPage : public Page
 {
     Q_OBJECT
     
@@ -37,35 +36,28 @@ public:
     explicit DatasetPage(QWidget *parent = 0);
     virtual ~DatasetPage();
 
-signals:
-    
-    void signalError(Error* error);
-
-    void moveToNextPage();
-    void moveToPreviousPage();
-
 public slots:
 
     void onInit();
     void onEnter();
     void onExit();
 
-    void slotDataError(Error*);
+protected slots:
 
+    void slotDataError(Error*);
     void datasetSelected(DataProxy::DatasetPtr);
-    
     void refreshDatasets();
-    
     void loadData();
     void dataLoaded();
-    
+
+protected:
+
+    void setWaiting(bool waiting = true);
+
 private:
     
     Ui::DataSets *ui;
     DatasetItemModel *m_datasetModel;
-    
-    void setWaiting(bool waiting = true);
-
 };
 
 #endif	/* DATASETPAGE_H */

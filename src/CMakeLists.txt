@@ -57,9 +57,17 @@ set(SRC_MODEL
 
 set(INC_MODEL_CORE
     model/core/ColorPalette.h
+    model/core/ColorScheme.h
+    model/core/FeatureColor.h
+    model/core/HeatMapColor.h
+    model/core/DynamicRangeColor.h
 )
 set(SRC_MODEL_CORE
     model/core/ColorPalette.cpp
+    model/core/ColorScheme.cpp
+    model/core/FeatureColor.cpp
+    model/core/HeatMapColor.cpp
+    model/core/DynamicRangeColor.cpp
 )
 
 set(INC_MODEL_DTO
@@ -143,12 +151,14 @@ set(INC_VIEW_PAGES
     view/pages/DatasetPage.h
     view/pages/ExperimentPage.h
     view/pages/InitPage.h
+    view/pages/Page.h
 )
 set(SRC_VIEW_PAGES
     view/pages/CellViewPage.cpp
     view/pages/DatasetPage.cpp
     view/pages/ExperimentPage.cpp
     view/pages/InitPage.cpp
+    view/pages/Page.cpp
 )
 
 set(INC_VIEW_MODEL_CONTROLLER
@@ -404,7 +414,7 @@ include("libs/STOpenGL/CMakeLists.cmake")
 set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore) #STCoreWidgets
 
 ## create main library
-add_library(STMain STATIC ${SOURCES} ${INCLUDES} ${QT_FORMS} ${QT_LOCALES})
+add_library(STMain STATIC ${SOURCES} ${QT_FORMS} ${QT_LOCALES}) #${INCLUDES}
 
 ## link qt libraries to main library
 qt5_use_modules(STMain Core Gui Widgets WebKit WebKitWidgets OpenGL Network LinguistTools)
@@ -630,8 +640,10 @@ if(WIN32)
     # Qt libraries required by stVi
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
     
-        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucened Qt5Cored Qt5Guid Qt5Helpd Qt5Multimediad Qt5MultimediaWidgetsd Qt5Networkd Qt5OpenGLd
-                                    Qt5PrintSupportd Qt5Qmld Qt5Quickd Qt5Sqld Qt5Svgd Qt5V8d Qt5WebKitd Qt5WebKitWidgetsd Qt5Widgetsd Qt5Xmld Qt5Sensorsd)
+        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucened Qt5Cored Qt5Guid Qt5Helpd Qt5Multimediad
+                                    Qt5MultimediaWidgetsd Qt5Networkd Qt5OpenGLd
+                                    Qt5PrintSupportd Qt5Qmld Qt5Quickd Qt5Sqld Qt5Svgd Qt5V8d
+                                    Qt5WebKitd Qt5WebKitWidgetsd Qt5Widgetsd Qt5Xmld Qt5Sensorsd)
 
         # Qt plugins required by stVi
         WINDOWS_DEPLOY_QT_PLUGIN(accessible qtaccessiblequickd qtaccessiblewidgetsd)
@@ -641,8 +653,10 @@ if(WIN32)
         
     else()
     
-        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucene Qt5Core Qt5Gui Qt5Help Qt5Multimedia Qt5MultimediaWidgets Qt5Network Qt5OpenGL
-                                    Qt5PrintSupport Qt5Qml Qt5Quick Qt5Sql Qt5Svg Qt5V8 Qt5WebKit Qt5WebKitWidgets Qt5Widgets Qt5Xml Qt5Sensors) 
+        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucene Qt5Core Qt5Gui Qt5Help Qt5Multimedia
+                                    Qt5MultimediaWidgets Qt5Network Qt5OpenGL
+                                    Qt5PrintSupport Qt5Qml Qt5Quick Qt5Sql Qt5Svg
+                                    Qt5V8 Qt5WebKit Qt5WebKitWidgets Qt5Widgets Qt5Xml Qt5Sensors)
 
         # Qt plugins required by stVi
         WINDOWS_DEPLOY_QT_PLUGIN(accessible qtaccessiblequick qtaccessiblewidgets)
@@ -661,17 +675,17 @@ if(WIN32)
         install(FILES ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
                 DESTINATION platforms)
 		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-						   COMMAND ${CMAKE_COMMAND} -E copy ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX} 
-						   ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
+                                   COMMAND ${CMAKE_COMMAND} -E copy ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                                   ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
     endforeach()
 
     #install resources
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-					   COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
-					   COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
+                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
-					   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
-					   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     install(TARGETS ${PROJECT_NAME} DESTINATION . )
     install(FILES ${QT_LOCALES} DESTINATION translations)

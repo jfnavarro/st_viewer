@@ -8,8 +8,7 @@
 #ifndef CELLVIEWPAGE_H
 #define CELLVIEWPAGE_H
 
-#include <QWidget>
-
+#include "Page.h"
 #include "controller/data/DataProxy.h"
 
 class QMenu;
@@ -39,7 +38,7 @@ namespace Ui
 // the methods onEnter and onExit are called dynamically from the page manager.
 // we do lazy inizialization of the visual stuff, specially openGL based stuff
 
-class CellViewPage : public QWidget
+class CellViewPage : public Page
 {
     Q_OBJECT
     
@@ -48,63 +47,53 @@ public:
     explicit CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
-signals:
-
-    void signalError(Error* error);
-    // navigation
-    void moveToNextPage();
-    void moveToPreviousPage();
-
 public slots:
 
     void onInit();
     void onEnter();
     void onExit();
 
-private slots:
-
-    // navigation
-    void goBackClicked(bool clicked);
+protected slots:
 
     // load the cell tissue figure into the stage (can be done sync and async)
-    void loadCellFigure();
-    
+    void slotLoadCellFigure();
     // callback when the image loading is done sync
-    void loadCellFigurePost();
-
+    void slotLoadCellFigurePost();
     // save current scene
-    void saveImage();
-    void printImage();
-    void exportSelection();
-    
+    void slotSaveImage();
+    void slotPrintImage();
+    void slotExportSelection();
     // activate selection of genes
-    void activateSelection(bool);
-    void selectByRegExp();
-
+    void slotActivateSelection(bool);
+    void slotSelectByRegExp();
     // select gene visual mode
-    void setGeneVisualMode(QAction *action);
-    
+    void slotSetGeneVisualMode(QAction *action);
     // launch a color selector
-    void loadColor();
+    void slotLoadColor();
     
 protected:
 
+    //dont want to allow wheel events
     virtual void wheelEvent(QWheelEvent* event);
     
     void initGLView();
     void initGLModel();
     void initGLConnections();
     void finalizeGL();
-
     void createActions();
     void createToolBar();
     void createConnections();
-    
     void resetActionStates();
+    const DataProxy::FeatureList lookupFeatures(const QList<QString> &featureIdList) const;
+    //image loading functions that make use of async or not
+    void loadCellFigureSync(QIODevice *device);
+    void loadCellFigureAsync(QIODevice *device);
 
+private:
+    
     // mvc model
     GeneFeatureItemModel *geneModel;
-    
+
     // have 2 scene items (cell tissue image and gene plotter)
     GraphicsSceneGL *scene;
     ImageItemGL *cell_tissue;
@@ -112,10 +101,10 @@ protected:
 
     // ui view items
     HeatMapLegendGL *m_heatmap;
-    
+
     // tool bar
     QToolBar *toolBar;
-    
+
     // actions for toolbar
     QAction *actionNavigate_goBack;
     QAction *actionSave_save;
@@ -123,10 +112,10 @@ protected:
     QAction *actionExport_selection;
     QAction *actionSelection_toggleSelectionMode;
     QAction *actionSelection_showSelectionDialog;
-    
+
     QAction *actionZoom_zoomIn;
     QAction *actionZoom_zoomOut;
-    
+
     QMenu *menu_genePlotter;
     QAction *actionShow_showGrid;
     QAction *actionShow_showGenes;
@@ -138,18 +127,19 @@ protected:
     QAction *actionShow_toggleDynamicRange;
     QAction *actionShow_toggleDynamicRangeGenes;
     QAction *actionShow_toggleHeatMap;
-    
-    QWidgetAction *actionWidget_geneHitsThreshold;
+
+    QWidgetAction *actionWidget_geneHitsThresholdDown;
+    QWidgetAction *actionWidget_geneHitsThresholdUp;
     QWidgetAction *actionWidget_geneIntensity;
     QWidgetAction *actionWidget_geneSize;
     QWidgetAction *actionWidget_geneShape;
-    
+
     QMenu *menu_cellTissue;
     QActionGroup *actionGroup_cellTissue;
     QAction *actionShow_cellTissueBlue;
     QAction *actionShow_cellTissueRed;
     QAction *actionShow_showCellTissue;
-    
+
     // color dialogs
     QColorDialog *colorDialog_genes;
     QColorDialog *colorDialog_grid;
@@ -160,14 +150,7 @@ protected:
     // is in selection mode?
     bool m_selection_mode;
 
-private:
-    
-    const DataProxy::FeatureList lookupFeatures(const QList<QString> &featureIdList) const;
-
-    //image loading functions that make use of async or not
-    void loadCellFigureSync(QIODevice *device);
-    void loadCellFigureAsync(QIODevice *device);
-    
+    // User interface
     Ui::CellView *ui;
 };
 

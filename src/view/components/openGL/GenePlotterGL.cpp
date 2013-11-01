@@ -23,15 +23,20 @@
 
 #include "view/pages/CellViewPage.h"
 
+#include "model/core/ColorScheme.h"
+#include "model/core/DynamicRangeColor.h"
+#include "model/core/FeatureColor.h"
+#include "model/core/HeatmapColor.h"
+
 #include "GenePlotterGL.h"
 
 GenePlotterGL::GenePlotterGL(QGraphicsItem* parent)
     : QGraphicsObject(parent), m_geneProgram(0),
       m_colorScheme(0), m_visualMode(NormalMode),
-      m_hitCountMin(0), m_hitCountMax(0), m_hitCountSum(0)
+      m_geneLowerLimit(0), m_geneUpperLimit(1)
+      //m_hitCountMin(0), m_hitCountMax(0), m_hitCountSum(0)
 {
     reset();
-
     setCacheMode(QGraphicsItem::NoCache);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresTransformations, false);
@@ -146,11 +151,8 @@ void GenePlotterGL::reset()
     m_geneShape = Globals::gene_shape;
     m_geneIntensity = static_cast<qreal>(Globals::gene_intensity / 10);
     m_geneSize = static_cast<qreal>(Globals::gene_size / 10);
-    m_geneLimit = Globals::gene_limit;
-
-    m_geneNameVisible = false;
-    m_geneNameFont = QFont();
-    m_geneNumberVisible = false;
+    m_geneLowerLimit = Globals::gene_lower_limit;
+    m_geneUpperLimit = Globals::gene_upper_limit;
 
     // allocate color scheme
     setGeneVisualMode(NormalMode);
@@ -228,13 +230,13 @@ QPainterPath GenePlotterGL::opaqueArea() const
     return QGraphicsObject::opaqueArea();
 }
 
-void GenePlotterGL::setHitCount(int min, int max, int sum)
+/*void GenePlotterGL::setHitCount(int min, int max, int sum)
 {
     m_hitCountMin = min;
     m_hitCountMax = max;
     m_hitCountSum = sum;
 }
-
+*/
 void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
 {
     GL::GLElementRectangleFactory factory(m_geneData);
@@ -295,6 +297,12 @@ void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
     
     GL::GLElementRectangleFactory factory(m_geneData);
 
+    if(m_geneInfoById.count() == 0)
+    {
+        //early out...UGLY
+        return;
+    }
+
     // easy access
     const bool selected = gene->selected();
 
@@ -328,9 +336,7 @@ void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
                 color = GL::invlerp((1.0f / GLfloat(refCount)), color, oldColor);
             }
             color = GL::lerp((1.0f / GLfloat(refCount)), color, newColor);
-            color.alpha = color.alpha
-                * (feature->hits() < m_geneLimit ? 0.1f : 1.0f) // fade out features below hit count threshold
-                * m_geneIntensity; // add alpha
+            color.alpha *= m_geneIntensity; // set alpha
             factory.setColor(vdi, color);
         }
     }
@@ -343,6 +349,12 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
     DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     
     GL::GLElementRectangleFactory factory(m_geneData);
+
+    if(m_geneInfoById.count() == 0)
+    {
+        //early out...UGLY
+        return;
+    }
 
     // easy access
     const bool selected = gene->selected();
@@ -372,9 +384,7 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
             color = (selected) ?
                 GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor) :
                 GL::invlerp((1.0f / GLfloat(oldRefCount)), color, featureColor);
-            color.alpha = color.alpha
-                * (feature->hits() < m_geneLimit ? 0.1f : 1.0f) // fade out features below hit count threshold
-                * m_geneIntensity; // add alpha
+            color.alpha *= m_geneIntensity; // set alpha
         }
         factory.setColor(vdi, color);
 
@@ -497,6 +507,7 @@ void GenePlotterGL::selectAll(const DataProxy::GeneList &geneList)
     }
     selectAll(aggregateFeatureList);
 }
+
 void GenePlotterGL::selectAll(const DataProxy::FeatureList &featureList)
 {
     DataProxy *dataProxy = DataProxy::getInstance();
@@ -699,6 +710,12 @@ void GenePlotterGL::updateGeneVisualData()
 
     GL::GLElementRectangleFactory factory(m_geneData);
 
+    if(m_geneInfoById.count() == 0)
+    {
+        //early out...UGLY
+        return;
+    }
+
     // reset ref count
     GeneInfoList::iterator it, end = m_geneInfo.end();
     for (it = m_geneInfo.begin(); it != end; ++it)
@@ -731,9 +748,7 @@ void GenePlotterGL::updateGeneVisualData()
             const GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature));
             GL::GLcolor color = factory.getColor(vdi);
             color = GL::lerp((1.0f / GLfloat(refCount)), color, featureColor);
-            color.alpha = color.alpha
-                * (feature->hits() < m_geneLimit ? 0.1f : 1.0f) // fade out features below hit count threshold
-                * m_geneIntensity; // add alpha
+            color.alpha *= m_geneIntensity; // set alpha
             factory.setColor(vdi, color);
         }
     }
@@ -766,42 +781,7 @@ void GenePlotterGL::rebuildGeneData()
     // clear data
     m_geneData.clear(GL::GLElementData::Arrays & ~GL::GLElementData::IndexArray);
     m_geneData.setMode(GL_QUADS);
-    
     generateGeneData();
-}
-
-GenePlotterGL::FeatureColor::FeatureColor() { }
-QColor GenePlotterGL::FeatureColor::getColor(DataProxy::FeaturePtr feature) const
-{
-    return feature->color();
-}
-
-GenePlotterGL::DynamicRangeColor::DynamicRangeColor(int minHits, int maxHits)
-    : m_minHits(minHits), m_maxHits(maxHits)
-{ }
-
-QColor GenePlotterGL::DynamicRangeColor::getColor(DataProxy::FeaturePtr feature) const
-{
-    const qreal v = qreal(feature->hits()), min = qreal(m_minHits), max = qreal(m_maxHits);
-    const qreal nv = qSqrt(GL::norm<qreal,qreal>(v, min, max));
-
-    QColor color = feature->color();
-    color.setAlphaF(nv);
-    return color;
-}
-
-GenePlotterGL::HeatMapColor::HeatMapColor(int minHits, int maxHits)
-    : m_minHits(minHits), m_maxHits(maxHits)
-{ 
-    
-}
-
-QColor GenePlotterGL::HeatMapColor::getColor(DataProxy::FeaturePtr feature) const
-{
-    const GLfloat v = GLfloat(feature->hits()), min = GLfloat(m_minHits), max = GLfloat(m_maxHits);
-    const GLfloat nv = GL::norm<GLfloat,GLfloat>(v, min, max);
-    const GLfloat waveLength = GL::GLheatmap::generateHeatMapWavelength(nv, GL::GLheatmap::SpectrumExp);
-    return GL::toQColor(GL::GLheatmap::createHeatMapColor(waveLength));
 }
 
 void GenePlotterGL::setGeneVisible(bool geneVisible)
@@ -824,11 +804,25 @@ void GenePlotterGL::setGeneShape(int geneShape)
     }
 }
 
-void GenePlotterGL::setGeneLimit(int geneLimit)
+void GenePlotterGL::setGeneLowerLimit(int geneLimit)
 {
-    if (m_geneLimit != geneLimit)
+    if (m_geneLowerLimit != geneLimit)
     {
-        m_geneLimit = geneLimit;
+        m_geneLowerLimit = geneLimit;
+        Q_ASSERT(m_colorScheme);
+        m_colorScheme->setMin(geneLimit);
+        updateGeneVisualData();
+        update(boundingRect());
+    }
+}
+
+void GenePlotterGL::setGeneUpperLimit(int geneLimit)
+{
+    if (m_geneUpperLimit != geneLimit)
+    {
+        m_geneUpperLimit = geneLimit;
+        Q_ASSERT(m_colorScheme);
+        m_colorScheme->setMax(geneLimit);
         updateGeneVisualData();
         update(boundingRect());
     }
@@ -858,7 +852,6 @@ void GenePlotterGL::setGeneSize(int geneSize)
     }
 }
 
-
 void GenePlotterGL::setGeneVisualMode(const VisualMode mode)
 {
     // early out
@@ -877,14 +870,16 @@ void GenePlotterGL::setGeneVisualMode(const VisualMode mode)
     switch (m_visualMode)
     {
     case DynamicRangeMode:
-        m_colorScheme = new DynamicRangeColor(m_hitCountMin, m_hitCountMax);
+        //m_colorScheme = new DynamicRangeColor(m_hitCountMin, m_hitCountMax);
+        m_colorScheme = new DynamicRangeColor(m_geneLowerLimit, m_geneUpperLimit);
         break;
     case HeatMapMode:
-        m_colorScheme = new HeatMapColor(m_hitCountMin, m_hitCountMax);
+        //m_colorScheme = new HeatMapColor(m_hitCountMin, m_hitCountMax);
+        m_colorScheme = new HeatMapColor(m_geneLowerLimit, m_geneUpperLimit);
         break;
     case NormalMode:
     default:
-        m_colorScheme = new FeatureColor();
+        m_colorScheme = new FeatureColor(m_geneLowerLimit, m_geneUpperLimit);
         break;
     }
 

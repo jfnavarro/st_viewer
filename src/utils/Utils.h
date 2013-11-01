@@ -69,6 +69,12 @@ namespace Globals
     static const QColor minimap_view_color = Qt::blue;
     static const QColor minimap_scene_color = Qt::red;
     
+    static const qreal minimap_height = 100;
+    static const qreal minimap_width = 100;
+    static const qreal heatmap_height = 100;
+    static const qreal heatmap_width = 20;
+    static const qreal heatmap_bar_width = 30;
+
     enum Shape {
         Circle = 0,
         Cross  = 1,
@@ -78,7 +84,8 @@ namespace Globals
     static const Shape gene_shape = Circle;
     static const int gene_size = 10;
     static const int gene_intensity = 10;
-    static const int gene_limit = 1;
+    static const int gene_lower_limit = 1;
+    static const int gene_upper_limit = std::numeric_limits<int>::min();
     
     static const qreal grid_line_size = 1;
     static const qreal grid_line_space = 5;

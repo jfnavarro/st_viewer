@@ -34,12 +34,9 @@ public:
     
     virtual bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index);
     
-    
-// private:
-    
     static const QRect checkBoxRect(const QStyleOptionViewItem &view_item_style_options);
     
-    Q_DISABLE_COPY(BooleanItemDelegate)
+    Q_DISABLE_COPY(BooleanItemDelegate);
 };
 
 #endif // BOOLEANITEMDELEGATE_H //

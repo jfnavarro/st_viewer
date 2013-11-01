@@ -28,12 +28,9 @@ public:
     
     explicit ViewItemGL(QObject* parent = 0);
     virtual ~ViewItemGL();
-
     virtual void render(QPainter* painter) = 0;
-
     virtual const QRectF boundingRect() const = 0;
     virtual const bool contains(const QPointF& point) const;
-
     // default "do nothing" event functions
     virtual const bool mouseMoveEvent(QMouseEvent* event);
     virtual const bool mousePressEvent(QMouseEvent* event);
@@ -43,13 +40,10 @@ public slots:
 
     const Anchor anchor() const;
     void setAnchor(Anchor anchor);
-    
     const QTransform transform() const;
     void setTransform(const QTransform& transform);
-
     int zValue() const;
     void setZValue(int z);
-
     bool visible() const;
     void setVisible(bool visible);
 

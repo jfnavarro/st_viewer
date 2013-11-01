@@ -20,11 +20,14 @@
 
 #include "HeatMapLegendGL.h"
 
-const QRectF HeatMapLegendGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f, 60.0f, 100.0f);
+const QRectF HeatMapLegendGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f,
+                                                      Globals::heatmap_bar_width * 2,
+                                                      Globals::heatmap_height);
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     : ViewItemGL(parent), m_bounds(DEFAULT_BOUNDS), m_rect(),
-      m_hitCountMin(0), m_hitCountMax(1), m_hitCountSum(1), m_hitCount(0), m_threshold(0.0)
+      m_hitCountMin(0), m_hitCountMax(1), m_hitCountSum(1), m_lowerLimit(0), m_upperLimit(0),
+      m_lower_threshold(0.0), m_upper_threshold(0.0)
 {
     generateHeatMapData();
     generateHeatMapText();
@@ -87,18 +90,33 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
         (m_hitCountSum != sum))
     {
         m_hitCountMin = min;
+        m_lowerLimit = min;
         m_hitCountMax = max;
+        m_upperLimit = max;
         m_hitCountSum = sum;
         rebuildHeatMapText();
+        generateHeatMapData();
     }
 }
-void HeatMapLegendGL::setHitCount(int hitCount)
+
+void HeatMapLegendGL::setLowerLimit(int limit)
 {
-    if (m_hitCount != hitCount)
+    if (m_lowerLimit != limit)
     {
-        m_hitCount = hitCount;
-        qreal threshold = qreal(hitCount - m_hitCountMin) / qreal(m_hitCountMax - m_hitCountMin);
-        m_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
+        m_lowerLimit = limit;
+        qreal threshold = qreal(m_lowerLimit - m_hitCountMin) / qreal(m_hitCountMax - m_hitCountMin);
+        m_lower_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
+        rebuildHeatMapData();
+    }
+}
+
+void HeatMapLegendGL::setUpperLimit(int limit)
+{
+    if (m_upperLimit != limit)
+    {
+        m_upperLimit = limit;
+        qreal threshold = qreal(m_hitCountMax - m_upperLimit) / qreal(m_hitCountMax - m_hitCountMin);
+        m_upper_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
         rebuildHeatMapData();
     }
 }
@@ -120,22 +138,23 @@ void HeatMapLegendGL::generateHeatMapData()
     GL::GLElementRectangleFactory factory(m_data, flags);
 
     // rebuild heatmap rectangle
-    const QPointF topLeft = m_bounds.topLeft();
-    const QSizeF  size = m_bounds.size();
+    //const QPointF topLeft = m_bounds.topLeft();
+    const QSizeF size = m_bounds.size();
     m_rect = QRectF(
         QPointF(0.0f, 0.0f),
-        QSizeF(20.0f, size.height())
+        QSizeF(Globals::heatmap_width, size.height())
     );
 
     // threshold height
     const GLfloat height = GLfloat(size.height());
-    const GLfloat thresholdHeight = (1.0f - m_threshold) * height;
+    const GLfloat thresholdLowerHeight = (1.0f - m_lower_threshold) * height;
+    const GLfloat thresholdUpperHeight = (m_upper_threshold) * height;
 
     // generate borders
     const GL::GLcolor borderColor = GL::GLcolor(GL::White);
-
     const GL::GLrectangle rect = GL::toGLrectangle(m_rect);
 
+    //create the legend
     factory.setColor(borderColor);
     factory.addShape(rect);
     factory.setColor(GL::GLcolor(GL::Black));
@@ -143,16 +162,27 @@ void HeatMapLegendGL::generateHeatMapData()
     factory.addShape(GL::GLrectangle::fromLine(rect.p[1], rect.p[2]));
     factory.addShape(GL::GLrectangle::fromLine(rect.p[2], rect.p[3]));
     factory.addShape(GL::GLrectangle::fromLine(rect.p[3], rect.p[0]));
+
     factory.setColor(GL::GLcolor(GL::Black));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdHeight),
-        GL::GLpoint(30.0f, thresholdHeight),
+        GL::GLpoint( 0.0f, thresholdLowerHeight),
+        GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight),
         3.0f
     ));
+    factory.addShape(GL::GLrectangle::fromLine(
+        GL::GLpoint( 0.0f, thresholdUpperHeight),
+        GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight),
+        3.0f
+    ));
+
     factory.setColor(GL::GLcolor(GL::Red));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdHeight),
-        GL::GLpoint(30.0f, thresholdHeight)
+        GL::GLpoint( 0.0f, thresholdLowerHeight),
+        GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight)
+    ));
+    factory.addShape(GL::GLrectangle::fromLine(
+        GL::GLpoint( 0.0f, thresholdUpperHeight),
+        GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight)
     ));
 
     // generate element data render command
@@ -178,19 +208,25 @@ void HeatMapLegendGL::generateHeatMapText()
     QFont monoFont("Courier", 10, QFont::Normal);
     monoFont.setStyleHint(QFont::TypeWriter);
 
-    m_text.addText(30, 10, monoFont, QString("%1").arg(m_hitCountMax));
-    m_text.addText(30, height, monoFont, QString("%1").arg(m_hitCountMin));
+    m_text.addText(Globals::heatmap_bar_width, 10, monoFont, QString("%1").arg(m_hitCountMax));
+    m_text.addText(Globals::heatmap_bar_width, height, monoFont, QString("%1").arg(m_hitCountMin));
+}
+
+void HeatMapLegendGL::rebuildHeatMapStaticData()
+{
+    //clear image and texture to regerate them
+    m_image.deleteImage();
+    m_texture.deleteHandle();
+    generateStaticHeatMapData();
 }
 
 void HeatMapLegendGL::generateStaticHeatMapData()
 {
     // generate image
-    m_image = GL::GLimage(1, 100, GL_RGBA, GL_FLOAT);
+    m_image = GL::GLimage(1, Globals::heatmap_height, GL_RGBA, GL_FLOAT);
     m_image.createImage();
-    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp);
-
-//    GL::GLimagewriter::imageFillGradient(m_image, GL::GLcolor(GL::Red), GL::GLcolor(GL::Blue), GL::GLimagewriter::VerticalGradient);
-
+    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp,
+                                      m_hitCountMin, m_hitCountMax > 1 ? m_hitCountMax : 100);
     // load texture
     m_texture.createHandle();
     // set parameters

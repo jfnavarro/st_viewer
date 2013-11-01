@@ -52,7 +52,6 @@ public:
 public slots:
     
     void loadDatasets();
-    
     void datasetSelected(const QModelIndex&);
 
 signals:
@@ -61,8 +60,10 @@ signals:
     
 private:
     
-    DataProxy::DatasetListPtr m_datasets_reference;
     static const int MColumns = 10;
+    DataProxy::DatasetListPtr m_datasets_reference;
+
+    Q_DISABLE_COPY(DatasetItemModel);
 };
 
 #endif // DATASETITEMMODEL_H

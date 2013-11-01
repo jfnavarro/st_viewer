@@ -88,8 +88,6 @@ public:
     Chip& chip() { return m_chip; }
 
 private:
-    
-    Q_DISABLE_COPY(ChipDTO)
 
     Chip m_chip;
 };

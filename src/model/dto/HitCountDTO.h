@@ -31,10 +31,6 @@ public:
     Q_PROPERTY(int max READ max WRITE max)
     Q_PROPERTY(int sum READ sum WRITE sum)
 
-private:
-
-    Q_DISABLE_COPY(HitCountDTO)
-
 public:
 
     explicit HitCountDTO(QObject* parent = 0);

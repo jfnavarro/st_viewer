@@ -18,18 +18,18 @@ set(PROJECT_DOMAIN_SECOND "com")
 set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
 #Production configuration
-# set(ENDPOINT "https://api.spatialtranscriptomics.com")
-# set(APIPATH  "api-0.3")
-# set(CLIENTID "st-viewer-client")
-# set(SECRETID "ayfBaF5UAKR2")
-# set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
-
-#QA configuration
-set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
+set(ENDPOINT "https://api.spatialtranscriptomics.com")
 set(APIPATH  "api-0.3")
 set(CLIENTID "st-viewer-client")
-set(SECRETID "secret")
+set(SECRETID "ayfBaF5UAKR2")
 set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+
+#QA configuration
+#set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
+#set(APIPATH  "api-0.3")
+#set(CLIENTID "st-viewer-client")
+#set(SECRETID "secret")
+#set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
 #DEV configuration
 # set(ENDPOINT "https://esox.scilifelab.se")

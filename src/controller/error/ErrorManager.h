@@ -34,8 +34,6 @@ public slots:
 
 private:
     
-    Q_DISABLE_COPY(ErrorManager);
-    
     QPointer<QErrorMessage> m_errorDialog;
     QPointer<QWidget> m_parentContainer;
 };

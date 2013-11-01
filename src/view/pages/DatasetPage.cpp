@@ -5,10 +5,13 @@
 
 */
 
+#include "DatasetPage.h"
+
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
 #include <QModelIndex>
+
 #include "controller/data/DataProxy.h"
 #include "controller/data/DataStore.h"
 #include "controller/error/Error.h"
@@ -18,13 +21,10 @@
 
 #include "utils/Utils.h"
 
-#include "DatasetPage.h"
 #include "ui_datasets.h"
 
-DatasetPage::DatasetPage(QWidget *parent)
-    : QWidget(parent), ui(new Ui::DataSets), m_datasetModel(0)
-{
-    
+DatasetPage::DatasetPage(QWidget *parent) : Page(parent), m_datasetModel(0)
+{ 
     onInit();
 }
 
@@ -37,6 +37,7 @@ void DatasetPage::onInit()
 {
     DEBUG_FUNC_NAME
     
+    ui = new Ui::DataSets;
     ui->setupUi(this);
     
     //crearte model for the table view
@@ -105,7 +106,6 @@ void DatasetPage::slotDataError(Error *error)
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 {
-
     if(item.isNull() || item->id().isEmpty())
     {
         emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));
@@ -202,14 +202,5 @@ void DatasetPage::setWaiting(bool waiting)
     ui->refresh->setEnabled(!waiting);
     ui->abort->setEnabled(waiting);
     ui->abort->setVisible(waiting);
-
-    if(waiting)
-    {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    }
-    else
-    {
-        QApplication::restoreOverrideCursor();
-        QApplication::processEvents();
-    }
+    Page::setWaiting(waiting);
 }

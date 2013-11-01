@@ -5,6 +5,8 @@
 
 */
 
+#include "InitPage.h"
+
 #include <QWidget>
 #include <QDebug>
 #include "utils/DebugHelper.h"
@@ -14,11 +16,9 @@
 #include "controller/network/DownloadManager.h"
 #include "controller/data/DataProxy.h"
 
-#include "InitPage.h"
-
 #include "ui_initpage.h"
 
-InitPage::InitPage(QWidget *parent) : QWidget(parent)
+InitPage::InitPage(QWidget *parent) : Page(parent)
 {
     onInit();
 }
@@ -33,7 +33,7 @@ void InitPage::onInit()
     DEBUG_FUNC_NAME
     
     //create the start widget
-    ui = new Ui::InitPage(); 
+    ui = new Ui::InitPage;
     ui->setupUi(this);
     ui->user_name->setText("");
     ui->newExpButt->setEnabled(false);
@@ -67,7 +67,7 @@ void InitPage::slotAuthorizationError(Error *error)
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
     auth->forceAuthentication(); //authorize again  
-    //emit signalError(error); //NOTE what to do here?
+    //emit signalError(error); //NOTE do we want to emit an eror for this?
 }
 
 void InitPage::slotNetworkError(Error *error)
@@ -173,15 +173,5 @@ void InitPage::setWaiting(bool waiting)
 {
     ui->logoutButt->setEnabled(!waiting);
     ui->newExpButt->setEnabled(!waiting);
-    
-    if(waiting)
-    {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    }
-    else
-    {
-        QApplication::restoreOverrideCursor();
-        QApplication::processEvents();
-    }
-    
+    Page::setWaiting(waiting);
 }

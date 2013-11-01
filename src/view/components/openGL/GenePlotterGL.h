@@ -27,6 +27,8 @@
 
 #include "controller/data/DataProxy.h"
 
+class ColorScheme;
+
 // Specialized graphical object class used to visualize gene data in the
 // cell view. Contains all necessary data to configure and display genes
 // as well as the grid on which they exist.
@@ -41,7 +43,6 @@ public:
     {
         NormalMode,
         DynamicRangeMode,
-        DynamicRangeModeGenes,
         HeatMapMode
     };
     
@@ -83,7 +84,7 @@ public:
 
 public slots:
     
-    void setHitCount(int min, int max, int sum);
+    //void setHitCount(int min, int max, int sum);
 
     // update selection
     void setSelectionArea(const SelectionEvent *event);
@@ -94,7 +95,8 @@ public slots:
 
     void setGeneVisible(bool geneVisible);
     void setGeneShape(int geneShape);
-    void setGeneLimit(int geneLimit);
+    void setGeneLowerLimit(int geneLimit);
+    void setGeneUpperLimit(int geneLimit);
     void setGeneIntensity(int geneIntensity);
     void setGeneSize(int geneSize);
 
@@ -135,8 +137,8 @@ private:
         GL::GLindex indexDataIndex;
         quint8 featureCount, refCount;
     };
-    
     typedef QList<LookupData> GeneInfoList;
+
     // lookup maps
     typedef QHash<QString, GeneInfoList::size_type> GeneInfoByIdMap;
     typedef QPair<LookupData::IndexType, GeneInfoList::size_type> GeneInfoByIdxKey;
@@ -146,7 +148,7 @@ private:
     typedef GL::GLQuadTree<GeneInfoList::size_type,8> GeneInfoQuadTree;
     // selection set
     typedef QSet<GeneInfoList::size_type> GeneInfoSelectedSet;
-
+    // shaders
     typedef QMap<uint, QGLShaderProgram *> ShaderProgramList;
 
     // gene visual data
@@ -163,59 +165,29 @@ private:
     ShaderProgramList m_geneProgramList;
     QGLShaderProgram *m_geneProgram;
 
+    //gene shape/colors
     bool m_geneVisible;
     Globals::Shape m_geneShape;
     qreal m_geneIntensity;
     qreal m_geneSize;
-    int m_geneLimit;
+    int m_geneLowerLimit;
+    int m_geneUpperLimit;
 
-    bool m_geneNameVisible;
-    QFont m_geneNameFont;
-    bool m_geneNumberVisible;
+    // color scheme
+    ColorScheme *m_colorScheme;
+    //visual mode
+    VisualMode m_visualMode;
 
+    //hit count variables
+    //int m_hitCountMin;
+    //int m_hitCountMax;
+    //int m_hitCountSum;
+
+    //rendering functions
     void generateGeneData();
     void updateGeneVisualData();
     void updateGeneSizeData();
     void rebuildGeneData();
-
-    // color scheme
-    // Strategy pattern to allow features to be rendered with different colors.
-    class ColorScheme
-    {
-        public:
-	        inline ColorScheme() {};
-	        virtual inline ~ColorScheme() {};
-            virtual QColor getColor(DataProxy::FeaturePtr feature) const = 0;
-    };
-    // render feature according to feature color
-    class FeatureColor : public ColorScheme
-    {
-        public:
-            FeatureColor();
-            virtual QColor getColor(DataProxy::FeaturePtr feature) const;
-    };
-    // render feature with feature color but set alpha to normalized hit count 
-    class DynamicRangeColor : public ColorScheme
-    {
-        public:
-            DynamicRangeColor(int minHits, int maxHits);
-            virtual QColor getColor(DataProxy::FeaturePtr feature) const;
-        private:
-            int m_minHits, m_maxHits;
-    };
-    // render feature with color from normalized hit count mapped to HSV color space
-    class HeatMapColor : public ColorScheme
-    {
-        public:
-            HeatMapColor(int minHits, int maxHits);
-            virtual QColor getColor(DataProxy::FeaturePtr feature) const;
-        private:
-            int m_minHits, m_maxHits;
-    };
-
-    ColorScheme *m_colorScheme;
-    VisualMode m_visualMode;
-    int m_hitCountMin, m_hitCountMax, m_hitCountSum;
 };
 
 #endif // GENEPLOTTERGL_H

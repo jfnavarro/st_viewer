@@ -62,8 +62,6 @@ public:
 
 private:
 
-    Q_DISABLE_COPY(Configuration);
-    
     const QString readSetting(const QString& key) const;
 
     QPointer<QSettings> m_settings;
