@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -70,14 +70,14 @@ class ExtendedTabWidget : public QWidget
 public:
     
     ExtendedTabWidget(QWidget *parent = 0);
-	virtual ~ ExtendedTabWidget();
+    virtual ~ ExtendedTabWidget();
     
     QSize sizeHint() const;
     
     int count() const;
     int currentIndex() const;
     QWidget *widget(int index);
-    int indexOf(QWidget* w);  
+    int indexOf(QWidget* w);
     
     bool setVisible(QWidget* w, bool b);
     bool setEnabled(QWidget* w, bool b);
@@ -91,7 +91,7 @@ public slots:
     void insertPage(int index, QWidget *page, const QIcon &icon=QIcon(), const QString &title=QString());
     void removePage(int index);
     void setCurrentIndex(int index);
-  
+
     void tabChanged(int toIndex, int fromIndex = -1);
     void moveToNextPage();
     void moveToPreviousPage();
@@ -118,7 +118,7 @@ private:
     void createPages();
     void createActions();
     
-    //pages 
+    //pages
     InitPage *startpage;
     DatasetPage *datasets;
     CellViewPage *cellview;

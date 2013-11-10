@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -24,8 +24,8 @@ const QRectF MiniMapGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f,
                                                 Globals::minimap_width);
 
 MiniMapGL::MiniMapGL(QObject* parent)
-    : ViewItemGL(parent), m_selecting(false), m_bounds(DEFAULT_BOUNDS), 
-    m_transform(), m_scene(), m_view() //, m_sceneColor(Qt::red), m_viewColor(Qt::blue)
+    : ViewItemGL(parent), m_selecting(false), m_bounds(DEFAULT_BOUNDS),
+      m_transform(), m_scene(), m_view() //, m_sceneColor(Qt::red), m_viewColor(Qt::blue)
 {
     m_sceneColor = Globals::minimap_scene_color;
     m_viewColor = Globals::minimap_view_color;
@@ -94,8 +94,8 @@ void MiniMapGL::updateTransform(const QRectF& scene)
     const qreal s22 = (s2.y() / s1.y());
 
     m_transform =
-        QTransform::fromTranslate(-scene.x(), -scene.y()) // align 
-        * QTransform(s11, 0.0f, 0.0f, s22, 0.0f, 0.0f);   // scale
+            QTransform::fromTranslate(-scene.x(), -scene.y()) // align
+            * QTransform(s11, 0.0f, 0.0f, s22, 0.0f, 0.0f);   // scale
 }
 
 void MiniMapGL::render(QPainter* painter)

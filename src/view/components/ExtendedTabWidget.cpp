@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -26,28 +26,28 @@
 
 bool ExtendedButtonGroup::event(QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) 
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress)
     {
         return true;
-    } 
+    }
     return QButtonGroup::event(event);
 }
 
 bool ExtendedButton::event(QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) 
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress)
     {
         return true;
-    } 
+    }
     return QPushButton::event(event);
 }
 
 bool ExtendedTabWidget::event(QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) 
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress)
     {
         return true;
-    } 
+    }
     return QWidget::event(event);
 }
 
@@ -85,12 +85,12 @@ ExtendedTabWidget::~ExtendedTabWidget()
 {
     // exit last page
     const int index = currentIndex();
-    tabChanged(-1, index); 
+    tabChanged(-1, index);
 }
 
 void ExtendedTabWidget::buttonClicked(int index)
 {
-    ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));   
+    ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));
     button->setChecked(index == currentIndex());
 }
 
@@ -114,7 +114,7 @@ void ExtendedTabWidget::removePage(int index)
 {
     QWidget *widget = stackWidget->widget(index);
     stackWidget->removeWidget(widget);
-    ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));  
+    ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));
     buttonLayout->removeWidget(button);
     buttonGroup->removeButton(button);
     delete button;
@@ -123,12 +123,12 @@ void ExtendedTabWidget::removePage(int index)
 
 void ExtendedTabWidget::addTab(QWidget * page, const QString & title)
 { 
-    addPage(page, QIcon(), title); 
+    addPage(page, QIcon(), title);
 }
 
 void ExtendedTabWidget::addTab(QWidget * page, const QIcon & icon, const QString & title)
 {
-    addPage(page, icon, title); 
+    addPage(page, icon, title);
 }
 
 int ExtendedTabWidget::count() const
@@ -159,7 +159,7 @@ void ExtendedTabWidget::insertPage(int index, QWidget *page, const QIcon &icon, 
     QIcon pix = icon;
     if( pix.isNull() )
     {
-        pix = QApplication::style()->standardIcon(QStyle::SP_ArrowUp);   
+        pix = QApplication::style()->standardIcon(QStyle::SP_ArrowUp);
     }
     
     page->setWindowIcon(pix);
@@ -210,13 +210,13 @@ bool ExtendedTabWidget::setVisible(QWidget* w, bool b)
 {
     int index = indexOf(w);
     
-    if( index == -1 ) 
+    if( index == -1 )
     {
         return false;
     }
     
     if( currentIndex() == index )
-    {    
+    {
         setCurrentIndex(0);
     }
     
@@ -228,13 +228,13 @@ bool ExtendedTabWidget::setEnabled(QWidget* w, bool b)
 {
     int index = indexOf(w);
     
-    if( index == -1 ) 
-    {    
+    if( index == -1 )
+    {
         return false;
     }
     
     if( currentIndex() == index )
-    {    
+    {
         setCurrentIndex(0);
     }
     
@@ -304,7 +304,7 @@ void ExtendedTabWidget::createActions()
     connect(startpage, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     connect(datasets, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     connect(cellview, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
-    connect(experiments,SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)) ); 
+    connect(experiments,SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)) );
 }
 
 void ExtendedTabWidget::resetStatus()

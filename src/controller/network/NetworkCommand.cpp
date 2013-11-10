@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -12,12 +12,12 @@
 #include <QDebug>
 
 NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent), 
-                                                  m_url(), m_type(Globals::HttpRequestTypeNone), m_query() 
+    m_url(), m_type(Globals::HttpRequestTypeNone), m_query()
 { 
     
 }
 NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent) : 
-                               QObject(parent), m_url(url), m_type(type), m_query() 
+    QObject(parent), m_url(url), m_type(type), m_query()
 { 
     
 }
@@ -42,8 +42,8 @@ void NetworkCommand::addQueryItems(QObject* object)
         QString  param = metaproperty.name();
         if (!metaproperty.isReadable())
         {
-            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName() 
-            << param << "is not readable and will be ignored!";
+            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName()
+                     << param << "is not readable and will be ignored!";
             continue;
         }
         
@@ -51,8 +51,8 @@ void NetworkCommand::addQueryItems(QObject* object)
         QVariant value = metaproperty.read(object);
         if (!value.canConvert(QVariant::String))
         {
-            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName() << param 
-            << "is not convertable to QString, and will be ignored!";
+            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName() << param
+                     << "is not convertable to QString, and will be ignored!";
             continue;
         }
 

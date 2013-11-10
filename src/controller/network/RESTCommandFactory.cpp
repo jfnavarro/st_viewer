@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,8 +14,8 @@ NetworkCommand* RESTCommandFactory::getAuthorizationToken()
 {
     Configuration* config = Configuration::getInstance();
     QUrl endpoint = QUrl(config->oauthEndpointToken());
-    NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypePost);    
-    cmd->addQueryItem(Globals::LBL_GRANT_TYPE, Globals::LBL_GRANT_PASSWORD); 
+    NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
+    cmd->addQueryItem(Globals::LBL_GRANT_TYPE, Globals::LBL_GRANT_PASSWORD);
     cmd->addQueryItem(Globals::LBL_SCOPE, config->oauthScope());
     return cmd;
 }

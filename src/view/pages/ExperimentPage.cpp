@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,7 +14,7 @@
 #include "ui_experiments.h"
 
 ExperimentPage::ExperimentPage(QWidget *parent)
-    : QWidget(parent), ui(new Ui::Experiments)
+    : Page(parent), ui(new Ui::Experiments)
 {
     ui->setupUi(this);
     onInit();
@@ -32,19 +32,16 @@ void ExperimentPage::mousePressEvent(QMouseEvent* event)
 
 void ExperimentPage::onInit()
 {
-    DEBUG_FUNC_NAME
 
-    /* model view for the experiments */
-    //experimentsModel = new ExperimentsItemModel ( );
-    //experiments_tableView->setModel ( experimentsModel );
+
 }
 
 void ExperimentPage::onEnter()
 {
-    DEBUG_FUNC_NAME
+
 }
 
 void ExperimentPage::onExit()
 {
-    DEBUG_FUNC_NAME
+
 }

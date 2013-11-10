@@ -12,7 +12,7 @@ void main(void)
 	bool selected = mod(flags, 2) >= 1;
     bool complex  = mod(flags, 4) >= 2;
 
-    out_color   = gl_Color;
+    out_color = gl_Color;
     out_texture = in_texture;
 	out_options = vec2(
 		(selected) ? 1.0 : 0.0,

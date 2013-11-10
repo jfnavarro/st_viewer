@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -54,7 +54,7 @@ public:
         CodeAbort = 0x02,
         CodeError = 0x04
     };
-    Q_DECLARE_FLAGS(ReturnCodes, ReturnCode); 
+    Q_DECLARE_FLAGS(ReturnCodes, ReturnCode);
 
     typedef QList<Error*> ErrorList;
 

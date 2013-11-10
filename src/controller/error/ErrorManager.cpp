@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -36,17 +36,17 @@ void ErrorManager::slotHandleError(Error* error)
     // lazy initialization
     if (m_errorDialog.isNull())
     {
-        m_errorDialog = new QErrorMessage(m_parentContainer);  
+        m_errorDialog = new QErrorMessage(m_parentContainer);
         m_errorDialog->setModal(true);
         m_errorDialog->setWindowModality(Qt::ApplicationModal);
-    }    
+    }
     
     //TODO add proper tabulation of errors
     m_errorDialog->showMessage(error->name() + " : " + QString("\n") + error->description());
     m_errorDialog->raise();
     m_errorDialog->activateWindow();
     QRect scr = QApplication::desktop()->screenGeometry();
-    m_errorDialog->move(scr.center() - m_errorDialog->rect().center()); 
+    m_errorDialog->move(scr.center() - m_errorDialog->rect().center());
     
     delete error; //check this
 }

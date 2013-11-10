@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -44,8 +44,8 @@ public:
     //clean access token
     void cleanAccesToken();
     
-    inline const bool isAuthenticated() const { return m_tokenStorage->hasAccessToken() 
-                                                && !m_tokenStorage->isExpired(); }
+    inline const bool isAuthenticated() const { return m_tokenStorage->hasAccessToken()
+                && !m_tokenStorage->isExpired(); }
     //force to log out and clean cache
     void forceAuthentication();
 
@@ -57,7 +57,7 @@ signals:
     void signalLoginAborted();
     void signalAuthorize();
     void signalError(Error* error);
-     
+
 private slots:
     
     void slotLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);

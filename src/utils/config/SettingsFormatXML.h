@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -15,10 +15,10 @@
 // Import/Export plug-in for saving settings data in an XML format.
 class SettingsFormatXML
 {
-  
+
 public:
     // static char defining the delimiting characters when parsing to settings
-	// format, default '/'
+    // format, default '/'
     static const QChar GROUP_DELIMITER;
 
     static bool writeXMLFile(QIODevice &device, const QSettings::SettingsMap &map);

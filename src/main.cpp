@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -22,34 +22,34 @@
 
 static void setLocalPaths(QtSingleApplication *app)
 {
-    // we need to tell the application where to look for plugins and resources 
-    #if defined Q_OS_WIN
+    // we need to tell the application where to look for plugins and resources
+#if defined Q_OS_WIN
     
-        app->addLibraryPath( QDir(app->applicationDirPath()).canonicalPath()
-        +QDir::separator()+"plugins");
-        
-    #elif defined Q_OS_MAC
+    app->addLibraryPath( QDir(app->applicationDirPath()).canonicalPath()
+                         +QDir::separator()+"plugins");
+
+#elif defined Q_OS_MAC
     
-        QDir dir(QApplication::applicationDirPath());
-        dir.cdUp();
-        dir.cd("PlugIns");
-        app->addLibraryPath(dir.path());
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("PlugIns");
+    app->addLibraryPath(dir.path());
     
-    #else
- 
-        QDir dir(QApplication::applicationDirPath());
-        dir.cdUp();
-        dir.cd("plugins");
-        app->addLibraryPath(dir.path());
+#else
+
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("plugins");
+    app->addLibraryPath(dir.path());
     
-    #endif   
+#endif
 }
 
 int main(int argc, char** argv)
 {
     try
-    {   
-      	QtSingleApplication *app = new QtSingleApplication(argc, argv);
+    {
+        QtSingleApplication *app = new QtSingleApplication(argc, argv);
         app->setApplicationName(app->translate("main", "stVi"));
         app->setOrganizationName("Spatial Transcriptomics AB");
         app->setOrganizationDomain("spatialtranscriptomics.com");
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
             delete app;
             return 0;
         }
-        else 
+        else
         {
             qDebug() << "Application started successfully.";
         }
@@ -78,21 +78,21 @@ int main(int argc, char** argv)
         
         qDebug() << "[Main] Local language : " << locale.name().toLower();
         
-        #if defined Q_OS_MAC
+#if defined Q_OS_MAC
         
-            QString trans_dir = app->applicationDirPath() + "/../Resources/translations/";
-            
-        #elif defined Q_OS_WIN
-            
-            QString trans_dir = QDir(app->applicationDirPath()).canonicalPath()
-            +QDir::separator()+"translations"+QDir::separator();
-            
-        #else
-            
-            QString trans_dir = app->applicationDirPath() + QString(TRANSLATIONS_DIR);
-            
-        #endif
-            
+        QString trans_dir = app->applicationDirPath() + "/../Resources/translations/";
+
+#elif defined Q_OS_WIN
+
+        QString trans_dir = QDir(app->applicationDirPath()).canonicalPath()
+                +QDir::separator()+"translations"+QDir::separator();
+
+#else
+
+        QString trans_dir = app->applicationDirPath() + QString(TRANSLATIONS_DIR);
+
+#endif
+
         qDebug() << "[Main] languages location : " << trans_dir << " file name = " << trans_name;
         
         initialized &= trans.load(trans_name, trans_dir);
@@ -110,10 +110,10 @@ int main(int argc, char** argv)
         //create mainWindow
         stVi *mainWindow = new stVi();
         app->setActivationWindow(mainWindow);
-         // connect message queue to the main window.
+        // connect message queue to the main window.
         QObject::connect(app, SIGNAL(messageReceived(QString,QObject *)),mainWindow, SLOT(handleMessage(QString)));
-         //check for min requirements
-        if(!mainWindow->checkSystemRequirements()) 
+        //check for min requirements
+        if(!mainWindow->checkSystemRequirements())
         {
             delete mainWindow;
             //delete app;

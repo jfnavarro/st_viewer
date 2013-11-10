@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -17,7 +17,7 @@
 
 namespace Ui
 {
-    class SelectionDialog;
+class SelectionDialog;
 } // namespace Ui //
 
 // Selection dialog implementing support to select genes by their names

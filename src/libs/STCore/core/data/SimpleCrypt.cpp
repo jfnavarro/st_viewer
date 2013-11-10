@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -44,10 +44,10 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QIODevice *in)
     }
 
     // abort on invalid version
-    if (header.version != VERSION) 
-    { 
-        return (m_lastError = UnknownVersionError); 
- 
+    if (header.version != VERSION)
+    {
+        return (m_lastError = UnknownVersionError);
+
     }
 
     // configure simple crypt
@@ -90,9 +90,9 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QIODevice *out, const QByteArr
     outputDataDevice.close();
 
     // abort on write error
-    if (out->write(outputData) == -1) 
-    { 
-        return (m_lastError = StreamWriteError); 
+    if (out->write(outputData) == -1)
+    {
+        return (m_lastError = StreamWriteError);
     }
 
     return StreamOK;
@@ -104,15 +104,15 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QIODevice *in, QByteArray &dat
 
     // read segment header and encrypted segment from input
     SegmentHeader segment;
-    if (in->peek(reinterpret_cast<char *>(&segment), sizeof(SegmentHeader)) == -1) 
-    { 
-        return (m_lastError = StreamReadError); 
+    if (in->peek(reinterpret_cast<char *>(&segment), sizeof(SegmentHeader)) == -1)
+    {
+        return (m_lastError = StreamReadError);
     }
 
     // abort on partial segment
-    if (in->bytesAvailable() < sizeof(SegmentHeader) + segment.size) 
-    { 
-        return (m_lastError = StreamPartialSegmentError); 
+    if (in->bytesAvailable() < sizeof(SegmentHeader) + segment.size)
+    {
+        return (m_lastError = StreamPartialSegmentError);
     }
 
     in->read(reinterpret_cast<char *>(&segment), sizeof(SegmentHeader));
@@ -134,17 +134,17 @@ int SimpleCrypt::getProperty(Property code) const
 {
     switch (code)
     {
-        case StreamHeaderSize: 
-            return sizeof(StreamHeader); 
-            break;
-        case SegmentHeaderSize: 
-            return sizeof(SegmentHeader) + sizeof(quint16); 
-            break;
-        case LastErrorCode: 
-            return static_cast<int>(m_lastError); 
-            break;
-        default: 
-            return -1; 
-            break;
+    case StreamHeaderSize:
+        return sizeof(StreamHeader);
+        break;
+    case SegmentHeaderSize:
+        return sizeof(SegmentHeader) + sizeof(quint16);
+        break;
+    case LastErrorCode:
+        return static_cast<int>(m_lastError);
+        break;
+    default:
+        return -1;
+        break;
     }
 }

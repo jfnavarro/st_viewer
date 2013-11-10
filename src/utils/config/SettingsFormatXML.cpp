@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -23,23 +23,23 @@ bool SettingsFormatXML::readXMLFile(QIODevice& device, QSettings::SettingsMap& m
     QStringList elements;
 
     // read until end is reached or error occurs
-    while (!xmlReader.atEnd() && !xmlReader.hasError()) 
+    while (!xmlReader.atEnd() && !xmlReader.hasError())
     {
         // get next token
         xmlReader.readNext();
 
         // if node push it to element list
-        if (xmlReader.isStartElement()) 
+        if (xmlReader.isStartElement())
         {
             elements.append(xmlReader.name().toString());
-        // if end node pop
-        } 
-        else if (xmlReader.isEndElement()) 
+            // if end node pop
+        }
+        else if (xmlReader.isEndElement())
         {
             if(!elements.isEmpty()) elements.removeLast();
-        // if it is some data (excl. whitespaces) parse it
-        } 
-        else if (xmlReader.isCharacters() && !xmlReader.isWhitespace()) 
+            // if it is some data (excl. whitespaces) parse it
+        }
+        else if (xmlReader.isCharacters() && !xmlReader.isWhitespace())
         {
             QString key = elements.join('/');
             map[key] = xmlReader.text().toString();
@@ -47,7 +47,7 @@ bool SettingsFormatXML::readXMLFile(QIODevice& device, QSettings::SettingsMap& m
     }
 
     // show warning on error
-    if (xmlReader.hasError()) 
+    if (xmlReader.hasError())
     {
         qWarning() << xmlReader.errorString();
         return false;
@@ -60,5 +60,5 @@ bool SettingsFormatXML::writeXMLFile(QIODevice& device, const QSettings::Setting
 {
     //NOTE: implement if needed
     // check "http://www.openshots.de/2011/03/qsettings-mit-xml-format/" for example
-   return true;
+    return true;
 }

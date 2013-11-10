@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -21,7 +21,7 @@ DatasetItemModel::DatasetItemModel(QObject* parent)
 
 DatasetItemModel::~DatasetItemModel()
 {
-  
+
 }
 
 bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -43,17 +43,17 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
     {
         switch(index.column())
         {
-            case Name: return item->name();
-            case Created: return item->statCreated();
-            case Tissue: return item->statTissue();
-            case Specie: return item->statSpecie();
-            case Aligned: return (item->figureStatus() & Dataset::Aligned) ? tr("Yes") : tr("No");
-            case Barcodes: return item->statBarcodes();
-            case Genes: return item->statGenes();
-            case UBarcodes: return item->statUniqueBarcodes();
-            case UGenes: return item->statUniqueGenes();
-            case Comments: return item->statComments();
-            default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
+        case Name: return item->name();
+        case Created: return item->statCreated();
+        case Tissue: return item->statTissue();
+        case Specie: return item->statSpecie();
+        case Aligned: return (item->figureStatus() & Dataset::Aligned) ? tr("Yes") : tr("No");
+        case Barcodes: return item->statBarcodes();
+        case Genes: return item->statGenes();
+        case UBarcodes: return item->statUniqueBarcodes();
+        case UGenes: return item->statUniqueGenes();
+        case Comments: return item->statComments();
+        default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
 
@@ -71,17 +71,17 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
     {
         switch (section)
         {
-            case Name :return tr("Name");
-            case Created :return tr("Created");
-            case Tissue :return tr("Tissue");
-            case Specie : return tr("Specie");
-            case Aligned : return tr("Aligned");
-            case Barcodes : return tr("Reads");
-            case Genes : return tr("Events");
-            case UBarcodes : return tr("Detected Barcodes");
-            case UGenes : return tr("Detected Genes");
-            case Comments: return tr("Comments");
-            default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
+        case Name :return tr("Name");
+        case Created :return tr("Created");
+        case Tissue :return tr("Tissue");
+        case Specie : return tr("Specie");
+        case Aligned : return tr("Aligned");
+        case Barcodes : return tr("Reads");
+        case Genes : return tr("Events");
+        case UBarcodes : return tr("Detected Barcodes");
+        case UGenes : return tr("Detected Genes");
+        case Comments: return tr("Comments");
+        default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
     else if (orientation == Qt::Vertical)

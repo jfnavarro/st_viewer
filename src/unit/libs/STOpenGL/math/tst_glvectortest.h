@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -13,38 +13,38 @@
 namespace unit
 {
 
-    class GLVectorTest : public QObject
-    {
-        Q_OBJECT
+class GLVectorTest : public QObject
+{
+    Q_OBJECT
 
-    public:
-        explicit GLVectorTest(QObject *parent = 0);
+public:
+    explicit GLVectorTest(QObject *parent = 0);
 
-    private Q_SLOTS:
-        void initTestCase();
-        void cleanupTestCase();
+private Q_SLOTS:
+    void initTestCase();
+    void cleanupTestCase();
 
-        void testCompareEqual();
-        void testCompareEqual_data();
+    void testCompareEqual();
+    void testCompareEqual_data();
 
-        void testUnary();
-        void testUnary_data();
+    void testUnary();
+    void testUnary_data();
 
-        void testAddSub();
-        void testAddSub_data();
+    void testAddSub();
+    void testAddSub_data();
 
-        void testMultDiv();
-        void testMultDiv_data();
+    void testMultDiv();
+    void testMultDiv_data();
 
-        void testNormalLength();
-        void testNormalLength_data();
+    void testNormalLength();
+    void testNormalLength_data();
 
-        void testQuadrant();
-        void testQuadrant_data();
+    void testQuadrant();
+    void testQuadrant_data();
 
-        void testFromPoint();
-        void testFromPoint_data();
-    };
+    void testFromPoint();
+    void testFromPoint_data();
+};
 
 } // namespace //
 

@@ -1,12 +1,14 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
 
 #ifndef HITCOUNT_H
 #define HITCOUNT_H
+
+#include "utils/Utils.h"
 
 // Data model class to store hit count data.
 class HitCount 
@@ -22,7 +24,7 @@ public:
     bool operator== (const HitCount& other) const;
 
     int min() const { return m_min; }
-    int max() const { return m_max; }
+    int max() const { return m_max > Globals::limit_hit_count ? Globals::limit_hit_count : m_max; }
     int sum() const { return m_sum; }
 
     void min(int min) { m_min = min; }

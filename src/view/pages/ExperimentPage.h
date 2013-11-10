@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -9,15 +9,15 @@
 #define	EXPERIMENTPAGE_H
 
 #include <QWidget>
-
+#include "Page.h"
 
 class ExperimentsItemModel;
 namespace Ui
 {
-    class Experiments;
+class Experiments;
 } // namespace Ui //
 
-class ExperimentPage : public QWidget
+class ExperimentPage : public Page
 {
     Q_OBJECT
     
@@ -29,22 +29,13 @@ public:
 protected:
 
     virtual void mousePressEvent(QMouseEvent* event);
-
-signals:
-    
-    void signalError(Error*);
-    void moveToNextPage();
-    void moveToPreviousPage();
+    void setWaiting(bool waiting = true);
 
 public slots:
 
     void onInit();
     void onEnter();
     void onExit();
-
-protected:
-  
-    ExperimentsItemModel *experimentsModel;
 
 private:
     Ui::Experiments *ui;

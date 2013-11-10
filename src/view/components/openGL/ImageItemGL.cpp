@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -104,13 +104,13 @@ bool ImageItemGL::contains(const QPointF& point) const
 void ImageItemGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-        painter->paintEngine()->type() != QPaintEngine::OpenGL2)
+            painter->paintEngine()->type() != QPaintEngine::OpenGL2)
     {
         qDebug() << "ImageItemGL: drawBackground needs a QGLWidget to be set as viewport on the graphics view";
         return;
     }
 
-    GL::GLTextureRender renderer; 
+    GL::GLTextureRender renderer;
     
     painter->beginNativePainting();
     {

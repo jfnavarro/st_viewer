@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -19,8 +19,8 @@ class MainStatusBar: public QStatusBar, public Singleton<MainStatusBar>
     
 public:
     
-	explicit MainStatusBar(QWidget * parent = 0);
-	virtual ~MainStatusBar();
+    explicit MainStatusBar(QWidget * parent = 0);
+    virtual ~MainStatusBar();
     
     void finalize(){};
     
@@ -29,7 +29,7 @@ public:
 public slots:
     
     void onDownloadProgress(const QString &fileName, qint64 bytesReceived, qint64 bytesTotal);
-  
+
 };
 
 #endif	/* // MAINSTATUSBAR_H */

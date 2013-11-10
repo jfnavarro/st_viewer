@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -46,7 +46,7 @@ LoginDialog::~LoginDialog()
 {
     //elements are children of main layout
     
-    //save users 
+    //save users
     saveUsers();
     
     delete m_completer;
@@ -111,16 +111,16 @@ void LoginDialog::slotAcceptLogin()
 
 void LoginDialog::keyPressEvent(QKeyEvent *e)
 {
-    switch (e->key ()) 
+    switch (e->key ())
     {
-        case Qt::Key_Escape:
-            exitLogin();
-            break;
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
-            slotAcceptLogin();
-            break;          
-        default:
-            QWidget::keyPressEvent(e);
+    case Qt::Key_Escape:
+        exitLogin();
+        break;
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+        slotAcceptLogin();
+        break;
+    default:
+        QWidget::keyPressEvent(e);
     }
 }

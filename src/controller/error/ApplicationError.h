@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -17,7 +17,7 @@ class ApplicationError : public Error
 
 public:
     
-    enum Type 
+    enum Type
     {
         NoError = 0x216fc9af,
         LocalizationError = 0x8dacd5d7,

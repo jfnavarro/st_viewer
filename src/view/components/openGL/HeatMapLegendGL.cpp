@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -29,8 +29,8 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
       m_hitCountMin(0), m_hitCountMax(1), m_hitCountSum(1), m_lowerLimit(0), m_upperLimit(0),
       m_lower_threshold(0.0), m_upper_threshold(0.0)
 {
-    generateHeatMapData();
     generateHeatMapText();
+    generateHeatMapData();
     generateStaticHeatMapData();
 }
 
@@ -86,8 +86,8 @@ const bool HeatMapLegendGL::contains(const QPointF& point) const
 void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
 {
     if ((m_hitCountMin != min) ||
-        (m_hitCountMax != max) ||
-        (m_hitCountSum != sum))
+            (m_hitCountMax != max) ||
+            (m_hitCountSum != sum))
     {
         m_hitCountMin = min;
         m_lowerLimit = min;
@@ -95,7 +95,8 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
         m_upperLimit = max;
         m_hitCountSum = sum;
         rebuildHeatMapText();
-        generateHeatMapData();
+        rebuildHeatMapData();
+        //rebuildHeatMapStaticData();
     }
 }
 
@@ -132,18 +133,18 @@ void HeatMapLegendGL::rebuildHeatMapData()
 void HeatMapLegendGL::generateHeatMapData()
 {
     const GL::GLflag flags =
-        GL::GLElementShapeFactory::AutoAddColor |
-        GL::GLElementShapeFactory::AutoAddTexture |
-        GL::GLElementShapeFactory::AutoAddConnection;
+            GL::GLElementShapeFactory::AutoAddColor |
+            GL::GLElementShapeFactory::AutoAddTexture |
+            GL::GLElementShapeFactory::AutoAddConnection;
     GL::GLElementRectangleFactory factory(m_data, flags);
 
     // rebuild heatmap rectangle
     //const QPointF topLeft = m_bounds.topLeft();
     const QSizeF size = m_bounds.size();
     m_rect = QRectF(
-        QPointF(0.0f, 0.0f),
-        QSizeF(Globals::heatmap_width, size.height())
-    );
+                QPointF(0.0f, 0.0f),
+                QSizeF(Globals::heatmap_width, size.height())
+                );
 
     // threshold height
     const GLfloat height = GLfloat(size.height());
@@ -165,25 +166,25 @@ void HeatMapLegendGL::generateHeatMapData()
 
     factory.setColor(GL::GLcolor(GL::Black));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdLowerHeight),
-        GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight),
-        3.0f
-    ));
+                         GL::GLpoint( 0.0f, thresholdLowerHeight),
+                         GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight),
+                         3.0f
+                         ));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdUpperHeight),
-        GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight),
-        3.0f
-    ));
+                         GL::GLpoint( 0.0f, thresholdUpperHeight),
+                         GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight),
+                         3.0f
+                         ));
 
     factory.setColor(GL::GLcolor(GL::Red));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdLowerHeight),
-        GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight)
-    ));
+                         GL::GLpoint( 0.0f, thresholdLowerHeight),
+                         GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight)
+                         ));
     factory.addShape(GL::GLrectangle::fromLine(
-        GL::GLpoint( 0.0f, thresholdUpperHeight),
-        GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight)
-    ));
+                         GL::GLpoint( 0.0f, thresholdUpperHeight),
+                         GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight)
+                         ));
 
     // generate element data render command
     m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::BindTexture, 0));  // bind heat-map texture

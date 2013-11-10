@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -81,21 +81,21 @@ public:
 
 private:
     
-     QString m_id;
-     int m_barcodes;
-     QString m_name;
-     int m_x1;
-     int m_x2;
-     int m_x1Total;
-     int m_x2Total;
-     int m_x1Border;
-     int m_x2Border;
-     int m_y1;
-     int m_y2;
-     int m_y1Total;
-     int m_y2Total;
-     int m_y1Border;
-     int m_y2Border;
+    QString m_id;
+    int m_barcodes;
+    QString m_name;
+    int m_x1;
+    int m_x2;
+    int m_x1Total;
+    int m_x2Total;
+    int m_x1Border;
+    int m_x2Border;
+    int m_y1;
+    int m_y2;
+    int m_y1Total;
+    int m_y2Total;
+    int m_y1Border;
+    int m_y2Border;
 };
 
 #endif // CHIPID_H

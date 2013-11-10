@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -39,7 +39,7 @@ class DataProxy : public QObject, public Singleton<DataProxy>
 {
     Q_OBJECT
     Q_ENUMS(DataType)
-        
+
 public:
     
     enum DataType
@@ -71,9 +71,9 @@ public:
     typedef QSharedPointer<GeneMap> GeneMapPtr;
     typedef QMap<QString, GeneMapPtr> GeneMapMap; //gene map hashed by dataset id
     typedef QMap<QString, GeneListPtr> GeneListMap; //gene list hashed by dataset id
-      
+
     typedef QVector<FeaturePtr> FeatureList; //list of features (extended with color)
-    typedef QSharedPointer<FeatureList> FeatureListPtr;    
+    typedef QSharedPointer<FeatureList> FeatureListPtr;
     typedef QMap<QString, FeaturePtr> FeatureMap; // map of features give feature id
     typedef QSharedPointer<FeatureMap> FeatureMapPtr;
     typedef QMap<QString, FeatureListPtr> FeatureListMap; //features hashed by dataset id
@@ -86,7 +86,7 @@ public:
     typedef QVector<DatasetPtr> DatasetList; //list of unique datasets
     typedef QSharedPointer<DatasetList> DatasetListPtr;
     typedef QMap<QString, DatasetPtr> DatasetMap; //datasets hashed by dataset id
-     
+
     typedef QMap<QString, HitCountPtr> HitCountMap; //hitcount hashed by dataset id
     
     typedef QMap<QString, UserExperimentPtr> UserExperimentMap; //NOTE not functional yet
@@ -119,11 +119,11 @@ public:
     // gene
     async::DataRequest* loadGenesByDatasetId(const QString& datasetId);
     // hit count
-    async::DataRequest* loadHitCountByDatasetId(const QString& datasetId);    
-    // red cell tissue figure    
-    async::DataRequest* loadCellTissueByName(const QString& name);    
+    async::DataRequest* loadHitCountByDatasetId(const QString& datasetId);
+    // red cell tissue figure
+    async::DataRequest* loadCellTissueByName(const QString& name);
     //get the current user object
-    async::DataRequest* loadUser();    
+    async::DataRequest* loadUser();
     //get the the whole dataset content
     async::DataRequest* loadDatasetContent(DataProxy::DatasetPtr dataset);
 
@@ -141,7 +141,7 @@ public:
     
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser();
-    QIODevice *getFigure(const QString& figureId); 
+    QIODevice *getFigure(const QString& figureId);
     
     inline const QString& getSelectedDataset() const { return m_selected_datasetId; }
     inline void setSelectedDataset(const QString &datasetId) const { m_selected_datasetId = datasetId; }
@@ -168,7 +168,7 @@ private:
     //internal function to create network requests trough download manager
     async::DataRequest* createRequest(NetworkReply *reply);
     async::DataRequest* createRequest(QList<NetworkReply*> replies);
- 
+
     DownLoadQueueMap m_download_pool; // we store here every active download manager item with a hash key
 
     DatasetMap m_datasetMap;                    // available datasets mapped by dataset id
@@ -186,7 +186,7 @@ private:
 
 protected:
     
-	GeneMapPtr getGeneMap(const QString &datasetId);
+    GeneMapPtr getGeneMap(const QString &datasetId);
     FeatureMapPtr getFeatureMap(const QString &datasetId);
 };
 

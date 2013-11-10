@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -13,20 +13,20 @@
 namespace unit
 {
 
-    class ObjectParserTest : public QObject
-    {
-        Q_OBJECT
+class ObjectParserTest : public QObject
+{
+    Q_OBJECT
 
-    public:
-        explicit ObjectParserTest(QObject *parent = 0);
+public:
+    explicit ObjectParserTest(QObject *parent = 0);
 
-    private Q_SLOTS:
-        void initTestCase();
-        void cleanupTestCase();
+private Q_SLOTS:
+    void initTestCase();
+    void cleanupTestCase();
 
-		void testParseObject();
-		void testParseObject_data();
-    };
+    void testParseObject();
+    void testParseObject_data();
+};
 
 } // namespace unit //
 

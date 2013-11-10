@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -144,15 +144,15 @@ void DataProxy::finalize()
     for(auto record : m_hitCountMap.toStdMap())
     {
         record.second.clear();
-    }   
+    }
     m_hitCountMap.clear();
     
     //cleaning download pool
     for(auto record : m_download_pool.values().toStdList())
     {
         record.clear();
-    } 
-    m_download_pool.clear(); 
+    }
+    m_download_pool.clear();
 }
 
 void DataProxy::clean()
@@ -197,12 +197,12 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     if (reply->hasErrors())
     {
         Error *error = parseErrors(reply);
-        manager->addError(error);   
+        manager->addError(error);
     }
     else
     {
         const int returnCode = qvariant_cast<int>(code);
-        if (returnCode == NetworkReply::CodeError) 
+        if (returnCode == NetworkReply::CodeError)
         {
             Error* error = new Error("Data Error", "There was an error downloading data", this);
             manager->addError(error);
@@ -211,7 +211,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
         {
             //nothing for now
         }
-        else 
+        else
         {
             // convert data
             Q_ASSERT_X(data.canConvert(QVariant::Map), "DataProxy", "Network transport data must be of map type!");
@@ -226,12 +226,12 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     
     //reply has been processed, lets remove from the queue
     manager->delItem(reply);
-    reply->deleteLater(); 
+    reply->deleteLater();
     
     // was it the last reply?
     if(manager->countItems() == 0)
     {
-        manager->finish(); 
+        manager->finish();
         m_download_pool.remove(key);
         manager.clear();
     }
@@ -266,7 +266,7 @@ Error* DataProxy::parseErrors(NetworkReply* reply)
         ErrorDTO dto;
         ObjectParser::parseObject(var, &dto);
         
-        error = new ServerError(dto.errorName(), dto.errorDescription()); 
+        error = new ServerError(dto.errorName(), dto.errorDescription());
         
     }
     
@@ -284,166 +284,166 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
     switch (type)
     {
-        // dataset
-        case DatasetDataType:
-        {         
-            QJsonDocument doc = reply->getJSON();
-            // intermediary parse object
-            DatasetDTO dto;
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                //TODO should remove previous dataset pointer if it exists
-                DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
-                m_datasetMap.insert(dto.id(),dataset);
-                m_datasetListPtr->append(dataset);
-                dirty = true;
-            }
-            break;
-        }
-        // gene
-        case GeneDataType:
-        {  
-            QJsonDocument doc = reply->getJSON();
-            // gene list by dataset
-            Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "GeneData must be include dataset parameter!");
-            const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
-
-            // intermediary parse object and end object map
-            GeneDTO dto;
-            GeneListPtr geneListByDatasetId = getGeneList(datasetId);
-            GeneMapPtr geneMapByDatasetId = getGeneMap(datasetId);
-
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                GenePtr gene = GenePtr(new Gene(dto.gene()));
-                geneListByDatasetId->append(gene);
-                //TODO should remove previous gene pointer if it exists
-                geneMapByDatasetId->insert(gene->name(), gene);
-                dirty = true;
-            }
-            break;
-        }
-        // chip
-        case ChipDataType:
+    // dataset
+    case DatasetDataType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // intermediary parse object
+        DatasetDTO dto;
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
         {
-            QJsonDocument doc = reply->getJSON();
-            // intermediary parse object
-            ChipDTO dto;
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                //TODO should remove previous chip pointer if it exists
-                m_chipMap.insert(dto.id(), ChipPtr(new Chip(dto.chip())));
-                dirty = true;
-            }
-            break;
-        }
-        // feature
-        case FeatureDataType:
-        {
-            QJsonDocument doc = reply->getJSON();
-            // feature list by dataset
-            Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "FeatureData must be include dataset parameter!");
-            const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
-
-            // intermediary parse object and end object map
-            FeatureDTO dto;
-            FeatureListPtr featureListByDatasetId = getFeatureList(datasetId);
-            FeatureMapPtr featureMapByDatasetId = getFeatureMap(datasetId);
-
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                
-                FeaturePtr feature = FeaturePtr(new FeatureExtended(dto.feature()));
-                FeatureListPtr featureListByGeneIdAndDatasetId = getGeneFeatureList(datasetId, dto.gene());
-                //TODO should remove previous feature pointer if it exists
-                featureMapByDatasetId->insert(feature->id(), feature);
-                featureListByDatasetId->append(feature);
-                featureListByGeneIdAndDatasetId->append(feature);
-                dirty = true;
-            }
-            break;
-        }
-        // hit count
-        case HitCountDataType:
-        {
-            QJsonDocument doc = reply->getJSON();
-            // feature list by dataset
-            Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "HitCountData must be include dataset parameter!");
-            const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
-
-            // intermediary parse object
-            HitCountDTO dto;
-
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                //TODO should remove previous hitcout pointer if it exits
-                m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount(dto.hitCount())));
-                dirty = true;
-            }
-            break;
-        } // user
-        case UserType:
-        {
-            QJsonDocument doc = reply->getJSON();
-            // intermediary parse object
-            UserDTO dto;
-
-            // ensure even single items are encapsulated in a variant list
-            QVariant root = doc.toVariant();
-            QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-            foreach(QVariant var, list)
-            {
-                ObjectParser::parseObject(var, &dto);
-                //TODO should remove previous user pointer if it exits
-                m_user = UserPtr(new User(dto.user()));
-                dirty = true;
-            }
-            break;
-        } // cell tissue figure
-        case TissueDataType:
-        {          
-            Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE), "DataProxy", "BlueTissueData must include file parameter!");
-            const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
-            // keep track of file pointer
-            QScopedPointer<QIODevice> device;
-            device.reset(DataStore::getInstance()->accessResource(fileid, DataStore::Temporary | DataStore::Persistent | DataStore::Secure));
-            // store data in file
-            const bool dataOpen = device->open(QIODevice::WriteOnly);
-            if (dataOpen)
-            {
-                qDebug() << QString("[DataProxy] Unable to open image fileid: %1").arg(fileid);
-            }
-            const qint64 dataWrite = device->write(reply->getRaw());
-            if (dataWrite <= 0)
-            {
-                qDebug() << QString("[DataProxy] Unable to write data to fileid: %1").arg(fileid);
-            }
-            device->close();
+            ObjectParser::parseObject(var, &dto);
+            //TODO should remove previous dataset pointer if it exists
+            DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
+            m_datasetMap.insert(dto.id(),dataset);
+            m_datasetListPtr->append(dataset);
             dirty = true;
-            break;
-        } 
-        default:
-            qDebug() << "[DataProxy] Error: Unknown data type!";
+        }
+        break;
+    }
+        // gene
+    case GeneDataType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // gene list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "GeneData must be include dataset parameter!");
+        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+
+        // intermediary parse object and end object map
+        GeneDTO dto;
+        GeneListPtr geneListByDatasetId = getGeneList(datasetId);
+        GeneMapPtr geneMapByDatasetId = getGeneMap(datasetId);
+
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
+        {
+            ObjectParser::parseObject(var, &dto);
+            GenePtr gene = GenePtr(new Gene(dto.gene()));
+            geneListByDatasetId->append(gene);
+            //TODO should remove previous gene pointer if it exists
+            geneMapByDatasetId->insert(gene->name(), gene);
+            dirty = true;
+        }
+        break;
+    }
+        // chip
+    case ChipDataType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // intermediary parse object
+        ChipDTO dto;
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
+        {
+            ObjectParser::parseObject(var, &dto);
+            //TODO should remove previous chip pointer if it exists
+            m_chipMap.insert(dto.id(), ChipPtr(new Chip(dto.chip())));
+            dirty = true;
+        }
+        break;
+    }
+        // feature
+    case FeatureDataType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // feature list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "FeatureData must be include dataset parameter!");
+        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+
+        // intermediary parse object and end object map
+        FeatureDTO dto;
+        FeatureListPtr featureListByDatasetId = getFeatureList(datasetId);
+        FeatureMapPtr featureMapByDatasetId = getFeatureMap(datasetId);
+
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
+        {
+            ObjectParser::parseObject(var, &dto);
+
+            FeaturePtr feature = FeaturePtr(new FeatureExtended(dto.feature()));
+            FeatureListPtr featureListByGeneIdAndDatasetId = getGeneFeatureList(datasetId, dto.gene());
+            //TODO should remove previous feature pointer if it exists
+            featureMapByDatasetId->insert(feature->id(), feature);
+            featureListByDatasetId->append(feature);
+            featureListByGeneIdAndDatasetId->append(feature);
+            dirty = true;
+        }
+        break;
+    }
+        // hit count
+    case HitCountDataType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // feature list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "HitCountData must be include dataset parameter!");
+        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+
+        // intermediary parse object
+        HitCountDTO dto;
+
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
+        {
+            ObjectParser::parseObject(var, &dto);
+            //TODO should remove previous hitcout pointer if it exits
+            m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount(dto.hitCount())));
+            dirty = true;
+        }
+        break;
+    } // user
+    case UserType:
+    {
+        QJsonDocument doc = reply->getJSON();
+        // intermediary parse object
+        UserDTO dto;
+
+        // ensure even single items are encapsulated in a variant list
+        QVariant root = doc.toVariant();
+        QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        foreach(QVariant var, list)
+        {
+            ObjectParser::parseObject(var, &dto);
+            //TODO should remove previous user pointer if it exits
+            m_user = UserPtr(new User(dto.user()));
+            dirty = true;
+        }
+        break;
+    } // cell tissue figure
+    case TissueDataType:
+    {
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE), "DataProxy", "BlueTissueData must include file parameter!");
+        const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
+        // keep track of file pointer
+        QScopedPointer<QIODevice> device;
+        device.reset(DataStore::getInstance()->accessResource(fileid, DataStore::Temporary | DataStore::Persistent | DataStore::Secure));
+        // store data in file
+        const bool dataOpen = device->open(QIODevice::WriteOnly);
+        if (dataOpen)
+        {
+            qDebug() << QString("[DataProxy] Unable to open image fileid: %1").arg(fileid);
+        }
+        const qint64 dataWrite = device->write(reply->getRaw());
+        if (dataWrite <= 0)
+        {
+            qDebug() << QString("[DataProxy] Unable to write data to fileid: %1").arg(fileid);
+        }
+        device->close();
+        dirty = true;
+        break;
+    }
+    default:
+        qDebug() << "[DataProxy] Error: Unknown data type!";
     }
 
     return dirty;
@@ -865,7 +865,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
     NetworkManager* nm = NetworkManager::getInstance();
     QList<NetworkReply*> replies;
     const QString& datasetId = dataset->id();
-   
+
     //TODO ....duplicated code...refactor this
 
     if(!(bool)hasCellTissue(dataset->figureBlue()))
@@ -894,8 +894,8 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         cmd->deleteLater();
     }
     
-     if(!(bool)hasHitCount(datasetId))
-     {
+    if(!(bool)hasHitCount(datasetId))
+    {
         NetworkCommand* cmd = RESTCommandFactory::getHitCountByDatasetId(datasetId);
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(HitCountDataType)));
@@ -931,10 +931,10 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
     
     if(!(bool)hasGene(datasetId))
     {
-        NetworkCommand* cmd = RESTCommandFactory::getGenesByDatasetId(datasetId);     
+        NetworkCommand* cmd = RESTCommandFactory::getGenesByDatasetId(datasetId);
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneDataType)));
-        parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));        
+        parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));
         NetworkReply* reply = nm->httpRequest(cmd, QVariant(parameters));
         replies.append(reply);
         //delete the command
@@ -967,7 +967,7 @@ async::DataRequest* DataProxy::createRequest(QList<NetworkReply*> replies) //mak
     foreach(NetworkReply *reply, replies)
     {
         if(reply == 0)
-        { 
+        {
             qDebug() << "[DataProxy] : Error, the NetworkReply is null, there must have been a network error";
 
         }

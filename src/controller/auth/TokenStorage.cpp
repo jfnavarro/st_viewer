@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -20,7 +20,7 @@ TokenStorage::TokenStorage(QObject* parent)
 {
     m_storage.reset(new QSettings());
 }
-    
+
 TokenStorage::~TokenStorage()
 {
     //m_storage is scoped pointer

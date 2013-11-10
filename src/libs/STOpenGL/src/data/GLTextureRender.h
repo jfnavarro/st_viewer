@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,19 +14,19 @@
 namespace GL
 {
 
-	// GLTextureRender provides an interface to render texture data objects.
-	// Current implementation is stateless, but state variables can be added
-	// to control rendering.
-    class GLTextureRender
-    {
-        public:
-            inline GLTextureRender();
+// GLTextureRender provides an interface to render texture data objects.
+// Current implementation is stateless, but state variables can be added
+// to control rendering.
+class GLTextureRender
+{
+public:
+    inline GLTextureRender();
 
-            void render(const GLTextureData& renderData);
+    void render(const GLTextureData& renderData);
 
-        private:
-            // state variables
-    };
+private:
+    // state variables
+};
 
 } // namespace GL //
 
@@ -35,7 +35,7 @@ namespace GL
 namespace GL
 {
 
-    GLTextureRender::GLTextureRender() { }
+GLTextureRender::GLTextureRender() { }
 
 } // namespace GL //
 

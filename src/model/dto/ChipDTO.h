@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -74,8 +74,8 @@ public:
     inline void x2(int x2) { m_chip.x2(x2); }
     inline void x1Total(int x1Total) { m_chip.x1Total(x1Total); }
     inline void x2Total(int x2Total) { m_chip.x2Total(x2Total); }
-    inline void x1Border(int x1Border) { m_chip.x1Border(x1Border); } 
-    inline void x2Border(int x2Border) { m_chip.x2Border(x2Border); } 
+    inline void x1Border(int x1Border) { m_chip.x1Border(x1Border); }
+    inline void x2Border(int x2Border) { m_chip.x2Border(x2Border); }
     inline void y1(int y1) { m_chip.y1(y1); }
     inline void y2(int y2) { m_chip.y2(y2); }
     inline void y1Total(int y1Total) { m_chip.y1Total(y1Total); }

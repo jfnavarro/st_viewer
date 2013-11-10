@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -54,8 +54,8 @@ QIODevice* DataStore::accessResource(const QString& name, Options options)
 
     // load or create file with given resourceid and options
     QIODevice *device = (m_fileMap.contains(name)) ?
-        accessFile(name, options) :
-        createFile(name, options);
+                accessFile(name, options) :
+                createFile(name, options);
 
     // add encryption layer if specified
     if (options.testFlag(Secure))
@@ -69,7 +69,7 @@ QIODevice* DataStore::accessResource(const QString& name, Options options)
 void DataStore::clearResources()
 {
     DEBUG_FUNC_NAME
-    
+
     const QString restoreFile = QDir::temp().filePath(Globals::RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
     

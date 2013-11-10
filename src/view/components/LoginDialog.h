@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -15,7 +15,7 @@ class QString;
 
 namespace Ui
 {
-    class LogIn;
+class LogIn;
 } // namespace Ui //
 
 class LoginDialog : public QDialog
@@ -27,7 +27,7 @@ public:
     
     explicit LoginDialog(QDialog *parent = 0);
     
-	virtual ~LoginDialog();
+    virtual ~LoginDialog();
     
     // clear off the fields
     void clear();
@@ -53,7 +53,7 @@ signals:
 public slots:
     
     //A slot to adjust the emitting of the signal.
-    void slotAcceptLogin();   
+    void slotAcceptLogin();
     
 private:
     

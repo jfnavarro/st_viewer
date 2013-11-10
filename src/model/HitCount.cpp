@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -37,11 +37,10 @@ HitCount& HitCount::operator=(const HitCount& other)
 
 bool HitCount::operator==(const HitCount& other) const
 {
-    if (
-        m_min == other.m_min &&
-        m_max == other.m_max &&
-        m_sum == other.m_sum
-    )
+    if (    m_min == other.m_min &&
+            m_max == other.m_max &&
+            m_sum == other.m_sum
+            )
         return true;
     else
         return false;

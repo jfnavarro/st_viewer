@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -17,7 +17,7 @@ class ServerError : public Error
 
 public:
     
-    enum Type 
+    enum Type
     {
         NoError = 0xd366e2a2,
         BadRequest = 0x641d3f0f,
@@ -32,11 +32,11 @@ public:
 private:
     
     // precomputed hash values of string error codes (uses the global QT function "qHash(QString)")
-    enum InternalHash 
+    enum InternalHash
     {
         _NoError = 0x00000000,
         // Server error codes
-        _BadRequest = 0x1af9dd54, 
+        _BadRequest = 0x1af9dd54,
         _ResourceNotFound = 0xbb041683
     };
 

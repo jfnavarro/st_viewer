@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -12,10 +12,10 @@
 
 namespace GL
 {
-    // simple implementation of binary search
-    //NOTE source: http://en.wikipedia.org/wiki/Binary_search_algorithm
-    template <typename T>
-    bool binary_search(T a, T key, GLsizei &lo, GLsizei &hi);
+// simple implementation of binary search
+//NOTE source: http://en.wikipedia.org/wiki/Binary_search_algorithm
+template <typename T>
+bool binary_search(T a, T key, GLsizei &lo, GLsizei &hi);
 
 } // namespace GL //
 
@@ -24,27 +24,27 @@ namespace GL
 namespace GL
 {
 
-    template <typename T>
-    bool binary_search(T a, T key, GLsizei &lo, GLsizei &hi)
+template <typename T>
+bool binary_search(T a, T key, GLsizei &lo, GLsizei &hi)
+{
+    while (lo < hi)
     {
-        while (lo < hi)
+        //NOTE avoid (lo + hi) overflow
+        int mid = lo + (hi - lo) / 2;
+        Q_ASSERT(imid < imax);
+
+        if (a[mid] < key)
         {
-            //NOTE avoid (lo + hi) overflow
-            int mid = lo + (hi - lo) / 2;
-            Q_ASSERT(imid < imax);
-
-            if (a[mid] < key)
-            {
-                lo = mid + 1;
-            }
-            else
-            {
-                hi = mid;
-            }
+            lo = mid + 1;
         }
-
-        return ((hi == lo) && (a[lo] == key));
+        else
+        {
+            hi = mid;
+        }
     }
+
+    return ((hi == lo) && (a[lo] == key));
+}
 
 } // namespace GL //
 

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -121,8 +121,8 @@ void SelectionDialog::slotEnableAcceptAction(bool enableAcceptAction)
     {
         const QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(button);
         if (role == QDialogButtonBox::AcceptRole ||
-            role == QDialogButtonBox::YesRole ||
-            role == QDialogButtonBox::ApplyRole)
+                role == QDialogButtonBox::YesRole ||
+                role == QDialogButtonBox::ApplyRole)
         {
             button->setEnabled(enableAcceptAction);
         }

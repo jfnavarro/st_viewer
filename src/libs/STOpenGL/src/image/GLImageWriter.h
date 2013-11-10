@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -16,41 +16,41 @@
 namespace GL
 {
 
-    // Simple writing class providing functionality for writing procedurally
-    // (or manually for that matter) generated images. Data is written in a
-    // linear fashion on a per pixel or per line approach.
-    //TODO imagewriter assumes GL_RGBA mode, should be made mode independent.
-    class GLimagewriter
+// Simple writing class providing functionality for writing procedurally
+// (or manually for that matter) generated images. Data is written in a
+// linear fashion on a per pixel or per line approach.
+//TODO imagewriter assumes GL_RGBA mode, should be made mode independent.
+class GLimagewriter
+{
+public:
+    enum GradientAngle
     {
-    public:
-        enum GradientAngle
-        {
-            HorizontalGradient,
-            VerticalGradient
-        };
-
-        inline explicit GLimagewriter(GLimage &image);
-        inline ~GLimagewriter();
-
-        const bool writePixel(const GLcolor &color);
-        const bool writeLine(const GLcolor &color);
-
-        // fills remaining pixel with specified color
-        const bool writeFillColor(const GLcolor &color);
-        // fills remaining pixels with gradient of specified two colors
-        const bool writeFillGradient(const GLcolor &color0, const GLcolor &color1, 
-                                     const GradientAngle gradient = GLimagewriter::VerticalGradient);
-
-        // convenience functions for generating prefilled images
-        static inline const bool imageFillColor(GLimage &image, const GLcolor &color);
-        static inline const bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1, 
-                                                   const GradientAngle gradient = GLimagewriter::VerticalGradient);
-
-    private:
-        GLimage &m_image;
-        GLsizei m_index;
-        GLsizei m_indexEnd;
+        HorizontalGradient,
+        VerticalGradient
     };
+
+    inline explicit GLimagewriter(GLimage &image);
+    inline ~GLimagewriter();
+
+    const bool writePixel(const GLcolor &color);
+    const bool writeLine(const GLcolor &color);
+
+    // fills remaining pixel with specified color
+    const bool writeFillColor(const GLcolor &color);
+    // fills remaining pixels with gradient of specified two colors
+    const bool writeFillGradient(const GLcolor &color0, const GLcolor &color1,
+                                 const GradientAngle gradient = GLimagewriter::VerticalGradient);
+
+    // convenience functions for generating prefilled images
+    static inline const bool imageFillColor(GLimage &image, const GLcolor &color);
+    static inline const bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
+                                               const GradientAngle gradient = GLimagewriter::VerticalGradient);
+
+private:
+    GLimage &m_image;
+    GLsizei m_index;
+    GLsizei m_indexEnd;
+};
 
 } // namespace //
 

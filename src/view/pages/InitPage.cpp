@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -31,7 +31,7 @@ InitPage::~InitPage()
 void InitPage::onInit()
 {
     DEBUG_FUNC_NAME
-    
+
     //create the start widget
     ui = new Ui::InitPage;
     ui->setupUi(this);
@@ -66,7 +66,7 @@ void InitPage::slotAuthorizationError(Error *error)
 {
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
-    auth->forceAuthentication(); //authorize again  
+    auth->forceAuthentication(); //authorize again
     //emit signalError(error); //NOTE do we want to emit an eror for this?
 }
 

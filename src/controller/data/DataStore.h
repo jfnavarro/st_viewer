@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -35,7 +35,7 @@ public:
     void init();
     void finalize();
 
-	// store resources on disk, provide interface to store in files
+    // store resources on disk, provide interface to store in files
     virtual bool hasResource(const QString& resourceid);
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty);
     virtual void clearResources();
@@ -53,10 +53,10 @@ private:
     QIODevice* accessFile(const QString& name, Options options);
 
     //NOTE temporary files are prefixed with a set of characters so as to
-	// guarantee its uniqueness. This map provides a means of mapping the
-	// requested file name with the actual name.
-	// It is made persistent by storing and loading it along with the
-	// temporary files.
+    // guarantee its uniqueness. This map provides a means of mapping the
+    // requested file name with the actual name.
+    // It is made persistent by storing and loading it along with the
+    // temporary files.
     typedef QMap<QString, QString> FileMap;
     FileMap m_fileMap;
 };

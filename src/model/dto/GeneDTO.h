@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -23,9 +23,9 @@
 //     1:1 mapping. No conversions.
 class GeneDTO : public QObject
 {
-  
+
 public:
-  
+
     Q_OBJECT
 
     Q_PROPERTY(QString id READ id WRITE id)
@@ -49,7 +49,7 @@ public:
     Gene& gene() { return m_gene; }
 
 private:
-  
+
     Gene m_gene;
 };
 

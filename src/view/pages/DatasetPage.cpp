@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -36,7 +36,7 @@ DatasetPage::~DatasetPage()
 void DatasetPage::onInit()
 {
     DEBUG_FUNC_NAME
-    
+
     ui = new Ui::DataSets;
     ui->setupUi(this);
     
@@ -71,7 +71,7 @@ void DatasetPage::onInit()
     
     //notify the model I have selected a dataset TODO should be a better way to do this
     connect(ui->datasets_tableview, SIGNAL(doubleClicked(QModelIndex)),
-           m_datasetModel ,SLOT(datasetSelected(QModelIndex)));
+            m_datasetModel ,SLOT(datasetSelected(QModelIndex)));
     
     connect(m_datasetModel, SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
             this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
@@ -86,7 +86,7 @@ void DatasetPage::onEnter()
 
     // refresh datasets on the model and clear selection/focus
     m_datasetModel->loadDatasets();
-    ui->datasets_tableview->clearSelection();  
+    ui->datasets_tableview->clearSelection();
     ui->datasets_tableview->clearFocus();
     ui->abort->clearFocus();
     ui->backtodatasets->clearFocus();
@@ -141,7 +141,7 @@ void DatasetPage::loadData()
         emit signalError(error);
     }
     else if(request->return_code() == async::DataRequest::CodePresent)
-    {    
+    {
         emit moveToNextPage();
     }
     else
@@ -187,8 +187,8 @@ void DatasetPage::refreshDatasets()
         m_datasetModel->loadDatasets();
     }
     else
-    {    
-        connect(request, SIGNAL(signalFinished()), m_datasetModel, SLOT(loadDatasets())); 
+    {
+        connect(request, SIGNAL(signalFinished()), m_datasetModel, SLOT(loadDatasets()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotDataError(Error*)));
         //no need to wait here, if error it will load nothing, no abort signal neither
     }

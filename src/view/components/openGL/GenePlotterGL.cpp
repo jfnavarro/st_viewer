@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -34,7 +34,6 @@ GenePlotterGL::GenePlotterGL(QGraphicsItem* parent)
     : QGraphicsObject(parent), m_geneProgram(0),
       m_colorScheme(0), m_visualMode(NormalMode),
       m_geneLowerLimit(0), m_geneUpperLimit(1)
-      //m_hitCountMin(0), m_hitCountMax(0), m_hitCountSum(0)
 {
     reset();
     setCacheMode(QGraphicsItem::NoCache);
@@ -173,7 +172,7 @@ bool GenePlotterGL::contains(const QPointF& point) const
 void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-        painter->paintEngine()->type() != QPaintEngine::OpenGL2)
+            painter->paintEngine()->type() != QPaintEngine::OpenGL2)
     {
         qDebug() << "GenePlotterGL: I need a QGLWidget to be set as viewport on the graphics view";
         return;
@@ -230,13 +229,6 @@ QPainterPath GenePlotterGL::opaqueArea() const
     return QGraphicsObject::opaqueArea();
 }
 
-/*void GenePlotterGL::setHitCount(int min, int max, int sum)
-{
-    m_hitCountMin = min;
-    m_hitCountMax = max;
-    m_hitCountSum = sum;
-}
-*/
 void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
 {
     GL::GLElementRectangleFactory factory(m_geneData);
@@ -292,16 +284,17 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
 
 void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
 {
+
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     
-    GL::GLElementRectangleFactory factory(m_geneData);
-
-    if(m_geneInfoById.count() == 0)
+    if(m_geneData.empty() || features->empty())
     {
-        //early out...UGLY
+        //early out
         return;
     }
+
+    GL::GLElementRectangleFactory factory(m_geneData);
 
     // easy access
     const bool selected = gene->selected();
@@ -348,13 +341,13 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     
-    GL::GLElementRectangleFactory factory(m_geneData);
-
-    if(m_geneInfoById.count() == 0)
+    if(m_geneData.empty() || features->empty())
     {
-        //early out...UGLY
+        //early out
         return;
     }
+
+    GL::GLElementRectangleFactory factory(m_geneData);
 
     // easy access
     const bool selected = gene->selected();
@@ -382,8 +375,8 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
             const GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature));
             color = factory.getColor(vdi);
             color = (selected) ?
-                GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor) :
-                GL::invlerp((1.0f / GLfloat(oldRefCount)), color, featureColor);
+                        GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor) :
+                        GL::invlerp((1.0f / GLfloat(oldRefCount)), color, featureColor);
             color.alpha *= m_geneIntensity; // set alpha
         }
         factory.setColor(vdi, color);
@@ -414,7 +407,7 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
                 Q_ASSERT(m_geneInfoByIdx.contains(key));
                 const GeneInfoList::size_type listIndex = m_geneInfoByIdx[key];
                 LookupData& tailData = m_geneInfo[listIndex];
-                m_geneInfoByIdx.insert(GeneInfoByIdxKey(LookupData::IndexIndex, idi), 
+                m_geneInfoByIdx.insert(GeneInfoByIdxKey(LookupData::IndexIndex, idi),
                                        m_geneInfoByIdx.take(GeneInfoByIdxKey(LookupData::IndexIndex, tailData.indexDataIndex)));
                 tailData.indexDataIndex = idi;
             }
@@ -448,13 +441,13 @@ void GenePlotterGL::updateChipSize()
 
     // resize grid according to chip size
     m_rect = QRectF(
-        QPointF(currentChip->x1(), currentChip->y1()),
-        QPointF(currentChip->x2(), currentChip->y2())
-    );
+                QPointF(currentChip->x1(), currentChip->y1()),
+                QPointF(currentChip->x2(), currentChip->y2())
+                );
     m_border = QRectF(
-        QPointF(currentChip->x1Border(), currentChip->y1Border()),
-        QPointF(currentChip->x2Border(), currentChip->y2Border())
-    );
+                QPointF(currentChip->x1Border(), currentChip->y1Border()),
+                QPointF(currentChip->x2Border(), currentChip->y2Border())
+                );
 
     // reflect bounds to quad tree
     m_geneInfoQuadTree.clear();
@@ -528,7 +521,7 @@ void GenePlotterGL::selectAll(const DataProxy::FeatureList &featureList)
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id()), end = m_geneInfoById.end();
         if (it == end)
         {
-                continue;
+            continue;
         }
 
         const GeneInfoList::size_type index = it.value();
@@ -566,22 +559,22 @@ void GenePlotterGL::generateGridData()
         if (m_rect.top() <= y && y <= m_rect.bottom())
         {
             m_gridData
-                .addPoint(GL::toGLpoint(m_border.left(), y))
-                .addPoint(GL::toGLpoint(m_rect.left(), y))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex())
-                .addPoint(GL::toGLpoint(m_rect.right(), y))
-                .addPoint(GL::toGLpoint(m_border.right(), y))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex());
+                    .addPoint(GL::toGLpoint(m_border.left(), y))
+                    .addPoint(GL::toGLpoint(m_rect.left(), y))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex())
+                    .addPoint(GL::toGLpoint(m_rect.right(), y))
+                    .addPoint(GL::toGLpoint(m_border.right(), y))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex());
         }
         else
         {
             m_gridData
-                .addPoint(GL::toGLpoint(m_border.left(), y))
-                .addPoint(GL::toGLpoint(m_border.right(), y))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex());
+                    .addPoint(GL::toGLpoint(m_border.left(), y))
+                    .addPoint(GL::toGLpoint(m_border.right(), y))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex());
         }
     }
     for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0)
@@ -589,22 +582,22 @@ void GenePlotterGL::generateGridData()
         if (m_rect.left() <= x && x <= m_rect.right())
         {
             m_gridData
-                .addPoint(GL::toGLpoint(x, m_border.top()))
-                .addPoint(GL::toGLpoint(x, m_rect.top()))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex())
-                .addPoint(GL::toGLpoint(x, m_rect.bottom()))
-                .addPoint(GL::toGLpoint(x, m_border.bottom()))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex());
+                    .addPoint(GL::toGLpoint(x, m_border.top()))
+                    .addPoint(GL::toGLpoint(x, m_rect.top()))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex())
+                    .addPoint(GL::toGLpoint(x, m_rect.bottom()))
+                    .addPoint(GL::toGLpoint(x, m_border.bottom()))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex());
         }
         else
         {
             m_gridData
-                .addPoint(GL::toGLpoint(x, m_border.top()))
-                .addPoint(GL::toGLpoint(x, m_border.bottom()))
-                .addColor(GL::GLlinecolor(gridBorderColor))
-                .connect(GL::GLlineindex());
+                    .addPoint(GL::toGLpoint(x, m_border.top()))
+                    .addPoint(GL::toGLpoint(x, m_border.bottom()))
+                    .addColor(GL::GLlinecolor(gridBorderColor))
+                    .connect(GL::GLlineindex());
         }
     }
 
@@ -613,34 +606,34 @@ void GenePlotterGL::generateGridData()
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += m_gridLineSpace)
     {
         m_gridData
-            .addPoint(GL::toGLpoint(m_rect.left(),  y))
-            .addPoint(GL::toGLpoint(m_rect.right(), y))
-            .addColor(GL::GLlinecolor(gridColor))
-            .connect(GL::GLlineindex());
+                .addPoint(GL::toGLpoint(m_rect.left(),  y))
+                .addPoint(GL::toGLpoint(m_rect.right(), y))
+                .addColor(GL::GLlinecolor(gridColor))
+                .connect(GL::GLlineindex());
     }
     for (qreal x = m_rect.left(); x <= m_rect.right(); x += m_gridLineSpace)
     {
         m_gridData
-            .addPoint(GL::toGLpoint(x, m_rect.top()))
-            .addPoint(GL::toGLpoint(x, m_rect.bottom()))
-            .addColor(GL::GLlinecolor(gridColor))
-            .connect(GL::GLlineindex());
+                .addPoint(GL::toGLpoint(x, m_rect.top()))
+                .addPoint(GL::toGLpoint(x, m_rect.bottom()))
+                .addColor(GL::GLlinecolor(gridColor))
+                .connect(GL::GLlineindex());
     }
     if (!qFuzzyCompare(QtExt::qMod(m_rect.bottom() - m_rect.top(), m_gridLineSpace), 0.0))
     {
         m_gridData
-            .addPoint(GL::toGLpoint(m_rect.left(), m_rect.bottom()))
-            .addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()))
-            .addColor(GL::GLlinecolor(gridColor))
-            .connect(GL::GLlineindex());
+                .addPoint(GL::toGLpoint(m_rect.left(), m_rect.bottom()))
+                .addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()))
+                .addColor(GL::GLlinecolor(gridColor))
+                .connect(GL::GLlineindex());
     }
     if (!qFuzzyCompare(QtExt::qMod(m_rect.right() - m_rect.left(), m_gridLineSpace), 0.0))
     {
         m_gridData
-            .addPoint(GL::toGLpoint(m_rect.right(), m_rect.top()))
-            .addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()))
-            .addColor(GL::GLlinecolor(gridColor))
-            .connect(GL::GLlineindex());
+                .addPoint(GL::toGLpoint(m_rect.right(), m_rect.top()))
+                .addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()))
+                .addColor(GL::GLlinecolor(gridColor))
+                .connect(GL::GLlineindex());
     }
 }
 
@@ -650,9 +643,9 @@ void GenePlotterGL::generateGeneData()
     DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     const GL::GLflag flags =
-        GL::GLElementShapeFactory::AutoAddColor |
-        GL::GLElementShapeFactory::AutoAddTexture |
-        GL::GLElementShapeFactory::AutoAddOption;
+            GL::GLElementShapeFactory::AutoAddColor |
+            GL::GLElementShapeFactory::AutoAddTexture |
+            GL::GLElementShapeFactory::AutoAddOption;
     GL::GLElementRectangleFactory factory(m_geneData, flags);
     
     factory.setSize((GLfloat) m_geneSize);
@@ -708,13 +701,13 @@ void GenePlotterGL::updateGeneVisualData()
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
-    GL::GLElementRectangleFactory factory(m_geneData);
-
-    if(m_geneInfoById.count() == 0)
+    if(m_geneData.empty() || features->empty())
     {
-        //early out...UGLY
+        //early out
         return;
     }
+
+    GL::GLElementRectangleFactory factory(m_geneData);
 
     // reset ref count
     GeneInfoList::iterator it, end = m_geneInfo.end();
@@ -870,11 +863,9 @@ void GenePlotterGL::setGeneVisualMode(const VisualMode mode)
     switch (m_visualMode)
     {
     case DynamicRangeMode:
-        //m_colorScheme = new DynamicRangeColor(m_hitCountMin, m_hitCountMax);
         m_colorScheme = new DynamicRangeColor(m_geneLowerLimit, m_geneUpperLimit);
         break;
     case HeatMapMode:
-        //m_colorScheme = new HeatMapColor(m_hitCountMin, m_hitCountMax);
         m_colorScheme = new HeatMapColor(m_geneLowerLimit, m_geneUpperLimit);
         break;
     case NormalMode:

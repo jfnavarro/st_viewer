@@ -6,13 +6,13 @@ message(STATUS "Building ${LIB}")
 
 set(SRC_${LIB}
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCrypt.cpp
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCrypt.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCrypt.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCryptDevice.cpp
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCryptDevice.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCryptDevice.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedTableView.cpp
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedTableView.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedTableView.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/WidgetBackgroundAnimation.cpp
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/WidgetBackgroundAnimation.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/WidgetBackgroundAnimation.h
 )
 
 # Add library and include directory

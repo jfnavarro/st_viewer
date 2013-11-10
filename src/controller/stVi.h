@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -48,7 +48,7 @@ signals:
     //we emit this when there is an error
     void signalError(Error* error);
     
-// slots are functions that are going to be assigned to signals and events
+    // slots are functions that are going to be assigned to signals and events
 public slots:
 
     void handleMessage(QString);
@@ -84,7 +84,7 @@ private:
     
     //create all the widgets
     void setupUi();
-    // initialize and configure layout 
+    // initialize and configure layout
     void createLayouts();
     //style
     void initStyle();
@@ -94,7 +94,7 @@ private:
     void createShorcuts();
     // finalize objects
     void finalizeSingleInstances();
-    // create some connections 
+    // create some connections
     void createConnections();
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event);

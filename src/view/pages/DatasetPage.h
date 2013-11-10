@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -17,7 +17,7 @@ class QItemSelection;
 
 namespace Ui
 {
-    class DataSets;
+class DataSets;
 } // namespace Ui //
 
 // this is the definition of the datasets page which contains a list of datasets to be selected

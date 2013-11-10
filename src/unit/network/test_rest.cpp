@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -11,19 +11,19 @@
 
 namespace unit
 {
-    
-    RestTest::RestTest(QObject *parent) : QObject(parent) { }
-    
-    void RestTest::initTestCase()
-    {
-        QVERIFY(true);
-    }
-    
-    void RestTest::cleanupTestCase()
-    {   
-        
-        
-    }
-    
-    
+
+RestTest::RestTest(QObject *parent) : QObject(parent) { }
+
+void RestTest::initTestCase()
+{
+    QVERIFY(true);
+}
+
+void RestTest::cleanupTestCase()
+{
+
+
+}
+
+
 } // namespace unit //

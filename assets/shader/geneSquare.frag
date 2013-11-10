@@ -14,7 +14,7 @@ void main(void)
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
 	// input
 	bool selected = (out_options.x > 0.5);
-	bool complex  = (out_options.y > 0.5);
+	bool complex = (out_options.y > 0.5);
 
     // calculate distance from center
     vec2 pos = abs(mod(out_texture.xy, vec2(1.0)) - vec2(0.5));
@@ -25,7 +25,7 @@ void main(void)
 
     // derive circle color
     vec4 fragColor = out_color;
-         fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
+    fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
     if (selected) { fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist)); }
     gl_FragColor = fragColor;
 }

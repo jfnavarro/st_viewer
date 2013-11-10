@@ -1,13 +1,13 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
 
 #if defined Q_OS_WIN
-    #include <windows.h>
-    #include "qt_windows.h"
+#include <windows.h>
+#include "qt_windows.h"
 #endif
 
 #include <QShortcut>
@@ -81,8 +81,8 @@ stVi::~stVi()
 void stVi::init()
 {
     DEBUG_FUNC_NAME
-    
-    //init style, size and icons
+
+     //init style, size and icons
     initStyle();
 
     // create ui widgets
@@ -101,36 +101,36 @@ void stVi::init()
 
 int stVi::checkSystemRequirements()
 {
-    // Test for Basic OpenGL Support 
+    // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL())
     {
         QMessageBox::information(0, "OpenGL 2.x Support",
                                  "This system does not support OpenGL.");
         return 0;
     }
-    // Fail if you do not have OpenGL 2.0 or higher driver 
+    // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1)
     {
         QMessageBox::information(0, "OpenGL 2.x Context",
                                  "This system does not support OpenGL 2.x Contexts");
         return 0;
-    }    
+    }
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl())
     {
         QMessageBox::information(0, "HTTPS",
                                  "This system does not secure SSL connections");
         return 0;
-    }    
+    }
     
     //TODO move this network call to dataproxy and and oject parser
     
-    // check if the version is supported in the server and check for updates    
+    // check if the version is supported in the server and check for updates
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion();
     NetworkManager *nm = NetworkManager::getInstance();
     NetworkReply *reply = nm->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
     QEventLoop loop;
-    connect(reply, SIGNAL(signalFinished(QVariant,QVariant)), &loop, SLOT(quit()));  
+    connect(reply, SIGNAL(signalFinished(QVariant,QVariant)), &loop, SLOT(quit()));
     loop.exec();
     
     cmd->deleteLater();
@@ -139,7 +139,7 @@ int stVi::checkSystemRequirements()
     {
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
-        return 0;     
+        return 0;
     }
     
     QJsonDocument document = reply->getJSON();
@@ -160,8 +160,8 @@ int stVi::checkSystemRequirements()
         if(my_version_major > version_major || my_version_minor > version_minor)
         {
             QMessageBox::information(0, "MINIMUM VERSION",
-                                        "This version of the software is not supported anymore, please update!");
-            return 0;   
+                                     "This version of the software is not supported anymore, please update!");
+            return 0;
         }
     }
     else
@@ -171,7 +171,7 @@ int stVi::checkSystemRequirements()
                                  "Required version could not be retrieved from the server, try again");
         
         reply->deleteLater();
-        return 0;  
+        return 0;
     }
     
     return 1;
@@ -219,7 +219,7 @@ void stVi::setupUi()
     menubar->setGeometry(QRect(0, 0, 1217, 22));
 
     menuLoad = new QMenu(menubar);
-    menuHelp = new QMenu(menubar);  
+    menuHelp = new QMenu(menubar);
     
     setMenuBar(menubar);
     
@@ -257,33 +257,33 @@ void stVi::slotExit()
 {
     //TODO this hides the mainwindow on MAC platforms
     int answer = QMessageBox::warning(
-            this, tr("Exit application"),
-            tr("Are you really sure you want to exit now?"),
-            QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
-        
+                this, tr("Exit application"),
+                tr("Are you really sure you want to exit now?"),
+                QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+
     if (answer == QMessageBox::Yes)
     {
-       qDebug() << "[stVi] Info: Exitting the application...";
-       saveSettings();
-       QApplication::exit();
-       #if defined Q_OS_LINUX || defined Q_OS_WIN
-       QApplication::processEvents();
-       #endif
+        qDebug() << "[stVi] Info: Exitting the application...";
+        saveSettings();
+        QApplication::exit();
+#if defined Q_OS_LINUX || defined Q_OS_WIN
+        QApplication::processEvents();
+#endif
     }
 }
 
 void stVi::slotClearCache()
 {
     int answer = QMessageBox::warning(
-        this, tr("Clear the Cache"),
-                 tr("Are you really sure you want to clear the cache?"),
-                                      QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+                this, tr("Clear the Cache"),
+                tr("Are you really sure you want to clear the cache?"),
+                QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
     
     if (answer == QMessageBox::Yes)
     {
         qDebug() << "[stVi] Info: Cleaaring the cache...";
         DataProxy::getInstance()->cleanAll();
-        mainTab->resetStatus(); 
+        mainTab->resetStatus();
     }
 }
 
@@ -296,28 +296,28 @@ void stVi::createLayouts()
 void stVi::initStyle()
 {
     // apply stylesheet and configurations
-    #ifdef Q_OS_MAC
-        QApplication::setAttribute(Qt::AA_MacPluginApplication,false);
-        QApplication::setAttribute(Qt::AA_NativeWindows,true); //NOTE this is actually pretty important
-        QApplication::setAttribute(Qt::AA_DontShowIconsInMenus,false); //osx does not show icons on menus
-        QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents,false); 
-//         QApplication::setAttribute(Qt::AA_Use96Dpi,true); //for mac retina compatibility
-//         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar,false); //false
-//         QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings,false); //false
-//         QApplication::setCursorFlashTime(0);
-        setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
-    #endif
-     
+#ifdef Q_OS_MAC
+    QApplication::setAttribute(Qt::AA_MacPluginApplication,false);
+    QApplication::setAttribute(Qt::AA_NativeWindows,true); //NOTE this is actually pretty important
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus,false); //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents,false);
+    //         QApplication::setAttribute(Qt::AA_Use96Dpi,true); //for mac retina compatibility
+    //         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar,false); //false
+    //         QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings,false); //false
+    //         QApplication::setCursorFlashTime(0);
+    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
+#endif
+
     //TODO move to styleshee.css file
-    setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}" 
-    "QToolButton:checked {background-color: rgb(175,175,175);}QToolButton{background-color: transparent;}" 
-    "QToolButton:hover {background-color: rgb(175,175,175);}" 
-    "QLineEdit {border: 1px solid gray;background: white;selection-background-color: darkgray;}"
-    "QTableView {background-color: transparent;}"
-    "QHeaderView::section {background-color: rgb(176,196,222);}"
-    "QHeaderView {background-color: rgb(176,196,222);;}"
-    "QTableCornerButton::section{background-color: transparent;}");
-        
+    setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}"
+                  "QToolButton:checked {background-color: rgb(175,175,175);}QToolButton{background-color: transparent;}"
+                  "QToolButton:hover {background-color: rgb(175,175,175);}"
+                  "QLineEdit {border: 1px solid gray;background: white;selection-background-color: darkgray;}"
+                  "QTableView {background-color: transparent;}"
+                  "QHeaderView::section {background-color: rgb(176,196,222);}"
+                  "QHeaderView {background-color: rgb(176,196,222);;}"
+                  "QTableCornerButton::section{background-color: transparent;}");
+
     // apply font
     QFont font;
     font.setFamily(font.defaultFamily());
@@ -326,26 +326,26 @@ void stVi::initStyle()
 
 void stVi::createShorcuts()
 {
-    #if defined(Q_OS_WIN)
-        actionExit->setShortcuts(QList<QKeySequence>()
-            << QKeySequence(Qt::ALT|Qt::Key_F4)
-            << QKeySequence(Qt::CTRL|Qt::Key_Q));
-    #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
-        actionExit->setShortcut(QKeySequence::Quit);
-    #endif
+#if defined(Q_OS_WIN)
+    actionExit->setShortcuts(QList<QKeySequence>()
+                             << QKeySequence(Qt::ALT|Qt::Key_F4)
+                             << QKeySequence(Qt::CTRL|Qt::Key_Q));
+#elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+    actionExit->setShortcut(QKeySequence::Quit);
+#endif
     
-    #if defined Q_OS_MAC
-        QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
-        connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
-        actionExit->setShortcut(QKeySequence("Ctrl+W"));
-    #endif
+#if defined Q_OS_MAC
+    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
+    actionExit->setShortcut(QKeySequence("Ctrl+W"));
+#endif
 }
 
 
 void stVi::initSingleInstances()
 {
     DEBUG_FUNC_NAME
-    
+
     // init configurations
     Configuration *configuration = Configuration::getInstance();
     configuration->init();

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,27 +14,27 @@
 
 namespace GL
 {
-    // GLheatmap is a convenience class containing functions to generate
-    // heatmap related data.
-    class GLheatmap
+// GLheatmap is a convenience class containing functions to generate
+// heatmap related data.
+class GLheatmap
+{
+public:
+    enum SpectrumMode
     {
-    public:
-        enum SpectrumMode
-        {
-            SpectrumLinear,
-            SpectrumLog,
-            SpectrumExp
-        };
-
-        // convenience function to generate a heatmap spectrum image given specific mapping function
-        static const bool createHeatMapImage(GLimage &image, const SpectrumMode mode = SpectrumLinear,
-                                            int lowerbound = 0, int upperbound = 100);
-        static const GLcolor createHeatMapColor(const GLfloat wavelength);
-
-        // convenience function to generate a heat map wavelength
-        // based on a normalized value [0,1] and a distribution function.
-        static const GLfloat generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode = SpectrumLinear);
+        SpectrumLinear,
+        SpectrumLog,
+        SpectrumExp
     };
+
+    // convenience function to generate a heatmap spectrum image given specific mapping function
+    static const bool createHeatMapImage(GLimage &image, const SpectrumMode mode = SpectrumLinear,
+                                         int lowerbound = 0, int upperbound = 100);
+    static const GLcolor createHeatMapColor(const GLfloat wavelength);
+
+    // convenience function to generate a heat map wavelength
+    // based on a normalized value [0,1] and a distribution function.
+    static const GLfloat generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode = SpectrumLinear);
+};
 
 } // namespace GL //
 

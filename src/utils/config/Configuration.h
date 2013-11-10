@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -25,18 +25,18 @@ public:
     explicit Configuration(QObject *parent = 0);
     virtual ~Configuration();
 
-	// singleton initialize/finalize
+    // singleton initialize/finalize
     void init();
     void finalize();
 
 public:
 
     //TODO if more settings are added let each object accessing the
-	//     configurations store the access string literals as static values
-	//     and make readSetting public instead. doesn't make sense to provide
-	//     each setting as a function.
+    //     configurations store the access string literals as static values
+    //     and make readSetting public instead. doesn't make sense to provide
+    //     each setting as a function.
     
-    //url 
+    //url
     inline const QString EndPointUrl() const { return readSetting(QStringLiteral("application/url")); };
     
     //version

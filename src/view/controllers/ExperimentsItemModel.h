@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -24,7 +24,7 @@ public:
     explicit ExperimentsItemModel(QObject* parent = 0);
 
     Q_DISABLE_COPY(ExperimentsItemModel);
-        
+
 };
 
 #endif // EXPERIMENTSITEMMODEL_H

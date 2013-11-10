@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -22,7 +22,7 @@ class GeneFeatureItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
     
 public:
-  
+
     enum Column {Name = 0, Show, Color};
 
     explicit GeneFeatureItemModel(QObject* parent = 0);
@@ -51,7 +51,7 @@ private:
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
     
-    DataProxy::GeneListPtr m_genelist_reference; 
+    DataProxy::GeneListPtr m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel);
 };

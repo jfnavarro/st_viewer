@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -48,7 +48,7 @@ public:
     
     explicit GenePlotterGL(QGraphicsItem* parent = 0);
     virtual ~GenePlotterGL();
-   
+
     void clear(); // clear rendering data
     void reset(); // reset member variables
 
@@ -130,8 +130,8 @@ private:
     {
         enum IndexType { DataIndex = 0, IndexIndex };
         inline LookupData() { }
-        inline LookupData(GL::GLindex vertexDataIndex, GL::GLindex indexDataIndex) : 
-            vertexDataIndex(vertexDataIndex), 
+        inline LookupData(GL::GLindex vertexDataIndex, GL::GLindex indexDataIndex) :
+            vertexDataIndex(vertexDataIndex),
             indexDataIndex(indexDataIndex), featureCount(0), refCount(0) { }
         GL::GLindex vertexDataIndex;
         GL::GLindex indexDataIndex;
@@ -177,11 +177,6 @@ private:
     ColorScheme *m_colorScheme;
     //visual mode
     VisualMode m_visualMode;
-
-    //hit count variables
-    //int m_hitCountMin;
-    //int m_hitCountMax;
-    //int m_hitCountSum;
 
     //rendering functions
     void generateGeneData();

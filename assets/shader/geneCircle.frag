@@ -25,7 +25,7 @@ void main(void)
 
     // derive circle color
     vec4 fragColor = out_color;
-         fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
+    fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
     if (selected) { fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist)); }
     gl_FragColor = fragColor;
 }

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -17,9 +17,9 @@ class OAuth2Error : public Error
 
 public:
     
-    enum Type 
+    enum Type
     {
-        NoError = 0x2326bdba, 
+        NoError = 0x2326bdba,
         InvalidRequest = 0xdeb1e445,
         InvalidClient = 0x594ff355,
         UnauthorizedClient = 0x7e00330c,
@@ -40,19 +40,19 @@ public:
 private:
     
     // precomputed hash values of string error codes (uses the global QT function "qHash(QString)")
-    enum InternalHash 
+    enum InternalHash
     {
-        _NoError = 0x00000000, 
+        _NoError = 0x00000000,
         // OAuth2 error codes
-        _InvalidRequest = 0x7E34A447, 
-        _InvalidClient = 0xDA542B13, 
-        _UnauthorizedClient = 0x29A5CFBB, 
-        _RedirectUriMismatch = 0x3BCB6EC4, 
-        _AccessDenied = 0xE57FAAD6, 
-        _UnsupportedResponseType = 0xEC2F27EE, 
-        _InvalidScope = 0xCE19FE0C, 
+        _InvalidRequest = 0x7E34A447,
+        _InvalidClient = 0xDA542B13,
+        _UnauthorizedClient = 0x29A5CFBB,
+        _RedirectUriMismatch = 0x3BCB6EC4,
+        _AccessDenied = 0xE57FAAD6,
+        _UnsupportedResponseType = 0xEC2F27EE,
+        _InvalidScope = 0xCE19FE0C,
         // Custom error codes
-        _EmptyToken = 0x5AFDB487  
+        _EmptyToken = 0x5AFDB487
     };
     
     // localization contex

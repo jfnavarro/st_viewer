@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -24,9 +24,9 @@
 //     1:1 mapping. No conversions.
 class FeatureDTO : public QObject
 {
-  
+
 public:
-  
+
     Q_OBJECT
 
     Q_PROPERTY(QString id READ id WRITE id)
@@ -37,7 +37,7 @@ public:
     Q_PROPERTY(int y READ y WRITE y)
 
 public:
-  
+
     explicit FeatureDTO(QObject* parent = 0);
     FeatureDTO(const Feature& feature, QObject* parent = 0);
     virtual ~FeatureDTO();
@@ -62,7 +62,7 @@ public:
     Feature& feature() { return m_feature; }
 
 private:
-  
+
     Feature m_feature;
 };
 

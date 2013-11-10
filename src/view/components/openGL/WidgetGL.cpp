@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -36,9 +36,9 @@ WidgetGL::~WidgetGL()
 void WidgetGL::resizeGL(int width, int height)
 {
     //TODO devicePixelRatio() will be directly exposed to QGLWidget in next QT release
-//     qreal pixelRatio = devicePixelRatio();
-//     qreal pixelRatio = windowHandle()->devicePixelRatio();
-//     qDebug() << QString("[WidgetGL] devicePixelRatio: %1").arg(pixelRatio);
-//     QGLWidget::resizeGL(width*pixelRatio, height*pixelRatio);
+    //     qreal pixelRatio = devicePixelRatio();
+    //     qreal pixelRatio = windowHandle()->devicePixelRatio();
+    //     qDebug() << QString("[WidgetGL] devicePixelRatio: %1").arg(pixelRatio);
+    //     QGLWidget::resizeGL(width*pixelRatio, height*pixelRatio);
     QGLWidget::resizeGL(width, height);
 }

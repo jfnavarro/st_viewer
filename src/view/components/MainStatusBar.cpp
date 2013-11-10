@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -21,7 +21,7 @@ MainStatusBar::~MainStatusBar()
 void MainStatusBar::onDownloadProgress(const QString &fileName, qint64 bytesReceived, qint64 bytesTotal)
 {
     showMessage(QString("Downloading %1 (%2/%3)")
-    .arg(fileName)
-    .arg(Utils::formatStorage(bytesReceived))
-    .arg(Utils::formatStorage(bytesTotal)),1000);
+                .arg(fileName)
+                .arg(Utils::formatStorage(bytesReceived))
+                .arg(Utils::formatStorage(bytesTotal)),1000);
 }

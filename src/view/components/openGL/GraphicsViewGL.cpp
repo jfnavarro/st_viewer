@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -29,10 +29,10 @@
 
 GraphicsViewGL::GraphicsViewGL(QWidget* parent)
     : QGraphicsView(parent), m_minimap(0), m_opengl_surface(0),
-    m_zoom(Globals::DEFAULT_ZOOM), m_zoom_min(Globals::DEFAULT_ZOOM_MIN),
-    m_zoom_max(Globals::DEFAULT_ZOOM_MAX),
-    m_mousePressViewPoint(), m_rubberBanding(false), m_rubberBandRect(),
-    m_viewItems()
+      m_zoom(Globals::DEFAULT_ZOOM), m_zoom_min(Globals::DEFAULT_ZOOM_MIN),
+      m_zoom_max(Globals::DEFAULT_ZOOM_MAX),
+      m_mousePressViewPoint(), m_rubberBanding(false), m_rubberBandRect(),
+      m_viewItems()
 {
     setBackground(Qt::black);
     //NOTE see UI file for configuration variables
@@ -59,7 +59,7 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
     format.setDepth(false);
     format.setRgba(true);
     format.setProfile(QGLFormat::CompatibilityProfile);
-//    format.setProfile(QGLFormat::CoreProfile); //NOTE does not allow shaders due to a bug in Qt 5.1
+    //    format.setProfile(QGLFormat::CoreProfile); //NOTE does not allow shaders due to a bug in Qt 5.1
     
     // setup opengl viewport
     if (m_opengl_surface == 0)
@@ -84,7 +84,7 @@ void GraphicsViewGL::finalizeGL()
 {
     DEBUG_FUNC_NAME
 
-    foreach (ViewItemGL* item, m_viewItems)
+            foreach (ViewItemGL* item, m_viewItems)
     {
         if(item != 0)
         {
@@ -133,14 +133,14 @@ void GraphicsViewGL::mousePressEvent(QMouseEvent* event)
     {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-            event->type(),
-            localPoint,//event->localPos(),
-            event->windowPos(),
-            event->screenPos(),
-            event->button(),
-            event->buttons(),
-            event->modifiers()
-        );
+                    event->type(),
+                    localPoint,//event->localPos(),
+                    event->windowPos(),
+                    event->screenPos(),
+                    event->button(),
+                    event->buttons(),
+                    event->modifiers()
+                    );
         if (item->contains(localPoint) && item->mousePressEvent(&newEvent))
         {
             // view item has handled the mouse event
@@ -161,14 +161,14 @@ void GraphicsViewGL::mouseMoveEvent(QMouseEvent* event)
     {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-            event->type(),
-            localPoint,//event->localPos(),
-            event->windowPos(),
-            event->screenPos(),
-            event->button(),
-            event->buttons(),
-            event->modifiers()
-        );
+                    event->type(),
+                    localPoint,//event->localPos(),
+                    event->windowPos(),
+                    event->screenPos(),
+                    event->button(),
+                    event->buttons(),
+                    event->modifiers()
+                    );
         if (item->contains(localPoint) && item->mouseMoveEvent(&newEvent))
         {
             // view item has handled the mouse event
@@ -189,14 +189,14 @@ void GraphicsViewGL::mouseReleaseEvent(QMouseEvent* event)
     {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-            event->type(),
-            localPoint,//event->localPos(),
-            event->windowPos(),
-            event->screenPos(),
-            event->button(),
-            event->buttons(),
-            event->modifiers()
-        );
+                    event->type(),
+                    localPoint,//event->localPos(),
+                    event->windowPos(),
+                    event->screenPos(),
+                    event->button(),
+                    event->buttons(),
+                    event->modifiers()
+                    );
         if (item->contains(localPoint) && item->mouseReleaseEvent(&newEvent))
         {
             // view item has handled the mouse event
@@ -214,7 +214,7 @@ void GraphicsViewGL::wheelEvent(QWheelEvent* event)
 {
     event->ignore();
     qreal zoomFactor = qPow(4.0 / 3.0, (-event->delta() / 240.0));
-    setZoom(zoomFactor * zoom());  
+    setZoom(zoomFactor * zoom());
 }
 
 void GraphicsViewGL::showEvent(QShowEvent* event)
@@ -234,9 +234,9 @@ void GraphicsViewGL::drawBackground(QPainter *painter, const QRectF& rect)
 {
 
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-        painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
+            painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
     {
-        qDebug() << "GraphicsViewGL: drawBackground needs a QGLWidget to be" 
+        qDebug() << "GraphicsViewGL: drawBackground needs a QGLWidget to be"
                     "set as viewport on the graphics view";
         return;
     }
@@ -263,9 +263,9 @@ void GraphicsViewGL::drawForeground(QPainter* painter, const QRectF& rect)
 {
 
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-        painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
+            painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
     {
-        qDebug() << "GraphicsViewGL: drawForeground needs a QGLWidget to be" 
+        qDebug() << "GraphicsViewGL: drawForeground needs a QGLWidget to be"
                     "set as viewport on the graphics view";
         return;
     }
@@ -376,18 +376,18 @@ void GraphicsViewGL::moveRubberBand(QMouseEvent* event)
         {
             // Check for enough drag distance
             if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                < QApplication::startDragDistance())
+                    < QApplication::startDragDistance())
             {
                 QGraphicsView::mouseMoveEvent(event);
                 return;
             }
- 
+
             // Update old rubberband
             if (!m_rubberBandRect.isEmpty())
             {
                 viewport()->update();
             }
- 
+
             // Stop rubber banding if the user has let go of all buttons (even
             // if we didn't get the release events).
             if (!event->buttons())
@@ -397,13 +397,13 @@ void GraphicsViewGL::moveRubberBand(QMouseEvent* event)
                 QGraphicsView::mouseMoveEvent(event);
                 return;
             }
- 
+
             // Update rubberband position
             const QPoint &mp = m_mousePressViewPoint;
             QPoint ep = event->pos();
             m_rubberBandRect = QRect(qMin(mp.x(), ep.x()), qMin(mp.y(), ep.y()),
                                      qAbs(mp.x() - ep.x()) + 1, qAbs(mp.y() - ep.y()) + 1);
- 
+
             // Update new rubberband
             if (!m_rubberBandRect.isEmpty())
             {
@@ -433,7 +433,7 @@ void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
         {
             // Clear selection if not for enough drag distance
             if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                < QApplication::startDragDistance())
+                    < QApplication::startDragDistance())
             {
                 GraphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
                 if (s)
@@ -461,35 +461,35 @@ const QTransform GraphicsViewGL::anchorTransform(ViewItemGL::Anchor anchor) cons
     QTransform transform(Qt::Uninitialized);
     switch (anchor)
     {
-        case ViewItemGL::Center:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height() * 0.5f);
-            break;
-        case ViewItemGL::North:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, 0.0f);
-            break;
-        case ViewItemGL::NorthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), 0.0f);
-            break;
-        case ViewItemGL::East:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5f);
-            break;
-        case ViewItemGL::SouthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
-            break;
-        case ViewItemGL::South:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height());
-            break;
-        case ViewItemGL::SouthWest:
-            transform = QTransform::fromTranslate(0.0f, viewSize.height());
-            break;
-        case ViewItemGL::West:
-            transform = QTransform::fromTranslate(0.0f, viewSize.height() * 0.5f);
-            break;
-        case ViewItemGL::NorthWest:
-            // fall-through
-        default:
-            transform = QTransform::fromTranslate(0.0f, 0.0f);
-            break;
+    case ViewItemGL::Center:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height() * 0.5f);
+        break;
+    case ViewItemGL::North:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5f, 0.0f);
+        break;
+    case ViewItemGL::NorthEast:
+        transform = QTransform::fromTranslate(viewSize.width(), 0.0f);
+        break;
+    case ViewItemGL::East:
+        transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5f);
+        break;
+    case ViewItemGL::SouthEast:
+        transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
+        break;
+    case ViewItemGL::South:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height());
+        break;
+    case ViewItemGL::SouthWest:
+        transform = QTransform::fromTranslate(0.0f, viewSize.height());
+        break;
+    case ViewItemGL::West:
+        transform = QTransform::fromTranslate(0.0f, viewSize.height() * 0.5f);
+        break;
+    case ViewItemGL::NorthWest:
+        // fall-through
+    default:
+        transform = QTransform::fromTranslate(0.0f, 0.0f);
+        break;
     }
     return transform;
 }

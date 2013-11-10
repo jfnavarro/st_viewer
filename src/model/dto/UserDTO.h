@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -23,16 +23,16 @@
 //     1:1 mapping. No conversions.
 class UserDTO : public QObject
 {
-  
+
 public:
-  
+
     Q_OBJECT
 
     Q_PROPERTY(QString username READ username WRITE username)
     Q_PROPERTY(QString role READ role WRITE role)
 
 public:
-  
+
     explicit UserDTO(QObject* parent = 0);
     UserDTO(const User& user, QObject* parent = 0);
     virtual ~UserDTO();
@@ -49,7 +49,7 @@ public:
     User& user() { return m_user; }
 
 private:
-  
+
     User m_user;
 };
 

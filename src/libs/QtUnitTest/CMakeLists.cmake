@@ -9,7 +9,7 @@ set(SRC_${LIB}
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/algorithm/linearizer.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/asciigenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/binarygenerator.cpp
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/sourcegenerator.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/sourcegenerator.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/util/random.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/testsuite.cpp
 )

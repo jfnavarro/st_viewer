@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -48,13 +48,13 @@ public:
     void finalize();
 
     //default use Authentication
-    NetworkReply* httpRequest(NetworkCommand* cmd, QVariant data = QVariant(), 
+    NetworkReply* httpRequest(NetworkCommand* cmd, QVariant data = QVariant(),
                               NetworkFlags flags = UseAuthentication);
 
 private slots:
     
     //if remote server requires authentication
-    void provideAuthentication(QNetworkReply*, QAuthenticator*); 
+    void provideAuthentication(QNetworkReply*, QAuthenticator*);
     
 private:
 

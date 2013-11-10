@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -32,9 +32,9 @@ void DatasetsViewItemDelegate::paint(QPainter* painter, const QStyleOptionViewIt
     {
         int widthUsed, lineCount;
         painter->save();
-           
+
         QString lines = index.data(Qt::DisplayRole).toString();
- 
+
         QPalette::ColorGroup group = option.state & QStyle::State_Enabled ? QPalette::Normal : QPalette::Disabled;
         if (group == QPalette::Normal && !(option.state & QStyle::State_Active))
         {
@@ -52,7 +52,7 @@ void DatasetsViewItemDelegate::paint(QPainter* painter, const QStyleOptionViewIt
         }
 
         details(lines, QApplication::font(), option, &lineCount, &widthUsed);
-            
+
         //Word wrap the text, 'elide' it if it goes past a pre-determined maximum
         QString newText = painter->fontMetrics().elidedText(lines, Qt::ElideRight, widthUsed);
         painter->drawText( option.rect, (Qt::TextWrapAnywhere|Qt::TextWordWrap|Qt::AlignTop|Qt::AlignLeft), newText );
@@ -72,7 +72,7 @@ QSize DatasetsViewItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     int widthUsed, lineCount;
     const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
     Q_ASSERT(model);
-    int col = index.column();   
+    int col = index.column();
     //Try and word wrap strings
     if(col == DatasetItemModel::Comments)
     {
@@ -94,12 +94,12 @@ QSize DatasetsViewItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 }
 
 void DatasetsViewItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                                                const QModelIndex &index ) const
+                                                    const QModelIndex &index ) const
 {
     int lineCount, widthUsed;
     const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
     Q_ASSERT(model);
-    int col = index.column();      
+    int col = index.column();
     //Fix editor's geometry and produce the word-wrapped effect for strings...
     if(col == DatasetItemModel::Comments)
     {

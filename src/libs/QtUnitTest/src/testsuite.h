@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -13,37 +13,37 @@
 namespace unit
 {
 
-    class TestSuite;
-    class TestHandle
-    {
-    public:
-        TestHandle();
-        TestHandle(TestSuite *suite, const QString &name);
+class TestSuite;
+class TestHandle
+{
+public:
+    TestHandle();
+    TestHandle(TestSuite *suite, const QString &name);
 
-        TestHandle dependsOn(const QString &name);
+    TestHandle dependsOn(const QString &name);
 
-    private:
-        const QString m_name;
-        TestSuite *m_suite;
-    };
+private:
+    const QString m_name;
+    TestSuite *m_suite;
+};
 
-    class TestSuite
-    {
-        
-    public:
-        TestSuite();
+class TestSuite
+{
 
-        TestHandle addTest(QObject *test, const QString &name);
+public:
+    TestSuite();
 
-        int exec();
+    TestHandle addTest(QObject *test, const QString &name);
 
-    private:
-        friend class TestHandle;
+    int exec();
 
-        void setDependencie(const QString &parent, const QString &child);
+private:
+    friend class TestHandle;
 
-        QObject m_root;
-    };
+    void setDependencie(const QString &parent, const QString &child);
+
+    QObject m_root;
+};
 
 } // namespace unit //
 

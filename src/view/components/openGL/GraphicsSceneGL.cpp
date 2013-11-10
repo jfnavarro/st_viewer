@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -63,7 +63,7 @@ void GraphicsSceneGL::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 
 void GraphicsSceneGL::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
-     QGraphicsScene::wheelEvent(event);
+    QGraphicsScene::wheelEvent(event);
 }
 
 void GraphicsSceneGL::drawBackground(QPainter* painter, const QRectF& rect)

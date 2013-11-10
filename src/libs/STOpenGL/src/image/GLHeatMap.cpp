@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -22,7 +22,7 @@ const bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode
     for (GLsizei i = 0; i<h; ++i)
     {
         //const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1, 0, h-1);
-        //I want to bget the color of each line of the image as the heatmap
+        //I want to get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound
         const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1,lowerbound,upperbound);
         const GLfloat nw = GLheatmap::generateHeatMapWavelength(nh, mode);

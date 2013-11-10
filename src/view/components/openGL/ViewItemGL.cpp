@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -86,34 +86,34 @@ const QTransform ViewItemGL::adjustForAnchor(const QTransform& transform) const
     QTransform adjustedTransform = transform;
     switch (m_anchor)
     {
-        case ViewItemGL::Center:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -0.5f);
-            break;
-        case ViewItemGL::North:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, 0.0f);
-            break;
-        case ViewItemGL::NorthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, 0.0f);
-            break;
-        case ViewItemGL::East:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -0.5f);
-            break;
-        case ViewItemGL::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -1.0f);
-            break;
-        case ViewItemGL::South:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -1.0f);
-            break;
-        case ViewItemGL::SouthWest:
-            adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -1.0f);
-            break;
-        case ViewItemGL::West:
-            adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -0.5f);
-            break;
-        case ViewItemGL::NorthWest:
-            // fall-through
-        default:
-            break;
+    case ViewItemGL::Center:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -0.5f);
+        break;
+    case ViewItemGL::North:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, 0.0f);
+        break;
+    case ViewItemGL::NorthEast:
+        adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, 0.0f);
+        break;
+    case ViewItemGL::East:
+        adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -0.5f);
+        break;
+    case ViewItemGL::SouthEast:
+        adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -1.0f);
+        break;
+    case ViewItemGL::South:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -1.0f);
+        break;
+    case ViewItemGL::SouthWest:
+        adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -1.0f);
+        break;
+    case ViewItemGL::West:
+        adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -0.5f);
+        break;
+    case ViewItemGL::NorthWest:
+        // fall-through
+    default:
+        break;
     }
     return adjustedTransform;
 }

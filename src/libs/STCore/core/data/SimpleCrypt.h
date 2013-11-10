@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -79,17 +79,17 @@ private:
 
 inline void SimpleCrypt::setKey(quint64 key) 
 { 
-    m_key.key64 = key; 
+    m_key.key64 = key;
 }
 
 inline quint64 SimpleCrypt::getKey() const 
 { 
-    return m_key.key64; 
+    return m_key.key64;
 }
 
 inline bool SimpleCrypt::hasKey() const 
 { 
-    return m_key.key64 != EMPTY_KEY; 
+    return m_key.key64 != EMPTY_KEY;
 }
 
 inline void SimpleCrypt::encodeByteArray(QByteArray &data) const
@@ -118,11 +118,11 @@ inline void SimpleCrypt::decodeByteArray(QByteArray &data) const
 
 inline quint8 SimpleCrypt::randomSeed()
 {
-    #if defined(DEBUG) || defined(_DEBUG)
-        return 0;
-    #else
-        return static_cast<quint8>(qrand() & 0xFF);
-    #endif
+#if defined(DEBUG) || defined(_DEBUG)
+    return 0;
+#else
+    return static_cast<quint8>(qrand() & 0xFF);
+#endif
 }
 
 #endif // SimpleCrypt_H

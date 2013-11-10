@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -10,13 +10,13 @@
 #include "utils/Utils.h"
 
 FeatureExtended::FeatureExtended()
-: Feature(), m_color(Globals::color_gene)
+    : Feature(), m_color(Globals::color_gene)
 {
 
 }
 
 FeatureExtended::FeatureExtended(const Feature& other)
-: Feature(other), m_color(Globals::color_gene)
+    : Feature(other), m_color(Globals::color_gene)
 {
 
 }

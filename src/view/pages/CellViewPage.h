@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -29,7 +29,7 @@ class HeatMapLegendGL;
 
 namespace Ui
 {
-    class CellView;
+class CellView;
 } // namespace Ui //
 
 // this is the definition of the cell view page which contains a list of genes and an OpenGL based
@@ -128,8 +128,7 @@ private:
     QAction *actionShow_toggleDynamicRangeGenes;
     QAction *actionShow_toggleHeatMap;
 
-    QWidgetAction *actionWidget_geneHitsThresholdDown;
-    QWidgetAction *actionWidget_geneHitsThresholdUp;
+    QWidgetAction *actionWidget_geneHitsThreshold;
     QWidgetAction *actionWidget_geneIntensity;
     QWidgetAction *actionWidget_geneSize;
     QWidgetAction *actionWidget_geneShape;

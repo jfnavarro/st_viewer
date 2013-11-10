@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -39,27 +39,27 @@ void ServerError::init(uint error)
 
     switch (error)
     {
-        case ServerError::_NoError:
-            type = ServerError::NoError;
-            name = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Name");
-            description = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Description");
-            break;
-        case ServerError::_BadRequest:
-            type = ServerError::BadRequest;
-            name = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Name").arg(m_serverErrorName);
-            description = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Description").arg(m_serverErrorDescription);
-            break;
-        case ServerError::_ResourceNotFound:
-            type = ServerError::ResourceNotFound;
-            name = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Name").arg(m_serverErrorName);
-            description = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Description").arg(m_serverErrorDescription);
-            break;
-        default:
-            type = ServerError::UnknownError;
-            name = m_serverErrorName;
-            description = m_serverErrorDescription;
-//             name  = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Name");
-//             description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
+    case ServerError::_NoError:
+        type = ServerError::NoError;
+        name = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Name");
+        description = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Description");
+        break;
+    case ServerError::_BadRequest:
+        type = ServerError::BadRequest;
+        name = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Name").arg(m_serverErrorName);
+        description = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Description").arg(m_serverErrorDescription);
+        break;
+    case ServerError::_ResourceNotFound:
+        type = ServerError::ResourceNotFound;
+        name = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Name").arg(m_serverErrorName);
+        description = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Description").arg(m_serverErrorDescription);
+        break;
+    default:
+        type = ServerError::UnknownError;
+        name = m_serverErrorName;
+        description = m_serverErrorDescription;
+        //             name  = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Name");
+        //             description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
 
     // assign name and description

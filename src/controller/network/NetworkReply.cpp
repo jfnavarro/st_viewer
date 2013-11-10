@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -85,7 +85,7 @@ QJsonDocument NetworkReply::getJSON()
         registerError(error);
     }
 
-	return doc;
+    return doc;
 }
 
 QString NetworkReply::getText()
@@ -110,14 +110,14 @@ void NetworkReply::slotFinished()
     int ret = CodeSuccess;
     switch (m_reply->error())
     {
-        case QNetworkReply::NoError:
-            ret = CodeSuccess;
-            break;
-        case QNetworkReply::OperationCanceledError:
-            ret = CodeAbort;
-            break;
-        default:
-            ret = CodeError;
+    case QNetworkReply::NoError:
+        ret = CodeSuccess;
+        break;
+    case QNetworkReply::OperationCanceledError:
+        ret = CodeAbort;
+        break;
+    default:
+        ret = CodeError;
     }
     emit signalFinished(QVariant::fromValue<int>(ret), m_data);
 }
@@ -131,8 +131,8 @@ void NetworkReply::slotMetaDataChanged()
 void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 {
     // create and register error only if the error was not an abort
-    if(networkError != QNetworkReply::OperationCanceledError 
-       && networkError != QNetworkReply::NoError)
+    if(networkError != QNetworkReply::OperationCanceledError
+            && networkError != QNetworkReply::NoError)
     {
         Error* error = new NetworkError(networkError, this);
         registerError(error);
@@ -141,16 +141,16 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 
 void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
 {
-    //TODO ignoring ssl errors for now to make it the request works with https 
+    //TODO ignoring ssl errors for now to make it the request works with https
     //but we should add a flag for this or add the certificate public key to the client
     //alternatively we could ask the user to accept the certificate
     
     m_reply->ignoreSslErrors(sslErrorList);
     
-//     Error* error = 0;
-//     foreach(const QSslError& sslError, sslErrorList)
-//     {
-//         error = new SSLNetworkError(sslError, m_cmd, this);
-//         registerError(error);
-//     }
+    //     Error* error = 0;
+    //     foreach(const QSslError& sslError, sslErrorList)
+    //     {
+    //         error = new SSLNetworkError(sslError, m_cmd, this);
+    //         registerError(error);
+    //     }
 }

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -75,13 +75,13 @@ bool SimpleCryptDevice::open(OpenMode mode)
 qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0) 
-    { 
+    if (maxSize == 0)
+    {
         return 0;
     }
 
     // define data pointers
-    char *it = data; 
+    char *it = data;
     char *end = (data + maxSize);
 
     // read buffer to output
@@ -104,8 +104,8 @@ qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
 qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0) 
-    { 
+    if (maxSize == 0)
+    {
         return 0;
     }
 
@@ -131,9 +131,9 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
 qint64 SimpleCryptDevice::readBuffer(char *out, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0) 
-    { 
-        return 0; 
+    if (maxSize == 0)
+    {
+        return 0;
     }
 
     QBuffer inDevice(&m_buffer);
@@ -149,8 +149,8 @@ qint64 SimpleCryptDevice::readBuffer(char *out, qint64 maxSize)
 qint64 SimpleCryptDevice::writeBuffer(const char *in, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0) 
-    { 
+    if (maxSize == 0)
+    {
         return 0;
     }
 

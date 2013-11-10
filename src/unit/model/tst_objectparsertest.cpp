@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,24 +14,24 @@
 namespace unit
 {
 
-    ObjectParserTest::ObjectParserTest(QObject *parent) : QObject(parent) { }
+ObjectParserTest::ObjectParserTest(QObject *parent) : QObject(parent) { }
 
-    void ObjectParserTest::initTestCase()
-    {
-        QVERIFY2( true, "Empty" );
-    }
+void ObjectParserTest::initTestCase()
+{
+    QVERIFY2( true, "Empty" );
+}
 
-    void ObjectParserTest::cleanupTestCase()
-    {
-        QVERIFY2( true, "Empty" );
-    }
+void ObjectParserTest::cleanupTestCase()
+{
+    QVERIFY2( true, "Empty" );
+}
 
-	void ObjectParserTest::testParseObject()
-	{
-		QVERIFY2( true, "Empty" );
-	}
-	void ObjectParserTest::testParseObject_data()
-	{
-	}
+void ObjectParserTest::testParseObject()
+{
+    QVERIFY2( true, "Empty" );
+}
+void ObjectParserTest::testParseObject_data()
+{
+}
 
 } // namespace unit //

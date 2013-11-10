@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -33,11 +33,11 @@ const QString GeneTXTExporter::delimiterCharacter() const
 {
     switch (m_separationMode)
     {
-        case TabDelimited:
-            return QStringLiteral("\t");
-        case CommaDelimited:
-        default:
-            return QStringLiteral(",");
+    case TabDelimited:
+        return QStringLiteral("\t");
+    case CommaDelimited:
+    default:
+        return QStringLiteral(",");
     }
 }
 
@@ -56,8 +56,8 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr 
          << QString("%1").arg(hitCount);
 
     const bool hasNormalized =
-        context.property("hitCountMin").isValid()
-        && context.property("hitCountMax").isValid();
+            context.property("hitCountMin").isValid()
+            && context.property("hitCountMax").isValid();
     if (hasNormalized)
     {
         const int hitCountMin = qvariant_cast<int>(context.property("hitCountMin"));
@@ -70,8 +70,8 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr 
 void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureList &featureList, const QObject &context) const
 {
     const bool hasNormalized =
-        context.property("hitCountMin").isValid()
-        && context.property("hitCountMax").isValid();
+            context.property("hitCountMin").isValid()
+            && context.property("hitCountMax").isValid();
 
     // prepend header
     if (m_detailLevel.testFlag(GeneTXTExporter::Comments))

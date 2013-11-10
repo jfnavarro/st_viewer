@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -41,9 +41,9 @@ User& User::operator=(const User& other)
 bool User::operator==(const User& other) const
 {
     if (
-        m_username == other.m_username &&
-        m_role == other.m_role
-	)
+            m_username == other.m_username &&
+            m_role == other.m_role
+            )
         return true;
     else
         return false;

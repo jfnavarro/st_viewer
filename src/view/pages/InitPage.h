@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -15,7 +15,7 @@ class Error;
 
 namespace Ui
 {
-    class InitPage;
+class InitPage;
 }
 
 // this is the definition of the start page which contains logos, a login component and a start button
@@ -26,7 +26,7 @@ namespace Ui
 class InitPage : public Page
 {
 
-   Q_OBJECT
+    Q_OBJECT
 
 public: 
     

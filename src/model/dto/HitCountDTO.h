@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -22,9 +22,9 @@
 //     1:1 mapping. No conversions.
 class HitCountDTO : public QObject
 {
-  
+
 public:
-  
+
     Q_OBJECT
 
     Q_PROPERTY(int min READ min WRITE min)

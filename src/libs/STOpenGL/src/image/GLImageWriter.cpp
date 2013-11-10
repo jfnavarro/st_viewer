@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -50,8 +50,8 @@ const bool GLimagewriter::writeFillColor(const GLcolor &color)
 const bool GLimagewriter::writeFillGradient(const GLcolor &color0, const GLcolor &color1, const GradientAngle gradient)
 {
     const GLvector norm = (gradient == HorizontalGradient) ?
-        GLvector(GLfloat(m_image.width()), GLfloat(0.0)) : 
-        GLvector(GLfloat(0.0), GLfloat(m_image.height()));
+                GLvector(GLfloat(m_image.width()), GLfloat(0.0)) :
+                GLvector(GLfloat(0.0), GLfloat(m_image.height()));
 
     bool ret = true;
 

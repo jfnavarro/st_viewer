@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -58,21 +58,21 @@ void OAuth2::startInteractiveLogin()
     Configuration* config = Configuration::getInstance();
     
     if(config->oauthClientID() == QStringLiteral("YOUR_CLIENT_ID_HERE") ||
-       config->oauthClientID().isEmpty() ||
-       config->oauthSecret() == QStringLiteral("YOUR_CLIENT_SECRET_HERE") ||
-       config->oauthSecret().isEmpty())
+            config->oauthClientID().isEmpty() ||
+            config->oauthSecret() == QStringLiteral("YOUR_CLIENT_SECRET_HERE") ||
+            config->oauthSecret().isEmpty())
     {
         qDebug() << "[OAuth2] Error: To work with application you need to register "
                  <<  "your own application in SpatialTranscriptomics.";
         return;
     }
 
-    // lazy init 
+    // lazy init
     if(m_loginDialog.isNull())
     {
         m_loginDialog.reset(new LoginDialog());
         connect(m_loginDialog.data(), SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
-        connect(m_loginDialog.data(), SIGNAL(acceptLogin(const QString&, const QString&)), this, 
+        connect(m_loginDialog.data(), SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
     
@@ -158,7 +158,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         }
     }
     else
-    {   
+    {
         const NetworkReply::ErrorList &errors = reply->errors();
         
         if(errors.count() > 1)
@@ -181,7 +181,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
             ObjectParser::parseObject(result, &dto);
             QString errorName = dto.errorName();
             QString errorDescription = dto.errorDescription();
-            qDebug() << "[OAuth2] Network Reply Error " << errorName << " : " << errorDescription;;        
+            qDebug() << "[OAuth2] Network Reply Error " << errorName << " : " << errorDescription;;
             Error* error = new OAuth2Error(errorName, errorDescription, this);
             emit signalError(error);
         }

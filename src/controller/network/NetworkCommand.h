@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -22,7 +22,7 @@ class NetworkCommand : public QObject
     Q_OBJECT
 
 public:
-  
+
     explicit NetworkCommand(QObject* parent = 0);
     
     NetworkCommand(const QUrl& url, Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
@@ -37,14 +37,14 @@ public:
 
     // convenience wrapper functions
     inline void addQueryItem(const QString& param,const QString& value = QString())
-                            { m_query.addQueryItem(param, value); }
-                            
+    { m_query.addQueryItem(param, value); }
+
     inline void addQueryItem(const QString& param,int value)
-                            { m_query.addQueryItem(param, QString::number(value)); }
-                            
+    { m_query.addQueryItem(param, QString::number(value)); }
+
     inline void addQueryItem(const QString& param, double value)
-                            { m_query.addQueryItem(param, QString::number(value)); }
-                             
+    { m_query.addQueryItem(param, QString::number(value)); }
+
     void addQueryItems(QObject* object); // adds query items from qobject meta data
 
     inline const QString getQueryItem(const QString& param) const { return m_query.queryItemValue(param); }
@@ -52,10 +52,10 @@ public:
     // returns the query part fully encoded.
     inline const QString getEncodedQuery() const { return m_query.query(QUrl::FullyEncoded); }
     // returns the URL part fully encoded. Note this includes the URL query.
-    const QString getEncodedUrl() const; 
-         
+    const QString getEncodedUrl() const;
+
 private:
-  
+
     typedef Globals::HttpRequestType Type;
     QUrl m_url;
     Type m_type;

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -8,11 +8,11 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 #include <QString>
-
+#include "utils/Utils.h"
 // Data model class to store feature data.
 class Feature
 {
-  
+
 public:
 
     Feature();
@@ -26,14 +26,14 @@ public:
     virtual inline const QString& id() const { return m_id; }
     virtual inline const QString& barcode() const { return m_barcode; }
     virtual inline const QString& gene() const { return m_gene; }
-    virtual inline int hits() const { return m_hits; }
+    virtual inline int hits() const { return m_hits > Globals::limit_hit_count ? Globals::limit_hit_count : m_hits; }
     virtual inline double x() const { return m_x; }
     virtual inline double y() const { return m_y; }
 
     virtual inline void id(const QString& id) { m_id = id;}
     virtual inline void barcode(const QString& barcode) { m_barcode = barcode; }
     virtual inline void gene(const QString& gene) { m_gene = gene; }
-    virtual inline void hits(int hits) { m_hits = hits; }
+    virtual inline void hits(int hits) { m_hits = hits;  }
     virtual inline void x(double x) { m_x = x; }
     virtual inline void y(double y) { m_y = y; }
 

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -42,10 +42,10 @@ Gene& Gene::operator=(const Gene& other)
 bool Gene::operator==(const Gene& other) const
 {
     if (
-        m_selected == other.m_selected &&
-        m_name == other.m_name &&
-        m_color == other.m_color
-    )
+            m_selected == other.m_selected &&
+            m_name == other.m_name &&
+            m_color == other.m_color
+            )
         return true;
     else
         return false;

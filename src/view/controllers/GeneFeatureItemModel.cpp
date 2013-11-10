@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -35,24 +35,24 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     }
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
-    {   
-        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items 
+    {
+        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
         DataProxy::GenePtr item = m_genelist_reference->at(index.row());
 
         QVariant value;
         switch(index.column())
         {
-            case Name:
-                value = item->name();
-                break;
-            case Show:
-                value = item->selected() ? Qt::Checked : Qt::Unchecked;
-                break;
-            case Color:
-                value = item->color();
-                break;
-            default:
-                return QVariant(QVariant::Invalid);
+        case Name:
+            value = item->name();
+            break;
+        case Show:
+            value = item->selected() ? Qt::Checked : Qt::Unchecked;
+            break;
+        case Color:
+            value = item->color();
+            break;
+        default:
+            return QVariant(QVariant::Invalid);
         }
         return value;
     }
@@ -73,17 +73,17 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
         QVariant value;
         switch (section)
         {
-            case Name:
-                value = tr("Name");
-                break;
-            case Show:
-                value = tr("Show");
-                break;
-            case Color:
-                value = tr("Color");
-                break;
-            default:
-                return QVariant(QVariant::Invalid);
+        case Name:
+            value = tr("Name");
+            break;
+        case Show:
+            value = tr("Show");
+            break;
+        case Color:
+            value = tr("Color");
+            break;
+        default:
+            return QVariant(QVariant::Invalid);
         }
         return value;
     }
@@ -101,7 +101,7 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
 
 bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-   
+
     if (!index.isValid() || m_genelist_reference.isNull())
     {
         return false;
@@ -112,33 +112,33 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
 
     if (role == Qt::EditRole)
     {
-        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items 
+        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
         DataProxy::GenePtr item = m_genelist_reference->at(index.row());
         
         switch(column)
         {
-            case Show:
-                if (item->selected() != value.toBool())
-                {
-                    item->selected(value.toBool());
-                    emit signalSelectionChanged(item);
-                    emit dataChanged(index, index);
-                    return true;
-                }
-                break;
-            case Color:
+        case Show:
+            if (item->selected() != value.toBool())
             {
-                const QColor color = qvariant_cast<QColor>(value);
-                if (color.isValid() && item->color() != color)
-                {
-                    item->color(color);
-                    emit signalColorChanged(item);
-                    emit dataChanged(index, index);
-                    return true;
-                }
+                item->selected(value.toBool());
+                emit signalSelectionChanged(item);
+                emit dataChanged(index, index);
+                return true;
             }
-            default:
-                return false;
+            break;
+        case Color:
+        {
+            const QColor color = qvariant_cast<QColor>(value);
+            if (color.isValid() && item->color() != color)
+            {
+                item->color(color);
+                emit signalColorChanged(item);
+                emit dataChanged(index, index);
+                return true;
+            }
+        }
+        default:
+            return false;
         }
     }
     
@@ -171,17 +171,17 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     
     switch (index.column())
     {
-        case Name:
-            return Qt::ItemIsDragEnabled | defaultFlags;
-            break;
-        case Show:
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | defaultFlags;
-            break;
-        case Color:
-            return Qt::ItemIsEditable | Qt::ItemIsDragEnabled | defaultFlags;
-            break;
-        default:
-            Q_ASSERT(false && "[GeneFeatureItemModel] Invalid column index!");
+    case Name:
+        return Qt::ItemIsDragEnabled | defaultFlags;
+        break;
+    case Show:
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | defaultFlags;
+        break;
+    case Color:
+        return Qt::ItemIsEditable | Qt::ItemIsDragEnabled | defaultFlags;
+        break;
+    default:
+        Q_ASSERT(false && "[GeneFeatureItemModel] Invalid column index!");
     }
     
     return defaultFlags;
