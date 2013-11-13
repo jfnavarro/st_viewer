@@ -16,7 +16,7 @@ HeatMapColor::HeatMapColor(int minHits, int maxHits) : ColorScheme(minHits,maxHi
 
 }
 
-QColor HeatMapColor::getColor(DataProxy::FeaturePtr feature) const
+QColor HeatMapColor::getColor(DataProxy::FeatureRef feature) const
 {
     const GLfloat v = GLfloat(feature->hits());
     const GLfloat min = GLfloat(m_minHits);

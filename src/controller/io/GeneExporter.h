@@ -21,7 +21,7 @@ public:
     GeneExporter(QObject *parent = 0);
     virtual ~GeneExporter();
 
-    virtual void exportItem(QIODevice *device, const DataProxy::FeatureList&, const QObject &context) const = 0;
+    virtual void exportItem(QIODevice *device, const DataProxy::FeatureListRef&, const QObject &context) const = 0;
 
     typedef QList<QString> PropertyList;
     void addExportProperty(const QString &property);

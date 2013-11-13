@@ -22,12 +22,11 @@ void main(void)
     float maxdist = max(pos.x, pos.y);
 
     // radii of circle
-//    float radii = (selected) ? 0.3 : 0.5;
 	float radii = 0.2;
 
-    // derive circle color
+    // derive cross color
     vec4 fragColor = out_color;
-         fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, mindist));
+    fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, mindist));
     if (selected) { fragColor = mix(fragColor, cWhite, smoothstep(radii+0.02, radii+0.04, mindist)); }
 	fragColor = mix(fragColor, cNone, smoothstep(0.5-0.02, 0.5, maxdist));
     gl_FragColor = fragColor;

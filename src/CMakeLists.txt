@@ -164,11 +164,13 @@ set(INC_VIEW_MODEL_CONTROLLER
     view/controllers/GeneFeatureItemModel.h
     view/controllers/DatasetItemModel.h
     view/controllers/ExperimentsItemModel.h
+    view/controllers/GeneSelectionItemModel.h
 )
 set(SRC_VIEW_MODEL_CONTROLLER
     view/controllers/GeneFeatureItemModel.cpp
     view/controllers/DatasetItemModel.cpp
     view/controllers/ExperimentsItemModel.cpp
+    view/controllers/GeneSelectionItemModel.cpp
 )
 
 set(INC_CONTROLLER
@@ -485,7 +487,7 @@ if(UNIX AND NOT APPLE)
     endif("${isSystemDir}" STREQUAL "-1")
 
     #TODO replace TGZ for DEB package
-    
+
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
@@ -493,14 +495,14 @@ if(UNIX AND NOT APPLE)
 
     #qt libraries
     #qt 5.1.1 needs qtsensors
-    foreach(QT_LIBRARY Concurrent Core DBus Gui Help Network OpenGL PrintSupport Svg WebKit WebKitWidgets Widgets CLucene Sql Xml Qml V8 Quick Sensors) 
+    foreach(QT_LIBRARY Concurrent Core DBus Gui Help Network OpenGL PrintSupport Svg WebKit WebKitWidgets Widgets CLucene Sql Xml Qml V8 Quick Sensors)
         install(FILES ${QT_LIBRARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}Qt${QT_VERSION_MAJOR}${QT_LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX}.${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
                 DESTINATION lib
                 RENAME ${CMAKE_SHARED_LIBRARY_PREFIX}Qt${QT_VERSION_MAJOR}${QT_LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX}.${QT_VERSION_MAJOR})
     endforeach()
 
     set(ICU_VERSION "51.1") #qt5.1.1 icu is 51 for lower versions of qt5 icu is 49
-    
+
     #qt needs ICU libaries in Linux
     foreach(QT_FILE icudata icui18n icuuc)
         install(FILES ${QT_LIBRARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}.${ICU_VERSION}
@@ -510,7 +512,7 @@ if(UNIX AND NOT APPLE)
 
     # Qt plugins required by stVi
     LINUX_DEPLOY_QT_PLUGIN(accessible qtaccessiblequick qtaccessiblewidgets)
-    LINUX_DEPLOY_QT_PLUGIN(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp) 
+    LINUX_DEPLOY_QT_PLUGIN(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
     LINUX_DEPLOY_QT_PLUGIN(platforms qlinuxfb qminimal qxcb)
     LINUX_DEPLOY_QT_PLUGIN(printsupport cupsprintersupport)
 
@@ -520,11 +522,11 @@ if(UNIX AND NOT APPLE)
     install(FILES ${QT_LOCALES} DESTINATION share/${PROJECT_NAME}/translations)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
 #     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}} DESTINATION lib )
-    
+
     # Shell script to run stVi
     set(ShellFile ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.sh)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/linux/application.sh.in ${ShellFile})
-    
+
     install(FILES ${ShellFile} RENAME ${PROJECT_NAME}
             DESTINATION .
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

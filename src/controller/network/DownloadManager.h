@@ -38,7 +38,7 @@ public:
     };
     Q_DECLARE_FLAGS(ReturnCodes, Code);
 
-    inline ReturnCodes return_code() { return m_return_code; }
+    inline ReturnCodes return_code() const { return m_return_code; }
     inline void return_code(ReturnCodes flag)  { m_return_code = flag; }
 
     explicit DataRequest(QObject* parent = 0);

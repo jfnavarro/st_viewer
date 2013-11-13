@@ -34,12 +34,12 @@ public:
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    void loadGenes(const QString& datasetid);
+    void loadGenes();
 
 signals:
     
-    void signalSelectionChanged(DataProxy::GenePtr gene);
-    void signalColorChanged(DataProxy::GenePtr gene);
+    void signalSelectionChanged(DataProxy::GeneRef gene);
+    void signalColorChanged(DataProxy::GeneRef gene);
 
 public slots:
 
@@ -51,7 +51,7 @@ private:
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
     
-    DataProxy::GeneListPtr m_genelist_reference;
+    DataProxy::GeneListRef m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel);
 };

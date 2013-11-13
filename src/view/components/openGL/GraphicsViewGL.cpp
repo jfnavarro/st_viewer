@@ -59,7 +59,7 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
     format.setDepth(false);
     format.setRgba(true);
     format.setProfile(QGLFormat::CompatibilityProfile);
-    //    format.setProfile(QGLFormat::CoreProfile); //NOTE does not allow shaders due to a bug in Qt 5.1
+    format.setProfile(QGLFormat::CoreProfile); //NOTE does not allow shaders due to a bug in Qt 5.1
     
     // setup opengl viewport
     if (m_opengl_surface == 0)
@@ -84,7 +84,7 @@ void GraphicsViewGL::finalizeGL()
 {
     DEBUG_FUNC_NAME
 
-            foreach (ViewItemGL* item, m_viewItems)
+    foreach (ViewItemGL* item, m_viewItems)
     {
         if(item != 0)
         {
@@ -150,7 +150,6 @@ void GraphicsViewGL::mousePressEvent(QMouseEvent* event)
     }
     // rubber band selection
     pressRubberBand(event);
-
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -178,7 +177,6 @@ void GraphicsViewGL::mouseMoveEvent(QMouseEvent* event)
     }
     // rubber band selection
     moveRubberBand(event);
-
     QGraphicsView::mouseMoveEvent(event);
 }
 
@@ -206,7 +204,6 @@ void GraphicsViewGL::mouseReleaseEvent(QMouseEvent* event)
     }
     // rubber band selection
     releaseRubberBand(event);
-
     QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -291,7 +288,6 @@ void GraphicsViewGL::drawForeground(QPainter* painter, const QRectF& rect)
         glFlush();
     }
     painter->endNativePainting();
-
 }
 
 void GraphicsViewGL::enableMinimap(bool enable)
@@ -425,6 +421,7 @@ void GraphicsViewGL::moveRubberBand(QMouseEvent* event)
         }
     }
 }
+
 void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
 {
     if (dragMode() == QGraphicsView::RubberBandDrag && isInteractive() && !event->buttons())

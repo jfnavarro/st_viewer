@@ -104,9 +104,9 @@ void DatasetPage::slotDataError(Error *error)
     emit signalError(error);
 }
 
-void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
+void DatasetPage::datasetSelected(DataProxy::DatasetRef item)
 {
-    if(item.isNull() || item->id().isEmpty())
+    if(item == nullptr || item->id().isEmpty())
     {
         emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));
     }
@@ -121,9 +121,9 @@ void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 void DatasetPage::loadData()
 {
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+    DataProxy::DatasetRef dataset = dataProxy->getDatasetRefById(dataProxy->getSelectedDataset());
 
-    if (dataset.isNull())
+    if (dataset == nullptr)
     {
         qDebug() << "[DatasetPage] Error: loadData() empty dataset!";
         Error *error = new Error("Dataset Error", "Error loading the selected dataset.");
@@ -131,7 +131,7 @@ void DatasetPage::loadData()
         return;
     }
     
-    async::DataRequest *request = dataProxy->loadDatasetContent(dataset);
+    const async::DataRequest *request = dataProxy->loadDatasetContent(dataset);
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
     
     if(request->return_code() == async::DataRequest::CodeError)
@@ -171,7 +171,7 @@ void DatasetPage::refreshDatasets()
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
     
-    async::DataRequest *request = dataProxy->loadDatasets();
+    const async::DataRequest *request = dataProxy->loadDatasets();
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
     
     if(request->return_code() == async::DataRequest::CodeError)

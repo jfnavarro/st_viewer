@@ -25,24 +25,24 @@ SelectionDialog::~SelectionDialog()
     delete ui;
 }
 
-void SelectionDialog::setDatasetId(const QString &datasetId)
-{
-    m_datasetId = datasetId;
-}
-const QString &SelectionDialog::datasetId() const
-{
-    return m_datasetId;
-}
+//void SelectionDialog::setDatasetId(const QString &datasetId)
+//{
+//    m_datasetId = datasetId;
+//}
+//const QString &SelectionDialog::datasetId() const
+//{
+//    return m_datasetId;
+//}
 
-const SelectionDialog::GeneList SelectionDialog::selectedGenes() const
+const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const
 {
     return m_selectedGeneList;
 }
 
-const SelectionDialog::GeneList SelectionDialog::selectGenes(const QString &datasetId, QWidget *parent)
+const SelectionDialog::GeneList SelectionDialog::selectGenes(/*const QString &datasetId,*/ QWidget *parent)
 {
     SelectionDialog dialog(parent);
-    dialog.setDatasetId(datasetId);
+    //dialog.setDatasetId(datasetId);
     if (dialog.exec() == QDialog::Accepted)
     {
         return dialog.selectedGenes();
@@ -60,11 +60,13 @@ void SelectionDialog::accept()
     }
 
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::GeneListPtr geneList = dataProxy->getGeneList(m_datasetId);
+    DataProxy::GeneListRef geneList = dataProxy->getGeneListRef(dataProxy->getSelectedDataset());
 
     // find all genes that match the regular expression
-    DataProxy::GeneList filteredGeneList;
-    foreach(DataProxy::GenePtr gene, (*geneList))
+    //TODO this can be optimized using STL functions
+    //DataProxy::GeneListRef filteredGeneList;
+    m_selectedGeneList.clear();
+    foreach(DataProxy::GeneRef gene, geneList)
     {
         const QString name = gene->name();
         if (!m_includeAmbiguous && gene->isAmbiguous())
@@ -73,11 +75,12 @@ void SelectionDialog::accept()
         }
         if (name.contains(m_regExp))
         {
-            filteredGeneList.append(gene);
+            //filteredGeneList.append(gene);
+            m_selectedGeneList.append(gene);
         }
     }
     // store list
-    m_selectedGeneList = filteredGeneList;
+    //m_selectedGeneList = filteredGeneList;
     // and propagate accept call
     QDialog::accept();
 }
@@ -85,7 +88,6 @@ void SelectionDialog::accept()
 void SelectionDialog::slotValidateRegExp(const QString &pattern)
 {
     m_regExp.setPattern(pattern);
-
     const bool regExpValid = m_regExp.isValid();
     if (regExpValid != m_regExpValid)
     {

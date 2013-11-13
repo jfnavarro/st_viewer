@@ -26,6 +26,7 @@ class GenePlotterGL;
 class ImageItemGL;
 class QMenuBar;
 class HeatMapLegendGL;
+class GeneSelectionItemModel;
 
 namespace Ui
 {
@@ -84,7 +85,7 @@ protected:
     void createToolBar();
     void createConnections();
     void resetActionStates();
-    const DataProxy::FeatureList lookupFeatures(const QList<QString> &featureIdList) const;
+    const DataProxy::FeatureListRef& lookupFeatures(const QList<QString> &featureIdList) const;
     //image loading functions that make use of async or not
     void loadCellFigureSync(QIODevice *device);
     void loadCellFigureAsync(QIODevice *device);
@@ -93,6 +94,7 @@ private:
     
     // mvc model
     GeneFeatureItemModel *geneModel;
+    GeneSelectionItemModel *geneSelectionModel;
 
     // have 2 scene items (cell tissue image and gene plotter)
     GraphicsSceneGL *scene;
@@ -109,7 +111,6 @@ private:
     QAction *actionNavigate_goBack;
     QAction *actionSave_save;
     QAction *actionSave_print;
-    QAction *actionExport_selection;
     QAction *actionSelection_toggleSelectionMode;
     QAction *actionSelection_showSelectionDialog;
 

@@ -27,17 +27,16 @@ class SelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    typedef DataProxy::GeneList GeneList;
+    typedef DataProxy::GeneListRef GeneList;
 
     SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
-    void setDatasetId(const QString &datasetId);
-    const QString &datasetId() const;
+    //void setDatasetId(const QString &datasetId);
+    //const QString &datasetId() const;
 
-    const GeneList selectedGenes() const;
-
-    static const GeneList selectGenes(const QString &datasetId, QWidget *parent = 0);
+    const GeneList& selectedGenes() const;
+    static const GeneList selectGenes(/*const QString &datasetId, */QWidget *parent = 0);
 
 signals:
     void signalValidRegExp(bool validRegExp);
@@ -53,7 +52,7 @@ public slots:
 private:
     Ui::SelectionDialog *ui;
 
-    QString m_datasetId;
+    //QString m_datasetId;
 
     bool m_includeAmbiguous;
     bool m_caseSensitive;

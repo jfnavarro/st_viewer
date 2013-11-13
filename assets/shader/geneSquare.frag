@@ -23,7 +23,7 @@ void main(void)
     // radii of circle
     float radii = (selected) ? 0.3 : 0.5;
 
-    // derive circle color
+    // derive square color
     vec4 fragColor = out_color;
     fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
     if (selected) { fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist)); }

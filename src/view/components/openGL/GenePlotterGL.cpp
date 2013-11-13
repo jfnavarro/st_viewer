@@ -252,8 +252,6 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
     GeneInfoQuadTree::PointItemList list;
     m_geneInfoQuadTree.select(aabb, list);
 
-    DataProxy *dataProxy = DataProxy::getInstance();
-
     // select new selecetion
     GeneInfoQuadTree::PointItemList::const_iterator it, end = list.end();
     for (it = list.begin(); it != end; ++it)
@@ -280,15 +278,17 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
             factory.setOption(vdi, GL::bitSet(option, 0));
         }
     }
+
+    //notify that a selection has been made
+    emit featuresSelected(selectedFeatureList());
 }
 
-void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
+void GenePlotterGL::updateGeneColor(DataProxy::GeneRef gene)
 {
-
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+    DataProxy::FeatureListRef features = dataProxy->getGeneFeatureListRef(dataProxy->getSelectedDataset(), gene->name());
     
-    if(m_geneData.empty() || features->empty())
+    if(m_geneData.empty() || features.empty())
     {
         //early out
         return;
@@ -299,9 +299,10 @@ void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
     // easy access
     const bool selected = gene->selected();
 
-    foreach (DataProxy::FeaturePtr feature, (*features))
+    foreach (DataProxy::FeatureRef feature, features)
     {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        //GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
         Q_ASSERT(it != m_geneInfoById.end());
         LookupData *lookup = &(m_geneInfo[it.value()]);
 
@@ -336,12 +337,12 @@ void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
 
     update(boundingRect());
 }
-void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
+void GenePlotterGL::updateGeneSelection(DataProxy::GeneRef gene)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+    DataProxy::FeatureListRef features = dataProxy->getGeneFeatureListRef(dataProxy->getSelectedDataset(), gene->name());
     
-    if(m_geneData.empty() || features->empty())
+    if(m_geneData.empty() || features.empty())
     {
         //early out
         return;
@@ -352,9 +353,10 @@ void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
     // easy access
     const bool selected = gene->selected();
 
-    foreach (DataProxy::FeaturePtr feature, (*features))
+    foreach (DataProxy::FeatureRef feature, features)
     {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        //GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
         Q_ASSERT(it != m_geneInfoById.end());
         LookupData *lookup = &(m_geneInfo[it.value()]);
 
@@ -427,12 +429,12 @@ void GenePlotterGL::updateGeneData()
 void GenePlotterGL::updateChipSize()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+    DataProxy::DatasetRef dataset = dataProxy->getDatasetRefById(dataProxy->getSelectedDataset());
     const QString chipId = (dataset != 0) ? dataset->chipId() : QString();
-    DataProxy::ChipPtr currentChip = dataProxy->getChip(chipId);
+    DataProxy::ChipRef currentChip = dataProxy->getChipRef(chipId);
 
     // early out
-    if (currentChip.isNull())
+    if (currentChip == nullptr)
     {
         return;
     }
@@ -462,10 +464,10 @@ void GenePlotterGL::updateChipSize()
 void GenePlotterGL::updateTransformation()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+    DataProxy::DatasetRef dataset = dataProxy->getDatasetRefById(dataProxy->getSelectedDataset());
 
     // early out
-    if (dataset.isNull())
+    if (dataset == nullptr)
     {
         return;
     }
@@ -474,15 +476,29 @@ void GenePlotterGL::updateTransformation()
     setTransform(dataset->alignment());
 }
 
-const QList<QString> GenePlotterGL::selectedFeatureList() const
+/*const QList<QString> GenePlotterGL::selectedFeatureList() const
 {
     QList<QString> featureList;
-
     foreach(const GeneInfoList::size_type index, m_geneInfoSelection)
     {
-        GeneInfoReverseMap::const_iterator it, end = m_geneInfoReverse.end();
+        GeneInfoReverseMap::const_iterator it = m_geneInfoReverse.find(index), end = m_geneInfoReverse.end();
         // hash map represent one to many connection. iterate over all matches.
-        for (it = m_geneInfoReverse.find(index); (it != m_geneInfoReverse.end()) && (it.key() == index); ++it)
+        for (; (it != end) && (it.key() == index); ++it)
+        {
+            featureList << (it.value()->id());
+        }
+    }
+    return featureList;
+}
+*/
+const DataProxy::FeatureListRef GenePlotterGL::selectedFeatureList() const
+{
+    DataProxy::FeatureListRef featureList;
+    foreach(const GeneInfoList::size_type index, m_geneInfoSelection)
+    {
+        GeneInfoReverseMap::const_iterator it = m_geneInfoReverse.find(index), end = m_geneInfoReverse.end();
+        // hash map represent one to many connection. iterate over all matches.
+        for (; (it != end) && (it.key() == index); ++it)
         {
             featureList << (it.value());
         }
@@ -490,23 +506,21 @@ const QList<QString> GenePlotterGL::selectedFeatureList() const
     return featureList;
 }
 
-void GenePlotterGL::selectAll(const DataProxy::GeneList &geneList)
+void GenePlotterGL::selectAll(const DataProxy::GeneListRef &geneList)
 {
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureList aggregateFeatureList;
-    foreach (DataProxy::GenePtr gene, geneList)
+    DataProxy::FeatureListRef aggregateFeatureList;
+    foreach (DataProxy::GeneRef gene, geneList)
     {
-        aggregateFeatureList << *(dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name()));
+        DataProxy::FeatureListRef temp = dataProxy->getGeneFeatureListRef(dataProxy->getSelectedDataset(), gene->name());
+        aggregateFeatureList << temp;
     }
     selectAll(aggregateFeatureList);
 }
 
-void GenePlotterGL::selectAll(const DataProxy::FeatureList &featureList)
+void GenePlotterGL::selectAll(const DataProxy::FeatureListRef &featureList)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-
     GL::GLElementRectangleFactory factory(m_geneData);
-
     // unselect previous selecetion
     foreach(GeneInfoList::size_type index, m_geneInfoSelection)
     {
@@ -515,26 +529,24 @@ void GenePlotterGL::selectAll(const DataProxy::FeatureList &featureList)
         factory.setOption(vdi, GL::bitClear(option, 0));
     }
     m_geneInfoSelection.clear();
-
-    foreach(const DataProxy::FeaturePtr feature, featureList)
+    //select all
+    foreach(const DataProxy::FeatureRef feature, featureList)
     {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id()), end = m_geneInfoById.end();
+        //GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id()), end = m_geneInfoById.end();
+        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature), end = m_geneInfoById.end();
         if (it == end)
         {
             continue;
         }
-
         const GeneInfoList::size_type index = it.value();
         const GL::GLindex vdi = m_geneInfo[index].vertexDataIndex;
         const int refCount = m_geneInfo[index].refCount;
         const GL::GLoption option = factory.getOption(vdi);
-
         // do not select non-visible features
         if (refCount <= 0)
         {
             continue;
         }
-
         m_geneInfoSelection.insert(index);
         factory.setOption(vdi, GL::bitSet(option, 0));
     }
@@ -545,7 +557,6 @@ void GenePlotterGL::rebuildGridData()
     // clear data
     m_gridData.clear();
     m_gridData.setMode(GL_LINES);
-
     // build data
     generateGridData();
 }
@@ -640,7 +651,7 @@ void GenePlotterGL::generateGridData()
 void GenePlotterGL::generateGeneData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    DataProxy::FeatureListRef features = dataProxy->getFeatureListRef(dataProxy->getSelectedDataset());
 
     const GL::GLflag flags =
             GL::GLElementShapeFactory::AutoAddColor |
@@ -651,34 +662,33 @@ void GenePlotterGL::generateGeneData()
     factory.setSize((GLfloat) m_geneSize);
 
     // generate geometry
-    foreach (const DataProxy::FeaturePtr feature, (*features))
+    foreach (const DataProxy::FeatureRef feature, features)
     {
         const GL::GLpoint point = GL::toGLpoint(feature->x(), feature->y());
-
         LookupData *lookup = 0;
-
         // test if point already exists
         GeneInfoQuadTree::PointItem item = {point, (-1)};
         m_geneInfoQuadTree.select(point, item);
         if (item.second != -1)
         {
             lookup = &m_geneInfo[item.second];
-            m_geneInfoById.insert(feature->id(), item.second);
-            m_geneInfoReverse.insertMulti(item.second, feature->id());
+            //m_geneInfoById.insert(feature->id(), item.second);
+            //m_geneInfoReverse.insertMulti(item.second, feature->id());
+            m_geneInfoById.insert(feature, item.second);
+            m_geneInfoReverse.insertMulti(item.second, feature);
         }
         // else insert point and create the link
         else
         {
             GL::GLindex vertexDataIndex = factory.addShape(point).index();
-
             GeneInfoList::size_type index = m_geneInfo.size();
             m_geneInfo.append(LookupData(vertexDataIndex, GL::INVALID_INDEX));
-
-            m_geneInfoById.insert(feature->id(), index);
-            m_geneInfoReverse.insert(index, feature->id());
+            //m_geneInfoById.insert(feature->id(), index);
+            //m_geneInfoReverse.insert(index, feature->id());
+            m_geneInfoById.insert(feature, index);
+            m_geneInfoReverse.insert(index, feature);
             m_geneInfoByIdx.insert(GeneInfoByIdxKey(LookupData::DataIndex, vertexDataIndex), index);
             m_geneInfoQuadTree.insert(point, index);
-
             lookup = &m_geneInfo.back();
         }
 
@@ -699,16 +709,15 @@ void GenePlotterGL::generateGeneData()
 void GenePlotterGL::updateGeneVisualData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    DataProxy::FeatureListRef features = dataProxy->getFeatureListRef(dataProxy->getSelectedDataset());
 
-    if(m_geneData.empty() || features->empty())
+    if(m_geneData.empty() || features.empty())
     {
         //early out
         return;
     }
 
     GL::GLElementRectangleFactory factory(m_geneData);
-
     // reset ref count
     GeneInfoList::iterator it, end = m_geneInfo.end();
     for (it = m_geneInfo.begin(); it != end; ++it)
@@ -717,22 +726,19 @@ void GenePlotterGL::updateGeneVisualData()
     }
 
     // update features
-    foreach (const DataProxy::FeaturePtr feature, (*features))
+    foreach (const DataProxy::FeatureRef feature, features)
     {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        //GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
         Q_ASSERT(it != m_geneInfoById.end());
         LookupData *lookup = &(m_geneInfo[it.value()]);
-
         // easy access
         const GL::GLindex vdi = lookup->vertexDataIndex;
         const GL::GLindex idi = lookup->indexDataIndex;
-
-        DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
+        DataProxy::GeneRef gene = dataProxy->getGeneRef(dataProxy->getSelectedDataset(), feature->gene());
         const bool selected = gene->selected();
-
         // bump ref count
         const int refCount = (lookup->refCount += (selected ? 1 : 0));
-
         // update color
         if (selected && (refCount > 0))
         {
@@ -750,20 +756,17 @@ void GenePlotterGL::updateGeneVisualData()
 void GenePlotterGL::updateGeneSizeData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-
+    DataProxy::FeatureListRef features = dataProxy->getFeatureListRef(dataProxy->getSelectedDataset());
     GL::GLElementRectangleFactory factory(m_geneData);
-
     // update features
-    foreach (const DataProxy::FeaturePtr feature, (*features))
+    foreach (const DataProxy::FeatureRef feature, features)
     {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        //GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature->id());
+        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
         Q_ASSERT(it != m_geneInfoById.end());
         LookupData *lookup = &(m_geneInfo[it.value()]);
-
         // easy access
         const GL::GLindex vdi = lookup->vertexDataIndex;
-
         const GLfloat x = feature->x(), y = feature->y();
         factory.setShape(vdi, GL::GLrectangle(x, y, m_geneSize));
     }
