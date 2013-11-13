@@ -38,8 +38,8 @@ public:
 
 signals:
     
-    void signalSelectionChanged(DataProxy::GeneRef gene);
-    void signalColorChanged(DataProxy::GeneRef gene);
+    void signalSelectionChanged(DataProxy::GenePtr gene);
+    void signalColorChanged(DataProxy::GenePtr gene);
 
 public slots:
 
@@ -51,7 +51,7 @@ private:
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
     
-    DataProxy::GeneListRef m_genelist_reference;
+    DataProxy::GeneListPtr m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel);
 };

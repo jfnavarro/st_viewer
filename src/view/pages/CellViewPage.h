@@ -85,7 +85,9 @@ protected:
     void createToolBar();
     void createConnections();
     void resetActionStates();
-    const DataProxy::FeatureListRef& lookupFeatures(const QList<QString> &featureIdList) const;
+
+    DataProxy::FeatureListPtr lookupFeatures(const QList<QString> &featureIdList);
+
     //image loading functions that make use of async or not
     void loadCellFigureSync(QIODevice *device);
     void loadCellFigureAsync(QIODevice *device);

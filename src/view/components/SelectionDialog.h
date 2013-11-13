@@ -27,7 +27,7 @@ class SelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    typedef DataProxy::GeneListRef GeneList;
+    typedef DataProxy::GeneListPtr GeneList;
 
     SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();

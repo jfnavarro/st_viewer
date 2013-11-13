@@ -36,7 +36,7 @@
 // expered or pudated data will be re-downloaded
 
 
-DataProxy::DataProxy() : m_user(nullptr)
+DataProxy::DataProxy() : m_user(0), m_datasetListPtr(0)
 {    
     init();
 }
@@ -49,7 +49,8 @@ DataProxy::~DataProxy()
 void DataProxy::init()
 {
     //initialize data containers
-
+    m_user = QSharedPointer<User>(new User());
+    m_datasetListPtr = QSharedPointer<QVector<DatasetPtr>>(new QVector<DatasetPtr>());
 }
 
 void DataProxy::finalize()
@@ -58,7 +59,7 @@ void DataProxy::finalize()
     //NOTE I do not think there is a need to iterate all the containers to free memory
     // but it is good to do it since we will probably replace the containers at some point
     
-/*    //clearning user container
+    //clearning user container
     m_user.clear();
     //cleaning datasets map
     for(auto record : m_datasetMap.toStdMap())
@@ -144,7 +145,7 @@ void DataProxy::finalize()
     {
         record.second.clear();
     }
-    m_hitCountMap.clear();*/
+    m_hitCountMap.clear();
     
     //cleaning download pool
     for(auto record : m_download_pool.values().toStdList())
@@ -298,7 +299,7 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             //TODO should remove previous dataset pointer if it exists
             DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
             m_datasetMap.insert(dto.id(),dataset);
-            m_datasetList.append(dataset);
+            m_datasetListPtr->append(dataset);
             dirty = true;
         }
         break;
@@ -313,8 +314,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
         // intermediary parse object and end object map
         GeneDTO dto;
-        GeneList geneListByDatasetId = getGeneList(datasetId);
-        GeneMap geneMapByDatasetId = getGeneMap(datasetId);
+        GeneListPtr geneListByDatasetId = getGeneList(datasetId);
+        GeneMapPtr geneMapByDatasetId = getGeneMap(datasetId);
 
         // ensure even single items are encapsulated in a variant list
         QVariant root = doc.toVariant();
@@ -323,8 +324,9 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
         {
             ObjectParser::parseObject(var, &dto);
             GenePtr gene = GenePtr(new Gene(dto.gene()));
-            geneListByDatasetId.append(gene);
-            geneMapByDatasetId.insert(gene->name(), gene);
+            geneListByDatasetId->append(gene);
+            //TODO should remove previous gene pointer if it exists
+            geneMapByDatasetId->insert(gene->name(), gene);
             dirty = true;
         }
         break;
@@ -357,8 +359,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
         // intermediary parse object and end object map
         FeatureDTO dto;
-        FeatureList featureListByDatasetId = getFeatureList(datasetId);
-        FeatureMap featureMapByDatasetId = getFeatureMap(datasetId);
+        FeatureListPtr featureListByDatasetId = getFeatureList(datasetId);
+        FeatureMapPtr featureMapByDatasetId = getFeatureMap(datasetId);
 
         // ensure even single items are encapsulated in a variant list
         QVariant root = doc.toVariant();
@@ -368,11 +370,11 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
             ObjectParser::parseObject(var, &dto);
 
             FeaturePtr feature = FeaturePtr(new FeatureExtended(dto.feature()));
-            FeatureList featureListByGeneIdAndDatasetId = getGeneFeatureList(datasetId, dto.gene());
+            FeatureListPtr featureListByGeneIdAndDatasetId = getGeneFeatureList(datasetId, dto.gene());
             //TODO should remove previous feature pointer if it exists
-            featureMapByDatasetId.insert(feature->id(), feature);
-            featureListByDatasetId.append(feature);
-            featureListByGeneIdAndDatasetId.append(feature);
+            featureMapByDatasetId->insert(feature->id(), feature);
+            featureListByDatasetId->append(feature);
+            featureListByGeneIdAndDatasetId->append(feature);
             dirty = true;
         }
         break;
@@ -447,138 +449,139 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
     return dirty;
 }
 
-const DataProxy::GeneMap& DataProxy::getGeneMap(const QString& datasetId)
+DataProxy::GeneMapPtr DataProxy::getGeneMap(const QString& datasetId)
 {
     GeneMapMap::iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
     if (it == end)
     {
-        GeneMap genemap;
-        genemap.insert(QString(),new GenePtr());
-        it = m_geneMap.insert(datasetId, genemap);
+        it = m_geneMap.insert(datasetId, GeneMapPtr(new GeneMap()));
     }
     return it.value();
 }
 
-const DataProxy::GeneList& DataProxy::getGeneList(const QString& datasetId)
+DataProxy::GeneListPtr DataProxy::getGeneList(const QString& datasetId)
 {
     GeneListMap::iterator it = m_geneListMap.find(datasetId), end = m_geneListMap.end();
     if (it == end)
     {
-        it = m_geneListMap.insert(datasetId, GeneList());
+        it = m_geneListMap.insert(datasetId, GeneListPtr(new GeneList()));
     }
     return it.value();
 }
 
-const DataProxy::FeatureList& DataProxy::getFeatureList(const QString& datasetId)
+DataProxy::FeatureListPtr DataProxy::getFeatureList(const QString& datasetId)
 {
     FeatureListMap::iterator it = m_featureListMap.find(datasetId), end = m_featureListMap.end();
     if (it == end)
     {
-        it = m_featureListMap.insert(datasetId, FeatureList());
+        it = m_featureListMap.insert(datasetId, FeatureListPtr(new FeatureList()));
     }
     return it.value();
 }
 
-const DataProxy::FeatureMap& DataProxy::getFeatureMap(const QString& datasetId)
+DataProxy::FeatureMapPtr DataProxy::getFeatureMap(const QString& datasetId)
 {
     FeatureMapMap::iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
     if (it == end)
     {
-        it = m_featureMap.insert(datasetId, FeatureMap());
+        it = m_featureMap.insert(datasetId, FeatureMapPtr(new FeatureMap()));
     }
     return it.value();
 }
 
-DataProxy::GeneRef DataProxy::getGeneRef(const QString& datasetId, const QString& geneName)
+DataProxy::GenePtr DataProxy::getGene(const QString& datasetId, const QString& geneName)
 {
-    GeneMapMap::iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
+    GeneMapMap::const_iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
     if (it == end) //check if dataset key no present at all, create
     {
-        GeneMap genemap = GeneMap();
-        genemap.insert(geneName, GenePtr(new Gene()));
+        GeneMapPtr genemap = GeneMapPtr(new GeneMap());
+        genemap->insert(geneName, GenePtr(new Gene()));
         it = m_geneMap.insert(datasetId, genemap);
     }
     
-    GeneMap::iterator it2 = it.value().find(geneName), end2 = it.value().end();
+    GeneMap::iterator it2 = it.value()->find(geneName), end2 = it.value()->end();
     if (it2 == end2) //check if gene id key no present at all
     {
-        it2 = it.value().insert(geneName, GenePtr(new Gene()));
-    }
-
-    return it2.value().get();
-}
-
-const DataProxy::FeatureList& DataProxy::getGeneFeatureList(const QString& datasetId, const QString &geneName)
-{
-    FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId), end = m_geneFeatureListMap.end();
-    if (it == end) //check if dataset key no present at all, create
-    {
-        FeatureListMap featuremap = FeatureListMap();
-        featuremap.insert(geneName, FeatureList());
-        it = m_geneFeatureListMap.insert(datasetId, featuremap);
-    }
-    FeatureListMap::iterator it2 = it.value().find(geneName), end2 = it.value().end();
-    if (it2 == end2) //check if gene key no present at all
-    {
-        it2 = it.value().insert(geneName, FeatureList());
+        it2 = it.value()->insert(geneName, GenePtr(new Gene()));
     }
 
     return it2.value();
 }
 
-DataProxy::FeatureRef DataProxy::getFeatureRef(const QString& datasetId, const QString &featureId)
+DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId, const QString &geneName)
 {
-    FeatureMapMap::iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
+    FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId), end = m_geneFeatureListMap.end();
     if (it == end) //check if dataset key no present at all, create
     {
-        FeatureMap featuremap = FeatureMap();
-        featuremap.insert(featureId, FeaturePtr(new FeatureExtended()));
+        FeatureListMapPtr featuremap = FeatureListMapPtr(new FeatureListMap());
+        featuremap->insert(geneName, FeatureListPtr(new FeatureList()));
+        it = m_geneFeatureListMap.insert(datasetId, featuremap);
+    }
+    FeatureListMap::iterator it2 = it.value()->find(geneName), end2 = it.value()->end();
+    if (it2 == end2) //check if gene key no present at all
+    {
+        it2 = it.value()->insert(geneName, FeatureListPtr(new FeatureList()));
+    }
+
+    return it2.value();
+}
+
+DataProxy::GenePtr DataProxy::getGeneByIndex(const QString& datasetId, const int index)
+{
+    //TODO implement
+}
+
+DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId, const QString &featureId)
+{
+    FeatureMapMap::const_iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
+    if (it == end) //check if dataset key no present at all, create
+    {
+        FeatureMapPtr featuremap = FeatureMapPtr(new FeatureMap());
+        featuremap->insert(featureId, FeaturePtr(new FeatureExtended()));
         it = m_featureMap.insert(datasetId, featuremap);
     }
-    FeatureMap::iterator it2 = it.value().find(featureId), end2 = it.value().end();
+    FeatureMap::iterator it2 = it.value()->find(featureId), end2 = it.value()->end();
     if (it2 == end2) //check if feature id key no present at all
     {
-        it2 = it.value().insert(featureId, FeaturePtr(new FeatureExtended()));
+        it2 = it.value()->insert(featureId, FeaturePtr(new FeatureExtended()));
     }
 
-    return it2.value().get();
+    return it2.value();
 }
 
-const DataProxy::DatasetListRef& DataProxy::getDatasetListRef() const
+DataProxy::DatasetListPtr DataProxy::getDatasetList()
 {
-    return getContainer<DataProxy::DatasetListRef,
-            DataProxy::DatasetList,DataProxy::DatasetPtr>(m_datasetList);
+    return m_datasetListPtr;
 }
 
-DataProxy::DatasetRef DataProxy::getDatasetRefById(const QString& datasetId)
+DataProxy::DatasetPtr DataProxy::getDatasetById(const QString& datasetId)
 {
-    //TODO should check it exits
-    return m_datasetMap.value(datasetId).get();
+    return m_datasetMap.value(datasetId);
 }
 
-DataProxy::UserRef DataProxy::getUserRef()
+DataProxy::UserPtr DataProxy::getUser()
 {
-    return m_user.get();
+    return m_user;
 }
 
-DataProxy::ChipRef DataProxy::getChipRef(const QString& chipId)
+DataProxy::ChipPtr DataProxy::getChip(const QString& chipId)
 {
     ChipMap::iterator it = m_chipMap.find(chipId), end = m_chipMap.end();
     if (it == end)
     {
         it = m_chipMap.insert(chipId, ChipPtr(new Chip()));
     }
-    return it.value().get();
+    return it.value();
 }
 
-DataProxy::HitCountRef DataProxy::getHitCountRef(const QString& datasetId)
+DataProxy::HitCountPtr DataProxy::getHitCount(const QString& datasetId)
 {
     HitCountMap::iterator it = m_hitCountMap.find(datasetId), end = m_hitCountMap.end();
     if (it == end)
     {
         it = m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount()));
     }
-    return it.value().get();
+    return it.value();
 }
 
 QIODevice *DataProxy::getFigure(const QString& figureId)
@@ -670,7 +673,7 @@ bool DataProxy::hasGene(const QString& datasetId) const
 }
 
 async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
-{
+{   
     if((bool)hasGene(datasetId))
     {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
@@ -753,7 +756,7 @@ async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 bool DataProxy::hasFeature(const QString& datasetId, const QString& gene) const
 {
     const FeatureListGeneMap::const_iterator it = m_geneFeatureListMap.find(datasetId);
-    return (it != m_geneFeatureListMap.end() ? it.value().contains(gene) : false);
+    return (it != m_geneFeatureListMap.end() ? it.value()->contains(gene) : false);
 }
 
 async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene)
@@ -856,7 +859,7 @@ async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
     return createRequest(reply);
 }
 
-async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetRef dataset)
+async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
 {
     Q_ASSERT_X(dataset, "DataProxy", "Error dataset is empty!!");
     NetworkManager* nm = NetworkManager::getInstance();
@@ -876,10 +879,10 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetRef dataset)
         //delete the command
         cmd->deleteLater();
     }
+    
+    DataProxy::UserPtr current_user = getUser();
 
-    Q_ASSERT_X(m_user, "DataProxy", "No user is selected");
-
-    if(m_user->role() == Globals::ROLE_CM && !(bool)hasCellTissue(dataset->figureRed()))
+    if(current_user.data()->role() == Globals::ROLE_CM && !(bool)hasCellTissue(dataset->figureRed()))
     {
         NetworkCommand* cmd = RESTCommandFactory::getCellTissueFigureByName(dataset->figureRed());
         QVariantMap parameters;
@@ -949,7 +952,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetRef dataset)
     return createRequest(replies);
 }
 
-async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies)  //make list so I can send multiple replies
+async::DataRequest* DataProxy::createRequest(QList<NetworkReply*> replies) //make list so I can send multiple replies
 {
     //create key and add it to request
     QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
@@ -992,7 +995,7 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
     return request;
 }
 
-async::DataRequest* DataProxy::createRequest(NetworkReply *reply)  //make list so I can send multiple replies
+async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so I can send multiple replies
 {
     if(reply == 0)
     {

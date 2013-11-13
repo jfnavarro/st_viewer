@@ -14,7 +14,7 @@
 #include "DatasetItemModel.h"
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
-    : QAbstractTableModel(parent)//,m_datasets_reference(0)
+    : QAbstractTableModel(parent),m_datasets_reference(0)
 {
 
 }
@@ -32,12 +32,12 @@ bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, 
 QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
 {
     // early out
-    if (!index.isValid() || m_datasets_reference.empty())
+    if (!index.isValid() || m_datasets_reference.isNull())
     {
         return QVariant(QVariant::Invalid);
     }
 
-    DataProxy::DatasetRef item = m_datasets_reference.at(index.row());
+    DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
     
     if (role == Qt::DisplayRole)
     {
@@ -99,7 +99,7 @@ int DatasetItemModel::columnCount(const QModelIndex& parent) const
 
 int DatasetItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() || m_datasets_reference.empty() ? 0 : m_datasets_reference.count();
+    return parent.isValid() || m_datasets_reference.isNull() ? 0 : m_datasets_reference->count();
 }
 
 Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
@@ -115,10 +115,9 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
 
 void DatasetItemModel::loadDatasets()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
     beginResetModel();
-    m_datasets_reference.clear();
-    m_datasets_reference = dataProxy->getDatasetListRef();
+    m_datasets_reference.clear(); //NOTE m_datasets_reference is just a reference
+    m_datasets_reference = DataProxy::getInstance()->getDatasetList();
     endResetModel();
 }
 
@@ -126,7 +125,7 @@ void DatasetItemModel::datasetSelected(const QModelIndex &index)
 {   
     if(index.isValid())
     {
-        DataProxy::DatasetRef item = m_datasets_reference.at(index.row());
+        DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
         emit datasetSelected(item);
     }
 }

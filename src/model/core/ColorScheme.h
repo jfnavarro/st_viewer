@@ -15,7 +15,7 @@ class ColorScheme
 public:
     explicit ColorScheme(int minHits, int maxHits);
     virtual ~ColorScheme() {};
-    virtual QColor getColor(DataProxy::FeatureRef feature) const = 0;
+    virtual QColor getColor(DataProxy::FeaturePtr feature) const = 0;
     inline void setMin(int min) { m_minHits = min; }
     inline void setMax(int max) { m_maxHits = max; }
     inline int getMax() { return m_maxHits; }

@@ -77,11 +77,13 @@ public:
     // load dataset trandformation matrix
     void updateTransformation();
 
+    //return currently selected features
     //const QList<QString> selectedFeatureList() const;
-    const DataProxy::FeatureListRef selectedFeatureList() const;
+    DataProxy::FeatureListPtr selectedFeatureList();
 
-    void selectAll(const DataProxy::GeneListRef &geneList);
-    void selectAll(const DataProxy::FeatureListRef &featureList);
+    //make selection using genes or features
+    void selectAll(DataProxy::GeneListPtr);
+    void selectAll(const DataProxy::FeatureList featureList);
 
 public slots:
 
@@ -89,8 +91,8 @@ public slots:
     void setSelectionArea(const SelectionEvent *event);
 
     // update gene render list
-    void updateGeneColor(DataProxy::GeneRef gene);
-    void updateGeneSelection(DataProxy::GeneRef gene);
+    void updateGeneColor(DataProxy::GenePtr gene);
+    void updateGeneSelection(DataProxy::GenePtr gene);
 
     void setGeneVisible(bool geneVisible);
     void setGeneShape(int geneShape);
@@ -108,7 +110,7 @@ public slots:
 
 signals:
     //signal emitted every time we make a selection
-    void featuresSelected(const DataProxy::FeatureListRef&);
+    void featuresSelected(DataProxy::FeatureListPtr);
 
 private:
     // chip grid stuff
@@ -146,8 +148,8 @@ private:
     typedef QHash<GeneInfoByIdxKey, GeneInfoList::size_type> GeneInfoByIdxMap;
     //typedef QHash<QString, GeneInfoList::size_type> GeneInfoByIdMap;
     //typedef QHash<GeneInfoList::size_type, QString> GeneInfoReverseMap;
-    typedef QHash<DataProxy::FeatureRef, GeneInfoList::size_type> GeneInfoByIdMap;
-    typedef QHash<GeneInfoList::size_type, DataProxy::FeatureRef> GeneInfoReverseMap;
+    typedef QHash<DataProxy::FeaturePtr, GeneInfoList::size_type> GeneInfoByIdMap;
+    typedef QHash<GeneInfoList::size_type, DataProxy::FeaturePtr> GeneInfoReverseMap;
     // lookup quadtree
     typedef GL::GLQuadTree<GeneInfoList::size_type,8> GeneInfoQuadTree;
     // selection set

@@ -17,7 +17,7 @@
 const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
-    : QAbstractTableModel(parent)//,m_genelist_reference(std::nullptr_t)
+    : QAbstractTableModel(parent),m_genelist_reference(0)
 {
 
 }
@@ -29,7 +29,7 @@ GeneFeatureItemModel::~GeneFeatureItemModel()
 
 QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid() || m_genelist_reference.empty())
+    if (!index.isValid() || m_genelist_reference.isNull())
     {
         return QVariant(QVariant::Invalid);
     }
@@ -37,7 +37,7 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
-        DataProxy::GeneRef item = m_genelist_reference.at(index.row());
+        DataProxy::GenePtr item = m_genelist_reference->at(index.row());
 
         QVariant value;
         switch(index.column())
@@ -102,7 +102,7 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
 bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
 
-    if (!index.isValid() || m_genelist_reference.empty())
+    if (!index.isValid() || m_genelist_reference.isNull())
     {
         return false;
     }
@@ -113,7 +113,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
     if (role == Qt::EditRole)
     {
         //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
-        DataProxy::GeneRef item = m_genelist_reference.at(index.row());
+        DataProxy::GenePtr item = m_genelist_reference->at(index.row());
         
         switch(column)
         {
@@ -152,7 +152,7 @@ void GeneFeatureItemModel::sort(int column, Qt::SortOrder order)
 
 int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() || m_genelist_reference.empty() ? 0 : m_genelist_reference.count();
+    return parent.isValid() || m_genelist_reference.isNull() ? 0 : m_genelist_reference->count();
 }
 
 int GeneFeatureItemModel::columnCount(const QModelIndex& parent) const
@@ -192,21 +192,22 @@ void GeneFeatureItemModel::loadGenes()
     beginResetModel();
     m_genelist_reference.clear(); //NOTE genelist is just a reference
     DataProxy* dataProxy = DataProxy::getInstance();
-    m_genelist_reference = dataProxy->getGeneListRef(dataProxy->getSelectedDataset());
+    m_genelist_reference = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     endResetModel();
 }
 
 void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
 {    
-    if(m_genelist_reference.empty())
+    if(m_genelist_reference.isNull())
     {
         return;
     }
-    const int size = m_genelist_reference.count();
+    
+    const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i)
     {
-        DataProxy::GeneRef gene = m_genelist_reference.at(i);
-        if(gene != nullptr)
+        DataProxy::GenePtr gene = (*m_genelist_reference)[i];
+        if(!gene.isNull())
         {
             QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             if (gene->selected() != selected)
@@ -222,15 +223,16 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
 
 void GeneFeatureItemModel::setColorGenes(const QColor& color)
 {   
-    if(m_genelist_reference.empty())
+    if(m_genelist_reference.isNull())
     {
         return;
     }
-    const int size = m_genelist_reference.count();
+    
+    const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i)
     {
-        DataProxy::GeneRef gene = m_genelist_reference.at(i);
-        if(gene != nullptr)
+        DataProxy::GenePtr gene = (*m_genelist_reference)[i];
+        if(!gene.isNull())
         {
             QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             gene->color(color);

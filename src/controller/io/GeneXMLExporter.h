@@ -21,12 +21,12 @@ public:
     GeneXMLExporter(QObject *parent = 0);
     virtual ~GeneXMLExporter();
 
-    virtual void exportItem(QIODevice *device, const DataProxy::FeatureListRef&, const QObject &context) const;
+    virtual void exportItem(QIODevice *device, DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
 private:
     
-    void exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureRef &feature, const QObject &context) const;
-    void exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListRef &featureList, const QObject &context) const;
+    void exportItem(QXmlStreamWriter &oxml, const DataProxy::FeaturePtr &feature, const QObject &context) const;
+    void exportItem(QXmlStreamWriter &oxml, DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 };
 
 #endif // GENEXMLEXPORTER_H //

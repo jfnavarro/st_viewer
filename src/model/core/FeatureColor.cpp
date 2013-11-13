@@ -11,7 +11,7 @@ FeatureColor::FeatureColor(int minHits, int maxHits) : ColorScheme(minHits,maxHi
 
 }
 
-QColor FeatureColor::getColor(DataProxy::FeatureRef feature) const
+QColor FeatureColor::getColor(DataProxy::FeaturePtr feature) const
 {
     qreal alpha = 1.0;
     if(feature->hits() > m_maxHits || feature->hits() < m_minHits )

@@ -34,17 +34,17 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
     }
     oxml.writeEndElement();
 }
-void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureList &featureList, const QObject &context) const
+void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     oxml.writeStartElement("features");
-    foreach(const DataProxy::FeaturePtr &feature, featureList)
+    foreach(const DataProxy::FeaturePtr &feature, (*featureList))
     {
         exportItem(oxml, feature, context);
     }
     oxml.writeEndElement();
 }
 
-void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureList &featureList, const QObject &context) const
+void GeneXMLExporter::exportItem(QIODevice *device, DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     // early out
     if (!device->isWritable())

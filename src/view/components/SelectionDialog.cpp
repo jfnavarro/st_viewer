@@ -60,13 +60,13 @@ void SelectionDialog::accept()
     }
 
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::GeneListRef geneList = dataProxy->getGeneListRef(dataProxy->getSelectedDataset());
+    DataProxy::GeneListPtr geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
 
     // find all genes that match the regular expression
     //TODO this can be optimized using STL functions
     //DataProxy::GeneListRef filteredGeneList;
     m_selectedGeneList.clear();
-    foreach(DataProxy::GeneRef gene, geneList)
+    foreach(DataProxy::GenePtr gene, (*geneList))
     {
         const QString name = gene->name();
         if (!m_includeAmbiguous && gene->isAmbiguous())
@@ -76,7 +76,7 @@ void SelectionDialog::accept()
         if (name.contains(m_regExp))
         {
             //filteredGeneList.append(gene);
-            m_selectedGeneList.append(gene);
+            m_selectedGeneList->append(gene);
         }
     }
     // store list

@@ -178,7 +178,7 @@ void CellViewPage::onEnter()
     initGLView();
 
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::HitCountRef hitCount = dataProxy->getHitCountRef(dataProxy->getSelectedDataset());
+    DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
     
     // load gui elements
@@ -338,7 +338,7 @@ void CellViewPage::resetActionStates()
     actionShow_showGenes->setChecked(true);
     
     // adapt to hit count
-    DataProxy::HitCountRef hitCount = dataProxy->getHitCountRef(dataProxy->getSelectedDataset());
+    DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     
     QxtSpanSlider* geneHitsThreshold = dynamic_cast<QxtSpanSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
     QSlider* geneIntensity = dynamic_cast<QSlider*>(actionWidget_geneIntensity->defaultWidget());
@@ -357,7 +357,7 @@ void CellViewPage::resetActionStates()
     geneShape->setCurrentIndex(Globals::gene_shape);
     
     // restrict interface
-    DataProxy::UserRef current_user = dataProxy->getUserRef();
+    DataProxy::UserPtr current_user = dataProxy->getUser();
     Q_ASSERT_X(current_user, "Cell View", "Current User is NULL");
     actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
 }
@@ -586,11 +586,11 @@ void CellViewPage::slotLoadCellFigure()
     DEBUG_FUNC_NAME
 
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::UserRef current_user = dataProxy->getUserRef();
-    DataProxy::DatasetRef dataset = dataProxy->getDatasetRefById(dataProxy->getSelectedDataset());
+    DataProxy::UserPtr current_user = dataProxy->getUser();
+    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     
     // early out
-    if (current_user == nullptr || dataset == nullptr)
+    if (current_user.isNull() || dataset.isNull())
     {
         qDebug() << QString("[CellViewPage] Warning: Invalid user or no data!");
         return;
@@ -736,11 +736,11 @@ void CellViewPage::slotExportSelection()
     }
 
     // get selected features and extend with data
-    DataProxy::FeatureListRef featureList = gene_plotter_gl->selectedFeatureList();
+    DataProxy::FeatureListPtr featureList = gene_plotter_gl->selectedFeatureList();
 
     // create export context
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::HitCountRef hitCount = dataProxy->getHitCountRef(dataProxy->getSelectedDataset());
+    DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
 
     QObject context;
     context.setProperty("hitCountMin", QVariant(hitCount->min()));
@@ -800,7 +800,7 @@ void CellViewPage::slotLoadColor()
 
 void CellViewPage::slotSelectByRegExp()
 {
-    DataProxy::GeneListRef geneList = SelectionDialog::selectGenes(this);
+    DataProxy::GeneListPtr geneList = SelectionDialog::selectGenes(this);
     gene_plotter_gl->selectAll(geneList);
 }
 

@@ -56,12 +56,12 @@ public slots:
 
 signals:
     
-    void datasetSelected(DataProxy::DatasetRef);
+    void datasetSelected(DataProxy::DatasetPtr);
     
 private:
     
     static const int MColumns = 10;
-    DataProxy::DatasetListRef m_datasets_reference;
+    DataProxy::DatasetListPtr m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel);
 };

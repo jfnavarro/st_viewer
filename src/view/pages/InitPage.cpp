@@ -84,7 +84,7 @@ void InitPage::slotAuthorized()
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
     
-    const async::DataRequest* request = dataProxy->loadUser();
+    async::DataRequest* request = dataProxy->loadUser();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if(request->return_code() == async::DataRequest::CodeError)
@@ -95,8 +95,8 @@ void InitPage::slotAuthorized()
     }
     else if(request->return_code() == async::DataRequest::CodePresent)
     {
-        DataProxy::UserRef user = DataProxy::getInstance()->getUserRef();
-        ui->user_name->setText(user->username());
+        DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
+        ui->user_name->setText(user.data()->username());
         ui->newExpButt->setEnabled(true);
     }
     else
@@ -117,15 +117,15 @@ void InitPage::slotUserLoaded()
     if(request->return_code() == async::DataRequest::CodeSuccess) //ignore when abort/timedout or error
     {
         //User has been loaded succesfully, go to logged mode
-        DataProxy::UserRef user = DataProxy::getInstance()->getUserRef();
-        ui->user_name->setText(user->username());
+        DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
+        ui->user_name->setText(user.data()->username());
         ui->newExpButt->setEnabled(true);
     }
 }
 
 void InitPage::slotLoadData()
 {
-    const async::DataRequest* request = DataProxy::getInstance()->loadDatasets();
+    async::DataRequest* request = DataProxy::getInstance()->loadDatasets();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if(request->return_code() == async::DataRequest::CodeError)

@@ -45,7 +45,7 @@ public slots:
 protected slots:
 
     void slotDataError(Error*);
-    void datasetSelected(DataProxy::DatasetRef);
+    void datasetSelected(DataProxy::DatasetPtr);
     void refreshDatasets();
     void loadData();
     void dataLoaded();
