@@ -36,7 +36,6 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
         DataProxy::GenePtr item = m_genelist_reference->at(index.row());
 
         QVariant value;
@@ -112,7 +111,6 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
 
     if (role == Qt::EditRole)
     {
-        //DataProxy::GenePtr item = qobject_cast<DataProxy::GenePtr>(index.data(role)); //NOTE our model does not rely on Qt items
         DataProxy::GenePtr item = m_genelist_reference->at(index.row());
         
         switch(column)
@@ -121,8 +119,8 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
             if (item->selected() != value.toBool())
             {
                 item->selected(value.toBool());
-                emit signalSelectionChanged(item);
                 emit dataChanged(index, index);
+                emit signalSelectionChanged(item);
                 return true;
             }
             break;
@@ -132,8 +130,8 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
             if (color.isValid() && item->color() != color)
             {
                 item->color(color);
-                emit signalColorChanged(item);
                 emit dataChanged(index, index);
+                emit signalColorChanged(item);
                 return true;
             }
         }
@@ -206,15 +204,15 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i)
     {
-        DataProxy::GenePtr gene = (*m_genelist_reference)[i];
+        DataProxy::GenePtr gene = m_genelist_reference->at(i);
         if(!gene.isNull())
         {
             QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             if (gene->selected() != selected)
             {
                 gene->selected(selected);
-                emit signalSelectionChanged(gene);
                 emit dataChanged(index,index);
+                emit signalSelectionChanged(gene);
             }
         }
     }
@@ -231,13 +229,13 @@ void GeneFeatureItemModel::setColorGenes(const QColor& color)
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i)
     {
-        DataProxy::GenePtr gene = (*m_genelist_reference)[i];
+        DataProxy::GenePtr gene = m_genelist_reference->at(i);
         if(!gene.isNull())
         {
             QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             gene->color(color);
-            emit signalColorChanged(gene);
             emit dataChanged(index,index);
+            emit signalColorChanged(gene);
         }
     }
 }

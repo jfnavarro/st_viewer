@@ -48,19 +48,16 @@ void NetworkManager::init()
     m_nam = QPointer<QNetworkAccessManager>(new QNetworkAccessManager(this));
     
 #if defined Q_OS_MAC
-    //workaround for this https://bugreports.qt-project.org/browse/QTBUG-22033
+    //workaround for this : https://bugreports.qt-project.org/browse/QTBUG-22033
     QNetworkProxy proxy = m_nam->proxy();
     proxy.setHostName(" ");
     m_nam->setProxy(proxy);
 #endif
 
     //TODO I should only use optimization features if the flags tell me to do so
-    
     Configuration* config = Configuration::getInstance();
-    
     //NOTE make DND look up ahead of time
     QHostInfo::lookupHost(config->EndPointUrl(),0,0);
-    
 #if QT_VERSION >= 0x050200
     //NOTE connect to the HTTPS TCP port ahead of time
     m_nam->connectToHostEncrypted(config->EndPointUrl());
@@ -121,18 +118,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     }
 
     QNetworkReply* networkReply = 0; // keep track of reply to match command later on (async callback)
-
     //creating the request
     QNetworkRequest request;
-    
     //TODO I should only use optimization features if the flags tell me to do so
-    
     //NOTE add caching to request (only if network caching is active)
     request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
-
     //NOTE add pipeline to the request
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute,true);
-    
     //NOTE add high priority
     request.setPriority(QNetworkRequest::HighPriority);
     
@@ -173,7 +165,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
         networkReply = m_nam->put(request, cmd->getEncodedQuery().toUtf8());
         break;
     }
-        // if not set or unknown error
+    // if not set or unknown error
     case Globals::HttpRequestTypeNone:
     {
         qDebug() << "[NetworkManager] Error: Unkown request type";

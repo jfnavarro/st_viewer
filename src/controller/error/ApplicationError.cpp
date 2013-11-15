@@ -55,7 +55,6 @@ void ApplicationError::init(ApplicationError::Type errorType)
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

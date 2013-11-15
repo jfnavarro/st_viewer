@@ -14,7 +14,7 @@
 
 #include "utils/DebugHelper.h"
 
-#include "view/components/LoginDialog.h"
+#include "view/LoginDialog.h"
 
 #include "controller/network/RESTCommandFactory.h"
 #include "controller/network/NetworkManager.h"
@@ -120,7 +120,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
 {
     // get reference to network reply from sender object
     NetworkReply* reply = dynamic_cast<NetworkReply*>(sender());
-    
+    // null reply, prob no connection
     if(reply == 0)
     {
         qDebug() << "[OAuth2] Network Manager errror";
@@ -128,7 +128,6 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         emit signalError(error);
         return;
     }
-
     // early out
     int returnCode = qvariant_cast<int>(code);
     if (returnCode == NetworkReply::CodeError)
@@ -139,10 +138,10 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         reply->deleteLater();
         return;
     }
-
+    //parse the reply
     QJsonDocument document = reply->getJSON();
     QVariant result = document.toVariant();
-    
+    //no errors, good
     if (!reply->hasErrors())
     {
         OAuth2TokenDTO dto;
@@ -160,20 +159,17 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     else
     {
         const NetworkReply::ErrorList &errors = reply->errors();
-        
+        Error* error = 0;
         if(errors.count() > 1)
         {
             QString errortext;
-            
             foreach(Error *e, errors)
             {
                 qDebug() << "[OAuth2] Network Reply Error " << e->name() << " : " << e->description();
                 errortext += (e->name() + " : " + e->description()) + "\n";
             }
-            
             //NOTE need to emit a standard Error that packs all the errors descriptions
-            Error* error = new Error("Multiple Authorization Error", errortext, this);
-            emit signalError(error);
+            error = new Error("Multiple Authorization Error", errortext, this);
         }
         else
         {
@@ -182,9 +178,10 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
             QString errorName = dto.errorName();
             QString errorDescription = dto.errorDescription();
             qDebug() << "[OAuth2] Network Reply Error " << errorName << " : " << errorDescription;;
-            Error* error = new OAuth2Error(errorName, errorDescription, this);
-            emit signalError(error);
+            error = new OAuth2Error(errorName, errorDescription, this);
         }
+
+        emit signalError(error);
     }
     
     reply->deleteLater();

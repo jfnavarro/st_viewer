@@ -30,7 +30,7 @@ public:
 
     void setRefreshToken(const QUuid& refreshToken);
 
-    bool isExpired() const;
+    const bool isExpired() const;
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 

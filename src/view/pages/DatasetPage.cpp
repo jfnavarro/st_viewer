@@ -47,7 +47,6 @@ void DatasetPage::onInit()
     
     //NOTE item delegate is not finished yet
     //ui->datasets_tableview->setItemDelegate(new DatasetsViewItemDelegate(this));
-    
     ui->datasets_tableview->setSortingEnabled(false);
     ui->datasets_tableview->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->datasets_tableview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -74,10 +73,10 @@ void DatasetPage::onInit()
             m_datasetModel ,SLOT(datasetSelected(QModelIndex)));
     
     connect(m_datasetModel, SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
-            this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
+            this, SLOT(datasetSelected(DataProxy::DatasetPtr)), Qt::UniqueConnection);
     
-    connect(ui->backtodatasets, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
-    connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()));
+    connect(ui->backtodatasets, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
+    connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()), Qt::UniqueConnection);
 }
 
 void DatasetPage::onEnter()
@@ -112,7 +111,8 @@ void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
     }
     else
     {
-        DataProxy::getInstance()->setSelectedDataset(item->id());
+        DataProxy *dataProxy = DataProxy::getInstance();
+        dataProxy->setSelectedDataset(item->id());
         loadData();
     }
     
@@ -179,7 +179,6 @@ void DatasetPage::refreshDatasets()
         qDebug() << "[DatasetPage] Error: loading data";
         Error *error = new Error("Data Error", "Error loading the datasets.");
         emit signalError(error);
-        return;
     }
     else if(request->return_code() == async::DataRequest::CodePresent)
     {

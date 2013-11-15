@@ -94,7 +94,7 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
 
 int DatasetItemModel::columnCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : DatasetItemModel::MColumns;
+    return parent.isValid() ? 0 : DatasetItemModel::COLUMN_NUMBER;
 }
 
 int DatasetItemModel::rowCount(const QModelIndex& parent) const
@@ -117,7 +117,8 @@ void DatasetItemModel::loadDatasets()
 {
     beginResetModel();
     m_datasets_reference.clear(); //NOTE m_datasets_reference is just a reference
-    m_datasets_reference = DataProxy::getInstance()->getDatasetList();
+    DataProxy* dataProxy = DataProxy::getInstance();
+    m_datasets_reference = dataProxy->getDatasetList();
     endResetModel();
 }
 

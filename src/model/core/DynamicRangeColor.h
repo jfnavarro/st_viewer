@@ -14,7 +14,7 @@ class DynamicRangeColor : public ColorScheme
 {
 public:
     DynamicRangeColor(int minHits, int maxHits);
-    virtual QColor getColor(DataProxy::FeaturePtr feature) const;
+    virtual QColor getColor(const DataProxy::FeaturePtr feature) const;
 };
 
 #endif // DYNAMICRANGECOLOR_H

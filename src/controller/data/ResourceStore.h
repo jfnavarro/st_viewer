@@ -31,7 +31,7 @@ public:
 
     ResourceStore(QObject *parent = 0) : QObject(parent) { }
 
-    virtual bool hasResource(const QString& resourceid) = 0;
+    virtual const bool hasResource(const QString& resourceid) const = 0;
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty) = 0;
     virtual void clearResources() = 0;
 };

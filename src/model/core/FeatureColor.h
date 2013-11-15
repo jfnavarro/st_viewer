@@ -14,7 +14,7 @@ class FeatureColor : public ColorScheme
 {
 public:
     FeatureColor(int minHits, int maxHits);
-    virtual QColor getColor(DataProxy::FeaturePtr feature) const;
+    virtual QColor getColor(const DataProxy::FeaturePtr feature) const;
 };
 
 #endif // FEATURECOLOR_H

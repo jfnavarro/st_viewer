@@ -41,7 +41,7 @@ public:
     GeneTXTExporter(DetailLevels detailLevel, SeparationModes separationMode, QObject *parent = 0);
     virtual ~GeneTXTExporter();
 
-    virtual void exportItem(QIODevice *device, DataProxy::FeatureListPtr featurelist, const QObject &context) const;
+    virtual void exportItem(QIODevice *device, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
 private:
     
@@ -49,7 +49,7 @@ private:
     void exportStrings(QTextStream &otxt, const QStringList &strings) const;
 
     void exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature, const QObject &context) const;
-    void exportItem(QTextStream &otxt, DataProxy::FeatureListPtr featurelist, const QObject &context) const;
+    void exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
     DetailLevels m_detailLevel;
     SeparationModes m_separationMode;

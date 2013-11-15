@@ -28,7 +28,7 @@ ImageRequest *ImageProcess::createOpenGLImage(QIODevice *device)
     ImageRequest *request = new ImageRequest();
 
     QFutureWatcher<TransformedImage> *watcher = new QFutureWatcher<TransformedImage>(request);
-    QObject::connect(watcher, SIGNAL(finished()), request, SLOT(signalImageFinished()));
+    QObject::connect(watcher, SIGNAL(finished()), request, SLOT(slotImageFinished()));
 
     QFuture<TransformedImage> future;
     future = QtConcurrent::run(&ImageProcess::convertToGLFormat, device);
@@ -81,7 +81,7 @@ ImageRequest::~ImageRequest()
 
 }
 
-void ImageRequest::signalImageFinished()
+void ImageRequest::slotImageFinished()
 {
     QFutureWatcher<ImageProcess::TransformedImage> *watcher =
             dynamic_cast<QFutureWatcher<ImageProcess::TransformedImage>*>(sender());

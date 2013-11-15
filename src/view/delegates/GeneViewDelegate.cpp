@@ -40,7 +40,6 @@ void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
         QColor color = qvariant_cast<QColor>(v);
         QPixmap pixmap(10,10);
         pixmap.fill(color);
-
         // set style options for ombo box and assign icon from pixmap
         QStyleOptionComboBox comboBoxOption;
         comboBoxOption.rect = option.rect;

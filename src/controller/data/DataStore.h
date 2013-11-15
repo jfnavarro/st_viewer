@@ -36,7 +36,7 @@ public:
     void finalize();
 
     // store resources on disk, provide interface to store in files
-    virtual bool hasResource(const QString& resourceid);
+    virtual const bool hasResource(const QString& resourceid) const;
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty);
     virtual void clearResources();
     

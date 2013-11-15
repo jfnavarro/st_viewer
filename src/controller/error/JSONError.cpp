@@ -108,7 +108,6 @@ void JSONError::init(QJsonParseError::ParseError error)
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

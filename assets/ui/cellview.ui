@@ -182,7 +182,7 @@
   <customwidget>
    <class>GraphicsViewGL</class>
    <extends>QGraphicsView</extends>
-   <header>view/components/openGL/GraphicsViewGL.h</header>
+   <header>view/openGL/GraphicsViewGL.h</header>
   </customwidget>
  </customwidgets>
  <resources>

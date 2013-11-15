@@ -41,7 +41,7 @@ void DataStore::finalize()
     saveResourceMap();
 }
 
-bool DataStore::hasResource(const QString& resourceid)
+const bool DataStore::hasResource(const QString& resourceid) const
 {
     bool ok = m_fileMap.contains(resourceid);
     qDebug() << QString("DataStore::hasResource(%1) = %2 ").arg(resourceid).arg(ok);
@@ -110,6 +110,7 @@ void DataStore::loadResourceMap()
         }
     }
 }
+
 void DataStore::saveResourceMap()
 {
     const QString restoreFile = QDir::temp().filePath(Globals::RESTORE_FILE);

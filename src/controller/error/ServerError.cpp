@@ -56,14 +56,14 @@ void ServerError::init(uint error)
         break;
     default:
         type = ServerError::UnknownError;
+        //I would rather show the original error when it is a unknown error
         name = m_serverErrorName;
         description = m_serverErrorDescription;
-        //             name  = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Name");
-        //             description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
+        //name  = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Name");
+        //description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

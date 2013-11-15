@@ -47,6 +47,5 @@ void ErrorManager::slotHandleError(Error* error)
     m_errorDialog->activateWindow();
     QRect scr = QApplication::desktop()->screenGeometry();
     m_errorDialog->move(scr.center() - m_errorDialog->rect().center());
-    
-    delete error; //check this
+    error->deleteLater(); //error is probably gonna be deleted as it is a child of the widget that launched it
 }

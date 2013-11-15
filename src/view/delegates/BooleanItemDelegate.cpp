@@ -31,7 +31,6 @@ QWidget* BooleanItemDelegate::createEditor(QWidget* parent, const QStyleOptionVi
 void BooleanItemDelegate::setEditorData (QWidget* editor, const QModelIndex& index) const
 {
     bool value = index.model()->data(index).toBool();
-
     QCheckBox* box = static_cast<QCheckBox*>(editor);
     box->setChecked(value);
 }

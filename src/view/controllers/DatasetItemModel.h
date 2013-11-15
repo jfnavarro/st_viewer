@@ -60,7 +60,7 @@ signals:
     
 private:
     
-    static const int MColumns = 10;
+    static const int COLUMN_NUMBER = 10;
     DataProxy::DatasetListPtr m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel);

@@ -39,12 +39,12 @@
 #include "view/controllers/GeneFeatureItemModel.h"
 #include "view/controllers/GeneSelectionItemModel.h"
 
-#include "view/components/SelectionDialog.h"
-#include "view/components/openGL/GraphicsViewGL.h"
-#include "view/components/openGL/GraphicsSceneGL.h"
-#include "view/components/openGL/ImageItemGL.h"
-#include "view/components/openGL/GenePlotterGL.h"
-#include "view/components/openGL/HeatMapLegendGL.h"
+#include "view/SelectionDialog.h"
+#include "view/openGL/GraphicsViewGL.h"
+#include "view/openGL/GraphicsSceneGL.h"
+#include "view/openGL/ImageItemGL.h"
+#include "view/openGL/GenePlotterGL.h"
+#include "view/openGL/HeatMapLegendGL.h"
 
 #include "CellViewPage.h"
 #include "ui_cellview.h"
@@ -141,11 +141,12 @@ void CellViewPage::onInit()
     ui->selections_tableview->setSelectionBehavior(QAbstractItemView::SelectItems);
     ui->selections_tableview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->selections_tableview->setSortingEnabled(true);
+    ui->selections_tableview->setShowGrid(true);
     ui->selections_tableview->sortByColumn(0, Qt::AscendingOrder);
     ui->selections_tableview->setSelectionMode(QAbstractItemView::NoSelection);
     ui->selections_tableview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->selections_tableview->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-    ui->selections_tableview->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    //ui->selections_tableview->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     ui->selections_tableview->verticalHeader()->hide();
     ui->selections_tableview->model()->submit(); //support for caching (speed up)
     ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear.png")));
@@ -171,8 +172,6 @@ void CellViewPage::onInit()
 void CellViewPage::onEnter()
 {
     DEBUG_FUNC_NAME
-
-    resetActionStates();
     
     // initialize gui elements
     initGLView();
@@ -186,6 +185,7 @@ void CellViewPage::onEnter()
     gene_plotter_gl->updateChipSize();
     gene_plotter_gl->updateGeneData();
     gene_plotter_gl->updateTransformation();
+    gene_plotter_gl->clearSelectionArea();
     //this will make the gene visual data to be regenerated
     gene_plotter_gl->setGeneLowerLimit(hitCount->min());
     gene_plotter_gl->setGeneUpperLimit(hitCount->max());
@@ -195,6 +195,10 @@ void CellViewPage::onEnter()
     m_heatmap->setLowerLimit(hitCount->min());
     m_heatmap->setUpperLimit(hitCount->max());
     
+    //reset main variabless
+    resetActionStates();
+
+    //load cell tissue
     slotLoadCellFigure();
 }
 
@@ -205,11 +209,9 @@ void CellViewPage::onExit()
     ui->lineEdit->clearFocus();
     ui->genes_tableview->clearFocus();
     ui->selectAllGenes->clearFocus();
-}
-
-void CellViewPage::wheelEvent(QWheelEvent* event)
-{
-    event->ignore();
+    ui->selections_tableview->clearFocus();
+    ui->clearSelection->clearFocus();
+    ui->saveSelection->clearFocus();
 }
 
 void CellViewPage::createActions()
@@ -262,7 +264,7 @@ void CellViewPage::createConnections()
     DEBUG_FUNC_NAME
 
     // go back signal
-    connect(actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
     
     // gene model signals
     QSortFilterProxyModel *proxyModel = dynamic_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
@@ -301,7 +303,6 @@ void CellViewPage::resetActionStates()
     DataProxy *dataProxy = DataProxy::getInstance();
     
     //reset selection mode
-    // selection mode
     actionSelection_toggleSelectionMode->setChecked(false);
     slotActivateSelection(false);
     
@@ -309,13 +310,11 @@ void CellViewPage::resetActionStates()
     geneModel->loadGenes();
     
     //reset gene colors
-    //TOFIX this seg faults...
-    //geneModel->setColorGenes(Qt::red);
+    geneModel->setColorGenes(Globals::color_gene); //this calls gene_plotter_gl set color which seg fault
     
     //reset color dialogs
-    //TOFIX this seg faults on MAC...
-    //colorDialog_genes->setCurrentColor(Qt::darkBlue);
-    //colorDialog_grid->setCurrentColor(Qt::darkGreen);
+    colorDialog_genes->setCurrentColor(Globals::color_gene);
+    colorDialog_grid->setCurrentColor(Globals::color_grid);
     
     // reset visual modes
     actionShow_toggleDynamicRange->setChecked(false);
@@ -363,14 +362,11 @@ void CellViewPage::resetActionStates()
 }
 
 void CellViewPage::createToolBar()
-{   
-    //TODO default values should be placed in Globals
-    
+{       
     toolBar = new QToolBar();
-    
     toolBar->setIconSize(QSize(35,35));
     toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    
+
     toolBar->addAction(actionNavigate_goBack);
     toolBar->addSeparator();
     toolBar->addAction(actionZoom_zoomIn);
@@ -492,7 +488,11 @@ void CellViewPage::initGLView()
 {
     ui->view->initGL(scene);
     gene_plotter_gl->initGL();
-
+    //reset rendering data
+    if(cell_tissue != 0)
+    {
+        cell_tissue->reset();
+    }
     // heatmap component
     if (m_heatmap == 0)
     {
@@ -502,9 +502,9 @@ void CellViewPage::initGLView()
         m_heatmap->setAnchor(ViewItemGL::NorthEast);
         m_heatmap->setVisible(false);
         ui->view->addViewItem(m_heatmap); //NOTE relinquish ownership
-        // connect
+        // connect setvisible signals
         connect(actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
-
+        // connect threshold slider to the heatmap
         QxtSpanSlider *geneHitsThreshold = dynamic_cast<QxtSpanSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
         connect(geneHitsThreshold, SIGNAL(lowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
         connect(geneHitsThreshold, SIGNAL(upperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
@@ -539,13 +539,12 @@ void CellViewPage::initGLConnections()
     GeneFeatureItemModel* geneModel = dynamic_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
     GeneSelectionItemModel* selectionModel = dynamic_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
     //connect gene list model to gene plotter
-    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)),
-            gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
-    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)),
-            gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
+    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
     //connect gene plotter to gene selection model
-    connect(gene_plotter_gl, SIGNAL(featuresSelected(const DataProxy::FeatureList&)), selectionModel,
-            SLOT(loadGenes(const DataProxy::FeatureList&)));
+    connect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
+            SLOT(loadGenes(DataProxy::FeatureListPtr)), Qt::UniqueConnection);
+    connect(ui->clearSelection, SIGNAL(clicked(bool)), gene_plotter_gl, SLOT(clearSelectionArea()), Qt::UniqueConnection);
 
     // gene plot signals files
     QxtSpanSlider *geneHitsThreshold = dynamic_cast<QxtSpanSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
@@ -566,7 +565,6 @@ void CellViewPage::initGLConnections()
     // grid signals
     connect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
     connect(actionShow_showGrid, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGridVisible(bool)));
-
     // cell tissue canvas
     connect(actionShow_showCellTissue, SIGNAL(triggered(bool)), cell_tissue, SLOT(visible(bool)));
 }
@@ -621,7 +619,6 @@ void CellViewPage::slotLoadCellFigure()
     actionGroup_cellTissue->setEnabled(false);
     actionNavigate_goBack->setEnabled(false);
 
-    //loadCellFigureSync(device); //we could use loadCellFigureAsync here TODO : (create a flag for this)
     loadCellFigureAsync(device);
 }
 
@@ -629,21 +626,7 @@ void CellViewPage::loadCellFigureAsync(QIODevice* device)
 {
     //convert image
     async::ImageRequest *imageRequest = async::ImageProcess::createOpenGLImage(device);
-    connect(imageRequest, SIGNAL(signalFinished()), this, SLOT(slotLoadCellFigurePost()));
-}
-
-void CellViewPage::loadCellFigureSync(QIODevice* device)
-{
-    //NOTE this is an ugly hack to load/convert the image synchronously (move this to the ImageProcessing class)
-    async::ImageProcess::TransformedImage openglimage = async::ImageProcess::convertToGLFormat(device);
-    const QImage image = openglimage.first;
-    const QTransform transform = openglimage.second;
-    // update image component
-    cell_tissue->setImage(image);
-    cell_tissue->setTransform(transform, false);
-    // update gui
-    actionNavigate_goBack->setEnabled(true);
-    actionGroup_cellTissue->setEnabled(true);
+    connect(imageRequest, SIGNAL(signalFinished()), this, SLOT(slotLoadCellFigurePost()), Qt::DirectConnection);
 }
 
 void CellViewPage::slotLoadCellFigurePost()
@@ -694,7 +677,9 @@ void CellViewPage::slotPrintImage()
 void CellViewPage::slotSaveImage()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
-                                                    QString("%1;;%2").arg(tr("JPEG Image Files (*.jpg *.jpeg)")).arg(tr("PNG Image Files (*.png)")));
+                                                    QString("%1;;%2").
+                                                    arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
+                                                    arg(tr("PNG Image Files (*.png)")));
     // early out
     if (filename.isEmpty())
     {
@@ -721,7 +706,9 @@ void CellViewPage::slotSaveImage()
 void CellViewPage::slotExportSelection()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
-                                                    QString("%1;;%2").arg(tr("Text Files (*.txt)")).arg(tr("XML Files (*.xml)")));
+                                                    QString("%1;;%2").
+                                                    arg(tr("Text Files (*.txt)")).
+                                                    arg(tr("XML Files (*.xml)")));
     // early out
     if (filename.isEmpty())
     {
@@ -757,7 +744,8 @@ void CellViewPage::slotExportSelection()
         GeneExporter *exporter =
                 (QString::compare(info.suffix(), "XML", Qt::CaseInsensitive) == 0) ?
                     static_cast<GeneExporter *>(new GeneXMLExporter(&memoryGuard)) :
-                    static_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull, GeneTXTExporter::TabDelimited, &memoryGuard));
+                    static_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
+                                                                    GeneTXTExporter::TabDelimited, &memoryGuard));
 
         exporter->exportItem(&textFile, featureList, context);
     }
@@ -800,17 +788,6 @@ void CellViewPage::slotLoadColor()
 
 void CellViewPage::slotSelectByRegExp()
 {
-    DataProxy::GeneListPtr geneList = SelectionDialog::selectGenes(this);
+    const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(this);
     gene_plotter_gl->selectAll(geneList);
 }
-
-/*const DataProxy::FeatureList CellViewPage::lookupFeatures(const QList<QString> &featureIdList) const
-{
-    DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureList featureList;
-    foreach (const QString &featureId, featureIdList)
-    {
-        featureList << dataProxy->getFeature(dataProxy->getSelectedDataset(), featureId);
-    }
-    return featureList;
-}*/

@@ -67,7 +67,7 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr 
 
     exportStrings(otxt, list);
 }
-void GeneTXTExporter::exportItem(QTextStream &otxt, DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     const bool hasNormalized =
             context.property("hitCountMin").isValid()
@@ -92,7 +92,7 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, DataProxy::FeatureListPtr fe
     }
 }
 
-void GeneTXTExporter::exportItem(QIODevice *device, DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneTXTExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     // early out
     if (!device->isWritable())

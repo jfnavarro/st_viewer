@@ -27,12 +27,9 @@ class OAuth2 : public QObject
 public:
     
     typedef QPair<QString,QString> StringPair;
-    
     //parent container should be qwidget
     explicit OAuth2(QObject* parent);
-    
     virtual ~OAuth2();
-    
     // shows login dialog
     void startInteractiveLogin();
     // try logs in with stored access token

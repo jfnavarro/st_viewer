@@ -32,21 +32,18 @@ void TokenStorage::setAccessToken(const QUuid& accessToken)
     m_storage->setValue(Globals::SettingsAcessToken, accessToken);
 }
 
-bool TokenStorage::isExpired() const
+const bool TokenStorage::isExpired() const
 {
     QDateTime currentDate = QDateTime::currentDateTimeUtc();
     QDateTime expirationDate = m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
-
     return (currentDate > expirationDate);
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken, int expiresIn)
 {
     Q_ASSERT(!accessToken.isNull() && "[TokenStorage] Trying to set invalid access token!");
-
     // use UTC time as the reference point
     QDateTime expirationDate = QDateTime::currentDateTimeUtc().addSecs(expiresIn);
-
     m_storage->setValue(Globals::SettingsAcessToken, accessToken);
     m_storage->setValue(Globals::SettingsTokenExpiresAt, expirationDate);
 }

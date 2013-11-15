@@ -103,7 +103,6 @@ void OAuth2Error::init(uint error)
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

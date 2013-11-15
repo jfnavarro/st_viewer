@@ -26,7 +26,7 @@ NetworkError::NetworkError(QNetworkReply::NetworkError error, QObject* parent)
 
 NetworkError::~NetworkError()
 {
-    //m_cmd is a reference
+
 }
 
 void NetworkError::init(QNetworkReply::NetworkError error)
@@ -174,7 +174,6 @@ void NetworkError::init(QNetworkReply::NetworkError error)
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

@@ -75,8 +75,9 @@ protected slots:
 protected:
 
     //dont want to allow wheel events
-    virtual void wheelEvent(QWheelEvent* event);
+    //virtual void wheelEvent(QWheelEvent* event) {event->ignore();}
     
+    //init gui elements, signals and connections
     void initGLView();
     void initGLModel();
     void initGLConnections();
@@ -86,10 +87,7 @@ protected:
     void createConnections();
     void resetActionStates();
 
-    DataProxy::FeatureListPtr lookupFeatures(const QList<QString> &featureIdList);
-
-    //image loading functions that make use of async or not
-    void loadCellFigureSync(QIODevice *device);
+    //image loading function
     void loadCellFigureAsync(QIODevice *device);
 
 private:

@@ -29,13 +29,6 @@
 #include "model/dto/UserDTO.h"
 #include "model/dto/ErrorDTO.h"
 
-
-//TODO this component will eventualy replace the hash maps in memory
-// serialized/encrypted data on the HD filtered by user, dataProxy will check if data
-// is present in the cache before making the REST call, although
-// expered or pudated data will be re-downloaded
-
-
 DataProxy::DataProxy() : m_user(0), m_datasetListPtr(0)
 {    
     init();
@@ -49,8 +42,8 @@ DataProxy::~DataProxy()
 void DataProxy::init()
 {
     //initialize data containers
-    m_user = QSharedPointer<User>(new User());
-    m_datasetListPtr = QSharedPointer<QVector<DatasetPtr>>(new QVector<DatasetPtr>());
+    m_user = UserPtr(new User());
+    m_datasetListPtr = DatasetListPtr(new DatasetList);
 }
 
 void DataProxy::finalize()

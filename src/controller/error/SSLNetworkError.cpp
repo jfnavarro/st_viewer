@@ -174,7 +174,6 @@ void SSLNetworkError::init(const QSslError& sslError)
     }
 
     // assign name and description
-    //Error::type(type);
     Error::name(name);
     Error::description(description);
 }

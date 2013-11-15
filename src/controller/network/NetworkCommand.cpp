@@ -28,7 +28,7 @@ NetworkCommand::~NetworkCommand()
 
 void NetworkCommand::addQueryItems(QObject* object)
 {
-    Q_ASSERT(object != 0 && "null-pointer assertion error!");
+    Q_ASSERT_X(object != 0,"NetworkCommand","null-pointer assertion error!");
 
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();

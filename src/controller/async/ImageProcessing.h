@@ -47,7 +47,7 @@ public:
 
 private slots:
 
-    void signalImageFinished();
+    void slotImageFinished();
 
 signals:
 
@@ -58,9 +58,6 @@ private:
     //NOTE OpenGL formatted image, may be huge so dont forget to delete ImageRequest
     QImage m_image;         // image data
     QTransform m_transform; // transformation data (scaling)
-
-    QSize m_originalSize;
-    QSize m_scaledSize;
 };
 
 } // namespace async //

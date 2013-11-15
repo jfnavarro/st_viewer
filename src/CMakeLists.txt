@@ -93,38 +93,38 @@ set(SRC_MODEL_DTO
     model/dto/UserExperimentDTO.cpp
 )
 
-set(INC_VIEW_COMPONENTS
-    view/components/openGL/GenePlotterGL.h
-    view/components/openGL/GraphicsSceneGL.h
-    view/components/openGL/GraphicsViewGL.h
-    view/components/openGL/HeatMapLegendGL.h
-    view/components/openGL/ImageItemGL.h
-    view/components/openGL/MiniMapGL.h
-    view/components/openGL/SelectionEvent.h
-    view/components/openGL/WidgetGL.h
-    view/components/openGL/ViewItemGL.h
-    view/components/AboutDialog.h
-    view/components/ExtendedTabWidget.h
-    view/components/LoginDialog.h
-    view/components/MainMenuBar.h
-    view/components/MainStatusBar.h
-    view/components/SelectionDialog.h
+set(INC_VIEW
+    view/AboutDialog.h
+    view/SelectionDialog.h
+    view/LoginDialog.h
 )
-set(SRC_VIEW_COMPONENTS
-    view/components/openGL/GenePlotterGL.cpp
-    view/components/openGL/GraphicsSceneGL.cpp
-    view/components/openGL/GraphicsViewGL.cpp
-    view/components/openGL/HeatMapLegendGL.cpp
-    view/components/openGL/ImageItemGL.cpp
-    view/components/openGL/MiniMapGL.cpp
-    view/components/openGL/WidgetGL.cpp
-    view/components/openGL/ViewItemGL.cpp
-    view/components/AboutDialog.cpp
-    view/components/ExtendedTabWidget.cpp
-    view/components/LoginDialog.cpp
-    view/components/MainMenuBar.cpp
-    view/components/MainStatusBar.cpp
-    view/components/SelectionDialog.cpp
+
+set(SRC_VIEW
+    view/AboutDialog.cpp
+    view/SelectionDialog.cpp
+    view/LoginDialog.cpp
+)
+
+set(INC_VIEW_OPENGL
+    view/openGL/GenePlotterGL.h
+    view/openGL/GraphicsSceneGL.h
+    view/openGL/GraphicsViewGL.h
+    view/openGL/HeatMapLegendGL.h
+    view/openGL/ImageItemGL.h
+    view/openGL/MiniMapGL.h
+    view/openGL/SelectionEvent.h
+    view/openGL/WidgetGL.h
+    view/openGL/ViewItemGL.h
+)
+set(SRC_VIEW_OPENGL
+    view/openGL/GenePlotterGL.cpp
+    view/openGL/GraphicsSceneGL.cpp
+    view/openGL/GraphicsViewGL.cpp
+    view/openGL/HeatMapLegendGL.cpp
+    view/openGL/ImageItemGL.cpp
+    view/openGL/MiniMapGL.cpp
+    view/openGL/WidgetGL.cpp
+    view/openGL/ViewItemGL.cpp
 )
 
 set(INC_VIEW_DELEGATES
@@ -174,10 +174,10 @@ set(SRC_VIEW_MODEL_CONTROLLER
 )
 
 set(INC_CONTROLLER
-    controller/stVi.h
+    stVi.h
 )
 set(SRC_CONTROLLER
-    controller/stVi.cpp
+    stVi.cpp
 )
 
 set(INC_CONTROLLER_ASYNC
@@ -282,8 +282,9 @@ set(INCLUDES
     ${INC_MODEL_DTO}
     ${INC_UTILS}
     ${INC_UTILS_CONFIG}
+    ${INC_VIEW}
     ${INC_VIEW_MODEL_CONTROLLER}
-    ${INC_VIEW_COMPONENTS}
+    ${INC_VIEW_OPENGL}
     ${INC_VIEW_DELEGATES}
     ${INC_VIEW_EDITORS}
     ${INC_VIEW_PAGES}
@@ -301,8 +302,9 @@ set(SOURCES
     ${SRC_MODEL_DTO}
     ${SRC_UTILS}
     ${SRC_UTILS_CONFIG}
+    ${SRC_VIEW}
     ${SRC_VIEW_MODEL_CONTROLLER}
-    ${SRC_VIEW_COMPONENTS}
+    ${SRC_VIEW_OPENGL}
     ${SRC_VIEW_DELEGATES}
     ${SRC_VIEW_EDITORS}
     ${SRC_VIEW_PAGES}
@@ -326,7 +328,8 @@ source_group("Model\\Core" FILES ${SRC_MODEL_CORE} ${INC_MODEL_CORE})
 source_group("Model\\DTO" FILES ${SRC_MODEL_DTO} ${INC_MODEL_DTO})
 source_group("Utils" FILES ${SRC_UTILS} ${INC_UTILS})
 source_group("Utils\\Config" FILES ${SRC_UTILS_CONFIG} ${INC_UTILS_CONFIG})
-source_group("View\\Components" FILES ${SRC_VIEW_COMPONENTS} ${INC_VIEW_COMPONENTS})
+source_group("View" FILES ${SRC_VIEW} ${INC_VIEW})
+source_group("View\\OpenGL" FILES ${SRC_VIEW_COMPONENTS} ${INC_VIEW_COMPONENTS})
 source_group("View\\Delegates" FILES ${SRC_VIEW_DELEGATES} ${INC_VIEW_DELEGATES})
 source_group("View\\Editors" FILES ${SRC_VIEW_EDITORS} ${INC_VIEW_EDITORS})
 source_group("View\\Pages" FILES ${SRC_VIEW_PAGES} ${INC_VIEW_PAGES})
@@ -336,7 +339,6 @@ source_group("Controller\\Async" FILES ${SRC_CONTROLLER_ASYNC} ${INC_CONTROLLER_
 source_group("Controller\\Auth" FILES ${SRC_CONTROLLER_AUTH} ${INC_CONTROLLER_AUTH})
 source_group("Controller\\Data" FILES ${SRC_CONTROLLER_DATA} ${INC_CONTROLLER_DATA})
 source_group("Controller\\Io" FILES ${SRC_CONTROLLER_IO} ${INC_CONTROLLER_IO})
-source_group("Controller\\Link" FILES ${SRC_CONTROLLER_LINK} ${INC_CONTROLLER_LINK})
 source_group("Controller\\Network" FILES ${SRC_CONTROLLER_NETWORK} ${INC_CONTROLLER_NETWORK})
 source_group("Controller\\Error" FILES ${SRC_CONTROLLER_ERROR} ${INC_CONTROLLER_ERROR})
 
@@ -396,8 +398,7 @@ set(FORMS
     "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
 )
 
-set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts")
-              
+set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 
 qt5_wrap_ui(QT_FORMS ${FORMS})
@@ -410,10 +411,10 @@ include("libs/QtDebugHelper/CMakeLists.cmake")
 include("libs/QtSingleApplication/CMakeLists.cmake")
 include("libs/QtUnitTest/CMakeLists.cmake")
 include("libs/STCore/CMakeLists.cmake")
-#include("libs/STCoreWidgets/CMakeLists.cmake")
+include("libs/STCoreWidgets/CMakeLists.cmake")
 include("libs/STOpenGL/CMakeLists.cmake")
 include("libs/libqxt/CMakeLists.cmake")
-set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore libqxt) #STCoreWidgets #
+set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore STCoreWidgets libqxt)
 
 ## create main library
 add_library(STMain STATIC ${SOURCES} ${QT_FORMS} ${QT_LOCALES}) #${INCLUDES}

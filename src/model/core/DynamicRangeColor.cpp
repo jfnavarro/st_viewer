@@ -16,13 +16,12 @@ DynamicRangeColor::DynamicRangeColor(int minHits, int maxHits) : ColorScheme(min
 
 }
 
-QColor DynamicRangeColor::getColor(DataProxy::FeaturePtr feature) const
+QColor DynamicRangeColor::getColor(const DataProxy::FeaturePtr feature) const
 {
     const qreal v = qreal(feature->hits());
     const qreal min = qreal(m_minHits);
     const qreal max = qreal(m_maxHits);
     const qreal nv = qSqrt(GL::norm<qreal,qreal>(v, min, max));
-
     QColor color = feature->color();
     color.setAlphaF(nv);
     return color;

@@ -34,6 +34,7 @@ WidgetBackgroundAnimation::~WidgetBackgroundAnimation()
     {
         delete m_movie;
     }
+    m_movie = 0;
 }
 
 void WidgetBackgroundAnimation::setAnimation(const QString &fileName)
