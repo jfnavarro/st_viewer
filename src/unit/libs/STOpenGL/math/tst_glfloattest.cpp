@@ -22,11 +22,11 @@ GLFloatTest::GLFloatTest(QObject *parent) : QObject(parent) { }
 
 void GLFloatTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLFloatTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLFloatTest::testBitSet()
@@ -36,7 +36,7 @@ void GLFloatTest::testBitSet()
     QFETCH(GLuint, bit);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::bitSet(bitFloatSrc, bit) == bitFloatTar, expected );
+    QCOMPARE(GL::bitSet(bitFloatSrc, bit) == bitFloatTar, expected);
 }
 void GLFloatTest::testBitSet_data()
 {
@@ -45,10 +45,10 @@ void GLFloatTest::testBitSet_data()
     QTest::addColumn<GLuint>("bit");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("setbit0") << GLfloat(3.0) << GLfloat( 11.0) << GLuint(3) << true;
+    QTest::newRow("setbit0") << GLfloat(3.0) << GLfloat(11.0) << GLuint(3) << true;
     QTest::newRow("setbit2") << GLfloat(161.0) << GLfloat(169.0) << GLuint(3) << true;
     QTest::newRow("setbit3") << GLfloat(239.0) << GLfloat(255.0) << GLuint(4) << true;
-    QTest::newRow("setbit3") << GLfloat(42.0) << GLfloat( 58.0) << GLuint(4) << true;
+    QTest::newRow("setbit3") << GLfloat(42.0) << GLfloat(58.0) << GLuint(4) << true;
 
     QTest::newRow("nothing0") << GLfloat(7.0) << GLfloat(7.0) << GLuint(1) << true;
 }
@@ -60,7 +60,7 @@ void GLFloatTest::testBitClear()
     QFETCH(GLuint, bit);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::bitClear(bitFloatSrc, bit) == bitFloatTar, expected );
+    QCOMPARE(GL::bitClear(bitFloatSrc, bit) == bitFloatTar, expected);
 }
 void GLFloatTest::testBitClear_data()
 {
@@ -83,7 +83,7 @@ void GLFloatTest::testBitTest()
     QFETCH(GLuint, bit);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::bitTest(bitFloat, bit), expected );
+    QCOMPARE(GL::bitTest(bitFloat, bit), expected);
 }
 void GLFloatTest::testBitTest_data()
 {

@@ -14,13 +14,13 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-    
+
     Author : Jose Fernandez Navarro     jose.fernandez.navarro@scilifelab.com
-    
-    Spatial Transcriptomics group. 
-    
+
+    Spatial Transcriptomics group.
+
     Spatial Transcriptomics Viewer (stVi).
-    
+
 */
 
 #include "utils/DebugHelper.h"
@@ -47,9 +47,9 @@
 // Adapted from code by wysota - http://blog.wysota.eu.org/index.php/2009/11/17/little-debugging-helper/
 
 #ifdef DBGHELPER_USES_PRINTF
-  #include <stdio.h>
+#include <stdio.h>
 #else
-  #include <QtCore/QtDebug>
+#include <QtCore/QtDebug>
 #endif
 
 using namespace GluonCore;
@@ -57,20 +57,19 @@ using namespace GluonCore;
 int DbgHelper::indent = 0;
 int DbgHelper::colorIndex = 0;
 
-static void DbgHelper_output( int color, int indent, const QString& prefix, const QString& funcName )
+static void DbgHelper_output(int color, int indent, const QString& prefix, const QString& funcName)
 {
-    QString text = QString( 4 * indent, ' ' ) + QString( prefix + funcName );
+    QString text = QString(4 * indent, ' ') + QString(prefix + funcName);
 
-    if( color >= 0 )
-    {
-        text.prepend( "\x1b[3" + QString::number( 1 + color ) + 'm' );
-        text.append( "\x1b[39m" );
+    if (color >= 0) {
+        text.prepend("\x1b[3" + QString::number(1 + color) + 'm');
+        text.append("\x1b[39m");
     }
 
 #ifndef DBGHELPER_USES_PRINTF
     qDebug() << text.toUtf8();
 #else
-    fprintf( stderr, "%s\n", qPrintable( text ) );
+    fprintf(stderr, "%s\n", qPrintable(text));
 #endif
 }
 
@@ -82,11 +81,11 @@ DbgHelper::DbgHelper()
     myColor = -1;
 #else
     myColor = colorIndex;
-    colorIndex = ( colorIndex + 1 ) % 7;
+    colorIndex = (colorIndex + 1) % 7;
 #endif
 }
 
-DbgHelper::DbgHelper( const QString& t )
+DbgHelper::DbgHelper(const QString& t)
 {
     noFunctionName = false;
     txt = t;
@@ -95,23 +94,22 @@ DbgHelper::DbgHelper( const QString& t )
     myColor = -1;
 #else
     myColor = colorIndex;
-    colorIndex = ( colorIndex + 1 ) % 7;
+    colorIndex = (colorIndex + 1) % 7;
 #endif
-    DbgHelper_output( myColor, indent, "BEGIN ", txt );
+    DbgHelper_output(myColor, indent, "BEGIN ", txt);
 
     ++indent;
 }
 
-void DbgHelper::addText( const QString& t )
+void DbgHelper::addText(const QString& t)
 {
-    DbgHelper_output( myColor, indent, "", t );
+    DbgHelper_output(myColor, indent, "", t);
 }
 
 DbgHelper::~DbgHelper()
 {
-    if( !noFunctionName )
-    {
+    if (!noFunctionName) {
         --indent;
-        DbgHelper_output( myColor, indent, "END   ", txt );
+        DbgHelper_output(myColor, indent, "END   ", txt);
     }
 }

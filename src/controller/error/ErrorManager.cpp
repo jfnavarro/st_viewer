@@ -5,9 +5,10 @@
 
 */
 
+#include "ErrorManager.h"
+
 #include <QDesktopWidget>
 #include <QApplication>
-#include "ErrorManager.h"
 
 ErrorManager::ErrorManager(QObject* parent)
     : QObject(parent), m_parentContainer(0), m_errorDialog(0)
@@ -17,7 +18,7 @@ ErrorManager::ErrorManager(QObject* parent)
 
 ErrorManager::~ErrorManager()
 {
-
+    //members are smart pointers
 }
 
 void ErrorManager::init(QWidget* parentContainer)
@@ -34,13 +35,11 @@ void ErrorManager::finalize()
 void ErrorManager::slotHandleError(Error* error)
 {
     // lazy initialization
-    if (m_errorDialog.isNull())
-    {
+    if (m_errorDialog.isNull()) {
         m_errorDialog = new QErrorMessage(m_parentContainer);
         m_errorDialog->setModal(true);
         m_errorDialog->setWindowModality(Qt::ApplicationModal);
     }
-    
     //TODO add proper tabulation of errors
     m_errorDialog->showMessage(error->name() + " : " + QString("\n") + error->description());
     m_errorDialog->raise();

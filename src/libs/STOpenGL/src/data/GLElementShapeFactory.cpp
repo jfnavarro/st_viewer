@@ -217,6 +217,8 @@ const GLindex GLElementRectangleFactory::connect(const GLindex externalIndex)
 {
     GLindex index;
     GLrectangleindex rectangleIndex = GLrectangleindex(translateExternalIndex(externalIndex));
+    //GLrectangleindex rectangleIndex = GLrectangleindex(translateInternalIndex(externalIndex));
+    //GLrectangleindex rectangleIndex = GLrectangleindex(externalIndex);
     m_data->connect<GLrectangle::POINTS>(rectangleIndex, &index);
     return translateInternalIndex(index);
 }
@@ -224,6 +226,8 @@ const GLindex GLElementRectangleFactory::connect(const GLindex externalIndex)
 void GLElementRectangleFactory::deconnect(const GLindex externalIndex)
 {
     GLindex internalIndex = translateExternalIndex(externalIndex);
+    //GLindex internalIndex = translateInternalIndex(externalIndex);
+    //GLindex internalIndex = externalIndex;
     m_data->deconnect<GLrectangle::POINTS>(internalIndex);
 }
 

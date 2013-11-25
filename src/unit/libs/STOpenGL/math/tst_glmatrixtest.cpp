@@ -19,11 +19,11 @@ GLMatrixTest::GLMatrixTest(QObject *parent) : QObject(parent) { }
 
 void GLMatrixTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLMatrixTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLMatrixTest::testCompareEqual()
@@ -32,7 +32,7 @@ void GLMatrixTest::testCompareEqual()
     QFETCH(GL::GLmatrix, m1);
     QFETCH(bool, expected);
 
-    QCOMPARE( fuzzyEqual(m0, m1) , expected);
+    QCOMPARE(fuzzyEqual(m0, m1) , expected);
 }
 
 void GLMatrixTest::testCompareEqual_data()
@@ -42,7 +42,7 @@ void GLMatrixTest::testCompareEqual_data()
     QTest::addColumn<bool>("expected");
 
     GL::GLmatrix identity;
-    GL::GLmatrix simple(0,1,2, 3,4,5, 6,7,8);
+    GL::GLmatrix simple(0, 1, 2, 3, 4, 5, 6, 7, 8);
 
     QTest::newRow("identity") << identity << identity << true;
     QTest::newRow("simple") << simple << simple << true;

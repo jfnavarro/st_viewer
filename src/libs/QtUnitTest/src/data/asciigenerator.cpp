@@ -19,8 +19,7 @@ QByteArray AsciiGenerator::generate(qint64 maxSize) const
     QBuffer bytesBuffer(&bytes);
     bytesBuffer.open(QIODevice::WriteOnly);
 
-    while (!bytesBuffer.atEnd())
-    {
+    while (!bytesBuffer.atEnd()) {
         const qreal random = ((qreal) qrand() / (qreal) RAND_MAX);
         const char ascii = (static_cast<char>((0x80 - 0x20) * random) + 0x20) & 0x7F;
         bytesBuffer.write(reinterpret_cast<const char *>(&ascii), sizeof(ascii));

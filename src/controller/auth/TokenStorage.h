@@ -6,7 +6,7 @@
 */
 
 #ifndef TOKENSTORAGE_H
-#define	TOKENSTORAGE_H
+#define TOKENSTORAGE_H
 
 #include <QSettings>
 #include <QPointer>
@@ -21,10 +21,10 @@ class TokenStorage : public QObject
     Q_OBJECT
 
 public:
-    
+
     explicit TokenStorage(QObject* parent = 0);
     virtual ~TokenStorage();
-    
+
     void setAccessToken(const QUuid& accessToken);
     void setAccessToken(const QUuid& accessToken, int expiresIn);
 
@@ -34,16 +34,22 @@ public:
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 
-    inline const bool hasAccessToken() const { return m_storage->contains(Globals::SettingsAcessToken); }
-    inline const bool hasRefreshToken() const { return m_storage->contains(Globals::SettingsRefreshToken); }
+    inline const bool hasAccessToken() const
+    {
+        return m_storage->contains(Globals::SettingsAcessToken);
+    }
+    inline const bool hasRefreshToken() const
+    {
+        return m_storage->contains(Globals::SettingsRefreshToken);
+    }
 
     //cleans the content of the accesstoken
     void cleanAll();
-    
+
 private:
 
     QScopedPointer<QSettings> m_storage;
 };
 
-#endif	/* TOKENSTORAGE_H */
+#endif  /* TOKENSTORAGE_H */
 

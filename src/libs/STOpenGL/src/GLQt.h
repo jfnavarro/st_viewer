@@ -83,12 +83,14 @@ const GLpoint toGLpoint(qreal x, qreal y)
     const GLfloat fy = static_cast<GLfloat>(y);
     return GLpoint(fx, fy);
 }
+
 const GLpoint toGLpoint(const QPoint& point)
 {
     const GLfloat x = static_cast<GLfloat>(point.x());
     const GLfloat y = static_cast<GLfloat>(point.y());
     return GLpoint(x, y);
 }
+
 const GLpoint toGLpoint(const QPointF& point)
 {
     const GLfloat x = static_cast<GLfloat>(point.x());
@@ -102,6 +104,7 @@ inline const GLpoint toGLpoint(const QSize& size)
     const GLfloat height = static_cast<GLfloat>(size.height());
     return GLpoint(width, height);
 }
+
 inline const GLpoint toGLpoint(const QSizeF& size)
 {
     const GLfloat width = static_cast<GLfloat>(size.width());
@@ -113,20 +116,21 @@ inline const GLpoint toGLpoint(const QSizeF& size)
 const GLrectangle toGLrectangle(const QRect& rect)
 {
     return GLrectangle(
-                toGLpoint(rect.topLeft()),
-                toGLpoint(rect.topRight()),
-                toGLpoint(rect.bottomRight()),
-                toGLpoint(rect.bottomLeft())
-                );
+               toGLpoint(rect.topLeft()),
+               toGLpoint(rect.topRight()),
+               toGLpoint(rect.bottomRight()),
+               toGLpoint(rect.bottomLeft())
+           );
 }
+
 const GLrectangle toGLrectangle(const QRectF& rect)
 {
     return GLrectangle(
-                toGLpoint(rect.topLeft()),
-                toGLpoint(rect.topRight()),
-                toGLpoint(rect.bottomRight()),
-                toGLpoint(rect.bottomLeft())
-                );
+               toGLpoint(rect.topLeft()),
+               toGLpoint(rect.topRight()),
+               toGLpoint(rect.bottomRight()),
+               toGLpoint(rect.bottomLeft())
+           );
 }
 
 // GLcolor
@@ -141,36 +145,37 @@ const GLcolor toGLcolor(const QColor& color)
 const QColor toQColor(const GLcolor& color)
 {
     return QColor::fromRgbF(
-                static_cast<qreal>(color.red),
-                static_cast<qreal>(color.green),
-                static_cast<qreal>(color.blue),
-                static_cast<qreal>(color.alpha)
-                );
+               static_cast<qreal>(color.red),
+               static_cast<qreal>(color.green),
+               static_cast<qreal>(color.blue),
+               static_cast<qreal>(color.alpha)
+           );
 }
 
 // GLmatrix
 const GLmatrix toGLmatrix(const QTransform& transform)
 {
     return GLmatrix(
-                transform.m11(), transform.m12(), transform.m13(),
-                transform.m21(), transform.m22(), transform.m23(),
-                transform.m31(), transform.m32(), transform.m33());
+               transform.m11(), transform.m12(), transform.m13(),
+               transform.m21(), transform.m22(), transform.m23(),
+               transform.m31(), transform.m32(), transform.m33());
 }
 
 // GLaabb
 inline const GLaabb toGLaabb(const QRect& rect)
 {
     return GLaabb(
-                toGLpoint(rect.topLeft()),
-                toGLpoint(rect.size())
-                );
+               toGLpoint(rect.topLeft()),
+               toGLpoint(rect.size())
+           );
 }
+
 inline const GLaabb toGLaabb(const QRectF& rect)
 {
     return GLaabb(
-                toGLpoint(rect.topLeft()),
-                toGLpoint(rect.size())
-                );
+               toGLpoint(rect.topLeft()),
+               toGLpoint(rect.size())
+           );
 }
 
 // QString

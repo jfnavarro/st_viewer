@@ -16,8 +16,7 @@
 namespace GL
 {
 
-enum ShaderType
-{
+enum ShaderType {
     EmptyShader,
     GeometryShader,
     VertexShader,
@@ -32,8 +31,7 @@ static const GLshaderhandle INVALID_SHADER_HANDLE = 0;
 // version of a vertex or fragment shader managing the interactions with
 // opengl.
 
-struct GLshader
-{
+struct GLshader {
     inline GLshader();
     inline explicit GLshader(GL::Initialization);
     inline explicit GLshader(const ShaderType type, GLshaderhandle handle = INVALID_SHADER_HANDLE);
@@ -42,7 +40,6 @@ struct GLshader
     inline void deleteHandle();
 
     const bool compile(const char *source);
-
     inline const bool isCompiled() const;
 
     ShaderType type;
@@ -63,7 +60,6 @@ inline GLshader::GLshader(const ShaderType type, GLshaderhandle handle) : type(t
 inline void GLshader::createHandle()
 {
     Q_ASSERT_X(handle == INVALID_SHADER_HANDLE, "GLshader", "GLshader already exists on GPU");
-
     GLenum shaders[] = {
         0,
         GL_GEOMETRY_SHADER,
@@ -80,7 +76,10 @@ inline void GLshader::deleteHandle()
     handle = 0;
 }
 
-inline const bool GLshader::isCompiled() const { return handle != GL::INVALID_SHADER_HANDLE; }
+inline const bool GLshader::isCompiled() const
+{
+    return handle != GL::INVALID_SHADER_HANDLE;
+}
 
 } // namespace GL //
 

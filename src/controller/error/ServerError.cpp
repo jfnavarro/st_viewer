@@ -5,10 +5,9 @@
 
 */
 
-#include <QApplication>
-
 #include "ServerError.h"
 
+#include <QApplication>
 
 const char* ServerError::LOC_CONTEXT = "ServerError";
 
@@ -37,8 +36,7 @@ void ServerError::init(uint error)
     QString name;
     QString description;
 
-    switch (error)
-    {
+    switch (error) {
     case ServerError::_NoError:
         type = ServerError::NoError;
         name = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Name");

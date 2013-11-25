@@ -20,9 +20,9 @@
 class HeatMapLegendGL : public ViewItemGL
 {
     Q_OBJECT
-    
+
 public:
-    
+
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
 
@@ -34,13 +34,11 @@ public:
     virtual const bool contains(const QPointF& point) const;
 
 public slots:
-    
     void setHitCountLimits(int min, int max, int sum);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
 
 private:
-    
     static const QRectF DEFAULT_BOUNDS;
 
     QRectF m_bounds;

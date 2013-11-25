@@ -5,10 +5,11 @@
 
 */
 
+#include "ColorListEditor.h"
+
 #include <QVariant>
 #include <QScopedPointer>
 
-#include "ColorListEditor.h"
 #include "model/core/ColorPalette.h"
 
 ColorListEditor::ColorListEditor(QWidget* widget)
@@ -38,8 +39,7 @@ void ColorListEditor::populateList(const ColorPalette* palette)
 {
     const ColorPalette::ColorList colorList = palette->colorList();
 
-    for (int i = 0; i < colorList.size(); ++i)
-    {
+    for (int i = 0; i < colorList.size(); ++i) {
         const ColorPalette::ColorPair pair = colorList[i];
 
         insertItem(i, pair.second);

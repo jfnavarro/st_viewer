@@ -24,14 +24,11 @@ public:
     inline GLTextureData();
 
     inline GLTextureData& addTexture(const GLtexture& texture, GLindex* index = 0);
-
     inline const GLtexture operator[](GLint i) const;
     inline const GLarray<GLtexture> textures() const;
-
     inline void deallocate();
 
 private:
-
     typedef QVector<GLtexture> GLtextures;
     GLtextures m_textures;
 };
@@ -48,8 +45,9 @@ inline GLTextureData::GLTextureData() { }
 inline GLTextureData& GLTextureData::addTexture(const GLtexture& texture, GLindex* index)
 {
     // return new index if pointer provided
-    if (index != 0) { (*index) = (GLindex) m_textures.size(); }
-
+    if (index != 0) {
+        (*index) = (GLindex) m_textures.size();
+    }
     m_textures.push_back(texture);
     return (*this);
 }
@@ -68,10 +66,8 @@ inline void GLTextureData::deallocate()
 {
     int size = m_textures.size();
     QScopedArrayPointer<GLtexturehandle> handles(new GLtexturehandle[size]);
-
     GLtexturehandle* it = handles.data();
-    foreach (const GLtexture& texture, m_textures)
-    {
+    foreach(const GLtexture & texture, m_textures) {
         *(it++) = texture.handle;
     }
     GLtexture::deallocateHandles(size, handles.data());

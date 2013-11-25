@@ -5,14 +5,12 @@
 
 */
 
-#include <QIODevice>
+#include "GeneXMLExporter.h"
 
+#include <QIODevice>
 #include <QCoreApplication>
 #include <QDateTime>
-
 #include <QVariant>
-
-#include "GeneXMLExporter.h"
 
 GeneXMLExporter::GeneXMLExporter(QObject *parent) : GeneExporter(parent) { }
 GeneXMLExporter::~GeneXMLExporter() { }
@@ -26,8 +24,7 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
         oxml.writeTextElement("readsCount", QString("%1").arg(hitCount));
 
         const bool hasNormalized = context.property("hitCountMax").isValid();
-        if (hasNormalized)
-        {
+        if (hasNormalized) {
             const int hitCountMax = qvariant_cast<int>(context.property("hitCountMax"));
             oxml.writeTextElement("normalizedReadsCount", QString("%1").arg(qreal(hitCount) / qreal(hitCountMax)));
         }
@@ -37,8 +34,7 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
 void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     oxml.writeStartElement("features");
-    foreach(const DataProxy::FeaturePtr &feature, (*featureList))
-    {
+    foreach(const DataProxy::FeaturePtr & feature, (*featureList)) {
         exportItem(oxml, feature, context);
     }
     oxml.writeEndElement();
@@ -47,15 +43,12 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
 void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList, const QObject &context) const
 {
     // early out
-    if (!device->isWritable())
-    {
+    if (!device->isWritable()) {
         return;
     }
-
     QXmlStreamWriter oxml(device);
     oxml.setAutoFormatting(true);
     oxml.setAutoFormattingIndent(4);
-
     oxml.writeStartDocument();
     {
         oxml.writeStartElement("root");

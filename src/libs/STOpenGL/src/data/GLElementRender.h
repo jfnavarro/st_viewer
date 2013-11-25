@@ -24,10 +24,8 @@ public:
 
     // Command represents one rendering queue command instruction with and
     // integer argument.
-    struct Command
-    {
-        enum Operation
-        {
+    struct Command {
+        enum Operation {
             EndOfCmd,       // marks the end of the command queue
             RenderItemAll,  // renders all remaining items
             RenderItemOne,  // renders a single item
@@ -50,7 +48,6 @@ public:
 
     inline GLElementRenderQueue &add(const Command &cmd);
     inline void end();
-
     inline void clear();
 
     typedef QVector<Command> CommandQueue;
@@ -76,14 +73,12 @@ class GLElementRender
 {
 public:
     GLElementRender();
-
+    //clean up
     void clear();
-
     // multi-step rendering
     void render(const GLElementData &renderData, const GLElementRenderQueue &renderQueue);
     // (deprecated) single-step rendering
     void render(const GLElementData &renderData);
-
     // add a texture to the rendering state
     inline void addTexture(const GLtexture &texture);
     // add a shader to the rendering state
@@ -116,12 +111,10 @@ private:
         void cmdUnbindTexture(const GLbyte op, const GLuint arg);
         void cmdBindShader(const GLbyte op, const GLuint arg);
         void cmdUnbindShader(const GLbyte op, const GLuint arg);
-
         // member function pointer lookup table ('cause switches are ugly)
         CmdFuncType m_renderFuncs[8];
-
         void render(const GLsizei renderItemCount);
-
+        //member variables
         const GLElementData &m_renderData;
         const GLElementRenderQueue &m_renderQueue;
         const QList<GLtexture> &m_textures;
@@ -157,14 +150,12 @@ inline GLElementRenderQueue::~GLElementRenderQueue() { }
 inline GLElementRenderQueue &GLElementRenderQueue::add(const Command &cmd)
 {
     // early out
-    if (m_closed)
-    {
+    if (m_closed) {
         return (*this);
     }
 
     m_queue.append(cmd);
-    if (cmd.op == Command::EndOfCmd)
-    {
+    if (cmd.op == Command::EndOfCmd) {
         m_closed = true;
     }
 
@@ -187,15 +178,18 @@ inline const GLElementRenderQueue::CommandQueue &GLElementRenderQueue::commandQu
 }
 
 // GLElementRender
-void GLElementRender::addTexture(const GLtexture &texture) { m_textures.append(texture); }
+void GLElementRender::addTexture(const GLtexture &texture)
+{
+    m_textures.append(texture);
+}
 
 // GLElementRender::State
 inline GLElementRender::State::State(
-        const GLElementData &renderData,
-        const GLElementRenderQueue &renderQueue,
-        const QList<GLtexture> &textures,
-        const QList<GLshaderprogram> &shaders
-        )
+    const GLElementData &renderData,
+    const GLElementRenderQueue &renderQueue,
+    const QList<GLtexture> &textures,
+    const QList<GLshaderprogram> &shaders
+)
     : m_renderData(renderData), m_renderQueue(renderQueue), m_textures(textures), m_shaders(shaders), m_index(0)
 {
     // create function lookup table

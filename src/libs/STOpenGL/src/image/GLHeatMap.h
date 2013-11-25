@@ -19,8 +19,7 @@ namespace GL
 class GLheatmap
 {
 public:
-    enum SpectrumMode
-    {
+    enum SpectrumMode {
         SpectrumLinear,
         SpectrumLog,
         SpectrumExp
@@ -30,7 +29,6 @@ public:
     static const bool createHeatMapImage(GLimage &image, const SpectrumMode mode = SpectrumLinear,
                                          int lowerbound = 0, int upperbound = 100);
     static const GLcolor createHeatMapColor(const GLfloat wavelength);
-
     // convenience function to generate a heat map wavelength
     // based on a normalized value [0,1] and a distribution function.
     static const GLfloat generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode = SpectrumLinear);

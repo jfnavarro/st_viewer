@@ -39,8 +39,8 @@ public:
     inline const bool pushBack(const T &t);
     inline const bool popBack();
 
-    static void fill(T (&tS)[S], const T &t);
-    static void copy(T (&aS)[S], const T (&bS)[S]);
+    static void fill(T(&tS)[S], const T &t);
+    static void copy(T(&aS)[S], const T(&bS)[S]);
 
 private:
     GLsizei m_size;
@@ -55,72 +55,71 @@ namespace GL
 {
 
 template <typename T, int S>
-inline GLInplaceArray<T,S>::GLInplaceArray()
+inline GLInplaceArray<T, S>::GLInplaceArray()
     : m_size(0)
 {
     //TODO initialize array (if default constructor exists)
 }
 template <typename T, int S>
-inline GLInplaceArray<T,S>::GLInplaceArray(GL::Initialization)
+inline GLInplaceArray<T, S>::GLInplaceArray(GL::Initialization)
     : m_size(0)
 {
 
 }
 
 template <typename T, int S>
-inline const GLsizei GLInplaceArray<T,S>::size() const
+inline const GLsizei GLInplaceArray<T, S>::size() const
 {
     return m_size;
 }
 template <typename T, int S>
-inline const GLsizei GLInplaceArray<T,S>::capacity() const
+inline const GLsizei GLInplaceArray<T, S>::capacity() const
 {
     return GLsizei(S);
 }
 
 template <typename T, int S>
-inline void GLInplaceArray<T,S>::clear()
+inline void GLInplaceArray<T, S>::clear()
 {
     m_size = 0;
 }
 
 template <typename T, int S>
-inline const bool GLInplaceArray<T,S>::isEmpty() const
+inline const bool GLInplaceArray<T, S>::isEmpty() const
 {
     return (size() == 0);
 }
 template <typename T, int S>
-inline const bool GLInplaceArray<T,S>::isFull() const
+inline const bool GLInplaceArray<T, S>::isFull() const
 {
     return (size() == capacity());
 }
 
 template <typename T, int S>
-inline T &GLInplaceArray<T,S>::operator[](const int i)
+inline T &GLInplaceArray<T, S>::operator[](const int i)
 {
     return m_data[i];
 }
 template <typename T, int S>
-inline const T &GLInplaceArray<T,S>::operator[](const int i) const
+inline const T &GLInplaceArray<T, S>::operator[](const int i) const
 {
     return m_data[i];
 }
 
 template <typename T, int S>
-inline const bool GLInplaceArray<T,S>::pushBack(const T &t)
+inline const bool GLInplaceArray<T, S>::pushBack(const T &t)
 {
-    if (isFull())
-    {
+    if (isFull()) {
         return false;
     }
     m_data[m_size++] = t;
     return true;
 }
+
 template <typename T, int S>
-inline const bool GLInplaceArray<T,S>::popBack()
+inline const bool GLInplaceArray<T, S>::popBack()
 {
-    if (isEmpty())
-    {
+    if (isEmpty()) {
         return false;
     }
     m_data[--m_size];
@@ -128,15 +127,15 @@ inline const bool GLInplaceArray<T,S>::popBack()
 }
 
 template <typename T, int S>
-void GLInplaceArray<T,S>::fill(T (&tS)[S], const T &t)
+void GLInplaceArray<T, S>::fill(T(&tS)[S], const T &t)
 {
-    for (int i=0; i<S; ++i)
-    {
+    for (int i = 0; i < S; ++i) {
         tS[i] = t;
     }
 }
+
 template <typename T, int S>
-void GLInplaceArray<T,S>::copy(T (&aS)[S], const T (&bS)[S])
+void GLInplaceArray<T, S>::copy(T(&aS)[S], const T(&bS)[S])
 {
     memcpy(aS, bS, sizeof(aS));
 }

@@ -18,40 +18,30 @@ void GLTextureCutter::cut(GLsizei width, GLsizei height, const GLvoid* pixels, G
     GLsizei cutHeight = m_height;
     GLsizei imgWidth = width;
     GLsizei imgHeight = height;
-
     GLsizei xCount = qCeil((GLfloat) imgWidth / (GLfloat) cutWidth);
     GLsizei yCount = qCeil((GLfloat) imgHeight / (GLfloat) cutHeight);
     GLsizei count = xCount * yCount;
-
     // allocate textures
     QScopedArrayPointer<GLtexturehandle> textureIds((count > 0) ? new GLtexturehandle[count] : NULL);
     glGenTextures(count, textureIds.data());
-
     GLscope scope(GL_TEXTURE_2D);
-
-    for (int i=0; i<count; ++i)
-    {
+    for (int i = 0; i < count; ++i) {
         // just in case
-        if (textureIds[i] == INVALID_TEXTURE_HANDLE)
-        {
+        if (textureIds[i] == INVALID_TEXTURE_HANDLE) {
             continue;
         }
-
         GLtexture tile(textureIds[i]);
-
         GLint x = cutWidth * (i % xCount), y = cutHeight * (i / xCount);
         tile.setPosition(x, y);
         tile.setSize(
-                    qMin(imgWidth - ((GLsizei) x), cutWidth),
-                    qMin(imgHeight - ((GLsizei) y), cutHeight)
-                    );
-
+            qMin(imgWidth - ((GLsizei) x), cutWidth),
+            qMin(imgHeight - ((GLsizei) y), cutHeight)
+        );
         // set parameters
         tile.setInterpolation(FullLinear);
         tile.setWrap(NoWrap);
         // load pixel data
         tile.loadSubImage(imgWidth, imgHeight, pixels);
-
         // add texture to rendering data
         data.addTexture(tile);
     }

@@ -5,16 +5,18 @@
 
 */
 
+#include "DatasetItemModel.h"
+
 #include "model/Dataset.h"
 
 #include <QModelIndex>
 #include <QModelIndex>
 #include <QStandardItemModel>
 
-#include "DatasetItemModel.h"
+
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
-    : QAbstractTableModel(parent),m_datasets_reference(0)
+    : QAbstractTableModel(parent), m_datasets_reference(0)
 {
 
 }
@@ -32,17 +34,12 @@ bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, 
 QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
 {
     // early out
-    if (!index.isValid() || m_datasets_reference.isNull())
-    {
+    if (!index.isValid() || m_datasets_reference.isNull()) {
         return QVariant(QVariant::Invalid);
     }
-
     DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
-    
-    if (role == Qt::DisplayRole)
-    {
-        switch(index.column())
-        {
+    if (role == Qt::DisplayRole) {
+        switch (index.column()) {
         case Name: return item->name();
         case Created: return item->statCreated();
         case Tissue: return item->statTissue();
@@ -56,24 +53,19 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
-
     return QVariant(QVariant::Invalid);
 }
 
 QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole)
-    {
+    if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
     }
-    
-    if (orientation == Qt::Horizontal)
-    {
-        switch (section)
-        {
-        case Name :return tr("Name");
-        case Created :return tr("Created");
-        case Tissue :return tr("Tissue");
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case Name : return tr("Name");
+        case Created : return tr("Created");
+        case Tissue : return tr("Tissue");
         case Specie : return tr("Specie");
         case Aligned : return tr("Aligned");
         case Barcodes : return tr("Reads");
@@ -83,12 +75,9 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
         case Comments: return tr("Comments");
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
-    }
-    else if (orientation == Qt::Vertical)
-    {
+    } else if (orientation == Qt::Vertical) {
         return (section + 1);
     }
-
     return QVariant(QVariant::Invalid);
 }
 
@@ -105,9 +94,7 @@ int DatasetItemModel::rowCount(const QModelIndex& parent) const
 Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
-    
-    if (index.isValid())
-    {
+    if (index.isValid()) {
         flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
     return flags;
@@ -123,9 +110,8 @@ void DatasetItemModel::loadDatasets()
 }
 
 void DatasetItemModel::datasetSelected(const QModelIndex &index)
-{   
-    if(index.isValid())
-    {
+{
+    if (index.isValid()) {
         DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
         emit datasetSelected(item);
     }

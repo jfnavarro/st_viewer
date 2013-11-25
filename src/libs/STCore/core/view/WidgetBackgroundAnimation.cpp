@@ -22,16 +22,14 @@ WidgetBackgroundAnimation::WidgetBackgroundAnimation(QWidget *displayWidget):
 {
     //NOTE widgets based on QAbstractScrollArea rely on a viewport for rendering
     QAbstractScrollArea *scrollArea = dynamic_cast<QAbstractScrollArea *>(m_displayWidget);
-    if (scrollArea)
-    {
+    if (scrollArea) {
         m_displayWidget = scrollArea->viewport();
     }
 }
 WidgetBackgroundAnimation::~WidgetBackgroundAnimation()
 {
     // cleanup
-    if (m_movie)
-    {
+    if (m_movie) {
         delete m_movie;
     }
     m_movie = 0;
@@ -40,8 +38,7 @@ WidgetBackgroundAnimation::~WidgetBackgroundAnimation()
 void WidgetBackgroundAnimation::setAnimation(const QString &fileName)
 {
     // cleanup
-    if (m_movie)
-    {
+    if (m_movie) {
         delete m_movie;
     }
     m_movie = new QMovie(fileName);
@@ -57,19 +54,13 @@ void WidgetBackgroundAnimation::setVisible(const bool visible)
 void WidgetBackgroundAnimation::setEnabled(const bool enabled)
 {
     m_enable = enabled;
-    
     // early out
-    if (!m_movie)
-    {
+    if (!m_movie) {
         return;
     }
-
-    if (enabled)
-    {
+    if (enabled) {
         m_movie->start();
-    }
-    else
-    {
+    } else {
         m_movie->stop();
     }
 }
@@ -77,21 +68,15 @@ void WidgetBackgroundAnimation::setEnabled(const bool enabled)
 void WidgetBackgroundAnimation::paintAnimation(QPaintEvent *event)
 {
     // early out
-    if (!m_movie)
-    {
+    if (!m_movie) {
         return;
     }
-
-    if (m_visible && m_displayWidget->isVisible())
-    {
+    if (m_visible && m_displayWidget->isVisible()) {
         const QPixmap movieFrame = m_movie->currentPixmap();
-
         QRect movieRect = movieFrame.rect();
         movieRect.moveCenter(m_displayWidget->rect().center());
-
         const QRect eventRect = event->rect();
-        if (movieRect.intersects(eventRect))
-        {
+        if (movieRect.intersects(eventRect)) {
             QPainter painter(m_displayWidget);
             painter.drawPixmap(movieRect.left(), movieRect.top(), movieFrame);
         }

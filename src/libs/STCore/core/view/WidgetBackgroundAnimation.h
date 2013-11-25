@@ -21,23 +21,19 @@ class WidgetBackgroundAnimation : public QObject
     Q_OBJECT
 
 public:
-    
+
     WidgetBackgroundAnimation(QWidget *displayWidget = 0);
     virtual ~WidgetBackgroundAnimation();
-
     void paintAnimation(QPaintEvent *event);
-
     const bool enabled() const;
     const bool visible() const;
-    
+
 public slots:
-    
     void setAnimation(const QString &fileName);
     void setVisible(const bool visible);
     void setEnabled(const bool enabled);
 
 protected:
-    
     QWidget *m_displayWidget;
     QMovie *m_movie;
     bool m_visible;

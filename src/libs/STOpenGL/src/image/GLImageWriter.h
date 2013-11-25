@@ -23,8 +23,7 @@ namespace GL
 class GLimagewriter
 {
 public:
-    enum GradientAngle
-    {
+    enum GradientAngle {
         HorizontalGradient,
         VerticalGradient
     };
@@ -44,7 +43,7 @@ public:
     // convenience functions for generating prefilled images
     static inline const bool imageFillColor(GLimage &image, const GLcolor &color);
     static inline const bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
-                                               const GradientAngle gradient = GLimagewriter::VerticalGradient);
+            const GradientAngle gradient = GLimagewriter::VerticalGradient);
 
 private:
     GLimage &m_image;
@@ -65,7 +64,6 @@ inline GLimagewriter::GLimagewriter(GLimage &image)
     // assume specific mode and type
     //TODO implement mode and type independet image writing
     Q_ASSERT_X(image.mode() == GL_RGBA && image.type() == GL_FLOAT, "GLimagewriter", "Unsupported image mode or type!");
-
     // cache buffer size
     m_indexEnd = m_image.size();
 }
@@ -79,8 +77,8 @@ inline const bool GLimagewriter::imageFillColor(GLimage &image, const GLcolor &c
     GLimagewriter writer(image);
     return writer.writeFillColor(color);
 }
-inline const bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0, 
-                                                   const GLcolor &color1, const GradientAngle gradient)
+inline const bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0,
+        const GLcolor &color1, const GradientAngle gradient)
 {
     GLimagewriter writer(image);
     return writer.writeFillGradient(color0, color1, gradient);

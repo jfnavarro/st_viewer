@@ -38,15 +38,33 @@ public:
     virtual ~UserDTO();
 
     // binding
-    inline const QString& username() const { return m_user.username(); }
-    inline const QString& role() const { return m_user.role(); }
+    inline const QString& username() const
+    {
+        return m_user.username();
+    }
+    inline const QString& role() const
+    {
+        return m_user.role();
+    }
 
-    inline void username(const QString& username) { m_user.username(username); }
-    inline void role(const QString& role) { m_user.role(role); }
+    inline void username(const QString& username)
+    {
+        m_user.username(username);
+    }
+    inline void role(const QString& role)
+    {
+        m_user.role(role);
+    }
 
     // get parsed data model
-    const User& user() const { return m_user; }
-    User& user() { return m_user; }
+    const User& user() const
+    {
+        return m_user;
+    }
+    User& user()
+    {
+        return m_user;
+    }
 
 private:
 

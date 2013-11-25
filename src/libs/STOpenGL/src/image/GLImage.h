@@ -64,22 +64,35 @@ inline void GLimage::reset(GLsizei width, GLsizei height, GLenum mode, GLenum ty
 {
     // reset memory
     deleteImage();
-
     // assign new state
     m_width = width;
     m_height = height;
     m_mode = mode;
     m_type = type;
-
     // allocate memory
     createImage();
 }
 
-inline const GLenum GLimage::mode() const { return m_mode; }
-inline const GLenum GLimage::type() const { return m_type; }
-inline const GLsizei GLimage::width() const { return m_width; }
-inline const GLsizei GLimage::height() const { return m_height; }
-inline const GLsizei GLimage::size() const {return m_width * m_height; }
+inline const GLenum GLimage::mode() const
+{
+    return m_mode;
+}
+inline const GLenum GLimage::type() const
+{
+    return m_type;
+}
+inline const GLsizei GLimage::width() const
+{
+    return m_width;
+}
+inline const GLsizei GLimage::height() const
+{
+    return m_height;
+}
+inline const GLsizei GLimage::size() const
+{
+    return m_width * m_height;
+}
 
 //inline const GLcolor GLimage::pixel(const GLsizei x, const GLsizei y) const
 //{
@@ -94,35 +107,37 @@ inline const GLsizei GLimage::size() const {return m_width * m_height; }
 //    return GLcolor::fromGLenum(pixel, m_type, m_mode);
 //}
 
-inline GLvoid *GLimage::pixels() { return m_pixels; }
-inline const GLvoid *GLimage::pixels() const { return m_pixels; }
+inline GLvoid *GLimage::pixels()
+{
+    return m_pixels;
+}
+inline const GLvoid *GLimage::pixels() const
+{
+    return m_pixels;
+}
 
 inline void GLimage::createImage()
 {
     // early out
-    if (m_width == 0 || m_height == 0)
-    {
+    if (m_width == 0 || m_height == 0) {
         return;
     }
     // delete any previously allocated memory
-    if (m_pixels != 0)
-    {
-        delete[] ((GLbyte *) m_pixels);
+    if (m_pixels != 0) {
+        delete[]((GLbyte *) m_pixels);
     }
     // allocate new memory
     const int pixelColorCount = GLColorEnumInfo::valid_color(m_mode) ? GLColorEnumInfo::color_count(m_mode) : -1;
     const int pixelTypeSize = GLTypeEnumInfo::valid_type(m_type) ? GLTypeEnumInfo::type_size(m_type) : -1;
-
     m_pixels = ((pixelColorCount == -1) || (pixelTypeSize == -1)) ? 0 :
-                                                                    new GLbyte[m_width * m_height * pixelColorCount * pixelTypeSize];
+               new GLbyte[m_width * m_height * pixelColorCount * pixelTypeSize];
 
 }
 inline void GLimage::deleteImage()
 {
     // delete any allocated memory
-    if (m_pixels != 0)
-    {
-        delete[] ((GLbyte *) m_pixels);
+    if (m_pixels != 0) {
+        delete[]((GLbyte *) m_pixels);
         m_pixels = 0;
     }
 }

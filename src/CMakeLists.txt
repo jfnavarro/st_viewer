@@ -107,6 +107,8 @@ set(SRC_VIEW
 
 set(INC_VIEW_OPENGL
     view/openGL/GenePlotterGL.h
+    view/openGL/GeneRendererGL.h
+    view/openGL/GridRendererGL.h
     view/openGL/GraphicsSceneGL.h
     view/openGL/GraphicsViewGL.h
     view/openGL/HeatMapLegendGL.h
@@ -116,8 +118,11 @@ set(INC_VIEW_OPENGL
     view/openGL/WidgetGL.h
     view/openGL/ViewItemGL.h
 )
+
 set(SRC_VIEW_OPENGL
     view/openGL/GenePlotterGL.cpp
+    view/openGL/GeneRendererGL.cpp
+    view/openGL/GridRendererGL.cpp
     view/openGL/GraphicsSceneGL.cpp
     view/openGL/GraphicsViewGL.cpp
     view/openGL/HeatMapLegendGL.cpp

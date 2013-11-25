@@ -13,7 +13,7 @@
 #include <QObject>
 
 // this object is a simple wrapper for network reply to handle
-// asynchronus downloads 
+// asynchronus downloads
 class Error;
 class NetworkReply;
 
@@ -28,8 +28,7 @@ class DataRequest : public QObject
 
 public:
 
-    enum Code
-    {
+    enum Code {
         CodeSuccess = 0x01,
         CodeAbort = 0x02,
         CodeError = 0x04,
@@ -38,8 +37,14 @@ public:
     };
     Q_DECLARE_FLAGS(ReturnCodes, Code);
 
-    inline ReturnCodes return_code() const { return m_return_code; }
-    inline void return_code(ReturnCodes flag)  { m_return_code = flag; }
+    inline ReturnCodes return_code() const
+    {
+        return m_return_code;
+    }
+    inline void return_code(ReturnCodes flag)
+    {
+        m_return_code = flag;
+    }
 
     explicit DataRequest(QObject* parent = 0);
     virtual ~DataRequest();
@@ -56,9 +61,7 @@ public slots:
 signals:
 
     void signalFinished();
-
     void signalAbort();
-
     void signalError(Error*);
 
 private:
@@ -77,21 +80,15 @@ class DownloadManager: public QObject
 public:
 
     DownloadManager(async::DataRequest *request, QObject * parent = 0);
-
     virtual ~DownloadManager();
 
     void addItem(NetworkReply *item);
-
     void delItem(NetworkReply *item);
-
     void addError(Error *error);
-
     unsigned countItems() const;
     unsigned countErrors() const;
-
     //check errors and replies left and send signal to DataRequest
     void finish();
-
     //start a timer that will call finish after some seconds
     void start();
 
@@ -109,4 +106,4 @@ private:
 
 } // namespace async //
 
-#endif	/* // DOWNLOADMANAGER_H */
+#endif  /* // DOWNLOADMANAGER_H */

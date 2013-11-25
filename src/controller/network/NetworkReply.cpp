@@ -5,6 +5,8 @@
 
 */
 
+#include "NetworkReply.h"
+
 #include <QApplication>
 #include <QStringList>
 #include <QDebug>
@@ -21,8 +23,6 @@
 
 #include "model/dto/ErrorDTO.h"
 #include "model/ObjectParser.h"
-
-#include "NetworkReply.h"
 
 ContentType::ContentType(QObject* parent)
     : QObject(parent), m_mime()
@@ -53,12 +53,9 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply, QObject* parent)
     :  m_reply(networkReply), m_contentType(0)
 {
     Q_ASSERT_X(networkReply != 0, "NetworkReply", "Null-pointer assertion error!");
-
     networkReply->setReadBufferSize(0); //try to download as fast as possible
-    
     // construct empty content type object
     m_contentType = new ContentType(this); //this is ugly
-
     // connect signals
     connect(networkReply, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(networkReply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
@@ -74,17 +71,13 @@ NetworkReply::~NetworkReply()
 QJsonDocument NetworkReply::getJSON()
 {
     QByteArray rawJSON = m_reply->readAll();
-    
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
-
     // trigger error signals on error
-    if (parseError.error != QJsonParseError::NoError)
-    {
-        Error* error = new JSONError(parseError.error, rawJSON, this);
+    if (parseError.error != QJsonParseError::NoError) {
+        Error* error = new JSONError(parseError.error, this);
         registerError(error);
     }
-
     return doc;
 }
 
@@ -99,7 +92,7 @@ QByteArray NetworkReply::getRaw()
 }
 
 void NetworkReply::slotAbort()
-{    
+{
     // abort network operation
     m_reply->abort();
 }
@@ -108,8 +101,7 @@ void NetworkReply::slotFinished()
 {
     // determine return code
     int ret = CodeSuccess;
-    switch (m_reply->error())
-    {
+    switch (m_reply->error()) {
     case QNetworkReply::NoError:
         ret = CodeSuccess;
         break;
@@ -131,9 +123,8 @@ void NetworkReply::slotMetaDataChanged()
 void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 {
     // create and register error only if the error was not an abort
-    if(networkError != QNetworkReply::OperationCanceledError
-            && networkError != QNetworkReply::NoError)
-    {
+    if (networkError != QNetworkReply::OperationCanceledError
+        && networkError != QNetworkReply::NoError) {
         Error* error = new NetworkError(networkError, this);
         registerError(error);
     }
@@ -144,13 +135,5 @@ void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
     //TODO ignoring ssl errors for now to make it the request works with https
     //but we should add a flag for this or add the certificate public key to the client
     //alternatively we could ask the user to accept the certificate
-    
     m_reply->ignoreSslErrors(sslErrorList);
-    
-    //     Error* error = 0;
-    //     foreach(const QSslError& sslError, sslErrorList)
-    //     {
-    //         error = new SSLNetworkError(sslError, m_cmd, this);
-    //         registerError(error);
-    //     }
 }

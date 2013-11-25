@@ -21,11 +21,11 @@ GLQuadTreeTest::GLQuadTreeTest(QObject *parent) : QObject(parent) { }
 
 void GLQuadTreeTest::initTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 void GLQuadTreeTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 void GLQuadTreeTest::testInsert()
@@ -37,12 +37,11 @@ void GLQuadTreeTest::testInsert()
     TestQuadTree quadTree(GL::GLpoint(8.0f, 8.0f));
 
     int size = points.size();
-    for (int i=0; i<size; ++i)
-    {
+    for (int i = 0; i < size; ++i) {
         QVERIFY2(quadTree.insert(points[i], i), "Unable to insert point!");
     }
 
-    QCOMPARE( (quadTree.buckets() == buckets), expected );
+    QCOMPARE((quadTree.buckets() == buckets), expected);
 }
 void GLQuadTreeTest::testInsert_data()
 {

@@ -5,12 +5,13 @@
 
 */
 
+#include "GraphicsViewGL.h"
+
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
 #include <QApplication>
 #include <QGLWidget>
-
 #include <GLQt.h>
 #include <math/GLMatrix.h>
 
@@ -22,10 +23,9 @@
 #include "utils/MathExtended.h"
 
 #include "SelectionEvent.h"
-
 #include "GraphicsSceneGL.h"
 
-#include "GraphicsViewGL.h"
+
 
 GraphicsViewGL::GraphicsViewGL(QWidget* parent)
     : QGraphicsView(parent), m_minimap(0), m_opengl_surface(0),
@@ -46,12 +46,10 @@ GraphicsViewGL::~GraphicsViewGL()
 void GraphicsViewGL::initGL(QGraphicsScene *scene)
 {
     DEBUG_FUNC_NAME
-
     // reset state
     m_zoom = Globals::DEFAULT_ZOOM;
     m_zoom_min = Globals::DEFAULT_ZOOM_MIN;
     m_zoom_max = Globals::DEFAULT_ZOOM_MAX;
-
     QGLFormat format;
     format.setDirectRendering(true);
     format.setDoubleBuffer(true);
@@ -59,18 +57,15 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
     format.setDepth(false);
     format.setRgba(true);
     format.setProfile(QGLFormat::CompatibilityProfile);
-    
     // setup opengl viewport
-    if (m_opengl_surface == 0)
-    {
+    if (m_opengl_surface == 0) {
         m_opengl_surface = new WidgetGL(format);
         m_opengl_surface->makeCurrent();
         setViewport(m_opengl_surface); //NOTE relinquish ownership
         setScene(scene);
     }
     //setup minimap
-    if (m_minimap == 0)
-    {
+    if (m_minimap == 0) {
         m_minimap = new MiniMapGL(this);
         m_minimap->setTransform(QTransform::fromTranslate(-10.0, -10.0));
         m_minimap->setAnchor(ViewItemGL::SouthEast);
@@ -82,22 +77,16 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
 void GraphicsViewGL::finalizeGL()
 {
     DEBUG_FUNC_NAME
-
-    foreach (ViewItemGL* item, m_viewItems)
-    {
-        if(item != 0)
-        {
+    foreach(ViewItemGL * item, m_viewItems) {
+        if (item != 0) {
             delete item;
         }
         item = 0;
     }
     m_viewItems.clear();
-    
     //NOTE minimap deleted above (included in m_viewItems)
     m_minimap = 0;
-
-    if(m_opengl_surface != 0)
-    {
+    if (m_opengl_surface != 0) {
         //NOTE this should not be done since QAbstractScrollArea owns the widget
         delete m_opengl_surface;
     }
@@ -107,16 +96,13 @@ void GraphicsViewGL::finalizeGL()
 const QImage GraphicsViewGL::grabPixmapGL()
 {
     QImage image;
-
     QWidget *widget = viewport();
-    if (QGLWidget *viewport = dynamic_cast<QGLWidget*>(widget))
-    {
+    if (QGLWidget *viewport = dynamic_cast<QGLWidget*>(widget)) {
         //NOTE make sure we are grabbing from the front buffer
         //     OBS: assumes a nonstereo setting
         glReadBuffer(GL_FRONT_LEFT);
         image = viewport->grabFrameBuffer();
     }
-
     return image;
 }
 
@@ -129,20 +115,18 @@ void GraphicsViewGL::addViewItem(ViewItemGL *viewItem)
 void GraphicsViewGL::mousePressEvent(QMouseEvent* event)
 {
     QPointF point = event->localPos();
-    foreach (ViewItemGL* item, m_viewItems)
-    {
+    foreach(ViewItemGL * item, m_viewItems) {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-                    event->type(),
-                    localPoint,//event->localPos(),
-                    event->windowPos(),
-                    event->screenPos(),
-                    event->button(),
-                    event->buttons(),
-                    event->modifiers()
-                    );
-        if (item->contains(localPoint) && item->mousePressEvent(&newEvent))
-        {
+            event->type(),
+            localPoint,//event->localPos(),
+            event->windowPos(),
+            event->screenPos(),
+            event->button(),
+            event->buttons(),
+            event->modifiers()
+        );
+        if (item->contains(localPoint) && item->mousePressEvent(&newEvent)) {
             // view item has handled the mouse event
             event->ignore();
             return;
@@ -156,20 +140,18 @@ void GraphicsViewGL::mousePressEvent(QMouseEvent* event)
 void GraphicsViewGL::mouseMoveEvent(QMouseEvent* event)
 {
     QPointF point = event->localPos();
-    foreach (ViewItemGL* item, m_viewItems)
-    {
+    foreach(ViewItemGL * item, m_viewItems) {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-                    event->type(),
-                    localPoint,//event->localPos(),
-                    event->windowPos(),
-                    event->screenPos(),
-                    event->button(),
-                    event->buttons(),
-                    event->modifiers()
-                    );
-        if (item->contains(localPoint) && item->mouseMoveEvent(&newEvent))
-        {
+            event->type(),
+            localPoint,//event->localPos(),
+            event->windowPos(),
+            event->screenPos(),
+            event->button(),
+            event->buttons(),
+            event->modifiers()
+        );
+        if (item->contains(localPoint) && item->mouseMoveEvent(&newEvent)) {
             // view item has handled the mouse event
             event->ignore();
             return;
@@ -183,20 +165,18 @@ void GraphicsViewGL::mouseMoveEvent(QMouseEvent* event)
 void GraphicsViewGL::mouseReleaseEvent(QMouseEvent* event)
 {
     QPointF point = event->localPos();
-    foreach (ViewItemGL* item, m_viewItems)
-    {
+    foreach(ViewItemGL * item, m_viewItems) {
         const QPointF localPoint = (item->transform() * anchorTransform(item->anchor())).inverted().map(point);
         QMouseEvent newEvent(
-                    event->type(),
-                    localPoint,//event->localPos(),
-                    event->windowPos(),
-                    event->screenPos(),
-                    event->button(),
-                    event->buttons(),
-                    event->modifiers()
-                    );
-        if (item->contains(localPoint) && item->mouseReleaseEvent(&newEvent))
-        {
+            event->type(),
+            localPoint,//event->localPos(),
+            event->windowPos(),
+            event->screenPos(),
+            event->button(),
+            event->buttons(),
+            event->modifiers()
+        );
+        if (item->contains(localPoint) && item->mouseReleaseEvent(&newEvent)) {
             // view item has handled the mouse event
             event->ignore();
             return;
@@ -230,24 +210,19 @@ void GraphicsViewGL::resizeEvent(QResizeEvent* event)
 void GraphicsViewGL::drawBackground(QPainter *painter, const QRectF& rect)
 {
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-            painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
-    {
+        painter->paintEngine()->type() != QPaintEngine::OpenGL2) {
         qDebug() << "GraphicsViewGL: drawBackground needs a QGLWidget to be"
-                    "set as viewport on the graphics view";
+                 "set as viewport on the graphics view";
         return;
     }
-
     const QColor color = backgroundBrush().color();
     const QTransform t = viewportTransform();
-
     GL::GLcolor bkgColor = GL::toGLcolor(color);
     //GL::GLmatrix matrix = GL::toGLmatrix(t);
-
     painter->beginNativePainting();
     {
         glClearColor(bkgColor.red, bkgColor.green, bkgColor.blue, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         //glMatrixMode(GL_MODELVIEW);
         //glLoadIdentity();
         //glMultMatrixf(matrix);
@@ -259,29 +234,23 @@ void GraphicsViewGL::drawForeground(QPainter* painter, const QRectF& rect)
 {
 
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-            painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
-    {
+        painter->paintEngine()->type() != QPaintEngine::OpenGL2) {
         qDebug() << "GraphicsViewGL: drawForeground needs a QGLWidget to be"
-                    "set as viewport on the graphics view";
+                 "set as viewport on the graphics view";
         return;
     }
-
     // update minimap
     const QRectF& scene = sceneRect();
     m_minimap->setScene(scene);
     m_minimap->setView(rect);
-
     // render all view items
-    foreach (ViewItemGL* item, m_viewItems)
-    {
-        if (item->visible())
-        {
+    foreach(ViewItemGL * item, m_viewItems) {
+        if (item->visible()) {
             QTransform transform = item->transform() * anchorTransform(item->anchor());
             painter->setTransform(transform);
             item->render(painter);
         }
     }
-
     painter->beginNativePainting();
     {
         glFlush();
@@ -303,8 +272,7 @@ const QSizeF GraphicsViewGL::zoom() const
 void GraphicsViewGL::setZoom(const QSizeF& zoom)
 {
     const QSizeF boundedZoom = QtExt::clamp(zoom, m_zoom_min, m_zoom_max, Qt::KeepAspectRatio);
-    if (m_zoom != boundedZoom)
-    {
+    if (m_zoom != boundedZoom) {
         m_zoom = boundedZoom;
         setTransformZoom(m_zoom);
     }
@@ -312,16 +280,14 @@ void GraphicsViewGL::setZoom(const QSizeF& zoom)
 
 void GraphicsViewGL::zoomIn(qreal zoomFactor)
 {
-    if (zoomFactor < 1.0)
-    {
+    if (zoomFactor < 1.0) {
         qDebug() << QString("[GraphicsViewGL] Warning: Applying decreasing zoom (%1) with zoom in function!").arg(zoomFactor);
     }
     setZoom(zoomFactor * zoom());
 }
 void GraphicsViewGL::zoomOut(qreal zoomFactor)
 {
-    if (zoomFactor > 1.0)
-    {
+    if (zoomFactor > 1.0) {
         qDebug() << QString("[GraphicsViewGL] Warning: Applying increasing zoom (%1) with zoom out function!").arg(zoomFactor);
     }
 
@@ -347,15 +313,12 @@ void GraphicsViewGL::slotCenterOn(const QPointF& point)
 
 void GraphicsViewGL::pressRubberBand(QMouseEvent* event)
 {
-    if (isInteractive())
-    {
+    if (isInteractive()) {
         // Store some event data
         m_mousePressViewPoint = event->pos();
     }
-    if (dragMode() == QGraphicsView::RubberBandDrag && !m_rubberBanding)
-    {
-        if (isInteractive())
-        {
+    if (dragMode() == QGraphicsView::RubberBandDrag && !m_rubberBanding) {
+        if (isInteractive()) {
             // Rubberbanding is only allowed in interactive mode.
             m_rubberBanding = true;
             m_rubberBandRect = QRect();
@@ -427,24 +390,18 @@ void GraphicsViewGL::moveRubberBand(QMouseEvent* event)
 void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
 {
     DEBUG_FUNC_NAME
-    if (dragMode() == QGraphicsView::RubberBandDrag && isInteractive() && !event->buttons())
-    {
-        if (m_rubberBanding)
-        {
+    if (dragMode() == QGraphicsView::RubberBandDrag && isInteractive() && !event->buttons()) {
+        if (m_rubberBanding) {
             // Check for enough drag distance
             if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                    < QApplication::startDragDistance())
-            {
+                < QApplication::startDragDistance()) {
                 QGraphicsView::mouseMoveEvent(event);
                 return;
             }
-
             // Update old rubberband
-            if (!m_rubberBandRect.isEmpty())
-            {
+            if (!m_rubberBandRect.isEmpty()) {
                 viewport()->update();
             }
-
             // Update rubberband position
             const QPoint &mp = m_mousePressViewPoint;
             QPoint ep = event->pos();
@@ -452,24 +409,19 @@ void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
                                      qAbs(mp.x() - ep.x()) + 1, qAbs(mp.y() - ep.y()) + 1);
 
             // Update new rubberband
-            if (!m_rubberBandRect.isEmpty())
-            {
+            if (!m_rubberBandRect.isEmpty()) {
                 viewport()->update();
             }
-
             // Set the new selection area
             QPainterPath selectionArea;
             selectionArea.addPolygon(mapToScene(m_rubberBandRect));
             selectionArea.closeSubpath();
-
             GraphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
-            if (s)
-            {
+            if (s) {
                 SelectionEvent::SelectionMode mode = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
                 SelectionEvent selectionEvent(selectionArea, mode);
                 s->setSelectionArea(&selectionEvent);
             }
-
             // Clear selection if not for enough drag distance
             /*if ((m_mousePressViewPoint - event->pos()).manhattanLength()
                     < QApplication::startDragDistance())
@@ -482,9 +434,7 @@ void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
                     s->setSelectionArea(&selectionEvent);
                 }
             }*/
-
-            if (viewportUpdateMode() != QGraphicsView::NoViewportUpdate)
-            {
+            if (viewportUpdateMode() != QGraphicsView::NoViewportUpdate) {
                 viewport()->update();
             }
             m_rubberBanding = false;
@@ -499,8 +449,7 @@ const QTransform GraphicsViewGL::anchorTransform(ViewItemGL::Anchor anchor) cons
     const QSizeF viewSize = viewport()->geometry().size();
 
     QTransform transform(Qt::Uninitialized);
-    switch (anchor)
-    {
+    switch (anchor) {
     case ViewItemGL::Center:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height() * 0.5f);
         break;
@@ -526,7 +475,7 @@ const QTransform GraphicsViewGL::anchorTransform(ViewItemGL::Anchor anchor) cons
         transform = QTransform::fromTranslate(0.0f, viewSize.height() * 0.5f);
         break;
     case ViewItemGL::NorthWest:
-        // fall-through
+    // fall-through
     default:
         transform = QTransform::fromTranslate(0.0f, 0.0f);
         break;

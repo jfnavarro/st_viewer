@@ -5,10 +5,10 @@
 
 */
 
+#include "NetworkError.h"
+
 #include "utils/Utils.h"
 #include <QApplication>
-
-#include "NetworkError.h"
 
 const char* NetworkError::LOC_CONTEXT = "NetworkError";
 
@@ -35,8 +35,7 @@ void NetworkError::init(QNetworkReply::NetworkError error)
     QString name;
     QString description;
 
-    switch (error)
-    {
+    switch (error) {
     case QNetworkReply::NoError:
         type = NetworkError::NoError;
         name = QApplication::translate(NetworkError::LOC_CONTEXT, "NoError:Name");

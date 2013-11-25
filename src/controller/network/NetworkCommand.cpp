@@ -6,56 +6,48 @@
 */
 
 #include "NetworkCommand.h"
+
 #include <QVariant>
 #include <QMetaProperty>
-
 #include <QDebug>
 
-NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent), 
+NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
     m_url(), m_type(Globals::HttpRequestTypeNone), m_query()
-{ 
-    
+{
+
 }
-NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent) : 
+NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent) :
     QObject(parent), m_url(url), m_type(type), m_query()
-{ 
-    
+{
+
 }
-NetworkCommand::~NetworkCommand() 
-{ 
-    
+NetworkCommand::~NetworkCommand()
+{
+
 }
 
 void NetworkCommand::addQueryItems(QObject* object)
 {
-    Q_ASSERT_X(object != 0,"NetworkCommand","null-pointer assertion error!");
-
+    Q_ASSERT_X(object != 0, "NetworkCommand", "null-pointer assertion error!");
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();
-
     int size = metaObject->propertyCount();
-    for(int i = metaObject->propertyOffset(); i < size; ++i)
-    {
+    for (int i = metaObject->propertyOffset(); i < size; ++i) {
         QMetaProperty metaproperty = metaObject->property(i);
-
         // abort if not readable
         QString  param = metaproperty.name();
-        if (!metaproperty.isReadable())
-        {
+        if (!metaproperty.isReadable()) {
             qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName()
                      << param << "is not readable and will be ignored!";
             continue;
         }
-        
         // abort if not convertable
         QVariant value = metaproperty.read(object);
-        if (!value.canConvert(QVariant::String))
-        {
+        if (!value.canConvert(QVariant::String)) {
             qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName() << param
                      << "is not convertable to QString, and will be ignored!";
             continue;
         }
-
         // convert and add property
         m_query.addQueryItem(param, value.toString());
     }

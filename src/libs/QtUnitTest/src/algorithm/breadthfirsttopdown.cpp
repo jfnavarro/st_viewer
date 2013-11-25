@@ -17,14 +17,12 @@ const QList<QObject *> BreadthFirstTopDown::list(QObject *object)
     QList<QObject *> list;
 
     // add root layer
-    if (object)
-    {
+    if (object) {
         list.append(object);
     }
 
     // go through list and append children to the back
-    for (int i=0; i<list.size(); ++i)
-    {
+    for (int i = 0; i < list.size(); ++i) {
         // append current layer
         list.append(list[i]->children());
     }

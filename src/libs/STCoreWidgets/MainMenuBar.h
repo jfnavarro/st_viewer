@@ -17,12 +17,10 @@ class MainMenuBar: public QMenuBar, public Singleton<MainMenuBar>
 public:
 
     explicit MainMenuBar(QWidget *parent = 0);
-    
     virtual ~ MainMenuBar();
-    
-    void finalize(){};
-    
+
+    void finalize() {};
     void init();
 };
 
-#endif	/* // MAINMENUBAR_H */
+#endif  /* // MAINMENUBAR_H */

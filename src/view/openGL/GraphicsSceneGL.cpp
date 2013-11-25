@@ -5,16 +5,17 @@
 
 */
 
+#include "SelectionEvent.h"
+
+#include "GraphicsSceneGL.h"
+
 #include <QGLWidget>
 #include <QGraphicsObject>
 #include <QMetaObject>
 
 #include <qdebug.h>
 
-#include "SelectionEvent.h"
 Q_DECLARE_METATYPE(SelectionEvent)
-
-#include "GraphicsSceneGL.h"
 
 GraphicsSceneGL::GraphicsSceneGL(QObject* parent): QGraphicsScene(parent)
 {
@@ -29,11 +30,9 @@ GraphicsSceneGL::~GraphicsSceneGL()
 void GraphicsSceneGL::setSelectionArea(const SelectionEvent *event)
 {
     QList<QGraphicsItem*> itemList = items();
-    foreach(QGraphicsItem* item, itemList)
-    {
+    foreach(QGraphicsItem * item, itemList) {
         QGraphicsObject* obj = dynamic_cast<QGraphicsObject *>(item);
-        if ((obj != 0) && (obj->metaObject()->indexOfMethod("setSelectionArea(const SelectionEvent*)") != -1))
-        {
+        if ((obj != 0) && (obj->metaObject()->indexOfMethod("setSelectionArea(const SelectionEvent*)") != -1)) {
             const QPainterPath localPath = item->transform().inverted().map(event->path());
             SelectionEvent selectionEvent(localPath, event->mode());
             QMetaObject::invokeMethod(obj, "setSelectionArea", Q_ARG(const SelectionEvent*, &selectionEvent));

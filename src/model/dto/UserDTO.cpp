@@ -9,15 +9,15 @@
 
 UserDTO::UserDTO(QObject* parent) : QObject(parent), m_user()
 {
-    
+
 }
 
 UserDTO::UserDTO(const User& user, QObject* parent) : QObject(parent), m_user(user)
 {
-    
+
 }
 
 UserDTO::~UserDTO()
 {
-    
+
 }

@@ -24,8 +24,7 @@ static const GLshaderprogramhandle INVALID_SHADER_PROGRAM_HANDLE = 0;
 // GLshaderprogram represents a opengl shader programs, ie. the compiled
 // collection of a vertex and fragment shader.
 
-struct GLshaderprogram
-{
+struct GLshaderprogram {
     inline GLshaderprogram();
     inline explicit GLshaderprogram(GL::Initialization);
     inline explicit GLshaderprogram(GLshaderprogramhandle handle);

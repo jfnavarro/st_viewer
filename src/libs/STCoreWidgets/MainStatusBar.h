@@ -16,20 +16,18 @@
 class MainStatusBar: public QStatusBar, public Singleton<MainStatusBar>
 {
     Q_OBJECT
-    
+
 public:
-    
+
     explicit MainStatusBar(QWidget * parent = 0);
     virtual ~MainStatusBar();
-    
-    void finalize(){};
-    
-    void init(){};
-    
+
+    void finalize() {};
+    void init() {};
+
 public slots:
-    
     void onDownloadProgress(const QString &fileName, qint64 bytesReceived, qint64 bytesTotal);
 
 };
 
-#endif	/* // MAINSTATUSBAR_H */
+#endif  /* // MAINSTATUSBAR_H */

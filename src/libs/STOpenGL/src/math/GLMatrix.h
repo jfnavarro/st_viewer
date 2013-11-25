@@ -34,10 +34,22 @@ public:
 
     // access data by standard m<row><column>-notation
     enum {
-        M11 = 0, M12 = 1, M13 = 2, M14 = 3,
-        M21 = 4, M22 = 5, M23 = 6, M24 = 7,
-        M31 = 8, M32 = 9, M33 =10, M34 =11,
-        M41 =12, M42 =13, M43 =14, M44 =15
+        M11 = 0,
+        M12 = 1,
+        M13 = 2,
+        M14 = 3,
+        M21 = 4,
+        M22 = 5,
+        M23 = 6,
+        M24 = 7,
+        M31 = 8,
+        M32 = 9,
+        M33 = 10,
+        M34 = 11,
+        M41 = 12,
+        M42 = 13,
+        M43 = 14,
+        M44 = 15
     };
     GLfloat m[16];
 };
@@ -96,88 +108,100 @@ GLmatrix::GLmatrix(GLfloat m11, GLfloat m12, GLfloat m13,
     m[M44] = m33;
 }
 
-const GLfloat* GLmatrix::data() const { return &(m[0]); }
-GLfloat* GLmatrix::data() { return &(m[0]); }
+const GLfloat* GLmatrix::data() const
+{
+    return &(m[0]);
+}
+GLfloat* GLmatrix::data()
+{
+    return &(m[0]);
+}
 
-GLmatrix::operator const GLfloat*() const { return &(m[0]); }
-GLmatrix::operator GLfloat*() { return &(m[0]); }
+GLmatrix::operator const GLfloat*() const
+{
+    return &(m[0]);
+}
+GLmatrix::operator GLfloat*()
+{
+    return &(m[0]);
+}
 
 const bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
 {
     return fuzzyEqual(m0.m[GLmatrix::M11], m1.m[GLmatrix::M11], e)
-            && fuzzyEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
-            && fuzzyEqual(m0.m[GLmatrix::M13], m1.m[GLmatrix::M13], e)
-            && fuzzyEqual(m0.m[GLmatrix::M14], m1.m[GLmatrix::M14], e)
-            && fuzzyEqual(m0.m[GLmatrix::M21], m1.m[GLmatrix::M21], e)
-            && fuzzyEqual(m0.m[GLmatrix::M22], m1.m[GLmatrix::M22], e)
-            && fuzzyEqual(m0.m[GLmatrix::M23], m1.m[GLmatrix::M23], e)
-            && fuzzyEqual(m0.m[GLmatrix::M24], m1.m[GLmatrix::M24], e)
-            && fuzzyEqual(m0.m[GLmatrix::M31], m1.m[GLmatrix::M31], e)
-            && fuzzyEqual(m0.m[GLmatrix::M32], m1.m[GLmatrix::M32], e)
-            && fuzzyEqual(m0.m[GLmatrix::M33], m1.m[GLmatrix::M33], e)
-            && fuzzyEqual(m0.m[GLmatrix::M34], m1.m[GLmatrix::M34], e)
-            && fuzzyEqual(m0.m[GLmatrix::M41], m1.m[GLmatrix::M41], e)
-            && fuzzyEqual(m0.m[GLmatrix::M42], m1.m[GLmatrix::M42], e)
-            && fuzzyEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
-            && fuzzyEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
+           && fuzzyEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
+           && fuzzyEqual(m0.m[GLmatrix::M13], m1.m[GLmatrix::M13], e)
+           && fuzzyEqual(m0.m[GLmatrix::M14], m1.m[GLmatrix::M14], e)
+           && fuzzyEqual(m0.m[GLmatrix::M21], m1.m[GLmatrix::M21], e)
+           && fuzzyEqual(m0.m[GLmatrix::M22], m1.m[GLmatrix::M22], e)
+           && fuzzyEqual(m0.m[GLmatrix::M23], m1.m[GLmatrix::M23], e)
+           && fuzzyEqual(m0.m[GLmatrix::M24], m1.m[GLmatrix::M24], e)
+           && fuzzyEqual(m0.m[GLmatrix::M31], m1.m[GLmatrix::M31], e)
+           && fuzzyEqual(m0.m[GLmatrix::M32], m1.m[GLmatrix::M32], e)
+           && fuzzyEqual(m0.m[GLmatrix::M33], m1.m[GLmatrix::M33], e)
+           && fuzzyEqual(m0.m[GLmatrix::M34], m1.m[GLmatrix::M34], e)
+           && fuzzyEqual(m0.m[GLmatrix::M41], m1.m[GLmatrix::M41], e)
+           && fuzzyEqual(m0.m[GLmatrix::M42], m1.m[GLmatrix::M42], e)
+           && fuzzyEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
+           && fuzzyEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
 }
 const bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
 {
     return fuzzyNotEqual(m0.m[GLmatrix::M11], m1.m[GLmatrix::M11], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M13], m1.m[GLmatrix::M13], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M14], m1.m[GLmatrix::M14], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M21], m1.m[GLmatrix::M21], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M22], m1.m[GLmatrix::M22], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M23], m1.m[GLmatrix::M23], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M24], m1.m[GLmatrix::M24], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M31], m1.m[GLmatrix::M31], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M32], m1.m[GLmatrix::M32], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M33], m1.m[GLmatrix::M33], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M34], m1.m[GLmatrix::M34], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M41], m1.m[GLmatrix::M41], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M42], m1.m[GLmatrix::M42], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
-            || fuzzyNotEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
+           || fuzzyNotEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M13], m1.m[GLmatrix::M13], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M14], m1.m[GLmatrix::M14], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M21], m1.m[GLmatrix::M21], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M22], m1.m[GLmatrix::M22], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M23], m1.m[GLmatrix::M23], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M24], m1.m[GLmatrix::M24], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M31], m1.m[GLmatrix::M31], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M32], m1.m[GLmatrix::M32], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M33], m1.m[GLmatrix::M33], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M34], m1.m[GLmatrix::M34], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M41], m1.m[GLmatrix::M41], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M42], m1.m[GLmatrix::M42], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
+           || fuzzyNotEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
 }
 
 const bool operator ==(const GLmatrix &m0, const GLmatrix &m1)
 {
     return m0.m[GLmatrix::M11] == m1.m[GLmatrix::M11]
-            && m0.m[GLmatrix::M12] == m1.m[GLmatrix::M12]
-            && m0.m[GLmatrix::M13] == m1.m[GLmatrix::M13]
-            && m0.m[GLmatrix::M14] == m1.m[GLmatrix::M14]
-            && m0.m[GLmatrix::M21] == m1.m[GLmatrix::M21]
-            && m0.m[GLmatrix::M22] == m1.m[GLmatrix::M22]
-            && m0.m[GLmatrix::M23] == m1.m[GLmatrix::M23]
-            && m0.m[GLmatrix::M24] == m1.m[GLmatrix::M24]
-            && m0.m[GLmatrix::M31] == m1.m[GLmatrix::M31]
-            && m0.m[GLmatrix::M32] == m1.m[GLmatrix::M32]
-            && m0.m[GLmatrix::M33] == m1.m[GLmatrix::M33]
-            && m0.m[GLmatrix::M34] == m1.m[GLmatrix::M34]
-            && m0.m[GLmatrix::M41] == m1.m[GLmatrix::M41]
-            && m0.m[GLmatrix::M42] == m1.m[GLmatrix::M42]
-            && m0.m[GLmatrix::M43] == m1.m[GLmatrix::M43]
-            && m0.m[GLmatrix::M44] == m1.m[GLmatrix::M44];
+           && m0.m[GLmatrix::M12] == m1.m[GLmatrix::M12]
+           && m0.m[GLmatrix::M13] == m1.m[GLmatrix::M13]
+           && m0.m[GLmatrix::M14] == m1.m[GLmatrix::M14]
+           && m0.m[GLmatrix::M21] == m1.m[GLmatrix::M21]
+           && m0.m[GLmatrix::M22] == m1.m[GLmatrix::M22]
+           && m0.m[GLmatrix::M23] == m1.m[GLmatrix::M23]
+           && m0.m[GLmatrix::M24] == m1.m[GLmatrix::M24]
+           && m0.m[GLmatrix::M31] == m1.m[GLmatrix::M31]
+           && m0.m[GLmatrix::M32] == m1.m[GLmatrix::M32]
+           && m0.m[GLmatrix::M33] == m1.m[GLmatrix::M33]
+           && m0.m[GLmatrix::M34] == m1.m[GLmatrix::M34]
+           && m0.m[GLmatrix::M41] == m1.m[GLmatrix::M41]
+           && m0.m[GLmatrix::M42] == m1.m[GLmatrix::M42]
+           && m0.m[GLmatrix::M43] == m1.m[GLmatrix::M43]
+           && m0.m[GLmatrix::M44] == m1.m[GLmatrix::M44];
 }
 const bool operator !=(const GLmatrix &m0, const GLmatrix &m1)
 {
     return m0.m[GLmatrix::M11] != m1.m[GLmatrix::M11]
-            || m0.m[GLmatrix::M12] != m1.m[GLmatrix::M12]
-            || m0.m[GLmatrix::M13] != m1.m[GLmatrix::M13]
-            || m0.m[GLmatrix::M14] != m1.m[GLmatrix::M14]
-            || m0.m[GLmatrix::M21] != m1.m[GLmatrix::M21]
-            || m0.m[GLmatrix::M22] != m1.m[GLmatrix::M22]
-            || m0.m[GLmatrix::M23] != m1.m[GLmatrix::M23]
-            || m0.m[GLmatrix::M24] != m1.m[GLmatrix::M24]
-            || m0.m[GLmatrix::M31] != m1.m[GLmatrix::M31]
-            || m0.m[GLmatrix::M32] != m1.m[GLmatrix::M32]
-            || m0.m[GLmatrix::M33] != m1.m[GLmatrix::M33]
-            || m0.m[GLmatrix::M34] != m1.m[GLmatrix::M34]
-            || m0.m[GLmatrix::M41] != m1.m[GLmatrix::M41]
-            || m0.m[GLmatrix::M42] != m1.m[GLmatrix::M42]
-            || m0.m[GLmatrix::M43] != m1.m[GLmatrix::M43]
-            || m0.m[GLmatrix::M44] != m1.m[GLmatrix::M44];
+           || m0.m[GLmatrix::M12] != m1.m[GLmatrix::M12]
+           || m0.m[GLmatrix::M13] != m1.m[GLmatrix::M13]
+           || m0.m[GLmatrix::M14] != m1.m[GLmatrix::M14]
+           || m0.m[GLmatrix::M21] != m1.m[GLmatrix::M21]
+           || m0.m[GLmatrix::M22] != m1.m[GLmatrix::M22]
+           || m0.m[GLmatrix::M23] != m1.m[GLmatrix::M23]
+           || m0.m[GLmatrix::M24] != m1.m[GLmatrix::M24]
+           || m0.m[GLmatrix::M31] != m1.m[GLmatrix::M31]
+           || m0.m[GLmatrix::M32] != m1.m[GLmatrix::M32]
+           || m0.m[GLmatrix::M33] != m1.m[GLmatrix::M33]
+           || m0.m[GLmatrix::M34] != m1.m[GLmatrix::M34]
+           || m0.m[GLmatrix::M41] != m1.m[GLmatrix::M41]
+           || m0.m[GLmatrix::M42] != m1.m[GLmatrix::M42]
+           || m0.m[GLmatrix::M43] != m1.m[GLmatrix::M43]
+           || m0.m[GLmatrix::M44] != m1.m[GLmatrix::M44];
 }
 
 } // namespace GL //

@@ -12,26 +12,26 @@ WidgetGL::WidgetGL(QWidget* parent,
                    const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QGLWidget(parent, shareWidget, f)
 {
-    
+
 }
 
 WidgetGL::WidgetGL(QGLContext* context, QWidget* parent,
                    const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QGLWidget(context, parent, shareWidget, f)
 {
-    
+
 }
 
 WidgetGL::WidgetGL(const QGLFormat& format, QWidget* parent,
                    const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QGLWidget(format, parent, shareWidget, f)
 {
-    
+
 }
 
 WidgetGL::~WidgetGL()
 {
-    
+
 }
 
 void WidgetGL::resizeGL(int width, int height)
@@ -40,7 +40,7 @@ void WidgetGL::resizeGL(int width, int height)
 #if QT_VERSION >= 0x050200
     qreal pixelRatio = devicePixelRatio();
     qDebug() << QString("[WidgetGL] devicePixelRatio: %1").arg(pixelRatio);
-    QGLWidget::resizeGL(width*pixelRatio, height*pixelRatio);
+    QGLWidget::resizeGL(width * pixelRatio, height * pixelRatio);
 #else
     QGLWidget::resizeGL(width, height);
 #endif

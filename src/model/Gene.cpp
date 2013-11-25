@@ -25,7 +25,7 @@ Gene::Gene(const QString& id, const QString& name, bool hidden, QColor color)
 {
 
 }
-Gene::~Gene() 
+Gene::~Gene()
 {
 
 }
@@ -42,10 +42,10 @@ Gene& Gene::operator=(const Gene& other)
 bool Gene::operator==(const Gene& other) const
 {
     if (
-            m_selected == other.m_selected &&
-            m_name == other.m_name &&
-            m_color == other.m_color
-            )
+        m_selected == other.m_selected &&
+        m_name == other.m_name &&
+        m_color == other.m_color
+    )
         return true;
     else
         return false;

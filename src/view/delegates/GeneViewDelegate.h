@@ -17,9 +17,9 @@
 
 class GeneViewDelegate : public QStyledItemDelegate
 {
-    
+
 public:
-    
+
     explicit GeneViewDelegate(QObject* parent = 0);
     virtual ~GeneViewDelegate();
 

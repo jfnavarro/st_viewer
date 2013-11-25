@@ -42,7 +42,9 @@ public:
     bool isClient();
     bool sendMessage(const QString &message, int timeout, bool block);
     QString applicationId() const
-        { return id; }
+    {
+        return id;
+    }
 
 Q_SIGNALS:
     void messageReceived(const QString &message, QObject *socket);

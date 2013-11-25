@@ -37,15 +37,13 @@ void InitPage::onInit()
     ui->setupUi(this);
     ui->user_name->setText("");
     ui->newExpButt->setEnabled(false);
-    
+
     //connect signals
     connect(ui->newExpButt, SIGNAL(released()), this, SLOT(slotLoadData()));
     connect(ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
-    
     AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
     connect(authorizationManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
     connect(authorizationManager, SIGNAL(signalError(Error*)), this, SLOT(slotAuthorizationError(Error*)));
-    
     authorizationManager->start();  //start the authorization (NOTE move outside of constructor??)
 }
 
@@ -77,30 +75,22 @@ void InitPage::slotNetworkError(Error *error)
 }
 
 void InitPage::slotAuthorized()
-{   
+{
     //I have been authorized, clean data proxy and load
-    
     //NOTE no need for this when dataproxy is completed
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
-    
     async::DataRequest* request = dataProxy->loadUser();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
-    
-    if(request->return_code() == async::DataRequest::CodeError)
-    {
+    if (request->return_code() == async::DataRequest::CodeError) {
         qDebug() << "[InitPage] Error: loading user";
         Error *error = new Error("Authorization Error", "Error loading the current user.");
         emit signalError(error);
-    }
-    else if(request->return_code() == async::DataRequest::CodePresent)
-    {
+    } else if (request->return_code() == async::DataRequest::CodePresent) {
         DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
         ui->user_name->setText(user.data()->username());
         ui->newExpButt->setEnabled(true);
-    }
-    else
-    {
+    } else {
         connect(request, SIGNAL(signalFinished()), this, SLOT(slotUserLoaded()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotNetworkError(Error*)));
         setWaiting(true);
@@ -111,11 +101,8 @@ void InitPage::slotUserLoaded()
 {
     async::DataRequest *request = reinterpret_cast<async::DataRequest*>(sender());
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
-    
     setWaiting(false);
-    
-    if(request->return_code() == async::DataRequest::CodeSuccess) //ignore when abort/timedout or error
-    {
+    if (request->return_code() == async::DataRequest::CodeSuccess) { //ignore when abort/timedout or error
         //User has been loaded succesfully, go to logged mode
         DataProxy::UserPtr user = DataProxy::getInstance()->getUser();
         ui->user_name->setText(user.data()->username());
@@ -127,19 +114,13 @@ void InitPage::slotLoadData()
 {
     async::DataRequest* request = DataProxy::getInstance()->loadDatasets();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
-    
-    if(request->return_code() == async::DataRequest::CodeError)
-    {
+    if (request->return_code() == async::DataRequest::CodeError) {
         qDebug() << "[InitPage] Error: loading datasets";
         Error *error = new Error("Data Error", "Error loading the datasets.");
         emit signalError(error);
-    }
-    else if(request->return_code() == async::DataRequest::CodePresent)
-    {
+    } else if (request->return_code() == async::DataRequest::CodePresent) {
         emit moveToNextPage();
-    }
-    else
-    {
+    } else {
         connect(request, SIGNAL(signalFinished()), this, SLOT(slotDataLoaded()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotNetworkError(Error*)));
         setWaiting(true);
@@ -150,11 +131,8 @@ void InitPage::slotDataLoaded()
 {
     async::DataRequest *request = reinterpret_cast<async::DataRequest*>(sender());
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
-    
     setWaiting(false);
-    
-    if(request->return_code() == async::DataRequest::CodeSuccess) //ignore when abort/timedout or error
-    {
+    if (request->return_code() == async::DataRequest::CodeSuccess) { //ignore when abort/timedout or error
         emit moveToNextPage();
     }
 }

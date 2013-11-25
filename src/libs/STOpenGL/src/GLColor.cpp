@@ -40,11 +40,11 @@ GLcolor::GLcolor(GL::GlobalColor color)
 #undef __GL_RGBA
 
     setColor(
-                GL::red(global_colors[color]),
-                GL::green(global_colors[color]),
-                GL::blue(global_colors[color]),
-                GL::alpha(global_colors[color])
-                );
+        GL::red(global_colors[color]),
+        GL::green(global_colors[color]),
+        GL::blue(global_colors[color]),
+        GL::alpha(global_colors[color])
+    );
 }
 
 } // namespace GL //

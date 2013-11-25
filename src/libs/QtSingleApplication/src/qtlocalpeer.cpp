@@ -35,7 +35,7 @@
 #if defined(Q_OS_WIN)
 #include <QLibrary>
 #include <qt_windows.h>
-typedef BOOL(WINAPI*PProcessIdToSessionId)(DWORD,DWORD*);
+typedef BOOL(WINAPI*PProcessIdToSessionId)(DWORD, DWORD*);
 static PProcessIdToSessionId pProcessIdToSessionId = 0;
 #endif
 
@@ -107,7 +107,7 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout, bool block)
     for (int i = 0; i < 2; i++) {
         // Try twice, in case the other instance is just starting up
         socket.connectToServer(socketName);
-        connOk = socket.waitForConnected(timeout/2);
+        connOk = socket.waitForConnected(timeout / 2);
         if (connOk || i)
             break;
         int ms = 250;

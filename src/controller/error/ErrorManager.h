@@ -15,25 +15,23 @@
 #include "utils/Singleton.h"
 #include "controller/error/Error.h"
 
-// a singleton based error manager that shows an error popup with the information 
+// a singleton based error manager that shows an error popup with the information
 class ErrorManager : public QObject, public Singleton<ErrorManager>
 {
     Q_OBJECT
 
 public:
-    
+
     explicit ErrorManager(QObject* parent = 0);
     virtual ~ErrorManager();
-
     void finalize();
     void init(QWidget* parentContainer = 0);
 
 public slots:
-    
     void slotHandleError(Error* error);
 
 private:
-    
+
     QPointer<QErrorMessage> m_errorDialog;
     QPointer<QWidget> m_parentContainer;
 };

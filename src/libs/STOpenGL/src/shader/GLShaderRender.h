@@ -23,11 +23,8 @@ class GLShaderRender
 {
 public:
     inline GLShaderRender();
-
     inline void clear();
-
     inline void shader(QGLShaderProgram *program);
-
     void render(const GLElementData& renderData);
 
 private:

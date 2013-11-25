@@ -16,10 +16,10 @@
 
 #include "utils/Singleton.h"
 
-class NetworkCommand; 
-class NetworkReply; 
+class NetworkCommand;
+class NetworkReply;
 class QNetworkReply;
-class Error; 
+class Error;
 
 // Singleton class used to manage all network related functionality. Creates
 // an abstract layer to easily send network requests.
@@ -28,17 +28,16 @@ class NetworkManager : public QObject, public Singleton<NetworkManager>
     Q_OBJECT
     Q_FLAGS(NetworkFlags)
 
-public:   
-    
-    enum NetworkFlag
-    {
+public:
+
+    enum NetworkFlag {
         Empty = 0x0,
         UseAuthentication = 0x1,
         UseCache = 0x2,
         UsePipelineMode = 0x4,
         UseHighPriority = 0x8
     };
-    
+
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
     explicit NetworkManager(QObject* parent = 0);
@@ -52,12 +51,10 @@ public:
                               NetworkFlags flags = UseAuthentication);
 
 private slots:
-    
     //if remote server requires authentication
     void provideAuthentication(QNetworkReply*, QAuthenticator*);
-    
-private:
 
+private:
     QPointer<QNetworkAccessManager> m_nam;
 };
 

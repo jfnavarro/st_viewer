@@ -65,7 +65,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableView" name="genes_tableview">
+        <widget class="GenesTableView" name="genes_tableview">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
          </property>
@@ -114,7 +114,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableView" name="selections_tableview">
+        <widget class="GeneSelectionTableView" name="selections_tableview">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
          </property>
@@ -183,6 +183,16 @@
    <class>GraphicsViewGL</class>
    <extends>QGraphicsView</extends>
    <header>view/openGL/GraphicsViewGL.h</header>
+  </customwidget>
+  <customwidget>
+   <class>GenesTableView</class>
+   <extends>QTableView</extends>
+   <header>core/view/GenesTableView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>GeneSelectionTableView</class>
+   <extends>QTableView</extends>
+   <header>core/view/GeneSelectionTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

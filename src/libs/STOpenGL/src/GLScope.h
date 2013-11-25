@@ -19,8 +19,7 @@ namespace GL
 class GLscope
 {
 public:
-    enum Mode
-    {
+    enum Mode {
         Normal = 0x00,
         Reverse = 0x01
     };
@@ -47,7 +46,10 @@ private:
 namespace GL
 {
 
-const bool GLscope::enable() const { return m_enable; }
+const bool GLscope::enable() const
+{
+    return m_enable;
+}
 
 } // namespace GL //
 

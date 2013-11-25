@@ -5,9 +5,9 @@
 
 */
 
-#include <QBuffer>
-
 #include "SimpleCryptDevice.h"
+
+#include <QBuffer>
 
 const qint64 SimpleCryptDevice::DEFAULT_BUFFER_SIZE = Q_INT64_C(1000);
 
@@ -27,12 +27,12 @@ SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, quint64 key, QObject *pa
     connect(device, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
     connect(device, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
+
 SimpleCryptDevice::~SimpleCryptDevice() { }
 
 void SimpleCryptDevice::flush()
 {
-    if (isOpen() && !m_buffer.isEmpty())
-    {
+    if (isOpen() && !m_buffer.isEmpty()) {
         m_crypt.encodeSegment(m_device, m_buffer);
     }
 }
@@ -41,31 +41,29 @@ qint64 SimpleCryptDevice::bytesAvailable() const
 {
     return static_cast<qint64>(m_buffer.size()) + QIODevice::bytesAvailable() + m_device->bytesAvailable();
 }
+
 qint64 SimpleCryptDevice::bytesToWrite() const
 {
     return static_cast<qint64>(m_buffer.size()) + QIODevice::bytesToWrite() + m_device->bytesToWrite();
 }
+
 void SimpleCryptDevice::close()
 {
     flush();
-
     m_device->close();
     setOpenMode(QIODevice::NotOpen);
 }
+
 bool SimpleCryptDevice::open(OpenMode mode)
 {
     bool modeInSync;
-    if (m_device->isOpen())
-    {
+    if (m_device->isOpen()) {
         modeInSync = (m_device->openMode() != mode);
-    }
-    else
-    {
+    } else {
         modeInSync = m_device->open(mode);
     }
-    
-    if (modeInSync)
-    {
+
+    if (modeInSync) {
         setOpenMode(mode);
         return true;
     }
@@ -75,55 +73,42 @@ bool SimpleCryptDevice::open(OpenMode mode)
 qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0)
-    {
+    if (maxSize == 0) {
         return 0;
     }
-
     // define data pointers
     char *it = data;
     char *end = (data + maxSize);
-
     // read buffer to output
     it += readBuffer(it, (end - it));
-
     // read segments to output
-    while (!m_device->atEnd() && (it < end))
-    {
-        if (m_crypt.decodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK)
-        {
+    while (!m_device->atEnd() && (it < end)) {
+        if (m_crypt.decodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
-        
         it += readBuffer(it, (end - it));
     }
-
     // return read byte count
     return (it - data);
 }
+
 qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0)
-    {
+    if (maxSize == 0) {
         return 0;
     }
-
     // define data pointers
     const char *it = data;
     const char *end = (data + maxSize);
-
     // write input to segments
-    while ((it < end))
-    {
-        it += writeBuffer(it, qMin( static_cast<qint64>(end - it), DEFAULT_BUFFER_SIZE));
-        if ((m_buffer.size() < DEFAULT_BUFFER_SIZE) || m_crypt.encodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK)
-        {
+    while ((it < end)) {
+        it += writeBuffer(it, qMin(static_cast<qint64>(end - it), DEFAULT_BUFFER_SIZE));
+        if ((m_buffer.size() < DEFAULT_BUFFER_SIZE) || m_crypt.encodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
         m_buffer.clear();
     }
-
     // return written byte count
     return (it - data);
 }
@@ -131,34 +116,28 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
 qint64 SimpleCryptDevice::readBuffer(char *out, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0)
-    {
+    if (maxSize == 0) {
         return 0;
     }
-
     QBuffer inDevice(&m_buffer);
     inDevice.open(QIODevice::ReadOnly);
     // read buffer to output, retain unread in buffer
     qint64 size = inDevice.read(out, maxSize);
     m_buffer = inDevice.readAll();
     inDevice.close();
-
     return size;
 }
 
 qint64 SimpleCryptDevice::writeBuffer(const char *in, qint64 maxSize)
 {
     // early out
-    if (maxSize == 0)
-    {
+    if (maxSize == 0) {
         return 0;
     }
-
     QBuffer outDevice(&m_buffer);
     outDevice.open(QIODevice::WriteOnly);
     // read input to buffer, biting off a preset sized chunk
     qint64 size = outDevice.write(in, maxSize);
     outDevice.close();
-
     return size;
 }

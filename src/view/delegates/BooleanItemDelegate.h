@@ -15,27 +15,25 @@
 class BooleanItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
-    
+
 public:
-    
+
     explicit BooleanItemDelegate(QObject* parent = 0);
-    
     virtual ~BooleanItemDelegate();
 
-    virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    
+    virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option,
+                                  const QModelIndex& index) const;
     virtual void setEditorData(QWidget* editor, const QModelIndex& index) const;
-    
-    virtual void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    
-    virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
-    
-    virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    
-    virtual bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index);
-    
+    virtual void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option,
+                                      const QModelIndex& index) const;
+    virtual void setModelData(QWidget* editor, QAbstractItemModel* model,
+                              const QModelIndex& index) const;
+    virtual void paint(QPainter* painter, const QStyleOptionViewItem& option,
+                       const QModelIndex& index) const;
+    virtual bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
+                             const QModelIndex& index);
     static const QRect checkBoxRect(const QStyleOptionViewItem &view_item_style_options);
-    
+
     Q_DISABLE_COPY(BooleanItemDelegate);
 };
 

@@ -27,11 +27,11 @@ SimpleCryptDeviceTest::SimpleCryptDeviceTest(QObject *parent) : QObject(parent) 
 
 void SimpleCryptDeviceTest::initTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 void SimpleCryptDeviceTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 void SimpleCryptDeviceTest::testEncodeData()
@@ -48,7 +48,7 @@ void SimpleCryptDeviceTest::testEncodeData()
     cryptDevice.write(input);
     cryptDevice.close();
 
-    QCOMPARE( (encoded == output), expected );
+    QCOMPARE((encoded == output), expected);
 }
 
 void SimpleCryptDeviceTest::testEncodeData_data()
@@ -104,7 +104,7 @@ void SimpleCryptDeviceTest::testDecodeData()
     decoded = cryptDevice.readAll();
     cryptDevice.close();
 
-    QCOMPARE( (decoded == output), expected );
+    QCOMPARE((decoded == output), expected);
 }
 
 void SimpleCryptDeviceTest::testDecodeData_data()
@@ -174,7 +174,7 @@ void SimpleCryptDeviceTest::testLargeFile()
         cryptBuffer.close();
     }
 
-    QVERIFY( (bytes.size() == decoded.size()) && (bytes == decoded) );
+    QVERIFY((bytes.size() == decoded.size()) && (bytes == decoded));
 }
 void SimpleCryptDeviceTest::testLargeFile_data()
 {

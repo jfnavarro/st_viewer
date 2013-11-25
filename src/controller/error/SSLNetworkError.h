@@ -18,11 +18,9 @@ class SSLNetworkError : public Error
 {
     Q_OBJECT
     Q_ENUMS(Type)
-    
+
 public:
-    
-    enum Type
-    {
+    enum Type {
         NoError = 0x54449ba1,
         UnableToGetIssuerCertificate = 0x41d8c03c,
         UnableToDecryptCertificateSignature = 0xb6f95fba,
@@ -51,21 +49,14 @@ public:
         UnspecifiedError = 0x22a87f77,
         UnknownError = 0x47a93544
     };
-
     explicit SSLNetworkError(QObject* parent = 0);
-    SSLNetworkError(const QSslError& sslError, NetworkCommand* cmd, QObject* parent = 0);
+    SSLNetworkError(const QSslError& sslError, QObject* parent = 0);
     virtual ~SSLNetworkError();
 
-    inline const NetworkCommand* networkCommand() const { return m_cmd; }
-    
 private:
     // localization context
     static const char* LOC_CONTEXT;
-
     void init(const QSslError& sslError);
-    
-    NetworkCommand* m_cmd;
-    QSslError m_sslError;
 };
 
 #endif // SSLNETWORKERROR_H //

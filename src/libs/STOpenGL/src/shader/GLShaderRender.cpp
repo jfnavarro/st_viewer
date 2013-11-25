@@ -26,8 +26,7 @@ void GLShaderRender::render(const GLElementData& renderData)
     const bool hasTexture = (textures.size != 0);
     const bool hasOptions = (options.size != 0);
 
-    if (hasVertex && (!hasColors || !hasTexture || !hasOptions))
-    {
+    if (hasVertex && (!hasColors || !hasTexture || !hasOptions)) {
         qDebug() << QString("Unable to render element data using shader without colors||texture coordinates.");
         return;
     }
@@ -37,31 +36,25 @@ void GLShaderRender::render(const GLElementData& renderData)
     glVertexPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, vertices.data);
     // set color array
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer (4, GL::GLTypeTrait<GLfloat>::type_enum, 0, colors.data);
+    glColorPointer(4, GL::GLTypeTrait<GLfloat>::type_enum, 0, colors.data);
+    int textureLocation = -1;
+    int optionLocation = -1;
 
-    int textureLocation = -1, optionLocation = -1;
-    if (m_program != 0)
-    {
+    if (m_program != 0) {
         textureLocation = m_program->attributeLocation("in_texture");
         optionLocation = m_program->attributeLocation("in_options");
-
         // enable attribute arrays
         m_program->setAttributeArray(textureLocation, GL::GLTypeTrait<GLfloat>::type_enum, (const void *) textures.data, 2);
         m_program->setAttributeArray(optionLocation, GL::GLTypeTrait<GLoption>::type_enum, (const void *) options.data, 1);
-
         m_program->enableAttributeArray(textureLocation);
         m_program->enableAttributeArray(optionLocation);
     }
-
     // draw call
     glDrawElements(mode, indices.size, GL::GLTypeTrait<GLindex>::type_enum, indices.data);
-
-    if (m_program != 0)
-    {
+    if (m_program != 0) {
         m_program->disableAttributeArray(textureLocation);
         m_program->disableAttributeArray(optionLocation);
     }
-
     // unset color array
     glDisableClientState(GL_COLOR_ARRAY);
     // unset vertex array

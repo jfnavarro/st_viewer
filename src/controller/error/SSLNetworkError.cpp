@@ -5,20 +5,20 @@
 
 */
 
-#include <QApplication>
-
 #include "SSLNetworkError.h"
+
+#include <QApplication>
 
 const char* SSLNetworkError::LOC_CONTEXT = "SSLNetworkError";
 
 SSLNetworkError::SSLNetworkError(QObject* parent)
-    : Error(parent), m_cmd(0), m_sslError()
+    : Error(parent)
 {
-    init(m_sslError);
+    init(QSslError());
 }
 
-SSLNetworkError::SSLNetworkError(const QSslError& sslError, NetworkCommand* cmd, QObject* parent)
-    : Error(parent), m_cmd(cmd), m_sslError(sslError)
+SSLNetworkError::SSLNetworkError(const QSslError& sslError, QObject* parent)
+    : Error(parent)
 {
     init(sslError);
 }
@@ -35,8 +35,7 @@ void SSLNetworkError::init(const QSslError& sslError)
     QString description;
 
     QSslError::SslError error = sslError.error();
-    switch (error)
-    {
+    switch (error) {
     case QSslError::NoError:
         type = SSLNetworkError::NoError;
         name = QApplication::translate(SSLNetworkError::LOC_CONTEXT, "NoError:Name");

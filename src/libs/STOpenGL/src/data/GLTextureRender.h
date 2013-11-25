@@ -21,7 +21,6 @@ class GLTextureRender
 {
 public:
     inline GLTextureRender();
-
     void render(const GLTextureData& renderData);
 
 private:

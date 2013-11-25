@@ -47,8 +47,7 @@ public:
     explicit QxtSpanSlider(Qt::Orientation orientation, QWidget* parent = 0);
     virtual ~QxtSpanSlider();
 
-    enum HandleMovementMode
-    {
+    enum HandleMovementMode {
         FreeMovement,
         NoCrossing,
         NoOverlapping

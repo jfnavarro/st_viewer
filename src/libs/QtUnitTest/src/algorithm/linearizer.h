@@ -20,8 +20,8 @@ class Linearizer
 {
 public:
     virtual const QList<QObject *> list(QObject *object) = 0;
-    Linearizer(){};
-    virtual ~Linearizer(){};
+    Linearizer() {};
+    virtual ~Linearizer() {};
 };
 
 } // namespace unit //

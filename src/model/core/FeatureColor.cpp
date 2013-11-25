@@ -6,18 +6,14 @@
 */
 #include "FeatureColor.h"
 
-FeatureColor::FeatureColor(int minHits, int maxHits) : ColorScheme(minHits,maxHits)
+FeatureColor::FeatureColor(int minHits, int maxHits) : ColorScheme(minHits, maxHits)
 {
 
 }
 
 QColor FeatureColor::getColor(const DataProxy::FeaturePtr feature) const
 {
-    qreal alpha = 1.0;
-    if(feature->hits() > m_maxHits || feature->hits() < m_minHits )
-    {
-        alpha = 0.0;
-    }
+    qreal alpha = (feature->hits() > m_maxHits || feature->hits() < m_minHits) ? 0.0 : 1.0;
     QColor adjusted = feature->color();
     adjusted.setAlphaF(alpha);
     return adjusted;

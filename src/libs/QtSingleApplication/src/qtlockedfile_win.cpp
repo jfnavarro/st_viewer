@@ -41,8 +41,8 @@ static QString errorCodeToString(DWORD errorCode)
     QString result;
     char *data = 0;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                    0, errorCode, 0,
-                    (char*)&data, 0, 0);
+                   0, errorCode, 0,
+                   (char*)&data, 0, 0);
     result = QString::fromLocal8Bit(data);
     if (data != 0)
         LocalFree(data);
@@ -125,12 +125,12 @@ bool QtLockedFile::lock(LockMode mode, bool block)
             if (gotMutex)
                 ReleaseMutex(m_mutex_hnd);
             return false;
-	}
+        }
         if (res != WAIT_OBJECT_0) {
             if (gotMutex)
                 ReleaseMutex(m_mutex_hnd);
             qWarning("QtLockedFile::lock(): WaitForSingleObject (semaphore): %s",
-                        errorCodeToString(GetLastError()).toLatin1().constData());
+                     errorCodeToString(GetLastError()).toLatin1().constData());
             return false;
         }
     }
@@ -160,7 +160,7 @@ bool QtLockedFile::unlock()
     DWORD ret = ReleaseSemaphore(m_semaphore_hnd, increment, 0);
     if (ret == 0) {
         qWarning("QtLockedFile::unlock(): ReleaseSemaphore: %s",
-                    errorCodeToString(GetLastError()).toLatin1().constData());
+                 errorCodeToString(GetLastError()).toLatin1().constData());
         return false;
     }
 
@@ -177,7 +177,7 @@ QtLockedFile::~QtLockedFile()
         DWORD ret = CloseHandle(m_mutex_hnd);
         if (ret == 0) {
             qWarning("QtLockedFile::~QtLockedFile(): CloseHandle (mutex): %s",
-                        errorCodeToString(GetLastError()).toLatin1().constData());
+                     errorCodeToString(GetLastError()).toLatin1().constData());
         }
         m_mutex_hnd = 0;
     }
@@ -185,7 +185,7 @@ QtLockedFile::~QtLockedFile()
         DWORD ret = CloseHandle(m_semaphore_hnd);
         if (ret == 0) {
             qWarning("QtLockedFile::~QtLockedFile(): CloseHandle (semaphore): %s",
-                        errorCodeToString(GetLastError()).toLatin1().constData());
+                     errorCodeToString(GetLastError()).toLatin1().constData());
         }
         m_semaphore_hnd = 0;
     }

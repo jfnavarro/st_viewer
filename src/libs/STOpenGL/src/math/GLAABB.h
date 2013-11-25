@@ -17,8 +17,7 @@ namespace GL
 // The AABB provides simple functionality for testing collisions and
 // intersections. In addition convenience functions for splitting the
 // AABB is provided to simplify implementations of for instance quad trees.
-struct GLaabb
-{
+struct GLaabb {
     inline GLaabb();
     inline GLaabb(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height);
     inline GLaabb(const GLpoint &p, const GLpoint &size);
@@ -73,8 +72,10 @@ struct GLaabb
     // +---+-----+
     inline const GLaabb join(const GLaabb &o) const;
 
-    GLfloat x, y;
-    GLfloat width, height;
+    GLfloat x;
+    GLfloat y;
+    GLfloat width;
+    GLfloat height;
 };
 
 inline const bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
@@ -110,6 +111,7 @@ inline const GLaabb GLaabb::fromPoints(const GLpoint &p0, const GLpoint &p1)
 {
     return GLaabb(min(p0.x, p1.x), min(p0.y, p1.y), fabs(p1.x - p0.x), fabs(p1.y - p0.y));
 }
+
 inline const GLrectangle GLaabb::toRectangle(const GLaabb &b)
 {
     const GLfloat hW = 0.5f * b.width;
@@ -119,10 +121,11 @@ inline const GLrectangle GLaabb::toRectangle(const GLaabb &b)
 
 inline const GLaabb GLaabb::split(SplitHalf split) const
 {
-    const GLfloat fW = width, hW = 0.5f * width;
-    const GLfloat fH = height, hH = 0.5f * height;
-    switch (split)
-    {
+    const GLfloat fW = width;
+    const GLfloat hW = 0.5f * width;
+    const GLfloat fH = height;
+    const GLfloat hH = 0.5f * height;
+    switch (split) {
     case H0: return GLaabb(x + 0, y + 0, fW, hH); break;
     case H1: return GLaabb(x + 0, y + hH, fW, hH); break;
     case V0: return GLaabb(x + 0, y + 0, hW, fH); break;
@@ -134,8 +137,7 @@ inline const GLaabb GLaabb::split(SplitQuad split) const
 {
     const GLfloat hW = 0.5f * width;
     const GLfloat hH = 0.5f * height;
-    switch (split)
-    {
+    switch (split) {
     case Q0: return GLaabb(x + hW, y + hH, hW, hH); break;
     case Q1: return GLaabb(x + 0, y + hH, hW, hH); break;
     case Q2: return GLaabb(x + 0, y + 0, hW, hH); break;
@@ -164,34 +166,31 @@ inline const GLpoint GLaabb::size() const
 inline const bool GLaabb::contains(const GLpoint &p) const
 {
     typedef range<GLfloat, comp_op_ge<GLfloat>, comp_op_le<GLfloat> > range_t;
-    return range_t::compare(p.x, x, x + width) && range_t::compare(p.y, y, y + height);
+    return (range_t::compare(p.x, x, x + width) && range_t::compare(p.y, y, y + height));
 }
 inline const bool GLaabb::contains(const GLaabb &o) const
 {
     return (
-                (x <= o.x) && ((o.x + o.width) <= (x + width)) &&
-                (y <= o.y) && ((o.y + o.height) <= (y + height))
-                );
+               (x <= o.x) && ((o.x + o.width) <= (x + width)) &&
+               (y <= o.y) && ((o.y + o.height) <= (y + height))
+           );
 }
 inline const bool GLaabb::intersects(const GLaabb &o) const
 {
     // simple SAT (Separating Axis Theorem) approach
     return !(
-                (x >= (o.x + o.width)) || (y >= (o.y + o.height)) ||
-                ((x + width) <= o.x) || ((y + height) <= o.y)
-                );
+               (x >= (o.x + o.width)) || (y >= (o.y + o.height)) ||
+               ((x + width) <= o.x) || ((y + height) <= o.y)
+           );
 }
 
 inline const GLaabb GLaabb::cut(const GLaabb &o) const
 {
-    if (intersects(o))
-    {
+    if (intersects(o)) {
         const GLpoint p0 = GL::max(position(), o.position());
         const GLpoint p1 = GL::min(end(), o.end());
         return GLaabb::fromPoints(p0, p1);
-    }
-    else
-    {
+    } else {
         return GLaabb(0.0f, 0.0f, 0.0f, 0.0f);
     }
 }
@@ -205,33 +204,33 @@ inline const GLaabb GLaabb::join(const GLaabb &o) const
 inline const bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
 {
     return fuzzyEqual(b0.x, b1.x, e)
-            && fuzzyEqual(b0.y, b1.y, e)
-            && fuzzyEqual(b0.width, b1.width, e)
-            && fuzzyEqual(b0.height, b1.height, e);
+           && fuzzyEqual(b0.y, b1.y, e)
+           && fuzzyEqual(b0.width, b1.width, e)
+           && fuzzyEqual(b0.height, b1.height, e);
 
 }
 inline const bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
 {
     return fuzzyNotEqual(b0.x, b1.x, e)
-            || fuzzyNotEqual(b0.y, b1.y, e)
-            || fuzzyNotEqual(b0.width, b1.width, e)
-            || fuzzyNotEqual(b0.height, b1.height, e);
+           || fuzzyNotEqual(b0.y, b1.y, e)
+           || fuzzyNotEqual(b0.width, b1.width, e)
+           || fuzzyNotEqual(b0.height, b1.height, e);
 }
 
 inline const bool operator ==(const GLaabb &b0, const GLaabb &b1)
 {
     return (b0.x == b1.x)
-            && (b0.y == b1.y)
-            && (b0.width == b1.width)
-            && (b0.height == b1.height);
+           && (b0.y == b1.y)
+           && (b0.width == b1.width)
+           && (b0.height == b1.height);
 }
 
 inline const bool operator !=(const GLaabb &b0, const GLaabb &b1)
 {
     return (b0.x != b1.x)
-            || (b0.y != b1.y)
-            || (b0.width != b1.width)
-            || (b0.height != b1.height);
+           || (b0.y != b1.y)
+           || (b0.width != b1.width)
+           || (b0.height != b1.height);
 }
 
 } // namespace GL //

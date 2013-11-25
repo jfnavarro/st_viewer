@@ -24,10 +24,10 @@ SimpleCryptTest::SimpleCryptTest(QObject *parent) : QObject(parent) { }
 void SimpleCryptTest::initTestCase()
 {
     SimpleCrypt crypt;
-    QVERIFY( !crypt.hasKey() );
+    QVERIFY(!crypt.hasKey());
 
     crypt.setKey(DEFAULT_TEST_KEY);
-    QVERIFY( crypt.hasKey() );
+    QVERIFY(crypt.hasKey());
 
     //crypt.setCompressionMode(SimpleCrypt::CompressionNever);
     //QCOMPARE( crypt.compressionMode(), SimpleCrypt::CompressionNever );
@@ -37,7 +37,7 @@ void SimpleCryptTest::initTestCase()
 }
 void SimpleCryptTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 //void SimpleCryptTest::testEncodeData()

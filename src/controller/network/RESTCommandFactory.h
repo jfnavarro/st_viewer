@@ -13,15 +13,15 @@
 // RESTCommandFactory provides a convenient way of generating preconfigured
 // network commands for specific REST actions. Each data request is represented
 // as a one or more functions.
-class RESTCommandFactory 
+class RESTCommandFactory
 {
 
 public:
-    
+
     // authentication commands
     static NetworkCommand* getAuthorization();
     static NetworkCommand* getAuthorizationToken();
-    
+
     // data access commands
     static NetworkCommand* getChips();
     static NetworkCommand* getChipByChipId(const QString& chipId);
@@ -41,9 +41,9 @@ public:
     static NetworkCommand* getHitCountByDatasetId(const QString& datasetId);
 
     static NetworkCommand* getCellTissueFigureByName(const QString& name);
-    
+
     static NetworkCommand* getUser();
-    
+
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion();
 };

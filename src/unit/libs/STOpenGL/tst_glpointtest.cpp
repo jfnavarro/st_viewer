@@ -19,11 +19,11 @@ GLPointTest::GLPointTest(QObject *parent) : QObject(parent) { }
 
 void GLPointTest::initTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 void GLPointTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 } // namespace unit //

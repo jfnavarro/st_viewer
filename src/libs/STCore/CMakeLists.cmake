@@ -9,10 +9,16 @@ set(SRC_${LIB}
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCrypt.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCryptDevice.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/data/SimpleCryptDevice.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedTableView.cpp
-    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedTableView.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedDatasetsTableView.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/AnimatedDatasetsTableView.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/GenesTableView.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/GenesTableView.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/GeneSelectionTableView.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/GeneSelectionTableView.cpp
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/WidgetBackgroundAnimation.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/WidgetBackgroundAnimation.h
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/CellViewPageToolBar.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/core/view/CellViewPageToolBar.cpp
 )
 
 # Add library and include directory

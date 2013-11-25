@@ -41,18 +41,18 @@ namespace GL
 inline const GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
 {
     return
-            ((GLubyte(color.red * 7.0f + 0.5f) & 0x07u) << 5) |
-            ((GLubyte(color.green * 7.0f + 0.5f) & 0x07u) << 2) |
-            ((GLubyte(color.blue * 3.0f + 0.5f) & 0x03u) << 0);
+        ((GLubyte(color.red * 7.0f + 0.5f) & 0x07u) << 5) |
+        ((GLubyte(color.green * 7.0f + 0.5f) & 0x07u) << 2) |
+        ((GLubyte(color.blue * 3.0f + 0.5f) & 0x03u) << 0);
 
 }
 
 inline const GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
 {
     return
-            ((GLushort(color.red * 31.0f + 0.5f) & 0x001Fu) << 11) |
-            ((GLushort(color.green * 63.0f + 0.5f) & 0x003Fu) << 5) |
-            ((GLushort(color.blue * 31.0f + 0.5f) & 0x001Fu) << 0);
+        ((GLushort(color.red * 31.0f + 0.5f) & 0x001Fu) << 11) |
+        ((GLushort(color.green * 63.0f + 0.5f) & 0x003Fu) << 5) |
+        ((GLushort(color.blue * 31.0f + 0.5f) & 0x001Fu) << 0);
 
 }
 
@@ -61,10 +61,10 @@ inline const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color)
     const GLfloat c_inv_7 = (1.0f / 7.0f);
     const GLfloat c_inv_3 = (1.0f / 3.0f);
     return GLcolor(
-                float((color >> 5) & 0x07u) * c_inv_7,
-                float((color >> 2) & 0x07u) * c_inv_7,
-                float((color >> 0) & 0x03u) * c_inv_3
-                );
+               float((color >> 5) & 0x07u) * c_inv_7,
+               float((color >> 2) & 0x07u) * c_inv_7,
+               float((color >> 0) & 0x03u) * c_inv_3
+           );
 }
 
 inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color)
@@ -72,10 +72,10 @@ inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color)
     const GLfloat c_inv_63 = (1.0f / 63.0f);
     const GLfloat c_inv_31 = (1.0f / 31.0f);
     return GLcolor(
-                float((color >> 11) & 0x001Fu) * c_inv_31,
-                float((color >> 5) & 0x003Fu) * c_inv_63,
-                float((color >> 0) & 0x001Fu) * c_inv_31
-                );
+               float((color >> 11) & 0x001Fu) * c_inv_31,
+               float((color >> 5) & 0x003Fu) * c_inv_63,
+               float((color >> 0) & 0x001Fu) * c_inv_31
+           );
 }
 
 } // namespace GL //

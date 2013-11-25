@@ -16,9 +16,8 @@ class OAuth2Error : public Error
     Q_ENUMS(Type)
 
 public:
-    
-    enum Type
-    {
+
+    enum Type {
         NoError = 0x2326bdba,
         InvalidRequest = 0xdeb1e445,
         InvalidClient = 0x594ff355,
@@ -32,16 +31,14 @@ public:
         EmptyToken = 0xc14f8ad9,
         UnknownError = 0xa5757acb,
     };
-    
+
     explicit OAuth2Error(QObject* parent = 0);
     OAuth2Error(const QString& errorName, const QString& errorDescription, QObject* parent = 0);
     virtual ~OAuth2Error();
 
 private:
-    
     // precomputed hash values of string error codes (uses the global QT function "qHash(QString)")
-    enum InternalHash
-    {
+    enum InternalHash {
         _NoError = 0x00000000,
         // OAuth2 error codes
         _InvalidRequest = 0x7E34A447,
@@ -54,12 +51,9 @@ private:
         // Custom error codes
         _EmptyToken = 0x5AFDB487
     };
-    
     // localization contex
     static const char* LOC_CONTEXT;
-
     void init(uint error);
-
     // store internal variables
     QString m_internalName;
     QString m_internalDescription;

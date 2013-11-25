@@ -42,19 +42,19 @@ UserExperiment& UserExperiment::operator=(const UserExperiment& other)
     m_type = other.m_type;
     m_inputData = other.m_inputData;
     m_outputData = other.m_outputData;
-    
+
     return (*this);
 }
 
 bool UserExperiment::operator==(const UserExperiment& other) const
 {
     if (
-            m_datasetId == other.m_datasetId &&
-            m_userId == other.m_userId &&
-            m_type == other.m_type &&
-            m_inputData == other.m_inputData &&
-            m_outputData == other.m_outputData
-            )
+        m_datasetId == other.m_datasetId &&
+        m_userId == other.m_userId &&
+        m_type == other.m_type &&
+        m_inputData == other.m_inputData &&
+        m_outputData == other.m_outputData
+    )
         return true;
     else
         return false;

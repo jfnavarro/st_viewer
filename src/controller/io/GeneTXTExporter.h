@@ -18,7 +18,7 @@
 // to choose delimiter character.
 class GeneTXTExporter : public GeneExporter
 {
-    
+
 public:
     // exporter state enums
     enum DetailLevel {
@@ -30,8 +30,8 @@ public:
         ExtendedFull = Extended | Comments
     };
     Q_DECLARE_FLAGS(DetailLevels, DetailLevel);
-    enum SeparationMode
-    {
+
+    enum SeparationMode {
         TabDelimited,
         CommaDelimited
     };
@@ -44,10 +44,9 @@ public:
     virtual void exportItem(QIODevice *device, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
 private:
-    
+
     const QString delimiterCharacter() const;
     void exportStrings(QTextStream &otxt, const QStringList &strings) const;
-
     void exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature, const QObject &context) const;
     void exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 

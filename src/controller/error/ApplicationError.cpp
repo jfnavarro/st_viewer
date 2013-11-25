@@ -5,9 +5,9 @@
 
 */
 
-#include <QApplication>
-
 #include "ApplicationError.h"
+
+#include <QApplication>
 
 const char* ApplicationError::LOC_CONTEXT = "ApplicationError";
 
@@ -34,15 +34,14 @@ void ApplicationError::init(ApplicationError::Type errorType)
     QString name;
     QString description;
 
-    switch (errorType)
-    {
+    switch (errorType) {
     case ApplicationError::NoError:
         type = ApplicationError::NoError; // because because!
         name  = QApplication::translate(ApplicationError::LOC_CONTEXT, "NoError:Name");
         description = QApplication::translate(ApplicationError::LOC_CONTEXT, "NoError:Description");
         break;
-        //NOTE well this is awkward... the error handling system relies on localization to show the error
-        //     message but if there was an error initializing the localization system... yeeeeaaaah... *sigh*
+    //NOTE well this is awkward... the error handling system relies on localization to show the error
+    //     message but if there was an error initializing the localization system... yeeeeaaaah... *sigh*
     case ApplicationError::LocalizationError:
         type = ApplicationError::LocalizationError;
         name = QApplication::translate(ApplicationError::LOC_CONTEXT, "LocalizationError:Name");

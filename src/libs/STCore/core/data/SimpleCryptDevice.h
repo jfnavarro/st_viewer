@@ -18,35 +18,43 @@
 // segments.
 class SimpleCryptDevice : public QIODevice
 {
-    
+
 public:
     SimpleCryptDevice(QIODevice *device, QObject *parent = 0);
     SimpleCryptDevice(QIODevice *device, quint64 key, QObject *parent = 0);
     virtual ~SimpleCryptDevice();
-
+    // clear the bugger
     void flush();
-
-    //virtual bool atEnd() const;
     virtual qint64 bytesAvailable() const;
     virtual qint64 bytesToWrite() const;
-    //virtual bool canReadLine() const;
     virtual void close();
-    virtual inline bool isSequential() const { return true; }
+
+    virtual inline bool isSequential() const
+    {
+        return true;
+    }
+
     virtual bool open(OpenMode mode);
-    virtual inline qint64 pos() const { return m_device->pos(); }
-    //virtual bool reset();
-    virtual inline bool seek(qint64 pos) { return false; }
-    virtual qint64 size() const { return m_device->size(); }
-    //virtual bool waitForBytesWritten(int msecs);
-    //virtual bool waitForReadyRead(int msecs);
+
+    virtual inline qint64 pos() const
+    {
+        return m_device->pos();
+    }
+
+    virtual inline bool seek(qint64 pos)
+    {
+        return false;
+    }
+    virtual qint64 size() const
+    {
+        return m_device->size();
+    }
 
 protected:
-    
     virtual qint64 readData(char *data, qint64 maxSize);
     virtual qint64 writeData(const char *data, qint64 maxSize);
 
-
-private:    
+private:
     SimpleCrypt m_crypt;
     QIODevice *m_device;
     qint64 readBuffer(char *out, qint64 maxSize);

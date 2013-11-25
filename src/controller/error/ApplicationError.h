@@ -16,25 +16,19 @@ class ApplicationError : public Error
     Q_ENUMS(Type)
 
 public:
-    
-    enum Type
-    {
+    enum Type {
         NoError = 0x216fc9af,
         LocalizationError = 0x8dacd5d7,
         UnknownError = 0x942e9ff6
     };
-    
+
     explicit ApplicationError(QObject* parent = 0);
-    
     ApplicationError(ApplicationError::Type errorType, QObject* parent = 0);
-    
     virtual ~ApplicationError();
 
 private:
-    
     // localization context
     static const char* LOC_CONTEXT;
-
     void init(ApplicationError::Type errorType);
 };
 

@@ -35,14 +35,14 @@
 
 
 
-void QtSingleApplication::sysInit(const QString &appId)
+void QtSingleApplication::sysInit(const QString &_appId)
 {
     actWin = 0;
     block = false;
-    firstPeer = new QtLocalPeer(this, appId);
-    connect(firstPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
-    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') + QString::number(QCoreApplication::applicationPid(), 10));
-    connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), SIGNAL(messageReceived(QString,QObject*)));
+    firstPeer = new QtLocalPeer(this, _appId);
+    connect(firstPeer, SIGNAL(messageReceived(QString, QObject*)), SIGNAL(messageReceived(QString, QObject*)));
+    pidPeer = new QtLocalPeer(this, _appId + QLatin1Char('-') + QString::number(QCoreApplication::applicationPid(), 10));
+    connect(pidPeer, SIGNAL(messageReceived(QString, QObject*)), SIGNAL(messageReceived(QString, QObject*)));
 }
 
 
@@ -53,11 +53,11 @@ QtSingleApplication::QtSingleApplication(int &argc, char **argv, bool GUIenabled
 }
 
 
-QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char **argv)
+QtSingleApplication::QtSingleApplication(const QString &_appId, int &argc, char **argv)
     : QApplication(argc, argv)
 {
-    this->appId = appId;
-    sysInit(appId);
+    this->appId = _appId;
+    sysInit(_appId);
 }
 
 QtSingleApplication::~QtSingleApplication()
@@ -118,11 +118,11 @@ void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessag
 {
     actWin = aw;
     if (activateOnMessage) {
-        connect(firstPeer, SIGNAL(messageReceived(QString,QObject*)), this, SLOT(activateWindow()));
-        connect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), this, SLOT(activateWindow()));
+        connect(firstPeer, SIGNAL(messageReceived(QString, QObject*)), this, SLOT(activateWindow()));
+        connect(pidPeer, SIGNAL(messageReceived(QString, QObject*)), this, SLOT(activateWindow()));
     } else {
-        disconnect(firstPeer, SIGNAL(messageReceived(QString,QObject*)), this, SLOT(activateWindow()));
-        disconnect(pidPeer, SIGNAL(messageReceived(QString,QObject*)), this, SLOT(activateWindow()));
+        disconnect(firstPeer, SIGNAL(messageReceived(QString, QObject*)), this, SLOT(activateWindow()));
+        disconnect(pidPeer, SIGNAL(messageReceived(QString, QObject*)), this, SLOT(activateWindow()));
     }
 }
 

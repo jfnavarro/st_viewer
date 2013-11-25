@@ -9,15 +9,15 @@
 
 HitCountDTO::HitCountDTO(QObject* parent) : QObject(parent), m_hitCount()
 {
-    
+
 }
 
 HitCountDTO::HitCountDTO(const HitCount& hitCount, QObject* parent) : QObject(parent), m_hitCount(hitCount)
 {
-    
+
 }
 
 HitCountDTO::~HitCountDTO()
 {
-    
+
 }

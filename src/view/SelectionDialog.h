@@ -32,9 +32,6 @@ public:
     SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
-    //void setDatasetId(const QString &datasetId);
-    //const QString &datasetId() const;
-
     const GeneList& selectedGenes() const;
     static const GeneList selectGenes(QWidget *parent = 0);
 
@@ -43,20 +40,16 @@ signals:
 
 public slots:
     virtual void accept();
-
     void slotValidateRegExp(const QString &pattern);
     void slotIncludeAmbiguous(bool includeAmbiguous);
     void slotCaseSensitive(bool caseSensitive);
     void slotEnableAcceptAction(bool enableAcceptAction);
 
 private:
-
     Ui::SelectionDialog *ui;
-
     bool m_includeAmbiguous;
     bool m_caseSensitive;
     bool m_regExpValid;
-
     QRegExp m_regExp;
     GeneList m_selectedGeneList;
 };

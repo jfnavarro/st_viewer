@@ -39,8 +39,7 @@ class QxtSpanSliderPrivate : public QObject, public QxtPrivate<QxtSpanSlider>
 public:
     QXT_DECLARE_PUBLIC(QxtSpanSlider)
 
-    enum SpanHandle
-    {
+    enum SpanHandle {
         NoHandle,
         LowerHandle,
         UpperHandle

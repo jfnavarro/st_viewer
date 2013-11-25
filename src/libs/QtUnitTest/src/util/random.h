@@ -30,12 +30,11 @@ inline const qint32 qrandi()
 }
 inline const qint32 qrandi(const qint32 min, const qint32 max)
 {
-    if (min > max)
-    {
+    if (min > max) {
         return qrandi(max, min);
     }
 
-    return ( qint32((max - min) * qrandf()) + min );
+    return (qint32((max - min) * qrandf()) + min);
 }
 inline const float qrandf()
 {
@@ -43,12 +42,11 @@ inline const float qrandf()
 }
 inline const float qrandf(const float min, const float max)
 {
-    if (min > max)
-    {
+    if (min > max) {
         return qrandf(max, min);
     }
 
-    return ( float((max - min) * qrandf()) + min );
+    return (float((max - min) * qrandf()) + min);
 }
 
 } // namespace unit //

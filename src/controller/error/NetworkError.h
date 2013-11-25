@@ -19,9 +19,7 @@ class NetworkError : public Error
     Q_ENUMS(Type)
 
 public:
-    
-    enum Type
-    {
+    enum Type {
         NoError = 0xa1fb320d,
         ConnectionRefusedError = 0xa06e9510,
         RemoteHostClosedError = 0xa0e7c2d4,
@@ -50,17 +48,13 @@ public:
         ProtocolFailure = 0xecdc6718,
         UnknownError = 0xcaebc258
     };
-    
     explicit NetworkError(QObject* parent = 0);
     NetworkError(QNetworkReply::NetworkError error, QObject* parent = 0);
     virtual ~NetworkError();
-    
+
 private:
-    
     static const char* LOC_CONTEXT;
-    
     void init(QNetworkReply::NetworkError error);
-    
 };
 
 #endif // NETWORKERROR_H //

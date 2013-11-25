@@ -28,8 +28,7 @@ namespace Globals
 // eg.
 //  (ToggleEnable & ToggleEnableTrue) will disable the widget on wait.
 //  (ToggleEnable & ToggleVisile) will enable and show the widget on wait.
-enum WaitPolicy
-{
+enum WaitPolicy {
     ToggleEnable = 0x01,        // invoke setEnabled
     ToggleEnableTrue = 0x02,    // with value true (else false)
     ToggleVisible = 0x04,       // invoke setVisible
@@ -40,7 +39,7 @@ enum WaitPolicy
 static const QString MAJOR = QString::number(VERSION_MAJOR);
 static const QString MINOR = QString::number(VERSION_MINOR);
 static const QString PATCH = QString::number(VERSION_REVISION);
-static const QString VERSION =  ((MAJOR + "." + MINOR) + ".") + PATCH;
+static const QString VERSION = ((MAJOR + "." + MINOR) + ".") + PATCH;
 
 /**** setttings ****/
 static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
@@ -65,7 +64,7 @@ static const QString SettingsTokenExpiresAt = QStringLiteral("expires_at");
 //TODO move these guys to an external class that will implement save/load from qsettins
 static const QColor color_grid = Qt::darkGreen;
 static const QColor color_grid_border = Qt::darkRed;
-static const QColor color_gene = QColor::fromHsv(0,190,255);
+static const QColor color_gene = QColor::fromHsv(0, 190, 255);
 static const QColor minimap_view_color = Qt::blue;
 static const QColor minimap_scene_color = Qt::red;
 static const int limit_hit_count = 100;
@@ -75,6 +74,18 @@ static const qreal heatmap_height = 200;
 static const qreal heatmap_width = 30;
 static const qreal heatmap_bar_width = 40;
 
+enum ThresholdMode {
+    IndividualGeneMode = 0,
+    GlobalGeneMode = 1
+};
+
+
+enum VisualMode {
+    NormalMode = 0,
+    DynamicRangeMode = 1,
+    HeatMapMode = 2
+};
+
 enum Shape {
     Circle = 0,
     Cross  = 1,
@@ -82,8 +93,8 @@ enum Shape {
 };
 
 static const Shape gene_shape = Circle;
-static const int gene_size = 10;
-static const int gene_intensity = 10;
+static const qreal gene_size = 1.0f;
+static const qreal gene_intensity = 1.0f;
 static const int gene_lower_limit = 1;
 static const int gene_upper_limit = std::numeric_limits<int>::min();
 
@@ -155,7 +166,7 @@ static const QSize DEFAULT_BOUND_SIZE = QSize(100, 100);
 namespace Utils
 {
 QDateTime decodeJsonDateTime(const QString &jsonDateTime);
-void char2hex( QChar dec, QString &str );
+void char2hex(QChar dec, QString &str);
 QString urlEncode(const QByteArray &c);
 QString urlEncode(const QString &c);
 QString formatStorage(qlonglong storageSpace);

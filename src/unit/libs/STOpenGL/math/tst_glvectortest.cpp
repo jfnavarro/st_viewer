@@ -19,11 +19,11 @@ GLVectorTest::GLVectorTest(QObject *parent) : QObject(parent) { }
 
 void GLVectorTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLVectorTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLVectorTest::testCompareEqual()
@@ -32,7 +32,7 @@ void GLVectorTest::testCompareEqual()
     QFETCH(GL::GLvector, v1);
     QFETCH(bool, expected);
 
-    QCOMPARE( v0 == v1, expected );
+    QCOMPARE(v0 == v1, expected);
 }
 
 void GLVectorTest::testCompareEqual_data()
@@ -54,8 +54,8 @@ void GLVectorTest::testUnary()
     QFETCH(GL::GLvector, v1);
     QFETCH(bool, expected);
 
-    QCOMPARE( (+v0) == v0, expected );
-    QCOMPARE( (-v0) == v1, expected );
+    QCOMPARE((+v0) == v0, expected);
+    QCOMPARE((-v0) == v1, expected);
 }
 void GLVectorTest::testUnary_data()
 {
@@ -76,8 +76,8 @@ void GLVectorTest::testAddSub()
     QFETCH(GL::GLvector, v2);
     QFETCH(bool, expected);
 
-    QCOMPARE( fuzzyEqual(v0 + v1, v2), expected );
-    QCOMPARE( fuzzyEqual(v2 - v1, v0), expected );
+    QCOMPARE(fuzzyEqual(v0 + v1, v2), expected);
+    QCOMPARE(fuzzyEqual(v2 - v1, v0), expected);
 }
 void GLVectorTest::testAddSub_data()
 {
@@ -86,7 +86,7 @@ void GLVectorTest::testAddSub_data()
     QTest::addColumn<GL::GLvector>("v2");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("positive") << GL::GLvector( 1.0f,  2.0f) << GL::GLvector( 3.0f,  4.0f) << GL::GLvector( 4.0f,  6.0f) << true;
+    QTest::newRow("positive") << GL::GLvector(1.0f,  2.0f) << GL::GLvector(3.0f,  4.0f) << GL::GLvector(4.0f,  6.0f) << true;
     QTest::newRow("negative") << GL::GLvector(-1.0f, -2.0f) << GL::GLvector(-3.0f, -4.0f) << GL::GLvector(-4.0f, -6.0f) << true;
     QTest::newRow("mixed") << GL::GLvector(-0.5f,  1.5f) << GL::GLvector(-0.2f, -0.5f) << GL::GLvector(-0.7f,  1.0f) << true;
 }
@@ -98,8 +98,8 @@ void GLVectorTest::testMultDiv()
     QFETCH(GL::GLvector, v1);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual(v0 * s, v1), expected );
-    QCOMPARE( GL::fuzzyEqual(v1 / s, v0), expected );
+    QCOMPARE(GL::fuzzyEqual(v0 * s, v1), expected);
+    QCOMPARE(GL::fuzzyEqual(v1 / s, v0), expected);
 }
 void GLVectorTest::testMultDiv_data()
 {
@@ -108,9 +108,9 @@ void GLVectorTest::testMultDiv_data()
     QTest::addColumn<GL::GLvector>("v1");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("positive") << GL::GLvector( 1.0f,  2.0f) << (GLfloat)  2.0f << GL::GLvector(2.0f,  4.0f) << true;
-    QTest::newRow("negative") << GL::GLvector(-1.0f, -2.0f) << (GLfloat) -0.5f << GL::GLvector(0.5f,  1.0f) << true;
-    QTest::newRow("mixed") << GL::GLvector(-1.0f,  4.0f) << (GLfloat) -2.0f << GL::GLvector(2.0f, -8.0f) << true;
+    QTest::newRow("positive") << GL::GLvector(1.0f,  2.0f) << (GLfloat)  2.0f << GL::GLvector(2.0f,  4.0f) << true;
+    QTest::newRow("negative") << GL::GLvector(-1.0f, -2.0f) << (GLfloat) - 0.5f << GL::GLvector(0.5f,  1.0f) << true;
+    QTest::newRow("mixed") << GL::GLvector(-1.0f,  4.0f) << (GLfloat) - 2.0f << GL::GLvector(2.0f, -8.0f) << true;
 }
 
 void GLVectorTest::testNormalLength()
@@ -120,8 +120,8 @@ void GLVectorTest::testNormalLength()
     QFETCH(GLfloat, s);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual(v0.length(), s), expected );
-    QCOMPARE( GL::fuzzyEqual(v0.normalize(), v1), expected );
+    QCOMPARE(GL::fuzzyEqual(v0.length(), s), expected);
+    QCOMPARE(GL::fuzzyEqual(v0.normalize(), v1), expected);
 }
 void GLVectorTest::testNormalLength_data()
 {
@@ -130,9 +130,9 @@ void GLVectorTest::testNormalLength_data()
     QTest::addColumn<GLfloat>("s");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("x-axis") << GL::GLvector( 4.0f, 0.0f) << GL::GLvector(1.0f, 0.0f) << (GLfloat) 4.0f << true;
-    QTest::newRow("positive") << GL::GLvector( 1.0f, 1.0f) << GL::GLvector((GLfloat) M_SQRT1_2, (GLfloat) M_SQRT1_2) << (GLfloat) M_SQRT2 << true;
-    QTest::newRow("mixed") << GL::GLvector(-1.0f, 1.0f) << GL::GLvector((GLfloat)-M_SQRT1_2, (GLfloat) M_SQRT1_2) << (GLfloat) M_SQRT2 << true;
+    QTest::newRow("x-axis") << GL::GLvector(4.0f, 0.0f) << GL::GLvector(1.0f, 0.0f) << (GLfloat) 4.0f << true;
+    QTest::newRow("positive") << GL::GLvector(1.0f, 1.0f) << GL::GLvector((GLfloat) M_SQRT1_2, (GLfloat) M_SQRT1_2) << (GLfloat) M_SQRT2 << true;
+    QTest::newRow("mixed") << GL::GLvector(-1.0f, 1.0f) << GL::GLvector((GLfloat) - M_SQRT1_2, (GLfloat) M_SQRT1_2) << (GLfloat) M_SQRT2 << true;
 }
 
 void GLVectorTest::testQuadrant()
@@ -141,7 +141,7 @@ void GLVectorTest::testQuadrant()
     QFETCH(GLuint, i);
     QFETCH(bool, expected);
 
-    QCOMPARE( (v.quadrant() == i), expected );
+    QCOMPARE((v.quadrant() == i), expected);
 }
 void GLVectorTest::testQuadrant_data()
 {
@@ -149,15 +149,15 @@ void GLVectorTest::testQuadrant_data()
     QTest::addColumn<GLuint>("i");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("quadrant0") << GL::GLvector( 1.0f, 1.0f) << GLuint(0u) << true;
+    QTest::newRow("quadrant0") << GL::GLvector(1.0f, 1.0f) << GLuint(0u) << true;
     QTest::newRow("quadrant1") << GL::GLvector(-1.0f, 1.0f) << GLuint(1u) << true;
-    QTest::newRow("quadrant2") << GL::GLvector(-1.0f,-1.0f) << GLuint(2u) << true;
-    QTest::newRow("quadrant3") << GL::GLvector( 1.0f,-1.0f) << GLuint(3u) << true;
-    QTest::newRow("border0") << GL::GLvector( 1.0f, 0.0f) << GLuint(0u) << true;
-    QTest::newRow("border1") << GL::GLvector( 0.0f, 1.0f) << GLuint(0u) << true;
+    QTest::newRow("quadrant2") << GL::GLvector(-1.0f, -1.0f) << GLuint(2u) << true;
+    QTest::newRow("quadrant3") << GL::GLvector(1.0f, -1.0f) << GLuint(3u) << true;
+    QTest::newRow("border0") << GL::GLvector(1.0f, 0.0f) << GLuint(0u) << true;
+    QTest::newRow("border1") << GL::GLvector(0.0f, 1.0f) << GLuint(0u) << true;
     QTest::newRow("border2") << GL::GLvector(-1.0f, 0.0f) << GLuint(1u) << true;
-    QTest::newRow("border3") << GL::GLvector( 0.0f,-1.0f) << GLuint(3u) << true;
-    QTest::newRow("zero") << GL::GLvector( 0.0f, 0.0f) << GLuint(0u) << true;
+    QTest::newRow("border3") << GL::GLvector(0.0f, -1.0f) << GLuint(3u) << true;
+    QTest::newRow("zero") << GL::GLvector(0.0f, 0.0f) << GLuint(0u) << true;
 }
 
 void GLVectorTest::testFromPoint()
@@ -167,7 +167,7 @@ void GLVectorTest::testFromPoint()
     QFETCH(GL::GLvector, v0);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual( GL::GLvector::fromPoints(p0, p1), v0), expected );
+    QCOMPARE(GL::fuzzyEqual(GL::GLvector::fromPoints(p0, p1), v0), expected);
 }
 void GLVectorTest::testFromPoint_data()
 {
@@ -176,7 +176,7 @@ void GLVectorTest::testFromPoint_data()
     QTest::addColumn<GL::GLvector>("v0");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("positive") << GL::GLpoint( 1.0f, 1.0f) << GL::GLpoint(3.0f,  2.0f) << GL::GLvector(2.0f,  1.0f) << true;
+    QTest::newRow("positive") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(3.0f,  2.0f) << GL::GLvector(2.0f,  1.0f) << true;
     QTest::newRow("mixed") << GL::GLpoint(-1.0f, 1.0f) << GL::GLpoint(3.0f, -2.0f) << GL::GLvector(4.0f, -3.0f) << true;
 }
 

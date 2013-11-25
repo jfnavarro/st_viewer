@@ -9,15 +9,15 @@
 
 GeneDTO::GeneDTO(QObject* parent) : QObject(parent), m_gene()
 {
-    
+
 }
 
 GeneDTO::GeneDTO(const Gene& gene, QObject* parent) : QObject(parent), m_gene(gene)
 {
-    
+
 }
 
 GeneDTO::~GeneDTO()
 {
-    
+
 }

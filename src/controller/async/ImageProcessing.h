@@ -42,8 +42,14 @@ public:
     explicit ImageRequest(QObject *parent = 0);
     virtual ~ImageRequest();
 
-    inline const QImage &image() const { return m_image; }
-    inline const QTransform &transform() const {return m_transform; }
+    inline const QImage &image() const
+    {
+        return m_image;
+    }
+    inline const QTransform &transform() const
+    {
+        return m_transform;
+    }
 
 private slots:
 

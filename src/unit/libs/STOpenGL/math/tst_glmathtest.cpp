@@ -19,11 +19,11 @@ GLMathTest::GLMathTest(QObject *parent) : QObject(parent) { }
 
 void GLMathTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLMathTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLMathTest::testRangeIncl()
@@ -33,7 +33,7 @@ void GLMathTest::testRangeIncl()
     QFETCH(GLfloat, hi);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::range<GLfloat>::compare(v, lo, hi), expected ); // inclusive [lo, hi]
+    QCOMPARE(GL::range<GLfloat>::compare(v, lo, hi), expected);   // inclusive [lo, hi]
 }
 void GLMathTest::testRangeIncl_data()
 {
@@ -62,8 +62,8 @@ void GLMathTest::testRangeExcl()
     // typedef range operator to simplify
     typedef GL::comp_op_gt<GLfloat> op_lo_t;
     typedef GL::comp_op_ls<GLfloat> op_hi_t;
-    typedef GL::range<GLfloat,op_lo_t,op_hi_t> range_t;
-    QCOMPARE( range_t::compare(v, lo, hi), expected ); // exclusive ]lo, hi[
+    typedef GL::range<GLfloat, op_lo_t, op_hi_t> range_t;
+    QCOMPARE(range_t::compare(v, lo, hi), expected);   // exclusive ]lo, hi[
 }
 void GLMathTest::testRangeExcl_data()
 {

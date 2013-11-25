@@ -24,8 +24,8 @@ static void setLocalPaths(QtSingleApplication *app)
 {
     // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
-    app->addLibraryPath( QDir(app->applicationDirPath()).canonicalPath()
-                         +QDir::separator()+"plugins");
+    app->addLibraryPath(QDir(app->applicationDirPath()).canonicalPath()
+                        + QDir::separator() + "plugins");
 #elif defined Q_OS_MAC
     QDir dir(QApplication::applicationDirPath());
     dir.cdUp();
@@ -51,7 +51,7 @@ static bool installTranslator(QtSingleApplication *app)
     QString trans_dir = app->applicationDirPath() + "/../Resources/translations/";
 #elif defined Q_OS_WIN
     QString trans_dir = QDir(app->applicationDirPath()).canonicalPath()
-            +QDir::separator()+"translations"+QDir::separator();
+                        + QDir::separator() + "translations" + QDir::separator();
 #else
     QString trans_dir = app->applicationDirPath() + QString(TRANSLATIONS_DIR);
 #endif
@@ -69,20 +69,16 @@ int main(int argc, char** argv)
     app->setOrganizationDomain("spatialtranscriptomics.com");
     app->setApplicationVersion(Globals::VERSION);
 
-    if (app->isRunning())
-    {
+    if (app->isRunning()) {
         app->sendMessage("Another instance of stVi is already open");
         delete app;
         return 0;
-    }
-    else
-    {
+    } else {
         qDebug() << "Application started successfully.";
     }
 
     setLocalPaths(app);
-    if (!installTranslator(app))
-    {
+    if (!installTranslator(app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
         QMessageBox::information(0, "Error",
                                  "Unable to install the translations");
@@ -94,10 +90,9 @@ int main(int argc, char** argv)
     stVi *mainWindow = new stVi();
     app->setActivationWindow(mainWindow);
     // connect message queue to the main window.
-    QObject::connect(app, SIGNAL(messageReceived(QString,QObject *)),mainWindow, SLOT(handleMessage(QString)));
+    QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)), mainWindow, SLOT(handleMessage(QString)));
     //check for min requirements
-    if(!mainWindow->checkSystemRequirements())
-    {
+    if (!mainWindow->checkSystemRequirements()) {
         delete mainWindow;
         //delete app;
         return 0;

@@ -23,11 +23,11 @@ GLAABBTest::GLAABBTest(QObject *parent) : QObject(parent) { }
 
 void GLAABBTest::initTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 void GLAABBTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 void GLAABBTest::testConstructFromPoints()
@@ -37,7 +37,7 @@ void GLAABBTest::testConstructFromPoints()
     QFETCH(GL::GLaabb, b);
     QFETCH(bool, expected);
 
-    QCOMPARE( fuzzyEqual(GL::GLaabb::fromPoints(p0, p1), b), expected );
+    QCOMPARE(fuzzyEqual(GL::GLaabb::fromPoints(p0, p1), b), expected);
 }
 void GLAABBTest::testConstructFromPoints_data()
 {
@@ -46,12 +46,12 @@ void GLAABBTest::testConstructFromPoints_data()
     QTest::addColumn<GL::GLaabb>("b");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("simple0") << GL::GLpoint( 0.0f, 0.0f) << GL::GLpoint( 1.0f, 1.0f) << GL::GLaabb( 0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("simple1") << GL::GLpoint(-1.0f,-1.0f) << GL::GLpoint( 1.0f, 1.0f) << GL::GLaabb(-1.0f,-1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("reverse0")<< GL::GLpoint( 1.0f, 1.0f) << GL::GLpoint( 0.0f, 0.0f) << GL::GLaabb( 0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("reverse1") << GL::GLpoint( 1.0f, 1.0f) << GL::GLpoint(-1.0f,-1.0f) << GL::GLaabb(-1.0f,-1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("corner0") << GL::GLpoint( 1.0f, 0.0f) << GL::GLpoint( 0.0f, 1.0f) << GL::GLaabb( 0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("corner1") << GL::GLpoint( 1.0f,-1.0f) << GL::GLpoint(-1.0f, 1.0f) << GL::GLaabb(-1.0f,-1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("simple0") << GL::GLpoint(0.0f, 0.0f) << GL::GLpoint(1.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("simple1") << GL::GLpoint(-1.0f, -1.0f) << GL::GLpoint(1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("reverse0") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(0.0f, 0.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("reverse1") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(-1.0f, -1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("corner0") << GL::GLpoint(1.0f, 0.0f) << GL::GLpoint(0.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("corner1") << GL::GLpoint(1.0f, -1.0f) << GL::GLpoint(-1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
 }
 
 void GLAABBTest::testContainsByPoint()
@@ -60,7 +60,7 @@ void GLAABBTest::testContainsByPoint()
     QFETCH(GL::GLaabb, b);
     QFETCH(bool, expected);
 
-    QCOMPARE( b.contains(p), expected );
+    QCOMPARE(b.contains(p), expected);
 }
 void GLAABBTest::testContainsByPoint_data()
 {
@@ -87,7 +87,7 @@ void GLAABBTest::testContainsByAABB()
     QFETCH(GL::GLaabb, b1);
     QFETCH(bool, expected);
 
-    QCOMPARE( b0.contains(b1), expected );
+    QCOMPARE(b0.contains(b1), expected);
 }
 void GLAABBTest::testContainsByAABB_data()
 {
@@ -117,8 +117,8 @@ void GLAABBTest::testIntersects()
     QFETCH(bool, expected);
 
     // intersect op is commutative
-    QCOMPARE( b0.intersects(b1), expected );
-    QCOMPARE( b1.intersects(b0), expected );
+    QCOMPARE(b0.intersects(b1), expected);
+    QCOMPARE(b1.intersects(b0), expected);
 }
 void GLAABBTest::testIntersects_data()
 {
@@ -150,8 +150,8 @@ void GLAABBTest::testCut()
     QFETCH(bool, expected);
 
     // cut op is commutative
-    QCOMPARE( fuzzyEqual(b0.cut(b1), b2), expected );
-    QCOMPARE( fuzzyEqual(b1.cut(b0), b2), expected );
+    QCOMPARE(fuzzyEqual(b0.cut(b1), b2), expected);
+    QCOMPARE(fuzzyEqual(b1.cut(b0), b2), expected);
 }
 void GLAABBTest::testCut_data()
 {
@@ -183,8 +183,8 @@ void GLAABBTest::testJoin()
     QFETCH(bool, expected);
 
     // cut op is commutative
-    QCOMPARE( fuzzyEqual(b0.join(b1), b2), expected );
-    QCOMPARE( fuzzyEqual(b1.join(b0), b2), expected );
+    QCOMPARE(fuzzyEqual(b0.join(b1), b2), expected);
+    QCOMPARE(fuzzyEqual(b1.join(b0), b2), expected);
 }
 void GLAABBTest::testJoin_data()
 {

@@ -84,8 +84,7 @@ const QTransform ViewItemGL::adjustForAnchor(const QTransform& transform) const
     const QRectF rect = this->boundingRect();
 
     QTransform adjustedTransform = transform;
-    switch (m_anchor)
-    {
+    switch (m_anchor) {
     case ViewItemGL::Center:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -0.5f);
         break;
@@ -111,7 +110,7 @@ const QTransform ViewItemGL::adjustForAnchor(const QTransform& transform) const
         adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -0.5f);
         break;
     case ViewItemGL::NorthWest:
-        // fall-through
+    // fall-through
     default:
         break;
     }

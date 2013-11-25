@@ -5,20 +5,20 @@
 
 */
 
-#include <QApplication>
-
 #include "JSONError.h"
+
+#include <QApplication>
 
 const char* JSONError::LOC_CONTEXT = "JSONError";
 
 JSONError::JSONError(QObject* parent)
-    : Error(parent), m_rawJSON()
+    : Error(parent)
 {
     init(QJsonParseError::NoError);
 }
 
-JSONError::JSONError(QJsonParseError::ParseError error, const QByteArray& rawJSON, QObject* parent)
-    : Error(parent), m_rawJSON(rawJSON)
+JSONError::JSONError(QJsonParseError::ParseError error, QObject* parent)
+    : Error(parent)
 {
     init(error);
 }
@@ -34,8 +34,7 @@ void JSONError::init(QJsonParseError::ParseError error)
     QString name;
     QString description;
 
-    switch (error)
-    {
+    switch (error) {
     case QJsonParseError::NoError:
         type = JSONError::NoError;
         name = QApplication::translate(JSONError::LOC_CONTEXT, "NoError:Name");

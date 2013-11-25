@@ -16,16 +16,16 @@
 // ViewItemGL is a simple abstract class that represents a static GUI item to
 // rendered in the associated view port. Convenient methods are provided to
 // anchor the item in predefined points in the view port (eg. north, center, etc.).
-// Simple means for responding to mouse events is included as well. 
+// Simple means for responding to mouse events is included as well.
 class ViewItemGL : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Anchor)
-    
+
 public:
-    
+
     enum Anchor {Center, North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest};
-    
+
     explicit ViewItemGL(QObject* parent = 0);
     virtual ~ViewItemGL();
     virtual void render(QPainter* painter) = 0;
@@ -48,9 +48,9 @@ public slots:
     void setVisible(bool visible);
 
 private:
-    
+
     const QTransform adjustForAnchor(const QTransform& transform) const;
-    
+
     QTransform m_transform;
     int m_z;
     bool m_visible;

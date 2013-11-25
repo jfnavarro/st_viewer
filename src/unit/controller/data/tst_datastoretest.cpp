@@ -19,13 +19,13 @@ DataStoreTest::DataStoreTest(QObject *parent) : QObject(parent) { }
 void DataStoreTest::initTestCase()
 {
     DataStore *dataStore = DataStore::getInstance();
-    QVERIFY( dataStore != 0 );
+    QVERIFY(dataStore != 0);
 }
 
 void DataStoreTest::cleanupTestCase()
 {
     DataStore *dataStore = DataStore::getInstance(true);
-    QVERIFY( dataStore == 0 );
+    QVERIFY(dataStore == 0);
 }
 
 void DataStoreTest::testCreateFile()
@@ -39,20 +39,20 @@ void DataStoreTest::testCreateFile()
 
     // create and verify
     QIODevice *file = dataStore->accessResource(name, static_cast<ResourceStore::Option>(options));
-    QVERIFY( file != 0 );
+    QVERIFY(file != 0);
 
     // test that file is registered in data store correctly
-    QCOMPARE( dataStore->hasResource(name), expected );
+    QCOMPARE(dataStore->hasResource(name), expected);
 
     // test that file is created (on disk) correctly
-    QVERIFY( file->open(QIODevice::WriteOnly) );
-    QVERIFY( file->isOpen() );
-    QVERIFY( QFile::exists(name) );
+    QVERIFY(file->open(QIODevice::WriteOnly));
+    QVERIFY(file->isOpen());
+    QVERIFY(QFile::exists(name));
     file->close();
 
     // test that files is removed
     bool removed = QFile::remove(name);
-    QVERIFY( removed );
+    QVERIFY(removed);
 }
 
 void DataStoreTest::testCreateFile_data()

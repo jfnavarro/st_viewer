@@ -25,29 +25,29 @@ class MainStatusBar;
 class stVi : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
-    
+
     // constructor we only need the parameters object and the parent if there is any
     explicit stVi(QWidget* parent = 0);
-    
+
     //initialize main visual components
     void init();
-    
+
     int checkSystemRequirements();
-    
+
     //settings
     void loadSettings();
     void saveSettings() const;
-    
+
     //destructor
     ~stVi();
-    
+
 signals:
-    
+
     //we emit this when there is an error
     void signalError(Error* error);
-    
+
     // slots are functions that are going to be assigned to signals and events
 public slots:
 
@@ -56,32 +56,32 @@ public slots:
     void showAbout();
 
 private slots:
-    
+
     // exit the application
     void slotExit();
-    
+
     //clear the cache and files
     void slotClearCache();
-    
+
 private:
-    
+
     QAction *actionExit;
     QAction *actionHelp;
     QAction *actionVersion;
     QAction *actionPrint;
     QAction *actionAbout;
     QAction *actionClear_Cache;
-    
+
     MainStatusBar *statusbar;
     MainMenuBar *menubar;
-    
+
     QMenu *menuLoad;
     QMenu *menuHelp;
-    
+
     QWidget *centralwidget;
     QVBoxLayout *mainlayout;
     ExtendedTabWidget *mainTab;
-    
+
     //create all the widgets
     void setupUi();
     // initialize and configure layout

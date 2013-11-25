@@ -21,8 +21,7 @@ StandardPalette::StandardPalette(QObject* parent)
     : ColorPalette(parent)
 {
     const QStringList colorNameList = QColor::colorNames();
-    foreach(const QString colorName, colorNameList)
-    {
+    foreach(const QString colorName, colorNameList) {
         m_colorList << ColorPair(QColor(colorName), colorName);
     }
 }
@@ -67,16 +66,14 @@ const ColorPalette::ColorList HSVPalette::colorList() const
 {
     return colorList(DEFAULT_COUNT);
 }
+
 const ColorPalette::ColorList HSVPalette::colorList(const int count) const
 {
     ColorList colorList;
-
     const qreal step = qreal(360) / qreal(count);
-    for(int i=0; i<count; ++i)
-    {
+    for (int i = 0; i < count; ++i) {
         const int hue = int(i * step);
         const QColor color = QColor::fromHsv(hue, m_saturation, m_value);
-        //colorList << ColorPair(color, QString("HSV[%1,%2,%3]").arg(color.hue()).arg(color.saturation()).arg(color.value()));
         colorList << ColorPair(color, QString());
     }
     return colorList;

@@ -43,23 +43,20 @@ public:
 namespace Qxt
 {
 #endif
-    enum Rotation
-    {
+    enum Rotation {
         NoRotation  = 0,
         UpsideDown  = 180,
         Clockwise  = 90,
         CounterClockwise = 270
     };
 
-    enum DecorationStyle
-    {
+    enum DecorationStyle {
         NoDecoration,
         Buttonlike,
         Menulike
     };
 
-    enum ErrorCode
-    {
+    enum ErrorCode {
         NoError,
         UnknownError,
         LogicalError,
@@ -84,15 +81,13 @@ namespace Qxt
         Overflow
     };
 
-    enum QxtItemDataRole
-    {
+    enum QxtItemDataRole {
         ItemStartTimeRole  = Qt::UserRole + 1,
         ItemDurationRole   = ItemStartTimeRole + 1,
         UserRole           = ItemDurationRole + 23
     };
 
-    enum Timeunit
-    {
+    enum Timeunit {
         Second,
         Minute,
         Hour,

@@ -5,22 +5,23 @@
 
 */
 
-#ifndef ANIMATEDTABLEVIEW_H
-#define ANIMATEDTABLEVIEW_H
+#ifndef ANIMATEDDATASETSTABLEVIEW_H
+#define ANIMATEDDATASETSTABLEVIEW_H
 
 #include <QTableView>
-
 #include "WidgetBackgroundAnimation.h"
+
+class DatasetItemModel;
 
 // Simple extension to the Qt table view which adds a background
 // animation.
-class AnimatedTableView : public QTableView
+class AnimatedDatasetsTableView : public QTableView
 {
     Q_OBJECT
 
 public:
-    explicit AnimatedTableView(QWidget *parent = 0);
-    virtual ~AnimatedTableView();
+    explicit AnimatedDatasetsTableView(QWidget *parent = 0);
+    virtual ~AnimatedDatasetsTableView();
 
 public slots:
     void setWaiting(const bool waiting);
@@ -28,7 +29,8 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
 
+    DatasetItemModel *m_datasetModel;
     WidgetBackgroundAnimation m_animation;
 };
 
-#endif // ANIMATEDTABLEVIEW_H //
+#endif // ANIMATEDDATASETSTABLEVIEW_H //

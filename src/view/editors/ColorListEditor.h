@@ -12,7 +12,7 @@
 
 // A simple color combo box class (not the best solution but works) used to
 // provide a drop down color selector. Primarily intended to be used in table
-// views as an alternative to edit colors. 
+// views as an alternative to edit colors.
 class ColorPalette;
 class ColorListEditor : public QComboBox
 {
@@ -21,17 +21,15 @@ class ColorListEditor : public QComboBox
 
 public:
     static const int DEFAULT_COLOR_COUNT = 12;
-    
+
     explicit ColorListEditor(QWidget* widget = 0);
     virtual ~ColorListEditor();
 
 public:
-    
     const QColor color() const;
     void setColor(const QColor& color);
 
 private:
-    
     void populateList(const ColorPalette* palette);
 };
 

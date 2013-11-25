@@ -33,11 +33,11 @@ namespace GL
 
 inline const GLfloat bitSet(const GLfloat bitFloat, const GLuint bit)
 {
-    return GLfloat( GLuint(bitFloat) | (1u << bit) );
+    return GLfloat(GLuint(bitFloat) | (1u << bit));
 }
 inline const GLfloat bitClear(const GLfloat bitFloat, const GLuint bit)
 {
-    return GLfloat( GLuint(bitFloat) & ~(1u << bit) );
+    return GLfloat(GLuint(bitFloat) & ~(1u << bit));
 }
 inline const bool bitTest(const GLfloat bitFloat, const GLuint bit)
 {

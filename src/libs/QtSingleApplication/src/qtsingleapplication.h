@@ -54,7 +54,10 @@ public:
     void setBlock(bool value);
 
 
-    void handleAction(const QUrl &pUrl) { emit messageReceived(pUrl.toString(), 0); }
+    void handleAction(const QUrl &pUrl)
+    {
+        emit messageReceived(pUrl.toString(), 0);
+    }
 
 public Q_SLOTS:
 
@@ -76,7 +79,7 @@ Q_SIGNALS:
 
 private:
 
-    void sysInit(const QString &appId = QString());
+    void sysInit(const QString &_appId = QString());
     QtLocalPeer *firstPeer;
     QtLocalPeer *pidPeer;
     QWidget *actWin;

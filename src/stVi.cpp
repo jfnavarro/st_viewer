@@ -5,6 +5,8 @@
 
 */
 
+#include "stVi.h"
+
 #if defined Q_OS_WIN
 #include <windows.h>
 #include "qt_windows.h"
@@ -47,8 +49,6 @@
 #include "ExtendedTabWidget.h"
 #include "MainStatusBar.h"
 
-#include "stVi.h"
-
 stVi::stVi(QWidget* parent): QMainWindow(parent)
 {
     actionAbout = 0;
@@ -64,7 +64,7 @@ stVi::stVi(QWidget* parent): QMainWindow(parent)
     mainTab = 0;
     menuLoad = 0;
     menuHelp = 0;
-    
+
     //init single instances
     //NOTE this must be done before setupUi
     initSingleInstances();
@@ -79,8 +79,7 @@ stVi::~stVi()
 void stVi::init()
 {
     DEBUG_FUNC_NAME
-
-     //init style, size and icons
+    //init style, size and icons
     initStyle();
     // create ui widgets
     setupUi();
@@ -88,7 +87,7 @@ void stVi::init()
     createShorcuts();
     // lets create some stuff
     createLayouts();
-    createConnections();   
+    createConnections();
     //restore settings
     loadSettings();
 }
@@ -96,38 +95,34 @@ void stVi::init()
 int stVi::checkSystemRequirements()
 {
     // Test for Basic OpenGL Support
-    if (!QGLFormat::hasOpenGL())
-    {
+    if (!QGLFormat::hasOpenGL()) {
         QMessageBox::information(0, "OpenGL 2.x Support",
                                  "This system does not support OpenGL.");
         return 0;
     }
     // Fail if you do not have OpenGL 2.0 or higher driver
-    if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1)
-    {
+    if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
         QMessageBox::information(0, "OpenGL 2.x Context",
                                  "This system does not support OpenGL 2.x Contexts");
         return 0;
     }
     // Fail if you do not support SSL secure connection
-    if (!QSslSocket::supportsSsl())
-    {
+    if (!QSslSocket::supportsSsl()) {
         QMessageBox::information(0, "HTTPS",
                                  "This system does not secure SSL connections");
         return 0;
     }
-    
+
     //TODO move this network call to dataproxy and and oject parser
     // check if the version is supported in the server and check for updates
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion();
     NetworkManager *nm = NetworkManager::getInstance();
     NetworkReply *reply = nm->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
     QEventLoop loop; // I want to wait until this finishes
-    connect(reply, SIGNAL(signalFinished(QVariant,QVariant)), &loop, SLOT(quit()));
+    connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
     loop.exec();
     cmd->deleteLater();
-    if(reply == 0)
-    {
+    if (reply == 0) {
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return 0;
@@ -135,8 +130,7 @@ int stVi::checkSystemRequirements()
     //parse reply
     QJsonDocument document = reply->getJSON();
     // if no errors
-    if(!reply->hasErrors())
-    {
+    if (!reply->hasErrors()) {
         QString min_version = document.toVariant().toMap().find("minSupportedClientVersion").value().toString();
         QString myversion = Globals::VERSION;
         float version_major = Globals::MAJOR.toFloat();
@@ -146,23 +140,19 @@ int stVi::checkSystemRequirements()
         qDebug() << "[MAIN] Check min version min = " << min_version << " current = " << myversion;
         //TODO I should check that I retrieved the versions correctly
         reply->deleteLater();
-        if(my_version_major > version_major || my_version_minor > version_minor)
-        {
+        if (my_version_major > version_major || my_version_minor > version_minor) {
             QMessageBox::information(0, "MINIMUM VERSION",
                                      "This version of the software is not supported anymore, please update!");
             return 0;
         }
-    }
-    else
-    {
+    } else {
         qDebug() << "[MAIN] Network ERROR : Check min version min " << reply->getText();
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
-        
+
         reply->deleteLater();
         return 0;
     }
-    
     return 1;
 }
 
@@ -171,18 +161,18 @@ void stVi::setupUi()
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
     resize(1217, 706);
-    
+
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
     sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-    
+
     setSizePolicy(sizePolicy);
     setMinimumSize(QSize(800, 600));
     setMouseTracking(false);
     setFocusPolicy(Qt::NoFocus);
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
-    
+
     actionExit = new QAction(this);
     actionHelp = new QAction(this);
     actionVersion = new QAction(this);
@@ -190,35 +180,35 @@ void stVi::setupUi()
     actionPrint->setIcon(QIcon(QStringLiteral(":/images/print-printer-icone-7769-64.png")));
     actionAbout = new QAction(this);
     actionClear_Cache = new QAction(this);
-    
+
     centralwidget = new QWidget(this);
     centralwidget->setMouseTracking(false);
     centralwidget->setFocusPolicy(Qt::NoFocus);
-    
+
     mainlayout = new QVBoxLayout(centralwidget);
     mainTab = new ExtendedTabWidget(centralwidget);
     mainlayout->addWidget(mainTab);
     setCentralWidget(centralwidget);
-    
+
     statusbar = MainStatusBar::getInstance();
     setStatusBar(statusbar);
-    
+
     menubar = MainMenuBar::getInstance();
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1217, 22));
 
     menuLoad = new QMenu(menubar);
     menuHelp = new QMenu(menubar);
-    
+
     setMenuBar(menubar);
-    
+
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
     menuLoad->addSeparator();
     menuLoad->addAction(actionExit);
     menuLoad->addAction(actionClear_Cache);
     menuHelp->addAction(actionAbout);
-    
+
     actionExit->setText(QApplication::translate("MainWindow", "&Exit", 0));
     actionHelp->setText(QApplication::translate("MainWindow", "Help", 0));
     actionVersion->setText(QApplication::translate("MainWindow", "Version", 0));
@@ -227,9 +217,9 @@ void stVi::setupUi()
     actionClear_Cache->setText(QApplication::translate("MainWindow", "Clear Cache", 0));
     menuLoad->setTitle(QApplication::translate("MainWindow", "File", 0));
     menuHelp->setTitle(QApplication::translate("MainWindow", "About", 0));
-    
+
     QMetaObject::connectSlotsByName(this);
-} 
+}
 
 void stVi::handleMessage(QString message)
 {
@@ -246,12 +236,11 @@ void stVi::slotExit()
 {
     //TOFIX this hides the mainwindow on MAC platforms
     int answer = QMessageBox::warning(
-                this, tr("Exit application"),
-                tr("Are you really sure you want to exit now?"),
-                QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+                     this, tr("Exit application"),
+                     tr("Are you really sure you want to exit now?"),
+                     QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
 
-    if (answer == QMessageBox::Yes)
-    {
+    if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
         saveSettings();
         QApplication::exit();
@@ -264,12 +253,11 @@ void stVi::slotExit()
 void stVi::slotClearCache()
 {
     int answer = QMessageBox::warning(
-                this, tr("Clear the Cache"),
-                tr("Are you really sure you want to clear the cache?"),
-                QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
-    
-    if (answer == QMessageBox::Yes)
-    {
+                     this, tr("Clear the Cache"),
+                     tr("Are you really sure you want to clear the cache?"),
+                     QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+
+    if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Cleaaring the cache...";
         DataProxy::getInstance()->cleanAll();
         mainTab->resetStatus();
@@ -286,10 +274,10 @@ void stVi::initStyle()
 {
     // apply stylesheet and configurations
 #ifdef Q_OS_MAC
-    QApplication::setAttribute(Qt::AA_MacPluginApplication,false);
-    QApplication::setAttribute(Qt::AA_NativeWindows,true); //NOTE this is actually pretty important
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus,false); //osx does not show icons on menus
-    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents,false);
+    QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
+    QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false); //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     //         QApplication::setAttribute(Qt::AA_Use96Dpi,true); //for mac retina compatibility
     //         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar,false); //false
     //         QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings,false); //false
@@ -317,12 +305,12 @@ void stVi::createShorcuts()
 {
 #if defined(Q_OS_WIN)
     actionExit->setShortcuts(QList<QKeySequence>()
-                             << QKeySequence(Qt::ALT|Qt::Key_F4)
-                             << QKeySequence(Qt::CTRL|Qt::Key_Q));
+                             << QKeySequence(Qt::ALT | Qt::Key_F4)
+                             << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     actionExit->setShortcut(QKeySequence::Quit);
 #endif
-    
+
 #if defined Q_OS_MAC
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
@@ -342,11 +330,11 @@ void stVi::initSingleInstances()
     ErrorManager* errorManager = ErrorManager::getInstance();
     connect(this, SIGNAL(signalError(Error*)), errorManager, SLOT(slotHandleError(Error*)));
     errorManager->init(this);
-    
+
     // init data stored
     DataStore* dataStore = DataStore::getInstance();
     dataStore->init();
-    
+
     // init network manager
     NetworkManager* networkManager = NetworkManager::getInstance();
     networkManager->init();
@@ -354,15 +342,15 @@ void stVi::initSingleInstances()
     // init data proxy
     DataProxy* dataProxy = DataProxy::getInstance();
     dataProxy->init();
-    
+
     // init MenuBar
     MainMenuBar *menubar = MainMenuBar::getInstance(this);
     menubar->init();
-    
+
     // init Status Bar
     MainStatusBar *statusbar = MainStatusBar::getInstance(this);
     statusbar->init();
-    
+
     // inir AuthorizationManager
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->init();
@@ -375,11 +363,11 @@ void stVi::finalizeSingleInstances()
     // finalize authentication manager
     AuthorizationManager::getInstance()->finalize();
     AuthorizationManager::getInstance(true);
-    
+
     // finalize network manager
     NetworkManager::getInstance()->finalize();
     NetworkManager::getInstance(true);
-    
+
     // finalize data proxy
     DataProxy::getInstance()->finalize();
     DataProxy::getInstance(true);
@@ -395,11 +383,11 @@ void stVi::finalizeSingleInstances()
     // finalize configurations
     Configuration::getInstance()->finalize();
     Configuration::getInstance(true);
-    
+
     // finalize menubar
     MainMenuBar::getInstance()->finalize();
     MainMenuBar::getInstance(true);
-    
+
     // finalize status bar
     MainStatusBar::getInstance()->finalize();
     MainStatusBar::getInstance(true);
@@ -424,7 +412,7 @@ void stVi::closeEvent(QCloseEvent* event)
 }
 
 void stVi::loadSettings()
-{   
+{
     QSettings settings;
     // Retrieve the geometry and state of the main window
     restoreGeometry(settings.value(Globals::SettingsGeometry).toByteArray());
@@ -433,7 +421,7 @@ void stVi::loadSettings()
 }
 
 void stVi::saveSettings() const
-{    
+{
     QSettings settings;
     // Keep track of the geometry and state of the main window
     QByteArray geometry = saveGeometry();

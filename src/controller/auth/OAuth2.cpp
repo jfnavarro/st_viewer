@@ -5,7 +5,7 @@
 
 */
 
-
+#include "OAuth2.h"
 
 #include <QDebug>
 #include <QJsonDocument>
@@ -25,12 +25,9 @@
 #include "model/dto/OAuth2TokenDTO.h"
 #include "model/ObjectParser.h"
 
-#include "utils/config/Configuration.h"
 #include "utils/Utils.h"
 
-#include "OAuth2.h"
-
-OAuth2::OAuth2(QObject* parent) 
+OAuth2::OAuth2(QObject* parent)
     : QObject(parent), m_loginDialog(0)
 {
 
@@ -44,38 +41,23 @@ OAuth2::~OAuth2()
 void OAuth2::startQuietLogin(const QUuid& refreshToken)
 {
     DEBUG_FUNC_NAME
-
     // request token based on valid refresh token
     const StringPair requestType(Globals::LBL_GRANT_TYPE, Globals::SettingsRefreshToken);
-    const StringPair requestData(Globals::SettingsRefreshToken, refreshToken.toString().mid(1,36)); // QUuid encloses its uuids in "{}"...
+    const StringPair requestData(Globals::SettingsRefreshToken, refreshToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
     requestToken(requestType, requestData);
 }
 
 void OAuth2::startInteractiveLogin()
 {
     DEBUG_FUNC_NAME
-
-    Configuration* config = Configuration::getInstance();
-    
-    if(config->oauthClientID() == QStringLiteral("YOUR_CLIENT_ID_HERE") ||
-            config->oauthClientID().isEmpty() ||
-            config->oauthSecret() == QStringLiteral("YOUR_CLIENT_SECRET_HERE") ||
-            config->oauthSecret().isEmpty())
-    {
-        qDebug() << "[OAuth2] Error: To work with application you need to register "
-                 <<  "your own application in SpatialTranscriptomics.";
-        return;
-    }
-
     // lazy init
-    if(m_loginDialog.isNull())
-    {
+    if (m_loginDialog.isNull()) {
         m_loginDialog.reset(new LoginDialog());
         connect(m_loginDialog.data(), SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
         connect(m_loginDialog.data(), SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
-    
+    //launch login dialog
     m_loginDialog->clear();
     m_loginDialog->show();
     m_loginDialog->raise();
@@ -83,36 +65,32 @@ void OAuth2::startInteractiveLogin()
 }
 
 void OAuth2::slotEnterDialog(const QString &username, const QString &password)
-{   
+{
     qDebug() << "[OAuth2] Trying to log in with = " << username << " " << password;
-    
+
     //request token based on password//username
-    requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME,username),
-                 StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD,password));
-    
+    requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME, username),
+                 StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD, password));
+
 }
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
 {
     NetworkCommand* cmd = RESTCommandFactory::getAuthorizationToken();
-    cmd->addQueryItem(requestUser.first,requestUser.second);
-    cmd->addQueryItem(requestPassword.first,requestPassword.second);
-
+    cmd->addQueryItem(requestUser.first, requestUser.second);
+    cmd->addQueryItem(requestPassword.first, requestPassword.second);
     // send empty flags to ensure access token is not appended to request
     NetworkManager *m_networkManager = NetworkManager::getInstance();
     NetworkReply* request = m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
-    
-    if(request == 0)
-    {
+    //check reply is correct
+    if (request == 0) {
         qDebug() << "[OAuth2] Network Manager errror";
         OAuth2Error* error = new OAuth2Error("Log in Error", "Connection Problem", this);
         emit signalError(error);
-    }
-    else
-    {
+    } else {
         connect(request, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
     }
-    
+    //clean up
     cmd->deleteLater();
 }
 
@@ -121,8 +99,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     // get reference to network reply from sender object
     NetworkReply* reply = dynamic_cast<NetworkReply*>(sender());
     // null reply, prob no connection
-    if(reply == 0)
-    {
+    if (reply == 0) {
         qDebug() << "[OAuth2] Network Manager errror";
         OAuth2Error* error = new OAuth2Error("Log in Error", "Connection Problem", this);
         emit signalError(error);
@@ -130,8 +107,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     }
     // early out
     int returnCode = qvariant_cast<int>(code);
-    if (returnCode == NetworkReply::CodeError)
-    {
+    if (returnCode == NetworkReply::CodeError) {
         qDebug() << "[OAuth2] Network Manager errror";
         OAuth2Error* error = new OAuth2Error("Log in Error", "Authorization Failed", this);
         emit signalError(error);
@@ -142,37 +118,29 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     QJsonDocument document = reply->getJSON();
     QVariant result = document.toVariant();
     //no errors, good
-    if (!reply->hasErrors())
-    {
+    if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
         ObjectParser::parseObject(result, &dto);
-        
+
         QUuid accessToken = QUuid(dto.accessToken());
         int expiresIn = dto.expiresIn();
         QUuid refreshToken = QUuid(dto.refreshToken());
-        
-        if (!accessToken.isNull() && (expiresIn >= 0) && !refreshToken.isNull())
-        {
+
+        if (!accessToken.isNull() && (expiresIn >= 0) && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         }
-    }
-    else
-    {
+    } else {
         const NetworkReply::ErrorList &errors = reply->errors();
         Error* error = 0;
-        if(errors.count() > 1)
-        {
+        if (errors.count() > 1) {
             QString errortext;
-            foreach(Error *e, errors)
-            {
+            foreach(Error * e, errors) {
                 qDebug() << "[OAuth2] Network Reply Error " << e->name() << " : " << e->description();
                 errortext += (e->name() + " : " + e->description()) + "\n";
             }
             //NOTE need to emit a standard Error that packs all the errors descriptions
             error = new Error("Multiple Authorization Error", errortext, this);
-        }
-        else
-        {
+        } else {
             ErrorDTO dto;
             ObjectParser::parseObject(result, &dto);
             QString errorName = dto.errorName();
@@ -183,6 +151,6 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
 
         emit signalError(error);
     }
-    
+    //clean up
     reply->deleteLater();
 }

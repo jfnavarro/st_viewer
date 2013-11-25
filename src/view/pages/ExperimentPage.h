@@ -6,7 +6,7 @@
 */
 
 #ifndef EXPERIMENTPAGE_H
-#define	EXPERIMENTPAGE_H
+#define EXPERIMENTPAGE_H
 
 #include <QWidget>
 #include "Page.h"
@@ -20,9 +20,9 @@ class Experiments;
 class ExperimentPage : public Page
 {
     Q_OBJECT
-    
+
 public:
-    
+
     explicit ExperimentPage(QWidget *parent = 0);
     virtual ~ExperimentPage();
 
@@ -41,5 +41,5 @@ private:
     Ui::Experiments *ui;
 };
 
-#endif	/* EXPERIMENTPAGE_H */
+#endif  /* EXPERIMENTPAGE_H */
 

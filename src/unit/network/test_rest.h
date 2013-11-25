@@ -31,4 +31,4 @@ private Q_SLOTS:
 
 } // namespace unit //
 
-#endif	/* // TEST_REST_H */
+#endif  /* // TEST_REST_H */

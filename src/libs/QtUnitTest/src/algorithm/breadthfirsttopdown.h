@@ -33,8 +33,8 @@ class BreadthFirstTopDown : public Linearizer
 {
 public:
     virtual const QList<QObject *> list(QObject *object);
-    BreadthFirstTopDown(){};
-    virtual ~BreadthFirstTopDown(){};
+    BreadthFirstTopDown() {};
+    virtual ~BreadthFirstTopDown() {};
 };
 
 } // namespace unit //

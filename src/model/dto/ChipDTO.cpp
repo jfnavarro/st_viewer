@@ -9,14 +9,14 @@
 
 ChipDTO::ChipDTO(QObject* parent) : QObject(parent), m_chip()
 {
-    
+
 }
 ChipDTO::ChipDTO(const Chip& chip, QObject* parent) : QObject(parent), m_chip(chip)
 {
-    
+
 }
 
 ChipDTO::~ChipDTO()
 {
-    
+
 }

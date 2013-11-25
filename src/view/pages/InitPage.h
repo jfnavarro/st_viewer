@@ -6,7 +6,7 @@
 */
 
 #ifndef STARTPAGE_H
-#define	STARTPAGE_H
+#define STARTPAGE_H
 
 #include "Page.h"
 
@@ -28,8 +28,8 @@ class InitPage : public Page
 
     Q_OBJECT
 
-public: 
-    
+public:
+
     explicit InitPage(QWidget *parent = 0);
     virtual ~InitPage();
 
@@ -40,7 +40,7 @@ public slots:
     void onExit();
 
 protected slots:
-    
+
     void slotAuthorizationError(Error*);
     void slotNetworkError(Error*);
     void slotLogOutButton();
@@ -54,9 +54,9 @@ protected:
     void setWaiting(bool waiting = true);
 
 private:
-    
+
     Ui::InitPage *ui;
 
 };
 
-#endif	// STARTPAGE_H //
+#endif  // STARTPAGE_H //

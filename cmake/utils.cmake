@@ -22,7 +22,6 @@ MACRO(INITIALISE_PROJECT)
 
     IF(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
         MESSAGE("Building a debug version...")
-        set(DEBUG_MODE ON)
         # Default compiler settings
         IF(WIN32)
             SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
@@ -34,7 +33,6 @@ MACRO(INITIALISE_PROJECT)
         ADD_DEFINITIONS(-DQT_DEBUG)
     ELSE()
         MESSAGE("Building a release version...")
-        set(DEBUG_MODE OFF)
         # Default compiler and linker settings
         IF(WIN32)
             SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
@@ -57,10 +55,10 @@ MACRO(INITIALISE_PROJECT)
         #TODO
     ELSE()
         IF(TREAT_WARNINGS_AS_ERRORS)
-            SET(WARNING_ERROR "-Werror")
+            SET(WARNING_ERROR "-Werror -Wold-style-cast -Woverloaded-virtual -Wundef")
         ENDIF(TREAT_WARNINGS_AS_ERRORS)
         SET(DISABLED_WARNINGS "-Wno-multichar -Wno-unused-variable -Wno-unused-function -Wno-return-type -Wno-switch")
-        SET(DISABLED_WARNINGS_DEBUG "-Wno-unused-variable -Wno-unused-function")
+        SET(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow ") #-Wno-unused-variable -Wno-unused-function
     ENDIF()
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
@@ -104,43 +102,35 @@ MACRO(use_qt5lib qt5lib)
 ENDMACRO()
 
 MACRO(COPY_FILE_TO_BUILD_DIR ORIG_DIRNAME DEST_DIRNAME FILENAME)
-
-    IF(EXISTS ${CMAKE_BINARY_DIR}/../cmake)
+    if(EXISTS ${CMAKE_BINARY_DIR}/../cmake)
         SET(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
-    ELSE()
+    else()
         if(WIN32)
             SET(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${DEST_DIRNAME})
         else()
             SET(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
         endif()
-    ENDIF()
-
-    IF("${ARGN}" STREQUAL "")
-        ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME} POST_BUILD
+    endif()
+    if("${ARGN}" STREQUAL "")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                            COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
                                                             ${REAL_DEST_DIRNAME}/${FILENAME})
-    ELSE()
-
-        ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME} POST_BUILD
+    else()
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                            COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
                                                             ${REAL_DEST_DIRNAME}/${ARGN})
-    ENDIF()
+    endif()
 ENDMACRO()
 
 MACRO(WINDOWS_DEPLOY_QT_LIBRARIES)
     FOREACH(LIBRARY ${ARGN})
-        # Deploy the Qt library itself
-        #INSTALL(FILES ${QT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX} DESTINATION .)
         WINDOWS_DEPLOY_LIBRARY(${QT_BINARY_DIR} ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX} .)
     ENDFOREACH()
 ENDMACRO()
 
 MACRO(WINDOWS_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
     FOREACH(PLUGIN_NAME ${ARGN})
-        # Deploy the Qt plugin itself
         WINDOWS_DEPLOY_LIBRARY(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY} ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} plugins/${PLUGIN_CATEGORY})
-        #INSTALL(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-        #        DESTINATION plugins/${PLUGIN_CATEGORY})
     ENDFOREACH()
 ENDMACRO()
 
@@ -149,13 +139,11 @@ MACRO(WINDOWS_DEPLOY_LIBRARY DIRNAME FILENAME DESTINATION)
     # test things without first having to deploy stVi
     COPY_FILE_TO_BUILD_DIR(${DIRNAME} ${DESTINATION} ${FILENAME})
     # Install the library file
-    INSTALL(FILES ${DIRNAME}/${FILENAME}
-            DESTINATION ${DESTINATION})
+    INSTALL(FILES ${DIRNAME}/${FILENAME} DESTINATION ${DESTINATION})
 ENDMACRO()
 
 MACRO(LINUX_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
     FOREACH(PLUGIN_NAME ${ARGN})
-        # Deploy the Qt plugin itself
         INSTALL(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
                 DESTINATION plugins/${PLUGIN_CATEGORY})
     ENDFOREACH()

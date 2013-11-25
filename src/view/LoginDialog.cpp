@@ -75,7 +75,7 @@ const QString LoginDialog::getCurrentPassword() const
 void LoginDialog::loadUsers()
 {
     QSettings settings;
-    QStringList userlist = settings.value(Globals::SettingsUsers,QStringList()).toStringList();
+    QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
     m_completer = new QCompleter(stringSet.toList());
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -85,11 +85,11 @@ void LoginDialog::saveUsers()
 {
     //TODO check if the user is present already
     QSettings settings;
-    QStringList users = settings.value(Globals::SettingsUsers,QStringList()).toStringList();
+    QStringList users = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     const QString username = ui->username->text();
     qDebug() << "[LoginDialog] Saving User = " << username;
     users.append(username);
-    settings.setValue(Globals::SettingsUsers,users);
+    settings.setValue(Globals::SettingsUsers, users);
 }
 
 
@@ -100,15 +100,14 @@ void LoginDialog::setPassword(const QString &password)
 
 void LoginDialog::slotAcceptLogin()
 {
-    emit acceptLogin(ui->username->text(),ui->password->text());
+    emit acceptLogin(ui->username->text(), ui->password->text());
     // close this dialog
     close();
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *e)
 {
-    switch (e->key ())
-    {
+    switch (e->key()) {
     case Qt::Key_Escape:
         exitLogin();
         break;

@@ -30,8 +30,7 @@ namespace GL
 // opengl type trait
 // access to compile time type information give opengl type
 template <typename T>
-struct GLTypeTrait
-{
+struct GLTypeTrait {
     static const GLenum type_enum;
     static const int type_size;
     static const T max_value;
@@ -41,14 +40,12 @@ struct GLTypeTrait
 // opengl type enum trait
 // access to compile time type information given opengl type enum value
 template <int N>
-struct GLTypeEnumTrait
-{
+struct GLTypeEnumTrait {
     static const int type_size;
 };
 // opengl type enum info
 // access to run-time type information given opengl type enum value
-struct GLTypeEnumInfo
-{
+struct GLTypeEnumInfo {
     static const int type_size(const GLenum type);
     static inline const bool valid_type(const GLenum type);
 };
@@ -56,14 +53,12 @@ struct GLTypeEnumInfo
 // opengl color enum traits
 template <int N>
 // access to compile time color information given opengl type enum value
-struct GLColorEnumTrait
-{
+struct GLColorEnumTrait {
     static const int color_count;
 };
 // opengl color enum info
 // access to run-time color information given opengl type enum value
-struct GLColorEnumInfo
-{
+struct GLColorEnumInfo {
     static const int color_count(const GLenum mode);
     static inline const bool valid_color(const GLenum mode);
 };
@@ -71,14 +66,12 @@ struct GLColorEnumInfo
 // opengl geometric type trait
 // access to compile time geometric primitive information given opengl type enum value
 template <int N>
-struct GLGeomEnumTrait
-{
+struct GLGeomEnumTrait {
     static const int vertex_count;
 };
 // opengl geometric type info
 // access to run-time geometric primitive information given opengl type enum value
-struct GLGeomEnumInfo
-{
+struct GLGeomEnumInfo {
     static const int vertex_count(const GLenum mode);
     static inline const bool valid_geom(const GLenum mode);
 };
@@ -95,7 +88,6 @@ inline const bool GLTypeEnumInfo::valid_type(const GLenum type)
 {
     return (GL_BYTE <= type && type <= GL_DOUBLE);
 }
-
 
 inline const bool GLColorEnumInfo::valid_color(const GLenum mode)
 {

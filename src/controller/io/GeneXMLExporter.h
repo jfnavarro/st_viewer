@@ -17,14 +17,14 @@
 class GeneXMLExporter : public GeneExporter
 {
 public:
-    
+
     GeneXMLExporter(QObject *parent = 0);
     virtual ~GeneXMLExporter();
 
     virtual void exportItem(QIODevice *device, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
 private:
-    
+
     void exportItem(QXmlStreamWriter &oxml, const DataProxy::FeaturePtr &feature, const QObject &context) const;
     void exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 };

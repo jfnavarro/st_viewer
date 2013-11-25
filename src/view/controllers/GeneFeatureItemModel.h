@@ -9,6 +9,7 @@
 #define GENEFEATUREITEMMODEL_H
 
 #include "controller/data/DataProxy.h"
+#include <QAbstractTableModel>
 
 class QModelIndex;
 class QStringList;
@@ -20,7 +21,7 @@ class GeneFeatureItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
-    
+
 public:
 
     enum Column {Name = 0, Show, Color};
@@ -37,20 +38,17 @@ public:
     void loadGenes();
 
 signals:
-    
     void signalSelectionChanged(DataProxy::GenePtr gene);
     void signalColorChanged(DataProxy::GenePtr gene);
 
 public slots:
-
     void selectAllGenesPressed(bool selected);
     void setColorGenes(const QColor& color);
 
 private:
-    
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
-    
+
     DataProxy::GeneListPtr m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel);

@@ -22,11 +22,11 @@ GLCommonTest::GLCommonTest(QObject *parent) : QObject(parent) { }
 
 void GLCommonTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLCommonTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLCommonTest::testFuzzyEqual()
@@ -36,7 +36,7 @@ void GLCommonTest::testFuzzyEqual()
     QFETCH(GLfloat, epsilon);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual(scalar, approx, epsilon), expected );
+    QCOMPARE(GL::fuzzyEqual(scalar, approx, epsilon), expected);
 }
 
 void GLCommonTest::testFuzzyEqual_data()
@@ -59,7 +59,7 @@ void GLCommonTest::testFuzzyNotEqual()
     QFETCH(GLfloat, epsilon);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyNotEqual(scalar, approx, epsilon), expected );
+    QCOMPARE(GL::fuzzyNotEqual(scalar, approx, epsilon), expected);
 }
 
 void GLCommonTest::testFuzzyNotEqual_data()
@@ -82,7 +82,7 @@ void GLCommonTest::testLineFromPoint()
     QFETCH(GL::GLline, l0);
     QFETCH(bool, expected);
 
-    QCOMPARE( fuzzyEqual(GL::GLline(p0, p1), l0), expected );
+    QCOMPARE(fuzzyEqual(GL::GLline(p0, p1), l0), expected);
 }
 void GLCommonTest::testLineFromPoint_data()
 {
@@ -91,7 +91,7 @@ void GLCommonTest::testLineFromPoint_data()
     QTest::addColumn<GL::GLline>("l0");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("positive") << GL::GLpoint( 1.0f, 1.0f) << GL::GLpoint(3.0f,  2.0f) << GL::GLline( 1.0f, 1.0f, 3.0f,  2.0f) << true;
+    QTest::newRow("positive") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(3.0f,  2.0f) << GL::GLline(1.0f, 1.0f, 3.0f,  2.0f) << true;
     QTest::newRow("mixed") << GL::GLpoint(-1.0f, 1.0f) << GL::GLpoint(3.0f, -2.0f) << GL::GLline(-1.0f, 1.0f, 3.0f, -2.0f) << true;
 }
 

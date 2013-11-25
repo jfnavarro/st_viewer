@@ -49,30 +49,25 @@ inline const T nextMultiple(const T &number, const T &multiple);
 
 // relational operators
 template <typename T>
-struct comp_op_ls // less <
-{
+struct comp_op_ls { // less <
     static inline const bool compare(const T &a, const T &b);
 };
 template <typename T>
-struct comp_op_le // less or equal <=
-{
+struct comp_op_le { // less or equal <=
     static inline const bool compare(const T &a, const T &b);
 };
 template <typename T>
-struct comp_op_gt // greater >
-{
+struct comp_op_gt { // greater >
     static inline const bool compare(const T &a, const T &b);
 };
 template <typename T>
-struct comp_op_ge // greater or equal >=
-{
+struct comp_op_ge { // greater or equal >=
     static inline const bool compare(const T &a, const T &b);
 };
 
 // test for range (using template based range, default [lo, hi], ie. (lo <= v <= hi))
 template <typename T, typename OP_LO = comp_op_ge<T>, typename OP_HI = comp_op_le<T> >
-struct range
-{
+struct range {
     static inline const bool compare(const T &v, const T &lo, const T &hi);
 };
 
@@ -157,7 +152,7 @@ inline const bool comp_op_ge<T>::compare(const T &a, const T &b)
 }
 
 template <typename T, typename OP_LO, typename OP_HI>
-inline const bool range<T,OP_LO,OP_HI>::compare(const T &v, const T &lo, const T &hi)
+inline const bool range<T, OP_LO, OP_HI>::compare(const T &v, const T &lo, const T &hi)
 {
     return OP_LO::compare(v, lo) && OP_HI::compare(v, hi);
 }

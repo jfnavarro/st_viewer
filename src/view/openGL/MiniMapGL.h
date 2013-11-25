@@ -20,9 +20,9 @@ class MiniMapGL : public ViewItemGL
     Q_OBJECT
     Q_PROPERTY(QColor sceneColor READ getSceneColor WRITE setSceneColor);
     Q_PROPERTY(QColor viewColor READ getViewColor WRITE setViewColor);
-    
+
 public:
-    
+
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
@@ -39,20 +39,32 @@ public:
     virtual const bool mousePressEvent(QMouseEvent* event);
     virtual const bool mouseReleaseEvent(QMouseEvent* event);
 
-    inline void setSceneColor(const QColor& sceneColor) { m_sceneColor = sceneColor; }
-    inline const QColor& getSceneColor() const { return m_sceneColor; }
-    
-    inline void setViewColor(const QColor& viewColor) { m_viewColor = viewColor; }
-    inline const QColor& getViewColor() const { return m_viewColor; };
-    
+    inline void setSceneColor(const QColor& sceneColor)
+    {
+        m_sceneColor = sceneColor;
+    }
+    inline const QColor& getSceneColor() const
+    {
+        return m_sceneColor;
+    }
+
+    inline void setViewColor(const QColor& viewColor)
+    {
+        m_viewColor = viewColor;
+    }
+    inline const QColor& getViewColor() const
+    {
+        return m_viewColor;
+    };
+
 signals:
-    
+
     void signalCenterOn(const QPointF& point);
 
 private:
-    
+
     static const QRectF DEFAULT_BOUNDS;
-    
+
     void updateTransform(const QRectF& scene);
     const QPointF mapToScene(const QPointF& point) const;
 

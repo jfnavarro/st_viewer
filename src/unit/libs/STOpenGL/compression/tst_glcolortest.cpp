@@ -24,11 +24,11 @@ GLColorTest::GLColorTest(QObject *parent) : QObject(parent) { }
 
 void GLColorTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void GLColorTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void GLColorTest::testCompressToRGB8Bit()
@@ -37,7 +37,7 @@ void GLColorTest::testCompressToRGB8Bit()
     QFETCH(GL::GLcolorRGB8b, tar);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::compressToRGB8Bit(src) == tar, expected );
+    QCOMPARE(GL::compressToRGB8Bit(src) == tar, expected);
 }
 void GLColorTest::testCompressToRGB8Bit_data()
 {
@@ -59,7 +59,7 @@ void GLColorTest::testDecompressFromRGB8Bit()
     QFETCH(GL::GLcolor, tar);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual(GL::decompressFromRGB8Bit(src), tar), expected );
+    QCOMPARE(GL::fuzzyEqual(GL::decompressFromRGB8Bit(src), tar), expected);
 }
 void GLColorTest::testDecompressFromRGB8Bit_data()
 {
@@ -71,10 +71,10 @@ void GLColorTest::testDecompressFromRGB8Bit_data()
     QTest::newRow("primecolor1") << GL::GLcolorRGB8b(0x1Cu) << GL::GLcolor(0.0f, 1.0f, 0.0f) << true;
     QTest::newRow("primecolor2") << GL::GLcolorRGB8b(0x03u) << GL::GLcolor(0.0f, 0.0f, 1.0f) << true;
 
-    const GLfloat c_inv_3 = (1.0f/3.0f);
-    const GLfloat c_inv_7 = (1.0f/7.0f);
-    QTest::newRow("shade0") << GL::GLcolorRGB8b(0x49u) << GL::GLcolor(2.0f*c_inv_7, 2.0f*c_inv_7, 1.0f*c_inv_3) << true;
-    QTest::newRow("shade1") << GL::GLcolorRGB8b(0xB6u) << GL::GLcolor(5.0f*c_inv_7, 5.0f*c_inv_7, 2.0f*c_inv_3) << true;
+    const GLfloat c_inv_3 = (1.0f / 3.0f);
+    const GLfloat c_inv_7 = (1.0f / 7.0f);
+    QTest::newRow("shade0") << GL::GLcolorRGB8b(0x49u) << GL::GLcolor(2.0f * c_inv_7, 2.0f * c_inv_7, 1.0f * c_inv_3) << true;
+    QTest::newRow("shade1") << GL::GLcolorRGB8b(0xB6u) << GL::GLcolor(5.0f * c_inv_7, 5.0f * c_inv_7, 2.0f * c_inv_3) << true;
 }
 
 void GLColorTest::testCompressToRGB16Bit()
@@ -85,7 +85,7 @@ void GLColorTest::testCompressToRGB16Bit()
 
     qDebug() << hex << tar << GL::compressToRGB16Bit(src);
 
-    QCOMPARE( GL::compressToRGB16Bit(src) == tar, expected );
+    QCOMPARE(GL::compressToRGB16Bit(src) == tar, expected);
 }
 void GLColorTest::testCompressToRGB16Bit_data()
 {
@@ -107,7 +107,7 @@ void GLColorTest::testDecompressFromRGB16Bit()
     QFETCH(GL::GLcolor, tar);
     QFETCH(bool, expected);
 
-    QCOMPARE( GL::fuzzyEqual(GL::decompressFromRGB16Bit(src), tar), expected );
+    QCOMPARE(GL::fuzzyEqual(GL::decompressFromRGB16Bit(src), tar), expected);
 }
 void GLColorTest::testDecompressFromRGB16Bit_data()
 {
@@ -121,8 +121,8 @@ void GLColorTest::testDecompressFromRGB16Bit_data()
 
     const GLfloat c_inv_63 = (1.0f / 63.0f);
     const GLfloat c_inv_31 = (1.0f / 31.0f);
-    QTest::newRow("shade0") << GL::GLcolorRGB16b(0x52AAu) << GL::GLcolor(10.0f*c_inv_31, 21.0f*c_inv_63, 10.0f*c_inv_31) << true;
-    QTest::newRow("shade1") << GL::GLcolorRGB16b(0xA554u) << GL::GLcolor(20.0f*c_inv_31, 42.0f*c_inv_63, 20.0f*c_inv_31) << true;
+    QTest::newRow("shade0") << GL::GLcolorRGB16b(0x52AAu) << GL::GLcolor(10.0f * c_inv_31, 21.0f * c_inv_63, 10.0f * c_inv_31) << true;
+    QTest::newRow("shade1") << GL::GLcolorRGB16b(0xA554u) << GL::GLcolor(20.0f * c_inv_31, 42.0f * c_inv_63, 20.0f * c_inv_31) << true;
 }
 
 } // namespace unit //

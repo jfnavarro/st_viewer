@@ -45,10 +45,8 @@ int TestSuite::exec()
     list.removeFirst(); // pop dummy root object
 
     int exitCode = 0;
-    foreach (QObject *object, list)
-    {
-        if (QTest::qExec(object))
-        {
+    foreach(QObject * object, list) {
+        if (QTest::qExec(object)) {
             exitCode = -1;
         }
     }
@@ -62,8 +60,7 @@ void TestSuite::setDependencie(const QString &parent, const QString &child)
     QObject *childObject = m_root.findChild<QObject *>(child, Qt::FindChildrenRecursively);
 
     // abort if either is null
-    if (!parentObject || !childObject)
-    {
+    if (!parentObject || !childObject) {
         return;
     }
 

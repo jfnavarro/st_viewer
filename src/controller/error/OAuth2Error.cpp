@@ -5,10 +5,10 @@
 
 */
 
+#include "OAuth2Error.h"
+
 #include <QString>
 #include <QApplication>
-
-#include "OAuth2Error.h"
 
 const char* OAuth2Error::LOC_CONTEXT = "OAuth2Error";
 
@@ -37,8 +37,7 @@ void OAuth2Error::init(uint error)
     QString name;
     QString description;
 
-    switch (error)
-    {
+    switch (error) {
     case OAuth2Error::_NoError:
         type = OAuth2Error::NoError;
         name = QApplication::translate(OAuth2Error::LOC_CONTEXT, "NoError:Name");
@@ -96,6 +95,7 @@ void OAuth2Error::init(uint error)
         break;
     default:
         type = OAuth2Error::UnknownError;
+        //I would rather show the original error when it is a unknown erro
         name = m_internalName;
         description = m_internalDescription;
         //name = QApplication::translate(OAuth2Error::LOC_CONTEXT, "UnknownError:Name");

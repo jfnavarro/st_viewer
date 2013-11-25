@@ -23,7 +23,7 @@ public:
 
     typedef QPair<QColor, QString> ColorPair;
     typedef QList<ColorPair> ColorList;
-    
+
     virtual const ColorList colorList() const = 0;
     virtual const ColorList colorList(const int count) const = 0;
 };

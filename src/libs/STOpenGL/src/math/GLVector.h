@@ -18,8 +18,7 @@ namespace GL
 // coordinates). Provides functionality to add and subtract and extends
 // functionality to incorporate interactions with GLpoint objects.
 //TODO extend if needed.
-struct GLvector
-{
+struct GLvector {
     inline GLvector();
     inline explicit GLvector(GL::Initialization);
     inline GLvector(const GLfloat x, const GLfloat y);
@@ -30,7 +29,6 @@ struct GLvector
     // length squared
     inline const GLfloat length2() const;
     inline const GLvector normalize() const;
-
     inline const GLfloat dot(const GLvector &o) const;
 
     //      | y
@@ -41,8 +39,14 @@ struct GLvector
     // +---------+
     inline const GLuint quadrant() const;
 
-    union { GLfloat x, width; };
-    union { GLfloat y, height; };
+    union {
+        GLfloat x;
+        GLfloat width;
+    };
+    union {
+        GLfloat y;
+        GLfloat height;
+    };
 };
 
 inline const bool fuzzyEqual(const GLvector& v0, const GLvector& v1, const GLfloat e = EPSILON);
@@ -86,17 +90,17 @@ const GLvector GLvector::fromPoints(const GLpoint& from, const GLpoint& to)
 
 const GLfloat GLvector::length() const
 {
-    return qSqrt(x*x + y*y);
+    return qSqrt(x * x + y * y);
 }
 const GLfloat GLvector::length2() const
 {
-    return (x*x + y*y);
+    return (x * x + y * y);
 }
 
 const GLvector GLvector::normalize() const
 {
     const GLfloat len = length();
-    return (fuzzyEqual(len, 0.0f)) ? GLvector() : GLvector(x/len, y/len);
+    return (fuzzyEqual(len, 0.0f)) ? GLvector() : GLvector(x / len, y / len);
 }
 
 inline const GLfloat GLvector::dot(const GLvector &o) const
@@ -129,8 +133,14 @@ const bool operator !=(const GLvector& v0, const GLvector& v1)
     return v0.x != v1.x || v0.y != v1.y;
 }
 
-const GLvector operator +(const GLvector& v) { return v; }
-const GLvector operator -(const GLvector& v) { return GLvector(-v.x, -v.y); }
+const GLvector operator +(const GLvector& v)
+{
+    return v;
+}
+const GLvector operator -(const GLvector& v)
+{
+    return GLvector(-v.x, -v.y);
+}
 
 const GLvector operator*(const GLfloat s, const GLvector& v)
 {
@@ -162,10 +172,22 @@ const GLpoint operator -(const GLpoint& p, const GLvector& v)
     return GLpoint(p.x - v.x, p.y - v.y);
 }
 
-template <> inline const GLvector rotate<-270>(const GLvector& v) { return GLvector(-v.y, v.x); }
-template <> inline const GLvector rotate<-90>(const GLvector& v) { return GLvector(v.y, -v.x); }
-template <> inline const GLvector rotate<90>(const GLvector& v) { return GLvector(-v.y, v.x); }
-template <> inline const GLvector rotate<270>(const GLvector& v) { return GLvector(v.y, -v.x); }
+template <> inline const GLvector rotate < -270 > (const GLvector& v)
+{
+    return GLvector(-v.y, v.x);
+}
+template <> inline const GLvector rotate < -90 > (const GLvector& v)
+{
+    return GLvector(v.y, -v.x);
+}
+template <> inline const GLvector rotate<90>(const GLvector& v)
+{
+    return GLvector(-v.y, v.x);
+}
+template <> inline const GLvector rotate<270>(const GLvector& v)
+{
+    return GLvector(v.y, -v.x);
+}
 
 } // namespace GL //
 

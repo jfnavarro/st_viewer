@@ -16,9 +16,8 @@ class JSONError : public Error
 {
     Q_OBJECT
     Q_ENUMS(Type)
-    
+
 public:
-    
     enum Type {
         NoError = 0xd24d1f67, // qHash(NetworkError::<ErrorName>)
         UnterminatedObject = 0xf90b353b,
@@ -37,20 +36,13 @@ public:
     };
 
     explicit JSONError(QObject* parent = 0);
-    
-    JSONError(QJsonParseError::ParseError error, const QByteArray& rawJSON, QObject* parent = 0);
-    
+    JSONError(QJsonParseError::ParseError error, QObject* parent = 0);
     virtual ~JSONError();
-
-    inline const QByteArray& rawJSON() const { return m_rawJSON; }
 
 private:
     // localization contex
     static const char* LOC_CONTEXT;
-
     void init(QJsonParseError::ParseError error);
-    
-    QByteArray m_rawJSON;
 };
 
 #endif // JSONERROR_H //

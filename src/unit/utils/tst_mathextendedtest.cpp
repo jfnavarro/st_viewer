@@ -18,12 +18,12 @@ MathExtendedTest::MathExtendedTest(QObject *parent) : QObject(parent) { }
 
 void MathExtendedTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void MathExtendedTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void MathExtendedTest::testFloatMod()
@@ -33,7 +33,7 @@ void MathExtendedTest::testFloatMod()
     QFETCH(qreal, result);
     QFETCH(bool, expected);
 
-    QCOMPARE( qFuzzyCompare(QtExt::qMod(dividend, divisor), result), expected );
+    QCOMPARE(qFuzzyCompare(QtExt::qMod(dividend, divisor), result), expected);
 }
 void MathExtendedTest::testFloatMod_data()
 {
@@ -63,7 +63,7 @@ void MathExtendedTest::testClamp()
     QFETCH(uint, mode);
     QFETCH(bool, expected);
 
-    QCOMPARE( fuzzyCompare( QtExt::clamp(size, min, max, (Qt::AspectRatioMode) mode), result), expected );
+    QCOMPARE(fuzzyCompare(QtExt::clamp(size, min, max, (Qt::AspectRatioMode) mode), result), expected);
 }
 void MathExtendedTest::testClamp_data()
 {
@@ -74,10 +74,10 @@ void MathExtendedTest::testClamp_data()
     QTest::addColumn<uint>("mode");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("shrink_ignore_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(4.0, 4.0)       << (uint) (Qt::IgnoreAspectRatio) << true;
-    QTest::newRow("shrink_keep_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF((8.0/3.0), 4.0) << (uint) (Qt::KeepAspectRatio)   << true;
-    QTest::newRow("expand_ignore_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.0)       << (uint) (Qt::IgnoreAspectRatio) << true;
-    QTest::newRow("expand_keep_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.5)       << (uint) (Qt::KeepAspectRatio)   << true;
+    QTest::newRow("shrink_ignore_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(4.0, 4.0)       << (uint)(Qt::IgnoreAspectRatio) << true;
+    QTest::newRow("shrink_keep_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF((8.0 / 3.0), 4.0) << (uint)(Qt::KeepAspectRatio)   << true;
+    QTest::newRow("expand_ignore_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.0)       << (uint)(Qt::IgnoreAspectRatio) << true;
+    QTest::newRow("expand_keep_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.5)       << (uint)(Qt::KeepAspectRatio)   << true;
 }
 
 } // namespace unit //

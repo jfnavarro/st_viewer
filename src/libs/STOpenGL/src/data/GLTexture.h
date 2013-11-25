@@ -15,8 +15,7 @@
 namespace GL
 {
 
-enum Wrap
-{
+enum Wrap {
     NoWrap = 0x00,
     HorisontalWrap = 0x01,
     VerticalWrap = 0x02,
@@ -24,8 +23,7 @@ enum Wrap
     FullWrap = (HorisontalWrap | VerticalWrap)
 };
 
-enum Interpolation
-{
+enum Interpolation {
     NoInterpolation = 0x00,
     MinLinear = 0x01,
     MaxLinear = 0x02,
@@ -39,13 +37,12 @@ static const GLtexturehandle INVALID_TEXTURE_HANDLE = 0;
 
 // GLtexture represents an opengl texture and provides functionality for
 // manipulating rendering parameters.
-struct GLtexture
-{
+struct GLtexture {
     inline GLtexture();
     inline explicit GLtexture(GL::Initialization);
     inline explicit GLtexture(GLtexturehandle handle);
 
-    //NOTE assumes callee takes ownership of handles
+    //NOTE assumes caller takes ownership of handles
     inline static GLtexturehandle* allocateHandles(GLsizei n);
     inline static void deallocateHandles(GLsizei n, GLtexturehandle* handles);
 
@@ -122,7 +119,6 @@ inline void GLtexture::unbind()
 inline void GLtexture::setWrap(Wrap flags)
 {
     bind();
-
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
                     (flags & HorisontalWrap) ? GL_REPEAT : GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
@@ -132,15 +128,14 @@ inline void GLtexture::setWrap(Wrap flags)
 inline void GLtexture::setInterpolation(Interpolation flags)
 {
     bind();
-
     // when texture area is small, bilinear filter the closest mipmap
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                     (flags & MinLinear) ? GL_LINEAR : GL_NEAREST
-                                          );
+                   );
     // when texture area is large, bilinear filter the original
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     (flags & MaxLinear) ? GL_LINEAR : GL_NEAREST
-                                          );
+                   );
 }
 
 inline void GLtexture::setPosition(GLint x, GLint y)
@@ -164,18 +159,17 @@ inline void GLtexture::setBounds(GLint x, GLint y, GLsizei width, GLsizei height
 inline void GLtexture::loadImage(const GLimage &image)
 {
     // set member variables
-    x = y = 0;
-    width = image.width(), height = image.height();
-
+    x = 0;
+    y = 0;
+    width = image.width();
+    height = image.height();
     // qt open gl image format settings
     const GLenum internalFormat = GL_RGBA;
-
     bind();
-
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
                  GLtexture::width, GLtexture::height, 0,
                  image.mode(), image.type(), image.pixels()
-                 );
+                );
 }
 
 inline void GLtexture::loadImage(const GLvoid *pixels)
@@ -183,13 +177,11 @@ inline void GLtexture::loadImage(const GLvoid *pixels)
     // qt open gl image format settings
     const GLenum internalFormat = GL_RGBA;
     const GLenum type = GL_UNSIGNED_BYTE;
-
     bind();
-
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
                  GLtexture::width, GLtexture::height, 0,
                  internalFormat, type, pixels
-                 );
+                );
 }
 
 inline void GLtexture::loadSubImage(GLsizei width, GLsizei height, const GLvoid *pixels)
@@ -197,9 +189,7 @@ inline void GLtexture::loadSubImage(GLsizei width, GLsizei height, const GLvoid 
     // qt open gl image format settings
     const GLenum internalFormat = GL_RGBA;
     const GLenum type = GL_UNSIGNED_BYTE;
-
     bind();
-
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, GLtexture::x); // invert y-axis below
@@ -207,7 +197,7 @@ inline void GLtexture::loadSubImage(GLsizei width, GLsizei height, const GLvoid 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
                  GLtexture::width, GLtexture::height, 0,
                  internalFormat, type, pixels
-                 );
+                );
 }
 
 } // namespace GL //

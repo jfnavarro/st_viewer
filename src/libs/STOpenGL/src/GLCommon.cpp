@@ -15,10 +15,8 @@ namespace GL
 const GLrectangle GLrectangle::fromLine(const GLpoint& from, const GLpoint& to, GLfloat lineSize)
 {
     Q_ASSERT((from != to) && lineSize > 0.0f);
-
     const GLvector base0 = (0.5f * lineSize) * (GLvector::fromPoints(from, to).normalize());
-    const GLvector base1 = GL::rotate<-90>(base0);
-
+    const GLvector base1 = GL::rotate < -90 > (base0);
     GLrectangle rectangle(GL::Uninitialized);
     rectangle.p[0] = (from - base0 + base1);
     rectangle.p[1] = (to + base0 + base1);

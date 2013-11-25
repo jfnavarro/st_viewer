@@ -13,7 +13,7 @@
 #include <QPointer>
 #include <QList>
 
-class Error; 
+class Error;
 class QSslError;
 class QJsonDocument;
 
@@ -28,12 +28,15 @@ public:
     ContentType(const QString& contentType, QObject* parent = 0);
     virtual ~ContentType();
 
-    inline const QString& mime() const { return m_mime; }
+    inline const QString& mime() const
+    {
+        return m_mime;
+    }
 
     void header(const QString& value);
 
 private:
-    
+
     QString m_mime;
 };
 
@@ -47,9 +50,8 @@ class NetworkReply: public QObject
     Q_OBJECT
 
 public:
-    
-    enum ReturnCode
-    {
+
+    enum ReturnCode {
         CodeSuccess = 0x01,
         CodeAbort = 0x02,
         CodeError = 0x04
@@ -62,24 +64,44 @@ public:
     virtual ~NetworkReply();
 
     // user data
-    inline const QVariant customData() const { return m_data; }
-    inline void setCustomData(QVariant data) { m_data = data; }
+    inline const QVariant customData() const
+    {
+        return m_data;
+    }
+    inline void setCustomData(QVariant data)
+    {
+        m_data = data;
+    }
 
     // parse body
     QJsonDocument getJSON();
     QString getText();
     QByteArray getRaw();
 
-    inline const ContentType* contentType() const { return m_contentType; }
-    inline bool isType(const QString& mime) const { return m_contentType->mime() == mime; }
-    inline bool isFinished() const { return m_reply->isFinished();}
-    
-    inline bool hasErrors() const { return !m_errors.isEmpty(); }
+    inline const ContentType* contentType() const
+    {
+        return m_contentType;
+    }
+    inline bool isType(const QString& mime) const
+    {
+        return m_contentType->mime() == mime;
+    }
+    inline bool isFinished() const
+    {
+        return m_reply->isFinished();
+    }
 
-    inline const ErrorList& errors() const { return m_errors; }
+    inline bool hasErrors() const
+    {
+        return !m_errors.isEmpty();
+    }
+
+    inline const ErrorList& errors() const
+    {
+        return m_errors;
+    }
 
 public slots:
-    
     void slotAbort();
     void slotFinished();
     void slotMetaDataChanged();
@@ -87,23 +109,21 @@ public slots:
     void slotSslErrors(QList<QSslError> sslErrorList);
 
 signals:
-    
     // signal operation Finished (code = abort, error, ok)
     void signalFinished(QVariant code, QVariant data);
 
 private:
-    
-    inline void registerError(Error* error) { m_errors += error; }
-    
+    inline void registerError(Error* error)
+    {
+        m_errors += error;
+    }
+
     // QT network reply
     QScopedPointer<QNetworkReply> m_reply;
-    
     // derived data
     mutable ContentType *m_contentType;
-    
     // errors
     ErrorList m_errors;
-    
     // custom data
     QVariant m_data;
 };

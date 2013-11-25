@@ -69,8 +69,7 @@ void ImageItemGL::generateTextureData()
 
 void ImageItemGL::setImage(const QImage& image)
 {
-    if (m_image != image)
-    {
+    if (m_image != image) {
         m_image = image;
         rebuildTextureData();
         setBoundingRect(QRectF(QPointF(0.0f, 0.0f), QSizeF(image.size())));
@@ -80,8 +79,7 @@ void ImageItemGL::setImage(const QImage& image)
 
 QRectF ImageItemGL::boundingRect() const
 {
-    if (m_rect.isNull())
-    {
+    if (m_rect.isNull()) {
         m_rect = QRectF(m_image.rect());
     }
     return m_rect;
@@ -102,14 +100,11 @@ bool ImageItemGL::contains(const QPointF& point) const
 void ImageItemGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
-            painter->paintEngine()->type() != QPaintEngine::OpenGL2)
-    {
+        painter->paintEngine()->type() != QPaintEngine::OpenGL2) {
         qDebug() << "ImageItemGL: drawBackground needs a QGLWidget to be set as viewport on the graphics view";
         return;
     }
-
     GL::GLTextureRender renderer;
-    
     painter->beginNativePainting();
     {
         renderer.render(m_texture);
@@ -134,8 +129,7 @@ void ImageItemGL::visible(bool visible)
 
 void ImageItemGL::setBoundingRect(const QRectF& rect)
 {
-    if (m_rect != rect)
-    {
+    if (m_rect != rect) {
         prepareGeometryChange();
         m_rect = rect;
     }

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms. 
+    read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
@@ -14,10 +14,9 @@
 // Selection event used to propagate selection data to view items.
 class SelectionEvent : public QEvent
 {
-    
+
 public:
-    enum SelectionMode 
-    {
+    enum SelectionMode {
         NewSelection,
         IncludeSelection,
         ExcludeSelection
@@ -27,34 +26,40 @@ public:
     inline SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
         : QEvent(TYPE), m_path(path), m_mode(mode) { }
 
-    inline const QPainterPath path() const { return m_path; }
-    inline const SelectionMode mode() const { return m_mode; }
+    inline const QPainterPath path() const
+    {
+        return m_path;
+    }
+    inline const SelectionMode mode() const
+    {
+        return m_mode;
+    }
 
     static inline const SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
     {
 #if defined(Q_OS_MAC)
-        return 
+        return
             (modifiers.testFlag(Qt::ShiftModifier) ?
-                (modifiers.testFlag(Qt::MetaModifier) ?
-                    SelectionEvent::ExcludeSelection :
-                    SelectionEvent::IncludeSelection
-                ) :
-                SelectionEvent::NewSelection
+             (modifiers.testFlag(Qt::MetaModifier) ?
+              SelectionEvent::ExcludeSelection :
+              SelectionEvent::IncludeSelection
+             ) :
+             SelectionEvent::NewSelection
             );
 #else
         return
             (modifiers.testFlag(Qt::ShiftModifier) ?
-                (modifiers.testFlag(Qt::ControlModifier) ?
-                    SelectionEvent::ExcludeSelection :
-                    SelectionEvent::IncludeSelection
-                ) :
-                SelectionEvent::NewSelection
+             (modifiers.testFlag(Qt::ControlModifier) ?
+              SelectionEvent::ExcludeSelection :
+              SelectionEvent::IncludeSelection
+             ) :
+             SelectionEvent::NewSelection
             );
 #endif // Q_OS_MAC //
     }
 
 private:
-    
+
     static const QEvent::Type TYPE = static_cast<QEvent::Type>(QEvent::User + 42);
 
     const QPainterPath m_path;

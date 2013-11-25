@@ -23,11 +23,11 @@ GLHeatMapTest::GLHeatMapTest(QObject *parent) : QObject(parent) { }
 
 void GLHeatMapTest::initTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 void GLHeatMapTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty");
+    QVERIFY2(true, "Empty");
 }
 
 void GLHeatMapTest::testHeatMap()
@@ -36,7 +36,7 @@ void GLHeatMapTest::testHeatMap()
     QFETCH(GL::GLcolor, color);
     QFETCH(bool, expected);
     const GL::GLcolor approximation = GL::GLheatmap::createHeatMapColor(wavelength);
-    QCOMPARE( GL::fuzzyEqual(approximation, color), expected );
+    QCOMPARE(GL::fuzzyEqual(approximation, color), expected);
 }
 void GLHeatMapTest::testHeatMap_data()
 {

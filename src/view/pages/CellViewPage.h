@@ -11,22 +11,15 @@
 #include "Page.h"
 #include "controller/data/DataProxy.h"
 
-class QMenu;
-class QActionGroup;
-class QAction;
-class QWidgetAction;
 class QColorDialog;
-class QToolBar;
 class SelectionDialog;
-class GeneFeatureItemModel;
 class Error;
 class GraphicsViewGL;
 class GraphicsSceneGL;
 class GenePlotterGL;
 class ImageItemGL;
-class QMenuBar;
 class HeatMapLegendGL;
-class GeneSelectionItemModel;
+class CellViewPageToolBar;
 
 namespace Ui
 {
@@ -42,20 +35,17 @@ class CellView;
 class CellViewPage : public Page
 {
     Q_OBJECT
-    
+
 public:
-    
     explicit CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
 public slots:
-
     void onInit();
     void onEnter();
     void onExit();
 
 protected slots:
-
     // load the cell tissue figure into the stage (can be done sync and async)
     void slotLoadCellFigure();
     // callback when the image loading is done sync
@@ -69,32 +59,24 @@ protected slots:
     void slotSelectByRegExp();
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
+    // select threshold mode
+    void slotSetGeneThresholdMode(QAction *action);
     // launch a color selector
     void slotLoadColor();
-    
-protected:
 
-    //dont want to allow wheel events
-    //virtual void wheelEvent(QWheelEvent* event) {event->ignore();}
-    
+protected:
     //init gui elements, signals and connections
     void initGLView();
     void initGLModel();
     void initGLConnections();
     void finalizeGL();
-    void createActions();
     void createToolBar();
     void createConnections();
     void resetActionStates();
-
     //image loading function
     void loadCellFigureAsync(QIODevice *device);
 
 private:
-    
-    // mvc model
-    GeneFeatureItemModel *geneModel;
-    GeneSelectionItemModel *geneSelectionModel;
 
     // have 2 scene items (cell tissue image and gene plotter)
     GraphicsSceneGL *scene;
@@ -105,40 +87,7 @@ private:
     HeatMapLegendGL *m_heatmap;
 
     // tool bar
-    QToolBar *toolBar;
-
-    // actions for toolbar
-    QAction *actionNavigate_goBack;
-    QAction *actionSave_save;
-    QAction *actionSave_print;
-    QAction *actionSelection_toggleSelectionMode;
-    QAction *actionSelection_showSelectionDialog;
-
-    QAction *actionZoom_zoomIn;
-    QAction *actionZoom_zoomOut;
-
-    QMenu *menu_genePlotter;
-    QAction *actionShow_showGrid;
-    QAction *actionShow_showGenes;
-    QAction *actionColor_selectColorGenes;
-    QAction *actionColor_selectColorGrid;
-
-    QActionGroup *actionGroup_toggleVisualMode;
-    QAction *actionShow_toggleNormal;
-    QAction *actionShow_toggleDynamicRange;
-    QAction *actionShow_toggleDynamicRangeGenes;
-    QAction *actionShow_toggleHeatMap;
-
-    QWidgetAction *actionWidget_geneHitsThreshold;
-    QWidgetAction *actionWidget_geneIntensity;
-    QWidgetAction *actionWidget_geneSize;
-    QWidgetAction *actionWidget_geneShape;
-
-    QMenu *menu_cellTissue;
-    QActionGroup *actionGroup_cellTissue;
-    QAction *actionShow_cellTissueBlue;
-    QAction *actionShow_cellTissueRed;
-    QAction *actionShow_showCellTissue;
+    CellViewPageToolBar *toolBar;
 
     // color dialogs
     QColorDialog *colorDialog_genes;

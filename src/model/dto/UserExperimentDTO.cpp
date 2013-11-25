@@ -9,16 +9,16 @@
 
 UserExperimentDTO::UserExperimentDTO(QObject* parent) : QObject(parent), m_userExperiment()
 {
-    
+
 }
 
 UserExperimentDTO::UserExperimentDTO(const UserExperiment& userExperiment, QObject* parent) :
     QObject(parent), m_userExperiment(userExperiment)
 {
-    
+
 }
 
 UserExperimentDTO::~UserExperimentDTO()
 {
-    
+
 }

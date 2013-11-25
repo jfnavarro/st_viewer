@@ -18,17 +18,17 @@ ObjectParserTest::ObjectParserTest(QObject *parent) : QObject(parent) { }
 
 void ObjectParserTest::initTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void ObjectParserTest::cleanupTestCase()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 
 void ObjectParserTest::testParseObject()
 {
-    QVERIFY2( true, "Empty" );
+    QVERIFY2(true, "Empty");
 }
 void ObjectParserTest::testParseObject_data()
 {

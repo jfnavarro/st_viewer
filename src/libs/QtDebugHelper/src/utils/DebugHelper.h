@@ -14,13 +14,13 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-    
+
     Author : Jose Fernandez Navarro     jose.fernandez.navarro@scilifelab.com
-    
-    Spatial Transcriptomics group. 
-    
+
+    Spatial Transcriptomics group.
+
     Spatial Transcriptomics Viewer (stVi).
-    
+
 */
 
 /******************************************************************************
@@ -78,22 +78,22 @@
 
 namespace GluonCore
 {
-    class GLUON_CORE_EXPORT DbgHelper
-    {
-        public:
-            DbgHelper();
-            explicit DbgHelper( const QString& t );
-            virtual ~DbgHelper();
+class GLUON_CORE_EXPORT DbgHelper
+{
+public:
+    DbgHelper();
+    explicit DbgHelper(const QString& t);
+    virtual ~DbgHelper();
 
-            void addText( const QString& t );
+    void addText(const QString& t);
 
-        private:
-            QString txt;
-            static int indent;
-            static int colorIndex;
-            int myColor;
-            bool noFunctionName;
-    };
+private:
+    QString txt;
+    static int indent;
+    static int colorIndex;
+    int myColor;
+    bool noFunctionName;
+};
 }
 
 #endif // GLUON_CORE_DEBUGHELPER_H

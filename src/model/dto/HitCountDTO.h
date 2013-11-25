@@ -38,17 +38,41 @@ public:
     virtual ~HitCountDTO();
 
     // binding
-    inline int min() const { return m_hitCount.min(); }
-    inline int max() const { return m_hitCount.max(); }
-    inline int sum() const { return m_hitCount.sum(); }
+    inline int min() const
+    {
+        return m_hitCount.min();
+    }
+    inline int max() const
+    {
+        return m_hitCount.max();
+    }
+    inline int sum() const
+    {
+        return m_hitCount.sum();
+    }
 
-    inline void min(int min) { m_hitCount.min(min); }
-    inline void max(int max) { m_hitCount.max(max); }
-    inline void sum(int sum) { m_hitCount.sum(sum); }
+    inline void min(int min)
+    {
+        m_hitCount.min(min);
+    }
+    inline void max(int max)
+    {
+        m_hitCount.max(max);
+    }
+    inline void sum(int sum)
+    {
+        m_hitCount.sum(sum);
+    }
 
     // get parsed data model
-    const HitCount& hitCount() const { return m_hitCount; }
-    HitCount& hitCount() { return m_hitCount; }
+    const HitCount& hitCount() const
+    {
+        return m_hitCount;
+    }
+    HitCount& hitCount()
+    {
+        return m_hitCount;
+    }
 
 private:
 

@@ -6,13 +6,12 @@
 */
 
 #ifndef DATASETPAGE_H
-#define	DATASETPAGE_H
+#define DATASETPAGE_H
 
 #include "controller/data/DataProxy.h"
 #include "Page.h"
 
 class QItemSelectionModel;
-class DatasetItemModel;
 class QItemSelection;
 
 namespace Ui
@@ -30,9 +29,9 @@ class Error;
 class DatasetPage : public Page
 {
     Q_OBJECT
-    
+
 public:
-    
+
     explicit DatasetPage(QWidget *parent = 0);
     virtual ~DatasetPage();
 
@@ -55,10 +54,9 @@ protected:
     void setWaiting(bool waiting = true);
 
 private:
-    
+
     Ui::DataSets *ui;
-    DatasetItemModel *m_datasetModel;
 };
 
-#endif	/* DATASETPAGE_H */
+#endif  /* DATASETPAGE_H */
 

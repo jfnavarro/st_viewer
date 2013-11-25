@@ -5,15 +5,13 @@
 
 */
 
+#include "SettingsFormatXML.h"
+
 #include <QXmlStreamReader>
 #include <QStringList>
-
 #include <QDir>
-
 #include <QDebug>
 #include "utils/DebugHelper.h"
-
-#include "SettingsFormatXML.h"
 
 const QChar SettingsFormatXML::GROUP_DELIMITER = QDir::separator();
 
@@ -21,38 +19,27 @@ bool SettingsFormatXML::readXMLFile(QIODevice& device, QSettings::SettingsMap& m
 {
     QXmlStreamReader xmlReader(&device);
     QStringList elements;
-
     // read until end is reached or error occurs
-    while (!xmlReader.atEnd() && !xmlReader.hasError())
-    {
+    while (!xmlReader.atEnd() && !xmlReader.hasError()) {
         // get next token
         xmlReader.readNext();
-
         // if node push it to element list
-        if (xmlReader.isStartElement())
-        {
+        if (xmlReader.isStartElement()) {
             elements.append(xmlReader.name().toString());
             // if end node pop
-        }
-        else if (xmlReader.isEndElement())
-        {
-            if(!elements.isEmpty()) elements.removeLast();
+        } else if (xmlReader.isEndElement()) {
+            if (!elements.isEmpty()) elements.removeLast();
             // if it is some data (excl. whitespaces) parse it
-        }
-        else if (xmlReader.isCharacters() && !xmlReader.isWhitespace())
-        {
+        } else if (xmlReader.isCharacters() && !xmlReader.isWhitespace()) {
             QString key = elements.join('/');
             map[key] = xmlReader.text().toString();
         }
     }
-
     // show warning on error
-    if (xmlReader.hasError())
-    {
+    if (xmlReader.hasError()) {
         qWarning() << xmlReader.errorString();
         return false;
     }
-
     return true;
 }
 

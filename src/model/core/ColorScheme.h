@@ -17,10 +17,22 @@ public:
     virtual ~ColorScheme() {};
 
     virtual QColor getColor(const DataProxy::FeaturePtr feature) const = 0;
-    inline void setMin(int min) { m_minHits = min; }
-    inline void setMax(int max) { m_maxHits = max; }
-    inline const int getMax() const { return m_maxHits; }
-    inline const int getMin() const { return m_minHits; }
+    inline void setMin(int min)
+    {
+        m_minHits = min;
+    }
+    inline void setMax(int max)
+    {
+        m_maxHits = max;
+    }
+    inline const int getMax() const
+    {
+        return m_maxHits;
+    }
+    inline const int getMin() const
+    {
+        return m_minHits;
+    }
 
 protected:
     int m_minHits;

@@ -5,11 +5,10 @@
 
 */
 
-#include "controller/network/NetworkReply.h"
-
-#include "controller/error/Error.h"
-
 #include "DownloadManager.h"
+
+#include "controller/network/NetworkReply.h"
+#include "controller/error/Error.h"
 
 namespace async
 {
@@ -38,18 +37,16 @@ void DataRequest::slotError(Error *error)
 DownloadManager::DownloadManager(async::DataRequest *request, QObject * parent) :
     QObject(parent), m_request(request)
 {
-    Q_ASSERT_X(m_request,"DownloadManager Error", "DaraRequest is null");
+    Q_ASSERT_X(m_request, "DownloadManager Error", "DaraRequest is null");
     //Make connnection with DataRequest
     connect(m_request, SIGNAL(signalAbort()), this, SLOT(slotAbort()));
 }
 
 DownloadManager::~DownloadManager()
 {
-    if(!m_request.isNull())
-    {
+    if (!m_request.isNull()) {
         delete m_request;
     }
-
     //NOTE elements of replies and errors are deleted by their owners
     m_reply_list.clear();
     m_error_list.clear();
@@ -83,53 +80,35 @@ void DownloadManager::delItem(NetworkReply *item)
 
 void DownloadManager::finish()
 {
-
     //TODO check if there are replies left and abort them
-
     //check for error
-    if(m_error_list.count() > 0)
-    {
+    if (m_error_list.count() > 0) {
         m_request->return_code(async::DataRequest::CodeError);
-
-        if(m_error_list.count() > 1)
-        {
+        if (m_error_list.count() > 1) {
             QString errortext;
-
-            foreach(Error *e, m_error_list)
-            {
+            foreach(Error * e, m_error_list) {
                 errortext += (e->name() + " : " + e->description()) + "\n";
             }
-
             m_request->slotError(new Error("Multiple Data Error", errortext, this));
-        }
-        else
-        {
+        } else {
             Error *error = m_error_list.first();
             m_request->slotError(error);
         }
-    }
-    else if(m_request->return_code() != async::DataRequest::CodeAbort)
-    {
+    } else if (m_request->return_code() != async::DataRequest::CodeAbort) {
         m_request->return_code(async::DataRequest::CodeSuccess);
         m_request->slotFinished();
-    }
-    else
-    {
+    } else {
         //do nothing
     }
-
 }
 
 void DownloadManager::slotAbort()
 {
     //iterate replys and send abort signal
     m_request->return_code(async::DataRequest::CodeAbort);
-
-    foreach(NetworkReply *reply, m_reply_list)
-    {
+    foreach(NetworkReply * reply, m_reply_list) {
         reply->slotAbort(); //this will cause reply to emit signalFinished that will notify dataproxy
     }
-
     m_request->slotFinished();
 }
 

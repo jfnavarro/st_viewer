@@ -58,7 +58,7 @@
         <string>Back</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../st_client-build/application.qrc">
          <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
        </property>
        <property name="waitPolicy" stdset="0">
@@ -128,7 +128,7 @@
         <string>Abort</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../st_client-build/application.qrc">
          <normaloff>:/images/abort.png</normaloff>:/images/abort.png</iconset>
        </property>
        <property name="waitPolicy" stdset="0">
@@ -169,7 +169,7 @@
         <string>Refresh</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../st_client-build/application.qrc">
          <normaloff>:/images/refresh2.png</normaloff>:/images/refresh2.png</iconset>
        </property>
        <property name="waitPolicy" stdset="0">
@@ -237,9 +237,11 @@
   <customwidget>
    <class>AnimatedTableView</class>
    <extends>QTableView</extends>
-   <header>core/view/AnimatedTableView.h</header>
+   <header>core/view/AnimatedDatasetsTableView.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../st_client-build/application.qrc"/>
+ </resources>
  <connections/>
 </ui>

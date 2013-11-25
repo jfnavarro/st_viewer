@@ -20,21 +20,19 @@ class DatasetsViewItemDelegate : public QStyledItemDelegate
 {
 
     Q_OBJECT
-    
+
 public:
-    
+
     explicit DatasetsViewItemDelegate(QObject* parent = 0);
-    
     virtual ~DatasetsViewItemDelegate();
-    
+
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const;
-    
+
 private:
-    
-    void details( QString text, QFont font, const QStyleOptionViewItem &option, int *lineCount, int *widthUsed ) const;
+
+    void details(QString text, QFont font, const QStyleOptionViewItem &option, int *lineCount, int *widthUsed) const;
 
     Q_DISABLE_COPY(DatasetsViewItemDelegate);
 };

@@ -5,15 +5,14 @@
 
 */
 
+#include "TokenStorage.h"
+
 #include <QString>
 #include <QDebug>
 #include <QUuid>
 #include <QDateTime>
 
 #include "utils/Utils.h"
-
-#include "TokenStorage.h"
-
 
 TokenStorage::TokenStorage(QObject* parent)
     : QObject(parent), m_storage(0)
