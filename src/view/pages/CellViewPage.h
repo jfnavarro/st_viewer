@@ -69,6 +69,7 @@ protected:
     void initGLView();
     void initGLModel();
     void initGLConnections();
+    void finishGLConnections();
     void finalizeGL();
     void createToolBar();
     void createConnections();

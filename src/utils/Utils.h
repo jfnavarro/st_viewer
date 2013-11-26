@@ -96,7 +96,7 @@ static const Shape gene_shape = Circle;
 static const qreal gene_size = 1.0f;
 static const qreal gene_intensity = 1.0f;
 static const int gene_lower_limit = 1;
-static const int gene_upper_limit = std::numeric_limits<int>::min();
+static const int gene_upper_limit = std::numeric_limits<int>::max();
 
 static const qreal grid_line_size = 1;
 static const qreal grid_line_space = 5;

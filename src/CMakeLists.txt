@@ -495,7 +495,7 @@ if(UNIX AND NOT APPLE)
     #TODO replace TGZ for DEB package
 
     # Select TGZ as the packager on Linux
-    set(CPACK_GENERATOR "TGZ")
+    set(CPACK_GENERATOR " TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
     set(CPACK_SYSTEM_NAME "${CMAKE_BUILD_TYPE}-${CPACK_SYSTEM_NAME}-32")
 

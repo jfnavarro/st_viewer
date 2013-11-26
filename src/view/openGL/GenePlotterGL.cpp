@@ -157,7 +157,6 @@ void GenePlotterGL::clearSelectionArea()
 {
     //clear selected genes
     m_geneRenderer->clearSelection();
-    //update the canvas
     update(boundingRect());
 }
 
@@ -165,18 +164,17 @@ void GenePlotterGL::setSelectionArea(const SelectionEvent *event)
 {
     //select an area
     m_geneRenderer->setSelectionArea(event);
-    DataProxy::FeatureListPtr selectedFeatures = m_geneRenderer->getSelectedFeatures();
-    //update the canvas
     update(boundingRect());
+    DataProxy::FeatureListPtr selectedFeatures = m_geneRenderer->getSelectedFeatures();
     emit featuresSelected(selectedFeatures);
 }
 
 void GenePlotterGL::selectGenes(const DataProxy::GeneList &geneList)
 {
+    //select a list of genes
     m_geneRenderer->selectGenes(geneList);
-    DataProxy::FeatureListPtr selectedFeatures = m_geneRenderer->getSelectedFeatures();
-    //update the canvas
     update(boundingRect());
+    DataProxy::FeatureListPtr selectedFeatures = m_geneRenderer->getSelectedFeatures();
     emit featuresSelected(selectedFeatures);
 }
 
@@ -194,7 +192,7 @@ void GenePlotterGL::updateGeneColor(DataProxy::GenePtr gene)
 
 void GenePlotterGL::updateGeneSelection(DataProxy::GenePtr gene)
 {
-    m_geneRenderer->updateGene(gene, GeneRendererGL::geneVisible);
+    m_geneRenderer->updateGene(gene, GeneRendererGL::geneSelection);
     update(boundingRect());
 }
 
@@ -219,7 +217,7 @@ void GenePlotterGL::setGeneLowerLimit(int geneLimit)
 {
     if (m_geneRenderer->lowerLimit() != geneLimit) {
         m_geneRenderer->setLowerLimit(geneLimit);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisible);
+        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }
@@ -228,7 +226,7 @@ void GenePlotterGL::setGeneUpperLimit(int geneLimit)
 {
     if(m_geneRenderer->upperLimit() != geneLimit) {
         m_geneRenderer->setUpperLimit(geneLimit);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisible);
+        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }
@@ -236,15 +234,17 @@ void GenePlotterGL::setGeneUpperLimit(int geneLimit)
 void GenePlotterGL::setHitCountLimits(int min, int max, int sum)
 {
     m_geneRenderer->setHitCount(min,max,sum);
-    m_geneRenderer->updateData(GeneRendererGL::All);
-    update(boundingRect());
+    m_geneRenderer->setLowerLimit(min);
+    m_geneRenderer->setUpperLimit(max);
+    //m_geneRenderer->updateData(GeneRendererGL::All);
+    //update(boundingRect());
 }
 
 void GenePlotterGL::setGeneIntensity(qreal geneIntensity)
 {
     if (!qFuzzyCompare(m_geneRenderer->intensity(),geneIntensity)) {
         m_geneRenderer->setIntensity(geneIntensity);
-        m_geneRenderer->updateData(GeneRendererGL::geneColor);
+        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }
@@ -262,7 +262,7 @@ void GenePlotterGL::setGeneVisualMode(const Globals::VisualMode &mode)
 {
     if (m_geneRenderer->visualMode() != mode) {
         m_geneRenderer->setVisualMode(mode);
-        m_geneRenderer->updateData(GeneRendererGL::geneColor);
+        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }
@@ -271,7 +271,7 @@ void GenePlotterGL::setGeneThresholdMode(const Globals::ThresholdMode &mode)
 {
     if (m_geneRenderer->thresholdMode() != mode) {
         m_geneRenderer->setThresholdMode(mode);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisible);
+        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }

@@ -1,3 +1,9 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
 #include "CellViewPageToolBar.h"
 
 #include <QMenu>
@@ -135,7 +141,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     createConnections();
 }
 
-void CellViewPageToolBar::resetTresholdActions(int max, int min)
+void CellViewPageToolBar::resetTresholdActions(int min, int max)
 {
     QxtSpanSlider* geneHitsThreshold = qobject_cast<QxtSpanSlider*>(actionWidget_geneHitsThreshold->defaultWidget());
     //threshold slider
@@ -172,8 +178,8 @@ void CellViewPageToolBar::resetActions()
     QSlider* geneIntensity = qobject_cast<QSlider*>(actionWidget_geneIntensity->defaultWidget());
     QSlider* geneSize = qobject_cast<QSlider*>(actionWidget_geneSize->defaultWidget());
     QComboBox* geneShape = qobject_cast<QComboBox*>(actionWidget_geneShape->defaultWidget());
-    geneIntensity->setValue(Globals::gene_intensity);
-    geneSize->setValue(Globals::gene_size);
+    geneIntensity->setValue(static_cast<int>(Globals::gene_intensity) * 10); //this is ugly
+    geneSize->setValue(static_cast<int>(Globals::gene_size) * 10); //this is ugly
     geneShape->setCurrentIndex(Globals::gene_shape);
 }
 

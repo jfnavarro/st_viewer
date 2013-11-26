@@ -191,6 +191,7 @@ inline const GLcolor operator *(GLfloat blend, const GLcolor &color)
 {
     return GLcolor(color.red, color.green, color.blue, blend * color.alpha);
 }
+
 inline const GLcolor operator *(const GLcolor &color, GLfloat blend)
 {
     return GLcolor(color.red, color.green, color.blue, blend * color.alpha);

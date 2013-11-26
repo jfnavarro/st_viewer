@@ -183,7 +183,6 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
     if (m_genelist_reference.isNull()) {
         return;
     }
-
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i) {
         DataProxy::GenePtr gene = m_genelist_reference->at(i);
@@ -204,7 +203,6 @@ void GeneFeatureItemModel::setColorGenes(const QColor& color)
     if (m_genelist_reference.isNull()) {
         return;
     }
-
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i) {
         DataProxy::GenePtr gene = m_genelist_reference->at(i);

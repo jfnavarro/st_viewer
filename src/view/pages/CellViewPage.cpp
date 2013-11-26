@@ -77,6 +77,7 @@ void CellViewPage::onInit()
     //create UI objects
     ui = new Ui::CellView;
     ui->setupUi(this);
+    //TODO replace icons and add export button
     ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear.png")));
     ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
 
@@ -110,16 +111,18 @@ void CellViewPage::onInit()
     colorDialog_grid->setOption(QColorDialog::DontUseNativeDialog, true); //OSX native color dialog gives problems
     colorDialog_genes = new QColorDialog(Globals::color_gene); // it should not inherits from this class
     colorDialog_genes->setOption(QColorDialog::DontUseNativeDialog, true); //OSX native color dialog gives problems
+
     // selection dialog
     selectionDialog = new SelectionDialog(this);
+
     //create tool bar and add it
     createToolBar();
+
     //create connections
     createConnections();
+
     //init OpenGL objects
     initGLModel();
-    //create OpenGL connections
-    initGLConnections();
 }
 
 void CellViewPage::onEnter()
@@ -132,32 +135,37 @@ void CellViewPage::onEnter()
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
-    // load gui elements
-    gene_plotter_gl->reset();
-    gene_plotter_gl->updateChipSize();
-    gene_plotter_gl->updateGeneData();
-    gene_plotter_gl->updateTransformation();
-    //gene_plotter_gl->clearSelectionArea();
+    // update hitcount gene plotter
     gene_plotter_gl->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
-    //heat map
+    //gene_plotter_gl->setGeneLowerLimit(hitCount->min());
+    //gene_plotter_gl->setGeneUpperLimit(hitCount->max());
+    // update hitcount heat map
     m_heatmap->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
-    //m_heatmap->setLowerLimit(hitCount->min());
-    //m_heatmap->setUpperLimit(hitCount->max());
-    //reset main variabless
+    m_heatmap->setLowerLimit(hitCount->min());
+    m_heatmap->setUpperLimit(hitCount->max());
+
+    // reset main variabless
     resetActionStates();
-    //load cell tissue
+
+    // create GL connections
+    initGLConnections();
+
+    // load cell tissue
     slotLoadCellFigure();
 }
 
 void CellViewPage::onExit()
 {
     DEBUG_FUNC_NAME
+
     ui->lineEdit->clearFocus();
     ui->genes_tableview->clearFocus();
     ui->selectAllGenes->clearFocus();
     ui->selections_tableview->clearFocus();
     ui->clearSelection->clearFocus();
     ui->saveSelection->clearFocus();
+
+    finishGLConnections();
 }
 
 void CellViewPage::createConnections()
@@ -206,24 +214,27 @@ void CellViewPage::resetActionStates()
     // reset gene selection model data
     selectionModel->reset();
 
-    //reset color dialogs
+    // reset color dialogs
     colorDialog_genes->setCurrentColor(Globals::color_gene);
     colorDialog_grid->setCurrentColor(Globals::color_grid);
 
-    //reset gene list selection status
+    // reset gene list selection status
     ui->selectAllGenes->setChecked(false);
     geneModel->selectAllGenesPressed(false);
+
     // reset cell image to show
     cell_tissue->setVisible(true);
+
     // reset gene grid to not show
     gene_plotter_gl->setGridVisible(false);
 
-    //reset tool bar actions
+    // reset tool bar actions
     toolBar->resetActions();
 
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
+    // reset toolbar threshold action
     toolBar->resetTresholdActions(hitCount->min(),hitCount->max());
 
     // restrict interface
@@ -242,24 +253,27 @@ void CellViewPage::createToolBar()
 void CellViewPage::initGLView()
 {
     ui->view->initGL(scene);
+
+    // reset and start gene plotter
     gene_plotter_gl->initGL();
-    //reset rendering data
+    gene_plotter_gl->reset();
+    gene_plotter_gl->updateChipSize();
+    gene_plotter_gl->updateGeneData();
+    gene_plotter_gl->updateTransformation();
+    //gene_plotter_gl->clearSelectionArea();
+
+    //reset cell view
     if (cell_tissue != 0) {
         cell_tissue->reset();
     }
+
     // heatmap component
     if (m_heatmap == 0) {
         m_heatmap = new HeatMapLegendGL();
         m_heatmap->setTransform(QTransform::fromTranslate(-10.0, 10.0));
-        //TODO move the anchor to settings
         m_heatmap->setAnchor(ViewItemGL::NorthEast);
         m_heatmap->setVisible(false);
         ui->view->addViewItem(m_heatmap); //NOTE relinquish ownership
-        // connect setvisible signals
-        connect(toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
-        // connect threshold slider to the heatmap
-        connect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
-        connect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
     }
     m_heatmap->setVisible(false);
 }
@@ -301,7 +315,7 @@ void CellViewPage::initGLConnections()
     //gene attributes signals
     connect(toolBar, SIGNAL(intensityValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneIntensity(qreal)));
     connect(toolBar, SIGNAL(sizeValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneSize(qreal)));
-    connect(toolBar, SIGNAL(shapeIndexChanged(int)), gene_plotter_gl, SLOT(setGeneShape(int)));
+    connect(toolBar, SIGNAL(shapeIndexChanged(Globals::Shape)), gene_plotter_gl, SLOT(setGeneShape(Globals::Shape)));
 
     //show/not genes signal
     connect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
@@ -314,6 +328,54 @@ void CellViewPage::initGLConnections()
     connect(toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGridVisible(bool)));
     // cell tissue canvas
     connect(toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), cell_tissue, SLOT(visible(bool)));
+
+    // connect setvisible signals
+    connect(toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
+    // connect threshold slider to the heatmap
+    connect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
+    connect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
+}
+
+void CellViewPage::finishGLConnections()
+{
+    // gene model signals
+    QSortFilterProxyModel* proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
+    GeneFeatureItemModel* geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
+    GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
+
+    //connect gene list model to gene plotter
+    disconnect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
+    disconnect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+    //connect gene plotter to gene selection model
+    disconnect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
+            SLOT(loadGenes(DataProxy::FeatureListPtr)));
+    disconnect(ui->clearSelection, SIGNAL(clicked(bool)), gene_plotter_gl, SLOT(clearSelectionArea()));
+
+    //threshold slider signal
+    disconnect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), gene_plotter_gl, SLOT(setGeneLowerLimit(int)));
+    disconnect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), gene_plotter_gl, SLOT(setGeneUpperLimit(int)));
+    //gene attributes signals
+    disconnect(toolBar, SIGNAL(intensityValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneIntensity(qreal)));
+    disconnect(toolBar, SIGNAL(sizeValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneSize(qreal)));
+    disconnect(toolBar, SIGNAL(shapeIndexChanged(int)), gene_plotter_gl, SLOT(setGeneShape(int)));
+
+    //show/not genes signal
+    disconnect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
+    //visual mode signal
+    disconnect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
+    //threshold mode signal
+    disconnect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneThresholdMode(QAction*)));
+    // grid signals
+    disconnect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
+    disconnect(toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGridVisible(bool)));
+    // cell tissue canvas
+    disconnect(toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), cell_tissue, SLOT(visible(bool)));
+
+    // connect setvisible signals
+    disconnect(toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
+    // connect threshold slider to the heatmap
+    disconnect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
+    disconnect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
 }
 
 void CellViewPage::finalizeGL()

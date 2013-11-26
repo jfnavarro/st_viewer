@@ -16,13 +16,14 @@ public:
         IndexArray = 0x004u,
         TextureArray = 0x008u,
         OptionArray = 0x010u,
-        VisibleArray = 0x12u,
+        FeaturesArray = 0x12u,
         RefCountArray = 0x14u,
         ValueArray = 0x16u,
+        GeneOptionArray = 0x18u,
         RenderMode = 0x100u,
         // composite flags
         Arrays = (PointArray | ColorArray | IndexArray | TextureArray | OptionArray
-        | VisibleArray | RefCountArray | ValueArray),
+        | FeaturesArray | RefCountArray | ValueArray | GeneOptionArray),
         Modes = (RenderMode),
         All = (Arrays | Modes)
     };
@@ -32,41 +33,51 @@ public:
     //clear arrays
     inline void clear(GLflag flags = DEFAULT_CLEAR_FLAGS);
 
+    inline void resetRefCount();
+
     //visibles
-    inline GLElementDataGene &addVisible(const GLoption &visible, GLindex *index = 0);
+    inline GLElementDataGene &addFeatCount(const GLuint &featcount, GLindex *index = 0);
     //refcounts
-    inline GLElementDataGene &addRefCount(const GLindex &refcount, GLindex *index = 0);
+    inline GLElementDataGene &addRefCount(const GLuint &refcount, GLindex *index = 0);
     //values
-    inline GLElementDataGene &addValue(const GLindex &value, GLindex *index = 0);
+    inline GLElementDataGene &addValue(const GLuint &value, GLindex *index = 0);
+    //options
+    inline GLElementDataGene &addGeneOption(const GLoption &option, GLindex *index = 0);
 
-    inline void setVisible(const GLindex index, const GLoption &visible);
-    inline void setRefCount(const GLindex index, const GLindex &refcount);
-    inline void setValue(const GLindex index, const GLindex &value);
+    inline void setFeatCount(const GLindex index, const GLuint &featcount);
+    inline void setRefCount(const GLindex index, const GLuint &refcount);
+    inline void setValue(const GLindex index, const GLuint &value);
+    inline void setGeneOption(const GLindex index, const GLoption &option);
 
-    inline const GLoption getVisible(const GLindex index);
-    inline const GLindex getRefCount(const GLindex index);
-    inline const GLindex getValue(const GLindex index);
+    inline const GLuint getFeatCount(const GLindex index);
+    inline const GLuint getRefCount(const GLindex index);
+    inline const GLuint getValue(const GLindex index);
+    inline const GLoption getGeneOption(const GLindex index);
 
-    inline const GLarray<GLoption> visibles() const;
-    inline const GLarray<GLindex> references() const;
-    inline const GLarray<GLindex> values() const;
+    inline const GLarray<GLuint> features() const;
+    inline const GLarray<GLuint> references() const;
+    inline const GLarray<GLuint> values() const;
+    inline const GLarray<GLoption> geneOptions() const;
 
     //check whether the arrays are empty or not
     inline bool isEmpty() const
     {
         return m_colors.empty() && m_indices.empty() && m_textures.empty()
-                && m_points.empty() && m_options.empty() && m_visibles.empty() && m_references.empty() && m_values.empty();
+                && m_points.empty() && m_options.empty() && m_features.empty()
+                && m_references.empty() && m_values.empty() && m_geneOptions.empty();
     }
 
 private:
 
-    typedef QVector<GLoption> GLVisibles;
-    typedef QVector<GLindex> GLReferences;
-    typedef QVector<GLindex> GLValues;
+    typedef QVector<GLuint> GLFeatures;
+    typedef QVector<GLuint> GLReferences;
+    typedef QVector<GLuint> GLValues;
+    typedef QVector<GLoption> GLGeneOptions;
 
-    GLVisibles m_visibles;
+    GLFeatures m_features;
     GLReferences m_references;
     GLValues m_values;
+    GLGeneOptions m_geneOptions;
 };
 
 } // namespace GL //
@@ -77,7 +88,8 @@ namespace GL
 {
 
 
-GLElementDataGene::GLElementDataGene(): GLElementData(), m_visibles(), m_references(), m_values()
+GLElementDataGene::GLElementDataGene():
+    GLElementData(), m_features(), m_references(), m_values(), m_geneOptions()
 {
 
 }
@@ -85,8 +97,8 @@ GLElementDataGene::GLElementDataGene(): GLElementData(), m_visibles(), m_referen
 void GLElementDataGene::clear(GLflag flags)
 {
 
-    if (flags & GLElementDataGene::VisibleArray) {
-        m_visibles.resize(0);
+    if (flags & GLElementDataGene::FeaturesArray) {
+        m_features.resize(0);
     }
     if (flags & GLElementDataGene::RefCountArray) {
         m_references.resize(0);
@@ -94,21 +106,32 @@ void GLElementDataGene::clear(GLflag flags)
     if (flags & GLElementDataGene::ValueArray) {
         m_values.resize(0);
     }
+    if (flags & GLElementDataGene::GeneOptionArray) {
+        m_geneOptions.resize(0);
+    }
 
     GLElementData::clear();
 }
 
-inline GLElementDataGene &GLElementDataGene::addVisible(const GLoption &option, GLindex *index)
+void GLElementDataGene::resetRefCount()
+{
+    for (GLindex index = 0; index < (GLindex) m_references.size(); index++) {
+        GLuint *data = reinterpret_cast<GLuint*>(&m_references[index]);
+        (*data) = 0u;
+    }
+}
+
+inline GLElementDataGene &GLElementDataGene::addFeatCount(const GLuint &featcount, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
-        (*index) = (GLindex) m_visibles.size();
+        (*index) = (GLindex) m_features.size();
     }
-    m_visibles.push_back(option);
+    m_features.push_back(featcount);
     return (*this);
 }
 
-inline GLElementDataGene &GLElementDataGene::addRefCount(const GLindex &refcount, GLindex *index)
+inline GLElementDataGene &GLElementDataGene::addRefCount(const GLuint &refcount, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
@@ -118,7 +141,7 @@ inline GLElementDataGene &GLElementDataGene::addRefCount(const GLindex &refcount
     return (*this);
 }
 
-inline GLElementDataGene &GLElementDataGene::addValue(const GLindex &value, GLindex *index)
+inline GLElementDataGene &GLElementDataGene::addValue(const GLuint &value, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
@@ -128,52 +151,78 @@ inline GLElementDataGene &GLElementDataGene::addValue(const GLindex &value, GLin
     return (*this);
 }
 
-inline void GLElementDataGene::setVisible(const GLindex index, const GLoption &option)
+inline GLElementDataGene &GLElementDataGene::addGeneOption(const GLoption &option, GLindex *index)
 {
-    GLoption *data = reinterpret_cast<GLoption*>(&m_visibles[index]);
-    (*data) = option;
+    // return new index if pointer provided
+    if (index != 0) {
+        (*index) = (GLindex) m_geneOptions.size();
+    }
+    m_geneOptions.push_back(option);
+    return (*this);
 }
 
-inline void GLElementDataGene::setRefCount(const GLindex index, const GLindex &refcount)
+inline void GLElementDataGene::setFeatCount(const GLindex index, const GLuint &featcount)
 {
-    GLindex *data = reinterpret_cast<GLindex*>(&m_references[index]);
+    GLuint *data = reinterpret_cast<GLuint*>(&m_features[index]);
+    (*data) = featcount;
+}
+
+inline void GLElementDataGene::setRefCount(const GLindex index, const GLuint &refcount)
+{
+    GLuint *data = reinterpret_cast<GLuint*>(&m_references[index]);
     (*data) = refcount;
 }
 
-inline void GLElementDataGene::setValue(const GLindex index, const GLindex &value)
+inline void GLElementDataGene::setValue(const GLindex index, const GLuint &value)
 {
-    GLindex *data = reinterpret_cast<GLindex*>(&m_values[index]);
+    GLuint *data = reinterpret_cast<GLuint*>(&m_values[index]);
     (*data) = value;
 }
 
-inline const GLoption GLElementDataGene::getVisible(const GLindex index)
+inline void GLElementDataGene::setGeneOption(const GLindex index, const GLoption &option)
 {
-    return *(reinterpret_cast<GLoption*>(&m_visibles[index]));
+    GLoption *data = reinterpret_cast<GLoption*>(&m_geneOptions[index]);
+    (*data) = option;
 }
 
-inline const GLindex GLElementDataGene::getRefCount(const GLindex index)
+inline const GLuint GLElementDataGene::getFeatCount(const GLindex index)
 {
-    return *(reinterpret_cast<GLindex*>(&m_references[index]));
+    return *(reinterpret_cast<GLuint*>(&m_features[index]));
 }
 
-inline const GLindex GLElementDataGene::getValue(const GLindex index)
+inline const GLuint GLElementDataGene::getRefCount(const GLindex index)
 {
-    return *(reinterpret_cast<GLindex*>(&m_values[index]));
+    return *(reinterpret_cast<GLuint*>(&m_references[index]));
 }
 
-const GLarray<GLoption> GLElementDataGene::visibles() const
+inline const GLuint GLElementDataGene::getValue(const GLindex index)
 {
-    return GLarray<GLoption>((GLsizei) m_visibles.size(), static_cast<const GLoption *>(m_visibles.data()));
+    return *(reinterpret_cast<GLuint*>(&m_values[index]));
 }
 
-const GLarray<GLindex> GLElementDataGene::references() const
+inline const GLoption GLElementDataGene::getGeneOption(const GLindex index)
 {
-    return GLarray<GLindex>((GLsizei) m_references.size(), static_cast<const GLindex *>(m_references.data()));
+    return *(reinterpret_cast<GLoption*>(&m_geneOptions[index]));
 }
 
-const GLarray<GLindex> GLElementDataGene::values() const
+const GLarray<GLuint> GLElementDataGene::features() const
 {
-    return GLarray<GLindex>((GLsizei) m_values.size(), static_cast<const GLindex *>(m_values.data()));
+    return GLarray<GLuint>((GLsizei) m_features.size(), static_cast<const GLuint *>(m_features.data()));
+}
+
+const GLarray<GLuint> GLElementDataGene::references() const
+{
+    return GLarray<GLuint>((GLsizei) m_references.size(), static_cast<const GLuint *>(m_references.data()));
+}
+
+const GLarray<GLuint> GLElementDataGene::values() const
+{
+    return GLarray<GLuint>((GLsizei) m_values.size(), static_cast<const GLuint *>(m_values.data()));
+}
+
+const GLarray<GLoption> GLElementDataGene::geneOptions() const
+{
+    return GLarray<GLoption>((GLsizei) m_geneOptions.size(), static_cast<const GLoption *>(m_geneOptions.data()));
 }
 
 } // namespace GL //
