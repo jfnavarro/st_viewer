@@ -11,7 +11,7 @@
 #include <QHeaderView>
 
 #include "view/controllers/DatasetItemModel.h"
-#include "view/delegates/DatasetsViewItemDelegate.h"
+#include "core/delegates/DatasetsViewItemDelegate.h"
 
 AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
     : QTableView(parent), m_animation(this), m_datasetModel(0)

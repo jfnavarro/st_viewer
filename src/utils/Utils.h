@@ -160,17 +160,19 @@ static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
 
 static const QSize DEFAULT_BOUND_SIZE = QSize(100, 100);
-};
+}
 
 // some useful global functions
 namespace Utils
 {
+    
 QDateTime decodeJsonDateTime(const QString &jsonDateTime);
 void char2hex(QChar dec, QString &str);
 QString urlEncode(const QByteArray &c);
 QString urlEncode(const QString &c);
 QString formatStorage(qlonglong storageSpace);
 size_t getMemorySize();
-};
+
+}
 
 #endif // UTILS_H

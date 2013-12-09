@@ -12,6 +12,7 @@
 #include <qgl.h>
 
 #include <GLTypeTraits.h>
+
 //#include <GLCommon.h>
 //Q_DECLARE_METATYPE(GL::GLpoint)
 

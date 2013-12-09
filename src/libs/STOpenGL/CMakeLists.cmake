@@ -36,8 +36,6 @@ set(SRC_${LIB}
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/math/GLQuadTree.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/math/GLVector.h
 
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/shader/GLShader.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/shader/GLShaderProgram.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/shader/GLShaderRender.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/shader/GLShaderRender.h
 

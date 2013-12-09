@@ -25,9 +25,6 @@ public:
     void finalize() {};
     void init() {};
 
-public slots:
-    void onDownloadProgress(const QString &fileName, qint64 bytesReceived, qint64 bytesTotal);
-
 };
 
 #endif  /* // MAINSTATUSBAR_H */

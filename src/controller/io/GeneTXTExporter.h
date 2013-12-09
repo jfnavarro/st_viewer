@@ -54,7 +54,7 @@ private:
     SeparationModes m_separationMode;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(GeneTXTExporter::DetailLevels);
-Q_DECLARE_OPERATORS_FOR_FLAGS(GeneTXTExporter::SeparationModes);
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneTXTExporter::DetailLevels)
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneTXTExporter::SeparationModes)
 
 #endif // GENETXTEXPORTER_H //

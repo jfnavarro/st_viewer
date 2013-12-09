@@ -71,10 +71,13 @@ private:
 
         Bucket();
         Bucket(const GLaabb &aabb);
+        
         bool contains(const GLpoint &p) const;
+        
         GLint insert(const GLpoint &p, const T &t);
         void select(const GLaabb &b, PointItemList &items, GLint(&idx)[4]) const;
         void select(const GLpoint &p, PointItem &item, GLint(&idx)[4]) const;
+        
         bool isNode() const;
         bool isLeaf() const;
 
@@ -190,13 +193,14 @@ GLint GLQuadTree<T, N>::Bucket::insert(const GLpoint &p, const T &t)
     typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
         if (fuzzyEqual(data[i].first, p)) {
-            //qDebug() << "GLQuadTree: Error! Trying to insert non-unique point!";
             return INSERT_ERROR_NONUNIQUE;
         }
     }
     // try to insert
     PointItem pair = { p, t };
-    return data.pushBack(pair) ? INSERT_OK : INSERT_ERROR_FULL;
+    const GLint ok = INSERT_OK;
+    const GLint error = INSERT_ERROR_FULL;
+    return (data.pushBack(pair) ? ok : error);
 }
 
 template <typename T, int N>

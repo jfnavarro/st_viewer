@@ -14,7 +14,10 @@ namespace GL
 
 void GLShaderRender::render(const GLElementDataGene& renderData)
 {
+    m_program->bind();
+    
     const GLenum mode = renderData.mode();
+    
     // primitive arrays
     const GLarray<GLpoint> vertices = renderData.vertices();
     const GLarray<GLcolor> colors = renderData.colors();
@@ -40,12 +43,14 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     if (hasVertex && (!hasColors || !hasTexture || !hasOptions)) {
         qDebug() << QString("Unable to render element data using shader "
                             "without colors||texture coordinates.");
+        m_program->release();
         return;
     }
 
     if (isGlobalMode && (!hasFeatures || !hasReferences || !hasValues)) {
         qDebug() << QString("Unable to render element data using shader in "
                             "GlobalGeneMode without features||refereces||values.");
+        m_program->release();
         return;
     }
 
@@ -99,7 +104,7 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         // uniform values
         colorMode = m_program->uniformLocation("in_colorMode");
         int colorModeValue = static_cast<int>(renderData.getColorMode());
-        m_program->setUniformValue("in_colorMode",colorModeValue);
+        m_program->setUniformValue(colorMode,colorModeValue);
 
         geneMode = m_program->uniformLocation("in_geneMode");
         int geneModeValue = static_cast<int>(renderData.getThresholdMode());
@@ -125,10 +130,14 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         m_program->disableAttributeArray(featureLocation);
         m_program->disableAttributeArray(valueLocation);
     }
+    
     // unset color array
     glDisableClientState(GL_COLOR_ARRAY);
     // unset vertex array
     glDisableClientState(GL_VERTEX_ARRAY);
+    
+    //release shader
+    m_program->release();
 }
 
 } // namespace GL //

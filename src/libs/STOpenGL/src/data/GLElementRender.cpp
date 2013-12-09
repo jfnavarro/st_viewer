@@ -88,16 +88,16 @@ void GLElementRender::State::cmdBindShader(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
     const GLsizei index = static_cast<GLsizei>(arg);
-    const GLshaderprogram shader = m_shaders[index];
-    shader.bind();
+    QGLShaderProgram *shader = m_shaders[index];
+    shader->bind();
 }
 
 void GLElementRender::State::cmdUnbindShader(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
     const GLsizei index = static_cast<GLsizei>(arg);
-    const GLshaderprogram shader = m_shaders[index];
-    shader.unbind();
+    QGLShaderProgram *shader = m_shaders[index];
+    shader->release();
 }
 
 void GLElementRender::State::render(const GLsizei renderItemCount)

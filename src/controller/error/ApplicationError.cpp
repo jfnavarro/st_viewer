@@ -53,6 +53,7 @@ void ApplicationError::init(ApplicationError::Type errorType)
         description = QApplication::translate(ApplicationError::LOC_CONTEXT, "UnknownError:Description").arg(errorType);
     }
 
+    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

@@ -258,13 +258,13 @@ void CellViewPageToolBar::slotGeneShape(int geneShape)
 //input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneIntensity(int geneIntensity)
 {
-    const qreal decimal = (qreal)(geneIntensity) / 10;
+    const qreal decimal = static_cast<qreal>(geneIntensity) / 10;
     emit intensityValueChanged(decimal);
 }
 
 //input is expected to be >= 10 and <= 30
 void CellViewPageToolBar::slotGeneSize(int geneSize)
 {
-    const qreal decimal = (qreal)(geneSize) / 10;
+    const qreal decimal = static_cast<qreal>(geneSize) / 10;
     emit sizeValueChanged(decimal);
 }

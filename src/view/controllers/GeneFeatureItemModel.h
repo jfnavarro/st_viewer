@@ -51,7 +51,7 @@ private:
 
     DataProxy::GeneListPtr m_genelist_reference;
 
-    Q_DISABLE_COPY(GeneFeatureItemModel);
+    Q_DISABLE_COPY(GeneFeatureItemModel)
 };
 
 #endif // GENEFEATUREITEMMODEL_H

@@ -59,11 +59,20 @@ namespace GL
 
 inline GLimage::GLimage()
     : m_width(0), m_height(0), m_pixels(0), m_mode(GL_RGBA), m_type(GL_FLOAT)
-{ }
+{ 
+    
+}
+
 inline GLimage::GLimage(GLsizei width, GLsizei height, GLenum mode, GLenum type)
     : m_width(width), m_height(height), m_pixels(0), m_mode(mode), m_type(type)
-{ }
-inline GLimage::~GLimage() { }
+{
+    
+}
+
+inline GLimage::~GLimage() 
+{ 
+    
+}
 
 inline void GLimage::reset(GLsizei width, GLsizei height, GLenum mode, GLenum type)
 {
@@ -143,6 +152,7 @@ inline void GLimage::createImage()
                new GLbyte[m_width * m_height * pixelColorCount * pixelTypeSize];
 
 }
+
 inline void GLimage::deleteImage()
 {
     // delete any allocated memory

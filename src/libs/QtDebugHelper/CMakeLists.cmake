@@ -6,6 +6,7 @@ message(STATUS "Building ${LIB}")
 
 set(SRC_${LIB}
     ${CMAKE_SOURCE_DIR}/src/libs/QtDebugHelper/src/utils/DebugHelper.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/QtDebugHelper/src/utils/DebugHelper.h
 )
 
 # Add pre-precessor definitions

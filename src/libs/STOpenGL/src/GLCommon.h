@@ -9,6 +9,7 @@
 #ifndef GLCOMMON_H
 #define GLCOMMON_H
 
+//#include <GL/glew.h> //NOTE important to do it before including qopengl
 #include <QtGui/qopengl.h>
 
 #include <math/GLMath.h>

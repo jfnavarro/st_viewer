@@ -95,13 +95,14 @@ void OAuth2Error::init(uint error)
         break;
     default:
         type = OAuth2Error::UnknownError;
-        //I would rather show the original error when it is a unknown erro
+        //I would rather show the original error when it is a unknown error
         name = m_internalName;
         description = m_internalDescription;
         //name = QApplication::translate(OAuth2Error::LOC_CONTEXT, "UnknownError:Name");
         //description = QApplication::translate(OAuth2Error::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
 
+    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

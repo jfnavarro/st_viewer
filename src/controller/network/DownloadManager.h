@@ -64,7 +64,7 @@ private:
 
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes);
+Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes)
 
 class DownloadManager: public QObject
 {

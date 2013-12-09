@@ -132,17 +132,6 @@ set(SRC_VIEW_OPENGL
     view/openGL/ViewItemGL.cpp
 )
 
-set(INC_VIEW_DELEGATES
-    view/delegates/BooleanItemDelegate.h
-    view/delegates/GeneViewDelegate.h
-    view/delegates/DatasetsViewItemDelegate.h
-)
-set(SRC_VIEW_DELEGATES
-    view/delegates/BooleanItemDelegate.cpp
-    view/delegates/GeneViewDelegate.cpp
-    view/delegates/DatasetsViewItemDelegate.cpp
-)
-
 set(INC_VIEW_EDITORS
     view/editors/ColorListEditor.h
 )
@@ -290,7 +279,6 @@ set(INCLUDES
     ${INC_VIEW}
     ${INC_VIEW_MODEL_CONTROLLER}
     ${INC_VIEW_OPENGL}
-    ${INC_VIEW_DELEGATES}
     ${INC_VIEW_EDITORS}
     ${INC_VIEW_PAGES}
     ${INC_CONTROLLER}
@@ -310,7 +298,6 @@ set(SOURCES
     ${SRC_VIEW}
     ${SRC_VIEW_MODEL_CONTROLLER}
     ${SRC_VIEW_OPENGL}
-    ${SRC_VIEW_DELEGATES}
     ${SRC_VIEW_EDITORS}
     ${SRC_VIEW_PAGES}
     ${SRC_CONTROLLER}
@@ -367,13 +354,13 @@ else(OPENGL_FOUND)
     message(FATAL_ERROR "OpenGL environment missing")
 endif(OPENGL_FOUND)
 
-# if(APPLE)
-#     find_library(AppKit_LIBRARY AppKit)
-#     find_library(COCOA_LIBRARY Cocoa)
-#     find_library(APP_SERVICES_LIBRARY ApplicationServices)
-#     mark_as_advanced(APP_SERVICES_LIBRARY COCOA_LIBRARY AppKit_LIBRARY) 
-#     set(MAC_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY} ${AppKit_LIBRARY}) 
-# endif()
+if(APPLE)
+    find_library(AppKit_LIBRARY AppKit)
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(APP_SERVICES_LIBRARY ApplicationServices)
+    mark_as_advanced(APP_SERVICES_LIBRARY COCOA_LIBRARY AppKit_LIBRARY) 
+    set(MAC_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY} ${AppKit_LIBRARY}) 
+endif()
 
 ##FLAGS AND DEFINITIONS###
 
@@ -443,12 +430,12 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES})
 endif()
 
-# if(APPLE)
-#    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${MAC_EXTRA_LIBS}) 
-# endif()
+if(APPLE)
+   target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS}) 
+endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} STMain )
+target_link_libraries(${PROJECT_NAME} STMain ${OPENGL_LIBRARY})
 
 ### UNIT TESTS ################################################################
 

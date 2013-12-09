@@ -25,7 +25,7 @@ public:
 
     virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
-    Q_DISABLE_COPY(GeneViewDelegate);
+    Q_DISABLE_COPY(GeneViewDelegate)
 };
 
 #endif // GENEVIEWDELEGATE_H //

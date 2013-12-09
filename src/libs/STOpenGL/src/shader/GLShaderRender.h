@@ -8,9 +8,8 @@
 #ifndef GLSHADERRENDER_H
 #define GLSHADERRENDER_H
 
-#include <QGLShaderProgram>
+#include "QGLShaderProgram"
 
-#include "GLCommon.h"
 #include "data/GLElementDataGene.h"
 
 namespace GL
@@ -21,7 +20,9 @@ namespace GL
 //     standard element renderer.
 class GLShaderRender
 {
+    
 public:
+    
     inline GLShaderRender();
     inline void clear();
     inline void shader(QGLShaderProgram *program);
@@ -45,7 +46,10 @@ inline GLShaderRender::GLShaderRender()
 
 }
 
-inline void GLShaderRender::clear() { }
+inline void GLShaderRender::clear() 
+{ 
+    
+}
 
 inline void GLShaderRender::shader(QGLShaderProgram *program)
 {

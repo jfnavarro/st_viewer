@@ -11,7 +11,7 @@
 #include "GLCommon.h"
 #include "data/GLElementData.h"
 #include "data/GLTexture.h"
-#include "shader/GLShaderProgram.h"
+#include <QGLShaderProgram>
 
 namespace GL
 {
@@ -60,12 +60,6 @@ private:
 };
 
 // GLElementRender provides an interface to render primitive geometric data
-//  objects. It provides a rendering method
-// * Queueu based multi step rendering:
-//      simple method for rendering data based on a rendering queue. the
-//      rendering queue provides rendering instructions as well as
-//      manipulates the rendering state. Shaders and textures are accessed
-//      using an index-based approach.
 class GLElementRender
 {
 public:
@@ -77,7 +71,7 @@ public:
     // add a texture to the rendering state
     inline void addTexture(const GLtexture &texture);
     // add a shader to the rendering state
-    inline void addShader(const GLshaderprogram &shader);
+    inline void addShader(const QGLShaderProgram &shader);
 
 private:
 
@@ -86,10 +80,11 @@ private:
     class State
     {
     public:
+        
         inline State(const GLElementData &renderData,
                      const GLElementRenderQueue &renderQueue,
                      const QList<GLtexture> &textures,
-                     const QList<GLshaderprogram> &shaders);
+                     const QList<QGLShaderProgram*> &shaders);
 
         inline ~State();
         void render();
@@ -119,13 +114,13 @@ private:
         const GLElementData &m_renderData;
         const GLElementRenderQueue &m_renderQueue;
         const QList<GLtexture> &m_textures;
-        const QList<GLshaderprogram> &m_shaders;
+        const QList<QGLShaderProgram*> &m_shaders;
         GLsizei m_index;
     };
 
     // state variables
     QList<GLtexture> m_textures;
-    QList<GLshaderprogram> m_shaders;
+    QList<QGLShaderProgram*> m_shaders;
 };
 
 } // namespace GL //
@@ -134,19 +129,31 @@ private:
 
 namespace GL
 {
+    
 // Command
 inline GLElementRenderQueue::Command::Command()
     : op(0), arg(0)
-{ }
+{ 
+    
+}
+
 inline GLElementRenderQueue::Command::Command(const Operation op, const GLuint arg)
     : op(op), arg(arg)
-{ }
+{ 
+    
+}
 
 // GLElementRenderQueue
 inline GLElementRenderQueue::GLElementRenderQueue()
     : m_closed(false), m_queue()
-{ }
-inline GLElementRenderQueue::~GLElementRenderQueue() { }
+{ 
+    
+}
+
+inline GLElementRenderQueue::~GLElementRenderQueue() 
+{ 
+    
+}
 
 inline GLElementRenderQueue &GLElementRenderQueue::add(const Command &cmd)
 {
@@ -162,6 +169,7 @@ inline GLElementRenderQueue &GLElementRenderQueue::add(const Command &cmd)
 
     return (*this);
 }
+
 inline void GLElementRenderQueue::end()
 {
     add(Command(Command::EndOfCmd));
@@ -189,7 +197,7 @@ inline GLElementRender::State::State(
     const GLElementData &renderData,
     const GLElementRenderQueue &renderQueue,
     const QList<GLtexture> &textures,
-    const QList<GLshaderprogram> &shaders
+    const QList<QGLShaderProgram*> &shaders
 )
     : m_renderData(renderData), m_renderQueue(renderQueue), m_textures(textures), m_shaders(shaders), m_index(0)
 {

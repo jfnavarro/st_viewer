@@ -121,18 +121,23 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
         qDebug() << "GenePlotterGL: I need a QGLWidget to be set as viewport on the graphics view";
         return;
     }
+    
     GL::GLElementRender simpleRenderer;
     GL::GLShaderRender shaderRenderer;
 
     shaderRenderer.shader(m_geneProgram);
+    
     painter->beginNativePainting();
     {
         GL::GLscope glBlendScope(GL_BLEND);
+        
         //alpha blending
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
+        
         if (m_gridVisible) {
+            // use simple renderer for the grid
             const GL::GLElementData &griddata = m_chipRenderer->getData();
             const GL::GLElementRenderQueue &queue = m_chipRenderer->getCmds();
             GL::GLscope glLineSmooth(GL_LINE_SMOOTH);
@@ -141,17 +146,13 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
             simpleRenderer.render(griddata,queue);
         }
         if (m_geneVisible) {
-            // render using shader if valid
+            // render using shader the genes
             const GL::GLElementDataGene &genedata = m_geneRenderer->getData();
             if (m_geneProgram && !genedata.isEmpty()) {
-                m_geneProgram->bind();
                 shaderRenderer.render(genedata);
-                m_geneProgram->release();
             }
-            // or fall back to simple render
             else {
                 qDebug() << "GenePlotterGL: Shader program is not valid!!";
-                //simpleRenderer.render(genedata);
             }
         }
         glPopMatrix();

@@ -61,6 +61,7 @@ void ServerError::init(uint error)
         //description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
 
+    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

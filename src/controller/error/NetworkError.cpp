@@ -172,6 +172,7 @@ void NetworkError::init(QNetworkReply::NetworkError error)
         description = QApplication::translate(NetworkError::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
 
+    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

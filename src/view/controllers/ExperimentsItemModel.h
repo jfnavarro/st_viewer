@@ -23,7 +23,7 @@ public:
 
     explicit ExperimentsItemModel(QObject* parent = 0);
 
-    Q_DISABLE_COPY(ExperimentsItemModel);
+    Q_DISABLE_COPY(ExperimentsItemModel)
 
 };
 

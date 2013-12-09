@@ -40,7 +40,7 @@ private:
 
     DataProxy::FeatureListPtr m_geneselection_reference;
 
-    Q_DISABLE_COPY(GeneSelectionItemModel);
+    Q_DISABLE_COPY(GeneSelectionItemModel)
 
 };
 

@@ -171,7 +171,8 @@ void SSLNetworkError::init(const QSslError& sslError)
         name = QApplication::translate(SSLNetworkError::LOC_CONTEXT, "UnknownError:Name");
         description = QApplication::translate(SSLNetworkError::LOC_CONTEXT, "UnknownError:Description").arg(error);
     }
-
+    
+    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

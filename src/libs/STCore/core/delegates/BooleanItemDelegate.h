@@ -34,7 +34,7 @@ public:
                              const QModelIndex& index);
     static const QRect checkBoxRect(const QStyleOptionViewItem &view_item_style_options);
 
-    Q_DISABLE_COPY(BooleanItemDelegate);
+    Q_DISABLE_COPY(BooleanItemDelegate)
 };
 
 #endif // BOOLEANITEMDELEGATE_H //
