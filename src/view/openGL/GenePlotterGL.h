@@ -32,37 +32,47 @@ public:
 
     explicit GenePlotterGL(QGraphicsItem* parent = 0);
     virtual ~GenePlotterGL();
+
     // clear rendering data
     void clear();
     // reset member variables
     void reset();
+
     // init opengl data
     void initGL();
     // load rendering shader program
     void loadShader(const uint id, const QString &vertexPath, const QString &fragmentPath);
+
     //some overloaded methods
     virtual QRectF boundingRect() const;
     virtual QPainterPath shape() const;
     virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
+
     // creates the gene and chip data
     void updateGeneData();
     // update chip size and create the chip data
     void updateChipSize();
     // load dataset trandformation matrix
     void updateTransformation();
+
     // return the selected features
     DataProxy::FeatureListPtr getSelectedFeatures();
 
 public slots:
+
     // update selection
     void setSelectionArea(const SelectionEvent*);
+
     // clear the current selection
     void clearSelectionArea();
+
     // update gene render list
     void updateGeneColor(DataProxy::GenePtr);
     void updateGeneSelection(DataProxy::GenePtr);
+
     // select by genes
     void selectGenes(const DataProxy::GeneList&);
+
     // some setters
     void setGeneVisible(bool geneVisible);
     void setGeneShape(const Globals::Shape&);
@@ -92,6 +102,7 @@ private:
     // gene attributes
     Globals::Shape m_geneShape;
     bool m_geneVisible;
+    qreal m_intensity;
 
     //classes that encapsulates all the rendering
     QScopedPointer<GeneRendererGL> m_geneRenderer;

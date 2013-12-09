@@ -26,8 +26,8 @@ public:
         geneVisual = 0x02,
         geneSize = 0x04,
         geneSelection = 0x08,
-        geneThreshold = 0x012
-        //All = (geneColor | geneVisible | geneSize)
+        geneThreshold = 0x012,
+        geneFilter = (geneSelection | geneThreshold)
     };
 
     GeneRendererGL();
@@ -38,12 +38,9 @@ public:
     void updateData(updateOptions flags);
     void clearData();
     void rebuildData();
-
-    //update functions
     void updateGene(DataProxy::GenePtr, updateOptions flags);
-    //void updateGenes(DataProxy::GeneListPtr);
-    //void updateFeature(DataProxy::FeaturePtr);
     void updateFeatures(DataProxy::FeatureListPtr, updateOptions flags);
+
     void resetQuadTree(const QRectF &rect);
 
     //selection functions
@@ -56,23 +53,36 @@ public:
     void setHitCount(int min, int max, int sum);
 
     //getters
+    inline const GL::GLElementDataGene& getData() const { return m_geneData; }
+
     DataProxy::FeatureListPtr getSelectedFeatures();
 
     inline qreal intensity() const { return m_intensity; }
     inline qreal size() const { return m_size; }
-    inline const GL::GLElementDataGene& getData() const { return m_geneData; }
-    inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
+
     inline int lowerLimit() const { return m_geneLowerLimit; }
     inline int upperLimit() const { return m_geneUpperLimit; }
+
     inline const Globals::VisualMode& visualMode() const { return m_visualMode; }
+    inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
 
     //setters
-    inline void setIntensity(qreal intensity) { m_intensity = intensity; }
-    inline void setSize(qreal size) { m_size = size;}
+    void setIntensity(qreal intensity);
+    void setSize(qreal size);
+
     inline void setLowerLimit(int geneLimit) { m_geneLowerLimit = geneLimit; }
     inline void setUpperLimit(int geneLimit) { m_geneUpperLimit = geneLimit; }
+
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
+
+protected:
+
+    //internal rendering functions
+    void updateColor(DataProxy::FeatureListPtr);
+    void updateSelection(DataProxy::FeatureListPtr);
+    void updateSize(DataProxy::FeatureListPtr);
+    void updateVisual(DataProxy::FeatureListPtr);
 
 private:
     // lookup maps
@@ -99,9 +109,11 @@ private:
     //atributes
     qreal m_intensity;
     qreal m_size;
+
     // upper && lower thresholds
     int m_geneLowerLimit;
     int m_geneUpperLimit;
+
     // hit count limits
     int m_min;
     int m_max;

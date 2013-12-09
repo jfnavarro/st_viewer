@@ -13,7 +13,7 @@ namespace GL
 {
 
 GLElementRender::GLElementRender()
-    : m_textures(), m_shaders()
+    : m_textures() //, m_shaders()
 {
 
 }
@@ -22,12 +22,12 @@ void GLElementRender::clear()
 {
     // reset state variables
     m_textures.clear();
-    m_shaders.clear();
+    //m_shaders.clear();
 }
 
 void GLElementRender::render(const GLElementData &renderData, const GLElementRenderQueue &renderQueue)
 {
-    State state(renderData, renderQueue, m_textures, m_shaders);
+    State state(renderData, renderQueue, m_textures); //m_shaders
     state.render();
 }
 
@@ -84,7 +84,7 @@ void GLElementRender::State::cmdUnbindTexture(const GLbyte op, const GLuint arg)
     texture.unbind();
 }
 
-void GLElementRender::State::cmdBindShader(const GLbyte op, const GLuint arg)
+/*void GLElementRender::State::cmdBindShader(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
     const GLsizei index = static_cast<GLsizei>(arg);
@@ -98,7 +98,7 @@ void GLElementRender::State::cmdUnbindShader(const GLbyte op, const GLuint arg)
     const GLsizei index = static_cast<GLsizei>(arg);
     QGLShaderProgram *shader = m_shaders[index];
     shader->release();
-}
+}*/
 
 void GLElementRender::State::render(const GLsizei renderItemCount)
 {

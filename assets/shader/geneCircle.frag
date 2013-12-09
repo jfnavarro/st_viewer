@@ -11,6 +11,7 @@ uniform int in_geneMode;
 uniform int in_hitCountMin;
 uniform int in_hitCountMax;
 uniform int in_hitCountSum;
+uniform float in_intensity;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -122,17 +123,27 @@ void main(void)
     if (geneMode == 1) {
         if (colorMode == 0) {
             fragColor = out_color;
+            fragColor.a = in_intensity;
         }
         else if (colorMode == 1) {
-            fragColor.a = value / max_value;
+            fragColor.a = (value / max_value) + in_intensity;
         }
         else if (colorMode == 2) {
             float nv = norm(value, min_value, max_value);
             float nt = denorm(sqrt(clamp(nv, 0.0, 1.0)), 380.0, 780.0);
             fragColor = createHeatMapColor(nt);
+            fragColor.a = in_intensity;
         }
         else {
-            fragColor = out_color;
+            //error
+        }
+    }
+    else if (geneMode == 0) {
+        if (colorMode == 1) {
+            fragColor.a += in_intensity;
+        }
+        else {
+            fragColor.a = in_intensity;
         }
     }
     

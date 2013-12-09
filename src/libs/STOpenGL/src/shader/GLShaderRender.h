@@ -48,7 +48,7 @@ inline GLShaderRender::GLShaderRender()
 
 inline void GLShaderRender::clear() 
 { 
-    
+
 }
 
 inline void GLShaderRender::shader(QGLShaderProgram *program)

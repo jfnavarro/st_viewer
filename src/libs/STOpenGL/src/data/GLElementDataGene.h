@@ -36,7 +36,9 @@ public:
     //clear arrays
     inline void clear(GLflag flags = DEFAULT_CLEAR_FLAGS);
 
+    // some helpful reset functions (reset to 0)
     inline void resetRefCount();
+    inline void resetValCount();
 
     //visibles
     inline GLElementDataGene &addFeatCount(const GLuint &featcount, GLindex *index = 0);
@@ -58,6 +60,8 @@ public:
 
     inline void setHitCount(int min, int max, int sum) { m_min = min; m_max = max; m_sum = sum; }
 
+    inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
+
     inline GLuint getFeatCount(const GLindex index);
     inline GLuint getRefCount(const GLindex index);
     inline GLuint getValue(const GLindex index);
@@ -69,6 +73,8 @@ public:
     inline int getMin() const { return m_min; }
     inline int getMax() const { return m_max; }
     inline int getSum() const { return m_sum; }
+
+    inline GLfloat getIntensity() const { return m_intensity; }
 
     inline const GLarray<GLuint> features() const;
     inline const GLarray<GLuint> references() const;
@@ -99,6 +105,7 @@ private:
     int m_min;
     int m_max;
     int m_sum;
+    GLfloat m_intensity;
 };
 
 } // namespace GL //
@@ -136,6 +143,7 @@ void GLElementDataGene::clear(GLflag flags)
     m_min = Globals::gene_lower_limit;
     m_max = Globals::gene_upper_limit;
     m_sum = Globals::gene_upper_limit;
+    m_intensity = Globals::gene_intensity;
 
     GLElementData::clear();
 }
@@ -144,6 +152,14 @@ void GLElementDataGene::resetRefCount()
 {
     for (GLindex index = 0; index < (GLindex) m_references.size(); index++) {
         GLuint *data = reinterpret_cast<GLuint*>(&m_references[index]);
+        (*data) = 0u;
+    }
+}
+
+void GLElementDataGene::resetValCount()
+{
+    for (GLindex index = 0; index < (GLindex) m_values.size(); index++) {
+        GLuint *data = reinterpret_cast<GLuint*>(&m_values[index]);
         (*data) = 0u;
     }
 }

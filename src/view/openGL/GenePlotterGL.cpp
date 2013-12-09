@@ -124,7 +124,6 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
     
     GL::GLElementRender simpleRenderer;
     GL::GLShaderRender shaderRenderer;
-
     shaderRenderer.shader(m_geneProgram);
     
     painter->beginNativePainting();
@@ -149,7 +148,9 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
             // render using shader the genes
             const GL::GLElementDataGene &genedata = m_geneRenderer->getData();
             if (m_geneProgram && !genedata.isEmpty()) {
+                m_geneProgram->bind();
                 shaderRenderer.render(genedata);
+                m_geneProgram->release();
             }
             else {
                 qDebug() << "GenePlotterGL: Shader program is not valid!!";
@@ -251,7 +252,6 @@ void GenePlotterGL::setGeneIntensity(qreal geneIntensity)
 {
     if (!qFuzzyCompare(m_geneRenderer->intensity(),geneIntensity)) {
         m_geneRenderer->setIntensity(geneIntensity);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
         update(boundingRect());
     }
 }

@@ -6,7 +6,3 @@
 */
 #include "ColorScheme.h"
 
-ColorScheme::ColorScheme(int minHits, int maxHits)
-    : m_minHits(minHits), m_maxHits(maxHits)
-{
-}

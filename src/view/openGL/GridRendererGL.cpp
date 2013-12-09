@@ -16,6 +16,7 @@ void GridRendererGL::clearData()
     m_gridData.clear();
     m_gridData.setMode(GL_LINES);
     m_queue.clear();
+
     // chip grid stuff
     m_border = QRectF();
     m_rect = QRectF();
@@ -26,6 +27,13 @@ void GridRendererGL::clearData()
 void GridRendererGL::updateData()
 {
     //TODO this is expensive, do the normal update
+    m_gridData.clear();
+    m_gridData.setMode(GL_LINES);
+    generateData();
+}
+
+void GridRendererGL::rebuildData()
+{
     m_gridData.clear();
     m_gridData.setMode(GL_LINES);
     generateData();

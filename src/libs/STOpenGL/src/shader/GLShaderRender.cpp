@@ -14,8 +14,6 @@ namespace GL
 
 void GLShaderRender::render(const GLElementDataGene& renderData)
 {
-    m_program->bind();
-    
     const GLenum mode = renderData.mode();
     
     // primitive arrays
@@ -43,14 +41,12 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     if (hasVertex && (!hasColors || !hasTexture || !hasOptions)) {
         qDebug() << QString("Unable to render element data using shader "
                             "without colors||texture coordinates.");
-        m_program->release();
         return;
     }
 
     if (isGlobalMode && (!hasFeatures || !hasReferences || !hasValues)) {
         qDebug() << QString("Unable to render element data using shader in "
                             "GlobalGeneMode without features||refereces||values.");
-        m_program->release();
         return;
     }
 
@@ -71,6 +67,7 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     int hitCountLocationSum = -1;
     int colorMode = -1;
     int geneMode = -1;
+    int intensity = -1;
 
     if (m_program != 0) {
         // enable attribute arrays
@@ -119,15 +116,19 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         hitCountLocationSum = m_program->uniformLocation("in_hitCountSum");
         m_program->setUniformValue(hitCountLocationSum,renderData.getSum());
 
+        intensity = m_program->uniformLocation("in_intensity");
+        m_program->setUniformValue(intensity,renderData.getIntensity());
+
     }
 
     // draw call
     glDrawElements(mode, indices.size, GL::GLTypeTrait<GLindex>::type_enum, indices.data);
+
     if (m_program != 0) {
         m_program->disableAttributeArray(textureLocation);
         m_program->disableAttributeArray(optionLocation);
         m_program->disableAttributeArray(featureLocation);
-        m_program->disableAttributeArray(featureLocation);
+        m_program->disableAttributeArray(referenceLocation);
         m_program->disableAttributeArray(valueLocation);
     }
     
@@ -136,8 +137,6 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     // unset vertex array
     glDisableClientState(GL_VERTEX_ARRAY);
     
-    //release shader
-    m_program->release();
 }
 
 } // namespace GL //

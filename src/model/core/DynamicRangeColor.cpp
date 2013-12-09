@@ -12,16 +12,21 @@
 #include "GLColor.h"
 #include "GLQt.h"
 
-DynamicRangeColor::DynamicRangeColor(int minHits, int maxHits) : ColorScheme(minHits, maxHits)
+DynamicRangeColor::DynamicRangeColor() : ColorScheme()
 {
 
 }
 
-QColor DynamicRangeColor::getColor(const DataProxy::FeaturePtr feature) const
+DynamicRangeColor::~DynamicRangeColor()
+{
+
+}
+
+QColor DynamicRangeColor::getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const
 {
     const qreal v = qreal(feature->hits());
-    const qreal min = qreal(m_minHits);
-    const qreal max = qreal(m_maxHits);
+    const qreal min = qreal(m_min);
+    const qreal max = qreal(m_max);
     const qreal nv = qSqrt(GL::norm<qreal, qreal>(v, min, max));
     QColor color = feature->color();
     color.setAlphaF(nv);

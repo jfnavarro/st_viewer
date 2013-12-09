@@ -13,8 +13,11 @@
 class HeatMapColor : public ColorScheme
 {
 public:
-    explicit HeatMapColor(int minHits, int maxHits);
-    virtual QColor getColor(const DataProxy::FeaturePtr feature) const;
+
+    HeatMapColor();
+    virtual ~HeatMapColor();
+
+    virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
 };
 
 #endif // HEATMAPCOLOR_H

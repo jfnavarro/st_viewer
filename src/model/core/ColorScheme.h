@@ -15,21 +15,10 @@ class ColorScheme
 
 public:
 
-    explicit ColorScheme(int minHits, int maxHits);
+    ColorScheme() {};
     virtual ~ColorScheme() {};
 
-    virtual QColor getColor(const DataProxy::FeaturePtr feature) const = 0;
-
-    inline void setMin(int min) { m_minHits = min; }
-    inline void setMax(int max) { m_maxHits = max; }
-
-    inline int getMax() const { return m_maxHits; }
-    inline int getMin() const { return m_minHits; }
-
-protected:
-
-    int m_minHits;
-    int m_maxHits;
+    virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const = 0;
 };
 
 #endif // COLORSCHEME_H

@@ -13,8 +13,11 @@
 class FeatureColor : public ColorScheme
 {
 public:
-    FeatureColor(int minHits, int maxHits);
-    virtual QColor getColor(const DataProxy::FeaturePtr feature) const;
+
+    FeatureColor();
+    virtual ~FeatureColor();
+
+    virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
 };
 
 #endif // FEATURECOLOR_H

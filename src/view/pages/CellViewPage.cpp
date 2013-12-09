@@ -353,7 +353,7 @@ void CellViewPage::finishGLConnections()
     //gene attributes signals
     disconnect(toolBar, SIGNAL(intensityValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneIntensity(qreal)));
     disconnect(toolBar, SIGNAL(sizeValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneSize(qreal)));
-    disconnect(toolBar, SIGNAL(shapeIndexChanged(int)), gene_plotter_gl, SLOT(setGeneShape(int)));
+    disconnect(toolBar, SIGNAL(shapeIndexChanged(Globals::Shape)), gene_plotter_gl, SLOT(setGeneShape(Globals::Shape)));
 
     //show/not genes signal
     disconnect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
