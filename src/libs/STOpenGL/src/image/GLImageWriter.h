@@ -31,21 +31,23 @@ public:
     inline explicit GLimagewriter(GLimage &image);
     inline ~GLimagewriter();
 
-    const bool writePixel(const GLcolor &color);
-    const bool writeLine(const GLcolor &color);
+    bool writePixel(const GLcolor &color);
+    bool writeLine(const GLcolor &color);
 
     // fills remaining pixel with specified color
-    const bool writeFillColor(const GLcolor &color);
+    bool writeFillColor(const GLcolor &color);
+
     // fills remaining pixels with gradient of specified two colors
-    const bool writeFillGradient(const GLcolor &color0, const GLcolor &color1,
+    bool writeFillGradient(const GLcolor &color0, const GLcolor &color1,
                                  const GradientAngle gradient = GLimagewriter::VerticalGradient);
 
     // convenience functions for generating prefilled images
-    static inline const bool imageFillColor(GLimage &image, const GLcolor &color);
-    static inline const bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
+    static inline bool imageFillColor(GLimage &image, const GLcolor &color);
+    static inline bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
             const GradientAngle gradient = GLimagewriter::VerticalGradient);
 
 private:
+
     GLimage &m_image;
     GLsizei m_index;
     GLsizei m_indexEnd;
@@ -63,7 +65,8 @@ inline GLimagewriter::GLimagewriter(GLimage &image)
 {
     // assume specific mode and type
     //TODO implement mode and type independet image writing
-    Q_ASSERT_X(image.mode() == GL_RGBA && image.type() == GL_FLOAT, "GLimagewriter", "Unsupported image mode or type!");
+    Q_ASSERT_X(image.mode() == GL_RGBA && image.type() == GL_FLOAT,
+               "GLimagewriter", "Unsupported image mode or type!");
     // cache buffer size
     m_indexEnd = m_image.size();
 }
@@ -72,12 +75,13 @@ inline GLimagewriter::~GLimagewriter()
 
 }
 
-inline const bool GLimagewriter::imageFillColor(GLimage &image, const GLcolor &color)
+inline bool GLimagewriter::imageFillColor(GLimage &image, const GLcolor &color)
 {
     GLimagewriter writer(image);
     return writer.writeFillColor(color);
 }
-inline const bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0,
+
+inline bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0,
         const GLcolor &color1, const GradientAngle gradient)
 {
     GLimagewriter writer(image);

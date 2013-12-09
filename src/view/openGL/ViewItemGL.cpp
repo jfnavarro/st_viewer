@@ -18,28 +18,30 @@ ViewItemGL::~ViewItemGL()
 
 }
 
-const bool ViewItemGL::contains(const QPointF& point) const
+bool ViewItemGL::contains(const QPointF& point) const
 {
     return this->boundingRect().contains(point);
 }
 
-const bool ViewItemGL::mouseMoveEvent(QMouseEvent* event)
-{
-    Q_UNUSED(event);
-    return false;
-}
-const bool ViewItemGL::mousePressEvent(QMouseEvent* event)
-{
-    Q_UNUSED(event);
-    return false;
-}
-const bool ViewItemGL::mouseReleaseEvent(QMouseEvent* event)
+bool ViewItemGL::mouseMoveEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
     return false;
 }
 
-const ViewItemGL::Anchor ViewItemGL::anchor() const
+bool ViewItemGL::mousePressEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    return false;
+}
+
+bool ViewItemGL::mouseReleaseEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    return false;
+}
+
+ViewItemGL::Anchor ViewItemGL::anchor() const
 {
     return m_anchor;
 }

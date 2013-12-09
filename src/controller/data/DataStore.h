@@ -28,6 +28,7 @@ class DataStore : public ResourceStore, public Singleton<DataStore>
     Q_OBJECT
 
 public:
+
     explicit DataStore(QObject* parent = 0);
     virtual ~DataStore();
 
@@ -35,16 +36,19 @@ public:
     void finalize();
 
     // store resources on disk, provide interface to store in files
-    virtual const bool hasResource(const QString& resourceid) const;
+    virtual bool hasResource(const QString& resourceid) const;
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty);
     virtual void clearResources();
 
 signals:
+
     void signalError(Error* error);
 
 private:
+
     void loadResourceMap();
     void saveResourceMap();
+
     QIODevice* createFile(const QString& name, Options options);
     QIODevice* accessFile(const QString& name, Options options);
     //NOTE temporary files are prefixed with a set of characters so as to

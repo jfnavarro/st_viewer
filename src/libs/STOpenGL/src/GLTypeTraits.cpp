@@ -49,8 +49,9 @@ template <> const int GLTypeEnumTrait<GL_2_BYTES>::type_size = (2 * sizeof(GLbyt
 template <> const int GLTypeEnumTrait<GL_3_BYTES>::type_size = (3 * sizeof(GLbyte));    // GL_3_BYTES        0x1408
 template <> const int GLTypeEnumTrait<GL_4_BYTES>::type_size = (4 * sizeof(GLbyte));    // GL_4_BYTES        0x1409
 template <> const int GLTypeEnumTrait<GL_DOUBLE>::type_size = sizeof(GLdouble);         // GL_DOUBLE         0x140A
+
 // opengl type enum info
-const int GLTypeEnumInfo::type_size(const GLenum type)
+int GLTypeEnumInfo::type_size(const GLenum type)
 {
     static const int map[] = {
         GLTypeEnumTrait<GL_BYTE>::type_size,
@@ -80,8 +81,9 @@ template <> const int GLColorEnumTrait<GL_RGB>::color_count = 3;              //
 template <> const int GLColorEnumTrait<GL_RGBA>::color_count = 4;             // GL_RGBA            0x1908
 template <> const int GLColorEnumTrait<GL_LUMINANCE>::color_count = 1;        // GL_LUMINANCE       0x1909
 template <> const int GLColorEnumTrait<GL_LUMINANCE_ALPHA>::color_count = 2;  // GL_LUMINANCE_ALPHA 0x190A
+
 // opengl color enum info
-const int GLColorEnumInfo::color_count(const GLenum mode)
+int GLColorEnumInfo::color_count(const GLenum mode)
 {
     static const int map[] = {
         GLColorEnumTrait<GL_COLOR_INDEX>::color_count,
@@ -110,8 +112,9 @@ template <> const int GLGeomEnumTrait<GL_TRIANGLE_FAN>::vertex_count = -1;   // 
 template <> const int GLGeomEnumTrait<GL_QUADS>::vertex_count = 4;           // GL_QUADS          0x0007
 template <> const int GLGeomEnumTrait<GL_QUAD_STRIP>::vertex_count = -1;     // GL_QUAD_STRIP     0x0008
 template <> const int GLGeomEnumTrait<GL_POLYGON>::vertex_count = -1;        // GL_POLYGON        0x0009
+
 // opengl geometric enum info
-const int GLGeomEnumInfo::vertex_count(const GLenum mode)
+int GLGeomEnumInfo::vertex_count(const GLenum mode)
 {
     static const int map[] = {
         GLGeomEnumTrait<GL_POINTS>::vertex_count,

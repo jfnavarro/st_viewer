@@ -54,11 +54,11 @@ public:
     GLfloat m[16];
 };
 
-inline const bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e = EPSILON);
 
-inline const bool operator ==(const GLmatrix &m0, const GLmatrix &m1);
-inline const bool operator !=(const GLmatrix &m0, const GLmatrix &m1);
+inline bool operator ==(const GLmatrix &m0, const GLmatrix &m1);
+inline bool operator !=(const GLmatrix &m0, const GLmatrix &m1);
 
 } // namespace GL //
 
@@ -126,7 +126,7 @@ GLmatrix::operator GLfloat*()
     return &(m[0]);
 }
 
-const bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
+bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
 {
     return fuzzyEqual(m0.m[GLmatrix::M11], m1.m[GLmatrix::M11], e)
            && fuzzyEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
@@ -145,7 +145,7 @@ const bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
            && fuzzyEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
            && fuzzyEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
 }
-const bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
+bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
 {
     return fuzzyNotEqual(m0.m[GLmatrix::M11], m1.m[GLmatrix::M11], e)
            || fuzzyNotEqual(m0.m[GLmatrix::M12], m1.m[GLmatrix::M12], e)
@@ -165,7 +165,7 @@ const bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
            || fuzzyNotEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
 }
 
-const bool operator ==(const GLmatrix &m0, const GLmatrix &m1)
+bool operator ==(const GLmatrix &m0, const GLmatrix &m1)
 {
     return m0.m[GLmatrix::M11] == m1.m[GLmatrix::M11]
            && m0.m[GLmatrix::M12] == m1.m[GLmatrix::M12]
@@ -184,7 +184,8 @@ const bool operator ==(const GLmatrix &m0, const GLmatrix &m1)
            && m0.m[GLmatrix::M43] == m1.m[GLmatrix::M43]
            && m0.m[GLmatrix::M44] == m1.m[GLmatrix::M44];
 }
-const bool operator !=(const GLmatrix &m0, const GLmatrix &m1)
+
+bool operator !=(const GLmatrix &m0, const GLmatrix &m1)
 {
     return m0.m[GLmatrix::M11] != m1.m[GLmatrix::M11]
            || m0.m[GLmatrix::M12] != m1.m[GLmatrix::M12]

@@ -100,7 +100,7 @@ public:
     inline const GLarray<GLoption> options() const;
 
     //enum mode getter
-    inline const GLenum mode() const;
+    inline GLenum mode() const;
 
     //check whether the arrays are empty or not
     inline bool isEmpty() const
@@ -363,7 +363,7 @@ const GLarray<GLoption> GLElementData::options() const
                              static_cast<const GLoption *>(m_options.data()));
 }
 
-const GLenum GLElementData::mode() const
+GLenum GLElementData::mode() const
 {
     return m_mode;
 }

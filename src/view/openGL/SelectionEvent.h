@@ -16,28 +16,28 @@ class SelectionEvent : public QEvent
 {
 
 public:
+
     enum SelectionMode {
         NewSelection,
         IncludeSelection,
         ExcludeSelection
     };
 
-    inline SelectionEvent() : QEvent(TYPE), m_path(), m_mode(NewSelection) { }
-    inline SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
-        : QEvent(TYPE), m_path(path), m_mode(mode) { }
-
-    inline const QPainterPath path() const
+    inline SelectionEvent() : QEvent(TYPE), m_path(), m_mode(NewSelection)
     {
-        return m_path;
-    }
-    inline const SelectionMode mode() const
-    {
-        return m_mode;
     }
 
-    static inline const SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
+    inline explicit SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
+        : QEvent(TYPE), m_path(path), m_mode(mode)
     {
-#if defined(Q_OS_MAC)
+    }
+
+    inline QPainterPath path() const { return m_path; }
+    inline SelectionMode mode() const { return m_mode; }
+
+    static inline SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
+    {
+#if defined Q_OS_MAC
         return
             (modifiers.testFlag(Qt::ShiftModifier) ?
              (modifiers.testFlag(Qt::MetaModifier) ?

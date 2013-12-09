@@ -26,12 +26,12 @@ public:
 
     static const GLflag DEFAULT_MODE = Normal;
 
-    GLscope(GLenum cap, GLflag modes = DEFAULT_MODE);
-    GLscope(GLenum cap, bool enable, GLflag modex = DEFAULT_MODE);
-    ~GLscope();
+    explicit GLscope(GLenum cap, GLflag modes = DEFAULT_MODE);
+    explicit GLscope(GLenum cap, bool enable, GLflag modex = DEFAULT_MODE);
+    virtual ~GLscope();
 
     //NOTE should not be able to change enable value mid scope, hence read only!
-    inline const bool enable() const;
+    inline bool enable() const;
 
 private:
     GLenum m_cap;
@@ -46,7 +46,7 @@ private:
 namespace GL
 {
 
-const bool GLscope::enable() const
+bool GLscope::enable() const
 {
     return m_enable;
 }

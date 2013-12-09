@@ -42,22 +42,17 @@ public:
     //clean access token
     void cleanAccesToken();
 
-    inline const bool isAuthenticated() const
+    inline bool isAuthenticated() const
     {
         return m_tokenStorage->hasAccessToken()
                && !m_tokenStorage->isExpired();
     }
+
     //force to log out and clean cache
     void forceAuthentication();
 
-    inline const bool hasAccessToken() const
-    {
-        return m_tokenStorage->hasAccessToken();
-    }
-    inline const QUuid getAccessToken() const
-    {
-        return m_tokenStorage->getAccessToken();
-    }
+    inline bool hasAccessToken() const { return m_tokenStorage->hasAccessToken(); }
+    inline QUuid getAccessToken() const { return m_tokenStorage->getAccessToken(); }
 
 signals:
 

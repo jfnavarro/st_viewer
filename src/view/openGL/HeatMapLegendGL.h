@@ -8,10 +8,10 @@
 #ifndef HEATMAPLEGEND_H
 #define HEATMAPLEGEND_H
 
-#include <data/GLElementData.h>
-#include <data/GLElementRender.h>
-#include <data/GLTexture.h>
-#include <image/GLImage.h>
+#include "data/GLElementData.h"
+#include "data/GLElementRender.h"
+#include "data/GLTexture.h"
+#include "image/GLImage.h"
 
 #include "ViewItemGL.h"
 
@@ -31,7 +31,7 @@ public:
     virtual void render(QPainter* painter);
 
     virtual const QRectF boundingRect() const;
-    virtual const bool contains(const QPointF& point) const;
+    virtual bool contains(const QPointF& point) const;
 
 public slots:
     void setHitCountLimits(int min, int max, int sum);
@@ -39,6 +39,7 @@ public slots:
     void setUpperLimit(int limit);
 
 private:
+
     static const QRectF DEFAULT_BOUNDS;
 
     QRectF m_bounds;

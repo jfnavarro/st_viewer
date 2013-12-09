@@ -13,7 +13,7 @@
 namespace GL
 {
 
-const bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode,
+bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode,
         int lowerbound, int upperbound)
 {
     bool ret;
@@ -33,7 +33,7 @@ const bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode
     return ret;
 }
 
-const GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
+GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
 {
     const GLfloat gamma = 0.8f;
     // clamp input value
@@ -90,7 +90,7 @@ const GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
     return GLcolor(red, green, blue);
 }
 
-const GLfloat GLheatmap::generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode)
+GLfloat GLheatmap::generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode)
 {
     // assert normalized value
     GLfloat nt = GL::clamp(t, GLfloat(0.0), GLfloat(1.0));

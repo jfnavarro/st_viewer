@@ -31,18 +31,9 @@ public:
     virtual ~NetworkCommand();
 
     // member access
-    inline const QUrl& url() const
-    {
-        return m_url;
-    }
-    inline const Globals::HttpRequestType type() const
-    {
-        return m_type;
-    }
-    inline const QUrlQuery& query() const
-    {
-        return m_query;
-    }
+    inline const QUrl& url() const { return m_url; }
+    inline Globals::HttpRequestType type() const { return m_type; }
+    inline const QUrlQuery& query() const { return m_query; }
 
     // convenience wrapper functions
     inline void addQueryItem(const QString& param, const QString& value = QString())

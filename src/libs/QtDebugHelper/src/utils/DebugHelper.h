@@ -1,28 +1,3 @@
-/*
-    Copyright (C) 2012  <Jose Fernandez Navarro> <jose.fernandez.navarro@scilifelab.com>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    Author : Jose Fernandez Navarro     jose.fernandez.navarro@scilifelab.com
-
-    Spatial Transcriptomics group.
-
-    Spatial Transcriptomics Viewer (stVi).
-
-*/
-
 /******************************************************************************
  * This file is part of the Gluon Development Platform
  * Copyright (c) 2009 Dan Leinir Turthra Jensen <admin@leinir.dk>
@@ -47,7 +22,7 @@
 #ifndef GLUON_CORE_DEBUGHELPER_H
 #define GLUON_CORE_DEBUGHELPER_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #ifndef GLUON_CORE_EXPORT
 #   if defined(MAKE_GLUON_CORE_LIB)
@@ -61,7 +36,7 @@
 #   define GLUON_CORE_EXPORT_DEPRECATED Q_DECL_DEPRECATED GLUON_CORE_EXPORT
 #endif
 
-#include <QtCore/QString>
+#include <QString>
 
 #ifndef QT_NO_DEBUG
 #   define DEBUG_FUNC_NAME GluonCore::DbgHelper dbgHelper(Q_FUNC_INFO);

@@ -41,10 +41,10 @@
 #include "ui_cellview.h"
 
 CellViewPage::CellViewPage(QWidget *parent)
-    : Page(parent), m_selection_mode(false),
+    : Page(parent),
       scene(0), cell_tissue(0), gene_plotter_gl(0),
       colorDialog_genes(0), colorDialog_grid(0),
-      m_heatmap(0), toolBar(0)
+      m_heatmap(0), toolBar(0), m_selection_mode(false)
 {
     onInit();
 }
@@ -94,17 +94,6 @@ void CellViewPage::onInit()
     ui->genes_tableview->setMouseTracking(false);
     ui->selectAllGenes->setFocusPolicy(Qt::NoFocus);
     ui->selectAllGenes->setMouseTracking(false);
-    //some OSX and optimization variables
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setAttribute(Qt::WA_MacOpaqueSizeGrip, false);
-    setAttribute(Qt::WA_MacNormalSize, false);
-    setAttribute(Qt::WA_MacVariableSize, true);
-    setAttribute(Qt::WA_OpaquePaintEvent, false);
-    setAttribute(Qt::WA_PaintOnScreen, false);
-    setAttribute(Qt::WA_LayoutOnEntireRect, false);
-    setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
-    setAttribute(Qt::WA_Mapped, false);
-    setAttribute(Qt::WA_NoSystemBackground, false);
 #endif
     // color dialogs
     colorDialog_grid = new QColorDialog(Globals::color_grid); // it should not inherits from this class
@@ -147,7 +136,7 @@ void CellViewPage::onEnter()
     // reset main variabless
     resetActionStates();
 
-    // create GL connections
+    // create GL connections (important to do this acter reseting action states)
     initGLConnections();
 
     // load cell tissue
@@ -171,28 +160,36 @@ void CellViewPage::onExit()
 void CellViewPage::createConnections()
 {
     DEBUG_FUNC_NAME
+
     // go back signal
-    connect(toolBar->actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
+    connect(toolBar->actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
+
     // gene model signals
     QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
     GeneFeatureItemModel *geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
     connect(ui->lineEdit, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString)));
     connect(ui->selectAllGenes, SIGNAL(clicked(bool)), geneModel, SLOT(selectAllGenesPressed(bool)));
-    connect(colorDialog_genes, SIGNAL(colorSelected(QColor)), geneModel, SLOT(setColorGenes(const QColor&))); //NOTE dangerous (change all??)
+    connect(colorDialog_genes, SIGNAL(colorSelected(QColor)), geneModel, SLOT(setColorGenes(const QColor&)));
+
     // cell tissue
     connect(toolBar->actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
     connect(toolBar->actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+
     // graphic view signals
     connect(toolBar->actionZoom_zoomIn, SIGNAL(triggered(bool)), ui->view, SLOT(zoomIn()));
     connect(toolBar->actionZoom_zoomOut, SIGNAL(triggered(bool)), ui->view, SLOT(zoomOut()));
+
     // print canvas
     connect(toolBar->actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
     connect(toolBar->actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
+
     // export
     connect(ui->saveSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
+
     // selection mode
     connect(toolBar->actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
     connect(toolBar->actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
+
     //color selectors
     connect(toolBar->actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
     connect(toolBar->actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
@@ -204,9 +201,9 @@ void CellViewPage::resetActionStates()
     slotActivateSelection(false);
 
     // load gene model (need to be done first)
-    QSortFilterProxyModel* proxyModel = dynamic_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
-    GeneFeatureItemModel* geneModel = dynamic_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
-    GeneSelectionItemModel* selectionModel = dynamic_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
+    QSortFilterProxyModel* proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
+    GeneFeatureItemModel* geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
+    GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
     // reset gene model data
     geneModel->loadGenes();
     // reset gene colors
@@ -260,7 +257,6 @@ void CellViewPage::initGLView()
     gene_plotter_gl->updateChipSize();
     gene_plotter_gl->updateGeneData();
     gene_plotter_gl->updateTransformation();
-    //gene_plotter_gl->clearSelectionArea();
 
     //reset cell view
     if (cell_tissue != 0) {

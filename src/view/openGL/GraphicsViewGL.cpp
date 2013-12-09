@@ -209,14 +209,17 @@ void GraphicsViewGL::resizeEvent(QResizeEvent* event)
 
 void GraphicsViewGL::drawBackground(QPainter *painter, const QRectF& rect)
 {
+    Q_UNUSED(rect);
+
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
         painter->paintEngine()->type() != QPaintEngine::OpenGL2) {
         qDebug() << "GraphicsViewGL: drawBackground needs a QGLWidget to be"
                  "set as viewport on the graphics view";
         return;
     }
+
     const QColor color = backgroundBrush().color();
-    const QTransform t = viewportTransform();
+    //const QTransform t = viewportTransform();
     GL::GLcolor bkgColor = GL::toGLcolor(color);
     //GL::GLmatrix matrix = GL::toGLmatrix(t);
     painter->beginNativePainting();

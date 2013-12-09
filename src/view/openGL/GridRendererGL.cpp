@@ -15,6 +15,7 @@ void GridRendererGL::clearData()
     // grid data
     m_gridData.clear();
     m_gridData.setMode(GL_LINES);
+    m_queue.clear();
     // chip grid stuff
     m_border = QRectF();
     m_rect = QRectF();
@@ -103,4 +104,8 @@ void GridRendererGL::generateData()
         .addColor(GL::GLlinecolor(gridColor))
         .connect(GL::GLlineindex());
     }
+
+    // generate element data render command
+    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
+    m_queue.end();
 }

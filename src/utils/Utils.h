@@ -88,7 +88,7 @@ enum VisualMode {
 
 enum Shape {
     Circle = 0,
-    Cross  = 1,
+    Cross = 1,
     Square = 2
 };
 

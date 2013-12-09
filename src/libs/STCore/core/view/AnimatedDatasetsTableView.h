@@ -20,17 +20,20 @@ class AnimatedDatasetsTableView : public QTableView
     Q_OBJECT
 
 public:
+
     explicit AnimatedDatasetsTableView(QWidget *parent = 0);
     virtual ~AnimatedDatasetsTableView();
 
 public slots:
+
     void setWaiting(const bool waiting);
 
 protected:
+
     void paintEvent(QPaintEvent *event);
 
-    DatasetItemModel *m_datasetModel;
     WidgetBackgroundAnimation m_animation;
+    DatasetItemModel *m_datasetModel;
 };
 
 #endif // ANIMATEDDATASETSTABLEVIEW_H //

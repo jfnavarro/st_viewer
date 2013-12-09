@@ -60,8 +60,8 @@ struct GLcolor {
     GLfloat alpha;
 };
 
-inline const bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
 
 // linear interpolation
 inline const GLcolor lerp(const GLfloat t, const GLcolor &c0, const GLcolor &c1);
@@ -151,14 +151,15 @@ inline void GLcolor::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat 
     GLcolor::alpha = alpha;
 }
 
-inline const bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
+inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
 {
     return fuzzyEqual(c0.red, c1.red, e)
            && fuzzyEqual(c0.green, c0.green, e)
            && fuzzyEqual(c0.blue, c1.blue, e)
            && fuzzyEqual(c0.alpha, c1.alpha, e);
 }
-inline const bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
+
+inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
 {
     return fuzzyNotEqual(c0.red, c1.red, e)
            || fuzzyNotEqual(c0.green, c0.green, e)

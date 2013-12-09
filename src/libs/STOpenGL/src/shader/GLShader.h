@@ -32,6 +32,7 @@ static const GLshaderhandle INVALID_SHADER_HANDLE = 0;
 // opengl.
 
 struct GLshader {
+
     inline GLshader();
     inline explicit GLshader(GL::Initialization);
     inline explicit GLshader(const ShaderType type, GLshaderhandle handle = INVALID_SHADER_HANDLE);
@@ -39,8 +40,8 @@ struct GLshader {
     inline void createHandle();
     inline void deleteHandle();
 
-    const bool compile(const char *source);
-    inline const bool isCompiled() const;
+    bool compile(const char *source);
+    inline bool isCompiled() const;
 
     ShaderType type;
     GLshaderhandle handle;
@@ -53,9 +54,18 @@ struct GLshader {
 namespace GL
 {
 
-inline GLshader::GLshader() : type(EmptyShader), handle(INVALID_SHADER_HANDLE) { }
-inline GLshader::GLshader(GL::Initialization) { }
-inline GLshader::GLshader(const ShaderType type, GLshaderhandle handle) : type(type), handle(handle) { }
+inline GLshader::GLshader() : type(EmptyShader), handle(INVALID_SHADER_HANDLE)
+{
+}
+
+inline GLshader::GLshader(GL::Initialization)
+{
+}
+
+inline GLshader::GLshader(const ShaderType type, GLshaderhandle handle)
+    : type(type), handle(handle)
+{
+}
 
 inline void GLshader::createHandle()
 {
@@ -76,7 +86,7 @@ inline void GLshader::deleteHandle()
     handle = 0;
 }
 
-inline const bool GLshader::isCompiled() const
+inline bool GLshader::isCompiled() const
 {
     return handle != GL::INVALID_SHADER_HANDLE;
 }

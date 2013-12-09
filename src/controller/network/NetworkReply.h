@@ -28,10 +28,7 @@ public:
     ContentType(const QString& contentType, QObject* parent = 0);
     virtual ~ContentType();
 
-    inline const QString& mime() const
-    {
-        return m_mime;
-    }
+    inline const QString& mime() const { return m_mime; }
 
     void header(const QString& value);
 
@@ -56,7 +53,8 @@ public:
         CodeAbort = 0x02,
         CodeError = 0x04
     };
-    Q_DECLARE_FLAGS(ReturnCodes, ReturnCode);
+
+    Q_DECLARE_FLAGS(ReturnCodes, ReturnCode)
 
     typedef QList<Error*> ErrorList;
 

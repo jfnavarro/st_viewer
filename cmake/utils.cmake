@@ -24,11 +24,12 @@ MACRO(INITIALISE_PROJECT)
         MESSAGE("Building a debug version...")
         # Default compiler settings
         IF(WIN32)
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+            SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
             SET(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
         ELSE()
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+            SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
         ENDIF()
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
         # Make sure that debugging is on for Qt
         ADD_DEFINITIONS(-DQT_DEBUG)
     ELSE()
@@ -44,9 +45,6 @@ MACRO(INITIALISE_PROJECT)
         ADD_DEFINITIONS(-DQT_NO_DEBUG)
     ENDIF()
 
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
-
     # Reduce the number of warnings
     # Remove "warning: multi-character character constant"
     OPTION(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
@@ -55,14 +53,15 @@ MACRO(INITIALISE_PROJECT)
         #TODO
     ELSE()
         IF(TREAT_WARNINGS_AS_ERRORS)
-            SET(WARNING_ERROR "-Werror -Wold-style-cast -Woverloaded-virtual -Wundef")
+            SET(WARNING_ERROR "-Werror")
         ENDIF(TREAT_WARNINGS_AS_ERRORS)
-        SET(DISABLED_WARNINGS "-Wno-multichar -Wno-unused-variable -Wno-unused-function -Wno-return-type -Wno-switch")
-        SET(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow ") #-Wno-unused-variable -Wno-unused-function
+        SET(DISABLED_WARNINGS "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum")
+        SET(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum")
+        SET(EXTRA_WARNINGS "-Wold-style-cast -Woverloaded-virtual -Wundef -Wall -Wpedantic -Wextra -Weffc++ -Wformat-nonliteral -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdeprecated -Wdisabled-optimization -Winline -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch-default -Wswitch -Wint-to-void-pointer-cast -Wnon-virtual-dtor -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
     ENDIF()
 
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS_DEBUG}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS_DEBUG} ${WARNING_ERROR}")
 
     # Ask for Unicode to be used
     ADD_DEFINITIONS(-DUNICODE)

@@ -19,7 +19,7 @@ class QStandardItemModel;
 class DatasetItemModel : public QAbstractTableModel
 {
     Q_OBJECT
-    Q_ENUMS(Column);
+    Q_ENUMS(Column)
 
 public:
 
@@ -46,19 +46,20 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     virtual bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
     //NOTE do not want the user to edit columns name
-    inline virtual bool setHeaderData(int, Qt::Orientation, const QVariant&, int = Qt::EditRole)
-    {
-        return false;
-    }
+    inline virtual bool setHeaderData(int, Qt::Orientation,
+                                      const QVariant&, int = Qt::EditRole) { return false; }
 
 public slots:
+
     void loadDatasets();
     void datasetSelected(const QModelIndex&);
 
 signals:
+
     void datasetSelected(DataProxy::DatasetPtr);
 
 private:
+
     static const int COLUMN_NUMBER = 10;
     DataProxy::DatasetListPtr m_datasets_reference;
 

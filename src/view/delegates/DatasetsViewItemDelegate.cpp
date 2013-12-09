@@ -25,8 +25,8 @@ DatasetsViewItemDelegate::~DatasetsViewItemDelegate()
 void DatasetsViewItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
-    const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
-    Q_ASSERT(model);
+    //const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
+    //Q_ASSERT(model);
     int col = index.column();
     if (col == DatasetItemModel::Comments) {
         int widthUsed, lineCount;
@@ -57,9 +57,10 @@ void DatasetsViewItemDelegate::paint(QPainter* painter, const QStyleOptionViewIt
 QSize DatasetsViewItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         const QModelIndex &index) const
 {
-    int widthUsed, lineCount;
-    const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
-    Q_ASSERT(model);
+    int widthUsed;
+    int lineCount;
+    //const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
+    //Q_ASSERT(model);
     int col = index.column();
     //Try and word wrap strings
     if (col == DatasetItemModel::Comments) {
@@ -79,9 +80,10 @@ QSize DatasetsViewItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 void DatasetsViewItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
         const QModelIndex &index) const
 {
-    int lineCount, widthUsed;
-    const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
-    Q_ASSERT(model);
+    int lineCount;
+    int widthUsed;
+   // const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
+    //Q_ASSERT(model);
     int col = index.column();
     //Fix editor's geometry and produce the word-wrapped effect for strings...
     if (col == DatasetItemModel::Comments) {

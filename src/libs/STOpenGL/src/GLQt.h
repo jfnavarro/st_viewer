@@ -36,7 +36,6 @@ namespace GL
 inline const GLpoint toGLpoint(qreal x, qreal y);
 inline const GLpoint toGLpoint(const QPoint& point);
 inline const GLpoint toGLpoint(const QPointF& point);
-
 inline const GLpoint toGLpoint(const QSize& size);
 inline const GLpoint toGLpoint(const QSizeF& size);
 

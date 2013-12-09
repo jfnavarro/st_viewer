@@ -32,10 +32,7 @@ public:
     void clear();
     void reset();
 
-    inline const QImage image() const
-    {
-        return m_image;
-    }
+    inline const QImage image() const { return m_image; }
     void setImage(const QImage& image);
 
     virtual QRectF boundingRect() const;
@@ -48,10 +45,7 @@ public:
     virtual QPainterPath opaqueArea() const;
 
     enum { Type = QGraphicsItem::UserType + 1 };
-    inline virtual int type() const
-    {
-        return Type;
-    }
+    inline virtual int type() const { return Type; }
 
 public slots:
 
@@ -60,10 +54,10 @@ public slots:
 private:
 
     void setBoundingRect(const QRectF& rect);
-    mutable QRectF m_rect;
 
     // OpenGL image: only width, height and bits are valid functions.
     QImage m_image;
+    mutable QRectF m_rect;
     GL::GLTextureData m_texture;
 
     void rebuildTextureData();

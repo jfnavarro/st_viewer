@@ -64,8 +64,9 @@ void GeneRendererGL::setHitCount(int min, int max, int sum)
     m_min = min;
     m_max = max;
     m_sum = sum;
-    m_colorScheme->setMax(Globals::IndividualGeneMode ? m_max : m_sum;);
+    m_colorScheme->setMax(Globals::IndividualGeneMode ? m_max : m_sum);
     m_colorScheme->setMin(m_min);
+    m_geneData.setHitCount(min,max,sum);
 }
 
 void GeneRendererGL::generateData()
@@ -84,15 +85,15 @@ void GeneRendererGL::generateData()
     foreach(const DataProxy::FeaturePtr feature, (*features)) {
         const GL::GLpoint point = GL::toGLpoint(feature->x(), feature->y());
         // test if point already exists
-        GeneInfoQuadTree::PointItem item = {point, (-1u)};
+        GeneInfoQuadTree::PointItem item = {point, GL::INVALID_INDEX};
         m_geneInfoQuadTree.select(point, item);
         //if it exists
-        if (item.second != -1) {
+        if (item.second != GL::INVALID_INDEX) {
             const GL::GLindex index = item.second;
             m_geneInfoById.insert(feature, index);
             m_geneInfoReverse.insertMulti(index, feature);
             m_geneData.setFeatCount(index, m_geneData.getFeatCount(index) + 1);
-            m_geneData.setValue(index, m_geneData.getValue(index) + feature->hits());
+            //m_geneData.setValue(index, m_geneData.getValue(index) + feature->hits());
             if (m_geneData.getFeatCount(index) > 1) {
                 // set complex option
                 const GL::GLoption option = factory.getOption(index);
@@ -140,20 +141,10 @@ void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOp
         m_geneData.resetRefCount();
     }
 
-    //TODO geneVisual mode can probably leave the refCount as it is
-    //so no need to update color
-
     // iterate features
     foreach(DataProxy::FeaturePtr feature, *(features)) {
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
         Q_ASSERT(it != m_geneInfoById.end());
-
-        //pass if hits are below/above limits and the mode is individual genes
-        if ( m_thresholdMode == Globals::IndividualGeneMode &&
-             (feature->hits() < m_geneLowerLimit || feature->hits() > m_geneUpperLimit) ) {
-            //TODO do something more here
-            continue;
-        }
 
         // easy access
         DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
@@ -165,6 +156,23 @@ void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOp
         const int newRefCount = (flags & geneSelection || flags & geneVisual) ?
                     oldRefCount + (selected ? 1 : (flags & geneSelection ? -1 : 0)) : oldRefCount;
         m_geneData.setRefCount(index,newRefCount);
+
+        // update values
+        const int currentHits = feature->hits();
+        const int oldValue = m_geneData.getValue(index);
+        const int newValue = (flags & geneSelection || flags & geneVisual) ?
+                    oldValue + (selected ? currentHits : (flags & geneSelection ? currentHits: 0)) : oldValue;
+        m_geneData.setValue(index,newValue);
+
+        //pass if hits are below/above limits and the mode is individual genes
+        /*if ( (( m_thresholdMode == Globals::IndividualGeneMode &&
+               (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) )
+             || ( m_thresholdMode == Globals::GlobalGeneMode &&
+                  (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) ))
+             && (m_visualMode == Globals::NormalMode) ) {
+            //TODO do something more here
+            continue;
+        }*/
 
         // update size
         if (flags & geneSize) {
@@ -372,4 +380,12 @@ void GeneRendererGL::setVisualMode(const Globals::VisualMode &mode)
         m_colorScheme = new FeatureColor(min, max);
         break;
     }
+
+    m_geneData.setColorMode(m_visualMode);
+}
+
+void GeneRendererGL::setThresholdMode(const Globals::ThresholdMode &mode)
+{
+    m_thresholdMode = mode;
+    m_geneData.setThresholdMode(m_thresholdMode);
 }

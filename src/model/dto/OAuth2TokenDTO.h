@@ -29,53 +29,24 @@ class OAuth2TokenDTO : public QObject
     Q_PROPERTY(QString m_scope READ scope WRITE scope)
     Q_PROPERTY(int expires_in READ expiresIn WRITE expiresIn)
 
-
 public:
+
     explicit OAuth2TokenDTO(QObject* parent = 0);
     virtual ~OAuth2TokenDTO();
 
     // binding
-    inline const QString& accessToken() const
-    {
-        return m_accessToken;
-    }
-    inline const QString& tokenType() const
-    {
-        return m_tokenType;
-    }
-    inline const QString& refreshToken() const
-    {
-        return m_refreshToken;
-    }
-    inline const QString& scope() const
-    {
-        return m_scope;
-    }
-    inline const int expiresIn() const
-    {
-        return m_expiresIn;
-    }
+    inline const QString& accessToken() const { return m_accessToken; }
+    inline const QString& tokenType() const { return m_tokenType; }
+    inline const QString& refreshToken() const { return m_refreshToken; }
+    inline const QString& scope() const { return m_scope; }
+    inline int expiresIn() const { return m_expiresIn; }
+
     // getters
-    inline void accessToken(const QString& accessToken)
-    {
-        m_accessToken = accessToken;
-    }
-    inline void tokenType(const QString& tokenType)
-    {
-        m_tokenType = tokenType;
-    }
-    inline void refreshToken(const QString& refreshToken)
-    {
-        m_refreshToken = refreshToken;
-    }
-    inline void scope(const QString& scope)
-    {
-        m_scope = scope;
-    }
-    inline void expiresIn(int expiresIn)
-    {
-        m_expiresIn = expiresIn;
-    }
+    inline void accessToken(const QString& accessToken) { m_accessToken = accessToken; }
+    inline void tokenType(const QString& tokenType) { m_tokenType = tokenType; }
+    inline void refreshToken(const QString& refreshToken) { m_refreshToken = refreshToken; }
+    inline void scope(const QString& scope) { m_scope = scope; }
+    inline void expiresIn(int expiresIn) { m_expiresIn = expiresIn; }
 
 private:
 

@@ -25,12 +25,11 @@ public:
         Persistent = 0x02,  // Make temporary file persistent.
         Secure = 0x04       // Encrypt cached data.
     };
-
-    Q_DECLARE_FLAGS(Options, Option);
+    Q_DECLARE_FLAGS(Options, Option)
 
     ResourceStore(QObject *parent = 0) : QObject(parent) { }
 
-    virtual const bool hasResource(const QString& resourceid) const = 0;
+    virtual bool hasResource(const QString& resourceid) const = 0;
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty) = 0;
     virtual void clearResources() = 0;
 };

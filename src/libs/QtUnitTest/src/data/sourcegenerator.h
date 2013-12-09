@@ -16,6 +16,9 @@ namespace unit
 class SourceGenerator
 {
 public:
+
+    SourceGenerator() {};
+    virtual ~SourceGenerator() {};
     virtual QByteArray generate(qint64 maxSize) const = 0;
 };
 

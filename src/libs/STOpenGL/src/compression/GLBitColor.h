@@ -24,9 +24,9 @@ typedef GLubyte GLcolorRGB8b;
 typedef GLushort GLcolorRGB16b;
 
 // compress color to a standard [3,3,2] bit allocation of RGB color space (alpha excluded)
-inline const GLcolorRGB8b compressToRGB8Bit(const GLcolor &color);
+inline GLcolorRGB8b compressToRGB8Bit(const GLcolor &color);
 // compress color to a standard [5,6,5] bit allocation of RGB color space (alpha excluded)
-inline const GLcolorRGB16b compressToRGB16Bit(const GLcolor &color);
+inline GLcolorRGB16b compressToRGB16Bit(const GLcolor &color);
 
 inline const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color);
 inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color);
@@ -38,7 +38,7 @@ inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color);
 namespace GL
 {
 
-inline const GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
+inline GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
 {
     return
         ((GLubyte(color.red * 7.0f + 0.5f) & 0x07u) << 5) |
@@ -47,7 +47,7 @@ inline const GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
 
 }
 
-inline const GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
+inline GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
 {
     return
         ((GLushort(color.red * 31.0f + 0.5f) & 0x001Fu) << 11) |

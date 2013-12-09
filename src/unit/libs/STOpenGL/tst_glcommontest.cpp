@@ -10,7 +10,6 @@
 #include <GLCommon.h>
 Q_DECLARE_METATYPE(GL::GLpoint)
 Q_DECLARE_METATYPE(GL::GLline)
-Q_DECLARE_METATYPE(GL::GLtriangle)
 Q_DECLARE_METATYPE(GL::GLrectangle)
 
 #include "tst_glcommontest.h"

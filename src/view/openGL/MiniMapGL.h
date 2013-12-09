@@ -8,8 +8,8 @@
 #ifndef MINIMAPGL_H
 #define MINIMAPGL_H
 
-#include <data/GLElementData.h>
-
+#include "data/GLElementData.h"
+#include "data/GLElementRender.h"
 #include "ViewItemGL.h"
 
 // MiniMap is an view port GUI item that visualizes the view ports current
@@ -18,8 +18,8 @@
 class MiniMapGL : public ViewItemGL
 {
     Q_OBJECT
-    Q_PROPERTY(QColor sceneColor READ getSceneColor WRITE setSceneColor);
-    Q_PROPERTY(QColor viewColor READ getViewColor WRITE setViewColor);
+    Q_PROPERTY(QColor sceneColor READ getSceneColor WRITE setSceneColor)
+    Q_PROPERTY(QColor viewColor READ getViewColor WRITE setViewColor)
 
 public:
 
@@ -33,29 +33,16 @@ public:
     virtual void render(QPainter* painter);
 
     virtual const QRectF boundingRect() const;
-    virtual const bool contains(const QPointF& point) const;
+    virtual bool contains(const QPointF& point) const;
 
-    virtual const bool mouseMoveEvent(QMouseEvent* event);
-    virtual const bool mousePressEvent(QMouseEvent* event);
-    virtual const bool mouseReleaseEvent(QMouseEvent* event);
+    virtual bool mouseMoveEvent(QMouseEvent* event);
+    virtual bool mousePressEvent(QMouseEvent* event);
+    virtual bool mouseReleaseEvent(QMouseEvent* event);
 
-    inline void setSceneColor(const QColor& sceneColor)
-    {
-        m_sceneColor = sceneColor;
-    }
-    inline const QColor& getSceneColor() const
-    {
-        return m_sceneColor;
-    }
-
-    inline void setViewColor(const QColor& viewColor)
-    {
-        m_viewColor = viewColor;
-    }
-    inline const QColor& getViewColor() const
-    {
-        return m_viewColor;
-    };
+    inline void setSceneColor(const QColor& sceneColor) { m_sceneColor = sceneColor; }
+    inline const QColor& getSceneColor() const { return m_sceneColor; }
+    inline void setViewColor(const QColor& viewColor) { m_viewColor = viewColor; }
+    inline const QColor& getViewColor() const { return m_viewColor; }
 
 signals:
 
@@ -81,6 +68,7 @@ private:
 
     // render data
     GL::GLElementData m_data;
+    GL::GLElementRenderQueue m_queue;
 
     void rebuildMinimapData();
     void generateMinimapData();

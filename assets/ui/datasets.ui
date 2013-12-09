@@ -180,7 +180,7 @@
     </layout>
    </item>
    <item>
-    <widget class="AnimatedTableView" name="datasets_tableview">
+    <widget class="AnimatedDatasetsTableView" name="datasets_tableview">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -235,7 +235,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AnimatedTableView</class>
+   <class>AnimatedDatasetsTableView</class>
    <extends>QTableView</extends>
    <header>core/view/AnimatedDatasetsTableView.h</header>
   </customwidget>

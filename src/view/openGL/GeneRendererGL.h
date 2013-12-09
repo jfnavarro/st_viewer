@@ -25,7 +25,8 @@ public:
         geneColor = 0x01,
         geneVisual = 0x02,
         geneSize = 0x04,
-        geneSelection = 0x08
+        geneSelection = 0x08,
+        geneThreshold = 0x012
         //All = (geneColor | geneVisible | geneSize)
     };
 
@@ -57,39 +58,44 @@ public:
     //getters
     DataProxy::FeatureListPtr getSelectedFeatures();
 
-    inline const qreal intensity() const { return m_intensity; }
-    inline const qreal size() const { return m_size; }
-    inline GL::GLElementDataGene getData() { return m_geneData; }
-    inline const Globals::ThresholdMode thresholdMode() const { return m_thresholdMode; }
-    inline const int lowerLimit() const { return m_geneLowerLimit; }
-    inline const int upperLimit() const { return m_geneUpperLimit; }
+    inline qreal intensity() const { return m_intensity; }
+    inline qreal size() const { return m_size; }
+    inline const GL::GLElementDataGene& getData() const { return m_geneData; }
+    inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
+    inline int lowerLimit() const { return m_geneLowerLimit; }
+    inline int upperLimit() const { return m_geneUpperLimit; }
     inline const Globals::VisualMode& visualMode() const { return m_visualMode; }
 
     //setters
     inline void setIntensity(qreal intensity) { m_intensity = intensity; }
     inline void setSize(qreal size) { m_size = size;}
-    inline void setThresholdMode(const Globals::ThresholdMode &mode) { m_thresholdMode = mode; }
     inline void setLowerLimit(int geneLimit) { m_geneLowerLimit = geneLimit; }
     inline void setUpperLimit(int geneLimit) { m_geneUpperLimit = geneLimit; }
+    void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
 
 private:
     // lookup maps
     typedef QHash<DataProxy::FeaturePtr, GL::GLindex> GeneInfoByIdMap;
     typedef QHash<GL::GLindex, DataProxy::FeaturePtr> GeneInfoReverseMap;
+
     // lookup quadtree
     typedef GL::GLQuadTree<GL::GLindex, 8> GeneInfoQuadTree;
+
     // selection set
     typedef QSet<GL::GLindex> GeneInfoSelectedSet;
 
     // gene visual data
-    GL::GLElementDataGene  m_geneData;
+    GL::GLElementDataGene m_geneData;
+
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
     GeneInfoReverseMap m_geneInfoReverse;
     GeneInfoQuadTree m_geneInfoQuadTree;
+
     // gene selection data
     GeneInfoSelectedSet m_geneInfoSelection;
+
     //atributes
     qreal m_intensity;
     qreal m_size;
@@ -100,10 +106,13 @@ private:
     int m_min;
     int m_max;
     int m_sum;
+
     // color scheme
     ColorScheme *m_colorScheme;
+
     // visual mode
     Globals::VisualMode m_visualMode;
+
     // threshold mode
     Globals::ThresholdMode m_thresholdMode;
 };

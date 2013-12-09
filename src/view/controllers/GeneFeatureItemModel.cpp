@@ -97,7 +97,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& val
         return false;
     }
 
-    int row = index.row();
+    //int row = index.row();
     int column = index.column();
 
     if (role == Qt::EditRole) {

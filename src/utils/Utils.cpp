@@ -211,5 +211,7 @@ size_t getMemorySize()
 #else
     return 0L; //Unknown OS.
 #endif
+
+    return 0L;
 }
 }

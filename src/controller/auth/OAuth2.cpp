@@ -96,6 +96,8 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
 
 void OAuth2::slotNetworkReply(QVariant code, QVariant data)
 {
+    Q_UNUSED(data);
+
     // get reference to network reply from sender object
     NetworkReply* reply = dynamic_cast<NetworkReply*>(sender());
     // null reply, prob no connection

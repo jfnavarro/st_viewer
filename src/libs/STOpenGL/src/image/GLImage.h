@@ -20,17 +20,21 @@ namespace GL
 class GLimage
 {
 public:
+
     inline GLimage();
-    inline GLimage(GLsizei width, GLsizei height, GLenum mode = GL_RGBA, GLenum type = GL_FLOAT);
-    ~GLimage();
+    explicit inline GLimage(GLsizei width, GLsizei height, GLenum mode = GL_RGBA,
+                   GLenum type = GL_FLOAT);
+    virtual ~GLimage();
 
-    inline void reset(GLsizei width, GLsizei height, GLenum mode = GL_RGBA, GLenum type = GL_FLOAT);
+    inline void reset(GLsizei width, GLsizei height, GLenum mode = GL_RGBA,
+                      GLenum type = GL_FLOAT);
 
-    inline const GLenum mode() const;
-    inline const GLenum type() const;
-    inline const GLsizei width() const;
-    inline const GLsizei height() const;
-    inline const GLsizei size() const;
+    inline GLenum mode() const;
+    inline GLenum type() const;
+    inline GLsizei width() const;
+    inline GLsizei height() const;
+    inline GLsizei size() const;
+
     //inline const GLcolor pixel(const GLsizei x, const GLsizei y) const;
     inline GLvoid *pixels();
     inline const GLvoid *pixels() const;
@@ -39,6 +43,7 @@ public:
     inline void deleteImage();
 
 private:
+
     GLsizei m_width, m_height;
     GLvoid *m_pixels;
     GLenum m_mode; // pixel format
@@ -73,23 +78,27 @@ inline void GLimage::reset(GLsizei width, GLsizei height, GLenum mode, GLenum ty
     createImage();
 }
 
-inline const GLenum GLimage::mode() const
+inline GLenum GLimage::mode() const
 {
     return m_mode;
 }
-inline const GLenum GLimage::type() const
+
+inline GLenum GLimage::type() const
 {
     return m_type;
 }
-inline const GLsizei GLimage::width() const
+
+inline GLsizei GLimage::width() const
 {
     return m_width;
 }
-inline const GLsizei GLimage::height() const
+
+inline GLsizei GLimage::height() const
 {
     return m_height;
 }
-inline const GLsizei GLimage::size() const
+
+inline GLsizei GLimage::size() const
 {
     return m_width * m_height;
 }
@@ -111,6 +120,7 @@ inline GLvoid *GLimage::pixels()
 {
     return m_pixels;
 }
+
 inline const GLvoid *GLimage::pixels() const
 {
     return m_pixels;

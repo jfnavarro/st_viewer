@@ -62,6 +62,8 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(Error *error)
 {
+    Q_UNUSED(error);
+
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->cleanAccesToken(); //force clean access token
     auth->forceAuthentication(); //authorize again

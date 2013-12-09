@@ -93,7 +93,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QIODevice *in, QByteArray &dat
         return (m_lastError = StreamReadError);
     }
     // abort on partial segment
-    if (in->bytesAvailable() < sizeof(SegmentHeader) + segment.size) {
+    if (in->bytesAvailable() < (static_cast<qint64>(sizeof(SegmentHeader)) + segment.size) ) {
         return (m_lastError = StreamPartialSegmentError);
     }
     in->read(reinterpret_cast<char *>(&segment), sizeof(SegmentHeader));

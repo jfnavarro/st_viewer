@@ -23,8 +23,8 @@ public:
     TestHandle dependsOn(const QString &name);
 
 private:
-    const QString m_name;
     TestSuite *m_suite;
+    const QString m_name;
 };
 
 class TestSuite

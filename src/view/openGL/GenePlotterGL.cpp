@@ -113,6 +113,9 @@ QPainterPath GenePlotterGL::shape() const
 
 void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
     if (painter->paintEngine()->type() != QPaintEngine::OpenGL &&
         painter->paintEngine()->type() != QPaintEngine::OpenGL2) {
         qDebug() << "GenePlotterGL: I need a QGLWidget to be set as viewport on the graphics view";
@@ -120,6 +123,7 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
     }
     GL::GLElementRender simpleRenderer;
     GL::GLShaderRender shaderRenderer;
+
     shaderRenderer.shader(m_geneProgram);
     painter->beginNativePainting();
     {
@@ -129,23 +133,25 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         if (m_gridVisible) {
-            GL::GLElementData griddata = m_chipRenderer->getData();
+            const GL::GLElementData &griddata = m_chipRenderer->getData();
+            const GL::GLElementRenderQueue &queue = m_chipRenderer->getCmds();
             GL::GLscope glLineSmooth(GL_LINE_SMOOTH);
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
             glLineWidth(Globals::grid_line_size);
-            simpleRenderer.render(griddata);
+            simpleRenderer.render(griddata,queue);
         }
         if (m_geneVisible) {
             // render using shader if valid
-            GL::GLElementData genedata = m_geneRenderer->getData();
-            if (m_geneProgram) {
+            const GL::GLElementDataGene &genedata = m_geneRenderer->getData();
+            if (m_geneProgram && !genedata.isEmpty()) {
                 m_geneProgram->bind();
                 shaderRenderer.render(genedata);
                 m_geneProgram->release();
             }
             // or fall back to simple render
             else {
-                simpleRenderer.render(genedata);
+                qDebug() << "GenePlotterGL: Shader program is not valid!!";
+                //simpleRenderer.render(genedata);
             }
         }
         glPopMatrix();
@@ -217,7 +223,7 @@ void GenePlotterGL::setGeneLowerLimit(int geneLimit)
 {
     if (m_geneRenderer->lowerLimit() != geneLimit) {
         m_geneRenderer->setLowerLimit(geneLimit);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
+        m_geneRenderer->updateData(GeneRendererGL::geneThreshold);
         update(boundingRect());
     }
 }
@@ -226,7 +232,7 @@ void GenePlotterGL::setGeneUpperLimit(int geneLimit)
 {
     if(m_geneRenderer->upperLimit() != geneLimit) {
         m_geneRenderer->setUpperLimit(geneLimit);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
+        m_geneRenderer->updateData(GeneRendererGL::geneThreshold);
         update(boundingRect());
     }
 }
@@ -271,7 +277,7 @@ void GenePlotterGL::setGeneThresholdMode(const Globals::ThresholdMode &mode)
 {
     if (m_geneRenderer->thresholdMode() != mode) {
         m_geneRenderer->setThresholdMode(mode);
-        m_geneRenderer->updateData(GeneRendererGL::geneVisual);
+        m_geneRenderer->updateData(GeneRendererGL::geneThreshold);
         update(boundingRect());
     }
 }

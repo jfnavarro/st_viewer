@@ -11,7 +11,7 @@
 #include <QGLShaderProgram>
 
 #include "GLCommon.h"
-#include "data/GLElementData.h"
+#include "data/GLElementDataGene.h"
 
 namespace GL
 {
@@ -25,7 +25,7 @@ public:
     inline GLShaderRender();
     inline void clear();
     inline void shader(QGLShaderProgram *program);
-    void render(const GLElementData& renderData);
+    void render(const GLElementDataGene& renderData);
 
 private:
 

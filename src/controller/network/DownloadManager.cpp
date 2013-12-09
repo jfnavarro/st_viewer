@@ -13,8 +13,14 @@
 namespace async
 {
 
-DataRequest::DataRequest(QObject* parent): QObject(parent) { };
-DataRequest::~DataRequest() { };
+DataRequest::DataRequest(QObject* parent): QObject(parent)
+{
+}
+
+DataRequest::~DataRequest()
+{
+
+}
 
 //we want to abort the reply
 void DataRequest::slotAbort()
@@ -57,7 +63,7 @@ void DownloadManager::addError(Error * error)
     m_error_list.append(error);
 }
 
-unsigned int DownloadManager::countErrors() const
+int DownloadManager::countErrors() const
 {
     return m_error_list.count();
 }
@@ -67,7 +73,7 @@ void DownloadManager::addItem(NetworkReply *item)
     m_reply_list.append(item);
 }
 
-unsigned int DownloadManager::countItems() const
+int DownloadManager::countItems() const
 {
     //TODO check if any reply is NULL and remove it to deal with lost connection
     return m_reply_list.count();

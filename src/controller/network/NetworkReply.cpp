@@ -52,10 +52,14 @@ void ContentType::header(const QString& value)
 NetworkReply::NetworkReply(QNetworkReply* networkReply, QObject* parent)
     :  m_reply(networkReply), m_contentType(0)
 {
+    Q_UNUSED(parent);
     Q_ASSERT_X(networkReply != 0, "NetworkReply", "Null-pointer assertion error!");
+
     networkReply->setReadBufferSize(0); //try to download as fast as possible
+
     // construct empty content type object
     m_contentType = new ContentType(this); //this is ugly
+
     // connect signals
     connect(networkReply, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(networkReply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));

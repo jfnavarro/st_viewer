@@ -52,9 +52,9 @@ struct GLaabb {
     inline const GLpoint end() const;
     inline const GLpoint size() const;
 
-    inline const bool contains(const GLpoint &p) const;
-    inline const bool contains(const GLaabb &o) const;
-    inline const bool intersects(const GLaabb &o) const;
+    inline bool contains(const GLpoint &p) const;
+    inline bool contains(const GLaabb &o) const;
+    inline bool intersects(const GLaabb &o) const;
 
     // +---+-----+
     // ¦   ¦  A  ¦ Cut: returns the AABB defined as the shared area
@@ -78,11 +78,11 @@ struct GLaabb {
     GLfloat height;
 };
 
-inline const bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
 
-inline const bool operator ==(const GLaabb &b0, const GLaabb &b1);
-inline const bool operator !=(const GLaabb &b0, const GLaabb &b1);
+inline bool operator ==(const GLaabb &b0, const GLaabb &b1);
+inline bool operator !=(const GLaabb &b0, const GLaabb &b1);
 
 } // namespace GL //
 
@@ -163,19 +163,21 @@ inline const GLpoint GLaabb::size() const
     return GLpoint(width, height);
 }
 
-inline const bool GLaabb::contains(const GLpoint &p) const
+inline bool GLaabb::contains(const GLpoint &p) const
 {
     typedef range<GLfloat, comp_op_ge<GLfloat>, comp_op_le<GLfloat> > range_t;
     return (range_t::compare(p.x, x, x + width) && range_t::compare(p.y, y, y + height));
 }
-inline const bool GLaabb::contains(const GLaabb &o) const
+
+inline bool GLaabb::contains(const GLaabb &o) const
 {
     return (
                (x <= o.x) && ((o.x + o.width) <= (x + width)) &&
                (y <= o.y) && ((o.y + o.height) <= (y + height))
            );
 }
-inline const bool GLaabb::intersects(const GLaabb &o) const
+
+inline bool GLaabb::intersects(const GLaabb &o) const
 {
     // simple SAT (Separating Axis Theorem) approach
     return !(
@@ -194,6 +196,7 @@ inline const GLaabb GLaabb::cut(const GLaabb &o) const
         return GLaabb(0.0f, 0.0f, 0.0f, 0.0f);
     }
 }
+
 inline const GLaabb GLaabb::join(const GLaabb &o) const
 {
     const GLpoint p0 = GL::min(position(), o.position());
@@ -201,7 +204,7 @@ inline const GLaabb GLaabb::join(const GLaabb &o) const
     return GLaabb::fromPoints(p0, p1);
 }
 
-inline const bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
+inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
 {
     return fuzzyEqual(b0.x, b1.x, e)
            && fuzzyEqual(b0.y, b1.y, e)
@@ -209,7 +212,7 @@ inline const bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
            && fuzzyEqual(b0.height, b1.height, e);
 
 }
-inline const bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
+inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
 {
     return fuzzyNotEqual(b0.x, b1.x, e)
            || fuzzyNotEqual(b0.y, b1.y, e)
@@ -217,7 +220,7 @@ inline const bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
            || fuzzyNotEqual(b0.height, b1.height, e);
 }
 
-inline const bool operator ==(const GLaabb &b0, const GLaabb &b1)
+inline bool operator ==(const GLaabb &b0, const GLaabb &b1)
 {
     return (b0.x == b1.x)
            && (b0.y == b1.y)
@@ -225,7 +228,7 @@ inline const bool operator ==(const GLaabb &b0, const GLaabb &b1)
            && (b0.height == b1.height);
 }
 
-inline const bool operator !=(const GLaabb &b0, const GLaabb &b1)
+inline bool operator !=(const GLaabb &b0, const GLaabb &b1)
 {
     return (b0.x != b1.x)
            || (b0.y != b1.y)

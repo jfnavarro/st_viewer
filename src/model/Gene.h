@@ -21,50 +21,27 @@ class Gene
 public:
 
     Gene();
-    Gene(const Gene& other);
-    Gene(const QString& id, const QString& name, bool m_hidden = false, QColor m_color = Globals::color_gene);
+    explicit Gene(const Gene& other);
+    explicit Gene(const QString& id, const QString& name, bool m_hidden = false,
+         QColor m_color = Globals::color_gene);
 
     ~Gene();
 
     Gene& operator= (const Gene& other);
     bool operator== (const Gene& other) const;
 
-    const QString& id() const
-    {
-        return m_id;
-    }
-    const QString& name() const
-    {
-        return m_name;
-    }
-    bool selected() const
-    {
-        return m_selected;
-    }
-    const QColor&  color() const
-    {
-        return m_color;
-    }
+    inline const QString& id() const { return m_id; }
+    inline const QString& name() const { return m_name; }
+    inline bool selected() const { return m_selected; }
+    inline const QColor& color() const { return m_color; }
 
-    inline void id(const QString& id)
-    {
-        m_id = id;
-    }
-    inline void name(const QString& name)
-    {
-        m_name = name;
-    }
-    inline void selected(bool selected)
-    {
-        m_selected = selected;
-    }
-    inline void color(const QColor& color)
-    {
-        m_color = color;
-    }
+    inline void id(const QString& id) { m_id = id; }
+    inline void name(const QString& name) { m_name = name; }
+    inline void selected(bool selected) { m_selected = selected; }
+    inline void color(const QColor& color) { m_color = color;}
 
     //NOTE ambiguous property shouldn't be stored as part of the name
-    inline const bool isAmbiguous() const
+    inline bool isAmbiguous() const
     {
         return m_name.startsWith("ambiguous", Qt::CaseSensitive);
     }

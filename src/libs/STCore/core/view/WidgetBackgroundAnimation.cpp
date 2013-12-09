@@ -21,11 +21,12 @@ WidgetBackgroundAnimation::WidgetBackgroundAnimation(QWidget *displayWidget):
     m_displayWidget(displayWidget), m_movie(0), m_visible(false), m_enable(false)
 {
     //NOTE widgets based on QAbstractScrollArea rely on a viewport for rendering
-    QAbstractScrollArea *scrollArea = dynamic_cast<QAbstractScrollArea *>(m_displayWidget);
+    QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(m_displayWidget);
     if (scrollArea) {
         m_displayWidget = scrollArea->viewport();
     }
 }
+
 WidgetBackgroundAnimation::~WidgetBackgroundAnimation()
 {
     // cleanup
@@ -83,12 +84,12 @@ void WidgetBackgroundAnimation::paintAnimation(QPaintEvent *event)
     }
 }
 
-const bool WidgetBackgroundAnimation::enabled() const
+bool WidgetBackgroundAnimation::enabled() const
 {
     return m_enable;
 }
 
-const bool WidgetBackgroundAnimation::visible() const
+bool WidgetBackgroundAnimation::visible() const
 {
     return m_visible;
 }

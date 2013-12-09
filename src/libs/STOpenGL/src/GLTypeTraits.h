@@ -43,11 +43,12 @@ template <int N>
 struct GLTypeEnumTrait {
     static const int type_size;
 };
+
 // opengl type enum info
 // access to run-time type information given opengl type enum value
 struct GLTypeEnumInfo {
-    static const int type_size(const GLenum type);
-    static inline const bool valid_type(const GLenum type);
+    static int type_size(const GLenum type);
+    static inline bool valid_type(const GLenum type);
 };
 
 // opengl color enum traits
@@ -56,11 +57,12 @@ template <int N>
 struct GLColorEnumTrait {
     static const int color_count;
 };
+
 // opengl color enum info
 // access to run-time color information given opengl type enum value
 struct GLColorEnumInfo {
-    static const int color_count(const GLenum mode);
-    static inline const bool valid_color(const GLenum mode);
+    static int color_count(const GLenum mode);
+    static inline bool valid_color(const GLenum mode);
 };
 
 // opengl geometric type trait
@@ -69,11 +71,12 @@ template <int N>
 struct GLGeomEnumTrait {
     static const int vertex_count;
 };
+
 // opengl geometric type info
 // access to run-time geometric primitive information given opengl type enum value
 struct GLGeomEnumInfo {
-    static const int vertex_count(const GLenum mode);
-    static inline const bool valid_geom(const GLenum mode);
+    static int vertex_count(const GLenum mode);
+    static inline bool valid_geom(const GLenum mode);
 };
 
 } // namespace GL //
@@ -82,19 +85,20 @@ struct GLGeomEnumInfo {
 
 namespace GL
 {
+
 template <typename T> const int GLTypeTrait<T>::type_size = sizeof(T);
 
-inline const bool GLTypeEnumInfo::valid_type(const GLenum type)
+inline bool GLTypeEnumInfo::valid_type(const GLenum type)
 {
     return (GL_BYTE <= type && type <= GL_DOUBLE);
 }
 
-inline const bool GLColorEnumInfo::valid_color(const GLenum mode)
+inline bool GLColorEnumInfo::valid_color(const GLenum mode)
 {
     return (GL_COLOR_INDEX <= mode && mode <= GL_LUMINANCE_ALPHA);
 }
 
-inline const bool GLGeomEnumInfo::valid_geom(const GLenum mode)
+inline bool GLGeomEnumInfo::valid_geom(const GLenum mode)
 {
     return (GL_POINTS <= mode && mode <= GL_POLYGON);
 }

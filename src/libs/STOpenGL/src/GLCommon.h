@@ -31,8 +31,8 @@ enum Initialization {
 };
 
 // misc functions
-inline const bool fuzzyEqual(GLfloat s0, GLfloat s1, GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(GLfloat s0, GLfloat s1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(GLfloat s0, GLfloat s1, GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(GLfloat s0, GLfloat s1, GLfloat e = EPSILON);
 
 // misc data structures
 // simple data pair
@@ -75,13 +75,13 @@ struct GLpoint {
 inline const GLpoint min(const GLpoint &a, const GLpoint &b);
 inline const GLpoint max(const GLpoint &a, const GLpoint &b);
 
-inline const bool fuzzyEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e = EPSILON);
 
-inline const bool operator !=(const GLpoint &lhs, const GLpoint &rhs);
-inline const bool operator ==(const GLpoint &lhs, const GLpoint &rhs);
+inline bool operator !=(const GLpoint &lhs, const GLpoint &rhs);
+inline bool operator ==(const GLpoint &lhs, const GLpoint &rhs);
 
-inline const GLfloat distance(const GLpoint &lhs, const GLpoint &rhs);
+inline GLfloat distance(const GLpoint &lhs, const GLpoint &rhs);
 
 // simple base data
 template <typename T, int N>
@@ -100,10 +100,7 @@ struct GLlineoption : public GLoptiondata<2> {
     typedef GLoptiondata<2> option_type;
     inline explicit GLlineoption(const GLoption option = GLoption());
 };
-struct GLtriangleoption : public GLoptiondata<3> {
-    typedef GLoptiondata<3> option_type;
-    inline explicit GLtriangleoption(const GLoption option = GLoption());
-};
+
 struct GLrectangleoption : public GLoptiondata<4> {
     typedef GLoptiondata<4> option_type;
     inline explicit GLrectangleoption(const GLoption option = GLoption());
@@ -114,35 +111,21 @@ template <int N>
 struct GLpointdata : public GLdata<GLpoint, N> { };
 
 template <int N>
-inline const bool fuzzyEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e = EPSILON);
 template <int N>
-inline const bool fuzzyNotEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e = EPSILON);
 
 // simple line
 struct GLline : public GLpointdata<2> {
     typedef GLpointdata<2> shape_type;
-
     inline GLline();
     inline explicit GLline(GL::Initialization);
     inline GLline(GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1);
     inline GLline(const GLpoint &point0, const GLpoint &point1);
 };
 
-inline const bool fuzzyEqual(const GLline &l0, const GLline &l1, const GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLline &l0, const GLline &l1, const GLfloat e = EPSILON);
-
-// simple triangle
-struct GLtriangle : public GLpointdata<3> {
-    typedef GLpointdata<3> shape_type;
-
-    inline GLtriangle();
-    inline explicit GLtriangle(GL::Initialization);
-    inline GLtriangle(GLfloat x, GLfloat y, GLfloat size);
-    inline GLtriangle(const GLpoint &point, GLfloat size);
-};
-
-inline const bool fuzzyEqual(const GLtriangle &t0, const GLtriangle &t1, const GLfloat e = EPSILON);
-inline const bool fuzzyNotEqual(const GLtriangle &t0, const GLtriangle &t1, const GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLline &l0, const GLline &l1, const GLfloat e = EPSILON);
+inline bool fuzzyNotEqual(const GLline &l0, const GLline &l1, const GLfloat e = EPSILON);
 
 // simple rectangle
 struct GLrectangle : public GLpointdata<4> {
@@ -160,25 +143,7 @@ struct GLrectangle : public GLpointdata<4> {
     static const GLrectangle fromLine(const GLpoint &from, const GLpoint &to, GLfloat lineSize = 1.0f);
 };
 
-// generic circle, template argument represents resolution
-template <int N>
-struct GLcircle : public GLpointdata<N> {
-    typedef GLpointdata<N> shape_type;
-    inline GLcircle();
-    inline explicit GLcircle(GL::Initialization);
-    inline GLcircle(GLfloat x, GLfloat y, GLfloat radius);
-    inline GLcircle(const GLpoint &point, GLfloat radius);
-};
-
-// texture data structures
-// simple triangle
-struct GLtriangletexture : public GLpointdata<3> {
-    typedef GLpointdata<3> shape_type;
-    inline GLtriangletexture();
-    inline explicit GLtriangletexture(GL::Initialization);
-    inline GLtriangletexture(const GLtriangle &triangle);
-    inline GLtriangletexture(const GLpoint &point0, const GLpoint &point1, const GLpoint &point2);
-};
+// textures
 
 // simple rectangle
 struct GLrectangletexture : public GLpointdata<4> {
@@ -198,9 +163,8 @@ struct GLindexdata {
     inline explicit GLindexdata(const GLindex first);
     GLindex i[N];
 };
-typedef GLindexdata<2> GLlineindex;
-typedef GLindexdata<3> GLtriangleindex;
-typedef GLindexdata<4> GLrectangleindex;
+typedef GLindexdata<2> GLlineindex; //used for grid
+typedef GLindexdata<4> GLrectangleindex; //used for genes
 
 } // namespace GL //
 
@@ -211,11 +175,12 @@ namespace GL
 {
 
 // misc functions
-inline const bool fuzzyEqual(GLfloat s0, GLfloat s1, GLfloat e)
+inline bool fuzzyEqual(GLfloat s0, GLfloat s1, GLfloat e)
 {
     return fabs(s1 - s0) <= e;
 }
-inline const bool fuzzyNotEqual(GLfloat s0, GLfloat s1, GLfloat e)
+
+inline bool fuzzyNotEqual(GLfloat s0, GLfloat s1, GLfloat e)
 {
     return fabs(s1 - s0) >= e;
 }
@@ -249,26 +214,28 @@ inline const GLpoint min(const GLpoint &a, const GLpoint &b)
 {
     return GLpoint(GL::min<GLfloat>(a.x, b.x), GL::min<GLfloat>(a.y, b.y));
 }
+
 inline const GLpoint max(const GLpoint &a, const GLpoint &b)
 {
     return GLpoint(GL::max<GLfloat>(a.x, b.x), GL::max<GLfloat>(a.y, b.y));
 }
 
-inline const bool fuzzyEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e)
+inline bool fuzzyEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e)
 {
     return fuzzyEqual(p0.x, p1.x, e) && fuzzyEqual(p0.y, p1.y, e);
 }
 
-inline const bool fuzzyNotEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e)
+inline bool fuzzyNotEqual(const GLpoint &p0, const GLpoint &p1, GLfloat e)
 {
     return fuzzyNotEqual(p0.x, p1.x, e) || fuzzyNotEqual(p0.y, p1.y, e);
 }
 
-inline const bool operator !=(const GLpoint &lhs, const GLpoint &rhs)
+inline bool operator !=(const GLpoint &lhs, const GLpoint &rhs)
 {
     return (lhs.x != rhs.x) || (lhs.y != rhs.y);
 }
-inline const bool operator ==(const GLpoint &lhs, const GLpoint &rhs)
+
+inline bool operator ==(const GLpoint &lhs, const GLpoint &rhs)
 {
     return (lhs.x == rhs.x) && (lhs.y == rhs.y);
 }
@@ -278,10 +245,7 @@ inline GLlineoption::GLlineoption(const GLoption option)
 {
     p[0] = p[1] = option;
 }
-inline GLtriangleoption::GLtriangleoption(const GLoption option)
-{
-    p[0] = p[1] = p[2] = option;
-}
+
 inline GLrectangleoption::GLrectangleoption(const GLoption option)
 {
     p[0] = p[1] = p[2] = p[3] = option;
@@ -289,7 +253,7 @@ inline GLrectangleoption::GLrectangleoption(const GLoption option)
 
 // simple base shape
 template <int N>
-inline const bool fuzzyEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e)
+inline bool fuzzyEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e)
 {
     for (int i = 1; i < N; ++i) {
         if (!fuzzyEqual(p0.p[i], p1.p[i], e)) {
@@ -300,7 +264,7 @@ inline const bool fuzzyEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1,
 }
 
 template <int N>
-inline const bool fuzzyNotEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e)
+inline bool fuzzyNotEqual(const GLpointdata<N> &p0, const GLpointdata<N> &p1, const GLfloat e)
 {
     for (int i = 1; i < N; ++i) {
         if (fuzzyNotEqual(p0.p[i], p1.p[i], e)) {
@@ -317,7 +281,6 @@ inline GLline::GLline()
 }
 
 inline GLline::GLline(GL::Initialization) { }
-
 inline GLline::GLline(GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1)
 {
     shape_type::p[0] = GLpoint(x0, y0);
@@ -330,63 +293,14 @@ inline GLline::GLline(const GLpoint &point0, const GLpoint &point1)
     shape_type::p[1] = point1;
 }
 
-inline const bool fuzzyEqual(const GLline &l0, const GLline &l1, const GLfloat e)
+inline bool fuzzyEqual(const GLline &l0, const GLline &l1, const GLfloat e)
 {
     return fuzzyEqual(l0.p[0], l1.p[0], e) && fuzzyEqual(l0.p[1], l1.p[1], e);
 }
 
-inline const bool fuzzyNotEqual(const GLline &l0, const GLline &l1, const GLfloat e)
+inline bool fuzzyNotEqual(const GLline &l0, const GLline &l1, const GLfloat e)
 {
     return fuzzyNotEqual(l0.p[0], l1.p[0], e) || fuzzyNotEqual(l0.p[1], l1.p[1], e);
-}
-
-// siple triangle
-inline GLtriangle::GLtriangle()
-{
-    shape_type::p[0] = GLpoint();
-    shape_type::p[1] = GLpoint();
-    shape_type::p[2] = GLpoint();
-}
-
-inline GLtriangle::GLtriangle(GL::Initialization) { }
-
-inline GLtriangle::GLtriangle(GLfloat x, GLfloat y, GLfloat size)
-{
-    shape_type::p[0] = GLpoint(x, y + size);
-    shape_type::p[1] = GLpoint(
-                           x + (size * (0.5 * M_SQRT3)), y + (size * (-0.5))
-                       );
-    shape_type::p[2] = GLpoint(
-                           x + (size * (-0.5 * M_SQRT3)), y + (size * (-0.5))
-                       );
-}
-
-inline GLtriangle::GLtriangle(const GLpoint &point, GLfloat size)
-{
-    shape_type::p[0] = GLpoint(
-                           point.x,
-                           point.y + size
-                       );
-    shape_type::p[1] = GLpoint(
-                           point.x + (size * (0.5 * M_SQRT3)), point.y + (size * (-0.5))
-                       );
-    shape_type::p[2] = GLpoint(
-                           point.x + (size * (-0.5 * M_SQRT3)), point.y + (size * (-0.5))
-                       );
-}
-
-inline const bool fuzzyEqual(const GLtriangle &t0, const GLtriangle &t1, const GLfloat e)
-{
-    return fuzzyEqual(t0.p[0], t1.p[0], e)
-           && fuzzyEqual(t0.p[1], t1.p[1], e)
-           && fuzzyEqual(t0.p[2], t1.p[2], e);
-}
-
-inline const bool fuzzyNotEqual(const GLtriangle &t0, const GLtriangle &t1, const GLfloat e)
-{
-    return fuzzyNotEqual(t0.p[0], t1.p[0], e)
-           || fuzzyNotEqual(t0.p[1], t1.p[1], e)
-           || fuzzyNotEqual(t0.p[2], t1.p[2], e);
 }
 
 // simple rectangle
@@ -450,71 +364,7 @@ inline const GLrectangle GLrectangle::fromCorners(const GLpoint &topLeft, const 
     return rectangle;
 }
 
-// generic circle
-template <int N>
-inline GLcircle<N>::GLcircle()
-{
-    for (int i = 0; i < N; ++i) {
-        shape_type::p[i] = GLpoint();
-    }
-}
-
-template <int N>
-inline GLcircle<N>::GLcircle(GL::Initialization) { }
-
-template <int N>
-inline GLcircle<N>::GLcircle(GLfloat x, GLfloat y, GLfloat radius)
-{
-    static const GLfloat POINTS_INV = 1.0f / (GLfloat)(shape_type::POINTS - 1);
-    shape_type::p[0] = GLpoint(x, y);
-    for (int i = 1; i < N; ++i) {
-        shape_type::p[i] = GLpoint(
-                               x + (radius * qFastCos(POINTS_INV * i * (2.0 * M_PI))),
-                               y + (radius * qFastSin(POINTS_INV * i * (2.0 * M_PI)))
-                           );
-    }
-}
-
-template <int N>
-inline GLcircle<N>::GLcircle(const GLpoint &p, GLfloat radius)
-{
-    static const GLfloat POINTS_INV = 1.0f / (GLfloat)(shape_type::POINTS - 1);
-
-    shape_type::p[0] = p;
-    for (int i = 1; i < N; ++i) {
-        shape_type::p[i] = GLpoint(
-                               p.x + (radius * qFastCos(POINTS_INV * i * (2.0 * M_PI))),
-                               p.y + (radius * qFastSin(POINTS_INV * i * (2.0 * M_PI)))
-                           );
-    }
-}
-
 // texture data structures
-
-// simple triangle
-inline GLtriangletexture::GLtriangletexture()
-{
-    // 0 ___ 1
-    shape_type::p[0] = GLpoint(0.0f, 0.0f); //  |  /
-    shape_type::p[1] = GLpoint(1.0f, 0.0f); //  | /
-    shape_type::p[2] = GLpoint(0.0f, 1.0f); //  |/
-}                                           //  2
-
-inline GLtriangletexture::GLtriangletexture(GL::Initialization) { }
-
-inline GLtriangletexture::GLtriangletexture(const GLtriangle &triangle)
-{
-    shape_type::p[0] = triangle.p[0];
-    shape_type::p[1] = triangle.p[1];
-    shape_type::p[2] = triangle.p[2];
-}
-
-inline GLtriangletexture::GLtriangletexture(const GLpoint &point0, const GLpoint &point1, const GLpoint &point2)
-{
-    shape_type::p[0] = point0;
-    shape_type::p[1] = point1;
-    shape_type::p[2] = point2;
-}
 
 // simple rectangle
 inline GLrectangletexture::GLrectangletexture()

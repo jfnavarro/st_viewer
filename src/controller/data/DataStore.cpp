@@ -40,7 +40,7 @@ void DataStore::finalize()
     saveResourceMap();
 }
 
-const bool DataStore::hasResource(const QString& resourceid) const
+bool DataStore::hasResource(const QString& resourceid) const
 {
     bool ok = m_fileMap.contains(resourceid);
     qDebug() << QString("DataStore::hasResource(%1) = %2 ").arg(resourceid).arg(ok);

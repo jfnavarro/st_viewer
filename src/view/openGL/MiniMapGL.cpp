@@ -90,14 +90,13 @@ void MiniMapGL::updateTransform(const QRectF& scene)
 void MiniMapGL::render(QPainter* painter)
 {
     GL::GLElementRender renderer;
-
     painter->beginNativePainting();
     {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         GL::GLscope glBlendScope(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderer.render(m_data);
+        renderer.render(m_data,m_queue);
         glPopMatrix();
     }
     painter->endNativePainting();
@@ -108,12 +107,12 @@ const QRectF MiniMapGL::boundingRect() const
     return m_scene;
 }
 
-const bool MiniMapGL::contains(const QPointF& point) const
+bool MiniMapGL::contains(const QPointF& point) const
 {
     return m_scene.contains(point);
 }
 
-const bool MiniMapGL::mouseMoveEvent(QMouseEvent* event)
+bool MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 {
     // set selecting to false if release event missed
     if (!event->buttons().testFlag(Qt::LeftButton)) {
@@ -130,7 +129,8 @@ const bool MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 
     return false;
 }
-const bool MiniMapGL::mousePressEvent(QMouseEvent* event)
+
+bool MiniMapGL::mousePressEvent(QMouseEvent* event)
 {
     // center if left button is pressed down
     if (event->buttons().testFlag(Qt::LeftButton)) {
@@ -142,7 +142,8 @@ const bool MiniMapGL::mousePressEvent(QMouseEvent* event)
     }
     return false;
 }
-const bool MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
+
+bool MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
     if (!event->buttons().testFlag(Qt::LeftButton)) {
@@ -161,6 +162,7 @@ void MiniMapGL::rebuildMinimapData()
 {
     // clear rendering data and generate anew
     m_data.clear();
+    m_queue.clear();
     generateMinimapData();
 }
 
@@ -200,4 +202,9 @@ void MiniMapGL::generateMinimapData()
         factory.addShape(GL::GLrectangle::fromLine(vbr, vbl, 1.0f));
         factory.addShape(GL::GLrectangle::fromLine(vbl, vtl, 1.0f));
     }
+
+
+    // generate element data render command
+    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
+    m_queue.end();
 }

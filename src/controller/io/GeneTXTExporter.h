@@ -29,13 +29,13 @@ public:
         SimpleFull = Simple | Comments,
         ExtendedFull = Extended | Comments
     };
-    Q_DECLARE_FLAGS(DetailLevels, DetailLevel);
+    Q_DECLARE_FLAGS(DetailLevels, DetailLevel)
 
     enum SeparationMode {
         TabDelimited,
         CommaDelimited
     };
-    Q_DECLARE_FLAGS(SeparationModes, SeparationMode);
+    Q_DECLARE_FLAGS(SeparationModes, SeparationMode)
 
     explicit GeneTXTExporter(QObject *parent = 0);
     GeneTXTExporter(DetailLevels detailLevel, SeparationModes separationMode, QObject *parent = 0);

@@ -25,17 +25,17 @@ static void convertToGLFormatHelper(QImage &dst, const QImage &img, GLenum textu
         int target_height = dst.height();
         qreal sx = target_width / qreal(img.width());
         qreal sy = target_height / qreal(img.height());
-        quint32 *dest = (quint32 *) dst.scanLine(0); // NB! avoid detach here
-        uchar *srcPixels = (uchar *) img.scanLine(img.height() - 1);
+        quint32 *dest = reinterpret_cast<quint32 *>(dst.scanLine(0)); // NB! avoid detach here
+        const uchar *srcPixels = reinterpret_cast<const uchar *>(img.scanLine(img.height() - 1));
         int sbpl = img.bytesPerLine();
         int dbpl = dst.bytesPerLine();
-        int ix = int(0x00010000 / sx);
-        int iy = int(0x00010000 / sy);
-        quint32 basex = int(0.5 * ix);
-        quint32 srcy = int(0.5 * iy);
+        int ix = static_cast<int>(0x00010000 / sx);
+        int iy = static_cast<int>(0x00010000 / sy);
+        quint32 basex = static_cast<quint32>(0.5 * ix);
+        quint32 srcy = static_cast<quint32>(0.5 * iy);
         // scale, swizzle and mirror in one loop
         while (target_height--) {
-            const uint *src = (const quint32 *)(srcPixels - (srcy >> 16) * sbpl);
+            const uint *src = reinterpret_cast<const quint32 *>(srcPixels - (srcy >> 16) * sbpl);
             int srcx = basex;
             for (int x = 0; x < target_width; ++x) {
                 uint src_pixel = src[srcx >> 16];
@@ -59,14 +59,14 @@ static void convertToGLFormatHelper(QImage &dst, const QImage &img, GLenum textu
                 }
                 srcx += ix;
             }
-            dest = (quint32 *)(((uchar *) dest) + dbpl);
+            dest = reinterpret_cast<quint32 *>(((uchar *) dest) + dbpl);
             srcy += iy;
         }
     } else {
         const int width = img.width();
         const int height = img.height();
-        const uint *p = (const uint*) img.scanLine(img.height() - 1);
-        uint *q = (uint*) dst.scanLine(0);
+        const uint *p = reinterpret_cast<const uint*>(img.scanLine(img.height() - 1));
+        uint *q = reinterpret_cast<uint*>(dst.scanLine(0));
         if (texture_format == GL_BGRA) {
             if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
                 // mirror + swizzle

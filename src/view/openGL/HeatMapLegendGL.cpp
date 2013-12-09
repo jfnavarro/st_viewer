@@ -77,7 +77,7 @@ const QRectF HeatMapLegendGL::boundingRect() const
     return m_bounds;
 }
 
-const bool HeatMapLegendGL::contains(const QPointF& point) const
+bool HeatMapLegendGL::contains(const QPointF& point) const
 {
     return m_bounds.contains(point);
 }
@@ -183,10 +183,14 @@ void HeatMapLegendGL::generateHeatMapData()
                      ));
 
     // generate element data render command
-    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::BindTexture, 0));  // bind heat-map texture
-    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemOne));   // render heat-map rectangle
-    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::UnbindTexture));   // unbind texture
-    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemAll));   // render rest
+    m_queue.add(GL::GLElementRenderQueue::Command
+                (GL::GLElementRenderQueue::Command::BindTexture, 0));  // bind heat-map texture
+    m_queue.add(GL::GLElementRenderQueue::Command
+                (GL::GLElementRenderQueue::Command::RenderItemOne));   // render heat-map rectangle
+    m_queue.add(GL::GLElementRenderQueue::Command
+                (GL::GLElementRenderQueue::Command::UnbindTexture));   // unbind texture
+    m_queue.add(GL::GLElementRenderQueue::Command
+                (GL::GLElementRenderQueue::Command::RenderItemAll));   // render rest
     m_queue.end();
 }
 

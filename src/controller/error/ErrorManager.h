@@ -24,16 +24,18 @@ public:
 
     explicit ErrorManager(QObject* parent = 0);
     virtual ~ErrorManager();
+
     void finalize();
     void init(QWidget* parentContainer = 0);
 
 public slots:
+
     void slotHandleError(Error* error);
 
 private:
 
-    QPointer<QErrorMessage> m_errorDialog;
     QPointer<QWidget> m_parentContainer;
+    QPointer<QErrorMessage> m_errorDialog;
 };
 
 #endif // ERRORMANAGER_H //

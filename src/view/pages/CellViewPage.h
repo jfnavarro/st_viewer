@@ -84,18 +84,18 @@ private:
     ImageItemGL *cell_tissue;
     GenePlotterGL *gene_plotter_gl;
 
-    // ui view items
-    HeatMapLegendGL *m_heatmap;
-
-    // tool bar
-    CellViewPageToolBar *toolBar;
+    // selection dialogs
+    SelectionDialog *selectionDialog;
 
     // color dialogs
     QColorDialog *colorDialog_genes;
     QColorDialog *colorDialog_grid;
 
-    // selection dialogs
-    SelectionDialog *selectionDialog;
+    // ui view items
+    HeatMapLegendGL *m_heatmap;
+
+    // tool bar
+    CellViewPageToolBar *toolBar;
 
     // is in selection mode?
     bool m_selection_mode;

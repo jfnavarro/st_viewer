@@ -12,7 +12,7 @@
 namespace GL
 {
 
-const bool GLimagewriter::writePixel(const GLcolor &color)
+bool GLimagewriter::writePixel(const GLcolor &color)
 {
     // early out
     if (!(m_index < m_indexEnd)) {
@@ -22,7 +22,8 @@ const bool GLimagewriter::writePixel(const GLcolor &color)
     pixel[m_index++] = color;
     return true;
 }
-const bool GLimagewriter::writeLine(const GLcolor &color)
+
+bool GLimagewriter::writeLine(const GLcolor &color)
 {
     bool ret = true;
     const GLsizei width = m_image.width();
@@ -33,7 +34,7 @@ const bool GLimagewriter::writeLine(const GLcolor &color)
     return ret;
 }
 
-const bool GLimagewriter::writeFillColor(const GLcolor &color)
+bool GLimagewriter::writeFillColor(const GLcolor &color)
 {
     bool ret = true;
     while (ret && m_index < m_indexEnd) {
@@ -42,7 +43,7 @@ const bool GLimagewriter::writeFillColor(const GLcolor &color)
     return ret;
 }
 
-const bool GLimagewriter::writeFillGradient(const GLcolor &color0, const GLcolor &color1,
+bool GLimagewriter::writeFillGradient(const GLcolor &color0, const GLcolor &color1,
                                             const GradientAngle gradient)
 {
     const GLvector norm = (gradient == HorizontalGradient) ?

@@ -30,18 +30,12 @@ public:
 
     void setRefreshToken(const QUuid& refreshToken);
 
-    const bool isExpired() const;
+    bool isExpired() const;
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 
-    inline const bool hasAccessToken() const
-    {
-        return m_storage->contains(Globals::SettingsAcessToken);
-    }
-    inline const bool hasRefreshToken() const
-    {
-        return m_storage->contains(Globals::SettingsRefreshToken);
-    }
+    inline bool hasAccessToken() const { return m_storage->contains(Globals::SettingsAcessToken); }
+    inline bool hasRefreshToken() const { return m_storage->contains(Globals::SettingsRefreshToken); }
 
     //cleans the content of the accesstoken
     void cleanAll();

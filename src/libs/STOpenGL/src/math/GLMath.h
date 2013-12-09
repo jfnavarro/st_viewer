@@ -50,25 +50,28 @@ inline const T nextMultiple(const T &number, const T &multiple);
 // relational operators
 template <typename T>
 struct comp_op_ls { // less <
-    static inline const bool compare(const T &a, const T &b);
+    static inline bool compare(const T &a, const T &b);
 };
+
 template <typename T>
 struct comp_op_le { // less or equal <=
-    static inline const bool compare(const T &a, const T &b);
+    static inline bool compare(const T &a, const T &b);
 };
+
 template <typename T>
 struct comp_op_gt { // greater >
-    static inline const bool compare(const T &a, const T &b);
+    static inline bool compare(const T &a, const T &b);
 };
+
 template <typename T>
 struct comp_op_ge { // greater or equal >=
-    static inline const bool compare(const T &a, const T &b);
+    static inline bool compare(const T &a, const T &b);
 };
 
 // test for range (using template based range, default [lo, hi], ie. (lo <= v <= hi))
 template <typename T, typename OP_LO = comp_op_ge<T>, typename OP_HI = comp_op_le<T> >
 struct range {
-    static inline const bool compare(const T &v, const T &lo, const T &hi);
+    static inline bool compare(const T &v, const T &lo, const T &hi);
 };
 
 } // namespace GL //
@@ -110,6 +113,7 @@ const R norm(const T v, const T t0, const T t1)
     const T vh = clamp(v, t0, t1);
     return R(vh - t0) / R(t1 - t0);
 }
+
 template <typename T, typename R>
 const T denorm(const R nv, const T t0, const T t1)
 {
@@ -131,28 +135,31 @@ inline const T nextMultiple(const T &number, const T &multiple)
 }
 
 template <typename T>
-inline const bool comp_op_ls<T>::compare(const T &a, const T &b)
+inline bool comp_op_ls<T>::compare(const T &a, const T &b)
 {
     return (a < b);
 }
+
 template <typename T>
-inline const bool comp_op_le<T>::compare(const T &a, const T &b)
+inline bool comp_op_le<T>::compare(const T &a, const T &b)
 {
     return (a <= b);
 }
+
 template <typename T>
-inline const bool comp_op_gt<T>::compare(const T &a, const T &b)
+inline bool comp_op_gt<T>::compare(const T &a, const T &b)
 {
     return (a > b);
 }
+
 template <typename T>
-inline const bool comp_op_ge<T>::compare(const T &a, const T &b)
+inline bool comp_op_ge<T>::compare(const T &a, const T &b)
 {
     return (a >= b);
 }
 
 template <typename T, typename OP_LO, typename OP_HI>
-inline const bool range<T, OP_LO, OP_HI>::compare(const T &v, const T &lo, const T &hi)
+inline bool range<T, OP_LO, OP_HI>::compare(const T &v, const T &lo, const T &hi)
 {
     return OP_LO::compare(v, lo) && OP_HI::compare(v, hi);
 }

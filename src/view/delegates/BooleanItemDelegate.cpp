@@ -25,9 +25,12 @@ BooleanItemDelegate::~BooleanItemDelegate()
 QWidget* BooleanItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option,
         const QModelIndex& index) const
 {
+    Q_UNUSED(option);
+    Q_UNUSED(index);
     QCheckBox* box = new QCheckBox(parent);
     return box;
 }
+
 void BooleanItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     bool value = index.model()->data(index).toBool();
@@ -38,6 +41,7 @@ void BooleanItemDelegate::setEditorData(QWidget* editor, const QModelIndex& inde
 void BooleanItemDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option,
         const QModelIndex& index) const
 {
+    Q_UNUSED(index);
     QRect rect = option.rect;
     editor->setGeometry(rect);
 }

@@ -49,7 +49,7 @@ void MathExtendedTest::testFloatMod_data()
 }
 
 // helper function
-const bool fuzzyCompare(const QSizeF &s1, const QSizeF &s2)
+bool fuzzyCompare(const QSizeF &s1, const QSizeF &s2)
 {
     return qFuzzyCompare(s1.width(), s2.width()) && qFuzzyCompare(s1.height(), s2.height());
 }

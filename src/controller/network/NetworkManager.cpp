@@ -83,6 +83,8 @@ void NetworkManager::finalize()
 
 void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
+    Q_UNUSED(reply);
+
     Configuration* config = Configuration::getInstance();
     authenticator->setUser(config->oauthClientID());
     authenticator->setPassword(config->oauthSecret());

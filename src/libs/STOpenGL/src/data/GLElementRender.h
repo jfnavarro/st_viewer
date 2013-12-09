@@ -60,10 +60,7 @@ private:
 };
 
 // GLElementRender provides an interface to render primitive geometric data
-//  objects. It provides two rendering methods:
-// * Simple one step rendering:
-//      deprecated method for rendering data without shaders and with one
-//      optional texture.
+//  objects. It provides a rendering method
 // * Queueu based multi step rendering:
 //      simple method for rendering data based on a rendering queue. the
 //      rendering queue provides rendering instructions as well as
@@ -77,8 +74,6 @@ public:
     void clear();
     // multi-step rendering
     void render(const GLElementData &renderData, const GLElementRenderQueue &renderQueue);
-    // (deprecated) single-step rendering
-    void render(const GLElementData &renderData);
     // add a texture to the rendering state
     inline void addTexture(const GLtexture &texture);
     // add a shader to the rendering state
@@ -100,9 +95,11 @@ private:
         void render();
 
     private:
-        // internal functions
+        // pointer to function type
         typedef void (State::*CmdFuncType)(const GLbyte op, const GLuint arg);
+
         inline void cmdCall(const GLbyte op, const GLuint arg);
+
         void cmdEndOfCmd(const GLbyte op, const GLuint arg);
         void cmdRenderItemAll(const GLbyte op, const GLuint arg);
         void cmdRenderItemOne(const GLbyte op, const GLuint arg);
@@ -111,9 +108,13 @@ private:
         void cmdUnbindTexture(const GLbyte op, const GLuint arg);
         void cmdBindShader(const GLbyte op, const GLuint arg);
         void cmdUnbindShader(const GLbyte op, const GLuint arg);
+
         // member function pointer lookup table ('cause switches are ugly)
         CmdFuncType m_renderFuncs[8];
+
+        //render function
         void render(const GLsizei renderItemCount);
+
         //member variables
         const GLElementData &m_renderData;
         const GLElementRenderQueue &m_renderQueue;

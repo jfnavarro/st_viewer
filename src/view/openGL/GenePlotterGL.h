@@ -83,13 +83,16 @@ signals:
 private:
     // grid attributes
     bool m_gridVisible;
+
     // shaders
     typedef QMap<uint, QGLShaderProgram *> ShaderProgramList;
     ShaderProgramList m_geneProgramList;
     QGLShaderProgram *m_geneProgram;
+
     // gene attributes
     Globals::Shape m_geneShape;
     bool m_geneVisible;
+
     //classes that encapsulates all the rendering
     QScopedPointer<GeneRendererGL> m_geneRenderer;
     QScopedPointer<GridRendererGL> m_chipRenderer;

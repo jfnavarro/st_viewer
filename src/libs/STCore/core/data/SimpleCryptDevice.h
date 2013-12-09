@@ -43,6 +43,8 @@ public:
 
     virtual inline bool seek(qint64 pos)
     {
+        Q_UNUSED(pos);
+        //TODO implement
         return false;
     }
     virtual qint64 size() const

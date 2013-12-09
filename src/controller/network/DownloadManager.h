@@ -35,19 +35,13 @@ public:
         CodeTimedOut = 0x08,
         CodePresent = 0x16
     };
-    Q_DECLARE_FLAGS(ReturnCodes, Code);
-
-    inline ReturnCodes return_code() const
-    {
-        return m_return_code;
-    }
-    inline void return_code(ReturnCodes flag)
-    {
-        m_return_code = flag;
-    }
+    Q_DECLARE_FLAGS(ReturnCodes, Code)
 
     explicit DataRequest(QObject* parent = 0);
     virtual ~DataRequest();
+
+    inline ReturnCodes return_code() const { return m_return_code; }
+    inline void return_code(ReturnCodes flag) { m_return_code = flag; }
 
 public slots:
 
@@ -70,7 +64,7 @@ private:
 
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes);
 
 class DownloadManager: public QObject
 {
@@ -85,8 +79,8 @@ public:
     void addItem(NetworkReply *item);
     void delItem(NetworkReply *item);
     void addError(Error *error);
-    unsigned countItems() const;
-    unsigned countErrors() const;
+    int countItems() const;
+    int countErrors() const;
     //check errors and replies left and send signal to DataRequest
     void finish();
     //start a timer that will call finish after some seconds
