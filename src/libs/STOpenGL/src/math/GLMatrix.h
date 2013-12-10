@@ -20,6 +20,7 @@ class GLmatrix
 public:
 
     inline GLmatrix();
+    inline virtual ~GLmatrix();
     inline explicit GLmatrix(GL::Initialization);
     inline GLmatrix(GLfloat m11, GLfloat m12, GLfloat m13,
                     GLfloat m21, GLfloat m22, GLfloat m23,
@@ -85,7 +86,17 @@ GLmatrix::GLmatrix()
     m[M43] = 0.0f;
     m[M44] = 1.0f;
 }
-GLmatrix::GLmatrix(GL::Initialization) { }
+
+GLmatrix::GLmatrix(GL::Initialization)
+{
+
+}
+
+GLmatrix::~GLmatrix()
+{
+
+}
+
 GLmatrix::GLmatrix(GLfloat m11, GLfloat m12, GLfloat m13,
                    GLfloat m21, GLfloat m22, GLfloat m23,
                    GLfloat m31, GLfloat m32, GLfloat m33)
@@ -112,6 +123,7 @@ const GLfloat* GLmatrix::data() const
 {
     return &(m[0]);
 }
+
 GLfloat* GLmatrix::data()
 {
     return &(m[0]);
@@ -121,6 +133,7 @@ GLmatrix::operator const GLfloat*() const
 {
     return &(m[0]);
 }
+
 GLmatrix::operator GLfloat*()
 {
     return &(m[0]);
@@ -145,6 +158,7 @@ bool fuzzyEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
            && fuzzyEqual(m0.m[GLmatrix::M43], m1.m[GLmatrix::M43], e)
            && fuzzyEqual(m0.m[GLmatrix::M44], m1.m[GLmatrix::M44], e);
 }
+
 bool fuzzyNotEqual(const GLmatrix& m0, const GLmatrix& m1, GLfloat e)
 {
     return fuzzyNotEqual(m0.m[GLmatrix::M11], m1.m[GLmatrix::M11], e)

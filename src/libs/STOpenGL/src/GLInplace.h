@@ -23,6 +23,7 @@ public:
     typedef GLsizei size_type;
 
     inline GLInplaceArray();
+    inline virtual ~GLInplaceArray();
     inline explicit GLInplaceArray(GL::Initialization);
 
     inline GLsizei size() const;
@@ -59,6 +60,12 @@ inline GLInplaceArray<T, S>::GLInplaceArray()
     : m_size(0)
 {
     //TODO initialize array (if default constructor exists)
+}
+
+template <typename T, int S>
+inline GLInplaceArray<T, S>::~GLInplaceArray()
+{
+
 }
 
 template <typename T, int S>

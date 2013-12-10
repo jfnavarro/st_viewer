@@ -35,6 +35,7 @@ inline const T clamp(const T &x, const T &lo, const T &hi);
 // maps the value v in [t0,t1] to the normalized value vn in [0,1]
 template <typename T, typename R>
 const R norm(const T v, const T t0, const T t1);
+
 // maps the normalized value vn in [0,1] to the value v in [t0,t1]
 template <typename T, typename R>
 const T denorm(const R vn, const T t0, const T t1);

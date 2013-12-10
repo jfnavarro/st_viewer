@@ -7,6 +7,8 @@
 namespace GL
 {
 
+// GLElementData is an extension of GLElementData to
+// add some valuable data used to render (shaders)
 class GLElementDataGene : public GLElementData
 {
 public:
@@ -20,73 +22,79 @@ public:
         FeaturesArray = 0x012u,
         RefCountArray = 0x014u,
         ValueArray = 0x016u,
-        GeneOptionArray = 0x018u,
         RenderMode = 0x100u,
         // composite flags
         Arrays = (PointArray | ColorArray | IndexArray | TextureArray | OptionArray
-        | FeaturesArray | RefCountArray | ValueArray | GeneOptionArray),
+        | FeaturesArray | RefCountArray | ValueArray ),
         Modes = (RenderMode),
         All = (Arrays | Modes)
     };
 
     inline GLElementDataGene();
-
-    static const GLflag DEFAULT_CLEAR_FLAGS = GLElementDataGene::All;
+    inline virtual ~GLElementDataGene();
 
     //clear arrays
-    inline void clear(GLflag flags = DEFAULT_CLEAR_FLAGS);
+    inline void clear(GLflag flags = GLElementDataGene::All);
 
     // some helpful reset functions (reset to 0)
     inline void resetRefCount();
     inline void resetValCount();
 
-    //visibles
+    // number of genes in the feature
     inline GLElementDataGene &addFeatCount(const GLuint &featcount, GLindex *index = 0);
-    //refcounts
+    // number of selected genes in the feature
     inline GLElementDataGene &addRefCount(const GLuint &refcount, GLindex *index = 0);
-    //values
+    // sum of the hits of the selected genes in the feature
     inline GLElementDataGene &addValue(const GLuint &value, GLindex *index = 0);
-    //options
-    inline GLElementDataGene &addGeneOption(const GLoption &option, GLindex *index = 0);
 
+    // number of genes in the feature
     inline void setFeatCount(const GLindex index, const GLuint &featcount);
+    // number of selected genes in the feature
     inline void setRefCount(const GLindex index, const GLuint &refcount);
+    // sum of the hits of the selected genes in the feature
     inline void setValue(const GLindex index, const GLuint &value);
-    inline void setGeneOption(const GLindex index, const GLoption &option);
 
-    inline void setColorMode(const Globals::VisualMode &mode) { m_colorMode = mode; }
+    // getters for arrays by index
+    inline GLuint getFeatCount(const GLindex index) const;
+    inline GLuint getRefCount(const GLindex index) const;
+    inline GLuint getValue(const GLindex index) const;
 
-    inline void setThresholdMode(const Globals::ThresholdMode &mode) { m_geneMode = mode; }
+    inline GLuint getMaxValue() const;
+    inline GLuint getMinValue() const;
 
-    inline void setHitCount(int min, int max, int sum) { m_min = min; m_max = max; m_sum = sum; }
-
-    inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
-
-    inline GLuint getFeatCount(const GLindex index);
-    inline GLuint getRefCount(const GLindex index);
-    inline GLuint getValue(const GLindex index);
-    inline GLoption getGeneOption(const GLindex index);
-
-    inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
-    inline const Globals::ThresholdMode& getThresholdMode() const { return m_geneMode; }
-
-    inline int getMin() const { return m_min; }
-    inline int getMax() const { return m_max; }
-    inline int getSum() const { return m_sum; }
-
-    inline GLfloat getIntensity() const { return m_intensity; }
-
+    // getters for arrays
     inline const GLarray<GLuint> features() const;
     inline const GLarray<GLuint> references() const;
     inline const GLarray<GLuint> values() const;
-    inline const GLarray<GLoption> geneOptions() const;
+
+    // global variable (color mode)
+    inline void setColorMode(const Globals::VisualMode &mode) { m_colorMode = mode; }
+    // global variable (threshold mode)
+    inline void setThresholdMode(const Globals::ThresholdMode &mode) { m_geneMode = mode; }
+    // global variables (hit count limits)
+    inline void setHitCount(int min, int max, int sum) { m_min = min; m_max = max; m_sum = sum; }
+    // global variable intensity
+    inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
+    // thresholds limits
+    inline void setLowerLimit(int geneLimit) { m_geneLowerLimit = geneLimit; }
+    inline void setUpperLimit(int geneLimit) { m_geneUpperLimit = geneLimit; }
+
+    // getters global varibles
+    inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
+    inline const Globals::ThresholdMode& getThresholdMode() const { return m_geneMode; }
+    inline int getMin() const { return m_min; }
+    inline int getMax() const { return m_max; }
+    inline int getSum() const { return m_sum; }
+    inline GLfloat getIntensity() const { return m_intensity; }
+    inline int getLowerLimit() const { return m_geneLowerLimit; }
+    inline int getUpperLimit() const { return m_geneUpperLimit; }
 
     //check whether the arrays are empty or not
     inline bool isEmpty() const
     {
         return m_colors.empty() && m_indices.empty() && m_textures.empty()
                 && m_points.empty() && m_options.empty() && m_features.empty()
-                && m_references.empty() && m_values.empty() && m_geneOptions.empty();
+                && m_references.empty() && m_values.empty();
     }
 
 private:
@@ -94,17 +102,18 @@ private:
     typedef std::vector<GLuint> GLFeatures;
     typedef std::vector<GLuint> GLReferences;
     typedef std::vector<GLuint> GLValues;
-    typedef std::vector<GLoption> GLGeneOptions;
 
     GLFeatures m_features;
     GLReferences m_references;
     GLValues m_values;
-    GLGeneOptions m_geneOptions;
     Globals::VisualMode m_colorMode;
     Globals::ThresholdMode m_geneMode;
     int m_min;
     int m_max;
     int m_sum;
+    // upper && lower thresholds
+    int m_geneLowerLimit;
+    int m_geneUpperLimit;
     GLfloat m_intensity;
 };
 
@@ -117,7 +126,12 @@ namespace GL
 
 
 GLElementDataGene::GLElementDataGene():
-    GLElementData(), m_features(), m_references(), m_values(), m_geneOptions()
+    GLElementData(), m_features(), m_references(), m_values()
+{
+
+}
+
+GLElementDataGene::~GLElementDataGene()
 {
 
 }
@@ -134,9 +148,6 @@ void GLElementDataGene::clear(GLflag flags)
     if (flags & GLElementDataGene::ValueArray) {
         m_values.resize(0);
     }
-    if (flags & GLElementDataGene::GeneOptionArray) {
-        m_geneOptions.resize(0);
-    }
 
     m_colorMode = Globals::NormalMode;
     m_geneMode = Globals::IndividualGeneMode;
@@ -144,7 +155,9 @@ void GLElementDataGene::clear(GLflag flags)
     m_max = Globals::gene_upper_limit;
     m_sum = Globals::gene_upper_limit;
     m_intensity = Globals::gene_intensity;
-
+    m_geneLowerLimit = Globals::gene_lower_limit;
+    m_geneUpperLimit = Globals::gene_upper_limit;
+    //call base class
     GLElementData::clear();
 }
 
@@ -162,6 +175,26 @@ void GLElementDataGene::resetValCount()
         GLuint *data = reinterpret_cast<GLuint*>(&m_values[index]);
         (*data) = 0u;
     }
+}
+
+GLuint GLElementDataGene::getMaxValue() const
+{
+    GLuint maxvalue = 0;
+    for (GLindex index = 0; index < (GLindex) m_values.size(); index++) {
+        const GLuint *data = reinterpret_cast<const GLuint*>(&m_values[index]);
+        maxvalue = max(maxvalue,(*data));
+    }
+    return maxvalue;
+}
+
+GLuint GLElementDataGene::getMinValue() const
+{
+    GLuint minvalue = 100000;
+    for (GLindex index = 0; index < (GLindex) m_values.size(); index++) {
+        const GLuint *data = reinterpret_cast<const GLuint*>(&m_values[index]);
+        minvalue = min(minvalue,(*data));
+    }
+    return minvalue;
 }
 
 inline GLElementDataGene &GLElementDataGene::addFeatCount(const GLuint &featcount, GLindex *index)
@@ -194,16 +227,6 @@ inline GLElementDataGene &GLElementDataGene::addValue(const GLuint &value, GLind
     return (*this);
 }
 
-inline GLElementDataGene &GLElementDataGene::addGeneOption(const GLoption &option, GLindex *index)
-{
-    // return new index if pointer provided
-    if (index != 0) {
-        (*index) = (GLindex) m_geneOptions.size();
-    }
-    m_geneOptions.push_back(option);
-    return (*this);
-}
-
 inline void GLElementDataGene::setFeatCount(const GLindex index, const GLuint &featcount)
 {
     GLuint *data = reinterpret_cast<GLuint*>(&m_features[index]);
@@ -222,30 +245,19 @@ inline void GLElementDataGene::setValue(const GLindex index, const GLuint &value
     (*data) = value;
 }
 
-inline void GLElementDataGene::setGeneOption(const GLindex index, const GLoption &option)
+inline GLuint GLElementDataGene::getFeatCount(const GLindex index) const
 {
-    GLoption *data = reinterpret_cast<GLoption*>(&m_geneOptions[index]);
-    (*data) = option;
+    return *(reinterpret_cast<const GLuint*>(&m_features[index]));
 }
 
-inline GLuint GLElementDataGene::getFeatCount(const GLindex index)
+inline GLuint GLElementDataGene::getRefCount(const GLindex index) const
 {
-    return *(reinterpret_cast<GLuint*>(&m_features[index]));
+    return *(reinterpret_cast<const GLuint*>(&m_references[index]));
 }
 
-inline GLuint GLElementDataGene::getRefCount(const GLindex index)
+inline GLuint GLElementDataGene::getValue(const GLindex index) const
 {
-    return *(reinterpret_cast<GLuint*>(&m_references[index]));
-}
-
-inline GLuint GLElementDataGene::getValue(const GLindex index)
-{
-    return *(reinterpret_cast<GLuint*>(&m_values[index]));
-}
-
-inline GLoption GLElementDataGene::getGeneOption(const GLindex index)
-{
-    return *(reinterpret_cast<GLoption*>(&m_geneOptions[index]));
+    return *(reinterpret_cast<const GLuint*>(&m_values[index]));
 }
 
 const GLarray<GLuint> GLElementDataGene::features() const
@@ -261,11 +273,6 @@ const GLarray<GLuint> GLElementDataGene::references() const
 const GLarray<GLuint> GLElementDataGene::values() const
 {
     return GLarray<GLuint>((GLsizei) m_values.size(), static_cast<const GLuint *>(m_values.data()));
-}
-
-const GLarray<GLoption> GLElementDataGene::geneOptions() const
-{
-    return GLarray<GLoption>((GLsizei) m_geneOptions.size(), static_cast<const GLoption *>(m_geneOptions.data()));
 }
 
 } // namespace GL //

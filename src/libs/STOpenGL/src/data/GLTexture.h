@@ -38,7 +38,10 @@ static const GLtexturehandle INVALID_TEXTURE_HANDLE = 0;
 // GLtexture represents an opengl texture and provides functionality for
 // manipulating rendering parameters.
 struct GLtexture {
+
     inline GLtexture();
+    inline virtual ~GLtexture();
+
     inline explicit GLtexture(GL::Initialization);
     inline explicit GLtexture(GLtexturehandle handle);
 
@@ -78,9 +81,25 @@ struct GLtexture {
 namespace GL
 {
 
-inline GLtexture::GLtexture() : x(0), y(0), width(0), height(0), handle(GL::INVALID_TEXTURE_HANDLE) { }
-inline GLtexture::GLtexture(GL::Initialization) { }
-inline GLtexture::GLtexture(GLtexturehandle handle) : x(0), y(0), width(0), height(0), handle(handle) { }
+inline GLtexture::GLtexture() : x(0), y(0), width(0), height(0), handle(GL::INVALID_TEXTURE_HANDLE)
+{
+
+}
+
+inline GLtexture::GLtexture(GL::Initialization)
+{
+
+}
+
+inline GLtexture::~GLtexture()
+{
+
+}
+
+inline GLtexture::GLtexture(GLtexturehandle handle) : x(0), y(0), width(0), height(0), handle(handle)
+{
+
+}
 
 inline GLtexturehandle* GLtexture::allocateHandles(GLsizei n)
 {

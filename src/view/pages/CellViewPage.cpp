@@ -124,10 +124,10 @@ void CellViewPage::onEnter()
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
+
     // update hitcount gene plotter
     gene_plotter_gl->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
-    //gene_plotter_gl->setGeneLowerLimit(hitCount->min());
-    //gene_plotter_gl->setGeneUpperLimit(hitCount->max());
+
     // update hitcount heat map
     m_heatmap->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
     m_heatmap->setLowerLimit(hitCount->min());
@@ -280,14 +280,16 @@ void CellViewPage::initGLModel()
     // creates graphic canvas scene and view
     scene = new GraphicsSceneGL();
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+
     // cell tissue canvas
     cell_tissue = new ImageItemGL();
     cell_tissue->setZValue(0);
-    scene->addItem(cell_tissue); //NOTE relinquish ownership
+    scene->addItem(cell_tissue);
+
     // gene plotter component
     gene_plotter_gl = new GenePlotterGL();
     gene_plotter_gl->setZValue(1);
-    scene->addItem(gene_plotter_gl); //NOTE relinquish ownership
+    scene->addItem(gene_plotter_gl);
 }
 
 void CellViewPage::initGLConnections()
@@ -300,10 +302,12 @@ void CellViewPage::initGLConnections()
     //connect gene list model to gene plotter
     connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
     connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+
     //connect gene plotter to gene selection model
     connect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
             SLOT(loadGenes(DataProxy::FeatureListPtr)), Qt::UniqueConnection);
-    connect(ui->clearSelection, SIGNAL(clicked(bool)), gene_plotter_gl, SLOT(clearSelectionArea()), Qt::UniqueConnection);
+
+    connect(ui->clearSelection, SIGNAL(clicked(bool)), gene_plotter_gl, SLOT(clearSelectionArea()) );
 
     //threshold slider signal
     connect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), gene_plotter_gl, SLOT(setGeneLowerLimit(int)));
@@ -315,18 +319,23 @@ void CellViewPage::initGLConnections()
 
     //show/not genes signal
     connect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
+
     //visual mode signal
     connect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
+
     //threshold mode signal
     connect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneThresholdMode(QAction*)));
+
     // grid signals
     connect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
     connect(toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGridVisible(bool)));
+
     // cell tissue canvas
     connect(toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), cell_tissue, SLOT(visible(bool)));
 
     // connect setvisible signals
     connect(toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
+
     // connect threshold slider to the heatmap
     connect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
     connect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
@@ -342,6 +351,7 @@ void CellViewPage::finishGLConnections()
     //connect gene list model to gene plotter
     disconnect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
     disconnect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+
     //connect gene plotter to gene selection model
     disconnect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
             SLOT(loadGenes(DataProxy::FeatureListPtr)));
@@ -350,6 +360,7 @@ void CellViewPage::finishGLConnections()
     //threshold slider signal
     disconnect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), gene_plotter_gl, SLOT(setGeneLowerLimit(int)));
     disconnect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), gene_plotter_gl, SLOT(setGeneUpperLimit(int)));
+
     //gene attributes signals
     disconnect(toolBar, SIGNAL(intensityValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneIntensity(qreal)));
     disconnect(toolBar, SIGNAL(sizeValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneSize(qreal)));
@@ -357,18 +368,23 @@ void CellViewPage::finishGLConnections()
 
     //show/not genes signal
     disconnect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
+
     //visual mode signal
     disconnect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
+
     //threshold mode signal
     disconnect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneThresholdMode(QAction*)));
+
     // grid signals
     disconnect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
     disconnect(toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGridVisible(bool)));
+
     // cell tissue canvas
     disconnect(toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), cell_tissue, SLOT(visible(bool)));
 
     // connect setvisible signals
     disconnect(toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_heatmap, SLOT(setVisible(bool)));
+
     // connect threshold slider to the heatmap
     disconnect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_heatmap, SLOT(setLowerLimit(int)));
     disconnect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_heatmap, SLOT(setUpperLimit(int)));
@@ -401,15 +417,18 @@ void CellViewPage::slotLoadCellFigure()
         (current_user->role() == Globals::ROLE_CM)
         && !(dataset->figureStatus() & Dataset::Aligned);
     bool loadRedFigure = (defaultRedFigure || forceRedFigure) && !forceBlueFigure;
+
     QString figureid = (loadRedFigure) ? dataset->figureRed() : dataset->figureBlue();
     QIODevice *device = dataProxy->getFigure(figureid);
     if (figureid.isEmpty()) {
         qDebug() << QString("[CellViewPage] Warning: Unknown figure id (%1)!").arg(figureid);
         return;
     }
+
     //update checkboxes
     toolBar->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     toolBar->actionShow_cellTissueRed->setChecked(loadRedFigure);
+
     // block gui elements
     toolBar->actionGroup_cellTissue->setEnabled(false);
     toolBar->actionNavigate_goBack->setEnabled(false);
@@ -428,14 +447,18 @@ void CellViewPage::slotLoadCellFigurePost()
     // recreate variables
     async::ImageRequest *imageRequest = dynamic_cast<async::ImageRequest *>(sender());
     Q_ASSERT_X(imageRequest, "CellView", "Image Request is null!");
+
     const QImage image = imageRequest->image();
     const QTransform transform = imageRequest->transform();
+
     // update image component
     cell_tissue->setImage(image);
     cell_tissue->setTransform(transform, false);
+
     // update gui
     toolBar->actionNavigate_goBack->setEnabled(true);
     toolBar->actionGroup_cellTissue->setEnabled(true);
+
     // deallocate request
     imageRequest->deleteLater();
 }
@@ -448,11 +471,14 @@ void CellViewPage::slotPrintImage()
     if (dialog->exec() != QDialog::Accepted) {
         return;
     }
+
     QPainter painter(&printer);
     QRect rect = painter.viewport();
     QImage image = ui->view->grabPixmapGL();
+
     QSize size = image.size();
     size.scale(rect.size(), Qt::KeepAspectRatio);
+
     painter.setViewport(rect);
     painter.setWindow(image.rect());
     painter.drawImage(0, 0, image);
@@ -496,17 +522,22 @@ void CellViewPage::slotExportSelection()
     if (!regex.exactMatch(filename)) {
         filename.append(".txt");
     }
+
     // get selected features and extend with data
     DataProxy::FeatureListPtr featureList = gene_plotter_gl->getSelectedFeatures();
+
     // create export context
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
+
     QObject context;
     context.setProperty("hitCountMin", QVariant(hitCount->min()));
     context.setProperty("hitCountMax", QVariant(hitCount->max()));
     context.setProperty("hitCountSum", QVariant(hitCount->sum()));
+
     QFile textFile(filename);
     QFileInfo info(textFile);
+
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         QObject memoryGuard;
         //TODO move intantiation to factory

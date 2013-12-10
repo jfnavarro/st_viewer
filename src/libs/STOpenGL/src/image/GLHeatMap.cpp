@@ -71,6 +71,7 @@ GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
         green = 0.0f;
         blue = 0.0f;
     }
+
     // Let the intensity fall off near the vision limits
     GLfloat factor;
     if (380.0f <= cwavelength && cwavelength < 420.0f) {

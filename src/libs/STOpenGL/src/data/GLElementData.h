@@ -38,13 +38,12 @@ public:
         All = (Arrays | Modes)
     };
 
-    static const GLflag DEFAULT_CLEAR_FLAGS = GLElementData::All;
-
     //empty constructor
     inline GLElementData();
+    inline virtual ~GLElementData();
 
     //clear arrays
-    inline void clear(GLflag flags = DEFAULT_CLEAR_FLAGS);
+    inline void clear(GLflag flags = GLElementData::All);
 
     // data builders
     //points
@@ -52,14 +51,17 @@ public:
     inline GLElementData &addPoint(const GLpoint &point, GLindex *index = 0);
     template <int N>
     inline GLElementData &addShape(const GLpointdata<N> &points, GLindex *index = 0);
+
     //shapes
     inline GLElementData &addColor(const GLcolor &color, GLindex *index = 0);
     template <int N>
     inline GLElementData &addColor(const GLcolordata<N> &colors, GLindex *index = 0);
+
     //textures
     inline GLElementData &addTexture(const GLpoint &point, GLindex *index = 0);
     template <int N>
     inline GLElementData &addTexture(const GLpointdata<N> &points, GLindex *index = 0);
+
     //options (selected)
     inline GLElementData &addOption(const GLoption &option, GLindex *index = 0);
     template <int N>
@@ -134,6 +136,11 @@ namespace GL
 {
 
 GLElementData::GLElementData() : m_points(), m_indices(), m_mode(GL_TRIANGLES)
+{
+
+}
+
+GLElementData::~GLElementData()
 {
 
 }

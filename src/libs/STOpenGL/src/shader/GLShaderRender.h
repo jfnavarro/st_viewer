@@ -15,15 +15,15 @@
 namespace GL
 {
 // Convenience class for rendering element data using a specific
-// shader program.
-//TODO deprecate renderer and incorporate functionality in the
-//     standard element renderer.
+// shader program (adapted to render GLELementDataGene)
 class GLShaderRender
 {
     
 public:
     
     inline GLShaderRender();
+    inline virtual ~GLShaderRender();
+
     inline void clear();
     inline void shader(QGLShaderProgram *program);
     void render(const GLElementDataGene& renderData);
@@ -42,6 +42,11 @@ namespace GL
 
 inline GLShaderRender::GLShaderRender()
     : m_program(0)
+{
+
+}
+
+inline GLShaderRender::~GLShaderRender()
 {
 
 }

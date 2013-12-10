@@ -19,23 +19,16 @@ namespace GL
 // means end segments may end up smaller (but never bigger) than set
 // preferred size.
 // Segments laid out accordingly:
-// ╔═══╤═══╤═══╤═══╤═══╤═╗
-// ║ 1 │ 2 │ 3 │ 4 │ 5 │6║
-// ╟───┼───┼───┼───┼───┼─╢
-// ║ 7 │...│...│...│...│.║
-// ╟───┼───┼───┼───┼───┼─╢
-// ║...│   │   │   │   │ ║
-// ╟───┼───┼───┼───┼───┼─╢
-// ║   │   │   │   │   │ ║
-// ╟───┼───┼───┼───┼───┼─╢
-// ╚═══╧═══╧═══╧═══╧═══╧═╝
 class GLTextureCutter
 {
 public:
+
     static const GLsizei DEFAULT_WIDTH = 512;
     static const GLsizei DEFAULT_HEIGHT = 512;
 
     inline GLTextureCutter();
+    inline virtual ~GLTextureCutter();
+
     inline GLTextureCutter(GLsizei width, GLsizei height);
 
     void cut(GLsizei width, GLsizei height, const GLvoid* pixels, GLTextureData& data);
@@ -57,6 +50,12 @@ GLTextureCutter::GLTextureCutter()
 {
 
 }
+
+GLTextureCutter::~GLTextureCutter()
+{
+
+}
+
 GLTextureCutter::GLTextureCutter(GLsizei width, GLsizei height)
     : m_width(width), m_height(height)
 {

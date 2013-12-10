@@ -22,11 +22,11 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     const GLarray<GLindex> indices = renderData.indices();
     const GLarray<GLpoint> textures = renderData.textures();
     const GLarray<GLoption> options = renderData.options();
+
     // extra arrays
     const GLarray<GLuint> features = renderData.features();
     const GLarray<GLuint> references = renderData.references();
     const GLarray<GLuint> values = renderData.values();
-    //const GLarray<GLoption> geneOptions = renderData.geneOptions();
 
     const bool hasVertex = (vertices.size != 0);
     const bool hasColors = (colors.size != 0);
@@ -35,7 +35,7 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     const bool hasFeatures = (features.size != 0);
     const bool hasReferences = (references.size != 0);
     const bool hasValues = (values.size != 0);
-    //const bool hasGeneOptions = (geneOptions.size != 0);
+
     const bool isGlobalMode = (renderData.getThresholdMode() == Globals::GlobalGeneMode);
 
     if (hasVertex && (!hasColors || !hasTexture || !hasOptions)) {
@@ -49,6 +49,7 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
                             "GlobalGeneMode without features||refereces||values.");
         return;
     }
+
 
     // set vertex array
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -68,6 +69,12 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     int colorMode = -1;
     int geneMode = -1;
     int intensity = -1;
+    int upper = -1;
+    int lower = -1;
+
+    //const int max_value = static_cast<int>(renderData.getMaxValue());
+    //const int min_value = static_cast<int>(renderData.getMinValue());
+    //qDebug() << "Max value is " << max_value << " Min Value is " << min_value;
 
     if (m_program != 0) {
         // enable attribute arrays
@@ -108,16 +115,24 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         m_program->setUniformValue(geneMode,geneModeValue);
 
         hitCountLocationMin = m_program->uniformLocation("in_hitCountMin");
-        m_program->setUniformValue(hitCountLocationMin,renderData.getMin());
+        //m_program->setUniformValue(hitCountLocationMin, isGlobalMode ? min_value : renderData.getMin());
+        m_program->setUniformValue(hitCountLocationMin, renderData.getMin());
 
         hitCountLocationMax = m_program->uniformLocation("in_hitCountMax");
-        m_program->setUniformValue(hitCountLocationMax,renderData.getMax());
+        //m_program->setUniformValue(hitCountLocationMax, isGlobalMode ? max_value : renderData.getMax());
+        m_program->setUniformValue(hitCountLocationMax, renderData.getMax());
 
         hitCountLocationSum = m_program->uniformLocation("in_hitCountSum");
         m_program->setUniformValue(hitCountLocationSum,renderData.getSum());
 
         intensity = m_program->uniformLocation("in_intensity");
         m_program->setUniformValue(intensity,renderData.getIntensity());
+
+        upper = m_program->uniformLocation("in_upper");
+        m_program->setUniformValue(upper,renderData.getUpperLimit());
+
+        lower = m_program->uniformLocation("in_lower");
+        m_program->setUniformValue(lower,renderData.getLowerLimit());
 
     }
 

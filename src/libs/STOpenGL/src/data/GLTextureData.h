@@ -21,7 +21,9 @@ namespace GL
 class GLTextureData
 {
 public:
+
     inline GLTextureData();
+    inline virtual ~GLTextureData();
 
     inline GLTextureData& addTexture(const GLtexture& texture, GLindex* index = 0);
     inline const GLtexture operator[](GLint i) const;
@@ -40,7 +42,15 @@ private:
 namespace GL
 {
 
-inline GLTextureData::GLTextureData() { }
+inline GLTextureData::GLTextureData()
+{
+
+}
+
+inline GLTextureData::~GLTextureData()
+{
+
+}
 
 inline GLTextureData& GLTextureData::addTexture(const GLtexture& texture, GLindex* index)
 {

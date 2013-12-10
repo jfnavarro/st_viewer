@@ -12,6 +12,8 @@ uniform int in_hitCountMin;
 uniform int in_hitCountMax;
 uniform int in_hitCountSum;
 uniform float in_intensity;
+uniform int in_upper;
+uniform int in_lower;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -20,11 +22,28 @@ float smoothband(float lo, float hi, float e, float t) {
                 1.0 - (smoothstep(hi-e, hi+e, t) - smoothstep(lo-e, lo+e, t));
 }
 
+float myclamp(float x, float lo, float hi)
+{
+    return max(lo, min(hi,x));
+}
+
+float norm(float v, float t0, float t1)
+{
+    float vh = myclamp(v, t0, t1);
+    return (vh - t0) / (t1 - t0);
+}
+
+float denorm(float nv, float t0, float t1)
+{
+    float vh = myclamp(nv, 0.0, 1.0);
+    return (vh * (t1 - t0)) + t0;
+}
+
 vec4 createHeatMapColor(float wavelength)
 {
     float gamma = 0.8;
     // clamp input value
-    float cwavelength = clamp(wavelength, 380.0, 780.0);
+    float cwavelength = myclamp(wavelength, 380.0, 780.0);
     
     // define colors according to wave lenght spectra
     float red;
@@ -71,23 +90,11 @@ vec4 createHeatMapColor(float wavelength)
         factor = 0.3;
     }
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = clamp(pow(red * factor, gamma), 0.0, 1.0);
-    green = clamp(pow(green * factor, gamma), 0.0, 1.0);
-    blue = clamp(pow(blue * factor, gamma), 0.0, 1.0);
+    red = myclamp(pow(red * factor, gamma), 0.0, 1.0);
+    green = myclamp(pow(green * factor, gamma), 0.0, 1.0);
+    blue = myclamp(pow(blue * factor, gamma), 0.0, 1.0);
     // return color
     return vec4(red, green, blue, 1.0);
-}
-
-float norm(float v, float t0, float t1)
-{
-    float vh = clamp(v, t0, t1);
-    return (vh - t0 / t1 - t0);
-}
-
-float denorm(float nv, float t0, float t1)
-{
-    float vh = clamp(nv, 0.0, 1.0);
-    return (vh * (t1 - t0) + t0);
 }
 
 void main(void)
@@ -109,6 +116,8 @@ void main(void)
     float value = out_values;
     float references = out_references;
     float features = out_features;
+    float upper_limit = float(in_upper);
+    float lower_limit = float(in_lower);
     
     // calculate distance from center
     vec2 pos = mod(out_texture.xy, vec2(1.0)) - vec2(.5);
@@ -126,24 +135,30 @@ void main(void)
             fragColor.a = in_intensity;
         }
         else if (colorMode == 1) {
-            fragColor.a = (value / max_value) + in_intensity;
+            fragColor.a = (value / sum_value) + (1.0 - in_intensity);
         }
         else if (colorMode == 2) {
-            float nv = norm(value, min_value, max_value);
-            float nt = denorm(sqrt(clamp(nv, 0.0, 1.0)), 380.0, 780.0);
+            float nv = norm(value, min_value, sum_value);
+            float wavel = sqrt(myclamp(nv, 0.0, 1.0));
+            float nt = denorm(wavel, 380.0, 780.0);
             fragColor = createHeatMapColor(nt);
             fragColor.a = in_intensity;
         }
         else {
             //error
         }
+        
+        //if ( value < lower_limit || value > upper_limit ) {
+        //    fragColor.a = 0.0;
+        //}
+    
     }
     else if (geneMode == 0) {
         if (colorMode == 1) {
-            fragColor.a += in_intensity;
+            fragColor.a += (1.0 - in_intensity);
         }
         else {
-            fragColor.a = in_intensity;
+            //fragColor.a = in_intensity;
         }
     }
     

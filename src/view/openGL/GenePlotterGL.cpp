@@ -166,6 +166,9 @@ void GenePlotterGL::clearSelectionArea()
     //clear selected genes
     m_geneRenderer->clearSelection();
     update(boundingRect());
+    //TOFIX expensive, refactor
+    DataProxy::FeatureListPtr selectedFeatures = m_geneRenderer->getSelectedFeatures();
+    emit featuresSelected(selectedFeatures);
 }
 
 void GenePlotterGL::setSelectionArea(const SelectionEvent *event)

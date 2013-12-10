@@ -18,7 +18,9 @@ namespace GL
 // intersections. In addition convenience functions for splitting the
 // AABB is provided to simplify implementations of for instance quad trees.
 struct GLaabb {
+
     inline GLaabb();
+    inline virtual ~GLaabb();
     inline GLaabb(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height);
     inline GLaabb(const GLpoint &p, const GLpoint &size);
 
@@ -30,19 +32,10 @@ struct GLaabb {
     // split aabb into a smaller version
 
     // SplitHalf: splits the aabb in half
-    //             +----+ Vx - splits vertically
-    // +---------+ ¦ H0 ¦ Hx - splits horizontally
-    // ¦ V0 ¦ V1 ¦ ¦----¦ where x indicates the segment number as depicted.
-    // +---------+ ¦ H1 ¦
-    //             +----+
     enum SplitHalf { H0, H1, V0, V1 };
     inline const GLaabb split(SplitHalf split) const;
+
     // SplitQuad: splits the aabb in four equally large segments
-    // +---------+ Qx - splits into quads
-    // ¦ Q1 ¦ Q0 ¦ where x indicates the segment number as depicted.
-    // ¦----+----¦
-    // ¦ Q2 ¦ Q3 ¦
-    // +---------+
     enum SplitQuad { Q0 = 0x00, Q1 = 0x01, Q2 = 0x02, Q3 = 0x03 };
     inline const GLaabb split(SplitQuad split) const;
 
@@ -56,20 +49,16 @@ struct GLaabb {
     inline bool contains(const GLaabb &o) const;
     inline bool intersects(const GLaabb &o) const;
 
-    // +---+-----+
-    // ¦   ¦  A  ¦ Cut: returns the AABB defined as the shared area
-    // +---¦-+   ¦      between the two given AABBs, or an empty AABB
-    // ¦   ¦C¦   ¦      if no area is shared.
-    // ¦   +-+---¦      ie. C = A & B
-    // ¦  B  ¦   ¦
-    // +-----+---+
+
+    // Cut: returns the AABB defined as the shared area
+    // between the two given AABBs, or an empty AABB
+    // if no area is shared.
+    // ie. C = A & B
     inline const GLaabb cut(const GLaabb &o) const;
-    // +-----+---+
-    // ¦ C   ¦ A ¦ Join: returns the AABB defined as the smallest AABB that
-    // ¦     +---+       contains both given AABBs (may be disjoint).
-    // +---+     ¦       ie. C = A | B
-    // ¦ B ¦     ¦
-    // +---+-----+
+
+    // Join: returns the AABB defined as the smallest AABB that
+    // contains both given AABBs (may be disjoint).
+    // ie. C = A | B
     inline const GLaabb join(const GLaabb &o) const;
 
     GLfloat x;
@@ -96,6 +85,12 @@ inline GLaabb::GLaabb()
 {
 
 }
+
+inline GLaabb::~GLaabb()
+{
+
+}
+
 inline GLaabb::GLaabb(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height)
     : x(x), y(y), width(width), height(height)
 {
@@ -133,6 +128,7 @@ inline const GLaabb GLaabb::split(SplitHalf split) const
     }
     return GLaabb();
 }
+
 inline const GLaabb GLaabb::split(SplitQuad split) const
 {
     const GLfloat hW = 0.5f * width;
@@ -150,14 +146,17 @@ inline const GLpoint GLaabb::position() const
 {
     return GLpoint(x, y);
 }
+
 inline const GLpoint GLaabb::middle() const
 {
     return GLpoint(x + (0.5f * width), y + (0.5f * height));
 }
+
 inline const GLpoint GLaabb::end() const
 {
     return GLpoint(x + width, y + height);
 }
+
 inline const GLpoint GLaabb::size() const
 {
     return GLpoint(width, height);

@@ -24,7 +24,7 @@ public:
     inline GLimage();
     explicit inline GLimage(GLsizei width, GLsizei height, GLenum mode = GL_RGBA,
                    GLenum type = GL_FLOAT);
-    virtual ~GLimage();
+    inline virtual ~GLimage();
 
     inline void reset(GLsizei width, GLsizei height, GLenum mode = GL_RGBA,
                       GLenum type = GL_FLOAT);

@@ -20,7 +20,10 @@ namespace GL
 class GLTextureRender
 {
 public:
+
     inline GLTextureRender();
+    inline virtual ~GLTextureRender();
+
     void render(const GLTextureData& renderData);
 
 private:
@@ -34,7 +37,14 @@ private:
 namespace GL
 {
 
-GLTextureRender::GLTextureRender() { }
+GLTextureRender::GLTextureRender()
+{
+}
+
+GLTextureRender::~GLTextureRender()
+{
+
+}
 
 } // namespace GL //
 

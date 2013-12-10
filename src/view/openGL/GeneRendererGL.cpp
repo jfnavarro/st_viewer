@@ -88,6 +88,18 @@ void GeneRendererGL::setSize(qreal size)
     factory.setSize((GLfloat) m_size);
 }
 
+void GeneRendererGL::setUpperLimit(int geneLimit)
+{
+    m_geneUpperLimit = geneLimit;
+    m_geneData.setUpperLimit(geneLimit);
+}
+
+void GeneRendererGL::setLowerLimit(int geneLimit)
+{
+    m_geneLowerLimit = geneLimit;
+    m_geneData.setLowerLimit(geneLimit);
+}
+
 void GeneRendererGL::generateData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -105,13 +117,16 @@ void GeneRendererGL::generateData()
     // generate geometry
     foreach(const DataProxy::FeaturePtr feature, (*features)) {
 
+        // feature cordinates
         const GL::GLpoint point = GL::toGLpoint(feature->x(), feature->y());
 
         // test if point already exists
         GeneInfoQuadTree::PointItem item = {point, GL::INVALID_INDEX};
         m_geneInfoQuadTree.select(point, item);
 
+        // this will be the index of the new point (if it does not exists) or the present point
         GL::GLindex index = -1;
+
         //if it exists
         if (item.second != GL::INVALID_INDEX) {
             index = item.second;
@@ -125,9 +140,8 @@ void GeneRendererGL::generateData()
             m_geneInfoReverse.insert(index, feature);
             m_geneInfoQuadTree.insert(point, index);
             m_geneData.addFeatCount(1u);
-            m_geneData.addValue(0u);
-            m_geneData.addRefCount(0u);
-            //m_geneData.addGeneOption(); //empty for now
+            m_geneData.addValue(0u); // we initialize to 0
+            m_geneData.addRefCount(0u); // we initialize to 0
         }
 
         m_geneData.setFeatCount(index, m_geneData.getFeatCount(index) + 1);
@@ -169,16 +183,16 @@ void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOp
 {
     //TODO replace for a switch
 
-    if (flags & geneVisual) {
+    if ( flags == geneVisual || flags == geneThreshold ) {
         updateVisual(features);
     }
-    else if (flags & geneColor) {
+    else if (flags == geneColor) {
         updateColor(features);
     }
-    else if ( (flags & geneSelection) || (flags & geneThreshold)) {
+    else if ( flags == geneSelection ) {
         updateSelection(features);
     }
-    else if (flags & geneSize) {
+    else if (flags == geneSize) {
         updateSize(features);
     }
     else {
@@ -263,7 +277,7 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
 
         // update ref count
         const int oldRefCount = m_geneData.getRefCount(index);
-        const int newRefCount = (oldRefCount + (selected ? 1 : -1));
+        int newRefCount = (oldRefCount + (selected ? 1 : -1));
         m_geneData.setRefCount(index, newRefCount);
 
         // update values
@@ -272,17 +286,13 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
         const int newValue = (oldValue + (selected ? currentHits : -currentHits));
         m_geneData.setValue(index, newValue);
 
-        //pass if hits are below/above limits and the mode is individual genes
-        if (  ( m_thresholdMode == Globals::IndividualGeneMode &&
-              (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) )
-           ) {
-            // out of threshold are, thus selected = false
-            selected = false;
-        }
-
         // update color
         if (newRefCount != 0) {
-            const GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
+            GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
+            if (  ( m_thresholdMode == Globals::IndividualGeneMode &&
+                  (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) ) ) {
+                featureColor.alpha = 0.0f;
+            }
             GL::GLcolor color = factory.getColor(index);
             color = (selected) ?
                         GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor) :
@@ -332,20 +342,13 @@ void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
         const int newValue = (oldValue + (selected ? currentHits : 0));
         m_geneData.setValue(index, newValue);
 
-        //pass if hits are below/above limits and the mode is individual genes
-        if (  ( m_thresholdMode == Globals::IndividualGeneMode &&
-              (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) )
-           ) {
-            // out of threshold are, thus selected = false
-            // set default color
-            factory.setColor(index, GL::GLcolor(GL::White));
-            selected = false;
-        }
-
         // update color
-        if (selected && (newRefCount > 0))
-        {
-            const GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
+        if (selected && (newRefCount > 0)) {
+            GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
+            if (  ( m_thresholdMode == Globals::IndividualGeneMode &&
+                  (newValue < m_geneLowerLimit || newValue > m_geneUpperLimit) )  ) {
+                featureColor.alpha = 0.0f;
+            }
             GL::GLcolor color = factory.getColor(index);
             color = GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor);
             factory.setColor(index, color);

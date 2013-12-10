@@ -32,8 +32,6 @@ public:
             RenderItemN,    // renders N items (N in arg)
             BindTexture,    // binds texture (index in arg)
             UnbindTexture  // unbinds current texture
-           // BindShader,     // binds shader (index in arg) //NOTE stub
-           // UnbindShader,   // unbinds current shader      //NOTE stub
         };
 
         inline Command();
@@ -44,7 +42,7 @@ public:
     };
 
     inline GLElementRenderQueue();
-    inline ~GLElementRenderQueue();
+    inline virtual ~GLElementRenderQueue();
 
     inline GLElementRenderQueue &add(const Command &cmd);
     inline void end();
@@ -88,9 +86,10 @@ private:
                      const QList<GLtexture> &textures);
                      //const QList<QGLShaderProgram*> &shaders);
 
-        inline ~State();
+        inline virtual ~State();
         void render();
 
+        static const int NUM_OPERATIONS = 6;
     private:
         // pointer to function type
         typedef void (State::*CmdFuncType)(const GLbyte op, const GLuint arg);
@@ -103,11 +102,9 @@ private:
         void cmdRenderItemN(const GLbyte op, const GLuint arg);
         void cmdBindTexture(const GLbyte op, const GLuint arg);
         void cmdUnbindTexture(const GLbyte op, const GLuint arg);
-        //void cmdBindShader(const GLbyte op, const GLuint arg);
-        //void cmdUnbindShader(const GLbyte op, const GLuint arg);
 
         // member function pointer lookup table ('cause switches are ugly)
-        CmdFuncType m_renderFuncs[6]; //8
+        CmdFuncType m_renderFuncs[NUM_OPERATIONS];
 
         //render function
         void render(const GLsizei renderItemCount);
@@ -116,13 +113,11 @@ private:
         const GLElementData &m_renderData;
         const GLElementRenderQueue &m_renderQueue;
         const QList<GLtexture> &m_textures;
-        //const QList<QGLShaderProgram*> &m_shaders;
         GLsizei m_index;
     };
 
     // state variables
     QList<GLtexture> m_textures;
-    //QList<QGLShaderProgram*> m_shaders;
 };
 
 } // namespace GL //
@@ -199,7 +194,6 @@ inline GLElementRender::State::State(
     const GLElementData &renderData,
     const GLElementRenderQueue &renderQueue,
     const QList<GLtexture> &textures
-    //const QList<QGLShaderProgram*> &shaders
 )
     : m_renderData(renderData), m_renderQueue(renderQueue), m_textures(textures), m_index(0) //m_shaders(shaders),
 {
@@ -210,8 +204,6 @@ inline GLElementRender::State::State(
     m_renderFuncs[3] = &State::cmdRenderItemN;
     m_renderFuncs[4] = &State::cmdBindTexture;
     m_renderFuncs[5] = &State::cmdUnbindTexture;
-    //m_renderFuncs[6] = &State::cmdBindShader;
-    //m_renderFuncs[7] = &State::cmdUnbindShader;
 }
 
 inline GLElementRender::State::~State()
@@ -221,7 +213,7 @@ inline GLElementRender::State::~State()
 
 inline void GLElementRender::State::cmdCall(const GLbyte op, const GLuint arg)
 {
-    Q_ASSERT(op < 6); //8
+    Q_ASSERT(op < NUM_OPERATIONS);
     // member function vodoo magic
     (this->*(m_renderFuncs[op]))(op, arg);
 }

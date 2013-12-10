@@ -143,6 +143,7 @@ inline void GLcolor::setColor(GLubyte red, GLubyte green, GLubyte blue, GLubyte 
     GLcolor::blue = (GLfloat) blue / (GLfloat) 0xFFu;
     GLcolor::alpha = (GLfloat) alpha / (GLfloat) 0xFFu;
 }
+
 inline void GLcolor::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
     GLcolor::red = red;
@@ -218,6 +219,7 @@ inline void GLcolordata<N>::setColor(const GLcolor &color, const GLindex index)
     Q_ASSERT(index < GLcolordata<N>::COLORS);
     c[index] = color;
 }
+
 template <int N>
 inline void GLcolordata<N>::setColors(const GLcolor &color)
 {

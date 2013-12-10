@@ -29,7 +29,7 @@ public:
     };
 
     inline explicit GLimagewriter(GLimage &image);
-    inline ~GLimagewriter();
+    inline virtual ~GLimagewriter();
 
     bool writePixel(const GLcolor &color);
     bool writeLine(const GLcolor &color);
@@ -70,6 +70,7 @@ inline GLimagewriter::GLimagewriter(GLimage &image)
     // cache buffer size
     m_indexEnd = m_image.size();
 }
+
 inline GLimagewriter::~GLimagewriter()
 {
 

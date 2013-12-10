@@ -18,8 +18,11 @@ namespace GL
 // coordinates). Provides functionality to add and subtract and extends
 // functionality to incorporate interactions with GLpoint objects.
 //TODO extend if needed.
+
 struct GLvector {
+
     inline GLvector();
+    inline virtual ~GLvector();
     inline explicit GLvector(GL::Initialization);
     inline GLvector(const GLfloat x, const GLfloat y);
 
@@ -80,9 +83,25 @@ inline const GLvector rotate(const GLvector& v);
 namespace GL
 {
 
-GLvector::GLvector() : x(0.0f), y(0.0f) { }
-GLvector::GLvector(GL::Initialization) { }
-GLvector::GLvector(const GLfloat x, const GLfloat y) : x(x), y(y) { }
+GLvector::GLvector() : x(0.0f), y(0.0f)
+{
+
+}
+
+GLvector::GLvector(GL::Initialization)
+{
+
+}
+
+GLvector::GLvector(const GLfloat x, const GLfloat y) : x(x), y(y)
+{
+
+}
+
+GLvector::~GLvector()
+{
+
+}
 
 const GLvector GLvector::fromPoints(const GLpoint& from, const GLpoint& to)
 {

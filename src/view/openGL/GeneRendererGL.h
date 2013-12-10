@@ -22,12 +22,11 @@ class GeneRendererGL
 public:
 
     enum updateOptions {
-        geneColor = 0x01,
-        geneVisual = 0x02,
-        geneSize = 0x04,
-        geneSelection = 0x08,
-        geneThreshold = 0x012,
-        geneFilter = (geneSelection | geneThreshold)
+        geneColor = 1,
+        geneVisual = 2,
+        geneSize = 3,
+        geneSelection = 4,
+        geneThreshold = 5
     };
 
     GeneRendererGL();
@@ -70,8 +69,8 @@ public:
     void setIntensity(qreal intensity);
     void setSize(qreal size);
 
-    inline void setLowerLimit(int geneLimit) { m_geneLowerLimit = geneLimit; }
-    inline void setUpperLimit(int geneLimit) { m_geneUpperLimit = geneLimit; }
+    void setLowerLimit(int geneLimit);
+    void setUpperLimit(int geneLimit);
 
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
@@ -81,6 +80,7 @@ protected:
     //internal rendering functions
     void updateColor(DataProxy::FeatureListPtr);
     void updateSelection(DataProxy::FeatureListPtr);
+    void updateThreshold(DataProxy::FeatureListPtr);
     void updateSize(DataProxy::FeatureListPtr);
     void updateVisual(DataProxy::FeatureListPtr);
 
