@@ -87,6 +87,7 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
     if ((m_hitCountMin != min) ||
         (m_hitCountMax != max) ||
         (m_hitCountSum != sum)) {
+        
         m_hitCountMin = min;
         m_lowerLimit = min;
         m_hitCountMax = max;

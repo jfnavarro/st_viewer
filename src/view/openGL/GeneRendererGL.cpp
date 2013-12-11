@@ -6,11 +6,12 @@
 */
 
 #include "GeneRendererGL.h"
+
 #include "controller/data/DataProxy.h"
 #include "model/core/ColorScheme.h"
 #include "model/core/DynamicRangeColor.h"
 #include "model/core/FeatureColor.h"
-#include "model/core/HeatmapColor.h"
+#include "model/core/HeatMapColor.h"
 
 #include "qgl.h"
 #include "GLCommon.h"

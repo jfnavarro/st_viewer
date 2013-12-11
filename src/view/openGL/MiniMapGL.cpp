@@ -49,6 +49,7 @@ void MiniMapGL::setScene(const QRectF& scene)
     if (!scene.isValid()) {
         return;
     }
+    
     QRectF scaled = QRectF(m_bounds.topLeft(), scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
     if (m_scene != scaled) {
         m_scene = scaled;
@@ -202,7 +203,6 @@ void MiniMapGL::generateMinimapData()
         factory.addShape(GL::GLrectangle::fromLine(vbr, vbl, 1.0f));
         factory.addShape(GL::GLrectangle::fromLine(vbl, vtl, 1.0f));
     }
-
 
     // generate element data render command
     m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements

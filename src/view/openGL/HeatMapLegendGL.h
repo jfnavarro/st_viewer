@@ -34,6 +34,7 @@ public:
     virtual bool contains(const QPointF& point) const;
 
 public slots:
+    
     void setHitCountLimits(int min, int max, int sum);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);

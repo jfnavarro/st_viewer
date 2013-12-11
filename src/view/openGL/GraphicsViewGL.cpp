@@ -46,10 +46,12 @@ GraphicsViewGL::~GraphicsViewGL()
 void GraphicsViewGL::initGL(QGraphicsScene *scene)
 {
     DEBUG_FUNC_NAME
+    
     // reset state
     m_zoom = Globals::DEFAULT_ZOOM;
     m_zoom_min = Globals::DEFAULT_ZOOM_MIN;
     m_zoom_max = Globals::DEFAULT_ZOOM_MAX;
+    
     QGLFormat format;
     format.setDirectRendering(true);
     format.setDoubleBuffer(true);
@@ -57,6 +59,7 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
     format.setDepth(false);
     format.setRgba(true);
     format.setProfile(QGLFormat::CompatibilityProfile);
+    
     // setup opengl viewport
     if (m_opengl_surface == 0) {
         m_opengl_surface = new WidgetGL(format);
@@ -77,19 +80,17 @@ void GraphicsViewGL::initGL(QGraphicsScene *scene)
 void GraphicsViewGL::finalizeGL()
 {
     DEBUG_FUNC_NAME
+    
     foreach(ViewItemGL * item, m_viewItems) {
         if (item != 0) {
             delete item;
         }
         item = 0;
     }
+    
     m_viewItems.clear();
-    //NOTE minimap deleted above (included in m_viewItems)
+
     m_minimap = 0;
-    if (m_opengl_surface != 0) {
-        //NOTE this should not be done since QAbstractScrollArea owns the widget
-        delete m_opengl_surface;
-    }
     m_opengl_surface = 0;
 }
 
@@ -97,7 +98,7 @@ const QImage GraphicsViewGL::grabPixmapGL()
 {
     QImage image;
     QWidget *widget = viewport();
-    if (QGLWidget *viewport = dynamic_cast<QGLWidget*>(widget)) {
+    if (QGLWidget *viewport = qobject_cast<QGLWidget*>(widget)) {
         //NOTE make sure we are grabbing from the front buffer
         //     OBS: assumes a nonstereo setting
         glReadBuffer(GL_FRONT_LEFT);
@@ -219,16 +220,11 @@ void GraphicsViewGL::drawBackground(QPainter *painter, const QRectF& rect)
     }
 
     const QColor color = backgroundBrush().color();
-    //const QTransform t = viewportTransform();
     GL::GLcolor bkgColor = GL::toGLcolor(color);
-    //GL::GLmatrix matrix = GL::toGLmatrix(t);
     painter->beginNativePainting();
     {
         glClearColor(bkgColor.red, bkgColor.green, bkgColor.blue, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glMatrixMode(GL_MODELVIEW);
-        //glLoadIdentity();
-        //glMultMatrixf(matrix);
     }
     painter->endNativePainting();
 }
@@ -331,63 +327,7 @@ void GraphicsViewGL::pressRubberBand(QMouseEvent* event)
 void GraphicsViewGL::moveRubberBand(QMouseEvent* event)
 {
     Q_UNUSED(event);
-    /*if (dragMode() == QGraphicsView::RubberBandDrag && isInteractive())
-    {
-        if (m_rubberBanding)
-        {
-            // Check for enough drag distance
-            if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                    < QApplication::startDragDistance())
-            {
-                QGraphicsView::mouseMoveEvent(event);
-                return;
-            }
 
-
-            // Update old rubberband
-            if (!m_rubberBandRect.isEmpty())
-            {
-                viewport()->update();
-            }
-
-            // Stop rubber banding if the user has let go of all buttons (even
-            // if we didn't get the release events).
-            if (!event->buttons())
-            {
-                m_rubberBanding = false;
-                m_rubberBandRect = QRect();
-                QGraphicsView::mouseMoveEvent(event);
-                return;
-            }
-
-            // Update rubberband position
-            const QPoint &mp = m_mousePressViewPoint;
-            QPoint ep = event->pos();
-            m_rubberBandRect = QRect(qMin(mp.x(), ep.x()), qMin(mp.y(), ep.y()),
-                                     qAbs(mp.x() - ep.x()) + 1, qAbs(mp.y() - ep.y()) + 1);
-
-            // Update new rubberband
-            if (!m_rubberBandRect.isEmpty())
-            {
-                viewport()->update();
-            }
-
-            // Set the new selection area
-            QPainterPath selectionArea;
-            selectionArea.addPolygon(mapToScene(m_rubberBandRect));
-            selectionArea.closeSubpath();
-
-            raphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
-            if (s)
-            {
-                //SelectionEvent::SelectionMode mode = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-                //SelectionEvent selectionEvent(selectionArea, mode);
-                //s->setSelectionArea(&selectionEvent);
-            }
-
-        }
-    }
-    */
 }
 
 void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
@@ -395,16 +335,29 @@ void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
     DEBUG_FUNC_NAME
     if (dragMode() == QGraphicsView::RubberBandDrag && isInteractive() && !event->buttons()) {
         if (m_rubberBanding) {
+            
+            // get the scene
+            GraphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
+            
             // Check for enough drag distance
-            if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                < QApplication::startDragDistance()) {
+            if ((m_mousePressViewPoint - event->pos()).manhattanLength() < QApplication::startDragDistance()) {
+                 
+                // Clear selection if not for enough drag distance
+                if (s)
+                {
+                    SelectionEvent::SelectionMode mode = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                    SelectionEvent selectionEvent(QPainterPath(), mode);
+                    s->setSelectionArea(&selectionEvent);
+                }
                 QGraphicsView::mouseMoveEvent(event);
                 return;
             }
+            
             // Update old rubberband
             if (!m_rubberBandRect.isEmpty()) {
                 viewport()->update();
             }
+            
             // Update rubberband position
             const QPoint &mp = m_mousePressViewPoint;
             QPoint ep = event->pos();
@@ -415,31 +368,24 @@ void GraphicsViewGL::releaseRubberBand(QMouseEvent* event)
             if (!m_rubberBandRect.isEmpty()) {
                 viewport()->update();
             }
+            
             // Set the new selection area
             QPainterPath selectionArea;
             selectionArea.addPolygon(mapToScene(m_rubberBandRect));
             selectionArea.closeSubpath();
-            GraphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
+            
             if (s) {
                 SelectionEvent::SelectionMode mode = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
                 SelectionEvent selectionEvent(selectionArea, mode);
                 s->setSelectionArea(&selectionEvent);
             }
-            // Clear selection if not for enough drag distance
-            /*if ((m_mousePressViewPoint - event->pos()).manhattanLength()
-                    < QApplication::startDragDistance())
-            {
-                GraphicsSceneGL* s = dynamic_cast<GraphicsSceneGL*>(scene());
-                if (s)
-                {
-                    SelectionEvent::SelectionMode mode = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-                    SelectionEvent selectionEvent(QPainterPath(), mode);
-                    s->setSelectionArea(&selectionEvent);
-                }
-            }*/
+
+            // update viewport
             if (viewportUpdateMode() != QGraphicsView::NoViewportUpdate) {
                 viewport()->update();
             }
+            
+            // reset variables
             m_rubberBanding = false;
             m_rubberBandRect = QRect();
         }

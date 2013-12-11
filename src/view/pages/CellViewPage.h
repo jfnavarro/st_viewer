@@ -37,43 +37,55 @@ class CellViewPage : public Page
     Q_OBJECT
 
 public:
+    
     explicit CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
 public slots:
+    
     void onInit();
     void onEnter();
     void onExit();
 
 protected slots:
+    
     // load the cell tissue figure into the stage (can be done sync and async)
     void slotLoadCellFigure();
     // callback when the image loading is done sync
     void slotLoadCellFigurePost();
+    
     // save current scene
     void slotSaveImage();
     void slotPrintImage();
     void slotExportSelection();
+    
     // activate selection of genes
     void slotActivateSelection(bool);
     void slotSelectByRegExp();
+    
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
     // select threshold mode
     void slotSetGeneThresholdMode(QAction *action);
+    
     // launch a color selector
     void slotLoadColor();
 
 protected:
+    
     //init gui elements, signals and connections
     void initGLView();
     void initGLModel();
     void initGLConnections();
     void finishGLConnections();
     void finalizeGL();
+    
     void createToolBar();
+    
     void createConnections();
+    
     void resetActionStates();
+    
     //image loading function
     void loadCellFigureAsync(QIODevice *device);
 

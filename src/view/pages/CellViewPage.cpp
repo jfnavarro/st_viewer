@@ -74,9 +74,11 @@ CellViewPage::~CellViewPage()
 void CellViewPage::onInit()
 {
     DEBUG_FUNC_NAME
+    
     //create UI objects
     ui = new Ui::CellView;
     ui->setupUi(this);
+    
     //TODO replace icons and add export button
     ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear.png")));
     ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));

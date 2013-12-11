@@ -36,7 +36,7 @@ WidgetGL::~WidgetGL()
 
 void WidgetGL::resizeGL(int width, int height)
 {
-    //devicePixelRatio() will be directly exposed to QGLWidget in next QT release
+    //devicePixelRatio() fix the problem with MAC retina
 #if QT_VERSION >= 0x050200
     qreal pixelRatio = devicePixelRatio();
     qDebug() << QString("[WidgetGL] devicePixelRatio: %1").arg(pixelRatio);
