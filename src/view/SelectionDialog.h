@@ -27,6 +27,7 @@ class SelectionDialog : public QDialog
     Q_OBJECT
 
 public:
+    
     typedef DataProxy::GeneList GeneList;
 
     SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
@@ -36,16 +37,20 @@ public:
     static const GeneList selectGenes(QWidget *parent = 0);
 
 signals:
+    
     void signalValidRegExp(bool validRegExp);
 
 public slots:
+    
     virtual void accept();
+    
     void slotValidateRegExp(const QString &pattern);
     void slotIncludeAmbiguous(bool includeAmbiguous);
     void slotCaseSensitive(bool caseSensitive);
     void slotEnableAcceptAction(bool enableAcceptAction);
 
 private:
+    
     Ui::SelectionDialog *ui;
     bool m_includeAmbiguous;
     bool m_caseSensitive;

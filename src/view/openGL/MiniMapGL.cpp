@@ -79,7 +79,7 @@ void MiniMapGL::updateTransform(const QRectF& scene)
         m_transform = QTransform();
         return;
     }
-    const QPointF s1 = QPointF(scene.width(),   scene.height());
+    const QPointF s1 = QPointF(scene.width(), scene.height());
     const QPointF s2 = QPointF(m_scene.width(), m_scene.height());
     const qreal s11 = (s2.x() / s1.x());
     const qreal s22 = (s2.y() / s1.y());

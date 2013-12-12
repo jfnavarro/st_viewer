@@ -18,17 +18,18 @@ class SimpleCryptDeviceTest : public QObject
     Q_OBJECT
 
 public:
+    
     explicit SimpleCryptDeviceTest(QObject *parent = 0);
 
 private Q_SLOTS:
+    
     void initTestCase();
     void cleanupTestCase();
 
-    void testEncodeData();
-    void testEncodeData_data();
-
-    void testDecodeData();
-    void testDecodeData_data();
+    //void testEncodeData();
+    //void testEncodeData_data();
+    //void testDecodeData();
+    //void testDecodeData_data();
 
     void testLargeFile();
     void testLargeFile_data();

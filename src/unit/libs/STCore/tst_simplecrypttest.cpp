@@ -35,6 +35,7 @@ void SimpleCryptTest::initTestCase()
     //crypt.setIntegrityProtectionMode(SimpleCrypt::ProtectionChecksum);
     //QCOMPARE( crypt.integrityProtectionMode(), SimpleCrypt::ProtectionChecksum );
 }
+
 void SimpleCryptTest::cleanupTestCase()
 {
     QVERIFY2(true, "Empty");

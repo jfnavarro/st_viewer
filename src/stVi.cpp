@@ -65,30 +65,35 @@ stVi::stVi(QWidget* parent): QMainWindow(parent)
     menuLoad = 0;
     menuHelp = 0;
 
-    //init single instances
-    //NOTE this must be done before setupUi
+    //init single instances (this must be done the very very first)       
     initSingleInstances();
 }
 
 stVi::~stVi()
 {
     finalizeSingleInstances();
-    //NOTE UI components will get destroyed automatically
 }
 
 void stVi::init()
 {
     DEBUG_FUNC_NAME
-    //init style, size and icons
+    
+    // init style, size and icons
     initStyle();
+    
     // create ui widgets
     setupUi();
-    //create keyboard shortcuts
+    
+    // create keyboard shortcuts
     createShorcuts();
+    
     // lets create some stuff
     createLayouts();
+    
+    // connections
     createConnections();
-    //restore settings
+    
+    // restore settings
     loadSettings();
 }
 
@@ -113,20 +118,24 @@ int stVi::checkSystemRequirements()
         return 0;
     }
 
-    //TODO move this network call to dataproxy and and oject parser
+    //TODO move this network call to dataproxy and add a specific object parser
+    
     // check if the version is supported in the server and check for updates
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion();
     NetworkManager *nm = NetworkManager::getInstance();
     NetworkReply *reply = nm->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+    
     QEventLoop loop; // I want to wait until this finishes
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
     loop.exec();
+    
     cmd->deleteLater();
     if (reply == 0) {
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return 0;
     }
+    
     //parse reply
     QJsonDocument document = reply->getJSON();
     // if no errors
@@ -160,7 +169,7 @@ void stVi::setupUi()
 {
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
-    resize(1217, 706);
+    //resize(1217, 706);
 
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
@@ -168,7 +177,7 @@ void stVi::setupUi()
     sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
 
     setSizePolicy(sizePolicy);
-    setMinimumSize(QSize(800, 600));
+    setMinimumSize(QSize(1024, 768));
     setMouseTracking(false);
     setFocusPolicy(Qt::NoFocus);
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
@@ -234,7 +243,6 @@ void stVi::showAbout()
 
 void stVi::slotExit()
 {
-    //TOFIX this hides the mainwindow on MAC platforms
     int answer = QMessageBox::warning(
                      this, tr("Exit application"),
                      tr("Are you really sure you want to exit now?"),
@@ -245,7 +253,7 @@ void stVi::slotExit()
         saveSettings();
         QApplication::exit();
 #if defined Q_OS_LINUX || defined Q_OS_WIN
-        QApplication::processEvents();
+        QApplication::processEvents(); //TOFIX this hides the mainwindow on MAC platforms
 #endif
     }
 }
@@ -266,7 +274,6 @@ void stVi::slotClearCache()
 
 void stVi::createLayouts()
 {
-    /* status bar */
     statusBar()->showMessage("Spatial Transcriptomics Viewer");
 }
 
@@ -278,10 +285,6 @@ void stVi::initStyle()
     QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false); //osx does not show icons on menus
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
-    //         QApplication::setAttribute(Qt::AA_Use96Dpi,true); //for mac retina compatibility
-    //         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar,false); //false
-    //         QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings,false); //false
-    //         QApplication::setCursorFlashTime(0);
     setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
 #endif
 

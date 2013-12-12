@@ -37,6 +37,7 @@ public:
     void updateData(updateOptions flags);
     void clearData();
     void rebuildData();
+    
     void updateGene(DataProxy::GenePtr, updateOptions flags);
     void updateFeatures(DataProxy::FeatureListPtr, updateOptions flags);
 
@@ -48,32 +49,28 @@ public:
     void setSelectionArea(const SelectionEvent *event);
     void clearSelection();
 
-    //hit count limits
-    void setHitCount(int min, int max, int sum);
-
     //getters
-    inline const GL::GLElementDataGene& getData() const { return m_geneData; }
-
+    
     DataProxy::FeatureListPtr getSelectedFeatures();
 
+    inline const GL::GLElementDataGene& getData() const { return m_geneData; }
     inline qreal intensity() const { return m_intensity; }
     inline qreal size() const { return m_size; }
-
-    inline int lowerLimit() const { return m_geneLowerLimit; }
-    inline int upperLimit() const { return m_geneUpperLimit; }
-
+    inline int lowerLimit() const { return m_min; }
+    inline int upperLimit() const { return m_max; }
+    inline int totalSum() const { return m_sum; }
     inline const Globals::VisualMode& visualMode() const { return m_visualMode; }
     inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
 
     //setters
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-
     void setLowerLimit(int geneLimit);
     void setUpperLimit(int geneLimit);
-
+    void setTotalSum(int sum);
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
+    void setHitCount(int min, int max, int sum);
 
 protected:
 
@@ -83,6 +80,8 @@ protected:
     void updateThreshold(DataProxy::FeatureListPtr);
     void updateSize(DataProxy::FeatureListPtr);
     void updateVisual(DataProxy::FeatureListPtr);
+    
+    static int recomputeSum(int min, int max);
 
 private:
     // lookup maps
@@ -109,10 +108,6 @@ private:
     //atributes
     qreal m_intensity;
     qreal m_size;
-
-    // upper && lower thresholds
-    int m_geneLowerLimit;
-    int m_geneUpperLimit;
 
     // hit count limits
     int m_min;

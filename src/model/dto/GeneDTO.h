@@ -38,33 +38,15 @@ public:
     virtual ~GeneDTO();
 
     // binding
-    inline const QString& id() const
-    {
-        return m_gene.id();
-    }
-    inline const QString& name() const
-    {
-        return m_gene.name();
-    }
+    inline const QString& id() const { return m_gene.id(); }
+    inline const QString& name() const { return m_gene.name(); }
 
-    inline void id(const QString& id)
-    {
-        m_gene.id(id);
-    }
-    inline void name(const QString& name)
-    {
-        m_gene.name(name);
-    }
+    inline void id(const QString& id) { m_gene.id(id); }
+    inline void name(const QString& name) { m_gene.name(name); }
 
     // get parsed data model
-    const Gene& gene() const
-    {
-        return m_gene;
-    }
-    Gene& gene()
-    {
-        return m_gene;
-    }
+    const Gene& gene() const { return m_gene; }
+    Gene& gene() { return m_gene; }
 
 private:
 

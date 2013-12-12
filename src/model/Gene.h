@@ -25,7 +25,7 @@ public:
     explicit Gene(const QString& id, const QString& name, bool m_hidden = false,
          QColor m_color = Globals::color_gene);
 
-    ~Gene();
+    virtual ~Gene();
 
     Gene& operator= (const Gene& other);
     bool operator== (const Gene& other) const;

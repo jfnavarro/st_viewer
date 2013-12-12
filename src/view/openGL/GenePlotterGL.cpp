@@ -14,7 +14,6 @@
 #include "GLScope.h"
 #include "data/GLElementShapeFactory.h"
 #include "data/GLElementRender.h"
-//#include "data/GLElementData.h"
 #include "data/GLElementShapeFactory.h"
 #include "math/GLFloat.h"
 #include "math/GLMatrix.h"
@@ -97,8 +96,10 @@ void GenePlotterGL::reset()
 {
     // clear rendering data
     clear();
+
     // grid data
     m_gridVisible = false;
+    
     // gene plot data
     m_geneVisible = true;
     m_geneShape = Globals::gene_shape;
@@ -245,8 +246,6 @@ void GenePlotterGL::setGeneUpperLimit(int geneLimit)
 void GenePlotterGL::setHitCountLimits(int min, int max, int sum)
 {
     m_geneRenderer->setHitCount(min,max,sum);
-    m_geneRenderer->setLowerLimit(min);
-    m_geneRenderer->setUpperLimit(max);
     //m_geneRenderer->updateData(GeneRendererGL::All);
     //update(boundingRect());
 }
@@ -314,10 +313,12 @@ void GenePlotterGL::updateChipSize()
     DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     const QString chipId = (!dataset.isNull()) ? dataset->chipId() : QString();
     DataProxy::ChipPtr currentChip = dataProxy->getChip(chipId);
+    
     // early out
     if (currentChip.isNull()) {
         return;
     }
+    
     prepareGeometryChange();
     // resize grid according to chip size
     QRectF m_rect = QRectF(
@@ -328,12 +329,15 @@ void GenePlotterGL::updateChipSize()
                    QPointF(currentChip->x1Border(), currentChip->y1Border()),
                    QPointF(currentChip->x2Border(), currentChip->y2Border())
                );
+    
     // reflect bounds to quad tree
     m_geneRenderer->resetQuadTree(m_border);
+    
     // update rendering data
     m_chipRenderer->clearData();
     m_chipRenderer->setDimensions(m_border,m_rect);
     m_chipRenderer->generateData();
+    
     // update canvas
     update(boundingRect());
 }

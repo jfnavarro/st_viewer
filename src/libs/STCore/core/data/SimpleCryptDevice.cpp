@@ -19,6 +19,7 @@ SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, QObject *parent)
     connect(device, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
     connect(device, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
+
 SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, quint64 key, QObject *parent)
     : QIODevice(parent), m_crypt(key), m_device(device)
 {
@@ -28,7 +29,10 @@ SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, quint64 key, QObject *pa
     connect(device, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
-SimpleCryptDevice::~SimpleCryptDevice() { }
+SimpleCryptDevice::~SimpleCryptDevice() 
+{ 
+    
+}
 
 void SimpleCryptDevice::flush()
 {

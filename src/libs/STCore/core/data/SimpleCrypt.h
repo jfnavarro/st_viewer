@@ -17,7 +17,9 @@ class QIODevice;
 //TODO add crc32-based checksum to segment header for data validation.
 class SimpleCrypt
 {
+    
 public:
+    
     static const quint64 EMPTY_KEY = Q_UINT64_C(0x00);
 
     enum ErrorCode {
@@ -28,9 +30,17 @@ public:
         UnknownVersionError
     };
 
+    enum Property {
+        StreamHeaderSize,
+        SegmentHeaderSize,
+        LastErrorCode
+    };
+    
     SimpleCrypt();
     explicit SimpleCrypt(quint64 key);
 
+    virtual ~SimpleCrypt();
+    
     void setKey(quint64 key);
     quint64 getKey() const;
     bool hasKey() const;
@@ -40,17 +50,14 @@ public:
     ErrorCode encodeSegment(QIODevice *out, const QByteArray &data) const;
     ErrorCode decodeSegment(QIODevice *in, QByteArray &data) const;
 
-    enum Property {
-        StreamHeaderSize,
-        SegmentHeaderSize,
-        LastErrorCode
-    };
     int getProperty(Property code) const;
 
 private:
+    
     void encodeByteArray(QByteArray &data) const;
     void decodeByteArray(QByteArray &data) const;
     static quint8 randomSeed();
+    
     // internal version control
     static const quint8 VERSION = 0x01;
 
@@ -58,6 +65,7 @@ private:
         quint8 version;
         quint8 flags;
     };
+    
     struct SegmentHeader {
         quint16 size;
     };

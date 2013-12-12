@@ -23,7 +23,7 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="genesLayout">
         <item>
          <layout class="QHBoxLayout" name="geneListLayout">
@@ -104,28 +104,37 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="selectionLayout">
         <item>
          <layout class="QHBoxLayout" name="selctionBottonsLayout">
           <item>
            <widget class="QPushButton" name="saveSelection">
+            <property name="toolTip">
+             <string>Save the current selection </string>
+            </property>
             <property name="text">
-             <string>Export Selection</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="exportSelection">
+            <property name="toolTip">
+             <string>Export the current selection to a file</string>
+            </property>
             <property name="text">
-             <string>Export Selection</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="clearSelection">
+            <property name="toolTip">
+             <string>Clear the current selection</string>
+            </property>
             <property name="text">
-             <string>Clear Selection</string>
+             <string/>
             </property>
            </widget>
           </item>

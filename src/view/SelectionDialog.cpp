@@ -45,8 +45,10 @@ void SelectionDialog::accept()
         reject();
         return;
     }
+    
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::GeneListPtr geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    
     // find all genes that match the regular expression
     //TODO this can be optimized using STL functions or Qt::concurrent algorithms
     m_selectedGeneList.clear();
@@ -85,7 +87,6 @@ void SelectionDialog::slotCaseSensitive(bool caseSensitive)
 {
     // toggle case sensitive
     m_regExp.setCaseSensitivity((caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive));
-
     m_caseSensitive = caseSensitive;
     if (m_caseSensitive != ui->checkCaseSense->isChecked()) {
         ui->checkCaseSense->setChecked(m_caseSensitive);

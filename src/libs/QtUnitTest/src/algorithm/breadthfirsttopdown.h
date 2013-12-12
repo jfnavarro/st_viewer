@@ -19,10 +19,15 @@ namespace unit
 // Note: QObject does not keep track of insertion order for children.
 class BreadthFirstTopDown : public Linearizer
 {
+    
 public:
+    
+    BreadthFirstTopDown();
+    
+    virtual ~BreadthFirstTopDown();
+    
     virtual const QList<QObject *> list(QObject *object);
-    BreadthFirstTopDown() {};
-    virtual ~BreadthFirstTopDown() {};
+    
 };
 
 } // namespace unit //

@@ -43,14 +43,12 @@ Feature& Feature::operator=(const Feature& other)
 
 bool Feature::operator==(const Feature& other) const
 {
-    if (m_barcode == other.m_barcode &&
-        m_gene == other.m_gene &&
-        m_hits == other.m_hits &&
-        m_x == other.m_x &&
-        m_y == other.m_y)
-        return true;
-    else
-        return false;
+    return (m_id == other.m_id &&
+            m_barcode == other.m_barcode &&
+            m_gene == other.m_gene &&
+            m_hits == other.m_hits &&
+            m_x == other.m_x &&
+            m_y == other.m_y);
 }
 
 

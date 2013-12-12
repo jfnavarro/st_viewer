@@ -53,6 +53,8 @@
     <file alias="images/export.png">${PROJECT_SOURCE_DIR}/assets/images/export.png</file>
     <file alias="images/abort.png">${PROJECT_SOURCE_DIR}/assets/images/abort.png</file>
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
+    <file alias="images/clear2.png">${PROJECT_SOURCE_DIR}/assets/images/clear2.png</file>
+    <file alias="images/file_export.png">${PROJECT_SOURCE_DIR}/assets/images/file_export.png</file>
     <file alias="shader/geneCircle.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneCircle.vert</file>
     <file alias="shader/geneCircle.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneCircle.frag</file>
     <file alias="shader/geneCross.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneCross.vert</file>

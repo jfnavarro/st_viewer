@@ -34,17 +34,13 @@ User& User::operator=(const User& other)
 {
     m_username = other.m_username;
     m_role = other.m_role;
-
     return (*this);
 }
 
 bool User::operator==(const User& other) const
 {
-    if (
-        m_username == other.m_username &&
-        m_role == other.m_role
-    )
-        return true;
-    else
-        return false;
+    return (
+            m_username == other.m_username &&
+            m_role == other.m_role
+        );
 }

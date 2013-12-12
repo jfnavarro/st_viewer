@@ -56,13 +56,10 @@ void HeatMapLegendGL::render(QPainter* painter)
     {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
-
         GL::GLscope glBlendScope(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         GL::GLscope glTextureScope(GL_TEXTURE_2D);
         renderer.render(m_data, m_queue);
-
         glPopMatrix();
     }
     painter->endNativePainting();
@@ -89,13 +86,15 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
         (m_hitCountSum != sum)) {
         
         m_hitCountMin = min;
-        m_lowerLimit = min;
-        m_hitCountMax = max;
-        m_upperLimit = max;
+        m_hitCountMax = max;     
         m_hitCountSum = sum;
+        
+        // for now init upper and lower limit to hit count bounds
+        setLowerLimit(min);
+        setUpperLimit(max);
+        
         rebuildHeatMapText();
         rebuildHeatMapData();
-        //rebuildHeatMapStaticData();
     }
 }
 
@@ -103,7 +102,7 @@ void HeatMapLegendGL::setLowerLimit(int limit)
 {
     if (m_lowerLimit != limit) {
         m_lowerLimit = limit;
-        qreal threshold = qreal(m_lowerLimit - m_hitCountMin) / qreal(m_hitCountMax - m_hitCountMin);
+        const qreal threshold = qreal(m_lowerLimit - m_hitCountMin) / qreal(m_hitCountMax - m_hitCountMin);
         m_lower_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
         rebuildHeatMapData();
     }
@@ -113,7 +112,7 @@ void HeatMapLegendGL::setUpperLimit(int limit)
 {
     if (m_upperLimit != limit) {
         m_upperLimit = limit;
-        qreal threshold = qreal(m_hitCountMax - m_upperLimit) / qreal(m_hitCountMax - m_hitCountMin);
+        const qreal threshold = qreal(m_hitCountMax - m_upperLimit) / qreal(m_hitCountMax - m_hitCountMin);
         m_upper_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
         rebuildHeatMapData();
     }
@@ -225,8 +224,7 @@ void HeatMapLegendGL::generateStaticHeatMapData()
     // generate image
     m_image = GL::GLimage(1, Globals::heatmap_height, GL_RGBA, GL_FLOAT);
     m_image.createImage();
-    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp,
-                                      m_hitCountMin, m_hitCountMax > 1 ? m_hitCountMax : 100);
+    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp, m_hitCountMin, m_hitCountMax);
     // load texture
     m_texture.createHandle();
     // set parameters

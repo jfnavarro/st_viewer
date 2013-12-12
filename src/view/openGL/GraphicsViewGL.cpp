@@ -89,7 +89,6 @@ void GraphicsViewGL::finalizeGL()
     }
     
     m_viewItems.clear();
-
     m_minimap = 0;
     m_opengl_surface = 0;
 }

@@ -31,23 +31,11 @@ public:
     virtual ~ErrorDTO();
 
     // binding
-    inline const QString& errorName() const
-    {
-        return m_errorName;
-    }
-    inline const QString& errorDescription() const
-    {
-        return m_errorDescription;
-    }
+    inline const QString& errorName() const { return m_errorName; }
+    inline const QString& errorDescription() const { return m_errorDescription; }
 
-    inline void errorName(const QString& errorName)
-    {
-        m_errorName = errorName;
-    }
-    inline void errorDescription(const QString& errorDescription)
-    {
-        m_errorDescription = errorDescription;
-    }
+    inline void errorName(const QString& errorName) { m_errorName = errorName; }
+    inline void errorDescription(const QString& errorDescription) { m_errorDescription = errorDescription; }
 
 private:
 

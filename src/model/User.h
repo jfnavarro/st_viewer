@@ -13,32 +13,22 @@
 // Data model class to store user data.
 class User
 {
+    
 public:
+    
     User();
     User(const User& other);
     User(const QString& name, const QString& role);
-    ~User();
+    virtual ~User();
 
     User& operator=(const User& other);
     bool operator==(const User& other) const;
 
-    inline const QString& username() const
-    {
-        return m_username;
-    }
-    inline const QString& role() const
-    {
-        return m_role;
-    }
+    inline const QString& username() const { return m_username; }
+    inline const QString& role() const { return m_role; }
 
-    inline void username(const QString& username)
-    {
-        m_username = username;
-    }
-    inline void role(const QString& role)
-    {
-        m_role = role;
-    }
+    inline void username(const QString& username) { m_username = username; }
+    inline void role(const QString& role) { m_role = role; }
 
 private:
     QString m_username;

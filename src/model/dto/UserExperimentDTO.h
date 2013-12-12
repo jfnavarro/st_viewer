@@ -42,57 +42,21 @@ public:
     virtual ~UserExperimentDTO();
 
     // binding
-    inline const QString& datasetId() const
-    {
-        return m_userExperiment.datasetId();
-    }
-    inline const QString& userId() const
-    {
-        return m_userExperiment.userId();
-    }
-    inline const QString& type() const
-    {
-        return m_userExperiment.type();
-    }
-    inline const QString& inputData() const
-    {
-        return m_userExperiment.inputData();
-    }
-    inline const QString& outputData() const
-    {
-        return m_userExperiment.outputData();
-    }
+    inline const QString& datasetId() const { return m_userExperiment.datasetId(); }
+    inline const QString& userId() const { return m_userExperiment.userId(); }
+    inline const QString& type() const { return m_userExperiment.type(); }
+    inline const QString& inputData() const { return m_userExperiment.inputData(); }
+    inline const QString& outputData() const { return m_userExperiment.outputData(); }
 
-    inline void datasetId(QString datasetId)
-    {
-        m_userExperiment.datasetId(datasetId);
-    }
-    inline void userId(QString userId)
-    {
-        m_userExperiment.userId(userId);
-    }
-    inline void type(const QString& type)
-    {
-        m_userExperiment.type(type);
-    }
-    inline void inputData(const QString& inputData)
-    {
-        m_userExperiment.inputData(inputData);
-    }
-    inline void outputData(const QString& outputData)
-    {
-        m_userExperiment.outputData(outputData);
-    }
+    inline void datasetId(QString datasetId) { m_userExperiment.datasetId(datasetId); }
+    inline void userId(QString userId) { m_userExperiment.userId(userId); }
+    inline void type(const QString& type) { m_userExperiment.type(type); }
+    inline void inputData(const QString& inputData) { m_userExperiment.inputData(inputData); }
+    inline void outputData(const QString& outputData) { m_userExperiment.outputData(outputData); }
 
     // get parsed data model
-    inline const UserExperiment& userExperiment() const
-    {
-        return m_userExperiment;
-    }
-    inline UserExperiment& userExperiment()
-    {
-        return m_userExperiment;
-    }
+    inline const UserExperiment& userExperiment() const { return m_userExperiment; }
+    inline UserExperiment& userExperiment() { return m_userExperiment; }
 
 private:
 

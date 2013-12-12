@@ -79,10 +79,10 @@ void CellViewPage::onInit()
     ui = new Ui::CellView;
     ui->setupUi(this);
     
-    //TODO replace icons and add export button
-    ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear.png")));
-    ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
-
+    ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
+    ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
+    ui->exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
+    
     //some optimization flags
 #if QT_VERSION >= 0x050200
     //gene search displays a clear button
@@ -123,6 +123,13 @@ void CellViewPage::onEnter()
     // initialize gui elements
     initGLView();
 
+    // reset and start gene plotter
+    gene_plotter_gl->initGL();
+    gene_plotter_gl->reset();
+    gene_plotter_gl->updateChipSize();
+    gene_plotter_gl->updateGeneData();
+    gene_plotter_gl->updateTransformation();
+    
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
     Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
@@ -132,8 +139,6 @@ void CellViewPage::onEnter()
 
     // update hitcount heat map
     m_heatmap->setHitCountLimits(hitCount->min(), hitCount->max(), hitCount->sum());
-    m_heatmap->setLowerLimit(hitCount->min());
-    m_heatmap->setUpperLimit(hitCount->max());
 
     // reset main variabless
     resetActionStates();
@@ -186,7 +191,7 @@ void CellViewPage::createConnections()
     connect(toolBar->actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
 
     // export
-    connect(ui->saveSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
+    connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
 
     // selection mode
     connect(toolBar->actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
@@ -210,6 +215,9 @@ void CellViewPage::resetActionStates()
     geneModel->loadGenes();
     // reset gene colors
     geneModel->setColorGenes(Globals::color_gene);
+    // set all genes selected to false
+    geneModel->selectAllGenesPressed(false);
+    
     // reset gene selection model data
     selectionModel->reset();
 
@@ -219,7 +227,6 @@ void CellViewPage::resetActionStates()
 
     // reset gene list selection status
     ui->selectAllGenes->setChecked(false);
-    geneModel->selectAllGenesPressed(false);
 
     // reset cell image to show
     cell_tissue->setVisible(true);
@@ -252,13 +259,6 @@ void CellViewPage::createToolBar()
 void CellViewPage::initGLView()
 {
     ui->view->initGL(scene);
-
-    // reset and start gene plotter
-    gene_plotter_gl->initGL();
-    gene_plotter_gl->reset();
-    gene_plotter_gl->updateChipSize();
-    gene_plotter_gl->updateGeneData();
-    gene_plotter_gl->updateTransformation();
 
     //reset cell view
     if (cell_tissue != 0) {
@@ -314,6 +314,7 @@ void CellViewPage::initGLConnections()
     //threshold slider signal
     connect(toolBar, SIGNAL(thresholdLowerValueChanged(int)), gene_plotter_gl, SLOT(setGeneLowerLimit(int)));
     connect(toolBar, SIGNAL(thresholdUpperValueChanged(int)), gene_plotter_gl, SLOT(setGeneUpperLimit(int)));
+    
     //gene attributes signals
     connect(toolBar, SIGNAL(intensityValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneIntensity(qreal)));
     connect(toolBar, SIGNAL(sizeValueChanged(qreal)), gene_plotter_gl, SLOT(setGeneSize(qreal)));
@@ -545,8 +546,8 @@ void CellViewPage::slotExportSelection()
         //TODO move intantiation to factory
         GeneExporter *exporter =
             (QString::compare(info.suffix(), "XML", Qt::CaseInsensitive) == 0) ?
-            static_cast<GeneExporter *>(new GeneXMLExporter(&memoryGuard)) :
-            static_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
+            dynamic_cast<GeneExporter *>(new GeneXMLExporter(&memoryGuard)) :
+            dynamic_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
                                         GeneTXTExporter::TabDelimited, &memoryGuard));
 
         exporter->exportItem(&textFile, featureList, context);

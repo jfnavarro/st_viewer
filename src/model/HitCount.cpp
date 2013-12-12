@@ -37,11 +37,8 @@ HitCount& HitCount::operator=(const HitCount& other)
 
 bool HitCount::operator==(const HitCount& other) const
 {
-    if (m_min == other.m_min &&
-        m_max == other.m_max &&
-        m_sum == other.m_sum
-       )
-        return true;
-    else
-        return false;
+    return (m_min == other.m_min &&
+            m_max == other.m_max &&
+            m_sum == other.m_sum
+        );
 }

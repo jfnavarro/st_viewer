@@ -69,16 +69,21 @@ public:
 
     // global variable (color mode)
     inline void setColorMode(const Globals::VisualMode &mode) { m_colorMode = mode; }
+    
     // global variable (threshold mode)
     inline void setThresholdMode(const Globals::ThresholdMode &mode) { m_geneMode = mode; }
+    
     // global variables (hit count limits)
     inline void setHitCount(int min, int max, int sum) { m_min = min; m_max = max; m_sum = sum; }
+    
     // global variable intensity
     inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
+    
     // thresholds limits
     inline void setLowerLimit(int geneLimit) { m_geneLowerLimit = geneLimit; }
     inline void setUpperLimit(int geneLimit) { m_geneUpperLimit = geneLimit; }
-
+    inline void setTotalSum(int sum) { m_sum = sum; }
+    
     // getters global varibles
     inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
     inline const Globals::ThresholdMode& getThresholdMode() const { return m_geneMode; }
@@ -88,7 +93,8 @@ public:
     inline GLfloat getIntensity() const { return m_intensity; }
     inline int getLowerLimit() const { return m_geneLowerLimit; }
     inline int getUpperLimit() const { return m_geneUpperLimit; }
-
+    inline int getTotalSum() const { return m_sum; }
+    
     //check whether the arrays are empty or not
     inline bool isEmpty() const
     {

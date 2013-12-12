@@ -42,13 +42,11 @@ int main(int argc, char **argv)
     Q_UNUSED(argc);
     Q_UNUSED(argv);
 
-    //QApplication::setApplicationName("stVi_unittest");
 
     TestSuite suite;
 
     suite.addTest(new DataStoreTest, "DataStore");
     //suite.addTest(new WidgetsTest, "Widgets");
-
     suite.addTest(new GLTypeTraitsTest, "GLTypeTraits");
     suite.addTest(new GLCommonTest, "GLCommon");
     suite.addTest(new GLColorTest, "GLColor").dependsOn("GLCommon");
@@ -60,14 +58,10 @@ int main(int argc, char **argv)
     suite.addTest(new GLPointTest, "GLPoint").dependsOn("GLMath");
     suite.addTest(new GLVectorTest, "GLVector").dependsOn("GLPoint");
     suite.addTest(new GLHeatMapTest, "GLHeatMap").dependsOn("GLPoint");
-
     suite.addTest(new ObjectParserTest, "ObjectParser");
-
     suite.addTest(new MathExtendedTest, "MathExtended");
-
     suite.addTest(new SimpleCryptTest, "SimpleCrypt");
     suite.addTest(new SimpleCryptDeviceTest, "SimpleCryptDevice").dependsOn("SimpleCrypt");
-
     suite.addTest(new AuthTest, "Authorization");
     suite.addTest(new RestTest, "REST Services");
 

@@ -16,6 +16,7 @@
 class FeatureExtended : public Feature
 {
 public:
+    
     FeatureExtended();
     FeatureExtended(const Feature& other);
     FeatureExtended(const FeatureExtended &other);
@@ -26,16 +27,11 @@ public:
 
     bool operator==(const FeatureExtended& other) const;
 
-    inline const QColor& color() const
-    {
-        return m_color;
-    }
-    inline void color(const QColor& color)
-    {
-        m_color = color;
-    }
+    inline const QColor& color() const { return m_color; }
+    inline void color(const QColor& color) { m_color = color; }
 
 private:
+    
     QColor m_color;
 };
 

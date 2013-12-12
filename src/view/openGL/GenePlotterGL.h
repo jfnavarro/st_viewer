@@ -35,11 +35,13 @@ public:
 
     // clear rendering data
     void clear();
+    
     // reset member variables
     void reset();
 
     // init opengl data
     void initGL();
+    
     // load rendering shader program
     void loadShader(const uint id, const QString &vertexPath, const QString &fragmentPath);
 
@@ -50,8 +52,10 @@ public:
 
     // creates the gene and chip data
     void updateGeneData();
+    
     // update chip size and create the chip data
     void updateChipSize();
+    
     // load dataset trandformation matrix
     void updateTransformation();
 
@@ -102,7 +106,6 @@ private:
     // gene attributes
     Globals::Shape m_geneShape;
     bool m_geneVisible;
-    qreal m_intensity;
 
     //classes that encapsulates all the rendering
     QScopedPointer<GeneRendererGL> m_geneRenderer;

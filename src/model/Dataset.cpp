@@ -58,7 +58,6 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_statSpecie = other.m_statSpecie;
     m_statCreated = other.m_statCreated;
     m_statComments = other.m_statComments;
-
     return (*this);
 }
 

@@ -12,6 +12,16 @@
 namespace unit
 {
 
+BreadthFirstTopDown::BreadthFirstTopDown() 
+{
+    
+}
+
+BreadthFirstTopDown::~BreadthFirstTopDown() 
+{
+    
+}
+    
 const QList<QObject *> BreadthFirstTopDown::list(QObject *object)
 {
     QList<QObject *> list;

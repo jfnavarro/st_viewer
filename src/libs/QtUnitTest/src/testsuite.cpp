@@ -16,7 +16,9 @@ namespace unit
 
 TestHandle::TestHandle(TestSuite *suite, const QString &name)
     : m_suite(suite), m_name(name)
-{ }
+{
+    
+}
 
 TestHandle TestHandle::dependsOn(const QString &name)
 {
@@ -25,7 +27,26 @@ TestHandle TestHandle::dependsOn(const QString &name)
     return (*this);
 }
 
-TestSuite::TestSuite() { }
+TestHandle::TestHandle()
+{
+    
+}
+
+TestSuite::TestSuite()
+{
+    
+}
+
+
+TestHandle::~TestHandle()
+{
+
+}
+
+TestSuite::~TestSuite() 
+{ 
+    
+}
 
 TestHandle TestSuite::addTest(QObject *test, const QString &name)
 {
