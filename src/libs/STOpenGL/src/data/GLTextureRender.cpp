@@ -27,7 +27,8 @@ void GLTextureRender::render(const GLTextureData& renderData)
         y = texture.y;
         w = texture.width;
         h = texture.height;
-        glBindTexture(GL_TEXTURE_2D, texture.handle);
+        texture.bind();
+        
         glBegin(GL_QUADS);
         glTexCoord2i(0, 0);
         glVertex2i(x + 0, y + h);
