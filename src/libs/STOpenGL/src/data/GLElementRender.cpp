@@ -8,6 +8,7 @@
 #include "GLElementRender.h"
 
 #include "GLScope.h"
+#include "GLTypeTraits.h"
 
 namespace GL
 {
@@ -16,6 +17,96 @@ GLElementRender::GLElementRender()
     : m_textures()
 {
 
+}
+
+// Command
+GLElementRenderQueue::Command::Command()
+    : op(0), arg(0)
+{
+
+}
+
+GLElementRenderQueue::Command::Command(const Operation op, const GLuint arg)
+    : op(op), arg(arg)
+{
+
+}
+
+// GLElementRenderQueue
+GLElementRenderQueue::GLElementRenderQueue()
+    : m_closed(false), m_queue()
+{
+
+}
+
+GLElementRenderQueue::~GLElementRenderQueue()
+{
+
+}
+
+GLElementRenderQueue &GLElementRenderQueue::add(const Command &cmd)
+{
+    // early out
+    if (m_closed) {
+        return (*this);
+    }
+
+    m_queue.append(cmd);
+    if (cmd.op == Command::EndOfCmd) {
+        m_closed = true;
+    }
+
+    return (*this);
+}
+
+void GLElementRenderQueue::end()
+{
+    add(Command(Command::EndOfCmd));
+}
+
+void GLElementRenderQueue::clear()
+{
+    m_queue.clear();
+    m_closed = false;
+}
+
+const GLElementRenderQueue::CommandQueue &GLElementRenderQueue::commandQueue() const
+{
+    return m_queue;
+}
+
+// GLElementRender
+void GLElementRender::addTexture(QOpenGLTexture *texture)
+{
+    m_textures.append(texture);
+}
+
+// GLElementRender::State
+GLElementRender::State::State(const GLElementData &renderData,
+    const GLElementRenderQueue &renderQueue,
+    const QList<QOpenGLTexture *> &textures
+)
+    : m_renderData(renderData), m_renderQueue(renderQueue), m_textures(textures), m_index(0) //m_shaders(shaders),
+{
+    // create function lookup table
+    m_renderFuncs[0] = &State::cmdEndOfCmd;
+    m_renderFuncs[1] = &State::cmdRenderItemAll;
+    m_renderFuncs[2] = &State::cmdRenderItemOne;
+    m_renderFuncs[3] = &State::cmdRenderItemN;
+    m_renderFuncs[4] = &State::cmdBindTexture;
+    m_renderFuncs[5] = &State::cmdUnbindTexture;
+}
+
+GLElementRender::State::~State()
+{
+
+}
+
+void GLElementRender::State::cmdCall(const GLbyte op, const GLuint arg)
+{
+    Q_ASSERT(op < NUM_OPERATIONS);
+    // member function vodoo magic
+    (this->*(m_renderFuncs[op]))(op, arg);
 }
 
 void GLElementRender::clear()
@@ -71,16 +162,16 @@ void GLElementRender::State::cmdBindTexture(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
     const GLsizei index = static_cast<GLsizei>(arg);
-    const GLtexture texture = m_textures[index];
-    texture.bind();
+    QOpenGLTexture *texture = m_textures[index];
+    texture->bind();
 }
 
 void GLElementRender::State::cmdUnbindTexture(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
     const GLsizei index = static_cast<GLsizei>(arg);
-    const GLtexture texture = m_textures[index];
-    texture.unbind();
+    QOpenGLTexture *texture = m_textures[index];
+    texture->release();
 }
 
 void GLElementRender::State::render(const GLsizei renderItemCount)

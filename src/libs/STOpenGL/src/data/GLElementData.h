@@ -47,7 +47,7 @@ public:
 
     // data builders
     //points
-    inline GLElementData &addPoint(GLfloat x, GLfloat y, GLindex *index = 0);
+    inline GLElementData &addPoint(const GLfloat &x, const GLfloat &y, GLindex *index = 0);
     inline GLElementData &addPoint(const GLpoint &point, GLindex *index = 0);
     template <int N>
     inline GLElementData &addShape(const GLpointdata<N> &points, GLindex *index = 0);
@@ -73,26 +73,26 @@ public:
     template <int N>
     inline GLElementData &connect(const GLindexdata<N> &indicies, GLindex *index = 0);
     template <int N>
-    inline void deconnect(GLindex index);
+    inline void deconnect(const GLindex &index);
 
     // data modifiers
     template <int N>
-    inline void setShape(const GLindex index, const GLpointdata<N> &shape);
+    inline void setShape(const GLindex &index, const GLpointdata<N> &shape);
     template <int N>
-    inline void setColor(const GLindex index, const GLcolordata<N> &colors);
+    inline void setColor(const GLindex &index, const GLcolordata<N> &colors);
     template <int N>
-    inline void setTexture(const GLindex index, const GLpointdata<N> &texture);
+    inline void setTexture(const GLindex &index, const GLpointdata<N> &texture);
     template <int N>
-    inline void setOption(const GLindex index, const GLoptiondata<N> &options);
+    inline void setOption(const GLindex &index, const GLoptiondata<N> &options);
 
     // data access
     template <int N>
-    inline const GLcolordata<N> getColor(const GLindex index);
+    inline const GLcolordata<N> getColor(const GLindex &index);
     template <int N>
-    inline const GLoptiondata<N> getOption(const GLindex index);
+    inline const GLoptiondata<N> getOption(const GLindex &index);
 
     // state modifiers
-    inline GLElementData &setMode(GLenum mode);
+    inline GLElementData &setMode(const GLenum &mode);
 
     //array getters
     inline const GLarray<GLpoint> vertices() const;
@@ -102,7 +102,7 @@ public:
     inline const GLarray<GLoption> options() const;
 
     //enum mode getter
-    inline GLenum mode() const;
+    inline const GLenum& mode() const;
 
     //check whether the arrays are empty or not
     inline bool isEmpty() const
@@ -113,11 +113,11 @@ public:
 
 protected:
     //types
-    typedef std::vector<GLpoint> GLPoints;
-    typedef std::vector<GLcolor> GLColors;
-    typedef std::vector<GLindex> GLIndicies;
-    typedef std::vector<GLpoint> GLTextures;
-    typedef std::vector<GLoption> GLOptions;
+    typedef QVector<GLpoint> GLPoints;
+    typedef QVector<GLcolor> GLColors;
+    typedef QVector<GLindex> GLIndicies;
+    typedef QVector<GLpoint> GLTextures;
+    typedef QVector<GLoption> GLOptions;
 
     //data members
     GLPoints m_points;
@@ -135,17 +135,17 @@ protected:
 namespace GL
 {
 
-GLElementData::GLElementData() : m_points(), m_indices(), m_mode(GL_TRIANGLES)
+inline GLElementData::GLElementData() : m_mode(GL_TRIANGLES)
 {
 
 }
 
-GLElementData::~GLElementData()
+inline GLElementData::~GLElementData()
 {
 
 }
 
-void GLElementData::clear(GLflag flags)
+inline void GLElementData::clear(GLflag flags)
 {
     if (flags & GLElementData::PointArray) {
         m_points.resize(0);
@@ -167,12 +167,12 @@ void GLElementData::clear(GLflag flags)
     }
 }
 
-GLElementData &GLElementData::addPoint(GLfloat x, GLfloat y, GLindex *index)
+inline GLElementData &GLElementData::addPoint(const GLfloat &x, const GLfloat &y, GLindex *index)
 {
     return addPoint(GLpoint(x, y), index);
 }
 
-GLElementData &GLElementData::addPoint(const GLpoint &point, GLindex *index)
+inline GLElementData &GLElementData::addPoint(const GLpoint &point, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
@@ -183,7 +183,7 @@ GLElementData &GLElementData::addPoint(const GLpoint &point, GLindex *index)
 }
 
 template <int N>
-GLElementData &GLElementData::addShape(const GLpointdata<N> &points, GLindex *index)
+inline GLElementData &GLElementData::addShape(const GLpointdata<N> &points, GLindex *index)
 {
     for (int i = 0; i < N; ++i) {
         addPoint(points.p[i], ((i == 0) ? index : 0));
@@ -191,7 +191,7 @@ GLElementData &GLElementData::addShape(const GLpointdata<N> &points, GLindex *in
     return (*this);
 }
 
-GLElementData &GLElementData::addColor(const GLcolor &color, GLindex *index)
+inline GLElementData &GLElementData::addColor(const GLcolor &color, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
@@ -202,7 +202,7 @@ GLElementData &GLElementData::addColor(const GLcolor &color, GLindex *index)
 }
 
 template <int N>
-GLElementData &GLElementData::addColor(const GLcolordata<N> &colors, GLindex *index)
+inline GLElementData &GLElementData::addColor(const GLcolordata<N> &colors, GLindex *index)
 {
     for (int i = 0; i < N; ++i) {
         addColor(colors.c[i], ((i == 0) ? index : 0));
@@ -249,7 +249,7 @@ inline GLElementData &GLElementData::addOption(const GLoptiondata<N> &options, G
 }
 
 template <int N>
-GLElementData &GLElementData::connect(GLindex *index)
+inline GLElementData &GLElementData::connect(GLindex *index)
 {
     const GLPoints::size_type size = (m_points.size() - 1);
     GLindex tail = static_cast<GLindex>(size);
@@ -279,7 +279,7 @@ inline GLElementData &GLElementData::connect(const GLindexdata<N> &indicies, GLi
 }
 
 template <int N>
-void GLElementData::deconnect(GLindex index)
+inline void GLElementData::deconnect(const GLindex &index)
 {
     // get tail
     GLindex tail = static_cast<GLindex>(m_indices.size() - N);
@@ -293,28 +293,28 @@ void GLElementData::deconnect(GLindex index)
 
 // data modifiers
 template <int N>
-inline void GLElementData::setShape(const GLindex index, const GLpointdata<N> &shape)
+inline void GLElementData::setShape(const GLindex &index, const GLpointdata<N> &shape)
 {
     GLpointdata<N> *data = reinterpret_cast<GLpointdata<N> *>(&m_points[index]);
     (*data) = shape;
 }
 
 template <int N>
-inline void GLElementData::setColor(const GLindex index, const GLcolordata<N> &colors)
+inline void GLElementData::setColor(const GLindex &index, const GLcolordata<N> &colors)
 {
     GLcolordata<N> *data = reinterpret_cast<GLcolordata<N> *>(&m_colors[index]);
     (*data) = colors;
 }
 
 template <int N>
-inline void GLElementData::setTexture(const GLindex index, const GLpointdata<N> &texture)
+inline void GLElementData::setTexture(const GLindex &index, const GLpointdata<N> &texture)
 {
     GLpointdata<N> *data = reinterpret_cast<GLpointdata<N> *>(&m_textures[index]);
     (*data) = texture;
 }
 
 template <int N>
-inline void GLElementData::setOption(const GLindex index, const GLoptiondata<N> &options)
+inline void GLElementData::setOption(const GLindex &index, const GLoptiondata<N> &options)
 {
     GLoptiondata<N> *data = reinterpret_cast<GLoptiondata<N> *>(&m_options[index]);
     (*data) = options;
@@ -322,55 +322,50 @@ inline void GLElementData::setOption(const GLindex index, const GLoptiondata<N> 
 
 // data access
 template <int N>
-inline const GLcolordata<N> GLElementData::getColor(const GLindex index)
+inline const GLcolordata<N> GLElementData::getColor(const GLindex &index)
 {
     return *(reinterpret_cast<GLcolordata<N> *>(&m_colors[index]));
 }
 
 template <int N>
-inline const GLoptiondata<N> GLElementData::getOption(const GLindex index)
+inline const GLoptiondata<N> GLElementData::getOption(const GLindex &index)
 {
     return *(reinterpret_cast<GLoptiondata<N> *>(&m_options[index]));
 }
 
 // state modifiers
-GLElementData &GLElementData::setMode(GLenum mode)
+inline GLElementData &GLElementData::setMode(const GLenum &mode)
 {
     m_mode = mode;
     return (*this);
 }
 
-const GLarray<GLpoint> GLElementData::vertices() const
+inline const GLarray<GLpoint> GLElementData::vertices() const
 {
-    return GLarray<GLpoint>(static_cast<GLindex>(m_points.size()),
-                            static_cast<const GLpoint *>(m_points.data()));
+    return GLarray<GLpoint>(static_cast<GLindex>(m_points.size()), m_points.constData() );
 }
 
-const GLarray<GLcolor> GLElementData::colors() const
+inline const GLarray<GLcolor> GLElementData::colors() const
 {
-    return GLarray<GLcolor>(static_cast<GLindex>(m_colors.size()),
-                            static_cast<const GLcolor *>(m_colors.data()));
+    return GLarray<GLcolor>(static_cast<GLindex>(m_colors.size()), m_colors.constData() );
 }
 
-const GLarray<GLindex> GLElementData::indices() const
+inline const GLarray<GLindex> GLElementData::indices() const
 {
-    return GLarray<GLindex>(static_cast<GLindex>(m_indices.size()),
-                            static_cast<const GLindex *>(m_indices.data()));
+    return GLarray<GLindex>(static_cast<GLindex>(m_indices.size()), m_indices.constData() );
 }
 
-const GLarray<GLpoint> GLElementData::textures() const
+inline const GLarray<GLpoint> GLElementData::textures() const
 {
-    return GLarray<GLpoint>(static_cast<GLindex>(m_textures.size()),
-                            static_cast<const GLpoint *>(m_textures.data()));
+    return GLarray<GLpoint>(static_cast<GLindex>(m_textures.size()), m_textures.constData() );
 }
 
-const GLarray<GLoption> GLElementData::options() const
+inline const GLarray<GLoption> GLElementData::options() const
 {
-    return GLarray<GLoption>(static_cast<GLindex>(m_options.size()),
-                             static_cast<const GLoption *>(m_options.data()));
+    return GLarray<GLoption>(static_cast<GLindex>(m_options.size()), m_options.constData() );
 }
 
-GLenum GLElementData::mode() const
+inline const GLenum &GLElementData::mode() const
 {
     return m_mode;
 }

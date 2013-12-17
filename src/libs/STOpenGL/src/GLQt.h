@@ -32,6 +32,7 @@
 // and (our) GL specific objects.
 namespace GL
 {
+
 // GLpoint
 inline const GLpoint toGLpoint(qreal x, qreal y);
 inline const GLpoint toGLpoint(const QPoint& point);
@@ -141,6 +142,7 @@ const GLcolor toGLcolor(const QColor& color)
     const GLfloat alpha = static_cast<GLfloat>(color.alphaF());
     return GLcolor(red, green, blue, alpha);
 }
+
 const QColor toQColor(const GLcolor& color)
 {
     return QColor::fromRgbF(

@@ -24,7 +24,6 @@ public:
 
     inline GLInplaceArray();
     inline virtual ~GLInplaceArray();
-    inline explicit GLInplaceArray(GL::Initialization);
 
     inline GLsizei size() const;
     inline GLsizei capacity() const;
@@ -64,13 +63,6 @@ inline GLInplaceArray<T, S>::GLInplaceArray()
 
 template <typename T, int S>
 inline GLInplaceArray<T, S>::~GLInplaceArray()
-{
-
-}
-
-template <typename T, int S>
-inline GLInplaceArray<T, S>::GLInplaceArray(GL::Initialization)
-    : m_size(0)
 {
 
 }

@@ -31,25 +31,13 @@ public:
     virtual ~GLscope();
 
     //NOTE should not be able to change enable value mid scope, hence read only!
-    inline bool enable() const;
+    inline bool enable() const { return m_enable;  };
 
 private:
     GLenum m_cap;
     GLflag m_modes;
     bool m_enable;
 };
-
-} // namespace GL //
-
-/****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
-
-bool GLscope::enable() const
-{
-    return m_enable;
-}
 
 } // namespace GL //
 

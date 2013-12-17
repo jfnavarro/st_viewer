@@ -19,7 +19,8 @@
 
 #include "MiniMapGL.h"
 
-const QRectF MiniMapGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f,
+const QRectF MiniMapGL::DEFAULT_BOUNDS =
+        QRectF(0.0f, 0.0f,
         Globals::minimap_height,
         Globals::minimap_width);
 
@@ -50,7 +51,9 @@ void MiniMapGL::setScene(const QRectF& scene)
         return;
     }
     
-    QRectF scaled = QRectF(m_bounds.topLeft(), scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
+    QRectF scaled = QRectF(m_bounds.topLeft(),
+                           scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
+
     if (m_scene != scaled) {
         m_scene = scaled;
         updateTransform(scene);
@@ -64,6 +67,7 @@ void MiniMapGL::setView(const QRectF& view)
     if (!view.isValid()) {
         return;
     }
+
     const QRectF transformedView = m_transform.mapRect(view);
     if (m_view != transformedView) {
         m_view = transformedView;
@@ -97,7 +101,7 @@ void MiniMapGL::render(QPainter* painter)
         glPushMatrix();
         GL::GLscope glBlendScope(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderer.render(m_data,m_queue);
+        renderer.render(m_data, m_queue);
         glPopMatrix();
     }
     painter->endNativePainting();
@@ -169,16 +173,21 @@ void MiniMapGL::rebuildMinimapData()
 
 void MiniMapGL::generateMinimapData()
 {
-    const GL::GLflag flags = GL::GLElementShapeFactory::AutoAddColor | GL::GLElementShapeFactory::AutoAddConnection;
+    const GL::GLflag flags =
+            GL::GLElementShapeFactory::AutoAddColor |
+            GL::GLElementShapeFactory::AutoAddConnection;
+
     GL::GLElementRectangleFactory factory(m_data, flags);
 
     // draw scene rectangle
     if (m_scene.isValid()) {
+
         const GL::GLpoint stl = GL::toGLpoint(m_scene.topLeft());
         const GL::GLpoint str = GL::toGLpoint(m_scene.topRight());
         const GL::GLpoint sbr = GL::toGLpoint(m_scene.bottomRight());
         const GL::GLpoint sbl = GL::toGLpoint(m_scene.bottomLeft());
         const GL::GLcolor sceneColor = GL::toGLcolor(m_sceneColor);
+
         factory.setColor(0.2f * sceneColor);
         factory.addShape(GL::GLrectangle::fromCorners(stl, sbr));
         factory.setColor(0.8f * sceneColor);
@@ -190,6 +199,7 @@ void MiniMapGL::generateMinimapData()
 
     // draw view rectangle
     if (m_view.isValid()) {
+
         const GL::GLpoint vtl = GL::toGLpoint(m_view.topLeft());
         const GL::GLpoint vtr = GL::toGLpoint(m_view.topRight());
         const GL::GLpoint vbr = GL::toGLpoint(m_view.bottomRight());
@@ -202,6 +212,7 @@ void MiniMapGL::generateMinimapData()
         factory.addShape(GL::GLrectangle::fromLine(vtr, vbr, 1.0f));
         factory.addShape(GL::GLrectangle::fromLine(vbr, vbl, 1.0f));
         factory.addShape(GL::GLrectangle::fromLine(vbl, vtl, 1.0f));
+
     }
 
     // generate element data render command

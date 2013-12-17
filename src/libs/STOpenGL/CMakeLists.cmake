@@ -9,20 +9,22 @@ set(SRC_${LIB}
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/compression/GLBitColor.h
 
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementData.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementDataGene.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementDataGene.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementDataGene.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementRender.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementRender.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementShapeFactory.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementShapeFactory.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTexture.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureCutter.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureCutter.h
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureData.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureData.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureData.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureRender.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureRender.h
 
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLHeatMap.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLHeatMap.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLImage.cpp
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLImage.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLImageWriter.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/image/GLImageWriter.h

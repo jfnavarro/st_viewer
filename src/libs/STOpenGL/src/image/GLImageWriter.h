@@ -28,8 +28,8 @@ public:
         VerticalGradient
     };
 
-    inline explicit GLimagewriter(GLimage &image);
-    inline virtual ~GLimagewriter();
+    explicit GLimagewriter(GLimage &image);
+    virtual ~GLimagewriter();
 
     bool writePixel(const GLcolor &color);
     bool writeLine(const GLcolor &color);
@@ -42,8 +42,8 @@ public:
                                  const GradientAngle gradient = GLimagewriter::VerticalGradient);
 
     // convenience functions for generating prefilled images
-    static inline bool imageFillColor(GLimage &image, const GLcolor &color);
-    static inline bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
+    static bool imageFillColor(GLimage &image, const GLcolor &color);
+    static bool imageFillGradient(GLimage &image, const GLcolor &color0, const GLcolor &color1,
             const GradientAngle gradient = GLimagewriter::VerticalGradient);
 
 private:
@@ -54,41 +54,5 @@ private:
 };
 
 } // namespace //
-
-/****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
-
-inline GLimagewriter::GLimagewriter(GLimage &image)
-    : m_image(image), m_index(0), m_indexEnd(0)
-{
-    // assume specific mode and type
-    //TODO implement mode and type independet image writing
-    Q_ASSERT_X(image.mode() == GL_RGBA && image.type() == GL_FLOAT,
-               "GLimagewriter", "Unsupported image mode or type!");
-    // cache buffer size
-    m_indexEnd = m_image.size();
-}
-
-inline GLimagewriter::~GLimagewriter()
-{
-
-}
-
-inline bool GLimagewriter::imageFillColor(GLimage &image, const GLcolor &color)
-{
-    GLimagewriter writer(image);
-    return writer.writeFillColor(color);
-}
-
-inline bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0,
-        const GLcolor &color1, const GradientAngle gradient)
-{
-    GLimagewriter writer(image);
-    return writer.writeFillGradient(color0, color1, gradient);
-}
-
-} // namespace GL //
 
 #endif // GLIMAGEWRITER_H //

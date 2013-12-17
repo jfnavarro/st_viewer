@@ -5,6 +5,7 @@
 
 */
 #include "HeatMapColor.h"
+
 #include "GLCommon.h"
 #include "math/GLFloat.h"
 #include "image/GLHeatMap.h"

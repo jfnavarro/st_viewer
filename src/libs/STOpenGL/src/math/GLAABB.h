@@ -114,7 +114,7 @@ inline const GLrectangle GLaabb::toRectangle(const GLaabb &b)
     return GLrectangle(b.x + hW, b.y + hH, b.width, b.height);
 }
 
-inline const GLaabb GLaabb::split(SplitHalf split) const
+const GLaabb GLaabb::split(SplitHalf split) const
 {
     const GLfloat fW = width;
     const GLfloat hW = 0.5f * width;
@@ -129,7 +129,7 @@ inline const GLaabb GLaabb::split(SplitHalf split) const
     return GLaabb();
 }
 
-inline const GLaabb GLaabb::split(SplitQuad split) const
+const GLaabb GLaabb::split(SplitQuad split) const
 {
     const GLfloat hW = 0.5f * width;
     const GLfloat hH = 0.5f * height;
@@ -162,7 +162,7 @@ inline const GLpoint GLaabb::size() const
     return GLpoint(width, height);
 }
 
-inline bool GLaabb::contains(const GLpoint &p) const
+bool GLaabb::contains(const GLpoint &p) const
 {
     typedef range<GLfloat, comp_op_ge<GLfloat>, comp_op_le<GLfloat> > range_t;
     return (range_t::compare(p.x, x, x + width) && range_t::compare(p.y, y, y + height));
@@ -185,7 +185,7 @@ inline bool GLaabb::intersects(const GLaabb &o) const
            );
 }
 
-inline const GLaabb GLaabb::cut(const GLaabb &o) const
+const GLaabb GLaabb::cut(const GLaabb &o) const
 {
     if (intersects(o)) {
         const GLpoint p0 = GL::max(position(), o.position());
@@ -196,7 +196,7 @@ inline const GLaabb GLaabb::cut(const GLaabb &o) const
     }
 }
 
-inline const GLaabb GLaabb::join(const GLaabb &o) const
+const GLaabb GLaabb::join(const GLaabb &o) const
 {
     const GLpoint p0 = GL::min(position(), o.position());
     const GLpoint p1 = GL::max(end(), o.end());
@@ -211,6 +211,7 @@ inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
            && fuzzyEqual(b0.height, b1.height, e);
 
 }
+
 inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
 {
     return fuzzyNotEqual(b0.x, b1.x, e)

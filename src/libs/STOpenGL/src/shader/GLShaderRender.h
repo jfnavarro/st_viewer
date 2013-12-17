@@ -21,45 +21,17 @@ class GLShaderRender
     
 public:
     
-    inline GLShaderRender();
-    inline virtual ~GLShaderRender();
+    GLShaderRender();
+    virtual ~GLShaderRender();
 
-    inline void clear();
-    inline void shader(QGLShaderProgram *program);
+    void clear();
+    void shader(QGLShaderProgram *program);
     void render(const GLElementDataGene& renderData);
 
 private:
 
     QGLShaderProgram *m_program;
 };
-
-} // namespace GL //
-
-/****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
-
-inline GLShaderRender::GLShaderRender()
-    : m_program(0)
-{
-
-}
-
-inline GLShaderRender::~GLShaderRender()
-{
-
-}
-
-inline void GLShaderRender::clear() 
-{ 
-
-}
-
-inline void GLShaderRender::shader(QGLShaderProgram *program)
-{
-    m_program = program;
-}
 
 } // namespace GL //
 

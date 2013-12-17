@@ -52,6 +52,9 @@ private:
 
     static const QRectF DEFAULT_BOUNDS;
 
+    void rebuildMinimapData();
+    void generateMinimapData();
+
     void updateTransform(const QRectF& scene);
     const QPointF mapToScene(const QPointF& point) const;
 
@@ -70,8 +73,6 @@ private:
     GL::GLElementData m_data;
     GL::GLElementRenderQueue m_queue;
 
-    void rebuildMinimapData();
-    void generateMinimapData();
 };
 
 #endif // MINIMAPGL_H //

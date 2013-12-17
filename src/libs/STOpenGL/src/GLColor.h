@@ -46,8 +46,8 @@ inline GLubyte blue(const GLrgb argb);
 
 // opengl compliant normalized colors [0.0, 1.0] (float)
 struct GLcolor {
+
     inline GLcolor();
-    inline explicit GLcolor(GL::Initialization);
     explicit GLcolor(GL::GlobalColor color);
     inline GLcolor(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha = 0xFFu);
     inline GLcolor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha = 1.0f);
@@ -76,7 +76,6 @@ struct GLcolordata {
     static const GLuint COLORS = N;
 
     inline GLcolordata();
-    inline explicit GLcolordata(GL::Initialization);
     inline explicit GLcolordata(const GLcolor &color);
     inline void setColor(const GLcolor &color, const GLindex index);
     inline void setColors(const GLcolor &color);
@@ -119,8 +118,11 @@ inline GLubyte blue(const GLrgb argb)
 }
 
 // normalized colors
-inline GLcolor::GLcolor() : red(1.0f), green(1.0f), blue(1.0f), alpha(1.0f) { }
-inline GLcolor::GLcolor(GL::Initialization) { }
+inline GLcolor::GLcolor() : red(1.0f), green(1.0f), blue(1.0f), alpha(1.0f)
+{
+
+}
+
 inline GLcolor::GLcolor(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
     : red((GLfloat) red / (GLfloat) 0xFFu),
       green((GLfloat) green / (GLfloat) 0xFFu),
@@ -205,8 +207,6 @@ inline GLcolordata<N>::GLcolordata()
     setColors(GLcolor());
 }
 
-template <int N>
-inline GLcolordata<N>::GLcolordata(GL::Initialization) { }
 template <int N>
 inline GLcolordata<N>::GLcolordata(const GLcolor &color)
 {

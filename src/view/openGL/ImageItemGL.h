@@ -53,15 +53,14 @@ public slots:
 
 private:
 
+    void rebuildTextureData();
+    void generateTextureData();
     void setBoundingRect(const QRectF& rect);
 
     // OpenGL image: only width, height and bits are valid functions.
     QImage m_image;
     mutable QRectF m_rect;
     GL::GLTextureData m_texture;
-
-    void rebuildTextureData();
-    void generateTextureData();
 };
 
 #endif // IMAGEITEMGL_H

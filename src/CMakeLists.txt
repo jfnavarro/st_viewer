@@ -347,7 +347,6 @@ use_qt5lib(Qt5OpenGL)
 
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
-    message(STATUS "OpenGL Correctly Found")
     include_directories(${OPENGL_INCLUDE_DIR})
     mark_as_advanced(${OPENGL_LIBRARY})
 else(OPENGL_FOUND)

@@ -5,19 +5,26 @@
 
 */
 
+#include "ImageItemGL.h"
+
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
 #include <QStyleOption>
 #include <QImageReader>
+#include <QImage>
 
-#include <GLQt.h>
-#include <GLScope.h>
-#include <math/GLMatrix.h>
-#include <data/GLTextureRender.h>
-#include <data/GLTextureCutter.h>
+#include "GLQt.h"
+#include "GLScope.h"
+#include "math/GLMatrix.h"
+#include "data/GLTextureRender.h"
+#include "data/GLTextureCutter.h"
 
-#include "ImageItemGL.h"
+static GLint maxTextureSize() {
+    GLint texSize;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
+    return texSize;
+}
 
 ImageItemGL::ImageItemGL(QGraphicsItem* parent)
     : QGraphicsObject(parent), m_image(), m_rect(0.0f, 0.0f, 0.0f, 0.0f)
@@ -61,10 +68,36 @@ void ImageItemGL::rebuildTextureData()
 
 void ImageItemGL::generateTextureData()
 {
-    GL::GLTextureCutter cutter; // default size
-    // cut image into smaller textures
-    const QImage image = m_image;
-    cutter.cut(image.width(), image.height(), image.bits(), m_texture);
+    const int maxSize = static_cast<int>(maxTextureSize());
+    if (m_image.width() > maxSize || m_image.height() > maxSize) {
+
+        GL::GLTextureCutter cutter; // default size
+        // cut image into smaller textures
+        cutter.cut(m_image.width(), m_image.height(), m_image.bits(), m_texture);
+    }
+    else {
+        // get dimensions
+        const GLint width = m_image.width();
+        const GLint height = m_image.height();
+        const GLint x = 0;
+        const GLint y = 0;
+
+        // create texture
+        QOpenGLTexture *texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        texture->setMinificationFilter(QOpenGLTexture::Linear);
+        texture->setMagnificationFilter(QOpenGLTexture::Linear);
+        texture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
+        texture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
+        texture->setData(m_image); //this adds format and size
+
+        m_texture.addTexture(texture);
+        // need to create the 4 vertex for the texture (we draw textures as GL_QUADS
+        // TODO this could be done automatically in addTexture
+        m_texture.addVertex( x, y + height);
+        m_texture.addVertex( x, y );
+        m_texture.addVertex( x + width, y );
+        m_texture.addVertex( x + width, y + height );
+    }
 }
 
 void ImageItemGL::setImage(const QImage& image)
@@ -84,11 +117,11 @@ QRectF ImageItemGL::boundingRect() const
     }
     return m_rect;
 }
+
 QPainterPath ImageItemGL::shape() const
 {
     QPainterPath path;
     path.addRect(boundingRect());
-
     return path;
 }
 
@@ -107,6 +140,7 @@ void ImageItemGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* optio
         qDebug() << "ImageItemGL: drawBackground needs a QGLWidget to be set as viewport on the graphics view";
         return;
     }
+
     GL::GLTextureRender renderer;
     painter->beginNativePainting();
     {

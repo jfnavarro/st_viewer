@@ -24,12 +24,12 @@ typedef GLubyte GLcolorRGB8b;
 typedef GLushort GLcolorRGB16b;
 
 // compress color to a standard [3,3,2] bit allocation of RGB color space (alpha excluded)
-inline GLcolorRGB8b compressToRGB8Bit(const GLcolor &color);
+GLcolorRGB8b compressToRGB8Bit(const GLcolor &color);
 // compress color to a standard [5,6,5] bit allocation of RGB color space (alpha excluded)
-inline GLcolorRGB16b compressToRGB16Bit(const GLcolor &color);
+ GLcolorRGB16b compressToRGB16Bit(const GLcolor &color);
 
-inline const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color);
-inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color);
+const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color);
+const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color);
 
 } // namespace GL //
 
@@ -38,7 +38,7 @@ inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color);
 namespace GL
 {
 
-inline GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
+GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
 {
     return
         ((GLubyte(color.red * 7.0f + 0.5f) & 0x07u) << 5) |
@@ -47,7 +47,7 @@ inline GLcolorRGB8b compressToRGB8Bit(const GLcolor &color)
 
 }
 
-inline GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
+GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
 {
     return
         ((GLushort(color.red * 31.0f + 0.5f) & 0x001Fu) << 11) |
@@ -56,7 +56,7 @@ inline GLcolorRGB16b compressToRGB16Bit(const GLcolor &color)
 
 }
 
-inline const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color)
+const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color)
 {
     const GLfloat c_inv_7 = (1.0f / 7.0f);
     const GLfloat c_inv_3 = (1.0f / 3.0f);
@@ -67,7 +67,7 @@ inline const GLcolor decompressFromRGB8Bit(const GLcolorRGB8b &color)
            );
 }
 
-inline const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color)
+const GLcolor decompressFromRGB16Bit(const GLcolorRGB16b &color)
 {
     const GLfloat c_inv_63 = (1.0f / 63.0f);
     const GLfloat c_inv_31 = (1.0f / 31.0f);

@@ -20,14 +20,13 @@
 #include <image/GLHeatMap.h>
 #include <image/GLImageWriter.h>
 
-const QRectF HeatMapLegendGL::DEFAULT_BOUNDS = QRectF(0.0f, 0.0f,
+const QRectF HeatMapLegendGL::DEFAULT_BOUNDS =
+        QRectF(0.0f, 0.0f,
         Globals::heatmap_bar_width * 2,
         Globals::heatmap_height);
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : ViewItemGL(parent), m_bounds(DEFAULT_BOUNDS), m_rect(),
-      m_hitCountMin(0), m_hitCountMax(1), m_hitCountSum(1), m_lowerLimit(0), m_upperLimit(0),
-      m_lower_threshold(0.0), m_upper_threshold(0.0)
+    : ViewItemGL(parent), m_bounds(DEFAULT_BOUNDS), m_rect(), m_texture(0)
 {
     generateHeatMapText();
     generateHeatMapData();
@@ -95,6 +94,7 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
         
         rebuildHeatMapText();
         rebuildHeatMapData();
+        rebuildHeatMapStaticData();
     }
 }
 
@@ -132,6 +132,7 @@ void HeatMapLegendGL::generateHeatMapData()
         GL::GLElementShapeFactory::AutoAddColor |
         GL::GLElementShapeFactory::AutoAddTexture |
         GL::GLElementShapeFactory::AutoAddConnection;
+
     GL::GLElementRectangleFactory factory(m_data, flags);
 
     // rebuild heatmap rectangle
@@ -215,7 +216,8 @@ void HeatMapLegendGL::rebuildHeatMapStaticData()
 {
     //clear image and texture to regerate them
     m_image.deleteImage();
-    m_texture.deleteHandle();
+    m_texture->release();
+    m_texture->destroy();
     generateStaticHeatMapData();
 }
 
@@ -224,12 +226,21 @@ void HeatMapLegendGL::generateStaticHeatMapData()
     // generate image
     m_image = GL::GLimage(1, Globals::heatmap_height, GL_RGBA, GL_FLOAT);
     m_image.createImage();
-    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp, m_hitCountMin, m_hitCountMax);
-    // load texture
-    m_texture.createHandle();
-    // set parameters
-    m_texture.setInterpolation(GL::FullLinear);
-    m_texture.setWrap(GL::FullWrap);
-    // load data
-    m_texture.loadImage(m_image);
+    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp,
+                                      m_hitCountMin, m_hitCountMax);
+
+    // texture
+    m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    m_texture->setSize(m_image.width(), m_image.height());
+    m_texture->setMinificationFilter(QOpenGLTexture::Linear);
+    m_texture->setMagnificationFilter(QOpenGLTexture::Linear);
+    m_texture->setWrapMode(QOpenGLTexture::CoordinateDirection::DirectionS,
+                          QOpenGLTexture::WrapMode::ClampToBorder);
+    m_texture->setWrapMode(QOpenGLTexture::CoordinateDirection::DirectionT,
+                           QOpenGLTexture::WrapMode::ClampToBorder);
+    m_texture->setFormat(QOpenGLTexture::RGB32F);
+    m_texture->allocateStorage();
+    m_texture->create();
+    m_texture->bind();
+    m_texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::Float32, m_image.pixels());
 }

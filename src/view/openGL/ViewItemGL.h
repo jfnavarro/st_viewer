@@ -24,7 +24,17 @@ class ViewItemGL : public QObject
 
 public:
 
-    enum Anchor {Center, North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest};
+    enum Anchor {
+        Center,
+        North,
+        NorthEast,
+        East,
+        SouthEast,
+        South,
+        SouthWest,
+        West,
+        NorthWest
+    };
 
     explicit ViewItemGL(QObject* parent = 0);
     virtual ~ViewItemGL();
@@ -42,10 +52,13 @@ public slots:
 
     Anchor anchor() const;
     void setAnchor(Anchor anchor);
+
     const QTransform transform() const;
     void setTransform(const QTransform& transform);
+
     int zValue() const;
     void setZValue(int z);
+
     bool visible() const;
     void setVisible(bool visible);
 

@@ -82,12 +82,10 @@ void CellViewPage::onInit()
     ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
     ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
     ui->exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
-    
-    //some optimization flags
-#if QT_VERSION >= 0x050200
+
     //gene search displays a clear button
     ui->lineEdit->setClearButtonEnabled(true);
-#endif
+
     //mouse tracking could cause problems on OSX
 #if defined Q_OS_MAC
     ui->lineEdit->setMouseTracking(true);

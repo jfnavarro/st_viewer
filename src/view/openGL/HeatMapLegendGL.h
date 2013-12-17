@@ -8,12 +8,12 @@
 #ifndef HEATMAPLEGEND_H
 #define HEATMAPLEGEND_H
 
+#include "ViewItemGL.h"
+
 #include "data/GLElementData.h"
 #include "data/GLElementRender.h"
-#include "data/GLTexture.h"
 #include "image/GLImage.h"
-
-#include "ViewItemGL.h"
+#include <QOpenGLTexture>
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
 // in order to give a reference point in determining each features hit count.
@@ -43,6 +43,14 @@ private:
 
     static const QRectF DEFAULT_BOUNDS;
 
+    //rendering functions
+    void rebuildHeatMapData();
+    void generateHeatMapData();
+    void rebuildHeatMapText();
+    void generateHeatMapText();
+    void rebuildHeatMapStaticData();
+    void generateStaticHeatMapData();
+
     QRectF m_bounds;
     QRectF m_rect;
 
@@ -59,16 +67,9 @@ private:
     GL::GLElementData m_data;
     GL::GLElementRenderQueue m_queue;
     GL::GLimage m_image;
-    GL::GLtexture m_texture;
+    QOpenGLTexture *m_texture;
     QPainterPath m_text;
 
-    //rendering functions
-    void rebuildHeatMapData();
-    void generateHeatMapData();
-    void rebuildHeatMapText();
-    void generateHeatMapText();
-    void rebuildHeatMapStaticData();
-    void generateStaticHeatMapData();
 };
 
 #endif // HEATMAPLEGEND_H //

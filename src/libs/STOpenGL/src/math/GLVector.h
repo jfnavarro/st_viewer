@@ -23,7 +23,6 @@ struct GLvector {
 
     inline GLvector();
     inline virtual ~GLvector();
-    inline explicit GLvector(GL::Initialization);
     inline GLvector(const GLfloat x, const GLfloat y);
 
     static inline const GLvector fromPoints(const GLpoint& from, const GLpoint& to);
@@ -83,42 +82,37 @@ inline const GLvector rotate(const GLvector& v);
 namespace GL
 {
 
-GLvector::GLvector() : x(0.0f), y(0.0f)
+inline GLvector::GLvector() : x(0.0f), y(0.0f)
 {
 
 }
 
-GLvector::GLvector(GL::Initialization)
+inline GLvector::GLvector(const GLfloat x, const GLfloat y) : x(x), y(y)
 {
 
 }
 
-GLvector::GLvector(const GLfloat x, const GLfloat y) : x(x), y(y)
+inline GLvector::~GLvector()
 {
 
 }
 
-GLvector::~GLvector()
-{
-
-}
-
-const GLvector GLvector::fromPoints(const GLpoint& from, const GLpoint& to)
+inline const GLvector GLvector::fromPoints(const GLpoint& from, const GLpoint& to)
 {
     return GLvector(to.x - from.x, to.y - from.y);
 }
 
-GLfloat GLvector::length() const
+inline GLfloat GLvector::length() const
 {
     return qSqrt(x * x + y * y);
 }
 
-GLfloat GLvector::length2() const
+inline GLfloat GLvector::length2() const
 {
     return (x * x + y * y);
 }
 
-GLvector GLvector::normalize() const
+inline GLvector GLvector::normalize() const
 {
     const GLfloat len = length();
     return (fuzzyEqual(len, 0.0f)) ? GLvector() : GLvector(x / len, y / len);
@@ -136,66 +130,67 @@ inline GLuint GLvector::quadrant() const
     return table[idx];
 }
 
-bool fuzzyEqual(const GLvector& v0, const GLvector& v1, const GLfloat e)
+inline bool fuzzyEqual(const GLvector& v0, const GLvector& v1, const GLfloat e)
 {
     return fuzzyEqual(v0.x, v1.x, e) && fuzzyEqual(v0.y, v1.y, e);
 }
 
-bool fuzzyNotEqual(const GLvector& v0, const GLvector& v1, const GLfloat e)
+inline bool fuzzyNotEqual(const GLvector& v0, const GLvector& v1, const GLfloat e)
 {
     return fuzzyNotEqual(v0.x, v1.x, e) || fuzzyNotEqual(v0.y, v1.y, e);
 }
 
-bool operator ==(const GLvector& v0, const GLvector& v1)
+inline bool operator ==(const GLvector& v0, const GLvector& v1)
 {
     return v0.x == v1.x && v0.y == v1.y;
 }
 
-bool operator !=(const GLvector& v0, const GLvector& v1)
+inline bool operator !=(const GLvector& v0, const GLvector& v1)
 {
     return v0.x != v1.x || v0.y != v1.y;
 }
 
-const GLvector operator +(const GLvector& v)
+inline const GLvector operator +(const GLvector& v)
 {
     return v;
 }
-const GLvector operator -(const GLvector& v)
+
+inline const GLvector operator -(const GLvector& v)
 {
     return GLvector(-v.x, -v.y);
 }
 
-const GLvector operator*(const GLfloat s, const GLvector& v)
+inline const GLvector operator*(const GLfloat s, const GLvector& v)
 {
     return GLvector(s * v.x, s * v.y);
 }
 
-const GLvector operator*(const GLvector& v, const GLfloat s)
+inline const GLvector operator*(const GLvector& v, const GLfloat s)
 {
     return GLvector(v.x * s, v.y * s);
 }
 
-const GLvector operator/(const GLvector& v, const GLfloat s)
+inline const GLvector operator/(const GLvector& v, const GLfloat s)
 {
     return GLvector(v.x / s, v.y / s);
 }
 
-const GLvector operator +(const GLvector& v0, const GLvector& v1)
+inline const GLvector operator +(const GLvector& v0, const GLvector& v1)
 {
     return GLvector(v0.x + v1.x, v0.y + v1.y);
 }
 
-const GLvector operator -(const GLvector& v0, const GLvector& v1)
+inline const GLvector operator -(const GLvector& v0, const GLvector& v1)
 {
     return GLvector(v0.x - v1.x, v0.y - v1.y);
 }
 
-const GLpoint operator +(const GLpoint& p, const GLvector& v)
+inline const GLpoint operator +(const GLpoint& p, const GLvector& v)
 {
     return GLpoint(p.x + v.x, p.y + v.y);
 }
 
-const GLpoint operator -(const GLpoint& p, const GLvector& v)
+inline const GLpoint operator -(const GLpoint& p, const GLvector& v)
 {
     return GLpoint(p.x - v.x, p.y - v.y);
 }

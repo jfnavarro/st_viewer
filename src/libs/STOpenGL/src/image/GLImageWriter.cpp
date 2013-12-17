@@ -12,6 +12,35 @@
 namespace GL
 {
 
+GLimagewriter::GLimagewriter(GLimage &image)
+    : m_image(image), m_index(0), m_indexEnd(0)
+{
+    // assume specific mode and type
+    //TODO implement mode and type independet image writing
+    Q_ASSERT_X(image.mode() == GL_RGBA && image.type() == GL_FLOAT,
+               "GLimagewriter", "Unsupported image mode or type!");
+    // cache buffer size
+    m_indexEnd = m_image.size();
+}
+
+GLimagewriter::~GLimagewriter()
+{
+
+}
+
+bool GLimagewriter::imageFillColor(GLimage &image, const GLcolor &color)
+{
+    GLimagewriter writer(image);
+    return writer.writeFillColor(color);
+}
+
+bool GLimagewriter::imageFillGradient(GLimage &image, const GLcolor &color0,
+        const GLcolor &color1, const GradientAngle gradient)
+{
+    GLimagewriter writer(image);
+    return writer.writeFillGradient(color0, color1, gradient);
+}
+
 bool GLimagewriter::writePixel(const GLcolor &color)
 {
     // early out

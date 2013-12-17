@@ -5,38 +5,52 @@
 
 */
 
-#include "GLScope.h"
-
 #include "GLTextureRender.h"
+
+#include "GLScope.h"
+#include "GLCommon.h"
+#include "GLTypeTraits.h"
 
 namespace GL
 {
 
+GLTextureRender::GLTextureRender()
+{
+}
+
+GLTextureRender::~GLTextureRender()
+{
+
+}
+
 void GLTextureRender::render(const GLTextureData& renderData)
 {
     // get references to member variables
-    const GLarray<GLtexture> textures = renderData.textures();
+    const GLarray<QOpenGLTexture*> textures = renderData.textures();
+    const GLarray<GL::GLpoint> vertices = renderData.vertices();
+
+    // texture scope
     GLscope textureScope(GL_TEXTURE_2D);
-    GLint x;
-    GLint y;
-    GLsizei w;
-    GLsizei h;
+
     for (GLsizei i = 0; i < textures.size; ++i) {
-        const GLtexture texture = textures.data[i];
-        x = texture.x;
-        y = texture.y;
-        w = texture.width;
-        h = texture.height;
-        glBindTexture(GL_TEXTURE_2D, texture.handle);
+
+        QOpenGLTexture *texture = textures.data[ i ];
+        texture->bind();
+
+        GL::GLpoint v0 = vertices.data[ i ];
+        GL::GLpoint v1 = vertices.data[ i + 1 ];
+        GL::GLpoint v2 = vertices.data[ i + 2 ];
+        GL::GLpoint v3 = vertices.data[ i + 3 ];
+
         glBegin(GL_QUADS);
-        glTexCoord2i(0, 0);
-        glVertex2i(x + 0, y + h);
-        glTexCoord2i(0, 1);
-        glVertex2i(x + 0, y + 0);
-        glTexCoord2i(1, 1);
-        glVertex2i(x + w, y + 0);
-        glTexCoord2i(1, 0);
-        glVertex2i(x + w, y + h);
+            glTexCoord2i(0, 0);
+            glVertex2i( v0.x , v0.y );
+            glTexCoord2i(0, 1);
+            glVertex2i( v1.x , v1.y );
+            glTexCoord2i(1, 1);
+            glVertex2i( v2.x , v2.y );
+            glTexCoord2i(1, 0);
+            glVertex2i( v3.x , v3.y );
         glEnd();
     }
 }

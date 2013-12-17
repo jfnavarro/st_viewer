@@ -26,41 +26,17 @@ public:
     static const GLsizei DEFAULT_WIDTH = 512;
     static const GLsizei DEFAULT_HEIGHT = 512;
 
-    inline GLTextureCutter();
-    inline virtual ~GLTextureCutter();
+    GLTextureCutter();
+    virtual ~GLTextureCutter();
+    explicit GLTextureCutter(GLsizei width, GLsizei height);
 
-    inline GLTextureCutter(GLsizei width, GLsizei height);
-
-    void cut(GLsizei width, GLsizei height, const GLvoid* pixels, GLTextureData& data);
+    void cut(int width, int height, GLvoid *pixels, GLTextureData& data);
 
 private:
+
     GLsizei m_width;
     GLsizei m_height;
 };
-
-} // namespace GL //
-
-/***************************************************** DEFINITION ****************************************************************************/
-
-namespace GL
-{
-
-GLTextureCutter::GLTextureCutter()
-    : m_width(DEFAULT_WIDTH), m_height(DEFAULT_HEIGHT)
-{
-
-}
-
-GLTextureCutter::~GLTextureCutter()
-{
-
-}
-
-GLTextureCutter::GLTextureCutter(GLsizei width, GLsizei height)
-    : m_width(width), m_height(height)
-{
-
-}
 
 } // namespace GL //
 

@@ -37,11 +37,6 @@ WidgetGL::~WidgetGL()
 void WidgetGL::resizeGL(int width, int height)
 {
     //devicePixelRatio() fix the problem with MAC retina
-#if QT_VERSION >= 0x050200
     qreal pixelRatio = devicePixelRatio();
-    qDebug() << QString("[WidgetGL] devicePixelRatio: %1").arg(pixelRatio);
     QGLWidget::resizeGL(width * pixelRatio, height * pixelRatio);
-#else
-    QGLWidget::resizeGL(width, height);
-#endif
 }

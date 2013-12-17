@@ -12,8 +12,8 @@ uniform int in_hitCountMin;
 uniform int in_hitCountMax;
 uniform int in_hitCountSum;
 uniform float in_intensity;
-uniform int in_upper;
-uniform int in_lower;
+//uniform int in_upper;
+//uniform int in_lower;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -116,8 +116,8 @@ void main(void)
     float value = out_values;
     float references = out_references;
     float features = out_features;
-    float upper_limit = float(in_upper);
-    float lower_limit = float(in_lower);
+    //float upper_limit = float(in_upper);
+    //float lower_limit = float(in_lower);
     
     // calculate distance from center
     vec2 pos = mod(out_texture.xy, vec2(1.0)) - vec2(.5);
@@ -148,7 +148,7 @@ void main(void)
             //error
         }
         
-        //if ( value < lower_limit || value > upper_limit ) {
+        //if ( value < min_value || value > max_value ) {
         //    fragColor.a = 0.0;
         //}
     

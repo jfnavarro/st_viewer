@@ -74,17 +74,20 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
 {
     // get reference to network reply from sender object
     NetworkReply* reply = reinterpret_cast<NetworkReply*>(sender());
+
     // something went wrong (prob no connection)
     if (!reply) {
         //TODO download manager will kill replies that are timed out and/or deleted (NULL)
         qDebug() << "[DataProxy] : Error, a Network reply got lost, probably no connection";
         return;
     }
+
     const unsigned key = qvariant_cast<unsigned>(reply->property("key"));
     qDebug() << "[DataProxy] : restoring manager hash key = " << key;
     Q_ASSERT(m_download_pool.contains(key));
     QPointer<async::DownloadManager> manager = m_download_pool[key];
     Q_ASSERT_X(manager.data(), "DataProxy", "Error, downloadmanager is empty!");
+
     // detect network errors
     if (reply->hasErrors()) {
         Error *error = parseErrors(reply);
@@ -106,9 +109,11 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
             }
         }
     }
+
     //reply has been processed, lets remove from the queue
     manager->delItem(reply);
     reply->deleteLater();
+
     // was it the last reply?
     if (manager->countItems() == 0) {
         manager->finish();
@@ -740,14 +745,17 @@ async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so
         request->return_code(async::DataRequest::CodeError);
         return (request.data());
     }
+
     //create key and add it to request
     QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
     QPointer<async::DownloadManager> manager = QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
+
     unsigned key = qHash(manager.data());
     qDebug() << "[DataProxy] : storing manager hash key = " << key;
     reply->setProperty("key", qVariantFromValue<unsigned>(key));
+
     //connect reply to signal
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
     //add reply to downloadmanager

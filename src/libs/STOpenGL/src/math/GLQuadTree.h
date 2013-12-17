@@ -35,34 +35,34 @@ public:
     typedef QVector<PointItem> PointItemList;
     typedef QVector<GLaabb> BoundingBoxList;
 
-    inline GLQuadTree();
-    inline virtual ~GLQuadTree();
+    GLQuadTree();
+    virtual ~GLQuadTree();
 
-    inline explicit GLQuadTree(const GLpoint &size);
-    inline explicit GLQuadTree(const GLaabb &boundingBox);
+    explicit GLQuadTree(const GLpoint &size);
+    explicit GLQuadTree(const GLaabb &boundingBox);
 
-    inline bool contains(const GLpoint &p) const;
+    bool contains(const GLpoint &p) const;
 
     // insert new data at point p returning true if  data was successfully
     // inserted (no data exists on that point).
-    inline bool insert(const GLpoint &p, const T &t);
+    bool insert(const GLpoint &p, const T &t);
 
     // return a list of all items within the given area
-    inline void select(const GLaabb &b, PointItemList &items) const;
+    void select(const GLaabb &b, PointItemList &items) const;
 
     // return the item at the specified point
-    inline void select(const GLpoint &p, PointItem &item) const;
+    void select(const GLpoint &p, PointItem &item) const;
 
     //clean up
-    inline void clear();
-    inline GLint buckets() const;
-    inline GLint bucketCapacity() const;
-    inline void boundingBoxList(BoundingBoxList &buckets) const;
+    void clear();
+    GLint buckets() const;
+    GLint bucketCapacity() const;
+    void boundingBoxList(BoundingBoxList &buckets) const;
 
 private:
 
-    inline GLint insert_p(const GLpoint &p, const T &t, const GLint idx);
-    inline void smash(const GLint idx);
+    GLint insert_p(const GLpoint &p, const T &t, const GLint idx);
+    void smash(const GLint idx);
 
     // Simple representation of a quad tree bucket.
     struct Bucket {
@@ -72,18 +72,18 @@ private:
         static const GLint LOOKUP_FOUND = GLint(-1);
         static const GLint LOOKUP_NOT_FOUND = GLint(-2);
 
-        inline Bucket();
-        inline virtual ~Bucket();
-        inline Bucket(const GLaabb &aabb);
+        Bucket();
+        virtual ~Bucket();
+        Bucket(const GLaabb &aabb);
         
-        inline bool contains(const GLpoint &p) const;
+        bool contains(const GLpoint &p) const;
         
-        inline GLint insert(const GLpoint &p, const T &t);
-        inline void select(const GLaabb &b, PointItemList &items, GLint(&idx)[4]) const;
-        inline void select(const GLpoint &p, PointItem &item, GLint(&idx)[4]) const;
+        GLint insert(const GLpoint &p, const T &t);
+        void select(const GLaabb &b, PointItemList &items, GLint(&idx)[4]) const;
+        void select(const GLpoint &p, PointItem &item, GLint(&idx)[4]) const;
         
-        inline bool isNode() const;
-        inline bool isLeaf() const;
+        bool isNode() const;
+        bool isLeaf() const;
 
         typedef GLInplaceArray<PointItem, N> StaticPointItemList;
         GLaabb aabb;
@@ -370,7 +370,7 @@ void GLQuadTree<T, N>::smash(const GLint idx)
 // GLQuadTree::Bucket
 template <typename T, int N>
 GLQuadTree<T, N>::Bucket::Bucket()
-    : aabb(), data(GL::Uninitialized)
+    : aabb(), data()
 {
     GLInplaceArray<GLint, 4>::fill(quads, -1);
 }
@@ -383,7 +383,7 @@ GLQuadTree<T, N>::Bucket::~Bucket()
 
 template <typename T, int N>
 GLQuadTree<T, N>::Bucket::Bucket(const GLaabb &aabb)
-    : aabb(aabb), data(GL::Uninitialized)
+    : aabb(aabb), data()
 {
     GLInplaceArray<GLint, 4>::fill(quads, -1);
 }

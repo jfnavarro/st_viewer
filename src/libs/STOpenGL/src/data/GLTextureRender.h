@@ -8,7 +8,6 @@
 #ifndef GLTEXTURERENDER_H
 #define GLTEXTURERENDER_H
 
-#include "GLCommon.h"
 #include "data/GLTextureData.h"
 
 namespace GL
@@ -21,30 +20,14 @@ class GLTextureRender
 {
 public:
 
-    inline GLTextureRender();
-    inline virtual ~GLTextureRender();
+    GLTextureRender();
+    virtual ~GLTextureRender();
 
     void render(const GLTextureData& renderData);
 
 private:
     // state variables
 };
-
-} // namespace GL //
-
-/****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
-
-GLTextureRender::GLTextureRender()
-{
-}
-
-GLTextureRender::~GLTextureRender()
-{
-
-}
 
 } // namespace GL //
 

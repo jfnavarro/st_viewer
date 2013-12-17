@@ -10,8 +10,9 @@
 
 #include <QVector>
 #include <QScopedArrayPointer>
+#include <QOpenGLTexture>
 
-#include "data/GLTexture.h"
+#include "GLCommon.h"
 
 namespace GL
 {
@@ -22,68 +23,30 @@ class GLTextureData
 {
 public:
 
-    inline GLTextureData();
-    inline virtual ~GLTextureData();
+    GLTextureData();
+    virtual ~GLTextureData();
 
-    inline GLTextureData& addTexture(const GLtexture& texture, GLindex* index = 0);
-    inline const GLtexture operator[](GLint i) const;
-    inline const GLarray<GLtexture> textures() const;
-    inline void deallocate();
+    GLTextureData& addTexture(QOpenGLTexture *texture, GLindex* index = 0);
+    QOpenGLTexture* getTexture(const GL::GLindex &i) const;
+    const GLarray<QOpenGLTexture*> textures() const;
+
+    GLTextureData& addVertex(const GLfloat x, const GLfloat y, GLindex* index = 0);
+    GLTextureData& addVertex(const GL::GLpoint &point, GLindex* index = 0);
+    const GL::GLpoint& getVertex(const GL::GLindex &i) const;
+    const GLarray<GL::GLpoint> vertices() const;
+
+    void deallocate();
 
 private:
-    typedef QVector<GLtexture> GLtextures;
+    typedef QVector<QOpenGLTexture*> GLtextures;
+    typedef QVector<GL::GLpoint> GLvertices;
+
     GLtextures m_textures;
+    GLvertices m_vertices;
 };
 
 } // namespace GL //
 
-/****************************************** DEFINITION ******************************************/
 
-namespace GL
-{
-
-inline GLTextureData::GLTextureData()
-{
-
-}
-
-inline GLTextureData::~GLTextureData()
-{
-
-}
-
-inline GLTextureData& GLTextureData::addTexture(const GLtexture& texture, GLindex* index)
-{
-    // return new index if pointer provided
-    if (index != 0) {
-        (*index) = (GLindex) m_textures.size();
-    }
-    m_textures.push_back(texture);
-    return (*this);
-}
-
-inline const GLtexture GLTextureData::operator[](GLint i) const
-{
-    return m_textures[i];
-}
-
-inline const GLarray<GLtexture> GLTextureData::textures() const
-{
-    return GLarray<GLtexture>((GLsizei) m_textures.size(), static_cast<const GLtexture*>(m_textures.data()));
-}
-
-inline void GLTextureData::deallocate()
-{
-    int size = m_textures.size();
-    QScopedArrayPointer<GLtexturehandle> handles(new GLtexturehandle[size]);
-    GLtexturehandle* it = handles.data();
-    foreach(const GLtexture & texture, m_textures) {
-        *(it++) = texture.handle;
-    }
-    GLtexture::deallocateHandles(size, handles.data());
-    m_textures.clear();
-}
-
-} // namespace GL //
 
 #endif // GLTEXTUREDATA_H //

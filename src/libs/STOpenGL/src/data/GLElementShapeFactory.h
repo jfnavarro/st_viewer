@@ -48,7 +48,7 @@ public:
 
     // state modifiers
     virtual void setColor(const GLcolor& color) = 0;
-    //         virtual void setTexture();
+    // virtual void setTexture();
     virtual void setSize(const GLfloat size) = 0;
 
     virtual GLindex size() const = 0;
@@ -67,15 +67,15 @@ public:
     {
     public:
 
-        inline GLFactoryHandle(GLElementRectangleFactory &factory, const GLindex index);
-        inline GLFactoryHandle(const GLFactoryHandle &o);
-        inline virtual ~GLFactoryHandle();
+        GLFactoryHandle(GLElementRectangleFactory &factory, const GLindex index);
+        GLFactoryHandle(const GLFactoryHandle &o);
+        virtual ~GLFactoryHandle();
 
-        inline GLFactoryHandle withColor(const GLcolor &color) const;
-        inline GLFactoryHandle withTexture(const GLrectangletexture &texture) const;
-        inline GLFactoryHandle withOption(const GLoption &option) const;
+        GLFactoryHandle withColor(const GLcolor &color) const;
+        GLFactoryHandle withTexture(const GLrectangletexture &texture) const;
+        GLFactoryHandle withOption(const GLoption &option) const;
 
-        inline GLindex index() const;
+        GLindex index() const;
 
     private:
         GLElementRectangleFactory &m_factory;
@@ -89,13 +89,13 @@ public:
     virtual GLindex connect(const GLindex index);
     virtual void deconnect(const GLindex index);
 
-    inline void setShape(const GLindex index, const GLrectangle &rectangle);
-    inline void setColor(const GLindex index, const GLcolor& color);
-    inline void setTexture(const GLindex index, const GLrectangletexture &texture);
-    inline void setOption(const GLindex index, const GLoption option);
+    void setShape(const GLindex index, const GLrectangle &rectangle);
+    void setColor(const GLindex index, const GLcolor& color);
+    void setTexture(const GLindex index, const GLrectangletexture &texture);
+    void setOption(const GLindex index, const GLoption option);
 
-    inline const GLcolor getColor(const GLindex index) const;
-    inline GLoption getOption(const GLindex index) const;
+    const GLcolor getColor(const GLindex index) const;
+    GLoption getOption(const GLindex index) const;
 
     // rectangle shape factory functions
     GLFactoryHandle addShape(const GLpoint &point);
@@ -110,109 +110,12 @@ public:
 
 private:
 
-    inline GLindex translateInternalIndex(const GLindex internalIndex) const;
-    inline GLindex translateExternalIndex(const GLindex externalIndex) const;
+    GLindex translateInternalIndex(const GLindex internalIndex) const;
+    GLindex translateExternalIndex(const GLindex externalIndex) const;
 
     GLcolor m_color;
     GLpoint m_size;
 };
-
-} // namespace GL //
-
-/****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
-
-// GLElementRectangleFactory
-inline void GLElementRectangleFactory::setShape(const GLindex index, const GLrectangle &rectangle)
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    m_data->setShape(internalIndex, rectangle);
-}
-
-inline void GLElementRectangleFactory::setColor(const GLindex index, const GLcolor &color)
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    m_data->setColor(internalIndex, GLrectanglecolor(color));
-}
-
-inline void GLElementRectangleFactory::setTexture(const GLindex index, const GLrectangletexture &texture)
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    m_data->setTexture(internalIndex, texture);
-}
-
-inline void GLElementRectangleFactory::setOption(const GLindex index, const GLoption option)
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    m_data->setOption(internalIndex, GLrectangleoption(option));
-}
-
-inline const GLcolor GLElementRectangleFactory::getColor(const GLindex index) const
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    return m_data->getColor<GLrectanglecolor::COLORS>(internalIndex).c[0]; // assume colors are reflected over all vertices
-}
-
-inline GLoption GLElementRectangleFactory::getOption(const GLindex index) const
-{
-    const GLindex internalIndex = translateExternalIndex(index);
-    return m_data->getOption<GLrectangleoption::POINTS>(internalIndex).p[0]; // assume options are reflected over all vertices
-}
-
-inline GLindex GLElementRectangleFactory::translateInternalIndex(const GLindex internalIndex) const
-{
-    Q_ASSERT(internalIndex % GLrectangle::POINTS == 0);
-    return internalIndex / GLrectangle::POINTS;
-}
-
-inline GLindex GLElementRectangleFactory::translateExternalIndex(const GLindex externalIndex) const
-{
-    return externalIndex * GLrectangle::POINTS;
-}
-
-// GLElementRectangleFactory::GLFactoryHandle
-inline GLElementRectangleFactory::GLFactoryHandle::GLFactoryHandle(GLElementRectangleFactory &factory,
-                                                                   const GLindex index)
-    : m_factory(factory), m_index(index)
-{
-}
-
-inline GLElementRectangleFactory::GLFactoryHandle::GLFactoryHandle(const GLFactoryHandle &o)
-    : m_factory(o.m_factory), m_index(o.m_index)
-{
-}
-
-inline GLElementRectangleFactory::GLFactoryHandle::~GLFactoryHandle()
-{
-}
-
-inline GLElementRectangleFactory::GLFactoryHandle
-GLElementRectangleFactory::GLFactoryHandle::withColor(const GLcolor &color) const
-{
-    m_factory.setColor(m_index, color);
-    return *(this);
-}
-
-inline GLElementRectangleFactory::GLFactoryHandle
-GLElementRectangleFactory::GLFactoryHandle::withTexture(const GLrectangletexture &texture) const
-{
-    m_factory.setTexture(m_index, texture);
-    return *(this);
-}
-
-inline GLElementRectangleFactory::GLFactoryHandle
-GLElementRectangleFactory::GLFactoryHandle::withOption(const GLoption &option) const
-{
-    m_factory.setOption(m_index, option);
-    return *(this);
-}
-
-inline GLindex GLElementRectangleFactory::GLFactoryHandle::index() const
-{
-    return m_index;
-}
 
 } // namespace GL //
 
