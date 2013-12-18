@@ -13,7 +13,8 @@
 namespace QtExt
 {
 
-const QSizeF clamp(const QSizeF& size, const QSizeF& min, const QSizeF& max, Qt::AspectRatioMode mode)
+const QSizeF clamp(const QSizeF& size, const QSizeF& min,
+                   const QSizeF& max, Qt::AspectRatioMode mode)
 {
     if (mode == Qt::KeepAspectRatioByExpanding) {
         qDebug() <<

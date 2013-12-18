@@ -10,9 +10,21 @@
 #include <QVariant>
 
 Dataset::Dataset()
-    : m_id(""), m_name(""), m_chipId(""), m_alignment(), m_figureBlue(""), m_figureRed(""),
-      m_figureStatus(0), m_statBarcodes(0), m_statGenes(0), m_statUniqueBarcodes(0),
-      m_statUniqueGenes(0), m_statTissue(""), m_statSpecie(""), m_statCreated(""), m_statComments("")
+    : m_id(),
+      m_name(),
+      m_chipId(),
+      m_alignment(),
+      m_figureBlue(),
+      m_figureRed(),
+      m_figureStatus(0),
+      m_statBarcodes(0),
+      m_statGenes(0),
+      m_statUniqueBarcodes(0),
+      m_statUniqueGenes(0),
+      m_statTissue(),
+      m_statSpecie(),
+      m_statCreated(),
+      m_statComments()
 {
 
 }

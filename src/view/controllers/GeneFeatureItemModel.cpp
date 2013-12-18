@@ -17,7 +17,8 @@
 const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
-    : QAbstractTableModel(parent), m_genelist_reference(0)
+    : QAbstractTableModel(parent),
+      m_genelist_reference(0)
 {
 
 }

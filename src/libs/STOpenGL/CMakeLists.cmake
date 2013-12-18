@@ -15,6 +15,8 @@ set(SRC_${LIB}
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementRender.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementShapeFactory.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementShapeFactory.h
+    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementRectangleFactory.cpp
+    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementRectangleFactory.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureCutter.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureCutter.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLTextureData.cpp

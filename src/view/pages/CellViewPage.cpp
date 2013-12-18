@@ -42,9 +42,14 @@
 
 CellViewPage::CellViewPage(QWidget *parent)
     : Page(parent),
-      scene(0), cell_tissue(0), gene_plotter_gl(0),
-      colorDialog_genes(0), colorDialog_grid(0),
-      m_heatmap(0), toolBar(0), m_selection_mode(false)
+      scene(0),
+      cell_tissue(0),
+      gene_plotter_gl(0),
+      colorDialog_genes(0),
+      colorDialog_grid(0),
+      m_heatmap(0),
+      toolBar(0),
+      m_selection_mode(false)
 {
     onInit();
 }
@@ -95,6 +100,7 @@ void CellViewPage::onInit()
     ui->selectAllGenes->setFocusPolicy(Qt::NoFocus);
     ui->selectAllGenes->setMouseTracking(false);
 #endif
+
     // color dialogs
     colorDialog_grid = new QColorDialog(Globals::color_grid); // it should not inherits from this class
     colorDialog_grid->setOption(QColorDialog::DontUseNativeDialog, true); //OSX native color dialog gives problems
@@ -236,11 +242,6 @@ void CellViewPage::resetActionStates()
     toolBar->resetActions();
 
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::HitCountPtr hitCount = dataProxy->getHitCount(dataProxy->getSelectedDataset());
-    Q_ASSERT_X(hitCount, "Cell View", "HitCountPtr is NULL");
-    // reset toolbar threshold action
-    toolBar->resetTresholdActions(hitCount->min(),hitCount->max());
-
     // restrict interface
     DataProxy::UserPtr current_user = dataProxy->getUser();
     Q_ASSERT_X(current_user, "Cell View", "Current User is NULL");

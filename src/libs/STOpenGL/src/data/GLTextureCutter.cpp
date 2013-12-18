@@ -7,7 +7,6 @@
 
 #include "GLTextureCutter.h"
 
-//#include "GLScope.h"
 #include <QOpenGLPixelTransferOptions>
 #include <QOpenGLTexture>
 
@@ -15,7 +14,8 @@ namespace GL
 {
 
 GLTextureCutter::GLTextureCutter()
-    : m_width(DEFAULT_WIDTH), m_height(DEFAULT_HEIGHT)
+    : m_width(DEFAULT_WIDTH),
+      m_height(DEFAULT_HEIGHT)
 {
 
 }
@@ -40,6 +40,7 @@ void GLTextureCutter::cut(int width, int height, GLvoid *pixels, GLTextureData& 
     const GLint xCount = qCeil( (GLfloat)imgWidth / (GLfloat)cutWidth );
     const GLint yCount = qCeil( (GLfloat)imgHeight / (GLfloat)cutHeight );
     const GLint count = xCount * yCount;
+    const GLint alignment = 1;
 
     for (int i = 0; i < count; ++i) {
 
@@ -48,13 +49,14 @@ void GLTextureCutter::cut(int width, int height, GLvoid *pixels, GLTextureData& 
         const GLint y = cutHeight * (i / xCount);
         const GLint width = qMin(imgWidth -  x, cutWidth);
         const GLint height = qMin(imgHeight -  y, cutHeight);
+        const GLint offset = imgHeight - y - height;
 
         // texture options
         QOpenGLPixelTransferOptions options;
-        options.setAlignment( 1 );
+        options.setAlignment( alignment );
         options.setRowLength( imgWidth );
         options.setSkipPixels( x );
-        options.setSkipRows( imgHeight - y - height );
+        options.setSkipRows( offset );
 
         // texture
         QOpenGLTexture *tile = new QOpenGLTexture(QOpenGLTexture::Target2D);

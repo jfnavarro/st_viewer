@@ -5,19 +5,17 @@
 
 */
 
+#include "MiniMapGL.h"
+
 #include "utils/Utils.h"
 
 #include <QPainter>
 
-#include <GLQt.h>
-#include <GLScope.h>
-#include <data/GLElementRender.h>
-#include <data/GLElementShapeFactory.h>
-#include <math/GLMatrix.h>
-
-#include "view/pages/CellViewPage.h"
-
-#include "MiniMapGL.h"
+#include "GLQt.h"
+#include "GLScope.h"
+#include "data/GLElementRender.h"
+#include "data/GLElementRectangleFactory.h"
+#include "math/GLMatrix.h"
 
 const QRectF MiniMapGL::DEFAULT_BOUNDS =
         QRectF(0.0f, 0.0f,
@@ -25,8 +23,12 @@ const QRectF MiniMapGL::DEFAULT_BOUNDS =
         Globals::minimap_width);
 
 MiniMapGL::MiniMapGL(QObject* parent)
-    : ViewItemGL(parent), m_selecting(false), m_bounds(DEFAULT_BOUNDS),
-      m_transform(), m_scene(), m_view()
+    : ViewItemGL(parent),
+      m_selecting(false),
+      m_bounds(DEFAULT_BOUNDS),
+      m_transform(),
+      m_scene(),
+      m_view()
 {
     m_sceneColor = Globals::minimap_scene_color;
     m_viewColor = Globals::minimap_view_color;
@@ -205,6 +207,7 @@ void MiniMapGL::generateMinimapData()
         const GL::GLpoint vbr = GL::toGLpoint(m_view.bottomRight());
         const GL::GLpoint vbl = GL::toGLpoint(m_view.bottomLeft());
         const GL::GLcolor viewColor = GL::toGLcolor(m_viewColor);
+
         factory.setColor(0.2f * viewColor);
         factory.addShape(GL::GLrectangle::fromCorners(vtl, vbr));
         factory.setColor(0.8f * viewColor);
@@ -216,6 +219,7 @@ void MiniMapGL::generateMinimapData()
     }
 
     // generate element data render command
-    m_queue.add(GL::GLElementRenderQueue::Command(GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
+    m_queue.add(GL::GLElementRenderQueue::Command
+                (GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
     m_queue.end();
 }

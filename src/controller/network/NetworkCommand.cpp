@@ -12,15 +12,21 @@
 #include <QDebug>
 
 NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
-    m_url(), m_type(Globals::HttpRequestTypeNone), m_query()
+    m_url(),
+    m_type(Globals::HttpRequestTypeNone),
+    m_query()
 {
 
 }
 NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent) :
-    QObject(parent), m_url(url), m_type(type), m_query()
+    QObject(parent),
+    m_url(url),
+    m_type(type),
+    m_query()
 {
 
 }
+
 NetworkCommand::~NetworkCommand()
 {
 

@@ -10,7 +10,8 @@
 #include "utils/DebugHelper.h"
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
-    : QAbstractTableModel(parent), m_geneselection_reference(0)
+    : QAbstractTableModel(parent),
+      m_geneselection_reference(0)
 {
 
 }
@@ -27,18 +28,16 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         DataProxy::FeaturePtr item = m_geneselection_reference->at(index.row());
-
         QVariant value;
         switch (index.column()) {
         case Name:
             value = item->gene();
             break;
-        //case Hits:
-        //value = item->hits();
-        //break;
+        case Hits:
+            value = item->hits();
+        break;
         case NormalizedHits:
-            value = static_cast<qreal>(item->hits())
-                    / static_cast<qreal>(Globals::limit_hit_count);
+            value = static_cast<qreal>(item->hits());
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -60,9 +59,9 @@ QVariant GeneSelectionItemModel::headerData(int section, Qt::Orientation orienta
         case Name:
             value = tr("Name");
             break;
-        //case Hits:
-        //value = tr("Hits");
-        //break;
+        case Hits:
+            value = tr("Hits");
+            break;
         case NormalizedHits:
             value = tr("Normalized Hits");
             break;

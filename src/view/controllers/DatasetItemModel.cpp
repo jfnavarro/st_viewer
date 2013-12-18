@@ -16,7 +16,8 @@
 
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
-    : QAbstractTableModel(parent), m_datasets_reference(0)
+    : QAbstractTableModel(parent),
+      m_datasets_reference(0)
 {
 
 }

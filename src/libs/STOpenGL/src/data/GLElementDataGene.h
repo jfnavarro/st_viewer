@@ -48,18 +48,14 @@ public:
     void resetRefCount();
     void resetValCount();
 
-    // some helpful functions
-    GLuint getMaxValue() const;
-    GLuint getMinValue() const;
-
     // number of genes in the feature
-    GLElementDataGene &addFeatCount(const GLuint &featcount, GLindex *index = 0);
+    void addFeatCount(const GLuint &featcount, GLindex *index = 0);
 
     // number of selected genes in the feature
-    GLElementDataGene &addRefCount(const GLuint &refcount, GLindex *index = 0);
+    void addRefCount(const GLuint &refcount, GLindex *index = 0);
 
     // sum of the hits of the selected genes in the feature
-    GLElementDataGene &addValue(const GLuint &value, GLindex *index = 0);
+    void addValue(const GLuint &value, GLindex *index = 0);
 
     // number of genes in the feature
     void setFeatCount(const GLindex &index, const GLuint &featcount);
@@ -93,9 +89,9 @@ public:
     inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
 
     // thresholds limits
-    inline void setLowerLimit(int geneLimit) { m_min = geneLimit; }
-    inline void setUpperLimit(int geneLimit) { m_max = geneLimit; }
-    inline void setTotalSum(int sum) { m_sum = sum; }
+    inline void setLowerLimit(int limit) { m_geneLowerLimit = limit; }
+    inline void setUpperLimit(int limit) { m_geneUpperLimit = limit; }
+    //inline void setTotalSum(int sum) { m_sum = sum; }
     
     // getters global varibles
     inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
@@ -104,6 +100,9 @@ public:
     inline int getMin() const { return m_min; }
     inline int getMax() const { return m_max; }
     inline int getSum() const { return m_sum; }
+
+    inline int getLowerLimit() const { return m_geneLowerLimit; }
+    inline int getUpperLimit() const { return m_geneUpperLimit; }
 
     inline GLfloat getIntensity() const { return m_intensity; }
 

@@ -8,7 +8,10 @@
 #include "Gene.h"
 
 Gene::Gene()
-    : m_id(""), m_name(""), m_color(Globals::color_gene), m_selected(false)
+    : m_id(),
+      m_name(),
+      m_color(Globals::color_gene),
+      m_selected(false)
 {
 
 }

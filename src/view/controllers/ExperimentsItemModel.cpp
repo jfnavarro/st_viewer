@@ -8,7 +8,8 @@
 #include "ExperimentsItemModel.h"
 
 
-ExperimentsItemModel::ExperimentsItemModel(QObject* parent) : QAbstractTableModel(parent)
+ExperimentsItemModel::ExperimentsItemModel(QObject* parent) :
+    QAbstractTableModel(parent)
 {
 
 }

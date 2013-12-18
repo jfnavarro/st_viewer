@@ -43,13 +43,13 @@ public:
     virtual void clear(GLflag flags = GLElementShapeFactory::DEFAULT_CLEAR_FLAGS);
 
     // data modifiers
-    virtual GLindex connect(const GLindex index) = 0;
-    virtual void deconnect(const GLindex index) = 0;
+    virtual GLindex connect(const GLindex& index) = 0;
+    virtual void deconnect(const GLindex& index) = 0;
 
     // state modifiers
     virtual void setColor(const GLcolor& color) = 0;
     // virtual void setTexture();
-    virtual void setSize(const GLfloat size) = 0;
+    virtual void setSize(const GLfloat& size) = 0;
 
     virtual GLindex size() const = 0;
 
@@ -60,62 +60,7 @@ protected:
 };
 
 // GLElementRectangleFactory
-class GLElementRectangleFactory : public GLElementShapeFactory
-{
-public:
-    class GLFactoryHandle
-    {
-    public:
 
-        GLFactoryHandle(GLElementRectangleFactory &factory, const GLindex index);
-        GLFactoryHandle(const GLFactoryHandle &o);
-        virtual ~GLFactoryHandle();
-
-        GLFactoryHandle withColor(const GLcolor &color) const;
-        GLFactoryHandle withTexture(const GLrectangletexture &texture) const;
-        GLFactoryHandle withOption(const GLoption &option) const;
-
-        GLindex index() const;
-
-    private:
-        GLElementRectangleFactory &m_factory;
-        GLindex m_index;
-    };
-
-    GLElementRectangleFactory(GLElementData& data, GLflag flags = DEFAULT_BUILD_FLAGS);
-    virtual ~GLElementRectangleFactory();
-
-    // shape factory functions
-    virtual GLindex connect(const GLindex index);
-    virtual void deconnect(const GLindex index);
-
-    void setShape(const GLindex index, const GLrectangle &rectangle);
-    void setColor(const GLindex index, const GLcolor& color);
-    void setTexture(const GLindex index, const GLrectangletexture &texture);
-    void setOption(const GLindex index, const GLoption option);
-
-    const GLcolor getColor(const GLindex index) const;
-    GLoption getOption(const GLindex index) const;
-
-    // rectangle shape factory functions
-    GLFactoryHandle addShape(const GLpoint &point);
-    GLFactoryHandle addShape(const GLrectangle& rectangle);
-
-    // state modifiers
-    virtual void setColor(const GLcolor& color);
-    virtual void setSize(const GLfloat size);
-    void setSize(const GLfloat width, const GLfloat height);
-
-    virtual GLindex size() const;
-
-private:
-
-    GLindex translateInternalIndex(const GLindex internalIndex) const;
-    GLindex translateExternalIndex(const GLindex externalIndex) const;
-
-    GLcolor m_color;
-    GLpoint m_size;
-};
 
 } // namespace GL //
 

@@ -18,7 +18,7 @@ namespace QtExt
 inline qreal qMod(qreal x, qreal y);
 
 // clamp size to
-//NOTE: Qt::KeepAspectRation might be prone to numerical errors (ie. any skewing introduced due to num error will be kept)
+//NOTE: Qt::KeepAspectRatio might be prone to numerical errors (ie. any skewing introduced due to num error will be kept)
 const QSizeF clamp(const QSizeF& size, const QSizeF& min,
                    const QSizeF& max, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio);
 

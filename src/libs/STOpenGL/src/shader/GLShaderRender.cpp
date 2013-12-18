@@ -71,7 +71,6 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         return;
     }
 
-
     // set vertex array
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, vertices.data);
@@ -87,10 +86,14 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     int hitCountLocationMin = -1;
     int hitCountLocationMax = -1;
     int hitCountLocationSum = -1;
+    int upperLimit = -1;
+    int lowerLimit = -1;
     int colorMode = -1;
     int geneMode = -1;
     int intensity = -1;
 
+    qDebug() << "Shaders, rendering genes with min : " << renderData.getMin() << " max : " << renderData.getMax()
+                << " sum : " << renderData.getSum() << " upper : " << renderData.getUpperLimit() << " lower : " << renderData.getLowerLimit();
     if (m_program != 0) {
         // enable attribute arrays
 
@@ -137,6 +140,12 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
 
         hitCountLocationSum = m_program->uniformLocation("in_hitCountSum");
         m_program->setUniformValue(hitCountLocationSum,renderData.getSum());
+
+        upperLimit = m_program->uniformLocation("in_upper");
+        m_program->setUniformValue(upperLimit,renderData.getUpperLimit());
+
+        lowerLimit = m_program->uniformLocation("in_lower");
+        m_program->setUniformValue(lowerLimit,renderData.getLowerLimit());
 
         intensity = m_program->uniformLocation("in_intensity");
         m_program->setUniformValue(intensity,renderData.getIntensity());

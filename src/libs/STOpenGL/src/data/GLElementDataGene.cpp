@@ -11,7 +11,10 @@ namespace GL
 {
 
 GLElementDataGene::GLElementDataGene():
-    GLElementData(), m_features(), m_references(), m_values()
+    GLElementData(),
+    m_features(),
+    m_references(),
+    m_values()
 {
 
 }
@@ -40,8 +43,8 @@ void GLElementDataGene::clear(GLflag flags)
     m_max = Globals::gene_upper_limit;
     m_sum = Globals::gene_upper_limit;
     m_intensity = Globals::gene_intensity;
-    m_geneLowerLimit = Globals::gene_lower_limit;
-    m_geneUpperLimit = Globals::gene_upper_limit;
+    m_geneLowerLimit = Globals::gene_threshold_min;
+    m_geneUpperLimit = Globals::gene_threshold_max;
     //call base class
     GLElementData::clear();
 }
@@ -62,54 +65,31 @@ void GLElementDataGene::resetValCount()
     }
 }
 
-GLuint  GLElementDataGene::getMaxValue() const
-{
-    GLuint maxvalue = 0;
-    for (GLindex index = 0; index < (GLindex) m_values.size(); index++) {
-        const GLuint *data = reinterpret_cast<const GLuint*>(&m_values[index]);
-        maxvalue = max(maxvalue,(*data));
-    }
-    return maxvalue;
-}
-
-GLuint GLElementDataGene::getMinValue() const
-{
-    GLuint minvalue = 100000;
-    for (GLindex index = 0; index < (GLindex) m_values.size(); index++) {
-        const GLuint *data = reinterpret_cast<const GLuint*>(&m_values[index]);
-        minvalue = min(minvalue,(*data));
-    }
-    return minvalue;
-}
-
-GLElementDataGene &GLElementDataGene::addFeatCount(const GLuint &featcount, GLindex *index)
+void GLElementDataGene::addFeatCount(const GLuint &featcount, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_features.size();
     }
     m_features.push_back(featcount);
-    return (*this);
 }
 
-GLElementDataGene &GLElementDataGene::addRefCount(const GLuint &refcount, GLindex *index)
+void GLElementDataGene::addRefCount(const GLuint &refcount, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_references.size();
     }
     m_references.push_back(refcount);
-    return (*this);
 }
 
-GLElementDataGene &GLElementDataGene::addValue(const GLuint &value, GLindex *index)
+void GLElementDataGene::addValue(const GLuint &value, GLindex *index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_values.size();
     }
     m_values.push_back(value);
-    return (*this);
 }
 
 void GLElementDataGene::setFeatCount(const GLindex &index, const GLuint &featcount)

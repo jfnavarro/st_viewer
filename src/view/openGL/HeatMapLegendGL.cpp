@@ -12,13 +12,13 @@
 #include <QPainter>
 #include <QGLWidget>
 
-#include <GLQt.h>
-#include <GLScope.h>
-#include <data/GLElementRender.h>
-#include <data/GLElementShapeFactory.h>
-#include <math/GLMatrix.h>
-#include <image/GLHeatMap.h>
-#include <image/GLImageWriter.h>
+#include "GLQt.h"
+#include "GLScope.h"
+#include "data/GLElementRender.h"
+#include "data/GLElementRectangleFactory.h"
+#include "math/GLMatrix.h"
+#include "image/GLHeatMap.h"
+#include "image/GLImageWriter.h"
 
 const QRectF HeatMapLegendGL::DEFAULT_BOUNDS =
         QRectF(0.0f, 0.0f,
@@ -26,7 +26,10 @@ const QRectF HeatMapLegendGL::DEFAULT_BOUNDS =
         Globals::heatmap_height);
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : ViewItemGL(parent), m_bounds(DEFAULT_BOUNDS), m_rect(), m_texture(0)
+    : ViewItemGL(parent),
+      m_bounds(DEFAULT_BOUNDS),
+      m_rect(),
+      m_texture(0)
 {
     generateHeatMapText();
     generateHeatMapData();
@@ -55,10 +58,10 @@ void HeatMapLegendGL::render(QPainter* painter)
     {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
-        GL::GLscope glBlendScope(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        GL::GLscope glTextureScope(GL_TEXTURE_2D);
-        renderer.render(m_data, m_queue);
+            GL::GLscope glBlendScope(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GL::GLscope glTextureScope(GL_TEXTURE_2D);
+            renderer.render(m_data, m_queue);
         glPopMatrix();
     }
     painter->endNativePainting();
@@ -88,9 +91,8 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
         m_hitCountMax = max;     
         m_hitCountSum = sum;
         
-        // for now init upper and lower limit to hit count bounds
-        setLowerLimit(min);
-        setUpperLimit(max);
+        m_lowerLimit = min;
+        m_upperLimit = max;
         
         rebuildHeatMapText();
         rebuildHeatMapData();
@@ -100,8 +102,11 @@ void HeatMapLegendGL::setHitCountLimits(int min, int max, int sum)
 
 void HeatMapLegendGL::setLowerLimit(int limit)
 {
-    if (m_lowerLimit != limit) {
-        m_lowerLimit = limit;
+    const int adjusted_limit = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountMax - m_hitCountMin));
+    if (m_lowerLimit != adjusted_limit) {
+        m_lowerLimit = adjusted_limit;
         const qreal threshold = qreal(m_lowerLimit - m_hitCountMin) / qreal(m_hitCountMax - m_hitCountMin);
         m_lower_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
         rebuildHeatMapData();
@@ -110,8 +115,11 @@ void HeatMapLegendGL::setLowerLimit(int limit)
 
 void HeatMapLegendGL::setUpperLimit(int limit)
 {
-    if (m_upperLimit != limit) {
-        m_upperLimit = limit;
+    const int adjusted_limit = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountMax - m_hitCountMin));
+    if (m_upperLimit != adjusted_limit) {
+        m_upperLimit = adjusted_limit;
         const qreal threshold = qreal(m_hitCountMax - m_upperLimit) / qreal(m_hitCountMax - m_hitCountMin);
         m_upper_threshold = GL::clamp(threshold, qreal(0.0), qreal(1.0));
         rebuildHeatMapData();
@@ -226,18 +234,14 @@ void HeatMapLegendGL::generateStaticHeatMapData()
     // generate image
     m_image = GL::GLimage(1, Globals::heatmap_height, GL_RGBA, GL_FLOAT);
     m_image.createImage();
-    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp,
-                                      m_hitCountMin, m_hitCountMax);
-
+    GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp, m_hitCountMin, m_hitCountMax);
     // texture
     m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
     m_texture->setSize(m_image.width(), m_image.height());
     m_texture->setMinificationFilter(QOpenGLTexture::Linear);
     m_texture->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_texture->setWrapMode(QOpenGLTexture::CoordinateDirection::DirectionS,
-                          QOpenGLTexture::WrapMode::ClampToBorder);
-    m_texture->setWrapMode(QOpenGLTexture::CoordinateDirection::DirectionT,
-                           QOpenGLTexture::WrapMode::ClampToBorder);
+    m_texture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToBorder);
+    m_texture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToBorder);
     m_texture->setFormat(QOpenGLTexture::RGB32F);
     m_texture->allocateStorage();
     m_texture->create();

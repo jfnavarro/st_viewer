@@ -8,7 +8,11 @@
 #include "UserExperiment.h"
 
 UserExperiment::UserExperiment()
-    : m_datasetId(""), m_userId(""), m_type(""), m_inputData(""), m_outputData("")
+    : m_datasetId(),
+      m_userId(),
+      m_type(),
+      m_inputData(),
+      m_outputData()
 {
 
 }

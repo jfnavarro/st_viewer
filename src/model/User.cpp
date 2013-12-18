@@ -8,7 +8,8 @@
 #include "User.h"
 
 User::User()
-    : m_username(""), m_role("")
+    : m_username(),
+      m_role()
 {
 
 }

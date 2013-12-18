@@ -13,6 +13,7 @@
 #include "model/core/FeatureColor.h"
 #include "model/core/HeatMapColor.h"
 
+#include "data/GLElementRectangleFactory.h"
 #include "qgl.h"
 #include "GLCommon.h"
 #include "math/GLFloat.h"
@@ -65,11 +66,21 @@ void GeneRendererGL::resetQuadTree(const QRectF &rect)
 
 void GeneRendererGL::setHitCount(int min, int max, int sum)
 {
-    m_min = min;
-    m_max = max;
-    m_sum = sum;
-    // update gene data
-    m_geneData.setHitCount(min,max,sum);
+    if ((m_hitCountMin != min) ||
+        (m_hitCountMax != max) ||
+        (m_hitCountSum != sum)) {
+
+        m_hitCountMin = min;
+        m_hitCountMax = max;
+        m_hitCountSum = sum;
+
+        m_min = min;
+        m_max = max;
+        m_sum = sum;
+
+        // update gene data
+        m_geneData.setHitCount(min,max,sum);
+    }
 }
 
 void GeneRendererGL::setIntensity(qreal intensity)
@@ -87,35 +98,39 @@ void GeneRendererGL::setSize(qreal size)
     factory.setSize((GLfloat) m_size);
 }
 
-void GeneRendererGL::setUpperLimit(int geneLimit)
+void GeneRendererGL::setUpperLimit(int limit)
 {   
-    if ( geneLimit != m_max ) {
-        m_max = geneLimit;
-        m_geneData.setUpperLimit(geneLimit);
-        int new_sum = GeneRendererGL::recomputeSum(m_min, m_max);
-        setTotalSum(new_sum);
+    const int adjusted_limit = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountMax - m_hitCountMin));
+    if ( m_max != adjusted_limit ) {
+        m_max = adjusted_limit;
+        m_geneData.setUpperLimit(limit);
+        //setTotalSum(GeneRendererGL::recomputeSum(m_min, m_max));
     }
 }
 
-void GeneRendererGL::setLowerLimit(int geneLimit)
+void GeneRendererGL::setLowerLimit(int limit)
 {
-    if ( geneLimit != m_min ) {
-        m_min = geneLimit;
-        m_geneData.setLowerLimit(geneLimit);
-        int new_sum = GeneRendererGL::recomputeSum(m_min, m_max);
-        setTotalSum(new_sum);
+    const int adjusted_limit = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountMax - m_hitCountMin));
+    if ( m_min != adjusted_limit ) {
+        m_min = adjusted_limit;
+        m_geneData.setLowerLimit(limit);
+        //setTotalSum(GeneRendererGL::recomputeSum(m_min, m_max));
     }
 }
 
-void GeneRendererGL::setTotalSum(int sum)
+/*void GeneRendererGL::setTotalSum(int sum)
 {
     if ( m_sum != sum ) {
         m_sum = sum;
         m_geneData.setTotalSum(sum);
     }
-}
+}*/
 
-int GeneRendererGL::recomputeSum(int min, int max)
+/*int GeneRendererGL::recomputeSum(int min, int max)
 {
     int new_sum = 0;
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -126,7 +141,7 @@ int GeneRendererGL::recomputeSum(int min, int max)
         }
     }
     return new_sum;
-}
+}*/
 
 void GeneRendererGL::generateData()
 {
@@ -162,7 +177,7 @@ void GeneRendererGL::generateData()
         }
         // else insert point and create the link
         else {
-            index = factory.addShape(point).index();
+            index = factory.addShape(point);
             m_geneInfoById.insert(feature, index);
             m_geneInfoReverse.insert(index, feature);
             m_geneInfoQuadTree.insert(point, index);

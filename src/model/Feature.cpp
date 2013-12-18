@@ -8,8 +8,12 @@
 #include "model/Feature.h"
 
 Feature::Feature()
-    : m_id(""), m_barcode(""), m_gene(""),
-      m_hits(0), m_x(0), m_y(0)
+    : m_id(),
+      m_barcode(),
+      m_gene(),
+      m_hits(0),
+      m_x(0),
+      m_y(0)
 
 {
 

@@ -13,13 +13,18 @@
 #include <QDateTime>
 
 GeneTXTExporter::GeneTXTExporter(QObject *parent)
-    : GeneExporter(parent), m_detailLevel(Simple), m_separationMode(TabDelimited)
+    : GeneExporter(parent),
+      m_detailLevel(Simple),
+      m_separationMode(TabDelimited)
 {
 
 }
 
-GeneTXTExporter::GeneTXTExporter(DetailLevels detailLevel, SeparationModes separationMode, QObject *parent)
-    : GeneExporter(parent), m_detailLevel(detailLevel), m_separationMode(separationMode)
+GeneTXTExporter::GeneTXTExporter(DetailLevels detailLevel,
+                                 SeparationModes separationMode, QObject *parent)
+    : GeneExporter(parent),
+      m_detailLevel(detailLevel),
+      m_separationMode(separationMode)
 {
 
 }
@@ -46,7 +51,8 @@ void GeneTXTExporter::exportStrings(QTextStream &otxt, const QStringList &string
     otxt << strings.join(delimiter) << endl;
 }
 
-void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature, const QObject &context) const
+void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature,
+                                 const QObject &context) const
 {
     QStringList list;
     const int hitCount = feature->hits();
@@ -63,7 +69,8 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr 
     exportStrings(otxt, list);
 }
 
-void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featureList,
+                                 const QObject &context) const
 {
     const bool hasNormalized =
         context.property("hitCountMin").isValid()
@@ -84,7 +91,8 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureList
     }
 }
 
-void GeneTXTExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneTXTExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList,
+                                 const QObject &context) const
 {
     // early out
     if (!device->isWritable()) {

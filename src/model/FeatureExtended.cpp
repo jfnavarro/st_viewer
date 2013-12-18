@@ -10,7 +10,8 @@
 #include "utils/Utils.h"
 
 FeatureExtended::FeatureExtended()
-    : Feature(), m_color(Globals::color_gene)
+    : Feature(),
+      m_color(Globals::color_gene)
 {
 
 }

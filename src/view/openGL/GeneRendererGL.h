@@ -7,12 +7,13 @@
 #ifndef GENERENDERERGL_H
 #define GENERENDERERGL_H
 
-#include "GLCommon.h"
 #include "data/GLElementDataGene.h"
-#include "data/GLElementShapeFactory.h"
 #include "math/GLQuadTree.h"
+
 #include "SelectionEvent.h"
+
 #include "controller/data/DataProxy.h"
+
 #include "utils/Utils.h"
 
 class ColorScheme;
@@ -65,9 +66,9 @@ public:
     //setters
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-    void setLowerLimit(int geneLimit);
-    void setUpperLimit(int geneLimit);
-    void setTotalSum(int sum);
+    void setLowerLimit(int limit);
+    void setUpperLimit(int limit);
+    //void setTotalSum(int sum);
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
     void setHitCount(int min, int max, int sum);
@@ -81,7 +82,7 @@ protected:
     void updateSize(DataProxy::FeatureListPtr);
     void updateVisual(DataProxy::FeatureListPtr);
     
-    static int recomputeSum(int min, int max);
+    //static int recomputeSum(int min, int max);
 
 private:
     // lookup maps
@@ -113,6 +114,9 @@ private:
     int m_min;
     int m_max;
     int m_sum;
+    int m_hitCountMin;
+    int m_hitCountMax;
+    int m_hitCountSum;
 
     // color scheme
     ColorScheme *m_colorScheme;

@@ -32,15 +32,18 @@ void GLTextureRender::render(const GLTextureData& renderData)
     // texture scope
     GLscope textureScope(GL_TEXTURE_2D);
 
+    //TODO replace glBegin... for glDrawArrays (faster)
+    //TODO textures are not modified (use opengl buffers to save time)
+
     for (GLsizei i = 0; i < textures.size; ++i) {
 
         QOpenGLTexture *texture = textures.data[ i ];
         texture->bind();
 
-        GL::GLpoint v0 = vertices.data[ i ];
-        GL::GLpoint v1 = vertices.data[ i + 1 ];
-        GL::GLpoint v2 = vertices.data[ i + 2 ];
-        GL::GLpoint v3 = vertices.data[ i + 3 ];
+        const GL::GLpoint v0 = vertices.data[ i ];
+        const GL::GLpoint v1 = vertices.data[ i + 1 ];
+        const GL::GLpoint v2 = vertices.data[ i + 2 ];
+        const GL::GLpoint v3 = vertices.data[ i + 3 ];
 
         glBegin(GL_QUADS);
             glTexCoord2i(0, 0);

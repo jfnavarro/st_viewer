@@ -15,7 +15,8 @@
 #include "utils/Utils.h"
 
 TokenStorage::TokenStorage(QObject* parent)
-    : QObject(parent), m_storage(0)
+    : QObject(parent),
+      m_storage(0)
 {
     m_storage.reset(new QSettings());
 }

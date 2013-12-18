@@ -27,13 +27,17 @@ static GLint maxTextureSize() {
 }
 
 ImageItemGL::ImageItemGL(QGraphicsItem* parent)
-    : QGraphicsObject(parent), m_image(), m_rect(0.0f, 0.0f, 0.0f, 0.0f)
+    : QGraphicsObject(parent),
+      m_image(),
+      m_rect(0.0f, 0.0f, 0.0f, 0.0f)
 {
     setFlag(QGraphicsItem::ItemIgnoresTransformations, false);
 }
 
 ImageItemGL::ImageItemGL(const QImage& image, QGraphicsItem* parent)
-    : QGraphicsObject(parent), m_image(), m_rect(0.0f, 0.0f, 0.0f, 0.0f)
+    : QGraphicsObject(parent),
+      m_image(),
+      m_rect(0.0f, 0.0f, 0.0f, 0.0f)
 {
     setFlag(QGraphicsItem::ItemIgnoresTransformations, false);
     setImage(image);
@@ -91,6 +95,7 @@ void ImageItemGL::generateTextureData()
         texture->setData(m_image); //this adds format and size
 
         m_texture.addTexture(texture);
+
         // need to create the 4 vertex for the texture (we draw textures as GL_QUADS
         // TODO this could be done automatically in addTexture
         m_texture.addVertex( x, y + height);

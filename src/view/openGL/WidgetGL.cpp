@@ -8,8 +8,7 @@
 #include <QDebug>
 #include "WidgetGL.h"
 
-WidgetGL::WidgetGL(QWidget* parent,
-                   const QGLWidget* shareWidget, Qt::WindowFlags f)
+WidgetGL::WidgetGL(QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QGLWidget(parent, shareWidget, f)
 {
 

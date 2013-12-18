@@ -11,7 +11,9 @@
 SelectionDialog::SelectionDialog(QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     ui(new Ui::SelectionDialog),
-    m_includeAmbiguous(false), m_caseSensitive(false), m_regExpValid(false)
+    m_includeAmbiguous(false),
+    m_caseSensitive(false),
+    m_regExpValid(false)
 {
     ui->setupUi(this);
     // set default state

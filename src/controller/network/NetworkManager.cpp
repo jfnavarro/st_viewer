@@ -30,7 +30,9 @@
 #include "controller/error/Error.h"
 #include "utils/config/Configuration.h"
 
-NetworkManager::NetworkManager(QObject* parent): QObject(parent), m_nam(0)
+NetworkManager::NetworkManager(QObject* parent):
+    QObject(parent),
+    m_nam(0)
 {
 
 }

@@ -32,7 +32,9 @@
 #include "model/dto/UserDTO.h"
 #include "model/dto/ErrorDTO.h"
 
-DataProxy::DataProxy() : m_datasetListPtr(0), m_user(0)
+DataProxy::DataProxy() :
+    m_datasetListPtr(0),
+    m_user(0)
 {
     init();
 }

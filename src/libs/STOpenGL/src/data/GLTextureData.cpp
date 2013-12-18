@@ -14,14 +14,13 @@ GLTextureData::~GLTextureData()
 
 }
 
-GLTextureData& GLTextureData::addTexture(QOpenGLTexture *texture, GLindex* index)
+void GLTextureData::addTexture(QOpenGLTexture *texture, GLindex* index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_textures.size();
     }
     m_textures .push_back(texture);
-    return (*this);
 }
 
 QOpenGLTexture* GLTextureData::getTexture(const GLindex &i) const
@@ -34,19 +33,18 @@ const GLarray<QOpenGLTexture *> GLTextureData::textures() const
     return GLarray<QOpenGLTexture*>( (GLsizei)m_textures.size(), m_textures.constData() );
 }
 
-GLTextureData& GLTextureData::addVertex(const GLfloat x, const GLfloat y, GLindex *index)
+void GLTextureData::addVertex(const GLfloat &x, const GLfloat &y, GLindex *index)
 {
-    return addVertex(GL::GLpoint(x,y), index);
+    addVertex(GL::GLpoint(x,y), index);
 }
 
-GLTextureData& GLTextureData::addVertex(const GL::GLpoint &v, GLindex* index)
+void GLTextureData::addVertex(const GL::GLpoint &v, GLindex* index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_vertices.size();
     }
     m_vertices.push_back(v);
-    return (*this);
 }
 
 const GL::GLpoint& GLTextureData::getVertex(const GLindex &i) const

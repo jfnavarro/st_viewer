@@ -8,13 +8,17 @@
 #include "Error.h"
 
 Error::Error(QObject* parent)
-    : QObject(parent), m_name(), m_description()
+    : QObject(parent),
+      m_name(),
+      m_description()
 {
 
 }
 
 Error::Error(const QString& name, const QString& description, QObject* parent)
-    : QObject(parent), m_name(name), m_description(description)
+    : QObject(parent),
+      m_name(name),
+      m_description(description)
 {
 
 }

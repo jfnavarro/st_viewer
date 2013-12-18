@@ -12,10 +12,18 @@
 #include <QDateTime>
 #include <QVariant>
 
-GeneXMLExporter::GeneXMLExporter(QObject *parent) : GeneExporter(parent) { }
-GeneXMLExporter::~GeneXMLExporter() { }
+GeneXMLExporter::GeneXMLExporter(QObject *parent) : GeneExporter(parent)
+{
 
-void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeaturePtr &feature, const QObject &context) const
+}
+
+GeneXMLExporter::~GeneXMLExporter()
+{
+
+}
+
+void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeaturePtr &feature,
+                                 const QObject &context) const
 {
     oxml.writeStartElement("feature");
     {
@@ -31,7 +39,8 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
     }
     oxml.writeEndElement();
 }
-void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListPtr featureList,
+                                 const QObject &context) const
 {
     oxml.writeStartElement("features");
     foreach(const DataProxy::FeaturePtr & feature, (*featureList)) {
@@ -40,7 +49,8 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::Featur
     oxml.writeEndElement();
 }
 
-void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList, const QObject &context) const
+void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList,
+                                 const QObject &context) const
 {
     // early out
     if (!device->isWritable()) {

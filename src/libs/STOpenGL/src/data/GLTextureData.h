@@ -26,12 +26,13 @@ public:
     GLTextureData();
     virtual ~GLTextureData();
 
-    GLTextureData& addTexture(QOpenGLTexture *texture, GLindex* index = 0);
+    void addTexture(QOpenGLTexture *texture, GLindex* index = 0);
     QOpenGLTexture* getTexture(const GL::GLindex &i) const;
     const GLarray<QOpenGLTexture*> textures() const;
 
-    GLTextureData& addVertex(const GLfloat x, const GLfloat y, GLindex* index = 0);
-    GLTextureData& addVertex(const GL::GLpoint &point, GLindex* index = 0);
+    void addVertex(const GLfloat &x, const GLfloat &y, GLindex* index = 0);
+    void addVertex(const GL::GLpoint &point, GLindex* index = 0);
+
     const GL::GLpoint& getVertex(const GL::GLindex &i) const;
     const GLarray<GL::GLpoint> vertices() const;
 

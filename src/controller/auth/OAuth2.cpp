@@ -28,7 +28,8 @@
 #include "utils/Utils.h"
 
 OAuth2::OAuth2(QObject* parent)
-    : QObject(parent), m_loginDialog(0)
+    : QObject(parent),
+      m_loginDialog(0)
 {
 
 }

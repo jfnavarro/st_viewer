@@ -115,7 +115,8 @@ void GLElementRender::clear()
     m_textures.clear();
 }
 
-void GLElementRender::render(const GLElementData &renderData, const GLElementRenderQueue &renderQueue)
+void GLElementRender::render(const GLElementData &renderData,
+                             const GLElementRenderQueue &renderQueue)
 {
     State state(renderData, renderQueue, m_textures);
     state.render();

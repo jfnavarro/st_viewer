@@ -8,7 +8,11 @@
 #include "ViewItemGL.h"
 
 ViewItemGL::ViewItemGL(QObject* parent)
-    : QObject(parent), m_transform(), m_z(0), m_visible(true), m_anchor(NorthWest)
+    : QObject(parent),
+      m_transform(),
+      m_z(0),
+      m_visible(true),
+      m_anchor(NorthWest)
 {
 
 }

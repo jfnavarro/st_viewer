@@ -18,7 +18,10 @@
 #include "WidgetBackgroundAnimation.h"
 
 WidgetBackgroundAnimation::WidgetBackgroundAnimation(QWidget *displayWidget):
-    m_displayWidget(displayWidget), m_movie(0), m_visible(false), m_enable(false)
+    m_displayWidget(displayWidget),
+    m_movie(0),
+    m_visible(false),
+    m_enable(false)
 {
     //NOTE widgets based on QAbstractScrollArea rely on a viewport for rendering
     QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(m_displayWidget);

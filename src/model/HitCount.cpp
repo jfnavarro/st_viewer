@@ -10,7 +10,9 @@
 #include "HitCount.h"
 
 HitCount::HitCount()
-    : m_min(0), m_max(INT_MAX), m_sum(-1)
+    : m_min(0),
+      m_max(INT_MAX),
+      m_sum(-1)
 {
 
 }

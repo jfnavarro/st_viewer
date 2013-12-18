@@ -9,13 +9,21 @@
 
 const QString GeneExporter::PROPERTY_LIST_DELIMITER = QStringLiteral(";;");
 
-GeneExporter::GeneExporter(QObject *parent) : QObject(parent) { }
-GeneExporter::~GeneExporter() { }
+GeneExporter::GeneExporter(QObject *parent) : QObject(parent)
+{
+
+}
+
+GeneExporter::~GeneExporter()
+{
+
+}
 
 void GeneExporter::addExportProperty(const QString &property)
 {
     m_propertyList.append(property);
 }
+
 void GeneExporter::addExportProperty(const QList<QString> &properties)
 {
     m_propertyList.append(properties);

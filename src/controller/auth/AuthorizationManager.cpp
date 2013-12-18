@@ -15,7 +15,9 @@
 #include "controller/auth/OAuth2.h"
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
-    : QObject(parent), m_oAuth2(0), m_tokenStorage(0)
+    : QObject(parent),
+      m_oAuth2(0),
+      m_tokenStorage(0)
 {
 
 }

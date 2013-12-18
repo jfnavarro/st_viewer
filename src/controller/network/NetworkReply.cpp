@@ -25,13 +25,15 @@
 #include "model/ObjectParser.h"
 
 ContentType::ContentType(QObject* parent)
-    : QObject(parent), m_mime()
+    : QObject(parent),
+      m_mime()
 {
 
 }
 
 ContentType::ContentType(const QString& contentType, QObject* parent)
-    : QObject(parent), m_mime()
+    : QObject(parent),
+      m_mime()
 {
     // parse the content type header
     header(contentType);

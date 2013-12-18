@@ -67,7 +67,7 @@ static const QColor color_grid_border = Qt::darkRed;
 static const QColor color_gene = QColor::fromHsv(0, 190, 255);
 static const QColor minimap_view_color = Qt::blue;
 static const QColor minimap_scene_color = Qt::red;
-static const int limit_hit_count = 100;
+
 static const qreal minimap_height = 100;
 static const qreal minimap_width = 100;
 static const qreal heatmap_height = 200;
@@ -97,6 +97,9 @@ static const qreal gene_size = 1.0f;
 static const qreal gene_intensity = 1.0f;
 static const int gene_lower_limit = 1;
 static const int gene_upper_limit = std::numeric_limits<int>::max();
+
+static const int gene_threshold_max = 100;
+static const int gene_threshold_min = 1;
 
 static const qreal grid_line_size = 1;
 static const qreal grid_line_space = 5;

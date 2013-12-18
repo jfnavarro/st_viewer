@@ -20,14 +20,20 @@ class GeneSelectionItemModel : public QAbstractTableModel
 
 public:
 
-    enum Column {Name = 0, NormalizedHits}; //Hits
-
+    enum Column {
+        Name = 0,
+        Hits = 1,
+        NormalizedHits = 2,
+    };
     explicit GeneSelectionItemModel(QObject* parent = 0);
     virtual ~GeneSelectionItemModel();
+
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 public slots:
@@ -36,7 +42,7 @@ public slots:
 
 private:
 
-    static const int COLUMN_NUMBER = 2;
+    static const int COLUMN_NUMBER = 3;
 
     DataProxy::FeatureListPtr m_geneselection_reference;
 

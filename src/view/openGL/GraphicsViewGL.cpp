@@ -28,10 +28,15 @@
 
 
 GraphicsViewGL::GraphicsViewGL(QWidget* parent)
-    : QGraphicsView(parent), m_minimap(0), m_opengl_surface(0),
-      m_zoom(Globals::DEFAULT_ZOOM), m_zoom_min(Globals::DEFAULT_ZOOM_MIN),
+    : QGraphicsView(parent),
+      m_minimap(0),
+      m_opengl_surface(0),
+      m_zoom(Globals::DEFAULT_ZOOM),
+      m_zoom_min(Globals::DEFAULT_ZOOM_MIN),
       m_zoom_max(Globals::DEFAULT_ZOOM_MAX),
-      m_mousePressViewPoint(), m_rubberBanding(false), m_rubberBandRect(),
+      m_mousePressViewPoint(),
+      m_rubberBanding(false),
+      m_rubberBandRect(),
       m_viewItems()
 {
     setBackground(Qt::black);

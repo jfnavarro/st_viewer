@@ -11,7 +11,9 @@
 #include <QApplication>
 
 ErrorManager::ErrorManager(QObject* parent)
-    : QObject(parent), m_parentContainer(0), m_errorDialog(0)
+    : QObject(parent),
+      m_parentContainer(0),
+      m_errorDialog(0)
 {
 
 }
