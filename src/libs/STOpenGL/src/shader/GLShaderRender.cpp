@@ -98,29 +98,24 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         // enable attribute arrays
 
         textureLocation = m_program->attributeLocation("in_texture");
-        m_program->setAttributeArray(textureLocation, GL::GLTypeTrait<GLfloat>::type_enum,
-                                     (const void *) textures.data, 2);
+        m_program->setAttributeArray(textureLocation, GL::GLTypeTrait<GLfloat>::type_enum, textures.data, 2);
         m_program->enableAttributeArray(textureLocation);
 
         optionLocation = m_program->attributeLocation("in_options");
-        m_program->setAttributeArray(optionLocation, GL::GLTypeTrait<GLoption>::type_enum,
-                                     (const void *) options.data, 1);
+        m_program->setAttributeArray(optionLocation, GL::GLTypeTrait<GLoption>::type_enum, options.data, 1);
         m_program->enableAttributeArray(optionLocation);
 
         // extra information vectors
         featureLocation = m_program->attributeLocation("in_features");
-        m_program->setAttributeArray(featureLocation, GL::GLTypeTrait<GLfloat>::type_enum,
-                                     (const void *) features.data, 1);
+        m_program->setAttributeArray(featureLocation, GL::GLTypeTrait<GLint>::type_enum, features.data, 1);
         m_program->enableAttributeArray(featureLocation);
 
         referenceLocation = m_program->attributeLocation("in_references");
-        m_program->setAttributeArray(referenceLocation, GL::GLTypeTrait<GLfloat>::type_enum,
-                                     (const void *) references.data, 1);
+        m_program->setAttributeArray(referenceLocation, GL::GLTypeTrait<GLint>::type_enum, references.data, 1);
         m_program->enableAttributeArray(referenceLocation);
 
         valueLocation = m_program->attributeLocation("in_values");
-        m_program->setAttributeArray(valueLocation, GL::GLTypeTrait<GLfloat>::type_enum,
-                                     (const void *) values.data, 1);
+        m_program->setAttributeArray(valueLocation, GL::GLTypeTrait<GLint>::type_enum, values.data, 1);
         m_program->enableAttributeArray(valueLocation);
 
         // uniform values

@@ -135,17 +135,17 @@ void main(void)
     
     //adjust color for globalMode
     if (geneMode == 1) {
-        float adjusted_min = (lower_limit / 100.0) * (sum_value - min_value); //uggly 100 should be sent as variable
-        float adjusted_max = (upper_limit / 100.0) * (sum_value - min_value); //uggly 100 should be sent as variable
+        //float adjusted_min = (lower_limit / 100.0) * (max_value - min_value); //uggly 100 should be sent as variable
+        //float adjusted_max = (upper_limit / 100.0) * (max_value - min_value); //uggly 100 should be sent as variable
         if (colorMode == 0) {
             fragColor = out_color;
             fragColor.a = in_intensity;
         }
         else if (colorMode == 1) {
-            fragColor.a = computeDynamicRangeAlpha(value, adjusted_min, adjusted_max) + (1.0 - in_intensity);
+            fragColor.a = computeDynamicRangeAlpha(value, min_value, max_value) + (1.0 - in_intensity);
         }
         else if (colorMode == 2) {
-            float nv = norm(value, adjusted_min, adjusted_max);
+            float nv = norm(value, min_value, max_value);
             float wavel = sqrt(myclamp(nv, 0.0, 1.0));
             float nt = denorm(wavel, 380.0, 780.0);
             fragColor = createHeatMapColor(nt);
@@ -155,7 +155,7 @@ void main(void)
             //error
         }
         
-        if ( (value < adjusted_min || value > adjusted_max) && colorMode != 1) {
+        if ( (value < lower_limit || value > upper_limit) && colorMode != 1) {
             //fragColor.a = 0.0;
         }
         

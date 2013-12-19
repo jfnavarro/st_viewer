@@ -71,6 +71,9 @@ public:
     const GLuint &getRefCount(const GLindex &index) const;
     const GLuint &getValue(const GLindex &index) const;
 
+    inline const GLuint &getMaxValue() const { return *(std::max_element(m_values.begin(), m_values.end())); }
+    inline const GLuint &getMinValue() const { return *(std::min_element(m_values.begin(), m_values.end())); }
+
     // getters for arrays
     const GLarray<GLuint> features() const;
     const GLarray<GLuint> references() const;
@@ -91,7 +94,6 @@ public:
     // thresholds limits
     inline void setLowerLimit(int limit) { m_geneLowerLimit = limit; }
     inline void setUpperLimit(int limit) { m_geneUpperLimit = limit; }
-    //inline void setTotalSum(int sum) { m_sum = sum; }
     
     // getters global varibles
     inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
@@ -122,17 +124,17 @@ private:
 
     GLFeatures m_features;
     GLReferences m_references;
-    GLValues m_values;
-    Globals::VisualMode m_colorMode;
-    Globals::ThresholdMode m_geneMode;
+    GLValues m_values; //only used for global mode
+    Globals::VisualMode m_colorMode; //only used for global mode
+    Globals::ThresholdMode m_geneMode; //only used for global mode
 
-    int m_min;
-    int m_max;
-    int m_sum;
+    int m_min; //only used for global mode
+    int m_max; //only used for global mode
+    int m_sum; //only used for global mode
 
     // upper && lower thresholds
-    int m_geneLowerLimit;
-    int m_geneUpperLimit;
+    int m_geneLowerLimit; //only used for global mode
+    int m_geneUpperLimit; //only used for global mode
 
     GLfloat m_intensity;
 };

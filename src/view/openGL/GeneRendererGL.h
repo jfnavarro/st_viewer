@@ -55,22 +55,28 @@ public:
     DataProxy::FeatureListPtr getSelectedFeatures();
 
     inline const GL::GLElementDataGene& getData() const { return m_geneData; }
+
     inline qreal intensity() const { return m_intensity; }
+
     inline qreal size() const { return m_size; }
+
     inline int lowerLimit() const { return m_min; }
     inline int upperLimit() const { return m_max; }
-    inline int totalSum() const { return m_sum; }
+
     inline const Globals::VisualMode& visualMode() const { return m_visualMode; }
     inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
 
     //setters
     void setIntensity(qreal intensity);
+
     void setSize(qreal size);
+
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
-    //void setTotalSum(int sum);
+
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
+
     void setHitCount(int min, int max, int sum);
 
 protected:
@@ -81,7 +87,7 @@ protected:
     void updateThreshold(DataProxy::FeatureListPtr);
     void updateSize(DataProxy::FeatureListPtr);
     void updateVisual(DataProxy::FeatureListPtr);
-    
+
     //static int recomputeSum(int min, int max);
 
 private:
@@ -113,10 +119,15 @@ private:
     // hit count limits
     int m_min;
     int m_max;
-    int m_sum;
+    int m_min_local;
+    int m_max_local;
+
+    // hit count valuess
     int m_hitCountMin;
     int m_hitCountMax;
     int m_hitCountSum;
+    int m_hitCountLocalMax;
+    int m_hitCountLocalMin;
 
     // color scheme
     ColorScheme *m_colorScheme;

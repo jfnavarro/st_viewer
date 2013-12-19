@@ -43,16 +43,17 @@ void GeneRendererGL::clearData()
     m_geneInfoById.clear();
     m_geneInfoReverse.clear();
 
-    // quad tree
-    //m_geneInfoQuadTree.clear();
-
     // variables
     m_intensity = Globals::gene_intensity;
     m_size = Globals::gene_size;
     m_thresholdMode = Globals::IndividualGeneMode;
+
     m_min = Globals::gene_lower_limit;
     m_max = Globals::gene_upper_limit;
-    m_sum = Globals::gene_upper_limit;
+    m_hitCountMin = Globals::gene_lower_limit;
+    m_hitCountMax = Globals::gene_upper_limit;
+    m_hitCountLocalMin = Globals::gene_lower_limit;
+    m_hitCountLocalMax = Globals::gene_upper_limit;
 
     // allocate color scheme
     setVisualMode(Globals::NormalMode);
@@ -74,12 +75,20 @@ void GeneRendererGL::setHitCount(int min, int max, int sum)
         m_hitCountMax = max;
         m_hitCountSum = sum;
 
+        // not really necessary (they will be updated later)
+        m_hitCountLocalMax = max;
+        m_hitCountLocalMin = min;
+
+        // not really necessary (they will be updated later)
         m_min = min;
         m_max = max;
-        m_sum = sum;
+        m_min_local = min;
+        m_max_local = max;
 
-        // update gene data
-        m_geneData.setHitCount(min,max,sum);
+        // update gene data (real min and max will be updated later)
+        // this is a temporary hack until the hitcount object is upgrade so
+        // it includes feature-location wise local max and min
+        m_geneData.setHitCount(min, max, sum);
     }
 }
 
@@ -100,48 +109,41 @@ void GeneRendererGL::setSize(qreal size)
 
 void GeneRendererGL::setUpperLimit(int limit)
 {   
+    // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
     const int adjusted_limit = static_cast<int>( (qreal(limit) /
                                                   qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
                                                  qreal(m_hitCountMax - m_hitCountMin));
+
+    const int adjusted_limit_local = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountLocalMax - m_hitCountLocalMin));
+
     if ( m_max != adjusted_limit ) {
         m_max = adjusted_limit;
-        m_geneData.setUpperLimit(limit);
-        //setTotalSum(GeneRendererGL::recomputeSum(m_min, m_max));
+        m_max_local = adjusted_limit_local;
+        // render data only needs local limits
+        m_geneData.setUpperLimit(adjusted_limit_local);
     }
 }
 
 void GeneRendererGL::setLowerLimit(int limit)
 {
+    // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
     const int adjusted_limit = static_cast<int>( (qreal(limit) /
                                                   qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
                                                  qreal(m_hitCountMax - m_hitCountMin));
+
+    const int adjusted_limit_local = static_cast<int>( (qreal(limit) /
+                                                  qreal(Globals::gene_threshold_max - Globals::gene_threshold_min) ) *
+                                                 qreal(m_hitCountLocalMax - m_hitCountLocalMin));
+
     if ( m_min != adjusted_limit ) {
         m_min = adjusted_limit;
-        m_geneData.setLowerLimit(limit);
-        //setTotalSum(GeneRendererGL::recomputeSum(m_min, m_max));
+        m_min_local = adjusted_limit_local;
+        // render data only needs local limits
+        m_geneData.setLowerLimit(adjusted_limit_local);
     }
 }
-
-/*void GeneRendererGL::setTotalSum(int sum)
-{
-    if ( m_sum != sum ) {
-        m_sum = sum;
-        m_geneData.setTotalSum(sum);
-    }
-}*/
-
-/*int GeneRendererGL::recomputeSum(int min, int max)
-{
-    int new_sum = 0;
-    DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    foreach(const DataProxy::FeaturePtr feature, (*features)) {
-        if ( feature->hits() >= min && feature->hits() <= max ) {
-            new_sum += feature->hits();
-        }
-    }
-    return new_sum;
-}*/
 
 void GeneRendererGL::generateData()
 {
@@ -156,7 +158,6 @@ void GeneRendererGL::generateData()
 
     factory.setSize((GLfloat) m_size);
 
-    // generate geometry
     foreach(const DataProxy::FeaturePtr feature, (*features)) {
 
         // feature cordinates
@@ -167,13 +168,16 @@ void GeneRendererGL::generateData()
         m_geneInfoQuadTree.select(point, item);
 
         // this will be the index of the new point (if it does not exists) or the present point
-        GL::GLindex index = -1;
+        GL::GLindex index = 0;
 
         //if it exists
         if (item.second != GL::INVALID_INDEX) {
             index = item.second;
             m_geneInfoById.insert(feature, index);
             m_geneInfoReverse.insertMulti(index, feature);
+            // update feature count
+            m_geneData.setFeatCount(index, m_geneData.getFeatCount(index) + 1);
+            m_geneData.setValue(index, m_geneData.getValue(index) + feature->hits()); // temp hack to get local max
         }
         // else insert point and create the link
         else {
@@ -182,13 +186,13 @@ void GeneRendererGL::generateData()
             m_geneInfoReverse.insert(index, feature);
             m_geneInfoQuadTree.insert(point, index);
             m_geneData.addFeatCount(1u);
-            m_geneData.addValue(0u); // we initialize to 0
-            m_geneData.addRefCount(0u); // we initialize to 0
+            //m_geneData.addValue(0u); // we initialize to 0 (it will be fetched afterwards)
+            m_geneData.addValue(feature->hits()); // temp hack to get local max
+            m_geneData.addRefCount(0u); // we initialize to 0 (it will be fetched afterwards)
         }
 
-        m_geneData.setFeatCount(index, m_geneData.getFeatCount(index) + 1);
+        // update complex option
         if (m_geneData.getFeatCount(index) > 1) {
-            // set complex option
             const GL::GLoption option = factory.getOption(index);
             factory.setOption(index, GL::bitSet(option, 1));
         }
@@ -197,6 +201,19 @@ void GeneRendererGL::generateData()
         factory.setColor(index, GL::GLcolor(GL::White));
 
     } //endforeach
+
+    // get local max/min for all features
+    // ugly hack, this will be removed when hitcount object contains local max and min
+    const int local_min = m_geneData.getMinValue();
+    const int local_max = m_geneData.getMaxValue();
+    m_hitCountLocalMax = local_max;
+    m_hitCountLocalMin = local_min;
+    m_min_local = local_min;
+    m_max_local = local_max;
+    m_geneData.setHitCount(local_min, local_max, m_hitCountSum);
+    m_geneData.setUpperLimit(local_max);
+    m_geneData.setLowerLimit(local_min);
+    m_geneData.resetValCount(); //reset val count to 0
 }
 
 void GeneRendererGL::updateData(updateOptions flags)
@@ -213,7 +230,8 @@ void GeneRendererGL::updateData(updateOptions flags)
 void GeneRendererGL::updateGene(DataProxy::GenePtr gene, updateOptions flags)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+    DataProxy::FeatureListPtr features =
+            dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
     //early out
     if (m_geneData.isEmpty() || features.isNull()) {
         return;
@@ -223,18 +241,18 @@ void GeneRendererGL::updateGene(DataProxy::GenePtr gene, updateOptions flags)
 
 void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOptions flags)
 {
-    //TODO replace for a switch
+    //TODO replace for a switch and refactor
 
     if ( flags == geneVisual || flags == geneThreshold ) {
         updateVisual(features);
     }
-    else if (flags == geneColor) {
+    else if ( flags == geneColor ) {
         updateColor(features);
     }
     else if ( flags == geneSelection ) {
         updateSelection(features);
     }
-    else if (flags == geneSize) {
+    else if ( flags == geneSize ) {
         updateSize(features);
     }
     else {
@@ -245,11 +263,12 @@ void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOp
 void GeneRendererGL::updateSize(DataProxy::FeatureListPtr features)
 {
     GL::GLElementRectangleFactory factory(m_geneData);
-    // update features
+
     foreach(DataProxy::FeaturePtr feature, *(features)){
+
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != m_geneInfoById.end());
-        // easy access
+
+        // update shape
         const GL::GLindex index = it.value();
         const GLfloat x = feature->x();
         const GLfloat y = feature->y();
@@ -263,15 +282,15 @@ void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
     DataProxy *dataProxy = DataProxy::getInstance();
 
     foreach(DataProxy::FeaturePtr feature, *(features)) {
+
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != m_geneInfoById.end());
 
         //TODO gene should be passed as parameter (no need for this each iteration)
         DataProxy::FeaturePtr first_feature = features->first();
         DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), first_feature->gene());
+
         const bool selected = gene->selected();
         const QColor geneQColor = gene->color();
-
         const GL::GLindex index = it.value();
         const int refCount = m_geneData.getRefCount(index);
 
@@ -307,30 +326,33 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
 
     // iterate features
     foreach(DataProxy::FeaturePtr feature, *(features)) {
+
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != m_geneInfoById.end());
 
         //TODO gene should be passed as parameter (no need for this each iteration)
         DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
+
         bool selected = gene->selected();
         const GL::GLindex index = it.value();
+        const int currentHits = feature->hits();
+
+        // update values
+        const int oldValue = m_geneData.getValue(index);
+        const int newValue = (oldValue + (selected ? currentHits : -currentHits));
+        m_geneData.setValue(index, newValue);
 
         // update ref count
         const int oldRefCount = m_geneData.getRefCount(index);
         int newRefCount = (oldRefCount + (selected ? 1 : -1));
         m_geneData.setRefCount(index, newRefCount);
 
-        // update values
-        const int currentHits = feature->hits();
-        const int oldValue = m_geneData.getValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : -currentHits));
-        m_geneData.setValue(index, newValue);
+        //TODO ref count should be adjusted if feature is outside threshold
 
         // update color
-        if (newRefCount != 0) {
+        if (newRefCount > 0) {
             GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
             if ( ( m_thresholdMode == Globals::IndividualGeneMode &&
-                   (newValue < m_min || newValue > m_max) ) ) {
+                   ( currentHits < m_min || currentHits > m_max ) ) ) {
                 featureColor.alpha = 0.0f;
             }
             GL::GLcolor color = factory.getColor(index);
@@ -342,11 +364,9 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
 
         // update visible
         if (selected && (newRefCount == 1)) {
-            // toggle visible on and add index
             factory.connect(index);
         }
         else if ( !selected && (newRefCount == 0)) {
-            // toggle visible off and add index
             factory.deconnect(index);
         }
     }
@@ -363,30 +383,32 @@ void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
 
     // iterate features
     foreach(DataProxy::FeaturePtr feature, *(features)) {
+
         GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != m_geneInfoById.end());
 
         // easy access
         DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
         bool selected = gene->selected();
         const GL::GLindex index = it.value();
+        const int currentHits = feature->hits();
+
+        // update values
+        const int oldValue = m_geneData.getValue(index);
+        const int newValue = (oldValue + (selected ? currentHits : 0));
+        m_geneData.setValue(index, newValue);
 
         // update ref count
         const int oldRefCount = m_geneData.getRefCount(index);
         const int newRefCount = (oldRefCount + (selected ? 1 : 0));
         m_geneData.setRefCount(index, newRefCount);
 
-        // update values
-        const int currentHits = feature->hits();
-        const int oldValue = m_geneData.getValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : 0));
-        m_geneData.setValue(index, newValue);
+        //TODO ref count should be adjusted if feature is outside threshold
 
         // update color
         if (selected && (newRefCount > 0)) {
             GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
             if (  ( m_thresholdMode == Globals::IndividualGeneMode &&
-                  (newValue < m_min || newValue > m_max) )  ) {
+                  ( currentHits < m_min || currentHits > m_max ) )  ) {
                 featureColor.alpha = 0.0f;
             }
             GL::GLcolor color = factory.getColor(index);
@@ -418,7 +440,8 @@ DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
 {
     DataProxy::FeatureListPtr featureList = DataProxy::FeatureListPtr(new DataProxy::FeatureList);
     foreach(const GL::GLindex index, m_geneInfoSelection) {
-        GeneInfoReverseMap::iterator it = m_geneInfoReverse.find(index), end = m_geneInfoReverse.end();
+        GeneInfoReverseMap::iterator it = m_geneInfoReverse.find(index);
+        GeneInfoReverseMap::iterator end = m_geneInfoReverse.end();
         // hash map represent one to many connection. iterate over all matches.
         for (; (it != end) && (it.key() == index); ++it) {
             featureList->append(it.value());
@@ -441,25 +464,35 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 {
     //create factory
     GL::GLElementRectangleFactory factory(m_geneData);
+
     // unselect previous selecetion
     foreach(const GL::GLindex index, m_geneInfoSelection) {
         const GL::GLoption option = factory.getOption(index);
         factory.setOption(index, GL::bitClear(option, 0));
     }
     m_geneInfoSelection.clear();
+
     //select all
     foreach(const DataProxy::FeaturePtr feature, featureList) {
-        GeneInfoByIdMap::iterator it = m_geneInfoById.find(feature), end = m_geneInfoById.end();
-        if (it == end) {
+        GeneInfoByIdMap::const_iterator it =  m_geneInfoById.find(feature);
+        if (it == m_geneInfoById.end()) {
             continue;
         }
+
         const GL::GLindex index = it.value();
         const int refCount = m_geneData.getRefCount(index);
         const GL::GLoption option = factory.getOption(index);
-        // do not select non-visible features (check tresholds and visible too)
-        if (refCount <= 0) {
+        const int value = m_geneData.getValue(index);
+
+        // do not select non-visible features or outside threshold (global mode)
+        // TODO account for individual mode
+        if (refCount <= 0
+                || (m_thresholdMode == Globals::GlobalGeneMode
+                    && (value < m_min_local || value > m_max_local) ) ) {
             continue;
         }
+
+        // make the selection
         m_geneInfoSelection.insert(index);
         factory.setOption(index, GL::bitSet(option, 0));
     }
@@ -470,8 +503,10 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
     //get selection area
     QRectF rect = event->path().boundingRect();
     GL::GLaabb aabb = GL::toGLaabb(rect);
+
     // init gene factory
     GL::GLElementRectangleFactory factory(m_geneData);
+
     //clear selection
     SelectionEvent::SelectionMode mode = event->mode();
     if (mode == SelectionEvent::NewSelection) {
@@ -482,26 +517,40 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         }
         m_geneInfoSelection.clear();
     }
+
     // get selected genes
     GeneInfoQuadTree::PointItemList list;
     m_geneInfoQuadTree.select(aabb, list);
+
     // select new selecetion
-    GeneInfoQuadTree::PointItemList::const_iterator it, end = list.end();
+    GeneInfoQuadTree::PointItemList::const_iterator it;
+    GeneInfoQuadTree::PointItemList::const_iterator end = list.end();
     for (it = list.begin(); it != end; ++it) {
+
         GL::GLindex index = it->second;
         const int refCount = m_geneData.getRefCount(index);
         const GL::GLoption option = factory.getOption(index);
-        // do not select non-visible features
-        if (refCount <= 0) {
+        const int value = m_geneData.getValue(index);
+
+        // do not select non-visible features or outside threshold (global mode)
+        // TODO account for individual mode
+        if (refCount <= 0
+                || (m_thresholdMode == Globals::GlobalGeneMode
+                    && (value < m_min_local || value > m_max_local) ) ) {
             continue;
         }
+
         // make the selection
         if (mode == SelectionEvent::ExcludeSelection) {
+
             m_geneInfoSelection.remove(index);
             factory.setOption(index, GL::bitClear(option, 0));
+
         } else {
+
             m_geneInfoSelection.insert(index);
             factory.setOption(index, GL::bitSet(option, 0));
+
         }
     }
 }

@@ -45,8 +45,8 @@ GLindex GLElementRectangleFactory::addShape(const GLrectangle &rectangle)
     if (m_flags & AutoAddConnection) {
         m_data->connect<GLrectangle::POINTS>(GLrectangleindex(index));
     }
-
-    return translateInternalIndex(index);
+    const GLindex internalIndex = translateInternalIndex(index);
+    return internalIndex;
 }
 
 GLindex GLElementRectangleFactory::connect(const GLindex &externalIndex)
