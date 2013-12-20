@@ -5,7 +5,7 @@ attribute float in_options;
 attribute float in_features;
 attribute float in_values;
 attribute float in_references;
-//attribute float in_optionsGene;
+
 // passed along to fragment shader
 varying vec4 out_color;
 varying vec4 out_texture;

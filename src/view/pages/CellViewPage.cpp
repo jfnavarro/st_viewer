@@ -301,8 +301,10 @@ void CellViewPage::initGLConnections()
     GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
 
     //connect gene list model to gene plotter
-    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
-    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl,
+            SLOT(updateGeneSelection(DataProxy::GenePtr)));
+    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl,
+            SLOT(updateGeneColor(DataProxy::GenePtr)));
 
     //connect gene plotter to gene selection model
     connect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
@@ -323,10 +325,12 @@ void CellViewPage::initGLConnections()
     connect(toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), gene_plotter_gl, SLOT(setGeneVisible(bool))) ;
 
     //visual mode signal
-    connect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
+    connect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotSetGeneVisualMode(QAction*)));
 
     //threshold mode signal
-    connect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneThresholdMode(QAction*)));
+    connect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotSetGeneThresholdMode(QAction*)));
 
     // grid signals
     connect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
@@ -351,8 +355,10 @@ void CellViewPage::finishGLConnections()
     GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
 
     //connect gene list model to gene plotter
-    disconnect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneSelection(DataProxy::GenePtr)));
-    disconnect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl, SLOT(updateGeneColor(DataProxy::GenePtr)));
+    disconnect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), gene_plotter_gl,
+               SLOT(updateGeneSelection(DataProxy::GenePtr)));
+    disconnect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), gene_plotter_gl,
+               SLOT(updateGeneColor(DataProxy::GenePtr)));
 
     //connect gene plotter to gene selection model
     disconnect(gene_plotter_gl, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
@@ -375,7 +381,8 @@ void CellViewPage::finishGLConnections()
     disconnect(toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneVisualMode(QAction*)));
 
     //threshold mode signal
-    disconnect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this, SLOT(slotSetGeneThresholdMode(QAction*)));
+    disconnect(toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
+               SLOT(slotSetGeneThresholdMode(QAction*)));
 
     // grid signals
     disconnect(colorDialog_grid, SIGNAL(colorSelected(const QColor&)), gene_plotter_gl, SLOT(setGridColor(const QColor&)));
@@ -407,11 +414,13 @@ void CellViewPage::slotLoadCellFigure()
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::UserPtr current_user = dataProxy->getUser();
     DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+
     // early out
     if (current_user.isNull() || dataset.isNull()) {
         qDebug() << QString("[CellViewPage] Warning: Invalid user or no data!");
         return;
     }
+
     //TODO refactor: do not expose sender
     bool forceRedFigure = (QObject::sender() == toolBar->actionShow_cellTissueRed);
     bool forceBlueFigure = (QObject::sender() == toolBar->actionShow_cellTissueBlue);

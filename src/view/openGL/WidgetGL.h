@@ -11,7 +11,6 @@
 #include <QGLWidget>
 
 // Extension of QGLWidget used to hook in on some of the standard opengl calls.
-//NOTE Currently not used!
 class WidgetGL : public QGLWidget
 {
     Q_OBJECT

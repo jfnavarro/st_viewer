@@ -84,6 +84,7 @@ protected:
     
     void createConnections();
     
+    // reset all the visual variables to default
     void resetActionStates();
     
     //image loading function

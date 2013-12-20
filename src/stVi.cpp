@@ -169,7 +169,7 @@ void stVi::setupUi()
 {
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
-    //resize(1217, 706);
+    resize(1217, 706);
 
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);

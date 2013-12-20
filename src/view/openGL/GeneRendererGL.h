@@ -9,11 +9,8 @@
 
 #include "data/GLElementDataGene.h"
 #include "math/GLQuadTree.h"
-
 #include "SelectionEvent.h"
-
 #include "controller/data/DataProxy.h"
-
 #include "utils/Utils.h"
 
 class ColorScheme;
@@ -38,10 +35,10 @@ public:
     void updateData(updateOptions flags);
     void clearData();
     void rebuildData();
-    
     void updateGene(DataProxy::GenePtr, updateOptions flags);
     void updateFeatures(DataProxy::FeatureListPtr, updateOptions flags);
 
+    // reset quad tree to rect size
     void resetQuadTree(const QRectF &rect);
 
     //selection functions
@@ -51,44 +48,30 @@ public:
     void clearSelection();
 
     //getters
-    
     DataProxy::FeatureListPtr getSelectedFeatures();
-
     inline const GL::GLElementDataGene& getData() const { return m_geneData; }
-
     inline qreal intensity() const { return m_intensity; }
-
     inline qreal size() const { return m_size; }
-
     inline int lowerLimit() const { return m_min; }
     inline int upperLimit() const { return m_max; }
-
     inline const Globals::VisualMode& visualMode() const { return m_visualMode; }
     inline const Globals::ThresholdMode& thresholdMode() const { return m_thresholdMode; }
 
     //setters
     void setIntensity(qreal intensity);
-
     void setSize(qreal size);
-
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
-
     void setThresholdMode(const Globals::ThresholdMode &mode);
     void setVisualMode(const Globals::VisualMode &mode);
-
     void setHitCount(int min, int max, int sum);
 
 protected:
-
     //internal rendering functions
     void updateColor(DataProxy::FeatureListPtr);
     void updateSelection(DataProxy::FeatureListPtr);
-    void updateThreshold(DataProxy::FeatureListPtr);
     void updateSize(DataProxy::FeatureListPtr);
     void updateVisual(DataProxy::FeatureListPtr);
-
-    //static int recomputeSum(int min, int max);
 
 private:
     // lookup maps
@@ -117,6 +100,8 @@ private:
     qreal m_size;
 
     // hit count limits
+    // min and max would correspond to the values of individual unique events (gene - feature)
+    // min and max local would correspond to the values of features treated as one entity
     int m_min;
     int m_max;
     int m_min_local;

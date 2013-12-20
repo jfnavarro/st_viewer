@@ -27,13 +27,13 @@ public:
         IndexArray = 0x004u,
         TextureArray = 0x008u,
         OptionArray = 0x010u,
-        FeaturesArray = 0x012u,
+        FeatureCountArray = 0x012u,
         RefCountArray = 0x014u,
-        ValueArray = 0x016u,
+        ExpressionCountArray = 0x016u,
         RenderMode = 0x100u,
         // composite flags
         Arrays = (PointArray | ColorArray | IndexArray | TextureArray | OptionArray
-        | FeaturesArray | RefCountArray | ValueArray ),
+        | FeatureCountArray | RefCountArray | ExpressionCountArray ),
         Modes = (RenderMode),
         All = (Arrays | Modes)
     };
@@ -47,6 +47,7 @@ public:
     // some helpful reset functions (reset to 0)
     void resetRefCount();
     void resetValCount();
+    void resetFeatCount();
 
     // number of genes in the feature
     void addFeatCount(const GLuint &featcount, GLindex *index = 0);
@@ -71,9 +72,6 @@ public:
     const GLuint &getRefCount(const GLindex &index) const;
     const GLuint &getValue(const GLindex &index) const;
 
-    inline const GLuint &getMaxValue() const { return *(std::max_element(m_values.begin(), m_values.end())); }
-    inline const GLuint &getMinValue() const { return *(std::min_element(m_values.begin(), m_values.end())); }
-
     // getters for arrays
     const GLarray<GLuint> features() const;
     const GLarray<GLuint> references() const;
@@ -86,25 +84,30 @@ public:
     void setThresholdMode(const Globals::ThresholdMode &mode) { m_geneMode = mode; }
 
     // global variables (hit count limits)
-    inline void setHitCount(int min, int max, int sum) { m_min = min; m_max = max; m_sum = sum; }
+    inline void setHitCount(int min, int max, int sum)
+    {
+        m_hitCountMin = static_cast<GLint>(min);
+        m_hitCountMax = static_cast<GLint>(max);
+        m_hitCountSum = static_cast<GLint>(sum);
+    }
 
     // global variable intensity
-    inline void setIntensity(const GLfloat &intensity) { m_intensity = intensity; }
+    inline void setIntensity(const qreal &intensity) { m_intensity = static_cast<GLfloat>(intensity); }
 
     // thresholds limits
-    inline void setLowerLimit(int limit) { m_geneLowerLimit = limit; }
-    inline void setUpperLimit(int limit) { m_geneUpperLimit = limit; }
+    inline void setLowerLimit(int limit) { m_geneLowerLimit = static_cast<GLint>(limit); }
+    inline void setUpperLimit(int limit) { m_geneUpperLimit = static_cast<GLint>(limit); }
     
     // getters global varibles
     inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
     inline const Globals::ThresholdMode& getThresholdMode() const { return m_geneMode; }
 
-    inline int getMin() const { return m_min; }
-    inline int getMax() const { return m_max; }
-    inline int getSum() const { return m_sum; }
+    inline GLint getHitCountMin() const { return m_hitCountMin; }
+    inline GLint getHitCountMax() const { return m_hitCountMax; }
+    inline GLint getHitCountSum() const { return m_hitCountSum; }
 
-    inline int getLowerLimit() const { return m_geneLowerLimit; }
-    inline int getUpperLimit() const { return m_geneUpperLimit; }
+    inline GLint getLowerLimit() const { return m_geneLowerLimit; }
+    inline GLint getUpperLimit() const { return m_geneUpperLimit; }
 
     inline GLfloat getIntensity() const { return m_intensity; }
 
@@ -128,13 +131,14 @@ private:
     Globals::VisualMode m_colorMode; //only used for global mode
     Globals::ThresholdMode m_geneMode; //only used for global mode
 
-    int m_min; //only used for global mode
-    int m_max; //only used for global mode
-    int m_sum; //only used for global mode
+    // hit count values
+    GLint m_hitCountMin; //only used for global mode
+    GLint m_hitCountMax; //only used for global mode
+    GLint m_hitCountSum; //only used for global mode
 
     // upper && lower thresholds
-    int m_geneLowerLimit; //only used for global mode
-    int m_geneUpperLimit; //only used for global mode
+    GLint m_geneLowerLimit; //only used for global mode
+    GLint m_geneUpperLimit; //only used for global mode
 
     GLfloat m_intensity;
 };

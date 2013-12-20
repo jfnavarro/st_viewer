@@ -92,8 +92,6 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
     int geneMode = -1;
     int intensity = -1;
 
-    qDebug() << "Shaders, rendering genes with min : " << renderData.getMin() << " max : " << renderData.getMax()
-                << " sum : " << renderData.getSum() << " upper : " << renderData.getUpperLimit() << " lower : " << renderData.getLowerLimit();
     if (m_program != 0) {
         // enable attribute arrays
 
@@ -128,13 +126,13 @@ void GLShaderRender::render(const GLElementDataGene& renderData)
         m_program->setUniformValue(geneMode,geneModeValue);
 
         hitCountLocationMin = m_program->uniformLocation("in_hitCountMin");
-        m_program->setUniformValue(hitCountLocationMin, renderData.getMin());
+        m_program->setUniformValue(hitCountLocationMin, renderData.getHitCountMin());
 
         hitCountLocationMax = m_program->uniformLocation("in_hitCountMax");
-        m_program->setUniformValue(hitCountLocationMax, renderData.getMax());
+        m_program->setUniformValue(hitCountLocationMax, renderData.getHitCountMax());
 
         hitCountLocationSum = m_program->uniformLocation("in_hitCountSum");
-        m_program->setUniformValue(hitCountLocationSum,renderData.getSum());
+        m_program->setUniformValue(hitCountLocationSum,renderData.getHitCountSum());
 
         upperLimit = m_program->uniformLocation("in_upper");
         m_program->setUniformValue(upperLimit,renderData.getUpperLimit());

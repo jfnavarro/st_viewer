@@ -28,29 +28,26 @@ class stVi : public QMainWindow
 
 public:
 
-    // constructor we only need the parameters object and the parent if there is any
     explicit stVi(QWidget* parent = 0);
+    virtual ~stVi();
 
     //initialize main visual components
     void init();
 
+    // check that the host has all the required hardware (1 yes : 0 no )
     int checkSystemRequirements();
 
     //settings
     void loadSettings();
     void saveSettings() const;
 
-    //destructor
-    ~stVi();
-
 signals:
-
     //we emit this when there is an error
     void signalError(Error* error);
 
-    // slots are functions that are going to be assigned to signals and events
 public slots:
 
+    // handlemessage is intented to be called from another instance trying to run at the same time
     void handleMessage(QString);
 
     void showAbout();
@@ -64,6 +61,23 @@ private slots:
     void slotClearCache();
 
 private:
+
+    // create all the widgets
+    void setupUi();
+    // initialize and configure layout
+    void createLayouts();
+    // load style sheets
+    void initStyle();
+    // initialize singleton objects
+    void initSingleInstances();
+    // create keyboard shortcuts
+    void createShorcuts();
+    // finalize and destroy singleton objects
+    void finalizeSingleInstances();
+    // create some connections
+    void createConnections();
+    // overloaded close Event function to handle the exit
+    void closeEvent(QCloseEvent* event);
 
     QAction *actionExit;
     QAction *actionHelp;
@@ -81,23 +95,6 @@ private:
     QWidget *centralwidget;
     QVBoxLayout *mainlayout;
     ExtendedTabWidget *mainTab;
-
-    //create all the widgets
-    void setupUi();
-    // initialize and configure layout
-    void createLayouts();
-    //style
-    void initStyle();
-    // initialize objects
-    void initSingleInstances();
-    // create keyboard shortcuts
-    void createShorcuts();
-    // finalize objects
-    void finalizeSingleInstances();
-    // create some connections
-    void createConnections();
-    // overloaded close Event function to handle the exit
-    void closeEvent(QCloseEvent* event);
 };
 
 #endif // stVi_H

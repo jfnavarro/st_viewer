@@ -45,7 +45,7 @@ ImageItemGL::ImageItemGL(const QImage& image, QGraphicsItem* parent)
 
 ImageItemGL::~ImageItemGL()
 {
-
+    m_texture.deallocate();
 }
 
 void ImageItemGL::clear()

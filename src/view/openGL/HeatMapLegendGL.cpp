@@ -38,7 +38,8 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
 
 HeatMapLegendGL::~HeatMapLegendGL()
 {
-
+    m_texture->release();
+    m_texture->destroy();
 }
 
 void HeatMapLegendGL::setBounds(const QRectF& bounds)

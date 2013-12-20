@@ -20,20 +20,6 @@
 //TODO Defines that are not used globally should be defined in the scope they are used.
 namespace Globals
 {
-// waitPolicy
-// provides flag value for the dynamic property waitPolicy as used by
-// different pages to determine behavior on asynchronous waiting.
-// property should be added to child widgets that need to react to
-// asynchronous wait. modify through .ui interface.
-// eg.
-//  (ToggleEnable & ToggleEnableTrue) will disable the widget on wait.
-//  (ToggleEnable & ToggleVisile) will enable and show the widget on wait.
-enum WaitPolicy {
-    ToggleEnable = 0x01,        // invoke setEnabled
-    ToggleEnableTrue = 0x02,    // with value true (else false)
-    ToggleVisible = 0x04,       // invoke setVisible
-    ToggleVisibleTrue = 0x08    // with value true (else false)
-};
 
 /*** version ***/
 static const QString MAJOR = QString::number(VERSION_MAJOR);
@@ -70,15 +56,14 @@ static const QColor minimap_scene_color = Qt::red;
 
 static const qreal minimap_height = 100;
 static const qreal minimap_width = 100;
-static const qreal heatmap_height = 200;
-static const qreal heatmap_width = 30;
-static const qreal heatmap_bar_width = 40;
+static const qreal heatmap_height = 150;
+static const qreal heatmap_width = 25;
+static const qreal heatmap_bar_width = 35;
 
 enum ThresholdMode {
     IndividualGeneMode = 0,
     GlobalGeneMode = 1
 };
-
 
 enum VisualMode {
     NormalMode = 0,

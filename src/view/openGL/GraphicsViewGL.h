@@ -25,9 +25,6 @@ class QGLContext;
 
 // Extension of the QT graphical view class. Provides additional functionality
 // to initialize and finalize opengl related data.
-//NOTE this needs to be abstracted (decoupled) so as to allow hardware
-//     accelerated as well as software based rendering.
-//
 // Extends the standard graphical view with functionality to control zooming,
 // as well as providing an easy way of drawing HUD elements.
 class GraphicsViewGL : public QGraphicsView

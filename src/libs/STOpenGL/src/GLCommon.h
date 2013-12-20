@@ -23,7 +23,7 @@ namespace GL
 // static constants & typedefs
 typedef GLuint GLflag;
 typedef GLuint GLindex;
-static const GLindex INVALID_INDEX = GLindex(-1);
+static const GLindex INVALID_INDEX = GLindex(-1); //NOTE GLuint is unsigned integer
 static const GLfloat EPSILON = GLfloat(1.0e-5);
 
 // misc functions

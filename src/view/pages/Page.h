@@ -11,6 +11,8 @@
 
 class Error;
 
+// this an abstract class to represent the different pages
+// for the tab manager
 class Page : public QWidget
 {
     Q_OBJECT

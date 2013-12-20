@@ -127,6 +127,7 @@ void main(void)
     // calculate distance from center
     vec2 pos = mod(out_texture.xy, vec2(1.0)) - vec2(0.5);
     float dist = length(pos);
+    
     // radii of circle
     float radii = (selected) ? 0.3 : 0.5;
     
@@ -135,8 +136,6 @@ void main(void)
     
     //adjust color for globalMode
     if (geneMode == 1) {
-        //float adjusted_min = (lower_limit / 100.0) * (max_value - min_value); //uggly 100 should be sent as variable
-        //float adjusted_max = (upper_limit / 100.0) * (max_value - min_value); //uggly 100 should be sent as variable
         if (colorMode == 0) {
             fragColor = out_color;
             fragColor.a = in_intensity;

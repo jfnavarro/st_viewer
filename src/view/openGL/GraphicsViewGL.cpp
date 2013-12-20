@@ -25,8 +25,6 @@
 #include "SelectionEvent.h"
 #include "GraphicsSceneGL.h"
 
-
-
 GraphicsViewGL::GraphicsViewGL(QWidget* parent)
     : QGraphicsView(parent),
       m_minimap(0),

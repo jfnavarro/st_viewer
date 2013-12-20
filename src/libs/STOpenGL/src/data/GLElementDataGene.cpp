@@ -27,21 +27,21 @@ GLElementDataGene::~GLElementDataGene()
 void GLElementDataGene::clear(GLflag flags)
 {
 
-    if (flags & GLElementDataGene::FeaturesArray) {
+    if (flags & GLElementDataGene::FeatureCountArray) {
         m_features.resize(0);
     }
     if (flags & GLElementDataGene::RefCountArray) {
         m_references.resize(0);
     }
-    if (flags & GLElementDataGene::ValueArray) {
+    if (flags & GLElementDataGene::ExpressionCountArray) {
         m_values.resize(0);
     }
 
     m_colorMode = Globals::NormalMode;
     m_geneMode = Globals::IndividualGeneMode;
-    m_min = Globals::gene_lower_limit;
-    m_max = Globals::gene_upper_limit;
-    m_sum = Globals::gene_upper_limit;
+    m_hitCountMin = Globals::gene_lower_limit;
+    m_hitCountMax = Globals::gene_upper_limit;
+    m_hitCountSum = Globals::gene_upper_limit;
     m_intensity = Globals::gene_intensity;
     m_geneLowerLimit = Globals::gene_threshold_min;
     m_geneUpperLimit = Globals::gene_threshold_max;
