@@ -41,7 +41,6 @@ void ColorListEditor::populateList(const ColorPalette* palette)
 
     for (int i = 0; i < colorList.size(); ++i) {
         const ColorPalette::ColorPair pair = colorList[i];
-
         insertItem(i, pair.second);
         setItemData(i, pair.first, Qt::DecorationRole);
     }

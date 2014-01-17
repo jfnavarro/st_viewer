@@ -97,19 +97,19 @@ void stVi::init()
     loadSettings();
 }
 
-int stVi::checkSystemRequirements()
+bool stVi::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
         QMessageBox::information(0, "OpenGL 2.x Support",
                                  "This system does not support OpenGL.");
-        return 0;
+        return false;
     }
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
         QMessageBox::information(0, "OpenGL 2.x Context",
                                  "This system does not support OpenGL 2.x Contexts");
-        return 0;
+        return false;
     }
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
@@ -133,7 +133,7 @@ int stVi::checkSystemRequirements()
     if (reply == 0) {
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
-        return 0;
+        return false;
     }
     
     //parse reply
@@ -152,7 +152,7 @@ int stVi::checkSystemRequirements()
         if (my_version_major > version_major || my_version_minor > version_minor) {
             QMessageBox::information(0, "MINIMUM VERSION",
                                      "This version of the software is not supported anymore, please update!");
-            return 0;
+            return false;
         }
     } else {
         qDebug() << "[MAIN] Network ERROR : Check min version min " << reply->getText();
@@ -160,9 +160,10 @@ int stVi::checkSystemRequirements()
                                  "Required version could not be retrieved from the server, try again");
 
         reply->deleteLater();
-        return 0;
+        return false;
     }
-    return 1;
+
+    return true;
 }
 
 void stVi::setupUi()

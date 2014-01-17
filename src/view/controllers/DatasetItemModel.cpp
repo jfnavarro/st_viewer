@@ -38,6 +38,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
     if (!index.isValid() || m_datasets_reference.isNull()) {
         return QVariant(QVariant::Invalid);
     }
+
     DataProxy::DatasetPtr item = m_datasets_reference->at(index.row());
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
@@ -62,6 +63,7 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
     if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
     }
+
     if (orientation == Qt::Horizontal) {
         switch (section) {
         case Name : return tr("Name");

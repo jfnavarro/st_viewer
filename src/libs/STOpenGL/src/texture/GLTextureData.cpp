@@ -28,33 +28,28 @@ QOpenGLTexture* GLTextureData::getTexture(const GLindex &i) const
     return m_textures[i];
 }
 
-const GLarray<QOpenGLTexture *> GLTextureData::textures() const
+const GLTextureData::GLtextures &GLTextureData::textures() const
 {
-    return GLarray<QOpenGLTexture*>( (GLsizei)m_textures.size(), m_textures.constData() );
+    return m_textures;
 }
 
-void GLTextureData::addVertex(const GLfloat &x, const GLfloat &y, GLindex *index)
-{
-    addVertex(GL::GLpoint(x,y), index);
-}
-
-void GLTextureData::addVertex(const GL::GLpoint &v, GLindex* index)
+void GLTextureData::addVertex(const QRectF &texture, GLindex* index)
 {
     // return new index if pointer provided
     if (index != 0) {
         (*index) = (GLindex) m_vertices.size();
     }
-    m_vertices.push_back(v);
+    m_vertices.push_back(texture);
 }
 
-const GL::GLpoint& GLTextureData::getVertex(const GLindex &i) const
+const QRectF &GLTextureData::getVertex(const GLindex &index) const
 {
-    return m_vertices[i];
+    return m_vertices[index];
 }
 
-const GLarray<GL::GLpoint> GLTextureData::vertices() const
+const GLTextureData::GLvertices &GLTextureData::vertices() const
 {
-    return GLarray<GL::GLpoint>( (GLsizei)m_vertices.size(), m_vertices.constData() );
+    return m_vertices;
 }
 
 void GLTextureData::deallocate()

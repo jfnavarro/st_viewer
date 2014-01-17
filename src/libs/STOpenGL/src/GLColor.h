@@ -10,6 +10,8 @@
 
 #include "GLCommon.h"
 
+#include <QColor>
+
 namespace GL
 {
 
@@ -60,13 +62,17 @@ struct GLcolor {
     GLfloat alpha;
 };
 
-inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
-inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1);
+inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1);
 
 // linear interpolation
 inline const GLcolor lerp(const GLfloat t, const GLcolor &c0, const GLcolor &c1);
 // inverse linear interpolation
 inline const GLcolor invlerp(const GLfloat t, const GLcolor &c0, const GLcolor &c1);
+
+// transformations
+inline const GLcolor toGLcolor(const QColor& color);
+inline const QColor toQColor(const GLcolor& color);
 
 inline const GLcolor operator *(GLfloat blend, const GLcolor &color);
 inline const GLcolor operator *(const GLcolor &color, GLfloat blend);
@@ -84,7 +90,6 @@ struct GLcolordata {
 };
 
 typedef GLcolordata<2> GLlinecolor;
-typedef GLcolordata<3> GLtrianglecolor;
 typedef GLcolordata<4> GLrectanglecolor;
 
 } // namespace GL //
@@ -154,20 +159,20 @@ inline void GLcolor::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat 
     GLcolor::alpha = alpha;
 }
 
-inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
+inline bool fuzzyEqual(const GLcolor &c0, const GLcolor &c1)
 {
-    return fuzzyEqual(c0.red, c1.red, e)
-           && fuzzyEqual(c0.green, c0.green, e)
-           && fuzzyEqual(c0.blue, c1.blue, e)
-           && fuzzyEqual(c0.alpha, c1.alpha, e);
+    return qFuzzyCompare(c0.red, c1.red)
+           && qFuzzyCompare(c0.green, c0.green)
+           && qFuzzyCompare(c0.blue, c1.blue)
+           && qFuzzyCompare(c0.alpha, c1.alpha);
 }
 
-inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1, GLfloat e)
+inline bool fuzzyNotEqual(const GLcolor &c0, const GLcolor &c1)
 {
-    return fuzzyNotEqual(c0.red, c1.red, e)
-           || fuzzyNotEqual(c0.green, c0.green, e)
-           || fuzzyNotEqual(c0.blue, c1.blue, e)
-           || fuzzyNotEqual(c0.alpha, c1.alpha, e);
+    return qFuzzyCompare(c0.red, c1.red)
+           || qFuzzyCompare(c0.green, c0.green)
+           || qFuzzyCompare(c0.blue, c1.blue)
+           || qFuzzyCompare(c0.alpha, c1.alpha);
 }
 
 inline const GLcolor lerp(const GLfloat t, const GLcolor &c0, const GLcolor &c1)
@@ -188,6 +193,26 @@ inline const GLcolor invlerp(const GLfloat t, const GLcolor &c0, const GLcolor &
                (c0.green - t * c1.green) * invt,
                (c0.blue - t * c1.blue) * invt,
                (c0.alpha - t * c1.alpha) * invt
+           );
+}
+
+// GLcolor
+const GLcolor toGLcolor(const QColor& color)
+{
+    const GLfloat red = static_cast<GLfloat>(color.redF());
+    const GLfloat green = static_cast<GLfloat>(color.greenF());
+    const GLfloat blue = static_cast<GLfloat>(color.blueF());
+    const GLfloat alpha = static_cast<GLfloat>(color.alphaF());
+    return GLcolor(red, green, blue, alpha);
+}
+
+const QColor toQColor(const GLcolor& color)
+{
+    return QColor::fromRgbF(
+               static_cast<qreal>(color.red),
+               static_cast<qreal>(color.green),
+               static_cast<qreal>(color.blue),
+               static_cast<qreal>(color.alpha)
            );
 }
 

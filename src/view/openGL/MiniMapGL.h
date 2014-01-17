@@ -9,7 +9,8 @@
 #define MINIMAPGL_H
 
 #include "data/GLElementData.h"
-#include "data/GLElementRender.h"
+#include "render/GLElementRender.h"
+
 #include "ViewItemGL.h"
 
 // MiniMap is an view port GUI item that visualizes the view ports current
@@ -61,8 +62,10 @@ private:
     // minimap select
     bool m_selecting;
 
+    // sizes
     QRectF m_bounds;
     QTransform m_transform;
+
     // mini versions
     QRectF m_scene;
     QRectF m_view;

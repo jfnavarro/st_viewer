@@ -8,11 +8,11 @@
 #include <QtTest/QTest>
 
 #include <qdebug.h>
-#include <GLQt.h>
 
 #include <GLCommon.h>
 #include <GLColor.h>
 #include <compression/GLBitColor.h>
+
 Q_DECLARE_METATYPE(GL::GLcolor)
 
 #include "tst_glcolortest.h"

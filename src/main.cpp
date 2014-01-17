@@ -90,7 +90,8 @@ int main(int argc, char** argv)
     stVi *mainWindow = new stVi();
     app->setActivationWindow(mainWindow);
     // connect message queue to the main window.
-    QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)), mainWindow, SLOT(handleMessage(QString)));
+    QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)),
+                     mainWindow, SLOT(handleMessage(QString)));
     //check for min requirements
     if (!mainWindow->checkSystemRequirements()) {
         delete mainWindow;
@@ -107,5 +108,4 @@ int main(int argc, char** argv)
     //delete app;
     qDebug() << "Application closed successfully.";
     return res;
-
 }

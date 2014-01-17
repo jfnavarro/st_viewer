@@ -9,6 +9,7 @@
 
 #include <QOpenGLPixelTransferOptions>
 #include <QOpenGLTexture>
+#include <cmath>
 
 namespace GL
 {
@@ -32,29 +33,25 @@ GLTextureCutter::GLTextureCutter(GLsizei width, GLsizei height)
 }
 
 void GLTextureCutter::cut(int width, int height, GLvoid *pixels, GLTextureData& data)
-{
-    const GLint cutWidth = static_cast<GLint>(m_width);
-    const GLint cutHeight = static_cast<GLint>(m_height);
-    const GLint imgWidth = static_cast<GLint>(width);
-    const GLint imgHeight = static_cast<GLint>(height);
-    const GLint xCount = qCeil( (GLfloat)imgWidth / (GLfloat)cutWidth );
-    const GLint yCount = qCeil( (GLfloat)imgHeight / (GLfloat)cutHeight );
-    const GLint count = xCount * yCount;
-    const GLint alignment = 1;
+{   
+    const int xCount = std::ceil( static_cast<GLfloat>(width) / static_cast<GLfloat>(m_width) );
+    const int yCount = std::ceil( static_cast<GLfloat>(height) / static_cast<GLfloat>(m_height) );
+    const int count = xCount * yCount;
+    const int alignment = 1;
 
     for (int i = 0; i < count; ++i) {
 
          // texture sizes
-        const GLint x = cutWidth * (i % xCount);
-        const GLint y = cutHeight * (i / xCount);
-        const GLint width = qMin(imgWidth -  x, cutWidth);
-        const GLint height = qMin(imgHeight -  y, cutHeight);
-        const GLint offset = imgHeight - y - height;
+        const int x = m_width * (i % xCount);
+        const int y = m_height * (i / xCount);
+        const int texture_width = qMin(width -  x, m_width);
+        const int texture_height = qMin(height -  y, m_height);
+        const int offset = width - y - texture_height;
 
         // texture options
         QOpenGLPixelTransferOptions options;
         options.setAlignment( alignment );
-        options.setRowLength( imgWidth );
+        options.setRowLength( width );
         options.setSkipPixels( x );
         options.setSkipRows( offset );
 
@@ -65,20 +62,19 @@ void GLTextureCutter::cut(int width, int height, GLvoid *pixels, GLTextureData& 
         tile->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
         tile->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
         tile->setFormat(QOpenGLTexture::RGBA8_UNorm);
-        tile->setSize(width, height);
+        tile->setSize(texture_width, texture_height);
         tile->allocateStorage();
         tile->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, pixels, &options);
 
         // add texture to rendering data
         data.addTexture(tile);
 
-        // TOFIX this cordinates seem to be wrong
-        // need to create the 4 vertex for the texture (we draw textures as GL_QUADS
+        // TOFIX this coordinates seem to be wrong
         // TODO this could be done automatically in addTexture
-        data.addVertex( x, y + height);
-        data.addVertex( x, y );
-        data.addVertex( x + width, y );
-        data.addVertex( x + width, y + height );
+        QPointF topleft = QPointF(x, y);
+        QPointF bottomright = QPointF(x + width, y + height );
+        QRectF textureShape(topleft, bottomright);
+        data.addVertex( textureShape );
     }
 }
 

@@ -10,9 +10,8 @@
 #include <QtTest/QTest>
 
 #include <math/GLAABB.h>
-Q_DECLARE_METATYPE(GL::GLpoint)
+
 Q_DECLARE_METATYPE(GL::GLaabb)
-#include <GLQt.h>
 
 #include "tst_glaabbtest.h"
 
@@ -32,8 +31,8 @@ void GLAABBTest::cleanupTestCase()
 
 void GLAABBTest::testConstructFromPoints()
 {
-    QFETCH(GL::GLpoint, p0);
-    QFETCH(GL::GLpoint, p1);
+    QFETCH(QPointF, p0);
+    QFETCH(QPointF, p1);
     QFETCH(GL::GLaabb, b);
     QFETCH(bool, expected);
 
@@ -41,22 +40,22 @@ void GLAABBTest::testConstructFromPoints()
 }
 void GLAABBTest::testConstructFromPoints_data()
 {
-    QTest::addColumn<GL::GLpoint>("p0");
-    QTest::addColumn<GL::GLpoint>("p1");
-    QTest::addColumn<GL::GLaabb>("b");
+    QTest::addColumn<QPointF>("p0");
+    QTest::addColumn<QPointF>("p1");
+    QTest::addColumn<QPointF>("b");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("simple0") << GL::GLpoint(0.0f, 0.0f) << GL::GLpoint(1.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("simple1") << GL::GLpoint(-1.0f, -1.0f) << GL::GLpoint(1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("reverse0") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(0.0f, 0.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("reverse1") << GL::GLpoint(1.0f, 1.0f) << GL::GLpoint(-1.0f, -1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("corner0") << GL::GLpoint(1.0f, 0.0f) << GL::GLpoint(0.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("corner1") << GL::GLpoint(1.0f, -1.0f) << GL::GLpoint(-1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("simple0") << QPointF(0.0f, 0.0f) << QPointF(1.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("simple1") << QPointF(-1.0f, -1.0f) << QPointF(1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("reverse0") << QPointF(1.0f, 1.0f) << QPointF(0.0f, 0.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("reverse1") << QPointF(1.0f, 1.0f) << QPointF(-1.0f, -1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("corner0") << QPointF(1.0f, 0.0f) << QPointF(0.0f, 1.0f) << GL::GLaabb(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("corner1") << QPointF(1.0f, -1.0f) << QPointF(-1.0f, 1.0f) << GL::GLaabb(-1.0f, -1.0f, 2.0f, 2.0f) << true;
 }
 
 void GLAABBTest::testContainsByPoint()
 {
-    QFETCH(GL::GLpoint, p);
+    QFETCH(QPointF, p);
     QFETCH(GL::GLaabb, b);
     QFETCH(bool, expected);
 
@@ -64,7 +63,7 @@ void GLAABBTest::testContainsByPoint()
 }
 void GLAABBTest::testContainsByPoint_data()
 {
-    QTest::addColumn<GL::GLpoint>("p");
+    QTest::addColumn<QPointF>("p");
     QTest::addColumn<GL::GLaabb>("b");
     QTest::addColumn<bool>("expected");
 
@@ -73,12 +72,12 @@ void GLAABBTest::testContainsByPoint_data()
         GL::GLaabb(1.0f, 0.0f, 1.0f, 1.0f),
     };
 
-    QTest::newRow("simple0") << GL::GLpoint(0.5f, 0.5f) << aabb[0] << true;
-    QTest::newRow("simple1") << GL::GLpoint(0.5f, 0.5f) << aabb[1] << false;
-    QTest::newRow("edge0") << GL::GLpoint(1.0f, 0.0f) << aabb[0] << true;
-    QTest::newRow("edge1") << GL::GLpoint(1.0f, 1.0f) << aabb[1] << true;
-    QTest::newRow("close0") << GL::GLpoint(1.5f, 1.1f) << aabb[1] << false;
-    QTest::newRow("close1") << GL::GLpoint(1.1f, 0.5f) << aabb[0] << false;
+    QTest::newRow("simple0") << QPointF(0.5f, 0.5f) << aabb[0] << true;
+    QTest::newRow("simple1") << QPointF(0.5f, 0.5f) << aabb[1] << false;
+    QTest::newRow("edge0") << QPointF(1.0f, 0.0f) << aabb[0] << true;
+    QTest::newRow("edge1") << QPointF(1.0f, 1.0f) << aabb[1] << true;
+    QTest::newRow("close0") << QPointF(1.5f, 1.1f) << aabb[1] << false;
+    QTest::newRow("close1") << QPointF(1.1f, 0.5f) << aabb[0] << false;
 }
 
 void GLAABBTest::testContainsByAABB()

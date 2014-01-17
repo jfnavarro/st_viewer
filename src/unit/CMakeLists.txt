@@ -13,8 +13,8 @@ set(ST_MAIN
     controller/data/tst_datastoretest.h
     controller/tst_widgets.cpp
     controller/tst_widgets.h
-	model/tst_objectparsertest.cpp
-	model/tst_objectparsertest.h
+    model/tst_objectparsertest.cpp
+    model/tst_objectparsertest.h
     utils/tst_mathextendedtest.cpp
     utils/tst_mathextendedtest.h
 )
@@ -39,22 +39,10 @@ set(LIB_ST_OPENGL
     libs/STOpenGL/compression/tst_glcolortest.h
     libs/STOpenGL/math/tst_glaabbtest.cpp
     libs/STOpenGL/math/tst_glaabbtest.h
-    libs/STOpenGL/math/tst_glfloattest.cpp
-    libs/STOpenGL/math/tst_glfloattest.h
-    libs/STOpenGL/math/tst_glmathtest.cpp
-    libs/STOpenGL/math/tst_glmathtest.h
-    libs/STOpenGL/math/tst_glmatrixtest.cpp
-    libs/STOpenGL/math/tst_glmatrixtest.h
     libs/STOpenGL/math/tst_glquadtreetest.cpp
     libs/STOpenGL/math/tst_glquadtreetest.h
-    libs/STOpenGL/math/tst_glvectortest.cpp
-    libs/STOpenGL/math/tst_glvectortest.h
     libs/STOpenGL/render/tst_glheatmaptest.cpp
     libs/STOpenGL/render/tst_glheatmaptest.h
-    libs/STOpenGL/tst_glcommontest.cpp
-    libs/STOpenGL/tst_glcommontest.h
-    libs/STOpenGL/tst_glpointtest.cpp
-    libs/STOpenGL/tst_glpointtest.h
     libs/STOpenGL/tst_gltypetraitstest.cpp
     libs/STOpenGL/tst_gltypetraitstest.h
 )

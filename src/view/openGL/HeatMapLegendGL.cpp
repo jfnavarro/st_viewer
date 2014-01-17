@@ -8,17 +8,15 @@
 #include "HeatMapLegendGL.h"
 
 #include "utils/Utils.h"
+#include "utils/MathExtended.h"
 
 #include <QPainter>
 #include <QGLWidget>
 
-#include "GLQt.h"
 #include "GLScope.h"
-#include "data/GLElementRender.h"
+#include "render/GLElementRender.h"
 #include "data/GLElementRectangleFactory.h"
-#include "math/GLMatrix.h"
-#include "image/GLHeatMap.h"
-#include "image/GLImageWriter.h"
+#include "data/GLHeatMap.h"
 
 const QRectF HeatMapLegendGL::DEFAULT_BOUNDS =
         QRectF(0.0f, 0.0f,
@@ -159,38 +157,34 @@ void HeatMapLegendGL::generateHeatMapData()
 
     // generate borders
     const GL::GLcolor borderColor = GL::GLcolor(GL::White);
-    const GL::GLrectangle rect = GL::toGLrectangle(m_rect);
 
     //create the legend
     factory.setColor(borderColor);
-    factory.addShape(rect);
+    factory.addShape(m_rect);
     factory.setColor(GL::GLcolor(GL::Black));
-    factory.addShape(GL::GLrectangle::fromLine(rect.p[0], rect.p[1]));
-    factory.addShape(GL::GLrectangle::fromLine(rect.p[1], rect.p[2]));
-    factory.addShape(GL::GLrectangle::fromLine(rect.p[2], rect.p[3]));
-    factory.addShape(GL::GLrectangle::fromLine(rect.p[3], rect.p[0]));
+
+    factory.addShape( QRectF(m_rect.topLeft(), m_rect.topRight()) );
+    factory.addShape( QRectF(m_rect.topRight(), m_rect.bottomLeft()) );
+    factory.addShape( QRectF(m_rect.bottomLeft(), m_rect.bottomRight()) );
+    factory.addShape( QRectF(m_rect.bottomRight(), m_rect.topLeft()) );
 
     factory.setColor(GL::GLcolor(GL::Black));
-    factory.addShape(GL::GLrectangle::fromLine(
-                         GL::GLpoint(0.0f, thresholdLowerHeight),
-                         GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight),
-                         3.0f
-                     ));
-    factory.addShape(GL::GLrectangle::fromLine(
-                         GL::GLpoint(0.0f, thresholdUpperHeight),
-                         GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight),
-                         3.0f
-                     ));
+    //size of rect should be 3
+    factory.addShape( QRectF(
+                          QPointF(0.0f, thresholdLowerHeight),
+                          QPointF(Globals::heatmap_bar_width, thresholdLowerHeight) ) );
+    factory.addShape( QRectF(
+                          QPointF(0.0f, thresholdUpperHeight),
+                          QPointF(Globals::heatmap_bar_width, thresholdUpperHeight) ) );
 
     factory.setColor(GL::GLcolor(GL::Red));
-    factory.addShape(GL::GLrectangle::fromLine(
-                         GL::GLpoint(0.0f, thresholdLowerHeight),
-                         GL::GLpoint(Globals::heatmap_bar_width, thresholdLowerHeight)
-                     ));
-    factory.addShape(GL::GLrectangle::fromLine(
-                         GL::GLpoint(0.0f, thresholdUpperHeight),
-                         GL::GLpoint(Globals::heatmap_bar_width, thresholdUpperHeight)
-                     ));
+    //size of rect should be 1
+    factory.addShape( QRectF(
+                          QPointF(0.0f, thresholdLowerHeight),
+                          QPointF(Globals::heatmap_bar_width, thresholdLowerHeight) ) );
+    factory.addShape( QRectF(
+                         QPointF(0.0f, thresholdUpperHeight),
+                         QPointF(Globals::heatmap_bar_width, thresholdUpperHeight) ) );
 
     // generate element data render command
     m_queue.add(GL::GLElementRenderQueue::Command
@@ -224,7 +218,7 @@ void HeatMapLegendGL::generateHeatMapText()
 void HeatMapLegendGL::rebuildHeatMapStaticData()
 {
     //clear image and texture to regerate them
-    m_image.deleteImage();
+    //should clear image
     m_texture->release();
     m_texture->destroy();
     generateStaticHeatMapData();
@@ -233,9 +227,9 @@ void HeatMapLegendGL::rebuildHeatMapStaticData()
 void HeatMapLegendGL::generateStaticHeatMapData()
 {
     // generate image
-    m_image = GL::GLimage(1, Globals::heatmap_height, GL_RGBA, GL_FLOAT);
-    m_image.createImage();
+    QImage m_image(1, Globals::heatmap_height, QImage::Format_ARGB32);
     GL::GLheatmap::createHeatMapImage(m_image, GL::GLheatmap::SpectrumExp, m_hitCountMin, m_hitCountMax);
+
     // texture
     m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
     m_texture->setSize(m_image.width(), m_image.height());
@@ -247,5 +241,5 @@ void HeatMapLegendGL::generateStaticHeatMapData()
     m_texture->allocateStorage();
     m_texture->create();
     m_texture->bind();
-    m_texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::Float32, m_image.pixels());
+    m_texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::Float32, m_image.bits());
 }

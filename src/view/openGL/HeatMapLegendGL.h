@@ -11,8 +11,8 @@
 #include "ViewItemGL.h"
 
 #include "data/GLElementData.h"
-#include "data/GLElementRender.h"
-#include "image/GLImage.h"
+#include "render/GLElementRender.h"
+
 #include <QOpenGLTexture>
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
@@ -66,7 +66,6 @@ private:
     // render data
     GL::GLElementData m_data;
     GL::GLElementRenderQueue m_queue;
-    GL::GLimage m_image;
     QOpenGLTexture *m_texture;
     QPainterPath m_text;
 

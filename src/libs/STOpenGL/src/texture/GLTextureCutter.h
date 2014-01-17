@@ -9,7 +9,7 @@
 #define GLTEXTURECUTTER_H
 
 #include "GLCommon.h"
-#include "data/GLTextureData.h"
+#include "texture/GLTextureData.h"
 
 namespace GL
 {

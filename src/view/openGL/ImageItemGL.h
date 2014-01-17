@@ -13,7 +13,7 @@
 #include <QGLWidget>
 #include <QPointer>
 
-#include <data/GLTextureData.h>
+#include "texture/GLTextureData.h"
 
 // Specialized graphical object class used to visualize the cell tissue image
 // in the cell view. Contains all necessary data to configure and display the

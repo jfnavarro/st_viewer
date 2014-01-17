@@ -17,11 +17,18 @@ namespace GL
 // GLElementData is an extension of GLElementData to
 // add some valuable data used to render
 // IMPORTANT : this object needs to be render with shaders
+
+
 class GLElementDataGene : public GLElementData
 {
 public:
 
-    enum ClearFlags {
+    typedef QVector<GLuint> FeaturesType;
+    typedef QVector<GLuint> ReferencesType;
+    typedef QVector<GLuint> ValuesType;
+    typedef QVector<GLuint> OptionsType;
+
+    enum ClearFlags  {
         PointArray = 0x001u,
         ColorArray = 0x002u,
         IndexArray = 0x004u,
@@ -48,6 +55,7 @@ public:
     void resetRefCount();
     void resetValCount();
     void resetFeatCount();
+    void resetOptions();
 
     // number of genes in the feature
     void addFeatCount(const GLuint &featcount, GLindex *index = 0);
@@ -58,6 +66,9 @@ public:
     // sum of the hits of the selected genes in the feature
     void addValue(const GLuint &value, GLindex *index = 0);
 
+    // option (selected or not)
+    void addOption(const GLuint &option, GLindex *index = 0);
+
     // number of genes in the feature
     void setFeatCount(const GLindex &index, const GLuint &featcount);
 
@@ -67,15 +78,20 @@ public:
     // sum of the hits of the selected genes in the feature
     void setValue(const GLindex &index, const GLuint &value);
 
+    // option (selected or not)
+    void setOption(const GLindex &index, const GLuint &option);
+
     // getters for arrays by index
     const GLuint &getFeatCount(const GLindex &index) const;
     const GLuint &getRefCount(const GLindex &index) const;
     const GLuint &getValue(const GLindex &index) const;
+    GLuint getOption(const GLindex &index) const;
 
     // getters for arrays
-    const GLarray<GLuint> features() const;
-    const GLarray<GLuint> references() const;
-    const GLarray<GLuint> values() const;
+    const FeaturesType &features() const;
+    const ReferencesType &references() const;
+    const ValuesType &values() const;
+    const OptionsType &options() const;
 
     // global variable (color mode)
     inline void setColorMode(const Globals::VisualMode &mode) { m_colorMode = mode; }
@@ -86,28 +102,28 @@ public:
     // global variables (hit count limits)
     inline void setHitCount(int min, int max, int sum)
     {
-        m_hitCountMin = static_cast<GLint>(min);
-        m_hitCountMax = static_cast<GLint>(max);
-        m_hitCountSum = static_cast<GLint>(sum);
+        m_hitCountMin = min;
+        m_hitCountMax = max;
+        m_hitCountSum = sum;
     }
 
     // global variable intensity
-    inline void setIntensity(const qreal &intensity) { m_intensity = static_cast<GLfloat>(intensity); }
+    inline void setIntensity(const qreal &intensity) { m_intensity = intensity; }
 
     // thresholds limits
-    inline void setLowerLimit(int limit) { m_geneLowerLimit = static_cast<GLint>(limit); }
-    inline void setUpperLimit(int limit) { m_geneUpperLimit = static_cast<GLint>(limit); }
+    inline void setLowerLimit(int limit) { m_geneLowerLimit = limit; }
+    inline void setUpperLimit(int limit) { m_geneUpperLimit = limit; }
     
     // getters global varibles
     inline const Globals::VisualMode& getColorMode() const { return m_colorMode; }
     inline const Globals::ThresholdMode& getThresholdMode() const { return m_geneMode; }
 
-    inline GLint getHitCountMin() const { return m_hitCountMin; }
-    inline GLint getHitCountMax() const { return m_hitCountMax; }
-    inline GLint getHitCountSum() const { return m_hitCountSum; }
+    inline GLuint getHitCountMin() const { return m_hitCountMin; }
+    inline GLuint getHitCountMax() const { return m_hitCountMax; }
+    inline GLuint getHitCountSum() const { return m_hitCountSum; }
 
-    inline GLint getLowerLimit() const { return m_geneLowerLimit; }
-    inline GLint getUpperLimit() const { return m_geneUpperLimit; }
+    inline GLuint getLowerLimit() const { return m_geneLowerLimit; }
+    inline GLuint getUpperLimit() const { return m_geneUpperLimit; }
 
     inline GLfloat getIntensity() const { return m_intensity; }
 
@@ -121,13 +137,11 @@ public:
 
 private:
 
-    typedef QVector<GLuint> GLFeatures;
-    typedef QVector<GLuint> GLReferences;
-    typedef QVector<GLuint> GLValues;
+    FeaturesType m_features;
+    ReferencesType m_references;
+    ValuesType m_values; //only used for global mode
+    OptionsType m_options;
 
-    GLFeatures m_features;
-    GLReferences m_references;
-    GLValues m_values; //only used for global mode
     Globals::VisualMode m_colorMode; //only used for global mode
     Globals::ThresholdMode m_geneMode; //only used for global mode
 

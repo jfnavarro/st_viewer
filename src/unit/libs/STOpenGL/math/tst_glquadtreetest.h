@@ -21,13 +21,16 @@ class GLQuadTreeTest : public QObject
     Q_OBJECT
 
 public:
+
     explicit GLQuadTreeTest(QObject *parent = 0);
 
 private:
-    typedef QList<GL::GLpoint> PointList;
+
+    typedef QList<QPointF> PointList;
     typedef GL::GLQuadTree<int, 4> TestQuadTree;
 
 private Q_SLOTS:
+
     void initTestCase();
     void cleanupTestCase();
 

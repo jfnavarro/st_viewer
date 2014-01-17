@@ -10,7 +10,8 @@
 
 #include "GLCommon.h"
 #include "GLColor.h"
-#include "image/GLImage.h"
+
+class QImage;
 
 namespace GL
 {
@@ -28,7 +29,7 @@ public:
     };
 
     // convenience function to generate a heatmap spectrum image given specific mapping function
-    static bool createHeatMapImage(GLimage &image, const SpectrumMode mode = SpectrumLinear,
+    static void createHeatMapImage(QImage &image, const SpectrumMode mode = SpectrumLinear,
                                          int lowerbound = 0, int upperbound = 100);
 
     static GLcolor createHeatMapColor(const GLfloat wavelength);

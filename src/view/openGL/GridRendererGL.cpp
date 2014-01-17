@@ -1,10 +1,11 @@
 #include "GridRendererGL.h"
 
 #include "utils/Utils.h"
+#include "utils/MathExtended.h"
+
 #include "qgl.h"
 #include "GLCommon.h"
-#include "math/GLFloat.h"
-#include "utils/MathExtended.h"
+#include "data/GLElementLineFactory.h"
 
 GridRendererGL::GridRendererGL()
 {
@@ -41,86 +42,52 @@ void GridRendererGL::rebuildData()
 
 void GridRendererGL::generateData()
 {
+    const GL::GLflag flags =
+            GL::GLElementShapeFactory::AutoAddColor |
+            GL::GLElementShapeFactory::AutoAddTexture;
+    GL::GLElementLineFactory factory(m_gridData, flags);
+
     // generate borders
     const GL::GLcolor gridBorderColor = 0.5f * GL::toGLcolor(m_gridBorderColor);
+    factory.setColor(gridBorderColor);
+
     for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
-
         if (m_rect.top() <= y && y <= m_rect.bottom()) {
-
-            m_gridData.addPoint(GL::toGLpoint(m_border.left(), y));
-            m_gridData.addPoint(GL::toGLpoint(m_rect.left(), y));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-            m_gridData.addPoint(GL::toGLpoint(m_rect.right(), y));
-            m_gridData.addPoint(GL::toGLpoint(m_border.right(), y));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-
+            factory.addShape(QLineF( QPointF(m_border.left(), y), QPointF(m_rect.left(), y) ));
+            factory.addShape(QLineF( QPointF(m_rect.right(), y), QPointF(m_border.right(), y) ));
         } else {
-
-            m_gridData.addPoint(GL::toGLpoint(m_border.left(), y));
-            m_gridData.addPoint(GL::toGLpoint(m_border.right(), y));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-
+            factory.addShape(QLineF( QPointF(m_border.left(), y) , QPointF(m_border.right(), y) ));
         }
     }
+
     for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0) {
-
         if (m_rect.left() <= x && x <= m_rect.right()) {
-
-            m_gridData.addPoint(GL::toGLpoint(x, m_border.top()));
-            m_gridData.addPoint(GL::toGLpoint(x, m_rect.top()));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-            m_gridData.addPoint(GL::toGLpoint(x, m_rect.bottom()));
-            m_gridData .addPoint(GL::toGLpoint(x, m_border.bottom()));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-
+            factory.addShape(QLineF( QPointF(x, m_border.top()), QPointF(x, m_rect.top()) ));
+            factory.addShape(QLineF( QPointF(x, m_rect.bottom()), QPointF(x, m_border.bottom()) ));
         } else {
-
-            m_gridData.addPoint(GL::toGLpoint(x, m_border.top()));
-            m_gridData.addPoint(GL::toGLpoint(x, m_border.bottom()));
-            m_gridData.addColor(GL::GLlinecolor(gridBorderColor));
-            m_gridData.connect(GL::GLlineindex());
-
+            factory.addShape(QLineF( QPointF(x, m_border.top()) , QPointF(x, m_border.bottom()) ));
         }
     }
 
     // generate grid
     const GL::GLcolor gridColor = 0.5f * GL::toGLcolor(m_gridColor);
+    factory.setColor(gridColor);
+
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += Globals::grid_line_size) {
-
-        m_gridData.addPoint(GL::toGLpoint(m_rect.left(),  y));
-        m_gridData.addPoint(GL::toGLpoint(m_rect.right(), y));
-        m_gridData.addColor(GL::GLlinecolor(gridColor));
-        m_gridData.connect(GL::GLlineindex());
-
+        factory.addShape(QLineF( QPointF(m_rect.left(),  y) , QPointF(m_rect.left(),  y) ));
     }
+
     for (qreal x = m_rect.left(); x <= m_rect.right(); x += Globals::grid_line_size) {
-
-        m_gridData.addPoint(GL::toGLpoint(x, m_rect.top()));
-        m_gridData.addPoint(GL::toGLpoint(x, m_rect.bottom()));
-        m_gridData.addColor(GL::GLlinecolor(gridColor));
-        m_gridData.connect(GL::GLlineindex());
-
+        factory.addShape(QLineF( QPointF(x, m_rect.top()) , QPointF(x, m_rect.bottom()) ));
     }
+
+    // check boundaries
     if (!qFuzzyCompare(QtExt::qMod(m_rect.bottom() - m_rect.top(), Globals::grid_line_size), 0.0)) {
-
-        m_gridData.addPoint(GL::toGLpoint(m_rect.left(), m_rect.bottom()));
-        m_gridData.addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()));
-        m_gridData.addColor(GL::GLlinecolor(gridColor));
-        m_gridData.connect(GL::GLlineindex());
-
+        factory.addShape(QLineF( QPointF(m_rect.left(), m_rect.bottom()) , QPointF(m_rect.right(), m_rect.bottom()) ));
     }
+
     if (!qFuzzyCompare(QtExt::qMod(m_rect.right() - m_rect.left(), Globals::grid_line_size), 0.0)) {
-
-        m_gridData.addPoint(GL::toGLpoint(m_rect.right(), m_rect.top()));
-        m_gridData.addPoint(GL::toGLpoint(m_rect.right(), m_rect.bottom()));
-        m_gridData.addColor(GL::GLlinecolor(gridColor));
-        m_gridData.connect(GL::GLlineindex());
-
+        factory.addShape(QLineF( QPointF(m_rect.right(), m_rect.top()) , QPointF(m_rect.right(), m_rect.bottom()) ));
     }
 
     // generate element data render command

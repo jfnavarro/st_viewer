@@ -9,7 +9,11 @@
 #define GLAABB_H
 
 #include "GLCommon.h"
-#include "math/GLMath.h"
+
+#include <QPointF>
+#include <QSizeF>
+#include <QRectF>
+#include <cmath>
 
 namespace GL
 {
@@ -21,15 +25,15 @@ struct GLaabb {
 
     inline GLaabb();
     inline virtual ~GLaabb();
-    inline GLaabb(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height);
-    inline GLaabb(const GLpoint &p, const GLpoint &size);
+    inline GLaabb(const qreal x, const qreal y, const qreal width, const qreal height);
+    inline GLaabb(const QPointF &p, const QSizeF &size);
+    inline GLaabb(const QRectF &rect);
 
     // create an aabb between two given points
-    static inline const GLaabb fromPoints(const GLpoint &p0, const GLpoint &p1);
-    // create a rectangle from the given aabb
-    static inline const GLrectangle toRectangle(const GLaabb &b);
+    static inline const GLaabb fromPoints(const QPointF &p0, const QPointF &p1);
 
-    // split aabb into a smaller version
+    // create a rectangle from the given aabb
+    static inline const QRectF toRectangle(const GLaabb &b);
 
     // SplitHalf: splits the aabb in half
     enum SplitHalf { H0, H1, V0, V1 };
@@ -40,15 +44,14 @@ struct GLaabb {
     inline const GLaabb split(SplitQuad split) const;
 
     // attribute access
-    inline const GLpoint position() const;
-    inline const GLpoint middle() const;
-    inline const GLpoint end() const;
-    inline const GLpoint size() const;
+    inline const QPointF position() const;
+    inline const QPointF middle() const;
+    inline const QPointF end() const;
+    inline const QPointF size() const;
 
-    inline bool contains(const GLpoint &p) const;
+    inline bool contains(const QPointF &p) const;
     inline bool contains(const GLaabb &o) const;
     inline bool intersects(const GLaabb &o) const;
-
 
     // Cut: returns the AABB defined as the shared area
     // between the two given AABBs, or an empty AABB
@@ -61,14 +64,15 @@ struct GLaabb {
     // ie. C = A | B
     inline const GLaabb join(const GLaabb &o) const;
 
-    GLfloat x;
-    GLfloat y;
-    GLfloat width;
-    GLfloat height;
+    //NOTE consider use a QRectF instead
+    qreal x;
+    qreal y;
+    qreal width;
+    qreal height;
 };
 
-inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
-inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e = EPSILON);
+inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1);
+inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1);
 
 inline bool operator ==(const GLaabb &b0, const GLaabb &b1);
 inline bool operator !=(const GLaabb &b0, const GLaabb &b1);
@@ -81,7 +85,10 @@ namespace GL
 {
 
 inline GLaabb::GLaabb()
-    : x(0.0f), y(0.0f), width(0.0f), height(0.0f)
+    : x(0),
+      y(0),
+      width(0),
+      height(0)
 {
 
 }
@@ -91,81 +98,103 @@ inline GLaabb::~GLaabb()
 
 }
 
-inline GLaabb::GLaabb(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height)
-    : x(x), y(y), width(width), height(height)
+inline GLaabb::GLaabb(const qreal x, const qreal y, const qreal width, const qreal height)
+    : x(x),
+      y(y),
+      width(width),
+      height(height)
 {
 
 }
-inline GLaabb::GLaabb(const GLpoint &p, const GLpoint &size)
-    : x(p.x), y(p.y), width(size.width), height(size.height)
+
+inline GLaabb::GLaabb(const QPointF &p, const QSizeF &size)
+    : x(p.x()),
+      y(p.y()),
+      width(size.width()),
+      height(size.height())
 {
 
 }
 
-inline const GLaabb GLaabb::fromPoints(const GLpoint &p0, const GLpoint &p1)
+inline GLaabb::GLaabb(const QRectF &rect)
+    : x( rect.topLeft().x() ),
+      y( rect.topLeft().x() ),
+      width( rect.size().width() ),
+      height( rect.size().height() )
 {
-    return GLaabb(min(p0.x, p1.x), min(p0.y, p1.y), fabs(p1.x - p0.x), fabs(p1.y - p0.y));
+
 }
 
-inline const GLrectangle GLaabb::toRectangle(const GLaabb &b)
+inline const GLaabb GLaabb::fromPoints(const QPointF &p0, const QPointF &p1)
 {
-    const GLfloat hW = 0.5f * b.width;
-    const GLfloat hH = 0.5f * b.height;
-    return GLrectangle(b.x + hW, b.y + hH, b.width, b.height);
+    return GLaabb(std::min(p0.x(), p1.x()), std::min(p0.y(), p1.y()),
+                  std::fabs(p1.x() - p0.x()), std::fabs(p1.y() - p0.y()));
+}
+
+inline const QRectF GLaabb::toRectangle(const GLaabb &b)
+{
+    const qreal hW = 0.5f * b.width;
+    const qreal hH = 0.5f * b.height;
+    return QRectF( QPointF(b.x + hW, b.y+ hH ),
+                          QPointF(b.width, b.height));
 }
 
 const GLaabb GLaabb::split(SplitHalf split) const
 {
-    const GLfloat fW = width;
-    const GLfloat hW = 0.5f * width;
-    const GLfloat fH = height;
-    const GLfloat hH = 0.5f * height;
+    const qreal fW = width;
+    const qreal hW = 0.5f * width;
+    const qreal fH = height;
+    const qreal hH = 0.5f * height;
+
     switch (split) {
     case H0: return GLaabb(x + 0, y + 0, fW, hH); break;
     case H1: return GLaabb(x + 0, y + hH, fW, hH); break;
     case V0: return GLaabb(x + 0, y + 0, hW, fH); break;
     case V1: return GLaabb(x + hW, y + 0, hW, fH); break;
     }
+
     return GLaabb();
 }
 
 const GLaabb GLaabb::split(SplitQuad split) const
 {
-    const GLfloat hW = 0.5f * width;
-    const GLfloat hH = 0.5f * height;
+    const qreal hW = 0.5f * width;
+    const qreal hH = 0.5f * height;
+
     switch (split) {
     case Q0: return GLaabb(x + hW, y + hH, hW, hH); break;
     case Q1: return GLaabb(x + 0, y + hH, hW, hH); break;
     case Q2: return GLaabb(x + 0, y + 0, hW, hH); break;
     case Q3: return GLaabb(x + hW, y + 0, hW, hH); break;
     }
+
     return GLaabb();
 }
 
-inline const GLpoint GLaabb::position() const
+inline const QPointF GLaabb::position() const
 {
-    return GLpoint(x, y);
+    return QPointF(x, y);
 }
 
-inline const GLpoint GLaabb::middle() const
+inline const QPointF GLaabb::middle() const
 {
-    return GLpoint(x + (0.5f * width), y + (0.5f * height));
+    return QPointF(x + (0.5f * width), y + (0.5f * height));
 }
 
-inline const GLpoint GLaabb::end() const
+inline const QPointF GLaabb::end() const
 {
-    return GLpoint(x + width, y + height);
+    return QPointF(x + width, y + height);
 }
 
-inline const GLpoint GLaabb::size() const
+inline const QPointF GLaabb::size() const
 {
-    return GLpoint(width, height);
+    return QPointF(width, height);
 }
 
-bool GLaabb::contains(const GLpoint &p) const
+bool GLaabb::contains(const QPointF &p) const
 {
-    typedef range<GLfloat, comp_op_ge<GLfloat>, comp_op_le<GLfloat> > range_t;
-    return (range_t::compare(p.x, x, x + width) && range_t::compare(p.y, y, y + height));
+    const QRectF rectangle( QPointF(x,y) , QPointF(width, height) ) ;
+    return rectangle.contains(p);
 }
 
 inline bool GLaabb::contains(const GLaabb &o) const
@@ -188,8 +217,8 @@ inline bool GLaabb::intersects(const GLaabb &o) const
 const GLaabb GLaabb::cut(const GLaabb &o) const
 {
     if (intersects(o)) {
-        const GLpoint p0 = GL::max(position(), o.position());
-        const GLpoint p1 = GL::min(end(), o.end());
+        const QPointF p0 = GL::max(position(), o.position());
+        const QPointF p1 = GL::min(end(), o.end());
         return GLaabb::fromPoints(p0, p1);
     } else {
         return GLaabb(0.0f, 0.0f, 0.0f, 0.0f);
@@ -198,26 +227,26 @@ const GLaabb GLaabb::cut(const GLaabb &o) const
 
 const GLaabb GLaabb::join(const GLaabb &o) const
 {
-    const GLpoint p0 = GL::min(position(), o.position());
-    const GLpoint p1 = GL::max(end(), o.end());
+    const QPointF p0 = GL::min(position(), o.position());
+    const QPointF p1 = GL::max(end(), o.end());
     return GLaabb::fromPoints(p0, p1);
 }
 
-inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
+inline bool fuzzyEqual(const GLaabb &b0, const GLaabb &b1)
 {
-    return fuzzyEqual(b0.x, b1.x, e)
-           && fuzzyEqual(b0.y, b1.y, e)
-           && fuzzyEqual(b0.width, b1.width, e)
-           && fuzzyEqual(b0.height, b1.height, e);
+    return qFuzzyCompare(b0.x, b1.x)
+           && qFuzzyCompare(b0.y, b1.y)
+           && qFuzzyCompare(b0.width, b1.width)
+           && qFuzzyCompare(b0.height, b1.height);
 
 }
 
-inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1, GLfloat e)
+inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1)
 {
-    return fuzzyNotEqual(b0.x, b1.x, e)
-           || fuzzyNotEqual(b0.y, b1.y, e)
-           || fuzzyNotEqual(b0.width, b1.width, e)
-           || fuzzyNotEqual(b0.height, b1.height, e);
+    return qFuzzyCompare(b0.x, b1.x)
+           || qFuzzyCompare(b0.y, b1.y)
+           || qFuzzyCompare(b0.width, b1.width)
+           || qFuzzyCompare(b0.height, b1.height);
 }
 
 inline bool operator ==(const GLaabb &b0, const GLaabb &b1)

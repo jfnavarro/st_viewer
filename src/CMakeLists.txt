@@ -251,13 +251,11 @@ set(SRC_CONTROLLER_NETWORK
 
 SET(INC_UTILS
     utils/MathExtended.h
-    utils/QGLExtended.h
     utils/Singleton.h
     utils/Utils.h
 )
 SET(SRC_UTILS
     utils/MathExtended.cpp
-    utils/QGLExtended.cpp
     utils/Utils.cpp
 )
 
@@ -410,10 +408,14 @@ set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore STCoreWidge
 ## create main library
 add_library(STMain STATIC ${SOURCES} ${QT_FORMS} ${QT_LOCALES}) #${INCLUDES}
 
-target_link_libraries(STMain ${LIB_COMPONENTS})
-
-## link qt libraries to main library
-qt5_use_modules(STMain Core Gui Widgets WebKit WebKitWidgets OpenGL Network LinguistTools)
+target_link_libraries(STMain ${LIB_COMPONENTS}
+                             Qt5::Core
+                             Qt5::Network
+                             Qt5::Gui
+                             Qt5::Widgets
+                             Qt5::WebKit
+                             Qt5::WebKitWidgets
+                             Qt5::OpenGL) #Qt5::LinguistTools
 
 #create main target (resources needs to be part of the target)
 if(WIN32)
@@ -441,7 +443,7 @@ target_link_libraries(${PROJECT_NAME} STMain ${OPENGL_LIBRARY})
 enable_testing()
 add_subdirectory(unit)
 
-##################################################################INSTALLATION###########################################################################
+############################INSTALLATION#########################################
 
 # PACKAGING OPTIONS: GENERAL
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")

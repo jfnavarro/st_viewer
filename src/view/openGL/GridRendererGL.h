@@ -3,7 +3,7 @@
 
 #include "GLCommon.h"
 #include "data/GLElementData.h"
-#include "data/GLElementRender.h"
+#include "render/GLElementRender.h"
 
 class GridRendererGL
 {

@@ -7,12 +7,12 @@
 
 #include <QtTest/QTest>
 
-#include <GLQt.h>
-#include <GLCommon.h>
+#include "GLCommon.h"
+#include "GLColor.h"
 
 Q_DECLARE_METATYPE(GL::GLcolor)
 
-#include <image/GLHeatMap.h>
+#include <data/GLHeatMap.h>
 
 #include "tst_glheatmaptest.h"
 

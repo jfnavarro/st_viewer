@@ -29,8 +29,7 @@ public:
         Empty = 0x00,
         AutoAddColor = 0x01,
         AutoAddTexture = 0x02,
-        AutoAddOption = 0x04,
-        AutoAddConnection = 0x08
+        AutoAddConnection = 0x04
     };
 
     static const GLflag DEFAULT_CLEAR_FLAGS = GLElementData::Arrays;
@@ -40,7 +39,7 @@ public:
     GLElementShapeFactory(GLElementData& data, GLflag flags = DEFAULT_BUILD_FLAGS);
     virtual ~GLElementShapeFactory();
 
-    virtual void clear(GLflag flags = GLElementShapeFactory::DEFAULT_CLEAR_FLAGS);
+    virtual void clear(GLflag flags = DEFAULT_CLEAR_FLAGS);
 
     // data modifiers
     virtual GLindex connect(const GLindex& index) = 0;
@@ -48,15 +47,21 @@ public:
 
     // state modifiers
     virtual void setColor(const GLcolor& color) = 0;
-    // virtual void setTexture();
-    virtual void setSize(const GLfloat& size) = 0;
+    //virtual GLcolor color() = 0;
 
+    // virtual void setTexture();
+    // virtual QGLTexture* texture();
+
+    virtual void setSize(const GLfloat& size) = 0;
+    virtual void setSize(const GLfloat &width, const GLfloat &height) = 0;
     virtual GLindex size() const = 0;
 
 protected:
 
     GLElementData* m_data;
     GLflag m_flags;
+    GLcolor m_color;
+    QPointF m_size;
 };
 
 // GLElementRectangleFactory

@@ -11,9 +11,11 @@
 
 #include <QtCore/qmath.h>
 #include <QSizeF>
+#include <algorithm>
 
 namespace QtExt
 {
+
 // modulus for qreal types, (x % y)
 inline qreal qMod(qreal x, qreal y);
 

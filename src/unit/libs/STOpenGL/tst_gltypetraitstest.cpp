@@ -14,7 +14,7 @@
 #include <GLTypeTraits.h>
 
 //#include <GLCommon.h>
-//Q_DECLARE_METATYPE(GL::GLpoint)
+//Q_DECLARE_METATYPE(QPointF)
 
 #include "tst_gltypetraitstest.h"
 

@@ -12,8 +12,6 @@
 
 #include <QApplication>
 #include <QGLWidget>
-#include <GLQt.h>
-#include <math/GLMatrix.h>
 
 #include "view/openGL/WidgetGL.h"
 #include "view/openGL/MiniMapGL.h"

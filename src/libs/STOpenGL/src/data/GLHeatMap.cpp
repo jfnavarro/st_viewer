@@ -6,38 +6,35 @@
 */
 
 #include "GLHeatMap.h"
-
-#include <math/GLMath.h>
-#include <image/GLImageWriter.h>
+#include "utils/MathExtended.h"
+#include <QImage>
+#include <QColor>
 
 namespace GL
 {
 
-bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode,
+void GLheatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
         int lowerbound, int upperbound)
 {
-    bool ret;
-    GLimagewriter writer(image);
-    GLsizei h = image.height();
-    for (GLsizei i = 0; i < h; ++i) {
-        //const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1, 0, h-1);
+    int h = image.height();
+    int w = image.width();
+    for (int i = 0; i < h; ++i) {
         //I want to get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound
-        const GLfloat nh = norm<GLsizei, GLfloat>(h - i - 1, lowerbound, upperbound);
+        const GLfloat nh = GL::norm<GLsizei, GLfloat>(h - i - 1, lowerbound, upperbound);
         const GLfloat nw = GLheatmap::generateHeatMapWavelength(nh, mode);
         const GLcolor color = GLheatmap::createHeatMapColor(nw);
-        if (!(ret = writer.writeLine(color))) {
-            break;
+        for(int j = 0; j < w; ++j) {
+            image.setPixel(i, j, QColor(color.red, color.green, color.blue).rgb());
         }
     }
-    return ret;
 }
 
 GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
 {
     const GLfloat gamma = 0.8f;
     // clamp input value
-    const GLfloat cwavelength = clamp(wavelength, 380.0f, 780.0f);
+    const GLfloat cwavelength = GL::clamp(wavelength, 380.0f, 780.0f);
     // define colors according to wave lenght spectra
     GLfloat red;
     GLfloat green;
@@ -84,9 +81,9 @@ GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
         factor = 0.3f;
     }
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = clamp((GLfloat) qPow(red * factor, gamma), 0.0f, 1.0f);
-    green = clamp((GLfloat) qPow(green * factor, gamma), 0.0f, 1.0f);
-    blue = clamp((GLfloat) qPow(blue * factor, gamma), 0.0f, 1.0f);
+    red = GL::clamp((GLfloat) qPow(red * factor, gamma), 0.0f, 1.0f);
+    green = GL::clamp((GLfloat) qPow(green * factor, gamma), 0.0f, 1.0f);
+    blue = GL::clamp((GLfloat) qPow(blue * factor, gamma), 0.0f, 1.0f);
     // return color
     return GLcolor(red, green, blue);
 }
