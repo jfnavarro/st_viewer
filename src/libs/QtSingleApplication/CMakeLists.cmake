@@ -22,7 +22,6 @@ set(SRC_${LIB}
 
 # Add library and include directory
 add_library(${LIB} STATIC ${SRC_${LIB}})
-# qt5_use_modules(${LIB} Core Gui Widgets)
 include_directories(${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src)
 
 # Organize lib into solution folder

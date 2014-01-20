@@ -6,42 +6,44 @@
 */
 
 #include "GLHeatMap.h"
+#include "utils/MathExtended.h"
 
-#include <math/GLMath.h>
-#include <image/GLImageWriter.h>
+#include <QImage>
+#include <QColor>
+#include <QColor4ub>
 
 namespace GL
 {
 
-bool GLheatmap::createHeatMapImage(GLimage &image, const SpectrumMode mode,
+void GLheatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
         int lowerbound, int upperbound)
 {
-    bool ret;
-    GLimagewriter writer(image);
-    GLsizei h = image.height();
-    for (GLsizei i = 0; i < h; ++i) {
-        //const GLfloat nh = norm<GLsizei,GLfloat>(h-i-1, 0, h-1);
+    int h = image.height();
+    int w = image.width();
+    for (int i = 0; i < h; ++i) {
         //I want to get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound
-        const GLfloat nh = norm<GLsizei, GLfloat>(h - i - 1, lowerbound, upperbound);
-        const GLfloat nw = GLheatmap::generateHeatMapWavelength(nh, mode);
-        const GLcolor color = GLheatmap::createHeatMapColor(nw);
-        if (!(ret = writer.writeLine(color))) {
-            break;
+        const qreal nh = GL::norm<int,qreal>(h - i - 1, lowerbound, upperbound);
+        const qreal nw = GLheatmap::generateHeatMapWavelength(nh, mode);
+        const QColor4ub color = GLheatmap::createHeatMapColor(nw);
+        for(int j = 0; j < w; ++j) {
+            image.setPixel(i, j, color.toColor().rgb());
         }
     }
-    return ret;
 }
 
-GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
+QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
 {
-    const GLfloat gamma = 0.8f;
+    static const qreal gamma = 0.8f;
+
     // clamp input value
-    const GLfloat cwavelength = clamp(wavelength, 380.0f, 780.0f);
+    const qreal cwavelength = GL::clamp(wavelength, 380.0, 780.0);
+
     // define colors according to wave lenght spectra
-    GLfloat red;
-    GLfloat green;
-    GLfloat blue;
+    qreal red;
+    qreal green;
+    qreal blue;
+
     if (380.0f <= cwavelength && cwavelength < 440.0f) {
         red = -(cwavelength - 440.0f) / (440.0f - 380.0f);
         green = 0.0f;
@@ -73,7 +75,7 @@ GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
     }
 
     // Let the intensity fall off near the vision limits
-    GLfloat factor;
+    qreal factor;
     if (380.0f <= cwavelength && cwavelength < 420.0f) {
         factor = 0.3f + 0.7f * (cwavelength - 380.0f) / (420.0f - 380.0f);
     } else if (420.0f <= cwavelength && cwavelength < 700.0f) {
@@ -83,18 +85,21 @@ GLcolor GLheatmap::createHeatMapColor(const GLfloat wavelength)
     } else {
         factor = 0.3f;
     }
+
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = clamp((GLfloat) qPow(red * factor, gamma), 0.0f, 1.0f);
-    green = clamp((GLfloat) qPow(green * factor, gamma), 0.0f, 1.0f);
-    blue = clamp((GLfloat) qPow(blue * factor, gamma), 0.0f, 1.0f);
+    red = GL::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = GL::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = GL::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+
     // return color
-    return GLcolor(red, green, blue);
+    return QColor4ub(red, green, blue);
 }
 
-GLfloat GLheatmap::generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode)
+qreal GLheatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
 {
     // assert normalized value
-    GLfloat nt = GL::clamp(t, GLfloat(0.0), GLfloat(1.0));
+    qreal nt = GL::clamp(t, 0.0, 1.0);
+
     switch (mode) {
     case GLheatmap::SpectrumLog:
         nt = qLn(nt + 1.0) * 1.442695f; //NOTE [0,1] -> [0,1]
@@ -107,7 +112,7 @@ GLfloat GLheatmap::generateHeatMapWavelength(const GLfloat t, const SpectrumMode
         // do nothing
         break;
     }
-    return GL::denorm(nt, GLfloat(380.0), GLfloat(780.0));
+    return GL::denorm(nt, 380.0, 780.0);
 }
 
 } // namespace GL //

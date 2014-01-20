@@ -155,45 +155,42 @@ void GLElementRender::State::cmdRenderItemOne(const GLbyte op, const GLuint arg)
 void GLElementRender::State::cmdRenderItemN(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
-    const GLsizei count = static_cast<GLsizei>(arg);
-    render(count);
+    render(arg);
 }
 
 void GLElementRender::State::cmdBindTexture(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
-    const GLsizei index = static_cast<GLsizei>(arg);
-    QOpenGLTexture *texture = m_textures[index];
+    QOpenGLTexture *texture = m_textures[arg];
     texture->bind();
 }
 
 void GLElementRender::State::cmdUnbindTexture(const GLbyte op, const GLuint arg)
 {
     Q_UNUSED(op);
-    const GLsizei index = static_cast<GLsizei>(arg);
-    QOpenGLTexture *texture = m_textures[index];
+    QOpenGLTexture *texture = m_textures[(arg)];
     texture->release();
 }
 
 void GLElementRender::State::render(const GLsizei renderItemCount)
 {
     GLenum mode = m_renderData.mode();
-    const GLarray<GLpoint> vertices = m_renderData.vertices();
-    const GLarray<GLcolor> colors = m_renderData.colors();
-    const GLarray<GLindex> indices = m_renderData.indices();
-    const GLarray<GLpoint> textures = m_renderData.textures();
+    const GLElementData::VerticesType &vertices = m_renderData.vertices();
+    const GLElementData::ColorsType &colors = m_renderData.colors();
+    const GLElementData::IndexesType &indices = m_renderData.indices();
+    const GLElementData::TexturesType &textures = m_renderData.textures();
 
     // set vertex array
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, vertices.data);
+    glVertexPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, vertices.data());
 
     // set color array
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL::GLTypeTrait<GLfloat>::type_enum, 0, colors.data);
+    glColorPointer(4, GL::GLTypeTrait<GLfloat>::type_enum, 0, colors.data());
 
     // set texture coordinate array
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, textures.data);
+    glTexCoordPointer(2, GL::GLTypeTrait<GLfloat>::type_enum, 0, textures.data());
 
     // get geometry vertex count
     const GLsizei step = GLGeomEnumInfo::vertex_count(mode);
@@ -202,7 +199,8 @@ void GLElementRender::State::render(const GLsizei renderItemCount)
     Q_ASSERT(step > 0);
     {
         const GLvoid* data = &indices[m_index * step];
-        const GLsizei size = GL::min((indices.size / step) - m_index, renderItemCount);
+        const GLsizei indexes_size = indices.size();
+        const GLsizei size = std::min( (indexes_size / step) - m_index, renderItemCount);
         glDrawElements(mode, size * step, GLTypeTrait<GLindex>::type_enum, data);
         m_index += size;
     }

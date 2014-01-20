@@ -12,8 +12,6 @@
 
 #include <QApplication>
 #include <QGLWidget>
-#include <GLQt.h>
-#include <math/GLMatrix.h>
 
 #include "view/openGL/WidgetGL.h"
 #include "view/openGL/MiniMapGL.h"
@@ -222,10 +220,10 @@ void GraphicsViewGL::drawBackground(QPainter *painter, const QRectF& rect)
     }
 
     const QColor color = backgroundBrush().color();
-    GL::GLcolor bkgColor = GL::toGLcolor(color);
+    QColor4ub bkgColor = QColor4ub(color);
     painter->beginNativePainting();
     {
-        glClearColor(bkgColor.red, bkgColor.green, bkgColor.blue, 1.0f);
+        glClearColor(bkgColor.red(), bkgColor.green(), bkgColor.blue(), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     painter->endNativePainting();

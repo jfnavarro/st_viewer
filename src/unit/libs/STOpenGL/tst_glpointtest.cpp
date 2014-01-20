@@ -8,7 +8,7 @@
 #include <QtTest/QTest>
 
 #include <GLCommon.h>
-Q_DECLARE_METATYPE(GL::GLpoint)
+Q_DECLARE_METATYPE(QPointF)
 
 #include "tst_glpointtest.h"
 

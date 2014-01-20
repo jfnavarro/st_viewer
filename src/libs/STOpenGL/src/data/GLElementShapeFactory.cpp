@@ -11,11 +11,13 @@ namespace GL
 {
 
 // GLElementShapeFactory
-const GLfloat GLElementShapeFactory::DEFAULT_SIZE = 1.0f;
+const qreal GLElementShapeFactory::DEFAULT_SIZE = 1.0;
 
 GLElementShapeFactory::GLElementShapeFactory(GLElementData &data, GLflag flags)
     : m_data(&data),
-      m_flags(flags)
+      m_flags(flags),
+      m_color(Qt::white),
+      m_size(DEFAULT_SIZE, DEFAULT_SIZE)
 {
     // initialize data
     m_data->setMode(GL_LINES);

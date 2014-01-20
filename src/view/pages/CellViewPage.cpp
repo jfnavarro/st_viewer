@@ -252,7 +252,7 @@ void CellViewPage::createToolBar()
 {
     toolBar = new CellViewPageToolBar();
     // add tool bar to the layout
-    ui->mainLayout->insertWidget(0, toolBar);
+    ui->pageLayout->insertWidget(0, toolBar);
 }
 
 void CellViewPage::initGLView()

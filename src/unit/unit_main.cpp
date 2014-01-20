@@ -16,16 +16,9 @@
 
 #include "unit/libs/STCore/tst_simplecryptdevicetest.h"
 #include "unit/libs/STCore/tst_simplecrypttest.h"
-#include "unit/libs/STOpenGL/compression/tst_glcolortest.h"
 #include "unit/libs/STOpenGL/math/tst_glaabbtest.h"
-#include "unit/libs/STOpenGL/math/tst_glfloattest.h"
-#include "unit/libs/STOpenGL/math/tst_glmathtest.h"
-#include "unit/libs/STOpenGL/math/tst_glmatrixtest.h"
 #include "unit/libs/STOpenGL/math/tst_glquadtreetest.h"
-#include "unit/libs/STOpenGL/math/tst_glvectortest.h"
 #include "unit/libs/STOpenGL/render/tst_glheatmaptest.h"
-#include "unit/libs/STOpenGL/tst_glcommontest.h"
-#include "unit/libs/STOpenGL/tst_glpointtest.h"
 #include "unit/libs/STOpenGL/tst_gltypetraitstest.h"
 
 #include "unit/model/tst_objectparsertest.h"
@@ -42,21 +35,13 @@ int main(int argc, char **argv)
     Q_UNUSED(argc);
     Q_UNUSED(argv);
 
-
     TestSuite suite;
 
     suite.addTest(new DataStoreTest, "DataStore");
     //suite.addTest(new WidgetsTest, "Widgets");
     suite.addTest(new GLTypeTraitsTest, "GLTypeTraits");
-    suite.addTest(new GLCommonTest, "GLCommon");
-    suite.addTest(new GLColorTest, "GLColor").dependsOn("GLCommon");
-    suite.addTest(new GLFloatTest, "GLFloat").dependsOn("GLCommon");
-    suite.addTest(new GLMathTest, "GLMath").dependsOn("GLCommon");
     suite.addTest(new GLAABBTest, "GLAABB").dependsOn("GLMath");
     suite.addTest(new GLQuadTreeTest, "GLQuadTree").dependsOn("GLAABB");
-    suite.addTest(new GLMatrixTest, "GLMatrix").dependsOn("GLMath");
-    suite.addTest(new GLPointTest, "GLPoint").dependsOn("GLMath");
-    suite.addTest(new GLVectorTest, "GLVector").dependsOn("GLPoint");
     suite.addTest(new GLHeatMapTest, "GLHeatMap").dependsOn("GLPoint");
     suite.addTest(new ObjectParserTest, "ObjectParser");
     suite.addTest(new MathExtendedTest, "MathExtended");

@@ -13,194 +13,192 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="mainLayout">
+  <layout class="QVBoxLayout" name="pageLayout">
    <item>
-    <widget class="QSplitter" name="mainSplitter">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QSplitter" name="leftSplitter">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="genesLayout">
-        <item>
-         <layout class="QHBoxLayout" name="geneListLayout">
-          <item>
-           <widget class="QPushButton" name="selectAllGenes">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::DefaultContextMenu</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../st_build/application.qrc">
-              <normaloff>:/images/icon_check.png</normaloff>:/images/icon_check.png</iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit">
-            <property name="mouseTracking">
-             <bool>false</bool>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::DefaultContextMenu</enum>
-            </property>
-            <property name="acceptDrops">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="GenesTableView" name="genes_tableview">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::DoubleClicked</set>
-          </property>
-          <property name="tabKeyNavigation">
-           <bool>false</bool>
-          </property>
-          <property name="showDropIndicator" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="dragEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="dragDropOverwriteMode">
-           <bool>false</bool>
-          </property>
-          <property name="dragDropMode">
-           <enum>QAbstractItemView::NoDragDrop</enum>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::MultiSelection</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
+    <layout class="QHBoxLayout" name="mainLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="genesLayout">
+         <item>
+          <layout class="QHBoxLayout" name="geneListLayout">
+           <item>
+            <widget class="QPushButton" name="selectAllGenes">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::DefaultContextMenu</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../st_client-build/application.qrc">
+               <normaloff>:/images/icon_check.png</normaloff>:/images/icon_check.png</iconset>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit">
+             <property name="mouseTracking">
+              <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::DefaultContextMenu</enum>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="GenesTableView" name="genes_tableview">
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::DefaultContextMenu</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::DoubleClicked</set>
+           </property>
+           <property name="tabKeyNavigation">
+            <bool>false</bool>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="dragEnabled">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::NoDragDrop</enum>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="selectionLayout">
+         <item>
+          <layout class="QHBoxLayout" name="selctionBottonsLayout">
+           <item>
+            <widget class="QPushButton" name="saveSelection">
+             <property name="toolTip">
+              <string>Save the current selection </string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="exportSelection">
+             <property name="toolTip">
+              <string>Export the current selection to a file</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="clearSelection">
+             <property name="toolTip">
+              <string>Clear the current selection</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="GeneSelectionTableView" name="selections_tableview">
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="GraphicsViewGL" name="view">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::DefaultContextMenu</enum>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="interactive">
+        <bool>true</bool>
+       </property>
+       <property name="dragMode">
+        <enum>QGraphicsView::ScrollHandDrag</enum>
+       </property>
+       <property name="cacheMode">
+        <set>QGraphicsView::CacheNone</set>
+       </property>
+       <property name="transformationAnchor">
+        <enum>QGraphicsView::AnchorViewCenter</enum>
+       </property>
+       <property name="viewportUpdateMode">
+        <enum>QGraphicsView::MinimalViewportUpdate</enum>
+       </property>
+       <property name="rubberBandSelectionMode">
+        <enum>Qt::IntersectsItemBoundingRect</enum>
+       </property>
       </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="selectionLayout">
-        <item>
-         <layout class="QHBoxLayout" name="selctionBottonsLayout">
-          <item>
-           <widget class="QPushButton" name="saveSelection">
-            <property name="toolTip">
-             <string>Save the current selection </string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="exportSelection">
-            <property name="toolTip">
-             <string>Export the current selection to a file</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="clearSelection">
-            <property name="toolTip">
-             <string>Clear the current selection</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="GeneSelectionTableView" name="selections_tableview">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="showDropIndicator" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="dragDropOverwriteMode">
-           <bool>false</bool>
-          </property>
-          <property name="showGrid">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="GraphicsViewGL" name="view">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>1</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::ClickFocus</enum>
-      </property>
-      <property name="contextMenuPolicy">
-       <enum>Qt::DefaultContextMenu</enum>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
-      </property>
-      <property name="interactive">
-       <bool>true</bool>
-      </property>
-      <property name="dragMode">
-       <enum>QGraphicsView::ScrollHandDrag</enum>
-      </property>
-      <property name="cacheMode">
-       <set>QGraphicsView::CacheNone</set>
-      </property>
-      <property name="transformationAnchor">
-       <enum>QGraphicsView::AnchorViewCenter</enum>
-      </property>
-      <property name="viewportUpdateMode">
-       <enum>QGraphicsView::MinimalViewportUpdate</enum>
-      </property>
-      <property name="rubberBandSelectionMode">
-       <enum>Qt::IntersectsItemBoundingRect</enum>
-      </property>
-     </widget>
-    </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -222,7 +220,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../st_build/application.qrc"/>
+  <include location="../../../st_client-build/application.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -34,12 +34,10 @@ public:
 
     // Sets the proposed username, that can come for instance
     void setUsername(const QString& username);
-
     const QString getCurrentUser() const;
 
     //Sets the current password to propose to the user for the login.
     void setPassword(const QString& password);
-
     const QString getCurrentPassword() const;
 
 signals:

@@ -29,11 +29,15 @@ LoginDialog::LoginDialog(QDialog *parent): QDialog(parent), ui(0)
     ui = new Ui::LogIn();
     ui->setupUi(this);
 
-    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
+                                    QApplication::desktop()->availableGeometry()));
+
     //load users and create completer
     loadUsers();
+
     //set the completer to the username field
     ui->username->setCompleter(m_completer);
+
     // connects slots
     //TODO user QDialog signals instead
     connect(ui->buttons->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SIGNAL(exitLogin()));

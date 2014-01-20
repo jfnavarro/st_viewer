@@ -14,11 +14,9 @@
 #include <QImageReader>
 #include <QImage>
 
-#include "GLQt.h"
 #include "GLScope.h"
-#include "math/GLMatrix.h"
-#include "data/GLTextureRender.h"
-#include "data/GLTextureCutter.h"
+#include "texture/GLTextureRender.h"
+#include "texture/GLTextureCutter.h"
 
 static GLint maxTextureSize() {
     GLint texSize;
@@ -73,8 +71,8 @@ void ImageItemGL::rebuildTextureData()
 void ImageItemGL::generateTextureData()
 {
     const int maxSize = static_cast<int>(maxTextureSize());
-    if (m_image.width() > maxSize || m_image.height() > maxSize) {
 
+    if (m_image.width() > maxSize || m_image.height() > maxSize) {
         GL::GLTextureCutter cutter; // default size
         // cut image into smaller textures
         cutter.cut(m_image.width(), m_image.height(), m_image.bits(), m_texture);
@@ -96,12 +94,11 @@ void ImageItemGL::generateTextureData()
 
         m_texture.addTexture(texture);
 
-        // need to create the 4 vertex for the texture (we draw textures as GL_QUADS
         // TODO this could be done automatically in addTexture
-        m_texture.addVertex( x, y + height);
-        m_texture.addVertex( x, y );
-        m_texture.addVertex( x + width, y );
-        m_texture.addVertex( x + width, y + height );
+        QPointF topleft = QPointF(x, y);
+        QPointF bottomright = QPointF(x + width, y + height );
+        QRectF textureShape(topleft, bottomright);
+        m_texture.addVertex( textureShape );
     }
 }
 

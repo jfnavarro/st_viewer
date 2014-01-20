@@ -56,7 +56,6 @@ protected:
 private:
 
     Ui::InitPage *ui;
-
 };
 
 #endif  // STARTPAGE_H //

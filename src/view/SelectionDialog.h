@@ -30,7 +30,7 @@ public:
     
     typedef DataProxy::GeneList GeneList;
 
-    SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
+    explicit SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
     const GeneList& selectedGenes() const;
@@ -42,8 +42,8 @@ signals:
 
 public slots:
     
-    virtual void accept();
-    
+    virtual void accept(); // overloaded method
+
     void slotValidateRegExp(const QString &pattern);
     void slotIncludeAmbiguous(bool includeAmbiguous);
     void slotCaseSensitive(bool caseSensitive);

@@ -10,7 +10,7 @@
 #include <util/random.h>
 
 #include <math/GLQuadTree.h>
-Q_DECLARE_METATYPE(QList<GL::GLpoint>)
+Q_DECLARE_METATYPE(QList<QPointF>)
 
 #include "tst_glquadtreetest.h"
 
@@ -31,10 +31,10 @@ void GLQuadTreeTest::cleanupTestCase()
 void GLQuadTreeTest::testInsert()
 {
     QFETCH(PointList, points);
-    QFETCH(GLint, buckets);
+    QFETCH(int, buckets);
     QFETCH(bool, expected);
 
-    TestQuadTree quadTree(GL::GLpoint(8.0f, 8.0f));
+    TestQuadTree quadTree(QPointF(8.0f, 8.0f));
 
     int size = points.size();
     for (int i = 0; i < size; ++i) {
@@ -46,17 +46,17 @@ void GLQuadTreeTest::testInsert()
 void GLQuadTreeTest::testInsert_data()
 {
     QTest::addColumn<PointList>("points");
-    QTest::addColumn<GLint>("buckets");
+    QTest::addColumn<int>("buckets");
     QTest::addColumn<bool>("expected");
 
-    const GL::GLpoint p[] = {
-        GL::GLpoint(1.0f, 1.0f), GL::GLpoint(3.0f, 1.0f), GL::GLpoint(5.0f, 1.0f), GL::GLpoint(7.0f, 1.0f),
-        GL::GLpoint(1.0f, 3.0f), GL::GLpoint(3.0f, 3.0f), GL::GLpoint(5.0f, 3.0f), GL::GLpoint(7.0f, 3.0f),
-        GL::GLpoint(1.0f, 5.0f), GL::GLpoint(3.0f, 5.0f), GL::GLpoint(5.0f, 5.0f), GL::GLpoint(7.0f, 5.0f),
-        GL::GLpoint(1.0f, 7.0f), GL::GLpoint(3.0f, 7.0f), GL::GLpoint(5.0f, 7.0f), GL::GLpoint(7.0f, 7.0f),
+    const QPointF p[] = {
+        QPointF(1.0f, 1.0f), QPointF(3.0f, 1.0f), QPointF(5.0f, 1.0f), QPointF(7.0f, 1.0f),
+        QPointF(1.0f, 3.0f), QPointF(3.0f, 3.0f), QPointF(5.0f, 3.0f), QPointF(7.0f, 3.0f),
+        QPointF(1.0f, 5.0f), QPointF(3.0f, 5.0f), QPointF(5.0f, 5.0f), QPointF(7.0f, 5.0f),
+        QPointF(1.0f, 7.0f), QPointF(3.0f, 7.0f), QPointF(5.0f, 7.0f), QPointF(7.0f, 7.0f),
 
-        GL::GLpoint(0.5f, 0.5f),
-        GL::GLpoint(7.5f, 0.5f)
+        QPointF(0.5f, 0.5f),
+        QPointF(7.5f, 0.5f)
     };
 
     //NOTE the point list is constructed incrementally and a copy is made of the point list for each row

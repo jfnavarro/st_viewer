@@ -12,9 +12,7 @@
 
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
-
-#include <utils/QGLExtended.h>
-
+#include <QGLWidget>
 #include <QIODevice>
 #include <QImageReader>
 
@@ -60,7 +58,7 @@ ImageProcess::TransformedImage ImageProcess::convertToGLFormat(QIODevice *device
             openglTransform = openglTransform.scale(2.0, 2.0); // apply inverse, ie. scale up by 2
         }
         // create opengl image
-        openglImage = QtExt::convertToGLFormat(image);
+        openglImage = QGLWidget::convertToGLFormat(image);
     }
     return TransformedImage(openglImage, openglTransform);
 }

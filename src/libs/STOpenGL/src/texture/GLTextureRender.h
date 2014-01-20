@@ -8,7 +8,7 @@
 #ifndef GLTEXTURERENDER_H
 #define GLTEXTURERENDER_H
 
-#include "data/GLTextureData.h"
+#include "texture/GLTextureData.h"
 
 namespace GL
 {

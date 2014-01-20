@@ -35,7 +35,7 @@ public:
     void init();
 
     // check that the host has all the required hardware (1 yes : 0 no )
-    int checkSystemRequirements();
+    bool checkSystemRequirements() const;
 
     //settings
     void loadSettings();
@@ -49,7 +49,7 @@ public slots:
 
     // handlemessage is intented to be called from another instance trying to run at the same time
     void handleMessage(QString);
-
+    // opens pop up static widget
     void showAbout();
 
 private slots:

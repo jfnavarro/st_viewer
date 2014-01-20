@@ -13,11 +13,8 @@
 
 #include "GLScope.h"
 #include "data/GLElementShapeFactory.h"
-#include "data/GLElementRender.h"
-#include "data/GLElementShapeFactory.h"
-#include "math/GLFloat.h"
-#include "math/GLMatrix.h"
-#include "shader/GLShaderRender.h"
+#include "render/GLElementRender.h"
+#include "render/GLShaderRender.h"
 #include "QGLShaderProgram"
 #include "GLCommon.h"
 
