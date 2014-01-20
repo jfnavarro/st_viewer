@@ -148,7 +148,7 @@ void GLElementData::connectLine(const GLindex &indexIn, GLindex *indexOut)
     GLindex tail  = m_points.size() - 1;
 
     // return new index if pointer provided
-    if (index != 0) {
+    if (indexOut != 0) {
         (*indexOut) = m_indices.size();
     }
 
@@ -162,7 +162,7 @@ void GLElementData::connectRect(const GLindex &indexIn, GLindex *indexOut)
     GLindex tail  = m_points.size() - 1;
 
     // return new index if pointer provided
-    if (index != 0) {
+    if (indexOut != 0) {
         (*indexOut) = m_indices.size();
     }
 
