@@ -8,6 +8,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <array>
 #include <QString>
 #include <QSizeF>
 #include <QDateTime>
@@ -22,10 +23,11 @@ namespace Globals
 {
 
 /*** version ***/
-static const QString MAJOR = QString::number(VERSION_MAJOR);
-static const QString MINOR = QString::number(VERSION_MINOR);
-static const QString PATCH = QString::number(VERSION_REVISION);
-static const QString VERSION = ((MAJOR + "." + MINOR) + ".") + PATCH;
+static const qulonglong MAJOR = VERSION_MAJOR;
+static const qulonglong MINOR = VERSION_MINOR;
+static const qulonglong PATCH = VERSION_REVISION;
+static const std::array< qulonglong, 3> VersionNumbers{{ VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION }};
+static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
 /**** setttings ****/
 static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
