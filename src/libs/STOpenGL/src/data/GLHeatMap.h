@@ -9,8 +9,8 @@
 #define GLHEATMAP_H
 
 #include "GLCommon.h"
-#include "GLColor.h"
 
+class QColor4ub;
 class QImage;
 
 namespace GL
@@ -32,11 +32,11 @@ public:
     static void createHeatMapImage(QImage &image, const SpectrumMode mode = SpectrumLinear,
                                          int lowerbound = 0, int upperbound = 100);
 
-    static GLcolor createHeatMapColor(const GLfloat wavelength);
+    static QColor4ub createHeatMapColor(const qreal wavelength);
 
     // convenience function to generate a heat map wavelength
     // based on a normalized value [0,1] and a distribution function.
-    static GLfloat generateHeatMapWavelength(const GLfloat t, const SpectrumMode mode = SpectrumLinear);
+    static qreal generateHeatMapWavelength(const qreal t, const SpectrumMode mode = SpectrumLinear);
 };
 
 } // namespace GL //

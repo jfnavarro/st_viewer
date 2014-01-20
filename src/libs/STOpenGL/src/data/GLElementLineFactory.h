@@ -24,19 +24,19 @@ public:
 
     // setters
     void setShape(const GLindex& index, const QLineF &line);
-    void setColor(const GLindex& index, const GLcolor &color);
+    void setColor(const GLindex& index, const QColor4ub &color);
 
     // getters
-    const GLcolor getColor(const GLindex& index) const;
+    const QColor4ub getColor(const GLindex& index) const;
 
     // rectangle shape factory functions
     GLindex addShape(const QPointF &point1, const QPointF &point2);
     GLindex addShape(const QLineF& line);
 
     // state modifiers
-    virtual void setColor(const GLcolor& color);
-    virtual void setSize(const GLfloat& size);
-    virtual void setSize(const GLfloat &width, const GLfloat &height);
+    virtual void setColor(const QColor4ub& color);
+    virtual void setSize(const qreal &size);
+    virtual void setSize(const qreal &width, const qreal &height);
 
     virtual GLindex size() const;
 

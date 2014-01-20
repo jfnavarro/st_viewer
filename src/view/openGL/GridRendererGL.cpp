@@ -7,6 +7,8 @@
 #include "GLCommon.h"
 #include "data/GLElementLineFactory.h"
 
+#include <QColor4ub>
+
 GridRendererGL::GridRendererGL()
 {
 }
@@ -48,7 +50,8 @@ void GridRendererGL::generateData()
     GL::GLElementLineFactory factory(m_gridData, flags);
 
     // generate borders
-    const GL::GLcolor gridBorderColor = 0.5f * GL::toGLcolor(m_gridBorderColor);
+    QColor4ub gridBorderColor = QColor4ub(m_gridBorderColor);
+    gridBorderColor.setAlphaF(0.5);
     factory.setColor(gridBorderColor);
 
     for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
@@ -70,7 +73,8 @@ void GridRendererGL::generateData()
     }
 
     // generate grid
-    const GL::GLcolor gridColor = 0.5f * GL::toGLcolor(m_gridColor);
+    QColor4ub gridColor = QColor4ub(m_gridColor);
+    gridColor.setAlphaF(0.5);
     factory.setColor(gridColor);
 
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += Globals::grid_line_size) {

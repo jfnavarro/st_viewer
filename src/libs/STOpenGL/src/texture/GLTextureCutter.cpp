@@ -34,8 +34,8 @@ GLTextureCutter::GLTextureCutter(GLsizei width, GLsizei height)
 
 void GLTextureCutter::cut(int width, int height, GLvoid *pixels, GLTextureData& data)
 {   
-    const int xCount = std::ceil( static_cast<GLfloat>(width) / static_cast<GLfloat>(m_width) );
-    const int yCount = std::ceil( static_cast<GLfloat>(height) / static_cast<GLfloat>(m_height) );
+    const int xCount = std::ceil( static_cast<qreal>(width) / static_cast<qreal>(m_width) );
+    const int yCount = std::ceil( static_cast<qreal>(height) / static_cast<qreal>(m_height) );
     const int count = xCount * yCount;
     const int alignment = 1;
 

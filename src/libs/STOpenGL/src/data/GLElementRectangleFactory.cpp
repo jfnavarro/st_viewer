@@ -58,17 +58,17 @@ void GLElementRectangleFactory::deconnect(const GLindex &externalIndex)
     m_data->deconnectRect(internalIndex);
 }
 
-void GLElementRectangleFactory::setColor(const GLcolor &color)
+void GLElementRectangleFactory::setColor(const QColor4ub &color)
 {
     m_color = color;
 }
 
-void GLElementRectangleFactory::setSize(const GLfloat &size)
+void GLElementRectangleFactory::setSize(const qreal &size)
 {
     m_size = QPointF(size, size);
 }
 
-void GLElementRectangleFactory::setSize(const GLfloat &width, const GLfloat &height)
+void GLElementRectangleFactory::setSize(const qreal &width, const qreal &height)
 {
     m_size = QPointF(width, height);
 }
@@ -85,7 +85,7 @@ void GLElementRectangleFactory::setShape(const GLindex &index, const QRectF &rec
     m_data->setShape(internalIndex, rectangle);
 }
 
-void GLElementRectangleFactory::setColor(const GLindex &index, const GLcolor &color)
+void GLElementRectangleFactory::setColor(const GLindex &index, const QColor4ub &color)
 {
     const GLindex internalIndex = translateExternalIndex(index);
     m_data->setColorRect(internalIndex, color);
@@ -97,7 +97,7 @@ void GLElementRectangleFactory::setTexture(const GLindex &index, const QRectF &t
     m_data->setTexture(internalIndex, texture);
 }
 
-const GLcolor GLElementRectangleFactory::getColor(const GLindex &index) const
+const QColor4ub GLElementRectangleFactory::getColor(const GLindex &index) const
 {
     const GLindex internalIndex = translateExternalIndex(index);
     return m_data->getColor(internalIndex); // assume colors are reflected over all vertices

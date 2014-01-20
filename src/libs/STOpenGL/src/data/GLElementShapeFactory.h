@@ -34,7 +34,7 @@ public:
 
     static const GLflag DEFAULT_CLEAR_FLAGS = GLElementData::Arrays;
     static const GLflag DEFAULT_BUILD_FLAGS = (AutoAddColor | AutoAddTexture);
-    static const GLfloat DEFAULT_SIZE;
+    static const qreal DEFAULT_SIZE;
 
     GLElementShapeFactory(GLElementData& data, GLflag flags = DEFAULT_BUILD_FLAGS);
     virtual ~GLElementShapeFactory();
@@ -46,21 +46,21 @@ public:
     virtual void deconnect(const GLindex& index) = 0;
 
     // state modifiers
-    virtual void setColor(const GLcolor& color) = 0;
+    virtual void setColor(const QColor4ub& color) = 0;
     //virtual GLcolor color() = 0;
 
     // virtual void setTexture();
     // virtual QGLTexture* texture();
 
-    virtual void setSize(const GLfloat& size) = 0;
-    virtual void setSize(const GLfloat &width, const GLfloat &height) = 0;
+    virtual void setSize(const qreal& size) = 0;
+    virtual void setSize(const qreal &width, const qreal &height) = 0;
     virtual GLindex size() const = 0;
 
 protected:
 
     GLElementData* m_data;
     GLflag m_flags;
-    GLcolor m_color;
+    QColor4ub m_color;
     QPointF m_size;
 };
 

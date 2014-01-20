@@ -7,8 +7,8 @@
 #include "DynamicRangeColor.h"
 
 #include "GLCommon.h"
+
 #include "data/GLHeatMap.h"
-#include "GLColor.h"
 #include "utils/MathExtended.h"
 
 DynamicRangeColor::DynamicRangeColor() : ColorScheme()

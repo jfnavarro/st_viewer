@@ -104,7 +104,7 @@ void GeneRendererGL::setSize(qreal size)
     m_size = size;
     // update factory
     GL::GLElementRectangleFactory factory(m_geneData);
-    factory.setSize((GLfloat) m_size);
+    factory.setSize(m_size);
 }
 
 void GeneRendererGL::setUpperLimit(int limit)
@@ -154,7 +154,7 @@ void GeneRendererGL::generateData()
     GL::GLElementRectangleFactory factory(m_geneData, flags);
 
     // the size of the dots
-    factory.setSize((GLfloat) m_size);
+    factory.setSize(m_size);
 
     // temp hack to get the local max/min of features treated indidividually
     // there will not be need to do this in the next version of the server API
@@ -199,7 +199,7 @@ void GeneRendererGL::generateData()
         }
 
         // set default color
-        factory.setColor(index, GL::GLcolor(GL::White));
+        factory.setColor(index, Qt::white);
 
     } //endforeach
 
@@ -310,16 +310,16 @@ void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
         }
         
         // convert to OpenGL colors
-        const GL::GLcolor oldColor = GL::toGLcolor(oldQColor);
-        const GL::GLcolor newColor = GL::toGLcolor(newQColor);
+        const QColor4ub oldColor = QColor4ub(oldQColor);
+        const QColor4ub newColor = QColor4ub(newQColor);
         
         // update the color if gene is visible
         if (selected && (refCount > 0)) {
-            GL::GLcolor color = factory.getColor(index);
+            QColor4ub color = factory.getColor(index);
             if (refCount > 1) {
-                color = GL::invlerp((1.0f / GLfloat(refCount)), color, oldColor);
+                color = GL::invlerp((1.0f / qreal(refCount)), color, oldColor);
             }
-            color = GL::lerp((1.0f / GLfloat(refCount)), color, newColor);
+            color = GL::lerp((1.0f / qreal(refCount)), color, newColor);
             factory.setColor(index, color);
         }
     }
@@ -362,11 +362,11 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
         m_geneData.setRefCount(index, newRefCount);
 
         if ( newRefCount > 0 ) {
-            GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
-            GL::GLcolor color = factory.getColor(index);
+            QColor4ub featureColor = QColor4ub(m_colorScheme->getColor(feature, m_min, m_max));
+            QColor4ub color = factory.getColor(index);
             color = (selected && !offlimits) ?
-                        GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor) :
-                        GL::invlerp((1.0f / GLfloat(oldRefCount)), color, featureColor);
+                        GL::lerp((1.0f / qreal(newRefCount)), color, featureColor) :
+                        GL::invlerp((1.0f / qreal(oldRefCount)), color, featureColor);
             factory.setColor(index, color);
         }
 
@@ -422,15 +422,15 @@ void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
 
         // update color
         if ( selected && newRefCount > 0 && !offlimits) {
-            GL::GLcolor featureColor = GL::toGLcolor(m_colorScheme->getColor(feature, m_min, m_max));
-            GL::GLcolor color = factory.getColor(index);
-            color = GL::lerp((1.0f / GLfloat(newRefCount)), color, featureColor);
+            QColor4ub featureColor = QColor4ub(m_colorScheme->getColor(feature, m_min, m_max));
+            QColor4ub color = factory.getColor(index);
+            color = GL::lerp((1.0f / qreal(newRefCount)), color, featureColor);
             factory.setColor(index, color);
         }
 
         if ( newRefCount == 0 ) {
-            GL::GLcolor featureColor = GL::GLcolor(GL::White);
-            featureColor.alpha = 0.0f;
+            QColor4ub featureColor = QColor4ub(Qt::white);
+            featureColor.setAlphaF(0.0);
             factory.setColor(index, featureColor);
         }
     }

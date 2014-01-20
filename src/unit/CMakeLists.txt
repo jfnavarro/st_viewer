@@ -35,8 +35,6 @@ set(LIB_ST_NETWORK
 )
 
 set(LIB_ST_OPENGL
-    libs/STOpenGL/compression/tst_glcolortest.cpp
-    libs/STOpenGL/compression/tst_glcolortest.h
     libs/STOpenGL/math/tst_glaabbtest.cpp
     libs/STOpenGL/math/tst_glaabbtest.h
     libs/STOpenGL/math/tst_glquadtreetest.cpp

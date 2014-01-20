@@ -6,8 +6,6 @@ message(STATUS "Building ${LIB}")
 
 set(SRC_${LIB}
 
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/compression/GLBitColor.h
-
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementData.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementData.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/data/GLElementDataGene.cpp
@@ -36,8 +34,6 @@ set(SRC_${LIB}
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/render/GLElementRender.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/render/GLElementRender.h
 
-    ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/GLColor.cpp
-    #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/GLColor.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/GLCommon.cpp
     #${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/GLCommon.h
     ${CMAKE_SOURCE_DIR}/src/libs/${LIB}/src/GLScope.cpp

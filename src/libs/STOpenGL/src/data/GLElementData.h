@@ -11,11 +11,11 @@
 #include <QVector>
 
 #include "GLCommon.h"
-#include "GLColor.h"
 
 #include <QLineF>
 #include <QRectF>
 #include <QPointF>
+#include <QColor4ub>
 
 namespace GL
 {
@@ -31,7 +31,7 @@ public:
 
     typedef QVector<QPointF> PointsType;
     typedef QVector<QPointF> VerticesType;
-    typedef QVector<GLcolor> ColorsType;
+    typedef QVector<QColor4ub> ColorsType;
     typedef QVector<GLindex> IndexesType;
     typedef QVector<QPointF> TexturesType;
 
@@ -60,7 +60,7 @@ public:
     // data builders
 
     //points
-    void addPoint(const GLfloat &x, const GLfloat &y);
+    void addPoint(const qreal &x, const qreal &y);
     void addPoint(const QPointF &point);
 
     //shape
@@ -68,9 +68,9 @@ public:
     GLindex addShape(const QRectF &rect);
 
     //colors (assume they extend to all vertex)
-    void addColor(const GLcolor &color);
-    void addColorLine(const GLcolor &color);
-    void addColorRect(const GLcolor &color);
+    void addColor(const QColor4ub &color);
+    void addColorLine(const QColor4ub &color);
+    void addColorRect(const QColor4ub &color);
 
     //textures
     void addTexture(const QPointF &point);
@@ -89,14 +89,14 @@ public:
     void setShape(const GLindex &index, const QLineF &line);
     void setShape(const GLindex &index, const QRectF &rectangle);
 
-    void setColorLine(const GLindex &index, const GLcolor &color);
-    void setColorRect(const GLindex &index, const GLcolor &color);
+    void setColorLine(const GLindex &index, const QColor4ub &color);
+    void setColorRect(const GLindex &index, const QColor4ub &color);
 
     void setTexture(const GLindex &index, const QLineF &line);
     void setTexture(const GLindex &index, const QRectF &rectangle);
 
     // data access
-    const GLcolor getColor(const GLindex &index);
+    const QColor4ub getColor(const GLindex &index);
 
     // state modifiers
     void setMode(const GLenum &mode);

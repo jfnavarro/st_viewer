@@ -334,6 +334,7 @@ source_group("Controller\\Error" FILES ${SRC_CONTROLLER_ERROR} ${INC_CONTROLLER_
 
 ###PACKAGES######################################
 
+##TODO update cpack for ubuntu and windows to current list of qt5 libraries
 use_qt5lib(Qt5LinguistTools)
 use_qt5lib(Qt5Widgets)
 use_qt5lib(Qt5WebKit)
@@ -342,6 +343,7 @@ use_qt5lib(Qt5Network)
 use_qt5lib(Qt5Core)
 use_qt5lib(Qt5Gui)
 use_qt5lib(Qt5OpenGL)
+use_qt5lib(Qt53D)
 
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
@@ -415,7 +417,8 @@ target_link_libraries(STMain ${LIB_COMPONENTS}
                              Qt5::Widgets
                              Qt5::WebKit
                              Qt5::WebKitWidgets
-                             Qt5::OpenGL) #Qt5::LinguistTools
+                             Qt5::OpenGL
+                             Qt5::3D) #Qt5::LinguistTools
 
 #create main target (resources needs to be part of the target)
 if(WIN32)

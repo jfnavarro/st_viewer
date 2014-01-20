@@ -39,7 +39,7 @@ void GLElementData::clear(GLflag flags)
     }
 }
 
-void GLElementData::addPoint(const GLfloat &x, const GLfloat &y)
+void GLElementData::addPoint(const qreal &x, const qreal &y)
 {
     addPoint(QPointF(x, y));
 }
@@ -72,18 +72,18 @@ GLindex GLElementData::addShape(const QRectF &rectangle)
     return m_points.size();
 }
 
-void GLElementData::addColor(const GLcolor &color)
+void GLElementData::addColor(const QColor4ub &color)
 {
     m_colors.push_back(color);
 }
 
-void GLElementData::addColorLine(const GLcolor &color)
+void GLElementData::addColorLine(const QColor4ub &color)
 {
     addColor(color);
     addColor(color);
 }
 
-void GLElementData::addColorRect(const GLcolor &color)
+void GLElementData::addColorRect(const QColor4ub &color)
 {
     addColor(color);
     addColor(color);
@@ -222,13 +222,13 @@ void GLElementData::setShape(const GLindex &index, const QRectF &rectangle)
     m_points[index + 3] = p3;
 }
 
-void GLElementData::setColorLine(const GLindex &index, const GLcolor &color)
+void GLElementData::setColorLine(const GLindex &index, const QColor4ub &color)
 {
     m_colors[index] = color;
     m_colors[index + 1] = color;
 }
 
-void GLElementData::setColorRect(const GLindex &index, const GLcolor &color)
+void GLElementData::setColorRect(const GLindex &index, const QColor4ub &color)
 {
     m_colors[index] = color;
     m_colors[index + 1] = color;
@@ -259,7 +259,7 @@ void GLElementData::setTexture(const GLindex &index, const QRectF &rectangle)
 
 // data access
 
-const GLcolor GLElementData::getColor(const GLindex &index)
+const QColor4ub GLElementData::getColor(const GLindex &index)
 {
     return m_colors[index]; // colors are the same for all the shape's vertexs
 }

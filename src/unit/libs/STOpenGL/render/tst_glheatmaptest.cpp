@@ -8,11 +8,7 @@
 #include <QtTest/QTest>
 
 #include "GLCommon.h"
-#include "GLColor.h"
-
-Q_DECLARE_METATYPE(GL::GLcolor)
-
-#include <data/GLHeatMap.h>
+#include "data/GLHeatMap.h"
 
 #include "tst_glheatmaptest.h"
 
@@ -32,22 +28,22 @@ void GLHeatMapTest::cleanupTestCase()
 
 void GLHeatMapTest::testHeatMap()
 {
-    QFETCH(GLfloat, wavelength);
-    QFETCH(GL::GLcolor, color);
+    QFETCH(qreal, wavelength);
+    QFETCH(QColor4ub, color);
     QFETCH(bool, expected);
-    const GL::GLcolor approximation = GL::GLheatmap::createHeatMapColor(wavelength);
-    QCOMPARE(GL::fuzzyEqual(approximation, color), expected);
+    const QColor4ub approximation = GL::GLheatmap::createHeatMapColor(wavelength);
+    QCOMPARE((approximation == color), expected);
 }
 void GLHeatMapTest::testHeatMap_data()
 {
-    QTest::addColumn<GLfloat>("wavelength");
-    QTest::addColumn<GL::GLcolor>("color");
+    QTest::addColumn<qreal>("wavelength");
+    QTest::addColumn<QColor4ub>("color");
     QTest::addColumn<bool>("expected");
-    QTest::newRow("red") << GLfloat(645.0) << GL::GLcolor(GL::Red) << true;
-    QTest::newRow("yellow") << GLfloat(580.0) << GL::GLcolor(GL::Yellow) << true;
-    QTest::newRow("green") << GLfloat(510.0) << GL::GLcolor(GL::Green) << true;
-    QTest::newRow("cyan") << GLfloat(490.0) << GL::GLcolor(GL::Cyan) << true;
-    QTest::newRow("blue") << GLfloat(440.0) << GL::GLcolor(GL::Blue) << true;
+    QTest::newRow("red") << qreal(645.0) << QColor4ub(Qt::red) << true;
+    QTest::newRow("yellow") << qreal(580.0) << QColor4ub(Qt::yellow) << true;
+    QTest::newRow("green") << qreal(510.0) << QColor4ub(Qt::green) << true;
+    QTest::newRow("cyan") << qreal(490.0) << QColor4ub(Qt::cyan) << true;
+    QTest::newRow("blue") << qreal(440.0) << QColor4ub(Qt::blue) << true;
 }
 
 } // namespace unit //

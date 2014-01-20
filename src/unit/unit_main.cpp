@@ -16,7 +16,6 @@
 
 #include "unit/libs/STCore/tst_simplecryptdevicetest.h"
 #include "unit/libs/STCore/tst_simplecrypttest.h"
-#include "unit/libs/STOpenGL/compression/tst_glcolortest.h"
 #include "unit/libs/STOpenGL/math/tst_glaabbtest.h"
 #include "unit/libs/STOpenGL/math/tst_glquadtreetest.h"
 #include "unit/libs/STOpenGL/render/tst_glheatmaptest.h"
@@ -41,7 +40,6 @@ int main(int argc, char **argv)
     suite.addTest(new DataStoreTest, "DataStore");
     //suite.addTest(new WidgetsTest, "Widgets");
     suite.addTest(new GLTypeTraitsTest, "GLTypeTraits");
-    suite.addTest(new GLColorTest, "GLColor").dependsOn("GLCommon");
     suite.addTest(new GLAABBTest, "GLAABB").dependsOn("GLMath");
     suite.addTest(new GLQuadTreeTest, "GLQuadTree").dependsOn("GLAABB");
     suite.addTest(new GLHeatMapTest, "GLHeatMap").dependsOn("GLPoint");

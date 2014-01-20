@@ -151,24 +151,24 @@ void HeatMapLegendGL::generateHeatMapData()
              );
 
     // threshold height
-    const GLfloat height = GLfloat(size.height());
-    const GLfloat thresholdLowerHeight = (1.0f - m_lower_threshold) * height;
-    const GLfloat thresholdUpperHeight = (m_upper_threshold) * height;
+    const qreal height = static_cast<qreal>(size.height());
+    const qreal thresholdLowerHeight = (1.0 - m_lower_threshold) * height;
+    const qreal thresholdUpperHeight = (m_upper_threshold) * height;
 
     // generate borders
-    const GL::GLcolor borderColor = GL::GLcolor(GL::White);
+    const QColor4ub borderColor = QColor4ub(Qt::white);
 
     //create the legend
     factory.setColor(borderColor);
     factory.addShape(m_rect);
-    factory.setColor(GL::GLcolor(GL::Black));
+    factory.setColor(QColor4ub(Qt::black));
 
     factory.addShape( QRectF(m_rect.topLeft(), m_rect.topRight()) );
     factory.addShape( QRectF(m_rect.topRight(), m_rect.bottomLeft()) );
     factory.addShape( QRectF(m_rect.bottomLeft(), m_rect.bottomRight()) );
     factory.addShape( QRectF(m_rect.bottomRight(), m_rect.topLeft()) );
 
-    factory.setColor(GL::GLcolor(GL::Black));
+    factory.setColor(QColor4ub(Qt::black));
     //size of rect should be 3
     factory.addShape( QRectF(
                           QPointF(0.0f, thresholdLowerHeight),
@@ -177,7 +177,7 @@ void HeatMapLegendGL::generateHeatMapData()
                           QPointF(0.0f, thresholdUpperHeight),
                           QPointF(Globals::heatmap_bar_width, thresholdUpperHeight) ) );
 
-    factory.setColor(GL::GLcolor(GL::Red));
+    factory.setColor(QColor4ub(Qt::red));
     //size of rect should be 1
     factory.addShape( QRectF(
                           QPointF(0.0f, thresholdLowerHeight),

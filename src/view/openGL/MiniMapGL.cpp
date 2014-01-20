@@ -16,7 +16,7 @@
 #include "data/GLElementRectangleFactory.h"
 
 const QRectF MiniMapGL::DEFAULT_BOUNDS =
-        QRectF(0.0f, 0.0f,
+        QRectF(0.0, 0.0,
         Globals::minimap_height,
         Globals::minimap_width);
 
@@ -89,7 +89,7 @@ void MiniMapGL::updateTransform(const QRectF& scene)
     const qreal s22 = (s2.y() / s1.y());
     m_transform =
         QTransform::fromTranslate(-scene.x(), -scene.y()) // align
-        * QTransform(s11, 0.0f, 0.0f, s22, 0.0f, 0.0f);   // scale
+        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0);   // scale
 }
 
 void MiniMapGL::render(QPainter* painter)
@@ -186,12 +186,14 @@ void MiniMapGL::generateMinimapData()
         const QPointF str = m_scene.topRight();
         const QPointF sbr = m_scene.bottomRight();
         const QPointF sbl = m_scene.bottomLeft();
-        const GL::GLcolor sceneColor = GL::toGLcolor(m_sceneColor);
+        QColor4ub sceneColor = QColor4ub(m_sceneColor);
+        sceneColor.setAlphaF(0.2);
 
-        factory.setColor(0.2f * sceneColor);
+        factory.setColor(sceneColor);
         factory.addShape(QRectF(stl, sbr));
 
-        factory.setColor(0.8f * sceneColor); //line is 1
+        sceneColor.setAlphaF(0.8);
+        factory.setColor(sceneColor); //line is 1
         factory.addShape(QRectF(stl, str));
         factory.addShape(QRectF(str, sbr));
         factory.addShape(QRectF(sbr, sbl));
@@ -205,12 +207,14 @@ void MiniMapGL::generateMinimapData()
         const QPointF vtr = m_view.topRight();
         const QPointF vbr = m_view.bottomRight();
         const QPointF vbl = m_view.bottomLeft();
-        const GL::GLcolor viewColor = GL::toGLcolor(m_viewColor);
+        QColor4ub viewColor = QColor4ub(m_viewColor);
 
-        factory.setColor(0.2f * viewColor);
+        viewColor.setAlphaF(0.2);
+        factory.setColor(viewColor);
         factory.addShape(QRectF(vtl, vbr));
 
-        factory.setColor(0.8f * viewColor); //line is 1
+        viewColor.setAlphaF(0.8);
+        factory.setColor(viewColor); //line is 1
         factory.addShape(QRectF(vtl, vtr));
         factory.addShape(QRectF(vtr, vbr));
         factory.addShape(QRectF(vbr, vbl));

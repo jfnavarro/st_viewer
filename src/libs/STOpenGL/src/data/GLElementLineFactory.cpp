@@ -51,17 +51,17 @@ void GLElementLineFactory::deconnect(const GLindex &externalIndex)
     m_data->deconnectLine(internalIndex);
 }
 
-void GLElementLineFactory::setColor(const GLcolor &color)
+void GLElementLineFactory::setColor(const QColor4ub &color)
 {
     m_color = color;
 }
 
-void GLElementLineFactory::setSize(const GLfloat &size)
+void GLElementLineFactory::setSize(const qreal &size)
 {
     m_size = QPointF(size, size);
 }
 
-void GLElementLineFactory::setSize(const GLfloat &width, const GLfloat &height)
+void GLElementLineFactory::setSize(const qreal &width, const qreal &height)
 {
     m_size = QPointF(width, height);
 }
@@ -78,13 +78,13 @@ void GLElementLineFactory::setShape(const GLindex &index, const QLineF &line)
     m_data->setShape(internalIndex, line);
 }
 
-void GLElementLineFactory::setColor(const GLindex &index, const GLcolor &color)
+void GLElementLineFactory::setColor(const GLindex &index, const QColor4ub &color)
 {
     const GLindex internalIndex = translateExternalIndex(index);
     m_data->setColorLine(internalIndex, color);
 }
 
-const GLcolor GLElementLineFactory::getColor(const GLindex &index) const
+const QColor4ub GLElementLineFactory::getColor(const GLindex &index) const
 {
     const GLindex internalIndex = translateExternalIndex(index);
     return m_data->getColor(internalIndex); // assume colors are reflected over all vertices
