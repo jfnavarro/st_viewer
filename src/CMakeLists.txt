@@ -508,10 +508,10 @@ if(UNIX AND NOT APPLE)
     endforeach()
 
     # Qt plugins required by stVi
-    LINUX_DEPLOY_QT_PLUGIN(accessible qtaccessiblequick qtaccessiblewidgets)
-    LINUX_DEPLOY_QT_PLUGIN(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
-    LINUX_DEPLOY_QT_PLUGIN(platforms qlinuxfb qminimal qxcb)
-    LINUX_DEPLOY_QT_PLUGIN(printsupport cupsprintersupport)
+    linux_deploy_qt_plugin(accessible qtaccessiblequick qtaccessiblewidgets)
+    linux_deploy_qt_plugin(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+    linux_deploy_qt_plugin(platforms qlinuxfb qminimal qxcb)
+    linux_deploy_qt_plugin(printsupport cupsprintersupport)
 
     #install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
@@ -641,34 +641,34 @@ if(WIN32)
     # Qt libraries required by stVi
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
     
-        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucened Qt5Cored Qt5Guid Qt5Helpd Qt5Multimediad
+        windows_deploy_qt_libraries(Qt5CLucened Qt5Cored Qt5Guid Qt5Helpd Qt5Multimediad
                                     Qt5MultimediaWidgetsd Qt5Networkd Qt5OpenGLd
                                     Qt5PrintSupportd Qt5Qmld Qt5Quickd Qt5Sqld Qt5Svgd Qt5V8d
                                     Qt5WebKitd Qt5WebKitWidgetsd Qt5Widgetsd Qt5Xmld Qt5Sensorsd)
 
         # Qt plugins required by stVi
-        WINDOWS_DEPLOY_QT_PLUGIN(accessible qtaccessiblequickd qtaccessiblewidgetsd)
-        WINDOWS_DEPLOY_QT_PLUGIN(imageformats qgifd qicod qjpegd qmngd qsvgd qtgad qtiffd qwbmpd)
-        WINDOWS_DEPLOY_QT_PLUGIN(printsupport windowsprintersupportd)
+        windows_deploy_qt_plugin(accessible qtaccessiblequickd qtaccessiblewidgetsd)
+        windows_deploy_qt_plugin(imageformats qgifd qicod qjpegd qmngd qsvgd qtgad qtiffd qwbmpd)
+        windows_deploy_qt_plugin(printsupport windowsprintersupportd)
         set(PLUGINS qminimald qwindowsd)
         
     else()
     
-        WINDOWS_DEPLOY_QT_LIBRARIES(Qt5CLucene Qt5Core Qt5Gui Qt5Help Qt5Multimedia
+        windows_deploy_qt_libraries(Qt5CLucene Qt5Core Qt5Gui Qt5Help Qt5Multimedia
                                     Qt5MultimediaWidgets Qt5Network Qt5OpenGL
                                     Qt5PrintSupport Qt5Qml Qt5Quick Qt5Sql Qt5Svg
                                     Qt5V8 Qt5WebKit Qt5WebKitWidgets Qt5Widgets Qt5Xml Qt5Sensors)
 
         # Qt plugins required by stVi
-        WINDOWS_DEPLOY_QT_PLUGIN(accessible qtaccessiblequick qtaccessiblewidgets)
-        WINDOWS_DEPLOY_QT_PLUGIN(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
-        WINDOWS_DEPLOY_QT_PLUGIN(printsupport windowsprintersupport)
+        windows_deploy_qt_plugin(accessible qtaccessiblequick qtaccessiblewidgets)
+        windows_deploy_qt_plugin(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+        windows_deploy_qt_plugin(printsupport windowsprintersupport)
         set(PLUGINS qminimal qwindows)
         
     endif()
     
     #qt5.1.1 icu is 51 for lower versions is 49
-    WINDOWS_DEPLOY_QT_LIBRARIES(icudt51 icuin51 icuuc51)
+    windows_deploy_qt_libraries(icudt51 icuin51 icuuc51)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE ${PLUGINS})
