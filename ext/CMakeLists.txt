@@ -1,0 +1,3 @@
+add_subdirectory(QtDebugHelper)
+add_subdirectory(QtSingleApplication)
+add_subdirectory(libqxt)

@@ -16,6 +16,9 @@
 #include <QRectF>
 #include <QPointF>
 #include <QColor4ub>
+#include <QVector2DArray>
+#include <QArray>
+
 
 namespace GL
 {
@@ -29,11 +32,11 @@ class GLElementData
 {
 public:
 
-    typedef QVector<QPointF> PointsType;
-    typedef QVector<QPointF> VerticesType;
-    typedef QVector<QColor4ub> ColorsType;
-    typedef QVector<GLindex> IndexesType;
-    typedef QVector<QPointF> TexturesType;
+    typedef QVector2DArray PointsType;
+    typedef QVector2DArray VerticesType;
+    typedef QArray<QColor4ub> ColorsType;
+    typedef QArray<GLindex> IndexesType;
+    typedef QVector2DArray TexturesType;
 
     static const PointsType::size_type rect_size = 4;
     static const IndexesType::size_type line_size = 2;
@@ -62,6 +65,7 @@ public:
     //points
     void addPoint(const qreal &x, const qreal &y);
     void addPoint(const QPointF &point);
+    void addPoint(const QVector2D &point);
 
     //shape
     GLindex addShape(const QLineF &line);

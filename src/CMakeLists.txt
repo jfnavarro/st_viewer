@@ -32,77 +32,77 @@ message( STATUS )
 # Initialise the project
 initialise_project()
 
-set(INC_MODEL
-    model/Chip.h
-    model/Dataset.h
-    model/Feature.h
-    model/FeatureExtended.h
-    model/Gene.h
-    model/HitCount.h
-    model/ObjectParser.h
-    model/User.h
-    model/UserExperiment.h
+set(INC_DATA_MODEL
+    dataModel/Chip.h
+    dataModel/Dataset.h
+    dataModel/Feature.h
+    dataModel/FeatureExtended.h
+    dataModel/Gene.h
+    dataModel/HitCount.h
+    dataModel/ObjectParser.h
+    dataModel/User.h
+    dataModel/UserExperiment.h
 )
-set(SRC_MODEL
-    model/Chip.cpp
-    model/Dataset.cpp
-    model/Feature.cpp
-    model/FeatureExtended.cpp
-    model/Gene.cpp
-    model/HitCount.cpp
-    model/ObjectParser.cpp
-    model/User.cpp
-    model/UserExperiment.cpp
-)
-
-set(INC_MODEL_CORE
-    model/core/ColorPalette.h
-    model/core/ColorScheme.h
-    model/core/FeatureColor.h
-    model/core/HeatMapColor.h
-    model/core/DynamicRangeColor.h
-)
-set(SRC_MODEL_CORE
-    model/core/ColorPalette.cpp
-    model/core/ColorScheme.cpp
-    model/core/FeatureColor.cpp
-    model/core/HeatMapColor.cpp
-    model/core/DynamicRangeColor.cpp
+set(SRC_DATA_MODEL
+    dataModel/Chip.cpp
+    dataModel/Dataset.cpp
+    dataModel/Feature.cpp
+    dataModel/FeatureExtended.cpp
+    dataModel/Gene.cpp
+    dataModel/HitCount.cpp
+    dataModel/ObjectParser.cpp
+    dataModel/User.cpp
+    dataModel/UserExperiment.cpp
 )
 
-set(INC_MODEL_DTO
-    model/dto/ChipDTO.h
-    model/dto/DatasetDTO.h
-    model/dto/ErrorDTO.h
-    model/dto/FeatureDTO.h
-    model/dto/GeneDTO.h
-    model/dto/HitCountDTO.h
-    model/dto/OAuth2TokenDTO.h
-    model/dto/UserDTO.h
-    model/dto/UserExperimentDTO.h
+set(INC_COLOR
+    color/ColorPalette.h
+    color/core/ColorScheme.h
+    color/core/FeatureColor.h
+    color/core/HeatMapColor.h
+    color/core/DynamicRangeColor.h
 )
-set(SRC_MODEL_DTO
-    model/dto/ChipDTO.cpp
-    model/dto/DatasetDTO.cpp
-    model/dto/ErrorDTO.cpp
-    model/dto/FeatureDTO.cpp
-    model/dto/GeneDTO.cpp
-    model/dto/HitCountDTO.cpp
-    model/dto/OAuth2TokenDTO.cpp
-    model/dto/UserDTO.cpp
-    model/dto/UserExperimentDTO.cpp
+set(SRC_COLOR
+    color/ColorPalette.cpp
+    color/ColorScheme.cpp
+    color/FeatureColor.cpp
+    color/HeatMapColor.cpp
+    color/DynamicRangeColor.cpp
 )
 
-set(INC_VIEW
-    view/AboutDialog.h
-    view/SelectionDialog.h
-    view/LoginDialog.h
+set(INC_DATA_MODEL_DTO
+    dataModel/dto/ChipDTO.h
+    dataModel/dto/DatasetDTO.h
+    dataModel/dto/ErrorDTO.h
+    dataModel/dto/FeatureDTO.h
+    dataModel/dto/GeneDTO.h
+    dataModel/dto/HitCountDTO.h
+    dataModel/dto/OAuth2TokenDTO.h
+    dataModel/dto/UserDTO.h
+    dataModel/dto/UserExperimentDTO.h
+)
+set(SRC_DATA_MODEL_DTO
+    dataModel/dto/ChipDTO.cpp
+    dataModel/dto/DatasetDTO.cpp
+    dataModel/dto/ErrorDTO.cpp
+    dataModel/dto/FeatureDTO.cpp
+    dataModel/dto/GeneDTO.cpp
+    dataModel/dto/HitCountDTO.cpp
+    dataModel/dto/OAuth2TokenDTO.cpp
+    dataModel/dto/UserDTO.cpp
+    dataModel/dto/UserExperimentDTO.cpp
 )
 
-set(SRC_VIEW
-    view/AboutDialog.cpp
-    view/SelectionDialog.cpp
-    view/LoginDialog.cpp
+set(INC_DIALOGS
+    dialogs/AboutDialog.h
+    dialogs/SelectionDialog.h
+    dialogs/LoginDialog.h
+)
+
+set(SRC_DIALOGS
+    dialogs/AboutDialog.cpp
+    dialogs/SelectionDialog.cpp
+    dialogs/LoginDialog.cpp
 )
 
 set(INC_VIEW_OPENGL
@@ -132,11 +132,11 @@ set(SRC_VIEW_OPENGL
     view/openGL/ViewItemGL.cpp
 )
 
-set(INC_VIEW_EDITORS
-    view/editors/ColorListEditor.h
+set(INC_MODEL_EDITORS
+    model/editors/ColorListEditor.h
 )
-set(SRC_VIEW_EDITORS
-    view/editors/ColorListEditor.cpp
+set(SRC_MODEL_EDITORS
+    model/editors/ColorListEditor.cpp
 )
 
 set(INC_VIEW_PAGES
@@ -154,99 +154,99 @@ set(SRC_VIEW_PAGES
     view/pages/Page.cpp
 )
 
-set(INC_VIEW_MODEL_CONTROLLER
-    view/controllers/GeneFeatureItemModel.h
-    view/controllers/DatasetItemModel.h
-    view/controllers/ExperimentsItemModel.h
-    view/controllers/GeneSelectionItemModel.h
+set(INC_MODEL
+    model/GeneFeatureItemModel.h
+    model/DatasetItemModel.h
+    model/ExperimentsItemModel.h
+    model/GeneSelectionItemModel.h
 )
-set(SRC_VIEW_MODEL_CONTROLLER
-    view/controllers/GeneFeatureItemModel.cpp
-    view/controllers/DatasetItemModel.cpp
-    view/controllers/ExperimentsItemModel.cpp
-    view/controllers/GeneSelectionItemModel.cpp
+set(SRC_MODEL
+    model/GeneFeatureItemModel.cpp
+    model/DatasetItemModel.cpp
+    model/ExperimentsItemModel.cpp
+    model/GeneSelectionItemModel.cpp
 )
 
-set(INC_CONTROLLER
+set(INC_CORE
     stVi.h
 )
-set(SRC_CONTROLLER
+set(SRC_CORE
     stVi.cpp
 )
 
-set(INC_CONTROLLER_ASYNC
-    controller/async/ImageProcessing.h
+set(INC_CORE_ASYNC
+    core/async/ImageProcessing.h
 )
-set(SRC_CONTROLLER_ASYNC
-    controller/async/ImageProcessing.cpp
-)
-
-set(INC_CONTROLLER_AUTH
-    controller/auth/AuthorizationManager.h
-    controller/auth/OAuth2.h
-    controller/auth/TokenStorage.h
-)
-set(SRC_CONTROLLER_AUTH
-    controller/auth/AuthorizationManager.cpp
-    controller/auth/OAuth2.cpp
-    controller/auth/TokenStorage.cpp
+set(SRC_CORE_ASYNC
+    core/async/ImageProcessing.cpp
 )
 
-set(INC_CONTROLLER_DATA
-    controller/data/DataStore.h
-    controller/data/DataProxy.h
-    controller/data/ResourceStore.h
+set(INC_CORE_AUTH
+    core/auth/AuthorizationManager.h
+    core/auth/OAuth2.h
+    core/auth/TokenStorage.h
 )
-set(SRC_CONTROLLER_DATA
-    controller/data/DataStore.cpp
-    controller/data/DataProxy.cpp
-)
-
-set(INC_CONTROLLER_ERROR  
-    controller/error/SSLNetworkError.h
-    controller/error/NetworkError.h
-    controller/error/JSONError.h
-    controller/error/OAuth2Error.h
-    controller/error/ApplicationError.h
-    controller/error/Error.h
-    controller/error/ErrorManager.h
-    controller/error/ServerError.h    
-)
-set(SRC_CONTROLLER_ERROR  
-    controller/error/SSLNetworkError.cpp
-    controller/error/NetworkError.cpp
-    controller/error/JSONError.cpp
-    controller/error/OAuth2Error.cpp
-    controller/error/ApplicationError.cpp
-    controller/error/Error.cpp
-    controller/error/ErrorManager.cpp
-    controller/error/ServerError.cpp    
+set(SRC_CORE_AUTH
+    core/auth/AuthorizationManager.cpp
+    core/auth/OAuth2.cpp
+    core/auth/TokenStorage.cpp
 )
 
-set(INC_CONTROLLER_IO
-    controller/io/GeneExporter.h
-    controller/io/GeneXMLExporter.h
-    controller/io/GeneTXTExporter.h
+set(INC_CORE_DATA
+    core/data/DataStore.h
+    core/data/DataProxy.h
+    core/data/ResourceStore.h
 )
-set(SRC_CONTROLLER_IO
-    controller/io/GeneExporter.cpp
-    controller/io/GeneXMLExporter.cpp
-    controller/io/GeneTXTExporter.cpp
+set(SRC_CORE_DATA
+    core/data/DataStore.cpp
+    core/data/DataProxy.cpp
 )
 
-set(INC_CONTROLLER_NETWORK
-    controller/network/NetworkCommand.h
-    controller/network/NetworkManager.h
-    controller/network/NetworkReply.h
-    controller/network/RESTCommandFactory.h
-    controller/network/DownloadManager.h
+set(INC_CORE_ERROR
+    core/error/SSLNetworkError.h
+    core/error/NetworkError.h
+    core/error/JSONError.h
+    core/error/OAuth2Error.h
+    core/error/ApplicationError.h
+    core/error/Error.h
+    core/error/ErrorManager.h
+    core/error/ServerError.h
 )
-set(SRC_CONTROLLER_NETWORK
-    controller/network/NetworkCommand.cpp
-    controller/network/NetworkManager.cpp
-    controller/network/NetworkReply.cpp
-    controller/network/RESTCommandFactory.cpp
-    controller/network/DownloadManager.cpp
+set(SRC_CORE_ERROR
+    core/error/SSLNetworkError.cpp
+    core/error/NetworkError.cpp
+    core/error/JSONError.cpp
+    core/error/OAuth2Error.cpp
+    core/error/ApplicationError.cpp
+    core/error/Error.cpp
+    core/error/ErrorManager.cpp
+    core/error/ServerError.cpp
+)
+
+set(INC_CORE_IO
+    core/io/GeneExporter.h
+    core/io/GeneXMLExporter.h
+    core/io/GeneTXTExporter.h
+)
+set(SRC_CORE_IO
+    core/io/GeneExporter.cpp
+    core/io/GeneXMLExporter.cpp
+    core/io/GeneTXTExporter.cpp
+)
+
+set(INC_CORE_NETWORK
+    core/network/NetworkCommand.h
+    core/network/NetworkManager.h
+    core/network/NetworkReply.h
+    core/network/RESTCommandFactory.h
+    core/network/DownloadManager.h
+)
+set(SRC_CORE_NETWORK
+    core/network/NetworkCommand.cpp
+    core/network/NetworkManager.cpp
+    core/network/NetworkReply.cpp
+    core/network/RESTCommandFactory.cpp
+    core/network/DownloadManager.cpp
 )
 
 SET(INC_UTILS
@@ -269,81 +269,69 @@ SET(SRC_UTILS_CONFIG
 )
 
 set(INCLUDES
-    ${INC_MODEL}
-    ${INC_MODEL_CORE}
-    ${INC_MODEL_DTO}
+    ${INC_DATA_MODEL}
+    ${INC_COLOR}
+    ${INC_DATA_MODEL_DTO}
     ${INC_UTILS}
     ${INC_UTILS_CONFIG}
-    ${INC_VIEW}
-    ${INC_VIEW_MODEL_CONTROLLER}
+    ${INC_DIALOGS}
+    ${INC_MODEL}
     ${INC_VIEW_OPENGL}
-    ${INC_VIEW_EDITORS}
+    ${INC_MODEL_EDITORS}
     ${INC_VIEW_PAGES}
-    ${INC_CONTROLLER}
-    ${INC_CONTROLLER_ASYNC}
-    ${INC_CONTROLLER_AUTH}
-    ${INC_CONTROLLER_DATA}
-    ${INC_CONTROLLER_IO}
-    ${INC_CONTROLLER_NETWORK}
-    ${INC_CONTROLLER_ERROR}
+    ${INC_CORE}
+    ${INC_CORE_ASYNC}
+    ${INC_CORE_AUTH}
+    ${INC_CORE_DATA}
+    ${INC_CORE_IO}
+    ${INC_CORE_NETWORK}
+    ${INC_CORE_ERROR}
 )
 set(SOURCES
-    ${SRC_MODEL}
-    ${SRC_MODEL_CORE}
-    ${SRC_MODEL_DTO}
+    ${SRC_DATA_MODEL}
+    ${SRC_COLOR}
+    ${SRC_DATA_MODEL_DTO}
     ${SRC_UTILS}
     ${SRC_UTILS_CONFIG}
-    ${SRC_VIEW}
-    ${SRC_VIEW_MODEL_CONTROLLER}
+    ${SRC_DIALOGS}
+    ${SRC_MODEL}
     ${SRC_VIEW_OPENGL}
-    ${SRC_VIEW_EDITORS}
+    ${SRC_MODEL_EDITORS}
     ${SRC_VIEW_PAGES}
-    ${SRC_CONTROLLER}
-    ${SRC_CONTROLLER_ASYNC}
-    ${SRC_CONTROLLER_AUTH}
-    ${SRC_CONTROLLER_DATA}
-    ${SRC_CONTROLLER_IO}
-    ${SRC_CONTROLLER_NETWORK}
-    ${SRC_CONTROLLER_ERROR}
+    ${SRC_CORE}
+    ${SRC_CORE_ASYNC}
+    ${SRC_CORE_AUTH}
+    ${SRC_CORE_DATA}
+    ${SRC_CORE_IO}
+    ${SRC_CORE_NETWORK}
+    ${SRC_CORE_ERROR}
 )
 
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
+#NOTE this is very useful for Visual Studio
 # Organize projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 # Generate folders to group source files into
-source_group("Model" FILES ${SRC_MODEL} ${INC_MODEL})
-source_group("Model\\Core" FILES ${SRC_MODEL_CORE} ${INC_MODEL_CORE})
-source_group("Model\\DTO" FILES ${SRC_MODEL_DTO} ${INC_MODEL_DTO})
+source_group("DataModel" FILES ${SRC_DATA_MODEL} ${INC_DATA_MODEL})
+source_group("Color" FILES ${SRC_COLOR} ${INC_COLOR})
+source_group("DataModel\\DTO" FILES ${SRC_DATA_MODEL_DTO} ${INC_DATA_MODEL_DTO})
 source_group("Utils" FILES ${SRC_UTILS} ${INC_UTILS})
 source_group("Utils\\Config" FILES ${SRC_UTILS_CONFIG} ${INC_UTILS_CONFIG})
-source_group("View" FILES ${SRC_VIEW} ${INC_VIEW})
+source_group("Dialogs" FILES ${SRC_DIALOGS} ${INC_DIALOGS})
+source_group("Model" FILES ${SRC_MODEL} ${INC_MODEL})
 source_group("View\\OpenGL" FILES ${SRC_VIEW_COMPONENTS} ${INC_VIEW_COMPONENTS})
-source_group("View\\Delegates" FILES ${SRC_VIEW_DELEGATES} ${INC_VIEW_DELEGATES})
-source_group("View\\Editors" FILES ${SRC_VIEW_EDITORS} ${INC_VIEW_EDITORS})
+source_group("Model\\Editors" FILES ${SRC_MODEL_EDITORS} ${INC_MODEL_EDITORS})
 source_group("View\\Pages" FILES ${SRC_VIEW_PAGES} ${INC_VIEW_PAGES})
-source_group("View\\Controllers" FILES ${SRC_VIEW_MODEL_CONTROLLER} ${INC_VIEW_MODEL_CONTROLLER})
-source_group("Controller" FILES ${SRC_CONTROLLER} ${INC_CONTROLLER})
-source_group("Controller\\Async" FILES ${SRC_CONTROLLER_ASYNC} ${INC_CONTROLLER_ASYNC})
-source_group("Controller\\Auth" FILES ${SRC_CONTROLLER_AUTH} ${INC_CONTROLLER_AUTH})
-source_group("Controller\\Data" FILES ${SRC_CONTROLLER_DATA} ${INC_CONTROLLER_DATA})
-source_group("Controller\\Io" FILES ${SRC_CONTROLLER_IO} ${INC_CONTROLLER_IO})
-source_group("Controller\\Network" FILES ${SRC_CONTROLLER_NETWORK} ${INC_CONTROLLER_NETWORK})
-source_group("Controller\\Error" FILES ${SRC_CONTROLLER_ERROR} ${INC_CONTROLLER_ERROR})
+source_group("Core" FILES ${SRC_CORE} ${INC_CORE})
+source_group("Core" FILES ${SRC_CORE_ASYNC} ${INC_CORE_ASYNC})
+source_group("Core" FILES ${SRC_CORE_AUTH} ${INC_CORE_AUTH})
+source_group("Core" FILES ${SRC_CORE_DATA} ${INC_CORE_DATA})
+source_group("Core" FILES ${SRC_CORE_IO} ${INC_CORE_IO})
+source_group("Core" FILES ${SRC_CORE_NETWORK} ${INC_CORE_NETWORK})
+source_group("Core" FILES ${SRC_CORE_ERROR} ${INC_CORE_ERROR})
 
 ###PACKAGES######################################
-
-##TODO update cpack for ubuntu and windows to current list of qt5 libraries
-use_qt5lib(Qt5LinguistTools)
-use_qt5lib(Qt5Widgets)
-use_qt5lib(Qt5WebKit)
-use_qt5lib(Qt5WebKitWidgets)
-use_qt5lib(Qt5Network)
-use_qt5lib(Qt5Core)
-use_qt5lib(Qt5Gui)
-use_qt5lib(Qt5OpenGL)
-use_qt5lib(Qt53D)
 
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
@@ -397,14 +385,12 @@ qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
 ###STATIC LIBRARIES#####################################
-
-include("libs/QtDebugHelper/CMakeLists.cmake")
-include("libs/QtSingleApplication/CMakeLists.cmake")
 include("libs/QtUnitTest/CMakeLists.cmake")
 include("libs/STCore/CMakeLists.cmake")
 include("libs/STCoreWidgets/CMakeLists.cmake")
 include("libs/STOpenGL/CMakeLists.cmake")
-include("libs/libqxt/CMakeLists.cmake")
+
+#link static libraries and third party libraries
 set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore STCoreWidgets libqxt)
 
 ## create main library

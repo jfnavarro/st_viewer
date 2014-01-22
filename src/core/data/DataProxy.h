@@ -12,23 +12,27 @@
 #include <QVector>
 #include <QMap>
 #include <QScopedPointer>
+
 // images
-#include "controller/async/ImageProcessing.h"
-// patterns
+#include "core/async/ImageProcessing.h"
+
 #include "utils/Singleton.h"
+
 // data objects
-#include "model/Chip.h"
-#include "model/Dataset.h"
-#include "model/FeatureExtended.h"
-#include "model/Gene.h"
-#include "model/HitCount.h"
-#include "model/User.h"
-#include "model/UserExperiment.h"
+#include "dataModel/Chip.h"
+#include "dataModel/Dataset.h"
+#include "dataModel/FeatureExtended.h"
+#include "dataModel/Gene.h"
+#include "dataModel/HitCount.h"
+#include "dataModel/User.h"
+#include "dataModel/UserExperiment.h"
+
 // network
-#include "controller/network/NetworkManager.h"
-#include "controller/network/NetworkReply.h"
+#include "core/network/NetworkManager.h"
+#include "core/network/NetworkReply.h"
+
 // download manager / data request
-#include "controller/network/DownloadManager.h"
+#include "core/network/DownloadManager.h"
 
 // DataProxy is a globally accessible all-in-all data store. It provides an
 // interface to access remotely stored data and a means of storing and managing

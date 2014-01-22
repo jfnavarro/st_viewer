@@ -10,7 +10,7 @@
 #include <QModelIndex>
 #include <QHeaderView>
 
-#include "view/controllers/DatasetItemModel.h"
+#include "model/DatasetItemModel.h"
 #include "core/delegates/DatasetsViewItemDelegate.h"
 
 AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)

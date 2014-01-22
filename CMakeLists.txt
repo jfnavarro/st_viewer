@@ -82,4 +82,18 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_D
 
 include_directories(${PROJECT_BINARY_DIR})
 
-add_subdirectory(src)
+##TODO update cpack for ubuntu and windows to current list of qt5 libraries
+## some of the third party libraries relies on Qt
+use_qt5lib(Qt5LinguistTools)
+use_qt5lib(Qt5Widgets)
+use_qt5lib(Qt5WebKit)
+use_qt5lib(Qt5WebKitWidgets)
+use_qt5lib(Qt5Network)
+use_qt5lib(Qt5Core)
+use_qt5lib(Qt5Gui)
+use_qt5lib(Qt5OpenGL)
+use_qt5lib(Qt53D)
+
+add_subdirectory(ext) # include third party libraries
+
+add_subdirectory(src) # include source code

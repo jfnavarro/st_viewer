@@ -9,7 +9,9 @@
 #define GLELEMENTDATAGENE_H
 
 #include "GLElementData.h"
+
 #include "utils/Utils.h"
+#include <QArray>
 
 namespace GL
 {
@@ -23,10 +25,10 @@ class GLElementDataGene : public GLElementData
 {
 public:
 
-    typedef QVector<GLuint> FeaturesType;
-    typedef QVector<GLuint> ReferencesType;
-    typedef QVector<GLuint> ValuesType;
-    typedef QVector<GLuint> OptionsType;
+    typedef QArray<GLuint> FeaturesType;
+    typedef QArray<GLuint> ReferencesType;
+    typedef QArray<GLuint> ValuesType;
+    typedef QArray<GLuint> OptionsType;
 
     enum ClearFlags  {
         PointArray = 0x001u,

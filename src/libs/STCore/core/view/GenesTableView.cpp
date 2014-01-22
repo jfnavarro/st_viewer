@@ -9,7 +9,7 @@
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 
-#include "view/controllers/GeneFeatureItemModel.h"
+#include "model/GeneFeatureItemModel.h"
 
 #include "core/delegates/BooleanItemDelegate.h"
 #include "core/delegates/GeneViewDelegate.h"

@@ -8,7 +8,7 @@
 
 #include <QHeaderView>
 
-#include "view/controllers/GeneSelectionItemModel.h"
+#include "model/GeneSelectionItemModel.h"
 
 GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     : QTableView(parent)
