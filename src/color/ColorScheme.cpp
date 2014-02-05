@@ -4,5 +4,5 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
-#include "ColorScheme.h"
+#include "color/ColorScheme.h"
 

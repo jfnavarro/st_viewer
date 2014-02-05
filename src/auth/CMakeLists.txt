@@ -1,0 +1,12 @@
+set(LIBRARY_ARG_INCLUDES
+    AuthorizationManager.h
+    OAuth2.h
+    TokenStorage.h
+)
+set(LIBRARY_ARG_SOURCES
+    AuthorizationManager.cpp
+    OAuth2.cpp
+    TokenStorage.cpp
+)
+set(LIBRARY_ARG_UI_FILES)
+st_library()

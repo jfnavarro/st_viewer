@@ -8,18 +8,18 @@
 #include <QtTest/QTest>
 
 // unit test lib
-#include "testsuite.h"
+#include "QtUnitTest/testsuite.h"
 
 // unit tests
 #include "unit/controller/data/tst_datastoretest.h"
 #include "unit/controller/tst_widgets.h"
 
-#include "unit/libs/STCore/tst_simplecryptdevicetest.h"
-#include "unit/libs/STCore/tst_simplecrypttest.h"
-#include "unit/libs/STOpenGL/math/tst_glaabbtest.h"
-#include "unit/libs/STOpenGL/math/tst_glquadtreetest.h"
-#include "unit/libs/STOpenGL/render/tst_glheatmaptest.h"
-#include "unit/libs/STOpenGL/tst_gltypetraitstest.h"
+#include "unit/STCore/tst_simplecryptdevicetest.h"
+#include "unit/STCore/tst_simplecrypttest.h"
+#include "unit/STOpenGL/math/tst_glaabbtest.h"
+#include "unit/STOpenGL/math/tst_glquadtreetest.h"
+#include "unit/STOpenGL/render/tst_glheatmaptest.h"
+#include "unit/STOpenGL/tst_gltypetraitstest.h"
 
 #include "unit/model/tst_objectparsertest.h"
 

@@ -38,6 +38,7 @@ set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 # set(SECRETID "secret")
 # set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
+
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
   if(WIN32)
@@ -76,6 +77,10 @@ endif (WIN32)
 # Some in-house CMake functions/macros
 include(${CMAKE_SOURCE_DIR}/cmake/utils.cmake)
 
+
+
+
+
 configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT_BINARY_DIR}/application.conf )
 configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
 configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
@@ -84,6 +89,9 @@ include_directories(${PROJECT_BINARY_DIR})
 
 ##TODO update cpack for ubuntu and windows to current list of qt5 libraries
 ## some of the third party libraries relies on Qt
+
+
+
 use_qt5lib(Qt5LinguistTools)
 use_qt5lib(Qt5Widgets)
 use_qt5lib(Qt5WebKit)
@@ -93,6 +101,7 @@ use_qt5lib(Qt5Core)
 use_qt5lib(Qt5Gui)
 use_qt5lib(Qt5OpenGL)
 use_qt5lib(Qt53D)
+
 
 add_subdirectory(ext) # include third party libraries
 

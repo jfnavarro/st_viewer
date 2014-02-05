@@ -7,7 +7,7 @@
 #ifndef HEATMAPCOLOR_H
 #define HEATMAPCOLOR_H
 
-#include "model/core/ColorScheme.h"
+#include "color/ColorScheme.h"
 
 // render feature with color from normalized hit count mapped to HSV color space
 class HeatMapColor : public ColorScheme

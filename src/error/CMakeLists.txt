@@ -1,0 +1,22 @@
+set(LIBRARY_ARG_INCLUDES
+    SSLNetworkError.h
+    NetworkError.h
+    JSONError.h
+    OAuth2Error.h
+    ApplicationError.h
+    Error.h
+    ErrorManager.h
+    ServerError.h
+)
+set(LIBRARY_ARG_SOURCES
+    SSLNetworkError.cpp
+    NetworkError.cpp
+    JSONError.cpp
+    OAuth2Error.cpp
+    ApplicationError.cpp
+    Error.cpp
+    ErrorManager.cpp
+    ServerError.cpp
+)
+set(LIBRARY_ARG_UI_FILES)
+st_library()

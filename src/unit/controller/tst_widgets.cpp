@@ -5,11 +5,11 @@
 
 */
 
-#include "utils/config/Configuration.h"
-#include "controller/auth/AuthorizationManager.h"
-#include "controller/data/DataProxy.h"
-#include "controller/error/ErrorManager.h"
-#include "controller/network/NetworkManager.h"
+#include "config/Configuration.h"
+#include "auth/AuthorizationManager.h"
+#include "data/DataProxy.h"
+#include "error/ErrorManager.h"
+#include "network/NetworkManager.h"
 
 #include <QMainWindow>
 #include <QApplication>

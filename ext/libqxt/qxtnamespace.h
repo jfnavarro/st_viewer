@@ -96,6 +96,14 @@ namespace Qxt
         Month,
         Year
     };
+
+
+
+#if (defined BUILD_QXT | defined Q_MOC_RUN) && !defined(QXT_DOXYGEN_RUN)
+#include <QObject>
 };
+#else
+}
+#endif
 
 #endif // QXTNAMESPACE_H

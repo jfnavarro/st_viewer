@@ -4,6 +4,8 @@ set(LIB QtSingleApplication)
 
 message(STATUS "Building ${LIB}")
 
+set(CMAKE_AUTOMOC ON)
+
 if(WIN32)
     set(PLATFORM win)
 else()

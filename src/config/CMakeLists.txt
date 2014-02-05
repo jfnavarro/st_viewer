@@ -1,0 +1,10 @@
+set(LIBRARY_ARG_INCLUDES
+    Configuration.h
+    SettingsFormatXML.h
+)
+set(LIBRARY_ARG_SOURCES
+    Configuration.cpp
+    SettingsFormatXML.cpp 
+)
+set(LIBRARY_ARG_UI_FILES)
+st_library()

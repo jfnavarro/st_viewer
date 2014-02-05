@@ -13,7 +13,7 @@
 
 #include <QDebug>
 
-#include "model/ObjectParser.h"
+#include "dataModel/ObjectParser.h"
 
 void ObjectParser::parseObject(const QVariant& source, QObject* target)
 {

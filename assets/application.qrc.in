@@ -64,5 +64,6 @@
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
     <file alias="config/application.conf">application.conf</file>
     <file alias="public_key.pem">${PUBLICKEY}</file>
+    <file alias="translations/locale_en_us.qm">${PROJECT_BINARY_DIR}/src/locale_en_us.qm</file>
   </qresource>
 </RCC>

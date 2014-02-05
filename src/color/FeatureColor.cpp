@@ -4,7 +4,7 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
-#include "FeatureColor.h"
+#include "color/FeatureColor.h"
 
 FeatureColor::FeatureColor() : ColorScheme()
 {

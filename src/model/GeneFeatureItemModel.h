@@ -8,7 +8,7 @@
 #ifndef GENEFEATUREITEMMODEL_H
 #define GENEFEATUREITEMMODEL_H
 
-#include "core/data/DataProxy.h"
+#include "data/DataProxy.h"
 
 #include <QAbstractTableModel>
 

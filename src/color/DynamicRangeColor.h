@@ -7,7 +7,7 @@
 #ifndef DYNAMICRANGECOLOR_H
 #define DYNAMICRANGECOLOR_H
 
-#include "model/core/ColorScheme.h"
+#include "color/ColorScheme.h"
 
 // render feature with feature color but set alpha to normalized hit count
 class DynamicRangeColor : public ColorScheme

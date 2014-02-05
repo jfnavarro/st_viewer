@@ -7,7 +7,7 @@
 
 #include "DatasetItemModel.h"
 
-#include "model/Dataset.h"
+#include "dataModel/Dataset.h"
 
 #include <QModelIndex>
 #include <QModelIndex>
