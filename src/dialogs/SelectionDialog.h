@@ -12,8 +12,7 @@
 
 #include <QScopedPointer>
 #include <QList>
-
-#include "core/data/DataProxy.h"
+#include <data/DataProxy.h>
 
 namespace Ui
 {

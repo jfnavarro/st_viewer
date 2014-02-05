@@ -24,30 +24,16 @@
 
 #include "viewPages/CellViewPageToolBar.h"
 
-<<<<<<< HEAD:src/view/pages/CellViewPage.cpp
-#include "core/io/GeneXMLExporter.h"
-#include "core/io/GeneTXTExporter.h"
-=======
 #include "io/GeneXMLExporter.h"
 #include "io/GeneTXTExporter.h"
 
->>>>>>> 39bfdff81cd1108639383d1d72dd0dc33bfb4925:src/viewPages/CellViewPage.cpp
 #include "utils/Utils.h"
 #include "dialogs/SelectionDialog.h"
 
-<<<<<<< HEAD:src/view/pages/CellViewPage.cpp
-#include "view/openGL/CellGLView.h"
-#include "view/openGL/ImageTextureGL.h"
-#include "view/openGL/GridRendererGL.h"
+#include "viewOpenGL/CellGLView.h"
+#include "viewOpenGL/ImageTextureGL.h"
+#include "viewOpenGL/GridRendererGL.h"
 #include <QSurfaceFormat>
-=======
-#include "dialogs/SelectionDialog.h"
-#include "viewOpenGL/GraphicsViewGL.h"
-#include "viewOpenGL/GraphicsSceneGL.h"
-#include "viewOpenGL/ImageItemGL.h"
-#include "viewOpenGL/GenePlotterGL.h"
-#include "viewOpenGL/HeatMapLegendGL.h"
->>>>>>> 39bfdff81cd1108639383d1d72dd0dc33bfb4925:src/viewPages/CellViewPage.cpp
 
 #include "model/GeneSelectionItemModel.h"
 #include "model/GeneFeatureItemModel.h"

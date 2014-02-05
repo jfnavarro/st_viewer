@@ -32,308 +32,49 @@ message( STATUS )
 # Initialise the project
 initialise_project()
 
-set(INC_DATA_MODEL
-    dataModel/Chip.h
-    dataModel/Dataset.h
-    dataModel/Feature.h
-    dataModel/FeatureExtended.h
-    dataModel/Gene.h
-    dataModel/HitCount.h
-    dataModel/ObjectParser.h
-    dataModel/User.h
-    dataModel/UserExperiment.h
-)
-set(SRC_DATA_MODEL
-    dataModel/Chip.cpp
-    dataModel/Dataset.cpp
-    dataModel/Feature.cpp
-    dataModel/FeatureExtended.cpp
-    dataModel/Gene.cpp
-    dataModel/HitCount.cpp
-    dataModel/ObjectParser.cpp
-    dataModel/User.cpp
-    dataModel/UserExperiment.cpp
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/STOpenGL)
+include_directories(${CMAKE_SOURCE_DIR}/ext/QtDebugHelper/src)
 
-set(INC_COLOR
-    color/ColorPalette.h
-    color/core/ColorScheme.h
-    color/core/FeatureColor.h
-    color/core/HeatMapColor.h
-    color/core/DynamicRangeColor.h
-)
-set(SRC_COLOR
-    color/ColorPalette.cpp
-    color/ColorScheme.cpp
-    color/FeatureColor.cpp
-    color/HeatMapColor.cpp
-    color/DynamicRangeColor.cpp
-)
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
-set(INC_DATA_MODEL_DTO
-    dataModel/dto/ChipDTO.h
-    dataModel/dto/DatasetDTO.h
-    dataModel/dto/ErrorDTO.h
-    dataModel/dto/FeatureDTO.h
-    dataModel/dto/GeneDTO.h
-    dataModel/dto/HitCountDTO.h
-    dataModel/dto/OAuth2TokenDTO.h
-    dataModel/dto/UserDTO.h
-    dataModel/dto/UserExperimentDTO.h
-)
-set(SRC_DATA_MODEL_DTO
-    dataModel/dto/ChipDTO.cpp
-    dataModel/dto/DatasetDTO.cpp
-    dataModel/dto/ErrorDTO.cpp
-    dataModel/dto/FeatureDTO.cpp
-    dataModel/dto/GeneDTO.cpp
-    dataModel/dto/HitCountDTO.cpp
-    dataModel/dto/OAuth2TokenDTO.cpp
-    dataModel/dto/UserDTO.cpp
-    dataModel/dto/UserExperimentDTO.cpp
-)
+set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
+set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 
-set(INC_DIALOGS
-    dialogs/AboutDialog.h
-    dialogs/SelectionDialog.h
-    dialogs/LoginDialog.h
-)
+qt5_add_resources(QT_RESOURCES ${RESOURCES})
+qt5_add_translation(QT_LOCALES ${LOCALES})
 
-set(SRC_DIALOGS
-    dialogs/AboutDialog.cpp
-    dialogs/SelectionDialog.cpp
-    dialogs/LoginDialog.cpp
-)
+set(subdir_list    dialogs
+                   color
+                   dataModel
+                   dataModelDTO
+                   network
+                   auth
+                   data
+                   viewPages
+                   viewOpenGL
+                   STCoreWidgets
+                   utils
+                   error
+                   io
+                   model
+                   config
+                   simpleCrypt
+                   STOpenGL)
 
-set(INC_VIEW_OPENGL
-    view/openGL/GenePlotterGL.h
-    view/openGL/GeneRendererGL.h
-    view/openGL/GridRendererGL.h
-    view/openGL/GraphicsSceneGL.h
-    view/openGL/GraphicsViewGL.h
-    view/openGL/HeatMapLegendGL.h
-    view/openGL/ImageItemGL.h
-    view/openGL/MiniMapGL.h
-    view/openGL/SelectionEvent.h
-    view/openGL/WidgetGL.h
-    view/openGL/ViewItemGL.h
-    view/openGL/CellGLView.h
-    view/openGL/ImageTextureGL.h
-)
-
-set(SRC_VIEW_OPENGL
-    view/openGL/GenePlotterGL.cpp
-    view/openGL/GeneRendererGL.cpp
-    view/openGL/GridRendererGL.cpp
-    view/openGL/GraphicsSceneGL.cpp
-    view/openGL/GraphicsViewGL.cpp
-    view/openGL/HeatMapLegendGL.cpp
-    view/openGL/ImageItemGL.cpp
-    view/openGL/MiniMapGL.cpp
-    view/openGL/WidgetGL.cpp
-    view/openGL/ViewItemGL.cpp
-    view/openGL/CellGLView.cpp
-    view/openGL/ImageTextureGL.cpp
-)
-
-set(INC_MODEL_EDITORS
-    model/editors/ColorListEditor.h
-)
-set(SRC_MODEL_EDITORS
-    model/editors/ColorListEditor.cpp
-)
-
-set(INC_VIEW_PAGES
-    view/pages/CellViewPage.h
-    view/pages/DatasetPage.h
-    view/pages/ExperimentPage.h
-    view/pages/InitPage.h
-    view/pages/Page.h
-)
-set(SRC_VIEW_PAGES
-    view/pages/CellViewPage.cpp
-    view/pages/DatasetPage.cpp
-    view/pages/ExperimentPage.cpp
-    view/pages/InitPage.cpp
-    view/pages/Page.cpp
-)
-
-set(INC_MODEL
-    model/GeneFeatureItemModel.h
-    model/DatasetItemModel.h
-    model/ExperimentsItemModel.h
-    model/GeneSelectionItemModel.h
-)
-set(SRC_MODEL
-    model/GeneFeatureItemModel.cpp
-    model/DatasetItemModel.cpp
-    model/ExperimentsItemModel.cpp
-    model/GeneSelectionItemModel.cpp
-)
-
-set(INC_CORE
-    stVi.h
-)
-set(SRC_CORE
-    stVi.cpp
-)
-
-set(INC_CORE_ASYNC
-    core/async/ImageProcessing.h
-)
-set(SRC_CORE_ASYNC
-    core/async/ImageProcessing.cpp
-)
-
-set(INC_CORE_AUTH
-    core/auth/AuthorizationManager.h
-    core/auth/OAuth2.h
-    core/auth/TokenStorage.h
-)
-set(SRC_CORE_AUTH
-    core/auth/AuthorizationManager.cpp
-    core/auth/OAuth2.cpp
-    core/auth/TokenStorage.cpp
-)
-
-set(INC_CORE_DATA
-    core/data/DataStore.h
-    core/data/DataProxy.h
-    core/data/ResourceStore.h
-)
-set(SRC_CORE_DATA
-    core/data/DataStore.cpp
-    core/data/DataProxy.cpp
-)
-
-set(INC_CORE_ERROR
-    core/error/SSLNetworkError.h
-    core/error/NetworkError.h
-    core/error/JSONError.h
-    core/error/OAuth2Error.h
-    core/error/ApplicationError.h
-    core/error/Error.h
-    core/error/ErrorManager.h
-    core/error/ServerError.h
-)
-set(SRC_CORE_ERROR
-    core/error/SSLNetworkError.cpp
-    core/error/NetworkError.cpp
-    core/error/JSONError.cpp
-    core/error/OAuth2Error.cpp
-    core/error/ApplicationError.cpp
-    core/error/Error.cpp
-    core/error/ErrorManager.cpp
-    core/error/ServerError.cpp
-)
-
-set(INC_CORE_IO
-    core/io/GeneExporter.h
-    core/io/GeneXMLExporter.h
-    core/io/GeneTXTExporter.h
-)
-set(SRC_CORE_IO
-    core/io/GeneExporter.cpp
-    core/io/GeneXMLExporter.cpp
-    core/io/GeneTXTExporter.cpp
-)
-
-set(INC_CORE_NETWORK
-    core/network/NetworkCommand.h
-    core/network/NetworkManager.h
-    core/network/NetworkReply.h
-    core/network/RESTCommandFactory.h
-    core/network/DownloadManager.h
-)
-set(SRC_CORE_NETWORK
-    core/network/NetworkCommand.cpp
-    core/network/NetworkManager.cpp
-    core/network/NetworkReply.cpp
-    core/network/RESTCommandFactory.cpp
-    core/network/DownloadManager.cpp
-)
-
-SET(INC_UTILS
-    utils/MathExtended.h
-    utils/Singleton.h
-    utils/Utils.h
-)
-SET(SRC_UTILS
-    utils/MathExtended.cpp
-    utils/Utils.cpp
-)
-
-SET(INC_UTILS_CONFIG
-    utils/config/Configuration.h
-    utils/config/SettingsFormatXML.h
-)
-SET(SRC_UTILS_CONFIG
-    utils/config/Configuration.cpp
-    utils/config/SettingsFormatXML.cpp
-)
-
-set(INCLUDES
-    ${INC_DATA_MODEL}
-    ${INC_COLOR}
-    ${INC_DATA_MODEL_DTO}
-    ${INC_UTILS}
-    ${INC_UTILS_CONFIG}
-    ${INC_DIALOGS}
-    ${INC_MODEL}
-    ${INC_VIEW_OPENGL}
-    ${INC_MODEL_EDITORS}
-    ${INC_VIEW_PAGES}
-    ${INC_CORE}
-    ${INC_CORE_ASYNC}
-    ${INC_CORE_AUTH}
-    ${INC_CORE_DATA}
-    ${INC_CORE_IO}
-    ${INC_CORE_NETWORK}
-    ${INC_CORE_ERROR}
-)
-set(SOURCES
-    ${SRC_DATA_MODEL}
-    ${SRC_COLOR}
-    ${SRC_DATA_MODEL_DTO}
-    ${SRC_UTILS}
-    ${SRC_UTILS_CONFIG}
-    ${SRC_DIALOGS}
-    ${SRC_MODEL}
-    ${SRC_VIEW_OPENGL}
-    ${SRC_MODEL_EDITORS}
-    ${SRC_VIEW_PAGES}
-    ${SRC_CORE}
-    ${SRC_CORE_ASYNC}
-    ${SRC_CORE_AUTH}
-    ${SRC_CORE_DATA}
-    ${SRC_CORE_IO}
-    ${SRC_CORE_NETWORK}
-    ${SRC_CORE_ERROR}
-)
+foreach(dir ${subdir_list})
+    add_subdirectory("${dir}")
+endforeach()
 
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
 #NOTE this is very useful for Visual Studio
 # Organize projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-# Generate folders to group source files into
-source_group("DataModel" FILES ${SRC_DATA_MODEL} ${INC_DATA_MODEL})
-source_group("Color" FILES ${SRC_COLOR} ${INC_COLOR})
-source_group("DataModel\\DTO" FILES ${SRC_DATA_MODEL_DTO} ${INC_DATA_MODEL_DTO})
-source_group("Utils" FILES ${SRC_UTILS} ${INC_UTILS})
-source_group("Utils\\Config" FILES ${SRC_UTILS_CONFIG} ${INC_UTILS_CONFIG})
-source_group("Dialogs" FILES ${SRC_DIALOGS} ${INC_DIALOGS})
-source_group("Model" FILES ${SRC_MODEL} ${INC_MODEL})
-source_group("View\\OpenGL" FILES ${SRC_VIEW_COMPONENTS} ${INC_VIEW_COMPONENTS})
-source_group("Model\\Editors" FILES ${SRC_MODEL_EDITORS} ${INC_MODEL_EDITORS})
-source_group("View\\Pages" FILES ${SRC_VIEW_PAGES} ${INC_VIEW_PAGES})
-source_group("Core" FILES ${SRC_CORE} ${INC_CORE})
-source_group("Core" FILES ${SRC_CORE_ASYNC} ${INC_CORE_ASYNC})
-source_group("Core" FILES ${SRC_CORE_AUTH} ${INC_CORE_AUTH})
-source_group("Core" FILES ${SRC_CORE_DATA} ${INC_CORE_DATA})
-source_group("Core" FILES ${SRC_CORE_IO} ${INC_CORE_IO})
-source_group("Core" FILES ${SRC_CORE_NETWORK} ${INC_CORE_NETWORK})
-source_group("Core" FILES ${SRC_CORE_ERROR} ${INC_CORE_ERROR})
 
 ###PACKAGES######################################
 
@@ -365,58 +106,41 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
-#QT5 DIRECTIVES
-set(FORMS
-    "${PROJECT_SOURCE_DIR}/assets/ui/aboutdialog.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/cellview.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/datasets.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/experiments.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/initpage.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/selectiondialog.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
-)
-
-set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
-set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
-
-qt5_wrap_ui(QT_FORMS ${FORMS})
-qt5_add_resources(QT_RESOURCES ${RESOURCES})
-qt5_add_translation(QT_LOCALES ${LOCALES})
-
 ###STATIC LIBRARIES#####################################
-include("libs/QtUnitTest/CMakeLists.cmake")
-include("libs/STCore/CMakeLists.cmake")
-include("libs/STCoreWidgets/CMakeLists.cmake")
-include("libs/STOpenGL/CMakeLists.cmake")
+
+add_subdirectory(QtUnitTest)
 
 #link static libraries and third party libraries
-set(LIB_COMPONENTS QtDebugHelper QtSingleApplication STOpenGL STCore STCoreWidgets libqxt)
 
-## create main library
-add_library(STMain STATIC ${SOURCES} ${QT_FORMS} ${QT_LOCALES}) #${INCLUDES}
+set(LIB_COMPONENTS QtDebugHelper QtSingleApplication)
 
-target_link_libraries(STMain ${LIB_COMPONENTS}
-                             Qt5::Core
+foreach(dir ${subdir_list})
+    list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
+endforeach()
+
+list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
+
+set(QT_TARGET_LINK_LIBS      Qt5::Core
                              Qt5::Network
                              Qt5::Gui
                              Qt5::Widgets
                              Qt5::WebKit
                              Qt5::WebKitWidgets
                              Qt5::OpenGL
-                             Qt5::3D) #Qt5::LinguistTools
+                             Qt5::3D)
 
 #create main target (resources needs to be part of the target)
+
+include_directories(${PROJECT_SOURCE_DIR}/ext/QtSingleApplication/src)
+
+set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
+
 if(WIN32)
-  add_executable(${PROJECT_NAME} WIN32 main.cpp ${QT_RESOURCES} )
+  add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
 elseif(APPLE)
-  add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cpp ${QT_RESOURCES} )
+  add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${ST_CLIENT_SOURCES})
 else()
-  add_executable(${PROJECT_NAME} main.cpp ${QT_RESOURCES} )
+  add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
 
 # Platform specific library includes
@@ -429,7 +153,8 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} STMain ${OPENGL_LIBRARY})
+
+target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
 ### UNIT TESTS ################################################################
 
@@ -506,7 +231,6 @@ if(UNIX AND NOT APPLE)
     #install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
     install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-    install(FILES ${QT_LOCALES} DESTINATION share/${PROJECT_NAME}/translations)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
 #     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}} DESTINATION lib )
 
@@ -557,10 +281,9 @@ if(APPLE)
     
     #resources
     add_custom_command (TARGET ${PROJECT_NAME}
-        COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources/translations
+        COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/stVi.icns ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND install -m 644 ${QT_LOCALES} ${CMAKE_INSTALL_PREFIX}/Resources/translations/
-#         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
   
@@ -672,14 +395,11 @@ if(WIN32)
 
     #install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
-                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     install(TARGETS ${PROJECT_NAME} DESTINATION . )
-    install(FILES ${QT_LOCALES} DESTINATION translations)
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION . )   
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll DESTINATION . )
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll DESTINATION . )

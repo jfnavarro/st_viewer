@@ -41,8 +41,6 @@ set(LIB_ST_OPENGL
     STOpenGL/math/tst_glquadtreetest.h
     STOpenGL/render/tst_glheatmaptest.cpp
     STOpenGL/render/tst_glheatmaptest.h
-    STOpenGL/tst_gltypetraitstest.cpp
-    STOpenGL/tst_gltypetraitstest.h
 )
 
 # Define source files

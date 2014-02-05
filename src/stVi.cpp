@@ -32,26 +32,7 @@
 
 #include "utils/DebugHelper.h"
 #include "utils/Utils.h"
-<<<<<<< HEAD
-#include "utils/config/Configuration.h"
 
-#include "core/auth/AuthorizationManager.h"
-#include "core/error/Error.h"
-#include "core/error/ApplicationError.h"
-#include "core/error/ErrorManager.h"
-#include "core/error/ServerError.h"
-#include "core/network/RESTCommandFactory.h"
-#include "core/network/NetworkManager.h"
-#include "core/network/NetworkReply.h"
-#include "core/network/NetworkCommand.h"
-#include "core/data/DataProxy.h"
-#include "core/data/DataStore.h"
-
-#include "dialogs/AboutDialog.h"
-#include "MainMenuBar.h"
-#include "ExtendedTabWidget.h"
-#include "MainStatusBar.h"
-=======
 #include "config/Configuration.h"
 
 #include "auth/AuthorizationManager.h"
@@ -68,7 +49,6 @@
 
 #include "dialogs/AboutDialog.h"
 #include "STCoreWidgets/ExtendedTabWidget.h"
->>>>>>> 39bfdff81cd1108639383d1d72dd0dc33bfb4925
 
 bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
                              const std::array< qulonglong, 3> &version2) {

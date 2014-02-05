@@ -43,12 +43,9 @@ static bool installTranslator(QtSingleApplication *app)
 {
     //install translation file
     bool initialized = true;
-    /* translator */
     QTranslator trans;
-    //    QString trans_name = QString();
     initialized &= trans.load(TRANSLATION_FILE, ":/translations");
     initialized &= app->installTranslator(&trans);
-
     return initialized;
 }
 
@@ -80,15 +77,18 @@ int main(int argc, char** argv)
     //create mainWindow
     stVi *mainWindow = new stVi();
     app->setActivationWindow(mainWindow);
+
     // connect message queue to the main window.
     QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)),
                      mainWindow, SLOT(handleMessage(QString)));
+
     //check for min requirements
     if (!mainWindow->checkSystemRequirements()) {
         delete mainWindow;
         //delete app;
         return 0;
     }
+
     //init graphic components
     mainWindow->init();
     // show mainwindow.

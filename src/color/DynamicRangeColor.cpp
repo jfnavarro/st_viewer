@@ -8,7 +8,7 @@
 
 #include "STOpenGL/GLCommon.h"
 
-#include "STOpenGL/data/GLHeatMap.h"
+#include "STOpenGL/GLHeatMap.h"
 #include "utils/MathExtended.h"
 
 DynamicRangeColor::DynamicRangeColor() : ColorScheme()

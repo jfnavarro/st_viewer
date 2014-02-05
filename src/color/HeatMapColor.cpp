@@ -6,7 +6,7 @@
 */
 #include "color/HeatMapColor.h"
 
-#include "STOpenGL/data/GLHeatMap.h"
+#include "STOpenGL/GLHeatMap.h"
 #include "utils/MathExtended.h"
 
 #include <QColor4ub>

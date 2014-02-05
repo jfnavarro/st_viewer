@@ -11,15 +11,9 @@
 #include "utils/DebugHelper.h"
 #include <QModelIndex>
 
-<<<<<<< HEAD:src/view/pages/DatasetPage.cpp
-#include "core/data/DataProxy.h"
-#include "core/data/DataStore.h"
-#include "core/error/Error.h"
-=======
 #include "data/DataProxy.h"
 #include "data/DataStore.h"
 #include "error/Error.h"
->>>>>>> 39bfdff81cd1108639383d1d72dd0dc33bfb4925:src/viewPages/DatasetPage.cpp
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
 

@@ -19,7 +19,6 @@
 #include "unit/STOpenGL/math/tst_glaabbtest.h"
 #include "unit/STOpenGL/math/tst_glquadtreetest.h"
 #include "unit/STOpenGL/render/tst_glheatmaptest.h"
-#include "unit/STOpenGL/tst_gltypetraitstest.h"
 
 #include "unit/model/tst_objectparsertest.h"
 
@@ -39,7 +38,6 @@ int main(int argc, char **argv)
 
     suite.addTest(new DataStoreTest, "DataStore");
     //suite.addTest(new WidgetsTest, "Widgets");
-    suite.addTest(new GLTypeTraitsTest, "GLTypeTraits");
     suite.addTest(new GLAABBTest, "GLAABB").dependsOn("GLMath");
     suite.addTest(new GLQuadTreeTest, "GLQuadTree").dependsOn("GLAABB");
     suite.addTest(new GLHeatMapTest, "GLHeatMap").dependsOn("GLPoint");

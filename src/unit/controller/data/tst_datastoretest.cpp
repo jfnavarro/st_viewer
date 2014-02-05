@@ -7,7 +7,7 @@
 
 #include <QtTest/QTest>
 
-#include "core/data/DataStore.h"
+#include "data/DataStore.h"
 
 #include "tst_datastoretest.h"
 

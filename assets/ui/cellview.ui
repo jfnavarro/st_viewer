@@ -190,12 +190,12 @@
   <customwidget>
    <class>GenesTableView</class>
    <extends>QTableView</extends>
-   <header>core/view/GenesTableView.h</header>
+   <header>viewPages/GenesTableView.h</header>
   </customwidget>
   <customwidget>
    <class>GeneSelectionTableView</class>
    <extends>QTableView</extends>
-   <header>core/view/GeneSelectionTableView.h</header>
+   <header>viewPages/GeneSelectionTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

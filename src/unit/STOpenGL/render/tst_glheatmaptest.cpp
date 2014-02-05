@@ -8,7 +8,7 @@
 #include <QtTest/QTest>
 
 #include "GLCommon.h"
-#include "data/GLHeatMap.h"
+#include "GLHeatMap.h"
 
 #include "tst_glheatmaptest.h"
 
