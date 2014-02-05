@@ -4,9 +4,9 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
-#include "HeatMapColor.h"
+#include "color/HeatMapColor.h"
 
-#include "data/GLHeatMap.h"
+#include "STOpenGL/data/GLHeatMap.h"
 #include "utils/MathExtended.h"
 
 #include <QColor4ub>

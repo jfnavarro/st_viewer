@@ -45,17 +45,8 @@ static bool installTranslator(QtSingleApplication *app)
     bool initialized = true;
     /* translator */
     QTranslator trans;
-    QString trans_name = QString(TRANSLATION_FILE);
-
-#if defined Q_OS_MAC
-    QString trans_dir = app->applicationDirPath() + "/../Resources/translations/";
-#elif defined Q_OS_WIN
-    QString trans_dir = QDir(app->applicationDirPath()).canonicalPath()
-                        + QDir::separator() + "translations" + QDir::separator();
-#else
-    QString trans_dir = app->applicationDirPath() + QString(TRANSLATIONS_DIR);
-#endif
-    initialized &= trans.load(trans_name, trans_dir);
+    //    QString trans_name = QString();
+    initialized &= trans.load(TRANSLATION_FILE, ":/translations");
     initialized &= app->installTranslator(&trans);
 
     return initialized;

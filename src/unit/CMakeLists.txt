@@ -4,7 +4,7 @@
 
 use_qt5lib(Qt5Test)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/QtUnitTest ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
 
 set(TARGET_NAME stVi_test)
 
@@ -20,10 +20,10 @@ set(ST_MAIN
 )
 
 set(LIB_ST_CORE
-    libs/STCore/tst_simplecryptdevicetest.cpp
-    libs/STCore/tst_simplecryptdevicetest.h
-    libs/STCore/tst_simplecrypttest.cpp
-    libs/STCore/tst_simplecrypttest.h
+    STCore/tst_simplecryptdevicetest.cpp
+    STCore/tst_simplecryptdevicetest.h
+    STCore/tst_simplecrypttest.cpp
+    STCore/tst_simplecrypttest.h
 )
 
 set(LIB_ST_CORE_WIDGETS 
@@ -35,34 +35,38 @@ set(LIB_ST_NETWORK
 )
 
 set(LIB_ST_OPENGL
-    libs/STOpenGL/math/tst_glaabbtest.cpp
-    libs/STOpenGL/math/tst_glaabbtest.h
-    libs/STOpenGL/math/tst_glquadtreetest.cpp
-    libs/STOpenGL/math/tst_glquadtreetest.h
-    libs/STOpenGL/render/tst_glheatmaptest.cpp
-    libs/STOpenGL/render/tst_glheatmaptest.h
-    libs/STOpenGL/tst_gltypetraitstest.cpp
-    libs/STOpenGL/tst_gltypetraitstest.h
+    STOpenGL/math/tst_glaabbtest.cpp
+    STOpenGL/math/tst_glaabbtest.h
+    STOpenGL/math/tst_glquadtreetest.cpp
+    STOpenGL/math/tst_glquadtreetest.h
+    STOpenGL/render/tst_glheatmaptest.cpp
+    STOpenGL/render/tst_glheatmaptest.h
+    STOpenGL/tst_gltypetraitstest.cpp
+    STOpenGL/tst_gltypetraitstest.h
 )
 
 # Define source files
-set(SRC_${TARGET_NAME}
+set(ST_UNITTEST_SOURCES 
+    unit_main.cpp
     ${ST_MAIN}
     ${LIB_ST_CORE}
     ${LIB_ST_CORE_WIDGETS}
     ${LIB_ST_OPENGL}
     ${LIB_ST_NETWORK}
+    $<TARGET_OBJECTS:QtUnitTest>
+    ${ST_TARGET_OBJECTS}
 )
-
+ 
 # add executable
+
 if(WIN32)
-    add_executable(${TARGET_NAME} WIN32 unit_main.cpp ${SRC_${TARGET_NAME}})
+    add_executable(${TARGET_NAME} WIN32 ${ST_UNITTEST_SOURCES})
     target_link_libraries(${TARGET_NAME} ${Qt5Core_QTMAIN_LIBRARIES}) #Note: allows compile windows application (ie. not console)
 else()
-    add_executable(${TARGET_NAME} unit_main.cpp ${SRC_${TARGET_NAME}})
+    add_executable(${TARGET_NAME} ${ST_UNITTEST_SOURCES})
 endif()
 
-target_link_libraries(${TARGET_NAME} STMain QtDebugHelper QtUnitTest STOpenGL STCore ) #STCoreWidgets
+target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} QtDebugHelper) #STCoreWidgets
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})

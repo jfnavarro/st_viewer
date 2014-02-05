@@ -27,9 +27,12 @@
 #include <QSslSocket>
 #include <QJsonParseError>
 #include <QJsonDocument>
+#include <QMenuBar>
+#include <QStatusBar>
 
 #include "utils/DebugHelper.h"
 #include "utils/Utils.h"
+<<<<<<< HEAD
 #include "utils/config/Configuration.h"
 
 #include "core/auth/AuthorizationManager.h"
@@ -48,6 +51,24 @@
 #include "MainMenuBar.h"
 #include "ExtendedTabWidget.h"
 #include "MainStatusBar.h"
+=======
+#include "config/Configuration.h"
+
+#include "auth/AuthorizationManager.h"
+#include "error/Error.h"
+#include "error/ApplicationError.h"
+#include "error/ErrorManager.h"
+#include "error/ServerError.h"
+#include "network/RESTCommandFactory.h"
+#include "network/NetworkManager.h"
+#include "network/NetworkReply.h"
+#include "network/NetworkCommand.h"
+#include "data/DataProxy.h"
+#include "data/DataStore.h"
+
+#include "dialogs/AboutDialog.h"
+#include "STCoreWidgets/ExtendedTabWidget.h"
+>>>>>>> 39bfdff81cd1108639383d1d72dd0dc33bfb4925
 
 bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
                              const std::array< qulonglong, 3> &version2) {
@@ -66,20 +87,6 @@ bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
 
 stVi::stVi(QWidget* parent): QMainWindow(parent)
 {
-    actionAbout = 0;
-    actionClear_Cache = 0;
-    actionExit = 0;
-    actionHelp = 0;
-    actionPrint = 0;
-    actionVersion = 0;
-    menubar = 0;
-    statusbar = 0;
-    centralwidget = 0;
-    mainlayout = 0;
-    mainTab = 0;
-    menuLoad = 0;
-    menuHelp = 0;
-
     //init single instances (this must be done the very very first)       
     initSingleInstances();
 }
@@ -223,10 +230,10 @@ void stVi::setupUi()
     mainlayout->addWidget(mainTab);
     setCentralWidget(centralwidget);
 
-    statusbar = MainStatusBar::getInstance();
+    QStatusBar *statusbar = new QStatusBar(this);
     setStatusBar(statusbar);
 
-    menubar = MainMenuBar::getInstance();
+    QMenuBar *menubar = new QMenuBar(this);
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1217, 22));
 
@@ -370,14 +377,6 @@ void stVi::initSingleInstances()
     DataProxy* dataProxy = DataProxy::getInstance();
     dataProxy->init();
 
-    // init MenuBar
-    MainMenuBar *menubar = MainMenuBar::getInstance(this);
-    menubar->init();
-
-    // init Status Bar
-    MainStatusBar *statusbar = MainStatusBar::getInstance(this);
-    statusbar->init();
-
     // inir AuthorizationManager
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     auth->init();
@@ -412,12 +411,12 @@ void stVi::finalizeSingleInstances()
     Configuration::getInstance(true);
 
     // finalize menubar
-    MainMenuBar::getInstance()->finalize();
-    MainMenuBar::getInstance(true);
+    //    MainMenuBar::getInstance()->finalize();
+    //    MainMenuBar::getInstance(true);
 
     // finalize status bar
-    MainStatusBar::getInstance()->finalize();
-    MainStatusBar::getInstance(true);
+    //    MainStatusBar::getInstance()->finalize();
+    //    MainStatusBar::getInstance(true);
 }
 
 void stVi::createConnections()

@@ -237,7 +237,7 @@
   <customwidget>
    <class>AnimatedDatasetsTableView</class>
    <extends>QTableView</extends>
-   <header>core/view/AnimatedDatasetsTableView.h</header>
+   <header>viewPages/AnimatedDatasetsTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

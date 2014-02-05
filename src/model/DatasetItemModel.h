@@ -8,7 +8,7 @@
 #ifndef DATASETITEMMODEL_H
 #define DATASETITEMMODEL_H
 
-#include "core/data/DataProxy.h"
+#include "data/DataProxy.h"
 #include <QAbstractItemModel>
 
 class QModelIndex;

@@ -1,0 +1,12 @@
+set(LIBRARY_ARG_INCLUDES
+    GeneExporter.h
+    GeneXMLExporter.h
+    GeneTXTExporter.h
+)
+set(LIBRARY_ARG_SOURCES
+    GeneExporter.cpp
+    GeneXMLExporter.cpp
+    GeneTXTExporter.cpp
+)
+set(LIBRARY_ARG_UI_FILES)
+st_library()

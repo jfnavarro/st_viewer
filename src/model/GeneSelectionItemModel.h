@@ -9,7 +9,7 @@
 
 #include <QAbstractTableModel>
 
-#include "core/data/DataProxy.h"
+#include "data/DataProxy.h"
 
 class QModelIndex;
 class QStringList;

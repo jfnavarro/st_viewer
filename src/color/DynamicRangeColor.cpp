@@ -4,11 +4,11 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
-#include "DynamicRangeColor.h"
+#include "color/DynamicRangeColor.h"
 
-#include "GLCommon.h"
+#include "STOpenGL/GLCommon.h"
 
-#include "data/GLHeatMap.h"
+#include "STOpenGL/data/GLHeatMap.h"
 #include "utils/MathExtended.h"
 
 DynamicRangeColor::DynamicRangeColor() : ColorScheme()

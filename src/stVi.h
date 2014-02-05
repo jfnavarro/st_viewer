@@ -14,13 +14,13 @@ class QSettings;
 class QCloseEvent;
 class QAction;
 class QStatusBar;
-class MainMenuBar;
+//class MainMenuBar;
 class QMenu;
 class Error;
 class QVBoxLayout;
 class ExtendedTabWidget;
 class QWidget;
-class MainStatusBar;
+//class MainStatusBar;
 
 class stVi : public QMainWindow
 {
@@ -79,22 +79,22 @@ private:
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event);
 
-    QAction *actionExit;
-    QAction *actionHelp;
-    QAction *actionVersion;
-    QAction *actionPrint;
-    QAction *actionAbout;
-    QAction *actionClear_Cache;
+    QAction *actionExit = nullptr;
+    QAction *actionHelp = nullptr;
+    QAction *actionVersion = nullptr;
+    QAction *actionPrint = nullptr;
+    QAction *actionAbout = nullptr;
+    QAction *actionClear_Cache = nullptr;
 
-    MainStatusBar *statusbar;
-    MainMenuBar *menubar;
+    //    MainStatusBar *statusbar;
+    //    MainMenuBar *menubar;
 
-    QMenu *menuLoad;
-    QMenu *menuHelp;
+    QMenu *menuLoad = nullptr;
+    QMenu *menuHelp = nullptr;
 
-    QWidget *centralwidget;
-    QVBoxLayout *mainlayout;
-    ExtendedTabWidget *mainTab;
+    QWidget *centralwidget = nullptr;
+    QVBoxLayout *mainlayout = nullptr;
+    ExtendedTabWidget *mainTab = nullptr;
 };
 
 #endif // stVi_H

@@ -5,7 +5,7 @@
 
 */
 
-#include "ColorPalette.h"
+#include "color/ColorPalette.h"
 
 ColorPalette::ColorPalette(QObject* parent)
     : QObject(parent)
