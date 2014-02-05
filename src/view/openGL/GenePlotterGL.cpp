@@ -135,12 +135,12 @@ void GenePlotterGL::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
         
         if (m_gridVisible) {
             // use simple renderer for the grid
-            const GL::GLElementData &griddata = m_chipRenderer->getData();
-            const GL::GLElementRenderQueue &queue = m_chipRenderer->getCmds();
-            GL::GLscope glLineSmooth(GL_LINE_SMOOTH);
-            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-            glLineWidth(Globals::grid_line_size);
-            simpleRenderer.render(griddata,queue);
+            //const GL::GLElementData &griddata = m_chipRenderer->getData();
+            //const GL::GLElementRenderQueue &queue = m_chipRenderer->getCmds();
+            //GL::GLscope glLineSmooth(GL_LINE_SMOOTH);
+            //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+            //glLineWidth(Globals::grid_line_size);
+            //simpleRenderer.render(griddata,queue);
         }
         if (m_geneVisible) {
             // render using shader the genes
@@ -294,7 +294,7 @@ void GenePlotterGL::setGridColor(const QColor& gridColor)
 {
     if (m_chipRenderer->color() != gridColor) {
         m_chipRenderer->setColor(gridColor);
-        m_chipRenderer->updateData();
+        //m_chipRenderer->updateData();
         update(boundingRect());
     }
 }

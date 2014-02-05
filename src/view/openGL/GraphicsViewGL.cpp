@@ -437,7 +437,7 @@ void GraphicsViewGL::setTransformZoom(const QSizeF& zoom)
     // derive current aspect ratio
     const QSizeF view  = viewport()->size();
     const QSizeF scene = sceneRect().size();
-    qreal z = qMax(view.width() / scene.width(), view.height() / scene.height());
+    const qreal z = qMax(view.width() / scene.width(), view.height() / scene.height());
     const QSizeF current = QSizeF(transform().m11(), transform().m22());
     scale(z * zoom.width() / current.width(), z * zoom.height() / current.height());
 }

@@ -13,7 +13,7 @@
 #include <QErrorMessage>
 
 #include "utils/Singleton.h"
-#include "controller/error/Error.h"
+#include "core/error/Error.h"
 
 // a singleton based error manager that shows an error popup with the information
 class ErrorManager : public QObject, public Singleton<ErrorManager>

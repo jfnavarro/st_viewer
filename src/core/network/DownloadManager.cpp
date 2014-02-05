@@ -7,8 +7,8 @@
 
 #include "DownloadManager.h"
 
-#include "controller/network/NetworkReply.h"
-#include "controller/error/Error.h"
+#include "core/network/NetworkReply.h"
+#include "core/error/Error.h"
 
 namespace async
 {

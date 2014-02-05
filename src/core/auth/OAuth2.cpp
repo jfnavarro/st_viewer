@@ -14,16 +14,16 @@
 
 #include "utils/DebugHelper.h"
 
-#include "view/LoginDialog.h"
+#include "dialogs/LoginDialog.h"
 
-#include "controller/network/RESTCommandFactory.h"
-#include "controller/network/NetworkManager.h"
-#include "controller/network/NetworkReply.h"
-#include "controller/error/OAuth2Error.h"
+#include "core/network/RESTCommandFactory.h"
+#include "core/network/NetworkManager.h"
+#include "core/network/NetworkReply.h"
+#include "core/error/OAuth2Error.h"
 
-#include "model/dto/ErrorDTO.h"
-#include "model/dto/OAuth2TokenDTO.h"
-#include "model/ObjectParser.h"
+#include "dataModel/dto/ErrorDTO.h"
+#include "dataModel/dto/OAuth2TokenDTO.h"
+#include "dataModel/ObjectParser.h"
 
 #include "utils/Utils.h"
 

@@ -10,8 +10,8 @@
 
 #include <QNetworkReply>
 
-#include "controller/error/Error.h"
-#include "controller/network/NetworkCommand.h"
+#include "core/error/Error.h"
+#include "core/network/NetworkCommand.h"
 
 class NetworkError : public Error
 {

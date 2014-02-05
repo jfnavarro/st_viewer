@@ -84,6 +84,10 @@ include_directories(${PROJECT_BINARY_DIR})
 
 ##TODO update cpack for ubuntu and windows to current list of qt5 libraries
 ## some of the third party libraries relies on Qt
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 use_qt5lib(Qt5LinguistTools)
 use_qt5lib(Qt5Widgets)
 use_qt5lib(Qt5WebKit)
@@ -95,5 +99,7 @@ use_qt5lib(Qt5OpenGL)
 use_qt5lib(Qt53D)
 
 add_subdirectory(ext) # include third party libraries
-
+include_directories("${PROJECT_SOURCE_DIR}/ext/QtDebugHelper/src")
+include_directories("${PROJECT_SOURCE_DIR}/ext/libqxt")
+include_directories("${PROJECT_SOURCE_DIR}/ext/QtSingleApplication/src")
 add_subdirectory(src) # include source code

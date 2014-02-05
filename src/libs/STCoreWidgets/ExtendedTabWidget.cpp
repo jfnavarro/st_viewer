@@ -86,7 +86,8 @@ void ExtendedTabWidget::buttonClicked(int index)
 
 QSize ExtendedTabWidget::sizeHint() const
 {
-    int xMax = 0, yMax = 0;
+    int xMax = 0;
+    int yMax = 0;
     foreach(QAbstractButton * button, buttonGroup->buttons()) {
         xMax = qMax(xMax, button->sizeHint().width());
         yMax = qMax(yMax, button->sizeHint().height());

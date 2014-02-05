@@ -22,14 +22,18 @@ namespace async
 ImageRequest *ImageProcess::createOpenGLImage(QIODevice *device)
 {
     DEBUG_FUNC_NAME
+
     ImageRequest *request = new ImageRequest();
     //create and connect the future watcher to the slot
+
     QFutureWatcher<TransformedImage> *watcher = new QFutureWatcher<TransformedImage>(request);
     QObject::connect(watcher, SIGNAL(finished()), request, SLOT(slotImageFinished()));
+
     //create the future and run the function in a thread
     QFuture<TransformedImage> future;
     future = QtConcurrent::run(&ImageProcess::convertToGLFormat, device);
     watcher->setFuture(future);
+
     //return the request object
     return request;
 }
@@ -40,12 +44,15 @@ ImageProcess::TransformedImage ImageProcess::convertToGLFormat(QIODevice *device
     //read input and create impate
     QImageReader reader(device);
     QImage image = reader.read();
+
     //deallocate device
     device->deleteLater();
+
     // early out
     if (image.isNull()) {
         return TransformedImage(QImage(), QTransform());
     }
+
     //create openGL image and scale down if needed
     QImage openglImage;
     QTransform openglTransform;
@@ -58,8 +65,10 @@ ImageProcess::TransformedImage ImageProcess::convertToGLFormat(QIODevice *device
             openglTransform = openglTransform.scale(2.0, 2.0); // apply inverse, ie. scale up by 2
         }
         // create opengl image
-        openglImage = QGLWidget::convertToGLFormat(image);
+        //openglImage = QGLWidget::convertToGLFormat(image);
+        openglImage = image;
     }
+
     return TransformedImage(openglImage, openglTransform);
 }
 

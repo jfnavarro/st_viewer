@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QString>
 
-#include "model/UserExperiment.h"
+#include "dataModel/UserExperiment.h"
 
 // DTOs (Data transform objects) provides the bridge between the client
 // specific data model objects and the server data. This is accomplished by

@@ -8,7 +8,7 @@
 #ifndef RESTMANAGER_H
 #define RESTMANAGER_H
 
-#include "controller/network/NetworkCommand.h"
+#include "core/network/NetworkCommand.h"
 
 // RESTCommandFactory provides a convenient way of generating preconfigured
 // network commands for specific REST actions. Each data request is represented

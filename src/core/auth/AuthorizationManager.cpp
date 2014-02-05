@@ -12,7 +12,7 @@
 
 #include "utils/DebugHelper.h"
 
-#include "controller/auth/OAuth2.h"
+#include "core/auth/OAuth2.h"
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
     : QObject(parent),

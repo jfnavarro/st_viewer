@@ -66,7 +66,7 @@ void HeatMapLegendGL::render(QPainter* painter)
     painter->endNativePainting();
 
     // render text
-    painter->setPen(QPen(Qt::white));
+    painter->setPen(QPen(Qt::black));
     painter->drawPath(m_text);
 }
 

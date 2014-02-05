@@ -11,7 +11,7 @@
 #include <QItemEditorCreatorBase>
 #include <QApplication>
 
-#include "view/editors/ColorListEditor.h"
+#include "model/editors/ColorListEditor.h"
 
 GeneViewDelegate::GeneViewDelegate(QObject* parent)
     : QStyledItemDelegate(parent)

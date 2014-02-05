@@ -10,7 +10,7 @@
 #include <QVariant>
 #include <QScopedPointer>
 
-#include "model/core/ColorPalette.h"
+#include "color/ColorPalette.h"
 
 ColorListEditor::ColorListEditor(QWidget* widget)
     : QComboBox(widget)

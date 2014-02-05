@@ -32,11 +32,11 @@ class GLElementData
 {
 public:
 
-    typedef QVector2DArray PointsType;
-    typedef QVector2DArray VerticesType;
-    typedef QArray<QColor4ub> ColorsType;
-    typedef QArray<GLindex> IndexesType;
-    typedef QVector2DArray TexturesType;
+    typedef QVector<QPointF> PointsType;
+    typedef QVector<QPointF> VerticesType;
+    typedef QVector<QColor4ub> ColorsType;
+    typedef QVector<GLindex> IndexesType;
+    typedef QVector<QPointF> TexturesType;
 
     static const PointsType::size_type rect_size = 4;
     static const IndexesType::size_type line_size = 2;

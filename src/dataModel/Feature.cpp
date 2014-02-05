@@ -5,7 +5,7 @@
 
 */
 
-#include "model/Feature.h"
+#include "dataModel/Feature.h"
 
 Feature::Feature()
     : m_id(),

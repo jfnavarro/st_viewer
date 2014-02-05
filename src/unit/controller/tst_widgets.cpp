@@ -6,10 +6,10 @@
 */
 
 #include "utils/config/Configuration.h"
-#include "controller/auth/AuthorizationManager.h"
-#include "controller/data/DataProxy.h"
-#include "controller/error/ErrorManager.h"
-#include "controller/network/NetworkManager.h"
+#include "core/auth/AuthorizationManager.h"
+#include "core/data/DataProxy.h"
+#include "core/error/ErrorManager.h"
+#include "core/network/NetworkManager.h"
 
 #include <QMainWindow>
 #include <QApplication>

@@ -9,17 +9,16 @@
 #define CELLVIEWPAGE_H
 
 #include "Page.h"
-#include "controller/data/DataProxy.h"
+#include "core/data/DataProxy.h"
 
 class QColorDialog;
 class SelectionDialog;
 class Error;
-class GraphicsViewGL;
-class GraphicsSceneGL;
 class GenePlotterGL;
-class ImageItemGL;
-class HeatMapLegendGL;
 class CellViewPageToolBar;
+class CellGLView;
+class ImageTextureGL;
+class GridRendererGL;
 
 namespace Ui
 {
@@ -51,8 +50,6 @@ protected slots:
     
     // load the cell tissue figure into the stage (can be done sync and async)
     void slotLoadCellFigure();
-    // callback when the image loading is done sync
-    void slotLoadCellFigurePost();
     
     // save current scene
     void slotSaveImage();
@@ -80,32 +77,29 @@ protected:
     void finishGLConnections();
     void finalizeGL();
     
+    // create tool bar
     void createToolBar();
-    
+    // create connections
     void createConnections();
-    
     // reset all the visual variables to default
     void resetActionStates();
-    
-    //image loading function
-    void loadCellFigureAsync(QIODevice *device);
 
 private:
 
-    // have 2 scene items (cell tissue image and gene plotter)
-    GraphicsSceneGL *scene;
-    ImageItemGL *cell_tissue;
-    GenePlotterGL *gene_plotter_gl;
+    // graphical items
+    //MiniMapGL *m_minimap;
+    //LegendGL *m_legend;
+    GenePlotterGL *gene_plotter_gl = nullptr;
+    ImageTextureGL *m_image = nullptr;
+    GridRendererGL *m_grid = nullptr;
+    CellGLView *view = nullptr;
 
     // selection dialogs
-    SelectionDialog *selectionDialog;
+    SelectionDialog *selectionDialog = nullptr;
 
     // color dialogs
-    QColorDialog *colorDialog_genes;
-    QColorDialog *colorDialog_grid;
-
-    // ui view items
-    HeatMapLegendGL *m_heatmap;
+    QColorDialog *colorDialog_genes = nullptr;
+    QColorDialog *colorDialog_grid = nullptr;
 
     // tool bar
     CellViewPageToolBar *toolBar;

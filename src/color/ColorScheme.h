@@ -7,7 +7,7 @@
 #ifndef COLORSCHEME_H
 #define COLORSCHEME_H
 
-#include "controller/data/DataProxy.h"
+#include "core/data/DataProxy.h"
 
 // Strategy pattern to allow features to be rendered with different colors.
 class ColorScheme

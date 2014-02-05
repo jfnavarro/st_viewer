@@ -11,10 +11,10 @@
 #include "utils/DebugHelper.h"
 #include <QModelIndex>
 
-#include "controller/data/DataProxy.h"
-#include "controller/data/DataStore.h"
-#include "controller/error/Error.h"
-#include "view/controllers/DatasetItemModel.h"
+#include "core/data/DataProxy.h"
+#include "core/data/DataStore.h"
+#include "core/error/Error.h"
+#include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
 
 #include "ui_datasets.h"

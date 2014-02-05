@@ -15,14 +15,14 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 
-#include "controller/network/NetworkCommand.h"
-#include "controller/error/Error.h"
-#include "controller/error/JSONError.h"
-#include "controller/error/NetworkError.h"
-#include "controller/error/SSLNetworkError.h"
+#include "core/network/NetworkCommand.h"
+#include "core/error/Error.h"
+#include "core/error/JSONError.h"
+#include "core/error/NetworkError.h"
+#include "core/error/SSLNetworkError.h"
 
-#include "model/dto/ErrorDTO.h"
-#include "model/ObjectParser.h"
+#include "dataModel/dto/ErrorDTO.h"
+#include "dataModel/ObjectParser.h"
 
 ContentType::ContentType(QObject* parent)
     : QObject(parent),

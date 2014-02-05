@@ -84,7 +84,6 @@ static const qreal gene_size = 1.0f;
 static const qreal gene_intensity = 1.0f;
 static const int gene_lower_limit = 1;
 static const int gene_upper_limit = std::numeric_limits<int>::max();
-
 static const int gene_threshold_max = 100;
 static const int gene_threshold_min = 1;
 

@@ -10,7 +10,7 @@
 
 #include <QJsonParseError>
 
-#include "controller/error/Error.h"
+#include "core/error/Error.h"
 
 class JSONError : public Error
 {

@@ -8,7 +8,7 @@
 #ifndef OAUTH2ERROR_H
 #define OAUTH2ERROR_H
 
-#include "controller/error/Error.h"
+#include "core/error/Error.h"
 
 class OAuth2Error : public Error
 {

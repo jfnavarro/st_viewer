@@ -11,7 +11,7 @@
 #include <QGraphicsItem>
 #include <QScopedPointer>
 #include "utils/Utils.h"
-#include "controller/data/DataProxy.h"
+#include "core/data/DataProxy.h"
 
 class ColorScheme;
 class QGLShaderProgram;

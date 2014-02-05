@@ -11,10 +11,10 @@
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
-#include "controller/error/Error.h"
-#include "controller/auth/AuthorizationManager.h"
-#include "controller/network/DownloadManager.h"
-#include "controller/data/DataProxy.h"
+#include "core/error/Error.h"
+#include "core/auth/AuthorizationManager.h"
+#include "core/network/DownloadManager.h"
+#include "core/data/DataProxy.h"
 
 #include "ui_initpage.h"
 

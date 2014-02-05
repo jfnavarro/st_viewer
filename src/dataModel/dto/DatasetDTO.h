@@ -13,7 +13,7 @@
 #include <QTransform>
 #include <QVariantList>
 
-#include "model/Dataset.h"
+#include "dataModel/Dataset.h"
 
 // DTOs (Data transform objects) provides the bridge between the client
 // specific data model objects and the server data. This is accomplished by

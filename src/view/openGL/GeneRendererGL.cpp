@@ -7,11 +7,11 @@
 
 #include "GeneRendererGL.h"
 
-#include "controller/data/DataProxy.h"
-#include "model/core/ColorScheme.h"
-#include "model/core/DynamicRangeColor.h"
-#include "model/core/FeatureColor.h"
-#include "model/core/HeatMapColor.h"
+#include "core/data/DataProxy.h"
+#include "color/ColorScheme.h"
+#include "color/DynamicRangeColor.h"
+#include "color/FeatureColor.h"
+#include "color/HeatMapColor.h"
 
 #include "data/GLElementRectangleFactory.h"
 #include "qgl.h"

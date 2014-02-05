@@ -22,7 +22,6 @@ set(SRC_${LIB}
 
 # Add library and include directory
 add_library(${LIB} STATIC ${SRC_${LIB}})
-include_directories(${PROJECT_SOURCE_DIR}/ext/${LIB}/src)
 
 # Organize lib into solution folder
 project_group(${LIB} "ext")

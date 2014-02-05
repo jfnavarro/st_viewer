@@ -46,7 +46,7 @@ void GLElementData::addPoint(const qreal &x, const qreal &y)
 
 void GLElementData::addPoint(const QPointF &point)
 {
-    m_points.push_back(QVector2D(point));
+    m_points.push_back(point);
 }
 
 GLindex GLElementData::addShape(const QLineF &line)

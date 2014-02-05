@@ -8,7 +8,7 @@
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
-#include "view/controllers/ExperimentsItemModel.h"
+#include "model/ExperimentsItemModel.h"
 
 #include "ExperimentPage.h"
 #include "ui_experiments.h"

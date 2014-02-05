@@ -26,8 +26,8 @@
 #include "utils/DebugHelper.h"
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
-#include "controller/auth/AuthorizationManager.h"
-#include "controller/error/Error.h"
+#include "core/auth/AuthorizationManager.h"
+#include "core/error/Error.h"
 #include "utils/config/Configuration.h"
 
 NetworkManager::NetworkManager(QObject* parent):

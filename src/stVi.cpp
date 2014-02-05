@@ -32,24 +32,25 @@
 #include "utils/Utils.h"
 #include "utils/config/Configuration.h"
 
-#include "controller/auth/AuthorizationManager.h"
-#include "controller/error/Error.h"
-#include "controller/error/ApplicationError.h"
-#include "controller/error/ErrorManager.h"
-#include "controller/error/ServerError.h"
-#include "controller/network/RESTCommandFactory.h"
-#include "controller/network/NetworkManager.h"
-#include "controller/network/NetworkReply.h"
-#include "controller/network/NetworkCommand.h"
-#include "controller/data/DataProxy.h"
-#include "controller/data/DataStore.h"
+#include "core/auth/AuthorizationManager.h"
+#include "core/error/Error.h"
+#include "core/error/ApplicationError.h"
+#include "core/error/ErrorManager.h"
+#include "core/error/ServerError.h"
+#include "core/network/RESTCommandFactory.h"
+#include "core/network/NetworkManager.h"
+#include "core/network/NetworkReply.h"
+#include "core/network/NetworkCommand.h"
+#include "core/data/DataProxy.h"
+#include "core/data/DataStore.h"
 
-#include "view/AboutDialog.h"
+#include "dialogs/AboutDialog.h"
 #include "MainMenuBar.h"
 #include "ExtendedTabWidget.h"
 #include "MainStatusBar.h"
 
-bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1, const std::array< qulonglong, 3> &version2) {
+bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
+                             const std::array< qulonglong, 3> &version2) {
     int index = 0;
     for(const auto &num : version1) {
         if (num > version2[index]) {
@@ -129,7 +130,7 @@ bool stVi::checkSystemRequirements() const
     if (!QSslSocket::supportsSsl()) {
         QMessageBox::information(0, "HTTPS",
                                  "This system does not secure SSL connections");
-        return 0;
+        return false;
     }
 
     //TODO move this network call to dataproxy and add a specific object parser
@@ -152,27 +153,27 @@ bool stVi::checkSystemRequirements() const
     
     //parse reply
     QJsonDocument document = reply->getJSON();
+    reply->deleteLater();
+
     // if no errors
     if (!reply->hasErrors()) {
         QString min_version = document.toVariant().toMap().find("minSupportedClientVersion").value().toString();
         QStringList minversion_numbers_as_strings = min_version.split(".");
         if (minversion_numbers_as_strings.size() != 3) {
             Q_ASSERT(false);
-            return 0; // This should hopefully never happen.
+            return false; // This should hopefully never happen.
         }
         bool ok1, ok2, ok3;
-        std::array< qulonglong, 3 > minversion_numbers_as_qulonglong{{
-	    minversion_numbers_as_strings[0].toULongLong(&ok1), 
-	    minversion_numbers_as_strings[1].toULongLong(&ok2), 
-	    minversion_numbers_as_strings[2].toULongLong(&ok3)
-	}};
-	if (!ok1 || !ok2 || !ok3) {
-             Q_ASSERT(false);
-             return 0; // This should hopefully never happen.
-	}
-        qDebug() << "[MAIN] Check min version min = " << min_version << " current = " << Globals::VERSION;
-        //TODO I should check that I retrieved the versions correctly
-        reply->deleteLater();
+        std::array<qulonglong, 3> minversion_numbers_as_qulonglong{{
+            minversion_numbers_as_strings[0].toULongLong(&ok1),
+            minversion_numbers_as_strings[1].toULongLong(&ok2),
+            minversion_numbers_as_strings[2].toULongLong(&ok3)
+        }};
+        if (!ok1 || !ok2 || !ok3) {
+            Q_ASSERT(false);
+            return false; // This should hopefully never happen.
+        }
+        qDebug() << "[stVi] Check min version min = " << min_version << " current = " << Globals::VERSION;
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minversion_numbers_as_qulonglong)) {
             QMessageBox::information(0, "MINIMUM VERSION",
                                      "This version of the software is not supported anymore, please update!");
@@ -182,8 +183,6 @@ bool stVi::checkSystemRequirements() const
         qDebug() << "[MAIN] Network ERROR : Check min version min " << reply->getText();
         QMessageBox::information(0, "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
-
-        reply->deleteLater();
         return false;
     }
 

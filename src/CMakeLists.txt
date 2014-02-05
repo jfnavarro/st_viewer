@@ -117,6 +117,8 @@ set(INC_VIEW_OPENGL
     view/openGL/SelectionEvent.h
     view/openGL/WidgetGL.h
     view/openGL/ViewItemGL.h
+    view/openGL/CellGLView.h
+    view/openGL/ImageTextureGL.h
 )
 
 set(SRC_VIEW_OPENGL
@@ -130,6 +132,8 @@ set(SRC_VIEW_OPENGL
     view/openGL/MiniMapGL.cpp
     view/openGL/WidgetGL.cpp
     view/openGL/ViewItemGL.cpp
+    view/openGL/CellGLView.cpp
+    view/openGL/ImageTextureGL.cpp
 )
 
 set(INC_MODEL_EDITORS

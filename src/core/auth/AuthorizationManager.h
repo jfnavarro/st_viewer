@@ -12,7 +12,7 @@
 #include <QPointer>
 #include <QUuid>
 
-#include "controller/auth/TokenStorage.h"
+#include "core/auth/TokenStorage.h"
 #include "utils/Singleton.h"
 
 class OAuth2;

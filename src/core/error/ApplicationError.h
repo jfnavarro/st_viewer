@@ -8,7 +8,7 @@
 #ifndef APPLICATIONERROR_H
 #define APPLICATIONERROR_H
 
-#include "controller/error/Error.h"
+#include "core/error/Error.h"
 
 class ApplicationError : public Error
 {

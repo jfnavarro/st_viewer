@@ -7,7 +7,7 @@
 #ifndef FEATURECOLOR_H
 #define FEATURECOLOR_H
 
-#include "model/core/ColorScheme.h"
+#include "color/ColorScheme.h"
 
 // render feature according to feature color
 class FeatureColor : public ColorScheme

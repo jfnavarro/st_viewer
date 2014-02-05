@@ -10,7 +10,7 @@
 #include "data/GLElementDataGene.h"
 #include "math/GLQuadTree.h"
 #include "SelectionEvent.h"
-#include "controller/data/DataProxy.h"
+#include "core/data/DataProxy.h"
 #include "utils/Utils.h"
 
 class ColorScheme;

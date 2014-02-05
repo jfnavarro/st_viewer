@@ -8,7 +8,7 @@
 #ifndef DATASETPAGE_H
 #define DATASETPAGE_H
 
-#include "controller/data/DataProxy.h"
+#include "core/data/DataProxy.h"
 #include "Page.h"
 
 class QItemSelectionModel;

@@ -13,7 +13,7 @@
 #include <QComboBox>
 #include <QToolButton>
 
-#include <libqxt/qxtspanslider.h>
+#include "qxtspanslider.h"
 
 CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     QToolBar(parent)

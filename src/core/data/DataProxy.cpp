@@ -14,23 +14,23 @@
 
 #include "utils/config/Configuration.h"
 
-#include "controller/network/NetworkManager.h"
-#include "controller/network/NetworkCommand.h"
-#include "controller/network/NetworkReply.h"
-#include "controller/network/RESTCommandFactory.h"
-#include "controller/error/NetworkError.h"
-#include "controller/error/ServerError.h"
-#include "controller/data/DataStore.h"
+#include "core/network/NetworkManager.h"
+#include "core/network/NetworkCommand.h"
+#include "core/network/NetworkReply.h"
+#include "core/network/RESTCommandFactory.h"
+#include "core/error/NetworkError.h"
+#include "core/error/ServerError.h"
+#include "core/data/DataStore.h"
 
 // parse objects
-#include "model/ObjectParser.h"
-#include "model/dto/ChipDTO.h"
-#include "model/dto/DatasetDTO.h"
-#include "model/dto/GeneDTO.h"
-#include "model/dto/FeatureDTO.h"
-#include "model/dto/HitCountDTO.h"
-#include "model/dto/UserDTO.h"
-#include "model/dto/ErrorDTO.h"
+#include "dataModel/ObjectParser.h"
+#include "dataModel/dto/ChipDTO.h"
+#include "dataModel/dto/DatasetDTO.h"
+#include "dataModel/dto/GeneDTO.h"
+#include "dataModel/dto/FeatureDTO.h"
+#include "dataModel/dto/HitCountDTO.h"
+#include "dataModel/dto/UserDTO.h"
+#include "dataModel/dto/ErrorDTO.h"
 
 DataProxy::DataProxy() :
     m_datasetListPtr(0),

@@ -6,7 +6,7 @@
 */
 
 #include "DatasetsViewItemDelegate.h"
-#include "view/controllers/DatasetItemModel.h"
+#include "model/DatasetItemModel.h"
 
 #include <QPainter>
 #include <QApplication>

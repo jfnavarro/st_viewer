@@ -17,7 +17,6 @@ set(SRC_libqxt
 
 # Add library and include directory
 add_library(${LIB} STATIC ${SRC_${LIB}})
-include_directories(${PROJECT_SOURCE_DIR}/ext/${LIB})
 
 # Organize lib into solution folder
 project_group(${LIB} "ext")
