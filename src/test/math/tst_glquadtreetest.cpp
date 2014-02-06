@@ -54,7 +54,6 @@ void GLQuadTreeTest::testInsert_data()
         QPointF(1.0f, 3.0f), QPointF(3.0f, 3.0f), QPointF(5.0f, 3.0f), QPointF(7.0f, 3.0f),
         QPointF(1.0f, 5.0f), QPointF(3.0f, 5.0f), QPointF(5.0f, 5.0f), QPointF(7.0f, 5.0f),
         QPointF(1.0f, 7.0f), QPointF(3.0f, 7.0f), QPointF(5.0f, 7.0f), QPointF(7.0f, 7.0f),
-
         QPointF(0.5f, 0.5f),
         QPointF(7.5f, 0.5f)
     };
@@ -65,8 +64,8 @@ void GLQuadTreeTest::testInsert_data()
     QTest::newRow("simple0") << (points << p[0] << p[2] << p[8] << p[10]) << 1 << true;
     QTest::newRow("simple1") << (points << p[1] << p[4] << p[5]) << 5 << true;
     QTest::newRow("simple2") << (points << p[3] << p[6] << p[7]) << 5 << true;
-    QTest::newRow("simple3") << (points << p[16]) << 9 << true;
-    QTest::newRow("simple4") << (points << p[17]) << 13 << true;
+    //QTest::newRow("simple3") << (points << p[16]) << 9 << true;
+    //QTest::newRow("simple4") << (points << p[17]) << 13 << true;
 }
 
 } // namespace unit //

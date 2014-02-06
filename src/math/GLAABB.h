@@ -15,8 +15,6 @@
 #include <QRectF>
 #include <cmath>
 
-namespace GL
-{
 // Simple implementation of an Axis Aligned Bounding Box
 // The AABB provides simple functionality for testing collisions and
 // intersections. In addition convenience functions for splitting the
@@ -77,12 +75,7 @@ inline bool fuzzyNotEqual(const GLaabb &b0, const GLaabb &b1);
 inline bool operator ==(const GLaabb &b0, const GLaabb &b1);
 inline bool operator !=(const GLaabb &b0, const GLaabb &b1);
 
-} // namespace GL //
-
 /****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
 
 inline GLaabb::GLaabb()
     : x(0),
@@ -217,8 +210,8 @@ inline bool GLaabb::intersects(const GLaabb &o) const
 const GLaabb GLaabb::cut(const GLaabb &o) const
 {
     if (intersects(o)) {
-        const QPointF p0 = GL::max(position(), o.position());
-        const QPointF p1 = GL::min(end(), o.end());
+        const QPointF p0 = max(position(), o.position());
+        const QPointF p1 = min(end(), o.end());
         return GLaabb::fromPoints(p0, p1);
     } else {
         return GLaabb(0.0f, 0.0f, 0.0f, 0.0f);
@@ -227,8 +220,8 @@ const GLaabb GLaabb::cut(const GLaabb &o) const
 
 const GLaabb GLaabb::join(const GLaabb &o) const
 {
-    const QPointF p0 = GL::min(position(), o.position());
-    const QPointF p1 = GL::max(end(), o.end());
+    const QPointF p0 = min(position(), o.position());
+    const QPointF p1 = max(end(), o.end());
     return GLaabb::fromPoints(p0, p1);
 }
 
@@ -264,7 +257,5 @@ inline bool operator !=(const GLaabb &b0, const GLaabb &b1)
            || (b0.width != b1.width)
            || (b0.height != b1.height);
 }
-
-} // namespace GL //
 
 #endif // GLAABB_H //

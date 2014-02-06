@@ -15,12 +15,6 @@
 #include <QColor4ub>
 
 // Common provides miscellaneous functionality related to the opengl library.
-// It defines the a set of common geometrical types each representing one of
-// the common rendering types (ie. vertex, colour, texture coordinates, etc.)
-// These types are primarily intended to be used in constructing rendering
-// array structures (such as vertex arrays, colour arrays, etc.).
-namespace GL
-{
 
 // static constants & typedefs
 typedef GLuint GLflag;
@@ -78,7 +72,5 @@ inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4
                 (c0.alpha() - t * c1.alpha()) * invt
                 );
 }
-
-} // namespace GL //
 
 #endif // GLCOMMON_H //

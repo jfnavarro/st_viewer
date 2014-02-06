@@ -27,7 +27,7 @@ public:
 private:
 
     typedef QList<QPointF> PointList;
-    typedef GL::GLQuadTree<int, 4> TestQuadTree;
+    typedef GLQuadTree<int, 4> TestQuadTree;
 
 private Q_SLOTS:
 

@@ -12,9 +12,6 @@
 #include <QColor>
 #include <QColor4ub>
 
-namespace GL
-{
-
 void GLheatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
         int lowerbound, int upperbound)
 {
@@ -23,7 +20,7 @@ void GLheatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
     for (int i = 0; i < h; ++i) {
         //I want to get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound
-        const qreal nh = GL::norm<int,qreal>(h - i - 1, lowerbound, upperbound);
+        const qreal nh = norm<int,qreal>(h - i - 1, lowerbound, upperbound);
         const qreal nw = GLheatmap::generateHeatMapWavelength(nh, mode);
         const QColor4ub color = GLheatmap::createHeatMapColor(nw);
         for(int j = 0; j < w; ++j) {
@@ -37,7 +34,7 @@ QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
     static const qreal gamma = 0.8f;
 
     // clamp input value
-    const qreal cwavelength = GL::clamp(wavelength, 380.0, 780.0);
+    const qreal cwavelength = clamp(wavelength, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
     qreal red;
@@ -87,9 +84,9 @@ QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = GL::clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = GL::clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = GL::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
     return QColor4ub(red, green, blue);
@@ -98,7 +95,7 @@ QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
 qreal GLheatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
 {
     // assert normalized value
-    qreal nt = GL::clamp(t, 0.0, 1.0);
+    qreal nt = clamp(t, 0.0, 1.0);
 
     switch (mode) {
     case GLheatmap::SpectrumLog:
@@ -112,7 +109,5 @@ qreal GLheatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mod
         // do nothing
         break;
     }
-    return GL::denorm(nt, 380.0, 780.0);
+    return denorm(nt, 380.0, 780.0);
 }
-
-} // namespace GL //

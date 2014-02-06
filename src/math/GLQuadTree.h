@@ -17,9 +17,6 @@
 #include "GLCommon.h"
 #include "math/GLAABB.h"
 
-namespace GL
-{
-
 // Simple template based quad tree implementation using QPointF as lookup
 // method. Each point is associated with data of type T. The N argument
 // determines the maximum number of items within a bucket before it is
@@ -27,8 +24,6 @@ namespace GL
 
 //NOTE this implementation does not allow multiple data to be stored in the
 // same point (this is to avoid inf-recursion when splitting).
-
-//TODO replace GLint
 
 template <typename T, int N = 8>
 class GLQuadTree
@@ -61,6 +56,7 @@ public:
 
     //clean up
     void clear();
+
     int buckets() const;
     int bucketCapacity() const;
     void boundingBoxList(BoundingBoxList &buckets) const;
@@ -105,12 +101,7 @@ private:
     BucketList m_data;
 };
 
-} // namespace GL //
-
 /****************************************** DEFINITION ******************************************/
-
-namespace GL
-{
 
 template <typename T, int N>
 void GLQuadTree<T, N>::boundingBoxList(BoundingBoxList &buckets) const
@@ -459,7 +450,5 @@ bool GLQuadTree<T, N>::Bucket::isLeaf() const
 {
     return (quads[0] < 0 && quads[1] < 0 && quads[2] < 0 && quads[3] < 0);
 }
-
-} // namespace GL //
 
 #endif // GLQUADTREE_H //

@@ -32,9 +32,7 @@
 
 #include "utils/DebugHelper.h"
 #include "utils/Utils.h"
-
 #include "config/Configuration.h"
-
 #include "auth/AuthorizationManager.h"
 #include "error/Error.h"
 #include "error/ApplicationError.h"
@@ -46,9 +44,8 @@
 #include "network/NetworkCommand.h"
 #include "data/DataProxy.h"
 #include "data/DataStore.h"
-
 #include "dialogs/AboutDialog.h"
-#include "STCoreWidgets/ExtendedTabWidget.h"
+#include "viewPages/ExtendedTabWidget.h"
 
 bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
                              const std::array< qulonglong, 3> &version2) {

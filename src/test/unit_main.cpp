@@ -11,21 +11,22 @@
 #include "QtUnitTest/testsuite.h"
 
 // unit tests
-#include "unit/controller/data/tst_datastoretest.h"
-#include "unit/controller/tst_widgets.h"
+#include "test/controller/data/tst_datastoretest.h"
+#include "test/controller/tst_widgets.h"
 
-#include "unit/STCore/tst_simplecryptdevicetest.h"
-#include "unit/STCore/tst_simplecrypttest.h"
-#include "unit/STOpenGL/math/tst_glaabbtest.h"
-#include "unit/STOpenGL/math/tst_glquadtreetest.h"
-#include "unit/STOpenGL/render/tst_glheatmaptest.h"
+#include "test/simpleCrypt/tst_simplecryptdevicetest.h"
+#include "test/simpleCrypt/tst_simplecrypttest.h"
 
-#include "unit/model/tst_objectparsertest.h"
+#include "test/math/tst_glaabbtest.h"
+#include "test/math/tst_glquadtreetest.h"
+#include "test/math/tst_glheatmaptest.h"
 
-#include "unit/utils/tst_mathextendedtest.h"
+#include "test/model/tst_objectparsertest.h"
 
-#include "unit/network/test_auth.h"
-#include "unit/network/test_rest.h"
+#include "test/utils/tst_mathextendedtest.h"
+
+#include "test/network/test_auth.h"
+#include "test/network/test_rest.h"
 
 using namespace unit;
 

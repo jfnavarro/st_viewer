@@ -19,14 +19,11 @@ set(ST_MAIN
     utils/tst_mathextendedtest.h
 )
 
-set(LIB_ST_CORE
-    STCore/tst_simplecryptdevicetest.cpp
-    STCore/tst_simplecryptdevicetest.h
-    STCore/tst_simplecrypttest.cpp
-    STCore/tst_simplecrypttest.h
-)
-
-set(LIB_ST_CORE_WIDGETS 
+set(LIB_ST_SIMPLECRYPT
+    simpleCrypt/tst_simplecryptdevicetest.cpp
+    simpleCrypt/tst_simplecryptdevicetest.h
+    simpleCrypt/tst_simplecrypttest.cpp
+    simpleCrypt/tst_simplecrypttest.h
 )
 
 set(LIB_ST_NETWORK
@@ -34,22 +31,21 @@ set(LIB_ST_NETWORK
     network/test_rest.cpp
 )
 
-set(LIB_ST_OPENGL
-    STOpenGL/math/tst_glaabbtest.cpp
-    STOpenGL/math/tst_glaabbtest.h
-    STOpenGL/math/tst_glquadtreetest.cpp
-    STOpenGL/math/tst_glquadtreetest.h
-    STOpenGL/render/tst_glheatmaptest.cpp
-    STOpenGL/render/tst_glheatmaptest.h
+set(LIB_ST_MATH
+    math/tst_glaabbtest.cpp
+    math/tst_glaabbtest.h
+    math/tst_glquadtreetest.cpp
+    math/tst_glquadtreetest.h
+    math/tst_glheatmaptest.cpp
+    math/tst_glheatmaptest.h
 )
 
 # Define source files
 set(ST_UNITTEST_SOURCES 
     unit_main.cpp
     ${ST_MAIN}
-    ${LIB_ST_CORE}
-    ${LIB_ST_CORE_WIDGETS}
-    ${LIB_ST_OPENGL}
+    ${LIB_ST_SIMPLECRYPT}
+    ${LIB_ST_MATH}
     ${LIB_ST_NETWORK}
     $<TARGET_OBJECTS:QtUnitTest>
     ${ST_TARGET_OBJECTS}

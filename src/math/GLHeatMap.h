@@ -13,8 +13,6 @@
 class QColor4ub;
 class QImage;
 
-namespace GL
-{
 // GLheatmap is a convenience class containing functions to generate
 // heatmap related data.
 class GLheatmap
@@ -38,7 +36,5 @@ public:
     // based on a normalized value [0,1] and a distribution function.
     static qreal generateHeatMapWavelength(const qreal t, const SpectrumMode mode = SpectrumLinear);
 };
-
-} // namespace GL //
 
 #endif // GLHEATMAP_H //

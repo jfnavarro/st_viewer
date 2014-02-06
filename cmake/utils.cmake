@@ -5,6 +5,7 @@ macro(INITIALISE_PROJECT)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
+
     # Keep track of some information about Qt
     set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
     set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
@@ -15,46 +16,36 @@ macro(INITIALISE_PROJECT)
     
     # Some settings which depend on whether we want a debug or release version
     # of stVi
-    if(WIN32)
-        string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-        set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
-    endif()
+    #if(WIN32)
+    #    string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    #    set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
+    #endif()
 
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-        message("Building a debug version...")
+        message(STATUS "Building a debug version...")
         # Default compiler settings
-        if(WIN32)
-            set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
-            set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
-        else()
-            set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
-        endif()
+        #if(WIN32)
+        #    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+        #    set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
+        #endif()
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
         # Make sure that debugging is on for Qt
         add_definitions(-DQT_DEBUG)
     else()
-        message("Building a release version...")
+        message(STATUS "Building a release version...")
         # Default compiler and linker settings
-        if(WIN32)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
-        else()
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -ffast-math")
-        endif()
+        #if(WIN32)
+        #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
+        #endif()
         # Make sure that debugging is off for Qt
         add_definitions(-DQT_NO_DEBUG_OUTPUT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
-    # Reduce the number of warnings
-    # Remove "warning: multi-character character constant"
-    option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
-
     if(WIN32)
         #TODO
     else()
-        if(TREAT_WARNINGS_AS_ERRORS)
-            set(WARNING_ERROR "-Werror")
-        endif(TREAT_WARNINGS_AS_ERRORS)
+        set(WARNING_ERROR "-Werror")
         set(DISABLED_WARNINGS "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
         set(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdeprecated -Wdisabled-optimization -Winline -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
@@ -81,12 +72,10 @@ macro(INITIALISE_PROJECT)
     
     #enable c++11
     check_for_cxx11_compiler(CXX11_COMPILER)
-
-    # If a C++11 compiler is available, then set the appropriate flags
     if(CXX11_COMPILER)
         enable_cxx11()
     else()
-        message(FATAL_ERROR "Your compiler does not support c++11, UPDATE!!")
+        message(FATAL_ERROR "Your compiler does not support c++11")
     endif()
     
     if(APPLE)

@@ -57,14 +57,13 @@ set(subdir_list    dialogs
                    data
                    viewPages
                    viewOpenGL
-                   STCoreWidgets
                    utils
                    error
                    io
                    model
                    config
                    simpleCrypt
-                   STOpenGL)
+                   math)
 
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
@@ -159,7 +158,7 @@ target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} $
 ### UNIT TESTS ################################################################
 
 enable_testing()
-add_subdirectory(unit)
+add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
