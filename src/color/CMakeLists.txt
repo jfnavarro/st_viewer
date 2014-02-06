@@ -13,5 +13,5 @@ set(LIBRARY_ARG_SOURCES
     DynamicRangeColor.cpp
 )
 set(LIBRARY_ARG_UI_FILES)
-st_library()
+ST_LIBRARY()
 

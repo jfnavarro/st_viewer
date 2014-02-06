@@ -16,4 +16,4 @@ set(LIBRARY_ARG_UI_FILES
     "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
 )
 
-st_library()
+ST_LIBRARY()

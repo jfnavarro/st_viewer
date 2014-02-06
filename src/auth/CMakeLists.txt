@@ -9,4 +9,4 @@ set(LIBRARY_ARG_SOURCES
     TokenStorage.cpp
 )
 set(LIBRARY_ARG_UI_FILES)
-st_library()
+ST_LIBRARY()

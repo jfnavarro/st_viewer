@@ -178,7 +178,7 @@ macro(enable_cxx11)
     endif()
 endmacro()
 
-function(st_library)
+function(ST_LIBRARY)
     get_filename_component(PARENTDIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
     set(UI_GENERATED_FILES)
     if(DEFINED LIBRARY_ARG_UI_FILES) 
