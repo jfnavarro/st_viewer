@@ -9,6 +9,7 @@
 #define GENEEXPORTER_H
 
 #include <QObject>
+
 #include "data/DataProxy.h"
 
 class QIODevice;

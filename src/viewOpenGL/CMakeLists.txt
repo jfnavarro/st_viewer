@@ -1,28 +1,20 @@
 set(LIBRARY_ARG_INCLUDES
-    GenePlotterGL.h
-    GeneRendererGL.h
+    #GeneRendererGL.h (needs to be adapted to Qt3D)
     GridRendererGL.h
-    GraphicsSceneGL.h
-    GraphicsViewGL.h
-    HeatMapLegendGL.h
-    ImageItemGL.h
-    MiniMapGL.h
+    CellGLView.h
+    #HeatMapLegendGL.h (needs to be adapted to Qt3D)
+    ImageTextureGL.h
+    #MiniMapGL.h  (needs to be adapted to Qt3D)
     SelectionEvent.h
-    WidgetGL.h
-    ViewItemGL.h
 )
 
 set(LIBRARY_ARG_SOURCES
-    GenePlotterGL.cpp
-    GeneRendererGL.cpp
+    #GeneRendererGL.cpp (needs to be adapted to Qt3D)
     GridRendererGL.cpp
-    GraphicsSceneGL.cpp
-    GraphicsViewGL.cpp
-    HeatMapLegendGL.cpp
-    ImageItemGL.cpp
-    MiniMapGL.cpp
-    WidgetGL.cpp
-    ViewItemGL.cpp
+    CellGLView.cpp
+    #HeatMapLegendGL.cpp (needs to be adapted to Qt3D)
+    ImageTextureGL.cpp
+    #MiniMapGL.cpp (needs to be adapted to Qt3D)
 )
 
 set(LIBRARY_ARG_UI_FILES

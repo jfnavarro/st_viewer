@@ -42,20 +42,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-#QT5 DIRECTIVES
-set(FORMS
-    "${PROJECT_SOURCE_DIR}/assets/ui/aboutdialog.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/cellview.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/datasets.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/experiments.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/initpage.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/selectiondialog.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
-)
-
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
-
 
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
@@ -66,18 +54,16 @@ set(subdir_list    dialogs
                    dataModelDTO
                    network
                    auth
-                   async
                    data
                    viewPages
                    viewOpenGL
-                   STCoreWidgets
                    utils
                    error
                    io
                    model
                    config
                    simpleCrypt
-                   STOpenGL)
+                   math)
 
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
@@ -172,7 +158,7 @@ target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} $
 ### UNIT TESTS ################################################################
 
 enable_testing()
-add_subdirectory(unit)
+add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
@@ -294,8 +280,9 @@ if(APPLE)
     
     #resources
     add_custom_command (TARGET ${PROJECT_NAME}
+        COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/stVi.icns ${CMAKE_INSTALL_PREFIX}/Resources/
-#         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
   

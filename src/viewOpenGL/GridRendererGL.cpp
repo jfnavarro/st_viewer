@@ -3,23 +3,51 @@
 #include "utils/Utils.h"
 #include "utils/MathExtended.h"
 
-#include "qgl.h"
-#include "GLCommon.h"
-#include "data/GLElementLineFactory.h"
+#include <QGLPainter>
+#include <QVector2DArray>
 
-#include <QColor4ub>
-
-GridRendererGL::GridRendererGL()
+GridRendererGL::GridRendererGL(QObject *parent)
+    :QGLSceneNode(parent)
 {
+
+}
+
+GridRendererGL::~GridRendererGL()
+{
+
+}
+
+void GridRendererGL::draw(QGLPainter *painter)
+{
+    glEnable(GL_LINE_SMOOTH);
+    {
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glLineWidth(Globals::grid_line_size);
+
+        m_gridBorderColor.setAlphaF(0.5);
+        painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
+        painter->setColor(m_gridBorderColor);
+        painter->setVertexAttribute(QGL::Position, m_border_vertex);
+        painter->draw(QGL::Lines, m_border_vertex.size());
+
+        m_gridColor.setAlphaF(0.5);
+        painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
+        painter->setColor(m_gridColor);
+        painter->setVertexAttribute(QGL::Position, m_grid_vertex);
+        painter->draw(QGL::Lines, m_grid_vertex.size());
+    }
+    glDisable(GL_LINE_SMOOTH);
+}
+
+void GridRendererGL::drawGeometry(QGLPainter *painter)
+{
+    QGLSceneNode::drawGeometry(painter);
 }
 
 void GridRendererGL::clearData()
 {
-    // grid data
-    m_gridData.clear();
-    m_gridData.setMode(GL_LINES);
-    m_queue.clear();
-
     // chip grid stuff
     m_border = QRectF();
     m_rect = QRectF();
@@ -27,75 +55,78 @@ void GridRendererGL::clearData()
     m_gridBorderColor = Globals::color_grid_border;
 }
 
-void GridRendererGL::updateData()
-{
-    //TODO this is expensive, do the normal update
-    m_gridData.clear();
-    m_gridData.setMode(GL_LINES);
-    generateData();
-}
-
-void GridRendererGL::rebuildData()
-{
-    m_gridData.clear();
-    m_gridData.setMode(GL_LINES);
-    generateData();
-}
-
 void GridRendererGL::generateData()
 {
-    const GL::GLflag flags =
-            GL::GLElementShapeFactory::AutoAddColor |
-            GL::GLElementShapeFactory::AutoAddTexture;
-    GL::GLElementLineFactory factory(m_gridData, flags);
+    m_grid_vertex.clear();
+    m_border_vertex.clear();
 
     // generate borders
-    QColor4ub gridBorderColor = QColor4ub(m_gridBorderColor);
-    gridBorderColor.setAlphaF(0.5);
-    factory.setColor(gridBorderColor);
-
     for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
         if (m_rect.top() <= y && y <= m_rect.bottom()) {
-            factory.addShape(QLineF( QPointF(m_border.left(), y), QPointF(m_rect.left(), y) ));
-            factory.addShape(QLineF( QPointF(m_rect.right(), y), QPointF(m_border.right(), y) ));
+            m_border_vertex.append(m_border.left(), y);
+            m_border_vertex.append(m_rect.left(), y);
+            m_border_vertex.append(m_rect.right(), y);
+            m_border_vertex.append(m_border.right(), y);
         } else {
-            factory.addShape(QLineF( QPointF(m_border.left(), y) , QPointF(m_border.right(), y) ));
+            m_border_vertex.append(m_border.left(), y);
+            m_border_vertex.append(m_border.right(), y);
         }
     }
-
     for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0) {
         if (m_rect.left() <= x && x <= m_rect.right()) {
-            factory.addShape(QLineF( QPointF(x, m_border.top()), QPointF(x, m_rect.top()) ));
-            factory.addShape(QLineF( QPointF(x, m_rect.bottom()), QPointF(x, m_border.bottom()) ));
+            m_border_vertex.append(x, m_border.top());
+            m_border_vertex.append(x, m_rect.top());
+            m_border_vertex.append(x, m_rect.bottom());
+            m_border_vertex.append(x, m_border.bottom());
         } else {
-            factory.addShape(QLineF( QPointF(x, m_border.top()) , QPointF(x, m_border.bottom()) ));
+            m_border_vertex.append(x, m_border.top());
+            m_border_vertex.append(x, m_border.bottom());
         }
     }
 
     // generate grid
-    QColor4ub gridColor = QColor4ub(m_gridColor);
-    gridColor.setAlphaF(0.5);
-    factory.setColor(gridColor);
-
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += Globals::grid_line_size) {
-        factory.addShape(QLineF( QPointF(m_rect.left(),  y) , QPointF(m_rect.left(),  y) ));
+        m_grid_vertex.append(m_rect.left(),  y);
+        m_grid_vertex.append(m_rect.left(),  y);
     }
-
     for (qreal x = m_rect.left(); x <= m_rect.right(); x += Globals::grid_line_size) {
-        factory.addShape(QLineF( QPointF(x, m_rect.top()) , QPointF(x, m_rect.bottom()) ));
+        m_grid_vertex.append(x, m_rect.top());
+        m_grid_vertex.append(x, m_rect.bottom());
     }
 
     // check boundaries
     if (!qFuzzyCompare(QtExt::qMod(m_rect.bottom() - m_rect.top(), Globals::grid_line_size), 0.0)) {
-        factory.addShape(QLineF( QPointF(m_rect.left(), m_rect.bottom()) , QPointF(m_rect.right(), m_rect.bottom()) ));
+        m_grid_vertex.append(m_rect.left(), m_rect.bottom());
+        m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
-
     if (!qFuzzyCompare(QtExt::qMod(m_rect.right() - m_rect.left(), Globals::grid_line_size), 0.0)) {
-        factory.addShape(QLineF( QPointF(m_rect.right(), m_rect.top()) , QPointF(m_rect.right(), m_rect.bottom()) ));
+        m_grid_vertex.append(m_rect.right(), m_rect.top());
+        m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
+}
 
-    // generate element data render command
-    m_queue.add(GL::GLElementRenderQueue::Command
-                (GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
-    m_queue.end();
+void GridRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
+{
+    m_border = border;
+    m_rect = rect;
+}
+
+const QRectF& GridRendererGL::border() const
+{
+    return m_border;
+}
+
+const QRectF& GridRendererGL::rectangle() const
+{
+    return m_rect;
+}
+
+void GridRendererGL::setColor(const QColor &color)
+{
+    m_gridColor = color;
+}
+
+const QColor& GridRendererGL::color() const
+{
+    return m_gridColor;
 }

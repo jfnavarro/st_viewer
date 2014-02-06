@@ -11,6 +11,7 @@
 #include <QtCore/QModelIndex>
 
 #include "dataModel/UserExperiment.h"
+
 #include "data/DataProxy.h"
 
 // Skeleton wrapper model class intended to provide access to experiment data

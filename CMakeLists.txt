@@ -38,7 +38,6 @@ set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 # set(SECRETID "secret")
 # set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
-
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
   if(WIN32)
@@ -46,25 +45,8 @@ if(COMMAND cmake_policy)
   endif(WIN32)
 endif(COMMAND cmake_policy)
 
-#set the translations directory
-#this is ugly but it only to generate binaries that are able
-#to load the translations in Debug and Release mode we need to uncomment the /src/ for /../share/${PROJECT_NAME}/translations/
-#otherwise we can just leave the /src/
-#this we will fixed when I find time
-if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-    set(TRANSLATIONS_DIR "/src/")
-    #set(TRANSLATIONS_DIR "/../share/${PROJECT_NAME}/translations/")
-elseif(UNIX AND NOT APPLE)
-    set(TRANSLATIONS_DIR "/src/")
-    #set(TRANSLATIONS_DIR "/../share/${PROJECT_NAME}/translations/")
-elseif(APPLE)
-    set(TRANSLATIONS_DIR UNUSED)
-elseif(WIN32)
-    set(TRANSLATIONS_DIR UNUSED)
-endif(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-
 #name of locale file
-set(TRANSLATION_FILE "locale_en_us.qm")   
+set(TRANSLATION_FILE "locale_en_us.qm")
 
 # Compile RC-file, only for Windows
 if(WIN32)
@@ -77,20 +59,11 @@ endif (WIN32)
 # Some in-house CMake functions/macros
 include(${CMAKE_SOURCE_DIR}/cmake/utils.cmake)
 
-
-
-
-
 configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT_BINARY_DIR}/application.conf )
 configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
 configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
 
 include_directories(${PROJECT_BINARY_DIR})
-
-##TODO update cpack for ubuntu and windows to current list of qt5 libraries
-## some of the third party libraries relies on Qt
-
-
 
 use_qt5lib(Qt5LinguistTools)
 use_qt5lib(Qt5Widgets)
@@ -102,7 +75,5 @@ use_qt5lib(Qt5Gui)
 use_qt5lib(Qt5OpenGL)
 use_qt5lib(Qt53D)
 
-
 add_subdirectory(ext) # include third party libraries
-
 add_subdirectory(src) # include source code

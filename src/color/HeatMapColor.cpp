@@ -6,7 +6,7 @@
 */
 #include "color/HeatMapColor.h"
 
-#include "STOpenGL/data/GLHeatMap.h"
+#include "math/GLHeatMap.h"
 #include "utils/MathExtended.h"
 
 #include <QColor4ub>
@@ -23,7 +23,7 @@ HeatMapColor::~HeatMapColor()
 
 QColor HeatMapColor::getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const
 {
-    const qreal nv = GL::norm<int,qreal>(feature->hits(), m_min, m_max);
-    const qreal waveLength = GL::GLheatmap::generateHeatMapWavelength(nv, GL::GLheatmap::SpectrumExp);
-    return QColor4ub(GL::GLheatmap::createHeatMapColor(waveLength)).toColor();
+    const qreal nv = norm<int,qreal>(feature->hits(), m_min, m_max);
+    const qreal waveLength = GLheatmap::generateHeatMapWavelength(nv, GLheatmap::SpectrumExp);
+    return QColor4ub(GLheatmap::createHeatMapColor(waveLength)).toColor();
 }

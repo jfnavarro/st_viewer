@@ -14,6 +14,8 @@ set(LIBRARY_ARG_INCLUDES
     BooleanItemDelegate.h
     DatasetsViewItemDelegate.h
     GeneViewDelegate.h
+    ColorListEditor.h
+    ExtendedTabWidget.cpp
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -30,6 +32,8 @@ set(LIBRARY_ARG_SOURCES
     BooleanItemDelegate.cpp
     DatasetsViewItemDelegate.cpp
     GeneViewDelegate.cpp
+    ColorListEditor.cpp
+    ExtendedTabWidget.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

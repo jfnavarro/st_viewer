@@ -1,0 +1,3 @@
+[Project]
+Manager=KDevCMakeManager
+Name=st_client

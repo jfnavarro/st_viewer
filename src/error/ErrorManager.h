@@ -13,6 +13,7 @@
 #include <QErrorMessage>
 
 #include "utils/Singleton.h"
+
 #include "error/Error.h"
 
 // a singleton based error manager that shows an error popup with the information

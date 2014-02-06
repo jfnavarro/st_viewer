@@ -26,7 +26,7 @@
 #ifndef QXTNAMESPACE_H
 #define QXTNAMESPACE_H
 
-#include <qxtglobal.h>
+#include "qxtglobal.h"
 
 #if (defined BUILD_QXT | defined Q_MOC_RUN) && !defined(QXT_DOXYGEN_RUN)
 #include <QObject>

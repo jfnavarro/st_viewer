@@ -13,9 +13,6 @@
 #include <QMap>
 #include <QScopedPointer>
 
-// images
-#include "async/ImageProcessing.h"
-
 #include "utils/Singleton.h"
 
 // data objects

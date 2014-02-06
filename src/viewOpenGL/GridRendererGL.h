@@ -1,37 +1,45 @@
 #ifndef GRIDRENDERERGL_H
 #define GRIDRENDERERGL_H
 
-#include "GLCommon.h"
-#include "data/GLElementData.h"
-#include "render/GLElementRender.h"
+#include <QGLSceneNode>
 
-class GridRendererGL
+class QGLPainter;
+class QRectF;
+class QColor;
+class QVector2DArray;
+
+class GridRendererGL : public QGLSceneNode
 {
-public:
-    GridRendererGL();
+    Q_OBJECT
 
-    //rendering functions
+public:
+
+    explicit GridRendererGL(QObject *parent = 0);
+    virtual ~GridRendererGL();
+
+    //data generation
     void generateData();
-    void updateData();
     void clearData();
-    void rebuildData();
 
     //setters
-    inline void setDimensions(const QRectF &border, const QRectF &rect) { m_border = border; m_rect = rect; }
-    inline void setColor(const QColor &color) { m_gridColor = color; }
+    void setDimensions(const QRectF &border, const QRectF &rect);
+    void setColor(const QColor &color);
 
-    //getters
-    inline const GL::GLElementData& getData() const { return m_gridData; }
-    inline const GL::GLElementRenderQueue& getCmds() const { return m_queue; }
+    //gettters
+    const QColor& color() const;
+    const QRectF& border() const;
+    const QRectF& rectangle() const;
 
-    inline const QColor& color() const { return m_gridColor; }
-    inline const QRectF& border() const { return m_border; }
-    inline const QRectF& rectangle() const { return m_rect; }
+protected:
+
+    void draw(QGLPainter *painter);
+    void drawGeometry (QGLPainter * painter);
 
 private:
-    // grid data
-    GL::GLElementData m_gridData;
-    GL::GLElementRenderQueue m_queue;
+
+    // data vertex arrays
+    QVector2DArray m_grid_vertex;
+    QVector2DArray m_border_vertex;
 
     // the internal gene (x,y) area
     QRectF m_rect;
