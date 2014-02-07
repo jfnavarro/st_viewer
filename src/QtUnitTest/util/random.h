@@ -13,10 +13,10 @@
 namespace unit
 {
 
-inline qint32 qrandi();
-inline qint32 qrandi(const qint32 min, const qint32 max);
-inline float qrandf();
-inline float qrandf(const float min, const float max);
+ qint32 qrandi();
+ qint32 qrandi(const qint32 min, const qint32 max);
+ float qrandf();
+ float qrandf(const float min, const float max);
 
 } // namespace unit //
 
@@ -25,12 +25,12 @@ inline float qrandf(const float min, const float max);
 namespace unit
 {
 
-inline qint32 qrandi()
+ qint32 qrandi()
 {
     return qrand();
 }
 
-inline qint32 qrandi(const qint32 min, const qint32 max)
+ qint32 qrandi(const qint32 min, const qint32 max)
 {
     if (min > max) {
         return qrandi(max, min);
@@ -39,12 +39,12 @@ inline qint32 qrandi(const qint32 min, const qint32 max)
     return (qint32((max - min) * qrandf()) + min);
 }
 
-inline float qrandf()
+ float qrandf()
 {
     return float(double(qrand()) / double(RAND_MAX));
 }
 
-inline float qrandf(const float min, const float max)
+ float qrandf(const float min, const float max)
 {
     if (min > max) {
         return qrandf(max, min);

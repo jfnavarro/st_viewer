@@ -34,17 +34,17 @@ public:
 public:
 
     explicit HitCountDTO(QObject* parent = 0);
-    HitCountDTO(const HitCount& hitCount, QObject* parent = 0);
+    explicit HitCountDTO(const HitCount& hitCount, QObject* parent = 0);
     virtual ~HitCountDTO();
 
     // binding
-    inline int min() const { return m_hitCount.min();}
-    inline int max() const { return m_hitCount.max(); }
-    inline int sum() const { return m_hitCount.sum(); }
+    int min() const { return m_hitCount.min();}
+    int max() const { return m_hitCount.max(); }
+    int sum() const { return m_hitCount.sum(); }
 
-    inline void min(int min) { m_hitCount.min(min); }
-    inline void max(int max) { m_hitCount.max(max); }
-    inline void sum(int sum) { m_hitCount.sum(sum); }
+    void min(int min) { m_hitCount.min(min); }
+    void max(int max) { m_hitCount.max(max); }
+    void sum(int sum) { m_hitCount.sum(sum); }
 
     // get parsed data model
     const HitCount& hitCount() const { return m_hitCount; }

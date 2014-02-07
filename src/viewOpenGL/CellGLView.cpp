@@ -1,4 +1,4 @@
-#include "CellGLView.h"
+ #include "CellGLView.h"
 
 #include <QGLPainter>
 #include <QGLWidget>

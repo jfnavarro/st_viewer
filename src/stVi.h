@@ -14,13 +14,11 @@ class QSettings;
 class QCloseEvent;
 class QAction;
 class QStatusBar;
-//class MainMenuBar;
 class QMenu;
 class Error;
 class QVBoxLayout;
 class ExtendedTabWidget;
 class QWidget;
-//class MainStatusBar;
 
 class stVi : public QMainWindow
 {
@@ -85,9 +83,6 @@ private:
     QAction *actionPrint = nullptr;
     QAction *actionAbout = nullptr;
     QAction *actionClear_Cache = nullptr;
-
-    //    MainStatusBar *statusbar;
-    //    MainMenuBar *menubar;
 
     QMenu *menuLoad = nullptr;
     QMenu *menuHelp = nullptr;

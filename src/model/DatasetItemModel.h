@@ -46,8 +46,8 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     virtual bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
     //NOTE do not want the user to edit columns name
-    inline virtual bool setHeaderData(int, Qt::Orientation,
-                                      const QVariant&, int = Qt::EditRole) { return false; }
+    virtual bool setHeaderData(int, Qt::Orientation,
+                               const QVariant&, int = Qt::EditRole) { return false; }
 
 public slots:
 

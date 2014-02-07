@@ -39,9 +39,9 @@ int main(int argc, char **argv)
 
     suite.addTest(new DataStoreTest, "DataStore");
     //suite.addTest(new WidgetsTest, "Widgets");
-    suite.addTest(new GLAABBTest, "GLAABB").dependsOn("GLMath");
+    suite.addTest(new GLAABBTest, "GLAABB");
     suite.addTest(new GLQuadTreeTest, "GLQuadTree").dependsOn("GLAABB");
-    suite.addTest(new GLHeatMapTest, "GLHeatMap").dependsOn("GLPoint");
+    suite.addTest(new GLHeatMapTest, "GLHeatMap");
     suite.addTest(new ObjectParserTest, "ObjectParser");
     suite.addTest(new MathExtendedTest, "MathExtended");
     suite.addTest(new SimpleCryptTest, "SimpleCrypt");

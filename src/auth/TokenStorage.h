@@ -34,8 +34,8 @@ public:
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 
-    inline bool hasAccessToken() const { return m_storage->contains(Globals::SettingsAcessToken); }
-    inline bool hasRefreshToken() const { return m_storage->contains(Globals::SettingsRefreshToken); }
+    bool hasAccessToken() const;
+    bool hasRefreshToken() const;
 
     //cleans the content of the accesstoken
     void cleanAll();

@@ -1,7 +1,7 @@
 #include "GridRendererGL.h"
 
 #include "utils/Utils.h"
-#include "utils/MathExtended.h"
+#include "math/Common.h"
 
 #include <QGLPainter>
 #include <QVector2DArray>
@@ -24,6 +24,10 @@ void GridRendererGL::draw(QGLPainter *painter)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         glLineWidth(Globals::grid_line_size);
 
+        painter->modelViewMatrix().push();
+        painter->modelViewMatrix().setToIdentity();
+        painter->modelViewMatrix() *= m_transform;
+
         m_gridBorderColor.setAlphaF(0.5);
         painter->clearAttributes();
         painter->setStandardEffect(QGL::FlatColor);
@@ -37,6 +41,8 @@ void GridRendererGL::draw(QGLPainter *painter)
         painter->setColor(m_gridColor);
         painter->setVertexAttribute(QGL::Position, m_grid_vertex);
         painter->draw(QGL::Lines, m_grid_vertex.size());
+
+        painter->modelViewMatrix().pop();
     }
     glDisable(GL_LINE_SMOOTH);
 }
@@ -95,11 +101,11 @@ void GridRendererGL::generateData()
     }
 
     // check boundaries
-    if (!qFuzzyCompare(QtExt::qMod(m_rect.bottom() - m_rect.top(), Globals::grid_line_size), 0.0)) {
+    if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), Globals::grid_line_size), 0.0)) {
         m_grid_vertex.append(m_rect.left(), m_rect.bottom());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
-    if (!qFuzzyCompare(QtExt::qMod(m_rect.right() - m_rect.left(), Globals::grid_line_size), 0.0)) {
+    if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), Globals::grid_line_size), 0.0)) {
         m_grid_vertex.append(m_rect.right(), m_rect.top());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
@@ -129,4 +135,14 @@ void GridRendererGL::setColor(const QColor &color)
 const QColor& GridRendererGL::color() const
 {
     return m_gridColor;
+}
+
+void GridRendererGL::setAlignmentMatrix(const QTransform &transform)
+{
+    m_transform = transform;
+}
+
+const QTransform& GridRendererGL::alignmentMatrix() const
+{
+    return m_transform;
 }

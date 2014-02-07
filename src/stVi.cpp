@@ -289,6 +289,7 @@ void stVi::initStyle()
 {
     // apply stylesheet and configurations
 #ifdef Q_OS_MAC
+    setUnifiedTitleAndToolBarOnMac(true); //working again in qt 5.2.1
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
     QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false); //osx does not show icons on menus

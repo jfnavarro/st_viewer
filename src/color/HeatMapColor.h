@@ -17,7 +17,7 @@ public:
     HeatMapColor();
     virtual ~HeatMapColor();
     
-    virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
+    QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
 };
 
 #endif // HEATMAPCOLOR_H

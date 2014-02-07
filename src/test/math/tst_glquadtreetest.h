@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QList>
 
-#include <math/GLQuadTree.h>
+#include "math/QuadTree.h"
 
 namespace unit
 {
@@ -27,7 +27,7 @@ public:
 private:
 
     typedef QList<QPointF> PointList;
-    typedef GLQuadTree<int, 4> TestQuadTree;
+    typedef QuadTree<int, 4> TestQuadTree;
 
 private Q_SLOTS:
 

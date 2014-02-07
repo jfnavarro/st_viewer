@@ -47,141 +47,45 @@ public:
 public:
 
     explicit ChipDTO(QObject* parent = 0);
-    ChipDTO(const Chip& chip, QObject* parent = 0);
+    explicit ChipDTO(const Chip& chip, QObject* parent = 0);
     virtual ~ChipDTO();
 
     // binding
-    inline const QString id() const
-    {
-        return m_chip.id();
-    }
-    inline int barcodes() const
-    {
-        return m_chip.barcodes();
-    }
-    inline const QString name() const
-    {
-        return m_chip.name();
-    }
-    inline int x1() const
-    {
-        return m_chip.x1();
-    }
-    inline int x2() const
-    {
-        return m_chip.x2();
-    }
-    inline int x1Total() const
-    {
-        return m_chip.x1Total();
-    }
-    inline int x2Total() const
-    {
-        return m_chip.x2Total();
-    }
-    inline int x1Border() const
-    {
-        return m_chip.x1Border();
-    }
-    inline int x2Border() const
-    {
-        return m_chip.x2Border();
-    }
-    inline int y1() const
-    {
-        return m_chip.y1();
-    }
-    inline int y2() const
-    {
-        return m_chip.y2();
-    }
-    inline int y1Total() const
-    {
-        return m_chip.y1Total();
-    }
-    inline int y2Total() const
-    {
-        return m_chip.y2Total();
-    }
-    inline int y1Border() const
-    {
-        return m_chip.y1Border();
-    }
-    inline int y2Border() const
-    {
-        return m_chip.y2Border();
-    }
+    const QString id() const { return m_chip.id(); }
+    int barcodes() const { return m_chip.barcodes(); }
+    const QString name() const { return m_chip.name(); }
+    int x1() const { return m_chip.x1(); }
+    int x2() const { return m_chip.x2(); }
+    int x1Total() const {return m_chip.x1Total(); }
+    int x2Total() const { return m_chip.x2Total(); }
+    int x1Border() const { return m_chip.x1Border(); }
+    int x2Border() const { return m_chip.x2Border(); }
+    int y1() const { return m_chip.y1(); }
+    int y2() const { return m_chip.y2(); }
+    int y1Total() const { return m_chip.y1Total(); }
+    int y2Total() const { return m_chip.y2Total(); }
+    int y1Border() const { return m_chip.y1Border(); }
+    int y2Border() const { return m_chip.y2Border(); }
 
-    inline void id(const QString& id)
-    {
-        m_chip.id(id);
-    }
-    inline void barcodes(int barcodes)
-    {
-        m_chip.barcodes(barcodes);
-    }
-    inline void name(const QString& name)
-    {
-        m_chip.name(name);
-    }
-    inline void x1(int x1)
-    {
-        m_chip.x1(x1);
-    }
-    inline void x2(int x2)
-    {
-        m_chip.x2(x2);
-    }
-    inline void x1Total(int x1Total)
-    {
-        m_chip.x1Total(x1Total);
-    }
-    inline void x2Total(int x2Total)
-    {
-        m_chip.x2Total(x2Total);
-    }
-    inline void x1Border(int x1Border)
-    {
-        m_chip.x1Border(x1Border);
-    }
-    inline void x2Border(int x2Border)
-    {
-        m_chip.x2Border(x2Border);
-    }
-    inline void y1(int y1)
-    {
-        m_chip.y1(y1);
-    }
-    inline void y2(int y2)
-    {
-        m_chip.y2(y2);
-    }
-    inline void y1Total(int y1Total)
-    {
-        m_chip.y1Total(y1Total);
-    }
-    inline void y2Total(int y2Total)
-    {
-        m_chip.y2Total(y2Total);
-    }
-    inline void y1Border(int y1Border)
-    {
-        m_chip.y1Border(y1Border);
-    }
-    inline void y2Border(int y2Border)
-    {
-        m_chip.y2Border(y2Border);
-    }
+    void id(const QString& id) { m_chip.id(id); }
+    void barcodes(int barcodes) { m_chip.barcodes(barcodes); }
+    void name(const QString& name) { m_chip.name(name); }
+    void x1(int x1) { m_chip.x1(x1); }
+    void x2(int x2) { m_chip.x2(x2);  }
+    void x1Total(int x1Total) { m_chip.x1Total(x1Total);  }
+    void x2Total(int x2Total) { m_chip.x2Total(x2Total); }
+    void x1Border(int x1Border) { m_chip.x1Border(x1Border); }
+    void x2Border(int x2Border) { m_chip.x2Border(x2Border); }
+    void y1(int y1) { m_chip.y1(y1); }
+    void y2(int y2) { m_chip.y2(y2); }
+    void y1Total(int y1Total) { m_chip.y1Total(y1Total); }
+    void y2Total(int y2Total) { m_chip.y2Total(y2Total); }
+    void y1Border(int y1Border) { m_chip.y1Border(y1Border); }
+    void y2Border(int y2Border) { m_chip.y2Border(y2Border); }
 
     // get parsed data model
-    const Chip& chip() const
-    {
-        return m_chip;
-    }
-    Chip& chip()
-    {
-        return m_chip;
-    }
+    const Chip& chip() const { return m_chip; }
+    Chip& chip() { return m_chip; }
 
 private:
 

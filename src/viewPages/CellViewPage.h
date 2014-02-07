@@ -20,6 +20,7 @@ class CellViewPageToolBar;
 class CellGLView;
 class ImageTextureGL;
 class GridRendererGL;
+class HeatMapLegendGL;
 
 namespace Ui
 {
@@ -71,17 +72,16 @@ protected slots:
 
 protected:
     
-    //init gui elements, signals and connections
+    // create GL graphical elements and their connections
     void initGLView();
-    void initGLModel();
-    void initGLConnections();
-    void finishGLConnections();
-    void finalizeGL();
+    void createGLConnections();
     
     // create tool bar
     void createToolBar();
+
     // create connections
     void createConnections();
+
     // reset all the visual variables to default
     void resetActionStates();
 
@@ -89,7 +89,7 @@ private:
 
     // graphical items
     //MiniMapGL *m_minimap;
-    //LegendGL *m_legend;
+    HeatMapLegendGL *m_legend = nullptr;
     GenePlotterGL *gene_plotter_gl = nullptr;
     ImageTextureGL *m_image = nullptr;
     GridRendererGL *m_grid = nullptr;

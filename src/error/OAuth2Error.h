@@ -33,7 +33,7 @@ public:
     };
 
     explicit OAuth2Error(QObject* parent = 0);
-    OAuth2Error(const QString& errorName, const QString& errorDescription, QObject* parent = 0);
+    explicit OAuth2Error(const QString& errorName, const QString& errorDescription, QObject* parent = 0);
     virtual ~OAuth2Error();
 
 private:

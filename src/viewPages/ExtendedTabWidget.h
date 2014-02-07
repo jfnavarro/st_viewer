@@ -29,22 +29,13 @@ class ExtendedButtonGroup : public QButtonGroup
     //this class extends QButtonGroup to unable the mouse events
 public:
 
-    explicit ExtendedButtonGroup(QWidget* parent = 0) : QButtonGroup(parent) {};
+    explicit ExtendedButtonGroup(QWidget* parent = 0) : QButtonGroup(parent){}
 
 protected:
 
-    virtual void mousePressEvent(QMouseEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void KeyPressEvent(QKeyEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void wheelEvent(QWheelEvent *event)
-    {
-        event->ignore();
-    };
+    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
+    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
+    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
     virtual bool event(QEvent *event);
 };
 
@@ -53,24 +44,15 @@ class ExtendedButton : public QPushButton
     //this class extends QPushButton to unable the mouse events
 public:
 
-    explicit ExtendedButton(QWidget* parent = 0) : QPushButton(parent) {};
-    explicit ExtendedButton(const QString &text, QWidget *parent = 0) : QPushButton(text, parent) {};
-    ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0): QPushButton(icon, text, parent) {};
+    explicit ExtendedButton(QWidget* parent = 0) : QPushButton(parent) {}
+    explicit ExtendedButton(const QString &text, QWidget *parent = 0) : QPushButton(text, parent) {}
+    explicit ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0): QPushButton(icon, text, parent) {}
 
 protected:
 
-    virtual void mousePressEvent(QMouseEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void KeyPressEvent(QKeyEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void wheelEvent(QWheelEvent *event)
-    {
-        event->ignore();
-    };
+    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
+    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
+    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
     virtual bool event(QEvent *event);
 
 };
@@ -85,6 +67,7 @@ class ExtendedTabWidget : public QWidget
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex STORED true NOTIFY currentIndexChanged)
 
 public:
+
     explicit ExtendedTabWidget(QWidget *parent = 0);
     virtual ~ ExtendedTabWidget();
 
@@ -97,6 +80,7 @@ public:
     void addTab(QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
 
 public slots:
+
     void addPage(QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
     void insertPage(int index, QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
     void removePage(int index);
@@ -109,23 +93,15 @@ public slots:
     void resetStatus();
 
 signals:
+
     void currentIndexChanged(int index);
     void signalError(Error*);
 
 protected:
 
-    virtual void mousePressEvent(QMouseEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void KeyPressEvent(QKeyEvent *event)
-    {
-        event->ignore();
-    };
-    virtual void wheelEvent(QWheelEvent *event)
-    {
-        event->ignore();
-    };
+    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
+    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
+    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
     virtual bool event(QEvent *event);
 
 private:
@@ -138,6 +114,7 @@ private:
     DatasetPage *datasets;
     CellViewPage *cellview;
     ExperimentPage *experiments;
+
     //components
     QStackedWidget *stackWidget;
     QButtonGroup *buttonGroup;

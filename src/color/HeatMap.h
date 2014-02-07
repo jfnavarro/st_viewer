@@ -5,17 +5,17 @@
 
 */
 
-#ifndef GLHEATMAP_H
-#define GLHEATMAP_H
+#ifndef HEATMAP_H
+#define HEATMAP_H
 
-#include "GLCommon.h"
+#include "math/Common.h"
 
 class QColor4ub;
 class QImage;
 
 // GLheatmap is a convenience class containing functions to generate
 // heatmap related data.
-class GLheatmap
+class Heatmap
 {
 
 public:
@@ -28,7 +28,7 @@ public:
 
     // convenience function to generate a heatmap spectrum image given specific mapping function
     static void createHeatMapImage(QImage &image, const SpectrumMode mode = SpectrumLinear,
-                                         int lowerbound = 0, int upperbound = 100);
+                                   int lowerbound = 0, int upperbound = 100);
 
     static QColor4ub createHeatMapColor(const qreal wavelength);
 
@@ -37,4 +37,4 @@ public:
     static qreal generateHeatMapWavelength(const qreal t, const SpectrumMode mode = SpectrumLinear);
 };
 
-#endif // GLHEATMAP_H //
+#endif // HEATMAP_H //

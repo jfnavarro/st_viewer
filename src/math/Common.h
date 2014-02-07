@@ -6,21 +6,50 @@
 */
 
 
-#ifndef GLCOMMON_H
-#define GLCOMMON_H
-
-#include <qopengl.h>
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <QPointF>
 #include <QColor4ub>
+#include <algorithm>
+#include <QtCore/qmath.h>
+#include <QSizeF>
 
 // Common provides miscellaneous functionality related to the opengl library.
+namespace STMath
+{
 
 // static constants & typedefs
-typedef GLuint GLflag;
-typedef GLuint GLindex;
-static const GLindex INVALID_INDEX = GLindex(-1); //NOTE GLuint is unsigned integer
-static const GLfloat EPSILON = GLfloat(1.0e-5);
+static const int INVALID_INDEX = -1; //NOTE this is not good
+static const float EPSILON = float(1.0e-5); //NOTE not used I think
+
+// clamp size to
+//NOTE: Qt::KeepAspectRatio might be prone to numerical errors (ie. any skewing introduced due to num error will be kept)
+inline const QSizeF clamp(const QSizeF& size, const QSizeF& min,
+                   const QSizeF& max, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio)
+{
+    QSizeF clampSize = size;
+    if ((clampSize.width() < min.width()) || (clampSize.height() < min.height())) {
+        if (mode == Qt::IgnoreAspectRatio) {
+            clampSize = clampSize.expandedTo(min);
+        } else {
+            clampSize = clampSize.scaled(min, Qt::KeepAspectRatioByExpanding);
+        }
+    }
+    if ((clampSize.width() > max.width()) || (clampSize.height() > max.height())) {
+        if (mode == Qt::IgnoreAspectRatio) {
+            clampSize = clampSize.boundedTo(max);
+        } else {
+            clampSize = clampSize.scaled(max, Qt::KeepAspectRatio);
+        }
+    }
+    return clampSize;
+}
+
+inline qreal qMod(qreal x, qreal y)
+{
+    return x - y * qFloor(x / y);
+}
 
 inline const QPointF min(const QPointF &a, const QPointF &b)
 {
@@ -73,4 +102,6 @@ inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4
                 );
 }
 
-#endif // GLCOMMON_H //
+} // end name space
+
+#endif // COMMON_H //

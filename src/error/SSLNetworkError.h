@@ -49,8 +49,9 @@ public:
         UnspecifiedError = 0x22a87f77,
         UnknownError = 0x47a93544
     };
+
     explicit SSLNetworkError(QObject* parent = 0);
-    SSLNetworkError(const QSslError& sslError, QObject* parent = 0);
+    explicit SSLNetworkError(const QSslError& sslError, QObject* parent = 0);
     virtual ~SSLNetworkError();
 
 private:

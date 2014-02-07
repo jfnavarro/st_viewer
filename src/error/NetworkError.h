@@ -48,11 +48,13 @@ public:
         ProtocolFailure = 0xecdc6718,
         UnknownError = 0xcaebc258
     };
+
     explicit NetworkError(QObject* parent = 0);
-    NetworkError(QNetworkReply::NetworkError error, QObject* parent = 0);
+    explicit NetworkError(QNetworkReply::NetworkError error, QObject* parent = 0);
     virtual ~NetworkError();
 
 private:
+
     static const char* LOC_CONTEXT;
     void init(QNetworkReply::NetworkError error);
 };

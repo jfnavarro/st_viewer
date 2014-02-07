@@ -7,9 +7,8 @@
 
 #include "color/DynamicRangeColor.h"
 
-#include "math/GLCommon.h"
-#include "math/GLHeatMap.h"
-#include "utils/MathExtended.h"
+#include "math/Common.h"
+#include "HeatMap.h"
 
 DynamicRangeColor::DynamicRangeColor() : ColorScheme()
 {
@@ -26,7 +25,7 @@ QColor DynamicRangeColor::getColor(const DataProxy::FeaturePtr feature, int m_mi
     const qreal v = qreal(feature->hits());
     const qreal min = qreal(m_min);
     const qreal max = qreal(m_max);
-    const qreal nv = qSqrt(norm<qreal, qreal>(v, min, max));
+    const qreal nv = qSqrt(STMath::norm<qreal, qreal>(v, min, max));
     QColor color = feature->color();
     color.setAlphaF(nv);
     return color;

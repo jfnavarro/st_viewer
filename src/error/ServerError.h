@@ -23,7 +23,8 @@ public:
         UnknownError = 0x179026e3
     };
     explicit ServerError(QObject* parent = 0);
-    ServerError(const QString& serverErrorName, const QString& serverErrorDescription, QObject* parent = 0);
+    explicit ServerError(const QString& serverErrorName,
+                         const QString& serverErrorDescription, QObject* parent = 0);
     virtual ~ServerError();
 
 private:

@@ -6,3 +6,13 @@
 */
 #include "color/ColorScheme.h"
 
+ColorScheme::ColorScheme()
+{
+
+}
+
+ColorScheme::~ColorScheme()
+{
+
+}
+

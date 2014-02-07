@@ -39,21 +39,13 @@ void ImageTextureGL::draw(QGLPainter *painter)
 {
     glEnable(GL_TEXTURE_2D);
     {
-        //painter->modelViewMatrix().push();
-        //painter->projectionMatrix().push();
-
         //foreach(QGLTexture2D *texture, m_textures) {
         //    texture->bind(); //do not think I need to do this, it is slow
         //}
 
-        //painter->modelViewMatrix().scale(0.01f);
-
         foreach(QGLSceneNode *node, allChildren() ) {
             node->draw(painter);
         }
-
-        //painter->modelViewMatrix().pop();
-        //painter->projectionMatrix().pop();
     }
     glDisable(GL_TEXTURE_2D);
 
@@ -79,10 +71,8 @@ void ImageTextureGL::createTexture(const QImage& image)
 }
 
 const QImage ImageTextureGL::createSubImage(const QImage &image, const QRect & rect) {
-    size_t offset = rect.x() * image.depth() / 8
-                    + rect.y() * image.bytesPerLine();
-    return QImage(image.bits() + offset, rect.width(), rect.height(),
-                  image.bytesPerLine(), image.format());
+    size_t offset = (rect.x() * image.depth() / 8) + (rect.y() * image.bytesPerLine());
+    return QImage(image.bits() + offset, rect.width(), rect.height(), image.bytesPerLine(), image.format());
 }
 
 void ImageTextureGL::createTiles(const QImage &image)

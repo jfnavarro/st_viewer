@@ -54,3 +54,81 @@ const QString Configuration::readSetting(const QString& key) const
     }
     return value.toString();
 }
+
+const QString Configuration::EndPointUrl() const
+{
+   return readSetting(QStringLiteral("application/url"));
+};
+
+//version
+const QString Configuration::dataEndpointMinVersion() const
+{
+   return readSetting(QStringLiteral("data/endpoints/version"));
+}
+
+// oauth
+const QString Configuration::oauthClientID() const
+{
+   return readSetting(QStringLiteral("oauth/clientid"));
+}
+
+const QString Configuration::oauthScope() const
+{
+   return readSetting(QStringLiteral("oauth/scope"));
+}
+
+const QString Configuration::oauthSecret() const
+{
+   return readSetting(QStringLiteral("oauth/secret"));
+}
+
+const QString Configuration::oauthEndpointAuthorize() const
+{
+   return readSetting(QStringLiteral("oauth/endpoints/authorize"));
+}
+
+const QString Configuration::oauthEndpointToken() const
+{
+   return readSetting(QStringLiteral("oauth/endpoints/token"));
+}
+
+// data access
+const QString Configuration::dataEndpointChips() const
+{
+   return readSetting(QStringLiteral("data/endpoints/chip"));
+}
+
+const QString Configuration::dataEndpointDatasets() const
+{
+   return readSetting(QStringLiteral("data/endpoints/dataset"));
+}
+
+const QString Configuration::dataEndpointFeatures() const
+{
+   return readSetting(QStringLiteral("data/endpoints/feature"));
+}
+
+const QString Configuration::dataEndpointGenes() const
+{
+   return readSetting(QStringLiteral("data/endpoints/gene"));
+}
+
+const QString Configuration::dataEndpointHitCounts() const
+{
+   return readSetting(QStringLiteral("data/endpoints/hitcount"));
+}
+
+const QString Configuration::dataEndpointReducedFeatures() const
+{
+   return readSetting(QStringLiteral("data/endpoints/reducedfeature"));
+}
+
+const QString Configuration::dataEndpointUsers() const
+{
+   return readSetting(QStringLiteral("data/endpoints/user"));
+}
+
+const QString Configuration::dataEndpointFigures() const
+{
+   return readSetting(QStringLiteral("data/endpoints/figure"));
+}

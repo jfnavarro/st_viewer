@@ -20,7 +20,7 @@ class GeneExporter : public QObject
 public:
     typedef QList<QString> PropertyList;
 
-    GeneExporter(QObject *parent = 0);
+    explicit GeneExporter(QObject *parent = 0);
     virtual ~GeneExporter();
 
     virtual void exportItem(QIODevice *device, const DataProxy::FeatureListPtr, const QObject &context) const = 0;

@@ -149,3 +149,26 @@ qint64 SimpleCryptDevice::writeBuffer(const char *in, qint64 maxSize)
     outDevice.close();
     return size;
 }
+
+bool SimpleCryptDevice::seek(qint64 pos)
+{
+    Q_UNUSED(pos);
+    //TODO implement
+    return false;
+}
+
+qint64 SimpleCryptDevice::size() const
+{
+    return m_device->size();
+}
+
+qint64 SimpleCryptDevice::pos() const
+{
+    return m_device->pos();
+}
+
+bool SimpleCryptDevice::isSequential() const
+{
+    //TODO finish this
+    return true;
+}

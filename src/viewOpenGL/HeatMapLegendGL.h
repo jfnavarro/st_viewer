@@ -8,16 +8,16 @@
 #ifndef HEATMAPLEGEND_H
 #define HEATMAPLEGEND_H
 
-#include "ViewItemGL.h"
+#include <QGLSceneNode>
+#include "data/DataProxy.h"
 
-#include "data/GLElementData.h"
-#include "render/GLElementRender.h"
-
-#include <QOpenGLTexture>
+class QGLPainter;
+class QImage;
+class QGLTexture2D;
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
 // in order to give a reference point in determining each features hit count.
-class HeatMapLegendGL : public ViewItemGL
+class HeatMapLegendGL : public QGLSceneNode
 {
     Q_OBJECT
 
@@ -26,49 +26,33 @@ public:
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
 
-    void setBounds(const QRectF& bounds);
+    //rendering functions
+    void generateHeatMapData();
+    void clearData();
 
-    virtual void render(QPainter* painter);
+protected:
 
-    virtual const QRectF boundingRect() const;
-    virtual bool contains(const QPointF& point) const;
+    void draw(QGLPainter *painter);
+    void drawGeometry (QGLPainter * painter);
 
 public slots:
     
-    void setHitCountLimits(int min, int max, int sum);
+    void setBoundaries(qreal min, qreal max);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
 
 private:
 
-    static const QRectF DEFAULT_BOUNDS;
-
-    //rendering functions
-    void rebuildHeatMapData();
-    void generateHeatMapData();
-    void rebuildHeatMapText();
-    void generateHeatMapText();
-    void rebuildHeatMapStaticData();
-    void generateStaticHeatMapData();
-
-    QRectF m_bounds;
-    QRectF m_rect;
-
-    //limit variables
-    int m_hitCountMin;
-    int m_hitCountMax;
-    int m_hitCountSum;
-    int m_lowerLimit;
-    int m_upperLimit;
-    qreal m_lower_threshold;
-    qreal m_upper_threshold;
+    // limits and boundaries
+    qreal m_lower_threshold = 0.0f;
+    qreal m_upper_threshold = 1.0f;
+    qreal m_max = 1.0f;
+    qreal m_min = 0.0f;
 
     // render data
-    GL::GLElementData m_data;
-    GL::GLElementRenderQueue m_queue;
-    QOpenGLTexture *m_texture;
+    QGLTexture2D m_texture;
+    QGLSceneNode *m_rectangle = nullptr;
     QPainterPath m_text;
-
 };
 
 #endif // HEATMAPLEGEND_H //

@@ -28,7 +28,7 @@ public:
     ContentType(const QString& contentType, QObject* parent = 0);
     virtual ~ContentType();
 
-    inline const QString& mime() const { return m_mime; }
+     const QString& mime() const { return m_mime; }
 
     void header(const QString& value);
 
@@ -53,30 +53,29 @@ public:
         CodeAbort = 0x02,
         CodeError = 0x04
     };
-
     Q_DECLARE_FLAGS(ReturnCodes, ReturnCode)
 
     typedef QList<Error*> ErrorList;
 
-    NetworkReply(QNetworkReply* networkReply = 0, QObject* parent = 0);
+    explicit NetworkReply(QNetworkReply* networkReply = 0, QObject* parent = 0);
     virtual ~NetworkReply();
 
     // user data
-    inline const QVariant customData() const {  return m_data; }
-    inline void setCustomData(QVariant data) { m_data = data; }
+     const QVariant customData() const {  return m_data; }
+     void setCustomData(QVariant data) { m_data = data; }
 
     // parse body
     QJsonDocument getJSON();
     QString getText();
     QByteArray getRaw();
 
-    inline const ContentType* contentType() const { return m_contentType; }
-    inline bool isType(const QString& mime) const { return m_contentType->mime() == mime;  }
+     const ContentType* contentType() const { return m_contentType; }
+     bool isType(const QString& mime) const { return m_contentType->mime() == mime;  }
 
-    inline bool isFinished() const  { return m_reply->isFinished(); }
-    inline bool hasErrors() const {  return !m_errors.isEmpty(); }
+     bool isFinished() const  { return m_reply->isFinished(); }
+     bool hasErrors() const {  return !m_errors.isEmpty(); }
 
-    inline const ErrorList& errors() const { return m_errors; }
+     const ErrorList& errors() const { return m_errors; }
 
 public slots:
 
@@ -92,7 +91,7 @@ signals:
 
 private:
 
-    inline void registerError(Error* error) { m_errors += error;  }
+     void registerError(Error* error) { m_errors += error;  }
 
     // QT network reply
     QScopedPointer<QNetworkReply> m_reply;

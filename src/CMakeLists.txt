@@ -34,7 +34,7 @@ initialise_project()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/STOpenGL)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/math)
 include_directories(${CMAKE_SOURCE_DIR}/ext/QtDebugHelper/src)
 
 # Find includes in corresponding build directories

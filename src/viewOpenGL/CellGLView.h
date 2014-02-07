@@ -13,6 +13,7 @@ class CellGLView : public QGLView
     Q_OBJECT
 
 public:
+
     explicit CellGLView(QWindow *parent = 0);
     explicit CellGLView(const QSurfaceFormat &format, QWindow *parent=0);
     virtual ~CellGLView();

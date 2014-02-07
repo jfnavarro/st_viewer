@@ -34,15 +34,15 @@ public:
 public:
 
     explicit GeneDTO(QObject* parent = 0);
-    GeneDTO(const Gene& gene, QObject* parent = 0);
+    explicit GeneDTO(const Gene& gene, QObject* parent = 0);
     virtual ~GeneDTO();
 
     // binding
-    inline const QString& id() const { return m_gene.id(); }
-    inline const QString& name() const { return m_gene.name(); }
+    const QString& id() const { return m_gene.id(); }
+    const QString& name() const { return m_gene.name(); }
 
-    inline void id(const QString& id) { m_gene.id(id); }
-    inline void name(const QString& name) { m_gene.name(name); }
+    void id(const QString& id) { m_gene.id(id); }
+    void name(const QString& name) { m_gene.name(name); }
 
     // get parsed data model
     const Gene& gene() const { return m_gene; }

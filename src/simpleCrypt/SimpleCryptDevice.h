@@ -31,21 +31,11 @@ public:
     virtual qint64 bytesAvailable() const;
     virtual qint64 bytesToWrite() const;
     virtual void close();
-
-    virtual inline bool isSequential() const { return true; }
-
+    virtual bool isSequential() const;
     virtual bool open(OpenMode mode);
-
-    virtual inline qint64 pos() const { return m_device->pos(); }
-
-    virtual inline bool seek(qint64 pos)
-    {
-        Q_UNUSED(pos);
-        //TODO implement
-        return false;
-    }
-    
-    virtual qint64 size() const { return m_device->size(); }
+    virtual qint64 pos() const;
+    virtual bool seek(qint64 pos);
+    virtual qint64 size() const;
 
 protected:
     

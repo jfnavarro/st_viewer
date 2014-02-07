@@ -78,7 +78,4 @@ private:
     mutable ErrorCode m_lastError;
 };
 
-/****************************************** DEFINITION ******************************************/
-
-
 #endif // SimpleCrypt_H

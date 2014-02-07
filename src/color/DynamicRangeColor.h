@@ -17,7 +17,7 @@ public:
     DynamicRangeColor();
     virtual ~DynamicRangeColor();
 
-    virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
+    QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const;
 };
 
 #endif // DYNAMICRANGECOLOR_H

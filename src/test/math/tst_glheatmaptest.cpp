@@ -7,8 +7,8 @@
 
 #include <QtTest/QTest>
 
-#include "math/GLCommon.h"
-#include "math/GLHeatMap.h"
+#include "math/Common.h"
+#include "color/HeatMap.h"
 
 #include "tst_glheatmaptest.h"
 
@@ -31,7 +31,7 @@ void GLHeatMapTest::testHeatMap()
     QFETCH(qreal, wavelength);
     QFETCH(QColor4ub, color);
     QFETCH(bool, expected);
-    const QColor4ub approximation = GLheatmap::createHeatMapColor(wavelength);
+    const QColor4ub approximation = Heatmap::createHeatMapColor(wavelength);
     QCOMPARE((approximation == color), expected);
 }
 void GLHeatMapTest::testHeatMap_data()

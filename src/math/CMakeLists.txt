@@ -1,12 +1,11 @@
 set(LIBRARY_ARG_INCLUDES
-    GLAABB.h
-    GLQuadTree.h
-    GLCommon.h
-    GLHeatMap.h
+    QuadTreeAABB.h
+    QuadTree.h
+    Common.h
 )
 
 set(LIBRARY_ARG_SOURCES
-    GLHeatMap.cpp
+    QuadTreeAABB.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

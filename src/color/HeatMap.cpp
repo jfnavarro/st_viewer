@@ -5,36 +5,37 @@
 
 */
 
-#include "GLHeatMap.h"
-#include "utils/MathExtended.h"
+#include "HeatMap.h"
 
 #include <QImage>
 #include <QColor>
 #include <QColor4ub>
+#include "utils/Utils.h"
 
-void GLheatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
+void Heatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
         int lowerbound, int upperbound)
 {
-    int h = image.height();
-    int w = image.width();
-    for (int i = 0; i < h; ++i) {
+    const int h = image.height();
+    const int w = image.width();
+    for (int y = 0; y < h; ++y) {
         //I want to get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound
-        const qreal nh = norm<int,qreal>(h - i - 1, lowerbound, upperbound);
-        const qreal nw = GLheatmap::generateHeatMapWavelength(nh, mode);
-        const QColor4ub color = GLheatmap::createHeatMapColor(nw);
-        for(int j = 0; j < w; ++j) {
-            image.setPixel(i, j, color.toColor().rgb());
+        const qreal nh = STMath::norm<int,qreal>(h - y - 1, lowerbound, upperbound);
+        const qreal nw = Heatmap::generateHeatMapWavelength(nh, mode);
+        const QColor4ub color = Heatmap::createHeatMapColor(nw);
+        const QRgb rgb_color = color.toColor().rgb();
+        for(int x = 0; x < w; ++x) {
+            image.setPixel(x, y, rgb_color);
         }
     }
 }
 
-QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
+QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
 {
     static const qreal gamma = 0.8f;
 
     // clamp input value
-    const qreal cwavelength = clamp(wavelength, 380.0, 780.0);
+    const qreal cwavelength = STMath::clamp(wavelength, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
     qreal red;
@@ -84,30 +85,30 @@ QColor4ub GLheatmap::createHeatMapColor(const qreal wavelength)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = STMath::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = STMath::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
-    return QColor4ub(red, green, blue);
+    return QColor4ub::fromRgbF(red, green, blue, 1.0f);
 }
 
-qreal GLheatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
+qreal Heatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
 {
     // assert normalized value
-    qreal nt = clamp(t, 0.0, 1.0);
+    qreal nt = STMath::clamp(t, 0.0, 1.0);
 
     switch (mode) {
-    case GLheatmap::SpectrumLog:
+    case Heatmap::SpectrumLog:
         nt = qLn(nt + 1.0) * 1.442695f; //NOTE [0,1] -> [0,1]
         break;
-    case GLheatmap::SpectrumExp:
+    case Heatmap::SpectrumExp:
         nt = qSqrt(nt);
         break;
-    case GLheatmap::SpectrumLinear:
+    case Heatmap::SpectrumLinear:
     default:
         // do nothing
         break;
     }
-    return denorm(nt, 380.0, 780.0);
+    return STMath::denorm(nt, 380.0, 780.0);
 }

@@ -39,23 +39,23 @@ public:
 public:
 
     explicit FeatureDTO(QObject* parent = 0);
-    FeatureDTO(const Feature& feature, QObject* parent = 0);
+    explicit FeatureDTO(const Feature& feature, QObject* parent = 0);
     virtual ~FeatureDTO();
 
     // binding
-    inline const QString& id() const { return m_feature.id(); }
-    inline const QString& barcode() const { return m_feature.barcode(); }
-    inline const QString& gene() const { return m_feature.gene(); }
-    inline int hits() const { return m_feature.hits(); }
-    inline int x() const { return m_feature.x(); }
-    inline int y() const { return m_feature.y(); }
+    const QString& id() const { return m_feature.id(); }
+    const QString& barcode() const { return m_feature.barcode(); }
+    const QString& gene() const { return m_feature.gene(); }
+    int hits() const { return m_feature.hits(); }
+    int x() const { return m_feature.x(); }
+    int y() const { return m_feature.y(); }
     
-    inline void id(const QString& id) {  m_feature.id(id); }
-    inline void barcode(const QString& barcode) { m_feature.barcode(barcode); }
-    inline void gene(const QString& gene) { m_feature.gene(gene);}
-    inline void hits(int hits) { m_feature.hits(hits); }
-    inline void x(int x) { m_feature.x(x); }
-    inline void y(int y) { m_feature.y(y); }
+    void id(const QString& id) {  m_feature.id(id); }
+    void barcode(const QString& barcode) { m_feature.barcode(barcode); }
+    void gene(const QString& gene) { m_feature.gene(gene);}
+    void hits(int hits) { m_feature.hits(hits); }
+    void x(int x) { m_feature.x(x); }
+    void y(int y) { m_feature.y(y); }
 
     // get parsed data model
     const Feature& feature() const { return m_feature; }

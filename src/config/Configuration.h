@@ -37,72 +37,27 @@ public:
     //     each setting as a function.
 
     //url
-    inline const QString EndPointUrl() const
-    {
-        return readSetting(QStringLiteral("application/url"));
-    };
+    const QString EndPointUrl() const;
 
     //version
-    inline const QString dataEndpointMinVersion() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/version"));
-    }
+    const QString dataEndpointMinVersion() const;
 
     // oauth
-    inline const QString oauthClientID() const
-    {
-        return readSetting(QStringLiteral("oauth/clientid"));
-    }
-    inline const QString oauthScope() const
-    {
-        return readSetting(QStringLiteral("oauth/scope"));
-    }
-    inline const QString oauthSecret() const
-    {
-        return readSetting(QStringLiteral("oauth/secret"));
-    }
-    inline const QString oauthEndpointAuthorize() const
-    {
-        return readSetting(QStringLiteral("oauth/endpoints/authorize"));
-    }
-    inline const QString oauthEndpointToken() const
-    {
-        return readSetting(QStringLiteral("oauth/endpoints/token"));
-    }
+    const QString oauthClientID() const;
+    const QString oauthScope() const;
+    const QString oauthSecret() const;
+    const QString oauthEndpointAuthorize() const;
+    const QString oauthEndpointToken() const;
 
     // data access
-    inline const QString dataEndpointChips() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/chip"));
-    }
-    inline const QString dataEndpointDatasets() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/dataset"));
-    }
-    inline const QString dataEndpointFeatures() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/feature"));
-    }
-    inline const QString dataEndpointGenes() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/gene"));
-    }
-    inline const QString dataEndpointHitCounts() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/hitcount"));
-    }
-    inline const QString dataEndpointReducedFeatures() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/reducedfeature"));
-    }
-    inline const QString dataEndpointUsers() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/user"));
-    }
-    inline const QString dataEndpointFigures() const
-    {
-        return readSetting(QStringLiteral("data/endpoints/figure"));
-    }
+    const QString dataEndpointChips() const;
+    const QString dataEndpointDatasets() const;
+    const QString dataEndpointFeatures() const;
+    const QString dataEndpointGenes() const;
+    const QString dataEndpointHitCounts() const;
+    const QString dataEndpointReducedFeatures() const;
+    const QString dataEndpointUsers() const;
+    const QString dataEndpointFigures() const;
 
 private:
 

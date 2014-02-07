@@ -19,10 +19,8 @@ public:
     virtual ~ImageTextureGL();
 
     void createTexture(const QImage& image);
-
     void createTiles(const QImage &image);
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
-
     void clearTextures();
 
     static const QImage createSubImage(const QImage &image, const QRect & rect);

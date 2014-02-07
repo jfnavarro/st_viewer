@@ -23,7 +23,7 @@ public:
     };
 
     explicit ApplicationError(QObject* parent = 0);
-    ApplicationError(ApplicationError::Type errorType, QObject* parent = 0);
+    explicit ApplicationError(ApplicationError::Type errorType, QObject* parent = 0);
     virtual ~ApplicationError();
 
 private:

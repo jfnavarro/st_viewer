@@ -17,7 +17,7 @@ class HitCount
 public:
 
     HitCount();
-    HitCount(const HitCount& other);
+    explicit HitCount(const HitCount& other);
     virtual ~HitCount();
 
     HitCount& operator= (const HitCount& other);

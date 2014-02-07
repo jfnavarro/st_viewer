@@ -40,8 +40,8 @@ public:
     explicit DataRequest(QObject* parent = 0);
     virtual ~DataRequest();
 
-    inline ReturnCodes return_code() const { return m_return_code; }
-    inline void return_code(ReturnCodes flag) { m_return_code = flag; }
+    ReturnCodes return_code() const { return m_return_code; }
+    void return_code(ReturnCodes flag) { m_return_code = flag; }
 
 public slots:
 

@@ -18,8 +18,8 @@ class FeatureExtended : public Feature
 public:
     
     FeatureExtended();
-    FeatureExtended(const Feature& other);
-    FeatureExtended(const FeatureExtended &other);
+    explicit FeatureExtended(const Feature& other);
+    explicit FeatureExtended(const FeatureExtended &other);
     virtual ~FeatureExtended();
 
     FeatureExtended& operator=(const Feature& other);
@@ -27,8 +27,8 @@ public:
 
     bool operator==(const FeatureExtended& other) const;
 
-    inline const QColor& color() const { return m_color; }
-    inline void color(const QColor& color) { m_color = color; }
+    const QColor& color() const { return m_color; }
+    void color(const QColor& color) { m_color = color; }
 
 private:
     

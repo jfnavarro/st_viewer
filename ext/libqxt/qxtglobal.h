@@ -153,17 +153,17 @@ class QxtPrivate
 public:
     virtual ~QxtPrivate()
     {}
-    inline void QXT_setPublic(PUB* pub)
+     void QXT_setPublic(PUB* pub)
     {
         qxt_p_ptr = pub;
     }
 
 protected:
-    inline PUB& qxt_p()
+     PUB& qxt_p()
     {
         return *qxt_p_ptr;
     }
-    inline const PUB& qxt_p() const
+     const PUB& qxt_p() const
     {
         return *qxt_p_ptr;
     }
@@ -186,15 +186,15 @@ public:
         delete pvt;
     }
 
-    inline void setPublic(PUB* pub)
+     void setPublic(PUB* pub)
     {
         pvt->QXT_setPublic(pub);
     }
-    inline PVT& operator()()
+     PVT& operator()()
     {
         return *static_cast<PVT*>(pvt);
     }
-    inline const PVT& operator()() const
+     const PVT& operator()() const
     {
         return *static_cast<PVT*>(pvt);
     }

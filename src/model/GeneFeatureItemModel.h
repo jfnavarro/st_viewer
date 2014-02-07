@@ -29,6 +29,7 @@ public:
 
     explicit GeneFeatureItemModel(QObject* parent = 0);
     virtual ~GeneFeatureItemModel();
+
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
@@ -36,17 +37,21 @@ public:
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
     void loadGenes();
 
 signals:
+
     void signalSelectionChanged(DataProxy::GenePtr gene);
     void signalColorChanged(DataProxy::GenePtr gene);
 
 public slots:
+
     void selectAllGenesPressed(bool selected);
     void setColorGenes(const QColor& color);
 
 private:
+
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
 

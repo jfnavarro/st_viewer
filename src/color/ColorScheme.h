@@ -15,8 +15,8 @@ class ColorScheme
 
 public:
 
-    ColorScheme() {};
-    virtual ~ColorScheme() {};
+    ColorScheme();
+    virtual ~ColorScheme();
 
     virtual QColor getColor(const DataProxy::FeaturePtr feature, int m_min, int m_max) const = 0;
 };

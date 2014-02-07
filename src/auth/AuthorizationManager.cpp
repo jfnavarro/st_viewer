@@ -79,3 +79,19 @@ void AuthorizationManager::slotLoginDone(const QUuid& accessToken, int expiresIn
     m_tokenStorage->setRefreshToken(refreshToken);
     emit signalAuthorize();
 }
+
+bool AuthorizationManager::isAuthenticated() const
+{
+   return m_tokenStorage->hasAccessToken()
+          && !m_tokenStorage->isExpired();
+}
+
+bool AuthorizationManager::hasAccessToken() const
+{
+    return m_tokenStorage->hasAccessToken();
+}
+
+QUuid AuthorizationManager::getAccessToken() const
+{
+    return m_tokenStorage->getAccessToken();
+}

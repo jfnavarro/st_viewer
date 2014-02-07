@@ -72,3 +72,13 @@ void TokenStorage::cleanAll()
     m_storage->remove(Globals::SettingsTokenExpiresAt);
     m_storage->remove(Globals::SettingsRefreshToken);
 }
+
+bool TokenStorage::hasAccessToken() const
+{
+    return m_storage->contains(Globals::SettingsAcessToken);
+}
+
+bool TokenStorage::hasRefreshToken() const
+{
+    return m_storage->contains(Globals::SettingsRefreshToken);
+}

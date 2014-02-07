@@ -66,4 +66,28 @@ const QString NetworkCommand::getEncodedUrl() const
     return url.toString(QUrl::FullyEncoded);
 }
 
+void NetworkCommand::addQueryItem(const QString& param, const QString& value)
+{
+    m_query.addQueryItem(param, value);
+}
 
+void NetworkCommand::addQueryItem(const QString& param, int value)
+{
+    m_query.addQueryItem(param, QString::number(value));
+}
+
+void NetworkCommand::addQueryItem(const QString& param, double value)
+{
+    m_query.addQueryItem(param, QString::number(value));
+}
+
+const QString NetworkCommand::getQueryItem(const QString& param) const
+{
+    return m_query.queryItemValue(param);
+}
+
+// returns the query part fully encoded.
+const QString NetworkCommand::getEncodedQuery() const
+{
+    return m_query.query(QUrl::FullyEncoded);
+}

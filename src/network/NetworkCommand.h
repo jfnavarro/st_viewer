@@ -25,44 +25,25 @@ public:
 
     explicit NetworkCommand(QObject* parent = 0);
 
-    NetworkCommand(const QUrl& url, Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
-                   QObject* parent = 0);
+    explicit NetworkCommand(const QUrl& url, Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
+                            QObject* parent = 0);
 
     virtual ~NetworkCommand();
 
     // member access
-    inline const QUrl& url() const { return m_url; }
-    inline Globals::HttpRequestType type() const { return m_type; }
-    inline const QUrlQuery& query() const { return m_query; }
+    const QUrl& url() const { return m_url; }
+    Globals::HttpRequestType type() const { return m_type; }
+    const QUrlQuery& query() const { return m_query; }
 
     // convenience wrapper functions
-    inline void addQueryItem(const QString& param, const QString& value = QString())
-    {
-        m_query.addQueryItem(param, value);
-    }
-
-    inline void addQueryItem(const QString& param, int value)
-    {
-        m_query.addQueryItem(param, QString::number(value));
-    }
-
-    inline void addQueryItem(const QString& param, double value)
-    {
-        m_query.addQueryItem(param, QString::number(value));
-    }
-
+    void addQueryItem(const QString& param, const QString& value = QString());
+    void addQueryItem(const QString& param, int value);
+    void addQueryItem(const QString& param, double value);
     void addQueryItems(QObject* object); // adds query items from qobject meta data
 
-    inline const QString getQueryItem(const QString& param) const
-    {
-        return m_query.queryItemValue(param);
-    }
-
+    const QString getQueryItem(const QString& param) const;
     // returns the query part fully encoded.
-    inline const QString getEncodedQuery() const
-    {
-        return m_query.query(QUrl::FullyEncoded);
-    }
+    const QString getEncodedQuery() const;
     // returns the URL part fully encoded. Note this includes the URL query.
     const QString getEncodedUrl() const;
 

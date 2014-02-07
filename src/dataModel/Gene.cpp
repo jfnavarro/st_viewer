@@ -50,3 +50,8 @@ bool Gene::operator==(const Gene& other) const
             m_color == other.m_color
         );
 }
+
+bool Gene::isAmbiguous() const
+{
+    return m_name.startsWith("ambiguous", Qt::CaseSensitive);
+}

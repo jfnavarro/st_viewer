@@ -22,29 +22,21 @@ class Error : public QObject
     Q_OBJECT
 
 public:
+
     explicit Error(QObject* parent = 0);
-    Error(const QString& name, const QString& description = QString(), QObject* parent = 0);
+    explicit Error(const QString& name, const QString& description = QString(), QObject* parent = 0);
     virtual ~Error();
-    inline const QString& name() const
-    {
-        return m_name;
-    }
-    inline const QString& description() const
-    {
-        return m_description;
-    }
+
+    const QString& name() const;
+    const QString& description() const;
 
 protected:
-    inline void name(const QString& name)
-    {
-        m_name = name;
-    }
-    inline void description(const QString& description)
-    {
-        m_description = description;
-    }
+
+    void name(const QString& name);
+    void description(const QString& description);
 
 private:
+
     QString m_name;
     QString m_description;
 };

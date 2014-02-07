@@ -38,10 +38,12 @@ public:
     Q_DECLARE_FLAGS(SeparationModes, SeparationMode)
 
     explicit GeneTXTExporter(QObject *parent = 0);
-    GeneTXTExporter(DetailLevels detailLevel, SeparationModes separationMode, QObject *parent = 0);
+    explicit GeneTXTExporter(DetailLevels detailLevel,
+                             SeparationModes separationMode, QObject *parent = 0);
     virtual ~GeneTXTExporter();
 
-    virtual void exportItem(QIODevice *device, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
+    virtual void exportItem(QIODevice *device,
+                            const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
 
 private:
 

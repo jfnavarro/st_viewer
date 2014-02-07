@@ -138,8 +138,8 @@ public:
     UserPtr getUser();
     QIODevice *getFigure(const QString& figureId);
 
-    inline const QString& getSelectedDataset() const {  return m_selected_datasetId; }
-    inline void setSelectedDataset(const QString &datasetId) const { m_selected_datasetId = datasetId; }
+    const QString& getSelectedDataset() const {  return m_selected_datasetId; }
+    void setSelectedDataset(const QString &datasetId) const { m_selected_datasetId = datasetId; }
 
 private slots:
 

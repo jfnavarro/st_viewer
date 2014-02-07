@@ -23,38 +23,43 @@ public:
         ExcludeSelection
     };
 
-    inline SelectionEvent() : QEvent(TYPE), m_path(), m_mode(NewSelection)
+    SelectionEvent() :
+        QEvent(TYPE),
+        m_path(),
+        m_mode(NewSelection)
     {
     }
 
-    inline explicit SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
-        : QEvent(TYPE), m_path(path), m_mode(mode)
+    explicit SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
+        : QEvent(TYPE),
+          m_path(path),
+          m_mode(mode)
     {
     }
 
-    inline QPainterPath path() const { return m_path; }
-    inline SelectionMode mode() const { return m_mode; }
+    QPainterPath path() const { return m_path; }
+    SelectionMode mode() const { return m_mode; }
 
-    static inline SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
+    static  SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
     {
 #if defined Q_OS_MAC
         return
-            (modifiers.testFlag(Qt::ShiftModifier) ?
-             (modifiers.testFlag(Qt::MetaModifier) ?
-              SelectionEvent::ExcludeSelection :
-              SelectionEvent::IncludeSelection
-             ) :
-             SelectionEvent::NewSelection
-            );
+                (modifiers.testFlag(Qt::ShiftModifier) ?
+                     (modifiers.testFlag(Qt::MetaModifier) ?
+                          SelectionEvent::ExcludeSelection :
+                          SelectionEvent::IncludeSelection
+                          ) :
+                     SelectionEvent::NewSelection
+                     );
 #else
         return
-            (modifiers.testFlag(Qt::ShiftModifier) ?
-             (modifiers.testFlag(Qt::ControlModifier) ?
-              SelectionEvent::ExcludeSelection :
-              SelectionEvent::IncludeSelection
-             ) :
-             SelectionEvent::NewSelection
-            );
+                (modifiers.testFlag(Qt::ShiftModifier) ?
+                     (modifiers.testFlag(Qt::ControlModifier) ?
+                          SelectionEvent::ExcludeSelection :
+                          SelectionEvent::IncludeSelection
+                          ) :
+                     SelectionEvent::NewSelection
+                     );
 #endif // Q_OS_MAC //
     }
 
