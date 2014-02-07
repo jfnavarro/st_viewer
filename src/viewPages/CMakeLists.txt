@@ -43,5 +43,5 @@ set(LIBRARY_ARG_UI_FILES
     "${PROJECT_SOURCE_DIR}/assets/ui/cellview.ui"
 )
 
-st_library()
+ST_LIBRARY()
 

@@ -16,5 +16,5 @@ set(LIBRARY_ARG_SOURCES
     HeatMap.cpp
 )
 set(LIBRARY_ARG_UI_FILES)
-st_library()
+ST_LIBRARY()
 

@@ -7,4 +7,4 @@ set(LIBRARY_ARG_SOURCES
     SettingsFormatXML.cpp 
 )
 set(LIBRARY_ARG_UI_FILES)
-st_library()
+ST_LIBRARY()
