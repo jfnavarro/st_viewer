@@ -39,8 +39,8 @@ public:
 
     explicit QuadTree(const QSizeF &size);
     explicit QuadTree(const QuadTreeAABB &boundingBox);
-    explicit QuadTree(const QRectF &rect);
-    explicit QuadTree(const QPointF &point);
+    //explicit QuadTree(const QRectF &rect);
+    //explicit QuadTree(const QPointF &point);
 
     bool contains(const QPointF &p) const;
 
@@ -106,9 +106,9 @@ private:
 template <typename T, int N>
 void QuadTree<T, N>::boundingBoxList(BoundingBoxList &buckets) const
 {
-    typename BucketList::const_iterator it;
+    typename BucketList::const_iterator it = m_data.begin();
     typename BucketList::const_iterator end = m_data.end();
-    for (it = m_data.begin(); it != end; ++it) {
+    for ( ; it != end; ++it) {
         if (it->isLeaf()) {
             buckets.push_back(it->QuadTreeAABB);
         }
@@ -132,11 +132,13 @@ void QuadTree<T, N>::Bucket::select(const QuadTreeAABB &b, PointItemList &items,
         std::fill(point_array.begin(), point_array.end(), value);
         return;
     }
+
     // if none-leaf node (ie. no data)
     if (isNode()) {
         std::copy(quads.begin(), quads.end(), point_array.begin());
         return;
     }
+
     // else add data selected
     // add all items if bucket contained (speed up)
     if (b.contains(aabb)) {
@@ -170,16 +172,18 @@ void QuadTree<T, N>::Bucket::select(const QPointF &p, PointItem &item,
         std::fill(point_array.begin(), point_array.end(), value);
         return;
     }
+
     // if none-leaf node (ie. no data)
     if (isNode()) {
         std::copy(quads.begin(), quads.end(), point_array.begin());
         return;
     }
+
     // else add data selected
     // test and add individual item
     const typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if ( p == data[i].first ) {
+        if ( STMath::qFuzzyEqual(p, data[i].first) ) {
             item = data[i];
         }
     }
@@ -197,7 +201,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     // if non-leaf bucket
     if (quads[0] >= 0) {
         const QPointF middle_point = aabb.middle();
-        const QVector2D middle_vector( middle_point.x() - p.x() , middle_point.y() - p.y());
+        const QVector2D middle_vector( p.x() - middle_point.x() ,  p.y() - middle_point.y() );
         const unsigned idx = ((middle_vector.x() < 0.0f) ? 1u : 0u) + ((middle_vector.y() < 0.0f) ? 2u : 0u);
         const unsigned q = table[idx];
         return quads[q];
@@ -206,7 +210,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     //DEBUG force p to be unique to avoid inf recursion!
     typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if ( data[i].first == p ) {
+        if ( STMath::qFuzzyEqual(data[i].first, p) ) {
             return INSERT_ERROR_NONUNIQUE;
         }
     }
@@ -267,6 +271,7 @@ QuadTree<T, N>::QuadTree(const QuadTreeAABB &boundingBox)
     m_data.push_back(Bucket(boundingBox));
 }
 
+/*
 template <typename T, int N>
 QuadTree<T, N>::QuadTree(const QRectF &rect)
     : m_data()
@@ -281,7 +286,7 @@ QuadTree<T, N>::QuadTree(const QPointF &point)
 {
     const QuadTreeAABB boundingBox = QuadTreeAABB(0.0f, 0.0f, point.x(), point.y());
     m_data.push_back(Bucket(boundingBox));
-}
+}*/
 
 template <typename T, int N>
 bool QuadTree<T, N>::insert(const QPointF &p, const T &t)
@@ -340,9 +345,11 @@ void QuadTree<T, N>::select(const QPointF &p, PointItem &item) const
 {
     typedef std::vector<int> IndexList;
     IndexList indicies;
+
     if (!m_data.empty()) {
         indicies.push_back(0);
     }
+
     while (!indicies.empty()) {
         const int idx = indicies.back();
         indicies.pop_back();

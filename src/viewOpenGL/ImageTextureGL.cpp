@@ -147,3 +147,8 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     node->setEffect(QGL::LitDecalTexture2D);
     addNode(node);
 }
+
+void ImageTextureGL::setVisible(bool visible)
+{
+    setOption(QGLSceneNode::HideNode, visible);
+}

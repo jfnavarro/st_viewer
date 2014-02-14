@@ -1,10 +1,14 @@
 #include "GridRendererGL.h"
 
-#include "utils/Utils.h"
 #include "math/Common.h"
+#include "utils/Utils.h"
 
 #include <QGLPainter>
 #include <QVector2DArray>
+
+static const qreal GRID_LINE_SIZE = 1.0f;
+static const qreal GRID_LINE_SPACE = 5.0f;
+static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 
 GridRendererGL::GridRendererGL(QObject *parent)
     :QGLSceneNode(parent)
@@ -22,7 +26,7 @@ void GridRendererGL::draw(QGLPainter *painter)
     glEnable(GL_LINE_SMOOTH);
     {
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        glLineWidth(Globals::grid_line_size);
+        glLineWidth(GRID_LINE_SIZE);
 
         painter->modelViewMatrix().push();
         painter->modelViewMatrix().setToIdentity();
@@ -57,8 +61,8 @@ void GridRendererGL::clearData()
     // chip grid stuff
     m_border = QRectF();
     m_rect = QRectF();
-    m_gridColor = Globals::color_grid;
-    m_gridBorderColor = Globals::color_grid_border;
+    m_gridColor = Globals::DEFAULT_COLOR_GRID;
+    m_gridBorderColor = Globals::DEFAULT_COLOR_GRID_BORDER;
 }
 
 void GridRendererGL::generateData()
@@ -91,21 +95,21 @@ void GridRendererGL::generateData()
     }
 
     // generate grid
-    for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += Globals::grid_line_size) {
+    for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += GRID_LINE_SIZE) {
         m_grid_vertex.append(m_rect.left(),  y);
         m_grid_vertex.append(m_rect.left(),  y);
     }
-    for (qreal x = m_rect.left(); x <= m_rect.right(); x += Globals::grid_line_size) {
+    for (qreal x = m_rect.left(); x <= m_rect.right(); x += GRID_LINE_SIZE) {
         m_grid_vertex.append(x, m_rect.top());
         m_grid_vertex.append(x, m_rect.bottom());
     }
 
     // check boundaries
-    if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), Globals::grid_line_size), 0.0)) {
+    if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), GRID_LINE_SIZE), 0.0)) {
         m_grid_vertex.append(m_rect.left(), m_rect.bottom());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
-    if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), Globals::grid_line_size), 0.0)) {
+    if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), GRID_LINE_SIZE), 0.0)) {
         m_grid_vertex.append(m_rect.right(), m_rect.top());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
@@ -145,4 +149,9 @@ void GridRendererGL::setAlignmentMatrix(const QTransform &transform)
 const QTransform& GridRendererGL::alignmentMatrix() const
 {
     return m_transform;
+}
+
+void GridRendererGL::setVisible(bool visible)
+{
+    setOption(QGLSceneNode::HideNode, visible);
 }

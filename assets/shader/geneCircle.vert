@@ -1,40 +1,51 @@
 #version 120
-// texture coordinate [0.0, 1.0]
-attribute vec4 in_texture;
-attribute int in_options;
-attribute int in_features;
-attribute int in_values;
-attribute int in_references;
+
+// vertexs
+attribute highp vec4 qt_MultiTexCoord0;
+attribute highp vec4 qt_Color;
+attribute highp vec4 qt_Vertex;
+uniform mediump mat4 qt_ModelViewMatrix;
+uniform mediump mat4 qt_ModelViewProjectionMatrix;
+
+// custom attributes
+//attribute int in_options;
+//attribute int in_values;
+//attribute int in_references;
 
 // passed along to fragment shader
-varying vec4 out_color;
-varying vec4 out_texture;
-varying vec2 out_options;
+varying highp vec4 textCoord;
+varying highp vec4 outColor;
+//varying highp vec2 out_options;
 
 // uniform variables
-uniform int in_colorMode;
-uniform int in_geneMode;
-uniform int in_hitCountMin;
-uniform int in_hitCountMax;
-uniform int in_hitCountSum;
-uniform float in_intensity;
-uniform int in_upper;
-uniform int in_lower;
+//uniform int in_colorMode;
+//uniform int in_geneMode;
+//uniform int in_hitCountMin;
+//uniform int in_hitCountMax;
+//uniform float in_intensity;
+//uniform int in_upper;
+//uniform int in_lower;
 
-float myclamp(float x, float lo, float hi)
-{
-    return max(lo, min(hi,x));
-}
+// material
+struct qt_MaterialParameters {
+    mediump vec4 emission;
+    mediump vec4 ambient;
+    mediump vec4 diffuse;
+    mediump vec4 specular;
+    mediump float shininess;
+};
+uniform qt_MaterialParameters qt_Material;
+
 
 float norm(float v, float t0, float t1)
 {
-    float vh = myclamp(v, t0, t1);
+    float vh = clamp(v, t0, t1);
     return (vh - t0) / (t1 - t0);
 }
 
 float denorm(float nv, float t0, float t1)
 {
-    float vh = myclamp(nv, 0.0, 1.0);
+    float vh = clamp(nv, 0.0, 1.0);
     return (vh * (t1 - t0)) + t0;
 }
 
@@ -42,7 +53,7 @@ vec4 createHeatMapColor(float wavelength)
 {
     float gamma = 0.8;
     // clamp input value
-    float cwavelength = myclamp(wavelength, 380.0, 780.0);
+    float cwavelength = clamp(wavelength, 380.0, 780.0);
     
     // define colors according to wave lenght spectra
     float red;
@@ -89,9 +100,9 @@ vec4 createHeatMapColor(float wavelength)
         factor = 0.3;
     }
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = myclamp(pow(red * factor, gamma), 0.0, 1.0);
-    green = myclamp(pow(green * factor, gamma), 0.0, 1.0);
-    blue = myclamp(pow(blue * factor, gamma), 0.0, 1.0);
+    red = clamp(pow(red * factor, gamma), 0.0, 1.0);
+    green = clamp(pow(green * factor, gamma), 0.0, 1.0);
+    blue = clamp(pow(blue * factor, gamma), 0.0, 1.0);
     // return color
     return vec4(red, green, blue, 1.0);
 }
@@ -104,22 +115,21 @@ float computeDynamicRangeAlpha(float value, float min_Value, float max_value)
 void main(void)
 {
 
-    out_texture = in_texture;
-	out_options = in_options;
+    outColor = qt_Color;
+    textCoord = qt_MultiTexCoord0;
+	//out_options = in_options;
+    //out_options = false;
     
+    /*
     // input parameters to compute color
     float min_value = float(in_hitCountMin);
     float max_value = float(in_hitCountMax);
-    float sum_value = float(in_hitCountSum);
     int geneMode = int(in_geneMode);
     int colorMode = int(in_colorMode);
     float value = float(in_values);
     float references = float(in_references);
-    float features = float(in_features);
     float upper_limit = float(in_upper);
     float lower_limit = float(in_lower);
-    
-    out_color = gl_Color;
     
     //adjust color for globalMode
     if (geneMode == 1) {
@@ -154,6 +164,6 @@ void main(void)
             out_color.a = in_intensity;
         }
     }
-    
-    gl_Position = ftransform();
+    */
+    gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
 }

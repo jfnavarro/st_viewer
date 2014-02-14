@@ -20,7 +20,7 @@
 #include "dataModel/Dataset.h"
 #include "dataModel/FeatureExtended.h"
 #include "dataModel/Gene.h"
-#include "dataModel/HitCount.h"
+#include "dataModel/DatasetStatistics.h"
 #include "dataModel/User.h"
 #include "dataModel/UserExperiment.h"
 
@@ -61,7 +61,7 @@ public:
     typedef QSharedPointer<Dataset> DatasetPtr;
     typedef QSharedPointer<FeatureExtended> FeaturePtr;
     typedef QSharedPointer<Gene> GenePtr;
-    typedef QSharedPointer<HitCount> HitCountPtr;
+    typedef QSharedPointer<DatasetStatistics> DatasetStatisticsPtr;
     typedef QSharedPointer<UserExperiment> UserExperimentPtr;
     typedef QSharedPointer<User> UserPtr;
 
@@ -87,7 +87,7 @@ public:
     typedef QSharedPointer<DatasetList> DatasetListPtr;
     typedef QMap<QString, DatasetPtr> DatasetMap; //datasets hashed by dataset id
 
-    typedef QMap<QString, HitCountPtr> HitCountMap; //hitcount hashed by dataset id
+    typedef QMap<QString, DatasetStatisticsPtr> DatasetStatisticsMap; //hitcount hashed by dataset id
 
     typedef QMap<QString, UserExperimentPtr> UserExperimentMap; //NOTE not functional yet
 
@@ -118,13 +118,14 @@ public:
     // gene
     async::DataRequest* loadGenesByDatasetId(const QString& datasetId);
     // hit count
-    async::DataRequest* loadHitCountByDatasetId(const QString& datasetId);
+    async::DataRequest* loadDatasetStatisticsByDatasetId(const QString& datasetId);
     // red cell tissue figure
     async::DataRequest* loadCellTissueByName(const QString& name);
     //get the current user object
     async::DataRequest* loadUser();
     //get the the whole dataset content
     async::DataRequest* loadDatasetContent(DataProxy::DatasetPtr dataset);
+
     //data getters
     DatasetListPtr getDatasetList();
     GeneListPtr getGeneList(const QString& datasetId);
@@ -133,7 +134,7 @@ public:
     FeatureListPtr getGeneFeatureList(const QString& datasetId, const QString& geneName);
     FeaturePtr getFeature(const QString& datasetId, const QString &featureId);
     DatasetPtr getDatasetById(const QString& datasetId);
-    HitCountPtr getHitCount(const QString& datasetId);
+    DatasetStatisticsPtr getStatistics(const QString& datasetId);
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser();
     QIODevice *getFigure(const QString& figureId);
@@ -148,7 +149,7 @@ private slots:
 private:
 
     bool hasCellTissue(const QString& name) const;
-    bool hasHitCount(const QString& datasetId) const;
+    bool hasStatistics(const QString& datasetId) const;
     bool hasGene(const QString& datasetId) const;
     bool hasFeature(const QString& datasetId) const;
     bool hasFeature(const QString& datasetId, const QString& gene) const;
@@ -175,7 +176,7 @@ private:
     FeatureListMap m_featureListMap;            // map dataset id to list of features
     FeatureListGeneMap m_geneFeatureListMap;    // map dataset id and gene name to list of features
     UserPtr m_user;                             // the current user logged in
-    HitCountMap m_hitCountMap;                  // map dataset id to list of Hits
+    DatasetStatisticsMap m_datasetStatisticsMap;                  // map dataset id to list of Hits
 
     mutable QString m_selected_datasetId;       // the current selected dataset
 

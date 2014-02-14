@@ -29,7 +29,7 @@ void ObjectParser::parseObject(const QVariant& source, QObject* target)
 
     for (it = map.constBegin(); it != end; ++it) {
 
-        int index = metaobject->indexOfProperty(it.key().toLatin1());
+        const int index = metaobject->indexOfProperty(it.key().toLatin1());
         if (index < 0) continue;
 
         QMetaProperty metaproperty = metaobject->property(index);

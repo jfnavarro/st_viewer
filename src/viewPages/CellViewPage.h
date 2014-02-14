@@ -15,12 +15,13 @@
 class QColorDialog;
 class SelectionDialog;
 class Error;
-class GenePlotterGL;
 class CellViewPageToolBar;
 class CellGLView;
 class ImageTextureGL;
 class GridRendererGL;
 class HeatMapLegendGL;
+class MiniMapGL;
+class GeneRendererGL;
 
 namespace Ui
 {
@@ -88,25 +89,25 @@ protected:
 private:
 
     // graphical items
-    //MiniMapGL *m_minimap;
+    MiniMapGL *m_minimap = nullptr;
     HeatMapLegendGL *m_legend = nullptr;
-    GenePlotterGL *gene_plotter_gl = nullptr;
+    GeneRendererGL *m_gene_plotter = nullptr;
     ImageTextureGL *m_image = nullptr;
     GridRendererGL *m_grid = nullptr;
-    CellGLView *view = nullptr;
+    CellGLView *m_view = nullptr;
 
     // selection dialogs
     SelectionDialog *selectionDialog = nullptr;
 
     // color dialogs
-    QColorDialog *colorDialog_genes = nullptr;
-    QColorDialog *colorDialog_grid = nullptr;
+    QColorDialog *m_colorDialogGenes = nullptr;
+    QColorDialog *m_colorDialogGrid = nullptr;
 
     // tool bar
-    CellViewPageToolBar *toolBar;
+    CellViewPageToolBar *m_toolBar;
 
     // is in selection mode?
-    bool m_selection_mode;
+    bool m_selectionMode;
 
     // User interface
     Ui::CellView *ui;

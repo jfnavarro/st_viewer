@@ -28,7 +28,7 @@
 #include "dataModelDTO/DatasetDTO.h"
 #include "dataModelDTO/GeneDTO.h"
 #include "dataModelDTO/FeatureDTO.h"
-#include "dataModelDTO/HitCountDTO.h"
+#include "dataModelDTO/DatasetStatisticsDTO.h"
 #include "dataModelDTO/UserDTO.h"
 #include "dataModelDTO/ErrorDTO.h"
 
@@ -156,6 +156,7 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
     // data type
     Q_ASSERT_X(parameters.contains(Globals::PARAM_TYPE), "DataProxy", "Data type must be defined!");
     DataType type = static_cast<DataType>(qvariant_cast<int>(parameters.value(Globals::PARAM_TYPE)));
+
     //parse data according to type
     switch (type) {
     // dataset
@@ -247,14 +248,14 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "HitCountData must be include dataset parameter!");
         const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
         // intermediary parse object
-        HitCountDTO dto;
+        DatasetStatisticsDTO dto;
         // ensure even single items are encapsulated in a variant list
         QVariant root = doc.toVariant();
         QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         foreach(QVariant var, list) {
             ObjectParser::parseObject(var, &dto);
             //TODO should remove previous hitcout object if it exits
-            m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount(dto.hitCount())));
+            m_datasetStatisticsMap.insert(datasetId, DatasetStatisticsPtr(new DatasetStatistics(dto.datasetStatistics())));
             dirty = true;
         }
         break;
@@ -405,11 +406,11 @@ DataProxy::ChipPtr DataProxy::getChip(const QString& chipId)
     return it.value();
 }
 
-DataProxy::HitCountPtr DataProxy::getHitCount(const QString& datasetId)
+DataProxy::DatasetStatisticsPtr DataProxy::getStatistics(const QString& datasetId)
 {
-    HitCountMap::iterator it = m_hitCountMap.find(datasetId), end = m_hitCountMap.end();
+    DatasetStatisticsMap::iterator it = m_datasetStatisticsMap.find(datasetId), end = m_datasetStatisticsMap.end();
     if (it == end) {
-        it = m_hitCountMap.insert(datasetId, HitCountPtr(new HitCount()));
+        it = m_datasetStatisticsMap.insert(datasetId, DatasetStatisticsPtr(new DatasetStatistics()));
     }
     return it.value();
 }
@@ -573,14 +574,14 @@ async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& data
     return createRequest(reply);
 }
 
-bool DataProxy::hasHitCount(const QString& datasetId) const
+bool DataProxy::hasStatistics(const QString& datasetId) const
 {
-    return m_hitCountMap.contains(datasetId);
+    return m_datasetStatisticsMap.contains(datasetId);
 }
 
-async::DataRequest* DataProxy::loadHitCountByDatasetId(const QString& datasetId)
+async::DataRequest* DataProxy::loadDatasetStatisticsByDatasetId(const QString& datasetId)
 {
-    if ((bool)hasHitCount(datasetId)) {
+    if ( hasStatistics(datasetId) ) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -635,11 +636,13 @@ async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
 async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
 {
     Q_ASSERT_X(dataset, "DataProxy", "Error dataset is empty!!");
+
     NetworkManager* nm = NetworkManager::getInstance();
     QList<NetworkReply*> replies;
     const QString& datasetId = dataset->id();
+
     //TODO ....duplicated code...refactor this
-    if (!(bool)hasCellTissue(dataset->figureBlue())) {
+    if ( !hasCellTissue(dataset->figureBlue()) ) {
         NetworkCommand* cmd = RESTCommandFactory::getCellTissueFigureByName(dataset->figureBlue());
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
@@ -660,7 +663,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         //delete the command
         cmd->deleteLater();
     }
-    if (!(bool)hasHitCount(datasetId)) {
+    if ( !hasStatistics(datasetId) ) {
         NetworkCommand* cmd = RESTCommandFactory::getHitCountByDatasetId(datasetId);
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(HitCountDataType)));
@@ -670,7 +673,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         //delete the cmd
         delete cmd;
     }
-    if (!(bool)hasFeature(datasetId)) {
+    if ( !hasFeature(datasetId) ) {
         NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(datasetId);
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(FeatureDataType)));
@@ -680,7 +683,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         //delete the command
         cmd->deleteLater();
     }
-    if (!(bool)hasChip(dataset->chipId())) {
+    if ( !hasChip(dataset->chipId()) ) {
         NetworkCommand* cmd = RESTCommandFactory::getChipByChipId(dataset->chipId());
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(ChipDataType)));
@@ -689,7 +692,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         //delete the command
         cmd->deleteLater();
     }
-    if (!(bool)hasGene(datasetId)) {
+    if ( !hasGene(datasetId) ) {
         NetworkCommand* cmd = RESTCommandFactory::getGenesByDatasetId(datasetId);
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneDataType)));
@@ -714,10 +717,12 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
     QPointer<async::DownloadManager> manager = QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
-    unsigned key = qHash(manager.data());
+
+    const unsigned key = qHash(manager.data());
     qDebug() << "[DataProxy] : storing manager hash key = " << key;
+
     foreach(NetworkReply * reply, replies) {
-        if (reply == 0) {
+        if ( reply == 0 ) {
             qDebug() << "[DataProxy] : Error, the NetworkReply is null, there must have been a network error";
 
         } else {
@@ -728,12 +733,13 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
             manager->addItem(reply);
         }
     }
-    if (manager->countItems() != replies.count()) { //NOTE if any of the replies was wrong we return error (could be worth to continue)
+    if ( manager->countItems() != replies.count() ) { //NOTE if any of the replies was wrong we return error (could be worth to continue)
         manager.clear(); //this deletes request
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodeError);
         return (request.data());
     }
+
     //add downloadmanager to download pool
     m_download_pool.insert(key, manager);
     return request;
@@ -741,7 +747,7 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
 
 async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so I can send multiple replies
 {
-    if (reply == 0) {
+    if ( reply == 0 ) {
         qDebug() << "[DataPRoxy] : Error, the NetworkReply is null, therefore there must have been a network error";
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodeError);
@@ -754,7 +760,7 @@ async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
 
-    unsigned key = qHash(manager.data());
+    const unsigned key = qHash(manager.data());
     qDebug() << "[DataProxy] : storing manager hash key = " << key;
     reply->setProperty("key", qVariantFromValue<unsigned>(key));
 

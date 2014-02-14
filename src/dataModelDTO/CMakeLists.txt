@@ -4,7 +4,7 @@ set(LIBRARY_ARG_INCLUDES
     ErrorDTO.h
     FeatureDTO.h
     GeneDTO.h
-    HitCountDTO.h
+    DatasetStatisticsDTO.h
     OAuth2TokenDTO.h
     UserDTO.h
     UserExperimentDTO.h
@@ -16,7 +16,7 @@ set(LIBRARY_ARG_SOURCES
     ErrorDTO.cpp
     FeatureDTO.cpp
     GeneDTO.cpp
-    HitCountDTO.cpp
+    DatasetStatisticsDTO.cpp
     OAuth2TokenDTO.cpp
     UserDTO.cpp
     UserExperimentDTO.cpp

@@ -66,7 +66,7 @@ signals:
     void thresholdUpperValueChanged(int);
     void intensityValueChanged(qreal);
     void sizeValueChanged(qreal);
-    void shapeIndexChanged(Globals::Shape);
+    void shapeIndexChanged(Globals::GeneShape);
 
 public slots:
     void resetTresholdActions(int min = 0, int max = 1);

@@ -20,7 +20,7 @@
             <dataset>${ENDPOINT}/${APIPATH}/rest/dataset</dataset>
             <feature>${ENDPOINT}/${APIPATH}/rest/feature</feature>
             <gene>${ENDPOINT}/${APIPATH}/rest/gene</gene>
-            <hitcount>${ENDPOINT}/${APIPATH}/rest/hitcount</hitcount>
+            <hitcount>${ENDPOINT}/${APIPATH}/rest/datasetstatistics</hitcount>
             <user>${ENDPOINT}/${APIPATH}/rest/account/current/user</user>
             <figure>${ENDPOINT}/${APIPATH}/rest/image</figure>
             <version>${ENDPOINT}/${APIPATH}/rest/versionsupportinfo</version>

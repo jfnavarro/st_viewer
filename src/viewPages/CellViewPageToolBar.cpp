@@ -15,6 +15,11 @@
 
 #include "qxtspanslider.h"
 
+static const int GENE_INTENSITY_MIN = 1;
+static const int GENE_INTENSITY_MAX = 10;
+static const int GENE_SIZE_MIN = 10;
+static const int GENE_SIZE_MAX = 30;
+
 CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     QToolBar(parent)
 {
@@ -75,9 +80,9 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     // transcripts intensity
     QSlider *geneIntesitySelector = new QSlider();
-    geneIntesitySelector->setRange(Globals::gene_intensity_min, Globals::gene_intensity_max);
+    geneIntesitySelector->setRange(GENE_INTENSITY_MIN, GENE_INTENSITY_MAX);
     geneIntesitySelector->setSingleStep(1);
-    geneIntesitySelector->setValue(Globals::gene_intensity_max);
+    geneIntesitySelector->setValue(GENE_INTENSITY_MAX);
     geneIntesitySelector->setInvertedAppearance(false);
     geneIntesitySelector->setInvertedControls(false);
     geneIntesitySelector->setTracking(true);
@@ -92,9 +97,9 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     // transcripts size
     QSlider *geneSizeSelector = new QSlider();
-    geneSizeSelector->setRange(Globals::gene_size_min, Globals::gene_size_max);
+    geneSizeSelector->setRange(GENE_SIZE_MIN, GENE_SIZE_MAX);
     geneSizeSelector->setSingleStep(1);
-    geneSizeSelector->setValue(Globals::gene_size_min);
+    geneSizeSelector->setValue(GENE_SIZE_MIN);
     geneSizeSelector->setOrientation(Qt::Horizontal);
     geneSizeSelector->setTickPosition(QSlider::TicksAbove);
     geneSizeSelector->setTickInterval(1);
@@ -107,10 +112,10 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     // shape of the genes
     QComboBox *geneShapeSelector = new QComboBox();
-    geneShapeSelector->addItem("Circles", Globals::Circle);
-    geneShapeSelector->addItem("Crosses", Globals::Cross);
-    geneShapeSelector->addItem("Squares", Globals::Square);
-    geneShapeSelector->setCurrentIndex(Globals::gene_shape);
+    geneShapeSelector->addItem("Circles", Globals::GeneShape::Circle);
+    geneShapeSelector->addItem("Crosses", Globals::GeneShape::Cross);
+    geneShapeSelector->addItem("Squares", Globals::GeneShape::Square);
+    geneShapeSelector->setCurrentIndex(Globals::GeneShape::Circle);
     geneShapeSelector->setToolTip(tr("Shape of the genes."));
     actionWidget_geneShape = new QWidgetAction(menu_genePlotter);
     actionWidget_geneShape->setDefaultWidget(geneShapeSelector);
@@ -186,11 +191,11 @@ void CellViewPageToolBar::resetActions()
     QSlider* geneIntensity = qobject_cast<QSlider*>(actionWidget_geneIntensity->defaultWidget());
     QSlider* geneSize = qobject_cast<QSlider*>(actionWidget_geneSize->defaultWidget());
     QComboBox* geneShape = qobject_cast<QComboBox*>(actionWidget_geneShape->defaultWidget());
-    geneIntensity->setValue(Globals::gene_intensity_max);
-    geneSize->setValue(Globals::gene_size_min);
-    geneShape->setCurrentIndex(Globals::gene_shape);
+    geneIntensity->setValue(GENE_INTENSITY_MAX);
+    geneSize->setValue(GENE_SIZE_MIN);
+    geneShape->setCurrentIndex(Globals::GeneShape::Circle);
 
-    resetTresholdActions(Globals::gene_threshold_min, Globals::gene_threshold_max);
+    resetTresholdActions(Globals::GENE_THRESHOLD_MIN, Globals::GENE_THRESHOLD_MAX);
 }
 
 void CellViewPageToolBar::createActions()
@@ -220,21 +225,21 @@ void CellViewPageToolBar::createActions()
     //color modes
     actionShow_toggleNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
     actionShow_toggleNormal->setCheckable(true);
-    actionShow_toggleNormal->setProperty("mode", Globals::NormalMode);
+    actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
     actionShow_toggleDynamicRange = new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
     actionShow_toggleDynamicRange->setCheckable(true);
-    actionShow_toggleDynamicRange->setProperty("mode", Globals::DynamicRangeMode);
+    actionShow_toggleDynamicRange->setProperty("mode", Globals::GeneVisualMode::DynamicRangeMode);
     actionShow_toggleHeatMap = new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
     actionShow_toggleHeatMap->setCheckable(true);
-    actionShow_toggleHeatMap->setProperty("mode", Globals::HeatMapMode);
+    actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
 
     //threshold modes
     actionShow_toggleThresholdNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Individual Gene Mode"), this);
     actionShow_toggleThresholdNormal->setCheckable(true);
-    actionShow_toggleThresholdNormal->setProperty("mode", Globals::IndividualGeneMode);
+    actionShow_toggleThresholdNormal->setProperty("mode", Globals::GeneThresholdMode::IndividualGeneMode);
     actionShow_toggleThresholdGlobal = new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Global Gene Mode"), this);
     actionShow_toggleThresholdGlobal->setCheckable(true);
-    actionShow_toggleThresholdGlobal->setProperty("mode", Globals::GlobalGeneMode);
+    actionShow_toggleThresholdGlobal->setProperty("mode", Globals::GeneThresholdMode::GlobalGeneMode);
 
     //save print
     actionSave_save = new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
@@ -270,7 +275,7 @@ void CellViewPageToolBar::createConnections()
 
 void CellViewPageToolBar::slotGeneShape(int geneShape)
 {
-    const Globals::Shape shape = static_cast<Globals::Shape>(geneShape);
+    const Globals::GeneShape shape = static_cast<Globals::GeneShape>(geneShape);
     emit shapeIndexChanged(shape);
 }
 
