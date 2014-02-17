@@ -10,14 +10,15 @@
 #include <QDebug>
 #include "utils/DebugHelper.h"
 
-#include "utils/Utils.h"
+#include "simpleCrypt/SimpleCryptDevice.h"
 
 #include <QTemporaryFile>
 #include <QDir>
 #include <QString>
 #include <QSettings>
 
-#include <simpleCrypt/SimpleCryptDevice.h>
+static const QString TEMP_PREFIX = QStringLiteral("stvi_temp_XXXXXX_");
+static const QString RESTORE_FILE = QStringLiteral("stvi_filemap");
 
 DataStore::DataStore(QObject* parent)
     : ResourceStore(parent)
@@ -64,7 +65,7 @@ QIODevice* DataStore::accessResource(const QString& name, Options options)
 void DataStore::clearResources()
 {
     DEBUG_FUNC_NAME
-    const QString restoreFile = QDir::temp().filePath(Globals::RESTORE_FILE);
+    const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
     foreach(const QString & resourceid, restore.allKeys()) {
         const QString possibleFile = qvariant_cast<QString>(restore.value(resourceid, QString()));
@@ -81,10 +82,13 @@ void DataStore::clearResources()
 
 void DataStore::loadResourceMap()
 {
-    const QString restoreFile = QDir::temp().filePath(Globals::RESTORE_FILE);
+    const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     foreach(const QString & resourceid, restore.allKeys()) {
+
         const QString possibleFile = qvariant_cast<QString>(restore.value(resourceid, QString()));
+
         if (QFile::exists(possibleFile)) {
             m_fileMap[resourceid] = qvariant_cast<QString>(restore.value(resourceid, QString()));
             qDebug() << QString("[DataStore] Load: (%1 -> %2)").arg(resourceid).arg(m_fileMap[resourceid]);
@@ -96,8 +100,9 @@ void DataStore::loadResourceMap()
 
 void DataStore::saveResourceMap()
 {
-    const QString restoreFile = QDir::temp().filePath(Globals::RESTORE_FILE);
+    const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     foreach(const QString & resourceid, m_fileMap.keys()) {
         qDebug() << QString("[DataStore] Save: (%1 -> %2)").arg(resourceid).arg(m_fileMap[resourceid]);
         restore.setValue(resourceid, m_fileMap[resourceid]);
@@ -107,28 +112,36 @@ void DataStore::saveResourceMap()
 QIODevice* DataStore::createFile(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::createFile(%1, %2)").arg(name).arg(options);
+
     // early out
     if (m_fileMap.contains(name)) {
         return accessFile(name, options);
     }
+
     QFile* file;
     if (options.testFlag(ResourceStore::Temporary)) {
-        const QString filePath = QDir::temp().filePath(Globals::TEMP_PREFIX + name);
+
+        const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
         QTemporaryFile* tempFile = new QTemporaryFile(filePath, this);
+
         // apply options
         tempFile->setAutoRemove(!options.testFlag(ResourceStore::Persistent));
+
         // force file name generation
         tempFile->open();
         tempFile->close();
         file = tempFile;
+
     } else {
         const QString filePath = QDir::current().filePath(name);
         file = new QFile(filePath, this);
     }
+
     // save filename map
     QString filename = file->fileName();
     qDebug() << QString("[DataStore] Map: (%1 -> %2)").arg(name).arg(filename);
     m_fileMap[name] = filename;
+
     return file;
 }
 

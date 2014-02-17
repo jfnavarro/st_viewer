@@ -7,29 +7,24 @@
 
 #include "MiniMapGL.h"
 
-#include "utils/Utils.h"
+#include <QVector2DArray>
+#include <QGLPainter>
+#include <QEvent>
+#include <QMouseEvent>
 
-#include <QPainter>
-
-#include "GLScope.h"
-#include "render/GLElementRender.h"
-#include "data/GLElementRectangleFactory.h"
-
-const QRectF MiniMapGL::DEFAULT_BOUNDS =
-        QRectF(0.0, 0.0,
-        Globals::minimap_height,
-        Globals::minimap_width);
+static const QColor minimap_view_color = Qt::blue;
+static const QColor minimap_scene_color = Qt::red;
+static const qreal minimap_height = 100.0f;
+static const qreal minimap_width = 100.0f;
 
 MiniMapGL::MiniMapGL(QObject* parent)
-    : ViewItemGL(parent),
-      m_selecting(false),
-      m_bounds(DEFAULT_BOUNDS),
-      m_transform(),
-      m_scene(),
-      m_view()
+    : QGLSceneNode(parent),
+      m_scene(0.0f,0.0f, minimap_height / 2, minimap_width / 2),
+      m_view(0.0f,0.0f, minimap_height, minimap_width),
+      m_sceneColor(minimap_scene_color),
+      m_viewColor(minimap_view_color)
 {
-    m_sceneColor = Globals::minimap_scene_color;
-    m_viewColor = Globals::minimap_view_color;
+
 }
 
 MiniMapGL::~MiniMapGL()
@@ -37,193 +32,150 @@ MiniMapGL::~MiniMapGL()
 
 }
 
-void MiniMapGL::setBounds(const QRectF& bounds)
-{
-    if (m_bounds != bounds) {
-        m_bounds = bounds;
-    }
-}
-
 void MiniMapGL::setScene(const QRectF& scene)
 {
-    // early out
-    if (!scene.isValid()) {
-        return;
-    }
-    
+    QRectF m_bounds(0.0f, 0.0f, minimap_height, minimap_width);
     QRectF scaled = QRectF(m_bounds.topLeft(),
                            scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
 
     if (m_scene != scaled) {
         m_scene = scaled;
         updateTransform(scene);
-        rebuildMinimapData();
+        emit updated();
     }
 }
 
 void MiniMapGL::setView(const QRectF& view)
 {
-    // early out
-    if (!view.isValid()) {
-        return;
-    }
-
-    const QRectF transformedView = m_transform.mapRect(view);
+    //const QRectF transformedView = m_transform.mapRect(view);
+    const QRectF transformedView = view;
     if (m_view != transformedView) {
         m_view = transformedView;
-        rebuildMinimapData();
+        emit updated();
     }
 }
 
 void MiniMapGL::updateTransform(const QRectF& scene)
 {
-    // early out
-    if (!m_bounds.isValid() || !m_scene.isValid() || !scene.isValid()) {
-        // set to identity matrix
-        m_transform = QTransform();
-        return;
-    }
     const QPointF s1 = QPointF(scene.width(), scene.height());
     const QPointF s2 = QPointF(m_scene.width(), m_scene.height());
     const qreal s11 = (s2.x() / s1.x());
     const qreal s22 = (s2.y() / s1.y());
-    m_transform =
-        QTransform::fromTranslate(-scene.x(), -scene.y()) // align
-        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0);   // scale
+    setLocalTransform(
+        QTransform::fromTranslate(-scene.x(), -scene.y())
+        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0) );
+
 }
 
-void MiniMapGL::render(QPainter* painter)
+void MiniMapGL::draw(QGLPainter *painter)
 {
-    GL::GLElementRender renderer;
-    painter->beginNativePainting();
+    glEnable(GL_BLEND);
     {
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        GL::GLscope glBlendScope(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderer.render(m_data, m_queue);
-        glPopMatrix();
+
+        // draw scene rectangle
+        if (m_scene.isValid()) {
+
+            const QPointF stl = m_scene.topLeft();
+            const QPointF str = m_scene.topRight();
+            const QPointF sbr = m_scene.bottomRight();
+            const QPointF sbl = m_scene.bottomLeft();
+
+            m_sceneColor.setAlphaF(0.2);
+
+            QVector2DArray scene_vertices;
+            scene_vertices.append(stl.x(), stl.y());
+            scene_vertices.append(str.x(), str.y());
+            scene_vertices.append(sbr.x(), sbr.y());
+            scene_vertices.append(sbl.x(), sbl.y());
+
+            painter->clearAttributes();
+            painter->setColor(m_sceneColor);
+            painter->setVertexAttribute(QGL::Position, scene_vertices );
+            painter->draw(QGL::TriangleFan, scene_vertices.size());
+
+            m_sceneColor.setAlphaF(0.8);
+            painter->clearAttributes();
+            painter->setColor(m_sceneColor);
+            painter->setVertexAttribute(QGL::Position, scene_vertices );
+            painter->draw(QGL::LineLoop, scene_vertices.size());
+        }
+
+        // draw view rectangle
+        if (m_view.isValid()) {
+
+            const QPointF vtl = m_view.topLeft();
+            const QPointF vtr = m_view.topRight();
+            const QPointF vbr = m_view.bottomRight();
+            const QPointF vbl = m_view.bottomLeft();
+
+            m_viewColor.setAlphaF(0.2);
+
+            QVector2DArray view_vertices;
+            view_vertices.append(vtl.x(), vtl.y());
+            view_vertices.append(vtr.x(), vtr.y());
+            view_vertices.append(vbr.x(), vbr.y());
+            view_vertices.append(vbl.x(), vbl.y());
+
+            painter->clearAttributes();
+            painter->setColor(m_viewColor);
+            painter->setVertexAttribute(QGL::Position, view_vertices );
+            painter->draw(QGL::TriangleFan, view_vertices.size());
+
+            m_viewColor.setAlphaF(0.8);
+            painter->clearAttributes();
+            painter->setColor(m_sceneColor);
+            painter->setVertexAttribute(QGL::Position, view_vertices );
+            painter->draw(QGL::LineLoop, view_vertices.size());
+        }
     }
-    painter->endNativePainting();
+    glDisable(GL_BLEND);
 }
 
-const QRectF MiniMapGL::boundingRect() const
+bool MiniMapGL::event(QEvent *e)
 {
-    return m_scene;
-}
-
-bool MiniMapGL::contains(const QPointF& point) const
-{
-    return m_scene.contains(point);
-}
-
-bool MiniMapGL::mouseMoveEvent(QMouseEvent* event)
-{
-    // set selecting to false if release event missed
-    if (!event->buttons().testFlag(Qt::LeftButton)) {
-        m_selecting = false;
+    qDebug() << "Clicked";
+    // Convert the raw event into a signal representing the user's action.
+    QMouseEvent *me = dynamic_cast<QMouseEvent*>(e);
+    if (e->type() == QEvent::MouseButtonPress) {
+        if (me->button() == Qt::LeftButton) {
+            emit pressed();
+        }
+    } else if (e->type() == QEvent::MouseButtonRelease) {
+        if (me->button() == Qt::LeftButton) {
+            emit released();
+            if (me->x() >= 0)  {  // Positive: inside object, Negative: outside.
+                emit clicked();
+            }
+        }
+    } else if (e->type() == QEvent::MouseButtonDblClick) {
+        emit doubleClicked();
     }
-
-    // move
-    if (m_selecting) {
-        const QPointF localPoint = event->localPos();
-        const QPointF scenePoint = mapToScene(localPoint);
-        emit signalCenterOn(scenePoint);
-        return true;
-    }
-
-    return false;
+    return QGLSceneNode::event(e);
 }
 
-bool MiniMapGL::mousePressEvent(QMouseEvent* event)
+void MiniMapGL::drawGeometry(QGLPainter *painter)
 {
-    // center if left button is pressed down
-    if (event->buttons().testFlag(Qt::LeftButton)) {
-        m_selecting = true;
-        const QPointF localPoint = event->localPos();
-        const QPointF scenePoint = mapToScene(localPoint);
-        emit signalCenterOn(scenePoint);
-        return true;
-    }
-    return false;
+    QGLSceneNode::drawGeometry(painter);
 }
 
-bool MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
+
+void MiniMapGL::setSceneColor(const QColor& sceneColor)
 {
-    // set selecting to false if released
-    if (!event->buttons().testFlag(Qt::LeftButton)) {
-        m_selecting = false;
-    }
-    // always propagate release events
-    return false;
+    m_sceneColor = sceneColor;
 }
 
-const QPointF MiniMapGL::mapToScene(const QPointF& point) const
+const QColor& MiniMapGL::getSceneColor() const
 {
-    return m_transform.inverted().map(point);
+    return m_sceneColor;
 }
 
-void MiniMapGL::rebuildMinimapData()
+void MiniMapGL::setViewColor(const QColor& viewColor)
 {
-    // clear rendering data and generate anew
-    m_data.clear();
-    m_queue.clear();
-    generateMinimapData();
+    m_viewColor = viewColor;
 }
 
-void MiniMapGL::generateMinimapData()
+const QColor& MiniMapGL::getViewColor() const
 {
-    const GL::GLflag flags =
-            GL::GLElementShapeFactory::AutoAddColor |
-            GL::GLElementShapeFactory::AutoAddConnection;
-
-    GL::GLElementRectangleFactory factory(m_data, flags);
-
-    // draw scene rectangle
-    if (m_scene.isValid()) {
-
-        const QPointF stl = m_scene.topLeft();
-        const QPointF str = m_scene.topRight();
-        const QPointF sbr = m_scene.bottomRight();
-        const QPointF sbl = m_scene.bottomLeft();
-        QColor4ub sceneColor = QColor4ub(m_sceneColor);
-        sceneColor.setAlphaF(0.2);
-
-        factory.setColor(sceneColor);
-        factory.addShape(QRectF(stl, sbr));
-
-        sceneColor.setAlphaF(0.8);
-        factory.setColor(sceneColor); //line is 1
-        factory.addShape(QRectF(stl, str));
-        factory.addShape(QRectF(str, sbr));
-        factory.addShape(QRectF(sbr, sbl));
-        factory.addShape(QRectF(sbl, stl));
-    }
-
-    // draw view rectangle
-    if (m_view.isValid()) {
-
-        const QPointF vtl = m_view.topLeft();
-        const QPointF vtr = m_view.topRight();
-        const QPointF vbr = m_view.bottomRight();
-        const QPointF vbl = m_view.bottomLeft();
-        QColor4ub viewColor = QColor4ub(m_viewColor);
-
-        viewColor.setAlphaF(0.2);
-        factory.setColor(viewColor);
-        factory.addShape(QRectF(vtl, vbr));
-
-        viewColor.setAlphaF(0.8);
-        factory.setColor(viewColor); //line is 1
-        factory.addShape(QRectF(vtl, vtr));
-        factory.addShape(QRectF(vtr, vbr));
-        factory.addShape(QRectF(vbr, vbl));
-        factory.addShape(QRectF(vbl, vtl));
-
-    }
-
-    // generate element data render command
-    m_queue.add(GL::GLElementRenderQueue::Command
-                (GL::GLElementRenderQueue::Command::RenderItemAll));   // render elements
-    m_queue.end();
+    return m_viewColor;
 }

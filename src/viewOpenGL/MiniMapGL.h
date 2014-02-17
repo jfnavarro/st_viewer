@@ -8,74 +8,58 @@
 #ifndef MINIMAPGL_H
 #define MINIMAPGL_H
 
-#include "data/GLElementData.h"
-#include "render/GLElementRender.h"
+#include <QGLSceneNode>
 
-#include "ViewItemGL.h"
+class QGLPainter;
+class QImage;
+class QVector2DArray;
+class QRectF;
+class QColor;
+class QEvent;
 
 // MiniMap is an view port GUI item that visualizes the view ports current
 // "image" in relation to the scene. Ie. it shows where in the scene the
 // view port currently is.
-class MiniMapGL : public ViewItemGL
+class MiniMapGL : public QGLSceneNode
 {
     Q_OBJECT
-    Q_PROPERTY(QColor sceneColor READ getSceneColor WRITE setSceneColor)
-    Q_PROPERTY(QColor viewColor READ getViewColor WRITE setViewColor)
 
 public:
 
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
-    void setBounds(const QRectF& bounds);
     void setScene(const QRectF& scene);
     void setView(const QRectF& view);
 
-    virtual void render(QPainter* painter);
+    void setSceneColor(const QColor& sceneColor);
+    const QColor& getSceneColor() const;
+    void setViewColor(const QColor& viewColor);
+    const QColor& getViewColor() const;
 
-    virtual const QRectF boundingRect() const;
-    virtual bool contains(const QPointF& point) const;
+protected:
 
-    virtual bool mouseMoveEvent(QMouseEvent* event);
-    virtual bool mousePressEvent(QMouseEvent* event);
-    virtual bool mouseReleaseEvent(QMouseEvent* event);
+    void draw(QGLPainter *painter);
+    void drawGeometry (QGLPainter * painter);
 
-    inline void setSceneColor(const QColor& sceneColor) { m_sceneColor = sceneColor; }
-    inline const QColor& getSceneColor() const { return m_sceneColor; }
-    inline void setViewColor(const QColor& viewColor) { m_viewColor = viewColor; }
-    inline const QColor& getViewColor() const { return m_viewColor; }
+    bool event(QEvent *e);
 
 signals:
 
-    void signalCenterOn(const QPointF& point);
+    void pressed();
+    void released();
+    void clicked();
+    void doubleClicked();
 
 private:
 
-    static const QRectF DEFAULT_BOUNDS;
-
-    void rebuildMinimapData();
-    void generateMinimapData();
-
     void updateTransform(const QRectF& scene);
-    const QPointF mapToScene(const QPointF& point) const;
-
-    // minimap select
-    bool m_selecting;
-
-    // sizes
-    QRectF m_bounds;
-    QTransform m_transform;
 
     // mini versions
     QRectF m_scene;
     QRectF m_view;
     QColor m_sceneColor;
     QColor m_viewColor;
-
-    // render data
-    GL::GLElementData m_data;
-    GL::GLElementRenderQueue m_queue;
-
 };
 
 #endif // MINIMAPGL_H //

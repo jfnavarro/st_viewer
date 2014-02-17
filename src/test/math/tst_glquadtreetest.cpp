@@ -34,7 +34,7 @@ void GLQuadTreeTest::testInsert()
     QFETCH(int, buckets);
     QFETCH(bool, expected);
 
-    TestQuadTree quadTree(QPointF(8.0f, 8.0f));
+    TestQuadTree quadTree(QSizeF(8.0f, 8.0f));
 
     int size = points.size();
     for (int i = 0; i < size; ++i) {

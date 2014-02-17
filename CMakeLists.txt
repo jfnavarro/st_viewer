@@ -16,7 +16,6 @@ set(PROJECT_DOMAIN_FIRST "spatialtranscriptomics")
 set(PROJECT_DOMAIN_SECOND "com")
 set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
-
 SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production/production-qa)")
 
 if(SERVER STREQUAL development)
@@ -29,14 +28,14 @@ if(SERVER STREQUAL development)
 elseif(SERVER STREQUAL production)
   #Production configuration
   set(ENDPOINT "https://api.spatialtranscriptomics.com")
-  set(APIPATH  "api-0.3")
+  set(APIPATH  "api-0.4")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "ayfBaF5UAKR2")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 elseif(SERVER STREQUAL production-qa)
   #QA configuration
   set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
-  set(APIPATH  "api-0.3")
+  set(APIPATH  "api-0.4")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "secret")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
@@ -72,8 +71,6 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_D
 include_directories(${PROJECT_BINARY_DIR})
 
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-#find_package(Qt5LinguistTools REQUIRED)
-
 
 #qt libraries
 #qt 5.1.1 needs qtsensors 

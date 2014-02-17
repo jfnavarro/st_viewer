@@ -61,6 +61,11 @@ inline const QPointF max(const QPointF &a, const QPointF &b)
     return QPointF(std::max(a.x(), b.x()), std::max(a.y(), b.y()));
 }
 
+inline bool qFuzzyEqual(const QPointF &p0, const QPointF &p1)
+{
+    return qFuzzyCompare(p0.x(), p1.x()) && qFuzzyCompare(p0.y(), p1.y());
+}
+
 template <typename T>
 inline T clamp(T in, T low, T high)
 {

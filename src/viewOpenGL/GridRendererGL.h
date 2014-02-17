@@ -33,6 +33,10 @@ public:
     const QRectF& rectangle() const;
     const QTransform& alignmentMatrix() const;
 
+public slots:
+
+    void setVisible(bool);
+
 protected:
 
     void draw(QGLPainter *painter);

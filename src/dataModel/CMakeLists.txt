@@ -4,7 +4,7 @@ set(LIBRARY_ARG_INCLUDES
     Feature.h
     FeatureExtended.h
     Gene.h
-    HitCount.h
+    DatasetStatistics.h
     ObjectParser.h
     User.h
     UserExperiment.h
@@ -16,7 +16,7 @@ set(LIBRARY_ARG_SOURCES
     Feature.cpp
     FeatureExtended.cpp
     Gene.cpp
-    HitCount.cpp
+    DatasetStatistics.cpp
     ObjectParser.cpp
     User.cpp
     UserExperiment.cpp

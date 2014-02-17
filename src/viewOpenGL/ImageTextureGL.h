@@ -27,6 +27,8 @@ public:
 
 public slots:
 
+    void setVisible(bool);
+
 protected:
 
     void draw(QGLPainter *painter);

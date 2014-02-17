@@ -13,14 +13,21 @@
 #include "color/FeatureColor.h"
 #include "color/HeatMapColor.h"
 
-#include "data/GLElementRectangleFactory.h"
-#include "qgl.h"
-#include "GLCommon.h"
+#include <QGeometryData>
+#include <QGLBuilder>
+#include <QGLShaderProgramEffect>
+#include <QFile>
 
-GeneRendererGL::GeneRendererGL() :
-    m_colorScheme(0)
+static const int INVALID_INDEX = -1;
+static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex0;
+static const QGL::VertexAttribute refCountVertex = QGL::CustomVertex1;
+static const QGL::VertexAttribute selectionVertex = QGL::UserVertex;
+
+GeneRendererGL::GeneRendererGL(QObject *parent)
+    : QGLSceneNode(parent)
 {
     clearData();
+    setupShaders();
 }
 
 GeneRendererGL::~GeneRendererGL()
@@ -44,16 +51,10 @@ void GeneRendererGL::clearData()
     m_geneInfoReverse.clear();
 
     // variables
-    m_intensity = Globals::gene_intensity;
-    m_size = Globals::gene_size;
+    m_intensity = Globals::GENE_INTENSITY_DEFAULT;
+    m_size = Globals::GENE_SIZE_DEFAULT;
+    m_shine = Globals::GENE_SHINNE_DEFAULT;
     m_thresholdMode = Globals::IndividualGeneMode;
-
-    m_min = Globals::gene_lower_limit;
-    m_max = Globals::gene_upper_limit;
-    m_hitCountMin = Globals::gene_lower_limit;
-    m_hitCountMax = Globals::gene_upper_limit;
-    m_hitCountLocalMin = Globals::gene_lower_limit;
-    m_hitCountLocalMax = Globals::gene_upper_limit;
 
     // allocate color scheme
     setVisualMode(Globals::NormalMode);
@@ -65,51 +66,32 @@ void GeneRendererGL::resetQuadTree(const QRectF &rect)
     m_geneInfoQuadTree = GeneInfoQuadTree(rect);
 }
 
-void GeneRendererGL::setHitCount(int min, int max, int sum)
+void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
 {
-    if ((m_hitCountMin != min) ||
-        (m_hitCountMax != max) ||
-        (m_hitCountSum != sum)) {
-
-        m_hitCountMin = min;
-        m_hitCountMax = max;
-        m_hitCountSum = sum;
-
-        // not really necessary (they will be updated later)
-        m_hitCountLocalMax = max;
-        m_hitCountLocalMin = min;
-
-        // not really necessary (they will be updated later)
-        m_min = min;
-        m_max = max;
-        m_min_local = min;
-        m_max_local = max;
-
-        // update gene data (real min and max will be updated later)
-        // this is a temporary hack until the hitcount object is upgrade so
-        // it includes feature-location wise local max and min
-        m_geneData.setHitCount(min, max, sum);
-    }
+    m_min = min;
+    m_max = max;
+    m_pooledMin = pooledMin;
+    m_pooledMax = pooledMax;
 }
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
     m_intensity = intensity;
     // update gene data
-    m_geneData.setIntensity(intensity);
+    //m_geneData.setIntensity(intensity);
 }
 
 void GeneRendererGL::setSize(qreal size)
 {
     m_size = size;
-    // update factory
-    GL::GLElementRectangleFactory factory(m_geneData);
-    factory.setSize(m_size);
+    updateSize();
+    emit updated();
 }
 
 void GeneRendererGL::setUpperLimit(int limit)
 {   
-    const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
+    Q_UNUSED(limit);
+ /*   const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
     // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
     const int adjusted_limit = static_cast<int>( ( qreal(limit) / upper_offset ) *
                                                  qreal(m_hitCountMax - m_hitCountMin) );
@@ -122,12 +104,13 @@ void GeneRendererGL::setUpperLimit(int limit)
         m_max_local = adjusted_limit_local;
         // render data only needs local limits
         m_geneData.setUpperLimit(adjusted_limit_local);
-    }
+    }*/
 }
 
 void GeneRendererGL::setLowerLimit(int limit)
 {
-    const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
+    Q_UNUSED(limit);
+/*    const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
     // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
     const int adjusted_limit = static_cast<int>( ( qreal(limit) / upper_offset ) *
                                                  qreal(m_hitCountMax - m_hitCountMin) );
@@ -140,25 +123,50 @@ void GeneRendererGL::setLowerLimit(int limit)
         m_min_local = adjusted_limit_local;
         // render data only needs local limits
         m_geneData.setLowerLimit(adjusted_limit_local);
-    }
+    }*/
 }
+
+int GeneRendererGL::addQuad(qreal x, qreal y, QColor4ub color)
+{
+    static const QVector2D ta(0.0f, 0.0f);
+    static const QVector2D tb(0.0f, 1.0f);
+    static const QVector2D tc(1.0f, 1.0f);
+    static const QVector2D td(1.0f, 0.0f);
+
+    m_geneData.appendVertex( QVector3D(x - m_size / 2.0f , y - m_size / 2.0f, 0.0f) );
+    m_geneData.appendVertex( QVector3D(x + m_size / 2.0f, y - m_size / 2.0f, 0.0f) );
+    m_geneData.appendVertex( QVector3D(x + m_size / 2.0f, y + m_size / 2.0f, 0.0f) );
+    m_geneData.appendVertex( QVector3D(x - m_size / 2.0f, y + m_size / 2.0f, 0.0f) );
+    m_geneData.appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
+    m_geneData.appendColor(color, color, color, color);
+
+    // get last index
+    return m_geneData.count() / 4; //quad has 4 indexes
+}
+
+void GeneRendererGL::updateQuadSize(const int index, qreal x, qreal y)
+{
+    m_geneData.vertex(index) = QVector3D(x - m_size / 2.0f , y - m_size / 2.0f, 0.0f);
+    m_geneData.vertex(index + 1) = QVector3D(x + m_size / 2.0f, y - m_size / 2.0f, 0.0f);
+    m_geneData.vertex(index + 2) = QVector3D(x + m_size / 2.0f, y + m_size / 2.0f, 0.0f);
+    m_geneData.vertex(index + 3) = QVector3D(x - m_size / 2.0f, y + m_size / 2.0f, 0.0f);
+}
+
+void GeneRendererGL::updateQuadColor(const int index, QColor4ub color)
+{
+    m_geneData.color(index) = color;
+    m_geneData.color(index + 1) = color;
+    m_geneData.color(index + 2) = color;
+    m_geneData.color(index + 3) = color;
+}
+
 
 void GeneRendererGL::generateData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
-    const GL::GLflag flags =
-            GL::GLElementShapeFactory::AutoAddColor |
-            GL::GLElementShapeFactory::AutoAddTexture;
-    GL::GLElementRectangleFactory factory(m_geneData, flags);
-
-    // the size of the dots
-    factory.setSize(m_size);
-
-    // temp hack to get the local max/min of features treated indidividually
-    // there will not be need to do this in the next version of the server API
-    QVector<int> feature_values_counter;
+    Q_ASSERT(m_geneData.count() == 0);
 
     foreach(const DataProxy::FeaturePtr feature, (*features)) {
 
@@ -168,118 +176,60 @@ void GeneRendererGL::generateData()
         const QPointF point(feature->x(), feature->y());
 
         // test if point already exists
-        GeneInfoQuadTree::PointItem item = { point, GL::INVALID_INDEX };
+        GeneInfoQuadTree::PointItem item = { point, INVALID_INDEX };
         m_geneInfoQuadTree.select(point, item);
 
-        // this will be the index of the new point (if it does not exists) or the present point
-        GL::GLindex index = 0;
-
         //if it exists
-        if (item.second != GL::INVALID_INDEX) {
-            index = item.second;
-            m_geneInfoById.insert(feature, index);
-            m_geneInfoReverse.insertMulti(index, feature);
-            // update feature count
-            m_geneData.setFeatCount(index, m_geneData.getFeatCount(index) + 1);
-            // temp hack to get local max and min
-            feature_values_counter[index] += feature->hits();
+        if (item.second != INVALID_INDEX) {
+            const int index = item.second;
+            m_geneInfoById.insert(feature, index); //overwrite, needed?
+            m_geneInfoReverse.insertMulti(index, feature); //creates a new item??
         }
         // else insert point and create the link
         else {
-            index = factory.addShape(point);
+            // create quad and add it to the data and return first index
+            const int index = addQuad(feature->x(), feature->y());
+            // update custom vertex arrays
+            m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to 0 (it will be fetched afterwards)
+            // update look up containers
             m_geneInfoById.insert(feature, index);
             m_geneInfoReverse.insert(index, feature);
             m_geneInfoQuadTree.insert(point, index);
-            m_geneData.addFeatCount(1u);
-            m_geneData.addValue(0u); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.addRefCount(0u); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.addOption(0u);  // we initialize to 0 (it will be fetched afterwards)
-            // temp hack to get local max and min
-            feature_values_counter.push_back(feature->hits());
         }
-
-        // set default color
-        factory.setColor(index, Qt::white);
 
     } //endforeach
 
-    // get local max/min for all features
-    // hack, this will be removed when hitcount object contains local max and min
-    auto min_max = std::minmax_element(feature_values_counter.begin(), feature_values_counter.end());
-    const int local_min = *(min_max.first);
-    const int local_max = *(min_max.second);
-    m_hitCountLocalMax = local_max;
-    m_hitCountLocalMin = local_min;
-    m_min_local = local_min;
-    m_max_local = local_max;
-    m_geneData.setHitCount(local_min, local_max, m_hitCountSum);
-    m_geneData.setUpperLimit(local_max);
-    m_geneData.setLowerLimit(local_min);
+    QGLBuilder builder;
+    //data.generateTextureCoordinates();
+    builder.addQuads(m_geneData);
+    m_geneNode = builder.finalizedSceneNode();
 }
 
-void GeneRendererGL::updateData(updateOptions flags)
+void GeneRendererGL::updateSize()
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    //early out
-    if (m_geneData.isEmpty() || features.isNull()) {
-        return;
+    GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
+    GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+    for( ; it != end; ++it) {
+        // update size of the shape
+        const int index = it.value();
+        DataProxy::FeaturePtr feature = it.key();
+        Q_ASSERT(feature);
+        updateQuadSize(index, feature->x(), feature->y());
     }
-    updateFeatures(features,flags);
-}
-
-void GeneRendererGL::updateGene(DataProxy::GenePtr gene, updateOptions flags)
-{
-    DataProxy* dataProxy = DataProxy::getInstance();
-    DataProxy::FeatureListPtr features =
-            dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
-    //early out
-    if (m_geneData.isEmpty() || features.isNull()) {
-        return;
-    }
-    updateFeatures(features,flags);
-}
-
-void GeneRendererGL::updateFeatures(DataProxy::FeatureListPtr features, updateOptions flags)
-{
-    //TODO replace for a switch and refactor
-    if ( flags == geneVisual || flags == geneThreshold ) {
-        updateVisual(features);
-    }
-    else if ( flags == geneColor ) {
-        updateColor(features);
-    }
-    else if ( flags == geneSelection ) {
-        updateSelection(features);
-    }
-    else if ( flags == geneSize ) {
-        updateSize(features);
-    }
-    else {
-        qDebug () << "GeneRendererGL : Error, unrecognized update mode";
-    }
-}
-
-void GeneRendererGL::updateSize(DataProxy::FeatureListPtr features)
-{
-    GL::GLElementRectangleFactory factory(m_geneData);
-
-    GeneInfoByIdMap::const_iterator it;
-    GeneInfoByIdMap::const_iterator end;
-    foreach(DataProxy::FeaturePtr feature, *(features)){
-        it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != end);
-        // update shape
-        const GL::GLindex index = it.value();
-        const QPointF origin(feature->x(), feature->y());
-        const QSizeF size(m_size, m_size);
-        factory.setShape(index, QRectF( origin, size) );
-    }
+    QGLBuilder builder;
+    //data.generateTextureCoordinates();
+    builder.addQuads(m_geneData);
+    m_geneNode = builder.finalizedSceneNode();
 }
 
 void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
 {
-    GL::GLElementRectangleFactory factory(m_geneData);
+    Q_UNUSED(features);
+
+    /*
+   // GL::GLElementRectangleFactory factory(m_geneData);
     DataProxy *dataProxy = DataProxy::getInstance();
 
     GeneInfoByIdMap::const_iterator it;
@@ -323,10 +273,14 @@ void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
             factory.setColor(index, color);
         }
     }
+    */
 }
 
 void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
 {
+    Q_UNUSED(features);
+
+    /*
     GL::GLElementRectangleFactory factory(m_geneData);
     DataProxy *dataProxy = DataProxy::getInstance();
 
@@ -378,10 +332,14 @@ void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
             factory.deconnect(index);
         }
     }
+    */
 }
 
 void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
 {
+    Q_UNUSED(features);
+
+    /*
     GL::GLElementRectangleFactory factory(m_geneData);
     DataProxy *dataProxy = DataProxy::getInstance();
 
@@ -434,22 +392,23 @@ void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
             factory.setColor(index, featureColor);
         }
     }
+    */
 }
 
-void GeneRendererGL::rebuildData()
-{
+//void GeneRendererGL::rebuildData()
+//{
     // clear data
-    m_geneData.clear(GL::GLElementDataGene::Arrays & ~GL::GLElementDataGene::IndexArray);
-    m_geneData.setMode(GL_QUADS);
-    generateData();
-}
+    //m_geneData.clear(GL::GLElementDataGene::Arrays & ~GL::GLElementDataGene::IndexArray);
+    //m_geneData.setMode(GL_QUADS);
+    //generateData();
+//}
 
 void GeneRendererGL::clearSelection()
 {
-    foreach(GL::GLindex index, m_geneInfoSelection) {
-        m_geneData.setOption(index, 0u);
-    }
-    m_geneInfoSelection.clear();
+    //foreach(GL::GLindex index, m_geneInfoSelection) {
+    //    m_geneData.setOption(index, 0u);
+    //}
+    //m_geneInfoSelection.clear();
 }
 
 DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
@@ -457,7 +416,7 @@ DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
     DataProxy::FeatureListPtr featureList = DataProxy::FeatureListPtr(new DataProxy::FeatureList);
     GeneInfoReverseMap::const_iterator it;
     GeneInfoReverseMap::const_iterator end = m_geneInfoReverse.end();
-    foreach(const GL::GLindex index, m_geneInfoSelection) {    
+    foreach(const int index, m_geneInfoSelection) {
         // hash map represent one to many connection. iterate over all matches.
         for (it = m_geneInfoReverse.find(index); (it != end) && (it.key() == index); ++it) {
             featureList->append(it.value());
@@ -478,6 +437,9 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
 
 void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 {
+    Q_UNUSED(featureList);
+
+    /*
     // unselect previous selecetion
     foreach(const GL::GLindex index, m_geneInfoSelection) {
         m_geneData.setOption(index, 0u);
@@ -510,10 +472,14 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
         m_geneInfoSelection.insert(index);
         m_geneData.setOption(index, 1);
     }
+    */
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
+    Q_UNUSED(event);
+
+    /*
     //get selection area
     QRectF rect = event->path().boundingRect();
     GL::GLaabb aabb(rect);
@@ -558,9 +524,10 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
             m_geneData.setOption(index, 1u);
         }
     }
+    */
 }
 
-void GeneRendererGL::setVisualMode(const Globals::VisualMode &mode)
+void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
 {
     // update visual mode
     m_visualMode = mode;
@@ -584,11 +551,66 @@ void GeneRendererGL::setVisualMode(const Globals::VisualMode &mode)
         break;
     }
     // update geneData
-    m_geneData.setColorMode(m_visualMode);
+    //m_geneData.setColorMode(m_visualMode);
 }
 
-void GeneRendererGL::setThresholdMode(const Globals::ThresholdMode &mode)
+void GeneRendererGL::setThresholdMode(const Globals::GeneThresholdMode &mode)
 {
     m_thresholdMode = mode;
-    m_geneData.setThresholdMode(m_thresholdMode);
+    //m_geneData.setThresholdMode(m_thresholdMode);
+}
+
+void GeneRendererGL::draw(QGLPainter *painter)
+{   
+    if (m_geneNode == 0) {
+        return;
+    }
+
+    m_geneNode->setLocalTransform(m_transform);
+
+    //QGLMaterial *material = new QGLMaterial(this);
+    //material->setColor(Qt::red);
+    //material->setAmbientColor(Qt::red);
+    //material->setDiffuseColor(Qt::red);
+    //cube->setMaterial(material);
+    //cube->setDrawingMode(QGL::Points);
+    //cube->setEffect(QGL::LitMaterial);
+
+    m_geneNode->setUserEffect(shaderCircle);
+    //shader->setActive(painter,true);
+    m_geneNode->draw(painter);
+}
+
+void GeneRendererGL::drawGeometry(QGLPainter *painter)
+{
+    QGLSceneNode::drawGeometry(painter);
+}
+
+void GeneRendererGL::setupShaders()
+{
+    shaderCircle = new QGLShaderProgramEffect();
+    //shaderRectangle = new QGLShaderProgramEffect();
+    //shaderCross = new QGLShaderProgramEffect();
+
+    //shaderRectangle->setVertexShaderFromFile(":shader/geneSquare.vert");
+    //shaderRectangle->setFragmentShaderFromFile(":shader/geneSquare.frag");
+
+    shaderCircle->setFragmentShaderFromFile(":shader/geneCircle.frag");
+    shaderCircle->setVertexShaderFromFile(":shader/geneCircle.vert");
+
+    //shaderCross->setFragmentShaderFromFile( ":shader/geneCross.frag");
+    //shaderCross->setVertexShaderFromFile(":shader/geneCross.vert");
+}
+
+void GeneRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
+{
+    Q_UNUSED(rect);
+    // reflect bounds to quad tree
+    m_geneInfoQuadTree.clear();
+    m_geneInfoQuadTree = GeneInfoQuadTree(QuadTreeAABB(border));
+}
+
+void GeneRendererGL::setAlignmentMatrix(const QTransform &transform)
+{
+    m_transform = transform;
 }

@@ -1,13 +1,24 @@
-varying vec4 out_color;
-varying vec4 out_texture;
-varying int out_options;
+varying highp vec4 textCoord;
+varying highp vec4 outColor;
+//varying int out_options;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
     return (lo < hi) ?
-                smoothstep(lo-e, lo+e, t) - smoothstep(hi-e, hi+e, t) :
-                1.0 - (smoothstep(hi-e, hi+e, t) - smoothstep(lo-e, lo+e, t));
+    smoothstep(lo-e, lo+e, t) - smoothstep(hi-e, hi+e, t) :
+    1.0 - (smoothstep(hi-e, hi+e, t) - smoothstep(lo-e, lo+e, t));
+    
 }
+
+struct qt_MaterialParameters {
+    mediump vec4 emission;
+    mediump vec4 ambient;
+    mediump vec4 diffuse;
+    mediump vec4 specular;
+    mediump float shininess;
+};
+uniform qt_MaterialParameters qt_Material;
+
 
 void main(void)
 {
@@ -16,17 +27,18 @@ void main(void)
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
 	
     // input options
-	bool selected = (out_options);
+	//bool selected = (out_options);
+    bool selected = false;
     
     // calculate distance from center
-    vec2 pos = mod(out_texture.xy, vec2(1.0)) - vec2(0.5);
+    vec2 pos = mod(textCoord.xy, vec2(1.0)) - vec2(0.5);
     float dist = length(pos);
     
     // radii of circle
     float radii = (selected) ? 0.3 : 0.5;
     
     // derive circle color
-    vec4 fragColor = out_color;
+    vec4 fragColor = outColor;
     
     fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
     if (selected) {

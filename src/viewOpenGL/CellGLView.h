@@ -25,6 +25,11 @@ public:
 
     const QImage grabPixmapGL() const;
 
+public slots:
+
+    void zoomOut();
+    void zoomIn();
+
 protected:
 
     void initializeGL(QGLPainter *painter);
@@ -39,12 +44,15 @@ private slots:
 
     void rotate();
     void setZoom(qreal delta);
+    void nodeClicked();
 
 private:
 
     QList<QGLSceneNode *> m_nodes;
 
     QGLSceneNode *m_texture = nullptr;
+
+    //QGLSceneNode * m_master_node = nullptr;
 
     QSizeF m_zoom;
 };

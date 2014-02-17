@@ -22,8 +22,8 @@ public:
 
     Gene();
     explicit Gene(const Gene& other);
-    explicit Gene(const QString& id, const QString& name, bool m_hidden = false,
-                  QColor m_color = Globals::color_gene);
+    explicit Gene(const QString& id, const QString& name, bool selected = false,
+                  QColor m_color = Globals::DEFAULT_COLOR_GENE);
 
     virtual ~Gene();
 

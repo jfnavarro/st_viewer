@@ -14,6 +14,7 @@
 #include <QUrlQuery>
 #include "utils/Utils.h"
 
+
 // The network command is an abstraction of a single network request command.
 // It encompasses the target URL, query items as well as indicates the type of
 // request.
@@ -42,8 +43,10 @@ public:
     void addQueryItems(QObject* object); // adds query items from qobject meta data
 
     const QString getQueryItem(const QString& param) const;
+
     // returns the query part fully encoded.
     const QString getEncodedQuery() const;
+
     // returns the URL part fully encoded. Note this includes the URL query.
     const QString getEncodedUrl() const;
 

@@ -35,10 +35,13 @@ NetworkCommand::~NetworkCommand()
 void NetworkCommand::addQueryItems(QObject* object)
 {
     Q_ASSERT_X(object != 0, "NetworkCommand", "null-pointer assertion error!");
+
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();
-    int size = metaObject->propertyCount();
+    const int size = metaObject->propertyCount();
+
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
+
         QMetaProperty metaproperty = metaObject->property(i);
         // abort if not readable
         QString  param = metaproperty.name();
@@ -47,6 +50,7 @@ void NetworkCommand::addQueryItems(QObject* object)
                      << param << "is not readable and will be ignored!";
             continue;
         }
+
         // abort if not convertable
         QVariant value = metaproperty.read(object);
         if (!value.canConvert(QVariant::String)) {
@@ -54,6 +58,7 @@ void NetworkCommand::addQueryItems(QObject* object)
                      << "is not convertable to QString, and will be ignored!";
             continue;
         }
+
         // convert and add property
         m_query.addQueryItem(param, value.toString());
     }

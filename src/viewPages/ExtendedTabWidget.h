@@ -84,12 +84,18 @@ public slots:
     void addPage(QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
     void insertPage(int index, QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
     void removePage(int index);
+
     void setCurrentIndex(int index);
+
     void tabChanged(int toIndex, int fromIndex = -1);
+
     void moveToNextPage();
     void moveToPreviousPage();
+
     void buttonClicked(int);
-    //it sets the start page as current page going trough all the previuos pages (needed when we clean cache)
+
+    //it sets the start page as current page going trough all
+    //the previuos pages (needed when we clean cache)
     void resetStatus();
 
 signals:

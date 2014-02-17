@@ -9,11 +9,11 @@
 #define HEATMAPLEGEND_H
 
 #include <QGLSceneNode>
-#include "data/DataProxy.h"
 
 class QGLPainter;
 class QImage;
 class QGLTexture2D;
+class QVector2DArray;
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
 // in order to give a reference point in determining each features hit count.
@@ -27,8 +27,8 @@ public:
     virtual ~HeatMapLegendGL();
 
     //rendering functions
-    void generateHeatMapData();
-    void clearData();
+    void generateHeatMap();
+    void generateBarAndTexts();
 
 protected:
 
@@ -43,16 +43,29 @@ public slots:
 
 private:
 
+    // Draw text centered on the bottom of the "posn" rectangle.
+    void drawText(QGLPainter *painter, const QPointF& posn, const QString& str);
+
     // limits and boundaries
     qreal m_lower_threshold = 0.0f;
     qreal m_upper_threshold = 1.0f;
     qreal m_max = 1.0f;
     qreal m_min = 0.0f;
 
-    // render data
+    // texture color data
     QGLTexture2D m_texture;
-    QGLSceneNode *m_rectangle = nullptr;
-    QPainterPath m_text;
+    QVector2DArray m_texture_vertices;
+    QVector2DArray m_texture_cords;
+
+    // data vertex arrays
+    QVector2DArray m_bars;
+    QVector2DArray m_borders;
+
+    // texture text data
+    QString m_lower_text;
+    QPointF m_lower_text_position;
+    QString m_upper_text;
+    QPointF m_upper_text_position;
 };
 
 #endif // HEATMAPLEGEND_H //

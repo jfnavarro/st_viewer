@@ -109,8 +109,9 @@ const QPointF QuadTreeAABB::size() const
 
 bool QuadTreeAABB::contains(const QPointF &p) const
 {
-    const QRectF rectangle( QPointF(x,y) , QPointF(width, height) ) ;
-    return rectangle.contains(p);
+    return (p.x() >= y && p.x() <= y + height) && (p.y() >= y && p.y() <= y + height);
+    //const QRectF rectangle( QPointF(x,y) , QPointF(width, height) ) ;
+    //return rectangle.contains(p);
 }
 
 bool QuadTreeAABB::contains(const QuadTreeAABB &o) const
@@ -159,10 +160,10 @@ bool fuzzyEqual(const QuadTreeAABB &b0, const QuadTreeAABB &b1)
 
 bool fuzzyNotEqual(const QuadTreeAABB &b0, const QuadTreeAABB &b1)
 {
-    return qFuzzyCompare(b0.x, b1.x)
-            || qFuzzyCompare(b0.y, b1.y)
-            || qFuzzyCompare(b0.width, b1.width)
-            || qFuzzyCompare(b0.height, b1.height);
+    return !qFuzzyCompare(b0.x, b1.x)
+            || !qFuzzyCompare(b0.y, b1.y)
+            || !qFuzzyCompare(b0.width, b1.width)
+            || !qFuzzyCompare(b0.height, b1.height);
 }
 
 bool operator ==(const QuadTreeAABB &b0, const QuadTreeAABB &b1)

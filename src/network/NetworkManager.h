@@ -37,7 +37,6 @@ public:
         UsePipelineMode = 0x4,
         UseHighPriority = 0x8
     };
-
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
     explicit NetworkManager(QObject* parent = 0);
@@ -55,7 +54,9 @@ private slots:
     void provideAuthentication(QNetworkReply*, QAuthenticator*);
 
 private:
+
     QPointer<QNetworkAccessManager> m_nam;
+
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)

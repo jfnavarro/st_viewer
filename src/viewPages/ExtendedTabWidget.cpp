@@ -104,10 +104,12 @@ void ExtendedTabWidget::removePage(int index)
 {
     QWidget *widget = stackWidget->widget(index);
     stackWidget->removeWidget(widget);
+
     ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));
     buttonLayout->removeWidget(button);
     buttonGroup->removeButton(button);
     delete button;
+
     setCurrentIndex(0);
 }
 
@@ -140,12 +142,14 @@ void ExtendedTabWidget::insertPage(int index, QWidget *page, const QIcon &icon, 
         label = tr("Page %1").arg(index);
     }
     page->setWindowTitle(label);
+
     // Set icon
     QIcon pix = icon;
     if (pix.isNull()) {
         pix = QApplication::style()->standardIcon(QStyle::SP_ArrowUp);
     }
     page->setWindowIcon(pix);
+
     // Add QPushButton
     ExtendedButton* button = new ExtendedButton(pix, label);
     button->setCheckable(true);
@@ -184,41 +188,10 @@ int ExtendedTabWidget::indexOf(QWidget* widget) const
     return -1;
 }
 
-/*bool ExtendedTabWidget::setVisible(QWidget* w, bool b)
-{
-    int index = indexOf(w);
-
-    if (index == -1) {
-        return false;
-    }
-
-    if (currentIndex() == index) {
-        setCurrentIndex(0);
-    }
-
-    buttonGroup->button(index)->setVisible(b);
-    return true;
-}
-
-bool ExtendedTabWidget::setEnabled(QWidget* w, bool b)
-{
-    int index = indexOf(w);
-
-    if (index == -1) {
-        return false;
-    }
-
-    if (currentIndex() == index) {
-        setCurrentIndex(0);
-    }
-
-    buttonGroup->button(index)->setEnabled(b);
-    return true;
-}*/
-
 void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
 {
     qDebug() << QString("[PageContainerWidget] Page: %1 -> %2").arg(fromIndex).arg(toIndex);
+
     QWidget* fromWidget = widget(fromIndex);
     QWidget* toWidget = widget(toIndex);
     if (fromWidget != 0) {
@@ -246,10 +219,13 @@ void ExtendedTabWidget::createPages()
 {
     startpage = new InitPage(stackWidget);
     addTab(startpage, QIcon(QStringLiteral(":/images/startpage-icon.png")), "Start");
+
     datasets = new DatasetPage(stackWidget);
     addTab(datasets, QIcon(QStringLiteral(":/images/datasetpage-icon.png")), "Datasets");
+
     cellview = new CellViewPage(stackWidget);
     addTab(cellview, QIcon(QStringLiteral(":/images/gene.png")), "Cell View");
+
     experiments = new ExperimentPage(this);
     addTab(experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
 }
@@ -265,6 +241,7 @@ void ExtendedTabWidget::createActions()
     connect(cellview, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
     connect(experiments, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
     connect(experiments, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
+
     // propagate error signals
     connect(startpage, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     connect(datasets, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
