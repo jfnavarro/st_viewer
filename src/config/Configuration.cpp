@@ -58,7 +58,7 @@ const QString Configuration::readSetting(const QString& key) const
 const QString Configuration::EndPointUrl() const
 {
    return readSetting(QStringLiteral("application/url"));
-};
+}
 
 //version
 const QString Configuration::dataEndpointMinVersion() const

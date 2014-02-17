@@ -123,9 +123,9 @@ set(QT_TARGET_LINK_LIBS      Qt5::Core
                              Qt5::Network
                              Qt5::Gui
                              Qt5::Widgets
-                             Qt5::WebKit
-                             Qt5::WebKitWidgets
+                             Qt5::PrintSupport
                              Qt5::OpenGL
+
                              Qt5::3D)
 
 #create main target (resources needs to be part of the target)
@@ -176,6 +176,8 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
     
+
+
 if(UNIX AND NOT APPLE)
 
     # use, i.e. don't skip the full RPATH for the build tree
@@ -204,24 +206,60 @@ if(UNIX AND NOT APPLE)
     set(CPACK_SYSTEM_NAME "Linux")
     set(CPACK_SYSTEM_NAME "${CMAKE_BUILD_TYPE}-${CPACK_SYSTEM_NAME}-32")
 
-    #qt libraries
-    #qt 5.1.1 needs qtsensors
-    foreach(QT_LIBRARY Concurrent Core DBus Gui Help Network OpenGL PrintSupport Svg WebKit WebKitWidgets Widgets CLucene Sql Xml Qml V8 Quick Sensors)
-        install(FILES ${QT_LIBRARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}Qt${QT_VERSION_MAJOR}${QT_LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX}.${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
-                DESTINATION lib
-                RENAME ${CMAKE_SHARED_LIBRARY_PREFIX}Qt${QT_VERSION_MAJOR}${QT_LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX}.${QT_VERSION_MAJOR})
+    foreach(QT_LIBRARY ${ST_QT_LIBS})
+      foreach(QT_PLUGIN ${Qt5${QT_LIBRARY}_PLUGINS})
+        get_target_property(QT_PLUGIN_LO "${QT_PLUGIN}" LOCATION)
+      endforeach()
     endforeach()
-
-    set(ICU_VERSION "51.1") #qt5.1.1 icu is 51 for lower versions of qt5 icu is 49
+    foreach(QT_LIBRARY ${ST_QT_LIBS})
+      # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG 
+      # but I think we don't need them /Erik Sjolund
+      get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+      INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
+    endforeach()
 
     #qt needs ICU libaries in Linux
-    foreach(QT_FILE icudata icui18n icuuc)
-        install(FILES ${QT_LIBRARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}.${ICU_VERSION}
-                DESTINATION lib
-                RENAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}.5)
+    set(ICU_VERSION "51.1")
+    foreach(ICU_LIB icuuc icui18n icudata)
+      find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
+      if (NOT loc${ICU_LIB})
+        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so.${ICU_VERSION}")
+      endif()
+      INSTALL_LIBRARY_AND_SYMLINKS("${loc${ICU_LIB}}" lib)
     endforeach()
 
-    # Qt plugins required by stVi
+    # As of Qt 5.2.1 the cups plugin is not registered in CMake
+    #
+    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ grep -r _PLUGINS . | grep -i jpeg
+    #  ./Qt5Gui/Qt5Gui_QJpegPlugin.cmake:list(APPEND Qt5Gui_PLUGINS Qt5::QJpegPlugin)
+    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ grep -r _PLUGINS . | grep -i cups
+    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ 
+    #
+    #  When all needed Qt plugins are available as CMake variables we should start using
+    #  something like this:
+
+    # set(QT_PLUGIN_LIST Qt5::QMinimalEglIntegrationPlugin
+    #                    Qt5::QMinimalEglIntegrationPlugin
+    #                    Qt5::QTgaPlugin
+    #                    Qt5::QSvgPlugin
+    #                    Qt5::QTiffPlugin
+    #                    Qt5::QXcbIntegrationPlugin
+    #                    Qt5::QLinuxFbIntegrationPlugin
+    #                    Qt5::QMinimalIntegrationPlugin
+    #                    Qt5::QICOPlugin
+    #                    Qt5::QWbmpPlugin
+    #                    Qt5::QGifPlugin
+    #                    Qt5::QMngPlugin
+    #                    Qt5::QJpegPlugin)
+
+    # foreach(PLUGIN ${QT_PLUGIN_LIST})
+    #   get_target_property(PLUGIN_LOC "${PLUGIN}" LOCATION)
+    #   get_filename_component(PLUGIN_PARENT_DIR_PATH ${PLUGIN_LOC} PATH)
+    #   get_filename_component(PLUGIN_PARENT_DIR_NAME ${PLUGIN_PARENT_DIR_PATH} NAME)
+    #   install(FILES ${PLUGIN_LOC}
+    #           DESTINATION plugins/${PLUGIN_PARENT_DIR_NAME})
+    # endforeach()
+
     linux_deploy_qt_plugin(accessible qtaccessiblequick qtaccessiblewidgets)
     linux_deploy_qt_plugin(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
     linux_deploy_qt_plugin(platforms qlinuxfb qminimal qxcb)
@@ -232,15 +270,6 @@ if(UNIX AND NOT APPLE)
     install(TARGETS ${PROJECT_NAME} DESTINATION bin)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
 #     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}} DESTINATION lib )
-
-    # Shell script to run stVi
-    set(ShellFile ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.sh)
-    configure_file(${CMAKE_SOURCE_DIR}/cmake/linux/application.sh.in ${ShellFile})
-
-    install(FILES ${ShellFile} RENAME ${PROJECT_NAME}
-            DESTINATION .
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
 endif()
 
 if(APPLE)

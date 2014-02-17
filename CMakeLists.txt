@@ -2,8 +2,7 @@
 # NAME AND VERSION
 ###############################################################################
 project(stVi C CXX)
-cmake_minimum_required(VERSION 2.8.11)
-
+cmake_minimum_required(VERSION 2.8.12.20140211 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 
 #Configuration stuff
@@ -17,26 +16,33 @@ set(PROJECT_DOMAIN_FIRST "spatialtranscriptomics")
 set(PROJECT_DOMAIN_SECOND "com")
 set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
-#Production configuration
-set(ENDPOINT "https://api.spatialtranscriptomics.com")
-set(APIPATH  "api-0.3")
-set(CLIENTID "st-viewer-client")
-set(SECRETID "ayfBaF5UAKR2")
-set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
-#QA configuration
-#set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
-#set(APIPATH  "api-0.3")
-#set(CLIENTID "st-viewer-client")
-#set(SECRETID "secret")
-#set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production/production-qa)")
 
-#DEV configuration
-# set(ENDPOINT "https://esox.scilifelab.se")
-# set(APIPATH  "api-0.3")
-# set(CLIENTID "st-viewer-client")
-# set(SECRETID "secret")
-# set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+if(SERVER STREQUAL development)
+  #DEV configuration
+  set(ENDPOINT "https://esox.scilifelab.se")
+  set(APIPATH  "api-0.4")
+  set(CLIENTID "st-viewer-client")
+  set(SECRETID "secret")
+  set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+elseif(SERVER STREQUAL production)
+  #Production configuration
+  set(ENDPOINT "https://api.spatialtranscriptomics.com")
+  set(APIPATH  "api-0.3")
+  set(CLIENTID "st-viewer-client")
+  set(SECRETID "ayfBaF5UAKR2")
+  set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+elseif(SERVER STREQUAL production-qa)
+  #QA configuration
+  set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
+  set(APIPATH  "api-0.3")
+  set(CLIENTID "st-viewer-client")
+  set(SECRETID "secret")
+  set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+else()
+  message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
+endif()
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -65,15 +71,18 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_D
 
 include_directories(${PROJECT_BINARY_DIR})
 
-use_qt5lib(Qt5LinguistTools)
-use_qt5lib(Qt5Widgets)
-use_qt5lib(Qt5WebKit)
-use_qt5lib(Qt5WebKitWidgets)
-use_qt5lib(Qt5Network)
-use_qt5lib(Qt5Core)
-use_qt5lib(Qt5Gui)
-use_qt5lib(Qt5OpenGL)
-use_qt5lib(Qt53D)
+find_package(Qt5LinguistTools REQUIRED CONFIG)
+#find_package(Qt5LinguistTools REQUIRED)
+
+
+#qt libraries
+#qt 5.1.1 needs qtsensors 
+
+set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml DBus)
+
+foreach(i ${ST_QT_LIBS})
+  use_qt5lib("Qt5${i}")
+endforeach()
 
 add_subdirectory(ext) # include third party libraries
 add_subdirectory(src) # include source code
