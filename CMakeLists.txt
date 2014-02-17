@@ -48,6 +48,9 @@ if(COMMAND cmake_policy)
   if(WIN32)
     cmake_policy(SET CMP0020 NEW)
   endif(WIN32)
+  if(APPLE)
+    cmake_policy(SET CMP0025 NEW)
+  endif()
 endif(COMMAND cmake_policy)
 
 #name of locale file

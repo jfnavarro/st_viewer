@@ -34,7 +34,6 @@ void GridRendererGL::draw(QGLPainter *painter)
         glLineWidth(GRID_LINE_SIZE);
 
         painter->modelViewMatrix().push();
-        painter->modelViewMatrix().setToIdentity();
         painter->modelViewMatrix() *= m_transform;
 
         m_gridBorderColor.setAlphaF(0.5);
@@ -102,7 +101,7 @@ void GridRendererGL::generateData()
     // generate grid
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += GRID_LINE_SIZE) {
         m_grid_vertex.append(m_rect.left(),  y);
-        m_grid_vertex.append(m_rect.left(),  y);
+        m_grid_vertex.append(m_rect.right(),  y);
     }
     for (qreal x = m_rect.left(); x <= m_rect.right(); x += GRID_LINE_SIZE) {
         m_grid_vertex.append(x, m_rect.top());

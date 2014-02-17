@@ -48,6 +48,9 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
         return;
     }
 
+    painter->modelViewMatrix().push();
+    painter->modelViewMatrix().setToIdentity();
+
     glEnable(GL_TEXTURE_2D);
     {
         // draw image texture
@@ -83,6 +86,8 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
         painter->draw(QGL::Lines, m_bars.size());
     }
     glDisable(GL_LINE_SMOOTH);
+
+    painter->modelViewMatrix().pop();
 }
 
 void HeatMapLegendGL::drawGeometry(QGLPainter *painter)

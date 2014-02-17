@@ -44,7 +44,7 @@ CellGLView::~CellGLView()
 void CellGLView::initializeGL(QGLPainter *painter)
 {
     setOption(QGLView::FOVZoom, true); //enable orthographical zoom
-    setOption(QGLView::CameraNavigation, true); // no panning
+    setOption(QGLView::CameraNavigation, true); // panning
     setOption(QGLView::ObjectPicking, true); //enables object selection
 
     glDisable(GL_TEXTURE_2D);
@@ -58,12 +58,10 @@ void CellGLView::initializeGL(QGLPainter *painter)
     painter->setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_translation = QTransform::fromTranslate( -(1200.0f / 2.0f), -(1200.0f / 2.0f));
-    m_scale = QTransform::fromScale(1.0f, 1.0f);
-
+    // SETUP 2D camera
     camera()->setProjectionType(QGLCamera::Orthographic);
-    camera()->setMinViewSize(QSizeF(600.0,600.0));
-    camera()->setViewSize(QSizeF(1200.0,1200.0));
+    //camera()->setMinViewSize(QSizeF(600.0,600.0)); //TODO
+    camera()->setViewSize(QSizeF(width(),height())); // the size of the window
     camera()->setAdjustForAspectRatio(false);
     camera()->setFieldOfView(0.0);
     camera()->setNearPlane(0.0);
@@ -78,8 +76,9 @@ void CellGLView::paintGL(QGLPainter *painter)
 {
 
     painter->projectionMatrix().push();
-    painter->projectionMatrix() *= m_translation;
-    painter->projectionMatrix() *= m_scale;
+    painter->projectionMatrix() *=
+            QTransform::fromTranslate(-width() / 2, -height() / 2) *=
+            QTransform::fromScale(1.0f, -1.0f);
 
     // draw rendering nodes
     foreach(QGLSceneNode *node, m_nodes) {
@@ -101,6 +100,7 @@ void CellGLView::resizeGL(int width, int height)
     //devicePixelRatio() fix the problem with MAC retina
     qreal pixelRatio = devicePixelRatio();
     QGLView::resizeGL(width * pixelRatio, height * pixelRatio);
+    //camera()->setViewSize(size()); // the size of the window
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
@@ -154,18 +154,13 @@ void CellGLView::zoomOut()
     setZoom(DEFAULT_ZOOM_OUT);
 }
 
-// Pan left/right/up/down without rotating about the object.
 void CellGLView::pan(int deltax, int deltay)
 {
-    QPointF delta = viewDelta(deltax, deltay);
-    QVector3D t1 = camera()->translation(delta.x(), -delta.y(), 0.0f);
-    QVector3D t2 = camera()->translation(delta.x(), -delta.y(), 1.0f);
-    qDebug() << "Panning x = " << delta.x() << " y " << -delta.y() << " t1 = " << t1 << " t2 " << t2;
-    camera()->setEye(camera()->eye() - t1);
-    camera()->setCenter(camera()->center() - t2);
+    QVector3D t = camera()->translation(deltax, deltay, 0.0f);
+    camera()->setEye(camera()->eye() - t);
+    camera()->setCenter(camera()->center() - t);
 }
 
-// Rotate about the object being viewed.
 void CellGLView::rotate(int deltax, int deltay)
 {
     int rotation = camera()->screenRotation();
@@ -222,7 +217,6 @@ void CellGLView::mousePressEvent(QMouseEvent *e)
         startPan = e->pos();
         startEye = camera()->eye();
         startCenter = camera()->center();
-        //d->startUpVector = d->camera->upVector();
         panModifiers = e->modifiers();
         setCursor(Qt::ClosedHandCursor);
     }
@@ -281,13 +275,11 @@ void CellGLView::mouseMoveEvent(QMouseEvent *e)
         if (e->modifiers() == panModifiers) {
             camera()->setEye(startEye);
             camera()->setCenter(startCenter);
-            //d->camera->setUpVector(d->startUpVector);
         } else {
             startPan = lastPan;
             delta = e->pos() - startPan;
             startEye = camera()->eye();
             startCenter = camera()->center();
-            //startUpVector = camera()->upVector();
             panModifiers = e->modifiers();
         }
 

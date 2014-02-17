@@ -268,6 +268,9 @@ void CellViewPage::resetActionStates()
     // reset minimap to visible true
     m_minimap->setVisible(true);
 
+    // reset legend to visible true
+    m_legend->setVisible(true);
+
     // reset tool bar actions
     m_toolBar->resetActions();
 

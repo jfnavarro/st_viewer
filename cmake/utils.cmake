@@ -31,8 +31,8 @@ macro(INITIALISE_PROJECT)
         set(DISABLED_WARNINGS "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
         set(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdeprecated -Wdisabled-optimization -W -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
-        if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor -Wswitch-default") # -Wint-to-void-pointer-cast
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor -Wswitch-default -Wint-to-void-pointer-cast")
         endif()
     endif()
 
@@ -43,6 +43,12 @@ macro(INITIALISE_PROJECT)
     add_definitions(-DUNICODE)
     if(WIN32)
         add_definitions(-D_UNICODE)
+    endif()
+
+    # Set the RPATH information on Linux
+    # Note: this prevent us from having to use the uncool LD_LIBRARY_PATH...
+    if(NOT WIN32 AND NOT APPLE)
+        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
     endif()
 
     find_package(CXXFeatures REQUIRED)
@@ -102,13 +108,16 @@ endmacro()
 
 macro(WINDOWS_DEPLOY_QT_LIBRARIES)
     foreach(LIBRARY ${ARGN})
-        windows_deploy_library(${QT_BINARY_DIR} ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX} .)
+        windows_deploy_library(${QT_BINARY_DIR}
+        ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX} .)
     endforeach()
 endmacro()
 
 macro(WINDOWS_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
     foreach(PLUGIN_NAME ${ARGN})
-        windows_deploy_library(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY} ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} plugins/${PLUGIN_CATEGORY})
+        windows_deploy_library(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}
+        ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+        plugins/${PLUGIN_CATEGORY})
     endforeach()
 endmacro()
 

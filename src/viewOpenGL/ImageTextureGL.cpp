@@ -112,7 +112,6 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
 
     const qreal width = qreal(image.width());
     const qreal height = qreal(image.height());
-    const qreal aspect_ratio = 1.0f; //height / width
 
     QGLBuilder builder;
     QGeometryData data;
@@ -123,8 +122,8 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     QVector2D d(x, y + height);
     QVector2D ta(0.0f, 0.0f);
     QVector2D tb(1.0f, 0.0f);
-    QVector2D tc(1.0f, aspect_ratio);
-    QVector2D td(0.0f, aspect_ratio);
+    QVector2D tc(1.0f, 1.0f);
+    QVector2D td(0.0f, 1.0f);
 
     data.appendVertex(a, b, c, d);
     data.appendTexCoord(ta, tb, tc, td);
@@ -136,7 +135,7 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
-    m_texture->setBindOptions(QGLTexture2D::DefaultBindOption);
+    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption | QGLTexture2D::MipmapBindOption);
     m_texture->setSize(QSize(width, height));
 
     QGLMaterial *mat = new QGLMaterial(this);

@@ -43,7 +43,10 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
+    // Pan left/right/up/down without rotating about the object.
     void pan(int deltax, int deltay);
+
+    // Rotate about the object being viewed.
     void rotate(int deltax, int deltay);
 
 signals:
@@ -59,11 +62,6 @@ private:
     QList<QGLSceneNode *> m_nodes;
 
     //QGLSceneNode * m_master_node = nullptr;
-
-    QTransform m_scale;
-    QTransform m_translation;
-
-    QSizeF m_zoom;
 
     QObject *enteredObject = nullptr;
     QObject *pressedObject = nullptr;
