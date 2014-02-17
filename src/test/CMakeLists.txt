@@ -64,4 +64,5 @@ target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})
-add_custom_target(test ${TARGET_NAME})
+
+add_custom_target(unittest ${TARGET_NAME})

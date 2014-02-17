@@ -71,13 +71,27 @@ macro(INITIALISE_PROJECT)
     endif()
     
     #enable c++11
-    check_for_cxx11_compiler(CXX11_COMPILER)
-    if(CXX11_COMPILER)
-        enable_cxx11()
-    else()
-        message(FATAL_ERROR "Your compiler does not support c++11")
-    endif()
-    
+
+    find_package(CXXFeatures REQUIRED)
+    # http://stackoverflow.com/questions/10984442/how-to-detect-c11-support-of-a-compiler-with-cmake/20165220#20165220
+    set(needed_features
+        CXXFeatures_class_override_final
+        CXXFeatures_constexpr
+        CXXFeatures_auto
+        CXXFeatures_nullptr
+        CXXFeatures_static_assert
+        CXXFeatures_initializer_list
+    )
+    foreach(i ${needed_features})
+      if(NOT ${i}_FOUND)
+        message(FATAL_ERROR "CXX feature \"${i} is not supported by the compiler")
+     endif()
+   endforeach()
+
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX11_COMPILER_FLAGS}")
+   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX11_COMPILER_FLAGS}")
+  
     if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -mmacosx-version-min=10.7 -stdlib=libc++")       
@@ -145,28 +159,6 @@ macro(PROJECT_GROUP TARGET_NAME FOLDER_PATH)
     set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${FOLDER_PATH})
 endmacro()
 
-# Determines whether or not the compiler supports C++11
-macro(check_for_cxx11_compiler _VAR)
-    message(STATUS "Checking for C++11 compiler")
-    set(${_VAR})
-    if((MSVC AND MSVC10) OR
-       (CMAKE_COMPILER_IS_GNUCXX AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 4.6) OR
-       (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.1))
-        set(${_VAR} 1)
-        message(STATUS "Checking for C++11 compiler - available")
-    else()
-        message(STATUS "Checking for C++11 compiler - unavailable")
-    endif()
-endmacro()
-
-# Sets the appropriate flag to enable C++11 support
-macro(enable_cxx11)
-    if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++0x")
-    endif()
-endmacro()
-
 function(ST_LIBRARY)
     get_filename_component(PARENTDIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
     set(UI_GENERATED_FILES)
@@ -175,4 +167,33 @@ function(ST_LIBRARY)
     endif()
     add_library("${PARENTDIR}" OBJECT ${UI_GENERATED_FILES} ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
     source_group("${PARENTDIR}" FILES ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
+endfunction()
+
+function(INSTALL_LIBRARY_AND_SYMLINKS SRCPATH DEST)
+  # SRCPATH is the full path to the library
+  # DEST is the destination (for instance "lib")
+  # 
+  # This function will help us to install a shared library together with the symlinks pointing to it.
+  # For instance, to install the following library and its symbolic links into "lib"
+  #
+  # esjolund@zebra:~/code/st_client$ ls -l  ~/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so*
+  # lrwxrwxrwx 1 esjolund esjolund      19 feb  6 13:45 /home/esjolund/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so -> libQt5Core.so.5.2.1
+  # lrwxrwxrwx 1 esjolund esjolund      19 feb  6 13:45 /home/esjolund/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so.5 -> libQt5Core.so.5.2.1
+  # lrwxrwxrwx 1 esjolund esjolund      19 feb  6 13:45 /home/esjolund/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so.5.2 -> libQt5Core.so.5.2.1
+  # -rwxr-xr-x 1 esjolund esjolund 5030256 feb  6 13:45 /home/esjolund/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so.5.2.1
+  #
+  # we would call the function like this:
+  # INSTALL_LIBRARY_AND_SYMLINKS(/home/esjolund/Qt5.2.1/5.2.1/gcc_64/lib/libQt5Core.so.5.2.1 lib)
+  #
+  set(CURRENTSTRING "dummyvalue")
+  set(NEXTSTRING "${SRCPATH}")
+  while(NOT ${NEXTSTRING} STREQUAL ${CURRENTSTRING})
+    set(CURRENTSTRING "${NEXTSTRING}")
+    if(EXISTS "${CURRENTSTRING}")
+      install(FILES ${CURRENTSTRING}
+              DESTINATION ${DEST})
+    endif()
+    # The REGEX tries to remove a version number from the end of the string
+    string(REGEX REPLACE "\.[0-9]+$" "" NEXTSTRING ${CURRENTSTRING})
+  endwhile()
 endfunction()
