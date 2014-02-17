@@ -125,7 +125,6 @@ set(QT_TARGET_LINK_LIBS      Qt5::Core
                              Qt5::Widgets
                              Qt5::PrintSupport
                              Qt5::OpenGL
-
                              Qt5::3D)
 
 #create main target (resources needs to be part of the target)
@@ -175,8 +174,6 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 #add systems libraries
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
-    
-
 
 if(UNIX AND NOT APPLE)
 

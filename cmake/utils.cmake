@@ -13,31 +13,13 @@ macro(INITIALISE_PROJECT)
     set(QT_VERSION_MAJOR ${Qt5Widgets_VERSION_MAJOR})
     set(QT_VERSION_MINOR ${Qt5Widgets_VERSION_MINOR})
     set(QT_VERSION_PATCH ${Qt5Widgets_VERSION_PATCH})
-    
-    # Some settings which depend on whether we want a debug or release version
-    # of stVi
-    #if(WIN32)
-    #    string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    #    set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
-    #endif()
 
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
         message(STATUS "Building a debug version...")
-        # Default compiler settings
-        #if(WIN32)
-        #    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
-        #    set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
-        #endif()
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
-        # Make sure that debugging is on for Qt
         add_definitions(-DQT_DEBUG)
     else()
         message(STATUS "Building a release version...")
-        # Default compiler and linker settings
-        #if(WIN32)
-        #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
-        #endif()
-        # Make sure that debugging is off for Qt
         add_definitions(-DQT_NO_DEBUG_OUTPUT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
@@ -59,28 +41,19 @@ macro(INITIALISE_PROJECT)
 
     # Ask for Unicode to be used
     add_definitions(-DUNICODE)
-
     if(WIN32)
         add_definitions(-D_UNICODE)
     endif()
 
-    # Set the RPATH information on Linux
-    # Note: this prevent us from having to use the uncool LD_LIBRARY_PATH...
-    if(NOT WIN32 AND NOT APPLE)
-        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
-    endif()
-    
-    #enable c++11
-
     find_package(CXXFeatures REQUIRED)
     # http://stackoverflow.com/questions/10984442/how-to-detect-c11-support-of-a-compiler-with-cmake/20165220#20165220
     set(needed_features
-        CXXFeatures_class_override_final
+        #CXXFeatures_class_override_final ##not supported by Clang in OSX
         CXXFeatures_constexpr
         CXXFeatures_auto
         CXXFeatures_nullptr
         CXXFeatures_static_assert
-        CXXFeatures_initializer_list
+        #CXXFeatures_initializer_list ##not supported by Clang in OSX
     )
     foreach(i ${needed_features})
       if(NOT ${i}_FOUND)

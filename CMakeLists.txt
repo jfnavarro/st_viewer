@@ -72,10 +72,10 @@ include_directories(${PROJECT_BINARY_DIR})
 
 find_package(Qt5LinguistTools REQUIRED CONFIG)
 
-#qt libraries
-#qt 5.1.1 needs qtsensors 
-
-set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml DBus)
+set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml)
+if (LINUX)
+  list(APPEND ST_QT_LIBS QDBus)
+endif()
 
 foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
