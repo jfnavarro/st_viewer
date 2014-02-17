@@ -76,8 +76,8 @@ include_directories(${PROJECT_BINARY_DIR})
 find_package(Qt5LinguistTools REQUIRED CONFIG)
 
 set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml)
-if (LINUX)
-  list(APPEND ST_QT_LIBS QDBus)
+if(UNIX AND NOT APPLE)
+  list(APPEND ST_QT_LIBS DBus)
 endif()
 
 foreach(i ${ST_QT_LIBS})
