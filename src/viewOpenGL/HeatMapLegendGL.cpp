@@ -31,7 +31,8 @@ constexpr qreal boundaries ()
 }
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : QGLSceneNode(parent)
+    : QGLSceneNode(parent),
+      m_visible(false)
 {
 
 }
@@ -43,6 +44,10 @@ HeatMapLegendGL::~HeatMapLegendGL()
 
 void HeatMapLegendGL::draw(QGLPainter *painter)
 {
+    if (!m_visible) {
+        return;
+    }
+
     glEnable(GL_TEXTURE_2D);
     {
         // draw image texture
@@ -206,4 +211,14 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
     painter->draw(QGL::TriangleFan, vertices.size());
     texture.cleanupResources();
+}
+
+void HeatMapLegendGL::setVisible(bool visible)
+{
+    m_visible = visible;
+}
+
+bool HeatMapLegendGL::visible() const
+{
+    return m_visible;
 }

@@ -22,7 +22,8 @@ MiniMapGL::MiniMapGL(QObject* parent)
       m_scene(0.0f,0.0f, minimap_height / 2, minimap_width / 2),
       m_view(0.0f,0.0f, minimap_height, minimap_width),
       m_sceneColor(minimap_scene_color),
-      m_viewColor(minimap_view_color)
+      m_viewColor(minimap_view_color),
+      m_visible(false)
 {
 
 }
@@ -69,6 +70,10 @@ void MiniMapGL::updateTransform(const QRectF& scene)
 
 void MiniMapGL::draw(QGLPainter *painter)
 {
+    if (!m_visible) {
+        return;
+    }
+
     glEnable(GL_BLEND);
     {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -178,4 +183,15 @@ void MiniMapGL::setViewColor(const QColor& viewColor)
 const QColor& MiniMapGL::getViewColor() const
 {
     return m_viewColor;
+}
+
+void MiniMapGL::setVisible(bool visible)
+{
+    m_visible = visible;
+    emit updated();
+}
+
+bool MiniMapGL::visible() const
+{
+    return m_visible;
 }

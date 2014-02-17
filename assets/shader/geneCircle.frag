@@ -1,5 +1,6 @@
 varying highp vec4 textCoord;
 varying highp vec4 outColor;
+varying highp float outSelected;
 //varying int out_options;
 
 // bandpass smooth filter   __/  \__
@@ -27,8 +28,7 @@ void main(void)
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
 	
     // input options
-	//bool selected = (out_options);
-    bool selected = false;
+    bool selected = bool(outSelected);
     
     // calculate distance from center
     vec2 pos = mod(textCoord.xy, vec2(1.0)) - vec2(0.5);

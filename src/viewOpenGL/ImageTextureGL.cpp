@@ -16,7 +16,8 @@ static GLint maxTextureSize() {
 }
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    QGLSceneNode(parent)
+    QGLSceneNode(parent),
+    m_visible(false)
 {
 
 }
@@ -28,7 +29,7 @@ ImageTextureGL::~ImageTextureGL()
 
 void ImageTextureGL::clearTextures()
 {
-    foreach( QGLTexture2D *texture, m_textures) {
+    foreach( QGLTexture2D *texture, m_textures ) {
         texture->cleanupResources();
     }
     // check this, nodes are part of the tree and should be removed automatically
@@ -37,6 +38,10 @@ void ImageTextureGL::clearTextures()
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
+    if (!m_visible) {
+        return;
+    }
+
     glEnable(GL_TEXTURE_2D);
     {
         //foreach(QGLTexture2D *texture, m_textures) {
@@ -150,5 +155,11 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
 
 void ImageTextureGL::setVisible(bool visible)
 {
-    setOption(QGLSceneNode::HideNode, visible);
+    m_visible = visible;
+    emit updated();
+}
+
+bool ImageTextureGL::visible() const
+{
+    return m_visible;
 }

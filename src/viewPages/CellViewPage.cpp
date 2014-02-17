@@ -262,6 +262,12 @@ void CellViewPage::resetActionStates()
     // reset gene grid to not show
     m_grid->setVisible(false);
 
+    // reset gene plotter to visible
+    m_gene_plotter->setVisible(true);
+
+    // reset minimap to visible true
+    m_minimap->setVisible(true);
+
     // reset tool bar actions
     m_toolBar->resetActions();
 
@@ -293,7 +299,7 @@ void CellViewPage::initGLView()
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
-    m_view->setBackGroundTexture(m_image);
+    m_view->addRenderingNode(m_image);
 
     // grid graphical object
     m_grid = new GridRendererGL(this);
@@ -342,7 +348,7 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)), m_gene_plotter, SLOT(setGeneShape(Globals::GeneShape)));
 
     //show/not genes signal
-    connect(m_toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setGeneVisible(bool))) ;
+    connect(m_toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
 
     //visual mode signal
     connect(m_toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
@@ -353,8 +359,8 @@ void CellViewPage::createGLConnections()
             SLOT(slotSetGeneThresholdMode(QAction*)));
 
     // grid signals
-    connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_gene_plotter, SLOT(setGridColor(const QColor&)));
-    connect(m_toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setGridVisible(bool)));
+    connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_grid, SLOT(setColor(const QColor&)));
+    connect(m_toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), m_grid, SLOT(setVisible(bool)));
 
     // cell tissue canvas
     connect(m_toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));

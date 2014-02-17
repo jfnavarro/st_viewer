@@ -25,6 +25,8 @@ public:
 
     static const QImage createSubImage(const QImage &image, const QRect & rect);
 
+    bool visible() const;
+
 public slots:
 
     void setVisible(bool);
@@ -37,6 +39,8 @@ protected:
 private:
 
      QList<QGLTexture2D *> m_textures;
+
+     bool m_visible;
 };
 
 #endif // IMAGETEXTUREGL_H

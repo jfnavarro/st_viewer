@@ -25,7 +25,6 @@ public:
     //setters
     void setDimensions(const QRectF &border, const QRectF &rect);
     void setAlignmentMatrix(const QTransform &transform);
-    void setColor(const QColor &color);
 
     //gettters
     const QColor& color() const;
@@ -33,8 +32,11 @@ public:
     const QRectF& rectangle() const;
     const QTransform& alignmentMatrix() const;
 
+    bool visible() const;
+
 public slots:
 
+    void setColor(const QColor &color);
     void setVisible(bool);
 
 protected:
@@ -60,6 +62,8 @@ private:
 
     // alignment matrix transformation
     QTransform m_transform;
+
+    bool m_visible;
 };
 
 #endif // GRIDRENDERERGL_H

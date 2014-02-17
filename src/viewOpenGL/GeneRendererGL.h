@@ -64,6 +64,8 @@ public:
     //getters
     DataProxy::FeatureListPtr getSelectedFeatures();
 
+    bool visible() const;
+
 public slots:
 
     void setIntensity(qreal intensity);
@@ -77,6 +79,8 @@ public slots:
     void setVisualMode(const Globals::GeneVisualMode &mode);
 
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
+
+    void setVisible(bool);
 
 protected:
 
@@ -151,6 +155,8 @@ private:
 
     // alignment matrix transformation
     QTransform m_transform;
+
+    bool m_visible;
 };
 
 

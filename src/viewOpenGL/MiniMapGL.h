@@ -37,6 +37,12 @@ public:
     void setViewColor(const QColor& viewColor);
     const QColor& getViewColor() const;
 
+    bool visible() const;
+
+public slots:
+
+    void setVisible(bool);
+
 protected:
 
     void draw(QGLPainter *painter);
@@ -60,6 +66,8 @@ private:
     QRectF m_view;
     QColor m_sceneColor;
     QColor m_viewColor;
+
+    bool m_visible;
 };
 
 #endif // MINIMAPGL_H //

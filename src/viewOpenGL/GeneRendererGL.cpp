@@ -19,12 +19,14 @@
 #include <QFile>
 
 static const int INVALID_INDEX = -1;
-static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex0;
-static const QGL::VertexAttribute refCountVertex = QGL::CustomVertex1;
-static const QGL::VertexAttribute selectionVertex = QGL::UserVertex;
+//static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex0;
+//static const QGL::VertexAttribute refCountVertex = QGL::CustomVertex1;
+static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex1;
+static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex0;
 
 GeneRendererGL::GeneRendererGL(QObject *parent)
-    : QGLSceneNode(parent)
+    : QGLSceneNode(parent),
+      m_visible(false)
 {
     clearData();
     setupShaders();
@@ -140,8 +142,8 @@ int GeneRendererGL::addQuad(qreal x, qreal y, QColor4ub color)
     m_geneData.appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
     m_geneData.appendColor(color, color, color, color);
 
-    // get last index
-    return m_geneData.count() / 4; //quad has 4 indexes
+    // return first index of the quad created
+    return m_geneData.count(QGL::Position);
 }
 
 void GeneRendererGL::updateQuadSize(const int index, qreal x, qreal y)
@@ -182,17 +184,20 @@ void GeneRendererGL::generateData()
         //if it exists
         if (item.second != INVALID_INDEX) {
             const int index = item.second;
-            m_geneInfoById.insert(feature, index); //overwrite, needed?
-            m_geneInfoReverse.insertMulti(index, feature); //creates a new item??
+            m_geneInfoById.insert(feature, index); // same position = same feature = same index
+            m_geneInfoReverse.insertMulti(index, feature); //multiple features per index
         }
         // else insert point and create the link
         else {
             // create quad and add it to the data and return first index
             const int index = addQuad(feature->x(), feature->y());
+
             // update custom vertex arrays
-            m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to 0 (it will be fetched afterwards)
+            //m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
+            //m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to false (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, visibleVertex); // we initialize to false (it will be fetched afterwards)
+
             // update look up containers
             m_geneInfoById.insert(feature, index);
             m_geneInfoReverse.insert(index, feature);
@@ -562,7 +567,7 @@ void GeneRendererGL::setThresholdMode(const Globals::GeneThresholdMode &mode)
 
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
-    if (m_geneNode == 0) {
+    if (m_geneNode == 0 || !m_visible) {
         return;
     }
 
@@ -613,4 +618,15 @@ void GeneRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
 void GeneRendererGL::setAlignmentMatrix(const QTransform &transform)
 {
     m_transform = transform;
+}
+
+void GeneRendererGL::setVisible(bool visible)
+{
+    m_visible = visible;
+    emit updated();
+}
+
+bool GeneRendererGL::visible() const
+{
+    return m_visible;
 }

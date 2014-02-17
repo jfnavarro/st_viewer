@@ -30,6 +30,8 @@ public:
     void generateHeatMap();
     void generateBarAndTexts();
 
+    bool visible() const;
+
 protected:
 
     void draw(QGLPainter *painter);
@@ -40,6 +42,7 @@ public slots:
     void setBoundaries(qreal min, qreal max);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
+    void setVisible(bool);
 
 private:
 
@@ -66,6 +69,8 @@ private:
     QPointF m_lower_text_position;
     QString m_upper_text;
     QPointF m_upper_text_position;
+
+    bool m_visible;
 };
 
 #endif // HEATMAPLEGEND_H //

@@ -7,6 +7,7 @@ class QGLPainter;
 class QGLSceneNode;
 class QSurfaceFormat;
 class QGLCamera;
+class QVector3D;
 
 class CellGLView : public QGLView
 {
@@ -21,8 +22,6 @@ public:
     void addRenderingNode(QGLSceneNode *node);
     void removeRenderingNode(QGLSceneNode *node);
 
-    void setBackGroundTexture(QGLSceneNode *node);
-
     const QImage grabPixmapGL() const;
 
 public slots:
@@ -34,9 +33,18 @@ protected:
 
     void initializeGL(QGLPainter *painter);
     void paintGL(QGLPainter *painter);
+
     void resizeGL(int width, int height);
 
     void wheelEvent(QWheelEvent* event);
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
+    void pan(int deltax, int deltay);
+    void rotate(int deltax, int deltay);
 
 signals:
 
@@ -50,11 +58,23 @@ private:
 
     QList<QGLSceneNode *> m_nodes;
 
-    QGLSceneNode *m_texture = nullptr;
-
     //QGLSceneNode * m_master_node = nullptr;
 
+    QTransform m_scale;
+    QTransform m_translation;
+
     QSizeF m_zoom;
+
+    QObject *enteredObject = nullptr;
+    QObject *pressedObject = nullptr;
+    Qt::MouseButton pressedButton = Qt::NoButton;
+    bool panning = false;
+    QPoint startPan = QPoint(-1, -1);
+    QPoint lastPan = QPoint(-1, -1);
+    QVector3D startEye;
+    QVector3D startCenter;
+    QVector3D startUpVector;
+    Qt::KeyboardModifiers panModifiers = Qt::NoModifier;
 };
 
 #endif // CELLGLVIEW_H

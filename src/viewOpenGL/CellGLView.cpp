@@ -14,6 +14,8 @@
 #include <QGLTexture2D>
 #include <QtOpenGL>
 #include <QGLPickNode>
+#include <QMouseEvent>
+#include <QCoreApplication>
 
 static const QSizeF DEFAULT_ZOOM_MIN = QSizeF(1.00, 1.00);
 static const QSizeF DEFAULT_ZOOM_MAX = QSizeF(20.0, 20.0);
@@ -42,10 +44,8 @@ CellGLView::~CellGLView()
 void CellGLView::initializeGL(QGLPainter *painter)
 {
     setOption(QGLView::FOVZoom, true); //enable orthographical zoom
-    setOption(QGLView::CameraNavigation, false); // no panning
+    setOption(QGLView::CameraNavigation, true); // no panning
     setOption(QGLView::ObjectPicking, true); //enables object selection
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //maybe better in paintGL
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
@@ -56,13 +56,17 @@ void CellGLView::initializeGL(QGLPainter *painter)
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     painter->setClearColor(Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_translation = QTransform::fromTranslate( -(1200.0f / 2.0f), -(1200.0f / 2.0f));
+    m_scale = QTransform::fromScale(1.0f, 1.0f);
 
     camera()->setProjectionType(QGLCamera::Orthographic);
-    //camera()->setMinViewSize(QSizeF(600.0,600.0));
-    //camera()->setViewSize(QSizeF(12000.0,12000.0));
-    camera()->setAdjustForAspectRatio(true);
+    camera()->setMinViewSize(QSizeF(600.0,600.0));
+    camera()->setViewSize(QSizeF(1200.0,1200.0));
+    camera()->setAdjustForAspectRatio(false);
     camera()->setFieldOfView(0.0);
-    camera()->setNearPlane(-1.0);
+    camera()->setNearPlane(0.0);
     camera()->setFarPlane(1.0);
     camera()->setEyeSeparation(0.0); //2D viewport
     camera()->setUpVector(QVector3D(0.0, 1.0, 0.0));
@@ -72,10 +76,10 @@ void CellGLView::initializeGL(QGLPainter *painter)
 
 void CellGLView::paintGL(QGLPainter *painter)
 {
-    // draw texture
-    if ( m_texture != nullptr ) {
-        m_texture->draw(painter);
-    }
+
+    painter->projectionMatrix().push();
+    painter->projectionMatrix() *= m_translation;
+    painter->projectionMatrix() *= m_scale;
 
     // draw rendering nodes
     foreach(QGLSceneNode *node, m_nodes) {
@@ -83,6 +87,8 @@ void CellGLView::paintGL(QGLPainter *painter)
     }
 
     glFlush(); // forces to send the data to the GPU saving time
+
+    painter->projectionMatrix().pop();
 }
 
 void CellGLView::rotate()
@@ -117,12 +123,6 @@ void CellGLView::removeRenderingNode(QGLSceneNode *node)
     disconnect(node, SIGNAL(updated()), this, SLOT(update()));
 }
 
-void CellGLView::setBackGroundTexture(QGLSceneNode *node)
-{
-    Q_ASSERT(node != nullptr);
-    m_texture = node;
-}
-
 void CellGLView::setZoom(qreal delta)
 {
     camera()->setViewSize( camera()->viewSize() * ( 1 - 0.001 * delta ) );
@@ -152,4 +152,186 @@ void CellGLView::zoomIn()
 void CellGLView::zoomOut()
 {
     setZoom(DEFAULT_ZOOM_OUT);
+}
+
+// Pan left/right/up/down without rotating about the object.
+void CellGLView::pan(int deltax, int deltay)
+{
+    QPointF delta = viewDelta(deltax, deltay);
+    QVector3D t1 = camera()->translation(delta.x(), -delta.y(), 0.0f);
+    QVector3D t2 = camera()->translation(delta.x(), -delta.y(), 1.0f);
+    qDebug() << "Panning x = " << delta.x() << " y " << -delta.y() << " t1 = " << t1 << " t2 " << t2;
+    camera()->setEye(camera()->eye() - t1);
+    camera()->setCenter(camera()->center() - t2);
+}
+
+// Rotate about the object being viewed.
+void CellGLView::rotate(int deltax, int deltay)
+{
+    int rotation = camera()->screenRotation();
+    if (rotation == 90 || rotation == 270) {
+        qSwap(deltax, deltay);
+    }
+    if (rotation == 90 || rotation == 180) {
+        deltax = -deltax;
+    }
+    if (rotation == 180 || rotation == 270) {
+        deltay = -deltay;
+    }
+    float anglex = deltax * 90.0f / width();
+    float angley = deltay * 90.0f / height();
+    QQuaternion q = camera()->pan(-anglex);
+    q *= camera()->tilt(-angley);
+    camera()->rotateCenter(q);
+}
+
+void CellGLView::mousePressEvent(QMouseEvent *e)
+{
+    QObject *object;
+
+    if (!panning && (options() & QGLView::ObjectPicking) != 0) {
+        object = objectForPoint(e->pos());
+    }
+    else {
+        object = nullptr;
+    }
+
+    if (pressedObject) {
+        // Send the press event to the pressed object.  Use a position
+        // of (0, 0) if the mouse is still within the pressed object,
+        // or (-1, -1) if the mouse is no longer within the pressed object.
+        QMouseEvent event
+            (QEvent::MouseButtonPress,
+             (pressedObject == object) ? QPoint(0, 0) : QPoint(-1, -1),
+             e->globalPos(), e->button(), e->buttons(), e->modifiers());
+        QCoreApplication::sendEvent(pressedObject, &event);
+    } else if (object) {
+        // Record the object that was pressed and forward the event.
+        pressedObject = object;
+        enteredObject = nullptr;
+        pressedButton = e->button();
+        // Send a mouse press event for (0, 0).
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(0, 0),
+                          e->globalPos(), e->button(), e->buttons(),
+                          e->modifiers());
+        QCoreApplication::sendEvent(object, &event);
+    } else if ((options() & QGLView::CameraNavigation) != 0 &&
+                    e->button() == Qt::LeftButton) {
+        panning = true;
+        lastPan = e->pos();
+        startPan = e->pos();
+        startEye = camera()->eye();
+        startCenter = camera()->center();
+        //d->startUpVector = d->camera->upVector();
+        panModifiers = e->modifiers();
+        setCursor(Qt::ClosedHandCursor);
+    }
+    //QWindow::mousePressEvent(e);
+}
+
+void CellGLView::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (panning && e->button() == Qt::LeftButton) {
+        panning = false;
+        unsetCursor();
+    }
+    if (pressedObject) {
+        // Notify the previously pressed object about the release.
+        QObject *object = objectForPoint(e->pos());
+        QObject *pressed = pressedObject;
+        if (e->button() == pressedButton) {
+            pressedObject = nullptr;
+            pressedButton = Qt::NoButton;
+            enteredObject = object;
+            // Send the release event to the pressed object.  Use a position
+            // of (0, 0) if the mouse is still within the pressed object,
+            // or (-1, -1) if the mouse is no longer within the pressed object.
+            QMouseEvent event
+                (QEvent::MouseButtonRelease,
+                 (pressed == object) ? QPoint(0, 0) : QPoint(-1, -1),
+                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
+            QCoreApplication::sendEvent(pressed, &event);
+            // Send leave and enter events if necessary.
+            if (object != pressed) {
+                QEvent event(QEvent::Leave);
+                QCoreApplication::sendEvent(pressed, &event);
+                if (object) {
+                    QEvent event(QEvent::Enter);
+                    QCoreApplication::sendEvent(object, &event);
+                }
+            }
+        } else {
+            // Some other button than the original was released.
+            // Forward the event to the pressed object.
+            QMouseEvent event
+                (QEvent::MouseButtonRelease,
+                 (pressed == object) ? QPoint(0, 0) : QPoint(-1, -1),
+                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
+            QCoreApplication::sendEvent(pressed, &event);
+        }
+    }
+    //QWindow::mouseReleaseEvent(e);
+}
+
+void CellGLView::mouseMoveEvent(QMouseEvent *e)
+{
+    if (panning) {
+
+        QPoint delta = e->pos() - startPan;
+        if (e->modifiers() == panModifiers) {
+            camera()->setEye(startEye);
+            camera()->setCenter(startCenter);
+            //d->camera->setUpVector(d->startUpVector);
+        } else {
+            startPan = lastPan;
+            delta = e->pos() - startPan;
+            startEye = camera()->eye();
+            startCenter = camera()->center();
+            //startUpVector = camera()->upVector();
+            panModifiers = e->modifiers();
+        }
+
+        lastPan = e->pos();
+        pan(delta.x(), delta.y());
+
+    } else if ((options() & QGLView::ObjectPicking) != 0) {
+
+        QObject *object = objectForPoint(e->pos());
+        if (pressedObject) {
+
+            // Send the move event to the pressed object.  Use a position
+            // of (0, 0) if the mouse is still within the pressed object,
+            // or (-1, -1) if the mouse is no longer within the pressed object.
+            QMouseEvent event
+                (QEvent::MouseMove,
+                 (pressedObject == object) ? QPoint(0, 0) : QPoint(-1, -1),
+                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
+            QCoreApplication::sendEvent(pressedObject, &event);
+
+        } else if (object) {
+
+            if (object != enteredObject) {
+                if (enteredObject) {
+                    QEvent event(QEvent::Leave);
+                    QCoreApplication::sendEvent(enteredObject, &event);
+                }
+                QEvent event(QEvent::Enter);
+                QCoreApplication::sendEvent(enteredObject, &event);
+            }
+            QMouseEvent event
+                (QEvent::MouseMove, QPoint(0, 0),
+                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
+            QCoreApplication::sendEvent(object, &event);
+        } else if (enteredObject) {
+            QEvent event(QEvent::Leave);
+            QCoreApplication::sendEvent(enteredObject, &event);
+            enteredObject = 0;
+        }
+    }
+    //QWindow::mouseMoveEvent(e);
+}
+
+void CellGLView::keyPressEvent(QKeyEvent *e)
+{
+    e->ignore();
 }

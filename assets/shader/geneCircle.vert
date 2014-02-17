@@ -4,6 +4,8 @@
 attribute highp vec4 qt_MultiTexCoord0;
 attribute highp vec4 qt_Color;
 attribute highp vec4 qt_Vertex;
+attribute highp float qt_Custom0;
+attribute highp float qt_Custom1;
 uniform mediump mat4 qt_ModelViewMatrix;
 uniform mediump mat4 qt_ModelViewProjectionMatrix;
 
@@ -15,6 +17,7 @@ uniform mediump mat4 qt_ModelViewProjectionMatrix;
 // passed along to fragment shader
 varying highp vec4 textCoord;
 varying highp vec4 outColor;
+varying highp float outSelected;
 //varying highp vec2 out_options;
 
 // uniform variables
@@ -114,9 +117,15 @@ float computeDynamicRangeAlpha(float value, float min_Value, float max_value)
 
 void main(void)
 {
-
+    outSelected = int(qt_Custom1);
+    bool outVisible = bool(qt_Custom0);
     outColor = qt_Color;
     textCoord = qt_MultiTexCoord0;
+    
+    if (!outVisible) {
+        outColor.a = 0.0;
+    }
+    
 	//out_options = in_options;
     //out_options = false;
     
