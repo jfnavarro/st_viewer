@@ -195,8 +195,8 @@ void GeneRendererGL::generateData()
             // update custom vertex arrays
             //m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
             //m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to false (it will be fetched afterwards)
-            m_geneData.appendAttribute(0.0f, visibleVertex); // we initialize to false (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, 0.0f, 0.0f, 0.0f, selectionVertex);  // we initialize to false (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, 0.0f, 0.0f, 0.0f, visibleVertex); // we initialize to false (it will be fetched afterwards)
 
             // update look up containers
             m_geneInfoById.insert(feature, index);
