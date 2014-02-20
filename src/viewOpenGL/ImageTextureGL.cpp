@@ -16,8 +16,7 @@ static GLint maxTextureSize() {
 }
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    QGLSceneNode(parent),
-    m_visible(false)
+    GraphicItemGL(parent)
 {
 
 }
@@ -38,10 +37,6 @@ void ImageTextureGL::clearTextures()
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
-    if (!m_visible) {
-        return;
-    }
-
     glEnable(GL_TEXTURE_2D);
     {
         //foreach(QGLTexture2D *texture, m_textures) {
@@ -64,7 +59,6 @@ void ImageTextureGL::drawGeometry(QGLPainter *painter)
 void ImageTextureGL::createTexture(const QImage& image)
 {
     const int maxSize = static_cast<int>(maxTextureSize());
-
     if (image.width() > maxSize || image.height() > maxSize) {
         // cut image into smaller textures
         createTiles(image);
@@ -152,13 +146,14 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     addNode(node);
 }
 
-void ImageTextureGL::setVisible(bool visible)
+const QRectF ImageTextureGL::boundingRect() const
 {
-    m_visible = visible;
-    emit updated();
-}
-
-bool ImageTextureGL::visible() const
-{
-    return m_visible;
+    const QVector3D left_corner = boundingBox().minimum();
+    const QVector3D right_corner = boundingBox().maximum();
+    const qreal x = left_corner.x();
+    const qreal y = left_corner.y();
+    const qreal width = right_corner.x();
+    const qreal height = right_corner.y();
+    const QRectF rect(x, y, width, height);
+    return rect;
 }

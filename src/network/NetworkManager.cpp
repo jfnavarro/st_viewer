@@ -101,10 +101,10 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     DEBUG_FUNC_NAME
 
     // early out
-    if (cmd == 0) {
+    if (cmd == nullptr) {
         //NOTE something went wrong, return NULL
         qDebug() << "[NetworkManager] Error: Unable to create Network Command";
-        return 0;
+        return nullptr;
     }
 
     // append authentication token to network command
@@ -116,7 +116,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     }
 
     // keep track of reply to match command later on (async callback)
-    QNetworkReply* networkReply = 0;
+    QNetworkReply* networkReply = nullptr;
 
     // creating the request
     QNetworkRequest request;
@@ -172,19 +172,19 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
             qDebug() << "[NetworkManager] Error: Unkown network command!";
     }
 
-    if (networkReply == 0) {
+    if (networkReply == nullptr) {
         qDebug() << "[NetworkManager] Error: NetWork reply is null!!";
-        return 0;
+        return nullptr;
     }
 
-    NetworkReply* replyWrapper = 0;
+    NetworkReply* replyWrapper = nullptr;
     replyWrapper = new NetworkReply(networkReply, this);
     replyWrapper->setCustomData(data);
 
-    if (replyWrapper == 0) {
+    if (replyWrapper == nullptr) {
         // something didn't work out :/
         qDebug() << "[NetworkManager] Error: Unable to create network request!";
-        return 0;
+        return nullptr;
     }
 
     return replyWrapper;

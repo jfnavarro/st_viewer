@@ -1,21 +1,13 @@
  #include "CellGLView.h"
 
 #include <QGLPainter>
-#include <QGLWidget>
-#include <QGLSceneNode>
-#include <QGLBuilder>
-#include <QGeometryData>
 #include <QArray>
-#include <QGLCube>
-#include <QGLMaterial>
-#include <QGLCamera>
 #include <QWheelEvent>
-#include <QRay3D>
-#include <QGLTexture2D>
 #include <QtOpenGL>
-#include <QGLPickNode>
 #include <QMouseEvent>
-#include <QCoreApplication>
+#include <QOpenGLContext>
+#include <QSurfaceFormat>
+#include <QGuiApplication>
 
 static const QSizeF DEFAULT_ZOOM_MIN = QSizeF(1.00, 1.00);
 static const QSizeF DEFAULT_ZOOM_MAX = QSizeF(20.0, 20.0);
@@ -24,124 +16,204 @@ static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
 static const QSize DEFAULT_BOUND_SIZE = QSize(100, 100);
 
-CellGLView::CellGLView(QWindow *parent) :
-    QGLView(parent)
+static const qreal DELTA_PANNING = 2.5f;
+static const qreal DELTA_MOUSE_PANNING = 0.5f;
+
+CellGLView::CellGLView(QScreen *parent) :
+    QWindow(parent)
 {
 
-}
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    format.setDepthBufferSize(0);
+    format.setAlphaBufferSize(24);
+    format.setBlueBufferSize(24);
+    format.setGreenBufferSize(24);
+    format.setRedBufferSize(24);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
 
-CellGLView::CellGLView(const QSurfaceFormat &format, QWindow *parent) :
-    QGLView(format,parent)
-{
-
+    setSurfaceType(QWindow::OpenGLSurface);
+    setFormat(format);
 }
 
 CellGLView::~CellGLView()
 {
     //NOTE View does not own rendering nodes nor texture
+    //TODO double check for memmory leaks
 }
 
-void CellGLView::initializeGL(QGLPainter *painter)
+void CellGLView::showEvent(QShowEvent *event)
 {
-    setOption(QGLView::FOVZoom, true); //enable orthographical zoom
-    setOption(QGLView::CameraNavigation, true); // panning
-    setOption(QGLView::ObjectPicking, true); //enables object selection
+    Q_UNUSED(event);
+    ensureContext();
+    if (!m_initialized) {
+        initializeGL();
+    }
+}
+
+void CellGLView::hideEvent(QHideEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void CellGLView::exposeEvent(QExposeEvent *event)
+{
+    Q_UNUSED(event);
+
+    ensureContext();
+    if (!m_initialized) {
+        initializeGL();
+    }
+
+    paintGL();
+
+    m_context->swapBuffers(this);
+}
+
+void CellGLView::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event);
+
+    QRect rect = geometry();
+    Q_ASSERT(event->size() == rect.size());
+
+    if (rect.size() != m_viewport.size())
+    {
+        ensureContext();
+        if (!m_initialized) {
+            initializeGL();
+        }
+        resizeGL(rect.width(), rect.height());
+        m_viewport = rect;
+    }
+}
+
+void CellGLView::ensureContext()
+{
+    if (!m_context)
+    {
+        m_context = new QOpenGLContext();
+        m_context->setFormat(format);
+        bool success = m_context->create();
+        qDebug() << "Creating OpenGL context = " << success;
+    }
+    m_context->makeCurrent(this);
+}
+
+void CellGLView::initializeGL()
+{
+    QGLPainter painter;
+    painter.begin();
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_COLOR_MATERIAL);
+    glDisable(GL_CULL_FACE);
 
     glShadeModel(GL_FLAT);
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    painter->setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // SETUP 2D camera
-    camera()->setProjectionType(QGLCamera::Orthographic);
-    //camera()->setMinViewSize(QSizeF(600.0,600.0)); //TODO
-    camera()->setViewSize(QSizeF(width(),height())); // the size of the window
-    camera()->setAdjustForAspectRatio(false);
-    camera()->setFieldOfView(0.0);
-    camera()->setNearPlane(0.0);
-    camera()->setFarPlane(1.0);
-    camera()->setEyeSeparation(0.0); //2D viewport
-    camera()->setUpVector(QVector3D(0.0, 1.0, 0.0));
-    camera()->setCenter(QVector3D(0.0, 0.0, 0.0));
-    camera()->setEye(QVector3D(0.0, 0.0, 1.0));
+    QRect rect = geometry();
+    resizeGL(rect.width(), rect.height());
+    m_initialized = true;
 }
 
-void CellGLView::paintGL(QGLPainter *painter)
+void CellGLView::paintGL()
 {
+    QGLTexture2D::processPendingResourceDeallocations(); //check this
 
-    painter->projectionMatrix().push();
-    painter->projectionMatrix() *=
-            QTransform::fromTranslate(-width() / 2, -height() / 2) *=
-            QTransform::fromScale(1.0f, -1.0f);
+    QGLPainter painter;
+    painter.begin();
+
+    painter.setClearColor(Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    QMatrix4x4 projm;
+    projm.ortho(QRectF(0.0f, 0.0f, width(), height()));
+    painter.projectionMatrix() = projm;
 
     // draw rendering nodes
-    foreach(QGLSceneNode *node, m_nodes) {
-        node->draw(painter);
+    foreach(GraphicItemGL *node, m_nodes) {
+
+        if ( node->visible() ) {
+
+            painter.modelViewMatrix().push();
+            painter.projectionMatrix().push();
+
+            if ( node->transformable() ) {
+                painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
+                painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
+            }
+
+            if ( node->invertedX() || node->invertedY() ) {
+                painter.projectionMatrix().scale(node->invertedX() ? -1.0f : 1.0f,
+                                                             node->invertedY() ? -1.0f : 1.0f, 0.0f);
+            }
+
+            painter.modelViewMatrix() *= node->transform() * anchorTransform(node->anchor());
+
+            node->draw(&painter);
+
+            painter.projectionMatrix().pop();
+            painter.modelViewMatrix().pop();
+        }
     }
 
     glFlush(); // forces to send the data to the GPU saving time
-
-    painter->projectionMatrix().pop();
-}
-
-void CellGLView::rotate()
-{
-    update();
 }
 
 void CellGLView::resizeGL(int width, int height)
 {
     //devicePixelRatio() fix the problem with MAC retina
     qreal pixelRatio = devicePixelRatio();
-    QGLView::resizeGL(width * pixelRatio, height * pixelRatio);
-    //camera()->setViewSize(size()); // the size of the window
+    glViewport(0.0f, 0.0f, width * pixelRatio, height * pixelRatio);
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
-    setZoom(qreal(event->delta()));
     event->ignore();
+    qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    setZoom(zoomFactor * m_zoom);
 }
 
-void CellGLView::addRenderingNode(QGLSceneNode *node)
+void CellGLView::addRenderingNode(GraphicItemGL *node)
 {
     Q_ASSERT(node != nullptr);
     m_nodes.append(node);
     connect(node, SIGNAL(updated()), this, SLOT(update()));
 }
 
-void CellGLView::removeRenderingNode(QGLSceneNode *node)
+void CellGLView::removeRenderingNode(GraphicItemGL *node)
 {
     Q_ASSERT(node != nullptr);
     m_nodes.removeOne(node);
     disconnect(node, SIGNAL(updated()), this, SLOT(update()));
 }
 
-void CellGLView::setZoom(qreal delta)
+void CellGLView::update()
 {
-    camera()->setViewSize( camera()->viewSize() * ( 1 - 0.001 * delta ) );
+    QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
 }
 
-/*
-void CellGLView::slotCenterOn(const QPointF& point)
+void CellGLView::setZoom(qreal delta)
 {
-    centerOn(point);
-}*/
+    if (m_zoom != delta) {
+        m_zoom = delta;
+        update();
+    }
+}
+
+void CellGLView::centerOn(const QPointF& point)
+{
+    QVector3D center_point(point.x(), point.y(), 0.0f);
+    //TODO
+}
 
 const QImage CellGLView::grabPixmapGL() const
 {
+    //TODO
     return QImage();
-}
-
-void CellGLView::nodeClicked()
-{
-    qDebug() << "Node Clicked";
 }
 
 void CellGLView::zoomIn()
@@ -154,16 +226,8 @@ void CellGLView::zoomOut()
     setZoom(DEFAULT_ZOOM_OUT);
 }
 
-void CellGLView::pan(int deltax, int deltay)
+void CellGLView::rotate(int deltax, int deltay, int rotation)
 {
-    QVector3D t = camera()->translation(deltax, deltay, 0.0f);
-    camera()->setEye(camera()->eye() - t);
-    camera()->setCenter(camera()->center() - t);
-}
-
-void CellGLView::rotate(int deltax, int deltay)
-{
-    int rotation = camera()->screenRotation();
     if (rotation == 90 || rotation == 270) {
         qSwap(deltax, deltay);
     }
@@ -175,155 +239,101 @@ void CellGLView::rotate(int deltax, int deltay)
     }
     float anglex = deltax * 90.0f / width();
     float angley = deltay * 90.0f / height();
-    QQuaternion q = camera()->pan(-anglex);
-    q *= camera()->tilt(-angley);
-    camera()->rotateCenter(q);
+
+    Q_UNUSED(anglex);
+    Q_UNUSED(angley);
+    //TODO
 }
 
-void CellGLView::mousePressEvent(QMouseEvent *e)
+void CellGLView::mousePressEvent(QMouseEvent *event)
 {
-    QObject *object;
-
-    if (!panning && (options() & QGLView::ObjectPicking) != 0) {
-        object = objectForPoint(e->pos());
-    }
-    else {
-        object = nullptr;
-    }
-
-    if (pressedObject) {
-        // Send the press event to the pressed object.  Use a position
-        // of (0, 0) if the mouse is still within the pressed object,
-        // or (-1, -1) if the mouse is no longer within the pressed object.
-        QMouseEvent event
-            (QEvent::MouseButtonPress,
-             (pressedObject == object) ? QPoint(0, 0) : QPoint(-1, -1),
-             e->globalPos(), e->button(), e->buttons(), e->modifiers());
-        QCoreApplication::sendEvent(pressedObject, &event);
-    } else if (object) {
-        // Record the object that was pressed and forward the event.
-        pressedObject = object;
-        enteredObject = nullptr;
-        pressedButton = e->button();
-        // Send a mouse press event for (0, 0).
-        QMouseEvent event(QEvent::MouseButtonPress, QPoint(0, 0),
-                          e->globalPos(), e->button(), e->buttons(),
-                          e->modifiers());
-        QCoreApplication::sendEvent(object, &event);
-    } else if ((options() & QGLView::CameraNavigation) != 0 &&
-                    e->button() == Qt::LeftButton) {
-        panning = true;
-        lastPan = e->pos();
-        startPan = e->pos();
-        startEye = camera()->eye();
-        startCenter = camera()->center();
-        panModifiers = e->modifiers();
+    if (event->button() == Qt::LeftButton) {
+        m_panning = true;
+        m_lastpos = event->globalPos();
         setCursor(Qt::ClosedHandCursor);
     }
-    //QWindow::mousePressEvent(e);
+    event->ignore();
 }
 
-void CellGLView::mouseReleaseEvent(QMouseEvent *e)
+void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (panning && e->button() == Qt::LeftButton) {
-        panning = false;
+    if (event->button() == Qt::LeftButton) {
+        m_panning = false;
         unsetCursor();
     }
-    if (pressedObject) {
-        // Notify the previously pressed object about the release.
-        QObject *object = objectForPoint(e->pos());
-        QObject *pressed = pressedObject;
-        if (e->button() == pressedButton) {
-            pressedObject = nullptr;
-            pressedButton = Qt::NoButton;
-            enteredObject = object;
-            // Send the release event to the pressed object.  Use a position
-            // of (0, 0) if the mouse is still within the pressed object,
-            // or (-1, -1) if the mouse is no longer within the pressed object.
-            QMouseEvent event
-                (QEvent::MouseButtonRelease,
-                 (pressed == object) ? QPoint(0, 0) : QPoint(-1, -1),
-                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
-            QCoreApplication::sendEvent(pressed, &event);
-            // Send leave and enter events if necessary.
-            if (object != pressed) {
-                QEvent event(QEvent::Leave);
-                QCoreApplication::sendEvent(pressed, &event);
-                if (object) {
-                    QEvent event(QEvent::Enter);
-                    QCoreApplication::sendEvent(object, &event);
-                }
-            }
-        } else {
-            // Some other button than the original was released.
-            // Forward the event to the pressed object.
-            QMouseEvent event
-                (QEvent::MouseButtonRelease,
-                 (pressed == object) ? QPoint(0, 0) : QPoint(-1, -1),
-                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
-            QCoreApplication::sendEvent(pressed, &event);
-        }
-    }
-    //QWindow::mouseReleaseEvent(e);
+    event->ignore();
 }
 
-void CellGLView::mouseMoveEvent(QMouseEvent *e)
+void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (panning) {
-
-        QPoint delta = e->pos() - startPan;
-        if (e->modifiers() == panModifiers) {
-            camera()->setEye(startEye);
-            camera()->setCenter(startCenter);
-        } else {
-            startPan = lastPan;
-            delta = e->pos() - startPan;
-            startEye = camera()->eye();
-            startCenter = camera()->center();
-            panModifiers = e->modifiers();
-        }
-
-        lastPan = e->pos();
-        pan(delta.x(), delta.y());
-
-    } else if ((options() & QGLView::ObjectPicking) != 0) {
-
-        QObject *object = objectForPoint(e->pos());
-        if (pressedObject) {
-
-            // Send the move event to the pressed object.  Use a position
-            // of (0, 0) if the mouse is still within the pressed object,
-            // or (-1, -1) if the mouse is no longer within the pressed object.
-            QMouseEvent event
-                (QEvent::MouseMove,
-                 (pressedObject == object) ? QPoint(0, 0) : QPoint(-1, -1),
-                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
-            QCoreApplication::sendEvent(pressedObject, &event);
-
-        } else if (object) {
-
-            if (object != enteredObject) {
-                if (enteredObject) {
-                    QEvent event(QEvent::Leave);
-                    QCoreApplication::sendEvent(enteredObject, &event);
-                }
-                QEvent event(QEvent::Enter);
-                QCoreApplication::sendEvent(enteredObject, &event);
-            }
-            QMouseEvent event
-                (QEvent::MouseMove, QPoint(0, 0),
-                 e->globalPos(), e->button(), e->buttons(), e->modifiers());
-            QCoreApplication::sendEvent(object, &event);
-        } else if (enteredObject) {
-            QEvent event(QEvent::Leave);
-            QCoreApplication::sendEvent(enteredObject, &event);
-            enteredObject = 0;
-        }
+    if (m_panning) {
+        m_panx += (event->globalPos().x() - m_lastpos.x()) * DELTA_MOUSE_PANNING;
+        m_pany -= (event->globalPos().y() - m_lastpos.y()) * -DELTA_MOUSE_PANNING;
+        m_lastpos = event->globalPos();
+        update();
     }
-    //QWindow::mouseMoveEvent(e);
+    event->ignore();
 }
 
-void CellGLView::keyPressEvent(QKeyEvent *e)
+void CellGLView::keyPressEvent(QKeyEvent *event)
 {
-    e->ignore();
+    switch(event->key()) {
+    case Qt::Key_Right:
+        m_panx += DELTA_PANNING;
+        break;
+    case Qt::Key_Left:
+        m_panx -= DELTA_PANNING;
+        break;
+    case Qt::Key_Up:
+        m_pany -= DELTA_PANNING;
+        break;
+    case Qt::Key_Down:
+        m_pany += DELTA_PANNING;
+        break;
+    default:
+        break;
+    }
+    update();
+    event->ignore();
+}
+
+const QTransform CellGLView::anchorTransform(GraphicItemGL::Anchor anchor) const
+{
+    //const QSizeF viewSize = m_viewport.size();
+    const QSizeF viewSize = size();
+    QTransform transform(Qt::Uninitialized);
+
+    switch (anchor)
+    {
+        case GraphicItemGL::Center:
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height() * 0.5f);
+            break;
+        case GraphicItemGL::North:
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, 0.0f);
+            break;
+        case GraphicItemGL::NorthEast:
+            transform = QTransform::fromTranslate(viewSize.width(), 0.0f);
+            break;
+        case GraphicItemGL::East:
+            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5f);
+            break;
+        case GraphicItemGL::SouthEast:
+            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
+            break;
+        case GraphicItemGL::South:
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height());
+            break;
+        case GraphicItemGL::SouthWest:
+            transform = QTransform::fromTranslate(0.0f, viewSize.height());
+            break;
+        case GraphicItemGL::West:
+            transform = QTransform::fromTranslate(0.0f, viewSize.height() * 0.5f);
+            break;
+        case GraphicItemGL::NorthWest:
+            // fall-through
+        default:
+            transform = QTransform::fromTranslate(0.0f, 0.0f);
+            break;
+    }
+    return transform;
 }

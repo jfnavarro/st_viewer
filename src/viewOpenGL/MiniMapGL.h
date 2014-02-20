@@ -8,7 +8,7 @@
 #ifndef MINIMAPGL_H
 #define MINIMAPGL_H
 
-#include <QGLSceneNode>
+#include "GraphicItemGL.h"
 
 class QGLPainter;
 class QImage;
@@ -16,11 +16,12 @@ class QVector2DArray;
 class QRectF;
 class QColor;
 class QEvent;
+class QMouseEvent;
 
 // MiniMap is an view port GUI item that visualizes the view ports current
 // "image" in relation to the scene. Ie. it shows where in the scene the
 // view port currently is.
-class MiniMapGL : public QGLSceneNode
+class MiniMapGL : public GraphicItemGL
 {
     Q_OBJECT
 
@@ -30,35 +31,32 @@ public:
     virtual ~MiniMapGL();
 
     void setScene(const QRectF& scene);
-    void setView(const QRectF& view);
+    void setViewPort(const QRectF& view);
 
     void setSceneColor(const QColor& sceneColor);
-    const QColor& getSceneColor() const;
+    const QColor& sceneColor() const;
+
     void setViewColor(const QColor& viewColor);
-    const QColor& getViewColor() const;
-
-    bool visible() const;
-
-public slots:
-
-    void setVisible(bool);
+    const QColor& viewColor() const;
 
 protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
 
-    bool event(QEvent *e);
+    virtual bool mouseMoveEvent(QMouseEvent* event);
+    virtual bool mousePressEvent(QMouseEvent* event);
+    virtual bool mouseReleaseEvent(QMouseEvent* event);
+
+    const QRectF boundingRect() const;
 
 signals:
 
-    void pressed();
-    void released();
-    void clicked();
-    void doubleClicked();
+    void signalCenterOn(const QPointF& point);
 
 private:
 
+    const QPointF mapToScene(const QPointF& point) const;
     void updateTransform(const QRectF& scene);
 
     // mini versions
@@ -67,7 +65,8 @@ private:
     QColor m_sceneColor;
     QColor m_viewColor;
 
-    bool m_visible;
+    // mouse events
+    bool m_selecting = false;
 };
 
 #endif // MINIMAPGL_H //

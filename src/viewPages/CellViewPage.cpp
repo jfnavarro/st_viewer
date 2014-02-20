@@ -21,7 +21,7 @@
 #include <QPrinter>
 #include <QColorDialog>
 #include <QImageReader>
-#include <QSurfaceFormat>
+#include <QPainter>
 
 #include "CellViewPageToolBar.h"
 
@@ -159,13 +159,13 @@ void CellViewPage::onEnter()
     m_grid->clearData();
     m_grid->setDimensions(chip_border, chip_rect);
     m_grid->generateData();
-    m_grid->setAlignmentMatrix(alignment);
+    m_grid->setTransform(alignment);
 
     // update gene size an data
     m_gene_plotter->clearData();
-    m_gene_plotter->setDimensions(chip_border, chip_rect);
+    m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
-    m_gene_plotter->setAlignmentMatrix(alignment);
+    m_gene_plotter->setTransform(alignment);
     m_gene_plotter->setHitCount(min, max, pooledMin, pooledMax);
 
     // updated legend size and data
@@ -297,27 +297,55 @@ void CellViewPage::initGLView()
     QWidget *container = QWidget::createWindowContainer(m_view);
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->mainLayout->addWidget(container);
+    //m_view->show();
 
     //TODO modify layout so container takes 1/3 of the canvas
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
+    m_image->setVisualOption(GraphicItemGL::Transformable, true);
+    m_image->setVisualOption(GraphicItemGL::Visible, true);
+    m_image->setVisualOption(GraphicItemGL::Selectable, false);
+    m_image->setVisualOption(GraphicItemGL::Yinverted, false);
+    m_image->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_image);
 
     // grid graphical object
     m_grid = new GridRendererGL(this);
+    m_grid->setVisualOption(GraphicItemGL::Transformable, true);
+    m_grid->setVisualOption(GraphicItemGL::Visible, false);
+    m_grid->setVisualOption(GraphicItemGL::Selectable, false);
+    m_grid->setVisualOption(GraphicItemGL::Yinverted, false);
+    m_grid->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_grid);
 
     // gene plotter component
     m_gene_plotter = new GeneRendererGL(this);
+    m_gene_plotter->setVisualOption(GraphicItemGL::Transformable, true);
+    m_gene_plotter->setVisualOption(GraphicItemGL::Visible, true);
+    m_gene_plotter->setVisualOption(GraphicItemGL::Selectable, true);
+    m_gene_plotter->setVisualOption(GraphicItemGL::Yinverted, false);
+    m_gene_plotter->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_gene_plotter);
 
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
+    m_legend->setVisualOption(GraphicItemGL::Transformable, false);
+    m_legend->setVisualOption(GraphicItemGL::Visible, false);
+    m_legend->setVisualOption(GraphicItemGL::Selectable, false);
+    m_legend->setAnchor(GraphicItemGL::NorthEast);
+    m_legend->setVisualOption(GraphicItemGL::Yinverted, false);
+    m_legend->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_legend);
 
     // minimap component
     m_minimap = new MiniMapGL(this);
+    m_minimap->setVisualOption(GraphicItemGL::Transformable, false);
+    m_minimap->setVisualOption(GraphicItemGL::Visible, true);
+    m_minimap->setVisualOption(GraphicItemGL::Selectable, true);
+    m_minimap->setAnchor(GraphicItemGL::SouthEast);
+    m_minimap->setVisualOption(GraphicItemGL::Yinverted, false);
+    m_minimap->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_minimap);
 }
 

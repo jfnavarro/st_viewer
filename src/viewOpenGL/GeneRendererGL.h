@@ -7,7 +7,7 @@
 #ifndef GENERENDERERGL_H
 #define GENERENDERERGL_H
 
-#include <QGLSceneNode>
+#include "GraphicItemGL.h"
 
 #include "math/QuadTree.h"
 #include "SelectionEvent.h"
@@ -24,7 +24,7 @@ class QGeometryData;
 class QGLShaderProgramEffect;
 
 
-class GeneRendererGL : public QGLSceneNode
+class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
 
@@ -46,14 +46,7 @@ public:
     //void updateData(updateOptions flags);
     void clearData();
 
-    // variables
-    void setAlignmentMatrix(const QTransform &transform);
-    const QTransform& alignmentMatrix() const;
-
-    void setDimensions(const QRectF &border, const QRectF &rect);
-
-    // reset quad tree to rect size
-    void resetQuadTree(const QRectF &rect);
+    void setDimensions(const QRectF &border);
 
     //selection functions
     void selectGenes(const DataProxy::GeneList&);
@@ -63,8 +56,6 @@ public:
 
     //getters
     DataProxy::FeatureListPtr getSelectedFeatures();
-
-    bool visible() const;
 
 public slots:
 
@@ -80,9 +71,10 @@ public slots:
 
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
 
-    void setVisible(bool);
-
 protected:
+
+    // reset quad tree to rect size
+    void resetQuadTree(const QRectF &rect);
 
     //internal rendering functions
     //void updateGene(DataProxy::GenePtr, updateOptions flags);
@@ -94,6 +86,8 @@ protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
+
+    const QRectF boundingRect() const;
 
     int addQuad(qreal x, qreal y, QColor4ub color = Qt::white);
     void updateQuadSize(const int index, qreal x, qreal y);
@@ -139,6 +133,8 @@ private:
     int m_pooledMin;
     int m_pooledMax;
 
+    QRectF m_border;
+
     // color scheme
     ColorScheme *m_colorScheme = nullptr;
 
@@ -152,11 +148,6 @@ private:
     QGLShaderProgramEffect *shaderCircle;
     QGLShaderProgramEffect *shaderRectangle;
     QGLShaderProgramEffect *shaderCross;
-
-    // alignment matrix transformation
-    QTransform m_transform;
-
-    bool m_visible;
 };
 
 

@@ -11,8 +11,7 @@ static const qreal GRID_LINE_SPACE = 5.0f;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 
 GridRendererGL::GridRendererGL(QObject *parent)
-    :QGLSceneNode(parent),
-      m_visible(false)
+    : GraphicItemGL(parent)
 {
 
 }
@@ -24,17 +23,10 @@ GridRendererGL::~GridRendererGL()
 
 void GridRendererGL::draw(QGLPainter *painter)
 {
-    if (!m_visible) {
-        return;
-    }
-
     glEnable(GL_LINE_SMOOTH);
     {
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         glLineWidth(GRID_LINE_SIZE);
-
-        painter->modelViewMatrix().push();
-        painter->modelViewMatrix() *= m_transform;
 
         m_gridBorderColor.setAlphaF(0.5);
         painter->clearAttributes();
@@ -49,8 +41,6 @@ void GridRendererGL::draw(QGLPainter *painter)
         painter->setColor(m_gridColor);
         painter->setVertexAttribute(QGL::Position, m_grid_vertex);
         painter->draw(QGL::Lines, m_grid_vertex.size());
-
-        painter->modelViewMatrix().pop();
     }
     glDisable(GL_LINE_SMOOTH);
 }
@@ -147,24 +137,7 @@ const QColor& GridRendererGL::color() const
     return m_gridColor;
 }
 
-void GridRendererGL::setAlignmentMatrix(const QTransform &transform)
+const QRectF GridRendererGL::boundingRect() const
 {
-    m_transform = transform;
-    emit updated();
-}
-
-const QTransform& GridRendererGL::alignmentMatrix() const
-{
-    return m_transform;
-}
-
-void GridRendererGL::setVisible(bool visible)
-{
-    m_visible = visible;
-    emit updated();
-}
-
-bool GridRendererGL::visible() const
-{
-    return m_visible;
+    return m_border;
 }

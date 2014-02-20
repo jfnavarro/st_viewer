@@ -25,8 +25,7 @@ static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex1;
 static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex0;
 
 GeneRendererGL::GeneRendererGL(QObject *parent)
-    : QGLSceneNode(parent),
-      m_visible(false)
+    : GraphicItemGL(parent)
 {
     clearData();
     setupShaders();
@@ -74,13 +73,13 @@ void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
     m_max = max;
     m_pooledMin = pooledMin;
     m_pooledMax = pooledMax;
+    emit updated();
 }
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
     m_intensity = intensity;
-    // update gene data
-    //m_geneData.setIntensity(intensity);
+    emit updated();
 }
 
 void GeneRendererGL::setSize(qreal size)
@@ -162,7 +161,6 @@ void GeneRendererGL::updateQuadColor(const int index, QColor4ub color)
     m_geneData.color(index + 3) = color;
 }
 
-
 void GeneRendererGL::generateData()
 {
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -195,8 +193,8 @@ void GeneRendererGL::generateData()
             // update custom vertex arrays
             //m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
             //m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
-            m_geneData.appendAttribute(float(0.0), selectionVertex);  // we initialize to false (it will be fetched afterwards)
-            m_geneData.appendAttribute(float(0.0), visibleVertex); // we initialize to false (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to false (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, visibleVertex); // we initialize to false (it will be fetched afterwards)
 
             // update look up containers
             m_geneInfoById.insert(feature, index);
@@ -541,6 +539,7 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
     if (m_colorScheme) {
         delete m_colorScheme;
     }
+    m_colorScheme = 0;
 
     // update color scheme
     switch (m_visualMode) {
@@ -567,11 +566,11 @@ void GeneRendererGL::setThresholdMode(const Globals::GeneThresholdMode &mode)
 
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
-    if (m_geneNode == 0 || !m_visible) {
+    if (m_geneNode == nullptr) {
         return;
     }
 
-    m_geneNode->setLocalTransform(m_transform);
+    //m_geneNode->setLocalTransform(m_transform);
 
     //QGLMaterial *material = new QGLMaterial(this);
     //material->setColor(Qt::red);
@@ -607,26 +606,15 @@ void GeneRendererGL::setupShaders()
     //shaderCross->setVertexShaderFromFile(":shader/geneCross.vert");
 }
 
-void GeneRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
+void GeneRendererGL::setDimensions(const QRectF &border)
 {
-    Q_UNUSED(rect);
+    m_border = border;
     // reflect bounds to quad tree
     m_geneInfoQuadTree.clear();
     m_geneInfoQuadTree = GeneInfoQuadTree(QuadTreeAABB(border));
 }
 
-void GeneRendererGL::setAlignmentMatrix(const QTransform &transform)
+const QRectF GeneRendererGL::boundingRect() const
 {
-    m_transform = transform;
-}
-
-void GeneRendererGL::setVisible(bool visible)
-{
-    m_visible = visible;
-    emit updated();
-}
-
-bool GeneRendererGL::visible() const
-{
-    return m_visible;
+    return m_border;
 }

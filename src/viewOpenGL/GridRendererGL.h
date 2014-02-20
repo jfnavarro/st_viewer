@@ -1,15 +1,14 @@
 #ifndef GRIDRENDERERGL_H
 #define GRIDRENDERERGL_H
 
-#include <QGLSceneNode>
-#include <QTransform>
+#include "GraphicItemGL.h"
 
 class QGLPainter;
 class QRectF;
 class QColor;
 class QVector2DArray;
 
-class GridRendererGL : public QGLSceneNode
+class GridRendererGL : public GraphicItemGL
 {
     Q_OBJECT
 
@@ -24,25 +23,22 @@ public:
 
     //setters
     void setDimensions(const QRectF &border, const QRectF &rect);
-    void setAlignmentMatrix(const QTransform &transform);
 
     //gettters
     const QColor& color() const;
     const QRectF& border() const;
     const QRectF& rectangle() const;
-    const QTransform& alignmentMatrix() const;
-
-    bool visible() const;
 
 public slots:
 
     void setColor(const QColor &color);
-    void setVisible(bool);
 
 protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
+
+    const QRectF boundingRect() const;
 
 private:
 
@@ -59,11 +55,6 @@ private:
     // grid colors
     QColor m_gridColor;
     QColor m_gridBorderColor;
-
-    // alignment matrix transformation
-    QTransform m_transform;
-
-    bool m_visible;
 };
 
 #endif // GRIDRENDERERGL_H
