@@ -9,20 +9,16 @@
 #include <QSurfaceFormat>
 #include <QGuiApplication>
 
-static const QSizeF DEFAULT_ZOOM_MIN = QSizeF(1.00, 1.00);
-static const QSizeF DEFAULT_ZOOM_MAX = QSizeF(20.0, 20.0);
-static const QSizeF DEFAULT_ZOOM = DEFAULT_ZOOM_MIN;
+static const qreal DEFAULT_ZOOM_MIN = 1.0f;
+static const qreal DEFAULT_ZOOM_MAX = 20.0f;
 static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
-static const QSize DEFAULT_BOUND_SIZE = QSize(100, 100);
-
 static const qreal DELTA_PANNING = 2.5f;
 static const qreal DELTA_MOUSE_PANNING = 0.5f;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
 {
-
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     format.setDepthBufferSize(0);
     format.setAlphaBufferSize(24);
@@ -46,7 +42,7 @@ void CellGLView::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
     ensureContext();
-    if (!m_initialized) {
+    if ( !m_initialized ) {
         initializeGL();
     }
 }
@@ -59,14 +55,11 @@ void CellGLView::hideEvent(QHideEvent *event)
 void CellGLView::exposeEvent(QExposeEvent *event)
 {
     Q_UNUSED(event);
-
     ensureContext();
-    if (!m_initialized) {
+    if ( !m_initialized ) {
         initializeGL();
     }
-
     paintGL();
-
     m_context->swapBuffers(this);
 }
 
@@ -77,24 +70,24 @@ void CellGLView::resizeEvent(QResizeEvent *event)
     QRect rect = geometry();
     Q_ASSERT(event->size() == rect.size());
 
-    if (rect.size() != m_viewport.size())
+    if ( rect.size() != m_viewport.size() )
     {
         ensureContext();
-        if (!m_initialized) {
+        if ( !m_initialized ) {
             initializeGL();
         }
         resizeGL(rect.width(), rect.height());
         m_viewport = rect;
+        emit signalSceneUpdated(m_viewport);
     }
 }
 
 void CellGLView::ensureContext()
 {
-    if (!m_context)
-    {
+    if ( !m_context ) {
         m_context = new QOpenGLContext();
         m_context->setFormat(format);
-        bool success = m_context->create();
+        const bool success = m_context->create();
         qDebug() << "Creating OpenGL context = " << success;
     }
     m_context->makeCurrent(this);
@@ -110,7 +103,7 @@ void CellGLView::initializeGL()
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_CULL_FACE);
 
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_FLAT); // or GL_SMOOTH
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -141,14 +134,14 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().push();
             painter.projectionMatrix().push();
 
-            if ( node->transformable() ) {
-                painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
-                painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
-            }
-
             if ( node->invertedX() || node->invertedY() ) {
                 painter.projectionMatrix().scale(node->invertedX() ? -1.0f : 1.0f,
                                                              node->invertedY() ? -1.0f : 1.0f, 0.0f);
+            }
+
+            if ( node->transformable() ) {
+                painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
+                painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
             }
 
             painter.modelViewMatrix() *= node->transform() * anchorTransform(node->anchor());
@@ -165,16 +158,16 @@ void CellGLView::paintGL()
 
 void CellGLView::resizeGL(int width, int height)
 {
-    //devicePixelRatio() fix the problem with MAC retina
+    //devicePixelRatio() fixes the problem with MAC retina
     qreal pixelRatio = devicePixelRatio();
     glViewport(0.0f, 0.0f, width * pixelRatio, height * pixelRatio);
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
-    event->ignore();
     qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoom(zoomFactor * m_zoom);
+    event->ignore();
 }
 
 void CellGLView::addRenderingNode(GraphicItemGL *node)
@@ -207,7 +200,12 @@ void CellGLView::setZoom(qreal delta)
 void CellGLView::centerOn(const QPointF& point)
 {
     QVector3D center_point(point.x(), point.y(), 0.0f);
-    //TODO
+    qDebug() << "Center on = " << center_point;
+}
+
+void CellGLView::rotate(int angle)
+{
+    Q_UNUSED(angle);
 }
 
 const QImage CellGLView::grabPixmapGL() const
@@ -218,12 +216,12 @@ const QImage CellGLView::grabPixmapGL() const
 
 void CellGLView::zoomIn()
 {
-    setZoom(DEFAULT_ZOOM_IN);
+    setZoom(m_zoom * DEFAULT_ZOOM_IN);
 }
 
 void CellGLView::zoomOut()
 {
-    setZoom(DEFAULT_ZOOM_OUT);
+    setZoom(m_zoom * DEFAULT_ZOOM_OUT);
 }
 
 void CellGLView::rotate(int deltax, int deltay, int rotation)
@@ -251,6 +249,24 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         m_panning = true;
         m_lastpos = event->globalPos();
         setCursor(Qt::ClosedHandCursor);
+
+        QPointF point = event->localPos();
+        foreach(GraphicItemGL *node, m_nodes) {
+            const QPointF localPoint = (node->transform()
+                                        * anchorTransform(node->anchor())).inverted().map(point);
+            QMouseEvent newEvent(
+                event->type(),
+                localPoint,//event->localPos(),
+                event->windowPos(),
+                event->screenPos(),
+                event->button(),
+                event->buttons(),
+                event->modifiers()
+            );
+            if ( node->selectable() && node->contains(localPoint) ){
+                node->mousePressEvent(&newEvent);
+            }
+        }
     }
     event->ignore();
 }
@@ -258,8 +274,27 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
 void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+
         m_panning = false;
         unsetCursor();
+
+        QPointF point = event->localPos();
+        foreach(GraphicItemGL *node, m_nodes) {
+            const QPointF localPoint = (node->transform() *
+                                        anchorTransform(node->anchor())).inverted().map(point);
+            QMouseEvent newEvent(
+                event->type(),
+                localPoint,//event->localPos(),
+                event->windowPos(),
+                event->screenPos(),
+                event->button(),
+                event->buttons(),
+                event->modifiers()
+            );
+            if (node->selectable() && node->contains(localPoint) ) {
+                node->mouseReleaseEvent(&newEvent);
+            }
+        }
     }
     event->ignore();
 }
@@ -267,11 +302,32 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_panning) {
+
         m_panx += (event->globalPos().x() - m_lastpos.x()) * DELTA_MOUSE_PANNING;
         m_pany -= (event->globalPos().y() - m_lastpos.y()) * -DELTA_MOUSE_PANNING;
         m_lastpos = event->globalPos();
         update();
     }
+
+    QPointF point = event->localPos();
+    foreach(GraphicItemGL *node, m_nodes) {
+        const QPointF localPoint = (node->transform()
+                                    * anchorTransform(node->anchor())).inverted().map(point);
+        QMouseEvent newEvent(
+            event->type(),
+            localPoint,//event->localPos(),
+            event->windowPos(),
+            event->screenPos(),
+            event->button(),
+            event->buttons(),
+            event->modifiers()
+        );
+
+        if ( node->selectable() && node->contains(localPoint) ) {
+            node->mouseMoveEvent(&newEvent);
+        }
+    }
+
     event->ignore();
 }
 

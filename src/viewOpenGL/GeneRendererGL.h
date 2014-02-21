@@ -61,7 +61,8 @@ public slots:
 
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-    //void setShine(qreal shine);
+
+    void setShine(qreal shine);
 
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);

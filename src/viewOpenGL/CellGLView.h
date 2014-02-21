@@ -31,6 +31,8 @@ public slots:
 
     void centerOn(const QPointF& point);
 
+    void rotate(int angle);
+
     void update();
 
 protected:
@@ -60,6 +62,8 @@ protected:
 
 signals:
 
+    void signalViewPortUpdated(QRectF);
+    void signalSceneUpdated(QRectF);
 
 private:
 

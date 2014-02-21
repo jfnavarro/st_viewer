@@ -6,7 +6,6 @@
 #include <QGLMaterial>
 #include <QImage>
 #include <QGLPainter>
-
 #include <cmath>
 
 static GLint maxTextureSize() {
@@ -30,25 +29,26 @@ void ImageTextureGL::clearTextures()
 {
     foreach( QGLTexture2D *texture, m_textures ) {
         texture->cleanupResources();
+        texture->release();
+        texture->clearImage();
     }
     // check this, nodes are part of the tree and should be removed automatically
-    // removeNodes(allChildren());
+    removeNodes(allChildren());
 }
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
     glEnable(GL_TEXTURE_2D);
     {
-        //foreach(QGLTexture2D *texture, m_textures) {
-        //    texture->bind(); //do not think I need to do this, it is slow
-        //}
-
         foreach(QGLSceneNode *node, allChildren() ) {
-            node->draw(painter);
+            if ( node->material() && node->material()->texture() ) {
+                node->material()->texture()->bind();
+                node->draw(painter);
+                node->material()->texture()->release();
+            }
         }
     }
     glDisable(GL_TEXTURE_2D);
-
 }
 
 void ImageTextureGL::drawGeometry(QGLPainter *painter)
@@ -58,8 +58,9 @@ void ImageTextureGL::drawGeometry(QGLPainter *painter)
 
 void ImageTextureGL::createTexture(const QImage& image)
 {
-    const int maxSize = static_cast<int>(maxTextureSize());
-    if (image.width() > maxSize || image.height() > maxSize) {
+    // we divide it by 1/2 to account for image format, color, etc..
+    int maxSize = static_cast<int>(maxTextureSize()) * 0.5f;
+    if ( image.width() > maxSize || image.height() > maxSize ) {
         // cut image into smaller textures
         createTiles(image);
     }
@@ -67,11 +68,6 @@ void ImageTextureGL::createTexture(const QImage& image)
         // create one big texture for the image
         addTexture(image);
     }
-}
-
-const QImage ImageTextureGL::createSubImage(const QImage &image, const QRect & rect) {
-    size_t offset = (rect.x() * image.depth() / 8) + (rect.y() * image.bytesPerLine());
-    return QImage(image.bits() + offset, rect.width(), rect.height(), image.bytesPerLine(), image.format());
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
@@ -93,8 +89,7 @@ void ImageTextureGL::createTiles(const QImage &image)
         const int texture_height = std::min(height -  y, tile_height);
 
         // create sub image
-        QImage sub_image = ImageTextureGL::createSubImage(image,
-                                                          QRect(x, y, texture_width, texture_height));
+        QImage sub_image = image.copy(QRect(x, y, texture_width, texture_height));
 
         // add texture
         addTexture(sub_image, x, y);
@@ -103,7 +98,6 @@ void ImageTextureGL::createTiles(const QImage &image)
 
 void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
 {
-
     const qreal width = qreal(image.width());
     const qreal height = qreal(image.height());
 
@@ -129,19 +123,14 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
-    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption | QGLTexture2D::MipmapBindOption);
+    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption
+                              | QGLTexture2D::MipmapBindOption);
     m_texture->setSize(QSize(width, height));
 
     QGLMaterial *mat = new QGLMaterial(this);
     mat->setColor(Qt::black);
     mat->setTexture(m_texture);
-    if (node->palette() == 0) {
-        node->setMaterial(mat);
-    }
-    else {
-        int canMat = node->palette()->addMaterial(mat);
-        node->setMaterialIndex(canMat);
-    }
+    node->setMaterial(mat);
     node->setEffect(QGL::LitDecalTexture2D);
     addNode(node);
 }
@@ -156,4 +145,12 @@ const QRectF ImageTextureGL::boundingRect() const
     const qreal height = right_corner.y();
     const QRectF rect(x, y, width, height);
     return rect;
+}
+
+void ImageTextureGL::setIntensity(qreal intensity)
+{
+    if ( m_intensity != intensity ) {
+        m_intensity = intensity;
+        emit updated();
+    }
 }

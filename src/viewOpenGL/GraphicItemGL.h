@@ -6,6 +6,7 @@
 
 class QGLPainter;
 class QRectF;
+class QMouseEvent;
 
 class GraphicItemGL : public QGLSceneNode
 {
@@ -20,22 +21,22 @@ public:
     {
         Center = 1,
         North = 2,
-        NorthEast = 3,
-        East = 4,
-        SouthEast = 5,
-        South = 6,
-        SouthWest = 7,
-        West = 8,
-        NorthWest
+        NorthEast = 4,
+        East = 8,
+        SouthEast = 16,
+        South = 32,
+        SouthWest = 64,
+        West = 128,
+        NorthWest = 256
     };
 
     enum VisualOption
     {
-        Visible = 0x0001,
-        Selectable = 0x0002,
-        Transformable = 0x0004,
-        Yinverted = 0x0008,
-        Xinverted = 0x0012
+        Visible = 1,
+        Selectable = 2,
+        Transformable = 4,
+        Yinverted = 8,
+        Xinverted = 16
     };
     Q_DECLARE_FLAGS(VisualOptions, VisualOption)
 
@@ -63,6 +64,11 @@ public:
 
     virtual const QRectF boundingRect() const = 0;
     virtual bool contains(const QPointF& point) const;
+
+    // default "do nothing" event functions
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 
 public slots:
 

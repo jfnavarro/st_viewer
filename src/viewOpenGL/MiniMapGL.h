@@ -30,25 +30,27 @@ public:
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
-    void setScene(const QRectF& scene);
-    void setViewPort(const QRectF& view);
+    const QColor& sceneColor() const;    
+    const QColor& viewColor() const;
 
-    void setSceneColor(const QColor& sceneColor);
-    const QColor& sceneColor() const;
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
+
+    const QRectF boundingRect() const;
+
+public slots:
 
     void setViewColor(const QColor& viewColor);
-    const QColor& viewColor() const;
+    void setSceneColor(const QColor& sceneColor);
+
+    void setScene(const QRectF& scene);
+    void setViewPort(const QRectF& view);
 
 protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
-
-    virtual bool mouseMoveEvent(QMouseEvent* event);
-    virtual bool mousePressEvent(QMouseEvent* event);
-    virtual bool mouseReleaseEvent(QMouseEvent* event);
-
-    const QRectF boundingRect() const;
 
 signals:
 
@@ -56,6 +58,7 @@ signals:
 
 private:
 
+    // internal functions
     const QPointF mapToScene(const QPointF& point) const;
     void updateTransform(const QRectF& scene);
 

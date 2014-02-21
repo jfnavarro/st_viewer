@@ -19,7 +19,7 @@ static const qreal minimap_width = 100.0f;
 
 MiniMapGL::MiniMapGL(QObject* parent)
     : GraphicItemGL(parent),
-      m_scene(0.0f, 0.0f, minimap_height / 2, minimap_width / 2),
+      m_scene(0.0f, 0.0f, minimap_height, minimap_width),
       m_view(0.0f, 0.0f, minimap_height, minimap_width),
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color)
@@ -34,21 +34,30 @@ MiniMapGL::~MiniMapGL()
 
 void MiniMapGL::setScene(const QRectF& scene)
 {
+    // early out
+    if ( !scene.isValid() ) {
+        return;
+    }
+
     QRectF m_bounds(0.0f, 0.0f, minimap_height, minimap_width);
     QRectF scaled = QRectF(m_bounds.topLeft(),
                            scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
 
-    if (m_scene != scaled) {
+    if (m_scene != scaled ) {
         m_scene = scaled;
-        updateTransform(scene);
         emit updated();
     }
 }
 
 void MiniMapGL::setViewPort(const QRectF& view)
 {
+    // early out
+    if ( !view.isValid() ) {
+        return;
+    }
+
     const QRectF transformedView = m_transform.mapRect(view);
-    if (m_view != transformedView) {
+    if ( m_view != transformedView ) {
         m_view = transformedView;
         emit updated();
     }
@@ -56,6 +65,13 @@ void MiniMapGL::setViewPort(const QRectF& view)
 
 void MiniMapGL::updateTransform(const QRectF& scene)
 {
+    // early out
+    if ( !m_bounds.isValid() || !m_scene.isValid() || !scene.isValid() ) {
+        // set to identity matrix
+        m_transform = QTransform();
+        return;
+    }
+
     const QPointF s1 = QPointF(scene.width(), scene.height());
     const QPointF s2 = QPointF(m_scene.width(), m_scene.height());
     const qreal s11 = (s2.x() / s1.x());
@@ -74,6 +90,8 @@ void MiniMapGL::draw(QGLPainter *painter)
 
         // draw scene rectangle
         if (m_scene.isValid()) {
+
+            qDebug() << " Scene " << m_scene;
 
             const QPointF stl = m_scene.topLeft();
             const QPointF str = m_scene.topRight();
@@ -102,6 +120,8 @@ void MiniMapGL::draw(QGLPainter *painter)
 
         // draw view rectangle
         if (m_view.isValid()) {
+
+            qDebug() << " View " << m_view;
 
             const QPointF vtl = m_view.topLeft();
             const QPointF vtr = m_view.topRight();
@@ -163,49 +183,38 @@ const QRectF MiniMapGL::boundingRect() const
     return m_scene;
 }
 
-bool MiniMapGL::mouseMoveEvent(QMouseEvent* event)
+void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 {
     // set selecting to false if release event missed
-    if (!event->buttons().testFlag(Qt::LeftButton))
-    {
+    if ( !event->buttons().testFlag(Qt::LeftButton) ) {
         m_selecting = false;
     }
 
     // move
-    if (m_selecting)
-    {
+    if ( m_selecting ) {
         const QPointF localPoint = event->localPos();
         const QPointF scenePoint = mapToScene(localPoint);
         emit signalCenterOn(scenePoint);
-        return true;
     }
-
-    return false;
 }
 
-bool MiniMapGL::mousePressEvent(QMouseEvent* event)
+void MiniMapGL::mousePressEvent(QMouseEvent* event)
 {
     // center if left button is pressed down
-    if (event->buttons().testFlag(Qt::LeftButton))
-    {
+    if ( event->buttons().testFlag(Qt::LeftButton) ) {
         m_selecting = true;
         const QPointF localPoint = event->localPos();
         const QPointF scenePoint = mapToScene(localPoint);
         emit signalCenterOn(scenePoint);
-        return true;
     }
-    return false;
 }
 
-bool MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
+void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
-    if (!event->buttons().testFlag(Qt::LeftButton))
-    {
+    if ( !event->buttons().testFlag(Qt::LeftButton) ) {
         m_selecting = false;
     }
-    // always propagate release events
-    return false;
 }
 
 const QPointF MiniMapGL::mapToScene(const QPointF& point) const

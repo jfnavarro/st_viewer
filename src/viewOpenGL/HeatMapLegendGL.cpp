@@ -39,45 +39,50 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
 HeatMapLegendGL::~HeatMapLegendGL()
 {
     m_texture.cleanupResources();
+    m_texture.release();
+    m_texture.clearImage();
 }
 
 void HeatMapLegendGL::draw(QGLPainter *painter)
 {
-    glEnable(GL_TEXTURE_2D);
+
+    glEnable(GL_BLEND);
     {
-        // draw image texture
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatReplaceTexture2D);
-        m_texture.bind();
-        painter->setVertexAttribute(QGL::Position, m_texture_vertices);
-        painter->setVertexAttribute(QGL::TextureCoord0, m_texture_cords);
-        painter->draw(QGL::TriangleFan, m_texture_vertices.size());
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // render text
-        drawText(painter, m_lower_text_position, m_lower_text);
-        drawText(painter, m_upper_text_position, m_upper_text);
+        glEnable(GL_TEXTURE_2D);
+        {
+            // draw image texture
+            painter->clearAttributes();
+            painter->setStandardEffect(QGL::FlatReplaceTexture2D);
+            m_texture.bind();
+            painter->setVertexAttribute(QGL::Position, m_texture_vertices);
+            painter->setVertexAttribute(QGL::TextureCoord0, m_texture_cords);
+            painter->draw(QGL::TriangleFan, m_texture_vertices.size());
+            m_texture.release();
+
+            // render text
+            drawText(painter, m_lower_text_position, m_lower_text);
+            drawText(painter, m_upper_text_position, m_upper_text);
+
+            // draw borders
+            painter->clearAttributes();
+            painter->setStandardEffect(QGL::FlatColor);
+            painter->setColor(Qt::white);
+            painter->setVertexAttribute(QGL::Position, m_borders);
+            painter->draw(QGL::LineLoop, m_borders.size());
+
+            // draw threshold bars
+            painter->clearAttributes();
+            painter->setStandardEffect(QGL::FlatColor);
+            painter->setColor(Qt::red);
+            painter->setVertexAttribute(QGL::Position, m_bars);
+            painter->draw(QGL::Lines, m_bars.size());
+
+        }
+        glDisable(GL_TEXTURE_2D);
     }
-    glDisable(GL_TEXTURE_2D);
-
-    glEnable(GL_LINE_SMOOTH);
-    {
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-        // draw borders
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(Qt::black);
-        painter->setVertexAttribute(QGL::Position, m_borders);
-        painter->draw(QGL::LineLoop, m_borders.size());
-
-        // draw threshold bars
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(Qt::red);
-        painter->setVertexAttribute(QGL::Position, m_bars);
-        painter->draw(QGL::Lines, m_bars.size());
-    }
-    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_BLEND);
 }
 
 void HeatMapLegendGL::drawGeometry(QGLPainter *painter)
@@ -124,10 +129,13 @@ void HeatMapLegendGL::generateHeatMap()
     Heatmap::createHeatMapImage(image, Heatmap::SpectrumExp,
                                 std::min(spectra_min, m_min), std::max(spectra_max, m_max));
     m_texture.cleanupResources();
+    m_texture.release();
+    m_texture.clearImage();
     m_texture.setImage(image);
     m_texture.setVerticalWrap(QGL::ClampToEdge);
     m_texture.setHorizontalWrap(QGL::ClampToEdge);
-    //m_texture.setBindOptions(QGLTexture2D::LinearFilteringBindOption);
+    m_texture.setBindOptions(QGLTexture2D::LinearFilteringBindOption
+                              | QGLTexture2D::MipmapBindOption);
 
     m_texture_vertices.clear();
     m_texture_vertices.append(legend_x, legend_y);
@@ -151,8 +159,8 @@ void HeatMapLegendGL::generateHeatMap()
 void HeatMapLegendGL::generateBarAndTexts()
 {
     // threshold bars
-    const qreal thresholdLowerHeight = m_lower_threshold * legend_height;
-    const qreal thresholdUpperHeight = m_upper_threshold * legend_height;
+    const qreal thresholdLowerHeight = (1.0f - m_lower_threshold) * legend_height;
+    const qreal thresholdUpperHeight = (1.0f - m_upper_threshold) * legend_height;
 
     m_bars.clear();
     m_bars.append(legend_x, thresholdLowerHeight);
@@ -183,7 +191,7 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     qpainter.end();
 
     QGLTexture2D texture;
-    texture.setImage(image.mirrored());
+    texture.setImage(image);
     const int x = posn.x();
     const int y = posn.y();
 
@@ -205,10 +213,11 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     painter->setVertexAttribute(QGL::Position, vertices);
     painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
     painter->draw(QGL::TriangleFan, vertices.size());
-    texture.cleanupResources();
+    texture.release();
 }
 
 const QRectF HeatMapLegendGL::boundingRect() const
 {
-    return QRectF(legend_x, legend_y, legend_width, legend_height);
+    return QRectF(legend_x, legend_y,
+                  legend_width + bars_width, legend_height);
 }

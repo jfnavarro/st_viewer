@@ -19,6 +19,10 @@ public:
     void createTexture(const QImage& image);
     void clearTextures();
 
+public slots:
+
+    void setIntensity(qreal intensity);
+
 protected:
 
     void draw(QGLPainter *painter);
@@ -31,9 +35,9 @@ protected:
 
 private:
 
-     static const QImage createSubImage(const QImage &image, const QRect & rect);
-
      QList<QGLTexture2D *> m_textures;
+
+     qreal m_intensity = 1.0f;
 };
 
 #endif // IMAGETEXTUREGL_H

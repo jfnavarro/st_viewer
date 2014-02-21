@@ -132,3 +132,18 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     }
     return adjustedTransform;
 }
+
+void GraphicItemGL::mouseMoveEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+}
+
+void GraphicItemGL::mousePressEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+}
+
+void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+}

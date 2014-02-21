@@ -89,6 +89,12 @@ void GeneRendererGL::setSize(qreal size)
     emit updated();
 }
 
+void GeneRendererGL::setShine(qreal shine)
+{
+    m_shine = shine;
+    emit updated();
+}
+
 void GeneRendererGL::setUpperLimit(int limit)
 {   
     Q_UNUSED(limit);

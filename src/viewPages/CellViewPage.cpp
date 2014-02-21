@@ -330,6 +330,7 @@ void CellViewPage::initGLView()
 
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
+    //m_legend->setTransform(QTransform::fromTranslate(25.0, 25.0));
     m_legend->setVisualOption(GraphicItemGL::Transformable, false);
     m_legend->setVisualOption(GraphicItemGL::Visible, false);
     m_legend->setVisualOption(GraphicItemGL::Selectable, false);
@@ -340,6 +341,7 @@ void CellViewPage::initGLView()
 
     // minimap component
     m_minimap = new MiniMapGL(this);
+    m_minimap->setTransform(QTransform::fromTranslate(-10.0, -10.0));
     m_minimap->setVisualOption(GraphicItemGL::Transformable, false);
     m_minimap->setVisualOption(GraphicItemGL::Visible, true);
     m_minimap->setVisualOption(GraphicItemGL::Selectable, true);
@@ -347,8 +349,10 @@ void CellViewPage::initGLView()
     m_minimap->setVisualOption(GraphicItemGL::Yinverted, false);
     m_minimap->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_minimap);
+    connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
 }
-
 
 void CellViewPage::createGLConnections()
 {
