@@ -1,3 +1,9 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
 #ifndef CELLGLVIEW_H
 #define CELLGLVIEW_H
 
@@ -50,9 +56,6 @@ protected:
     void hideEvent(QHideEvent *event);
     void exposeEvent(QExposeEvent *eevent);
     void resizeEvent(QResizeEvent * event);
-
-    // Rotate about the object being viewed.
-    void rotate(int deltax, int deltay, int rotation);
 
     void setZoom(qreal delta);
 

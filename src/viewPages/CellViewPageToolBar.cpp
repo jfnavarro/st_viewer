@@ -59,14 +59,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     menu_genePlotter->addActions(actionGroup_toggleVisualMode->actions());
     menu_genePlotter->addSeparator();
 
-    //threshold modes
-    actionGroup_toggleThresholdMode = new QActionGroup(menu_genePlotter);
-    actionGroup_toggleThresholdMode->setExclusive(true);
-    actionGroup_toggleThresholdMode->addAction(actionShow_toggleThresholdNormal);
-    actionGroup_toggleThresholdMode->addAction(actionShow_toggleThresholdGlobal);
-    menu_genePlotter->addActions(actionGroup_toggleThresholdMode->actions());
-    menu_genePlotter->addSeparator();
-
     //threshold slider
     QxtSpanSlider *geneHitsThresholdSelector = new QxtSpanSlider();
     geneHitsThresholdSelector->setOrientation(Qt::Horizontal);
@@ -173,10 +165,6 @@ void CellViewPageToolBar::resetActions()
     actionShow_toggleHeatMap->setChecked(false);
     actionShow_toggleNormal->setChecked(true);
 
-    // reset threshold modes
-    actionShow_toggleThresholdNormal->setChecked(true);
-    actionShow_toggleThresholdGlobal->setChecked(false);
-
     actionShow_showCellTissue->setChecked(true);
 
     actionShow_showGrid->setChecked(false);
@@ -232,14 +220,6 @@ void CellViewPageToolBar::createActions()
     actionShow_toggleHeatMap = new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
     actionShow_toggleHeatMap->setCheckable(true);
     actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
-
-    //threshold modes
-    actionShow_toggleThresholdNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Individual Gene Mode"), this);
-    actionShow_toggleThresholdNormal->setCheckable(true);
-    actionShow_toggleThresholdNormal->setProperty("mode", Globals::GeneThresholdMode::IndividualGeneMode);
-    actionShow_toggleThresholdGlobal = new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Global Gene Mode"), this);
-    actionShow_toggleThresholdGlobal->setCheckable(true);
-    actionShow_toggleThresholdGlobal->setProperty("mode", Globals::GeneThresholdMode::GlobalGeneMode);
 
     //save print
     actionSave_save = new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);

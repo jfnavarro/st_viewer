@@ -1,3 +1,10 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
 #include "GridRendererGL.h"
 
 #include "math/Common.h"
@@ -13,7 +20,11 @@ static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 GridRendererGL::GridRendererGL(QObject *parent)
     : GraphicItemGL(parent)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, true);
+    setVisualOption(GraphicItemGL::Visible, false);
+    setVisualOption(GraphicItemGL::Selectable, false);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 GridRendererGL::~GridRendererGL()

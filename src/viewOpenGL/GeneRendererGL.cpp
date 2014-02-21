@@ -27,6 +27,12 @@ static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex0;
 GeneRendererGL::GeneRendererGL(QObject *parent)
     : GraphicItemGL(parent)
 {
+    setVisualOption(GraphicItemGL::Transformable, true);
+    setVisualOption(GraphicItemGL::Visible, true);
+    setVisualOption(GraphicItemGL::Selectable, true);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
+
     clearData();
     setupShaders();
 }
@@ -55,7 +61,6 @@ void GeneRendererGL::clearData()
     m_intensity = Globals::GENE_INTENSITY_DEFAULT;
     m_size = Globals::GENE_SIZE_DEFAULT;
     m_shine = Globals::GENE_SHINNE_DEFAULT;
-    m_thresholdMode = Globals::IndividualGeneMode;
 
     // allocate color scheme
     setVisualMode(Globals::NormalMode);
@@ -564,19 +569,11 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
     //m_geneData.setColorMode(m_visualMode);
 }
 
-void GeneRendererGL::setThresholdMode(const Globals::GeneThresholdMode &mode)
-{
-    m_thresholdMode = mode;
-    //m_geneData.setThresholdMode(m_thresholdMode);
-}
-
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
     if (m_geneNode == nullptr) {
         return;
     }
-
-    //m_geneNode->setLocalTransform(m_transform);
 
     //QGLMaterial *material = new QGLMaterial(this);
     //material->setColor(Qt::red);

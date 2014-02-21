@@ -1,4 +1,9 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
+*/
 #include "ImageTextureGL.h"
 
 #include <QGLBuilder>
@@ -17,7 +22,11 @@ static GLint maxTextureSize() {
 ImageTextureGL::ImageTextureGL(QObject *parent) :
     GraphicItemGL(parent)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, true);
+    setVisualOption(GraphicItemGL::Visible, true);
+    setVisualOption(GraphicItemGL::Selectable, false);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 ImageTextureGL::~ImageTextureGL()

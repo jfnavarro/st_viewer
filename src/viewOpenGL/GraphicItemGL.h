@@ -1,5 +1,11 @@
 #ifndef GRAPHICITEMGL_H
 #define GRAPHICITEMGL_H
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
 
 #include <QGLSceneNode>
 #include <QTransform>
@@ -65,7 +71,7 @@ public:
     virtual const QRectF boundingRect() const = 0;
     virtual bool contains(const QPointF& point) const;
 
-    // default "do nothing" event functions
+    // graphic elements can be sent mouse events
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
@@ -80,7 +86,6 @@ protected:
 
     QTransform m_transform;
     Anchor m_anchor = Anchor::NorthWest;
-    QSizeF m_bounds;
     GraphicItemGL::VisualOptions m_visualOptions;
 };
 

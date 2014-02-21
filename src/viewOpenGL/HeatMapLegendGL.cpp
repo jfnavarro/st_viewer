@@ -33,7 +33,11 @@ constexpr qreal boundaries ()
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     : GraphicItemGL(parent)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, false);
+    setVisualOption(GraphicItemGL::Visible, false);
+    setVisualOption(GraphicItemGL::Selectable, false);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 HeatMapLegendGL::~HeatMapLegendGL()
@@ -169,8 +173,7 @@ void HeatMapLegendGL::generateBarAndTexts()
 void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
                                const QString& str)
 {
-    QFont monoFont("Courier", 10, QFont::Normal);
-    //monoFont.setStyleHint(QFont::TypeWriter);
+    QFont monoFont("Courier", 12, QFont::Normal);
     QFontMetrics metrics(monoFont);
     QRect textRect = metrics.boundingRect(str);
 

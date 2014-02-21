@@ -46,10 +46,6 @@ public:
     QAction *actionShow_toggleDynamicRangeGenes;
     QAction *actionShow_toggleHeatMap;
 
-    QActionGroup *actionGroup_toggleThresholdMode;
-    QAction *actionShow_toggleThresholdNormal;
-    QAction *actionShow_toggleThresholdGlobal;
-
     QWidgetAction *actionWidget_geneHitsThreshold;
     QWidgetAction *actionWidget_geneIntensity;
     QWidgetAction *actionWidget_geneSize;

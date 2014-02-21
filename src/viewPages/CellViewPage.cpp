@@ -51,8 +51,6 @@ CellViewPage::CellViewPage(QWidget *parent)
 
 CellViewPage::~CellViewPage()
 {
-    //finalizeGL();
-
     if (m_colorDialogGrid) {
         delete m_colorDialogGrid;
     }
@@ -172,6 +170,9 @@ void CellViewPage::onEnter()
     m_legend->setBoundaries(min, max);
     m_legend->setLowerLimit(min);
     m_legend->setUpperLimit(max);
+
+    // update tool bar threshold limits
+    m_toolBar->resetTresholdActions(min, max);
 
     // load cell tissue
     slotLoadCellFigure();
@@ -297,58 +298,34 @@ void CellViewPage::initGLView()
     QWidget *container = QWidget::createWindowContainer(m_view);
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->mainLayout->addWidget(container);
-    //m_view->show();
 
     //TODO modify layout so container takes 1/3 of the canvas
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
-    m_image->setVisualOption(GraphicItemGL::Transformable, true);
-    m_image->setVisualOption(GraphicItemGL::Visible, true);
-    m_image->setVisualOption(GraphicItemGL::Selectable, false);
-    m_image->setVisualOption(GraphicItemGL::Yinverted, false);
-    m_image->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_image);
 
     // grid graphical object
     m_grid = new GridRendererGL(this);
-    m_grid->setVisualOption(GraphicItemGL::Transformable, true);
-    m_grid->setVisualOption(GraphicItemGL::Visible, false);
-    m_grid->setVisualOption(GraphicItemGL::Selectable, false);
-    m_grid->setVisualOption(GraphicItemGL::Yinverted, false);
-    m_grid->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_grid);
 
     // gene plotter component
     m_gene_plotter = new GeneRendererGL(this);
-    m_gene_plotter->setVisualOption(GraphicItemGL::Transformable, true);
-    m_gene_plotter->setVisualOption(GraphicItemGL::Visible, true);
-    m_gene_plotter->setVisualOption(GraphicItemGL::Selectable, true);
-    m_gene_plotter->setVisualOption(GraphicItemGL::Yinverted, false);
-    m_gene_plotter->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_gene_plotter);
 
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
-    //m_legend->setTransform(QTransform::fromTranslate(25.0, 25.0));
-    m_legend->setVisualOption(GraphicItemGL::Transformable, false);
-    m_legend->setVisualOption(GraphicItemGL::Visible, false);
-    m_legend->setVisualOption(GraphicItemGL::Selectable, false);
     m_legend->setAnchor(GraphicItemGL::NorthEast);
-    m_legend->setVisualOption(GraphicItemGL::Yinverted, false);
-    m_legend->setVisualOption(GraphicItemGL::Xinverted, false);
+    m_legend->setTransform(QTransform::fromTranslate(10.0f,1.0f));
     m_view->addRenderingNode(m_legend);
 
     // minimap component
     m_minimap = new MiniMapGL(this);
     m_minimap->setTransform(QTransform::fromTranslate(-10.0, -10.0));
-    m_minimap->setVisualOption(GraphicItemGL::Transformable, false);
-    m_minimap->setVisualOption(GraphicItemGL::Visible, true);
-    m_minimap->setVisualOption(GraphicItemGL::Selectable, true);
     m_minimap->setAnchor(GraphicItemGL::SouthEast);
-    m_minimap->setVisualOption(GraphicItemGL::Yinverted, false);
-    m_minimap->setVisualOption(GraphicItemGL::Xinverted, false);
     m_view->addRenderingNode(m_minimap);
+    // minimap needs to be notified when the canvas is resized and when the image
+    // is zoomed or moved
     connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
     connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
     connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
@@ -388,10 +365,6 @@ void CellViewPage::createGLConnections()
     //visual mode signal
     connect(m_toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneVisualMode(QAction*)));
-
-    //threshold mode signal
-    connect(m_toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
-            SLOT(slotSetGeneThresholdMode(QAction*)));
 
     // grid signals
     connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_grid, SLOT(setColor(const QColor&)));
@@ -442,7 +415,7 @@ void CellViewPage::slotLoadCellFigure()
     m_view->resize(image.size());
 
     // update minimap size
-    //m_minimap->setView(image.size());
+    m_minimap->setViewPort(image.rect());
 
     //update checkboxes
     m_toolBar->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
@@ -553,17 +526,6 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
     if (variant.canConvert(QVariant::Int)) {
         Globals::GeneVisualMode mode = static_cast<Globals::GeneVisualMode>(variant.toInt());
         m_gene_plotter->setVisualMode(mode);
-    } else {
-        qDebug() << "[CellViewPage] Undefined gene visual mode!";
-    }
-}
-
-void CellViewPage::slotSetGeneThresholdMode(QAction *action)
-{
-    QVariant variant = action->property("mode");
-    if (variant.canConvert(QVariant::Int)) {
-        Globals::GeneThresholdMode mode = static_cast<Globals::GeneThresholdMode>(variant.toInt());
-        m_gene_plotter->setThresholdMode(mode);
     } else {
         qDebug() << "[CellViewPage] Undefined gene visual mode!";
     }

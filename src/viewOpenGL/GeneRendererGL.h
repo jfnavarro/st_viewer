@@ -23,7 +23,6 @@ class QVector2DArray;
 class QGeometryData;
 class QGLShaderProgramEffect;
 
-
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -67,7 +66,6 @@ public slots:
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
 
-    void setThresholdMode(const Globals::GeneThresholdMode &mode);
     void setVisualMode(const Globals::GeneVisualMode &mode);
 
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
@@ -141,9 +139,6 @@ private:
 
     // visual mode
     Globals::GeneVisualMode m_visualMode;
-
-    // threshold mode
-    Globals::GeneThresholdMode m_thresholdMode;
 
     // shader programs
     QGLShaderProgramEffect *shaderCircle;

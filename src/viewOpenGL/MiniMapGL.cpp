@@ -24,7 +24,11 @@ MiniMapGL::MiniMapGL(QObject* parent)
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, false);
+    setVisualOption(GraphicItemGL::Visible, true);
+    setVisualOption(GraphicItemGL::Selectable, true);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 MiniMapGL::~MiniMapGL()
@@ -66,7 +70,7 @@ void MiniMapGL::setViewPort(const QRectF& view)
 void MiniMapGL::updateTransform(const QRectF& scene)
 {
     // early out
-    if ( !m_bounds.isValid() || !m_scene.isValid() || !scene.isValid() ) {
+    if ( !m_scene.isValid() || !scene.isValid() ) {
         // set to identity matrix
         m_transform = QTransform();
         return;

@@ -1,4 +1,11 @@
- #include "CellGLView.h"
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
+#include "CellGLView.h"
 
 #include <QGLPainter>
 #include <QArray>
@@ -13,8 +20,8 @@ static const qreal DEFAULT_ZOOM_MIN = 1.0f;
 static const qreal DEFAULT_ZOOM_MAX = 20.0f;
 static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
-static const qreal DELTA_PANNING = 2.5f;
-static const qreal DELTA_MOUSE_PANNING = 0.5f;
+static const qreal DELTA_PANNING = 3.0f;
+static const qreal DELTA_MOUSE_PANNING = 1.0f;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
@@ -120,7 +127,7 @@ void CellGLView::paintGL()
     painter.begin();
 
     painter.setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     QMatrix4x4 projm;
     projm.ortho(QRectF(0.0f, 0.0f, width(), height()));
@@ -199,12 +206,13 @@ void CellGLView::setZoom(qreal delta)
 
 void CellGLView::centerOn(const QPointF& point)
 {
-    QVector3D center_point(point.x(), point.y(), 0.0f);
-    qDebug() << "Center on = " << center_point;
+    //TODO
+    qDebug() << "Center on = " << point;
 }
 
 void CellGLView::rotate(int angle)
 {
+    //TODO
     Q_UNUSED(angle);
 }
 
@@ -222,25 +230,6 @@ void CellGLView::zoomIn()
 void CellGLView::zoomOut()
 {
     setZoom(m_zoom * DEFAULT_ZOOM_OUT);
-}
-
-void CellGLView::rotate(int deltax, int deltay, int rotation)
-{
-    if (rotation == 90 || rotation == 270) {
-        qSwap(deltax, deltay);
-    }
-    if (rotation == 90 || rotation == 180) {
-        deltax = -deltax;
-    }
-    if (rotation == 180 || rotation == 270) {
-        deltay = -deltay;
-    }
-    float anglex = deltax * 90.0f / width();
-    float angley = deltay * 90.0f / height();
-
-    Q_UNUSED(anglex);
-    Q_UNUSED(angley);
-    //TODO
 }
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
