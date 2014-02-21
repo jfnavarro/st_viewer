@@ -59,7 +59,7 @@ public slots:
 
 protected slots:
     
-    // load the cell tissue figure into the stage (can be done sync and async)
+    // load the cell tissue figure into the stage
     void slotLoadCellFigure();
     
     // save current scene
@@ -73,12 +73,6 @@ protected slots:
     
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
-
-    /*
-    // select threshold mode
-    void slotSetGeneThresholdMode(QAction *action);
-    */
-
     // launch a color selector
     void slotLoadColor();
 

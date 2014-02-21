@@ -8,7 +8,7 @@
 #ifndef MINIMAPGL_H
 #define MINIMAPGL_H
 
-#include <QGLSceneNode>
+#include "GraphicItemGL.h"
 
 class QGLPainter;
 class QImage;
@@ -16,11 +16,12 @@ class QVector2DArray;
 class QRectF;
 class QColor;
 class QEvent;
+class QMouseEvent;
 
 // MiniMap is an view port GUI item that visualizes the view ports current
 // "image" in relation to the scene. Ie. it shows where in the scene the
 // view port currently is.
-class MiniMapGL : public QGLSceneNode
+class MiniMapGL : public GraphicItemGL
 {
     Q_OBJECT
 
@@ -29,36 +30,36 @@ public:
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
-    void setScene(const QRectF& scene);
-    void setView(const QRectF& view);
+    const QColor& sceneColor() const;    
+    const QColor& viewColor() const;
 
-    void setSceneColor(const QColor& sceneColor);
-    const QColor& getSceneColor() const;
-    void setViewColor(const QColor& viewColor);
-    const QColor& getViewColor() const;
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 
-    bool visible() const;
+    const QRectF boundingRect() const;
 
 public slots:
 
-    void setVisible(bool);
+    void setViewColor(const QColor& viewColor);
+    void setSceneColor(const QColor& sceneColor);
+
+    void setScene(const QRectF& scene);
+    void setViewPort(const QRectF& view);
 
 protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
 
-    bool event(QEvent *e);
-
 signals:
 
-    void pressed();
-    void released();
-    void clicked();
-    void doubleClicked();
+    void signalCenterOn(const QPointF& point);
 
 private:
 
+    // internal functions
+    const QPointF mapToScene(const QPointF& point) const;
     void updateTransform(const QRectF& scene);
 
     // mini versions
@@ -67,7 +68,8 @@ private:
     QColor m_sceneColor;
     QColor m_viewColor;
 
-    bool m_visible;
+    // mouse events
+    bool m_selecting = false;
 };
 
 #endif // MINIMAPGL_H //

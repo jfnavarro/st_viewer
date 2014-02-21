@@ -30,6 +30,7 @@ public:
     explicit CellViewPageToolBar(QWidget *parent = 0);
 
     // actions for toolbar
+
     QAction *m_actionNavigate_goBack = nullptr;
     QAction *m_actionSave_save = nullptr;
     QAction *m_actionSave_print = nullptr;

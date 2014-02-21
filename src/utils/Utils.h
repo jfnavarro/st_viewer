@@ -31,11 +31,6 @@ static const qreal GENE_SHINNE_DEFAULT = 1.0f;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
 
-enum GeneThresholdMode {
-    IndividualGeneMode = 0,
-    GlobalGeneMode = 1
-};
-
 enum GeneVisualMode {
     NormalMode = 0,
     DynamicRangeMode = 1,

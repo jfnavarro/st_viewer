@@ -21,7 +21,7 @@
 #include <QPrinter>
 #include <QColorDialog>
 #include <QImageReader>
-#include <QSurfaceFormat>
+#include <QPainter>
 
 #include "CellViewPageToolBar.h"
 
@@ -51,8 +51,6 @@ CellViewPage::CellViewPage(QWidget *parent)
 
 CellViewPage::~CellViewPage()
 {
-    //finalizeGL();
-
     if (m_colorDialogGrid) {
         delete m_colorDialogGrid;
     }
@@ -159,19 +157,22 @@ void CellViewPage::onEnter()
     m_grid->clearData();
     m_grid->setDimensions(chip_border, chip_rect);
     m_grid->generateData();
-    m_grid->setAlignmentMatrix(alignment);
+    m_grid->setTransform(alignment);
 
     // update gene size an data
     m_gene_plotter->clearData();
-    m_gene_plotter->setDimensions(chip_border, chip_rect);
+    m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
-    m_gene_plotter->setAlignmentMatrix(alignment);
+    m_gene_plotter->setTransform(alignment);
     m_gene_plotter->setHitCount(min, max, pooledMin, pooledMax);
 
     // updated legend size and data
     m_legend->setBoundaries(min, max);
     m_legend->setLowerLimit(min);
     m_legend->setUpperLimit(max);
+
+    // update tool bar threshold limits
+    m_toolBar->resetTresholdActions(min, max);
 
     // load cell tissue
     slotLoadCellFigure();
@@ -317,13 +318,21 @@ void CellViewPage::initGLView()
 
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
+    m_legend->setAnchor(GraphicItemGL::NorthEast);
+    m_legend->setTransform(QTransform::fromTranslate(10.0f,1.0f));
     m_view->addRenderingNode(m_legend);
 
     // minimap component
     m_minimap = new MiniMapGL(this);
+    m_minimap->setTransform(QTransform::fromTranslate(-10.0, -10.0));
+    m_minimap->setAnchor(GraphicItemGL::SouthEast);
     m_view->addRenderingNode(m_minimap);
+    // minimap needs to be notified when the canvas is resized and when the image
+    // is zoomed or moved
+    connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
 }
-
 
 void CellViewPage::createGLConnections()
 {
@@ -359,12 +368,6 @@ void CellViewPage::createGLConnections()
     //visual mode signal
     connect(m_toolBar->m_actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneVisualMode(QAction*)));
-
-    /*
-    //threshold mode signal
-    connect(m_toolBar->m_actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
-            SLOT(slotSetGeneThresholdMode(QAction*)));
-    */
 
     // grid signals
     connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_grid, SLOT(setColor(const QColor&)));
@@ -415,7 +418,7 @@ void CellViewPage::slotLoadCellFigure()
     m_view->resize(image.size());
 
     // update minimap size
-    //m_minimap->setView(image.size());
+    m_minimap->setViewPort(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);

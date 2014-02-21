@@ -8,7 +8,7 @@
 #ifndef HEATMAPLEGEND_H
 #define HEATMAPLEGEND_H
 
-#include <QGLSceneNode>
+#include "GraphicItemGL.h"
 
 class QGLPainter;
 class QImage;
@@ -17,7 +17,7 @@ class QVector2DArray;
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
 // in order to give a reference point in determining each features hit count.
-class HeatMapLegendGL : public QGLSceneNode
+class HeatMapLegendGL : public GraphicItemGL
 {
     Q_OBJECT
 
@@ -30,19 +30,18 @@ public:
     void generateHeatMap();
     void generateBarAndTexts();
 
-    bool visible() const;
-
 protected:
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
+
+    const QRectF boundingRect() const;
 
 public slots:
     
     void setBoundaries(qreal min, qreal max);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
-    void setVisible(bool);
 
 private:
 
@@ -69,8 +68,6 @@ private:
     QPointF m_lower_text_position;
     QString m_upper_text;
     QPointF m_upper_text_position;
-
-    bool m_visible;
 };
 
 #endif // HEATMAPLEGEND_H //

@@ -1,26 +1,32 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
 #ifndef CELLGLVIEW_H
 #define CELLGLVIEW_H
 
-#include <QGLView>
+#include <QWindow>
+#include "GraphicItemGL.h"
 
 class QGLPainter;
-class QGLSceneNode;
+class GraphicItemGL;
 class QSurfaceFormat;
-class QGLCamera;
 class QVector3D;
+class QOpenGLContext;
 
-class CellGLView : public QGLView
+class CellGLView : public QWindow
 {
     Q_OBJECT
 
 public:
 
-    explicit CellGLView(QWindow *parent = 0);
-    explicit CellGLView(const QSurfaceFormat &format, QWindow *parent=0);
+    explicit CellGLView(QScreen *parent = 0);
     virtual ~CellGLView();
 
-    void addRenderingNode(QGLSceneNode *node);
-    void removeRenderingNode(QGLSceneNode *node);
+    void addRenderingNode(GraphicItemGL *node);
+    void removeRenderingNode(GraphicItemGL *node);
 
     const QImage grabPixmapGL() const;
 
@@ -29,50 +35,56 @@ public slots:
     void zoomOut();
     void zoomIn();
 
+    void centerOn(const QPointF& point);
+
+    void rotate(int angle);
+
+    void update();
+
 protected:
 
-    void initializeGL(QGLPainter *painter);
-    void paintGL(QGLPainter *painter);
-
+    void initializeGL();
+    void paintGL();
     void resizeGL(int width, int height);
 
     void wheelEvent(QWheelEvent* event);
-
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
+    void exposeEvent(QExposeEvent *eevent);
+    void resizeEvent(QResizeEvent * event);
 
-    // Pan left/right/up/down without rotating about the object.
-    void pan(int deltax, int deltay);
+    void setZoom(qreal delta);
 
-    // Rotate about the object being viewed.
-    void rotate(int deltax, int deltay);
+    const QTransform anchorTransform(GraphicItemGL::Anchor anchor) const;
+
+    void ensureContext();
 
 signals:
 
-private slots:
-
-    void rotate();
-    void setZoom(qreal delta);
-    void nodeClicked();
+    void signalViewPortUpdated(QRectF);
+    void signalSceneUpdated(QRectF);
 
 private:
 
-    QList<QGLSceneNode *> m_nodes;
+    // openGL context variables
+    QOpenGLContext *m_context = nullptr;
+    QSurfaceFormat format;
+    bool m_initialized;
+    QRectF m_viewport;
 
-    //QGLSceneNode * m_master_node = nullptr;
+    // list of nodes to be renderered in the context
+    QList<GraphicItemGL *> m_nodes;
 
-    QObject *enteredObject = nullptr;
-    QObject *pressedObject = nullptr;
-    Qt::MouseButton pressedButton = Qt::NoButton;
-    bool panning = false;
-    QPoint startPan = QPoint(-1, -1);
-    QPoint lastPan = QPoint(-1, -1);
-    QVector3D startEye;
-    QVector3D startCenter;
-    QVector3D startUpVector;
-    Qt::KeyboardModifiers panModifiers = Qt::NoModifier;
+    // auxiliary variables for panning, zoom and selection
+    QPoint m_lastpos = QPoint(-1, -1);
+    bool m_panning = false;
+    qreal m_zoom = 1.0f;
+    qreal m_panx = 1.0f;
+    qreal m_pany = 1.0f;
 };
 
 #endif // CELLGLVIEW_H

@@ -1,4 +1,9 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
+*/
 #include "ImageTextureGL.h"
 
 #include <QGLBuilder>
@@ -6,20 +11,16 @@
 #include <QGLMaterial>
 #include <QImage>
 #include <QGLPainter>
-
 #include <cmath>
 
-static GLint maxTextureSize() {
-    GLint texSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
-    return texSize;
-}
-
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    QGLSceneNode(parent),
-    m_visible(false)
+    GraphicItemGL(parent)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, true);
+    setVisualOption(GraphicItemGL::Visible, true);
+    setVisualOption(GraphicItemGL::Selectable, false);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 ImageTextureGL::~ImageTextureGL()
@@ -31,29 +32,26 @@ void ImageTextureGL::clearTextures()
 {
     foreach( QGLTexture2D *texture, m_textures ) {
         texture->cleanupResources();
+        texture->release();
+        texture->clearImage();
     }
     // check this, nodes are part of the tree and should be removed automatically
-    // removeNodes(allChildren());
+    removeNodes(allChildren());
 }
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
-    if (!m_visible) {
-        return;
-    }
-
     glEnable(GL_TEXTURE_2D);
     {
-        //foreach(QGLTexture2D *texture, m_textures) {
-        //    texture->bind(); //do not think I need to do this, it is slow
-        //}
-
         foreach(QGLSceneNode *node, allChildren() ) {
-            node->draw(painter);
+            if ( node->material() && node->material()->texture() ) {
+                node->material()->texture()->bind();
+                node->draw(painter);
+                node->material()->texture()->release();
+            }
         }
     }
     glDisable(GL_TEXTURE_2D);
-
 }
 
 void ImageTextureGL::drawGeometry(QGLPainter *painter)
@@ -63,21 +61,10 @@ void ImageTextureGL::drawGeometry(QGLPainter *painter)
 
 void ImageTextureGL::createTexture(const QImage& image)
 {
-    const int maxSize = static_cast<int>(maxTextureSize());
-
-    if (image.width() > maxSize || image.height() > maxSize) {
-        // cut image into smaller textures
-        createTiles(image);
-    }
-    else {
-        // create one big texture for the image
-        addTexture(image);
-    }
-}
-
-const QImage ImageTextureGL::createSubImage(const QImage &image, const QRect & rect) {
-    size_t offset = (rect.x() * image.depth() / 8) + (rect.y() * image.bytesPerLine());
-    return QImage(image.bits() + offset, rect.width(), rect.height(), image.bytesPerLine(), image.format());
+   
+  createTiles(image); // we always tile, it is not secure to create one texture from the whole image
+  //addTexture(image);
+    
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
@@ -99,8 +86,7 @@ void ImageTextureGL::createTiles(const QImage &image)
         const int texture_height = std::min(height -  y, tile_height);
 
         // create sub image
-        QImage sub_image = ImageTextureGL::createSubImage(image,
-                                                          QRect(x, y, texture_width, texture_height));
+        QImage sub_image = image.copy(QRect(x, y, texture_width, texture_height));
 
         // add texture
         addTexture(sub_image, x, y);
@@ -109,7 +95,6 @@ void ImageTextureGL::createTiles(const QImage &image)
 
 void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
 {
-
     const qreal width = qreal(image.width());
     const qreal height = qreal(image.height());
 
@@ -135,30 +120,34 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
-    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption | QGLTexture2D::MipmapBindOption);
+    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption
+                              | QGLTexture2D::MipmapBindOption);
     m_texture->setSize(QSize(width, height));
 
     QGLMaterial *mat = new QGLMaterial(this);
     mat->setColor(Qt::black);
     mat->setTexture(m_texture);
-    if (node->palette() == 0) {
-        node->setMaterial(mat);
-    }
-    else {
-        int canMat = node->palette()->addMaterial(mat);
-        node->setMaterialIndex(canMat);
-    }
+    node->setMaterial(mat);
     node->setEffect(QGL::LitDecalTexture2D);
     addNode(node);
 }
 
-void ImageTextureGL::setVisible(bool visible)
+const QRectF ImageTextureGL::boundingRect() const
 {
-    m_visible = visible;
-    emit updated();
+    const QVector3D left_corner = boundingBox().minimum();
+    const QVector3D right_corner = boundingBox().maximum();
+    const qreal x = left_corner.x();
+    const qreal y = left_corner.y();
+    const qreal width = right_corner.x();
+    const qreal height = right_corner.y();
+    const QRectF rect(x, y, width, height);
+    return rect;
 }
 
-bool ImageTextureGL::visible() const
+void ImageTextureGL::setIntensity(qreal intensity)
 {
-    return m_visible;
+    if ( m_intensity != intensity ) {
+        m_intensity = intensity;
+        emit updated();
+    }
 }

@@ -5,6 +5,7 @@ set(LIBRARY_ARG_INCLUDES
     HeatMapLegendGL.h
     ImageTextureGL.h
     MiniMapGL.h
+    GraphicItemGL.h
     SelectionEvent.h
 )
 
@@ -15,6 +16,7 @@ set(LIBRARY_ARG_SOURCES
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp
     MiniMapGL.cpp
+    GraphicItemGL.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

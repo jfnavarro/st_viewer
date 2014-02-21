@@ -56,9 +56,7 @@ private slots:
 private:
 
     QPointer<QNetworkAccessManager> m_nam;
-
 };
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)
 
 #endif // NETWORKMANAGER_H //

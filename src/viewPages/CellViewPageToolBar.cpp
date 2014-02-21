@@ -87,6 +87,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter->addSeparator();
 
     //color modes
+
     m_actionGroup_toggleVisualMode = new QActionGroup(m_menu_genePlotter);
     m_actionGroup_toggleVisualMode->setExclusive(true);
     m_actionGroup_toggleVisualMode->addAction(m_actionShow_toggleNormal);
@@ -198,6 +199,7 @@ void CellViewPageToolBar::resetTresholdActions(int min, int max)
 void CellViewPageToolBar::resetActions()
 {
     // reset visual modes
+
     m_actionShow_toggleDynamicRange->setChecked(false);
     m_actionShow_toggleHeatMap->setChecked(false);
     m_actionShow_toggleNormal->setChecked(true);
@@ -249,6 +251,7 @@ void CellViewPageToolBar::createActions()
     m_actionNavigate_goBack->setAutoRepeat(false);
 
     //color modes
+
     m_actionShow_toggleNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);

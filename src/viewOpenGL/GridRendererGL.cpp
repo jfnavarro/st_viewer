@@ -1,3 +1,10 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
 #include "GridRendererGL.h"
 
 #include "math/Common.h"
@@ -11,10 +18,13 @@ static const qreal GRID_LINE_SPACE = 5.0f;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 
 GridRendererGL::GridRendererGL(QObject *parent)
-    :QGLSceneNode(parent),
-      m_visible(false)
+    : GraphicItemGL(parent)
 {
-
+    setVisualOption(GraphicItemGL::Transformable, true);
+    setVisualOption(GraphicItemGL::Visible, false);
+    setVisualOption(GraphicItemGL::Selectable, false);
+    setVisualOption(GraphicItemGL::Yinverted, false);
+    setVisualOption(GraphicItemGL::Xinverted, false);
 }
 
 GridRendererGL::~GridRendererGL()
@@ -24,35 +34,19 @@ GridRendererGL::~GridRendererGL()
 
 void GridRendererGL::draw(QGLPainter *painter)
 {
-    if (!m_visible) {
-        return;
-    }
+    m_gridBorderColor.setAlphaF(0.5);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(m_gridBorderColor);
+    painter->setVertexAttribute(QGL::Position, m_border_vertex);
+    painter->draw(QGL::Lines, m_border_vertex.size());
 
-    glEnable(GL_LINE_SMOOTH);
-    {
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        glLineWidth(GRID_LINE_SIZE);
-
-        painter->modelViewMatrix().push();
-        painter->modelViewMatrix() *= m_transform;
-
-        m_gridBorderColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridBorderColor);
-        painter->setVertexAttribute(QGL::Position, m_border_vertex);
-        painter->draw(QGL::Lines, m_border_vertex.size());
-
-        m_gridColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridColor);
-        painter->setVertexAttribute(QGL::Position, m_grid_vertex);
-        painter->draw(QGL::Lines, m_grid_vertex.size());
-
-        painter->modelViewMatrix().pop();
-    }
-    glDisable(GL_LINE_SMOOTH);
+    m_gridColor.setAlphaF(0.5);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(m_gridColor);
+    painter->setVertexAttribute(QGL::Position, m_grid_vertex);
+    painter->draw(QGL::Lines, m_grid_vertex.size());
 }
 
 void GridRendererGL::drawGeometry(QGLPainter *painter)
@@ -147,24 +141,7 @@ const QColor& GridRendererGL::color() const
     return m_gridColor;
 }
 
-void GridRendererGL::setAlignmentMatrix(const QTransform &transform)
+const QRectF GridRendererGL::boundingRect() const
 {
-    m_transform = transform;
-    emit updated();
-}
-
-const QTransform& GridRendererGL::alignmentMatrix() const
-{
-    return m_transform;
-}
-
-void GridRendererGL::setVisible(bool visible)
-{
-    m_visible = visible;
-    emit updated();
-}
-
-bool GridRendererGL::visible() const
-{
-    return m_visible;
+    return m_border;
 }
