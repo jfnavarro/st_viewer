@@ -18,6 +18,11 @@ class QAction;
 class QWidgetAction;
 class QToolBar;
 
+
+class SpinBoxSlider;
+class QSlider;
+class QComboBox;
+
 class CellViewPageToolBar : public QToolBar
 {
     Q_OBJECT
@@ -25,43 +30,51 @@ public:
     explicit CellViewPageToolBar(QWidget *parent = 0);
 
     // actions for toolbar
-    QAction *actionNavigate_goBack;
-    QAction *actionSave_save;
-    QAction *actionSave_print;
-    QAction *actionSelection_toggleSelectionMode;
-    QAction *actionSelection_showSelectionDialog;
 
-    QAction *actionZoom_zoomIn;
-    QAction *actionZoom_zoomOut;
+    QAction *m_actionNavigate_goBack = nullptr;
+    QAction *m_actionSave_save = nullptr;
+    QAction *m_actionSave_print = nullptr;
+    QAction *m_actionSelection_toggleSelectionMode = nullptr;
+    QAction *m_actionSelection_showSelectionDialog = nullptr;
 
-    QMenu *menu_genePlotter;
-    QAction *actionShow_showGrid;
-    QAction *actionShow_showGenes;
-    QAction *actionColor_selectColorGenes;
-    QAction *actionColor_selectColorGrid;
+    QAction *m_actionZoom_zoomIn = nullptr;
+    QAction *m_actionZoom_zoomOut = nullptr;
 
-    QActionGroup *actionGroup_toggleVisualMode;
-    QAction *actionShow_toggleNormal;
-    QAction *actionShow_toggleDynamicRange;
-    QAction *actionShow_toggleDynamicRangeGenes;
-    QAction *actionShow_toggleHeatMap;
+    QMenu *m_menu_genePlotter = nullptr;
+    QAction *m_actionShow_showGrid = nullptr;
+    QAction *m_actionShow_showGenes = nullptr;
+    QAction *m_actionColor_selectColorGenes = nullptr;
+    QAction *m_actionColor_selectColorGrid = nullptr;
 
-    QWidgetAction *actionWidget_geneHitsThreshold;
-    QWidgetAction *actionWidget_geneIntensity;
-    QWidgetAction *actionWidget_geneSize;
-    QWidgetAction *actionWidget_geneShape;
+    QActionGroup *m_actionGroup_toggleVisualMode = nullptr;
+    QAction *m_actionShow_toggleNormal = nullptr;
+    QAction *m_actionShow_toggleDynamicRange = nullptr;
+    QAction *m_actionShow_toggleDynamicRangeGenes = nullptr;
+    QAction *m_actionShow_toggleHeatMap = nullptr;
+ 
+    SpinBoxSlider *m_geneHitsThreshold = nullptr;
+    QSlider *m_geneIntensitySlider = nullptr;
+    QSlider *m_geneSizeSlider = nullptr;
+    QSlider *m_geneShimmeSlider = nullptr;
+    QSlider *m_geneBrightnessSlider = nullptr;
 
-    QMenu *menu_cellTissue;
-    QActionGroup *actionGroup_cellTissue;
-    QAction *actionShow_cellTissueBlue;
-    QAction *actionShow_cellTissueRed;
-    QAction *actionShow_showCellTissue;
+    QComboBox *m_geneShapeComboBox = nullptr;
+
+    QMenu *m_menu_cellTissue = nullptr;
+    QActionGroup *m_actionGroup_cellTissue = nullptr;
+    QAction *m_actionShow_cellTissueBlue = nullptr;
+    QAction *m_actionShow_cellTissueRed = nullptr;
+    QAction *m_actionShow_showCellTissue = nullptr;
+    QAction *m_actionRotation_rotateLeft = nullptr;
+    QAction *m_actionRotation_rotateRight = nullptr;
 
 signals:
     void thresholdLowerValueChanged(int);
     void thresholdUpperValueChanged(int);
     void intensityValueChanged(qreal);
     void sizeValueChanged(qreal);
+    void shimmeValueChanged(qreal);
+    void brightnessValueChanged(qreal);
     void shapeIndexChanged(Globals::GeneShape);
 
 public slots:
@@ -72,6 +85,8 @@ private slots:
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);
+    void slotGeneShimme(int geneShimme);
+    void slotGeneBrightness(int geneBrightness);
 
 private:
     void createConnections();

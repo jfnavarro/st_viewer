@@ -43,6 +43,14 @@ public:
     explicit CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
+ signals: 
+
+    // Rotate view an angle (unit: degree). 
+    // A negative angle means rotate anti-clock-wise.
+    // A positive angle means rotate clock-wise.
+    void rotateView(int);
+
+
 public slots:
     
     void onInit();
@@ -65,9 +73,11 @@ protected slots:
     
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
-    
     // launch a color selector
     void slotLoadColor();
+
+
+    void slotRotateView();
 
 protected:
     

@@ -13,12 +13,6 @@
 #include <QGLPainter>
 #include <cmath>
 
-static GLint maxTextureSize() {
-    GLint texSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
-    return texSize;
-}
-
 ImageTextureGL::ImageTextureGL(QObject *parent) :
     GraphicItemGL(parent)
 {
@@ -67,16 +61,10 @@ void ImageTextureGL::drawGeometry(QGLPainter *painter)
 
 void ImageTextureGL::createTexture(const QImage& image)
 {
-    // we divide it by 1/2 to account for image format, color, etc..
-    int maxSize = static_cast<int>(maxTextureSize()) * 0.5f;
-    if ( image.width() > maxSize || image.height() > maxSize ) {
-        // cut image into smaller textures
-        createTiles(image);
-    }
-    else {
-        // create one big texture for the image
-        addTexture(image);
-    }
+   
+  createTiles(image); // we always tile, it is not secure to create one texture from the whole image
+  //addTexture(image);
+    
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
