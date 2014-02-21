@@ -23,26 +23,19 @@ GridRendererGL::~GridRendererGL()
 
 void GridRendererGL::draw(QGLPainter *painter)
 {
-    glEnable(GL_LINE_SMOOTH);
-    {
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        glLineWidth(GRID_LINE_SIZE);
+    m_gridBorderColor.setAlphaF(0.5);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(m_gridBorderColor);
+    painter->setVertexAttribute(QGL::Position, m_border_vertex);
+    painter->draw(QGL::Lines, m_border_vertex.size());
 
-        m_gridBorderColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridBorderColor);
-        painter->setVertexAttribute(QGL::Position, m_border_vertex);
-        painter->draw(QGL::Lines, m_border_vertex.size());
-
-        m_gridColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridColor);
-        painter->setVertexAttribute(QGL::Position, m_grid_vertex);
-        painter->draw(QGL::Lines, m_grid_vertex.size());
-    }
-    glDisable(GL_LINE_SMOOTH);
+    m_gridColor.setAlphaF(0.5);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(m_gridColor);
+    painter->setVertexAttribute(QGL::Position, m_grid_vertex);
+    painter->draw(QGL::Lines, m_grid_vertex.size());
 }
 
 void GridRendererGL::drawGeometry(QGLPainter *painter)

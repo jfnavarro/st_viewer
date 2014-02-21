@@ -45,44 +45,37 @@ HeatMapLegendGL::~HeatMapLegendGL()
 
 void HeatMapLegendGL::draw(QGLPainter *painter)
 {
-
-    glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
     {
-        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // draw image texture
+        painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatReplaceTexture2D);
+        m_texture.bind();
+        painter->setVertexAttribute(QGL::Position, m_texture_vertices);
+        painter->setVertexAttribute(QGL::TextureCoord0, m_texture_cords);
+        painter->draw(QGL::TriangleFan, m_texture_vertices.size());
+        m_texture.release();
 
-        glEnable(GL_TEXTURE_2D);
-        {
-            // draw image texture
-            painter->clearAttributes();
-            painter->setStandardEffect(QGL::FlatReplaceTexture2D);
-            m_texture.bind();
-            painter->setVertexAttribute(QGL::Position, m_texture_vertices);
-            painter->setVertexAttribute(QGL::TextureCoord0, m_texture_cords);
-            painter->draw(QGL::TriangleFan, m_texture_vertices.size());
-            m_texture.release();
+        // render text
+        drawText(painter, m_lower_text_position, m_lower_text);
+        drawText(painter, m_upper_text_position, m_upper_text);
 
-            // render text
-            drawText(painter, m_lower_text_position, m_lower_text);
-            drawText(painter, m_upper_text_position, m_upper_text);
+        // draw borders
+        painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
+        painter->setColor(Qt::white);
+        painter->setVertexAttribute(QGL::Position, m_borders);
+        painter->draw(QGL::LineLoop, m_borders.size());
 
-            // draw borders
-            painter->clearAttributes();
-            painter->setStandardEffect(QGL::FlatColor);
-            painter->setColor(Qt::white);
-            painter->setVertexAttribute(QGL::Position, m_borders);
-            painter->draw(QGL::LineLoop, m_borders.size());
+        // draw threshold bars
+        painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
+        painter->setColor(Qt::red);
+        painter->setVertexAttribute(QGL::Position, m_bars);
+        painter->draw(QGL::Lines, m_bars.size());
 
-            // draw threshold bars
-            painter->clearAttributes();
-            painter->setStandardEffect(QGL::FlatColor);
-            painter->setColor(Qt::red);
-            painter->setVertexAttribute(QGL::Position, m_bars);
-            painter->draw(QGL::Lines, m_bars.size());
-
-        }
-        glDisable(GL_TEXTURE_2D);
     }
-    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void HeatMapLegendGL::drawGeometry(QGLPainter *painter)

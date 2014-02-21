@@ -84,71 +84,65 @@ void MiniMapGL::updateTransform(const QRectF& scene)
 
 void MiniMapGL::draw(QGLPainter *painter)
 {
-    glEnable(GL_BLEND);
-    {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // draw scene rectangle
+    if (m_scene.isValid()) {
 
-        // draw scene rectangle
-        if (m_scene.isValid()) {
+        qDebug() << " Scene " << m_scene;
 
-            qDebug() << " Scene " << m_scene;
+        const QPointF stl = m_scene.topLeft();
+        const QPointF str = m_scene.topRight();
+        const QPointF sbr = m_scene.bottomRight();
+        const QPointF sbl = m_scene.bottomLeft();
 
-            const QPointF stl = m_scene.topLeft();
-            const QPointF str = m_scene.topRight();
-            const QPointF sbr = m_scene.bottomRight();
-            const QPointF sbl = m_scene.bottomLeft();
+        m_sceneColor.setAlphaF(0.2);
 
-            m_sceneColor.setAlphaF(0.2);
+        QVector2DArray scene_vertices;
+        scene_vertices.append(stl.x(), stl.y());
+        scene_vertices.append(str.x(), str.y());
+        scene_vertices.append(sbr.x(), sbr.y());
+        scene_vertices.append(sbl.x(), sbl.y());
 
-            QVector2DArray scene_vertices;
-            scene_vertices.append(stl.x(), stl.y());
-            scene_vertices.append(str.x(), str.y());
-            scene_vertices.append(sbr.x(), sbr.y());
-            scene_vertices.append(sbl.x(), sbl.y());
+        painter->clearAttributes();
+        painter->setColor(m_sceneColor);
+        painter->setVertexAttribute(QGL::Position, scene_vertices );
+        painter->draw(QGL::TriangleFan, scene_vertices.size());
 
-            painter->clearAttributes();
-            painter->setColor(m_sceneColor);
-            painter->setVertexAttribute(QGL::Position, scene_vertices );
-            painter->draw(QGL::TriangleFan, scene_vertices.size());
-
-            m_sceneColor.setAlphaF(0.8);
-            painter->clearAttributes();
-            painter->setColor(m_sceneColor);
-            painter->setVertexAttribute(QGL::Position, scene_vertices );
-            painter->draw(QGL::LineLoop, scene_vertices.size());
-        }
-
-        // draw view rectangle
-        if (m_view.isValid()) {
-
-            qDebug() << " View " << m_view;
-
-            const QPointF vtl = m_view.topLeft();
-            const QPointF vtr = m_view.topRight();
-            const QPointF vbr = m_view.bottomRight();
-            const QPointF vbl = m_view.bottomLeft();
-
-            m_viewColor.setAlphaF(0.2);
-
-            QVector2DArray view_vertices;
-            view_vertices.append(vtl.x(), vtl.y());
-            view_vertices.append(vtr.x(), vtr.y());
-            view_vertices.append(vbr.x(), vbr.y());
-            view_vertices.append(vbl.x(), vbl.y());
-
-            painter->clearAttributes();
-            painter->setColor(m_viewColor);
-            painter->setVertexAttribute(QGL::Position, view_vertices );
-            painter->draw(QGL::TriangleFan, view_vertices.size());
-
-            m_viewColor.setAlphaF(0.8);
-            painter->clearAttributes();
-            painter->setColor(m_sceneColor);
-            painter->setVertexAttribute(QGL::Position, view_vertices );
-            painter->draw(QGL::LineLoop, view_vertices.size());
-        }
+        m_sceneColor.setAlphaF(0.8);
+        painter->clearAttributes();
+        painter->setColor(m_sceneColor);
+        painter->setVertexAttribute(QGL::Position, scene_vertices );
+        painter->draw(QGL::LineLoop, scene_vertices.size());
     }
-    glDisable(GL_BLEND);
+
+    // draw view rectangle
+    if (m_view.isValid()) {
+
+        qDebug() << " View " << m_view;
+
+        const QPointF vtl = m_view.topLeft();
+        const QPointF vtr = m_view.topRight();
+        const QPointF vbr = m_view.bottomRight();
+        const QPointF vbl = m_view.bottomLeft();
+
+        m_viewColor.setAlphaF(0.2);
+
+        QVector2DArray view_vertices;
+        view_vertices.append(vtl.x(), vtl.y());
+        view_vertices.append(vtr.x(), vtr.y());
+        view_vertices.append(vbr.x(), vbr.y());
+        view_vertices.append(vbl.x(), vbl.y());
+
+        painter->clearAttributes();
+        painter->setColor(m_viewColor);
+        painter->setVertexAttribute(QGL::Position, view_vertices );
+        painter->draw(QGL::TriangleFan, view_vertices.size());
+
+        m_viewColor.setAlphaF(0.8);
+        painter->clearAttributes();
+        painter->setColor(m_sceneColor);
+        painter->setVertexAttribute(QGL::Position, view_vertices );
+        painter->draw(QGL::LineLoop, view_vertices.size());
+    }
 }
 
 void MiniMapGL::drawGeometry(QGLPainter *painter)
