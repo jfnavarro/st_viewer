@@ -444,7 +444,8 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::FeatureList aggregateFeatureList;
     foreach(DataProxy::GenePtr gene, geneList) {
-        aggregateFeatureList << *(dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name()));
+        aggregateFeatureList <<
+                                *(dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name()));
     }
     selectFeatures(aggregateFeatureList);
 }

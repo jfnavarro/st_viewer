@@ -52,6 +52,7 @@ public:
     Anchor anchor() const;
     void setAnchor(Anchor anchor);
 
+    // transformation matrix of the element
     const QTransform transform() const;
     void setTransform(const QTransform& transform);
 
@@ -68,6 +69,7 @@ public:
     virtual void draw(QGLPainter *painter) = 0;
     virtual void drawGeometry (QGLPainter * painter) = 0;
 
+    // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
     virtual bool contains(const QPointF& point) const;
 
