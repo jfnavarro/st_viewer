@@ -194,7 +194,7 @@ void CellViewPage::createConnections()
     DEBUG_FUNC_NAME
 
     // go back signal
-    connect(m_toolBar->actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(m_toolBar->m_actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
 
     // gene model signals
     QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
@@ -204,27 +204,30 @@ void CellViewPage::createConnections()
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel, SLOT(setColorGenes(const QColor&)));
 
     // cell tissue
-    connect(m_toolBar->actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
-    connect(m_toolBar->actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+    connect(m_toolBar->m_actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+    connect(m_toolBar->m_actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
 
     // graphic view signals
-    connect(m_toolBar->actionZoom_zoomIn, SIGNAL(triggered(bool)), m_view, SLOT(zoomIn()));
-    connect(m_toolBar->actionZoom_zoomOut, SIGNAL(triggered(bool)), m_view, SLOT(zoomOut()));
+    connect(m_toolBar->m_actionZoom_zoomIn, SIGNAL(triggered(bool)), m_view, SLOT(zoomIn()));
+    connect(m_toolBar->m_actionZoom_zoomOut, SIGNAL(triggered(bool)), m_view, SLOT(zoomOut()));
 
     // print canvas
-    connect(m_toolBar->actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
-    connect(m_toolBar->actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
+    connect(m_toolBar->m_actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
+    connect(m_toolBar->m_actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
 
     // export
     connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
 
     // selection mode
-    connect(m_toolBar->actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
-    connect(m_toolBar->actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
+    connect(m_toolBar->m_actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
+    connect(m_toolBar->m_actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
 
     //color selectors
-    connect(m_toolBar->actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
-    connect(m_toolBar->actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+    connect(m_toolBar->m_actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+    connect(m_toolBar->m_actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+
+    connect(m_toolBar-> m_actionRotation_rotateLeft,  SIGNAL(triggered(bool)), this, SLOT(slotRotateLeft()));
+    connect(m_toolBar-> m_actionRotation_rotateRight,  SIGNAL(triggered(bool)), this, SLOT(slotRotateRight()));
 }
 
 void CellViewPage::resetActionStates()
@@ -278,7 +281,7 @@ void CellViewPage::resetActionStates()
     // restrict interface
     DataProxy::UserPtr current_user = dataProxy->getUser();
     Q_ASSERT(current_user);
-    m_toolBar->actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
+    m_toolBar->m_actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
 }
 
 void CellViewPage::createToolBar()
@@ -351,25 +354,27 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)), m_gene_plotter, SLOT(setGeneShape(Globals::GeneShape)));
 
     //show/not genes signal
-    connect(m_toolBar->actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
 
     //visual mode signal
-    connect(m_toolBar->actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
+    connect(m_toolBar->m_actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneVisualMode(QAction*)));
 
+    /*
     //threshold mode signal
-    connect(m_toolBar->actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
+    connect(m_toolBar->m_actionGroup_toggleThresholdMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneThresholdMode(QAction*)));
+    */
 
     // grid signals
     connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_grid, SLOT(setColor(const QColor&)));
-    connect(m_toolBar->actionShow_showGrid, SIGNAL(triggered(bool)), m_grid, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionShow_showGrid, SIGNAL(triggered(bool)), m_grid, SLOT(setVisible(bool)));
 
     // cell tissue canvas
-    connect(m_toolBar->actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));
 
     // connect setvisible signals
-    connect(m_toolBar->actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
 
     // connect threshold slider to the heatmap
     connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_legend, SLOT(setLowerLimit(int)));
@@ -386,8 +391,8 @@ void CellViewPage::slotLoadCellFigure()
     DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     Q_ASSERT(!current_user.isNull() && !dataset.isNull());
 
-    const bool forceRedFigure = (QObject::sender() == m_toolBar->actionShow_cellTissueRed);
-    const bool forceBlueFigure = (QObject::sender() == m_toolBar->actionShow_cellTissueBlue);
+    const bool forceRedFigure = (QObject::sender() == m_toolBar->m_actionShow_cellTissueRed);
+    const bool forceBlueFigure = (QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue);
     const bool defaultRedFigure =
         (current_user->role() == Globals::ROLE_CM)
         && !(dataset->figureStatus() & Dataset::Aligned);
@@ -413,8 +418,8 @@ void CellViewPage::slotLoadCellFigure()
     //m_minimap->setView(image.size());
 
     //update checkboxes
-    m_toolBar->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
-    m_toolBar->actionShow_cellTissueRed->setChecked(loadRedFigure);
+    m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
+    m_toolBar->m_actionShow_cellTissueRed->setChecked(loadRedFigure);
 }
 
 void CellViewPage::slotPrintImage()
@@ -526,25 +531,25 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
     }
 }
 
-void CellViewPage::slotSetGeneThresholdMode(QAction *action)
+void CellViewPage::slotLoadColor()
 {
-    QVariant variant = action->property("mode");
-    if (variant.canConvert(QVariant::Int)) {
-        Globals::GeneThresholdMode mode = static_cast<Globals::GeneThresholdMode>(variant.toInt());
-        m_gene_plotter->setThresholdMode(mode);
-    } else {
-        qDebug() << "[CellViewPage] Undefined gene visual mode!";
+    if (QObject::sender() == m_toolBar->m_actionColor_selectColorGenes) {
+        qDebug() << "[Cell View] : open gene color dialog";
+        m_colorDialogGenes->open();
+    } else if (QObject::sender() == m_toolBar->m_actionColor_selectColorGrid) {
+        qDebug() << "[Cell View] : open grid color dialog";
+        m_colorDialogGrid->open();
     }
 }
 
-void CellViewPage::slotLoadColor()
+void CellViewPage::slotRotateView()
 {
-    if (QObject::sender() == m_toolBar->actionColor_selectColorGenes) {
-        qDebug() << "[Cell View] : open gene color dialog";
-        m_colorDialogGenes->open();
-    } else if (QObject::sender() == m_toolBar->actionColor_selectColorGrid) {
-        qDebug() << "[Cell View] : open grid color dialog";
-        m_colorDialogGrid->open();
+    if (QObject::sender() == m_toolBar->m_actionRotation_rotateLeft) {
+      emit rotateView(-45);
+    } else if (QObject::sender() == m_toolBar->m_actionRotation_rotateRight) {
+      emit rotateView(45);
+    } else {
+      Q_ASSERT("programming error");
     }
 }
 

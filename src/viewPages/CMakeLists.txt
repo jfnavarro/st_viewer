@@ -16,6 +16,7 @@ set(LIBRARY_ARG_INCLUDES
     GeneViewDelegate.h
     ColorListEditor.h
     ExtendedTabWidget.cpp
+    SpinBoxSlider.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -34,6 +35,7 @@ set(LIBRARY_ARG_SOURCES
     GeneViewDelegate.cpp
     ColorListEditor.cpp
     ExtendedTabWidget.cpp
+    SpinBoxSlider.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
