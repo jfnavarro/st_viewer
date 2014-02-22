@@ -14,7 +14,7 @@ class QGLPainter;
 class QRectF;
 class QMouseEvent;
 
-class GraphicItemGL : public QGLSceneNode
+class GraphicItemGL : public QObject
 {
 
     Q_OBJECT
@@ -81,6 +81,10 @@ public:
 public slots:
 
     void setVisible(bool);
+
+signals:
+
+    void updated();
 
 protected:
 

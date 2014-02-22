@@ -220,7 +220,6 @@ void CellViewPage::createConnections()
     connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
 
     // selection mode
-    connect(m_toolBar->m_actionSelection_toggleSelectionMode, SIGNAL(triggered(bool)), this, SLOT(slotActivateSelection(bool)));
     connect(m_toolBar->m_actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
 
     //color selectors
@@ -233,9 +232,6 @@ void CellViewPage::createConnections()
 
 void CellViewPage::resetActionStates()
 {
-    //reset selection mode
-    slotActivateSelection(false);
-
     // load gene model (need to be done first)
     QSortFilterProxyModel* proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
     GeneFeatureItemModel* geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
@@ -319,7 +315,7 @@ void CellViewPage::initGLView()
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
     m_legend->setAnchor(GraphicItemGL::NorthEast);
-    m_legend->setTransform(QTransform::fromTranslate(10.0f,1.0f));
+    m_legend->setTransform(QTransform::fromTranslate(-10.0, 10.0));
     m_view->addRenderingNode(m_legend);
 
     // minimap component
@@ -343,9 +339,9 @@ void CellViewPage::createGLConnections()
 
     //connect gene list model to gene plotter
     connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), m_gene_plotter,
-            SLOT(updateGeneSelection(DataProxy::GenePtr)));
+            SLOT(updateSelection(DataProxy::GenePtr)));
     connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), m_gene_plotter,
-            SLOT(updateGeneColor(DataProxy::GenePtr)));
+            SLOT(updateColor(DataProxy::GenePtr)));
 
     //connect gene plotter to gene selection model
     connect(m_gene_plotter, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
@@ -354,13 +350,15 @@ void CellViewPage::createGLConnections()
     connect(ui->clearSelection, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(clearSelectionArea()) );
 
     //threshold slider signal
-    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_gene_plotter, SLOT(setGeneLowerLimit(int)));
-    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_gene_plotter, SLOT(setGeneUpperLimit(int)));
+    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_gene_plotter, SLOT(setLowerLimit(int)));
+    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_gene_plotter, SLOT(setUpperLimit(int)));
     
     //gene attributes signals
-    connect(m_toolBar, SIGNAL(intensityValueChanged(qreal)), m_gene_plotter, SLOT(setGeneIntensity(qreal)));
+    connect(m_toolBar, SIGNAL(intensityValueChanged(qreal)), m_gene_plotter, SLOT(setIntensity(qreal)));
     connect(m_toolBar, SIGNAL(sizeValueChanged(qreal)), m_gene_plotter, SLOT(setSize(qreal)));
-    connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)), m_gene_plotter, SLOT(setGeneShape(Globals::GeneShape)));
+    connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)),
+            m_gene_plotter, SLOT(setShape(Globals::GeneShape)));
+    connect(m_toolBar, SIGNAL(shineValueChanged(qreal)), m_gene_plotter, SLOT(setShine(qreal)));
 
     //show/not genes signal
     connect(m_toolBar->m_actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
@@ -517,12 +515,6 @@ void CellViewPage::slotExportSelection()
     textFile.close();
 }
 
-void CellViewPage::slotActivateSelection(bool status)
-{
-    //ui->view->setDragMode(status ? QGraphicsView::RubberBandDrag : QGraphicsView::ScrollHandDrag);
-    m_selectionMode = status;
-}
-
 void CellViewPage::slotSetGeneVisualMode(QAction *action)
 {
     QVariant variant = action->property("mode");
@@ -537,10 +529,8 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
 void CellViewPage::slotLoadColor()
 {
     if (QObject::sender() == m_toolBar->m_actionColor_selectColorGenes) {
-        qDebug() << "[Cell View] : open gene color dialog";
         m_colorDialogGenes->open();
     } else if (QObject::sender() == m_toolBar->m_actionColor_selectColorGrid) {
-        qDebug() << "[Cell View] : open grid color dialog";
         m_colorDialogGrid->open();
     }
 }
@@ -552,7 +542,7 @@ void CellViewPage::slotRotateView()
     } else if (QObject::sender() == m_toolBar->m_actionRotation_rotateRight) {
       emit rotateView(45);
     } else {
-      Q_ASSERT("programming error");
+      Q_ASSERT("[CellViewPage] sender is not recognized");
     }
 }
 

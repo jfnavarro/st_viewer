@@ -84,7 +84,7 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
 
 void HeatMapLegendGL::drawGeometry(QGLPainter *painter)
 {
-    QGLSceneNode::drawGeometry(painter);
+    Q_UNUSED(painter);
 }
 
 void HeatMapLegendGL::setBoundaries(qreal min, qreal max)

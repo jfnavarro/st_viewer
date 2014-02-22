@@ -12,8 +12,6 @@
 #include <QMimeData>
 #include <QStringList>
 
-#include "utils/DebugHelper.h"
-
 const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)

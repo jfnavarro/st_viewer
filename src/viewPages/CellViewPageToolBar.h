@@ -34,7 +34,6 @@ public:
     QAction *m_actionNavigate_goBack = nullptr;
     QAction *m_actionSave_save = nullptr;
     QAction *m_actionSave_print = nullptr;
-    QAction *m_actionSelection_toggleSelectionMode = nullptr;
     QAction *m_actionSelection_showSelectionDialog = nullptr;
 
     QAction *m_actionZoom_zoomIn = nullptr;
@@ -55,7 +54,7 @@ public:
     SpinBoxSlider *m_geneHitsThreshold = nullptr;
     QSlider *m_geneIntensitySlider = nullptr;
     QSlider *m_geneSizeSlider = nullptr;
-    QSlider *m_geneShimmeSlider = nullptr;
+    QSlider *m_geneShineSlider = nullptr;
     QSlider *m_geneBrightnessSlider = nullptr;
 
     QComboBox *m_geneShapeComboBox = nullptr;
@@ -69,26 +68,30 @@ public:
     QAction *m_actionRotation_rotateRight = nullptr;
 
 signals:
+
     void thresholdLowerValueChanged(int);
     void thresholdUpperValueChanged(int);
     void intensityValueChanged(qreal);
     void sizeValueChanged(qreal);
-    void shimmeValueChanged(qreal);
+    void shineValueChanged(qreal);
     void brightnessValueChanged(qreal);
     void shapeIndexChanged(Globals::GeneShape);
 
 public slots:
+
     void resetTresholdActions(int min = 0, int max = 1);
     void resetActions();
 
 private slots:
+
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);
-    void slotGeneShimme(int geneShimme);
+    void slotGeneShine(int geneShine);
     void slotGeneBrightness(int geneBrightness);
 
 private:
+
     void createConnections();
     void createActions();
 };

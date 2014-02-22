@@ -26,25 +26,38 @@ ImageTextureGL::ImageTextureGL(QObject *parent) :
 ImageTextureGL::~ImageTextureGL()
 {
     clearTextures();
+    clearNodes();
 }
 
 void ImageTextureGL::clearTextures()
 {
     foreach( QGLTexture2D *texture, m_textures ) {
-        texture->cleanupResources();
-        texture->release();
-        texture->clearImage();
+        if (texture) {
+            texture->cleanupResources();
+            texture->release();
+            texture->clearImage();
+            delete texture;
+            texture = 0;
+        }
     }
-    // check this, nodes are part of the tree and should be removed automatically
-    removeNodes(allChildren());
+}
+
+void ImageTextureGL::clearNodes()
+{
+    foreach( QGLSceneNode *node, m_nodes) {
+        if ( node ) {
+            delete node;
+            node = 0;
+        }
+    }
 }
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
     glEnable(GL_TEXTURE_2D);
     {
-        foreach(QGLSceneNode *node, allChildren() ) {
-            if ( node->material() && node->material()->texture() ) {
+        foreach(QGLSceneNode *node, m_nodes ) {
+            if ( node && node->material() && node->material()->texture() ) {
                 node->material()->texture()->bind();
                 node->draw(painter);
                 node->material()->texture()->release();
@@ -56,15 +69,16 @@ void ImageTextureGL::draw(QGLPainter *painter)
 
 void ImageTextureGL::drawGeometry(QGLPainter *painter)
 {
-    QGLSceneNode::drawGeometry(painter);
+    Q_UNUSED(painter);
 }
 
 void ImageTextureGL::createTexture(const QImage& image)
 {
-   
-  createTiles(image); // we always tile, it is not secure to create one texture from the whole image
-  //addTexture(image);
-    
+   clearTextures();
+   clearNodes();
+   // we always tile, it is not secure to create one texture from the whole image
+   createTiles(image);
+   m_bounds = image.rect();
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
@@ -116,7 +130,7 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     builder.addQuads(data);
     QGLSceneNode *node  = builder.finalizedSceneNode();
 
-    QGLTexture2D *m_texture = new QGLTexture2D(this);
+    QGLTexture2D *m_texture = new QGLTexture2D;
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
@@ -124,24 +138,18 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
                               | QGLTexture2D::MipmapBindOption);
     m_texture->setSize(QSize(width, height));
 
-    QGLMaterial *mat = new QGLMaterial(this);
+    QGLMaterial *mat = new QGLMaterial;
     mat->setColor(Qt::black);
     mat->setTexture(m_texture);
     node->setMaterial(mat);
     node->setEffect(QGL::LitDecalTexture2D);
-    addNode(node);
+
+    m_nodes.append(node);
 }
 
 const QRectF ImageTextureGL::boundingRect() const
 {
-    const QVector3D left_corner = boundingBox().minimum();
-    const QVector3D right_corner = boundingBox().maximum();
-    const qreal x = left_corner.x();
-    const qreal y = left_corner.y();
-    const qreal width = right_corner.x();
-    const qreal height = right_corner.y();
-    const QRectF rect(x, y, width, height);
-    return rect;
+    return m_bounds;
 }
 
 void ImageTextureGL::setIntensity(qreal intensity)

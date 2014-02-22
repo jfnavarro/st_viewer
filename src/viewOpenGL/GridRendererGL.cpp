@@ -51,7 +51,7 @@ void GridRendererGL::draw(QGLPainter *painter)
 
 void GridRendererGL::drawGeometry(QGLPainter *painter)
 {
-    QGLSceneNode::drawGeometry(painter);
+    Q_UNUSED(painter);
 }
 
 void GridRendererGL::clearData()

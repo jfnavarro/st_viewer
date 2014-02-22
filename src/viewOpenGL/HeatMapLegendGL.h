@@ -26,10 +26,6 @@ public:
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
 
-    //rendering functions
-    void generateHeatMap();
-    void generateBarAndTexts();
-
 protected:
 
     void draw(QGLPainter *painter);
@@ -44,6 +40,10 @@ public slots:
     void setUpperLimit(int limit);
 
 private:
+
+    //rendering functions
+    void generateHeatMap();
+    void generateBarAndTexts();
 
     // Draw text centered on the bottom of the "posn" rectangle.
     void drawText(QGLPainter *painter, const QPointF& posn, const QString& str);

@@ -68,7 +68,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addAction(m_actionZoom_zoomIn);
     addAction(m_actionZoom_zoomOut);
     addSeparator();
-    addAction(m_actionSelection_toggleSelectionMode);
     addAction(m_actionSelection_showSelectionDialog);
     addSeparator();
     addAction(m_actionSave_save);
@@ -83,11 +82,9 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter->addSeparator();
     m_menu_genePlotter->addAction(m_actionColor_selectColorGenes);
     m_menu_genePlotter->addAction(m_actionColor_selectColorGrid);
-
     m_menu_genePlotter->addSeparator();
 
     //color modes
-
     m_actionGroup_toggleVisualMode = new QActionGroup(m_menu_genePlotter);
     m_actionGroup_toggleVisualMode->setExclusive(true);
     m_actionGroup_toggleVisualMode->addAction(m_actionShow_toggleNormal);
@@ -97,15 +94,12 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter->addSeparator();
 
     //threshold slider
-
     Q_ASSERT(m_geneHitsThreshold == nullptr);
     m_geneHitsThreshold = new SpinBoxSlider(this);
-//    m_geneHitsThresholdSelector->setOrientation(Qt::Horizontal);
     m_geneHitsThreshold->setToolTip(tr("Limit of the number of transcripts."));
-
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
-    // transcripts intensity
 
+    // transcripts intensity
     addSliderToMenu(this,
                     tr("Opacity:"),
                     tr("Intensity of the transcripts."),
@@ -121,10 +115,10 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
                     GENE_SIZE_MIN,
                     GENE_SIZE_MAX);
     addSliderToMenu(this,
-                    tr("Shimme:"),
-                    tr("Shimme"),
+                    tr("Shine:"),
+                    tr("Shine"),
                     m_menu_genePlotter,
-                    &m_geneShimmeSlider,
+                    &m_geneShineSlider,
                     GENE_SHIMME_MIN,
                     GENE_SHIMME_MAX);
 
@@ -138,8 +132,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_geneShapeComboBox->addItem("Squares", Globals::GeneShape::Square);
     m_geneShapeComboBox->setCurrentIndex(Globals::GeneShape::Circle);
     m_geneShapeComboBox->setToolTip(tr("Shape of the genes."));
-
     addWidgetToMenu(tr("Shape:"), m_menu_genePlotter, m_geneShapeComboBox);
+
     //second menu
     QToolButton* toolButtonGene = new QToolButton(this);
     toolButtonGene->setMenu(m_menu_genePlotter);
@@ -189,8 +183,6 @@ void CellViewPageToolBar::resetTresholdActions(int min, int max)
     //threshold slider
     m_geneHitsThreshold->setMinimumValue(min);
     m_geneHitsThreshold->setMaximumValue(max);
-    //    m_geneHitsThreshold->setLowerPosition(min);
-    //    m_geneHitsThreshold->setUpperPosition(max);
     m_geneHitsThreshold->setLowerValue(min);
     m_geneHitsThreshold->setUpperValue(max);
     m_geneHitsThreshold->setTickInterval(1);
@@ -211,11 +203,7 @@ void CellViewPageToolBar::resetActions()
     // reset genes to show
     m_actionShow_showGenes->setChecked(true);
 
-    // selection mode
-    m_actionSelection_toggleSelectionMode->setChecked(false);
-
     // gene controls
-
     Q_ASSERT(m_geneIntensitySlider);
     m_geneIntensitySlider->setValue(GENE_INTENSITY_MAX);
     Q_ASSERT(m_geneSizeSlider);
@@ -251,7 +239,6 @@ void CellViewPageToolBar::createActions()
     m_actionNavigate_goBack->setAutoRepeat(false);
 
     //color modes
-
     m_actionShow_toggleNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
@@ -267,20 +254,15 @@ void CellViewPageToolBar::createActions()
     m_actionSave_print = new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
 
     //selection actions
-    m_actionSelection_toggleSelectionMode = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Toggle Gene Selection Mode"), this);
-    m_actionSelection_toggleSelectionMode->setCheckable(true);
     m_actionSelection_showSelectionDialog = new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
 
     // color dialogs
     m_actionColor_selectColorGenes = new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Choose &Color Genes"), this);
     m_actionColor_selectColorGrid = new QAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Choose Color Grid"), this);
 
-    m_actionRotation_rotateLeft = new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Rotate &left"), this);
-    m_actionRotation_rotateRight = new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Rotate &right"), this);
-
+    m_actionRotation_rotateLeft = new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")), tr("Rotate &left"), this);
+    m_actionRotation_rotateRight = new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")), tr("Rotate &right"), this);
 }
-
-
 
 void CellViewPageToolBar::createConnections()
 {
@@ -294,8 +276,8 @@ void CellViewPageToolBar::createConnections()
     connect(m_geneIntensitySlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneIntensity(int)));
     Q_ASSERT(m_geneSizeSlider);
     connect(m_geneSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneSize(int)));
-    Q_ASSERT(m_geneShimmeSlider);
-    connect(m_geneShimmeSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneShimme(int)));
+    Q_ASSERT(m_geneShineSlider);
+    connect(m_geneShineSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneShine(int)));
     Q_ASSERT(m_geneBrightnessSlider);
     connect(m_geneBrightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneBrightness(int)));
     Q_ASSERT(m_geneShapeComboBox);
@@ -322,11 +304,10 @@ void CellViewPageToolBar::slotGeneSize(int geneSize)
     emit sizeValueChanged(decimal);
 }
 
-
-void CellViewPageToolBar::slotGeneShimme(int geneShimme)
+void CellViewPageToolBar::slotGeneShine(int geneShine)
 {
-    const qreal decimal = static_cast<qreal>(geneShimme) / 10;
-    emit shimmeValueChanged(decimal);
+    const qreal decimal = static_cast<qreal>(geneShine) / 10;
+    emit shineValueChanged(decimal);
 }
 
 void CellViewPageToolBar::slotGeneBrightness(int geneBrightness)

@@ -74,9 +74,12 @@ private:
     QOpenGLContext *m_context = nullptr;
     QSurfaceFormat format;
     bool m_initialized;
-    QRectF m_viewport;
 
-    // list of nodes to be renderered in the context
+    // scene and viewport aux variables
+    QRectF m_viewport;
+    QRectF m_scene; //TODO update scene size when zoomin/panning and send signal
+
+    // list of nodes to be renderered in the view
     QList<GraphicItemGL *> m_nodes;
 
     // auxiliary variables for panning, zoom and selection

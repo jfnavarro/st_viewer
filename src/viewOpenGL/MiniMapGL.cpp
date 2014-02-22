@@ -91,8 +91,6 @@ void MiniMapGL::draw(QGLPainter *painter)
     // draw scene rectangle
     if (m_scene.isValid()) {
 
-        qDebug() << " Scene " << m_scene;
-
         const QPointF stl = m_scene.topLeft();
         const QPointF str = m_scene.topRight();
         const QPointF sbr = m_scene.bottomRight();
@@ -120,8 +118,6 @@ void MiniMapGL::draw(QGLPainter *painter)
 
     // draw view rectangle
     if (m_view.isValid()) {
-
-        qDebug() << " View " << m_view;
 
         const QPointF vtl = m_view.topLeft();
         const QPointF vtr = m_view.topRight();
@@ -151,7 +147,7 @@ void MiniMapGL::draw(QGLPainter *painter)
 
 void MiniMapGL::drawGeometry(QGLPainter *painter)
 {
-    QGLSceneNode::drawGeometry(painter);
+    Q_UNUSED(painter);
 }
 
 void MiniMapGL::setSceneColor(const QColor& sceneColor)

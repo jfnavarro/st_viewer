@@ -23,7 +23,6 @@ public:
     virtual ~ImageTextureGL();
 
     void createTexture(const QImage& image);
-    void clearTextures();
 
 public slots:
 
@@ -36,14 +35,17 @@ protected:
 
     const QRectF boundingRect() const;
 
-    void createTiles(const QImage &image);
-    void addTexture(const QImage &image, const int x = 0, const int y = 0);
-
 private:
 
-     QList<QGLTexture2D *> m_textures;
+    void createTiles(const QImage &image);
+    void addTexture(const QImage &image, const int x = 0, const int y = 0);
+    void clearTextures();
+    void clearNodes();
 
-     qreal m_intensity = 1.0f;
+    QList<QGLTexture2D *> m_textures;
+    QList<QGLSceneNode *> m_nodes;
+    qreal m_intensity = 1.0f;
+    QRectF m_bounds;
 };
 
 #endif // IMAGETEXTUREGL_H

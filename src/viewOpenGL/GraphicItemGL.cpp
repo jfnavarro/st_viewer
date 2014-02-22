@@ -9,7 +9,7 @@
 #include <QVector3D>
 
 GraphicItemGL::GraphicItemGL(QObject *parent) :
-    QGLSceneNode(parent)
+    QObject(parent)
 {
 
 }

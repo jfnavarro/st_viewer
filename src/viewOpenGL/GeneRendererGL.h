@@ -43,6 +43,7 @@ public:
     //rendering functions
     void generateData();
     //void updateData(updateOptions flags);
+    void rebuildData();
     void clearData();
 
     void setDimensions(const QRectF &border);
@@ -60,8 +61,9 @@ public slots:
 
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-
     void setShine(qreal shine);
+
+    void setShape(Globals::GeneShape shape);
 
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
@@ -69,6 +71,9 @@ public slots:
     void setVisualMode(const Globals::GeneVisualMode &mode);
 
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
+
+    void updateColor(DataProxy::GenePtr);
+    void updateSelection(DataProxy::GenePtr);
 
 protected:
 
@@ -78,10 +83,9 @@ protected:
     //internal rendering functions
     //void updateGene(DataProxy::GenePtr, updateOptions flags);
     //void updateFeatures(DataProxy::FeatureListPtr, updateOptions flags);
-    void updateColor(DataProxy::FeatureListPtr);
-    void updateSelection(DataProxy::FeatureListPtr);
+
     void updateSize();
-    void updateVisual(DataProxy::FeatureListPtr);
+    void updateVisual();
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
@@ -121,6 +125,7 @@ private:
     qreal m_intensity;
     qreal m_size;
     qreal m_shine;
+    Globals::GeneShape m_shape;
 
     // threshold limits for gene hits
     int m_thresholdLower;

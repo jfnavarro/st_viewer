@@ -7,6 +7,8 @@
 
 #include "GeneRendererGL.h"
 
+#include "utils/DebugHelper.h"
+
 #include "data/DataProxy.h"
 #include "color/ColorScheme.h"
 #include "color/DynamicRangeColor.h"
@@ -18,9 +20,14 @@
 #include <QGLShaderProgramEffect>
 #include <QFile>
 
+constexpr qreal boundaries ()
+{
+    return Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+}
+
 static const int INVALID_INDEX = -1;
-//static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex0;
-//static const QGL::VertexAttribute refCountVertex = QGL::CustomVertex1;
+//static const QGL::VertexAttribute valuesVertex = QGL::UserVertex;
+static const QGL::VertexAttribute refCountVertex = QGL::UserVertex;
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex1;
 static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex0;
 
@@ -33,6 +40,8 @@ GeneRendererGL::GeneRendererGL(QObject *parent)
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
 
+    m_geneNode = new QGLSceneNode;
+
     clearData();
     setupShaders();
 }
@@ -43,6 +52,11 @@ GeneRendererGL::~GeneRendererGL()
         delete m_colorScheme;
     }
     m_colorScheme = 0;
+
+    if (m_geneNode) {
+        delete m_geneNode;
+    }
+    m_geneNode = 0;
 }
 
 void GeneRendererGL::clearData()
@@ -83,59 +97,59 @@ void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
-    m_intensity = intensity;
-    emit updated();
+    if ( m_intensity != intensity) {
+        m_intensity = intensity;
+        emit updated();
+    }
 }
 
 void GeneRendererGL::setSize(qreal size)
 {
-    m_size = size;
-    updateSize();
-    emit updated();
+    if ( m_size != size ) {
+        m_size = size;
+        updateSize();
+        emit updated();
+    }
 }
 
 void GeneRendererGL::setShine(qreal shine)
 {
-    m_shine = shine;
-    emit updated();
+    if ( m_shine != shine ) {
+        m_shine = shine;
+        emit updated();
+    }
 }
 
 void GeneRendererGL::setUpperLimit(int limit)
 {   
-    Q_UNUSED(limit);
- /*   const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
-    // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
-    const int adjusted_limit = static_cast<int>( ( qreal(limit) / upper_offset ) *
-                                                 qreal(m_hitCountMax - m_hitCountMin) );
-
-    const int adjusted_limit_local = static_cast<int>( ( qreal(limit) / upper_offset ) *
-                                                 qreal(m_hitCountLocalMax - m_hitCountLocalMin) );
-
-    if ( m_max != adjusted_limit ) {
-        m_max = adjusted_limit;
-        m_max_local = adjusted_limit_local;
-        // render data only needs local limits
-        m_geneData.setUpperLimit(adjusted_limit_local);
-    }*/
+    const qreal offlimit = boundaries();
+    const qreal range = m_max - m_min;
+    const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
+    const qreal range_pooled = m_pooledMax - m_pooledMin;
+    const qreal adjusted_limit_pooled =  (qreal(limit) / offlimit ) * range_pooled;
+    Q_UNUSED(adjusted_limit_pooled);
+    if ( m_thresholdUpper != adjusted_limit ) {
+        m_thresholdUpper = adjusted_limit;
+        // update uniform variables
+        //m_geneData.setUpperLimit(adjusted_limit_local);
+        updateVisual();
+    }
 }
 
 void GeneRendererGL::setLowerLimit(int limit)
 {
-    Q_UNUSED(limit);
-/*    const qreal upper_offset = qreal(Globals::gene_threshold_max - Globals::gene_threshold_min);
-    // limit ranks 0 - 100, I normalize it to my rank of hit_max - hit_min
-    const int adjusted_limit = static_cast<int>( ( qreal(limit) / upper_offset ) *
-                                                 qreal(m_hitCountMax - m_hitCountMin) );
-
-    const int adjusted_limit_local = static_cast<int>( ( qreal(limit) / upper_offset ) *
-                                                 qreal(m_hitCountLocalMax - m_hitCountLocalMin) );
-
-    if ( m_min != adjusted_limit ) {
-        m_min = adjusted_limit;
-        m_min_local = adjusted_limit_local;
-        // render data only needs local limits
-        m_geneData.setLowerLimit(adjusted_limit_local);
-    }*/
+    const qreal offlimit = boundaries();
+    const qreal range = m_max - m_min;
+    const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
+    const qreal range_pooled = m_pooledMax - m_pooledMin;
+    const qreal adjusted_limit_pooled =  (qreal(limit) / offlimit ) * range_pooled;
+    Q_UNUSED(adjusted_limit_pooled);
+    if ( m_thresholdLower != adjusted_limit ) {
+        m_thresholdLower = adjusted_limit;
+        // update uniform variables
+        //m_geneData.setUpperLimit(adjusted_limit_local);
+        updateVisual();
+    }
 }
 
 int GeneRendererGL::addQuad(qreal x, qreal y, QColor4ub color)
@@ -145,15 +159,19 @@ int GeneRendererGL::addQuad(qreal x, qreal y, QColor4ub color)
     static const QVector2D tc(1.0f, 1.0f);
     static const QVector2D td(1.0f, 0.0f);
 
+    const int index_count = m_geneData.count();
+
     m_geneData.appendVertex( QVector3D(x - m_size / 2.0f , y - m_size / 2.0f, 0.0f) );
     m_geneData.appendVertex( QVector3D(x + m_size / 2.0f, y - m_size / 2.0f, 0.0f) );
     m_geneData.appendVertex( QVector3D(x + m_size / 2.0f, y + m_size / 2.0f, 0.0f) );
     m_geneData.appendVertex( QVector3D(x - m_size / 2.0f, y + m_size / 2.0f, 0.0f) );
     m_geneData.appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
     m_geneData.appendColor(color, color, color, color);
+    m_geneData.appendIndices(index_count, index_count + 1, index_count + 2);
+    m_geneData.appendIndices(index_count, index_count + 2, index_count + 3);
 
     // return first index of the quad created
-    return m_geneData.count(QGL::Position);
+    return index_count;
 }
 
 void GeneRendererGL::updateQuadSize(const int index, qreal x, qreal y)
@@ -203,7 +221,7 @@ void GeneRendererGL::generateData()
 
             // update custom vertex arrays
             //m_geneData.appendAttribute(0.0f, valuesVertex); // we initialize to 0 (it will be fetched afterwards)
-            //m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
+            m_geneData.appendAttribute(0.0f, refCountVertex); // we initialize to 0 (it will be fetched afterwards)
             m_geneData.appendAttribute(0.0f, selectionVertex);  // we initialize to false (it will be fetched afterwards)
             m_geneData.appendAttribute(0.0f, visibleVertex); // we initialize to false (it will be fetched afterwards)
 
@@ -214,11 +232,6 @@ void GeneRendererGL::generateData()
         }
 
     } //endforeach
-
-    QGLBuilder builder;
-    //data.generateTextureCoordinates();
-    builder.addQuads(m_geneData);
-    m_geneNode = builder.finalizedSceneNode();
 }
 
 void GeneRendererGL::updateSize()
@@ -232,37 +245,29 @@ void GeneRendererGL::updateSize()
         Q_ASSERT(feature);
         updateQuadSize(index, feature->x(), feature->y());
     }
-    QGLBuilder builder;
-    //data.generateTextureCoordinates();
-    builder.addQuads(m_geneData);
-    m_geneNode = builder.finalizedSceneNode();
 }
 
-void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
+void GeneRendererGL::updateColor(DataProxy::GenePtr gene)
 {
-    Q_UNUSED(features);
-
-    /*
-   // GL::GLElementRectangleFactory factory(m_geneData);
-    DataProxy *dataProxy = DataProxy::getInstance();
+    if ( m_geneInfoById.empty() ) {
+        return;
+    }
+    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
     GeneInfoByIdMap::const_iterator it;
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+
+    const bool selected = gene->selected();
 
     foreach(DataProxy::FeaturePtr feature, *(features)) {
 
         it = m_geneInfoById.find(feature);
         Q_ASSERT(it != end);
 
-        //TODO gene should be passed as parameter (no need for this each iteration)
-        DataProxy::FeaturePtr first_feature = features->first();
-        DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), first_feature->gene());
-        Q_ASSERT(gene != 0);
-
-        const bool selected = gene->selected();
         const QColor geneQColor = gene->color();
-        const GL::GLindex index = it.value();
-        const int refCount = m_geneData.getRefCount(index);
+        const int index = it.value();
+        const int refCount = m_geneData.floatAttributeAt(index, refCountVertex);
 
         // feature update color
         const QColor oldQColor = m_colorScheme->getColor(feature, m_min, m_max);
@@ -279,90 +284,95 @@ void GeneRendererGL::updateColor(DataProxy::FeatureListPtr features)
         
         // update the color if gene is visible
         if (selected && (refCount > 0)) {
-            QColor4ub color = factory.getColor(index);
+            QColor4ub color = m_geneData.colorAt(index);
             if (refCount > 1) {
-                color = GL::invlerp((1.0f / qreal(refCount)), color, oldColor);
+                color = STMath::invlerp((1.0f / qreal(refCount)), color, oldColor);
             }
-            color = GL::lerp((1.0f / qreal(refCount)), color, newColor);
-            factory.setColor(index, color);
+            color = STMath::lerp((1.0f / qreal(refCount)), color, newColor);
+            updateQuadColor(index, color);
         }
     }
-    */
+
+    //TODO this causes a error when calling this method many times
+    // due to over call to the render function
+    //emit updated();
 }
 
-void GeneRendererGL::updateSelection(DataProxy::FeatureListPtr features)
+void GeneRendererGL::updateSelection(DataProxy::GenePtr gene)
 {
-    Q_UNUSED(features);
-
-    /*
-    GL::GLElementRectangleFactory factory(m_geneData);
-    DataProxy *dataProxy = DataProxy::getInstance();
+    if ( m_geneInfoById.empty() ) {
+        return;
+    }
+    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy::FeatureListPtr features = dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
     GeneInfoByIdMap::const_iterator it;
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+
+    const bool selected = gene->selected();
 
     foreach(DataProxy::FeaturePtr feature, *(features)) {
 
         it = m_geneInfoById.find(feature);
         Q_ASSERT(it != end);
 
-        //TODO gene should be passed as parameter (no need for this each iteration)
-        DataProxy::GenePtr gene = dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
-        Q_ASSERT(gene != 0);
-
-        bool selected = gene->selected();
-        const GL::GLindex index = it.value();
+        const int index = it.value();
         const int currentHits = feature->hits();
 
         // update values
-        const int oldValue = m_geneData.getValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : -currentHits));
-        m_geneData.setValue(index, newValue);
+        //const int oldValue = m_geneData.floatAttributeAt(index, valuesVertex);
+        //const int newValue = (oldValue + (selected ? currentHits : -currentHits));
+        //m_geneData.floatAttribute(index, valuesVertex) = newValue;
 
         // update ref count
-        const int oldRefCount = m_geneData.getRefCount(index);
+        const int oldRefCount = m_geneData.floatAttributeAt(index, refCountVertex);
         int newRefCount = (oldRefCount + (selected ? 1 : -1));
-        bool offlimits =  (m_thresholdMode == Globals::IndividualGeneMode
+        bool offlimits =  (m_visualMode == Globals::NormalMode
                            && ( currentHits < m_min || currentHits > m_max ) );
         if ( selected && offlimits ) {
                 newRefCount = oldRefCount;
         }
-        m_geneData.setRefCount(index, newRefCount);
+        m_geneData.floatAttribute(index, refCountVertex)  = newRefCount;
 
         if ( newRefCount > 0 ) {
             QColor4ub featureColor = QColor4ub(m_colorScheme->getColor(feature, m_min, m_max));
-            QColor4ub color = factory.getColor(index);
+            QColor4ub color = m_geneData.colorAt(index);
             color = (selected && !offlimits) ?
-                        GL::lerp((1.0f / qreal(newRefCount)), color, featureColor) :
-                        GL::invlerp((1.0f / qreal(oldRefCount)), color, featureColor);
-            factory.setColor(index, color);
+                        STMath::lerp((1.0f / qreal(newRefCount)), color, featureColor) :
+                        STMath::invlerp((1.0f / qreal(oldRefCount)), color, featureColor);
+            updateQuadColor(index, color);
         }
 
         // update visible
         if ( selected && newRefCount == 1 ) {
-            factory.connect(index);
+            m_geneData.floatAttribute(index, visibleVertex) = 1.0f;
         }
         else if ( !selected && newRefCount == 0 ) {
-            factory.deconnect(index);
+            m_geneData.floatAttribute(index, visibleVertex) = 0.0f;
         }
     }
-    */
+
+    //TODO this causes a error when calling this method many times
+    // due to over call to the render function
+    //emit updated();
 }
 
-void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
+void GeneRendererGL::updateVisual()
 {
-    Q_UNUSED(features);
-
-    /*
-    GL::GLElementRectangleFactory factory(m_geneData);
-    DataProxy *dataProxy = DataProxy::getInstance();
+    if ( m_geneInfoById.empty() ) {
+        return;
+    }
+    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy::FeatureListPtr features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     // reset ref count when in visual mode
-    m_geneData.resetRefCount();
-    m_geneData.resetValCount();
-
-    GeneInfoByIdMap::const_iterator it;
+    GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+    for( ; it != end; ++it) {
+        const int index = it.value();
+        m_geneData.floatAttribute(index, refCountVertex) = 0.0f;
+        //m_geneData.resetValCount();
+    }
 
     foreach(DataProxy::FeaturePtr feature, *(features)) {
 
@@ -374,55 +384,57 @@ void GeneRendererGL::updateVisual(DataProxy::FeatureListPtr features)
         Q_ASSERT(gene != 0);
 
         bool selected = gene->selected();
-        const GL::GLindex index = it.value();
+        const int index = it.value();
         const int currentHits = feature->hits();
 
         // update values
-        const int oldValue = m_geneData.getValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : 0));
-        m_geneData.setValue(index, newValue);
+        //const int oldValue = m_geneData.getValue(index);
+        //const int newValue = (oldValue + (selected ? currentHits : 0));
+        //m_geneData.setValue(index, newValue);
 
         // update ref count
-        const int oldRefCount = m_geneData.getRefCount(index);
+        const int oldRefCount = m_geneData.floatAttributeAt(index, refCountVertex);
         int newRefCount = (oldRefCount + (selected ? 1 : 0));
-        bool offlimits =  (m_thresholdMode == Globals::IndividualGeneMode
+        bool offlimits =  (m_visualMode == Globals::NormalMode
                            && ( currentHits < m_min || currentHits > m_max ) );
         if ( selected && offlimits ) {
                 newRefCount = oldRefCount;
         }
-        m_geneData.setRefCount(index, newRefCount);
+        m_geneData.floatAttribute(index, refCountVertex) = newRefCount;
 
         // update color
         if ( selected && newRefCount > 0 && !offlimits) {
             QColor4ub featureColor = QColor4ub(m_colorScheme->getColor(feature, m_min, m_max));
-            QColor4ub color = factory.getColor(index);
-            color = GL::lerp((1.0f / qreal(newRefCount)), color, featureColor);
-            factory.setColor(index, color);
+            QColor4ub color = m_geneData.colorAt(index);
+            color = STMath::lerp((1.0f / qreal(newRefCount)), color, featureColor);
+            updateQuadColor(index, color);
         }
 
         if ( newRefCount == 0 ) {
             QColor4ub featureColor = QColor4ub(Qt::white);
             featureColor.setAlphaF(0.0);
-            factory.setColor(index, featureColor);
+            updateQuadColor(index, featureColor);
         }
     }
-    */
+
+    //TODO this causes a error when calling this method many times
+    // due to over call to the render function
+    //emit updated();
 }
 
-//void GeneRendererGL::rebuildData()
-//{
-    // clear data
-    //m_geneData.clear(GL::GLElementDataGene::Arrays & ~GL::GLElementDataGene::IndexArray);
-    //m_geneData.setMode(GL_QUADS);
-    //generateData();
-//}
+void GeneRendererGL::rebuildData()
+{
+    // clear data and regenerate
+    m_geneData.clear();
+    generateData();
+}
 
 void GeneRendererGL::clearSelection()
 {
-    //foreach(GL::GLindex index, m_geneInfoSelection) {
-    //    m_geneData.setOption(index, 0u);
-    //}
-    //m_geneInfoSelection.clear();
+    foreach(const int index, m_geneInfoSelection) {
+        m_geneData.floatAttribute(index, selectionVertex) = 0.0f;
+    }
+    m_geneInfoSelection.clear();
 }
 
 DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
@@ -566,32 +578,35 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
         m_colorScheme = new FeatureColor();
         break;
     }
-    // update geneData
-    //m_geneData.setColorMode(m_visualMode);
+
+   //TODO update gene Color
+
 }
 
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
-    if (m_geneNode == nullptr) {
-        return;
-    }
+    Q_ASSERT(m_geneNode);
+
+    //TODO add material to node to control shine
 
     //QGLMaterial *material = new QGLMaterial(this);
     //material->setColor(Qt::red);
     //material->setAmbientColor(Qt::red);
     //material->setDiffuseColor(Qt::red);
-    //cube->setMaterial(material);
-    //cube->setDrawingMode(QGL::Points);
-    //cube->setEffect(QGL::LitMaterial);
+    //m_geneNode->setMaterial(material);
 
+    //TODO add a dirty variable to this all the time
+    m_geneNode->setGeometry(m_geneData);
+    m_geneNode->setCount(m_geneData.indices().size());
     m_geneNode->setUserEffect(shaderCircle);
+    //shaderCircle->update(painter, QGLPainter::UpdateAll);
     //shader->setActive(painter,true);
     m_geneNode->draw(painter);
 }
 
 void GeneRendererGL::drawGeometry(QGLPainter *painter)
 {
-    QGLSceneNode::drawGeometry(painter);
+    Q_UNUSED(painter);
 }
 
 void GeneRendererGL::setupShaders()
@@ -621,4 +636,14 @@ void GeneRendererGL::setDimensions(const QRectF &border)
 const QRectF GeneRendererGL::boundingRect() const
 {
     return m_border;
+}
+
+void GeneRendererGL::setShape(Globals::GeneShape shape)
+{
+    //const Globals::GeneShape shape = static_cast<Globals::GeneShape>(geneShape);
+    if (m_shape != shape)
+    {
+        m_shape = shape;
+        emit updated();
+    }
 }

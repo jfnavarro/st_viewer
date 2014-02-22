@@ -50,7 +50,6 @@ public:
     // A positive angle means rotate clock-wise.
     void rotateView(int);
 
-
 public slots:
     
     void onInit();
@@ -67,16 +66,16 @@ protected slots:
     void slotPrintImage();
     void slotExportSelection();
     
-    // activate selection of genes
-    void slotActivateSelection(bool);
+    // selection of genes
     void slotSelectByRegExp();
     
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
+
     // launch a color selector
     void slotLoadColor();
 
-
+    // rotate the canvas
     void slotRotateView();
 
 protected:
@@ -113,9 +112,6 @@ private:
 
     // tool bar
     CellViewPageToolBar *m_toolBar;
-
-    // is in selection mode?
-    bool m_selectionMode;
 
     // User interface
     Ui::CellView *ui;

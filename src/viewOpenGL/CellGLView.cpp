@@ -74,7 +74,7 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    QRect rect = geometry();
+    const QRect rect = geometry();
     Q_ASSERT(event->size() == rect.size());
 
     if ( rect.size() != m_viewport.size() )
@@ -114,7 +114,7 @@ void CellGLView::initializeGL()
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    QRect rect = geometry();
+    const QRect rect = geometry();
     resizeGL(rect.width(), rect.height());
     m_initialized = true;
 }
@@ -198,7 +198,7 @@ void CellGLView::update()
 
 void CellGLView::setZoom(qreal delta)
 {
-    if (m_zoom != delta) {
+    if ( m_zoom != delta ) {
         m_zoom = delta;
         update();
     }
