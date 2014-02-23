@@ -76,6 +76,7 @@ signals:
     void shineValueChanged(qreal);
     void brightnessValueChanged(qreal);
     void shapeIndexChanged(Globals::GeneShape);
+    void rotateView(qreal);
 
 public slots:
 
@@ -89,6 +90,8 @@ private slots:
     void slotGeneSize(int geneSize);
     void slotGeneShine(int geneShine);
     void slotGeneBrightness(int geneBrightness);
+    void slotRotateRight();
+    void slotRotateLeft();
 
 private:
 

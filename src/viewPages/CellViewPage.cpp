@@ -211,6 +211,7 @@ void CellViewPage::createConnections()
     // graphic view signals
     connect(m_toolBar->m_actionZoom_zoomIn, SIGNAL(triggered(bool)), m_view, SLOT(zoomIn()));
     connect(m_toolBar->m_actionZoom_zoomOut, SIGNAL(triggered(bool)), m_view, SLOT(zoomOut()));
+    connect(m_toolBar, SIGNAL(rotateView(qreal)), m_view, SLOT(rotate(qreal)));
 
     // print canvas
     connect(m_toolBar->m_actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
@@ -269,7 +270,7 @@ void CellViewPage::resetActionStates()
     m_minimap->setVisible(true);
 
     // reset legend to visible true
-    m_legend->setVisible(true);
+    m_legend->setVisible(false);
 
     // reset tool bar actions
     m_toolBar->resetActions();
@@ -373,6 +374,7 @@ void CellViewPage::createGLConnections()
 
     // cell tissue canvas
     connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));
+    connect(m_toolBar, SIGNAL(brightnessValueChanged(qreal)), m_image, SLOT(setIntensity(qreal)));
 
     // connect setvisible signals
     connect(m_toolBar->m_actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
@@ -520,9 +522,10 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
     QVariant variant = action->property("mode");
     if (variant.canConvert(QVariant::Int)) {
         Globals::GeneVisualMode mode = static_cast<Globals::GeneVisualMode>(variant.toInt());
+        m_legend->setVisible(mode == Globals::HeatMapMode);
         m_gene_plotter->setVisualMode(mode);
     } else {
-        qDebug() << "[CellViewPage] Undefined gene visual mode!";
+        Q_ASSERT("[CellViewPage] Undefined gene visual mode!");
     }
 }
 

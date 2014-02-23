@@ -105,12 +105,14 @@ void MiniMapGL::draw(QGLPainter *painter)
         scene_vertices.append(sbl.x(), sbl.y());
 
         painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
         painter->setColor(m_sceneColor);
         painter->setVertexAttribute(QGL::Position, scene_vertices );
         painter->draw(QGL::TriangleFan, scene_vertices.size());
 
         m_sceneColor.setAlphaF(0.8);
         painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
         painter->setColor(m_sceneColor);
         painter->setVertexAttribute(QGL::Position, scene_vertices );
         painter->draw(QGL::LineLoop, scene_vertices.size());
@@ -124,21 +126,22 @@ void MiniMapGL::draw(QGLPainter *painter)
         const QPointF vbr = m_view.bottomRight();
         const QPointF vbl = m_view.bottomLeft();
 
-        m_viewColor.setAlphaF(0.2);
-
         QVector2DArray view_vertices;
         view_vertices.append(vtl.x(), vtl.y());
         view_vertices.append(vtr.x(), vtr.y());
         view_vertices.append(vbr.x(), vbr.y());
         view_vertices.append(vbl.x(), vbl.y());
 
+        m_viewColor.setAlphaF(0.2);
         painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
         painter->setColor(m_viewColor);
         painter->setVertexAttribute(QGL::Position, view_vertices );
         painter->draw(QGL::TriangleFan, view_vertices.size());
 
         m_viewColor.setAlphaF(0.8);
         painter->clearAttributes();
+        painter->setStandardEffect(QGL::FlatColor);
         painter->setColor(m_sceneColor);
         painter->setVertexAttribute(QGL::Position, view_vertices );
         painter->draw(QGL::LineLoop, view_vertices.size());

@@ -68,6 +68,11 @@ bool GraphicItemGL::invertedX() const
     return m_visualOptions & VisualOption::Xinverted;
 }
 
+bool GraphicItemGL::rubberBandable() const
+{
+    return m_visualOptions & VisualOption::RubberBandable;
+}
+
 void GraphicItemGL::setVisible(bool value)
 {
     setVisualOption(VisualOption::Visible, value);
@@ -99,6 +104,11 @@ void GraphicItemGL::setTransform(const QTransform& transform)
 bool GraphicItemGL::contains(const QPointF& point) const
 {
     return boundingRect().contains(point);
+}
+
+bool GraphicItemGL::contains(const QRectF& rect) const
+{
+    return boundingRect().contains(rect);
 }
 
 const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) const

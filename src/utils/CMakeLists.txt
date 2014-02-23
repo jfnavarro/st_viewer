@@ -4,7 +4,7 @@ set(LIBRARY_ARG_INCLUDES
 )
 
 set(LIBRARY_ARG_SOURCES
-    Utils.cpp
+
 )
 
 set(LIBRARY_ARG_UI_FILES

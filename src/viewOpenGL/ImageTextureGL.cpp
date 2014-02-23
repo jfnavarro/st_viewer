@@ -59,6 +59,9 @@ void ImageTextureGL::draw(QGLPainter *painter)
         foreach(QGLSceneNode *node, m_nodes ) {
             if ( node && node->material() && node->material()->texture() ) {
                 node->material()->texture()->bind();
+                QColor texture_color = Qt::black;
+                texture_color.setAlphaF(m_intensity);
+                node->material()->setColor(texture_color);
                 node->draw(painter);
                 node->material()->texture()->release();
             }

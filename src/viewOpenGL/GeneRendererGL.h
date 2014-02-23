@@ -14,13 +14,12 @@
 #include "data/DataProxy.h"
 #include "utils/Utils.h"
 
-#include <qglnamespace.h>
+#include "GeneData.h"
 
 class ColorScheme;
 class QGLPainter;
 class QGLTexture2D;
 class QVector2DArray;
-class QGeometryData;
 class QGLShaderProgramEffect;
 
 class GeneRendererGL : public GraphicItemGL
@@ -92,10 +91,6 @@ protected:
 
     const QRectF boundingRect() const;
 
-    int addQuad(qreal x, qreal y, QColor4ub color = Qt::white);
-    void updateQuadSize(const int index, qreal x, qreal y);
-    void updateQuadColor(const int index, QColor4ub color);
-
     void setupShaders();
 
 private:
@@ -110,7 +105,7 @@ private:
     typedef QSet<int> GeneInfoSelectedSet;
 
     // gene visual data
-    QGeometryData m_geneData;
+    GeneData m_geneData;
     QGLSceneNode *m_geneNode;
 
     // gene lookup data
@@ -130,6 +125,8 @@ private:
     // threshold limits for gene hits
     int m_thresholdLower;
     int m_thresholdUpper;
+    int m_thresholdLowerPooled;
+    int m_thresholdUpperPooled;
 
     // dataset Statistics
     int m_min;

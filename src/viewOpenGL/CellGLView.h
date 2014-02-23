@@ -9,6 +9,7 @@
 
 #include <QWindow>
 #include "GraphicItemGL.h"
+#include "SelectionEvent.h"
 
 class QGLPainter;
 class GraphicItemGL;
@@ -37,7 +38,7 @@ public slots:
 
     void centerOn(const QPointF& point);
 
-    void rotate(int angle);
+    void rotate(qreal angle);
 
     void update();
 
@@ -73,7 +74,7 @@ private:
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
     QSurfaceFormat format;
-    bool m_initialized;
+    bool m_initialized = false;
 
     // scene and viewport aux variables
     QRectF m_viewport;
@@ -83,11 +84,14 @@ private:
     QList<GraphicItemGL *> m_nodes;
 
     // auxiliary variables for panning, zoom and selection
-    QPoint m_lastpos = QPoint(-1, -1);
+    QPoint m_originPanning = QPoint(-1, -1);
+    QPoint m_originRubberBand = QPoint(-1, -1);
     bool m_panning = false;
-    qreal m_zoom = 1.0f;
-    qreal m_panx = 1.0f;
-    qreal m_pany = 1.0f;
+    bool m_rubberBanding = false;
+    qreal m_rotate = 0.0;
+    qreal m_zoom = 1.0;
+    qreal m_panx = 1.0;
+    qreal m_pany = 1.0;
 };
 
 #endif // CELLGLVIEW_H

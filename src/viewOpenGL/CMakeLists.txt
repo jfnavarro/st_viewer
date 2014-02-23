@@ -1,5 +1,6 @@
 set(LIBRARY_ARG_INCLUDES
     GeneRendererGL.h
+    GeneData.h
     GridRendererGL.h
     CellGLView.h
     HeatMapLegendGL.h
@@ -12,6 +13,7 @@ set(LIBRARY_ARG_INCLUDES
 set(LIBRARY_ARG_SOURCES
     GeneRendererGL.cpp
     GridRendererGL.cpp
+    GeneData.cpp
     CellGLView.cpp
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp

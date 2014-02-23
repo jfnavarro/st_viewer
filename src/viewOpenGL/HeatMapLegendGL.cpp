@@ -205,9 +205,9 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
 
     painter->clearAttributes();
     painter->setStandardEffect(QGL::FlatReplaceTexture2D);
-    texture.bind();
     painter->setVertexAttribute(QGL::Position, vertices);
     painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
+    texture.bind();
     painter->draw(QGL::TriangleFan, vertices.size());
     texture.release();
 }

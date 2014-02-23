@@ -67,19 +67,6 @@ static const QString SettingsGeneIntensity = QStringLiteral("GeneIntensity");
 static const QString SettingsGridColor = QStringLiteral("GridColor");
 static const QString SettingsTokenExpiresAt = QStringLiteral("expires_at");
 
-#if defined(Q_OS_WIN)
-static const QString PluginPrefix = "";
-static const QString PluginExtension = ".dll";
-#elif defined(Q_OS_LINUX)
-static const QString PluginPrefix = "lib";
-static const QString PluginExtension = ".so";
-#elif defined(Q_OS_MAC)
-static const QString PluginPrefix = "lib";
-static const QString PluginExtension = ".dylib";
-#else
-#error Unsupported platform
-#endif
-
 /** NETWORK **/
 static const QString LBL_ACCESS_TOKEN_USERNAME = QStringLiteral("username");
 static const QString LBL_ACCESS_TOKEN_PASSWORD = QStringLiteral("password");
@@ -107,24 +94,11 @@ static const QString ROLE_USER = QStringLiteral("ROLE_USER");
 static const QString ROLE_CM = QStringLiteral("ROLE_CM");
 
 enum HttpRequestType {
-    HttpRequestTypeNone,
-    HttpRequestTypeGet,
-    HttpRequestTypePost,
-    HttpRequestTypePut
+    HttpRequestTypeNone = 0,
+    HttpRequestTypeGet = 1,
+    HttpRequestTypePost = 2,
+    HttpRequestTypePut = 3
 };
-
-}
-
-// some useful global functions
-namespace Utils
-{
-    
-QDateTime decodeJsonDateTime(const QString &jsonDateTime);
-void char2hex(QChar dec, QString &str);
-QString urlEncode(const QByteArray &c);
-QString urlEncode(const QString &c);
-QString formatStorage(qlonglong storageSpace);
-size_t getMemorySize();
 
 }
 

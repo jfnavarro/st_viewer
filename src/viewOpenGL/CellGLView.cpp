@@ -7,6 +7,8 @@
 
 #include "CellGLView.h"
 
+#include "math/Common.h"
+
 #include <QGLPainter>
 #include <QArray>
 #include <QWheelEvent>
@@ -15,6 +17,7 @@
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
 #include <QGuiApplication>
+#include <QVector2DArray>
 
 static const qreal DEFAULT_ZOOM_MIN = 1.0f;
 static const qreal DEFAULT_ZOOM_MAX = 20.0f;
@@ -42,7 +45,15 @@ CellGLView::CellGLView(QScreen *parent) :
 CellGLView::~CellGLView()
 {
     //NOTE View does not own rendering nodes nor texture
-    //TODO double check for memmory leaks
+    // draw rendering nodes
+    foreach(GraphicItemGL *node, m_nodes) {
+        delete node;
+        node = 0;
+    }
+    if ( m_context ) {
+        delete m_context;
+    }
+    m_context = 0;
 }
 
 void CellGLView::showEvent(QShowEvent *event)
@@ -110,7 +121,7 @@ void CellGLView::initializeGL()
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_CULL_FACE);
 
-    glShadeModel(GL_FLAT); // or GL_SMOOTH
+    glShadeModel(GL_SMOOTH); // or GL_SMOOTH
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -121,16 +132,16 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    QGLTexture2D::processPendingResourceDeallocations(); //check this
+    //QGLTexture2D::processPendingResourceDeallocations(); //check this
 
     QGLPainter painter;
     painter.begin();
 
     painter.setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QMatrix4x4 projm;
-    projm.ortho(QRectF(0.0f, 0.0f, width(), height()));
+    projm.ortho(QRectF(0.0, 0.0, width(), height()));
     painter.projectionMatrix() = projm;
 
     // draw rendering nodes
@@ -147,8 +158,18 @@ void CellGLView::paintGL()
             }
 
             if ( node->transformable() ) {
-                painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
-                painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
+                //TODO update scene variable size and send signal
+
+                if ( m_zoom != 1.0 ) {
+                    painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
+                }
+                if ( m_panx != 0.0 && m_pany != 0.0 ) {
+                    painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
+                }
+                if ( m_rotate != 0.0 ) {
+                    const QPointF center = node->boundingRect().center();
+                    painter.projectionMatrix().rotate(m_rotate, center.x(), center.y(), 0.0f);
+                }
             }
 
             painter.modelViewMatrix() *= node->transform() * anchorTransform(node->anchor());
@@ -159,7 +180,6 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
-
     glFlush(); // forces to send the data to the GPU saving time
 }
 
@@ -198,6 +218,7 @@ void CellGLView::update()
 
 void CellGLView::setZoom(qreal delta)
 {
+    //TODO check for min and max
     if ( m_zoom != delta ) {
         m_zoom = delta;
         update();
@@ -210,16 +231,31 @@ void CellGLView::centerOn(const QPointF& point)
     qDebug() << "Center on = " << point;
 }
 
-void CellGLView::rotate(int angle)
+void CellGLView::rotate(qreal angle)
 {
-    //TODO
-    Q_UNUSED(angle);
+    if (angle >= -180.0f && angle <= 180.0f && m_rotate != angle ) {
+        m_rotate += angle;
+        STMath::clamp(m_rotate, -360.0, 360.0);
+        update();
+    }
 }
 
 const QImage CellGLView::grabPixmapGL() const
 {
-    //TODO
-    return QImage();
+    //TOFIX image is black
+    const int w = width();
+    const int h = height();
+    QImage res(w, h, QImage::Format_Indexed8);
+    glReadBuffer(GL_FRONT_LEFT);
+    glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, res.bits());
+    const QVector<QColor> pal = QColormap::instance().colormap();
+    if (pal.size()) {
+        res.setColorCount(pal.size());
+        for (int i = 0; i < pal.size(); i++) {
+            res.setColor(i, pal.at(i).rgb());
+        }
+    }
+    return res.mirrored();
 }
 
 void CellGLView::zoomIn()
@@ -234,12 +270,12 @@ void CellGLView::zoomOut()
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        m_panning = true;
-        m_lastpos = event->globalPos();
+    if ( event->button() == Qt::LeftButton ) {
         setCursor(Qt::ClosedHandCursor);
+        m_panning = true;
+        m_originPanning = event->globalPos();
+        const QPointF point = event->localPos();
 
-        QPointF point = event->localPos();
         foreach(GraphicItemGL *node, m_nodes) {
             const QPointF localPoint = (node->transform()
                                         * anchorTransform(node->anchor())).inverted().map(point);
@@ -257,17 +293,22 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
             }
         }
     }
+    else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
+        // Rubberbanding changes cursor to pointing hand
+        setCursor(Qt::PointingHandCursor);
+        m_originRubberBand = event->globalPos();
+        m_rubberBanding = true;
+    }
     event->ignore();
 }
 
 void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-
-        m_panning = false;
+    if ( event->button() == Qt::LeftButton ) {
         unsetCursor();
+        m_panning = false;
+        const QPointF point = event->localPos();
 
-        QPointF point = event->localPos();
         foreach(GraphicItemGL *node, m_nodes) {
             const QPointF localPoint = (node->transform() *
                                         anchorTransform(node->anchor())).inverted().map(point);
@@ -280,40 +321,67 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
                 event->buttons(),
                 event->modifiers()
             );
-            if (node->selectable() && node->contains(localPoint) ) {
+            if ( node->selectable() && node->contains(localPoint) ) {
                 node->mouseReleaseEvent(&newEvent);
             }
         }
+    }  else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
+        unsetCursor();
+        const QPoint origin = m_originRubberBand;
+        const QPointF destiny = event->localPos();
+
+        foreach(GraphicItemGL *node, m_nodes) {
+            const QPointF localOrigin = (node->transform() *
+                                        anchorTransform(node->anchor())).inverted().map(origin);
+            const QPointF localDestiny= (node->transform() *
+                                        anchorTransform(node->anchor())).inverted().map(destiny);
+
+            QRect rect(qMin(localOrigin.x(), localDestiny.x()), qMin(localOrigin.y(), localDestiny.y()),
+                       qAbs(localOrigin.x() - localDestiny.x()) + 1, qAbs(localOrigin.y() - localDestiny.y()) + 1);
+
+            qDebug() << "RubberBanding Area Out " << rect << "RubberBandable = " << node->rubberBandable() << " Box = " << node->boundingRect();
+            if ( node->rubberBandable() && node->contains(rect) ) {
+                qDebug() << "RubberBanding Area In " << rect;
+            }
+
+        }
+        // reset variables
+        m_rubberBanding = false;
     }
+
     event->ignore();
 }
 
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_panning) {
-
-        m_panx += (event->globalPos().x() - m_lastpos.x()) * DELTA_MOUSE_PANNING;
-        m_pany -= (event->globalPos().y() - m_lastpos.y()) * -DELTA_MOUSE_PANNING;
-        m_lastpos = event->globalPos();
+    if ( m_panning ) {
+        m_panx += (event->globalPos().x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
+        m_pany -= (event->globalPos().y() - m_originPanning.y()) * -DELTA_MOUSE_PANNING;
+        m_originPanning = event->globalPos();
         update();
     }
+    if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
+        // NOTE I can update rubber band rect here and draw it
+        // if I want to give the effect of the selection shape expanding
+    }
+    else if ( event->button() == Qt::LeftButton ) {
+        QPointF point = event->localPos();
+        foreach(GraphicItemGL *node, m_nodes) {
+            const QPointF localPoint = (node->transform()
+                                        * anchorTransform(node->anchor())).inverted().map(point);
+            QMouseEvent newEvent(
+                event->type(),
+                localPoint,//event->localPos(),
+                event->windowPos(),
+                event->screenPos(),
+                event->button(),
+                event->buttons(),
+                event->modifiers()
+            );
 
-    QPointF point = event->localPos();
-    foreach(GraphicItemGL *node, m_nodes) {
-        const QPointF localPoint = (node->transform()
-                                    * anchorTransform(node->anchor())).inverted().map(point);
-        QMouseEvent newEvent(
-            event->type(),
-            localPoint,//event->localPos(),
-            event->windowPos(),
-            event->screenPos(),
-            event->button(),
-            event->buttons(),
-            event->modifiers()
-        );
-
-        if ( node->selectable() && node->contains(localPoint) ) {
-            node->mouseMoveEvent(&newEvent);
+            if ( node->selectable() && node->contains(localPoint) ) {
+                node->mouseMoveEvent(&newEvent);
+            }
         }
     }
 

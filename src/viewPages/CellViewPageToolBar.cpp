@@ -25,7 +25,6 @@ static const int GENE_SHIMME_MAX = 10;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
 
-
 void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget) {
     Q_ASSERT(menu != nullptr);
     Q_ASSERT(widget != nullptr);
@@ -282,6 +281,10 @@ void CellViewPageToolBar::createConnections()
     connect(m_geneBrightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneBrightness(int)));
     Q_ASSERT(m_geneShapeComboBox);
     connect(m_geneShapeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGeneShape(int)));
+    Q_ASSERT(m_actionRotation_rotateLeft);
+    connect(m_actionRotation_rotateLeft, SIGNAL(triggered(bool)), this, SLOT(slotRotateLeft()));
+    Q_ASSERT(m_actionRotation_rotateRight);
+    connect(m_actionRotation_rotateRight, SIGNAL(triggered(bool)), this, SLOT(slotRotateRight()));
 }
 
 void CellViewPageToolBar::slotGeneShape(int geneShape)
@@ -314,4 +317,14 @@ void CellViewPageToolBar::slotGeneBrightness(int geneBrightness)
 {
     const qreal decimal = static_cast<qreal>(geneBrightness) / 10;
     emit brightnessValueChanged(decimal);
+}
+
+void CellViewPageToolBar::slotRotateLeft()
+{
+    emit rotateView(-45.0f);
+}
+
+void CellViewPageToolBar::slotRotateRight()
+{
+    emit rotateView(45.0f);
 }

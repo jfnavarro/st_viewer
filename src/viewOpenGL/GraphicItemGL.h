@@ -42,7 +42,8 @@ public:
         Selectable = 2,
         Transformable = 4,
         Yinverted = 8,
-        Xinverted = 16
+        Xinverted = 16,
+        RubberBandable = 32
     };
     Q_DECLARE_FLAGS(VisualOptions, VisualOption)
 
@@ -61,6 +62,7 @@ public:
     bool transformable() const;
     bool invertedY() const;
     bool invertedX() const;
+    bool rubberBandable() const;
 
     GraphicItemGL::VisualOptions visualOptions() const;
     void setVisualOptions(GraphicItemGL::VisualOptions visualOptions);
@@ -72,6 +74,7 @@ public:
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
     virtual bool contains(const QPointF& point) const;
+    virtual bool contains(const QRectF& point) const;
 
     // graphic elements can be sent mouse events
     virtual void mouseMoveEvent(QMouseEvent* event);
