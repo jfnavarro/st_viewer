@@ -85,13 +85,15 @@ void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 {
     m_min = min;
     m_max = max;
+    setLowerLimit(Globals::GENE_THRESHOLD_MIN);
+    setUpperLimit(Globals::GENE_THRESHOLD_MAX);
     generateHeatMap();
     emit updated();
 }
 
 void HeatMapLegendGL::setLowerLimit(int limit)
 {
-    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
     const qreal normalized_limit = adjusted_limit / range;
@@ -103,7 +105,7 @@ void HeatMapLegendGL::setLowerLimit(int limit)
 
 void HeatMapLegendGL::setUpperLimit(int limit)
 {
-    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
     const qreal normalized_limit = adjusted_limit / range;

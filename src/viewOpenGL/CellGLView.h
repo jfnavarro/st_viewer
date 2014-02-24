@@ -50,6 +50,7 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
+    void ensureContext();
 
     void wheelEvent(QWheelEvent* event);
     void mousePressEvent(QMouseEvent *event);
@@ -64,8 +65,7 @@ protected:
     void setZoom(qreal delta);
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
-
-    void ensureContext();
+    const QTransform sceneTransformations() const;
 
 signals:
 

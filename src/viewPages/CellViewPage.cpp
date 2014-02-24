@@ -1,4 +1,5 @@
- /*
+
+/*
     Copyright (C) 2012  Spatial Transcriptomics AB,
     read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
@@ -168,8 +169,6 @@ void CellViewPage::onEnter()
 
     // updated legend size and data
     m_legend->setBoundaries(min, max);
-    m_legend->setLowerLimit(min);
-    m_legend->setUpperLimit(max);
 
     // load cell tissue
     slotLoadCellFigure();
@@ -295,11 +294,8 @@ void CellViewPage::initGLView()
     QWidget *container = QWidget::createWindowContainer(m_view);
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->mainLayout->addWidget(container);
-
     // Adding a stretch to make the opengl window occupy more space
     ui->mainLayout->setStretch(1,10);
-
-    //TODO modify layout so container takes 1/3 of the canvas
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
@@ -416,10 +412,6 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
-
-    // update view scene and viewport according to image size
-    m_view->resize(image.size());
-    m_view->setViewPort(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);

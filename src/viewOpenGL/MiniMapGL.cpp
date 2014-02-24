@@ -14,13 +14,13 @@
 
 static const QColor minimap_view_color = Qt::blue;
 static const QColor minimap_scene_color = Qt::red;
-static const qreal minimap_height = 100.0f;
-static const qreal minimap_width = 100.0f;
+static const qreal minimap_height = 250.0;
+static const qreal minimap_width = 250.0;
 
 MiniMapGL::MiniMapGL(QObject* parent)
     : GraphicItemGL(parent),
-      m_scene(0.0f, 0.0f, minimap_height, minimap_width),
-      m_view(0.0f, 0.0f, minimap_height, minimap_width),
+      m_scene(0.0, 0.0, minimap_width, minimap_height),
+      m_view(0.0, 0.0, minimap_width, minimap_height),
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color)
 {
@@ -44,12 +44,13 @@ void MiniMapGL::setScene(const QRectF& scene)
         return;
     }
 
-    QRectF m_bounds(0.0f, 0.0f, minimap_height, minimap_width);
+    QRectF m_bounds(0.0, 0.0, minimap_height, minimap_width);
     QRectF scaled = QRectF(m_bounds.topLeft(),
                            scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
 
-    if (m_scene != scaled ) {
+    if ( m_scene != scaled ) {
         m_scene = scaled;
+        updateTransform(scene);
         emit updated();
     }
 }
@@ -61,9 +62,9 @@ void MiniMapGL::setViewPort(const QRectF& view)
         return;
     }
 
-    const QRectF transformedView = m_transform.mapRect(view);
-    if ( m_view != transformedView ) {
-        m_view = transformedView;
+    const QRectF transformed = m_transform.mapRect(view);
+    if ( m_view != transformed ) {
+        m_view = transformed;
         emit updated();
     }
 }
@@ -79,12 +80,13 @@ void MiniMapGL::updateTransform(const QRectF& scene)
 
     const QPointF s1 = QPointF(scene.width(), scene.height());
     const QPointF s2 = QPointF(m_scene.width(), m_scene.height());
+
     const qreal s11 = (s2.x() / s1.x());
     const qreal s22 = (s2.y() / s1.y());
-    m_transform =
-        QTransform::fromTranslate(-scene.x(), -scene.y())
-        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0);
 
+    m_transform =
+        QTransform::fromTranslate(-scene.x(), -scene.y()) // align
+        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0);   // scale
 }
 
 void MiniMapGL::draw(QGLPainter *painter)

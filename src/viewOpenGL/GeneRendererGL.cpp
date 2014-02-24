@@ -124,7 +124,7 @@ void GeneRendererGL::setShine(qreal shine)
 
 void GeneRendererGL::setUpperLimit(int limit)
 {   
-    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
     const qreal range_pooled = m_pooledMax - m_pooledMin;
@@ -133,14 +133,13 @@ void GeneRendererGL::setUpperLimit(int limit)
     if ( m_thresholdUpper != adjusted_limit ) {
         m_thresholdUpper = adjusted_limit;
         m_thresholdUpperPooled = adjusted_limit_pooled;
-        qDebug() << "New upper limit " << m_thresholdUpper << " Pooled " << m_thresholdUpperPooled;
         updateVisual();
     }
 }
 
 void GeneRendererGL::setLowerLimit(int limit)
 {
-    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
     const qreal range_pooled = m_pooledMax - m_pooledMin;
@@ -149,7 +148,6 @@ void GeneRendererGL::setLowerLimit(int limit)
     if ( m_thresholdLower != adjusted_limit ) {
         m_thresholdLower = adjusted_limit;
         m_thresholdLowerPooled = adjusted_limit_pooled;
-        qDebug() << "New upper limit " << m_thresholdLower << " Pooled " << m_thresholdLowerPooled;
         updateVisual();
     }
 }

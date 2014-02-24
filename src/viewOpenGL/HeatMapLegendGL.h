@@ -50,8 +50,8 @@ private:
     void drawText(QGLPainter *painter, const QPointF& posn, const QString& str);
 
     // limits and boundaries
-    qreal m_lower_threshold = 0.0;
-    qreal m_upper_threshold = 1.0;
+    qreal m_lower_threshold = Globals::GENE_THRESHOLD_MIN;
+    qreal m_upper_threshold = Globals::GENE_THRESHOLD_MAX;
     qreal m_max = Globals::GENE_THRESHOLD_MAX;
     qreal m_min = Globals::GENE_THRESHOLD_MIN;
 
