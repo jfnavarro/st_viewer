@@ -299,6 +299,9 @@ void CellViewPage::initGLView()
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->mainLayout->addWidget(container);
 
+    // Adding a stretch to make the opengl window occupy more space
+    ui->mainLayout->setStretch(1,10);
+
     //TODO modify layout so container takes 1/3 of the canvas
 
     // image texture graphical object
