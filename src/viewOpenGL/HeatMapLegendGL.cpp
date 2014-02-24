@@ -7,7 +7,6 @@
 
 #include "HeatMapLegendGL.h"
 
-#include "utils/Utils.h"
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
@@ -18,17 +17,11 @@
 #include <QGLPainter>
 #include <QVector2DArray>
 
-static const qreal legend_x = 0.0f;
-static const qreal legend_y = 0.0f;
-static const qreal legend_width = 25.0f;
-static const qreal legend_height = 150.0f;
-static const qreal bars_width = 35.0f;
-static const qreal spectra_min = 1.0f;
-static const qreal spectra_max = 100.0f;
-constexpr qreal boundaries ()
-{
-    return Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
-}
+static const qreal legend_x = 0.0;
+static const qreal legend_y = 0.0;
+static const qreal legend_width = 25.0;
+static const qreal legend_height = 150.0;
+static const qreal bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     : GraphicItemGL(parent)
@@ -38,6 +31,7 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     setVisualOption(GraphicItemGL::Selectable, false);
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
+    setVisualOption(GraphicItemGL::RubberBandable, false);
 }
 
 HeatMapLegendGL::~HeatMapLegendGL()
@@ -97,24 +91,24 @@ void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 
 void HeatMapLegendGL::setLowerLimit(int limit)
 {
-    const qreal offlimit = boundaries();
+    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
     const qreal normalized_limit = adjusted_limit / range;
-    m_lower_threshold = STMath::clamp(normalized_limit , 0.0, 1.0);
-    m_lower_text = QString::number( (int)adjusted_limit );
+    m_lower_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
+    m_lower_text = QString::number( limit );
     generateBarAndTexts();
     emit updated();
 }
 
 void HeatMapLegendGL::setUpperLimit(int limit)
 {
-    const qreal offlimit = boundaries();
+    const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
-    const qreal normalized_limit =  adjusted_limit / range;
-    m_upper_threshold = STMath::clamp( normalized_limit, 0.0, 1.0);
-    m_upper_text = QString::number( (int)adjusted_limit );
+    const qreal normalized_limit = adjusted_limit / range;
+    m_upper_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
+    m_upper_text = QString::number( limit );
     generateBarAndTexts();
     emit updated();
 }
@@ -122,9 +116,8 @@ void HeatMapLegendGL::setUpperLimit(int limit)
 void HeatMapLegendGL::generateHeatMap()
 {
     // generate image texture
-    QImage image(1, legend_height, QImage::Format_ARGB32);
-    Heatmap::createHeatMapImage(image, Heatmap::SpectrumExp,
-                                std::min(spectra_min, m_min), std::max(spectra_max, m_max));
+    QImage image(m_min, m_max, QImage::Format_ARGB32);
+    Heatmap::createHeatMapImage(image, Heatmap::SpectrumExp, m_min, m_max);
     m_texture.cleanupResources();
     m_texture.release();
     m_texture.clearImage();
