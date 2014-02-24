@@ -242,9 +242,10 @@ const QImage CellGLView::grabPixmapGL() const
     // 3.- format or type of the image/buffer
     const int w = width();
     const int h = height();
-    QImage res(w, h, QImage::Format_Indexed8);
+    QImage res(w, h, QImage::Format_RGB32);
     glReadBuffer(GL_FRONT_LEFT);
-    glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, res.bits());
+    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
+    res = res.rgbSwapped();
     const QVector<QColor> pal = QColormap::instance().colormap();
     if (pal.size()) {
         res.setColorCount(pal.size());
