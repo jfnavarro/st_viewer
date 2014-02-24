@@ -95,8 +95,8 @@ void CellGLView::resizeEvent(QResizeEvent *event)
             initializeGL();
         }
         resizeGL(rect.width(), rect.height());
-        m_viewport = rect;
-        emit signalSceneUpdated(m_viewport);
+        // update scene variable
+        setScene(rect);
     }
 }
 
@@ -121,7 +121,7 @@ void CellGLView::initializeGL()
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_CULL_FACE);
 
-    glShadeModel(GL_SMOOTH); // or GL_SMOOTH
+    glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -153,22 +153,22 @@ void CellGLView::paintGL()
             painter.projectionMatrix().push();
 
             if ( node->invertedX() || node->invertedY() ) {
-                painter.projectionMatrix().scale(node->invertedX() ? -1.0f : 1.0f,
-                                                             node->invertedY() ? -1.0f : 1.0f, 0.0f);
+                painter.projectionMatrix().scale(node->invertedX() ? -1.0 : 1.0,
+                                                             node->invertedY() ? -1.0 : 1.0, 0.0);
             }
 
             if ( node->transformable() ) {
                 //TODO update scene variable size and send signal
 
                 if ( m_zoom != 1.0 ) {
-                    painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0f);
+                    painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0);
                 }
                 if ( m_panx != 0.0 && m_pany != 0.0 ) {
-                    painter.projectionMatrix().translate(m_panx, m_pany, 0.0f);
+                    painter.projectionMatrix().translate(m_panx, m_pany, 0.0);
                 }
                 if ( m_rotate != 0.0 ) {
                     const QPointF center = node->boundingRect().center();
-                    painter.projectionMatrix().rotate(m_rotate, center.x(), center.y(), 0.0f);
+                    painter.projectionMatrix().rotate(m_rotate, center.x(), center.y(), 0.0);
                 }
             }
 
@@ -180,14 +180,15 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
-    glFlush(); // forces to send the data to the GPU saving time
+
+    //glFlush(); // forces to send the data to the GPU saving time
 }
 
 void CellGLView::resizeGL(int width, int height)
 {
     //devicePixelRatio() fixes the problem with MAC retina
     qreal pixelRatio = devicePixelRatio();
-    glViewport(0.0f, 0.0f, width * pixelRatio, height * pixelRatio);
+    glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
@@ -227,22 +228,42 @@ void CellGLView::setZoom(qreal delta)
 
 void CellGLView::centerOn(const QPointF& point)
 {
-    //TODO
-    qDebug() << "Center on = " << point;
+    //TODO check and validate this
+    m_panx += point.x();
+    m_pany += point.y();
 }
 
 void CellGLView::rotate(qreal angle)
 {
-    if (angle >= -180.0f && angle <= 180.0f && m_rotate != angle ) {
+    if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle ) {
         m_rotate += angle;
         STMath::clamp(m_rotate, -360.0, 360.0);
         update();
     }
 }
 
+void CellGLView::setViewPort(QRectF viewport)
+{
+    if ( m_viewport != viewport && viewport.isValid() ) {
+        m_viewport = viewport;
+        emit signalViewPortUpdated(m_viewport);
+    }
+}
+
+void CellGLView::setScene(QRectF scene)
+{
+    if ( m_scene != scene && scene.isValid() ) {
+        m_scene = scene;
+        emit signalViewPortUpdated(m_scene);
+    }
+}
+
 const QImage CellGLView::grabPixmapGL() const
 {
     //TOFIX image is black
+    // possible reasons :
+    // 1.- buffer needs to be read from the surface or the context
+    // 2.- w and h needs to be expanded to the biggest node size
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_Indexed8);

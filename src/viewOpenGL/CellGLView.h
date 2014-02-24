@@ -42,6 +42,9 @@ public slots:
 
     void update();
 
+    void setViewPort(QRectF viewport);
+    void setScene(QRectF scene);
+
 protected:
 
     void initializeGL();

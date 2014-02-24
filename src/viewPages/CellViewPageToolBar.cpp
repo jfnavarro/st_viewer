@@ -190,13 +190,14 @@ void CellViewPageToolBar::resetTresholdActions(int min, int max)
 void CellViewPageToolBar::resetActions()
 {
     // reset visual modes
-
     m_actionShow_toggleDynamicRange->setChecked(false);
     m_actionShow_toggleHeatMap->setChecked(false);
     m_actionShow_toggleNormal->setChecked(true);
 
+    // reset show cell tissue
     m_actionShow_showCellTissue->setChecked(true);
 
+    // reset show grids
     m_actionShow_showGrid->setChecked(false);
 
     // reset genes to show
@@ -210,6 +211,7 @@ void CellViewPageToolBar::resetActions()
     Q_ASSERT(m_geneShapeComboBox);
     m_geneShapeComboBox->setCurrentIndex(Globals::GeneShape::Circle);
 
+    // gene threshold
     resetTresholdActions(Globals::GENE_THRESHOLD_MIN, Globals::GENE_THRESHOLD_MAX);
 }
 
@@ -307,12 +309,14 @@ void CellViewPageToolBar::slotGeneSize(int geneSize)
     emit sizeValueChanged(decimal);
 }
 
+//input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneShine(int geneShine)
 {
     const qreal decimal = static_cast<qreal>(geneShine) / 10;
     emit shineValueChanged(decimal);
 }
 
+//input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneBrightness(int geneBrightness)
 {
     const qreal decimal = static_cast<qreal>(geneBrightness) / 10;

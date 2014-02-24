@@ -106,7 +106,7 @@ private:
 
     // gene visual data
     GeneData m_geneData;
-    QGLSceneNode *m_geneNode;
+    QGLSceneNode *m_geneNode = nullptr;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
