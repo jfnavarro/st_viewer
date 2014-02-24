@@ -85,10 +85,7 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
     const QRect rect = geometry();
-    Q_ASSERT(event->size() == rect.size());
-
-    if ( rect.size() != m_viewport.size() )
-    {
+    if ( rect.size() != m_viewport.size() ) {
         ensureContext();
         if ( !m_initialized ) {
             initializeGL();
@@ -151,13 +148,15 @@ void CellGLView::paintGL()
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if ( node->visible() ) {
-            painter.modelViewMatrix().push();
+            //painter.modelViewMatrix().push();
+            painter.projectionMatrix().push();
             if ( node->transformable() ) {
-                painter.modelViewMatrix() *= sceneTransformations();
+                painter.projectionMatrix() *= sceneTransformations();
             }
-            painter.modelViewMatrix() *= nodeTransformations(node);
+            painter.projectionMatrix() *= nodeTransformations(node);
             node->draw(&painter);
-            painter.modelViewMatrix().pop();
+            painter.projectionMatrix().pop();
+            //painter.modelViewMatrix().pop();
         }
     }
 
@@ -242,11 +241,6 @@ void CellGLView::setScene(QRectF scene)
 
 const QImage CellGLView::grabPixmapGL() const
 {
-    //TOFIX image is black
-    // possible reasons :
-    // 1.- buffer needs to be read from the surface or the context
-    // 2.- w and h needs to be expanded to the biggest node size
-    // 3.- format or type of the image/buffer
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);
@@ -336,14 +330,15 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         foreach(GraphicItemGL *node, m_nodes) {
             if (node->rubberBandable() ) {
                 QTransform node_trans = nodeTransformations(node);
+                QTransform scene_trans;
                 if ( node->transformable() ) {
-                    node_trans *= sceneTransformations();
+                    scene_trans = sceneTransformations();
                 }
 
                 QRect rect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
-                QRect transformed = node_trans.inverted().mapRect(rect);
+                QRect transformed = node_trans.inverted().mapRect(scene_trans.mapRect(rect));
 
                 qDebug() << "Rubberbanded inside = " << node->boundingRect().contains(transformed);
             }
@@ -424,10 +419,8 @@ const QTransform CellGLView::sceneTransformations() const
         transform.translate(m_panx, m_pany);
     }
     if ( m_rotate != 0.0 ) {
-        const QPointF center = m_viewport.center();
-        transform.translate(center.x(), center.y());
+        //TOFIX should rotate around its center
         transform.rotate(m_rotate, Qt::XAxis);
-        transform.translate(-center.x(), -center.y());
     }
 
     return transform;
