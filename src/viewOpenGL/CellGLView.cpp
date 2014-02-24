@@ -146,37 +146,10 @@ void CellGLView::paintGL()
 
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
-
         if ( node->visible() ) {
-
             painter.modelViewMatrix().push();
-            painter.projectionMatrix().push();
-
-            if ( node->invertedX() || node->invertedY() ) {
-                painter.projectionMatrix().scale(node->invertedX() ? -1.0 : 1.0,
-                                                             node->invertedY() ? -1.0 : 1.0, 0.0);
-            }
-
-            if ( node->transformable() ) {
-                //TODO update scene variable size and send signal
-
-                if ( m_zoom != 1.0 ) {
-                    painter.projectionMatrix().scale(m_zoom, m_zoom, 0.0);
-                }
-                if ( m_panx != 0.0 && m_pany != 0.0 ) {
-                    painter.projectionMatrix().translate(m_panx, m_pany, 0.0);
-                }
-                if ( m_rotate != 0.0 ) {
-                    const QPointF center = node->boundingRect().center();
-                    painter.projectionMatrix().rotate(m_rotate, center.x(), center.y(), 0.0);
-                }
-            }
-
-            painter.modelViewMatrix() *= node->transform() * anchorTransform(node->anchor());
-
+            painter.modelViewMatrix() *= nodeTransformations(node);
             node->draw(&painter);
-
-            painter.projectionMatrix().pop();
             painter.modelViewMatrix().pop();
         }
     }
@@ -229,8 +202,10 @@ void CellGLView::setZoom(qreal delta)
 void CellGLView::centerOn(const QPointF& point)
 {
     //TODO check and validate this
+    qDebug() << "CellGLView : center on " << point;
     m_panx += point.x();
-    m_pany += point.y();
+    m_pany -= -point.y();
+    update();
 }
 
 void CellGLView::rotate(qreal angle)
@@ -264,6 +239,7 @@ const QImage CellGLView::grabPixmapGL() const
     // possible reasons :
     // 1.- buffer needs to be read from the surface or the context
     // 2.- w and h needs to be expanded to the biggest node size
+    // 3.- format or type of the image/buffer
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_Indexed8);
@@ -294,15 +270,14 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
     if ( event->button() == Qt::LeftButton ) {
         setCursor(Qt::ClosedHandCursor);
         m_panning = true;
-        m_originPanning = event->globalPos();
+        m_originPanning = event->globalPos(); //moving needs globalPos
         const QPointF point = event->localPos();
 
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = (node->transform()
-                                        * anchorTransform(node->anchor())).inverted().map(point);
+            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
             QMouseEvent newEvent(
                 event->type(),
-                localPoint,//event->localPos(),
+                localPoint,
                 event->windowPos(),
                 event->screenPos(),
                 event->button(),
@@ -317,8 +292,8 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
     else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
         // Rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
-        m_originRubberBand = event->globalPos();
         m_rubberBanding = true;
+        m_originRubberBand = event->globalPos(); //moving needs globalPos
     }
     event->ignore();
 }
@@ -331,11 +306,10 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         const QPointF point = event->localPos();
 
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = (node->transform() *
-                                        anchorTransform(node->anchor())).inverted().map(point);
+            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
             QMouseEvent newEvent(
                 event->type(),
-                localPoint,//event->localPos(),
+                localPoint,
                 event->windowPos(),
                 event->screenPos(),
                 event->button(),
@@ -349,20 +323,29 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
     }  else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
         unsetCursor();
         const QPoint origin = m_originRubberBand;
-        const QPointF destiny = event->localPos();
+        const QPointF destiny = event->globalPos(); //moving needs globalPos
 
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localOrigin = (node->transform() *
-                                        anchorTransform(node->anchor())).inverted().map(origin);
-            const QPointF localDestiny= (node->transform() *
-                                        anchorTransform(node->anchor())).inverted().map(destiny);
+            const QTransform node_cordinate = nodeTransformations(node);
+            //const QPointF localOrigin = node_cordinate.inverted().map(origin);
+            //const QPointF localDestiny = node_cordinate.inverted().map(destiny);
+            //const QPointF localOrigin = node_cordinate.map(origin);
+            //const QPointF localDestiny = node_cordinate.map(destiny);
+            const QPointF localOrigin = origin;
+            const QPointF localDestiny = destiny;
+
+            const QRectF node_area = node_cordinate.mapRect(node->boundingRect());
+            const QRectF node_area_inv = node_cordinate.inverted().mapRect(node->boundingRect());
 
             QRect rect(qMin(localOrigin.x(), localDestiny.x()), qMin(localOrigin.y(), localDestiny.y()),
                        qAbs(localOrigin.x() - localDestiny.x()) + 1, qAbs(localOrigin.y() - localDestiny.y()) + 1);
 
-            qDebug() << "RubberBanding Area Out " << rect << "RubberBandable = " << node->rubberBandable() << " Box = " << node->boundingRect();
-            if ( node->rubberBandable() && node->contains(rect) ) {
-                qDebug() << "RubberBanding Area In " << rect;
+            QRect rect_transformed = node_cordinate.mapRect(rect);
+            QRect rect_transformed_inv = node_cordinate.inverted().mapRect(rect);
+
+            if ( node->rubberBandable()  ) { //&& node_area.contains(rect)
+                qDebug() << "Rect " << rect << " Rect Transformed " << rect_transformed << " Rect Transformed Inv = " << rect_transformed_inv << " Box Transformed " << node_area << " Box Transformed Inv " << node_area_inv << " Box " << node->boundingRect() << " origin " << origin << " destiny " << destiny ;
+                qDebug() << "Contains = " <<  node->boundingRect().contains(rect_transformed_inv);
             }
 
         }
@@ -376,8 +359,9 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if ( m_panning ) {
-        m_panx += (event->globalPos().x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
-        m_pany -= (event->globalPos().y() - m_originPanning.y()) * -DELTA_MOUSE_PANNING;
+        QPointF point = event->globalPos();
+        m_panx += (point.x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
+        m_pany -= (point.y() - m_originPanning.y()) * -DELTA_MOUSE_PANNING;
         m_originPanning = event->globalPos();
         update();
     }
@@ -388,8 +372,7 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
     else if ( event->button() == Qt::LeftButton ) {
         QPointF point = event->localPos();
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = (node->transform()
-                                        * anchorTransform(node->anchor())).inverted().map(point);
+            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
             QMouseEvent newEvent(
                 event->type(),
                 localPoint,//event->localPos(),
@@ -431,43 +414,64 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     event->ignore();
 }
 
-const QTransform CellGLView::anchorTransform(GraphicItemGL::Anchor anchor) const
+const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 {
     //const QSizeF viewSize = m_viewport.size();
     const QSizeF viewSize = size();
-    QTransform transform(Qt::Uninitialized);
+    QTransform transform;
+    GraphicItemGL::Anchor anchor = node->anchor();
+
+    if ( node->invertedX() || node->invertedY() ) {
+        transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
+    }
+
+    if ( node->transformable() ) {
+        if ( m_zoom != 1.0 ) {
+            transform.scale(m_zoom, m_zoom);
+        }
+        if ( m_panx != 0.0 && m_pany != 0.0 ) {
+            transform.translate(m_panx, m_pany);
+        }
+        if ( m_rotate != 0.0 ) {
+            const QPointF center = node->boundingRect().center();
+            transform.translate(center.x(), center.y());
+            transform.rotate(m_rotate, Qt::XAxis);
+            transform.translate(-center.x(), -center.y());
+        }
+    }
 
     switch (anchor)
     {
         case GraphicItemGL::Center:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height() * 0.5f);
+            transform.translate(viewSize.width() * 0.5, viewSize.height() * 0.5);
             break;
         case GraphicItemGL::North:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, 0.0f);
+            transform.translate(viewSize.width() * 0.5, 0.0);
             break;
         case GraphicItemGL::NorthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), 0.0f);
+            transform.translate(viewSize.width(), 0.0);
             break;
         case GraphicItemGL::East:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5f);
+            transform.translate(viewSize.width(), viewSize.height() * 0.5);
             break;
         case GraphicItemGL::SouthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
+            transform.translate(viewSize.width(), viewSize.height());
             break;
         case GraphicItemGL::South:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5f, viewSize.height());
+            transform.translate(viewSize.width() * 0.5, viewSize.height());
             break;
         case GraphicItemGL::SouthWest:
-            transform = QTransform::fromTranslate(0.0f, viewSize.height());
+            transform.translate(0.0, viewSize.height());
             break;
         case GraphicItemGL::West:
-            transform = QTransform::fromTranslate(0.0f, viewSize.height() * 0.5f);
+           transform.translate(0.0, viewSize.height() * 0.5);
             break;
         case GraphicItemGL::NorthWest:
             // fall-through
         default:
-            transform = QTransform::fromTranslate(0.0f, 0.0f);
+            transform.translate(0.0, 0.0);
             break;
     }
-    return transform;
+
+    return node->transform() * transform;
 }

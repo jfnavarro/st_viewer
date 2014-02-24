@@ -63,7 +63,7 @@ protected:
 
     void setZoom(qreal delta);
 
-    const QTransform anchorTransform(GraphicItemGL::Anchor anchor) const;
+    const QTransform nodeTransformations(GraphicItemGL *node) const;
 
     void ensureContext();
 

@@ -300,14 +300,17 @@ void CellViewPage::initGLView()
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
+    m_image->setAnchor(GraphicItemGL::NorthWest);
     m_view->addRenderingNode(m_image);
 
     // grid graphical object
     m_grid = new GridRendererGL(this);
+    m_grid->setAnchor(GraphicItemGL::NorthWest);
     m_view->addRenderingNode(m_grid);
 
     // gene plotter component
     m_gene_plotter = new GeneRendererGL(this);
+    m_gene_plotter->setAnchor(GraphicItemGL::NorthWest);
     m_view->addRenderingNode(m_gene_plotter);
 
     // heatmap component

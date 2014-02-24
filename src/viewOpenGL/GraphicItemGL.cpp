@@ -118,28 +118,28 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     switch (m_anchor)
     {
         case GraphicItemGL::Center:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -0.5f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -0.5);
             break;
         case GraphicItemGL::North:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, 0.0f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0);
             break;
         case GraphicItemGL::NorthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, 0.0f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, 0.0);
             break;
         case GraphicItemGL::East:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -0.5f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, (rect.y() + rect.height()) * -0.5);
             break;
         case GraphicItemGL::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0f, (rect.y() + rect.height()) * -1.0f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, (rect.y() + rect.height()) * -1.0);
             break;
         case GraphicItemGL::South:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5f, (rect.y() + rect.height()) * -1.0f);
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -1.0);
             break;
         case GraphicItemGL::SouthWest:
-            adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -1.0f);
+            adjustedTransform.translate(0.0, (rect.y() + rect.height()) * -1.0);
             break;
         case GraphicItemGL::West:
-            adjustedTransform.translate(0.0f, (rect.y() + rect.height()) * -0.5f);
+            adjustedTransform.translate(0.0, (rect.y() + rect.height()) * -0.5);
             break;
         case GraphicItemGL::NorthWest:
             // fall-through

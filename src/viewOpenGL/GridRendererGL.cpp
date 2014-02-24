@@ -25,6 +25,7 @@ GridRendererGL::GridRendererGL(QObject *parent)
     setVisualOption(GraphicItemGL::Selectable, false);
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
+    setVisualOption(GraphicItemGL::RubberBandable, false);
 }
 
 GridRendererGL::~GridRendererGL()
