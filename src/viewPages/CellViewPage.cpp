@@ -412,6 +412,8 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
+    //m_view->setScene(image.rect());
+    //m_view->setViewPort(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
@@ -426,14 +428,11 @@ void CellViewPage::slotPrintImage()
     if (dialog->exec() != QDialog::Accepted) {
         return;
     }
-
     QPainter painter(&printer);
     QRect rect = painter.viewport();
     QImage image = m_view->grabPixmapGL();
-
     QSize size = image.size();
     size.scale(rect.size(), Qt::KeepAspectRatio);
-
     painter.setViewport(rect);
     painter.setWindow(image.rect());
     painter.drawImage(0, 0, image);
@@ -449,17 +448,14 @@ void CellViewPage::slotSaveImage()
     if (filename.isEmpty()) {
         return;
     }
-
     // append default extension
     QRegExp regex("^.*\\.(jpg|jpeg|png)$", Qt::CaseInsensitive);
     if (!regex.exactMatch(filename)) {
         filename.append(".jpg");
     }
-
     const int quality = 100; //quality format (100 max, 0 min, -1 default)
     const QString format = filename.split(".", QString::SkipEmptyParts).at(1); //get the file extension
     QImage image = m_view->grabPixmapGL();
-
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         QMessageBox::warning(this, tr("Save Image"), tr("Error saving image."));
     }

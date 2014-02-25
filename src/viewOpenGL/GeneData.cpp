@@ -14,6 +14,7 @@
 
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex1;
 static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex0;
+static const int QUAD_SIZE = 4;
 
 GeneData::GeneData()
 {
@@ -50,26 +51,12 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
     appendIndices(index_count, index_count + 2, index_count + 3);
 
     // update custom vertex arrays
-    m_values.append(0.0);
-    m_values.append(0.0);
-    m_values.append(0.0);
-    m_values.append(0.0);
-
-    m_refCount.append(0.0);
-    m_refCount.append(0.0);
-    m_refCount.append(0.0);
-    m_refCount.append(0.0);
-
-    appendAttribute(0.0, selectionVertex);
-    appendAttribute(0.0, selectionVertex);
-    appendAttribute(0.0, selectionVertex);
-    appendAttribute(0.0, selectionVertex);
-
-    appendAttribute(0.0, visibleVertex);
-    appendAttribute(0.0, visibleVertex);
-    appendAttribute(0.0, visibleVertex);
-    appendAttribute(0.0, visibleVertex);
-
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        m_values.append(0.0);
+        m_refCount.append(0.0);
+        appendAttribute(0.0, selectionVertex);
+        appendAttribute(0.0, visibleVertex);
+    }
     // return first index of the quad created
     return index_count;
 }
@@ -84,42 +71,37 @@ void GeneData::updateQuadSize(const int index, qreal x, qreal y, qreal size)
 
 void GeneData::updateQuadColor(const int index, QColor4ub newcolor)
 {
-    color(index) = newcolor;
-    color(index + 1) = newcolor;
-    color(index + 2) = newcolor;
-    color(index + 3) = newcolor;
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        color(index + i) = newcolor;
+    }
 }
 
 void GeneData::updateQuadVisible(const int index, bool visible)
 {
-    floatAttribute(index, visibleVertex) = float(visible);
-    floatAttribute(index + 1, visibleVertex) = float(visible);
-    floatAttribute(index + 2, visibleVertex) = float(visible);
-    floatAttribute(index + 3, visibleVertex) = float(visible);
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        floatAttribute(index + i, visibleVertex) = float(visible);
+    }
 }
 
 void GeneData::updateQuadSelected(const int index, bool selected)
 {
-    floatAttribute(index, selectionVertex) = float(selected);
-    floatAttribute(index + 1, selectionVertex) = float(selected);
-    floatAttribute(index + 2, selectionVertex) = float(selected);
-    floatAttribute(index + 3, selectionVertex) = float(selected);
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        floatAttribute(index  + i, selectionVertex) = float(selected);
+    }
 }
 
 void GeneData::updateQuadRefCount(const int index, qreal refcount)
 {
-    m_refCount.setAt(index, refcount);
-    m_refCount.setAt(index + 1, refcount);
-    m_refCount.setAt(index + 2, refcount);
-    m_refCount.setAt(index + 3, refcount);
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        m_refCount.setAt(index + i, refcount);
+    }
 }
 
 void GeneData::updateQuadValue(const int index, qreal value)
 {
-    m_values.setAt(index, value);
-    m_values.setAt(index + 1, value);
-    m_values.setAt(index + 2, value);
-    m_values.setAt(index + 3, value);
+    for(int i = 0; i < QUAD_SIZE; ++i) {
+        m_values.setAt(index + i, value);
+    }
 }
 
 QColor4ub GeneData::quadColor(const int index) const

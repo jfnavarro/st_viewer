@@ -74,6 +74,9 @@ signals:
 
 private:
 
+    // helpte debug function
+    void drawRect(const QRectF rect, QGLPainter *painter);
+
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
     QSurfaceFormat format;
@@ -93,8 +96,11 @@ private:
     bool m_rubberBanding = false;
     qreal m_rotate = 0.0;
     qreal m_zoom = 1.0;
-    qreal m_panx = 1.0;
-    qreal m_pany = 1.0;
+    qreal m_panx = 0.0;
+    qreal m_pany = 0.0;
+
+    //QMatrix4x4 projectionMatrix;
+    //QMatrix4x4 modelViewMatrix;
 };
 
 #endif // CELLGLVIEW_H

@@ -25,6 +25,7 @@ static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
 static const qreal DELTA_PANNING = 3.0f;
 static const qreal DELTA_MOUSE_PANNING = 1.0f;
+static const bool DEBUG_MODE = true;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
@@ -37,7 +38,7 @@ CellGLView::CellGLView(QScreen *parent) :
     format.setRedBufferSize(24);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
-
+    format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
 }
@@ -59,10 +60,6 @@ CellGLView::~CellGLView()
 void CellGLView::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
-    ensureContext();
-    if ( !m_initialized ) {
-        initializeGL();
-    }
 }
 
 void CellGLView::hideEvent(QHideEvent *event)
@@ -77,21 +74,21 @@ void CellGLView::exposeEvent(QExposeEvent *event)
     if ( !m_initialized ) {
         initializeGL();
     }
-    paintGL();
-    m_context->swapBuffers(this);
+    if ( isExposed() ) {
+        paintGL();
+    }
+    m_context->swapBuffers(this); // this is important
 }
 
 void CellGLView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
     const QRect rect = geometry();
-    if ( rect.size() != m_viewport.size() ) {
-        ensureContext();
-        if ( !m_initialized ) {
-            initializeGL();
-        }
-        resizeGL(rect.width(), rect.height());
+    ensureContext();
+    if ( !m_initialized ) {
+        initializeGL();
     }
+    resizeGL(rect.width(), rect.height());
 }
 
 void CellGLView::ensureContext()
@@ -124,43 +121,66 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    //QGLTexture2D::processPendingResourceDeallocations(); //check this
+    // textures are being deallocated properly
+    //QGLTexture2D::processPendingResourceDeallocations();
 
     QGLPainter painter;
     painter.begin();
 
     painter.setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    //devicePixelRatio() fixes the problem with MAC retina
-    const qreal pixelRatio = devicePixelRatio();
-    QRectF viewport(QRectF(0.0, 0.0, width() * pixelRatio, height() * pixelRatio));
-
+    QRectF viewport(m_viewport);
     QMatrix4x4 projm;
     projm.ortho(viewport);
     painter.projectionMatrix() = projm;
 
-    // update view port with
-    setViewPort(viewport);
-    // update scene with the transformation on the view port
-    setScene(sceneTransformations().mapRect(m_viewport));
+    //emit signalSceneUpdated(sceneTransformations().mapRect(m_scene));
+    //emit signalViewPortUpdated(m_viewport);
 
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if ( node->visible() ) {
-            //painter.modelViewMatrix().push();
-            painter.projectionMatrix().push();
+            QTransform local_transform = nodeTransformations(node);
             if ( node->transformable() ) {
-                painter.projectionMatrix() *= sceneTransformations();
+                local_transform *= sceneTransformations();
             }
-            painter.projectionMatrix() *= nodeTransformations(node);
+            painter.modelViewMatrix().push();
+            painter.modelViewMatrix() *= local_transform;
             node->draw(&painter);
-            painter.projectionMatrix().pop();
-            //painter.modelViewMatrix().pop();
+            painter.modelViewMatrix().pop();
+            if (DEBUG_MODE) {
+                drawRect(local_transform.mapRect(node->boundingRect()), &painter);
+            }
         }
     }
 
-   //glFlush(); // forces to send the data to the GPU saving time
+    if (DEBUG_MODE) {
+        //draw viewport rect panned
+        drawRect(QRectF(10.0, 10.0, width() - 20.0, height() -20.0), &painter);
+    }
+
+   //glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+}
+
+void CellGLView::drawRect(const QRectF rect, QGLPainter *painter)
+{
+    const QPointF stl = rect.topLeft();
+    const QPointF str = rect.topRight();
+    const QPointF sbr = rect.bottomRight();
+    const QPointF sbl = rect.bottomLeft();
+    QVector2DArray vertices;
+    vertices.append(stl.x(), stl.y());
+    vertices.append(str.x(), str.y());
+    vertices.append(sbr.x(), sbr.y());
+    vertices.append(sbl.x(), sbl.y());
+    painter->modelViewMatrix().push();
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(Qt::red);
+    painter->setVertexAttribute(QGL::Position, vertices );
+    painter->draw(QGL::LineLoop, vertices.size());
+    painter->modelViewMatrix().pop();
 }
 
 void CellGLView::resizeGL(int width, int height)
@@ -168,6 +188,7 @@ void CellGLView::resizeGL(int width, int height)
     //devicePixelRatio() fixes the problem with MAC retina
     const qreal pixelRatio = devicePixelRatio();
     glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
+    m_viewport = QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio);
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
@@ -227,7 +248,7 @@ void CellGLView::setViewPort(QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
-        emit signalViewPortUpdated(m_viewport);
+        update();
     }
 }
 
@@ -235,7 +256,7 @@ void CellGLView::setScene(QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
-        emit signalSceneUpdated(m_scene);
+        update();
     }
 }
 
@@ -295,7 +316,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         // Rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
         m_rubberBanding = true;
-        m_originRubberBand = event->globalPos(); //moving needs globalPos
+        m_originRubberBand = event->pos(); //rubberband does not need global
     }
     event->ignore();
 }
@@ -330,15 +351,14 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         foreach(GraphicItemGL *node, m_nodes) {
             if (node->rubberBandable() ) {
                 QTransform node_trans = nodeTransformations(node);
-                QTransform scene_trans;
                 if ( node->transformable() ) {
-                    scene_trans = sceneTransformations();
+                    node_trans *= sceneTransformations();
                 }
 
                 QRect rect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
-                QRect transformed = node_trans.inverted().mapRect(scene_trans.mapRect(rect));
+                QRect transformed = node_trans.inverted().mapRect(rect);
 
                 qDebug() << "Rubberbanded inside = " << node->boundingRect().contains(transformed);
             }
@@ -353,10 +373,10 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if ( m_panning ) {
-        QPointF point = event->globalPos();
+        QPoint point = event->globalPos();
         m_panx += (point.x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
-        m_pany -= (point.y() - m_originPanning.y()) * -DELTA_MOUSE_PANNING;
-        m_originPanning = event->globalPos();
+        m_pany += (point.y() - m_originPanning.y()) * DELTA_MOUSE_PANNING;
+        m_originPanning = point;
         update();
     }
     if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
@@ -369,7 +389,7 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
             const QPointF localPoint = nodeTransformations(node).inverted().map(point);
             QMouseEvent newEvent(
                 event->type(),
-                localPoint,//event->localPos(),
+                localPoint,
                 event->windowPos(),
                 event->screenPos(),
                 event->button(),
@@ -411,63 +431,60 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
 const QTransform CellGLView::sceneTransformations() const
 {
     QTransform transform;
-
-    if ( m_zoom != 1.0 ) {
-        transform.scale(m_zoom, m_zoom);
-    }
-    if ( m_panx != 0.0 && m_pany != 0.0 ) {
-        transform.translate(m_panx, m_pany);
-    }
     if ( m_rotate != 0.0 ) {
         //TOFIX should rotate around its center
         transform.rotate(m_rotate, Qt::XAxis);
     }
-
+    if ( m_panx != 0.0 && m_pany != 0.0 ) {
+        transform.translate(m_panx, m_pany);
+    }
+    if ( m_zoom != 1.0 ) {
+        transform.scale(m_zoom, m_zoom);
+    }
     return transform;
 }
 
 const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 {
     const QSizeF viewSize = m_viewport.size();
-    QTransform transform;
-    GraphicItemGL::Anchor anchor = node->anchor();
-
-    if ( node->invertedX() || node->invertedY() ) {
-        transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
-    }
+    QTransform transform(Qt::Uninitialized);
+    const GraphicItemGL::Anchor anchor = node->anchor();
 
     switch (anchor)
     {
         case GraphicItemGL::Center:
-            transform.translate(viewSize.width() * 0.5, viewSize.height() * 0.5);
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
             break;
         case GraphicItemGL::North:
-            transform.translate(viewSize.width() * 0.5, 0.0);
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
             break;
         case GraphicItemGL::NorthEast:
-            transform.translate(viewSize.width(), 0.0);
+            transform = QTransform::fromTranslate(viewSize.width(), 0.0);
             break;
         case GraphicItemGL::East:
-            transform.translate(viewSize.width(), viewSize.height() * 0.5);
+            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
             break;
         case GraphicItemGL::SouthEast:
-            transform.translate(viewSize.width(), viewSize.height());
+            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
             break;
         case GraphicItemGL::South:
-            transform.translate(viewSize.width() * 0.5, viewSize.height());
+            transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
             break;
         case GraphicItemGL::SouthWest:
-            transform.translate(0.0, viewSize.height());
+            transform = QTransform::fromTranslate(0.0, viewSize.height());
             break;
         case GraphicItemGL::West:
-           transform.translate(0.0, viewSize.height() * 0.5);
+           transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
             break;
         case GraphicItemGL::NorthWest:
             // fall-through
         default:
-            transform.translate(0.0, 0.0);
+            transform = QTransform::fromTranslate(0.0, 0.0);
             break;
     }
 
-    return node->transform() * transform;
+    //if ( node->invertedX() || node->invertedY() ) {
+   //     transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
+   // }
+    return node->transform() * transform ;
 }

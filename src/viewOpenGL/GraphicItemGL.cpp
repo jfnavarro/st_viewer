@@ -124,13 +124,13 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
             adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0);
             break;
         case GraphicItemGL::NorthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, 0.0);
+            adjustedTransform.translate((rect.x() + rect.width() - 10) * -1.0, 0.0 - 10);
             break;
         case GraphicItemGL::East:
             adjustedTransform.translate((rect.x() + rect.width()) * -1.0, (rect.y() + rect.height()) * -0.5);
             break;
         case GraphicItemGL::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, (rect.y() + rect.height()) * -1.0);
+            adjustedTransform.translate((rect.x() + rect.width() -10) * -1.0, (rect.y() + rect.height() - 10) * -1.0);
             break;
         case GraphicItemGL::South:
             adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -1.0);

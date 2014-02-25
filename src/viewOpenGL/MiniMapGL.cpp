@@ -14,13 +14,13 @@
 
 static const QColor minimap_view_color = Qt::blue;
 static const QColor minimap_scene_color = Qt::red;
-static const qreal minimap_height = 250.0;
-static const qreal minimap_width = 250.0;
+static const qreal minimap_height = 100.0;
+static const qreal minimap_width = 100.0;
 
 MiniMapGL::MiniMapGL(QObject* parent)
     : GraphicItemGL(parent),
-      m_scene(0.0, 0.0, minimap_width, minimap_height),
-      m_view(0.0, 0.0, minimap_width, minimap_height),
+      m_scene(0.0, 0.0, minimap_height, minimap_width),
+      m_view(0.0, 0.0, minimap_height, minimap_width),
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color)
 {
@@ -51,7 +51,7 @@ void MiniMapGL::setScene(const QRectF& scene)
     if ( m_scene != scaled ) {
         m_scene = scaled;
         updateTransform(scene);
-        emit updated();
+        //emit updated();
     }
 }
 
@@ -65,7 +65,7 @@ void MiniMapGL::setViewPort(const QRectF& view)
     const QRectF transformed = m_transform.mapRect(view);
     if ( m_view != transformed ) {
         m_view = transformed;
-        emit updated();
+        //emit updated();
     }
 }
 
