@@ -23,6 +23,7 @@
 #include <QColorDialog>
 #include <QImageReader>
 #include <QPainter>
+#include <QScrollArea>
 
 #include "CellViewPageToolBar.h"
 
@@ -293,6 +294,8 @@ void CellViewPage::initGLView()
     m_view = new CellGLView();
     QWidget *container = QWidget::createWindowContainer(m_view);
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    //QScrollArea *scrollArea = new QScrollArea();
+    //scrollArea->setWidget(container);
     ui->mainLayout->addWidget(container);
     // Adding a stretch to make the opengl window occupy more space
     ui->mainLayout->setStretch(1,10);
@@ -326,8 +329,8 @@ void CellViewPage::initGLView()
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
     connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
-    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
-    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setScenet(QRectF)));
 }
 
 void CellViewPage::createGLConnections()
@@ -412,8 +415,7 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
-    //m_view->setScene(image.rect());
-    //m_view->setViewPort(image.rect());
+    m_view->setScene(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);

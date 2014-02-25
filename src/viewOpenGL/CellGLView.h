@@ -74,8 +74,8 @@ signals:
 
 private:
 
-    // helpte debug function
-    void drawRect(const QRectF rect, QGLPainter *painter);
+    // helper debug function
+    void drawRect(const QRectF &rect, QGLPainter *painter, QColor color = Qt::red);
 
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
@@ -84,7 +84,7 @@ private:
 
     // scene and viewport aux variables
     QRectF m_viewport;
-    QRectF m_scene; //TODO update scene size when zoomin/panning and send signal
+    QRectF m_scene;
 
     // list of nodes to be renderered in the view
     QList<GraphicItemGL *> m_nodes;
@@ -94,13 +94,11 @@ private:
     QPoint m_originRubberBand = QPoint(-1, -1);
     bool m_panning = false;
     bool m_rubberBanding = false;
+    QRectF m_rubberBandRect;
     qreal m_rotate = 0.0;
     qreal m_zoom = 1.0;
     qreal m_panx = 0.0;
     qreal m_pany = 0.0;
-
-    //QMatrix4x4 projectionMatrix;
-    //QMatrix4x4 modelViewMatrix;
 };
 
 #endif // CELLGLVIEW_H

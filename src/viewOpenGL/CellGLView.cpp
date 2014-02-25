@@ -25,7 +25,7 @@ static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
 static const qreal DELTA_PANNING = 3.0f;
 static const qreal DELTA_MOUSE_PANNING = 1.0f;
-static const bool DEBUG_MODE = true;
+static const bool DEBUG_MODE = false;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
@@ -135,8 +135,8 @@ void CellGLView::paintGL()
     projm.ortho(viewport);
     painter.projectionMatrix() = projm;
 
-    //emit signalSceneUpdated(sceneTransformations().mapRect(m_scene));
-    //emit signalViewPortUpdated(m_viewport);
+    // update scene with transformation on the viewport
+    setScene(sceneTransformations().mapRect(m_viewport));
 
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
@@ -150,10 +150,14 @@ void CellGLView::paintGL()
             node->draw(&painter);
             painter.modelViewMatrix().pop();
             if (DEBUG_MODE) {
+                //draw bounding rect
                 drawRect(local_transform.mapRect(node->boundingRect()), &painter);
             }
         }
     }
+
+    //qDebug() << "Drawing rubber band " << m_rubberBandRect;
+    //drawRect(m_rubberBandRect, &painter);
 
     if (DEBUG_MODE) {
         //draw viewport rect panned
@@ -163,7 +167,7 @@ void CellGLView::paintGL()
    //glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 }
 
-void CellGLView::drawRect(const QRectF rect, QGLPainter *painter)
+void CellGLView::drawRect(const QRectF &rect, QGLPainter *painter, QColor color)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
@@ -177,7 +181,8 @@ void CellGLView::drawRect(const QRectF rect, QGLPainter *painter)
     painter->modelViewMatrix().push();
     painter->clearAttributes();
     painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(Qt::red);
+    color.setAlphaF(0.8);
+    painter->setColor(color);
     painter->setVertexAttribute(QGL::Position, vertices );
     painter->draw(QGL::LineLoop, vertices.size());
     painter->modelViewMatrix().pop();
@@ -188,7 +193,7 @@ void CellGLView::resizeGL(int width, int height)
     //devicePixelRatio() fixes the problem with MAC retina
     const qreal pixelRatio = devicePixelRatio();
     glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
-    m_viewport = QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio);
+    setViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
@@ -248,7 +253,7 @@ void CellGLView::setViewPort(QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
-        update();
+        emit signalViewPortUpdated(m_viewport);
     }
 }
 
@@ -256,7 +261,7 @@ void CellGLView::setScene(QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
-        update();
+        emit signalSceneUpdated(m_scene);
     }
 }
 
@@ -291,9 +296,10 @@ void CellGLView::zoomOut()
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::LeftButton ) {
+        // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
         m_panning = true;
-        m_originPanning = event->globalPos(); //moving needs globalPos
+        m_originPanning = event->globalPos(); //panning needs globalPos
         const QPointF point = event->localPos();
 
         foreach(GraphicItemGL *node, m_nodes) {
@@ -313,10 +319,11 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         }
     }
     else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
-        // Rubberbanding changes cursor to pointing hand
+        // rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
         m_rubberBanding = true;
-        m_originRubberBand = event->pos(); //rubberband does not need global
+        m_originRubberBand = event->pos();
+        m_rubberBandRect = QRectF();
     }
     event->ignore();
 }
@@ -344,27 +351,33 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
             }
         }
     }  else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
+
         unsetCursor();
+
         const QPointF origin = m_originRubberBand;
         const QPointF destiny = event->localPos();
+        m_rubberBandRect = QRectF(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+                   qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
+        // paint rubberband
+        if ( !m_rubberBandRect.isEmpty() ) {
+            paintGL();
+        }
+
+        // notify nodes for rubberband
         foreach(GraphicItemGL *node, m_nodes) {
             if (node->rubberBandable() ) {
                 QTransform node_trans = nodeTransformations(node);
                 if ( node->transformable() ) {
                     node_trans *= sceneTransformations();
                 }
-
-                QRect rect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                           qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
-
-                QRect transformed = node_trans.inverted().mapRect(rect);
-
+                QRectF transformed = node_trans.inverted().mapRect(m_rubberBandRect);
                 qDebug() << "Rubberbanded inside = " << node->boundingRect().contains(transformed);
             }
         }
         // reset variables
         m_rubberBanding = false;
+        //m_rubberBandRect = QRect();
     }
 
     event->ignore();
@@ -380,8 +393,37 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         update();
     }
     if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
-        // NOTE I can update rubber band rect here and draw it
-        // if I want to give the effect of the selection shape expanding
+
+        // Check for enough drag distance
+        if ((m_originRubberBand - event->localPos()).manhattanLength()
+            < QApplication::startDragDistance()) {
+            return;
+        }
+
+        // paint rubberband
+        if ( !m_rubberBandRect.isEmpty() ) {
+            paintGL();
+        }
+
+        // Stop rubber banding if the user has let go of all buttons (even
+        // if we didn't get the release events).
+        if ( !event->buttons() ) {
+            m_rubberBanding = false;
+            m_rubberBandRect = QRect();
+            return;
+        }
+
+        // get rubberband
+        const QPointF origin = m_originRubberBand;
+        const QPointF destiny = event->localPos();
+        m_rubberBandRect = QRectF(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+                   qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+
+        // paint rubberband
+        if ( !m_rubberBandRect.isEmpty() ) {
+            paintGL();
+        }
+
     }
     else if ( event->button() == Qt::LeftButton ) {
         QPointF point = event->localPos();
@@ -483,8 +525,9 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
             break;
     }
 
-    //if ( node->invertedX() || node->invertedY() ) {
-   //     transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
-   // }
+    if ( node->invertedX() || node->invertedY() ) {
+        transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
+    }
+
     return node->transform() * transform ;
 }
