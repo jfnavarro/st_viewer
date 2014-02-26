@@ -97,7 +97,7 @@ void CellGLView::ensureContext()
         m_context = new QOpenGLContext();
         m_context->setFormat(format);
         const bool success = m_context->create();
-        Q_UNUSED(success);
+        qDebug() << "CellGLView, OpenGL context create = " << success;
     }
     m_context->makeCurrent(this);
 }

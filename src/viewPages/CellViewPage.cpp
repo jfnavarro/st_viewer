@@ -294,8 +294,6 @@ void CellViewPage::initGLView()
     m_view = new CellGLView();
     QWidget *container = QWidget::createWindowContainer(m_view);
     container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    //QScrollArea *scrollArea = new QScrollArea();
-    //scrollArea->setWidget(container);
     ui->mainLayout->addWidget(container);
     // Adding a stretch to make the opengl window occupy more space
     ui->mainLayout->setStretch(1,10);
@@ -415,7 +413,7 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
-    m_view->setScene(image.rect());
+    //m_view->setScene(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);

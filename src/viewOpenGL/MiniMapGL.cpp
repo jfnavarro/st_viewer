@@ -98,14 +98,14 @@ void MiniMapGL::draw(QGLPainter *painter)
         const QPointF str = m_scene.topRight();
         const QPointF sbr = m_scene.bottomRight();
         const QPointF sbl = m_scene.bottomLeft();
-
-        m_sceneColor.setAlphaF(0.2);
-
         QVector2DArray scene_vertices;
         scene_vertices.append(stl.x(), stl.y());
         scene_vertices.append(str.x(), str.y());
         scene_vertices.append(sbr.x(), sbr.y());
         scene_vertices.append(sbl.x(), sbl.y());
+
+        m_sceneColor.setAlphaF(0.2);
+        glColor4f(m_sceneColor.redF(), m_sceneColor.blueF(), m_sceneColor.greenF(), m_sceneColor.alphaF());
 
         painter->clearAttributes();
         painter->setStandardEffect(QGL::FlatColor);
