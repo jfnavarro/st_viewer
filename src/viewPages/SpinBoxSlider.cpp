@@ -1,11 +1,14 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
+*/
 #include "SpinBoxSlider.h"
-
 #include <QHBoxLayout>
 #include <QSpinBox>
-
 #include "qxtspanslider.h"
-
+#include "utils/Utils.h"
 
 SpinBoxSlider::SpinBoxSlider(QWidget *parent)
     : QWidget(parent)
@@ -20,9 +23,8 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
   m_spanslider->setTickPosition(QSlider::TicksAbove);
   m_spanslider->setHandleMovementMode(QxtSpanSlider::NoOverlapping);
 
-  setLowerValuePrivate(0);
-  setUpperValuePrivate(100);
-
+  setLowerValuePrivate(Globals::GENE_THRESHOLD_MIN);
+  setUpperValuePrivate(Globals::GENE_THRESHOLD_MAX);
 
   m_layout->addWidget(m_left_spinbox);
   m_layout->addWidget(m_spanslider);
@@ -34,8 +36,6 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
   QObject::connect(m_left_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setLowerValue(int)));   
 
   setLayout(m_layout);
-
-  //    onInit();
 }
 
 void SpinBoxSlider::setToolTip(const QString &str) {
@@ -78,13 +78,11 @@ void SpinBoxSlider::setLowerValue(int value) {
    }
 }
 
-
 void SpinBoxSlider::setUpperValue(int value) {
   if (value != m_upper_value) {
     setUpperValuePrivate(value);
    }
 }
-
 
 void SpinBoxSlider::setTickInterval(int stepLength) {
   m_spanslider->setTickInterval(stepLength);

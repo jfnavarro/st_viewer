@@ -24,6 +24,8 @@
 #include <QImageReader>
 #include <QPainter>
 #include <QScrollArea>
+#include <QRubberBand>
+#include <QStyleFactory>
 
 #include "CellViewPageToolBar.h"
 

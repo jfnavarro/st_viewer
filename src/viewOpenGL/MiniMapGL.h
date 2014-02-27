@@ -59,6 +59,7 @@ signals:
 private:
 
     // internal functions
+    void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
     const QPointF mapToScene(const QPointF& point) const;
     void updateTransform(const QRectF& scene);
 

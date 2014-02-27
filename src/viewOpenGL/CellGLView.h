@@ -16,6 +16,7 @@ class GraphicItemGL;
 class QSurfaceFormat;
 class QVector3D;
 class QOpenGLContext;
+class QRubberBand;
 
 class CellGLView : public QWindow
 {
@@ -74,9 +75,6 @@ signals:
 
 private:
 
-    // helper debug function
-    void drawRect(const QRectF &rect, QGLPainter *painter, QColor color = Qt::red);
-
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
     QSurfaceFormat format;
@@ -94,7 +92,7 @@ private:
     QPoint m_originRubberBand = QPoint(-1, -1);
     bool m_panning = false;
     bool m_rubberBanding = false;
-    QRectF m_rubberBandRect;
+    QRect m_rubberBandRect;
     qreal m_rotate = 0.0;
     qreal m_zoom = 1.0;
     qreal m_panx = 0.0;
