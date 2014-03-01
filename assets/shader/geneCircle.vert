@@ -1,58 +1,42 @@
 #version 120
 
 // vertexs
-attribute highp vec4 qt_MultiTexCoord0;
-attribute highp vec4 qt_Color;
+attribute lowp vec4 qt_MultiTexCoord0;
+attribute lowp vec4 qt_Color;
 attribute highp vec4 qt_Vertex;
-attribute highp float qt_Custom0;
-attribute highp float qt_Custom1;
+attribute lowp float qt_Custom0;
+attribute lowp float qt_Custom1;
 uniform mediump mat4 qt_ModelViewMatrix;
 uniform mediump mat4 qt_ModelViewProjectionMatrix;
-
-// custom attributes
-//attribute int in_options;
-//attribute int in_values;
-//attribute int in_references;
 
 // passed along to fragment shader
 varying highp vec4 textCoord;
 varying highp vec4 outColor;
 varying highp float outSelected;
-//varying highp vec2 out_options;
 
 // uniform variables
-//uniform int in_colorMode;
-//uniform int in_geneMode;
-//uniform int in_hitCountMin;
-//uniform int in_hitCountMax;
-//uniform float in_intensity;
-//uniform int in_upper;
-//uniform int in_lower;
+uniform lowp int in_visualMode;
+uniform lowp int in_pooledUpper;
+uniform lowp int in_pooledLower;
+uniform lowp float in_intensity;
+uniform lowp vec4 in_values;
+uniform lowp float in_shine;
 
-// material
-struct qt_MaterialParameters {
-    mediump vec4 emission;
-    mediump vec4 ambient;
-    mediump vec4 diffuse;
-    mediump vec4 specular;
-    mediump float shininess;
-};
-uniform qt_MaterialParameters qt_Material;
+//Some in-house functions
 
-
-float norm(float v, float t0, float t1)
+float norm(inout float v, in float t0, in float t1)
 {
     float vh = clamp(v, t0, t1);
     return (vh - t0) / (t1 - t0);
 }
 
-float denorm(float nv, float t0, float t1)
+float denorm(inout float nv, in float t0, in float t1)
 {
     float vh = clamp(nv, 0.0, 1.0);
     return (vh * (t1 - t0)) + t0;
 }
 
-vec4 createHeatMapColor(float wavelength)
+vec4 createHeatMapColor(inout float wavelength)
 {
     float gamma = 0.8;
     // clamp input value
@@ -110,69 +94,52 @@ vec4 createHeatMapColor(float wavelength)
     return vec4(red, green, blue, 1.0);
 }
 
-float computeDynamicRangeAlpha(float value, float min_Value, float max_value)
+float computeDynamicRangeAlpha(inout float value, in float min_Value, in float max_value)
 {
     return sqrt(norm(value, min_Value, max_value));
 }
 
 void main(void)
 {
-    outSelected = int(qt_Custom1);
-    bool outVisible = bool(qt_Custom0);
+    outSelected = float(qt_Custom0);
     outColor = qt_Color;
+    bool visible = qt_Color.a != 0.0;
     textCoord = qt_MultiTexCoord0;
     
-    if (!outVisible) {
+    // input parameters to compute color
+    int geneMode = int(in_visualMode);
+    float value = float(qt_Custom1);
+    float upper_limit = float(in_pooledUpper);
+    float lower_limit = float(in_pooledLower);
+    float shine = float(in_shine);
+    
+    // is visible?
+    if (!visible) {
         outColor.a = 0.0;
     }
+    else {
     
-	//out_options = in_options;
-    //out_options = false;
-    
-    /*
-    // input parameters to compute color
-    float min_value = float(in_hitCountMin);
-    float max_value = float(in_hitCountMax);
-    int geneMode = int(in_geneMode);
-    int colorMode = int(in_colorMode);
-    float value = float(in_values);
-    float references = float(in_references);
-    float upper_limit = float(in_upper);
-    float lower_limit = float(in_lower);
-    
-    //adjust color for globalMode
-    if (geneMode == 1) {
-        if (colorMode == 0) {
-            //out_color.a = in_intensity;
+        //adjust color for globalMode
+        if (geneMode == 1) {
+            outColor.a = computeDynamicRangeAlpha(value, in_pooledLower, in_pooledUpper)
+            + (1.0 - in_intensity);
         }
-        else if (colorMode == 1) {
-            out_color.a = computeDynamicRangeAlpha(value, min_value, max_value) + (1.0 - in_intensity);
-        }
-        else if (colorMode == 2) {
-            float nv = norm(value, min_value, max_value);
-            float wavel = sqrt(myclamp(nv, 0.0, 1.0));
+        else if (geneMode == 2) {
+            float nv = norm(value, in_pooledLower, in_pooledUpper);
+            float wavel = sqrt(clamp(nv, 0.0, 1.0));
             float nt = denorm(wavel, 380.0, 780.0);
-            out_color = createHeatMapColor(nt);
-            //out_color.a = in_intensity;
+            outColor = createHeatMapColor(nt);
+            outColor.a = in_intensity;
         }
         else {
-            //error
+            outColor.a = in_intensity;
         }
         
-        if ( (value < lower_limit || value > upper_limit) && colorMode != 1) {
-            //out_color.a = 0.0;
-        }
-        
-        
-    }
-    else if (geneMode == 0) {
-        if (colorMode == 1) {
-            out_color.a += (1.0 - in_intensity);
-        }
-        else if ( out_color.a != 0.0 ){
-            out_color.a = in_intensity;
+        if ( (value < in_pooledLower || value > in_pooledUpper)
+            && (geneMode == 1 || geneMode == 2)) {
+            outColor.a = 0.0;
         }
     }
-    */
+    
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
 }

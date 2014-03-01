@@ -28,32 +28,19 @@ class GeneRendererGL : public GraphicItemGL
 
 public:
 
-    enum updateOptions {
-        geneColor = 1,
-        geneVisual = 2,
-        geneSize = 3,
-        geneSelection = 4,
-        geneThreshold = 5
-    };
-
     explicit GeneRendererGL(QObject *parent = 0);
     virtual ~GeneRendererGL();
 
-    //rendering functions
+    // data builders
     void generateData();
-    //void updateData(updateOptions flags);
-    void rebuildData();
     void clearData();
 
+    //set the dimensions of the bounding rect, also for the QuadTree
     void setDimensions(const QRectF &border);
 
     //selection functions
     void selectGenes(const DataProxy::GeneList&);
     void selectFeatures(const DataProxy::FeatureList&);
-    void setSelectionArea(const SelectionEvent *event);
-    void clearSelection();
-
-    //getters
     DataProxy::FeatureListPtr getSelectedFeatures();
 
 public slots:
@@ -74,26 +61,32 @@ public slots:
     void updateColor(DataProxy::GenePtr);
     void updateSelection(DataProxy::GenePtr);
 
+    void updateAllColor(const QColor color);
+    void updateAllSelection(bool selected);
+
 protected:
 
-    // reset quad tree to rect size
-    void resetQuadTree(const QRectF &rect);
-
-    //internal rendering functions
-    //void updateGene(DataProxy::GenePtr, updateOptions flags);
-    //void updateFeatures(DataProxy::FeatureListPtr, updateOptions flags);
-
-    void updateSize();
-    void updateVisual();
+    // inherited functions
+    void setSelectionArea(const SelectionEvent *event);
+    void clearSelection();
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
 
     const QRectF boundingRect() const;
 
+private:
+
+    // internal rendering functions
+    void updateSize();
+    void updateVisual();
+
+    // reset quad tree to rect size
+    void resetQuadTree(const QRectF &rect);
+
+    // compiles and loads the shaders
     void setupShaders();
 
-private:
     // lookup maps
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
     typedef QHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
@@ -134,18 +127,19 @@ private:
     int m_pooledMin;
     int m_pooledMax;
 
+    // bounding rect area
     QRectF m_border;
-
-    // color scheme
-    ColorScheme *m_colorScheme = nullptr;
 
     // visual mode
     Globals::GeneVisualMode m_visualMode;
 
     // shader programs
-    QGLShaderProgramEffect *shaderCircle;
-    QGLShaderProgramEffect *shaderRectangle;
-    QGLShaderProgramEffect *shaderCross;
+    typedef QMap<uint, QGLShaderProgramEffect *> ShaderProgramList;
+    ShaderProgramList m_shaderProgramList;
+    QGLShaderProgramEffect *m_shaderProgram = nullptr;
+
+    // tells if something has changed
+    bool m_isDirty = false;
 };
 
 

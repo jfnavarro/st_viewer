@@ -34,6 +34,9 @@ protected:
 
     const QRectF boundingRect() const;
 
+    void setSelectionArea(const SelectionEvent *){};
+    void clearSelection(){};
+
 public slots:
     
     void setBoundaries(qreal min, qreal max);

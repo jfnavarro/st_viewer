@@ -1,7 +1,6 @@
 varying highp vec4 textCoord;
 varying highp vec4 outColor;
 varying highp float outSelected;
-//varying int out_options;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -10,15 +9,6 @@ float smoothband(float lo, float hi, float e, float t) {
     1.0 - (smoothstep(hi-e, hi+e, t) - smoothstep(lo-e, lo+e, t));
     
 }
-
-struct qt_MaterialParameters {
-    mediump vec4 emission;
-    mediump vec4 ambient;
-    mediump vec4 diffuse;
-    mediump vec4 specular;
-    mediump float shininess;
-};
-uniform qt_MaterialParameters qt_Material;
 
 
 void main(void)

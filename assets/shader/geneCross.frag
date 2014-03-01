@@ -1,6 +1,6 @@
-varying vec4 out_color;
-varying vec4 out_texture;
-varying int out_options;
+varying highp vec4 textCoord;
+varying highp vec4 outColor;
+varying highp float outSelected;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -15,11 +15,11 @@ void main(void)
     const vec4 cNone  = vec4(0.0,0.0,0.0,0.0);
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
     
-	// input
-	bool selected = bool(out_options);
+    // input options
+    bool selected = bool(outSelected);
 
     // calculate distance from center
-    vec2 pos = abs(mod(out_texture.xy, vec2(1.0)) - vec2(0.5));
+    vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
     float mindist = min(pos.x, pos.y);
     float maxdist = max(pos.x, pos.y);
 
@@ -27,7 +27,7 @@ void main(void)
 	float radii = 0.2;
 
     // derive cross color
-    vec4 fragColor = out_color;
+    vec4 fragColor = outColor;
     
     fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, mindist));
     if (selected) {

@@ -102,9 +102,11 @@ void CellViewPage::onInit()
 
     // color dialogs
     m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID);
-    m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true); //OSX native color dialog gives problems
+     //OSX native color dialog gives problems
+    m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
     m_colorDialogGenes = new QColorDialog(Globals::DEFAULT_COLOR_GENE);
-    m_colorDialogGenes->setOption(QColorDialog::DontUseNativeDialog, true); //OSX native color dialog gives problems
+    //OSX native color dialog gives problems
+    m_colorDialogGenes->setOption(QColorDialog::DontUseNativeDialog, true);
 
     // selection dialog
     selectionDialog = new SelectionDialog(this);
@@ -125,9 +127,6 @@ void CellViewPage::onInit()
 void CellViewPage::onEnter()
 {
     DEBUG_FUNC_NAME
-
-    // reset main variabless
-    resetActionStates();
 
     DataProxy* dataProxy = DataProxy::getInstance();
 
@@ -175,6 +174,9 @@ void CellViewPage::onEnter()
 
     // load cell tissue
     slotLoadCellFigure();
+
+    // reset main variabless
+    resetActionStates();
 }
 
 void CellViewPage::onExit()
@@ -345,6 +347,9 @@ void CellViewPage::createGLConnections()
             SLOT(updateSelection(DataProxy::GenePtr)));
     connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), m_gene_plotter,
             SLOT(updateColor(DataProxy::GenePtr)));
+    connect(ui->selectAllGenes, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(updateAllSelection(bool)));
+    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), m_gene_plotter, SLOT(updateAllColor(QColor)));
+
 
     //connect gene plotter to gene selection model
     connect(m_gene_plotter, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
@@ -415,7 +420,7 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
-    //m_view->setScene(image.rect());
+    m_view->setScene(image.rect());
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);

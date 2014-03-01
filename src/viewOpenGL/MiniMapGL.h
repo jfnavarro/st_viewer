@@ -52,6 +52,9 @@ protected:
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);
 
+    void setSelectionArea(const SelectionEvent *){};
+    void clearSelection(){};
+
 signals:
 
     void signalCenterOn(const QPointF& point);

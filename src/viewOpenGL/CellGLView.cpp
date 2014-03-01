@@ -151,7 +151,7 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
-   glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+    glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 }
 
 void CellGLView::resizeGL(int width, int height)
@@ -219,7 +219,7 @@ void CellGLView::setViewPort(QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
-        emit signalViewPortUpdated(m_viewport);
+        //emit signalViewPortUpdated(m_viewport);
     }
 }
 
@@ -227,7 +227,7 @@ void CellGLView::setScene(QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
-        emit signalSceneUpdated(m_scene);
+        //emit signalSceneUpdated(m_scene);
     }
 }
 
@@ -271,14 +271,14 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         foreach(GraphicItemGL *node, m_nodes) {
             const QPointF localPoint = nodeTransformations(node).inverted().map(point);
             QMouseEvent newEvent(
-                event->type(),
-                localPoint,
-                event->windowPos(),
-                event->screenPos(),
-                event->button(),
-                event->buttons(),
-                event->modifiers()
-            );
+                        event->type(),
+                        localPoint,
+                        event->windowPos(),
+                        event->screenPos(),
+                        event->button(),
+                        event->buttons(),
+                        event->modifiers()
+                        );
             if ( node->selectable() && node->contains(localPoint) ){
                 node->mousePressEvent(&newEvent);
             }
@@ -333,7 +333,14 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
                     node_trans *= sceneTransformations();
                 }
                 QRectF transformed = node_trans.inverted().mapRect(m_rubberBandRect);
-                qDebug() << "Rubberbanded inside = " << node->boundingRect().contains(transformed);
+
+                if ( node->boundingRect().contains(transformed) ) {
+                    // Set the new selection area
+                    SelectionEvent::SelectionMode mode =
+                            SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                    SelectionEvent selectionEvent(transformed, mode);
+                    node->setSelectionArea(&selectionEvent);
+                }
             }
         }
         // reset variables
@@ -432,35 +439,35 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 
     switch (anchor)
     {
-        case GraphicItemGL::Center:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
-            break;
-        case GraphicItemGL::North:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
-            break;
-        case GraphicItemGL::NorthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), 0.0);
-            break;
-        case GraphicItemGL::East:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
-            break;
-        case GraphicItemGL::SouthEast:
-            transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
-            break;
-        case GraphicItemGL::South:
-            transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
-            break;
-        case GraphicItemGL::SouthWest:
-            transform = QTransform::fromTranslate(0.0, viewSize.height());
-            break;
-        case GraphicItemGL::West:
-           transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
-            break;
-        case GraphicItemGL::NorthWest:
-            // fall-through
-        default:
-            transform = QTransform::fromTranslate(0.0, 0.0);
-            break;
+    case GraphicItemGL::Center:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
+        break;
+    case GraphicItemGL::North:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
+        break;
+    case GraphicItemGL::NorthEast:
+        transform = QTransform::fromTranslate(viewSize.width(), 0.0);
+        break;
+    case GraphicItemGL::East:
+        transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
+        break;
+    case GraphicItemGL::SouthEast:
+        transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
+        break;
+    case GraphicItemGL::South:
+        transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
+        break;
+    case GraphicItemGL::SouthWest:
+        transform = QTransform::fromTranslate(0.0, viewSize.height());
+        break;
+    case GraphicItemGL::West:
+        transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
+        break;
+    case GraphicItemGL::NorthWest:
+        // fall-through
+    default:
+        transform = QTransform::fromTranslate(0.0, 0.0);
+        break;
     }
 
     if ( node->invertedX() || node->invertedY() ) {

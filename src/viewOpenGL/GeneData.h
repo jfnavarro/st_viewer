@@ -8,6 +8,7 @@
 #define GENEDATA_H
 
 #include <QGeometryData>
+#include <QArray>
 
 class QColor4ub;
 class QGLAttributeValue;
@@ -17,6 +18,8 @@ class GeneData : public QGeometryData
 {
 
 public:
+
+    typedef QArray<GLfloat> refCountType;
 
     explicit GeneData();
     virtual ~GeneData();
@@ -41,13 +44,9 @@ public:
     void resetRefCount();
     void resetValues();
 
-    const QGLAttributeValue values() const;
-    const QGLAttributeValue refCount() const;
-
 private:
 
-    QCustomDataArray m_values;
-    QCustomDataArray m_refCount;
+    GeneData::refCountType m_refCount;
 };
 
 #endif // GENEDATA_H

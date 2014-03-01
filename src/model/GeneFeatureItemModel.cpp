@@ -190,7 +190,6 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
             if (gene->selected() != selected) {
                 gene->selected(selected);
                 emit dataChanged(index, index);
-                emit signalSelectionChanged(gene);
             }
         }
     }
@@ -209,7 +208,6 @@ void GeneFeatureItemModel::setColorGenes(const QColor& color)
             QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             gene->color(color);
             emit dataChanged(index, index);
-            emit signalColorChanged(gene);
         }
     }
 }

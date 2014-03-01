@@ -13,6 +13,7 @@
 class QGLPainter;
 class QRectF;
 class QMouseEvent;
+class SelectionEvent;
 
 class GraphicItemGL : public QObject
 {
@@ -80,6 +81,9 @@ public:
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
+
+    virtual void setSelectionArea(const SelectionEvent *event) = 0;
+    virtual void clearSelection() = 0;
 
 public slots:
 

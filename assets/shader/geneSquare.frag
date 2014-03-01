@@ -1,6 +1,6 @@
-varying vec4 out_color;
-varying vec4 out_texture;
-varying int out_options;
+varying highp vec4 textCoord;
+varying highp vec4 outColor;
+varying highp float outSelected;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -16,17 +16,17 @@ void main(void)
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
 	
     // input options
-	bool selected = bool(out_options);
+    bool selected = bool(outSelected);
 
     // calculate distance from center
-    vec2 pos = abs(mod(out_texture.xy, vec2(1.0)) - vec2(0.5));
+    vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
     float dist = max(pos.x, pos.y);
 
     // radii of circle
     float radii = (selected) ? 0.3 : 0.5;
 
     // derive square color
-    vec4 fragColor = out_color;
+    vec4 fragColor = outColor;
     
     fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
     if (selected) { fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist)); }
