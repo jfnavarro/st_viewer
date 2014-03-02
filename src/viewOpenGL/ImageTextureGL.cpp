@@ -26,6 +26,11 @@ ImageTextureGL::ImageTextureGL(QObject *parent) :
 
 ImageTextureGL::~ImageTextureGL()
 {
+    clear();
+}
+
+void ImageTextureGL::clear()
+{
     clearTextures();
     clearNodes();
 }
@@ -38,9 +43,10 @@ void ImageTextureGL::clearTextures()
             texture->release();
             texture->clearImage();
             delete texture;
-            texture = 0;
         }
+        texture = 0;
     }
+    m_textures.clear();
 }
 
 void ImageTextureGL::clearNodes()
@@ -48,9 +54,10 @@ void ImageTextureGL::clearNodes()
     foreach( QGLSceneNode *node, m_nodes) {
         if ( node ) {
             delete node;
-            node = 0;
         }
+        node = 0;
     }
+    m_nodes.clear();
 }
 
 void ImageTextureGL::draw(QGLPainter *painter)
@@ -78,8 +85,7 @@ void ImageTextureGL::drawGeometry(QGLPainter *painter)
 
 void ImageTextureGL::createTexture(const QImage& image)
 {
-   clearTextures();
-   clearNodes();
+   clear();
    // we always tile, it is not secure to create one texture from the whole image
    createTiles(image);
    m_bounds = image.rect();

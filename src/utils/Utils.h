@@ -43,6 +43,26 @@ enum GeneShape  {
     Square = 2
 };
 
+enum Anchor
+{
+    Center = 1,
+    North = 2,
+    NorthEast = 4,
+    East = 8,
+    SouthEast = 16,
+    South = 32,
+    SouthWest = 64,
+    West = 128,
+    NorthWest = 256,
+    None = 512
+};
+
+static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;
+static const Anchor DEFAULT_ANCHOR_LEGEND = NorthEast;
+static const Anchor DEFAULT_ANCHOR_GRID = None;
+static const Anchor DEFAULT_ANCHOR_IMAGE = None;
+static const Anchor DEFAULT_ANCHOR_GENE = None;
+
 /** VERSION **/
 static const qulonglong MAJOR = VERSION_MAJOR;
 static const qulonglong MINOR = VERSION_MINOR;

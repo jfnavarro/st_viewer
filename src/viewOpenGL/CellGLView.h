@@ -18,6 +18,13 @@ class QVector3D;
 class QOpenGLContext;
 class QRubberBand;
 
+/* CellGLView is a container
+ * to render OpenGL GraphicItemGL type objects
+ * QGLWidget is deprecated so Qt3D is the way to go
+ * however, QGLView adds camera and things that we do not
+ * need so since QGLView is a wraper around QWindow
+ * we built our own customized wrapper
+ */
 class CellGLView : public QWindow
 {
     Q_OBJECT
@@ -31,6 +38,8 @@ public:
     void removeRenderingNode(GraphicItemGL *node);
 
     const QImage grabPixmapGL() const;
+
+    void reset();
 
 public slots:
 
@@ -63,7 +72,7 @@ protected:
     void exposeEvent(QExposeEvent *eevent);
     void resizeEvent(QResizeEvent * event);
 
-    void setZoom(qreal delta);
+    void setZoom(const QSizeF &zoom);
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
     const QTransform sceneTransformations() const;
@@ -74,6 +83,8 @@ signals:
     void signalSceneUpdated(QRectF);
 
 private:
+
+    void setTransformZoom(const QSizeF& zoom);
 
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
@@ -94,7 +105,9 @@ private:
     bool m_rubberBanding = false;
     QRect m_rubberBandRect;
     qreal m_rotate = 0.0;
-    qreal m_zoom = 1.0;
+    QSizeF m_zoom = QSizeF(1.0, 1.0);
+    qreal m_scaleX = 1.0;
+    qreal m_scaleY = 1.0;
     qreal m_panx = 0.0;
     qreal m_pany = 0.0;
 };

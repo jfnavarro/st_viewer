@@ -48,9 +48,20 @@ public:
     QActionGroup *m_actionGroup_toggleVisualMode = nullptr;
     QAction *m_actionShow_toggleNormal = nullptr;
     QAction *m_actionShow_toggleDynamicRange = nullptr;
-    QAction *m_actionShow_toggleDynamicRangeGenes = nullptr;
     QAction *m_actionShow_toggleHeatMap = nullptr;
  
+    QActionGroup *m_actionGroup_toggleLegendPosition = nullptr;
+    QAction *m_action_toggleLegendTopRight= nullptr;
+    QAction *m_action_toggleLegendTopLeft= nullptr;
+    QAction *m_action_toggleLegendDownRight= nullptr;
+    QAction *m_action_toggleLegendDownLeft = nullptr;
+
+    QActionGroup *m_actionGroup_toggleMinimapPosition = nullptr;
+    QAction *m_action_toggleMinimapTopRight= nullptr;
+    QAction *m_action_toggleMinimapTopLeft= nullptr;
+    QAction *m_action_toggleMinimapDownRight= nullptr;
+    QAction *m_action_toggleMinimapDownLeft = nullptr;
+
     SpinBoxSlider *m_geneHitsThreshold = nullptr;
     QSlider *m_geneIntensitySlider = nullptr;
     QSlider *m_geneSizeSlider = nullptr;
@@ -64,6 +75,8 @@ public:
     QAction *m_actionShow_cellTissueBlue = nullptr;
     QAction *m_actionShow_cellTissueRed = nullptr;
     QAction *m_actionShow_showCellTissue = nullptr;
+    QAction *m_actionShow_showLegend = nullptr;
+    QAction *m_actionShow_showMiniMap = nullptr;
     QAction *m_actionRotation_rotateLeft = nullptr;
     QAction *m_actionRotation_rotateRight = nullptr;
 

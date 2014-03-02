@@ -11,8 +11,8 @@ uniform mediump mat4 qt_ModelViewProjectionMatrix;
 
 // passed along to fragment shader
 varying highp vec4 textCoord;
-varying highp vec4 outColor;
-varying highp float outSelected;
+varying lowp vec4 outColor;
+varying lowp float outSelected;
 
 // uniform variables
 uniform lowp int in_visualMode;
@@ -135,10 +135,12 @@ void main(void)
             outColor.a = in_intensity;
         }
         
+        
         if ( (value < in_pooledLower || value > in_pooledUpper)
             && (geneMode == 1 || geneMode == 2)) {
             outColor.a = 0.0;
         }
+        
     }
     
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;

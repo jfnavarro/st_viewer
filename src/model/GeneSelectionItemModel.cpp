@@ -8,7 +8,7 @@
 
 #include <QDebug>
 #include "utils/DebugHelper.h"
-
+#include "math/Common.h"
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
     : QAbstractTableModel(parent),
       m_geneselection_reference(0)
@@ -34,10 +34,10 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
             value = item->gene();
             break;
         case Hits:
-            value = item->hits();
+            value = std::min(item->hits(), m_max);
         break;
         case NormalizedHits:
-            value = static_cast<qreal>(item->hits());
+            value = qreal(std::min(item->hits(), m_max)) / qreal(m_max);
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -107,5 +107,13 @@ void GeneSelectionItemModel::loadGenes(DataProxy::FeatureListPtr selection)
     beginResetModel();
     m_geneselection_reference.clear(); //NOTE genelist is just a reference
     m_geneselection_reference = selection;
+    endResetModel();
+}
+
+void GeneSelectionItemModel::setHitCountLimits(int min, int max)
+{
+    beginResetModel();
+    m_min = min;
+    m_max = max;
     endResetModel();
 }

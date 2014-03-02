@@ -9,6 +9,7 @@
 
 #include <QGLSceneNode>
 #include <QTransform>
+#include "utils/Utils.h"
 
 class QGLPainter;
 class QRectF;
@@ -19,23 +20,9 @@ class GraphicItemGL : public QObject
 {
 
     Q_OBJECT
-    Q_ENUMS(Anchor VisualOption)
     Q_FLAGS(VisualOptions)
 
 public:
-
-    enum Anchor
-    {
-        Center = 1,
-        North = 2,
-        NorthEast = 4,
-        East = 8,
-        SouthEast = 16,
-        South = 32,
-        SouthWest = 64,
-        West = 128,
-        NorthWest = 256
-    };
 
     enum VisualOption
     {
@@ -51,8 +38,8 @@ public:
     explicit GraphicItemGL(QObject *parent = 0);
     virtual ~GraphicItemGL();
 
-    Anchor anchor() const;
-    void setAnchor(Anchor anchor);
+    Globals::Anchor anchor() const;
+    void setAnchor(Globals::Anchor anchor);
 
     // transformation matrix of the element
     const QTransform transform() const;
@@ -83,7 +70,6 @@ public:
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
     virtual void setSelectionArea(const SelectionEvent *event) = 0;
-    virtual void clearSelection() = 0;
 
 public slots:
 
@@ -98,7 +84,7 @@ protected:
     const QTransform adjustForAnchor(const QTransform& transform) const;
 
     QTransform m_transform;
-    Anchor m_anchor = Anchor::NorthWest;
+    Globals::Anchor m_anchor = Globals::Anchor::NorthWest;
     GraphicItemGL::VisualOptions m_visualOptions;
 };
 

@@ -64,11 +64,16 @@ public slots:
     void updateAllColor(const QColor color);
     void updateAllSelection(bool selected);
 
+    void clearSelection();
+
+signals:
+
+    void selectionUpdated();
+
 protected:
 
     // inherited functions
     void setSelectionArea(const SelectionEvent *event);
-    void clearSelection();
 
     void draw(QGLPainter *painter);
     void drawGeometry (QGLPainter * painter);

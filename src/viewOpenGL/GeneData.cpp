@@ -13,7 +13,6 @@
 #include <QCustomDataArray>
 #include <QGLIndexBuffer>
 
-//static const QGL::VertexAttribute visibleVertex = QGL::TextureCoord1;
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex0;
 static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex1;
 static const int QUAD_SIZE = 4;
@@ -27,9 +26,9 @@ GeneData::~GeneData()
 
 }
 
-void GeneData::clear()
+void GeneData::clearData()
 {
-    QGeometryData::clear();
+    clear();
     m_refCount.clear();
 }
 

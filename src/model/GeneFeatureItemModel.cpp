@@ -182,18 +182,19 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
     if (m_genelist_reference.isNull()) {
         return;
     }
+    beginResetModel();
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i) {
         DataProxy::GenePtr gene = m_genelist_reference->at(i);
         if (!gene.isNull()) {
-            QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
+            //QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             if (gene->selected() != selected) {
                 gene->selected(selected);
-                emit dataChanged(index, index);
+                //emit dataChanged(index, index);
             }
         }
     }
-
+    endResetModel();
 }
 
 void GeneFeatureItemModel::setColorGenes(const QColor& color)
@@ -201,13 +202,15 @@ void GeneFeatureItemModel::setColorGenes(const QColor& color)
     if (m_genelist_reference.isNull()) {
         return;
     }
+    beginResetModel();
     const int size = m_genelist_reference->count();
     for (int i = 0; i < size; ++i) {
         DataProxy::GenePtr gene = m_genelist_reference->at(i);
         if (!gene.isNull()) {
-            QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
+            //QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
             gene->color(color);
-            emit dataChanged(index, index);
+            //emit dataChanged(index, index);
         }
     }
+   endResetModel();
 }

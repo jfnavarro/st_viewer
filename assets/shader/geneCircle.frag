@@ -1,6 +1,6 @@
 varying highp vec4 textCoord;
-varying highp vec4 outColor;
-varying highp float outSelected;
+varying lowp vec4 outColor;
+varying lowp float outSelected;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -16,7 +16,7 @@ void main(void)
     // colors
     const vec4 cNone = vec4(0.0,0.0,0.0,0.0);
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
-	
+    
     // input options
     bool selected = bool(outSelected);
     
@@ -34,5 +34,7 @@ void main(void)
     if (selected) {
         fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist));
     }
+    
+
     gl_FragColor = fragColor;
 }

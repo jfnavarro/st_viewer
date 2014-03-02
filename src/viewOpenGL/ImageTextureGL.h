@@ -24,6 +24,8 @@ public:
 
     void createTexture(const QImage& image);
 
+    void clear();
+
 public slots:
 
     void setIntensity(qreal intensity);
@@ -36,7 +38,6 @@ protected:
     const QRectF boundingRect() const;
 
     void setSelectionArea(const SelectionEvent *){};
-    void clearSelection(){};
 
 private:
 

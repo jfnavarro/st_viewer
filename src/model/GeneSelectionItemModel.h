@@ -37,6 +37,8 @@ public:
 
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
+    void setHitCountLimits(int min, int max);
+
 public slots:
     void reset();
     void loadGenes(DataProxy::FeatureListPtr);
@@ -46,6 +48,8 @@ private:
     static const int COLUMN_NUMBER = 3;
 
     DataProxy::FeatureListPtr m_geneselection_reference;
+    int m_min = 1.0;
+    int m_max = 1.0;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)
 

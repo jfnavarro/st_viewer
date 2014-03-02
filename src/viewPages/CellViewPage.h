@@ -72,11 +72,20 @@ protected slots:
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
 
+    // select legend anchor
+    void slotSetLegendAnchor(QAction *action);
+
+    // select minimap anchor
+    void slotSetMiniMapAnchor(QAction *action);
+
     // launch a color selector
     void slotLoadColor();
 
     // rotate the canvas
     void slotRotateView();
+
+    // genes were selected
+    void selectionUpdated();
 
 protected:
     

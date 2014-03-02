@@ -130,13 +130,15 @@ void CellViewPage::onEnter()
 
     DataProxy* dataProxy = DataProxy::getInstance();
 
-    DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+    DataProxy::DatasetPtr dataset =
+            dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     Q_ASSERT(dataset);
 
     DataProxy::ChipPtr currentChip = dataProxy->getChip(dataset->chipId());
     Q_ASSERT(currentChip);
 
-    DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
+    DataProxy::DatasetStatisticsPtr statistics =
+            dataProxy->getStatistics(dataProxy->getSelectedDataset());
     Q_ASSERT(statistics);
 
     const QTransform alignment = dataset->alignment();
@@ -196,22 +198,34 @@ void CellViewPage::createConnections()
     DEBUG_FUNC_NAME
 
     // go back signal
-    connect(m_toolBar->m_actionNavigate_goBack, SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(m_toolBar->m_actionNavigate_goBack,
+            SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
 
     // gene model signals
-    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
-    GeneFeatureItemModel *geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
-    connect(ui->lineEdit, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(ui->selectAllGenes, SIGNAL(clicked(bool)), geneModel, SLOT(selectAllGenesPressed(bool)));
-    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel, SLOT(setColorGenes(const QColor&)));
+    QSortFilterProxyModel *proxyModel =
+            qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
+    GeneFeatureItemModel *geneModel =
+            qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
+    connect(ui->lineEdit, SIGNAL(textChanged(QString)), proxyModel,
+            SLOT(setFilterFixedString(QString)));
+    connect(ui->selectAllGenes, SIGNAL(clicked(bool)), geneModel,
+            SLOT(selectAllGenesPressed(bool)));
+    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel,
+            SLOT(setColorGenes(const QColor&)));
+    //connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), this,
+    //SLOT(setColorGenes(const QColor&)));
 
     // cell tissue
-    connect(m_toolBar->m_actionShow_cellTissueBlue, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
-    connect(m_toolBar->m_actionShow_cellTissueRed, SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+    connect(m_toolBar->m_actionShow_cellTissueBlue,
+            SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
+    connect(m_toolBar->m_actionShow_cellTissueRed,
+            SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
 
     // graphic view signals
-    connect(m_toolBar->m_actionZoom_zoomIn, SIGNAL(triggered(bool)), m_view, SLOT(zoomIn()));
-    connect(m_toolBar->m_actionZoom_zoomOut, SIGNAL(triggered(bool)), m_view, SLOT(zoomOut()));
+    connect(m_toolBar->m_actionZoom_zoomIn,
+            SIGNAL(triggered(bool)), m_view, SLOT(zoomIn()));
+    connect(m_toolBar->m_actionZoom_zoomOut,
+            SIGNAL(triggered(bool)), m_view, SLOT(zoomOut()));
     connect(m_toolBar, SIGNAL(rotateView(qreal)), m_view, SLOT(rotate(qreal)));
 
     // print canvas
@@ -222,22 +236,25 @@ void CellViewPage::createConnections()
     connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
 
     // selection mode
-    connect(m_toolBar->m_actionSelection_showSelectionDialog, SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
+    connect(m_toolBar->m_actionSelection_showSelectionDialog,
+            SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
 
     //color selectors
-    connect(m_toolBar->m_actionColor_selectColorGenes, SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
-    connect(m_toolBar->m_actionColor_selectColorGrid,  SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
-
-    connect(m_toolBar-> m_actionRotation_rotateLeft,  SIGNAL(triggered(bool)), this, SLOT(slotRotateLeft()));
-    connect(m_toolBar-> m_actionRotation_rotateRight,  SIGNAL(triggered(bool)), this, SLOT(slotRotateRight()));
+    connect(m_toolBar->m_actionColor_selectColorGenes,
+            SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+    connect(m_toolBar->m_actionColor_selectColorGrid,
+            SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
 }
 
 void CellViewPage::resetActionStates()
 {
     // load gene model (need to be done first)
-    QSortFilterProxyModel* proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
-    GeneFeatureItemModel* geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
-    GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
+    QSortFilterProxyModel* proxyModel =
+            qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
+    GeneFeatureItemModel* geneModel =
+            qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
+    GeneSelectionItemModel* selectionModel =
+            qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
 
     // reset gene model data
     geneModel->loadGenes();
@@ -260,18 +277,23 @@ void CellViewPage::resetActionStates()
 
     // reset cell image to show
     m_image->setVisible(true);
+    m_image->setAnchor(Globals::DEFAULT_ANCHOR_IMAGE);
 
     // reset gene grid to not show
     m_grid->setVisible(false);
+    m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
 
     // reset gene plotter to visible
     m_gene_plotter->setVisible(true);
+    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
 
     // reset minimap to visible true
     m_minimap->setVisible(true);
+    m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
 
     // reset legend to visible true
     m_legend->setVisible(false);
+    m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
 
     // reset tool bar actions
     m_toolBar->resetActions();
@@ -304,43 +326,42 @@ void CellViewPage::initGLView()
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
-    m_image->setAnchor(GraphicItemGL::NorthWest);
+    m_image->setAnchor(Globals::DEFAULT_ANCHOR_IMAGE);
     m_view->addRenderingNode(m_image);
 
     // grid graphical object
     m_grid = new GridRendererGL(this);
-    m_grid->setAnchor(GraphicItemGL::NorthWest);
+    m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
     m_view->addRenderingNode(m_grid);
 
     // gene plotter component
     m_gene_plotter = new GeneRendererGL(this);
-    m_gene_plotter->setAnchor(GraphicItemGL::NorthWest);
+    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
     m_view->addRenderingNode(m_gene_plotter);
 
     // heatmap component
     m_legend = new HeatMapLegendGL(this);
-    m_legend->setAnchor(GraphicItemGL::NorthEast);
-    m_legend->setTransform(QTransform::fromTranslate(-10.0, 10.0));
+    m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
     m_view->addRenderingNode(m_legend);
 
     // minimap component
     m_minimap = new MiniMapGL(this);
-    m_minimap->setTransform(QTransform::fromTranslate(-10.0, -10.0));
-    m_minimap->setAnchor(GraphicItemGL::SouthEast);
+    m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap);
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
     connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
     connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
-    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setScenet(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
 }
 
 void CellViewPage::createGLConnections()
 {
     // gene model signals
-    QSortFilterProxyModel* proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
-    GeneFeatureItemModel* geneModel = qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
-    GeneSelectionItemModel* selectionModel = qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
+    QSortFilterProxyModel* proxyModel =
+            qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
+    GeneFeatureItemModel* geneModel =
+            qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
 
     //connect gene list model to gene plotter
     connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), m_gene_plotter,
@@ -350,12 +371,11 @@ void CellViewPage::createGLConnections()
     connect(ui->selectAllGenes, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(updateAllSelection(bool)));
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), m_gene_plotter, SLOT(updateAllColor(QColor)));
 
-
     //connect gene plotter to gene selection model
-    connect(m_gene_plotter, SIGNAL(featuresSelected(DataProxy::FeatureListPtr)), selectionModel,
-            SLOT(loadGenes(DataProxy::FeatureListPtr)), Qt::UniqueConnection);
+    connect(m_gene_plotter, SIGNAL(selectionUpdated()), this, SLOT(selectionUpdated()));
 
-    connect(ui->clearSelection, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(clearSelectionArea()) );
+    // selection actions
+    connect(ui->clearSelection, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(clearSelection()) );
 
     //threshold slider signal
     connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_gene_plotter, SLOT(setLowerLimit(int)));
@@ -383,8 +403,15 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));
     connect(m_toolBar, SIGNAL(brightnessValueChanged(qreal)), m_image, SLOT(setIntensity(qreal)));
 
-    // connect setvisible signals
-    connect(m_toolBar->m_actionShow_toggleHeatMap, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
+    // legend signals
+    connect(m_toolBar->m_actionShow_showLegend, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionGroup_toggleLegendPosition, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotSetLegendAnchor(QAction*)));
+
+    // minimap signals
+    connect(m_toolBar->m_actionShow_showMiniMap, SIGNAL(toggled(bool)), m_minimap, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionGroup_toggleMinimapPosition, SIGNAL(triggered(QAction*)), this,
+            SLOT(slotSetMiniMapAnchor(QAction*)));
 
     // connect threshold slider to the heatmap
     connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_legend, SLOT(setLowerLimit(int)));
@@ -518,10 +545,31 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
     QVariant variant = action->property("mode");
     if (variant.canConvert(QVariant::Int)) {
         Globals::GeneVisualMode mode = static_cast<Globals::GeneVisualMode>(variant.toInt());
-        m_legend->setVisible(mode == Globals::HeatMapMode);
         m_gene_plotter->setVisualMode(mode);
     } else {
         Q_ASSERT("[CellViewPage] Undefined gene visual mode!");
+    }
+}
+
+void CellViewPage::slotSetMiniMapAnchor(QAction *action)
+{
+    QVariant variant = action->property("mode");
+    if (variant.canConvert(QVariant::Int)) {
+        Globals::Anchor mode = static_cast<Globals::Anchor>(variant.toInt());
+        m_minimap->setAnchor(mode);
+    } else {
+        Q_ASSERT("[CellViewPage] Undefined anchor!");
+    }
+}
+
+void CellViewPage::slotSetLegendAnchor(QAction *action)
+{
+    QVariant variant = action->property("mode");
+    if (variant.canConvert(QVariant::Int)) {
+        Globals::Anchor mode = static_cast<Globals::Anchor>(variant.toInt());
+        m_legend->setAnchor(mode);
+    } else {
+        Q_ASSERT("[CellViewPage] Undefined anchor!");
     }
 }
 
@@ -549,4 +597,20 @@ void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(this);
     m_gene_plotter->selectGenes(geneList);
+}
+
+void CellViewPage::selectionUpdated()
+{
+    // gene model signals
+    GeneSelectionItemModel* selectionModel =
+            qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
+    DataProxy::FeatureListPtr features = m_gene_plotter->getSelectedFeatures();
+
+    DataProxy *dataProxy = DataProxy::getInstance();
+    DataProxy::DatasetStatisticsPtr statistics =
+            dataProxy->getStatistics(dataProxy->getSelectedDataset());
+    Q_ASSERT(statistics);
+
+    selectionModel->setHitCountLimits(statistics->min(), statistics->max());
+    selectionModel->loadGenes(features);
 }

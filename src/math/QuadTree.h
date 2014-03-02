@@ -39,8 +39,6 @@ public:
 
     explicit QuadTree(const QSizeF &size);
     explicit QuadTree(const QuadTreeAABB &boundingBox);
-    //explicit QuadTree(const QRectF &rect);
-    //explicit QuadTree(const QPointF &point);
 
     bool contains(const QPointF &p) const;
 
@@ -202,7 +200,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     if (quads[0] >= 0) {
         const QPointF middle_point = aabb.middle();
         const QVector2D middle_vector( p.x() - middle_point.x() ,  p.y() - middle_point.y() );
-        const unsigned idx = ((middle_vector.x() < 0.0f) ? 1u : 0u) + ((middle_vector.y() < 0.0f) ? 2u : 0u);
+        const unsigned idx = ((middle_vector.x() < 0.0) ? 1u : 0u) + ((middle_vector.y() < 0.0) ? 2u : 0u);
         const unsigned q = table[idx];
         return quads[q];
     }
@@ -270,23 +268,6 @@ QuadTree<T, N>::QuadTree(const QuadTreeAABB &boundingBox)
 {
     m_data.push_back(Bucket(boundingBox));
 }
-
-/*
-template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QRectF &rect)
-    : m_data()
-{
-    const QuadTreeAABB boundingBox = QuadTreeAABB(rect.topLeft(), rect.size());
-    m_data.push_back(Bucket(boundingBox));
-}
-
-template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QPointF &point)
-    : m_data()
-{
-    const QuadTreeAABB boundingBox = QuadTreeAABB(0.0f, 0.0f, point.x(), point.y());
-    m_data.push_back(Bucket(boundingBox));
-}*/
 
 template <typename T, int N>
 bool QuadTree<T, N>::insert(const QPointF &p, const T &t)
@@ -401,10 +382,11 @@ void QuadTree<T, N>::smash(const int idx)
     m_data.push_back(Bucket(m_data[idx].aabb.split(QuadTreeAABB::Q3))); // [*]
 
     // link parent (assumes allocation is sequential)
-    const typename Bucket::QuadArrayType newIdxList = { { newIdxHead + 0,
-                                                          newIdxHead + 1,
-                                                          newIdxHead + 2,
-                                                          newIdxHead + 3 } };
+    const typename Bucket::QuadArrayType newIdxList = { {
+                                                            newIdxHead + 0,
+                                                            newIdxHead + 1,
+                                                            newIdxHead + 2,
+                                                            newIdxHead + 3 } };
     std::copy(newIdxList.begin(), newIdxList.end(), m_data[idx].quads.begin());
 
     // reinsert data

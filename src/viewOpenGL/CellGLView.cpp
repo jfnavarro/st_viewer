@@ -8,6 +8,7 @@
 #include "CellGLView.h"
 
 #include "math/Common.h"
+#include "utils/Utils.h"
 
 #include <QGLPainter>
 #include <QArray>
@@ -20,8 +21,8 @@
 #include <QVector2DArray>
 #include <QRubberBand>
 
-static const qreal DEFAULT_ZOOM_MIN = 1.0f;
-static const qreal DEFAULT_ZOOM_MAX = 20.0f;
+static const QSizeF DEFAULT_ZOOM_MIN = QSizeF(1.0, 1.0);
+static const QSizeF DEFAULT_ZOOM_MAX = QSizeF(20.0, 20.0);
 static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
 static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
 static const qreal DELTA_PANNING = 3.0f;
@@ -41,6 +42,11 @@ CellGLView::CellGLView(QScreen *parent) :
     format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
+}
+
+void CellGLView::reset()
+{
+
 }
 
 CellGLView::~CellGLView()
@@ -74,9 +80,10 @@ void CellGLView::exposeEvent(QExposeEvent *event)
     if ( !m_initialized ) {
         initializeGL();
     }
-    if ( isExposed() ) {
-        paintGL();
-    }
+    // update zoom
+    setTransformZoom(m_zoom);
+    //paint
+    paintGL();
     m_context->swapBuffers(this); // this is important
 }
 
@@ -121,22 +128,21 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    // textures are being deallocated properly
-    //QGLTexture2D::processPendingResourceDeallocations();
+    QGLTexture2D::processPendingResourceDeallocations();
 
     QGLPainter painter;
     painter.begin();
 
     painter.setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QRectF viewport(m_viewport);
     QMatrix4x4 projm;
     projm.ortho(viewport);
     painter.projectionMatrix() = projm;
 
-    // update scene with transformation on the viewport
-    setScene(sceneTransformations().mapRect(m_viewport));
+    // send signal to minimap with new scene
+    //emit signalSceneUpdated(sceneTransformations().mapRect(m_scene));
 
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
@@ -164,7 +170,7 @@ void CellGLView::resizeGL(int width, int height)
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
-    qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    qreal zoomFactor = qPow(4.0 / 3.0, (-event->delta() / 240.0));
     setZoom(zoomFactor * m_zoom);
     event->ignore();
 }
@@ -188,13 +194,29 @@ void CellGLView::update()
     QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
 }
 
-void CellGLView::setZoom(qreal delta)
+void CellGLView::setZoom(const QSizeF& zoom)
 {
     //TODO check for min and max
-    if ( m_zoom != delta ) {
-        m_zoom = delta;
+    const QSizeF boundedZoom =
+            STMath::clamp(zoom,
+                          DEFAULT_ZOOM_MIN,
+                          DEFAULT_ZOOM_MAX,
+                          Qt::KeepAspectRatio);
+    if ( m_zoom != boundedZoom ) {
+        m_zoom = boundedZoom;
+        setTransformZoom(m_zoom);
         update();
     }
+}
+
+void CellGLView::setTransformZoom(const QSizeF& zoom)
+{
+    // derive current aspect ratio
+    const QSizeF view = m_viewport.size();
+    const QSizeF scene = sceneTransformations().mapRect(m_scene).size();
+    qreal z = qMax(view.width() / scene.width(), view.height() / scene.height());
+    m_scaleX = z * zoom.width() * m_scaleX;
+    m_scaleY = z * zoom.height() * m_scaleY;
 }
 
 void CellGLView::centerOn(const QPointF& point)
@@ -262,25 +284,26 @@ void CellGLView::zoomOut()
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::LeftButton ) {
-        // panning changes cursor to closed hand
-        setCursor(Qt::ClosedHandCursor);
         m_panning = true;
         m_originPanning = event->globalPos(); //panning needs globalPos
-        const QPointF point = event->localPos();
-
+        QPoint point = event->pos();
+        // notify nodes of the mouse event
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-            QMouseEvent newEvent(
-                        event->type(),
-                        localPoint,
-                        event->windowPos(),
-                        event->screenPos(),
-                        event->button(),
-                        event->buttons(),
-                        event->modifiers()
-                        );
-            if ( node->selectable() && node->contains(localPoint) ){
-                node->mousePressEvent(&newEvent);
+            if ( node->selectable() ) {
+                //TODO should also add scene transformation is node is transformable
+                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+                QMouseEvent newEvent(
+                            event->type(),
+                            localPoint,
+                            event->windowPos(),
+                            event->screenPos(),
+                            event->button(),
+                            event->buttons(),
+                            event->modifiers()
+                            );
+                if (  node->contains(localPoint) ) {
+                    node->mousePressEvent(&newEvent);
+                }
             }
         }
     }
@@ -299,27 +322,30 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
     if ( event->button() == Qt::LeftButton ) {
         unsetCursor();
         m_panning = false;
-        const QPointF point = event->localPos();
+        QPoint point = event->pos();
         // notify nodes of the mouse event
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-            QMouseEvent newEvent(
-                        event->type(),
-                        localPoint,
-                        event->windowPos(),
-                        event->screenPos(),
-                        event->button(),
-                        event->buttons(),
-                        event->modifiers()
-                        );
-            if ( node->selectable() && node->contains(localPoint) ) {
-                node->mouseReleaseEvent(&newEvent);
+            if ( node->selectable() ) {
+                //TODO should also add scene transformation is node is transformable
+                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+                QMouseEvent newEvent(
+                            event->type(),
+                            localPoint,
+                            event->windowPos(),
+                            event->screenPos(),
+                            event->button(),
+                            event->buttons(),
+                            event->modifiers()
+                            );
+                if (  node->contains(localPoint) ) {
+                    node->mouseReleaseEvent(&newEvent);
+                }
             }
         }
     }  else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
         unsetCursor();
-        const QPointF origin = m_originRubberBand;
-        const QPointF destiny = event->localPos();
+        const QPoint origin = m_originRubberBand;
+        QPoint destiny = event->pos();
         m_rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
@@ -332,15 +358,18 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
                 if ( node->transformable() ) {
                     node_trans *= sceneTransformations();
                 }
+                // map selected area to node cordinate system
                 QRectF transformed = node_trans.inverted().mapRect(m_rubberBandRect);
-
-                if ( node->boundingRect().contains(transformed) ) {
-                    // Set the new selection area
-                    SelectionEvent::SelectionMode mode =
-                            SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-                    SelectionEvent selectionEvent(transformed, mode);
-                    node->setSelectionArea(&selectionEvent);
+                // if selection area is not inside the bounding rect select empty rect
+                if ( !node->boundingRect().contains(transformed) ) {
+                    transformed = QRectF();
                 }
+                // Set the new selection area
+                SelectionEvent::SelectionMode mode =
+                        SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                SelectionEvent selectionEvent(transformed, mode);
+                // send selection event to node
+                node->setSelectionArea(&selectionEvent);
             }
         }
         // reset variables
@@ -355,7 +384,9 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if ( m_panning ) {
-        QPoint point = event->globalPos();
+        // panning changes cursor to closed hand
+        setCursor(Qt::ClosedHandCursor);
+        QPoint point = event->globalPos(); //panning needs global pos
         m_panx += (point.x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
         m_pany += (point.y() - m_originPanning.y()) * DELTA_MOUSE_PANNING;
         m_originPanning = point;
@@ -363,32 +394,34 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
     }
     if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
         // get rubberband
-        const QPointF origin = m_originRubberBand;
-        const QPointF destiny = event->localPos();
+        const QPoint origin = m_originRubberBand;
+        QPoint destiny = event->pos();
         m_rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
         //TODO paint rubberband
     }
     else if ( event->button() == Qt::LeftButton ) {
-        /*
-        QPointF point = event->localPos();
+        QPoint point = event->pos();
+        // notify nodes of the mouse event
         foreach(GraphicItemGL *node, m_nodes) {
-            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-            QMouseEvent newEvent(
-                event->type(),
-                localPoint,
-                event->windowPos(),
-                event->screenPos(),
-                event->button(),
-                event->buttons(),
-                event->modifiers()
-            );
-
-            if ( node->selectable() && node->contains(localPoint) ) {
-                node->mouseMoveEvent(&newEvent);
+            if ( node->selectable() ) {
+                //TODO should also add scene transformation is node is transformable
+                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+                QMouseEvent newEvent(
+                            event->type(),
+                            localPoint,
+                            event->windowPos(),
+                            event->screenPos(),
+                            event->button(),
+                            event->buttons(),
+                            event->modifiers()
+                            );
+                if (  node->contains(localPoint) ) {
+                    node->mouseMoveEvent(&newEvent);
+                }
             }
-        }*/
+        }
     }
     event->ignore();
 }
@@ -420,13 +453,13 @@ const QTransform CellGLView::sceneTransformations() const
     QTransform transform;
     if ( m_rotate != 0.0 ) {
         //TOFIX should rotate around its center
-        transform.rotate(m_rotate, Qt::XAxis);
+        transform.rotate(m_rotate, Qt::ZAxis);
     }
-    if ( m_panx != 0.0 && m_pany != 0.0 ) {
+    if ( m_panx != 0.0 || m_pany != 0.0 ) {
         transform.translate(m_panx, m_pany);
     }
-    if ( m_zoom != 1.0 ) {
-        transform.scale(m_zoom, m_zoom);
+    if ( m_scaleX != 1.0 || m_scaleY != 1.0 ) {
+        transform.scale(m_scaleX, m_scaleY);
     }
     return transform;
 }
@@ -435,36 +468,37 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 {
     const QSizeF viewSize = m_viewport.size();
     QTransform transform(Qt::Uninitialized);
-    const GraphicItemGL::Anchor anchor = node->anchor();
+    const Globals::Anchor anchor = node->anchor();
 
     switch (anchor)
     {
-    case GraphicItemGL::Center:
+    case Globals::Anchor::Center:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
         break;
-    case GraphicItemGL::North:
+    case Globals::Anchor::North:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
         break;
-    case GraphicItemGL::NorthEast:
+    case Globals::Anchor::NorthEast:
         transform = QTransform::fromTranslate(viewSize.width(), 0.0);
         break;
-    case GraphicItemGL::East:
+    case Globals::Anchor::East:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
         break;
-    case GraphicItemGL::SouthEast:
+    case Globals::Anchor::SouthEast:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
         break;
-    case GraphicItemGL::South:
+    case Globals::Anchor::South:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
         break;
-    case GraphicItemGL::SouthWest:
+    case Globals::Anchor::SouthWest:
         transform = QTransform::fromTranslate(0.0, viewSize.height());
         break;
-    case GraphicItemGL::West:
+    case Globals::Anchor::West:
         transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
         break;
-    case GraphicItemGL::NorthWest:
-        // fall-through
+    case Globals::Anchor::NorthWest:
+    case Globals::Anchor::None:
+        // fall trough
     default:
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;
@@ -474,5 +508,5 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
         transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
     }
 
-    return node->transform() * transform ;
+    return node->transform() * transform;
 }

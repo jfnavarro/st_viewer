@@ -78,12 +78,12 @@ void GraphicItemGL::setVisible(bool value)
     setVisualOption(VisualOption::Visible, value);
 }
 
-GraphicItemGL::Anchor GraphicItemGL::anchor() const
+Globals::Anchor GraphicItemGL::anchor() const
 {
     return m_anchor;
 }
 
-void GraphicItemGL::setAnchor(GraphicItemGL::Anchor anchor)
+void GraphicItemGL::setAnchor(Globals::Anchor anchor)
 {
     if ( m_anchor != anchor ) {
         m_anchor = anchor;
@@ -113,36 +113,42 @@ bool GraphicItemGL::contains(const QRectF& rect) const
 
 const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) const
 {
+    static const int padding_x = 20.0;
+    static const int padding_y = 20.0;
+
     const QRectF rect = boundingRect();
     QTransform adjustedTransform = transform;
     switch (m_anchor)
     {
-        case GraphicItemGL::Center:
+        case Globals::Anchor::Center:
             adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -0.5);
             break;
-        case GraphicItemGL::North:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0);
+        case Globals::Anchor::North:
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
             break;
-        case GraphicItemGL::NorthEast:
-            adjustedTransform.translate((rect.x() + rect.width() - 10) * -1.0, 0.0 - 10);
+        case Globals::Anchor::NorthEast:
+            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
             break;
-        case GraphicItemGL::East:
-            adjustedTransform.translate((rect.x() + rect.width()) * -1.0, (rect.y() + rect.height()) * -0.5);
+        case Globals::Anchor::East:
+            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, (rect.y() + rect.height()) * -0.5);
             break;
-        case GraphicItemGL::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width() -10) * -1.0, (rect.y() + rect.height() - 10) * -1.0);
+        case Globals::Anchor::SouthEast:
+            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, (rect.y() + rect.height() + padding_y) * -1.0);
             break;
-        case GraphicItemGL::South:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -1.0);
+        case Globals::Anchor::South:
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height() + padding_y) * -1.0);
             break;
-        case GraphicItemGL::SouthWest:
-            adjustedTransform.translate(0.0, (rect.y() + rect.height()) * -1.0);
+        case Globals::Anchor::SouthWest:
+            adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);
             break;
-        case GraphicItemGL::West:
-            adjustedTransform.translate(0.0, (rect.y() + rect.height()) * -0.5);
+        case Globals::Anchor::West:
+            adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height()) * -0.5);
             break;
-        case GraphicItemGL::NorthWest:
-            // fall-through
+        case Globals::Anchor::NorthWest:
+            adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
+            break;
+        case Globals::Anchor::None:
+            // fall trough
         default:
             break;
     }

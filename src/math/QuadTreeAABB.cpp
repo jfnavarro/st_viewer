@@ -1,10 +1,10 @@
 #include "QuadTreeAABB.h"
 
 QuadTreeAABB::QuadTreeAABB()
-    : x(0),
-      y(0),
-      width(0),
-      height(0)
+    : x(0.0),
+      y(0.0),
+      width(0.0),
+      height(0.0)
 {
 
 }
@@ -33,10 +33,10 @@ QuadTreeAABB::QuadTreeAABB(const QPointF &p, const QSizeF &size)
 }
 
 QuadTreeAABB::QuadTreeAABB(const QRectF &rect)
-    : x( rect.topLeft().x() ),
-      y( rect.topLeft().x() ),
-      width( rect.size().width() ),
-      height( rect.size().height() )
+    : x(rect.x()),
+      y(rect.y()),
+      width(rect.width()),
+      height(rect.height())
 {
 
 }
@@ -49,24 +49,23 @@ const QuadTreeAABB QuadTreeAABB::fromPoints(const QPointF &p0, const QPointF &p1
 
 const QRectF QuadTreeAABB::toRectangle(const QuadTreeAABB &b)
 {
-    const qreal hW = 0.5f * b.width;
-    const qreal hH = 0.5f * b.height;
-    return QRectF( QPointF(b.x + hW, b.y+ hH ),
-                   QPointF(b.width, b.height));
+    const qreal hW = 0.5 * b.width;
+    const qreal hH = 0.5 * b.height;
+    return QRectF(b.x + hW, b.y+ hH , b.width, b.height);
 }
 
 const QuadTreeAABB QuadTreeAABB::split(SplitHalf split) const
 {
     const qreal fW = width;
-    const qreal hW = 0.5f * width;
+    const qreal hW = 0.5 * width;
     const qreal fH = height;
-    const qreal hH = 0.5f * height;
+    const qreal hH = 0.5 * height;
 
     switch (split) {
-    case H0: return QuadTreeAABB(x + 0, y + 0, fW, hH); break;
-    case H1: return QuadTreeAABB(x + 0, y + hH, fW, hH); break;
-    case V0: return QuadTreeAABB(x + 0, y + 0, hW, fH); break;
-    case V1: return QuadTreeAABB(x + hW, y + 0, hW, fH); break;
+    case H0: return QuadTreeAABB(x + 0.0, y + 0.0, fW, hH); break;
+    case H1: return QuadTreeAABB(x + 0.0, y + hH, fW, hH); break;
+    case V0: return QuadTreeAABB(x + 0.0, y + 0.0, hW, fH); break;
+    case V1: return QuadTreeAABB(x + hW, y + 0.0, hW, fH); break;
     }
 
     return QuadTreeAABB();
@@ -74,14 +73,14 @@ const QuadTreeAABB QuadTreeAABB::split(SplitHalf split) const
 
 const QuadTreeAABB QuadTreeAABB::split(SplitQuad split) const
 {
-    const qreal hW = 0.5f * width;
-    const qreal hH = 0.5f * height;
+    const qreal hW = 0.5 * width;
+    const qreal hH = 0.5 * height;
 
     switch (split) {
     case Q0: return QuadTreeAABB(x + hW, y + hH, hW, hH); break;
-    case Q1: return QuadTreeAABB(x + 0, y + hH, hW, hH); break;
-    case Q2: return QuadTreeAABB(x + 0, y + 0, hW, hH); break;
-    case Q3: return QuadTreeAABB(x + hW, y + 0, hW, hH); break;
+    case Q1: return QuadTreeAABB(x + 0.0, y + hH, hW, hH); break;
+    case Q2: return QuadTreeAABB(x + 0.0, y + 0.0, hW, hH); break;
+    case Q3: return QuadTreeAABB(x + hW, y + 0.0, hW, hH); break;
     }
 
     return QuadTreeAABB();
@@ -94,7 +93,7 @@ const QPointF QuadTreeAABB::position() const
 
 const QPointF QuadTreeAABB::middle() const
 {
-    return QPointF(x + (0.5f * width), y + (0.5f * height));
+    return QPointF(x + (0.5 * width), y + (0.5 * height));
 }
 
 const QPointF QuadTreeAABB::end() const
@@ -109,8 +108,8 @@ const QPointF QuadTreeAABB::size() const
 
 bool QuadTreeAABB::contains(const QPointF &p) const
 {
-    return (p.x() >= y && p.x() <= y + height) && (p.y() >= y && p.y() <= y + height);
-    //const QRectF rectangle( QPointF(x,y) , QPointF(width, height) ) ;
+    return ( p.x() >= x && p.x() <= (x + width) ) && (p.y() >= y && p.y() <= (y + height) );
+    //const QRectF rectangle( x, y , width, height ) ;
     //return rectangle.contains(p);
 }
 
@@ -138,7 +137,7 @@ const QuadTreeAABB QuadTreeAABB::cut(const QuadTreeAABB &o) const
         const QPointF p1 = STMath::min(end(), o.end());
         return QuadTreeAABB::fromPoints(p0, p1);
     } else {
-        return QuadTreeAABB(0.0f, 0.0f, 0.0f, 0.0f);
+        return QuadTreeAABB(0.0, 0.0, 0.0, 0.0);
     }
 }
 

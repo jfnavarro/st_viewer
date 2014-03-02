@@ -20,8 +20,8 @@ static const int GENE_INTENSITY_MIN = 1;
 static const int GENE_INTENSITY_MAX = 10;
 static const int GENE_SIZE_MIN = 10;
 static const int GENE_SIZE_MAX = 30;
-static const int GENE_SHIMME_MIN = 1;
-static const int GENE_SHIMME_MAX = 10;
+static const int GENE_SHIMME_MIN = 10;
+static const int GENE_SHIMME_MAX = 50;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
 
@@ -34,7 +34,9 @@ void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget) {
     menu->addAction(widgetAction);
 }
 
-void addSliderToMenu(QWidget *parent, const QString &str, const QString &tooltipStr, QMenu *menu, QSlider **slider_ptr, int rangeMin, int rangeMax) {
+void addSliderToMenu(QWidget *parent, const QString &str,
+                     const QString &tooltipStr, QMenu *menu,
+                     QSlider **slider_ptr, int rangeMin, int rangeMax) {
     Q_ASSERT(parent != nullptr);
     Q_ASSERT(slider_ptr != nullptr);
     Q_ASSERT(*slider_ptr == nullptr);
@@ -147,16 +149,32 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_cellTissue = new QMenu(this);
     m_menu_cellTissue->setTitle(tr("Cell Tissue"));
 
-    addSliderToMenu(this,
-                    tr("Brightness:"), 
-                    tr("Brightness"),
-                    m_menu_cellTissue,
-                    &m_geneBrightnessSlider,
-                    BRIGHTNESS_MIN,
-                    BRIGHTNESS_MAX);
+    m_menu_cellTissue->addAction(m_actionShow_showMiniMap);
+    m_menu_cellTissue->addAction(m_actionShow_showLegend);
+
+    m_menu_cellTissue->addSeparator()->setText(tr("Legend Position"));
+    m_actionGroup_toggleLegendPosition = new QActionGroup(m_menu_cellTissue);
+    m_actionGroup_toggleLegendPosition->setExclusive(true);
+    m_actionGroup_toggleLegendPosition->addAction(m_action_toggleLegendTopRight);
+    m_actionGroup_toggleLegendPosition->addAction(m_action_toggleLegendTopLeft);
+    m_actionGroup_toggleLegendPosition->addAction(m_action_toggleLegendDownRight);
+    m_actionGroup_toggleLegendPosition->addAction(m_action_toggleLegendDownLeft);
+    m_menu_cellTissue->addActions(m_actionGroup_toggleLegendPosition->actions());
+    m_menu_cellTissue->addSeparator();
+
+    m_menu_cellTissue->addSeparator()->setText(tr("Minimap Position"));
+    m_actionGroup_toggleMinimapPosition = new QActionGroup(m_menu_cellTissue);
+    m_actionGroup_toggleMinimapPosition->setExclusive(true);
+    m_actionGroup_toggleMinimapPosition->addAction(m_action_toggleMinimapTopRight);
+    m_actionGroup_toggleMinimapPosition->addAction(m_action_toggleMinimapTopLeft);
+    m_actionGroup_toggleMinimapPosition->addAction(m_action_toggleMinimapDownRight);
+    m_actionGroup_toggleMinimapPosition->addAction(m_action_toggleMinimapDownLeft);
+    m_menu_cellTissue->addActions(m_actionGroup_toggleMinimapPosition->actions());
+    m_menu_cellTissue->addSeparator();
 
     m_menu_cellTissue->addAction(m_actionRotation_rotateLeft);
     m_menu_cellTissue->addAction(m_actionRotation_rotateRight);
+    m_menu_cellTissue->addSeparator();
 
     m_actionGroup_cellTissue = new QActionGroup(m_menu_cellTissue);
     m_actionGroup_cellTissue->setExclusive(true);
@@ -164,6 +182,18 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_actionGroup_cellTissue->addAction(m_actionShow_cellTissueRed);
     m_menu_cellTissue->addActions(m_actionGroup_cellTissue->actions());
     m_menu_cellTissue->addAction(m_actionShow_showCellTissue);
+
+    m_menu_cellTissue->addSeparator();
+
+    addSliderToMenu(this,
+                    tr("Brightness:"),
+                    tr("Brightness"),
+                    m_menu_cellTissue,
+                    &m_geneBrightnessSlider,
+                    BRIGHTNESS_MIN,
+                    BRIGHTNESS_MAX);
+
+
     QToolButton* toolButtonCell = new QToolButton();
     toolButtonCell->setMenu(m_menu_cellTissue);
     toolButtonCell->setPopupMode(QToolButton::InstantPopup);
@@ -211,6 +241,21 @@ void CellViewPageToolBar::resetActions()
     Q_ASSERT(m_geneShapeComboBox);
     m_geneShapeComboBox->setCurrentIndex(Globals::GeneShape::Circle);
 
+    // anchor signals
+    m_action_toggleLegendTopRight->setChecked(true);
+    m_action_toggleLegendTopLeft->setChecked(false);
+    m_action_toggleLegendDownRight->setChecked(false);
+    m_action_toggleLegendDownLeft->setChecked(false);
+
+    m_action_toggleMinimapTopRight->setChecked(false);
+    m_action_toggleMinimapTopLeft->setChecked(false);
+    m_action_toggleMinimapDownRight->setChecked(true);
+    m_action_toggleMinimapDownLeft->setChecked(false);
+
+    //show legend and minimap
+    m_actionShow_showLegend->setChecked(false);
+    m_actionShow_showMiniMap->setChecked(true);
+
     // gene threshold
     resetTresholdActions(Globals::GENE_THRESHOLD_MIN, Globals::GENE_THRESHOLD_MAX);
 }
@@ -249,6 +294,42 @@ void CellViewPageToolBar::createActions()
     m_actionShow_toggleHeatMap = new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
     m_actionShow_toggleHeatMap->setCheckable(true);
     m_actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
+
+    // legend position
+    m_action_toggleLegendTopRight = new QAction(QIcon(), tr("Legend North East"), this);
+    m_action_toggleLegendTopRight->setCheckable(true);
+    m_action_toggleLegendTopRight->setProperty("mode", Globals::Anchor::NorthEast);
+    m_action_toggleLegendTopLeft = new QAction(QIcon(), tr("Legend North West"), this);
+    m_action_toggleLegendTopLeft->setCheckable(true);
+    m_action_toggleLegendTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
+    m_action_toggleLegendDownRight = new QAction(QIcon(), tr("Legend South East"), this);
+    m_action_toggleLegendDownRight->setCheckable(true);
+    m_action_toggleLegendDownRight->setProperty("mode", Globals::Anchor::SouthEast);
+    m_action_toggleLegendDownLeft= new QAction(QIcon(), tr("Legend South West"), this);
+    m_action_toggleLegendDownLeft->setCheckable(true);
+    m_action_toggleLegendDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
+
+    // show legend
+    m_actionShow_showLegend = new QAction(QIcon(), tr("Show Legend"), this);
+    m_actionShow_showLegend->setCheckable(true);
+
+    // minimap position
+    m_action_toggleMinimapTopRight = new QAction(QIcon(), tr("Minimap North East"), this);
+    m_action_toggleMinimapTopRight->setCheckable(true);
+    m_action_toggleMinimapTopRight->setProperty("mode", Globals::Anchor::NorthEast);
+    m_action_toggleMinimapTopLeft = new QAction(QIcon(), tr("Minimap North West"), this);
+    m_action_toggleMinimapTopLeft->setCheckable(true);
+    m_action_toggleMinimapTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
+    m_action_toggleMinimapDownRight = new QAction(QIcon(), tr("Minimap South East"), this);
+    m_action_toggleMinimapDownRight->setCheckable(true);
+    m_action_toggleMinimapDownRight->setProperty("mode", Globals::Anchor::SouthEast);
+    m_action_toggleMinimapDownLeft= new QAction(QIcon(), tr("Minimap South West"), this);
+    m_action_toggleMinimapDownLeft->setCheckable(true);
+    m_action_toggleMinimapDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
+
+    // show minimap
+    m_actionShow_showMiniMap = new QAction(QIcon(), tr("Show MiniMap"), this);
+    m_actionShow_showMiniMap->setCheckable(true);
 
      //save print
     m_actionSave_save = new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
