@@ -431,8 +431,9 @@ void GeneRendererGL::updateVisual()
             QColor4ub color = m_geneData.quadColor(index);
             color = STMath::lerp((1.0f / qreal(newRefCount)), color, featureColor);
             m_geneData.updateQuadColor(index, color);
-            m_geneData.updateQuadVisible(index, true);
-        } else {
+            //m_geneData.updateQuadVisible(index, true);
+        }
+        if (newRefCount <= 0) {
             m_geneData.updateQuadVisible(index, false);
         }
     }
