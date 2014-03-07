@@ -42,6 +42,7 @@ CellGLView::CellGLView(QScreen *parent) :
     format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
+    create();
 }
 
 void CellGLView::reset()
