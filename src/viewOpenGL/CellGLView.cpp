@@ -21,12 +21,12 @@
 #include <QVector2DArray>
 #include <QRubberBand>
 
-static const QSizeF DEFAULT_ZOOM_MIN = QSizeF(1.0, 1.0);
-static const QSizeF DEFAULT_ZOOM_MAX = QSizeF(20.0, 20.0);
-static const qreal DEFAULT_ZOOM_IN  = qreal(1.1 / 1.0);
-static const qreal DEFAULT_ZOOM_OUT = qreal(1.0 / 1.1);
-static const qreal DELTA_PANNING = 3.0f;
-static const qreal DELTA_MOUSE_PANNING = 1.0f;
+static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
+static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0f;
+
+//static const qreal DELTA_MOUSE_PANNING = 1.0f;
+
+static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 5;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
@@ -82,7 +82,7 @@ void CellGLView::exposeEvent(QExposeEvent *event)
         initializeGL();
     }
     // update zoom
-    setTransformZoom(m_zoom);
+    //    setTransformZoom(m_zoom);
     //paint
     paintGL();
     m_context->swapBuffers(this); // this is important
@@ -167,12 +167,16 @@ void CellGLView::resizeGL(int width, int height)
     const qreal pixelRatio = devicePixelRatio();
     glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
     setViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
+    if (m_scene.isValid()) {
+        m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
+        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
+    }
 }
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
-    qreal zoomFactor = qPow(4.0 / 3.0, (-event->delta() / 240.0));
-    setZoom(zoomFactor * m_zoom);
+    qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    setZoomFactorAndUpdate(zoomFactor *m_zoom_factor);
     event->ignore();
 }
 
@@ -195,38 +199,26 @@ void CellGLView::update()
     QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
 }
 
-void CellGLView::setZoom(const QSizeF& zoom)
-{
-    //TODO check for min and max
-    const QSizeF boundedZoom =
-            STMath::clamp(zoom,
-                          DEFAULT_ZOOM_MIN,
-                          DEFAULT_ZOOM_MAX,
-                          Qt::KeepAspectRatio);
-    if ( m_zoom != boundedZoom ) {
-        m_zoom = boundedZoom;
-        setTransformZoom(m_zoom);
-        update();
-    }
+qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const {
+    Q_ASSERT(minZoom() < maxZoom());
+    return qMin(qMax(minZoom(), zoom), maxZoom());
 }
 
-void CellGLView::setTransformZoom(const QSizeF& zoom)
-{
-    // derive current aspect ratio
-    const QSizeF view = m_viewport.size();
-    const QSizeF scene = sceneTransformations().mapRect(m_scene).size();
-    qreal z = qMax(view.width() / scene.width(), view.height() / scene.height());
-    m_scaleX = z * zoom.width() * m_scaleX;
-    m_scaleY = z * zoom.height() * m_scaleY;
+void CellGLView::setZoomFactorAndUpdate(qreal zoom) {
+    qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
+    if (m_zoom_factor != new_zoom_factor) {
+        m_zoom_factor = new_zoom_factor;
+
+        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
+        update();
+    }
 }
 
 void CellGLView::centerOn(const QPointF& point)
 {
     //TODO check and validate this
     qDebug() << "CellGLView : center on " << point;
-    //m_panx += point.x();
-    //m_pany -= -point.y();
-    update();
+    setSceneFocusCenterPointWithClamping(sceneTransformations().map(point));
 }
 
 void CellGLView::rotate(qreal angle)
@@ -237,7 +229,7 @@ void CellGLView::rotate(qreal angle)
         update();
     }
 }
-
+  
 void CellGLView::setViewPort(QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
@@ -250,9 +242,42 @@ void CellGLView::setScene(QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
-        //emit signalSceneUpdated(m_scene);
+	m_scene_focus_center_point = m_scene.center();
+        m_zoom_factor = minZoom();
+        Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
+	//	emit signalSceneUpdated(m_scene);
     }
 }
+
+qreal CellGLView::minZoom() const
+{
+    Q_ASSERT(m_scene.isValid());
+    Q_ASSERT(m_viewport.isValid());
+    Q_ASSERT(!m_scene.isNull());
+    Q_ASSERT(!m_viewport.isNull());
+    qreal min_zoom_height = m_viewport.height()/m_scene.height();
+    qreal min_zoom_width = m_viewport.width()/m_scene.width();
+    return qMax(min_zoom_height, min_zoom_width);
+}
+
+qreal CellGLView::maxZoom() const
+{
+    Q_ASSERT(m_scene.isValid());
+    Q_ASSERT(m_viewport.isValid());
+    Q_ASSERT(!m_scene.isNull());
+    Q_ASSERT(!m_viewport.isNull());
+
+    // Maybe we could come up with a way to calculate the
+    // MAX_ZOOM_DIVIDE_FACTOR
+    // Right now it is just an arbitrarily chosen number constant
+    // that seems to be suited to zoom up til the resolution
+    // of a few gitter boxes.
+
+    qreal max_zoom_height = m_viewport.height()/MAX_ZOOM_DIVIDE_FACTOR;
+    qreal max_zoom_width = m_viewport.width()/MAX_ZOOM_DIVIDE_FACTOR;
+    return qMin(max_zoom_height, max_zoom_width);
+}
+
 
 const QImage CellGLView::grabPixmapGL() const
 {
@@ -274,12 +299,12 @@ const QImage CellGLView::grabPixmapGL() const
 
 void CellGLView::zoomIn()
 {
-    setZoom(m_zoom * DEFAULT_ZOOM_IN);
+    setZoomFactorAndUpdate(m_zoom_factor * (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT)/100.0);
 }
 
 void CellGLView::zoomOut()
 {
-    setZoom(m_zoom * DEFAULT_ZOOM_OUT);
+    setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT)/100.0);
 }
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
@@ -292,7 +317,8 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         foreach(GraphicItemGL *node, m_nodes) {
             if ( node->selectable() ) {
                 //TODO should also add scene transformation is node is transformable
-                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+	        const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+                //const QPointF localPoint = point;
                 QMouseEvent newEvent(
                             event->type(),
                             localPoint,
@@ -382,16 +408,42 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
     event->ignore();
 }
 
+void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
+{
+    QRectF allowed_center_points_rect(0,
+                                      0,
+                                      m_scene.width() - m_viewport.width()/m_zoom_factor,
+                                      m_scene.height() - m_viewport.height()/m_zoom_factor);
+
+    // This is another approach that is commented out where the whole image of the cell tissue will be displayed at startup
+    // although the height / width proportions of the application window might very big or very small:
+    //   qreal factor = 1 - (minZoom() / m_zoom_factor);
+    //   QRectF allowed_center_points_rect(0, 0, m_scene.width() * factor, m_scene.height() * factor);
+
+    allowed_center_points_rect.moveCenter(m_scene.center());
+
+    QPointF clamped_point = center_point;
+    clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
+    clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
+    clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
+    clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
+
+    if ( clamped_point != m_scene_focus_center_point) {
+        m_scene_focus_center_point = clamped_point;
+        update();
+    }
+}
+
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if ( m_panning ) {
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
         QPoint point = event->globalPos(); //panning needs global pos
-        m_panx += (point.x() - m_originPanning.x()) * DELTA_MOUSE_PANNING;
-        m_pany += (point.y() - m_originPanning.y()) * DELTA_MOUSE_PANNING;
+        QPoint pan_adjustment = (point - m_originPanning) / m_zoom_factor;
+        setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
+
         m_originPanning = point;
-        update();
     }
     if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
         // get rubberband
@@ -429,40 +481,42 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
 
 void CellGLView::keyPressEvent(QKeyEvent *event)
 {
+    qreal shortest_side_length = qMin(m_viewport.width(),m_viewport.height()); 
+    qreal delta_panning_key =  shortest_side_length / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+
+    QPointF pan_adjustment(0,0);  
     switch(event->key()) {
     case Qt::Key_Right:
-        m_panx += DELTA_PANNING;
+        pan_adjustment = QPoint(delta_panning_key, 0);
         break;
     case Qt::Key_Left:
-        m_panx -= DELTA_PANNING;
+        pan_adjustment = QPoint(-delta_panning_key, 0);
         break;
     case Qt::Key_Up:
-        m_pany -= DELTA_PANNING;
+        pan_adjustment = QPoint(0, -delta_panning_key);
         break;
     case Qt::Key_Down:
-        m_pany += DELTA_PANNING;
+        pan_adjustment = QPoint(0, delta_panning_key);
         break;
     default:
         break;
     }
-    update();
+    setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
     event->ignore();
 }
 
 const QTransform CellGLView::sceneTransformations() const
 {
     QTransform transform;
+    QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
+    transform.translate(point.x(), point.y());
+    transform.scale(1/m_zoom_factor, 1/m_zoom_factor);
+    transform.translate(-m_viewport.width()/2.0, -m_viewport.height()/2.0);
     if ( m_rotate != 0.0 ) {
         //TOFIX should rotate around its center
         transform.rotate(m_rotate, Qt::ZAxis);
     }
-    if ( m_panx != 0.0 || m_pany != 0.0 ) {
-        transform.translate(m_panx, m_pany);
-    }
-    if ( m_scaleX != 1.0 || m_scaleY != 1.0 ) {
-        transform.scale(m_scaleX, m_scaleY);
-    }
-    return transform;
+    return transform.inverted();
 }
 
 const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
@@ -510,4 +564,5 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
     }
 
     return node->transform() * transform;
+
 }

@@ -51,7 +51,6 @@ public slots:
     void rotate(qreal angle);
 
     void update();
-
     void setViewPort(QRectF viewport);
     void setScene(QRectF scene);
 
@@ -72,7 +71,7 @@ protected:
     void exposeEvent(QExposeEvent *eevent);
     void resizeEvent(QResizeEvent * event);
 
-    void setZoom(const QSizeF &zoom);
+    void setZoomFactorAndUpdate(qreal zoom);
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
     const QTransform sceneTransformations() const;
@@ -83,8 +82,10 @@ signals:
     void signalSceneUpdated(QRectF);
 
 private:
-
-    void setTransformZoom(const QSizeF& zoom);
+    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
+    qreal clampZoomFactorToAllowedRange(qreal zoom) const;
+    qreal minZoom() const;
+    qreal maxZoom() const;
 
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
@@ -105,11 +106,10 @@ private:
     bool m_rubberBanding = false;
     QRect m_rubberBandRect;
     qreal m_rotate = 0.0;
-    QSizeF m_zoom = QSizeF(1.0, 1.0);
-    qreal m_scaleX = 1.0;
-    qreal m_scaleY = 1.0;
-    qreal m_panx = 0.0;
-    qreal m_pany = 0.0;
+    QPointF m_scene_focus_center_point;
+    // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later
+    // we set the value here. This value should never be used though.
+    qreal m_zoom_factor = 1.0; 
 };
 
 #endif // CELLGLVIEW_H
