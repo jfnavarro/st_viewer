@@ -26,7 +26,7 @@ static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0f;
 
 //static const qreal DELTA_MOUSE_PANNING = 1.0f;
 
-static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 5;
+static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
