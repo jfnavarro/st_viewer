@@ -6,7 +6,7 @@
 */
 
 #ifndef QUADTREEAABB_H
-#define QUADTREEAABB_H_H
+#define QUADTREEAABB_H
 
 #include "Common.h"
 

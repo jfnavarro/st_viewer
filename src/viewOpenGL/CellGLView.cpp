@@ -23,9 +23,7 @@
 
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0f;
-
 //static const qreal DELTA_MOUSE_PANNING = 1.0f;
-
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 
 CellGLView::CellGLView(QScreen *parent) :
@@ -205,10 +203,9 @@ qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const {
 }
 
 void CellGLView::setZoomFactorAndUpdate(qreal zoom) {
-    qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
+    const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
-
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         update();
     }
@@ -216,8 +213,6 @@ void CellGLView::setZoomFactorAndUpdate(qreal zoom) {
 
 void CellGLView::centerOn(const QPointF& point)
 {
-    //TODO check and validate this
-    qDebug() << "CellGLView : center on " << point;
     setSceneFocusCenterPointWithClamping(sceneTransformations().map(point));
 }
 
@@ -273,11 +268,10 @@ qreal CellGLView::maxZoom() const
     // that seems to be suited to zoom up til the resolution
     // of a few gitter boxes.
 
-    qreal max_zoom_height = m_viewport.height()/MAX_ZOOM_DIVIDE_FACTOR;
-    qreal max_zoom_width = m_viewport.width()/MAX_ZOOM_DIVIDE_FACTOR;
+    const qreal max_zoom_height = m_viewport.height( ) /MAX_ZOOM_DIVIDE_FACTOR;
+    const qreal max_zoom_width = m_viewport.width( ) /MAX_ZOOM_DIVIDE_FACTOR;
     return qMin(max_zoom_height, max_zoom_width);
 }
-
 
 const QImage CellGLView::grabPixmapGL() const
 {
@@ -299,12 +293,12 @@ const QImage CellGLView::grabPixmapGL() const
 
 void CellGLView::zoomIn()
 {
-    setZoomFactorAndUpdate(m_zoom_factor * (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT)/100.0);
+    setZoomFactorAndUpdate(m_zoom_factor * (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
 void CellGLView::zoomOut()
 {
-    setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT)/100.0);
+    setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
@@ -412,16 +406,13 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_poin
 {
     QRectF allowed_center_points_rect(0,
                                       0,
-                                      m_scene.width() - m_viewport.width()/m_zoom_factor,
-                                      m_scene.height() - m_viewport.height()/m_zoom_factor);
-
+                                      m_scene.width() - m_viewport.width() / m_zoom_factor,
+                                      m_scene.height() - m_viewport.height() / m_zoom_factor);
     // This is another approach that is commented out where the whole image of the cell tissue will be displayed at startup
     // although the height / width proportions of the application window might very big or very small:
     //   qreal factor = 1 - (minZoom() / m_zoom_factor);
     //   QRectF allowed_center_points_rect(0, 0, m_scene.width() * factor, m_scene.height() * factor);
-
     allowed_center_points_rect.moveCenter(m_scene.center());
-
     QPointF clamped_point = center_point;
     clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
     clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
@@ -558,11 +549,8 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;
     }
-
     if ( node->invertedX() || node->invertedY() ) {
         transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
     }
-
     return node->transform() * transform;
-
 }
