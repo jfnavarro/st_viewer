@@ -90,8 +90,6 @@ void CellGLView::exposeEvent(QExposeEvent *event)
     if ( !m_initialized ) {
         initializeGL();
     }
-    // update zoom
-    //    setTransformZoom(m_zoom);
     //paint
     paintGL();
     m_context->swapBuffers(this); // this is important
@@ -247,7 +245,7 @@ void CellGLView::setScene(QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
-	m_scene_focus_center_point = m_scene.center();
+        m_scene_focus_center_point = m_scene.center();
         m_zoom_factor = minZoom();
         Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
 	//	emit signalSceneUpdated(m_scene);
@@ -321,7 +319,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         foreach(GraphicItemGL *node, m_nodes) {
             if ( node->selectable() ) {
                 //TODO should also add scene transformation is node is transformable
-	        const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
                 //const QPointF localPoint = point;
                 QMouseEvent newEvent(
                             event->type(),
@@ -511,8 +509,8 @@ const QTransform CellGLView::sceneTransformations() const
     QTransform transform;
     QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
-    transform.scale(1/m_zoom_factor, 1/m_zoom_factor);
-    transform.translate(-m_viewport.width()/2.0, -m_viewport.height()/2.0);
+    transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
+    transform.translate(-m_viewport.width() / 2.0,  -m_viewport.height() / 2.0);
     if ( m_rotate != 0.0 ) {
         //TOFIX should rotate around its center
         transform.rotate(m_rotate, Qt::ZAxis);
