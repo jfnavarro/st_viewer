@@ -50,6 +50,17 @@ void CellGLView::reset()
 
 }
 
+QRectF CellGLView::scene() const
+{
+    return m_scene;
+}
+
+QRectF CellGLView::viewPort() const
+{
+    return m_viewport;
+}
+
+
 CellGLView::~CellGLView()
 {
     //NOTE View does not own rendering nodes nor texture
@@ -218,7 +229,8 @@ void CellGLView::centerOn(const QPointF& point)
 {
     //TODO check and validate this
     qDebug() << "CellGLView : center on " << point;
-    setSceneFocusCenterPointWithClamping(sceneTransformations().map(point));
+    //    setSceneFocusCenterPointWithClamping(sceneTransformations().map(point));
+    setSceneFocusCenterPointWithClamping(point);
 }
 
 void CellGLView::rotate(qreal angle)
