@@ -40,6 +40,9 @@ public:
     const QImage grabPixmapGL() const;
 
     void reset();
+    QRectF scene() const;
+    QRectF viewPort() const;
+    const QTransform sceneTransformations() const;
 
 public slots:
 
@@ -74,7 +77,7 @@ protected:
     void setZoomFactorAndUpdate(qreal zoom);
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
-    const QTransform sceneTransformations() const;
+
 
 signals:
 
