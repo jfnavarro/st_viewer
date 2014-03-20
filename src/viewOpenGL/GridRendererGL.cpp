@@ -14,7 +14,7 @@
 #include <QVector2DArray>
 
 static const qreal GRID_LINE_SIZE = 1.0f;
-static const qreal GRID_LINE_SPACE = 5.0f;
+//static const qreal GRID_LINE_SPACE = 5.0f;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 
 GridRendererGL::GridRendererGL(QObject *parent)
