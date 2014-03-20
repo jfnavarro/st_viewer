@@ -17,6 +17,7 @@ class QRectF;
 class QColor;
 class QEvent;
 class QMouseEvent;
+class CellGLView;
 
 // MiniMap is an view port GUI item that visualizes the view ports current
 // "image" in relation to the scene. Ie. it shows where in the scene the
@@ -27,7 +28,7 @@ class MiniMapGL : public GraphicItemGL
 
 public:
 
-    explicit MiniMapGL(QObject* parent = 0);
+    explicit MiniMapGL(CellGLView *cell_gl_view);
     virtual ~MiniMapGL();
 
     const QColor& sceneColor() const;    
@@ -44,9 +45,6 @@ public slots:
     void setViewColor(const QColor& viewColor);
     void setSceneColor(const QColor& sceneColor);
 
-    void setScene(const QRectF& scene);
-    void setViewPort(const QRectF& view);
-
 protected:
 
     void draw(QGLPainter *painter);
@@ -61,14 +59,13 @@ signals:
 
 private:
 
+    const CellGLView *m_cell_gl_view;
     // internal functions
-    void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
-    const QPointF mapToScene(const QPointF& point) const;
-    void updateTransform(const QRectF& scene);
+    QTransform localTransform() const;
+    static void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
+    void centerOnLocalPos(const QPointF &localPoint);
 
     // mini versions
-    QRectF m_scene;
-    QRectF m_view;
     QColor m_sceneColor;
     QColor m_viewColor;
 

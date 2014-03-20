@@ -178,7 +178,6 @@ void CellGLView::resizeGL(int width, int height)
     setViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
-        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
     }
 }
 
