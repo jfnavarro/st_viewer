@@ -345,12 +345,14 @@ void CellViewPage::initGLView()
     m_view->addRenderingNode(m_legend);
 
     // minimap component
-    m_minimap = new MiniMapGL(m_view);
+    m_minimap = new MiniMapGL(this);
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap);
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
     connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
 }
 
 void CellViewPage::createGLConnections()

@@ -12,16 +12,15 @@
 #include <QEvent>
 #include <QMouseEvent>
 
-#include "CellGLView.h"
-
 static const QColor minimap_view_color = Qt::blue;
 static const QColor minimap_scene_color = Qt::red;
 static const qreal minimap_height = 100.0;
 static const qreal minimap_width = 100.0;
 
-MiniMapGL::MiniMapGL(CellGLView *cell_gl_view)
-    : GraphicItemGL(cell_gl_view), 
-      m_cell_gl_view(cell_gl_view),
+MiniMapGL::MiniMapGL(QObject* parent)
+    : GraphicItemGL(parent),
+      m_scene(0.0, 0.0, minimap_height, minimap_width),
+      m_view(0.0, 0.0, minimap_height, minimap_width),
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color)
 {
@@ -36,6 +35,58 @@ MiniMapGL::MiniMapGL(CellGLView *cell_gl_view)
 MiniMapGL::~MiniMapGL()
 {
 
+}
+
+void MiniMapGL::setScene(const QRectF& scene)
+{
+    // early out
+    if ( !scene.isValid() ) {
+        return;
+    }
+
+    QRectF m_bounds(0.0, 0.0, minimap_height, minimap_width);
+    QRectF scaled = QRectF(m_bounds.topLeft(),
+                           scene.size().scaled(m_bounds.size(), Qt::KeepAspectRatio));
+
+    if ( m_scene != scaled ) {
+        m_scene = scaled;
+        updateTransform(scene);
+        //emit updated();
+    }
+}
+
+void MiniMapGL::setViewPort(const QRectF& view)
+{
+    // early out
+    if ( !view.isValid() ) {
+        return;
+    }
+
+    const QRectF transformed = m_transform.mapRect(view);
+    if ( m_view != transformed ) {
+        m_view = transformed;
+        //emit updated();
+    }
+}
+
+void MiniMapGL::updateTransform(const QRectF& scene)
+{
+    // early out
+    if ( !m_scene.isValid() || !scene.isValid() ) {
+        // set to identity matrix
+        m_transform = QTransform();
+        return;
+    }
+
+    const QPointF s1 = QPointF(scene.width(), scene.height());
+    const QPointF s2 = QPointF(m_scene.width(), m_scene.height());
+
+    const qreal s11 = (s2.x() / s1.x());
+    const qreal s22 = (s2.y() / s1.y());
+
+    m_transform =
+        QTransform::fromTranslate(-scene.x(), -scene.y()) // align
+        * QTransform(s11, 0.0, 0.0, s22, 0.0, 0.0);   // scale
 }
 
 void MiniMapGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
@@ -65,28 +116,15 @@ void MiniMapGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *pai
     painter->draw(QGL::LineLoop, vertices.size());
 }
 
-QTransform MiniMapGL::localTransform() const
-{
-  const QRectF scene = m_cell_gl_view->scene();
-  const QSizeF bounding_size(minimap_height, minimap_width);
-  const QSizeF scene_scaled_size = scene.size().scaled(bounding_size, Qt::KeepAspectRatio );
-  const qreal scale_factor = scene_scaled_size.height() / scene.height();
-  QTransform transform;
-  transform.scale(scale_factor, scale_factor);
-  const QPointF top_left = transform.mapRect(scene).topLeft();
-  transform.translate(top_left.x(), top_left.y());
-  return transform;
-}
-
 void MiniMapGL::draw(QGLPainter *painter)
 {
-    const QRectF scene = m_cell_gl_view->scene();
-    const QRectF viewPort = m_cell_gl_view->viewPort();
-    const QRectF viewPort_in_scene_coordinates = m_cell_gl_view->sceneTransformations().inverted().mapRect(viewPort);
- 
-    if (scene.isValid() && viewPort.isValid()) {
-        drawBorderRect(localTransform().mapRect(scene), m_sceneColor, painter);
-        drawBorderRect(localTransform().mapRect(viewPort_in_scene_coordinates), m_viewColor, painter);
+    // draw scene rectangle
+    if (m_scene.isValid()) {
+        drawBorderRect(m_scene, m_sceneColor, painter);
+    }
+    // draw view rectangle
+    if (m_view.isValid()) {
+        drawBorderRect(m_view, m_viewColor, painter);
     }
 }
 
@@ -119,7 +157,7 @@ const QColor& MiniMapGL::viewColor() const
 
 const QRectF MiniMapGL::boundingRect() const
 {
-    return localTransform().mapRect(m_cell_gl_view->scene());
+    return m_scene;
 }
 
 void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
@@ -130,17 +168,20 @@ void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
     }
     // move
     if ( m_selecting ) {
-        centerOnLocalPos(event->localPos());
+        const QPointF localPoint = event->localPos();
+        const QPointF scenePoint = mapToScene(localPoint);
+        emit signalCenterOn(scenePoint);
     }
 }
 
 void MiniMapGL::mousePressEvent(QMouseEvent* event)
 {
     // center if left button is pressed down
-
     if ( event->buttons().testFlag(Qt::LeftButton) ) {
         m_selecting = true;
-        centerOnLocalPos(event->localPos());
+        const QPointF localPoint = event->localPos();
+        const QPointF scenePoint = mapToScene(localPoint);
+        emit signalCenterOn(scenePoint);
     }
 }
 
@@ -152,8 +193,7 @@ void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
     }
 }
 
-void MiniMapGL::centerOnLocalPos(const QPointF &localPoint)
+const QPointF MiniMapGL::mapToScene(const QPointF& point) const
 {
-    const QPointF scenePoint = localTransform().inverted().map(localPoint);
-    emit signalCenterOn(scenePoint);
+    return m_transform.inverted().map(point);
 }
