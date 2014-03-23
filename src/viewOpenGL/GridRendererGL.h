@@ -29,16 +29,16 @@ public:
     void clearData();
 
     //setters
-    void setDimensions(const QRectF &border, const QRectF &rect);
+    void setDimensions(const QRectF border, const QRectF rect);
 
     //gettters
-    const QColor& color() const;
-    const QRectF& border() const;
-    const QRectF& rectangle() const;
+    const QColor color() const;
+    const QRectF border() const;
+    const QRectF rectangle() const;
 
 public slots:
 
-    void setColor(const QColor &color);
+    void setColor(const QColor color);
 
 protected:
 
@@ -48,7 +48,6 @@ protected:
     const QRectF boundingRect() const;
 
     void setSelectionArea(const SelectionEvent *){};
-    void clearSelection(){};
 
 private:
 

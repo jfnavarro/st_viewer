@@ -644,7 +644,7 @@ void GeneRendererGL::setupShaders()
     m_shaderProgram = shaderCircle; //default
 }
 
-void GeneRendererGL::setDimensions(const QRectF &border)
+void GeneRendererGL::setDimensions(const QRectF border)
 {
     m_border = border;
     // reflect bounds to quad tree

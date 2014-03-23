@@ -60,8 +60,9 @@ public slots:
     void rotate(qreal angle);
 
     void update();
-    void setViewPort(QRectF viewport);
-    void setScene(QRectF scene);
+
+    void setViewPort(const QRectF viewport);
+    void setScene(const QRectF scene);
 
 protected:
 
@@ -80,14 +81,14 @@ protected:
     void exposeEvent(QExposeEvent *eevent);
     void resizeEvent(QResizeEvent * event);
 
-    void setZoomFactorAndUpdate(qreal zoom);
+    void setZoomFactorAndUpdate(const qreal zoom);
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
 
 signals:
 
-    void signalViewPortUpdated(QRectF);
-    void signalSceneUpdated(QRectF);
+    void signalViewPortUpdated(const QRectF);
+    void signalSceneUpdated(const QRectF);
 
 private:
 

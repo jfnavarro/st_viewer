@@ -121,30 +121,30 @@ void GridRendererGL::generateData()
     }
 }
 
-void GridRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
+void GridRendererGL::setDimensions(const QRectF border, const QRectF rect)
 {
     m_border = border;
     m_rect = rect;
     emit updated();
 }
 
-const QRectF& GridRendererGL::border() const
+const QRectF GridRendererGL::border() const
 {
     return m_border;
 }
 
-const QRectF& GridRendererGL::rectangle() const
+const QRectF GridRendererGL::rectangle() const
 {
     return m_rect;
 }
 
-void GridRendererGL::setColor(const QColor &color)
+void GridRendererGL::setColor(const QColor color)
 {
     m_gridColor = color;
     emit updated();
 }
 
-const QColor& GridRendererGL::color() const
+const QColor GridRendererGL::color() const
 {
     return m_gridColor;
 }

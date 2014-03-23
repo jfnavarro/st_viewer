@@ -37,7 +37,7 @@ MiniMapGL::~MiniMapGL()
 
 }
 
-void MiniMapGL::setScene(const QRectF& scene)
+void MiniMapGL::setScene(const QRectF scene)
 {
     // early out
     if ( !scene.isValid() ) {
@@ -55,7 +55,7 @@ void MiniMapGL::setScene(const QRectF& scene)
     }
 }
 
-void MiniMapGL::setViewPort(const QRectF& view)
+void MiniMapGL::setViewPort(const QRectF view)
 {
     // early out
     if ( !view.isValid() ) {
@@ -69,7 +69,7 @@ void MiniMapGL::setViewPort(const QRectF& view)
     }
 }
 
-void MiniMapGL::updateTransform(const QRectF& scene)
+void MiniMapGL::updateTransform(const QRectF scene)
 {
     // early out
     if ( !m_scene.isValid() || !scene.isValid() ) {
@@ -133,24 +133,24 @@ void MiniMapGL::drawGeometry(QGLPainter *painter)
     Q_UNUSED(painter);
 }
 
-void MiniMapGL::setSceneColor(const QColor& sceneColor)
+void MiniMapGL::setSceneColor(const QColor sceneColor)
 {
     m_sceneColor = sceneColor;
     emit updated();
 }
 
-const QColor& MiniMapGL::sceneColor() const
+const QColor MiniMapGL::sceneColor() const
 {
     return m_sceneColor;
 }
 
-void MiniMapGL::setViewColor(const QColor& viewColor)
+void MiniMapGL::setViewColor(const QColor viewColor)
 {
     m_viewColor = viewColor;
     emit updated();
 }
 
-const QColor& MiniMapGL::viewColor() const
+const QColor MiniMapGL::viewColor() const
 {
     return m_viewColor;
 }

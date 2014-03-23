@@ -36,7 +36,7 @@ public:
     void clearData();
 
     //set the dimensions of the bounding rect, also for the QuadTree
-    void setDimensions(const QRectF &border);
+    void setDimensions(const QRectF border);
 
     //selection functions
     void selectGenes(const DataProxy::GeneList&);

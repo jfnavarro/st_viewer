@@ -212,7 +212,7 @@ qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
     return qMin(qMax(minZoom(), zoom), maxZoom());
 }
 
-void CellGLView::setZoomFactorAndUpdate(qreal zoom)
+void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
 {
     const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
@@ -236,7 +236,7 @@ void CellGLView::rotate(qreal angle)
     }
 }
   
-void CellGLView::setViewPort(QRectF viewport)
+void CellGLView::setViewPort(const QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
@@ -244,7 +244,7 @@ void CellGLView::setViewPort(QRectF viewport)
     }
 }
 
-void CellGLView::setScene(QRectF scene)
+void CellGLView::setScene(const QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
