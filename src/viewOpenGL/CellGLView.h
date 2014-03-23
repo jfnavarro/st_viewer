@@ -31,6 +31,12 @@ class CellGLView : public QWindow
 
 public:
 
+    enum MouseEventType {
+        moveType,
+        pressType,
+        releaseType
+    };
+
     explicit CellGLView(QScreen *parent = 0);
     virtual ~CellGLView();
 
@@ -89,6 +95,9 @@ private:
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
+
+    void sendMouseSelectEventToNodes(const QPoint point, const QMouseEvent *event,
+                                     const MouseEventType type);
 
     // openGL context variables
     QOpenGLContext *m_context = nullptr;

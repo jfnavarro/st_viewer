@@ -312,6 +312,40 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
+void CellGLView::sendMouseSelectEventToNodes(const QPoint point, const QMouseEvent *event,
+                                             const MouseEventType type)
+{
+    foreach(GraphicItemGL *node, m_nodes) {
+        if ( node->selectable() ) {
+            //TODO should also add scene transformation is node is transformable
+            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+            QMouseEvent newEvent(
+                        event->type(),
+                        localPoint,
+                        event->windowPos(),
+                        event->screenPos(),
+                        event->button(),
+                        event->buttons(),
+                        event->modifiers()
+                        );
+            if (  node->contains(localPoint) ) {
+                if (type == pressType) {
+                    node->mousePressEvent(&newEvent);
+                }
+                else if (type == moveType) {
+                    node->mouseMoveEvent(&newEvent);
+                }
+                else if (type == releaseType) {
+                    node->mouseReleaseEvent(&newEvent);
+                }
+                else {
+                    qDebug() << "Mouse event type not recognized";
+                }
+            }
+        }
+    }
+}
+
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::LeftButton ) {
@@ -319,25 +353,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         m_originPanning = event->globalPos(); //panning needs globalPos
         QPoint point = event->pos();
         // notify nodes of the mouse event
-        foreach(GraphicItemGL *node, m_nodes) {
-            if ( node->selectable() ) {
-                //TODO should also add scene transformation is node is transformable
-                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-                //const QPointF localPoint = point;
-                QMouseEvent newEvent(
-                            event->type(),
-                            localPoint,
-                            event->windowPos(),
-                            event->screenPos(),
-                            event->button(),
-                            event->buttons(),
-                            event->modifiers()
-                            );
-                if (  node->contains(localPoint) ) {
-                    node->mousePressEvent(&newEvent);
-                }
-            }
-        }
+        sendMouseSelectEventToNodes(point, event, pressType);
     }
     else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
         // rubberbanding changes cursor to pointing hand
@@ -356,25 +372,9 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         m_panning = false;
         QPoint point = event->pos();
         // notify nodes of the mouse event
-        foreach(GraphicItemGL *node, m_nodes) {
-            if ( node->selectable() ) {
-                //TODO should also add scene transformation is node is transformable
-                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-                QMouseEvent newEvent(
-                            event->type(),
-                            localPoint,
-                            event->windowPos(),
-                            event->screenPos(),
-                            event->button(),
-                            event->buttons(),
-                            event->modifiers()
-                            );
-                if (  node->contains(localPoint) ) {
-                    node->mouseReleaseEvent(&newEvent);
-                }
-            }
-        }
-    }  else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
+        sendMouseSelectEventToNodes(point, event, releaseType);
+    }
+    else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
         unsetCursor();
         const QPoint origin = m_originRubberBand;
         QPoint destiny = event->pos();
@@ -413,29 +413,6 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
     event->ignore();
 }
 
-void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
-{
-    QRectF allowed_center_points_rect(0,
-                                      0,
-                                      m_scene.width() - m_viewport.width() / m_zoom_factor,
-                                      m_scene.height() - m_viewport.height() / m_zoom_factor);
-    // This is another approach that is commented out where the whole image of the cell tissue will be displayed at startup
-    // although the height / width proportions of the application window might very big or very small:
-    //   qreal factor = 1 - (minZoom() / m_zoom_factor);
-    //   QRectF allowed_center_points_rect(0, 0, m_scene.width() * factor, m_scene.height() * factor);
-    allowed_center_points_rect.moveCenter(m_scene.center());
-    QPointF clamped_point = center_point;
-    clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
-    clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
-    clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
-    clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
-
-    if ( clamped_point != m_scene_focus_center_point) {
-        m_scene_focus_center_point = clamped_point;
-        update();
-    }
-}
-
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     if ( m_panning ) {
@@ -459,24 +436,7 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
     else if ( event->button() == Qt::LeftButton ) {
         QPoint point = event->pos();
         // notify nodes of the mouse event
-        foreach(GraphicItemGL *node, m_nodes) {
-            if ( node->selectable() ) {
-                //TODO should also add scene transformation is node is transformable
-                const QPointF localPoint = nodeTransformations(node).inverted().map(point);
-                QMouseEvent newEvent(
-                            event->type(),
-                            localPoint,
-                            event->windowPos(),
-                            event->screenPos(),
-                            event->button(),
-                            event->buttons(),
-                            event->modifiers()
-                            );
-                if (  node->contains(localPoint) ) {
-                    node->mouseMoveEvent(&newEvent);
-                }
-            }
-        }
+        sendMouseSelectEventToNodes(point, event, moveType);
     }
     event->ignore();
 }
@@ -506,6 +466,25 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     }
     setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
     event->ignore();
+}
+
+void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
+{
+    QRectF allowed_center_points_rect(0, 0,
+                                      m_scene.width() - m_viewport.width() / m_zoom_factor,
+                                      m_scene.height() - m_viewport.height() / m_zoom_factor);
+
+    allowed_center_points_rect.moveCenter(m_scene.center());
+    QPointF clamped_point = center_point;
+    clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
+    clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
+    clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
+    clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
+
+    if ( clamped_point != m_scene_focus_center_point) {
+        m_scene_focus_center_point = clamped_point;
+        update();
+    }
 }
 
 const QTransform CellGLView::sceneTransformations() const

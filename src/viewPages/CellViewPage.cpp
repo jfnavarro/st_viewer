@@ -212,8 +212,6 @@ void CellViewPage::createConnections()
             SLOT(selectAllGenesPressed(bool)));
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel,
             SLOT(setColorGenes(const QColor&)));
-    //connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), this,
-    //SLOT(setColorGenes(const QColor&)));
 
     // cell tissue
     connect(m_toolBar->m_actionShow_cellTissueBlue,

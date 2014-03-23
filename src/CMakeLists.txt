@@ -196,11 +196,6 @@ if(UNIX AND NOT APPLE)
         set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     endif("${isSystemDir}" STREQUAL "-1")
 
-
-
-
-    #TODO replace TGZ for DEB package
-
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR " TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
@@ -211,6 +206,7 @@ if(UNIX AND NOT APPLE)
         get_target_property(QT_PLUGIN_LO "${QT_PLUGIN}" LOCATION)
       endforeach()
     endforeach()
+
     foreach(QT_LIBRARY ${ST_QT_LIBS})
       # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG 
       # but I think we don't need them /Erik Sjolund
