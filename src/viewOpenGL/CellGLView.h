@@ -78,13 +78,13 @@ protected:
 
     const QTransform nodeTransformations(GraphicItemGL *node) const;
 
-
 signals:
 
     void signalViewPortUpdated(QRectF);
     void signalSceneUpdated(QRectF);
 
 private:
+
     void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;

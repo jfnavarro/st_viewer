@@ -22,7 +22,7 @@
 #include <QRubberBand>
 
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
-static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0f;
+static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
 //static const qreal DELTA_MOUSE_PANNING = 1.0f;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 
@@ -206,12 +206,14 @@ void CellGLView::update()
     QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
 }
 
-qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const {
+qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
+{
     Q_ASSERT(minZoom() < maxZoom());
     return qMin(qMax(minZoom(), zoom), maxZoom());
 }
 
-void CellGLView::setZoomFactorAndUpdate(qreal zoom) {
+void CellGLView::setZoomFactorAndUpdate(qreal zoom)
+{
     const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
@@ -259,8 +261,8 @@ qreal CellGLView::minZoom() const
     Q_ASSERT(m_viewport.isValid());
     Q_ASSERT(!m_scene.isNull());
     Q_ASSERT(!m_viewport.isNull());
-    qreal min_zoom_height = m_viewport.height()/m_scene.height();
-    qreal min_zoom_width = m_viewport.width()/m_scene.width();
+    const qreal min_zoom_height = m_viewport.height( ) / m_scene.height();
+    const qreal min_zoom_width = m_viewport.width() / m_scene.width();
     return qMax(min_zoom_height, min_zoom_width);
 }
 
@@ -277,8 +279,8 @@ qreal CellGLView::maxZoom() const
     // that seems to be suited to zoom up til the resolution
     // of a few gitter boxes.
 
-    const qreal max_zoom_height = m_viewport.height( ) /MAX_ZOOM_DIVIDE_FACTOR;
-    const qreal max_zoom_width = m_viewport.width( ) /MAX_ZOOM_DIVIDE_FACTOR;
+    const qreal max_zoom_height = m_viewport.height( ) / MAX_ZOOM_DIVIDE_FACTOR;
+    const qreal max_zoom_width = m_viewport.width( ) / MAX_ZOOM_DIVIDE_FACTOR;
     return qMin(max_zoom_height, max_zoom_width);
 }
 
@@ -481,8 +483,9 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
 
 void CellGLView::keyPressEvent(QKeyEvent *event)
 {
-    qreal shortest_side_length = qMin(m_viewport.width(),m_viewport.height()); 
-    qreal delta_panning_key =  shortest_side_length / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+    const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
+    const qreal delta_panning_key =  shortest_side_length /
+            (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
 
     QPointF pan_adjustment(0,0);  
     switch(event->key()) {
@@ -508,7 +511,7 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
 const QTransform CellGLView::sceneTransformations() const
 {
     QTransform transform;
-    QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
+    const QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
     transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
     transform.translate(-m_viewport.width() / 2.0,  -m_viewport.height() / 2.0);
