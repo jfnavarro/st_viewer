@@ -28,7 +28,7 @@ public:
 
     typedef QArray<GLfloat> refCountType;
 
-    explicit GeneData();
+    GeneData();
     virtual ~GeneData();
 
     void clearData();
