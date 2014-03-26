@@ -25,6 +25,14 @@ static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 
+bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node) {
+    return !node.transformable() && node.selectable();
+}
+
+bool nodeIsSelectable(const GraphicItemGL &node) {
+    return node.selectable();
+}
+
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
 {
@@ -47,17 +55,6 @@ void CellGLView::reset()
 
 }
 
-QRectF CellGLView::scene() const
-{
-    return m_scene;
-}
-
-QRectF CellGLView::viewPort() const
-{
-    return m_viewport;
-}
-
-
 CellGLView::~CellGLView()
 {
     //NOTE View does not own rendering nodes nor texture
@@ -72,9 +69,20 @@ CellGLView::~CellGLView()
     m_context = 0;
 }
 
+void CellGLView::resizeFromGeometry()
+{
+    const QRect rect = geometry();
+    ensureContext();
+    if ( !m_initialized ) {
+        initializeGL();
+    }
+    resizeGL(rect.width(), rect.height());
+}
+
 void CellGLView::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
+    resizeFromGeometry();
 }
 
 void CellGLView::hideEvent(QHideEvent *event)
@@ -97,12 +105,7 @@ void CellGLView::exposeEvent(QExposeEvent *event)
 void CellGLView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    const QRect rect = geometry();
-    ensureContext();
-    if ( !m_initialized ) {
-        initializeGL();
-    }
-    resizeGL(rect.width(), rect.height());
+    resizeFromGeometry();
 }
 
 void CellGLView::ensureContext()
@@ -148,9 +151,6 @@ void CellGLView::paintGL()
     projm.ortho(viewport);
     painter.projectionMatrix() = projm;
 
-    // send signal to minimap with new scene
-    //emit signalSceneUpdated(sceneTransformations().mapRect(m_scene));
-
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if ( node->visible() ) {
@@ -175,7 +175,8 @@ void CellGLView::resizeGL(int width, int height)
     setViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
-        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
+        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);  
+        emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -217,6 +218,7 @@ void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
+        emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
 }
@@ -231,6 +233,7 @@ void CellGLView::rotate(qreal angle)
     if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle ) {
         m_rotate += angle;
         STMath::clamp(m_rotate, -360.0, 360.0);
+        emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
 }
@@ -239,7 +242,8 @@ void CellGLView::setViewPort(const QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
-        //emit signalViewPortUpdated(m_viewport);
+        emit signalViewPortUpdated(m_viewport);
+        emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -250,7 +254,8 @@ void CellGLView::setScene(const QRectF scene)
         m_scene_focus_center_point = m_scene.center();
         m_zoom_factor = minZoom();
         Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
-	//	emit signalSceneUpdated(m_scene);
+	emit signalSceneUpdated(m_scene);
+	emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -311,13 +316,15 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
-void CellGLView::sendMouseSelectEventToNodes(const QPoint point, const QMouseEvent *event,
-                                             const MouseEventType type)
+bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
+				       const MouseEventType type, const FilterFunc filterFunc)
+
 {
+    bool mouseEventWasSentToAtleastOneNode = false;
     foreach(GraphicItemGL *node, m_nodes) {
-        if ( node->selectable() ) {
-            //TODO should also add scene transformation is node is transformable
-            const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+        const QPointF localPoint = nodeTransformations(node).inverted().map(point);
+        if (filterFunc(*node) && node->contains(localPoint)) {
+            mouseEventWasSentToAtleastOneNode = true;
             QMouseEvent newEvent(
                         event->type(),
                         localPoint,
@@ -327,39 +334,46 @@ void CellGLView::sendMouseSelectEventToNodes(const QPoint point, const QMouseEve
                         event->buttons(),
                         event->modifiers()
                         );
-            if (  node->contains(localPoint) ) {
-                if (type == pressType) {
-                    node->mousePressEvent(&newEvent);
-                }
-                else if (type == moveType) {
-                    node->mouseMoveEvent(&newEvent);
-                }
-                else if (type == releaseType) {
-                    node->mouseReleaseEvent(&newEvent);
-                }
-                else {
-                    qDebug() << "Mouse event type not recognized";
-                }
+            if (type == pressType) {
+                node->mousePressEvent(&newEvent);
             }
-        }
+            else if (type == moveType) {
+                node->mouseMoveEvent(&newEvent);
+            }
+            else if (type == releaseType) {
+                node->mouseReleaseEvent(&newEvent);
+            }
+            else {
+                qDebug() << "Mouse event type not recognized";
+            }
+	}
     }
+    return mouseEventWasSentToAtleastOneNode;
 }
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::LeftButton ) {
-        m_panning = true;
-        m_originPanning = event->globalPos(); //panning needs globalPos
-        QPoint point = event->pos();
-        // notify nodes of the mouse event
-        sendMouseSelectEventToNodes(point, event, pressType);
-    }
-    else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
-        // rubberbanding changes cursor to pointing hand
-        setCursor(Qt::PointingHandCursor);
-        m_rubberBanding = true;
-        m_originRubberBand = event->pos();
-        m_rubberBandRect = QRect();
+    const QPoint point = event->pos();
+    // first send the event to any non-transformable nodes under the mouse click. 
+    if (!sendMouseEventToNodes(point,
+                               event,
+                               pressType,
+	                       nodeIsSelectableButNotTransformable)) {
+        // no non-transformable nodes under the mouse click were found.
+        if (event->button() == Qt::LeftButton) {
+            m_panning = true;
+            m_originPanning = event->globalPos(); //panning needs globalPos
+
+            // notify nodes of the mouse event
+            sendMouseEventToNodes(point, event, pressType, nodeIsSelectable);
+        }
+        else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
+            // rubberbanding changes cursor to pointing hand
+            setCursor(Qt::PointingHandCursor);
+            m_rubberBanding = true;
+            m_originRubberBand = event->pos();
+            m_rubberBandRect = QRect();
+        }
     }
     event->ignore();
 }
@@ -371,7 +385,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         m_panning = false;
         QPoint point = event->pos();
         // notify nodes of the mouse event
-        sendMouseSelectEventToNodes(point, event, releaseType);
+        sendMouseEventToNodes(point, event, releaseType, nodeIsSelectable);
     }
     else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
         unsetCursor();
@@ -414,7 +428,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
-    if ( m_panning ) {
+    if ( event->buttons() & Qt::LeftButton &&  m_panning ) {
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
         QPoint point = event->globalPos(); //panning needs global pos
@@ -422,20 +436,19 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
 
         m_originPanning = point;
-    }
-    if ( event->button() == Qt::RightButton && m_rubberBanding  ) {
+    } else if ( event->buttons() & Qt::RightButton && m_rubberBanding  ) {
         // get rubberband
         const QPoint origin = m_originRubberBand;
         QPoint destiny = event->pos();
         m_rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
-
         //TODO paint rubberband
     }
-    else if ( event->button() == Qt::LeftButton ) {
+    else {
         QPoint point = event->pos();
         // notify nodes of the mouse event
-        sendMouseSelectEventToNodes(point, event, moveType);
+        sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);
+
     }
     event->ignore();
 }
@@ -482,6 +495,7 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_poin
 
     if ( clamped_point != m_scene_focus_center_point) {
         m_scene_focus_center_point = clamped_point;
+        emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
 }

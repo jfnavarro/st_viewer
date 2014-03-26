@@ -47,6 +47,8 @@ public slots:
     void setScene(const QRectF scene);
     void setViewPort(const QRectF view);
 
+    void setParentSceneTransformations(const QTransform transform);
+
 protected:
 
     void draw(QGLPainter *painter);
@@ -61,15 +63,16 @@ signals:
 private:
 
     // internal functions
-    void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
-    const QPointF mapToScene(const QPointF& point) const;
-    void updateTransform(const QRectF scene);
+    QTransform localTransform() const;
+    static void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
+    void centerOnLocalPos(const QPointF &localPoint);
 
     // mini versions
     QRectF m_scene;
-    QRectF m_view;
+    QRectF m_viewPort;
     QColor m_sceneColor;
     QColor m_viewColor;
+    QTransform m_parentSceneTransformations;
 
     // mouse events
     bool m_selecting = false;

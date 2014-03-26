@@ -10,6 +10,7 @@
 #include <QWindow>
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
+#include <functional>
 
 class QGLPainter;
 class GraphicItemGL;
@@ -31,6 +32,8 @@ class CellGLView : public QWindow
 
 public:
 
+    typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
+
     enum MouseEventType {
         moveType,
         pressType,
@@ -46,9 +49,6 @@ public:
     const QImage grabPixmapGL() const;
 
     void reset();
-    QRectF scene() const;
-    QRectF viewPort() const;
-    const QTransform sceneTransformations() const;
 
 public slots:
 
@@ -89,16 +89,20 @@ signals:
 
     void signalViewPortUpdated(const QRectF);
     void signalSceneUpdated(const QRectF);
+    void signalSceneTransformationsUpdated(const QTransform transform);
 
 private:
 
+    const QTransform sceneTransformations() const;
+    void resizeFromGeometry();
     void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
 
-    void sendMouseSelectEventToNodes(const QPoint point, const QMouseEvent *event,
-                                     const MouseEventType type);
+    // returns true if the event was sent to at least one of the nodes
+    bool sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
+				       const MouseEventType type, const FilterFunc filterFunc);
 
     // openGL context variables
     QOpenGLContext *m_context = nullptr;
