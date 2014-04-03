@@ -28,6 +28,7 @@
 #include <QStyleFactory>
 
 #include "CellViewPageToolBar.h"
+#include "ScrollArea.h"
 
 #include "io/GeneXMLExporter.h"
 #include "io/GeneTXTExporter.h"
@@ -315,10 +316,9 @@ void CellViewPage::initGLView()
     DEBUG_FUNC_NAME
 
     // creates graphic canvas scene and view
-    m_view = new CellGLView();
-    QWidget *container = QWidget::createWindowContainer(m_view);
-    container->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    ui->mainLayout->addWidget(container);
+    ScrollArea *area = new ScrollArea(this);
+    m_view = area->cellGlView();
+    ui->mainLayout->addWidget(area);
     // Adding a stretch to make the opengl window occupy more space
     ui->mainLayout->setStretch(1,10);
 
@@ -351,7 +351,8 @@ void CellViewPage::initGLView()
     connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
     connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
     connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
-    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)), m_minimap, SLOT(setParentSceneTransformations(const QTransform)));
+    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
+            m_minimap, SLOT(setParentSceneTransformations(const QTransform)));
 }
 
 void CellViewPage::createGLConnections()

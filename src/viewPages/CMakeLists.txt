@@ -17,6 +17,7 @@ set(LIBRARY_ARG_INCLUDES
     ColorListEditor.h
     ExtendedTabWidget.cpp
     SpinBoxSlider.h
+    ScrollArea.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -36,6 +37,7 @@ set(LIBRARY_ARG_SOURCES
     ColorListEditor.cpp
     ExtendedTabWidget.cpp
     SpinBoxSlider.cpp
+    ScrollArea.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

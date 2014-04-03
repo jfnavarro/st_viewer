@@ -480,13 +480,22 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     event->ignore();
 }
 
-void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
-{
-    QRectF allowed_center_points_rect(0, 0,
-                                      m_scene.width() - m_viewport.width() / m_zoom_factor,
-                                      m_scene.height() - m_viewport.height() / m_zoom_factor);
+QRectF CellGLView::allowedCenterPoints() const {
+    QRectF allowed_center_points(0, 0,
+                                 qMax(m_scene.width() - m_viewport.width() / m_zoom_factor,0.0),
+                                 qMax(m_scene.height() - m_viewport.height() / m_zoom_factor,0.0));
+    allowed_center_points.moveCenter(m_scene.center());
+    return allowed_center_points;
+}
 
-    allowed_center_points_rect.moveCenter(m_scene.center());
+QPointF CellGLView::sceneFocusCenterPoint() const {
+    return m_scene_focus_center_point;
+}
+
+void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF center_point)
+{
+    QRectF allowed_center_points_rect = allowedCenterPoints();
+
     QPointF clamped_point = center_point;
     clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
     clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));

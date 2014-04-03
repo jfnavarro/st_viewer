@@ -49,6 +49,8 @@ public:
     const QImage grabPixmapGL() const;
 
     void reset();
+    QRectF allowedCenterPoints() const;
+    QPointF sceneFocusCenterPoint() const;
 
 public slots:
 
@@ -63,6 +65,7 @@ public slots:
 
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
+    void setSceneFocusCenterPointWithClamping(const QPointF center_point);
 
 protected:
 
@@ -95,7 +98,6 @@ private:
 
     const QTransform sceneTransformations() const;
     void resizeFromGeometry();
-    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;

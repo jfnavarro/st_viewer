@@ -58,6 +58,7 @@ void MiniMapGL::setViewPort(const QRectF view)
 void MiniMapGL::setParentSceneTransformations(const QTransform transform)
 { 
     m_parentSceneTransformations = transform;
+    emit updated();
 }
 
 void MiniMapGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
