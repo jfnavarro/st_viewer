@@ -22,15 +22,17 @@ public slots:
 
 protected:
 
-    virtual void paintEvent( QPaintEvent * ) override;
-    virtual void resizeEvent( QResizeEvent * ) override;
+    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 private slots:
 
-  void someScrollChangedValue(int);
+  void someScrollBarChangedValue(int);
 
 private:
 
+    static void adjustScrollBar(const int scrollBarSteps, const qreal value, const qreal value_minimum, const qreal value_range, const qreal viewPortInSceneCoordinatesRange, QScrollBar *scrollBar);
+    const int m_scrollBarSteps = 1000;
     void adjustScrollBars();
     CellGLView *m_view;
     QWidget *m_container;

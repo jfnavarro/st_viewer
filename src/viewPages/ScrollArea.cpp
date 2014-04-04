@@ -14,11 +14,24 @@ ScrollArea::ScrollArea( QWidget * parent_ )
     setViewport(m_container);
     verticalScrollBar()->setTracking(true);
     horizontalScrollBar()->setTracking(true);  
-    connect(m_view, SIGNAL(signalViewPortUpdated(const QRectF)), this, SLOT(setCellGLViewViewPort(const QRectF)));
-    connect(m_view, SIGNAL(signalSceneUpdated(const QRectF)), this, SLOT(setCellGLViewScene(const QRectF)));
-    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)), this, SLOT(setCellGLViewSceneTransformations(const QTransform)));
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(someScrollChangedValue(int)));
-    connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(someScrollChangedValue(int)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(const QRectF)), 
+            this, SLOT(setCellGLViewViewPort(const QRectF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(const QRectF)),
+            this, SLOT(setCellGLViewScene(const QRectF)));
+    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
+            this, SLOT(setCellGLViewSceneTransformations(const QTransform)));
+    connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(someScrollBarChangedValue(int)));
+    connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(someScrollBarChangedValue(int)));
+
+    /*
+    connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
+            this, SLOT(someScrollBarChangedValue(int)));
+    connect(horizontalScrollBar(), SIGNAL(sliderMoved(int)),
+            this, SLOT(someScrollBarChangedValue(int)));
+    */
+
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     viewport()->update();
@@ -30,17 +43,38 @@ CellGLView *ScrollArea::cellGlView() const {
     return m_view;
 }
 
-void ScrollArea::someScrollChangedValue(int) {
-    QPoint focusPoint = m_view->sceneFocusCenterPoint().toPoint();
-    QPoint point(horizontalScrollBar()->value(), verticalScrollBar()->value()); 
-    if (focusPoint == point) {
-        return;
-    }
+void ScrollArea::someScrollBarChangedValue(int) {
+    const QRectF rectF = m_view->allowedCenterPoints();
+    const qreal h_value = static_cast<qreal>(horizontalScrollBar()->value());
+    const qreal v_value = static_cast<qreal>(verticalScrollBar()->value());
+    const qreal x = rectF.width()*(1-(h_value/m_scrollBarSteps))+rectF.x();
+    const qreal y = rectF.height()*(1-(v_value/m_scrollBarSteps))+rectF.y();
+    const QPointF point(x,y);
     m_view->setSceneFocusCenterPointWithClamping(point);
 }
 
 void ScrollArea::setupViewport(QWidget *viewport) {
     viewport->resize(size());
+}
+
+void ScrollArea::adjustScrollBar(const int scrollBarSteps, const qreal value,
+                                 const qreal value_minimum, const qreal value_range, 
+                                 const qreal viewPortInSceneCoordinatesRange,
+                                 QScrollBar *scrollBar) {
+    scrollBar->setMinimum(0);
+    scrollBar->setMaximum(scrollBarSteps);
+    scrollBar->setValue(scrollBarSteps*(1-((value-value_minimum)/value_range)));
+    // When we are maximally zoomed out the value_range will be zero for at least one of the
+    // scrollbars. For the case that we need to divide by zero, we set the PageStep value to 
+    // be as big as possible. Unfortunately the value std::numeric_limits<int>::max() is not 
+    // big enough because sometimes the scroll gets to be a pixel to short.
+    int val = std::numeric_limits<int>::max();
+    if (value_range != 0.0) {
+      qreal val_real = scrollBarSteps*viewPortInSceneCoordinatesRange/value_range;
+      val = val_real;
+    }
+    scrollBar->setPageStep(val);
+    scrollBar->setSingleStep(300);
 }
 
 void ScrollArea::adjustScrollBars() {
@@ -50,19 +84,14 @@ void ScrollArea::adjustScrollBars() {
     if (m_cellglview_scene.isValid() &&
         m_cellglview_viewPort.isValid() &&
         ! m_cellglview_sceneTransformations.isIdentity()) {
-        const QRectF viewPortInSceneCoordinates = m_cellglview_sceneTransformations.inverted().mapRect(m_cellglview_viewPort);
-        QRect allowedRect = m_view->allowedCenterPoints().toRect();
-        QPoint focusPoint = m_view->sceneFocusCenterPoint().toPoint();
-        verticalScrollBar()->setMaximum(allowedRect.top() + allowedRect.height() + 1);
-        verticalScrollBar()->setMinimum(allowedRect.top());
-        verticalScrollBar()->setValue(focusPoint.y());
-        horizontalScrollBar()->setMaximum(allowedRect.left() + allowedRect.width() +1);
-        horizontalScrollBar()->setMinimum(allowedRect.left());
-        horizontalScrollBar()->setValue(focusPoint.x());
-        verticalScrollBar()->setPageStep(viewPortInSceneCoordinates.height());
-        horizontalScrollBar()->setPageStep(viewPortInSceneCoordinates.width());
-        horizontalScrollBar()->setSingleStep(300);
-        verticalScrollBar()->setSingleStep(300);
+        const QRectF viewPortInSceneCoordinates = 
+        m_cellglview_sceneTransformations.inverted().mapRect(m_cellglview_viewPort);
+        const QRectF allowedRectF = m_view->allowedCenterPoints();
+        const QPointF focusPointF = m_view->sceneFocusCenterPoint();
+	adjustScrollBar(m_scrollBarSteps, focusPointF.x(), allowedRectF.x(), allowedRectF.width(),
+                        viewPortInSceneCoordinates.width(), horizontalScrollBar());
+	adjustScrollBar(m_scrollBarSteps, focusPointF.y(), allowedRectF.y(), allowedRectF.height(),
+                        viewPortInSceneCoordinates.height(), verticalScrollBar());
     }
 }
 

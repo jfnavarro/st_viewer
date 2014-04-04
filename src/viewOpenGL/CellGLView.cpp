@@ -24,6 +24,8 @@
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
+static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 10;
+
 
 bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node) {
     return !node.transformable() && node.selectable();
@@ -276,16 +278,9 @@ qreal CellGLView::maxZoom() const
     Q_ASSERT(m_viewport.isValid());
     Q_ASSERT(!m_scene.isNull());
     Q_ASSERT(!m_viewport.isNull());
-
-    // Maybe we could come up with a way to calculate the
-    // MAX_ZOOM_DIVIDE_FACTOR
-    // Right now it is just an arbitrarily chosen number constant
-    // that seems to be suited to zoom up til the resolution
-    // of a few gitter boxes.
-
-    const qreal max_zoom_height = m_viewport.height( ) / MAX_ZOOM_DIVIDE_FACTOR;
-    const qreal max_zoom_width = m_viewport.width( ) / MAX_ZOOM_DIVIDE_FACTOR;
-    return qMin(max_zoom_height, max_zoom_width);
+    const qreal max_zoom_x = m_viewport.width() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const qreal max_zoom_y = m_viewport.height() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    return qMin(max_zoom_x, max_zoom_y);
 }
 
 const QImage CellGLView::grabPixmapGL() const
@@ -432,9 +427,8 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
         QPoint point = event->globalPos(); //panning needs global pos
-        QPoint pan_adjustment = (point - m_originPanning) / m_zoom_factor;
-        setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
-
+        QPointF pan_adjustment = QPointF(point -m_originPanning) / m_zoom_factor;
+        setSceneFocusCenterPointWithClamping(pan_adjustment+ m_scene_focus_center_point);
         m_originPanning = point;
     } else if ( event->buttons() & Qt::RightButton && m_rubberBanding  ) {
         // get rubberband
@@ -448,7 +442,6 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         QPoint point = event->pos();
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);
-
     }
     event->ignore();
 }
@@ -458,20 +451,19 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
     const qreal delta_panning_key =  shortest_side_length /
             (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
-
     QPointF pan_adjustment(0,0);  
     switch(event->key()) {
     case Qt::Key_Right:
-        pan_adjustment = QPoint(delta_panning_key, 0);
-        break;
-    case Qt::Key_Left:
         pan_adjustment = QPoint(-delta_panning_key, 0);
         break;
+    case Qt::Key_Left:
+        pan_adjustment = QPoint(delta_panning_key, 0);
+        break;
     case Qt::Key_Up:
-        pan_adjustment = QPoint(0, -delta_panning_key);
+        pan_adjustment = QPoint(0, delta_panning_key);
         break;
     case Qt::Key_Down:
-        pan_adjustment = QPoint(0, delta_panning_key);
+        pan_adjustment = QPoint(0, -delta_panning_key);
         break;
     default:
         break;
