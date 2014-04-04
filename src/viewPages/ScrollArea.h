@@ -32,7 +32,7 @@ private slots:
 private:
 
     static void adjustScrollBar(const int scrollBarSteps, const qreal value, const qreal value_minimum, const qreal value_range, const qreal viewPortInSceneCoordinatesRange, QScrollBar *scrollBar);
-    const int m_scrollBarSteps = 1000;
+    const int m_scrollBarSteps = 100000;
     void adjustScrollBars();
     CellGLView *m_view;
     QWidget *m_container;
