@@ -28,7 +28,6 @@
 #include <QStyleFactory>
 
 #include "CellViewPageToolBar.h"
-#include "ScrollArea.h"
 
 #include "io/GeneXMLExporter.h"
 #include "io/GeneTXTExporter.h"
@@ -315,12 +314,10 @@ void CellViewPage::initGLView()
 {
     DEBUG_FUNC_NAME
 
-    // creates graphic canvas scene and view
-    ScrollArea *area = new ScrollArea(this);
-    m_view = area->cellGlView();
-    ui->mainLayout->addWidget(area);
+    //ui->area contains the openGL window
+    m_view = ui->area->cellGlView();
     // Adding a stretch to make the opengl window occupy more space
-    ui->mainLayout->setStretch(1,10);
+    ui->selectionLayout->setStretch(1,10);
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);

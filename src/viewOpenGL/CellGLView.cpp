@@ -22,10 +22,9 @@
 #include <QRubberBand>
 
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
-static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
+//static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
-static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 10;
-
+static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 
 bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node) {
     return !node.transformable() && node.selectable();
@@ -184,7 +183,7 @@ void CellGLView::resizeGL(int width, int height)
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
-    qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    const qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactorAndUpdate(zoomFactor *m_zoom_factor);
     event->ignore();
 }
@@ -256,8 +255,8 @@ void CellGLView::setScene(const QRectF scene)
         m_scene_focus_center_point = m_scene.center();
         m_zoom_factor = minZoom();
         Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
-	emit signalSceneUpdated(m_scene);
-	emit signalSceneTransformationsUpdated(sceneTransformations());
+        emit signalSceneUpdated(m_scene);
+        emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -278,8 +277,10 @@ qreal CellGLView::maxZoom() const
     Q_ASSERT(m_viewport.isValid());
     Q_ASSERT(!m_scene.isNull());
     Q_ASSERT(!m_viewport.isNull());
-    const qreal max_zoom_x = m_viewport.width() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
-    const qreal max_zoom_y = m_viewport.height() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const qreal max_zoom_x = m_viewport.width() /
+            MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const qreal max_zoom_y = m_viewport.height() /
+            MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
     return qMin(max_zoom_x, max_zoom_y);
 }
 
@@ -303,12 +304,14 @@ const QImage CellGLView::grabPixmapGL() const
 
 void CellGLView::zoomIn()
 {
-    setZoomFactorAndUpdate(m_zoom_factor * (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
+    setZoomFactorAndUpdate(m_zoom_factor *
+                           (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
 void CellGLView::zoomOut()
 {
-    setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
+    setZoomFactorAndUpdate(m_zoom_factor *
+                           (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
 bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
@@ -353,7 +356,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
     if (!sendMouseEventToNodes(point,
                                event,
                                pressType,
-	                       nodeIsSelectableButNotTransformable)) {
+                               nodeIsSelectableButNotTransformable)) {
         // no non-transformable nodes under the mouse click were found.
         if (event->button() == Qt::LeftButton) {
             m_panning = true;

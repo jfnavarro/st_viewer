@@ -29,7 +29,7 @@ MiniMapGL::MiniMapGL(QObject *parent)
     setVisualOption(GraphicItemGL::Selectable, true);
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
-setVisualOption(GraphicItemGL::RubberBandable, false);
+    setVisualOption(GraphicItemGL::RubberBandable, false);
 }
 
 MiniMapGL::~MiniMapGL()

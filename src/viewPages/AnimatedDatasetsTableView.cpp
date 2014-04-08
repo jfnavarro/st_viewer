@@ -24,9 +24,11 @@ AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
     m_datasetModel = new DatasetItemModel(this);
     //create selection model for table view
     setModel(m_datasetModel);
+
     //NOTE item delegate is not finished yet
     //ui->datasets_tableview->setItemDelegate(new DatasetsViewItemDelegate(this));
-    setSortingEnabled(false);
+
+    setSortingEnabled(true);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     horizontalHeader()->setStretchLastSection(true);
@@ -35,7 +37,7 @@ AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
     setAlternatingRowColors(true);
     resizeColumnsToContents();
     resizeRowsToContents();
-    horizontalHeader()->setSortIndicatorShown(false);
+    horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->setSortIndicatorShown(false);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);

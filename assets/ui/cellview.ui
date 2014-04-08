@@ -11,21 +11,85 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Cell View Page</string>
   </property>
-  <layout class="QVBoxLayout" name="pageLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="mainLayout">
+    <layout class="QVBoxLayout" name="pageLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <layout class="QVBoxLayout" name="genesLayout">
+      <widget class="QSplitter" name="gridLayout">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QWidget" name="layoutWidget">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QHBoxLayout" name="geneListLayout">
+          <layout class="QVBoxLayout" name="genesLayout">
            <item>
-            <widget class="QPushButton" name="selectAllGenes">
+            <layout class="QHBoxLayout" name="geneListLayout">
+             <item>
+              <widget class="QPushButton" name="selectAllGenes">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::DefaultContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Select All genes in the list</string>
+               </property>
+               <property name="statusTip">
+                <string>Select All genes in the list</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../st_client-build/application.qrc">
+                 <normaloff>:/images/icon_check.png</normaloff>:/images/icon_check.png</iconset>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit">
+               <property name="mouseTracking">
+                <bool>false</bool>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::DefaultContextMenu</enum>
+               </property>
+               <property name="acceptDrops">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Search for a gene name</string>
+               </property>
+               <property name="statusTip">
+                <string>Search for a gene name</string>
+               </property>
+               <property name="whatsThis">
+                <string>Search for a gene name</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="GenesTableView" name="genes_tableview">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -36,151 +100,128 @@
              <property name="contextMenuPolicy">
               <enum>Qt::DefaultContextMenu</enum>
              </property>
-             <property name="text">
-              <string/>
+             <property name="editTriggers">
+              <set>QAbstractItemView::DoubleClicked</set>
              </property>
-             <property name="icon">
-              <iconset resource="../../../st_client-build/application.qrc">
-               <normaloff>:/images/icon_check.png</normaloff>:/images/icon_check.png</iconset>
+             <property name="tabKeyNavigation">
+              <bool>false</bool>
              </property>
-             <property name="checkable">
-              <bool>true</bool>
+             <property name="showDropIndicator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="dragEnabled">
+              <bool>false</bool>
+             </property>
+             <property name="dragDropOverwriteMode">
+              <bool>false</bool>
+             </property>
+             <property name="dragDropMode">
+              <enum>QAbstractItemView::NoDragDrop</enum>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::MultiSelection</enum>
              </property>
             </widget>
            </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="selectionLayout">
            <item>
-            <widget class="QLineEdit" name="lineEdit">
-             <property name="mouseTracking">
-              <bool>false</bool>
+            <layout class="QHBoxLayout" name="selctionBottonsLayout">
+             <item>
+              <widget class="QPushButton" name="saveSelection">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Save the current selection </string>
+               </property>
+               <property name="statusTip">
+                <string>Save the current selection </string>
+               </property>
+               <property name="whatsThis">
+                <string>Save the current selection </string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="exportSelection">
+               <property name="toolTip">
+                <string>Export the current selection to a file</string>
+               </property>
+               <property name="statusTip">
+                <string>Export the current selection to a file</string>
+               </property>
+               <property name="whatsThis">
+                <string>Export the current selection to a file</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="clearSelection">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Clear the current selection</string>
+               </property>
+               <property name="statusTip">
+                <string>Clear the current selection</string>
+               </property>
+               <property name="whatsThis">
+                <string>Clear the current selection</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="GeneSelectionTableView" name="selections_tableview">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="focusPolicy">
               <enum>Qt::ClickFocus</enum>
              </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::DefaultContextMenu</enum>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
              </property>
-             <property name="acceptDrops">
+             <property name="showDropIndicator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="dragDropOverwriteMode">
+              <bool>false</bool>
+             </property>
+             <property name="showGrid">
               <bool>false</bool>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         <item>
-          <widget class="GenesTableView" name="genes_tableview">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::DoubleClicked</set>
-           </property>
-           <property name="tabKeyNavigation">
-            <bool>false</bool>
-           </property>
-           <property name="showDropIndicator" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="dragEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="dragDropOverwriteMode">
-            <bool>false</bool>
-           </property>
-           <property name="dragDropMode">
-            <enum>QAbstractItemView::NoDragDrop</enum>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::MultiSelection</enum>
-           </property>
-          </widget>
-         </item>
         </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="selectionLayout">
-         <item>
-          <layout class="QHBoxLayout" name="selctionBottonsLayout">
-           <item>
-            <widget class="QPushButton" name="saveSelection">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Save the current selection </string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="exportSelection">
-             <property name="toolTip">
-              <string>Export the current selection to a file</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="clearSelection">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Clear the current selection</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="GeneSelectionTableView" name="selections_tableview">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="showDropIndicator" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="dragDropOverwriteMode">
-            <bool>false</bool>
-           </property>
-           <property name="showGrid">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
+       </widget>
+       <widget class="ScrollArea" name="area" native="true"/>
+      </widget>
      </item>
     </layout>
    </item>
@@ -196,6 +237,12 @@
    <class>GeneSelectionTableView</class>
    <extends>QTableView</extends>
    <header>viewPages/GeneSelectionTableView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollArea</class>
+   <extends>QWidget</extends>
+   <header>viewPages/ScrollArea.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

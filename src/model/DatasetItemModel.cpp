@@ -43,7 +43,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name: return item->name();
-        case Created: return item->statCreated();
+        //case Created: return item->statCreated();
         case Tissue: return item->statTissue();
         case Specie: return item->statSpecie();
         case Aligned: return (item->figureStatus() & Dataset::Aligned) ? tr("Yes") : tr("No");
@@ -67,9 +67,9 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
     if (orientation == Qt::Horizontal) {
         switch (section) {
         case Name : return tr("Name");
-        case Created : return tr("Created");
+        //case Created : return tr("Created");
         case Tissue : return tr("Tissue");
-        case Specie : return tr("Specie");
+        case Specie : return tr("Species");
         case Aligned : return tr("Aligned");
         case Barcodes : return tr("Reads");
         case Genes : return tr("Events");

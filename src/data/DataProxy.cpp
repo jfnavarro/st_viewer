@@ -54,6 +54,16 @@ void DataProxy::init()
 void DataProxy::finalize()
 {
     //every data member is a smart pointer
+    m_datasetMap.clear();
+    m_datasetListPtr.clear();
+    m_geneMap.clear();
+    m_geneListMap.clear();
+    m_chipMap.clear();
+    m_featureMap.clear();
+    m_featureListMap.clear();
+    m_geneFeatureListMap.clear();
+    m_user.clear();
+    m_datasetStatisticsMap.clear();
 }
 
 void DataProxy::clean()
@@ -87,6 +97,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     const unsigned key = qvariant_cast<unsigned>(reply->property("key"));
     qDebug() << "[DataProxy] : restoring manager hash key = " << key;
     Q_ASSERT(m_download_pool.contains(key));
+
     QPointer<async::DownloadManager> manager = m_download_pool[key];
     Q_ASSERT_X(manager.data(), "DataProxy", "Error, downloadmanager is empty!");
 
@@ -144,7 +155,6 @@ Error* DataProxy::parseErrors(NetworkReply* reply)
         ErrorDTO dto;
         ObjectParser::parseObject(var, &dto);
         error = new ServerError(dto.errorName(), dto.errorDescription());
-
     }
     return error;
 }

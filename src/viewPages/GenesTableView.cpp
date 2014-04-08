@@ -27,19 +27,21 @@ GenesTableView::GenesTableView(QWidget *parent)
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*", Qt::CaseInsensitive)); //I do not want to show ambiguous genes or numbers
-
     setModel(sortProxyModel);
     setItemDelegateForColumn(GeneFeatureItemModel::Show, booleanItemDelegate);
     setItemDelegateForColumn(GeneFeatureItemModel::Color, geneViewDelegate);
     resizeColumnsToContents();
+    resizeRowsToContents();
     horizontalHeader()->sectionResizeMode(QHeaderView::Interactive);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
     setSortingEnabled(true);
+    horizontalHeader()->setSortIndicatorShown(true);
     sortByColumn(0, Qt::AscendingOrder);
     setSelectionMode(QAbstractItemView::SingleSelection);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     verticalHeader()->hide();
     model()->submit(); //support for caching (speed up)
 }

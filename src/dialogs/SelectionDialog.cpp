@@ -52,7 +52,7 @@ void SelectionDialog::accept()
     DataProxy::GeneListPtr geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     
     // find all genes that match the regular expression
-    //TODO this can be optimized using STL functions or Qt::concurrent algorithms
+    //TODO this can be optimized using STDfunctions or Qt::concurrent algorithms
     m_selectedGeneList.clear();
     foreach(DataProxy::GenePtr gene, (*geneList)) {
         const QString name = gene->name();

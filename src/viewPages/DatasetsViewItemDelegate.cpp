@@ -25,8 +25,6 @@ DatasetsViewItemDelegate::~DatasetsViewItemDelegate()
 void DatasetsViewItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                                      const QModelIndex& index) const
 {
-    //const DatasetItemModel *model = qobject_cast<const DatasetItemModel*>(index.model());
-    //Q_ASSERT(model);
     int col = index.column();
     if (col == DatasetItemModel::Comments) {
         int widthUsed, lineCount;

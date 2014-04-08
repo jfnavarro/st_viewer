@@ -21,5 +21,4 @@ void Page::setWaiting(bool waiting)
         QApplication::restoreOverrideCursor();
         QApplication::processEvents();
     }
-
 }

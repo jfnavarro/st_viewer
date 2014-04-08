@@ -10,11 +10,14 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>93</height>
+    <height>122</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Select Genes by using regular expressions</string>
+  </property>
+  <property name="toolTip">
+   <string>Use a regular expression to make a selection of genes</string>
   </property>
   <property name="modal">
    <bool>true</bool>

@@ -72,18 +72,13 @@ void DatasetPage::slotDataError(Error *error)
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 {
-    if (item.isNull() || item->id().isEmpty()) {
-        
-        emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));
-        
-    } else {
-        
+    if (item.isNull() || item->id().isEmpty()) {       
+        emit signalError(new Error("Dataset Error", "Error loading the selected dataset."));        
+    } else {       
         DataProxy *dataProxy = DataProxy::getInstance();
         dataProxy->setSelectedDataset(item->id());
         loadData();
-        
     }
-
 }
 
 void DatasetPage::loadData()
@@ -102,22 +97,16 @@ void DatasetPage::loadData()
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
 
     if (request->return_code() == async::DataRequest::CodeError) {
-        
         qDebug() << "[DatasetPage] Error: loading data";
         Error *error = new Error("Data loading Error", "Error loading the content of the selected dataset.");
         emit signalError(error);
-        
     } else if (request->return_code() == async::DataRequest::CodePresent) {
-        
         emit moveToNextPage();
-        
     } else {
-        
         connect(ui->abort, SIGNAL(clicked(bool)), request, SLOT(slotAbort()));
         connect(request, SIGNAL(signalFinished()), this, SLOT(dataLoaded()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotDataError(Error*)));
-        setWaiting(true);
-        
+        setWaiting(true);   
     }
 }
 
@@ -125,12 +114,9 @@ void DatasetPage::dataLoaded()
 {
     async::DataRequest *request = reinterpret_cast<async::DataRequest*>(sender());
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
-
     setWaiting(false);
-    if (request->return_code() == async::DataRequest::CodeSuccess) { 
-        
+    if (request->return_code() == async::DataRequest::CodeSuccess) {
         emit moveToNextPage();
-        
     }
 }
 
@@ -144,8 +130,7 @@ void DatasetPage::refreshDatasets()
 
     DatasetItemModel *model = qobject_cast<DatasetItemModel*>(ui->datasets_tableview->model());
 
-    if (request->return_code() == async::DataRequest::CodeError) {
-        
+    if (request->return_code() == async::DataRequest::CodeError) {   
         qDebug() << "[DatasetPage] Error: loading data";
         Error *error = new Error("Data Error", "Error loading the datasets.");
         emit signalError(error);
@@ -155,7 +140,6 @@ void DatasetPage::refreshDatasets()
         model->loadDatasets();
         
     } else {
-        
         connect(request, SIGNAL(signalFinished()), model, SLOT(loadDatasets()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotDataError(Error*)));
         //no need to wait here, if error it will load nothing, no abort signal neither

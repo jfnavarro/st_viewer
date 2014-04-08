@@ -17,19 +17,20 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     geneSelectionModel = new GeneSelectionItemModel(this);
     setModel(geneSelectionModel);
     resizeColumnsToContents();
+    resizeRowsToContents();
     horizontalHeader()->sectionResizeMode(QHeaderView::Interactive);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSortingEnabled(true);
+    horizontalHeader()->setSortIndicatorShown(true);
     setShowGrid(true);
     sortByColumn(0, Qt::AscendingOrder);
     setSelectionMode(QAbstractItemView::NoSelection);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-    //horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     verticalHeader()->hide();
     model()->submit(); //support for caching (speed up)
-
 }
 
 GeneSelectionTableView::~GeneSelectionTableView()
