@@ -145,11 +145,10 @@ void CellGLView::paintGL()
     painter.begin();
 
     painter.setClearColor(Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    QRectF viewport(m_viewport);
     QMatrix4x4 projm;
-    projm.ortho(viewport);
+    projm.ortho(m_viewport);
     painter.projectionMatrix() = projm;
 
     // draw rendering nodes

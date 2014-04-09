@@ -40,12 +40,17 @@ private:
                                 const qreal value_range,
                                 const qreal viewPortInSceneCoordinatesRange,
                                 QScrollBar *scrollBar);
-    const int m_scrollBarSteps = 100000;
+
     void adjustScrollBars();
+
+    const int m_scrollBarSteps = 100000;
+
     CellGLView *m_view;
     QWidget *m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;
+
+    bool m_sliderMoveImplementation = true;
 };
 #endif //SCROLLAREA_H
