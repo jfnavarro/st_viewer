@@ -50,7 +50,5 @@ private:
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;
-
-    bool m_sliderMoveImplementation = true;
 };
 #endif //SCROLLAREA_H

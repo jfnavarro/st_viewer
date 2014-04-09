@@ -123,9 +123,11 @@ void GridRendererGL::generateData()
 
 void GridRendererGL::setDimensions(const QRectF border, const QRectF rect)
 {
-    m_border = border;
-    m_rect = rect;
-    emit updated();
+    if (m_border != border || m_rect != rect) {
+        m_border = border;
+        m_rect = rect;
+        emit updated();
+    }
 }
 
 const QRectF GridRendererGL::border() const
@@ -140,8 +142,10 @@ const QRectF GridRendererGL::rectangle() const
 
 void GridRendererGL::setColor(const QColor color)
 {
-    m_gridColor = color;
-    emit updated();
+    if (m_gridColor != color) {
+        m_gridColor = color;
+        emit updated();
+    }
 }
 
 const QColor GridRendererGL::color() const

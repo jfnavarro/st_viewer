@@ -128,7 +128,10 @@ private:
     QPointF m_scene_focus_center_point;
     // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later
     // we set the value here. This value should never be used though.
-    qreal m_zoom_factor = 1.0; 
+    qreal m_zoom_factor = 1.0;
+
+    // scene viewport projection
+    QMatrix4x4 m_projm;
 };
 
 #endif // CELLGLVIEW_H

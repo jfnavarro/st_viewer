@@ -105,7 +105,8 @@ void MiniMapGL::draw(QGLPainter *painter)
     if (!m_viewPort.isValid() || !m_scene.isValid()) { 
         return;
     }
-    const QRectF viewPortInSceneCoordinates = m_parentSceneTransformations.inverted().mapRect(m_viewPort);
+    const QRectF viewPortInSceneCoordinates =
+            m_parentSceneTransformations.inverted().mapRect(m_viewPort);
     drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, painter);
     drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates), m_viewColor, painter);
 }
@@ -117,8 +118,10 @@ void MiniMapGL::drawGeometry(QGLPainter *painter)
 
 void MiniMapGL::setSceneColor(const QColor sceneColor)
 {
-    m_sceneColor = sceneColor;
-    emit updated();
+    if (m_sceneColor != sceneColor) {
+      m_sceneColor = sceneColor;
+      emit updated();
+    }
 }
 
 const QColor MiniMapGL::sceneColor() const
@@ -128,8 +131,10 @@ const QColor MiniMapGL::sceneColor() const
 
 void MiniMapGL::setViewColor(const QColor viewColor)
 {
-    m_viewColor = viewColor;
-    emit updated();
+    if (m_viewColor != viewColor) {
+      m_viewColor = viewColor;
+      emit updated();
+    }
 }
 
 const QColor MiniMapGL::viewColor() const
@@ -173,7 +178,8 @@ void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 
 void MiniMapGL::centerOnLocalPos(const QPointF &localPoint)
 {
-  //    localPoint
-    const QPointF scenePoint = localTransform().inverted().map(boundingRect().bottomRight()-localPoint);
+    //localPoint
+    const QPointF scenePoint =
+            localTransform().inverted().map(boundingRect().bottomRight()-localPoint);
     emit signalCenterOn(scenePoint);
 }

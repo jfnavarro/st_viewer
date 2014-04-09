@@ -37,6 +37,8 @@ bool nodeIsSelectable(const GraphicItemGL &node) {
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
 {
+    m_projm.setToIdentity();
+
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     format.setDepthBufferSize(0);
     format.setAlphaBufferSize(24);
@@ -48,6 +50,7 @@ CellGLView::CellGLView(QScreen *parent) :
     format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
+
     create();
 }
 
@@ -139,7 +142,8 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    QGLTexture2D::processPendingResourceDeallocations();
+    //NOTE not needed it seems...
+    //QGLTexture2D::processPendingResourceDeallocations();
 
     QGLPainter painter;
     painter.begin();
@@ -147,9 +151,7 @@ void CellGLView::paintGL()
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    QMatrix4x4 projm;
-    projm.ortho(m_viewport);
-    painter.projectionMatrix() = projm;
+    painter.projectionMatrix() = m_projm;
 
     // draw rendering nodes
     foreach(GraphicItemGL *node, m_nodes) {
@@ -164,6 +166,7 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
+
     glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 }
 
@@ -172,7 +175,8 @@ void CellGLView::resizeGL(int width, int height)
     //devicePixelRatio() fixes the problem with MAC retina
     const qreal pixelRatio = devicePixelRatio();
     glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
-    setViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
+    const QRectF newViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
+    setViewPort(newViewPort);
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);  
@@ -242,6 +246,8 @@ void CellGLView::setViewPort(const QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
+        m_projm.setToIdentity();
+        m_projm.ortho(viewport);
         emit signalViewPortUpdated(m_viewport);
         emit signalSceneTransformationsUpdated(sceneTransformations());
     }
