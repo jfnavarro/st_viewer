@@ -35,6 +35,12 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
                <property name="focusPolicy">
                 <enum>Qt::ClickFocus</enum>
                </property>
@@ -61,6 +67,12 @@
              </item>
              <item>
               <widget class="QLineEdit" name="lineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="mouseTracking">
                 <bool>false</bool>
                </property>
@@ -93,6 +105,12 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="mouseTracking">
               <bool>true</bool>
@@ -131,6 +149,9 @@
               <enum>QAbstractItemView::MultiSelection</enum>
              </property>
              <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerItem</enum>
+             </property>
+             <property name="horizontalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
              <property name="sortingEnabled">
@@ -155,6 +176,12 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Save the current selection </string>
                </property>
@@ -171,6 +198,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="exportSelection">
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Export the current selection to a file</string>
                </property>
@@ -192,6 +225,12 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
                </property>
                <property name="toolTip">
                 <string>Clear the current selection</string>
@@ -216,6 +255,12 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="mouseTracking">
               <bool>true</bool>
@@ -244,6 +289,9 @@
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerItem</enum>
              </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
              <property name="showGrid">
               <bool>false</bool>
              </property>
@@ -259,7 +307,14 @@
          </item>
         </layout>
        </widget>
-       <widget class="ScrollArea" name="area" native="true"/>
+       <widget class="ScrollArea" name="area" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>600</width>
+          <height>600</height>
+         </size>
+        </property>
+       </widget>
       </widget>
      </item>
     </layout>

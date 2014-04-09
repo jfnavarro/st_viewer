@@ -51,11 +51,6 @@ AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
