@@ -62,7 +62,7 @@ void NetworkManager::init()
     // connect to the HTTPS TCP port ahead of time
     m_nam->connectToHostEncrypted(config->EndPointUrl());
 
-    // add ssl support  (we need the public key) //TODO finish and try this (me dunno like ignoring ssl errors)
+    // add ssl support  (we need the public key) //TODO finish and try this (me dont like ignoring ssl errors)
     //QFile cafile(":public_key.pem");
     //cafile.open(QIODevice::ReadOnly);
     //QSslCertificate cert(&cafile);

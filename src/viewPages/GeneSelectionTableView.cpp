@@ -7,6 +7,7 @@
 #include "GeneSelectionTableView.h"
 
 #include <QHeaderView>
+#include <QSortFilterProxyModel>
 
 #include "model/GeneSelectionItemModel.h"
 
@@ -15,20 +16,32 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 {
     //model view gene selections table
     geneSelectionModel = new GeneSelectionItemModel(this);
+
+    //TODO fix the sorting, it seg faults now..
+    //QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    //sortProxyModel->setSourceModel(geneSelectionModel);
+    //sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    //sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
     setModel(geneSelectionModel);
-    resizeColumnsToContents();
-    resizeRowsToContents();
-    horizontalHeader()->sectionResizeMode(QHeaderView::Interactive);
-    setSelectionBehavior(QAbstractItemView::SelectItems);
-    setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSortingEnabled(true);
     horizontalHeader()->setSortIndicatorShown(true);
-    setShowGrid(true);
     sortByColumn(0, Qt::AscendingOrder);
+
+    resizeColumnsToContents();
+    resizeRowsToContents();
+
+    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);
+
+    setShowGrid(true);
+
+    horizontalHeader()->sectionResizeMode(QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
     horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+
     verticalHeader()->hide();
     model()->submit(); //support for caching (speed up)
 }

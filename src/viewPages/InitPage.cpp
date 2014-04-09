@@ -86,23 +86,17 @@ void InitPage::slotAuthorized()
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if (request->return_code() == async::DataRequest::CodeError) {
-        
         qDebug() << "[InitPage] Error: loading user";
         Error *error = new Error("Authorization Error", "Error loading the current user.");
-        emit signalError(error);
-        
+        emit signalError(error); 
     } else if (request->return_code() == async::DataRequest::CodePresent) {
-        
         DataProxy::UserPtr user = dataProxy->getUser();
         ui->user_name->setText(user.data()->username());
-        ui->newExpButt->setEnabled(true);
-        
+        ui->newExpButt->setEnabled(true);     
     } else {
-        
         connect(request, SIGNAL(signalFinished()), this, SLOT(slotUserLoaded()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotNetworkError(Error*)));
         setWaiting(true);
-        
     }
 }
 
@@ -127,21 +121,15 @@ void InitPage::slotLoadData()
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if (request->return_code() == async::DataRequest::CodeError) {
-        
         qDebug() << "[InitPage] Error: loading datasets";
         Error *error = new Error("Data Error", "Error loading the datasets.");
-        emit signalError(error);
-        
-    } else if (request->return_code() == async::DataRequest::CodePresent) {
-        
-        emit moveToNextPage();
-        
+        emit signalError(error);  
+    } else if (request->return_code() == async::DataRequest::CodePresent) {      
+        emit moveToNextPage();      
     } else {
-        
         connect(request, SIGNAL(signalFinished()), this, SLOT(slotDataLoaded()));
         connect(request, SIGNAL(signalError(Error*)), this, SLOT(slotNetworkError(Error*)));
-        setWaiting(true);
-        
+        setWaiting(true);   
     }
 }
 
@@ -149,12 +137,9 @@ void InitPage::slotDataLoaded()
 {
     async::DataRequest *request = reinterpret_cast<async::DataRequest*>(sender());
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
-    
     setWaiting(false);
-    if (request->return_code() == async::DataRequest::CodeSuccess) { 
-        
-        emit moveToNextPage();
-        
+    if (request->return_code() == async::DataRequest::CodeSuccess) {       
+        emit moveToNextPage();     
     }
 }
 

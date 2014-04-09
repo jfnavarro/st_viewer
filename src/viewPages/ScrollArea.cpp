@@ -34,7 +34,9 @@ ScrollArea::ScrollArea( QWidget * parent_ )
     viewport()->update();
 }
 
-ScrollArea::~ScrollArea() {}
+ScrollArea::~ScrollArea() {
+
+}
 
 CellGLView *ScrollArea::cellGlView() const {
     return m_view;

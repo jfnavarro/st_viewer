@@ -9,6 +9,7 @@
 
 #include <QModelIndex>
 #include <QHeaderView>
+#include <QSortFilterProxyModel>
 
 #include "model/DatasetItemModel.h"
 #include "viewPages/DatasetsViewItemDelegate.h"
@@ -20,34 +21,46 @@ AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
 {
     // create animation
     m_animation.setAnimation(":images/loader.gif");
-    //crearte model for the table view
+
+    // the model
     m_datasetModel = new DatasetItemModel(this);
-    //create selection model for table view
+
+    //TODO fix the sorting, it seg faults now..
+    //QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    //sortProxyModel->setSourceModel(m_datasetModel);
+    //sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    //sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
     setModel(m_datasetModel);
+    setSortingEnabled(true);
+    horizontalHeader()->setSortIndicatorShown(true);
+    verticalHeader()->setSortIndicatorShown(false);
+    sortByColumn(0, Qt::AscendingOrder);
 
     //NOTE item delegate is not finished yet
     //ui->datasets_tableview->setItemDelegate(new DatasetsViewItemDelegate(this));
 
-    setSortingEnabled(true);
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
     horizontalHeader()->setStretchLastSection(true);
+
     setShowGrid(true);
     setWordWrap(true);
     setAlternatingRowColors(true);
+
     resizeColumnsToContents();
     resizeRowsToContents();
-    horizontalHeader()->setSortIndicatorShown(true);
-    verticalHeader()->setSortIndicatorShown(false);
+
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
+    setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
-    m_datasetModel->submit(); //support for caching (speed up)
-    verticalHeader()->hide();
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    m_datasetModel->sort(0, Qt::AscendingOrder);
+
+    model()->submit(); //support for caching (speed up)
+    verticalHeader()->hide();
 
     //notify the model I have selected a dataset TODO should be a better way to do this
     connect(this, SIGNAL(doubleClicked(QModelIndex)),

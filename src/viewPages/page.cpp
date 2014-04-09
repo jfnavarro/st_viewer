@@ -16,9 +16,9 @@ Page::Page(QWidget *parent) : QWidget(parent)
 void Page::setWaiting(bool waiting)
 {
     if (waiting) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));      
     } else {
         QApplication::restoreOverrideCursor();
-        QApplication::processEvents();
     }
+    QApplication::processEvents();
 }

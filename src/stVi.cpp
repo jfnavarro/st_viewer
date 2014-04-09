@@ -251,7 +251,7 @@ void stVi::showAbout()
 
 void stVi::slotExit()
 {
-    int answer = QMessageBox::warning(
+    const int answer = QMessageBox::warning(
                      this, tr("Exit application"),
                      tr("Are you really sure you want to exit now?"),
                      QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
@@ -268,7 +268,7 @@ void stVi::slotExit()
 
 void stVi::slotClearCache()
 {
-    int answer = QMessageBox::warning(
+    const int answer = QMessageBox::warning(
                      this, tr("Clear the Cache"),
                      tr("Are you really sure you want to clear the cache?"),
                      QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
@@ -387,14 +387,6 @@ void stVi::finalizeSingleInstances()
     // finalize configurations
     Configuration::getInstance()->finalize();
     Configuration::getInstance(true);
-
-    // finalize menubar
-    //    MainMenuBar::getInstance()->finalize();
-    //    MainMenuBar::getInstance(true);
-
-    // finalize status bar
-    //    MainStatusBar::getInstance()->finalize();
-    //    MainStatusBar::getInstance(true);
 }
 
 void stVi::createConnections()

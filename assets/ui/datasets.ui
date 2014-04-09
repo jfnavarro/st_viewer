@@ -188,7 +188,7 @@
       </sizepolicy>
      </property>
      <property name="mouseTracking">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
@@ -205,11 +205,14 @@
      <property name="styleSheet">
       <string notr="true"/>
      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::DoubleClicked</set>
      </property>
      <property name="tabKeyNavigation">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="showDropIndicator" stdset="0">
       <bool>false</bool>
@@ -217,17 +220,32 @@
      <property name="dragDropOverwriteMode">
       <bool>false</bool>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
      <property name="wordWrap">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="waitPolicy" stdset="0">
       <number>3</number>
      </property>
      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
     </widget>
    </item>
