@@ -141,6 +141,8 @@ else()
   add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
 
+target_compile_features(${PROJECT_NAME} PRIVATE ${REQUIRED_CXX_FEATURES})
+
 # Platform specific library includes
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES})

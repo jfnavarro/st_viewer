@@ -52,21 +52,14 @@ macro(INITIALISE_PROJECT)
         set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
     endif()
 
-    find_package(CXXFeatures REQUIRED)
-    # http://stackoverflow.com/questions/10984442/how-to-detect-c11-support-of-a-compiler-with-cmake/20165220#20165220
-    set(needed_features
-        #CXXFeatures_class_override_final ##not supported by Clang in OSX
-        CXXFeatures_constexpr
-        CXXFeatures_auto
-        CXXFeatures_nullptr
-        CXXFeatures_static_assert
-        #CXXFeatures_initializer_list ##not supported by Clang in OSX
+    set(REQUIRED_CXX_FEATURES
+        cxx_long_long_type
+        cxx_range_for
+        cxx_constexpr
+        cxx_auto_type
+        cxx_nullptr
+        cxx_static_assert
     )
-    foreach(i ${needed_features})
-      if(NOT ${i}_FOUND)
-        message(FATAL_ERROR "CXX feature \"${i} is not supported by the compiler")
-     endif()
-   endforeach()
 
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX11_COMPILER_FLAGS}")
@@ -150,6 +143,7 @@ function(ST_LIBRARY)
     endif()
     add_library("${PARENTDIR}" OBJECT ${UI_GENERATED_FILES} ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
     source_group("${PARENTDIR}" FILES ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
+    target_compile_features("${PARENTDIR}" PUBLIC ${REQUIRED_CXX_FEATURES} PRIVATE ${REQUIRED_CXX_FEATURES})
 endfunction()
 
 function(INSTALL_LIBRARY_AND_SYMLINKS SRCPATH DEST)
@@ -177,6 +171,6 @@ function(INSTALL_LIBRARY_AND_SYMLINKS SRCPATH DEST)
               DESTINATION ${DEST})
     endif()
     # The REGEX tries to remove a version number from the end of the string
-    string(REGEX REPLACE "\.[0-9]+$" "" NEXTSTRING ${CURRENTSTRING})
+    string(REGEX REPLACE "\\.[0-9]+$" "" NEXTSTRING "${CURRENTSTRING}")
   endwhile()
 endfunction()

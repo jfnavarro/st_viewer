@@ -60,6 +60,8 @@ else()
     add_executable(${TARGET_NAME} ${ST_UNITTEST_SOURCES})
 endif()
 
+target_compile_features(${TARGET_NAME} PRIVATE ${REQUIRED_CXX_FEATURES})
+
 target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} QtDebugHelper) #STCoreWidgets
 qt5_use_modules(${TARGET_NAME} Test)
 
