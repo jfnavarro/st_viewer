@@ -133,7 +133,6 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
         m_download_pool.remove(key);
         manager.clear();
     }
-
 }
 
 Error* DataProxy::parseErrors(NetworkReply* reply)
@@ -144,7 +143,7 @@ Error* DataProxy::parseErrors(NetworkReply* reply)
         QString errortext;
         foreach(Error * e, errors) {
             qDebug() << "[DataProxy] Network Reply Error " << e->name() << " : " << e->description();
-            errortext += (e->name() + " : " + e->description()) + "\n";
+            errortext += (e->name() + " : " + e->description()) + '\n';
         }
         //NOTE need to emit a standard Error that packs all the errors descriptions
         error = new Error("Multiple Data Error", errortext, this);
@@ -443,7 +442,7 @@ bool DataProxy::hasDataset(const QString& datasetId) const
 
 async::DataRequest* DataProxy::loadDatasets()
 {
-    if ((bool)hasDatasets()) {
+    if (hasDatasets()) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -460,7 +459,7 @@ async::DataRequest* DataProxy::loadDatasets()
 
 async::DataRequest* DataProxy::loadDatasetByDatasetId(const QString& datasetId)
 {
-    if ((bool)hasDataset(datasetId)) {
+    if (hasDataset(datasetId)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -498,7 +497,7 @@ bool DataProxy::hasGene(const QString& datasetId) const
 
 async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
 {
-    if ((bool)hasGene(datasetId)) {
+    if (hasGene(datasetId)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -521,7 +520,7 @@ bool DataProxy::hasChip(const QString& chipId) const
 
 async::DataRequest* DataProxy::loadChipById(const QString& chipId)
 {
-    if ((bool)hasChip(chipId)) {
+    if (hasChip(chipId)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -543,7 +542,7 @@ bool DataProxy::hasFeature(const QString& datasetId) const
 
 async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 {
-    if ((bool)hasFeature(datasetId)) {
+    if (hasFeature(datasetId)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -567,7 +566,7 @@ bool DataProxy::hasFeature(const QString& datasetId, const QString& gene) const
 
 async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene)
 {
-    if ((bool)hasFeature(datasetId, gene)) {
+    if (hasFeature(datasetId, gene)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -627,7 +626,7 @@ bool DataProxy::hasCellTissue(const QString& name) const
 
 async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
 {
-    if ((bool)hasCellTissue(name)) {
+    if (hasCellTissue(name)) {
         QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
@@ -663,7 +662,7 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         cmd->deleteLater();
     }
     DataProxy::UserPtr current_user = getUser();
-    if (current_user.data()->role() == Globals::ROLE_CM && !(bool)hasCellTissue(dataset->figureRed())) {
+    if (current_user.data()->role() == Globals::ROLE_CM && !hasCellTissue(dataset->figureRed())) {
         NetworkCommand* cmd = RESTCommandFactory::getCellTissueFigureByName(dataset->figureRed());
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
@@ -724,7 +723,8 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
 {
     //create key and add it to request
     QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
-    QPointer<async::DownloadManager> manager = QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
+    QPointer<async::DownloadManager> manager =
+            QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
 
@@ -745,30 +745,31 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
     }
     if ( manager->countItems() != replies.count() ) { //NOTE if any of the replies was wrong we return error (could be worth to continue)
         manager.clear(); //this deletes request
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        //QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodeError);
-        return (request.data());
+        return request.data();
     }
 
     //add downloadmanager to download pool
     m_download_pool.insert(key, manager);
-    return request;
+
+    return request.data();
 }
 
 async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so I can send multiple replies
 {
-    if ( reply == 0 ) {
-        qDebug() << "[DataPRoxy] : Error, the NetworkReply is null, therefore there must have been a network error";
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
-        request->return_code(async::DataRequest::CodeError);
-        return (request.data());
-    }
-
     //create key and add it to request
     QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
     QPointer<async::DownloadManager> manager = QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
+
+    if ( reply == 0 ) {
+        qDebug() << "[DataPRoxy] : Error, the NetworkReply is null, therefore there must have been a network error";
+        //QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        request->return_code(async::DataRequest::CodeError);
+        return request.data();
+    }
 
     const unsigned key = qHash(manager.data());
     qDebug() << "[DataProxy] : storing manager hash key = " << key;
@@ -778,7 +779,8 @@ async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
     //add reply to downloadmanager
     manager->addItem(reply);
+
     //add downloadmanager to download pool
     m_download_pool.insert(key, manager);
-    return request;
+    return request.data();
 }

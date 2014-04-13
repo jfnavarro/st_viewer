@@ -9,12 +9,10 @@
 
 #include "Page.h"
 
-Page::Page(QWidget *parent) : QWidget(parent)
-{
+Page::Page(QWidget *parent) : QWidget(parent) {
 }
 
-void Page::setWaiting(bool waiting)
-{
+void Page::setWaiting(bool waiting) {
     if (waiting) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));      
     } else {

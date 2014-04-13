@@ -28,7 +28,8 @@ GeneViewDelegate::~GeneViewDelegate()
 
 }
 
-void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+                             const QModelIndex& index) const
 {
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     switch (v.type()) {

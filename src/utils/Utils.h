@@ -11,9 +11,7 @@
 #include <array>
 #include <QString>
 #include <QSizeF>
-#include <QDateTime>
 #include <QColor>
-
 #include <QDebug>
 #include "options_cmake.h"
 
@@ -25,9 +23,9 @@ namespace Globals
 static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 190, 255);
 static const int GENE_THRESHOLD_MAX = 100;
 static const int GENE_THRESHOLD_MIN = 1;
-static const qreal GENE_SIZE_DEFAULT = 1.0f;
-static const qreal GENE_INTENSITY_DEFAULT = 1.0f;
-static const qreal GENE_SHINNE_DEFAULT = 1.0f;
+static const qreal GENE_SIZE_DEFAULT = 1.0;
+static const qreal GENE_INTENSITY_DEFAULT = 1.0;
+static const qreal GENE_SHINNE_DEFAULT = 1.0;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
 

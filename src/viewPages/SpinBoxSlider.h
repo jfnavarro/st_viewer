@@ -22,8 +22,8 @@ public:
     virtual ~SpinBoxSlider();
     void setToolTip(const QString &str);
 
-    void setMaximumValue(int max);
-    void setMinimumValue(int min);
+    void setMaximumValue(const int max);
+    void setMinimumValue(const int min);
     void setTickInterval(int interval);
 
 signals:
@@ -33,15 +33,15 @@ signals:
 
 public slots:
     
-    void setLowerValue(int min);
-    void setUpperValue(int max);
+    void setLowerValue(const int min);
+    void setUpperValue(const int max);
 
 protected slots:
 
 private:
 
-    void setLowerValuePrivate(int min);
-    void setUpperValuePrivate(int max);
+    void setLowerValuePrivate(const int min);
+    void setUpperValuePrivate(const int max);
 
     QxtSpanSlider *m_spanslider = nullptr;
     QSpinBox *m_left_spinbox = nullptr;

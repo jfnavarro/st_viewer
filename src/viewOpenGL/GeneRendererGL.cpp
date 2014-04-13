@@ -10,7 +10,6 @@
 #include "utils/DebugHelper.h"
 
 #include "data/DataProxy.h"
-#include "color/ColorScheme.h"
 
 #include <QGLShaderProgramEffect>
 #include <QOpenGLShaderProgram>
