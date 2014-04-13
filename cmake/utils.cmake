@@ -5,7 +5,6 @@ macro(INITIALISE_PROJECT)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
-
     # Keep track of some information about Qt
     set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
     set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
@@ -16,7 +15,7 @@ macro(INITIALISE_PROJECT)
 
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
         message(STATUS "Building a debug version...")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG -DDEBUG")
         add_definitions(-DQT_DEBUG)
     else()
         message(STATUS "Building a release version...")
@@ -28,9 +27,7 @@ macro(INITIALISE_PROJECT)
         #TODO
     else()
         set(WARNING_ERROR "-Werror")
-        set(DISABLED_WARNINGS "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
-        set(DISABLED_WARNINGS_DEBUG "-Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits")
-        #-Wdeprecated #this causes compilations error on MAC
+        set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization -W -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
             set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor -Wswitch-default -Wint-to-void-pointer-cast")
@@ -38,7 +35,6 @@ macro(INITIALISE_PROJECT)
     endif()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS_DEBUG} ${WARNING_ERROR}")
 
     # Ask for Unicode to be used
     add_definitions(-DUNICODE)
@@ -60,14 +56,9 @@ macro(INITIALISE_PROJECT)
         cxx_nullptr
         cxx_static_assert
     )
-
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
-   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX11_COMPILER_FLAGS}")
-   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX11_COMPILER_FLAGS}")
   
     if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -mmacosx-version-min=10.7 -stdlib=libc++")       
     endif()
     
 endmacro()
@@ -77,27 +68,6 @@ macro(use_qt5lib qt5lib)
     include_directories(${${qt5lib}_INCLUDE_DIRS})
     add_definitions(${${qt5lib}_DEFINITIONS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
-endmacro()
-
-macro(COPY_FILE_TO_BUILD_DIR ORIG_DIRNAME DEST_DIRNAME FILENAME)
-    if(EXISTS ${CMAKE_BINARY_DIR}/../cmake)
-        set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
-    else()
-        if(WIN32)
-            set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${DEST_DIRNAME})
-        else()
-            set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
-        endif()
-    endif()
-    if("${ARGN}" STREQUAL "")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
-                                                            ${REAL_DEST_DIRNAME}/${FILENAME})
-    else()
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
-                                                            ${REAL_DEST_DIRNAME}/${ARGN})
-    endif()
 endmacro()
 
 macro(WINDOWS_DEPLOY_QT_LIBRARIES)
@@ -121,13 +91,6 @@ macro(WINDOWS_DEPLOY_LIBRARY DIRNAME FILENAME DESTINATION)
     copy_file_to_build_dir(${DIRNAME} ${DESTINATION} ${FILENAME})
     # Install the library file
     install(FILES ${DIRNAME}/${FILENAME} DESTINATION ${DESTINATION})
-endmacro()
-
-macro(LINUX_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
-    foreach(PLUGIN_NAME ${ARGN})
-        install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                DESTINATION plugins/${PLUGIN_CATEGORY})
-    endforeach()
 endmacro()
 
 macro(PROJECT_GROUP TARGET_NAME FOLDER_PATH)

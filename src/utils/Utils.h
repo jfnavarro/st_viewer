@@ -32,29 +32,29 @@ static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
 
 enum GeneVisualMode {
-    NormalMode = 0,
-    DynamicRangeMode = 1,
-    HeatMapMode = 2
+    NormalMode = 0x01,
+    DynamicRangeMode = 0x02,
+    HeatMapMode = 0x04
 };
 
 enum GeneShape  {
-    Circle = 0,
-    Cross = 1,
-    Square = 2
+    Circle = 0x01,
+    Cross = 0x02,
+    Square = 0x04
 };
 
 enum Anchor
 {
     Center = 1,
     North = 2,
-    NorthEast = 4,
-    East = 8,
-    SouthEast = 16,
-    South = 32,
-    SouthWest = 64,
-    West = 128,
-    NorthWest = 256,
-    None = 512
+    NorthEast = 3,
+    East = 4,
+    SouthEast = 5,
+    South = 6,
+    SouthWest = 7,
+    West = 8,
+    NorthWest = 9,
+    None = 10
 };
 
 static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;
@@ -67,7 +67,7 @@ static const Anchor DEFAULT_ANCHOR_GENE = None;
 static const qulonglong MAJOR = VERSION_MAJOR;
 static const qulonglong MINOR = VERSION_MINOR;
 static const qulonglong PATCH = VERSION_REVISION;
-static const std::array< qulonglong, 3> VersionNumbers{{ VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION }};
+static const std::array< qulonglong, 3> VersionNumbers{{ MAJOR, MINOR, PATCH }};
 static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
 /** SETTINGS **/

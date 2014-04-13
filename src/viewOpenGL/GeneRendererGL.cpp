@@ -460,6 +460,7 @@ DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
     foreach(const int index, m_geneInfoSelection) {
         // hash map represent one to many connection. iterate over all matches.
         for (it = m_geneInfoReverse.find(index); (it != end) && (it.key() == index); ++it) {
+            if (featureList->)
             featureList->append(it.value());
         }
     }
