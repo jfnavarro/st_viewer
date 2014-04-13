@@ -23,9 +23,14 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
+
+
     if(WIN32)
         #TODO
     else()
+        # Adding -std=c++11 flag explicitly
+        # It is a temporary fix to get building with CLANG working again.
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
         set(WARNING_ERROR "-Werror")
         set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-float-equal -Wno-shadow -Wno-unreachable-code -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
@@ -68,6 +73,13 @@ macro(use_qt5lib qt5lib)
     include_directories(${${qt5lib}_INCLUDE_DIRS})
     add_definitions(${${qt5lib}_DEFINITIONS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
+endmacro()
+
+macro(LINUX_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
+    foreach(PLUGIN_NAME ${ARGN})
+        install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                DESTINATION plugins/${PLUGIN_CATEGORY})
+    endforeach()
 endmacro()
 
 macro(WINDOWS_DEPLOY_QT_LIBRARIES)
