@@ -23,7 +23,8 @@ public:
     explicit GeneViewDelegate(QObject* parent = 0);
     virtual ~GeneViewDelegate();
 
-    virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+    virtual void paint(QPainter* painter, const QStyleOptionViewItem& option,
+                       const QModelIndex& index) const;
 
     Q_DISABLE_COPY(GeneViewDelegate)
 };

@@ -446,8 +446,8 @@ void GeneRendererGL::clearSelection()
         m_geneData.updateQuadSelected(index, false);
     }
     m_geneInfoSelection.clear();
-    emit selectionUpdated();
     m_isDirty = true;
+    emit selectionUpdated();
     emit updated();
 }
 
@@ -459,8 +459,6 @@ DataProxy::FeatureListPtr GeneRendererGL::getSelectedFeatures()
     foreach(const int index, m_geneInfoSelection) {
         // hash map represent one to many connection. iterate over all matches.
         for (it = m_geneInfoReverse.find(index); (it != end) && (it.key() == index); ++it) {
-	  // TODO: fix this. I just commented this out to make it compile /Erik
-	  //            if (featureList->)
             featureList->append(it.value());
         }
     }

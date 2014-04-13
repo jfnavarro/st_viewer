@@ -16,7 +16,6 @@
 
 #include "GeneData.h"
 
-class ColorScheme;
 class QGLPainter;
 class QGLTexture2D;
 class QVector2DArray;

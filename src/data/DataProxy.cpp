@@ -779,7 +779,6 @@ async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
     //add reply to downloadmanager
     manager->addItem(reply);
-
     //add downloadmanager to download pool
     m_download_pool.insert(key, manager);
     return request.data();

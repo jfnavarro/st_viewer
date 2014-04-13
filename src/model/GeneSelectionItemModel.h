@@ -36,6 +36,7 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void setHitCountLimits(int min, int max);
 
@@ -47,7 +48,9 @@ private:
 
     static const int COLUMN_NUMBER = 3;
 
-    DataProxy::FeatureListPtr m_geneselection_reference;
+    typedef QPair<QString, int> featurePair;
+    QVector<featurePair> m_geneselection_reference;
+    //DataProxy::FeatureListPtr m_geneselection_reference;
     int m_min = 1.0;
     int m_max = 1.0;
 

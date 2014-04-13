@@ -30,15 +30,15 @@ static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
 
 enum GeneVisualMode {
-    NormalMode = 0x01,
-    DynamicRangeMode = 0x02,
-    HeatMapMode = 0x04
+    NormalMode = 0,
+    DynamicRangeMode = 1,
+    HeatMapMode = 2
 };
 
 enum GeneShape  {
-    Circle = 0x01,
-    Cross = 0x02,
-    Square = 0x04
+    Circle = 0,
+    Cross = 1,
+    Square = 2
 };
 
 enum Anchor

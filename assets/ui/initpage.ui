@@ -70,14 +70,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>592</width>
-            <height>201</height>
+            <width>500</width>
+            <height>500</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>592</width>
-            <height>201</height>
+            <width>500</width>
+            <height>500</height>
            </size>
           </property>
           <property name="layoutDirection">
@@ -87,7 +87,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/images/st.png</pixmap>
+           <pixmap resource="../../../st_client-build/application.qrc">:/images/st.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
@@ -139,7 +139,7 @@
            <string>Start</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../../../st_client-build/application.qrc">
             <normaloff>:/images/startpage-icon.png</normaloff>:/images/startpage-icon.png</iconset>
           </property>
           <property name="iconSize">
@@ -210,7 +210,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/images/scilifelab.png</pixmap>
+           <pixmap resource="../../../st_client-build/application.qrc">:/images/scilifelab.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -232,7 +232,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/images/kth.png</pixmap>
+           <pixmap resource="../../../st_client-build/application.qrc">:/images/kth.png</pixmap>
           </property>
          </widget>
         </item>
@@ -248,7 +248,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/images/ki.png</pixmap>
+           <pixmap resource="../../../st_client-build/application.qrc">:/images/ki.png</pixmap>
           </property>
          </widget>
         </item>
@@ -326,7 +326,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../../../st_client-build/application.qrc">
             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
           </property>
           <property name="iconSize">
@@ -345,7 +345,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../application.qrc"/>
+  <include location="../../../st_client-build/application.qrc"/>
  </resources>
  <connections/>
 </ui>

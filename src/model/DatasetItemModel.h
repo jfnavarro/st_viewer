@@ -24,7 +24,7 @@ class DatasetItemModel : public QAbstractTableModel
 public:
 
     enum Column {
-        Name = 0,
+        Name,
         //Created,
         Tissue,
         Specie,

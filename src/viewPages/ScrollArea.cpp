@@ -42,7 +42,7 @@ CellGLView *ScrollArea::cellGlView() const {
     return m_view;
 }
 
-void ScrollArea::someScrollBarChangedValue(const int) {
+void ScrollArea::someScrollBarChangedValue(int) {
 
     const QRectF rectF = m_view->allowedCenterPoints();
 

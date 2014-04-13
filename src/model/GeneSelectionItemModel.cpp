@@ -23,21 +23,21 @@ GeneSelectionItemModel::~GeneSelectionItemModel()
 
 QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid() || m_geneselection_reference.isNull()) {
+    if (!index.isValid() || m_geneselection_reference.isEmpty()) {
         return QVariant(QVariant::Invalid);
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        DataProxy::FeaturePtr item = m_geneselection_reference->at(index.row());
+        const featurePair item = m_geneselection_reference.at(index.row());
         QVariant value;
         switch (index.column()) {
         case Name:
-            value = item->gene();
+            value = item.first;
             break;
         case Hits:
-            value = std::min(item->hits(), m_max);
+            value = std::min(item.second, m_max);
         break;
         case NormalizedHits:
-            value = qreal(std::min(item->hits(), m_max)) / qreal(m_max);
+            value = qreal(std::min(item.second, m_max)) / qreal(m_max);
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -60,10 +60,10 @@ QVariant GeneSelectionItemModel::headerData(int section, Qt::Orientation orienta
             value = tr("Name");
             break;
         case Hits:
-            value = tr("Hits");
+            value = tr("Reads");
             break;
         case NormalizedHits:
-            value = tr("Normalized Hits");
+            value = tr("Normalized Reads");
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -80,6 +80,12 @@ QVariant GeneSelectionItemModel::headerData(int section, Qt::Orientation orienta
     return QVariant(QVariant::Invalid);
 }
 
+Qt::ItemFlags GeneSelectionItemModel::flags(const QModelIndex& index) const
+{
+    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+    return defaultFlags;
+}
+
 void GeneSelectionItemModel::sort(int column, Qt::SortOrder order)
 {
     QAbstractItemModel::sort(column, order);
@@ -87,7 +93,7 @@ void GeneSelectionItemModel::sort(int column, Qt::SortOrder order)
 
 int GeneSelectionItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() || m_geneselection_reference.isNull() ? 0 : m_geneselection_reference->count();
+    return parent.isValid()  ? 0 : m_geneselection_reference.count();
 }
 
 int GeneSelectionItemModel::columnCount(const QModelIndex& parent) const
@@ -106,7 +112,27 @@ void GeneSelectionItemModel::loadGenes(DataProxy::FeatureListPtr selection)
 {
     beginResetModel();
     m_geneselection_reference.clear(); //NOTE genelist is just a reference
-    m_geneselection_reference = selection;
+
+    //TODO this is very BAD, the idea is to accumulate the hits
+    //of the features with the same gene, this needs to be improved
+    //either here doing more efficiently or in the sender sending
+    //the elements already accumulated
+
+    QMap<QString, int> tempMap;
+    foreach (const DataProxy::FeaturePtr feature, (*selection)) {
+        const QString name = feature->gene();
+        const int hits = feature->hits();
+        if ( tempMap.count( name) ) {
+            tempMap[name] += hits;
+        } else {
+            tempMap.insert(name, hits);
+        }
+    }
+    QMap<QString, int>::const_iterator i = tempMap.constBegin();
+     while (i != tempMap.constEnd()) {
+         m_geneselection_reference.append(featurePair(i.key(), i.value()));
+         ++i;
+     }
     endResetModel();
 }
 

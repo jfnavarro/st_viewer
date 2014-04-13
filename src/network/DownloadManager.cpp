@@ -38,8 +38,6 @@ void DataRequest::slotError(Error *error)
     emit signalError(error);
 }
 
-/*****************************************************************************************/
-
 DownloadManager::DownloadManager(async::DataRequest *request, QObject * parent) :
     QObject(parent), m_request(request)
 {

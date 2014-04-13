@@ -44,7 +44,8 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
     DEBUG_FUNC_NAME
     // request token based on valid refresh token
     const StringPair requestType(Globals::LBL_GRANT_TYPE, Globals::SettingsRefreshToken);
-    const StringPair requestData(Globals::SettingsRefreshToken, refreshToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
+    const StringPair requestData(Globals::SettingsRefreshToken,
+                                 refreshToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
     requestToken(requestType, requestData);
 }
 
@@ -124,11 +125,9 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
         ObjectParser::parseObject(result, &dto);
-
         QUuid accessToken = QUuid(dto.accessToken());
-        int expiresIn = dto.expiresIn();
+        const int expiresIn = dto.expiresIn();
         QUuid refreshToken = QUuid(dto.refreshToken());
-
         if (!accessToken.isNull() && (expiresIn >= 0) && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         }
@@ -151,7 +150,6 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
             qDebug() << "[OAuth2] Network Reply Error " << errorName << " : " << errorDescription;;
             error = new OAuth2Error(errorName, errorDescription, this);
         }
-
         emit signalError(error);
     }
     //clean up
