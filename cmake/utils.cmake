@@ -70,6 +70,13 @@ macro(use_qt5lib qt5lib)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
 endmacro()
 
+macro(LINUX_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
+    foreach(PLUGIN_NAME ${ARGN})
+        install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                DESTINATION plugins/${PLUGIN_CATEGORY})
+    endforeach()
+endmacro()
+
 macro(WINDOWS_DEPLOY_QT_LIBRARIES)
     foreach(LIBRARY ${ARGN})
         windows_deploy_library(${QT_BINARY_DIR}
