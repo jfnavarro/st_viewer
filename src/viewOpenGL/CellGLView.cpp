@@ -6,7 +6,7 @@
 */
 
 #include "CellGLView.h"
-
+#include "RubberbandGL.h"
 #include "math/Common.h"
 #include "utils/Utils.h"
 
@@ -138,6 +138,9 @@ void CellGLView::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_initialized = true;
+    Q_ASSERT(!m_rubberband);
+    m_rubberband = new RubberbandGL();
+    m_nodes.push_back(m_rubberband);
 }
 
 void CellGLView::paintGL()
@@ -375,7 +378,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
             setCursor(Qt::PointingHandCursor);
             m_rubberBanding = true;
             m_originRubberBand = event->pos();
-            m_rubberBandRect = QRect();
+	    m_rubberband->setRubberbandRect(QRect());
         }
     }
     event->ignore();
@@ -394,8 +397,9 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         unsetCursor();
         const QPoint origin = m_originRubberBand;
         QPoint destiny = event->pos();
-        m_rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+        QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+        m_rubberband->setRubberbandRect(rubberBandRect);
 
         //TODO paint rubberband
 
@@ -407,7 +411,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
                     node_trans *= sceneTransformations();
                 }
                 // map selected area to node cordinate system
-                QRectF transformed = node_trans.inverted().mapRect(m_rubberBandRect);
+                QRectF transformed = node_trans.inverted().mapRect(rubberBandRect);
                 // if selection area is not inside the bounding rect select empty rect
                 if ( !node->boundingRect().contains(transformed) ) {
                     transformed = QRectF();
@@ -422,7 +426,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         }
         // reset variables
         m_rubberBanding = false;
-        m_rubberBandRect = QRect();
+        m_rubberband->setRubberbandRect(QRect());
 
         //TODO paint rubberband
     }
@@ -442,8 +446,10 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         // get rubberband
         const QPoint origin = m_originRubberBand;
         QPoint destiny = event->pos();
-        m_rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+        QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+        m_rubberband->setRubberbandRect(rubberBandRect);
+	update();
         //TODO paint rubberband
     }
     else {

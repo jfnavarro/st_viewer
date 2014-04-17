@@ -8,6 +8,7 @@ set(LIBRARY_ARG_INCLUDES
     MiniMapGL.h
     GraphicItemGL.h
     SelectionEvent.h
+    RubberbandGL.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -19,6 +20,7 @@ set(LIBRARY_ARG_SOURCES
     ImageTextureGL.cpp
     MiniMapGL.cpp
     GraphicItemGL.cpp
+    RubberbandGL.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

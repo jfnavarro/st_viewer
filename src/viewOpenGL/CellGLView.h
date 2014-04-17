@@ -18,6 +18,7 @@ class QSurfaceFormat;
 class QVector3D;
 class QOpenGLContext;
 class QRubberBand;
+class RubberbandGL;
 
 /* CellGLView is a container
  * to render OpenGL GraphicItemGL type objects
@@ -123,7 +124,7 @@ private:
     QPoint m_originRubberBand = QPoint(-1, -1);
     bool m_panning = false;
     bool m_rubberBanding = false;
-    QRect m_rubberBandRect;
+    RubberbandGL *m_rubberband = nullptr;
     qreal m_rotate = 0.0;
     QPointF m_scene_focus_center_point;
     // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later
