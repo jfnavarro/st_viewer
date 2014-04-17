@@ -27,6 +27,7 @@ RubberbandGL::~RubberbandGL() {
 }
 
 const QRectF RubberbandGL::boundingRect() const {
+    // TODO: Fix this. Ugly hack. This is just a very big QRectF.
     return QRectF(QPointF(0.0,0.0),QSizeF(100000.0,100000.0));
 }
 
