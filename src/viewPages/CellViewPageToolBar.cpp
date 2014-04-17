@@ -12,7 +12,7 @@
 #include <QWidgetAction>
 #include <QComboBox>
 #include <QToolButton>
-
+#include <QMacNativeWidget>
 
 #include "SpinBoxSlider.h"
 

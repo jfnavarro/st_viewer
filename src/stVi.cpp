@@ -292,7 +292,7 @@ void stVi::initStyle()
     setUnifiedTitleAndToolBarOnMac(true); //working again in qt 5.2.1
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
     QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false); //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true); //osx does not show icons on menus
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
 #endif

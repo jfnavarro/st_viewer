@@ -17,8 +17,6 @@ class QActionGroup;
 class QAction;
 class QWidgetAction;
 class QToolBar;
-
-
 class SpinBoxSlider;
 class QSlider;
 class QComboBox;

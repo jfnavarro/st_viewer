@@ -92,12 +92,12 @@ void CellViewPage::onInit()
 
     //mouse tracking could cause problems on OSX
 #if defined Q_OS_MAC
-    ui->lineEdit->setMouseTracking(true);
-    ui->lineEdit->setFocusPolicy(Qt::ClickFocus);
-    ui->genes_tableview->setFocusPolicy(Qt::NoFocus);
-    ui->genes_tableview->setMouseTracking(false);
-    ui->selectAllGenes->setFocusPolicy(Qt::NoFocus);
-    ui->selectAllGenes->setMouseTracking(false);
+//    ui->lineEdit->setMouseTracking(true);
+//    ui->lineEdit->setFocusPolicy(Qt::ClickFocus);
+//    ui->genes_tableview->setFocusPolicy(Qt::NoFocus);
+//    ui->genes_tableview->setMouseTracking(false);
+//    ui->selectAllGenes->setFocusPolicy(Qt::NoFocus);
+//    ui->selectAllGenes->setMouseTracking(false);
 #endif
 
     // color dialogs
