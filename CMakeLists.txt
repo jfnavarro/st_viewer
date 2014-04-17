@@ -62,6 +62,14 @@ if(WIN32)
   add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o
     COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR} -i${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.rc
     -o ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o )
+  # On the newly bought windows laptop st-windows1.scilifelab.se
+  # git-gui gives the error:
+  # Failed to find "glu32" 
+  # 
+  # The suggested solution in 
+  # http://www.qtcentre.org/threads/56185-cmake-error-with-Failed-to-find-quot-glu32-quot-in-quot-quot?p=251234
+  # solves the issue. Maybe it's a Qt bug?
+  set(CMAKE_LIBRARY_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
 endif (WIN32)
 
 # Some in-house CMake functions/macros
