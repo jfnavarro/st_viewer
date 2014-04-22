@@ -61,8 +61,10 @@ public:
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
-    virtual bool contains(const QPointF& point) const;
-    virtual bool contains(const QRectF& point) const;
+
+    // bounding rect boundaries check
+    bool contains(const QPointF& point) const;
+    bool contains(const QRectF& point) const;
 
     // graphic elements can be sent mouse events
     virtual void mouseMoveEvent(QMouseEvent* event);
@@ -70,6 +72,9 @@ public:
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
     virtual void setSelectionArea(const SelectionEvent *event) = 0;
+
+    // drawing functions
+    void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
 
 public slots:
 

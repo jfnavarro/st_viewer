@@ -39,53 +39,24 @@ MiniMapGL::~MiniMapGL()
 
 void MiniMapGL::setScene(const QRectF scene)
 {
-    // early out
-    if ( !scene.isValid() ) {
-        return;
+    if ( !scene.isValid() && scene != m_scene) {
+        m_scene = scene;
     }
-    m_scene = scene;
 }
 
 void MiniMapGL::setViewPort(const QRectF view)
 {
-    // early out
-    if ( !view.isValid() ) {
-        return;
+    if ( view.isValid() && m_viewPort != view) {
+        m_viewPort = view;
     }
-    m_viewPort = view;
 }
 
 void MiniMapGL::setParentSceneTransformations(const QTransform transform)
 { 
-    m_parentSceneTransformations = transform;
-    emit updated();
-}
-
-void MiniMapGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
-{
-    const QPointF stl = rect.topLeft();
-    const QPointF str = rect.topRight();
-    const QPointF sbr = rect.bottomRight();
-    const QPointF sbl = rect.bottomLeft();
-    QVector2DArray vertices;
-    vertices.append(stl.x(), stl.y());
-    vertices.append(str.x(), str.y());
-    vertices.append(sbr.x(), sbr.y());
-    vertices.append(sbl.x(), sbl.y());
-
-    color.setAlphaF(0.2);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
-    painter->draw(QGL::TriangleFan, vertices.size());
-
-    color.setAlphaF(0.8);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
-    painter->draw(QGL::LineLoop, vertices.size());
+    if (m_parentSceneTransformations != transform) {
+        m_parentSceneTransformations = transform;
+        emit updated();
+    }
 }
 
 QTransform MiniMapGL::localTransform() const
@@ -93,8 +64,7 @@ QTransform MiniMapGL::localTransform() const
     const QSizeF maxBoundingSize(minimap_height, minimap_width);
     const QSizeF sceneScaledSize = m_scene.size().scaled(maxBoundingSize, Qt::KeepAspectRatio );
     const qreal scaleFactor = sceneScaledSize.height() / m_scene.height();
-    QTransform transform;
-    transform.scale(scaleFactor, scaleFactor);
+    QTransform transform = QTransform::fromScale(scaleFactor, scaleFactor);
     const QPointF top_left = transform.mapRect(m_scene).topLeft();
     transform.translate(top_left.x(), top_left.y());
     return transform;

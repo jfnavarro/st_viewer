@@ -31,8 +31,10 @@ public:
     virtual ~RubberbandGL();
 
     const QRectF boundingRect() const;
-    void setRubberbandRect(const QRectF &rect);
+    void setRubberbandRect(const QRectF rect);
     void setSelectionArea(const SelectionEvent *event);
+
+    void setBoundingRect(const QRectF rect);
 
 public slots:
 
@@ -43,9 +45,8 @@ protected:
 
 private:
 
-    static void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
-
     QRectF m_rubberbandrect;
+    QRectF m_boundingRect;
 };
 
 #endif // RUBBERBANDGL_H //

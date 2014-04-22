@@ -20,9 +20,9 @@
 #include <QGuiApplication>
 #include <QVector2DArray>
 #include <QRubberBand>
+#include <QOpenGLFramebufferObject>
 
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
-//static const qreal MAX_ZOOM_DIVIDE_FACTOR = 100.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 
@@ -37,8 +37,10 @@ bool nodeIsSelectable(const GraphicItemGL &node) {
 CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent)
 {
+    //init projection matrix to id
     m_projm.setToIdentity();
 
+    //creates and sets the OpenGL format
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     format.setDepthBufferSize(0);
     format.setAlphaBufferSize(24);
@@ -51,35 +53,52 @@ CellGLView::CellGLView(QScreen *parent) :
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
 
+    // creates qwindow context
     create();
-}
 
-void CellGLView::reset()
-{
+    //TODO consider decoupling rubberband object and view
+    m_rubberband = new RubberbandGL();
+    m_rubberband->setAnchor(Globals::Anchor::None);
 
+    //FBO format
+    m_fboFormat.setAttachment(QOpenGLFramebufferObject::NoAttachment);
+    m_fboFormat.setInternalTextureFormat(GL_RGBA8); //GL_RGBA
+    m_fboFormat.setMipmap(false);
+    m_fboFormat.setSamples(0);
+    m_fboFormat.setTextureTarget(GL_TEXTURE_2D);
 }
 
 CellGLView::~CellGLView()
 {
-    //NOTE View does not own rendering nodes nor texture
-    // draw rendering nodes
+    //m_rubberband is also in the list
     foreach(GraphicItemGL *node, m_nodes) {
         delete node;
         node = 0;
     }
+
     if ( m_context ) {
         delete m_context;
     }
     m_context = 0;
+
+    if ( m_fbo ) {
+        delete m_fbo;
+    }
+    m_fbo = 0;
+
+    if ( m_rubberband ) {
+        delete m_rubberband;
+    }
+    m_rubberband = 0;
 }
 
 void CellGLView::resizeFromGeometry()
 {
-    const QRect rect = geometry();
     ensureContext();
     if ( !m_initialized ) {
         initializeGL();
     }
+    const QRect rect = geometry();
     resizeGL(rect.width(), rect.height());
 }
 
@@ -138,49 +157,96 @@ void CellGLView::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_initialized = true;
-    Q_ASSERT(!m_rubberband);
-    m_rubberband = new RubberbandGL();
-    m_nodes.push_back(m_rubberband);
 }
 
 void CellGLView::paintGL()
 {
+    if (!m_fbo) {
+        return;
+    }
+
     //NOTE not needed it seems...
     //QGLTexture2D::processPendingResourceDeallocations();
 
+    //create OpenGL painter
     QGLPainter painter;
     painter.begin();
 
+    // set the projection matrix
+    painter.projectionMatrix() = m_projm;
+
+    //push FBO surface
+    //m_fboSurface.activate();
+    //m_fbo->bind();
+    //painter.pushSurface(&m_fboSurface);
+
+    // clear color buffer
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    painter.projectionMatrix() = m_projm;
-
-    // draw rendering nodes
-    foreach(GraphicItemGL *node, m_nodes) {
-        if ( node->visible() ) {
-            QTransform local_transform = nodeTransformations(node);
-            if ( node->transformable() ) {
-                local_transform *= sceneTransformations();
+    //if ( !m_rubberBanding ) {
+        // draw rendering nodes
+        foreach(GraphicItemGL *node, m_nodes) {
+            if ( node->visible() ) {
+                QTransform local_transform = nodeTransformations(node);
+                if ( node->transformable() ) {
+                    local_transform *= sceneTransformations();
+                }
+                painter.modelViewMatrix().push();
+                painter.modelViewMatrix() *= local_transform;
+                node->draw(&painter);
+                painter.modelViewMatrix().pop();
             }
-            painter.modelViewMatrix().push();
-            painter.modelViewMatrix() *= local_transform;
-            node->draw(&painter);
-            painter.modelViewMatrix().pop();
         }
-    }
-
+    //}
     glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+    //painter.popSurface();
+    //m_fbo->release();
+    //m_fboSurface.deactivate();
+
+    // draw rubberBand onto FBO
+    /*painter.setStandardEffect(QGL::LitDecalTexture2D);
+    const QRectF target = m_scene;
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture(GL_TEXTURE_2D, m_fbo->texture());
+    glBegin(GL_QUADS);
+    glTexCoord2d(0.0,1.0);
+    glVertex2d(target.left(), target.top());
+    glTexCoord2d(1.0,1.0);
+    glVertex2d(target.right() + 1, target.top());
+    glTexCoord2d(1.0,0.0);
+    glVertex2d(target.right() + 1, target.bottom() + 1);
+    glTexCoord2d(0.0,0.0);
+    glVertex2d(target.left(), target.bottom() + 1);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    */
+    if ( m_rubberBanding && m_rubberband ) {
+        GraphicItemGL *node = dynamic_cast<GraphicItemGL*>(m_rubberband);
+        painter.modelViewMatrix().push();
+        painter.modelViewMatrix() *= nodeTransformations(node);
+        node->draw(&painter);
+        painter.modelViewMatrix().pop();
+    }
 }
 
 void CellGLView::resizeGL(int width, int height)
 {
     //devicePixelRatio() fixes the problem with MAC retina
     const qreal pixelRatio = devicePixelRatio();
-    glViewport(0.0, 0.0, width * pixelRatio, height * pixelRatio);
-    const QRectF newViewPort(QRectF(0.0, 0.0, width * pixelRatio, height * pixelRatio));
-    setViewPort(newViewPort);
-    if (m_scene.isValid()) {
+    const qreal newWidth = width * pixelRatio;
+    const qreal newHeight = height * pixelRatio;
+    const QRectF newViewport = QRectF(0.0, 0.0, newWidth, newHeight);
+    //update projection matrix
+    m_projm.setToIdentity();
+    m_projm.ortho(newViewport);
+    //create viewport
+    glViewport(0.0, 0.0, newWidth, newHeight);
+    setViewPort(newViewport);
+
+    if ( m_scene.isValid() ) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);  
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -222,7 +288,7 @@ qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
 void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
 {
     const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
-    if (m_zoom_factor != new_zoom_factor) {
+    if ( m_zoom_factor != new_zoom_factor ) {
         m_zoom_factor = new_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -237,7 +303,7 @@ void CellGLView::centerOn(const QPointF& point)
 
 void CellGLView::rotate(qreal angle)
 {
-    if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle ) {
+    if ( angle >= -180.0 && angle <= 180.0 && m_rotate != angle ) {
         m_rotate += angle;
         STMath::clamp(m_rotate, -360.0, 360.0);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -249,8 +315,6 @@ void CellGLView::setViewPort(const QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
         m_viewport = viewport;
-        m_projm.setToIdentity();
-        m_projm.ortho(viewport);
         emit signalViewPortUpdated(m_viewport);
         emit signalSceneTransformationsUpdated(sceneTransformations());
     }
@@ -260,9 +324,23 @@ void CellGLView::setScene(const QRectF scene)
 {
     if ( m_scene != scene && scene.isValid() ) {
         m_scene = scene;
+
+        // update FBO UGLY this here...
+        if ( m_fbo ) {
+            delete m_fbo;
+            m_fbo = 0;
+        }
+        m_fbo = new QOpenGLFramebufferObject(m_scene.width(), m_scene.height(), m_fboFormat);
+        m_fboSurface.setFramebufferObject(m_fbo);
+
+        //update the rubberband bounding rect
+        m_rubberband->setBoundingRect(m_scene);
+
         m_scene_focus_center_point = m_scene.center();
-        m_zoom_factor = minZoom();
         Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
+
+        m_zoom_factor = minZoom();
+
         emit signalSceneUpdated(m_scene);
         emit signalSceneTransformationsUpdated(sceneTransformations());
     }
@@ -294,6 +372,8 @@ qreal CellGLView::maxZoom() const
 
 const QImage CellGLView::grabPixmapGL() const
 {
+    return m_fbo->toImage();
+/*
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);
@@ -308,6 +388,11 @@ const QImage CellGLView::grabPixmapGL() const
         }
     }
     return res.mirrored();
+*/
+}
+
+void CellGLView::setSelectionMode(const bool selectionMode) {
+    m_selecting = selectionMode;
 }
 
 void CellGLView::zoomIn()
@@ -352,16 +437,51 @@ bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *ev
             else {
                 qDebug() << "Mouse event type not recognized";
             }
-	}
+        }
     }
     return mouseEventWasSentToAtleastOneNode;
+}
+
+void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
+                                            const QMouseEvent *event) {
+    // notify nodes for rubberband
+    foreach(GraphicItemGL *node, m_nodes) {
+        if ( node->rubberBandable() ) {
+            QTransform node_trans = nodeTransformations(node);
+            if ( node->transformable() ) {
+                node_trans *= sceneTransformations();
+            }
+            // map selected area to node cordinate system
+            QRectF transformed = node_trans.inverted().mapRect(rubberBand);
+            // if selection area is not inside the bounding rect select empty rect
+            if ( !node->boundingRect().contains(transformed) ) {
+                transformed = QRectF();
+            }
+            // Set the new selection area
+            SelectionEvent::SelectionMode mode =
+                    SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+            SelectionEvent selectionEvent(transformed, mode);
+            // send selection event to node
+            node->setSelectionArea(&selectionEvent);
+        }
+    }
 }
 
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     const QPoint point = event->pos();
-    // first send the event to any non-transformable nodes under the mouse click. 
-    if (!sendMouseEventToNodes(point,
+
+    //first check if we are in selection mode
+    if ( m_selecting && !m_rubberBanding ) {
+        // rubberbanding changes cursor to pointing hand
+        setCursor(Qt::PointingHandCursor);
+        m_rubberBanding = true;
+        m_originRubberBand = event->pos();
+        m_rubberband->setRubberbandRect(QRect());
+        update();
+    }
+    // otherwise send the event to any non-transformable nodes under the mouse click.
+    else if (!sendMouseEventToNodes(point,
                                event,
                                pressType,
                                nodeIsSelectableButNotTransformable)) {
@@ -369,16 +489,8 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         if (event->button() == Qt::LeftButton) {
             m_panning = true;
             m_originPanning = event->globalPos(); //panning needs globalPos
-
             // notify nodes of the mouse event
             sendMouseEventToNodes(point, event, pressType, nodeIsSelectable);
-        }
-        else if ( event->button() == Qt::RightButton && !m_rubberBanding ) {
-            // rubberbanding changes cursor to pointing hand
-            setCursor(Qt::PointingHandCursor);
-            m_rubberBanding = true;
-            m_originRubberBand = event->pos();
-	    m_rubberband->setRubberbandRect(QRect());
         }
     }
     event->ignore();
@@ -386,74 +498,55 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
 
 void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::LeftButton ) {
-        unsetCursor();
-        m_panning = false;
-        QPoint point = event->pos();
-        // notify nodes of the mouse event
-        sendMouseEventToNodes(point, event, releaseType, nodeIsSelectable);
-    }
-    else if ( event->button() == Qt::RightButton && m_rubberBanding ) {
+    // first check if we are selecting
+    if ( m_selecting && m_rubberBanding ) {
         unsetCursor();
         const QPoint origin = m_originRubberBand;
-        QPoint destiny = event->pos();
-        QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+        const QPoint destiny = event->pos();
+        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
                                  qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
-        m_rubberband->setRubberbandRect(rubberBandRect);
 
-        //TODO paint rubberband
+        //m_rubberband->setRubberbandRect(rubberBandRect);
+        sendRubberBandEventToNodes(rubberBandRect, event);
 
-        // notify nodes for rubberband
-        foreach(GraphicItemGL *node, m_nodes) {
-            if (node->rubberBandable() ) {
-                QTransform node_trans = nodeTransformations(node);
-                if ( node->transformable() ) {
-                    node_trans *= sceneTransformations();
-                }
-                // map selected area to node cordinate system
-                QRectF transformed = node_trans.inverted().mapRect(rubberBandRect);
-                // if selection area is not inside the bounding rect select empty rect
-                if ( !node->boundingRect().contains(transformed) ) {
-                    transformed = QRectF();
-                }
-                // Set the new selection area
-                SelectionEvent::SelectionMode mode =
-                        SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-                SelectionEvent selectionEvent(transformed, mode);
-                // send selection event to node
-                node->setSelectionArea(&selectionEvent);
-            }
-        }
         // reset variables
         m_rubberBanding = false;
         m_rubberband->setRubberbandRect(QRect());
+        update();
 
-        //TODO paint rubberband
+    } //otherwise
+    else if ( event->button() == Qt::LeftButton ) {
+        unsetCursor();
+        m_panning = false;
+        const QPoint point = event->pos();
+        // notify nodes of the mouse event
+        sendMouseEventToNodes(point, event, releaseType, nodeIsSelectable);
     }
     event->ignore();
 }
 
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
-    if ( event->buttons() & Qt::LeftButton &&  m_panning ) {
+    // first check if we are in selection mode
+    if ( m_selecting && m_rubberBanding  ) {
+        // get rubberband
+        const QPoint origin = m_originRubberBand;
+        const QPoint destiny = event->pos();
+        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
+                                 qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+         m_rubberband->setRubberbandRect(rubberBandRect);
+         update();
+    }
+    else if ( event->buttons() & Qt::LeftButton &&  m_panning ) {
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
         QPoint point = event->globalPos(); //panning needs global pos
-        QPointF pan_adjustment = QPointF(point -m_originPanning) / m_zoom_factor;
-        setSceneFocusCenterPointWithClamping(pan_adjustment+ m_scene_focus_center_point);
+        const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
+        setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
         m_originPanning = point;
-    } else if ( event->buttons() & Qt::RightButton && m_rubberBanding  ) {
-        // get rubberband
-        const QPoint origin = m_originRubberBand;
-        QPoint destiny = event->pos();
-        QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                                 qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
-        m_rubberband->setRubberbandRect(rubberBandRect);
-	update();
-        //TODO paint rubberband
     }
     else {
-        QPoint point = event->pos();
+        const QPoint point = event->pos();
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);
     }
@@ -500,15 +593,14 @@ QPointF CellGLView::sceneFocusCenterPoint() const {
 
 void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF center_point)
 {
-    QRectF allowed_center_points_rect = allowedCenterPoints();
-
+    const QRectF allowed_center_points_rect = allowedCenterPoints();
     QPointF clamped_point = center_point;
     clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
     clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
     clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
     clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
 
-    if ( clamped_point != m_scene_focus_center_point) {
+    if ( clamped_point != m_scene_focus_center_point ) {
         m_scene_focus_center_point = clamped_point;
         emit signalSceneTransformationsUpdated(sceneTransformations());
         update();

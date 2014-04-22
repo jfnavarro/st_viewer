@@ -144,8 +144,7 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
-    m_texture->setBindOptions(QGLTexture2D::LinearFilteringBindOption
-                              | QGLTexture2D::MipmapBindOption);
+    m_texture->setBindOptions(QGLTexture2D::NoBindOption); //QGLTexture2D::LinearFilteringBindOption | QGLTexture2D::MipmapBindOption
     m_texture->setSize(QSize(width, height));
 
     QGLMaterial *mat = new QGLMaterial;

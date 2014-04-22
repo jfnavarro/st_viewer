@@ -64,7 +64,6 @@ private:
 
     // internal functions
     QTransform localTransform() const;
-    static void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
     void centerOnLocalPos(const QPointF &localPoint);
 
     // mini versions

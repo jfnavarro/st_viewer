@@ -8,8 +8,11 @@
 #define CELLGLVIEW_H
 
 #include <QWindow>
+#include <QGLFramebufferObjectSurface>
+
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
+
 #include <functional>
 
 class QGLPainter;
@@ -19,6 +22,7 @@ class QVector3D;
 class QOpenGLContext;
 class QRubberBand;
 class RubberbandGL;
+class QGLFramebufferObject;
 
 /* CellGLView is a container
  * to render OpenGL GraphicItemGL type objects
@@ -49,11 +53,12 @@ public:
 
     const QImage grabPixmapGL() const;
 
-    void reset();
     QRectF allowedCenterPoints() const;
     QPointF sceneFocusCenterPoint() const;
 
 public slots:
+
+    void setSelectionMode(const bool selectionMode);
 
     void zoomOut();
     void zoomIn();
@@ -103,6 +108,9 @@ private:
     qreal minZoom() const;
     qreal maxZoom() const;
 
+    // notify rubberbandable nodes with a rubberband event
+    void sendRubberBandEventToNodes(const QRectF rubberBand, const QMouseEvent *event);
+
     // returns true if the event was sent to at least one of the nodes
     bool sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
 				       const MouseEventType type, const FilterFunc filterFunc);
@@ -124,6 +132,7 @@ private:
     QPoint m_originRubberBand = QPoint(-1, -1);
     bool m_panning = false;
     bool m_rubberBanding = false;
+    bool m_selecting = false;
     RubberbandGL *m_rubberband = nullptr;
     qreal m_rotate = 0.0;
     QPointF m_scene_focus_center_point;
@@ -133,6 +142,11 @@ private:
 
     // scene viewport projection
     QMatrix4x4 m_projm;
+
+    // frame buffer object
+    QOpenGLFramebufferObject* m_fbo = nullptr;
+    QGLFramebufferObjectSurface m_fboSurface;
+    QOpenGLFramebufferObjectFormat m_fboFormat;
 };
 
 #endif // CELLGLVIEW_H

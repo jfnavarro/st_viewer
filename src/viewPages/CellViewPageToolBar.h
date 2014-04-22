@@ -29,6 +29,7 @@ public:
 
     // actions for toolbar
 
+    QAction *m_actionActivateSelectionMode = nullptr;
     QAction *m_actionNavigate_goBack = nullptr;
     QAction *m_actionSave_save = nullptr;
     QAction *m_actionSave_print = nullptr;

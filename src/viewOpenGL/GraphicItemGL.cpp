@@ -7,6 +7,7 @@
 
 #include "GraphicItemGL.h"
 #include <QVector3D>
+#include <QGLPainter>
 
 GraphicItemGL::GraphicItemGL(QObject *parent) :
     QObject(parent)
@@ -168,4 +169,31 @@ void GraphicItemGL::mousePressEvent(QMouseEvent* event)
 void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
+}
+
+void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
+{
+    const QPointF stl = rect.topLeft();
+    const QPointF str = rect.topRight();
+    const QPointF sbr = rect.bottomRight();
+    const QPointF sbl = rect.bottomLeft();
+    QVector2DArray vertices;
+    vertices.append(stl.x(), stl.y());
+    vertices.append(str.x(), str.y());
+    vertices.append(sbr.x(), sbr.y());
+    vertices.append(sbl.x(), sbl.y());
+
+    color.setAlphaF(0.2);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(color);
+    painter->setVertexAttribute(QGL::Position, vertices );
+    painter->draw(QGL::TriangleFan, vertices.size());
+
+    color.setAlphaF(0.8);
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatColor);
+    painter->setColor(color);
+    painter->setVertexAttribute(QGL::Position, vertices );
+    painter->draw(QGL::LineLoop, vertices.size());
 }

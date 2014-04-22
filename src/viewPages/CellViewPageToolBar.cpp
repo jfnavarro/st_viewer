@@ -41,6 +41,7 @@ void addSliderToMenu(QWidget *parent, const QString &str,
     Q_ASSERT(slider_ptr != nullptr);
     Q_ASSERT(*slider_ptr == nullptr);
     Q_ASSERT(menu != nullptr);
+
     QSlider *slider = new QSlider(parent);
     *slider_ptr = slider;
     slider->setRange(rangeMin, rangeMax);
@@ -63,12 +64,14 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     setIconSize(QSize(35, 35));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
     //tool bar actions
     addAction(m_actionNavigate_goBack);
     addSeparator();
     addAction(m_actionZoom_zoomIn);
     addAction(m_actionZoom_zoomOut);
     addSeparator();
+    addAction(m_actionActivateSelectionMode);
     addAction(m_actionSelection_showSelectionDialog);
     addSeparator();
     addAction(m_actionSave_save);
@@ -103,21 +106,21 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     // transcripts intensity
     addSliderToMenu(this,
                     tr("Opacity:"),
-                    tr("Intensity of the transcripts."),
+                    tr("Intensity of the genes."),
                     m_menu_genePlotter,
                     &m_geneIntensitySlider,
                     GENE_INTENSITY_MIN,
                     GENE_INTENSITY_MAX);
     addSliderToMenu(this,
                     tr("Size:"),
-                    tr("Size of the transcripts."),
+                    tr("Size of the genes."),
                     m_menu_genePlotter,
                     &m_geneSizeSlider,
                     GENE_SIZE_MIN,
                     GENE_SIZE_MAX);
     addSliderToMenu(this,
                     tr("Shine:"),
-                    tr("Shine"),
+                    tr("Shine level of the genes"),
                     m_menu_genePlotter,
                     &m_geneShineSlider,
                     GENE_SHIMME_MIN,
@@ -187,7 +190,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     addSliderToMenu(this,
                     tr("Brightness:"),
-                    tr("Brightness"),
+                    tr("Brightness level of the Cell Tissue"),
                     m_menu_cellTissue,
                     &m_geneBrightnessSlider,
                     BRIGHTNESS_MIN,
@@ -336,6 +339,8 @@ void CellViewPageToolBar::createActions()
     m_actionSave_print = new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
 
     //selection actions
+    m_actionActivateSelectionMode = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
+    m_actionActivateSelectionMode->setCheckable(true);
     m_actionSelection_showSelectionDialog = new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
 
     // color dialogs

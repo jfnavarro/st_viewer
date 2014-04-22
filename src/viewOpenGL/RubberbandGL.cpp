@@ -20,54 +20,33 @@ RubberbandGL::RubberbandGL(QObject *parent)
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
     setVisualOption(GraphicItemGL::RubberBandable, false);
-    m_anchor =  Globals::Anchor::None;
 }
 
 RubberbandGL::~RubberbandGL() {
 }
 
 const QRectF RubberbandGL::boundingRect() const {
-    // TODO: Fix this. Ugly hack. This is just a very big QRectF.
-    return QRectF(QPointF(0.0,0.0),QSizeF(100000.0,100000.0));
+    return m_boundingRect;
 }
 
-void RubberbandGL::setRubberbandRect(const QRectF &rect) {
-    m_rubberbandrect = rect;
+void RubberbandGL::setRubberbandRect(const QRectF rect) {
+    if ( rect.isValid() && m_rubberbandrect != rect) {
+        m_rubberbandrect = rect;
+    }
 }
 
 void RubberbandGL::setSelectionArea(const SelectionEvent *) {
 }
 
-void RubberbandGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
-{
-    const QPointF stl = rect.topLeft();
-    const QPointF str = rect.topRight();
-    const QPointF sbr = rect.bottomRight();
-    const QPointF sbl = rect.bottomLeft();
-    QVector2DArray vertices;
-    vertices.append(stl.x(), stl.y());
-    vertices.append(str.x(), str.y());
-    vertices.append(sbr.x(), sbr.y());
-    vertices.append(sbl.x(), sbl.y());
-
-    color.setAlphaF(0.2);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
-    painter->draw(QGL::TriangleFan, vertices.size());
-
-    color.setAlphaF(0.8);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
-    painter->draw(QGL::LineLoop, vertices.size());
+void RubberbandGL::setBoundingRect(const QRectF rect) {
+    if ( rect.isValid() && rect != m_boundingRect ) {
+        m_boundingRect = rect;
+    }
 }
 
 void RubberbandGL::draw(QGLPainter *painter)
 {
-    if (!m_rubberbandrect.isNull()) {
+    if ( !m_rubberbandrect.isNull() && m_rubberbandrect.isValid() ) {
         drawBorderRect(m_rubberbandrect, Qt::blue, painter);
     }
 }

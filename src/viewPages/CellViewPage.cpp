@@ -90,16 +90,6 @@ void CellViewPage::onInit()
     //gene search displays a clear button
     ui->lineEdit->setClearButtonEnabled(true);
 
-    //mouse tracking could cause problems on OSX
-#if defined Q_OS_MAC
-//    ui->lineEdit->setMouseTracking(true);
-//    ui->lineEdit->setFocusPolicy(Qt::ClickFocus);
-//    ui->genes_tableview->setFocusPolicy(Qt::NoFocus);
-//    ui->genes_tableview->setMouseTracking(false);
-//    ui->selectAllGenes->setFocusPolicy(Qt::NoFocus);
-//    ui->selectAllGenes->setMouseTracking(false);
-#endif
-
     // color dialogs
     m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID);
      //OSX native color dialog gives problems
@@ -234,6 +224,8 @@ void CellViewPage::createConnections()
     connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
 
     // selection mode
+    connect(m_toolBar->m_actionActivateSelectionMode,
+            SIGNAL(triggered(bool)), m_view, SLOT(setSelectionMode(bool)));
     connect(m_toolBar->m_actionSelection_showSelectionDialog,
             SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
 
