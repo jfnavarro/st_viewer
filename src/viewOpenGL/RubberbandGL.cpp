@@ -26,22 +26,16 @@ RubberbandGL::~RubberbandGL() {
 }
 
 const QRectF RubberbandGL::boundingRect() const {
-    return m_boundingRect;
+    return QRectF();
 }
 
 void RubberbandGL::setRubberbandRect(const QRectF rect) {
-    if ( rect.isValid() && m_rubberbandrect != rect) {
+    if ( m_rubberbandrect != rect ) {
         m_rubberbandrect = rect;
     }
 }
 
 void RubberbandGL::setSelectionArea(const SelectionEvent *) {
-}
-
-void RubberbandGL::setBoundingRect(const QRectF rect) {
-    if ( rect.isValid() && rect != m_boundingRect ) {
-        m_boundingRect = rect;
-    }
 }
 
 void RubberbandGL::draw(QGLPainter *painter)

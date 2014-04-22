@@ -34,8 +34,6 @@ public:
     void setRubberbandRect(const QRectF rect);
     void setSelectionArea(const SelectionEvent *event);
 
-    void setBoundingRect(const QRectF rect);
-
 public slots:
 
 protected:
@@ -46,7 +44,6 @@ protected:
 private:
 
     QRectF m_rubberbandrect;
-    QRectF m_boundingRect;
 };
 
 #endif // RUBBERBANDGL_H //

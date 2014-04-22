@@ -142,11 +142,6 @@ private:
 
     // scene viewport projection
     QMatrix4x4 m_projm;
-
-    // frame buffer object
-    QOpenGLFramebufferObject* m_fbo = nullptr;
-    QGLFramebufferObjectSurface m_fboSurface;
-    QOpenGLFramebufferObjectFormat m_fboFormat;
 };
 
 #endif // CELLGLVIEW_H
