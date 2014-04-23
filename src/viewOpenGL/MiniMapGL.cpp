@@ -14,8 +14,8 @@
 
 #include "CellGLView.h"
 
-static const QColor minimap_view_color = Qt::red;
-static const QColor minimap_scene_color = Qt::blue;
+static const QColor minimap_view_color = Qt::blue;
+static const QColor minimap_scene_color = Qt::red;
 static const qreal minimap_height = 100.0;
 static const qreal minimap_width = 100.0;
 
