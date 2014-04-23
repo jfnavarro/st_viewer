@@ -57,11 +57,6 @@ void GridRendererGL::draw(QGLPainter *painter)
     glDisable(GL_LINE_SMOOTH);
 }
 
-void GridRendererGL::drawGeometry(QGLPainter *painter)
-{
-    Q_UNUSED(painter);
-}
-
 void GridRendererGL::clearData()
 {
     // chip grid stuff

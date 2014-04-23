@@ -33,13 +33,7 @@ public:
     const QRectF boundingRect() const;
     void setRubberbandRect(const QRectF rect);
     void setSelectionArea(const SelectionEvent *event);
-
-public slots:
-
-protected:
-
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
 private:
 

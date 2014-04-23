@@ -78,11 +78,6 @@ void ImageTextureGL::draw(QGLPainter *painter)
     glDisable(GL_TEXTURE_2D);
 }
 
-void ImageTextureGL::drawGeometry(QGLPainter *painter)
-{
-    Q_UNUSED(painter);
-}
-
 void ImageTextureGL::createTexture(const QImage& image)
 {
    clear();

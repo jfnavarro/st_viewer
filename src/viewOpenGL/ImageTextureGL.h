@@ -26,18 +26,15 @@ public:
 
     void clear();
 
-public slots:
-
-    void setIntensity(qreal intensity);
-
-protected:
-
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
     const QRectF boundingRect() const;
 
     void setSelectionArea(const SelectionEvent *) {};
+
+public slots:
+
+    void setIntensity(qreal intensity);
 
 private:
 

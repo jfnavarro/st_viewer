@@ -49,10 +49,7 @@ public slots:
 
     void setParentSceneTransformations(const QTransform transform);
 
-protected:
-
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
     void setSelectionArea(const SelectionEvent *) {};
 

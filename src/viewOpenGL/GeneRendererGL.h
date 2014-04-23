@@ -65,19 +65,15 @@ public slots:
 
     void clearSelection();
 
-signals:
-
-    void selectionUpdated();
-
-protected:
-
-    // inherited functions
     void setSelectionArea(const SelectionEvent *event);
 
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
     const QRectF boundingRect() const;
+
+signals:
+
+    void selectionUpdated();
 
 private:
 

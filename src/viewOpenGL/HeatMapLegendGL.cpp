@@ -76,11 +76,6 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
     glDisable(GL_TEXTURE_2D);
 }
 
-void HeatMapLegendGL::drawGeometry(QGLPainter *painter)
-{
-    Q_UNUSED(painter);
-}
-
 void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 {
     m_min = min;

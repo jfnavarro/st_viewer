@@ -72,18 +72,13 @@ QTransform MiniMapGL::localTransform() const
 
 void MiniMapGL::draw(QGLPainter *painter)
 {
-    if (!m_viewPort.isValid() || !m_scene.isValid()) { 
+    if ( !m_viewPort.isValid() || !m_scene.isValid() ) {
         return;
     }
     const QRectF viewPortInSceneCoordinates =
             m_parentSceneTransformations.inverted().mapRect(m_viewPort);
     drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, painter);
     drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates), m_viewColor, painter);
-}
-
-void MiniMapGL::drawGeometry(QGLPainter *painter)
-{
-    Q_UNUSED(painter);
 }
 
 void MiniMapGL::setSceneColor(const QColor sceneColor)
@@ -137,7 +132,7 @@ void MiniMapGL::mousePressEvent(QMouseEvent* event)
 void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
-    if ( event->buttons() & Qt::LeftButton  ) {
+    if ( event->button() == Qt::LeftButton  ) {
         m_selecting = false;
     }
 }

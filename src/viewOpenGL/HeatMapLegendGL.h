@@ -27,10 +27,7 @@ public:
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
 
-protected:
-
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
     const QRectF boundingRect() const;
 

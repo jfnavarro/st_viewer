@@ -57,7 +57,6 @@ public:
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
     virtual void draw(QGLPainter *painter) = 0;
-    virtual void drawGeometry (QGLPainter * painter) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;

@@ -36,18 +36,15 @@ public:
     const QRectF border() const;
     const QRectF rectangle() const;
 
-public slots:
-
-    void setColor(const QColor color);
-
-protected:
-
     void draw(QGLPainter *painter);
-    void drawGeometry (QGLPainter * painter);
 
     const QRectF boundingRect() const;
 
     void setSelectionArea(const SelectionEvent *){};
+
+public slots:
+
+    void setColor(const QColor color);
 
 private:
 

@@ -63,7 +63,6 @@ CellGLView::CellGLView(QScreen *parent) :
 
 CellGLView::~CellGLView()
 {
-    //m_rubberband is also in the list
     foreach(GraphicItemGL *node, m_nodes) {
         delete node;
         node = 0;
@@ -151,18 +150,14 @@ void CellGLView::paintGL()
 {
     //NOTE not needed it seems...
     //QGLTexture2D::processPendingResourceDeallocations();
-
     //create OpenGL painter
     QGLPainter painter;
     painter.begin();
-
     // set the projection matrix
     painter.projectionMatrix() = m_projm;
-
     // clear color buffer
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
-
     foreach(GraphicItemGL *node, m_nodes) {
         if ( node->visible() ) {
             QTransform local_transform = nodeTransformations(node);
@@ -175,15 +170,10 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
-
     glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 
-    if ( m_rubberBanding && m_rubberband ) {
-        GraphicItemGL *node = dynamic_cast<GraphicItemGL*>(m_rubberband);
-        painter.modelViewMatrix().push();
-        painter.modelViewMatrix() *= nodeTransformations(node);
-        node->draw(&painter);
-        painter.modelViewMatrix().pop();
+    if (m_rubberBanding && m_selecting) {
+        m_rubberband->draw(&painter);
     }
 }
 
@@ -313,7 +303,6 @@ qreal CellGLView::maxZoom() const
 
 const QImage CellGLView::grabPixmapGL() const
 {
-    //return m_fbo->toImage();
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);
@@ -429,7 +418,8 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
             if (event->button() == Qt::LeftButton && !m_selecting) {
                 m_panning = true;
                 m_originPanning = event->globalPos(); //panning needs globalPos
-
+                // panning changes cursor to closed hand
+                setCursor(Qt::ClosedHandCursor);
                 //TODO this sends the event twice to a node selectable but not transformable
                 //find a better way to do this
                 // notify nodes of the mouse event
@@ -443,7 +433,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
 void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
     // first check if we are selecting
-    if ( event->buttons() & Qt::LeftButton && m_selecting && m_rubberBanding ) {
+    if ( event->button() == Qt::LeftButton && m_selecting && m_rubberBanding ) {
         unsetCursor();
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
@@ -458,7 +448,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         update();
 
     } //otherwise
-    else if ( event->buttons() & Qt::LeftButton && !m_selecting) {
+    else if ( event->button() == Qt::LeftButton && m_panning && !m_selecting) {
         unsetCursor();
         m_panning = false;
         const QPoint point = event->pos();
@@ -481,8 +471,6 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
          update();
     }
     else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {
-        // panning changes cursor to closed hand
-        setCursor(Qt::ClosedHandCursor);
         QPoint point = event->globalPos(); //panning needs global pos
         const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);

@@ -617,11 +617,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
     m_shaderProgram->setActive(painter, false);
 }
 
-void GeneRendererGL::drawGeometry(QGLPainter *painter)
-{
-    Q_UNUSED(painter);
-}
-
 void GeneRendererGL::setupShaders()
 {
     QGLShaderProgramEffect *shaderCircle = new QGLShaderProgramEffect();
