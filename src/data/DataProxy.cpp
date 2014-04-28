@@ -88,7 +88,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     NetworkReply* reply = reinterpret_cast<NetworkReply*>(sender());
 
     // something went wrong (prob no connection)
-    if (!reply) {
+    if ( reply == 0) {
         //TODO download manager will kill replies that are timed out and/or deleted (NULL)
         qDebug() << "[DataProxy] : Error, a Network reply got lost, probably no connection";
         return;
@@ -114,7 +114,8 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
             //nothing for now
         } else {
             // convert data
-            Q_ASSERT_X(data.canConvert(QVariant::Map), "DataProxy", "Network transport data must be of map type!");
+            Q_ASSERT_X(data.canConvert(QVariant::Map),
+                       "DataProxy", "Network transport data must be of map type!");
             QVariantMap parameters = data.toMap();
             bool ok = parseData(reply, parameters);
             if (!ok) {
@@ -135,7 +136,7 @@ void DataProxy::slotNetworkReply(QVariant code, QVariant data)
     }
 }
 
-Error* DataProxy::parseErrors(NetworkReply* reply)
+Error* DataProxy::parseErrors(NetworkReply *reply)
 {
     const NetworkReply::ErrorList &errors = reply->errors();
     Error *error = 0;
@@ -158,13 +159,15 @@ Error* DataProxy::parseErrors(NetworkReply* reply)
     return error;
 }
 
-bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
+bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
 {
     // mark data proxy as dirty if something is changed and emit signal if so
     bool dirty = false;
     // data type
-    Q_ASSERT_X(parameters.contains(Globals::PARAM_TYPE), "DataProxy", "Data type must be defined!");
-    DataType type = static_cast<DataType>(qvariant_cast<int>(parameters.value(Globals::PARAM_TYPE)));
+    Q_ASSERT_X(parameters.contains(Globals::PARAM_TYPE),
+               "DataProxy", "Data type must be defined!");
+    const DataType type =
+            static_cast<DataType>(qvariant_cast<int>(parameters.value(Globals::PARAM_TYPE)));
 
     //parse data according to type
     switch (type) {
@@ -190,8 +193,10 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
     case GeneDataType: {
         QJsonDocument doc = reply->getJSON();
         // gene list by dataset
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "GeneData must be include dataset parameter!");
-        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "GeneData must be include dataset parameter!");
+        const QString datasetId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
         // intermediary parse object and end object map
         GeneDTO dto;
         GeneListPtr geneListByDatasetId = getGeneList(datasetId);
@@ -229,8 +234,10 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
     case FeatureDataType: {
         QJsonDocument doc = reply->getJSON();
         // feature list by dataset
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "FeatureData must be include dataset parameter!");
-        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "FeatureData must be include dataset parameter!");
+        const QString datasetId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
         // intermediary parse object and end object map
         FeatureDTO dto;
         FeatureListPtr featureListByDatasetId = getFeatureList(datasetId);
@@ -254,8 +261,10 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
     case HitCountDataType: {
         QJsonDocument doc = reply->getJSON();
         // feature list by dataset
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET), "DataProxy", "HitCountData must be include dataset parameter!");
-        const QString datasetId = qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "HitCountData must be include dataset parameter!");
+        const QString datasetId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
         // intermediary parse object
         DatasetStatisticsDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -264,7 +273,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
         foreach(QVariant var, list) {
             ObjectParser::parseObject(var, &dto);
             //TODO should remove previous hitcout object if it exits
-            m_datasetStatisticsMap.insert(datasetId, DatasetStatisticsPtr(new DatasetStatistics(dto.datasetStatistics())));
+            m_datasetStatisticsMap.insert(datasetId,
+                                          DatasetStatisticsPtr(new DatasetStatistics(dto.datasetStatistics())));
             dirty = true;
         }
         break;
@@ -285,11 +295,15 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
         break;
     } // cell tissue figure
     case TissueDataType: {
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE), "DataProxy", "BlueTissueData must include file parameter!");
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE),
+                   "DataProxy", "BlueTissueData must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
         // keep track of file pointer
         QScopedPointer<QIODevice> device;
-        device.reset(DataStore::getInstance()->accessResource(fileid, DataStore::Temporary | DataStore::Persistent | DataStore::Secure));
+        device.reset(DataStore::getInstance()->accessResource(fileid,
+                                                              DataStore::Temporary |
+                                                              DataStore::Persistent |
+                                                              DataStore::Secure));
         // store data in file
         const bool dataOpen = device->open(QIODevice::WriteOnly);
         if (dataOpen) {
@@ -312,7 +326,8 @@ bool DataProxy::parseData(NetworkReply* reply, const QVariantMap& parameters)
 
 DataProxy::GeneMapPtr DataProxy::getGeneMap(const QString& datasetId)
 {
-    GeneMapMap::iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
+    GeneMapMap::iterator it = m_geneMap.find(datasetId);
+    GeneMapMap::iterator end = m_geneMap.end();
     if (it == end) {
         it = m_geneMap.insert(datasetId, GeneMapPtr(new GeneMap()));
     }
@@ -321,7 +336,8 @@ DataProxy::GeneMapPtr DataProxy::getGeneMap(const QString& datasetId)
 
 DataProxy::GeneListPtr DataProxy::getGeneList(const QString& datasetId)
 {
-    GeneListMap::iterator it = m_geneListMap.find(datasetId), end = m_geneListMap.end();
+    GeneListMap::const_iterator it = m_geneListMap.find(datasetId);
+    GeneListMap::const_iterator end = m_geneListMap.end();
     if (it == end) {
         it = m_geneListMap.insert(datasetId, GeneListPtr(new GeneList()));
     }
@@ -330,7 +346,8 @@ DataProxy::GeneListPtr DataProxy::getGeneList(const QString& datasetId)
 
 DataProxy::FeatureListPtr DataProxy::getFeatureList(const QString& datasetId)
 {
-    FeatureListMap::iterator it = m_featureListMap.find(datasetId), end = m_featureListMap.end();
+    FeatureListMap::iterator it = m_featureListMap.find(datasetId);
+    FeatureListMap::iterator end = m_featureListMap.end();
     if (it == end) {
         it = m_featureListMap.insert(datasetId, FeatureListPtr(new FeatureList()));
     }
@@ -339,16 +356,19 @@ DataProxy::FeatureListPtr DataProxy::getFeatureList(const QString& datasetId)
 
 DataProxy::FeatureMapPtr DataProxy::getFeatureMap(const QString& datasetId)
 {
-    FeatureMapMap::iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
+    FeatureMapMap::iterator it = m_featureMap.find(datasetId);
+    FeatureMapMap::iterator end = m_featureMap.end();
     if (it == end) {
         it = m_featureMap.insert(datasetId, FeatureMapPtr(new FeatureMap()));
     }
     return it.value();
 }
 
-DataProxy::GenePtr DataProxy::getGene(const QString& datasetId, const QString& geneName)
+DataProxy::GenePtr DataProxy::getGene(const QString& datasetId,
+                                      const QString& geneName)
 {
-    GeneMapMap::iterator it = m_geneMap.find(datasetId), end = m_geneMap.end();
+    GeneMapMap::iterator it = m_geneMap.find(datasetId);
+    GeneMapMap::iterator end = m_geneMap.end();
     if (it == end) { //check if dataset key no present at all, create
         GeneMapPtr genemap = GeneMapPtr(new GeneMap());
         genemap->insert(geneName, GenePtr(new Gene()));
@@ -361,9 +381,11 @@ DataProxy::GenePtr DataProxy::getGene(const QString& datasetId, const QString& g
     return it2.value();
 }
 
-DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId, const QString &geneName)
+DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId,
+                                                        const QString &geneName)
 {
-    FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId), end = m_geneFeatureListMap.end();
+    FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId);
+    FeatureListGeneMap::iterator end = m_geneFeatureListMap.end();
     if (it == end) { //check if dataset key no present at all, create
         FeatureListMapPtr featuremap = FeatureListMapPtr(new FeatureListMap());
         featuremap->insert(geneName, FeatureListPtr(new FeatureList()));
@@ -376,9 +398,11 @@ DataProxy::FeatureListPtr DataProxy::getGeneFeatureList(const QString& datasetId
     return it2.value();
 }
 
-DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId, const QString &featureId)
+DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId,
+                                            const QString &featureId)
 {
-    FeatureMapMap::const_iterator it = m_featureMap.find(datasetId), end = m_featureMap.end();
+    FeatureMapMap::iterator it = m_featureMap.find(datasetId);
+    FeatureMapMap::iterator end = m_featureMap.end();
     if (it == end) { //check if dataset key no present at all, create
         FeatureMapPtr featuremap = FeatureMapPtr(new FeatureMap());
         featuremap->insert(featureId, FeaturePtr(new FeatureExtended()));
@@ -391,24 +415,25 @@ DataProxy::FeaturePtr DataProxy::getFeature(const QString& datasetId, const QStr
     return it2.value();
 }
 
-DataProxy::DatasetListPtr DataProxy::getDatasetList()
+DataProxy::DatasetListPtr DataProxy::getDatasetList() const
 {
     return m_datasetListPtr;
 }
 
-DataProxy::DatasetPtr DataProxy::getDatasetById(const QString& datasetId)
+DataProxy::DatasetPtr DataProxy::getDatasetById(const QString& datasetId) const
 {
     return m_datasetMap.value(datasetId);
 }
 
-DataProxy::UserPtr DataProxy::getUser()
+DataProxy::UserPtr DataProxy::getUser() const
 {
     return m_user;
 }
 
 DataProxy::ChipPtr DataProxy::getChip(const QString& chipId)
 {
-    ChipMap::iterator it = m_chipMap.find(chipId), end = m_chipMap.end();
+    ChipMap::iterator it = m_chipMap.find(chipId);
+    ChipMap::iterator end = m_chipMap.end();
     if (it == end) {
         it = m_chipMap.insert(chipId, ChipPtr(new Chip()));
     }
@@ -417,17 +442,32 @@ DataProxy::ChipPtr DataProxy::getChip(const QString& chipId)
 
 DataProxy::DatasetStatisticsPtr DataProxy::getStatistics(const QString& datasetId)
 {
-    DatasetStatisticsMap::iterator it = m_datasetStatisticsMap.find(datasetId), end = m_datasetStatisticsMap.end();
+    DatasetStatisticsMap::iterator it = m_datasetStatisticsMap.find(datasetId);
+    DatasetStatisticsMap::iterator end = m_datasetStatisticsMap.end();
     if (it == end) {
-        it = m_datasetStatisticsMap.insert(datasetId, DatasetStatisticsPtr(new DatasetStatistics()));
+        it = m_datasetStatisticsMap.insert(datasetId,
+                                           DatasetStatisticsPtr(new DatasetStatistics()));
     }
     return it.value();
 }
 
-QIODevice *DataProxy::getFigure(const QString& figureId)
+QIODevice *DataProxy::getFigure(const QString& figureId) const
 {
     DataStore* dataStore = DataStore::getInstance();
-    return dataStore->accessResource(figureId, ResourceStore::Temporary | ResourceStore::Persistent | ResourceStore::Secure);
+    return dataStore->accessResource(figureId,
+                                     ResourceStore::Temporary |
+                                     ResourceStore::Persistent |
+                                     ResourceStore::Secure);
+}
+
+const QString DataProxy::getSelectedDataset() const
+{
+    return m_selected_datasetId;
+}
+
+void DataProxy::setSelectedDataset(const QString &datasetId) const
+{
+    m_selected_datasetId = datasetId;
 }
 
 bool DataProxy::hasDatasets() const
@@ -440,10 +480,11 @@ bool DataProxy::hasDataset(const QString& datasetId) const
     return m_datasetMap.contains(datasetId);
 }
 
-async::DataRequest* DataProxy::loadDatasets()
+const async::DataRequest* DataProxy::loadDatasets()
 {
     if (hasDatasets()) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -457,10 +498,11 @@ async::DataRequest* DataProxy::loadDatasets()
     return createRequest(reply);
 }
 
-async::DataRequest* DataProxy::loadDatasetByDatasetId(const QString& datasetId)
+const async::DataRequest* DataProxy::loadDatasetByDatasetId(const QString& datasetId)
 {
     if (hasDataset(datasetId)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -474,7 +516,7 @@ async::DataRequest* DataProxy::loadDatasetByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
-async::DataRequest* DataProxy::updateDataset(const Dataset& dataset)
+const async::DataRequest* DataProxy::updateDataset(const Dataset& dataset)
 {
     // intermediary dto object
     DatasetDTO dto(dataset);
@@ -495,10 +537,11 @@ bool DataProxy::hasGene(const QString& datasetId) const
     return m_geneListMap.contains(datasetId);
 }
 
-async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
+const async::DataRequest* DataProxy::loadGenesByDatasetId(const QString& datasetId)
 {
     if (hasGene(datasetId)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -518,10 +561,11 @@ bool DataProxy::hasChip(const QString& chipId) const
     return m_chipMap.contains(chipId);
 }
 
-async::DataRequest* DataProxy::loadChipById(const QString& chipId)
+const async::DataRequest* DataProxy::loadChipById(const QString& chipId)
 {
     if (hasChip(chipId)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -540,10 +584,11 @@ bool DataProxy::hasFeature(const QString& datasetId) const
     return m_featureListMap.contains(datasetId);
 }
 
-async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
+const async::DataRequest* DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 {
     if (hasFeature(datasetId)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -564,14 +609,17 @@ bool DataProxy::hasFeature(const QString& datasetId, const QString& gene) const
     return (it != m_geneFeatureListMap.end() ? it.value()->contains(gene) : false);
 }
 
-async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene)
+const async::DataRequest* DataProxy::loadFeatureByDatasetIdAndGene(
+        const QString& datasetId, const QString& gene)
 {
     if (hasFeature(datasetId, gene)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
-    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetIdAndGene(datasetId, gene);
+    NetworkCommand* cmd =
+            RESTCommandFactory::getFeatureByDatasetIdAndGene(datasetId, gene);
     NetworkManager* nm = NetworkManager::getInstance();
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(FeatureDataType)));
@@ -588,10 +636,11 @@ bool DataProxy::hasStatistics(const QString& datasetId) const
     return m_datasetStatisticsMap.contains(datasetId);
 }
 
-async::DataRequest* DataProxy::loadDatasetStatisticsByDatasetId(const QString& datasetId)
+const async::DataRequest* DataProxy::loadDatasetStatisticsByDatasetId(const QString& datasetId)
 {
     if ( hasStatistics(datasetId) ) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -606,7 +655,7 @@ async::DataRequest* DataProxy::loadDatasetStatisticsByDatasetId(const QString& d
     return createRequest(reply);
 }
 
-async::DataRequest* DataProxy::loadUser()
+const async::DataRequest* DataProxy::loadUser()
 {
     NetworkCommand* cmd = RESTCommandFactory::getUser();
     NetworkManager* nm = NetworkManager::getInstance();
@@ -624,10 +673,11 @@ bool DataProxy::hasCellTissue(const QString& name) const
     return dataStore->hasResource(name);
 }
 
-async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
+const async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
 {
     if (hasCellTissue(name)) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
@@ -642,7 +692,7 @@ async::DataRequest* DataProxy::loadCellTissueByName(const QString& name)
     return createRequest(reply);
 }
 
-async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
+const async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
 {
     Q_ASSERT_X(dataset, "DataProxy", "Error dataset is empty!!");
 
@@ -652,7 +702,8 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
 
     //TODO ....duplicated code...refactor this
     if ( !hasCellTissue(dataset->figureBlue()) ) {
-        NetworkCommand* cmd = RESTCommandFactory::getCellTissueFigureByName(dataset->figureBlue());
+        NetworkCommand* cmd =
+                RESTCommandFactory::getCellTissueFigureByName(dataset->figureBlue());
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
         parameters.insert(Globals::PARAM_FILE, QVariant(dataset->figureBlue()));
@@ -662,8 +713,10 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         cmd->deleteLater();
     }
     DataProxy::UserPtr current_user = getUser();
-    if (current_user.data()->role() == Globals::ROLE_CM && !hasCellTissue(dataset->figureRed())) {
-        NetworkCommand* cmd = RESTCommandFactory::getCellTissueFigureByName(dataset->figureRed());
+    if (current_user.data()->role() ==
+            Globals::ROLE_CM && !hasCellTissue(dataset->figureRed())) {
+        NetworkCommand* cmd =
+                RESTCommandFactory::getCellTissueFigureByName(dataset->figureRed());
         QVariantMap parameters;
         parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
         parameters.insert(Globals::PARAM_FILE, QVariant(dataset->figureRed()));
@@ -712,19 +765,21 @@ async::DataRequest* DataProxy::loadDatasetContent(DataProxy::DatasetPtr dataset)
         cmd->deleteLater();
     }
     if (replies.isEmpty()) {
-        QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        QPointer<async::DataRequest> request =
+                QPointer<async::DataRequest>(new async::DataRequest());
         request->return_code(async::DataRequest::CodePresent);
         return (request.data());
     }
     return createRequest(replies);
 }
 
-async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies)
+const async::DataRequest* DataProxy::createRequest(const QList<NetworkReply *> &replies)
 {
     //create key and add it to request
-    QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
+    QPointer<async::DataRequest> request =
+            QPointer<async::DataRequest>(new async::DataRequest());
     QPointer<async::DownloadManager> manager =
-            QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
+            QPointer<async::DownloadManager>(new async::DownloadManager(request));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
 
@@ -733,40 +788,43 @@ async::DataRequest* DataProxy::createRequest(const QList<NetworkReply*> &replies
 
     foreach(NetworkReply * reply, replies) {
         if ( reply == 0 ) {
-            qDebug() << "[DataProxy] : Error, the NetworkReply is null, there must have been a network error";
-
+            qDebug() << "[DataProxy] : Error, the NetworkReply is null, "
+                        "there must have been a network error";
         } else {
             reply->setProperty("key", qVariantFromValue<unsigned>(key));
             //connect reply to signal
-            connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
+            connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this,
+                    SLOT(slotNetworkReply(QVariant, QVariant)));
             //add reply to downloadmanager
             manager->addItem(reply);
         }
     }
-    if ( manager->countItems() != replies.count() ) { //NOTE if any of the replies was wrong we return error (could be worth to continue)
-        manager.clear(); //this deletes request
-        //QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+    //NOTE if any of the replies was wrong we return error (could be worth to continue)
+    if ( manager->countItems() != replies.count() ) {
+        manager.clear(); //TODO this does not deletes the requests
         request->return_code(async::DataRequest::CodeError);
         return request.data();
     }
 
     //add downloadmanager to download pool
     m_download_pool.insert(key, manager);
-
     return request.data();
 }
 
-async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so I can send multiple replies
+//make list so I can send multiple replies
+const async::DataRequest* DataProxy::createRequest(NetworkReply *reply)
 {
     //create key and add it to request
-    QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest(this));
-    QPointer<async::DownloadManager> manager = QPointer<async::DownloadManager>(new async::DownloadManager(request, this));
+    QPointer<async::DataRequest> request =
+            QPointer<async::DataRequest>(new async::DataRequest());
+    QPointer<async::DownloadManager> manager =
+            QPointer<async::DownloadManager>(new async::DownloadManager(request));
     Q_ASSERT_X(request.data(), "DataProxy", "Error creating DataRequest object!");
     Q_ASSERT_X(manager.data(), "DataProxy", "Error creating DownloadManager object!");
 
     if ( reply == 0 ) {
-        qDebug() << "[DataPRoxy] : Error, the NetworkReply is null, therefore there must have been a network error";
-        //QPointer<async::DataRequest> request = QPointer<async::DataRequest>(new async::DataRequest());
+        qDebug() << "[DataPRoxy] : Error, the NetworkReply is null,"
+                    " therefore there must have been a network error";
         request->return_code(async::DataRequest::CodeError);
         return request.data();
     }
@@ -776,7 +834,8 @@ async::DataRequest* DataProxy::createRequest(NetworkReply *reply) //make list so
     reply->setProperty("key", qVariantFromValue<unsigned>(key));
 
     //connect reply to signal
-    connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
+    connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), this,
+            SLOT(slotNetworkReply(QVariant, QVariant)));
     //add reply to downloadmanager
     manager->addItem(reply);
     //add downloadmanager to download pool

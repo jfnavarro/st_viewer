@@ -12,6 +12,8 @@
 #include <QDateTime>
 #include <QVariant>
 
+#include "dataModel/GeneSelection.h"
+
 GeneXMLExporter::GeneXMLExporter(QObject *parent) : GeneExporter(parent)
 {
 
@@ -22,35 +24,31 @@ GeneXMLExporter::~GeneXMLExporter()
 
 }
 
-void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeaturePtr &feature,
-                                 const QObject &context) const
+void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml,
+                                 const GeneSelection &selection) const
 {
     oxml.writeStartElement("feature");
     {
-        oxml.writeTextElement("geneName", feature->gene());
-        const int hitCount = feature->hits();
-        oxml.writeTextElement("readsCount", QString("%1").arg(hitCount));
-
-        const bool hasNormalized = context.property("hitCountMax").isValid();
-        if (hasNormalized) {
-            const int hitCountMax = qvariant_cast<int>(context.property("hitCountMax"));
-            oxml.writeTextElement("normalizedReadsCount", QString("%1").arg(qreal(hitCount) / qreal(hitCountMax)));
-        }
+        oxml.writeTextElement("geneName", selection.name());
+        const qreal reads = selection.reads();
+        oxml.writeTextElement("readsCount", QString("%1").arg(reads));
+        const qreal normalizedReads = selection.normalizedReads();
+        oxml.writeTextElement("normalizedReadsCount", QString("%1").arg(normalizedReads));
     }
     oxml.writeEndElement();
 }
-void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml, const DataProxy::FeatureListPtr featureList,
-                                 const QObject &context) const
+void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml,
+                                 const GeneRendererGL::GeneSelectedSet selectionList) const
 {
     oxml.writeStartElement("features");
-    foreach(const DataProxy::FeaturePtr & feature, (*featureList)) {
-        exportItem(oxml, feature, context);
+    foreach(const GeneSelection& selection, selectionList) {
+        exportItem(oxml, selection);
     }
     oxml.writeEndElement();
 }
 
-void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList,
-                                 const QObject &context) const
+void GeneXMLExporter::exportItem(QIODevice *device,
+                                 const GeneRendererGL::GeneSelectedSet selectionList) const
 {
     // early out
     if (!device->isWritable()) {
@@ -70,7 +68,7 @@ void GeneXMLExporter::exportItem(QIODevice *device, const DataProxy::FeatureList
             oxml.writeTextElement(tr("version"), (version.isEmpty() ? QString("0.0.0") : version));
             // prepend ISO 8601 compliant timestamp
             oxml.writeTextElement("date", QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
-            exportItem(oxml, featureList, context);
+            exportItem(oxml, selectionList);
         }
         oxml.writeEndElement();
     }

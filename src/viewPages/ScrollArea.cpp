@@ -45,14 +45,11 @@ CellGLView *ScrollArea::cellGlView() const {
 void ScrollArea::someScrollBarChangedValue(int) {
 
     const QRectF rectF = m_view->allowedCenterPoints();
-
     const qreal h_value = static_cast<qreal>(horizontalScrollBar()->sliderPosition());
     const qreal v_value = static_cast<qreal>(verticalScrollBar()->sliderPosition());
-
     const qreal x = rectF.width() * ( 1 - (h_value / m_scrollBarSteps) ) + rectF.x();
     const qreal y = rectF.height() * ( 1 - (v_value / m_scrollBarSteps) ) + rectF.y();
     const QPointF point(x,y);
-
     m_view->setSceneFocusCenterPointWithClamping(point);
 }
 
@@ -76,6 +73,7 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
     const int val = (qFuzzyCompare(value_range,0.0)) ? std::numeric_limits<int>::max() :
                                      static_cast<int>(scrollBarSteps * viewPortInSceneCoordinatesRange / value_range);
     scrollBar->setPageStep(val);
+    //NOTE 300 magic number?
     scrollBar->setSingleStep(300);
 }
 

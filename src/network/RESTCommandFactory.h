@@ -35,7 +35,8 @@ public:
 
     static NetworkCommand* getFeatures();
     static NetworkCommand* getFeatureByDatasetId(const QString& datasetId);
-    static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene);
+    static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId,
+                                                        const QString& gene);
 
     static NetworkCommand* getHitCounts();
     static NetworkCommand* getHitCountByDatasetId(const QString& datasetId);

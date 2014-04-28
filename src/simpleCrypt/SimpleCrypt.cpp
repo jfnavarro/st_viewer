@@ -57,7 +57,8 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QIODevice *in)
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QIODevice *out, const QByteArray &data) const
+SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QIODevice *out,
+                                                  const QByteArray &data) const
 {
     QByteArray encryptData;
     QBuffer encryptDataDevice(&encryptData);

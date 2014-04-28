@@ -34,6 +34,8 @@ protected:
 
     WidgetBackgroundAnimation m_animation;
     DatasetItemModel *m_datasetModel;
+
+    Q_DISABLE_COPY(AnimatedDatasetsTableView)
 };
 
 #endif // ANIMATEDDATASETSTABLEVIEW_H //

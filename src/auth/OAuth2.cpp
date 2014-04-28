@@ -69,11 +69,9 @@ void OAuth2::startInteractiveLogin()
 void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 {
     qDebug() << "[OAuth2] Trying to log in with = " << username << " " << password;
-
     //request token based on password//username
     requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME, username),
                  StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD, password));
-
 }
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
@@ -83,14 +81,16 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
     // send empty flags to ensure access token is not appended to request
     NetworkManager *m_networkManager = NetworkManager::getInstance();
-    NetworkReply* request = m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+    NetworkReply* request =
+            m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
     //check reply is correct
     if (request == 0) {
         qDebug() << "[OAuth2] Network Manager errror";
         OAuth2Error* error = new OAuth2Error("Log in Error", "Connection Problem", this);
         emit signalError(error);
     } else {
-        connect(request, SIGNAL(signalFinished(QVariant, QVariant)), this, SLOT(slotNetworkReply(QVariant, QVariant)));
+        connect(request, SIGNAL(signalFinished(QVariant, QVariant)),
+                this, SLOT(slotNetworkReply(QVariant, QVariant)));
     }
     //clean up
     cmd->deleteLater();
@@ -109,8 +109,8 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         emit signalError(error);
         return;
     }
-    // early out
-    int returnCode = qvariant_cast<int>(code);
+
+    const int returnCode = qvariant_cast<int>(code);
     if (returnCode == NetworkReply::CodeError) {
         qDebug() << "[OAuth2] Network Manager errror";
         OAuth2Error* error = new OAuth2Error("Log in Error", "Authorization Failed", this);

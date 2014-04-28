@@ -56,6 +56,8 @@ protected:
 private:
 
     Ui::DataSets *ui;
+
+    Q_DISABLE_COPY(DatasetPage)
 };
 
 #endif  /* DATASETPAGE_H */

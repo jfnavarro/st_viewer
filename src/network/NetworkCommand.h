@@ -26,7 +26,8 @@ public:
 
     explicit NetworkCommand(QObject* parent = 0);
 
-    explicit NetworkCommand(const QUrl& url, Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
+    explicit NetworkCommand(const QUrl& url,
+                            Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
                             QObject* parent = 0);
 
     virtual ~NetworkCommand();
@@ -56,6 +57,8 @@ private:
     QUrl m_url;
     Type m_type;
     QUrlQuery m_query;
+
+    Q_DISABLE_COPY(NetworkCommand)
 };
 
 #endif // NETWORKCOMMAND_H //

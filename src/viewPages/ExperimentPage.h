@@ -39,6 +39,8 @@ public slots:
 
 private:
     Ui::Experiments *ui;
+
+    Q_DISABLE_COPY(ExperimentPage)
 };
 
 #endif  /* EXPERIMENTPAGE_H */

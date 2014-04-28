@@ -42,6 +42,8 @@ protected:
     QMovie *m_movie;
     bool m_visible;
     bool m_enable;
+
+    Q_DISABLE_COPY(WidgetBackgroundAnimation)
 };
 
 #endif // WIDGETBACKGROUNDANIMATION_H //

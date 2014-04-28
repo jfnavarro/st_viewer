@@ -27,14 +27,16 @@ public:
     };
 
     // convenience function to generate a heatmap spectrum image given specific mapping function
-    static void createHeatMapImage(QImage &image, const SpectrumMode mode = SpectrumLinear,
+    static void createHeatMapImage(QImage &image,
+                                   const SpectrumMode mode = SpectrumLinear,
                                    int lowerbound = 0, int upperbound = 100);
 
     static QColor4ub createHeatMapColor(const qreal wavelength);
 
     // convenience function to generate a heat map wavelength
     // based on a normalized value [0,1] and a distribution function.
-    static qreal generateHeatMapWavelength(const qreal t, const SpectrumMode mode = SpectrumLinear);
+    static qreal generateHeatMapWavelength(const qreal t,
+                                           const SpectrumMode mode = SpectrumLinear);
 };
 
 #endif // HEATMAP_H //

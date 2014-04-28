@@ -24,15 +24,18 @@ public:
 
     FeatureExtended& operator=(const Feature& other);
     FeatureExtended& operator=(const FeatureExtended& other);
-
     bool operator==(const FeatureExtended& other) const;
 
     const QColor& color() const { return m_color; }
     void color(const QColor& color) { m_color = color; }
 
+    bool selected() const {return m_selected;}
+    void selected(bool selected) {m_selected = selected;}
+
 private:
     
     QColor m_color;
+    bool m_selected;
 };
 
 #endif // FEATUREEXTENDED_H

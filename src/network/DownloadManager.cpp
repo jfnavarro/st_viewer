@@ -22,6 +22,16 @@ DataRequest::~DataRequest()
 
 }
 
+DataRequest::Code DataRequest::return_code() const
+{
+    return m_return_code;
+}
+
+void DataRequest::return_code(DataRequest::Code code)
+{
+    m_return_code = code;
+}
+
 //we want to abort the reply
 void DataRequest::slotAbort()
 {
@@ -51,6 +61,7 @@ DownloadManager::~DownloadManager()
     if (!m_request.isNull()) {
         delete m_request;
     }
+    m_request = 0;
     //NOTE elements of replies and errors are deleted by their owners
     m_reply_list.clear();
     m_error_list.clear();
@@ -129,6 +140,5 @@ void DownloadManager::timedOut()
     //m_request->return_code(async::DataRequest::CodeTimedOut);
     //m_request->slotFinished();
 }
-
 
 } // namespace async //

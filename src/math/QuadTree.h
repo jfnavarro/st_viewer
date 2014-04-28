@@ -83,8 +83,10 @@ private:
         bool contains(const QPointF &p) const;
         
         int insert(const QPointF &p, const T &t);
-        void select(const QuadTreeAABB &b, PointItemList &items, QuadArrayType &point_array) const;
-        void select(const QPointF &p, PointItem &item, QuadArrayType &point_array) const;
+        void select(const QuadTreeAABB &b, PointItemList &items,
+                    QuadArrayType &point_array) const;
+        void select(const QPointF &p, PointItem &item,
+                    QuadArrayType &point_array) const;
         
         bool isNode() const;
         bool isLeaf() const;

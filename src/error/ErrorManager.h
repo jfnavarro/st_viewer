@@ -37,6 +37,8 @@ private:
 
     QPointer<QWidget> m_parentContainer;
     QPointer<QErrorMessage> m_errorDialog;
+
+    Q_DISABLE_COPY(ErrorManager)
 };
 
 #endif // ERRORMANAGER_H //

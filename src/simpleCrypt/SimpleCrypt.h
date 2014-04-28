@@ -76,6 +76,8 @@ private:
     } m_key;
 
     mutable ErrorCode m_lastError;
+
+    Q_DISABLE_COPY(SimpleCrypt)
 };
 
 #endif // SimpleCrypt_H

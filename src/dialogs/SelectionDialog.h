@@ -56,6 +56,8 @@ private:
     bool m_regExpValid;
     QRegExp m_regExp;
     GeneList m_selectedGeneList;
+
+    Q_DISABLE_COPY(SelectionDialog)
 };
 
 #endif // SELECTIONDIALOG_H //

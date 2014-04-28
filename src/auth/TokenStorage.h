@@ -43,6 +43,8 @@ public:
 private:
 
     QScopedPointer<QSettings> m_storage;
+
+    Q_DISABLE_COPY(TokenStorage)
 };
 
 #endif  /* TOKENSTORAGE_H */

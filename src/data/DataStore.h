@@ -36,9 +36,9 @@ public:
     void finalize();
 
     // store resources on disk, provide interface to store in files
-    virtual bool hasResource(const QString& resourceid) const;
-    virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty);
-    virtual void clearResources();
+    bool hasResource(const QString& resourceid) const;
+    QIODevice* accessResource(const QString& resourceid, Options options = Empty);
+    void clearResources();
 
 signals:
 
@@ -58,6 +58,8 @@ private:
     // temporary files.
     typedef QMap<QString, QString> FileMap;
     FileMap m_fileMap;
+
+    Q_DISABLE_COPY(DataStore)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(DataStore::Options)

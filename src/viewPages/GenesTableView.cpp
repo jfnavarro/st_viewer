@@ -26,7 +26,8 @@ GenesTableView::GenesTableView(QWidget *parent)
     sortProxyModel->setSourceModel(geneModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*", Qt::CaseInsensitive)); //I do not want to show ambiguous genes or numbers
+    sortProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",
+                                            Qt::CaseInsensitive)); //I do not want to show ambiguous genes or numbers
     setModel(sortProxyModel);
     setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
@@ -42,10 +43,9 @@ GenesTableView::GenesTableView(QWidget *parent)
     setEditTriggers(QAbstractItemView::AllEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
-    horizontalHeader()->sectionResizeMode(QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     verticalHeader()->hide();
 

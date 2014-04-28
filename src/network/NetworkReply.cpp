@@ -65,13 +65,25 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply, QObject* parent)
     // connect signals
     connect(networkReply, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(networkReply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
-    connect(networkReply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
-    connect(networkReply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(slotSslErrors(QList<QSslError>)));
+    connect(networkReply, SIGNAL(error(QNetworkReply::NetworkError)), this,
+            SLOT(slotError(QNetworkReply::NetworkError)));
+    connect(networkReply, SIGNAL(sslErrors(QList<QSslError>)), this,
+            SLOT(slotSslErrors(QList<QSslError>)));
 }
 
 NetworkReply::~NetworkReply()
 {
     //reply will be deleted by the sender once data is parsed or error handled (data proxy most likely)
+}
+
+const QVariant NetworkReply::customData() const
+{
+    return m_data;
+}
+
+void NetworkReply::setCustomData(QVariant data)
+{
+    m_data = data;
 }
 
 QJsonDocument NetworkReply::getJSON()
@@ -87,14 +99,39 @@ QJsonDocument NetworkReply::getJSON()
     return doc;
 }
 
-QString NetworkReply::getText()
+QString NetworkReply::getText() const
 {
     return QString::fromUtf8(m_reply->readAll());
 }
 
-QByteArray NetworkReply::getRaw()
+QByteArray NetworkReply::getRaw() const
 {
     return m_reply->readAll();
+}
+
+const ContentType* NetworkReply::contentType() const
+{
+    return m_contentType;
+}
+
+bool NetworkReply::isType(const QString &mime) const
+{
+    return m_contentType->mime() == mime;
+}
+
+bool NetworkReply::isFinished() const
+{
+    return m_reply->isFinished();
+}
+
+bool NetworkReply::hasErrors() const
+{
+    return !m_errors.isEmpty();
+}
+
+const NetworkReply::ErrorList& NetworkReply::errors() const
+{
+    return m_errors;
 }
 
 void NetworkReply::slotAbort()
@@ -122,7 +159,8 @@ void NetworkReply::slotFinished()
 
 void NetworkReply::slotMetaDataChanged()
 {
-    QString contentTypeHeader = m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
+    QString contentTypeHeader =
+            m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
     m_contentType->header(contentTypeHeader);
 }
 
@@ -142,4 +180,9 @@ void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
     //but we should add a flag for this or add the certificate public key to the client
     //alternatively we could ask the user to accept the certificate
     m_reply->ignoreSslErrors(sslErrorList);
+}
+
+void NetworkReply::registerError(Error *error)
+{
+    m_errors += error;
 }

@@ -35,13 +35,12 @@ public:
         CodeTimedOut = 0x08,
         CodePresent = 0x16
     };
-    Q_DECLARE_FLAGS(ReturnCodes, Code)
 
     explicit DataRequest(QObject* parent = 0);
     virtual ~DataRequest();
 
-    ReturnCodes return_code() const { return m_return_code; }
-    void return_code(ReturnCodes flag) { m_return_code = flag; }
+    DataRequest::Code return_code() const;
+    void return_code(DataRequest::Code flag);
 
 public slots:
 
@@ -60,11 +59,8 @@ signals:
 
 private:
 
-    ReturnCodes m_return_code;
-
+    DataRequest::Code m_return_code;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes)
 
 class DownloadManager: public QObject
 {
@@ -73,7 +69,7 @@ class DownloadManager: public QObject
 
 public:
 
-    DownloadManager(async::DataRequest *request, QObject * parent = 0);
+    DownloadManager(async::DataRequest* request, QObject* parent = 0);
     virtual ~DownloadManager();
 
     void addItem(NetworkReply *item);
@@ -96,6 +92,8 @@ private:
     QPointer<async::DataRequest> m_request;
     QList<Error*> m_error_list;
     QList<NetworkReply*> m_reply_list;
+
+    Q_DISABLE_COPY(DownloadManager)
 };
 
 } // namespace async //

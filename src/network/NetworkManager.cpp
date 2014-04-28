@@ -96,7 +96,8 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator 
     authenticator->setPassword(config->oauthSecret());
 }
 
-NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, NetworkFlags flags)
+NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
+                                          QVariant data, NetworkFlags flags)
 {
     DEBUG_FUNC_NAME
 
@@ -112,7 +113,8 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     if (flags.testFlag(UseAuthentication) && authorizationManager->hasAccessToken()) {
         //TODO hide auth from network manager by appending QObject that encapsulates the key value pair
         const QUuid accessToken = authorizationManager->getAccessToken();
-        cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
+        cmd->addQueryItem(QStringLiteral("access_token"),
+                          accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
     }
 
     // keep track of reply to match command later on (async callback)
@@ -122,7 +124,8 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
     QNetworkRequest request;
 
     // add caching to request (only if network caching is active)
-    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+                         QNetworkRequest::PreferCache);
 
     // add pipeline to the request
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
@@ -148,7 +151,8 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
             // show debug text
             qDebug() << "[NetworkManager] POST:" << request.url() << "DATA:" << cmd->getEncodedQuery();
             //setting headers
-            request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QStringLiteral("application/x-www-form-urlencoded")));
+            request.setHeader(QNetworkRequest::ContentTypeHeader,
+                              QVariant(QStringLiteral("application/x-www-form-urlencoded")));
             // send request
             networkReply = m_nam->post(request, cmd->getEncodedQuery().toUtf8());
             break;
@@ -156,7 +160,8 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, QVariant data, Ne
         case Globals::HttpRequestTypePut: {
             // set clean url and explicit content type
             request.setUrl(cmd->url());
-            request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QStringLiteral("application/x-www-form-urlencoded")));
+            request.setHeader(QNetworkRequest::ContentTypeHeader,
+                              QVariant(QStringLiteral("application/x-www-form-urlencoded")));
             // show debug text
             qDebug() << "[NetworkManager] PUT:" << request.url() << "DATA:" << cmd->getEncodedQuery();
             // send request

@@ -124,6 +124,8 @@ private:
 
     // User interface
     Ui::CellView *ui;
+
+    Q_DISABLE_COPY(CellViewPage)
 };
 
 #endif // CELLVIEWPAGE_H

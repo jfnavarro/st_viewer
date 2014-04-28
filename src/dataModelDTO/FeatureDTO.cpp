@@ -7,12 +7,16 @@
 
 #include "FeatureDTO.h"
 
-FeatureDTO::FeatureDTO(QObject* parent) : QObject(parent), m_feature()
+FeatureDTO::FeatureDTO(QObject* parent) :
+    QObject(parent),
+    m_feature()
 {
 
 }
 
-FeatureDTO::FeatureDTO(const Feature& feature, QObject* parent) : QObject(parent), m_feature(feature)
+FeatureDTO::FeatureDTO(const Feature& feature, QObject* parent) :
+    QObject(parent),
+    m_feature(feature)
 {
 
 }

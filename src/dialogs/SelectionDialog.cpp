@@ -49,7 +49,8 @@ void SelectionDialog::accept()
     }
     
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::GeneListPtr geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    DataProxy::GeneListPtr geneList =
+            dataProxy->getGeneList(dataProxy->getSelectedDataset());
     
     // find all genes that match the regular expression
     //TODO this can be optimized using STDfunctions or Qt::concurrent algorithms

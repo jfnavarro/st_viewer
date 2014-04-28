@@ -90,6 +90,8 @@ protected:
     QTransform m_transform;
     Globals::Anchor m_anchor = Globals::Anchor::NorthWest;
     GraphicItemGL::VisualOptions m_visualOptions;
+
+    Q_DISABLE_COPY(GraphicItemGL)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicItemGL::VisualOptions)

@@ -50,6 +50,8 @@ private:
 
     int m_upper_value = 0;
     int m_lower_value = 0;
+
+    Q_DISABLE_COPY(SpinBoxSlider)
 };
 
 #endif

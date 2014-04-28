@@ -82,7 +82,7 @@ void InitPage::slotAuthorized()
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
     
-    async::DataRequest* request = dataProxy->loadUser();
+    const async::DataRequest* request = dataProxy->loadUser();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if (request->return_code() == async::DataRequest::CodeError) {
@@ -102,7 +102,8 @@ void InitPage::slotAuthorized()
 
 void InitPage::slotUserLoaded()
 {
-    async::DataRequest *request = reinterpret_cast<async::DataRequest*>(sender());
+    const async::DataRequest *request =
+            reinterpret_cast<const async::DataRequest*>(sender());
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     setWaiting(false);
@@ -117,7 +118,7 @@ void InitPage::slotUserLoaded()
 
 void InitPage::slotLoadData()
 {
-    async::DataRequest* request = DataProxy::getInstance()->loadDatasets();
+    const async::DataRequest* request = DataProxy::getInstance()->loadDatasets();
     Q_ASSERT_X(request, "InitPage", "DataRequest object is null");
     
     if (request->return_code() == async::DataRequest::CodeError) {

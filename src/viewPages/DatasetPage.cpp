@@ -93,7 +93,7 @@ void DatasetPage::loadData()
         return;
     }
 
-    async::DataRequest *request = dataProxy->loadDatasetContent(dataset);
+    const async::DataRequest *request = dataProxy->loadDatasetContent(dataset);
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
 
     if (request->return_code() == async::DataRequest::CodeError) {
@@ -125,7 +125,7 @@ void DatasetPage::refreshDatasets()
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
 
-    async::DataRequest *request = dataProxy->loadDatasets();
+    const async::DataRequest *request = dataProxy->loadDatasets();
     Q_ASSERT_X(request, "DatasetPage", "DataRequest object is null");
 
     DatasetItemModel *model = qobject_cast<DatasetItemModel*>(ui->datasets_tableview->model());

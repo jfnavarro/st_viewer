@@ -13,7 +13,7 @@
 #include "SelectionEvent.h"
 #include "data/DataProxy.h"
 #include "utils/Utils.h"
-
+#include "dataModel/GeneSelection.h"
 #include "GeneData.h"
 
 class QGLPainter;
@@ -26,6 +26,10 @@ class GeneRendererGL : public GraphicItemGL
     Q_OBJECT
 
 public:
+
+    // selection set
+    typedef QVector<GeneSelection> GeneSelectedSet;
+    typedef QMap<QString, GeneSelection> GeneInfoSelected;
 
     explicit GeneRendererGL(QObject *parent = 0);
     virtual ~GeneRendererGL();
@@ -40,7 +44,7 @@ public:
     //selection functions
     void selectGenes(const DataProxy::GeneList&);
     void selectFeatures(const DataProxy::FeatureList&);
-    DataProxy::FeatureListPtr getSelectedFeatures();
+    GeneSelectedSet getSelectedFeatures();
 
 public slots:
 
@@ -77,6 +81,11 @@ signals:
 
 private:
 
+    //adds a new GeneSelection to the map
+    //if not present creates if present accumulates reads
+    void addGeneSelection(const DataProxy::FeaturePtr);
+    void delGeneSelection(const DataProxy::FeaturePtr);
+
     // internal rendering functions
     void updateSize();
     void updateVisual();
@@ -94,20 +103,17 @@ private:
     // lookup quadtree
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
-    // selection set
-    typedef QSet<int> GeneInfoSelectedSet;
-
     // gene visual data
     GeneData m_geneData;
     QGLSceneNode *m_geneNode = nullptr;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
-    GeneInfoReverseMap m_geneInfoReverse;
+    GeneInfoReverseMap m_geneInfoReverse; //TODO can probably be removed
     GeneInfoQuadTree m_geneInfoQuadTree;
 
     // gene selection data
-    GeneInfoSelectedSet m_geneInfoSelection;
+    GeneInfoSelected m_geneInfoSelection;
 
     // visual attributes
     qreal m_intensity;
@@ -140,6 +146,8 @@ private:
 
     // tells if something has changed
     bool m_isDirty = false;
+
+    Q_DISABLE_COPY(GeneRendererGL)
 };
 
 

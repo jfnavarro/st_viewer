@@ -65,33 +65,42 @@ public:
     typedef QSharedPointer<UserExperiment> UserExperimentPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    typedef QVector<GenePtr> GeneList; //list of unique genes
-    typedef QSharedPointer<GeneList> GeneListPtr; //pointer to list of unique genes
-    typedef QMap<QString, GenePtr> GeneMap; //map of unique genes
+    //list of unique genes
+    typedef QVector<GenePtr> GeneList;
+    typedef QSharedPointer<GeneList> GeneListPtr;
+    //map of unique genes
+    typedef QMap<QString, GenePtr> GeneMap;
     typedef QSharedPointer<GeneMap> GeneMapPtr;
-    typedef QMap<QString, GeneMapPtr> GeneMapMap; //gene map hashed by dataset id
-    typedef QMap<QString, GeneListPtr> GeneListMap; //gene list hashed by dataset id
-
-    typedef QVector<FeaturePtr> FeatureList; //list of features (extended with color)
+    //gene map hashed by dataset id
+    typedef QMap<QString, GeneMapPtr> GeneMapMap;
+    //gene list hashed by dataset id
+    typedef QMap<QString, GeneListPtr> GeneListMap;
+    //list of features (extended with color)
+    typedef QVector<FeaturePtr> FeatureList;
     typedef QSharedPointer<FeatureList> FeatureListPtr;
-    typedef QMap<QString, FeaturePtr> FeatureMap; // map of features give feature id
+    // map of features give feature id
+    typedef QMap<QString, FeaturePtr> FeatureMap;
     typedef QSharedPointer<FeatureMap> FeatureMapPtr;
-    typedef QMap<QString, FeatureListPtr> FeatureListMap; //features hashed by dataset id
+    //features hashed by dataset id
+    typedef QMap<QString, FeatureListPtr> FeatureListMap;
     typedef QSharedPointer<FeatureListMap> FeatureListMapPtr;
-    typedef QMap<QString, FeatureMapPtr> FeatureMapMap; // feature map by dataset id
-    typedef QMap<QString, FeatureListMapPtr> FeatureListGeneMap; //features hashed by dataset id and gene name
-
-    typedef QMap<QString, ChipPtr> ChipMap; //chip hashed by dataset id
-
-    typedef QVector<DatasetPtr> DatasetList; //list of unique datasets
+    // feature map by dataset id
+    typedef QMap<QString, FeatureMapPtr> FeatureMapMap;
+    //features hashed by dataset id and gene name
+    typedef QMap<QString, FeatureListMapPtr> FeatureListGeneMap;
+    //chip hashed by dataset id
+    typedef QMap<QString, ChipPtr> ChipMap;
+    //list of unique datasets
+    typedef QVector<DatasetPtr> DatasetList;
     typedef QSharedPointer<DatasetList> DatasetListPtr;
-    typedef QMap<QString, DatasetPtr> DatasetMap; //datasets hashed by dataset id
-
-    typedef QMap<QString, DatasetStatisticsPtr> DatasetStatisticsMap; //hitcount hashed by dataset id
-
-    typedef QMap<QString, UserExperimentPtr> UserExperimentMap; //NOTE not functional yet
-
-    typedef QMap<QString, QString> CellFigureMap; //cell figure hashed by figure name (figure names are unique)
+    //datasets hashed by dataset id
+    typedef QMap<QString, DatasetPtr> DatasetMap;
+    //hitcount hashed by dataset id
+    typedef QMap<QString, DatasetStatisticsPtr> DatasetStatisticsMap;
+    //NOTE not functional yet
+    typedef QMap<QString, UserExperimentPtr> UserExperimentMap;
+    //cell figure hashed by figure name (figure names are unique)
+    typedef QMap<QString, QString> CellFigureMap;
 
     DataProxy();
     virtual ~DataProxy();
@@ -107,40 +116,42 @@ public:
 
     //data loaders
     // chip
-    async::DataRequest* loadChipById(const QString& chipId);
+    const async::DataRequest* loadChipById(const QString& chipId);
     // dataset
-    async::DataRequest* loadDatasets();
-    async::DataRequest* loadDatasetByDatasetId(const QString& datasetId);
-    async::DataRequest* updateDataset(const Dataset& dataset);
+    const async::DataRequest* loadDatasets();
+    const async::DataRequest* loadDatasetByDatasetId(const QString& datasetId);
+    const async::DataRequest* updateDataset(const Dataset& dataset);
     // feature
-    async::DataRequest* loadFeatureByDatasetId(const QString& datasetId);
-    async::DataRequest* loadFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene);
+    const async::DataRequest* loadFeatureByDatasetId(const QString& datasetId);
+    const async::DataRequest* loadFeatureByDatasetIdAndGene(const QString& datasetId,
+                                                      const QString& gene);
     // gene
-    async::DataRequest* loadGenesByDatasetId(const QString& datasetId);
+    const async::DataRequest* loadGenesByDatasetId(const QString& datasetId);
     // hit count
-    async::DataRequest* loadDatasetStatisticsByDatasetId(const QString& datasetId);
+    const async::DataRequest* loadDatasetStatisticsByDatasetId(const QString& datasetId);
     // red cell tissue figure
-    async::DataRequest* loadCellTissueByName(const QString& name);
+    const async::DataRequest* loadCellTissueByName(const QString& name);
     //get the current user object
-    async::DataRequest* loadUser();
+    const async::DataRequest* loadUser();
     //get the the whole dataset content
-    async::DataRequest* loadDatasetContent(DataProxy::DatasetPtr dataset);
+    const async::DataRequest* loadDatasetContent(DataProxy::DatasetPtr dataset);
 
     //data getters
-    DatasetListPtr getDatasetList();
+    DatasetListPtr getDatasetList() const;
     GeneListPtr getGeneList(const QString& datasetId);
     FeatureListPtr getFeatureList(const QString& datasetId);
     GenePtr getGene(const QString& datasetId, const QString& geneName);
-    FeatureListPtr getGeneFeatureList(const QString& datasetId, const QString& geneName);
+    FeatureListPtr getGeneFeatureList(const QString& datasetId,
+                                      const QString& geneName);
     FeaturePtr getFeature(const QString& datasetId, const QString &featureId);
-    DatasetPtr getDatasetById(const QString& datasetId);
+    DatasetPtr getDatasetById(const QString& datasetId) const;
     DatasetStatisticsPtr getStatistics(const QString& datasetId);
     ChipPtr getChip(const QString& chipId);
-    UserPtr getUser();
-    QIODevice *getFigure(const QString& figureId);
+    UserPtr getUser() const;
+    QIODevice *getFigure(const QString& figureId) const;
 
-    const QString& getSelectedDataset() const {  return m_selected_datasetId; }
-    void setSelectedDataset(const QString &datasetId) const { m_selected_datasetId = datasetId; }
+    const QString getSelectedDataset() const;
+    void setSelectedDataset(const QString &datasetId) const;
 
 private slots:
 
@@ -162,28 +173,38 @@ private:
     bool parseData(NetworkReply* reply, const QVariantMap& map);
 
     //internal function to create network requests trough download manager
-    async::DataRequest* createRequest(NetworkReply *reply);
-    async::DataRequest* createRequest(const QList<NetworkReply*> &replies);
-
-    DownLoadQueueMap m_download_pool;           // we store here every active download manager item with a hash key
-
-    DatasetMap m_datasetMap;                    // available datasets mapped by dataset id
-    DatasetListPtr m_datasetListPtr;            // available datasets on a list
-    GeneMapMap m_geneMap;                       // gene mapped by dataset id and gene id
-    GeneListMap m_geneListMap;                  // present genes and whether its to be shown or not
-    ChipMap m_chipMap;                          // chip arrays mapped by dataset id
-    FeatureMapMap m_featureMap;                 // feature mapped by dataset id and feature id
-    FeatureListMap m_featureListMap;            // map dataset id to list of features
-    FeatureListGeneMap m_geneFeatureListMap;    // map dataset id and gene name to list of features
-    UserPtr m_user;                             // the current user logged in
-    DatasetStatisticsMap m_datasetStatisticsMap;                  // map dataset id to list of Hits
-
-    mutable QString m_selected_datasetId;       // the current selected dataset
-
-protected:
+    const async::DataRequest* createRequest(NetworkReply *reply);
+    const async::DataRequest* createRequest(const QList<NetworkReply *> &replies);
 
     GeneMapPtr getGeneMap(const QString &datasetId);
     FeatureMapPtr getFeatureMap(const QString &datasetId);
+
+    // we store here every active download manager item with a hash key
+    DownLoadQueueMap m_download_pool;
+    // available datasets mapped by dataset id
+    DatasetMap m_datasetMap;
+    // available datasets on a list
+    DatasetListPtr m_datasetListPtr;
+    // gene mapped by dataset id and gene id
+    GeneMapMap m_geneMap;
+    // present genes and whether its to be shown or not
+    GeneListMap m_geneListMap;
+    // chip arrays mapped by dataset id
+    ChipMap m_chipMap;
+    // feature mapped by dataset id and feature id
+    FeatureMapMap m_featureMap;
+    // map dataset id to list of features
+    FeatureListMap m_featureListMap;
+    // map dataset id and gene name to list of features
+    FeatureListGeneMap m_geneFeatureListMap;
+    // the current user logged in
+    UserPtr m_user;
+     // map dataset id to list of Hits
+    DatasetStatisticsMap m_datasetStatisticsMap;
+    // the current selected dataset
+    mutable QString m_selected_datasetId;
+
+    Q_DISABLE_COPY(DataProxy)
 };
 
 #endif  /* DATAPROXY_H */

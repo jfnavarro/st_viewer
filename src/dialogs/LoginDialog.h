@@ -57,7 +57,7 @@ private:
 
     Ui::LogIn *ui;
 
-    QCompleter *m_completer;
+    QCompleter* m_completer;
 
     //init graphic stuff
     void setUpGUI();
@@ -71,6 +71,8 @@ private:
 protected:
 
     virtual void keyPressEvent(QKeyEvent *e);
+
+     Q_DISABLE_COPY(LoginDialog)
 };
 
 

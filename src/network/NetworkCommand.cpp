@@ -18,7 +18,9 @@ NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
 {
 
 }
-NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent) :
+NetworkCommand::NetworkCommand(const QUrl& url,
+                               Globals::HttpRequestType type,
+                               QObject* parent) :
     QObject(parent),
     m_url(url),
     m_type(type),

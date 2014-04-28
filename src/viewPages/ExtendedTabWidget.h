@@ -126,5 +126,7 @@ private:
     QButtonGroup *buttonGroup;
     QHBoxLayout *layout;
     QVBoxLayout *buttonLayout;
+
+    Q_DISABLE_COPY(ExtendedTabWidget)
 };
 #endif  /* // EXTENDEDTABWIDGET_H */

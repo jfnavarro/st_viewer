@@ -8,6 +8,7 @@ set(LIBRARY_ARG_INCLUDES
     ObjectParser.h
     User.h
     UserExperiment.h
+    GeneSelection.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -20,6 +21,7 @@ set(LIBRARY_ARG_SOURCES
     ObjectParser.cpp
     User.cpp
     UserExperiment.cpp
+    GeneSelection.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

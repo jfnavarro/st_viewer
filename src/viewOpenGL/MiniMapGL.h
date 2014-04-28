@@ -72,6 +72,8 @@ private:
 
     // mouse events
     bool m_selecting = false;
+
+    Q_DISABLE_COPY(MiniMapGL)
 };
 
 #endif // MINIMAPGL_H //

@@ -19,6 +19,8 @@ public:
 
 private:
     GeneFeatureItemModel *geneModel;
+
+    Q_DISABLE_COPY(GenesTableView)
 };
 
 #endif // GENESTABLEVIEW_H

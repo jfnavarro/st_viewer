@@ -56,6 +56,8 @@ protected:
 private:
 
     Ui::InitPage *ui;
+
+    Q_DISABLE_COPY(InitPage)
 };
 
 #endif  // STARTPAGE_H //

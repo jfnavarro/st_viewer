@@ -142,6 +142,8 @@ private:
 
     // scene viewport projection
     QMatrix4x4 m_projm;
+
+    Q_DISABLE_COPY(CellGLView)
 };
 
 #endif // CELLGLVIEW_H

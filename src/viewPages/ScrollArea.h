@@ -43,12 +43,15 @@ private:
 
     void adjustScrollBars();
 
+    //TODO magic number?
     const int m_scrollBarSteps = 100000;
 
-    CellGLView *m_view;
-    QWidget *m_container;
+    CellGLView* m_view = nullptr;
+    QWidget* m_container = nullptr;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;
+
+    Q_DISABLE_COPY(ScrollArea)
 };
 #endif //SCROLLAREA_H

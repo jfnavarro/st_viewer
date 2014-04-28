@@ -501,16 +501,7 @@ void CellViewPage::slotExportSelection()
     }
 
     // get selected features and extend with data
-    DataProxy::FeatureListPtr featureList = m_gene_plotter->getSelectedFeatures();
-
-    // create export context
-    DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
-
-    QObject context;
-    context.setProperty("hitCountMin", QVariant(statistics->min()));
-    context.setProperty("hitCountMax", QVariant(statistics->max()));
-    context.setProperty("hitCountSum", QVariant(statistics->hitsSum()));
+    GeneRendererGL::GeneSelectedSet geneSelected = m_gene_plotter->getSelectedFeatures();
 
     QFile textFile(filename);
     QFileInfo info(textFile);
@@ -524,7 +515,7 @@ void CellViewPage::slotExportSelection()
             dynamic_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
                                         GeneTXTExporter::TabDelimited, &memoryGuard));
 
-        exporter->exportItem(&textFile, featureList, context);
+        exporter->exportItem(&textFile, geneSelected);
     }
     textFile.close();
 }
@@ -593,13 +584,6 @@ void CellViewPage::selectionUpdated()
     // gene model signals
     GeneSelectionItemModel* selectionModel =
             qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
-    DataProxy::FeatureListPtr features = m_gene_plotter->getSelectedFeatures();
-
-    DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetStatisticsPtr statistics =
-            dataProxy->getStatistics(dataProxy->getSelectedDataset());
-    Q_ASSERT(statistics);
-
-    selectionModel->setHitCountLimits(statistics->min(), statistics->max());
-    selectionModel->loadGenes(features);
+    GeneRendererGL::GeneSelectedSet selectedGenes = m_gene_plotter->getSelectedFeatures();
+    selectionModel->loadSelectedGenes(selectedGenes);
 }

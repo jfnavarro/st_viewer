@@ -56,6 +56,8 @@ private slots:
 private:
 
     QPointer<QNetworkAccessManager> m_nam;
+
+    Q_DISABLE_COPY(NetworkManager)
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)
 
