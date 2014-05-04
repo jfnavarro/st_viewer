@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QMetaProperty>
 #include <QDebug>
+#include <QString>
 
 NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
     m_url(),
@@ -66,6 +67,21 @@ void NetworkCommand::addQueryItems(QObject* object)
     }
 }
 
+const QUrl& NetworkCommand::url() const
+{
+    return m_url;
+}
+
+Globals::HttpRequestType NetworkCommand::type() const
+{
+    return m_type;
+}
+
+const QUrlQuery& NetworkCommand::query() const
+{
+    return m_query;
+}
+
 const QString NetworkCommand::getEncodedUrl() const
 {
     QUrl url(m_url);
@@ -78,12 +94,12 @@ void NetworkCommand::addQueryItem(const QString& param, const QString& value)
     m_query.addQueryItem(param, value);
 }
 
-void NetworkCommand::addQueryItem(const QString& param, int value)
+void NetworkCommand::addQueryItem(const QString& param, const int value)
 {
     m_query.addQueryItem(param, QString::number(value));
 }
 
-void NetworkCommand::addQueryItem(const QString& param, double value)
+void NetworkCommand::addQueryItem(const QString& param, const qreal value)
 {
     m_query.addQueryItem(param, QString::number(value));
 }

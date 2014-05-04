@@ -25,8 +25,8 @@
 
 LoginDialog::LoginDialog(QDialog *parent):
     QDialog(parent),
-    ui(0),
-    m_completer(0)
+    ui(nullptr),
+    m_completer(nullptr)
 {
     //init UI
     ui = new Ui::LogIn();
@@ -57,11 +57,11 @@ LoginDialog::~LoginDialog()
     if (m_completer) {
         delete m_completer;
     }
-    m_completer = 0;
+    m_completer = nullptr;
     if (ui) {
         delete ui;
     }
-    ui = 0;
+    ui = nullptr;
 }
 
 void LoginDialog::clear()

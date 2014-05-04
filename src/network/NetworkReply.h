@@ -28,7 +28,7 @@ public:
     ContentType(const QString& contentType, QObject* parent = 0);
     virtual ~ContentType();
 
-     const QString& mime() const { return m_mime; }
+    const QString mime() const;
 
     void header(const QString& value);
 
@@ -53,11 +53,10 @@ public:
         CodeAbort = 0x02,
         CodeError = 0x04
     };
-    Q_DECLARE_FLAGS(ReturnCodes, ReturnCode)
 
     typedef QList<Error*> ErrorList;
 
-    explicit NetworkReply(QNetworkReply* networkReply = 0, QObject* parent = 0);
+    explicit NetworkReply(QNetworkReply* networkReply = 0);
     virtual ~NetworkReply();
 
     // user data
@@ -77,6 +76,10 @@ public:
 
      const NetworkReply::ErrorList& errors() const;
 
+     ReturnCode return_code() const;
+
+     Error *parseErrors();
+
 public slots:
 
     void slotAbort();
@@ -93,14 +96,16 @@ private:
 
      void registerError(Error* error);
 
-    // QT network reply
-    QScopedPointer<QNetworkReply> m_reply;
+    // Qt network reply
+    QSharedPointer<QNetworkReply> m_reply;
     // derived data
     mutable ContentType *m_contentType;
     // errors
     ErrorList m_errors;
     // custom data
     QVariant m_data;
+    // return status code
+    ReturnCode m_code;
 
     Q_DISABLE_COPY(NetworkReply)
 };

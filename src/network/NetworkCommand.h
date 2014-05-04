@@ -9,11 +9,11 @@
 #define NETWORKCOMMAND_H
 
 #include <QObject>
-#include <QString>
 #include <QUrl>
 #include <QUrlQuery>
 #include "utils/Utils.h"
 
+class QString;
 
 // The network command is an abstraction of a single network request command.
 // It encompasses the target URL, query items as well as indicates the type of
@@ -33,14 +33,14 @@ public:
     virtual ~NetworkCommand();
 
     // member access
-    const QUrl& url() const { return m_url; }
-    Globals::HttpRequestType type() const { return m_type; }
-    const QUrlQuery& query() const { return m_query; }
+    const QUrl& url() const;
+    Globals::HttpRequestType type() const;
+    const QUrlQuery& query() const;
 
     // convenience wrapper functions
     void addQueryItem(const QString& param, const QString& value = QString());
-    void addQueryItem(const QString& param, int value);
-    void addQueryItem(const QString& param, double value);
+    void addQueryItem(const QString& param, const int value);
+    void addQueryItem(const QString& param, const qreal value);
     void addQueryItems(QObject* object); // adds query items from qobject meta data
 
     const QString getQueryItem(const QString& param) const;

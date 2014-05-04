@@ -124,14 +124,19 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
     QNetworkRequest request;
 
     // add caching to request (only if network caching is active)
-    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+    if (flags.testFlag(UseCache)) {
+        request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                          QNetworkRequest::PreferCache);
+    }
 
     // add pipeline to the request
-    request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
+    request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute,
+                         flags.testFlag(UsePipelineMode));
 
     // add high priority
-    request.setPriority(QNetworkRequest::HighPriority);
+    if (flags.testFlag(UseHighPriority)) {
+        request.setPriority(QNetworkRequest::HighPriority);
+    }
 
     switch (cmd->type()) {
         case Globals::HttpRequestTypeGet: {
@@ -183,7 +188,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
     }
 
     NetworkReply* replyWrapper = nullptr;
-    replyWrapper = new NetworkReply(networkReply, this);
+    replyWrapper = new NetworkReply(networkReply);
     replyWrapper->setCustomData(data);
 
     if (replyWrapper == nullptr) {

@@ -5,7 +5,7 @@
 
 */
 
-#include "AnimatedDatasetsTableView.h"
+#include "DatasetsTableView.h"
 
 #include <QModelIndex>
 #include <QHeaderView>
@@ -14,14 +14,10 @@
 #include "model/DatasetItemModel.h"
 #include "viewPages/DatasetsViewItemDelegate.h"
 
-AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
+DatasetsTableView::DatasetsTableView(QWidget *parent)
     : QTableView(parent),
-      m_animation(this),
       m_datasetModel(0)
 {
-    // create animation
-    m_animation.setAnimation(":images/loader.gif");
-
     // the model
     m_datasetModel = new DatasetItemModel(this);
 
@@ -62,21 +58,7 @@ AnimatedDatasetsTableView::AnimatedDatasetsTableView(QWidget *parent)
             m_datasetModel , SLOT(datasetSelected(QModelIndex)));
 }
 
-AnimatedDatasetsTableView::~AnimatedDatasetsTableView()
+DatasetsTableView::~DatasetsTableView()
 {
 
-}
-
-void AnimatedDatasetsTableView::setWaiting(const bool waiting)
-{
-    m_animation.setEnabled(waiting);
-    m_animation.setVisible(waiting);
-}
-
-void AnimatedDatasetsTableView::paintEvent(QPaintEvent *event)
-{
-
-    QTableView::paintEvent(event);
-
-    m_animation.paintAnimation(event);
 }

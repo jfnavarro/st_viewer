@@ -13,8 +13,7 @@
 class QVBoxLayout;
 class Error;
 
-namespace Ui
-{
+namespace Ui {
 class InitPage;
 }
 
@@ -42,12 +41,8 @@ public slots:
 protected slots:
 
     void slotAuthorizationError(Error*);
-    void slotNetworkError(Error*);
     void slotLogOutButton();
     void slotAuthorized();
-    void slotLoadData();
-    void slotUserLoaded();
-    void slotDataLoaded();
 
 protected:
 

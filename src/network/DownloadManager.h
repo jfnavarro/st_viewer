@@ -22,10 +22,8 @@ namespace async
 // Asynchronous data request handle used to synchronize request events
 // (such as finished, error etc.).
 
-class DataRequest : public QObject
+class DataRequest
 {
-    Q_OBJECT
-
 public:
 
     enum Code {
@@ -36,32 +34,23 @@ public:
         CodePresent = 0x16
     };
 
-    explicit DataRequest(QObject* parent = 0);
-    virtual ~DataRequest();
+    DataRequest();
+    DataRequest(const DataRequest& other);
+    ~DataRequest();
+
+    DataRequest& operator=(const DataRequest& other);
+    bool operator==(const DataRequest& other) const;
 
     DataRequest::Code return_code() const;
     void return_code(DataRequest::Code flag);
-
-public slots:
-
-    //this is to be used from a page
-    void slotAbort();
-    //this is to be used from the download manager
-    void slotFinished();
-    // this is to be used from the download manager
-    void slotError(Error*);
-
-signals:
-
-    void signalFinished();
-    void signalAbort();
-    void signalError(Error*);
+    void addError(const Error *error);
+    QList<const Error*> getErrors() const;
 
 private:
-
+    QList<const Error*> m_error_list;
     DataRequest::Code m_return_code;
 };
-
+/*
 class DownloadManager: public QObject
 {
 
@@ -95,7 +84,7 @@ private:
 
     Q_DISABLE_COPY(DownloadManager)
 };
-
+*/
 } // namespace async //
 
 #endif  /* // DOWNLOADMANAGER_H */

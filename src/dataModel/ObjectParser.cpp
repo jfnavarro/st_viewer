@@ -21,21 +21,17 @@ void ObjectParser::parseObject(const QVariant& source, QObject* target)
         qDebug() << "[ObjectParser] Error: Invalid object... " << source.toByteArray();
         return;
     }
-
     const QVariantMap& map = source.toMap();
-
     const QMetaObject *metaobject = target->metaObject();
     QVariantMap::const_iterator it, end = map.constEnd();
-
     for (it = map.constBegin(); it != end; ++it) {
-
         const int index = metaobject->indexOfProperty(it.key().toLatin1());
-        if (index < 0) continue;
-
+        if (index < 0) {
+            continue;
+        }
         QMetaProperty metaproperty = metaobject->property(index);
         QVariant::Type type = metaproperty.type();
         QVariant v = it.value();
-
         if (v.canConvert(type)) {
             v.convert(type);
             metaproperty.write(target, v);

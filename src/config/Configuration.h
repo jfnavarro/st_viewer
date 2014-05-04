@@ -57,6 +57,7 @@ public:
     const QString dataEndpointHitCounts() const;
     const QString dataEndpointReducedFeatures() const;
     const QString dataEndpointUsers() const;
+    const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;
 
 private:

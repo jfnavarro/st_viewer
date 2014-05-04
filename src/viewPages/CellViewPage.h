@@ -23,10 +23,9 @@ class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
 
-namespace Ui
-{
+namespace Ui{
 class CellView;
-} // namespace Ui //
+} // namespace Ui
 
 // this is the definition of the cell view page which contains a list of genes and an OpenGL based
 // rendering canvas to visualize the cell tissue and the genes.
@@ -43,12 +42,8 @@ public:
     explicit CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
- signals: 
-
-    // Rotate view an angle (unit: degree). 
-    // A negative angle means rotate anti-clock-wise.
-    // A positive angle means rotate clock-wise.
-    void rotateView(int);
+    // load the content of the currently selected dataset
+    void loadData();
 
 public slots:
     
@@ -81,11 +76,8 @@ protected slots:
     // launch a color selector
     void slotLoadColor();
 
-    // rotate the canvas
-    void slotRotateView();
-
     // genes were selected
-    void selectionUpdated();
+    void slotSelectionUpdated();
 
 protected:
     

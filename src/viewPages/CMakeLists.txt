@@ -6,7 +6,7 @@ set(LIBRARY_ARG_INCLUDES
     ExperimentPage.h
     InitPage.h
     Page.h
-    AnimatedDatasetsTableView.h
+    DatasetsTableView.h
     GenesTableView.h
     GeneSelectionTableView.h
     WidgetBackgroundAnimation.h
@@ -26,7 +26,7 @@ set(LIBRARY_ARG_SOURCES
     ExperimentPage.cpp
     InitPage.cpp
     Page.cpp
-    AnimatedDatasetsTableView.cpp
+    DatasetsTableView.cpp
     GenesTableView.cpp
     GeneSelectionTableView.cpp
     WidgetBackgroundAnimation.cpp

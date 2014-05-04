@@ -8,6 +8,8 @@
 #define PAGE_H
 
 #include <QWidget>
+#include <QProgressDialog>
+#include <QTimer>
 
 class Error;
 
@@ -34,9 +36,19 @@ public slots:
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
 
+private slots:
+
+    void increaseBar();
+
 protected:
 
     void setWaiting(bool waiting = true);
+
+ private:
+
+    QProgressDialog* m_progressDialog;
+    QTimer *m_timer;
+    int m_steps;
 };
 
 #endif // PAGE_H

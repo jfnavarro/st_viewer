@@ -80,7 +80,6 @@ private:
     QAction *actionExit = nullptr;
     QAction *actionHelp = nullptr;
     QAction *actionVersion = nullptr;
-    QAction *actionPrint = nullptr;
     QAction *actionAbout = nullptr;
     QAction *actionClear_Cache = nullptr;
 

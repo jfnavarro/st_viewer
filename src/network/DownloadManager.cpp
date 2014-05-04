@@ -13,13 +13,32 @@
 namespace async
 {
 
-DataRequest::DataRequest(QObject* parent): QObject(parent)
+DataRequest::DataRequest()
 {
 }
 
 DataRequest::~DataRequest()
 {
 
+}
+
+DataRequest::DataRequest(const DataRequest& other)
+{
+    m_error_list = other.m_error_list;
+    m_return_code = other.return_code();
+}
+
+DataRequest& DataRequest::operator=(const DataRequest& other)
+{
+    m_error_list = other.m_error_list;
+    m_return_code = other.return_code();
+    return (*this);
+}
+
+bool DataRequest::operator==(const DataRequest& other) const
+{
+    return(m_return_code == other.m_return_code
+           && m_error_list == other.m_error_list);
 }
 
 DataRequest::Code DataRequest::return_code() const
@@ -32,22 +51,16 @@ void DataRequest::return_code(DataRequest::Code code)
     m_return_code = code;
 }
 
-//we want to abort the reply
-void DataRequest::slotAbort()
+void DataRequest::addError(const Error *error)
 {
-    emit signalAbort();
+    m_error_list.append(error);
 }
 
-void DataRequest::slotFinished()
+QList<const Error*> DataRequest::getErrors() const
 {
-    emit signalFinished();
+    return m_error_list;
 }
-
-void DataRequest::slotError(Error *error)
-{
-    emit signalError(error);
-}
-
+/*
 DownloadManager::DownloadManager(async::DataRequest *request, QObject * parent) :
     QObject(parent), m_request(request)
 {
@@ -140,5 +153,5 @@ void DownloadManager::timedOut()
     //m_request->return_code(async::DataRequest::CodeTimedOut);
     //m_request->slotFinished();
 }
-
+*/
 } // namespace async //

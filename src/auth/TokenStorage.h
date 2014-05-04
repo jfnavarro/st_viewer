@@ -42,7 +42,7 @@ public:
 
 private:
 
-    QScopedPointer<QSettings> m_storage;
+    QPointer<QSettings> m_storage;
 
     Q_DISABLE_COPY(TokenStorage)
 };

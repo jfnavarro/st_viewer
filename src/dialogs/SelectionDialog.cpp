@@ -47,15 +47,13 @@ void SelectionDialog::accept()
         reject();
         return;
     }
-    
+    // get the current list of genes
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::GeneListPtr geneList =
-            dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    const auto& geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     
     // find all genes that match the regular expression
-    //TODO this can be optimized using STDfunctions or Qt::concurrent algorithms
     m_selectedGeneList.clear();
-    foreach(DataProxy::GenePtr gene, (*geneList)) {
+    foreach(DataProxy::GenePtr gene, geneList) {
         const QString name = gene->name();
         if (!m_includeAmbiguous && gene->isAmbiguous()) {
             continue;

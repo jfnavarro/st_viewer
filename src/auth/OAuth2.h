@@ -40,7 +40,8 @@ public:
 
 signals:
 
-    void signalLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
+    void signalLoginDone(const QUuid& accessToken,
+                         int expiresIn, const QUuid& refreshToken);
     void signalLoginAborted();
     void signalError(Error* error);
 
@@ -59,7 +60,7 @@ private:
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 
     // login dialog component
-    QScopedPointer<LoginDialog> m_loginDialog;
+    QPointer<LoginDialog> m_loginDialog;
 
     Q_DISABLE_COPY(OAuth2)
 };

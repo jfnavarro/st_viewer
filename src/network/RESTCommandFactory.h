@@ -45,6 +45,8 @@ public:
 
     static NetworkCommand* getUser();
 
+    static NetworkCommand* getSelections();
+
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion();
 };
