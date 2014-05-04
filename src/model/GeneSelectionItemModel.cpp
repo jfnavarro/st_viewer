@@ -108,9 +108,9 @@ void GeneSelectionItemModel::reset()
     endResetModel();
 }
 
-void GeneSelectionItemModel::loadSelectedGenes(GeneRendererGL::GeneSelectedSet selection)
+void GeneSelectionItemModel::loadSelectedGenes(const DataProxy::UniqueGeneSelectedList &selectionList)
 {
     beginResetModel();
-    m_geneselection = selection;
+    m_geneselection = selectionList;
     endResetModel();
 }

@@ -396,6 +396,39 @@ void DataProxy::setSelectedDataset(const QString &datasetId) const
     m_selected_datasetId = datasetId;
 }
 
+DataProxy::UniqueGeneSelectedList DataProxy::getUniqueGeneSelected(const qreal roof,
+                                                                   const FeatureList &features)
+{
+    //TODO this can be optimized to do in one loop
+    QMap<QString, GeneSelection> geneSelectionsMap;
+    DataProxy::UniqueGeneSelectedList geneSelectionsList;
+    foreach(DataProxy::FeaturePtr feature, features) {
+        if (!feature->selected()) {
+            continue;
+        }
+        const QString name = feature->gene();
+        const qreal reads = feature->hits();
+        const qreal normalizedReads = feature->hits() / roof;
+        if (geneSelectionsMap.count( name ) == 0) {
+            GeneSelection newselection(name, reads, normalizedReads);
+            geneSelectionsMap.insert(feature->gene(), newselection);
+        }
+        else {
+            const qreal currentReads = geneSelectionsMap[name].reads();
+            const qreal newReads = currentReads + reads;
+            geneSelectionsMap[name].reads(newReads);
+            geneSelectionsMap[name].normalizedReads(newReads / roof);
+        }
+    }
+    QMap<QString, GeneSelection>::const_iterator it = geneSelectionsMap.begin();
+    QMap<QString, GeneSelection>::const_iterator end = geneSelectionsMap.end();
+    for( ; it != end; ++it) {
+        geneSelectionsList.append(it.value());
+    }
+
+    return geneSelectionsList;
+}
+
 bool DataProxy::hasDatasets() const
 {
     return !m_datasetMap.isEmpty();

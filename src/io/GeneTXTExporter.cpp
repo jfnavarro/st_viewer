@@ -66,7 +66,7 @@ void GeneTXTExporter::exportItem(QTextStream &otxt, const GeneSelection& selecti
 }
 
 void GeneTXTExporter::exportItem(QTextStream &otxt,
-                                 const GeneRendererGL::GeneSelectedSet &selectionList) const
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
     // prepend header
     if (m_detailLevel.testFlag(GeneTXTExporter::Comments)) {
@@ -83,7 +83,7 @@ void GeneTXTExporter::exportItem(QTextStream &otxt,
 }
 
 void GeneTXTExporter::exportItem(QIODevice *device,
-                                 const GeneRendererGL::GeneSelectedSet selectionList) const
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
     // early out
     if (!device->isWritable()) {

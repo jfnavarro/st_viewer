@@ -10,7 +10,7 @@
 
 #include <QObject>
 
-#include "viewOpenGL/GeneRendererGL.h"
+#include "data/DataProxy.h"
 
 class QIODevice;
 
@@ -24,7 +24,7 @@ public:
     virtual ~GeneExporter();
 
     virtual void exportItem(QIODevice *device,
-                            const GeneRendererGL::GeneSelectedSet) const = 0;
+                            const DataProxy::UniqueGeneSelectedList& selectionList) const = 0;
 
     void addExportProperty(const QString &property);
     void addExportProperty(const PropertyList &properties);

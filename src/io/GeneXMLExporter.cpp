@@ -38,7 +38,7 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml,
     oxml.writeEndElement();
 }
 void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml,
-                                 const GeneRendererGL::GeneSelectedSet selectionList) const
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
     oxml.writeStartElement("features");
     foreach(const GeneSelection& selection, selectionList) {
@@ -48,7 +48,7 @@ void GeneXMLExporter::exportItem(QXmlStreamWriter &oxml,
 }
 
 void GeneXMLExporter::exportItem(QIODevice *device,
-                                 const GeneRendererGL::GeneSelectedSet selectionList) const
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
     // early out
     if (!device->isWritable()) {

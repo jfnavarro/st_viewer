@@ -627,7 +627,13 @@ void CellViewPage::slotExportSelection()
     }
 
     // get selected features and extend with data
-    GeneRendererGL::GeneSelectedSet geneSelected = m_gene_plotter->getSelectedFeatures();
+    DataProxy *dataProxy = DataProxy::getInstance();
+    DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
+    Q_ASSERT(statistics);
+    const qreal max = statistics->pooledMax();
+    //TODO pooledMax is not actually a correct roof since the reads per gene are sum
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& uniqueSelected = DataProxy::getUniqueGeneSelected(max, features);
 
     QFile textFile(filename);
     QFileInfo info(textFile);
@@ -641,7 +647,7 @@ void CellViewPage::slotExportSelection()
             dynamic_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
                                         GeneTXTExporter::TabDelimited, &memoryGuard));
 
-        exporter->exportItem(&textFile, geneSelected);
+        exporter->exportItem(&textFile, uniqueSelected);
     }
     textFile.close();
 }
@@ -699,6 +705,13 @@ void CellViewPage::slotSelectionUpdated()
     // gene model signals
     GeneSelectionItemModel* selectionModel =
             qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
-    GeneRendererGL::GeneSelectedSet selectedGenes = m_gene_plotter->getSelectedFeatures();
-    selectionModel->loadSelectedGenes(selectedGenes);
+    // get selected features and extend with data
+    DataProxy *dataProxy = DataProxy::getInstance();
+    DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
+    Q_ASSERT(statistics);
+    const qreal max = statistics->pooledMax();
+    //TODO pooledMax is not actually a correct roof since the reads per gene are sum
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& uniqueSelected = DataProxy::getUniqueGeneSelected(max, features);
+    selectionModel->loadSelectedGenes(uniqueSelected);
 }

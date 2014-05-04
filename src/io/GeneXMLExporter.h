@@ -22,7 +22,7 @@ public:
     virtual ~GeneXMLExporter();
 
     virtual void exportItem(QIODevice *device,
-                            const GeneRendererGL::GeneSelectedSet selectionList) const;
+                            const DataProxy::UniqueGeneSelectedList& selectionList) const;
 
 private:
 
@@ -30,7 +30,7 @@ private:
                     const GeneSelection &selection) const;
 
     void exportItem(QXmlStreamWriter &oxml,
-                    const GeneRendererGL::GeneSelectedSet selectionList) const;
+                    const DataProxy::UniqueGeneSelectedList& selectionList) const;
 };
 
 #endif // GENEXMLEXPORTER_H //

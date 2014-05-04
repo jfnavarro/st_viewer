@@ -53,8 +53,12 @@ void GeneRendererGL::clearData()
     // gene plot data
     m_geneData.clear();
 
-    // selected genes data
-    m_geneInfoSelection.clear();
+    //clear selection
+    DataProxy* dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        feature->selected(false);
+    }
 
     // lookup data
     m_geneInfoById.clear();
@@ -450,55 +454,14 @@ void GeneRendererGL::updateVisual()
 void GeneRendererGL::clearSelection()
 {
     m_geneData.resetSelection(false);
-    m_geneInfoSelection.clear();
+    DataProxy* dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        feature->selected(false);
+    }
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
-}
-
-void GeneRendererGL::addGeneSelection(const DataProxy::FeaturePtr feature)
-{
-    const QString name = feature->gene();
-    const qreal reads = feature->hits();
-    const qreal normalizedReads = feature->hits() / m_pooledMax;
-    if (m_geneInfoSelection.count( name ) == 0) {
-        GeneSelection newselection(name, reads, normalizedReads);
-        m_geneInfoSelection.insert(feature->gene(), newselection);
-    }
-    else {
-        const qreal currentReads = m_geneInfoSelection[name].reads();
-        const qreal newReads = currentReads + reads;
-        m_geneInfoSelection[name].reads(newReads);
-        m_geneInfoSelection[name].normalizedReads(newReads / m_pooledMax);
-    }
-}
-
-//TODO duplicated code with the function above, refactor
-void GeneRendererGL::delGeneSelection(const DataProxy::FeaturePtr feature)
-{
-    const QString name = feature->gene();
-    const qreal reads = feature->hits();
-    if (m_geneInfoSelection.count( name ) == 0) {
-        //this should not happen, assert?
-    }
-    else {
-        const qreal currentReads = m_geneInfoSelection[name].reads();
-        const qreal newReads = currentReads - reads;
-        //check for 0 values
-        m_geneInfoSelection[name].reads(newReads);
-        m_geneInfoSelection[name].normalizedReads(newReads / m_pooledMax);
-    }
-}
-
-GeneRendererGL::GeneSelectedSet GeneRendererGL::getSelectedFeatures()
-{
-    GeneSelectedSet selectedGenes;
-    GeneInfoSelected::const_iterator it = m_geneInfoSelection.begin();
-    GeneInfoSelected::const_iterator end = m_geneInfoSelection.end();
-    for( ; it != end; ++it) {
-        selectedGenes.append(it.value());
-    }
-    return selectedGenes;
 }
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
@@ -535,7 +498,7 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
                 continue;
             }
             // make the selection
-            addGeneSelection(feature);
+            feature->selected(true);
             m_geneData.updateQuadSelected(index, true);
         }
     }
@@ -592,20 +555,20 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 
         // make the selection
         if (mode == SelectionEvent::ExcludeSelection) {
-            //TODO complete and refactor this
+            //TODO refactor this
             GeneInfoReverseMap::const_iterator it2 = m_geneInfoReverse.find(index);
             GeneInfoReverseMap::const_iterator end2 = m_geneInfoReverse.end();
             while (it2 != end2 && it2.key() == index) {
-                delGeneSelection(it2.value());
+                it2.value()->selected(false);
                 ++it2;
             }
             m_geneData.updateQuadSelected(index, false);
         } else {
-            //TODO complete and refactor this
+            //TODO refactor this
             GeneInfoReverseMap::const_iterator it2 = m_geneInfoReverse.find(index);
             GeneInfoReverseMap::const_iterator end2 = m_geneInfoReverse.end();
             while (it2 != end2 && it2.key() == index) {
-                addGeneSelection(it2.value());
+                it2.value()->selected(true);
                 ++it2;
             }
             m_geneData.updateQuadSelected(index, true);

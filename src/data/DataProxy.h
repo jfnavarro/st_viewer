@@ -23,6 +23,7 @@
 #include "dataModel/DatasetStatistics.h"
 #include "dataModel/User.h"
 #include "dataModel/UserExperiment.h"
+#include "dataModel/GeneSelection.h"
 
 // network
 #include "network/NetworkManager.h"
@@ -93,6 +94,8 @@ public:
     typedef QVector<UserExperimentPtr> UserExperimentList;
     //cell figure hashed by figure name (figure names are unique)
     typedef QMap<QString, QString> CellFigureMap;
+    // selection set
+    typedef QVector<GeneSelection> UniqueGeneSelectedList;
 
     DataProxy();
     virtual ~DataProxy();
@@ -139,6 +142,10 @@ public:
     QIODevice *getFigure(const QString& figureId) const;
     const UserExperimentList& getSelectedObjects() const;
     const QString getSelectedDataset() const;
+
+    //returns a vector of unique gene selection objects
+    static UniqueGeneSelectedList getUniqueGeneSelected(const qreal roof,
+                                                        const FeatureList& features);
 
     //setters
     void setSelectedDataset(const QString &datasetId) const;
