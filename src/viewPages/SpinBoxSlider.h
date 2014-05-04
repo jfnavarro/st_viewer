@@ -24,7 +24,7 @@ public:
 
     void setMaximumValue(const int max);
     void setMinimumValue(const int min);
-    void setTickInterval(int interval);
+    void setTickInterval(const int interval);
 
 signals:
 
@@ -35,8 +35,6 @@ public slots:
     
     void setLowerValue(const int min);
     void setUpperValue(const int max);
-
-protected slots:
 
 private:
 

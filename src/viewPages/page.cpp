@@ -27,6 +27,11 @@ Page::Page(QWidget *parent) :
     connect(m_timer, SIGNAL(timeout()), this, SLOT(increaseBar()));
 }
 
+Page::~Page()
+{
+
+}
+
 void Page::setWaiting(bool waiting)
 {
     if (waiting) {

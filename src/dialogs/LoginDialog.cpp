@@ -58,10 +58,7 @@ LoginDialog::~LoginDialog()
         delete m_completer;
     }
     m_completer = nullptr;
-    if (ui) {
-        delete ui;
-    }
-    ui = nullptr;
+    delete ui;
 }
 
 void LoginDialog::clear()

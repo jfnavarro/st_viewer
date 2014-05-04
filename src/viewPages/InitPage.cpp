@@ -46,8 +46,10 @@ void InitPage::onInit()
     connect(ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
     
     AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
-    connect(authorizationManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
-    connect(authorizationManager, SIGNAL(signalError(Error*)), this, SLOT(slotAuthorizationError(Error*)));
+    connect(authorizationManager, SIGNAL(signalAuthorize()),
+            this, SLOT(slotAuthorized()));
+    connect(authorizationManager, SIGNAL(signalError(Error*)),
+            this, SLOT(slotAuthorizationError(Error*)));
     authorizationManager->start();
 }
 

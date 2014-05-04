@@ -17,14 +17,14 @@ namespace Ui {
 class InitPage;
 }
 
-// this is the definition of the start page which contains logos, a login component and a start button
+// this is the definition of the start page which contains logos,
+//a login component and a start button
 // the page as a stackwidget which will switch between login widget and logged widget
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 
 class InitPage : public Page
 {
-
     Q_OBJECT
 
 public:
@@ -38,7 +38,7 @@ public slots:
     void onEnter();
     void onExit();
 
-protected slots:
+private slots:
 
     void slotAuthorizationError(Error*);
     void slotLogOutButton();

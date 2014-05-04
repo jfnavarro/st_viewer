@@ -12,7 +12,6 @@
 #include <QSortFilterProxyModel>
 
 #include "model/DatasetItemModel.h"
-#include "viewPages/DatasetsViewItemDelegate.h"
 
 DatasetsTableView::DatasetsTableView(QWidget *parent)
     : QTableView(parent),
@@ -32,9 +31,6 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->setSortIndicatorShown(false);
     sortByColumn(0, Qt::AscendingOrder);
-
-    //NOTE item delegate is not finished yet
-    //ui->datasets_tableview->setItemDelegate(new DatasetsViewItemDelegate(this));
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);

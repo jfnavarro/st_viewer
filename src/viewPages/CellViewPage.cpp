@@ -74,36 +74,6 @@ CellViewPage::~CellViewPage()
     }
     m_toolBar = 0;
 
-    if (m_image) {
-        delete m_image;
-    }
-    m_image = 0;
-
-    if (m_gene_plotter) {
-        delete m_gene_plotter;
-    }
-    m_gene_plotter = 0;
-
-    if (m_minimap) {
-        delete m_minimap;
-    }
-    m_minimap = 0;
-
-    if (m_grid) {
-        delete m_grid;
-    }
-    m_grid = 0;
-
-    if (m_legend) {
-        delete m_legend;
-    }
-    m_legend = 0;
-
-    if (m_view) {
-        delete m_view;
-    }
-    m_view = 0;
-
     delete ui;
 }
 
@@ -302,7 +272,18 @@ void CellViewPage::loadData()
             return;
         }
     }
-
+    //load chip
+    {
+        async::DataRequest request =
+                dataProxy->loadChipById(dataset->chipId());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error = new Error("Data loading Error", "Error loading the chip array.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
     //succes downloading the data
     setWaiting(false);
 }

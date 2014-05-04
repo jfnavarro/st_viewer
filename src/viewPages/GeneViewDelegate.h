@@ -13,8 +13,6 @@
 // Specialized delegate to manage the visualizing and modification of gene data
 // in a table view.
 
-//NOTE this delegate is not finished yet
-
 class GeneViewDelegate : public QStyledItemDelegate
 {
 

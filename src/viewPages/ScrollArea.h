@@ -14,6 +14,7 @@ public:
 
     explicit ScrollArea(QWidget * parent = 0 );
     virtual ~ScrollArea();
+
     CellGLView *cellGlView() const;
     virtual void setupViewport(QWidget *viewport) override;
 
@@ -43,7 +44,7 @@ private:
 
     void adjustScrollBars();
 
-    //TODO magic number?
+    //TOFIX magic number?
     const int m_scrollBarSteps = 100000;
 
     CellGLView* m_view = nullptr;

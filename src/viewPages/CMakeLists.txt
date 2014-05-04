@@ -9,10 +9,8 @@ set(LIBRARY_ARG_INCLUDES
     DatasetsTableView.h
     GenesTableView.h
     GeneSelectionTableView.h
-    WidgetBackgroundAnimation.h
     CellViewPageToolBar.h
     BooleanItemDelegate.h
-    DatasetsViewItemDelegate.h
     GeneViewDelegate.h
     ColorListEditor.h
     ExtendedTabWidget.cpp
@@ -29,10 +27,8 @@ set(LIBRARY_ARG_SOURCES
     DatasetsTableView.cpp
     GenesTableView.cpp
     GeneSelectionTableView.cpp
-    WidgetBackgroundAnimation.cpp
     CellViewPageToolBar.cpp
     BooleanItemDelegate.cpp
-    DatasetsViewItemDelegate.cpp
     GeneViewDelegate.cpp
     ColorListEditor.cpp
     ExtendedTabWidget.cpp

@@ -181,17 +181,12 @@ void stVi::setupUi()
 {
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
-    resize(1217, 706);
+    resize(1024, 768);
 
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
     sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-
     setSizePolicy(sizePolicy);
     setMinimumSize(QSize(1024, 768));
-    setMouseTracking(false);
-    setFocusPolicy(Qt::NoFocus);
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
     actionExit = new QAction(this);
@@ -201,8 +196,6 @@ void stVi::setupUi()
     actionClear_Cache = new QAction(this);
 
     centralwidget = new QWidget(this);
-    centralwidget->setMouseTracking(true);
-    centralwidget->setFocusPolicy(Qt::NoFocus);
 
     mainlayout = new QVBoxLayout(centralwidget);
     mainTab = new ExtendedTabWidget(centralwidget);
@@ -285,18 +278,22 @@ void stVi::slotClearCache()
 void stVi::createLayouts()
 {
     statusBar()->showMessage("Spatial Transcriptomics Viewer");
+    //TODO make several status bar updates in different parts of the application
 }
 
 void stVi::initStyle()
 {
     // apply stylesheet and configurations
 #ifdef Q_OS_MAC
-    setUnifiedTitleAndToolBarOnMac(true); //working again in qt 5.2.1
+    setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
-    QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true); //osx does not show icons on menus
+    //NOTE this is actually pretty important
+    QApplication::setAttribute(Qt::AA_NativeWindows, true);
+    //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
-    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
+     // no close icon on MAC
+    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint));
 #endif
 
     //TODO move to styleshee.css file

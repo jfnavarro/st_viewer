@@ -18,11 +18,6 @@
 // Common provides miscellaneous functionality related to the opengl library.
 namespace STMath
 {
-
-// static constants & typedefs
-//static const int INVALID_INDEX = -1; //NOTE this is not good
-//static const float EPSILON = float(1.0e-5); //NOTE not used I think
-
 // clamp size to
 //NOTE: Qt::KeepAspectRatio might be prone to numerical errors
 //(ie. any skewing introduced due to num error will be kept)

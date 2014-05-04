@@ -45,7 +45,8 @@ signals:
 
 public slots:
 
-    // handlemessage is intented to be called from another instance trying to run at the same time
+    // handlemessage is intented to be called from another
+    // instance trying to run at the same time
     void handleMessage(QString);
     // opens pop up static widget
     void showAbout();

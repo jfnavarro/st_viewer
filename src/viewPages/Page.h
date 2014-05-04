@@ -22,7 +22,7 @@ class Page : public QWidget
 public:
 
     explicit Page(QWidget *parent = 0);
-    virtual ~Page() {};
+    virtual ~Page();
 
 signals:
 
@@ -44,7 +44,7 @@ protected:
 
     void setWaiting(bool waiting = true);
 
- private:
+private:
 
     QProgressDialog* m_progressDialog;
     QTimer *m_timer;

@@ -33,7 +33,6 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QIODevice *out) const
     if (out->write(reinterpret_cast<const char *>(&header), sizeof(header)) == -1) {
         return (m_lastError = StreamWriteError);
     }
-
     return StreamOK;
 }
 
@@ -169,9 +168,8 @@ void SimpleCrypt::encodeByteArray(QByteArray &data) const
 
 void SimpleCrypt::decodeByteArray(QByteArray &data) const
 {
-    int size = data.size();
+    const int size = data.size();
     int hist = 0;
-
     for (int i = 0; i < size; ++i) {
         quint8 c = data[i];
         data[i] = c ^ hist ^ m_key.key8[i % 8];
