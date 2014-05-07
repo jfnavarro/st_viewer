@@ -16,8 +16,8 @@
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
     : QObject(parent),
-      m_oAuth2(0),
-      m_tokenStorage(0)
+      m_oAuth2(nullptr),
+      m_tokenStorage(nullptr)
 {
 
 }
@@ -29,20 +29,20 @@ AuthorizationManager::~AuthorizationManager()
 
 void AuthorizationManager::finalize()
 {
-    //m_oAuth2 and m_tokenStorage are scoped pointers
+    //m_oAuth2 and m_tokenStorage are smart pointers
 }
 
 
 void AuthorizationManager::init()
 {
-    m_tokenStorage.reset(new TokenStorage());
+    m_tokenStorage = new TokenStorage();
 }
 
 void AuthorizationManager::start()
 {
     //lazy init
     if (m_oAuth2.isNull()) {
-        m_oAuth2.reset(new OAuth2(this));
+        m_oAuth2 = new OAuth2(this);
         connect(m_oAuth2.data(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
         connect(m_oAuth2.data(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));

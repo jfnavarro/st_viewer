@@ -13,6 +13,10 @@ Page::Page(QWidget *parent) : QWidget(parent)
 {
 }
 
+Page::~Page()
+{
+}
+
 void Page::setWaiting(bool waiting)
 {
     if (waiting) {
@@ -21,5 +25,9 @@ void Page::setWaiting(bool waiting)
         QApplication::restoreOverrideCursor();
         QApplication::processEvents();
     }
-
 }
+
+void Page::increaseBar()
+{
+}
+

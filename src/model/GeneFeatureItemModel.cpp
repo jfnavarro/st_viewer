@@ -12,11 +12,11 @@
 #include <QMimeData>
 #include <QStringList>
 
-const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST = QStringLiteral("application/gene.list");
+const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST =
+        QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
-    : QAbstractTableModel(parent),
-      m_genelist_reference(0)
+    : QAbstractTableModel(parent)
 {
 
 }
@@ -28,12 +28,13 @@ GeneFeatureItemModel::~GeneFeatureItemModel()
 
 QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid() || m_genelist_reference.isNull()) {
+    if (!index.isValid() || m_genelist_reference.isEmpty()) {
         return QVariant(QVariant::Invalid);
     }
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        DataProxy::GenePtr item = m_genelist_reference->at(index.row());
+        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+        Q_ASSERT(!item.isNull());
 
         QVariant value;
         switch (index.column()) {
@@ -56,7 +57,8 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     return QVariant(QVariant::Invalid);
 }
 
-QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant GeneFeatureItemModel::headerData(int section,
+                                          Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
@@ -89,19 +91,17 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
     return QVariant(QVariant::Invalid);
 }
 
-bool GeneFeatureItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool GeneFeatureItemModel::setData(const QModelIndex& index,
+                                   const QVariant& value, int role)
 {
-
-    if (!index.isValid() || m_genelist_reference.isNull()) {
+    if (!index.isValid() || m_genelist_reference.isEmpty()) {
         return false;
     }
 
-    //int row = index.row();
-    int column = index.column();
-
     if (role == Qt::EditRole) {
-        DataProxy::GenePtr item = m_genelist_reference->at(index.row());
-
+        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+        Q_ASSERT(!item.isNull());
+        const int column = index.column();
         switch (column) {
         case Show:
             if (item->selected() != value.toBool()) {
@@ -135,7 +135,7 @@ void GeneFeatureItemModel::sort(int column, Qt::SortOrder order)
 
 int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() || m_genelist_reference.isNull() ? 0 : m_genelist_reference->count();
+    return parent.isValid() ? 0 : m_genelist_reference.count();
 }
 
 int GeneFeatureItemModel::columnCount(const QModelIndex& parent) const
@@ -171,7 +171,7 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
 void GeneFeatureItemModel::loadGenes()
 {
     beginResetModel();
-    m_genelist_reference.clear(); //NOTE genelist is just a reference
+    m_genelist_reference.clear();
     DataProxy* dataProxy = DataProxy::getInstance();
     m_genelist_reference = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     endResetModel();
@@ -179,19 +179,13 @@ void GeneFeatureItemModel::loadGenes()
 
 void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
 {
-    if (m_genelist_reference.isNull()) {
+    if (m_genelist_reference.isEmpty()) {
         return;
     }
     beginResetModel();
-    const int size = m_genelist_reference->count();
-    for (int i = 0; i < size; ++i) {
-        DataProxy::GenePtr gene = m_genelist_reference->at(i);
-        if (!gene.isNull()) {
-            //QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
-            if (gene->selected() != selected) {
-                gene->selected(selected);
-                //emit dataChanged(index, index);
-            }
+    foreach(DataProxy::GenePtr gene, m_genelist_reference) {
+        if (!gene.isNull() && gene->selected() != selected) {
+            gene->selected(selected);
         }
     }
     endResetModel();
@@ -199,17 +193,13 @@ void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
 
 void GeneFeatureItemModel::setColorGenes(const QColor& color)
 {
-    if (m_genelist_reference.isNull()) {
+    if (m_genelist_reference.isEmpty()) {
         return;
     }
     beginResetModel();
-    const int size = m_genelist_reference->count();
-    for (int i = 0; i < size; ++i) {
-        DataProxy::GenePtr gene = m_genelist_reference->at(i);
-        if (!gene.isNull()) {
-            //QModelIndex index = createIndex(i, GeneFeatureItemModel::Show);
+    foreach(DataProxy::GenePtr gene, m_genelist_reference) {
+        if (!gene.isNull() && gene->color() != color) {
             gene->color(color);
-            //emit dataChanged(index, index);
         }
     }
    endResetModel();

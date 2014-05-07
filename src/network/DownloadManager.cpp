@@ -13,7 +13,7 @@
 namespace async
 {
 
-DataRequest::DataRequest(QObject* parent): QObject(parent)
+DataRequest::DataRequest()
 {
 }
 
@@ -22,22 +22,45 @@ DataRequest::~DataRequest()
 
 }
 
-//we want to abort the reply
-void DataRequest::slotAbort()
+DataRequest::DataRequest(const DataRequest& other)
 {
-    emit signalAbort();
+    m_error_list = other.m_error_list;
+    m_return_code = other.return_code();
 }
 
-void DataRequest::slotFinished()
+DataRequest& DataRequest::operator=(const DataRequest& other)
 {
-    emit signalFinished();
+    m_error_list = other.m_error_list;
+    m_return_code = other.return_code();
+    return (*this);
 }
 
-void DataRequest::slotError(Error *error)
+bool DataRequest::operator==(const DataRequest& other) const
 {
-    emit signalError(error);
+    return(m_return_code == other.m_return_code
+           && m_error_list == other.m_error_list);
 }
 
+DataRequest::Code DataRequest::return_code() const
+{
+    return m_return_code;
+}
+
+void DataRequest::return_code(DataRequest::Code code)
+{
+    m_return_code = code;
+}
+
+void DataRequest::addError(const Error *error)
+{
+    m_error_list.append(error);
+}
+
+QList<const Error*> DataRequest::getErrors() const
+{
+    return m_error_list;
+}
+/*
 DownloadManager::DownloadManager(async::DataRequest *request, QObject * parent) :
     QObject(parent), m_request(request)
 {
@@ -51,6 +74,7 @@ DownloadManager::~DownloadManager()
     if (!m_request.isNull()) {
         delete m_request;
     }
+    m_request = 0;
     //NOTE elements of replies and errors are deleted by their owners
     m_reply_list.clear();
     m_error_list.clear();
@@ -129,6 +153,5 @@ void DownloadManager::timedOut()
     //m_request->return_code(async::DataRequest::CodeTimedOut);
     //m_request->slotFinished();
 }
-
-
+*/
 } // namespace async //

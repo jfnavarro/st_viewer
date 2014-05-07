@@ -13,7 +13,6 @@
 #include "SelectionEvent.h"
 #include "data/DataProxy.h"
 #include "utils/Utils.h"
-
 #include "GeneData.h"
 
 class QGLPainter;
@@ -40,7 +39,6 @@ public:
     //selection functions
     void selectGenes(const DataProxy::GeneList&);
     void selectFeatures(const DataProxy::FeatureList&);
-    DataProxy::FeatureListPtr getSelectedFeatures();
 
 public slots:
 
@@ -94,20 +92,14 @@ private:
     // lookup quadtree
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
-    // selection set
-    typedef QSet<int> GeneInfoSelectedSet;
-
     // gene visual data
     GeneData m_geneData;
     QGLSceneNode *m_geneNode;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
-    GeneInfoReverseMap m_geneInfoReverse;
+    GeneInfoReverseMap m_geneInfoReverse; //TODO can probably be removed
     GeneInfoQuadTree m_geneInfoQuadTree;
-
-    // gene selection data
-    GeneInfoSelectedSet m_geneInfoSelection;
 
     // visual attributes
     qreal m_intensity;
@@ -140,6 +132,8 @@ private:
 
     // tells if something has changed
     bool m_isDirty;
+
+    Q_DISABLE_COPY(GeneRendererGL)
 };
 
 

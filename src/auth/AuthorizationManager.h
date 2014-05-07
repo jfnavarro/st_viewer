@@ -62,9 +62,10 @@ private slots:
 
 private:
 
-    QScopedPointer<OAuth2> m_oAuth2;
-    QScopedPointer<TokenStorage> m_tokenStorage;
+    QPointer<OAuth2> m_oAuth2;
+    QPointer<TokenStorage> m_tokenStorage;
 
+    Q_DISABLE_COPY(AuthorizationManager)
 };
 
 #endif  /* AUTHORIZATIONMANAGER_H */

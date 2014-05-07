@@ -37,10 +37,9 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     setShowGrid(true);
 
-    horizontalHeader()->sectionResizeMode(QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     verticalHeader()->hide();
     model()->submit(); //support for caching (speed up)

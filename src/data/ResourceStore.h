@@ -27,7 +27,7 @@ public:
     };
     Q_DECLARE_FLAGS(Options, Option)
 
-    ResourceStore(QObject *parent = 0) : QObject(parent) { }
+    explicit ResourceStore(QObject *parent = 0) : QObject(parent) { }
 
     virtual bool hasResource(const QString& resourceid) const = 0;
     virtual QIODevice* accessResource(const QString& resourceid, Options options = Empty) = 0;

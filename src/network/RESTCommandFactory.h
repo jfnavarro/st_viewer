@@ -35,7 +35,8 @@ public:
 
     static NetworkCommand* getFeatures();
     static NetworkCommand* getFeatureByDatasetId(const QString& datasetId);
-    static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene);
+    static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId,
+                                                        const QString& gene);
 
     static NetworkCommand* getHitCounts();
     static NetworkCommand* getHitCountByDatasetId(const QString& datasetId);
@@ -43,6 +44,8 @@ public:
     static NetworkCommand* getCellTissueFigureByName(const QString& name);
 
     static NetworkCommand* getUser();
+
+    static NetworkCommand* getSelections();
 
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion();

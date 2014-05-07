@@ -8,12 +8,10 @@
 
 #include <QDebug>
 #include "utils/DebugHelper.h"
-#include "math/Common.h"
+#include "dataModel/GeneSelection.h"
+
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
-    : QAbstractTableModel(parent),
-      m_geneselection_reference(0),
-      m_min(1), 
-      m_max(1)
+    : QAbstractTableModel(parent)
 {
 
 }
@@ -25,21 +23,21 @@ GeneSelectionItemModel::~GeneSelectionItemModel()
 
 QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid() || m_geneselection_reference.isEmpty()) {
+    if (!index.isValid() || m_geneselection.empty()) {
         return QVariant(QVariant::Invalid);
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const featurePair item = m_geneselection_reference.at(index.row());
+        const GeneSelection& item = m_geneselection.at(index.row());
         QVariant value;
         switch (index.column()) {
         case Name:
-            value = item.first;
+            value = item.name();
             break;
         case Hits:
-            value = std::min(item.second, m_max);
+            value = item.reads();
         break;
         case NormalizedHits:
-            value = qreal(std::min(item.second, m_max)) / qreal(m_max);
+            value = QString::number(item.normalizedReads(), 'f', 2);
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -95,7 +93,7 @@ void GeneSelectionItemModel::sort(int column, Qt::SortOrder order)
 
 int GeneSelectionItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid()  ? 0 : m_geneselection_reference.count();
+    return parent.isValid()  ? 0 : m_geneselection.count();
 }
 
 int GeneSelectionItemModel::columnCount(const QModelIndex& parent) const
@@ -106,42 +104,13 @@ int GeneSelectionItemModel::columnCount(const QModelIndex& parent) const
 void GeneSelectionItemModel::reset()
 {
     beginResetModel();
-    m_geneselection_reference.clear(); //NOTE genelist is just a reference
+    m_geneselection.clear();
     endResetModel();
 }
 
-void GeneSelectionItemModel::loadGenes(DataProxy::FeatureListPtr selection)
+void GeneSelectionItemModel::loadSelectedGenes(const DataProxy::UniqueGeneSelectedList &selectionList)
 {
     beginResetModel();
-    m_geneselection_reference.clear(); //NOTE genelist is just a reference
-
-    //TODO this is very BAD, the idea is to accumulate the hits
-    //of the features with the same gene, this needs to be improved
-    //either here doing more efficiently or in the sender sending
-    //the elements already accumulated
-
-    QMap<QString, int> tempMap;
-    foreach (const DataProxy::FeaturePtr feature, (*selection)) {
-        const QString name = feature->gene();
-        const int hits = feature->hits();
-        if ( tempMap.count( name) ) {
-            tempMap[name] += hits;
-        } else {
-            tempMap.insert(name, hits);
-        }
-    }
-    QMap<QString, int>::const_iterator i = tempMap.constBegin();
-     while (i != tempMap.constEnd()) {
-         m_geneselection_reference.append(featurePair(i.key(), i.value()));
-         ++i;
-     }
-    endResetModel();
-}
-
-void GeneSelectionItemModel::setHitCountLimits(int min, int max)
-{
-    beginResetModel();
-    m_min = min;
-    m_max = max;
+    m_geneselection = selectionList;
     endResetModel();
 }

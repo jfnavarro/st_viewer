@@ -50,10 +50,13 @@ public:
 
     void resetRefCount();
     void resetValues();
+    void resetSelection(bool state);
 
 private:
 
     GeneData::refCountType m_refCount;
+
+    Q_DISABLE_COPY(GeneData)
 };
 
 #endif // GENEDATA_H

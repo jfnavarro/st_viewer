@@ -55,7 +55,7 @@ private:
     static const QString MIMETYPE_APPGENELIST;
     static const int COLUMN_NUMBER = 3;
 
-    DataProxy::GeneListPtr m_genelist_reference;
+    DataProxy::GeneList m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel)
 };

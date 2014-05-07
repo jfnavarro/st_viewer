@@ -38,6 +38,8 @@ public:
 private:
 
     QRectF m_rubberbandrect;
+
+    Q_DISABLE_COPY(RubberbandGL)
 };
 
 #endif // RUBBERBANDGL_H //

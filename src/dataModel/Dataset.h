@@ -34,7 +34,6 @@ public:
     const QString& id() const { return m_id; }
     const QString& name() const { return m_name; }
     const QString& chipId() const { return m_chipId; }
-    //const QTransform& alignment() const { return m_alignment; }
     QTransform alignment() const { return m_alignment; }
     const QString& figureBlue() const { return m_figureBlue; }
     const QString& figureRed() const { return m_figureRed; }

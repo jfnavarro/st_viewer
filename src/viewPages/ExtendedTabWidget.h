@@ -44,9 +44,12 @@ class ExtendedButton : public QPushButton
     //this class extends QPushButton to unable the mouse events
 public:
 
-    explicit ExtendedButton(QWidget* parent = 0) : QPushButton(parent) {}
-    explicit ExtendedButton(const QString &text, QWidget *parent = 0) : QPushButton(text, parent) {}
-    explicit ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0): QPushButton(icon, text, parent) {}
+    explicit ExtendedButton(QWidget* parent = 0) :
+        QPushButton(parent) {}
+    ExtendedButton(const QString &text, QWidget *parent = 0) :
+        QPushButton(text, parent) {}
+    ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0):
+        QPushButton(icon, text, parent) {}
 
 protected:
 
@@ -64,7 +67,6 @@ protected:
 class ExtendedTabWidget : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex STORED true NOTIFY currentIndexChanged)
 
 public:
 
@@ -74,20 +76,10 @@ public:
     QSize sizeHint() const;
     int count() const;
     int currentIndex() const;
-    QWidget *widget(int index);
-    int indexOf(QWidget* w) const;
-    void addTab(QWidget *page, const QString &title);
-    void addTab(QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
 
 public slots:
 
-    void addPage(QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
-    void insertPage(int index, QWidget *page, const QIcon &icon = QIcon(), const QString &title = QString());
-    void removePage(int index);
 
-    void setCurrentIndex(int index);
-
-    void tabChanged(int toIndex, int fromIndex = -1);
 
     void moveToNextPage();
     void moveToPreviousPage();
@@ -112,6 +104,20 @@ protected:
 
 private:
 
+    QWidget *widget(int index);
+    int indexOf(QWidget* w) const;
+    void addTab(QWidget *page, const QString &title);
+    void addTab(QWidget *page, const QIcon &icon = QIcon(),
+                const QString &title = QString());
+    void addPage(QWidget *page, const QIcon &icon = QIcon(),
+                 const QString &title = QString());
+    void insertPage(int index, QWidget *page, const QIcon &icon = QIcon(),
+                    const QString &title = QString());
+    void removePage(int index);
+
+    void setCurrentIndex(int index);
+
+    void tabChanged(int toIndex, int fromIndex = -1);
     void createPages();
     void createActions();
 
@@ -126,5 +132,7 @@ private:
     QButtonGroup *buttonGroup;
     QHBoxLayout *layout;
     QVBoxLayout *buttonLayout;
+
+    Q_DISABLE_COPY(ExtendedTabWidget)
 };
 #endif  /* // EXTENDEDTABWIDGET_H */

@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     if (app->isRunning()) {
         app->sendMessage("Another instance of stVi is already open");
         delete app;
-        return 0;
+        return EXIT_FAILURE;
     } else {
         qDebug() << "Application started successfully.";
     }
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
         QMessageBox::information(0, "Error",
                                  "Unable to install the translations");
         delete app;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     //create mainWindow
@@ -85,8 +85,7 @@ int main(int argc, char** argv)
     //check for min requirements
     if (!mainWindow->checkSystemRequirements()) {
         delete mainWindow;
-        //delete app;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     //init graphic components
@@ -96,7 +95,6 @@ int main(int argc, char** argv)
     // launch the app
     int res = app->exec();
     delete mainWindow;
-    //delete app;
     qDebug() << "Application closed successfully.";
     return res;
 }

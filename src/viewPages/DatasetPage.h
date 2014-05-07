@@ -43,11 +43,9 @@ public slots:
 
 protected slots:
 
-    void slotDataError(Error*);
     void datasetSelected(DataProxy::DatasetPtr);
     void refreshDatasets();
-    void loadData();
-    void dataLoaded();
+    void loadDatasets();
 
 protected:
 
@@ -56,6 +54,8 @@ protected:
 private:
 
     Ui::DataSets *ui;
+
+    Q_DISABLE_COPY(DatasetPage)
 };
 
 #endif  /* DATASETPAGE_H */

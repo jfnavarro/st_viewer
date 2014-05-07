@@ -61,6 +61,8 @@ private:
     // grid colors
     QColor m_gridColor;
     QColor m_gridBorderColor;
+
+    Q_DISABLE_COPY(GridRendererGL)
 };
 
 #endif // GRIDRENDERERGL_H

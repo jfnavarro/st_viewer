@@ -35,7 +35,8 @@ public:
         UseAuthentication = 0x1,
         UseCache = 0x2,
         UsePipelineMode = 0x4,
-        UseHighPriority = 0x8
+        UseHighPriority = 0x8,
+        Default = UseAuthentication | UseCache | UsePipelineMode | UseHighPriority
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
@@ -47,7 +48,7 @@ public:
 
     //default use Authentication
     NetworkReply* httpRequest(NetworkCommand* cmd, QVariant data = QVariant(),
-                              NetworkFlags flags = UseAuthentication);
+                              NetworkFlags flags = NetworkFlag::Default);
 
 private slots:
     //if remote server requires authentication
@@ -56,6 +57,8 @@ private slots:
 private:
 
     QPointer<QNetworkAccessManager> m_nam;
+
+    Q_DISABLE_COPY(NetworkManager)
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)
 

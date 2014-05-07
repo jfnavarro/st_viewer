@@ -44,7 +44,6 @@ public:
     ~Chip();
 
     Chip& operator=(const Chip& other);
-
     bool operator==(const Chip& other) const;
 
     const QString& id() const { return m_id; }

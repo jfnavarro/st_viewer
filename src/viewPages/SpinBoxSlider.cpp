@@ -30,10 +30,14 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
     m_layout->addWidget(m_spanslider);
     m_layout->addWidget(m_right_spinbox);
 
-    QObject::connect(m_spanslider, &QxtSpanSlider::lowerValueChanged, this, &SpinBoxSlider::setLowerValue); 
-    QObject::connect(m_spanslider, &QxtSpanSlider::upperValueChanged, this, &SpinBoxSlider::setUpperValue);
-    QObject::connect(m_right_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setUpperValue(int)));   
-    QObject::connect(m_left_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setLowerValue(int)));   
+    QObject::connect(m_spanslider, &QxtSpanSlider::lowerValueChanged,
+                     this, &SpinBoxSlider::setLowerValue);
+    QObject::connect(m_spanslider, &QxtSpanSlider::upperValueChanged,
+                     this, &SpinBoxSlider::setUpperValue);
+    QObject::connect(m_right_spinbox, SIGNAL(valueChanged(int)),
+                     this, SLOT(setUpperValue(int)));   
+    QObject::connect(m_left_spinbox, SIGNAL(valueChanged(int)),
+                     this, SLOT(setLowerValue(int)));   
 
     setLayout(m_layout);
 }
@@ -71,7 +75,8 @@ void SpinBoxSlider::setLowerValuePrivate(const int value)
     emit lowerValueChanged(value);
 }
 
-void SpinBoxSlider::setUpperValuePrivate(const int value) {
+void SpinBoxSlider::setUpperValuePrivate(const int value)
+{
     m_upper_value = value;
     m_spanslider->setUpperPosition(value);
     m_spanslider->setUpperValue(value);

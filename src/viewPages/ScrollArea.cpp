@@ -6,7 +6,7 @@
 #include "viewOpenGL/CellGLView.h"
 
 ScrollArea::ScrollArea( QWidget * parent_ )
-    : QAbstractScrollArea( parent_)
+  : QAbstractScrollArea( parent_), m_view(nullptr), m_container(nullptr)
 {
     m_view = new CellGLView();
     m_container = QWidget::createWindowContainer(m_view);
@@ -34,29 +34,29 @@ ScrollArea::ScrollArea( QWidget * parent_ )
     viewport()->update();
 }
 
-ScrollArea::~ScrollArea() {
+ScrollArea::~ScrollArea()
+{
 
 }
 
-CellGLView *ScrollArea::cellGlView() const {
+CellGLView *ScrollArea::cellGlView() const
+{
     return m_view;
 }
 
-void ScrollArea::someScrollBarChangedValue(int) {
-
+void ScrollArea::someScrollBarChangedValue(int)
+{
     const QRectF rectF = m_view->allowedCenterPoints();
-
     const qreal h_value = static_cast<qreal>(horizontalScrollBar()->sliderPosition());
     const qreal v_value = static_cast<qreal>(verticalScrollBar()->sliderPosition());
-
     const qreal x = rectF.width() * ( 1 - (h_value / m_scrollBarSteps) ) + rectF.x();
     const qreal y = rectF.height() * ( 1 - (v_value / m_scrollBarSteps) ) + rectF.y();
     const QPointF point(x,y);
-
     m_view->setSceneFocusCenterPointWithClamping(point);
 }
 
-void ScrollArea::setupViewport(QWidget *viewport) {
+void ScrollArea::setupViewport(QWidget *viewport)
+{
     viewport->resize(size());
 }
 
@@ -65,7 +65,8 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
                                              const qreal value_minimum,
                                              const qreal value_range,
                                              const qreal viewPortInSceneCoordinatesRange,
-                                             QScrollBar *scrollBar) {
+                                             QScrollBar *scrollBar)
+{
     scrollBar->setMinimum(0);
     scrollBar->setMaximum(scrollBarSteps);
     scrollBar->setValue(scrollBarSteps * ( 1 - ( (value-value_minimum) / value_range) ) );
@@ -76,10 +77,12 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
     const int val = (qFuzzyCompare(value_range,0.0)) ? std::numeric_limits<int>::max() :
                                      static_cast<int>(scrollBarSteps * viewPortInSceneCoordinatesRange / value_range);
     scrollBar->setPageStep(val);
+    //NOTE 300 magic number?
     scrollBar->setSingleStep(300);
 }
 
-void ScrollArea::adjustScrollBars() {
+void ScrollArea::adjustScrollBars()
+{
     if (m_cellglview_scene.isEmpty() || m_cellglview_viewPort.isEmpty()
             || horizontalScrollBar()->isSliderDown() || verticalScrollBar()->isSliderDown()) {
         return;

@@ -57,6 +57,7 @@ public:
     const QString dataEndpointHitCounts() const;
     const QString dataEndpointReducedFeatures() const;
     const QString dataEndpointUsers() const;
+    const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;
 
 private:
@@ -64,6 +65,8 @@ private:
     const QString readSetting(const QString& key) const;
 
     QPointer<QSettings> m_settings;
+
+    Q_DISABLE_COPY(Configuration)
 };
 
 #endif  /* CONFIGURATION_H */

@@ -24,7 +24,9 @@ class Error : public QObject
 public:
 
     explicit Error(QObject* parent = 0);
-    explicit Error(const QString& name, const QString& description = QString(), QObject* parent = 0);
+    explicit Error(const QString& name,
+                   const QString& description = QString(),
+                   QObject* parent = 0);
     virtual ~Error();
 
     const QString& name() const;

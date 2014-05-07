@@ -47,12 +47,14 @@ void SimpleCryptDevice::flush()
 
 qint64 SimpleCryptDevice::bytesAvailable() const
 {
-    return static_cast<qint64>(m_buffer.size()) + QIODevice::bytesAvailable() + m_device->bytesAvailable();
+    return static_cast<qint64>(m_buffer.size()) +
+            QIODevice::bytesAvailable() + m_device->bytesAvailable();
 }
 
 qint64 SimpleCryptDevice::bytesToWrite() const
 {
-    return static_cast<qint64>(m_buffer.size()) + QIODevice::bytesToWrite() + m_device->bytesToWrite();
+    return static_cast<qint64>(m_buffer.size()) +
+            QIODevice::bytesToWrite() + m_device->bytesToWrite();
 }
 
 void SimpleCryptDevice::close()
@@ -112,7 +114,8 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
     // write input to segments
     while ((it < end)) {
         it += writeBuffer(it, qMin(static_cast<qint64>(end - it), DEFAULT_BUFFER_SIZE));
-        if ((m_buffer.size() < DEFAULT_BUFFER_SIZE) || m_crypt.encodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
+        if ((m_buffer.size() < DEFAULT_BUFFER_SIZE)
+                || m_crypt.encodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
         m_buffer.clear();

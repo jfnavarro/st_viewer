@@ -14,6 +14,7 @@ public:
 
     explicit ScrollArea(QWidget * parent = 0 );
     virtual ~ScrollArea();
+
     CellGLView *cellGlView() const;
     virtual void setupViewport(QWidget *viewport) override;
 
@@ -43,12 +44,15 @@ private:
 
     void adjustScrollBars();
 
+    //TOFIX magic number?
     static const int m_scrollBarSteps = 100000;
 
-    CellGLView *m_view;
-    QWidget *m_container;
+    CellGLView* m_view;
+    QWidget* m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;
+
+    Q_DISABLE_COPY(ScrollArea)
 };
 #endif //SCROLLAREA_H

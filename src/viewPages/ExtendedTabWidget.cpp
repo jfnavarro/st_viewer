@@ -104,12 +104,10 @@ void ExtendedTabWidget::removePage(int index)
 {
     QWidget *widget = stackWidget->widget(index);
     stackWidget->removeWidget(widget);
-
     ExtendedButton *button = reinterpret_cast<ExtendedButton*>(buttonGroup->button(index));
     buttonLayout->removeWidget(button);
     buttonGroup->removeButton(button);
     delete button;
-
     setCurrentIndex(0);
 }
 
@@ -133,7 +131,8 @@ int ExtendedTabWidget::currentIndex() const
     return stackWidget->currentIndex();
 }
 
-void ExtendedTabWidget::insertPage(int index, QWidget *page, const QIcon &icon, const QString &title)
+void ExtendedTabWidget::insertPage(int index, QWidget *page,
+                                   const QIcon &icon, const QString &title)
 {
     stackWidget->insertWidget(index, page);
     // Set label

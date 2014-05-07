@@ -52,6 +52,8 @@ private:
     SimpleCrypt m_crypt;
     QIODevice *m_device;
     QByteArray m_buffer;
+
+    Q_DISABLE_COPY(SimpleCryptDevice)
 };
 
 #endif // CRYPTDEVICE_H //

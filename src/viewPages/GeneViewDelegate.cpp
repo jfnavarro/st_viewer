@@ -18,7 +18,8 @@ GeneViewDelegate::GeneViewDelegate(QObject* parent)
 {
     QItemEditorFactory* factory = new QItemEditorFactory();
     Q_ASSERT(factory != 0);
-    QItemEditorCreatorBase* colorListCreator = new QStandardItemEditorCreator<ColorListEditor>();
+    QItemEditorCreatorBase* colorListCreator =
+            new QStandardItemEditorCreator<ColorListEditor>();
     factory->registerEditor(QVariant::Color, colorListCreator);
     setItemEditorFactory(factory);
 }

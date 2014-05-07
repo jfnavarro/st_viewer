@@ -38,24 +38,18 @@ public:
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    void setHitCountLimits(int min, int max);
-
 public slots:
+
     void reset();
-    void loadGenes(DataProxy::FeatureListPtr);
+    void loadSelectedGenes(const DataProxy::UniqueGeneSelectedList& selectionList);
 
 private:
 
     static const int COLUMN_NUMBER = 3;
 
-    typedef QPair<QString, int> featurePair;
-    QVector<featurePair> m_geneselection_reference;
-    //DataProxy::FeatureListPtr m_geneselection_reference;
-    int m_min;
-    int m_max;
+    DataProxy::UniqueGeneSelectedList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)
-
 };
 
 #endif // GENESELECTIONITEMMODEL_H

@@ -18,7 +18,7 @@
 class ColorPalette : public QObject
 {
 public:
-    ColorPalette(QObject* parent = 0);
+    explicit ColorPalette(QObject* parent = 0);
     virtual ~ColorPalette();
 
     typedef QPair<QColor, QString> ColorPair;
@@ -32,7 +32,7 @@ public:
 class StandardPalette : public ColorPalette
 {
 public:
-    StandardPalette(QObject* parent = 0);
+    explicit StandardPalette(QObject* parent = 0);
     virtual ~StandardPalette();
 
     virtual const ColorList colorList() const;

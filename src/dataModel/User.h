@@ -31,6 +31,7 @@ public:
     void role(const QString& role) { m_role = role; }
 
 private:
+
     QString m_username;
     QString m_role;
 };

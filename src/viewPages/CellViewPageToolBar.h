@@ -110,6 +110,8 @@ private:
 
     void createConnections();
     void createActions();
+
+    Q_DISABLE_COPY(CellViewPageToolBar)
 };
 
 #endif // CELLVIEWPAGETOOLBAR_H

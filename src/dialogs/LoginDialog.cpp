@@ -23,7 +23,10 @@
 #include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QDialog *parent): QDialog(parent), ui(0)
+LoginDialog::LoginDialog(QDialog *parent):
+    QDialog(parent),
+    ui(nullptr),
+    m_completer(nullptr)
 {
     //init UI
     ui = new Ui::LogIn();
@@ -40,8 +43,10 @@ LoginDialog::LoginDialog(QDialog *parent): QDialog(parent), ui(0)
 
     // connects slots
     //TODO user QDialog signals instead
-    connect(ui->buttons->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SIGNAL(exitLogin()));
-    connect(ui->buttons->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(slotAcceptLogin()));
+    connect(ui->buttons->button(QDialogButtonBox::Cancel),
+            SIGNAL(clicked()), this, SIGNAL(exitLogin()));
+    connect(ui->buttons->button(QDialogButtonBox::Ok),
+            SIGNAL(clicked()), this, SLOT(slotAcceptLogin()));
 }
 
 LoginDialog::~LoginDialog()
@@ -49,7 +54,10 @@ LoginDialog::~LoginDialog()
     //elements are children of main layout
     //save users
     saveUsers();
-    delete m_completer;
+    if (m_completer) {
+        delete m_completer;
+    }
+    m_completer = nullptr;
     delete ui;
 }
 
@@ -95,7 +103,6 @@ void LoginDialog::saveUsers()
     users.append(username);
     settings.setValue(Globals::SettingsUsers, users);
 }
-
 
 void LoginDialog::setPassword(const QString &password)
 {

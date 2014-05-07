@@ -12,6 +12,8 @@
 #include <QCoreApplication>
 #include <QDateTime>
 
+#include "dataModel/GeneSelection.h"
+
 GeneTXTExporter::GeneTXTExporter(QObject *parent)
     : GeneExporter(parent),
       m_detailLevel(Simple),
@@ -51,48 +53,37 @@ void GeneTXTExporter::exportStrings(QTextStream &otxt, const QStringList &string
     otxt << strings.join(delimiter) << endl;
 }
 
-void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature,
-                                 const QObject &context) const
+void GeneTXTExporter::exportItem(QTextStream &otxt, const GeneSelection& selection) const
 {
     QStringList list;
-    const int hitCount = feature->hits();
-    list << QString("%1").arg(feature->gene())
-         << QString("%1").arg(hitCount);
-    const bool hasNormalized =
-        context.property("hitCountMin").isValid()
-        && context.property("hitCountMax").isValid();
-    if (hasNormalized) {
-        const int hitCountMin = qvariant_cast<int>(context.property("hitCountMin"));
-        const int hitCountMax = qvariant_cast<int>(context.property("hitCountMax"));
-        list << QString("%1").arg(qreal(hitCount - hitCountMin) / qreal(hitCountMax - hitCountMin));
-    }
+    const qreal reads = selection.reads();
+    const qreal normalizedReads = selection.normalizedReads();
+    const QString name = selection.name();
+    list << QString("%1").arg(name)
+         << QString("%1").arg(reads)
+         << QString("%1").arg(normalizedReads);
     exportStrings(otxt, list);
 }
 
-void GeneTXTExporter::exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featureList,
-                                 const QObject &context) const
+void GeneTXTExporter::exportItem(QTextStream &otxt,
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
-    const bool hasNormalized =
-        context.property("hitCountMin").isValid()
-        && context.property("hitCountMax").isValid();
     // prepend header
     if (m_detailLevel.testFlag(GeneTXTExporter::Comments)) {
         QStringList list;
         list << tr("gene_name")
-             << tr("reads_count");
-        if (hasNormalized) {
-            list << tr("normalized_reads_count");
-        }
+             << tr("reads_count")
+             << tr("normalized_reads_count");
         otxt << QString("# ");
         exportStrings(otxt, list);
     }
-    foreach(const DataProxy::FeaturePtr & feature, (*featureList)) {
-        exportItem(otxt, feature, context);
+    foreach(const GeneSelection &selection, selectionList) {
+        exportItem(otxt, selection);
     }
 }
 
-void GeneTXTExporter::exportItem(QIODevice *device, const DataProxy::FeatureListPtr featureList,
-                                 const QObject &context) const
+void GeneTXTExporter::exportItem(QIODevice *device,
+                                 const DataProxy::UniqueGeneSelectedList &selectionList) const
 {
     // early out
     if (!device->isWritable()) {
@@ -105,19 +96,17 @@ void GeneTXTExporter::exportItem(QIODevice *device, const DataProxy::FeatureList
         if (m_detailLevel.testFlag(GeneTXTExporter::Comments)) {
             otxt << QString("# %1").arg(tr("stVi export: feature list")) << endl;
         }
-
         // prepend data with application version
         const QString version = QCoreApplication::applicationVersion();
         if (m_detailLevel.testFlag(GeneTXTExporter::Comments)) {
             otxt << QString("# %1").arg(tr("version")) << endl;
         }
         otxt << (version.isEmpty() ? QString("0.0.0") : version) << endl;
-
         // prepend ISO 8601 compliant timestamp
         if (m_detailLevel.testFlag(GeneTXTExporter::Comments)) {
             otxt << QString("# %1 (UTC)").arg(tr("date")) << endl;
         }
         otxt << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << endl;
     }
-    exportItem(otxt, featureList, context);
+    exportItem(otxt, selectionList);
 }

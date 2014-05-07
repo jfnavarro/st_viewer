@@ -27,6 +27,10 @@
 #include <QRubberBand>
 #include <QStyleFactory>
 
+#include "error/Error.h"
+
+#include "network/DownloadManager.h"
+
 #include "CellViewPageToolBar.h"
 
 #include "io/GeneXMLExporter.h"
@@ -72,15 +76,11 @@ CellViewPage::~CellViewPage()
     }
     m_toolBar = 0;
 
-    // grid gene_plotter and image are removed automatically
-
     delete ui;
 }
 
 void CellViewPage::onInit()
 {
-    DEBUG_FUNC_NAME
-    
     //create UI objects
     ui = new Ui::CellView;
     ui->setupUi(this);
@@ -119,6 +119,8 @@ void CellViewPage::onInit()
 void CellViewPage::onEnter()
 {
     DEBUG_FUNC_NAME
+
+    loadData();
 
     DataProxy* dataProxy = DataProxy::getInstance();
 
@@ -183,12 +185,112 @@ void CellViewPage::onExit()
     ui->selections_tableview->clearFocus();
     ui->clearSelection->clearFocus();
     ui->saveSelection->clearFocus();
+    ui->genes_tableview->clearSelection();
+    ui->selections_tableview->clearSelection();
+
+    m_gene_plotter->clearData();
+    m_grid->clearData();
+    //m_legend->clearData();
+    //m_minimap->clearData();
+    m_image->clear();
 }
 
+void CellViewPage::loadData()
+{
+    DataProxy *dataProxy = DataProxy::getInstance();
+    DataProxy::DatasetPtr dataset =
+            dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+
+    if (dataset.isNull()) {
+        Error *error = new Error("Cell View Error", "The current selected dataset is not valid.", this);
+        emit signalError(error);
+        return;
+    }
+
+    //load the data
+    setWaiting(true);
+
+    //load cell tissue blue
+    {
+        async::DataRequest request =
+                dataProxy->loadCellTissueByName(dataset->figureBlue());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error =
+                    new Error("Data loading Error", "Error loading the cell tissue image.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //load cell tissue red
+    {
+        async::DataRequest request =
+                dataProxy->loadCellTissueByName(dataset->figureRed());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error =
+                    new Error("Data loading Error", "Error loading the cell tissue image.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //load features
+    {
+        async::DataRequest request =
+                dataProxy->loadFeatureByDatasetId(dataset->id());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error =
+                    new Error("Data loading Error", "Error loading the cell tissue image.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //load dataset statistics
+    {
+        async::DataRequest request =
+                dataProxy->loadDatasetStatisticsByDatasetId(dataset->id());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error =
+                    new Error("Data loading Error", "Error loading the dataset statistics.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //load genes
+    {
+        async::DataRequest request =
+                dataProxy->loadGenesByDatasetId(dataset->id());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error = new Error("Data loading Error", "Error loading the genes.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //load chip
+    {
+        async::DataRequest request =
+                dataProxy->loadChipById(dataset->chipId());
+        if (request.return_code() == async::DataRequest::CodeError
+                || request.return_code() == async::DataRequest::CodeAbort) {
+            Error *error = new Error("Data loading Error", "Error loading the chip array.", this);
+            setWaiting(false);
+            emit signalError(error);
+            return;
+        }
+    }
+    //succes downloading the data
+    setWaiting(false);
+}
 void CellViewPage::createConnections()
 {
-    DEBUG_FUNC_NAME
-
     // go back signal
     connect(m_toolBar->m_actionNavigate_goBack,
             SIGNAL(triggered(bool)), this, SIGNAL(moveToPreviousPage()));
@@ -219,11 +321,14 @@ void CellViewPage::createConnections()
     connect(m_toolBar, SIGNAL(rotateView(qreal)), m_view, SLOT(rotate(qreal)));
 
     // print canvas
-    connect(m_toolBar->m_actionSave_save,  SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
-    connect(m_toolBar->m_actionSave_print, SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
+    connect(m_toolBar->m_actionSave_save,
+            SIGNAL(triggered(bool)), this, SLOT(slotSaveImage()));
+    connect(m_toolBar->m_actionSave_print,
+            SIGNAL(triggered(bool)), this, SLOT(slotPrintImage()));
 
     // export
-    connect(ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
+    connect(ui->exportSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotExportSelection()));
 
     // selection mode
     connect(m_toolBar->m_actionActivateSelectionMode,
@@ -293,8 +398,8 @@ void CellViewPage::resetActionStates()
     DataProxy *dataProxy = DataProxy::getInstance();
     // restrict interface
     DataProxy::UserPtr current_user = dataProxy->getUser();
-    Q_ASSERT(current_user);
-    m_toolBar->m_actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
+    m_toolBar->m_actionGroup_cellTissue->setVisible(
+                (current_user->role() == Globals::ROLE_CM));
 }
 
 void CellViewPage::createToolBar()
@@ -306,8 +411,6 @@ void CellViewPage::createToolBar()
 
 void CellViewPage::initGLView()
 {
-    DEBUG_FUNC_NAME
-
     //ui->area contains the openGL window
     m_view = ui->area->cellGlView();
     // Adding a stretch to make the opengl window occupy more space
@@ -339,9 +442,12 @@ void CellViewPage::initGLView()
     m_view->addRenderingNode(m_minimap);
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
-    connect(m_minimap, SIGNAL(signalCenterOn(QPointF)), m_view, SLOT(centerOn(QPointF)));
-    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)), m_minimap, SLOT(setScene(QRectF)));
-    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)), m_minimap, SLOT(setViewPort(QRectF)));
+    connect(m_minimap, SIGNAL(signalCenterOn(QPointF)),
+            m_view, SLOT(centerOn(QPointF)));
+    connect(m_view, SIGNAL(signalSceneUpdated(QRectF)),
+            m_minimap, SLOT(setScene(QRectF)));
+    connect(m_view, SIGNAL(signalViewPortUpdated(QRectF)),
+            m_minimap, SLOT(setViewPort(QRectF)));
     connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
             m_minimap, SLOT(setParentSceneTransformations(const QTransform)));
 }
@@ -355,65 +461,84 @@ void CellViewPage::createGLConnections()
             qobject_cast<GeneFeatureItemModel*>(proxyModel->sourceModel());
 
     //connect gene list model to gene plotter
-    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)), m_gene_plotter,
+    connect(geneModel, SIGNAL(signalSelectionChanged(DataProxy::GenePtr)),
+            m_gene_plotter,
             SLOT(updateSelection(DataProxy::GenePtr)));
-    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)), m_gene_plotter,
+    connect(geneModel, SIGNAL(signalColorChanged(DataProxy::GenePtr)),
+            m_gene_plotter,
             SLOT(updateColor(DataProxy::GenePtr)));
-    connect(ui->selectAllGenes, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(updateAllSelection(bool)));
-    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), m_gene_plotter, SLOT(updateAllColor(QColor)));
+    connect(ui->selectAllGenes, SIGNAL(clicked(bool)),
+            m_gene_plotter, SLOT(updateAllSelection(bool)));
+    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)),
+            m_gene_plotter, SLOT(updateAllColor(QColor)));
 
     //connect gene plotter to gene selection model
-    connect(m_gene_plotter, SIGNAL(selectionUpdated()), this, SLOT(selectionUpdated()));
+    connect(m_gene_plotter, SIGNAL(selectionUpdated()),
+            this, SLOT(slotSelectionUpdated()));
 
     // selection actions
-    connect(ui->clearSelection, SIGNAL(clicked(bool)), m_gene_plotter, SLOT(clearSelection()) );
+    connect(ui->clearSelection, SIGNAL(clicked(bool)),
+            m_gene_plotter, SLOT(clearSelection()) );
 
     //threshold slider signal
-    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_gene_plotter, SLOT(setLowerLimit(int)));
-    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_gene_plotter, SLOT(setUpperLimit(int)));
+    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)),
+            m_gene_plotter, SLOT(setLowerLimit(int)));
+    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)),
+            m_gene_plotter, SLOT(setUpperLimit(int)));
     
     //gene attributes signals
-    connect(m_toolBar, SIGNAL(intensityValueChanged(qreal)), m_gene_plotter, SLOT(setIntensity(qreal)));
-    connect(m_toolBar, SIGNAL(sizeValueChanged(qreal)), m_gene_plotter, SLOT(setSize(qreal)));
+    connect(m_toolBar, SIGNAL(intensityValueChanged(qreal)),
+            m_gene_plotter, SLOT(setIntensity(qreal)));
+    connect(m_toolBar, SIGNAL(sizeValueChanged(qreal)),
+            m_gene_plotter, SLOT(setSize(qreal)));
     connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)),
             m_gene_plotter, SLOT(setShape(Globals::GeneShape)));
-    connect(m_toolBar, SIGNAL(shineValueChanged(qreal)), m_gene_plotter, SLOT(setShine(qreal)));
+    connect(m_toolBar, SIGNAL(shineValueChanged(qreal)),
+            m_gene_plotter, SLOT(setShine(qreal)));
 
     //show/not genes signal
-    connect(m_toolBar->m_actionShow_showGenes, SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionShow_showGenes,
+            SIGNAL(triggered(bool)), m_gene_plotter, SLOT(setVisible(bool)));
 
     //visual mode signal
     connect(m_toolBar->m_actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneVisualMode(QAction*)));
 
     // grid signals
-    connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)), m_grid, SLOT(setColor(const QColor&)));
-    connect(m_toolBar->m_actionShow_showGrid, SIGNAL(triggered(bool)), m_grid, SLOT(setVisible(bool)));
+    connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)),
+            m_grid, SLOT(setColor(const QColor&)));
+    connect(m_toolBar->m_actionShow_showGrid, SIGNAL(triggered(bool)),
+            m_grid, SLOT(setVisible(bool)));
 
     // cell tissue canvas
-    connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)), m_image, SLOT(setVisible(bool)));
-    connect(m_toolBar, SIGNAL(brightnessValueChanged(qreal)), m_image, SLOT(setIntensity(qreal)));
+    connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)),
+            m_image, SLOT(setVisible(bool)));
+    connect(m_toolBar, SIGNAL(brightnessValueChanged(qreal)),
+            m_image, SLOT(setIntensity(qreal)));
 
     // legend signals
-    connect(m_toolBar->m_actionShow_showLegend, SIGNAL(toggled(bool)), m_legend, SLOT(setVisible(bool)));
-    connect(m_toolBar->m_actionGroup_toggleLegendPosition, SIGNAL(triggered(QAction*)), this,
+    connect(m_toolBar->m_actionShow_showLegend, SIGNAL(toggled(bool)),
+            m_legend, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionGroup_toggleLegendPosition,
+            SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetLegendAnchor(QAction*)));
 
     // minimap signals
-    connect(m_toolBar->m_actionShow_showMiniMap, SIGNAL(toggled(bool)), m_minimap, SLOT(setVisible(bool)));
-    connect(m_toolBar->m_actionGroup_toggleMinimapPosition, SIGNAL(triggered(QAction*)), this,
+    connect(m_toolBar->m_actionShow_showMiniMap, SIGNAL(toggled(bool)),
+            m_minimap, SLOT(setVisible(bool)));
+    connect(m_toolBar->m_actionGroup_toggleMinimapPosition,
+            SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
     // connect threshold slider to the heatmap
-    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)), m_legend, SLOT(setLowerLimit(int)));
-    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)), m_legend, SLOT(setUpperLimit(int)));
-
+    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)),
+            m_legend, SLOT(setLowerLimit(int)));
+    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)),
+            m_legend, SLOT(setUpperLimit(int)));
 }
 
 void CellViewPage::slotLoadCellFigure()
 {
-    DEBUG_FUNC_NAME
-
     DataProxy* dataProxy = DataProxy::getInstance();
     DataProxy::UserPtr current_user = dataProxy->getUser();
     DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
@@ -429,7 +554,7 @@ void CellViewPage::slotLoadCellFigure()
     QString figureid = (loadRedFigure) ? dataset->figureRed() : dataset->figureBlue();
     QIODevice *device = dataProxy->getFigure(figureid);
 
-    //read image (TODO check file is present)
+    //read image (TODO check file is present or corrupted)
     QImageReader reader(device);
     const QImage image = reader.read();
 
@@ -465,7 +590,8 @@ void CellViewPage::slotPrintImage()
 
 void CellViewPage::slotSaveImage()
 {
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
+    QString filename =
+                       QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
                        QString("%1;;%2").
                        arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
                        arg(tr("PNG Image Files (*.png)")));
@@ -503,16 +629,13 @@ void CellViewPage::slotExportSelection()
     }
 
     // get selected features and extend with data
-    DataProxy::FeatureListPtr featureList = m_gene_plotter->getSelectedFeatures();
-
-    // create export context
     DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
-
-    QObject context;
-    context.setProperty("hitCountMin", QVariant(statistics->minValue()));
-    context.setProperty("hitCountMax", QVariant(statistics->maxValue()));
-    context.setProperty("hitCountSum", QVariant(statistics->hitsSum()));
+    Q_ASSERT(statistics);
+    const qreal max = statistics->pooledMax();
+    //TODO pooledMax is not actually a correct roof since the reads per gene are sum
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& uniqueSelected = DataProxy::getUniqueGeneSelected(max, features);
 
     QFile textFile(filename);
     QFileInfo info(textFile);
@@ -526,7 +649,7 @@ void CellViewPage::slotExportSelection()
             dynamic_cast<GeneExporter *>(new GeneTXTExporter(GeneTXTExporter::SimpleFull,
                                         GeneTXTExporter::TabDelimited, &memoryGuard));
 
-        exporter->exportItem(&textFile, featureList, context);
+        exporter->exportItem(&textFile, uniqueSelected);
     }
     textFile.close();
 }
@@ -573,35 +696,24 @@ void CellViewPage::slotLoadColor()
     }
 }
 
-void CellViewPage::slotRotateView()
-{
-    if (QObject::sender() == m_toolBar->m_actionRotation_rotateLeft) {
-      emit rotateView(-45);
-    } else if (QObject::sender() == m_toolBar->m_actionRotation_rotateRight) {
-      emit rotateView(45);
-    } else {
-      Q_ASSERT("[CellViewPage] sender is not recognized");
-    }
-}
-
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(this);
     m_gene_plotter->selectGenes(geneList);
 }
 
-void CellViewPage::selectionUpdated()
+void CellViewPage::slotSelectionUpdated()
 {
     // gene model signals
     GeneSelectionItemModel* selectionModel =
             qobject_cast<GeneSelectionItemModel*>(ui->selections_tableview->model());
-    DataProxy::FeatureListPtr features = m_gene_plotter->getSelectedFeatures();
-
+    // get selected features and extend with data
     DataProxy *dataProxy = DataProxy::getInstance();
-    DataProxy::DatasetStatisticsPtr statistics =
-            dataProxy->getStatistics(dataProxy->getSelectedDataset());
+    DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
     Q_ASSERT(statistics);
-
-    selectionModel->setHitCountLimits(statistics->minValue(), statistics->maxValue());
-    selectionModel->loadGenes(features);
+    const qreal max = statistics->pooledMax();
+    //TODO pooledMax is not actually a correct roof since the reads per gene are sum
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& uniqueSelected = DataProxy::getUniqueGeneSelected(max, features);
+    selectionModel->loadSelectedGenes(uniqueSelected);
 }

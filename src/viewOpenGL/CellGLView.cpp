@@ -173,7 +173,7 @@ void CellGLView::paintGL()
         }
     }
     glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
-
+    // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
         m_rubberband->draw(&painter);
     }

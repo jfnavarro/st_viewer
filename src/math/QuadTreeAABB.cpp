@@ -14,7 +14,8 @@ QuadTreeAABB::~QuadTreeAABB()
 
 }
 
-QuadTreeAABB::QuadTreeAABB(const qreal x, const qreal y, const qreal width, const qreal height)
+QuadTreeAABB::QuadTreeAABB(const qreal x, const qreal y,
+                           const qreal width, const qreal height)
     : x(x),
       y(y),
       width(width),
@@ -109,8 +110,6 @@ const QPointF QuadTreeAABB::size() const
 bool QuadTreeAABB::contains(const QPointF &p) const
 {
     return ( p.x() >= x && p.x() <= (x + width) ) && (p.y() >= y && p.y() <= (y + height) );
-    //const QRectF rectangle( x, y , width, height ) ;
-    //return rectangle.contains(p);
 }
 
 bool QuadTreeAABB::contains(const QuadTreeAABB &o) const

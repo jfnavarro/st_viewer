@@ -22,10 +22,8 @@ namespace async
 // Asynchronous data request handle used to synchronize request events
 // (such as finished, error etc.).
 
-class DataRequest : public QObject
+class DataRequest
 {
-    Q_OBJECT
-
 public:
 
     enum Code {
@@ -35,37 +33,24 @@ public:
         CodeTimedOut = 0x08,
         CodePresent = 0x16
     };
-    Q_DECLARE_FLAGS(ReturnCodes, Code)
 
-    explicit DataRequest(QObject* parent = 0);
-    virtual ~DataRequest();
+    DataRequest();
+    DataRequest(const DataRequest& other);
+    ~DataRequest();
 
-    ReturnCodes return_code() const { return m_return_code; }
-    void return_code(ReturnCodes flag) { m_return_code = flag; }
+    DataRequest& operator=(const DataRequest& other);
+    bool operator==(const DataRequest& other) const;
 
-public slots:
-
-    //this is to be used from a page
-    void slotAbort();
-    //this is to be used from the download manager
-    void slotFinished();
-    // this is to be used from the download manager
-    void slotError(Error*);
-
-signals:
-
-    void signalFinished();
-    void signalAbort();
-    void signalError(Error*);
+    DataRequest::Code return_code() const;
+    void return_code(DataRequest::Code flag);
+    void addError(const Error *error);
+    QList<const Error*> getErrors() const;
 
 private:
-
-    ReturnCodes m_return_code;
-
+    QList<const Error*> m_error_list;
+    DataRequest::Code m_return_code;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataRequest::ReturnCodes)
-
+/*
 class DownloadManager: public QObject
 {
 
@@ -73,7 +58,7 @@ class DownloadManager: public QObject
 
 public:
 
-    DownloadManager(async::DataRequest *request, QObject * parent = 0);
+    DownloadManager(async::DataRequest* request, QObject* parent = 0);
     virtual ~DownloadManager();
 
     void addItem(NetworkReply *item);
@@ -96,8 +81,10 @@ private:
     QPointer<async::DataRequest> m_request;
     QList<Error*> m_error_list;
     QList<NetworkReply*> m_reply_list;
-};
 
+    Q_DISABLE_COPY(DownloadManager)
+};
+*/
 } // namespace async //
 
 #endif  /* // DOWNLOADMANAGER_H */

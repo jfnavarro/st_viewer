@@ -14,11 +14,10 @@
 #include "qt_windows.h"
 #endif
 
-#include <QShortcut>
-#include <QCloseEvent>
-
 #include "options_cmake.h"
 
+#include <QShortcut>
+#include <QCloseEvent>
 #include <QTranslator>
 #include <QMessageBox>
 #include <QDebug>
@@ -68,7 +67,6 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
     actionExit(nullptr),
     actionHelp(nullptr),
     actionVersion(nullptr),
-    actionPrint(nullptr),
     actionAbout(nullptr),
     actionClear_Cache(nullptr),
     menuLoad(nullptr),
@@ -113,19 +111,19 @@ bool stVi::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
-        QMessageBox::information(0, "OpenGL 2.x Support",
+        QMessageBox::information(this->centralWidget(), "OpenGL 2.x Support",
                                  "This system does not support OpenGL.");
         return false;
     }
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
-        QMessageBox::information(0, "OpenGL 2.x Context",
+        QMessageBox::information(this->centralWidget(), "OpenGL 2.x Context",
                                  "This system does not support OpenGL 2.x Contexts");
         return false;
     }
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
-        QMessageBox::information(0, "HTTPS",
+        QMessageBox::information(this->centralWidget(), "HTTPS",
                                  "This system does not secure SSL connections");
         return false;
     }
@@ -142,8 +140,8 @@ bool stVi::checkSystemRequirements() const
     loop.exec();
     
     cmd->deleteLater();
-    if (reply == 0) {
-        QMessageBox::information(0, "MINIMUM VERSION",
+    if (reply == nullptr) {
+        QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return false;
     }
@@ -154,13 +152,16 @@ bool stVi::checkSystemRequirements() const
 
     // if no errors
     if (!reply->hasErrors()) {
-        QString min_version = document.toVariant().toMap().find("minSupportedClientVersion").value().toString();
-        QStringList minversion_numbers_as_strings = min_version.split(".");
+        const QString min_version =
+                document.toVariant().toMap().find("minSupportedClientVersion").value().toString();
+        const QStringList minversion_numbers_as_strings = min_version.split(".");
         if (minversion_numbers_as_strings.size() != 3) {
             Q_ASSERT(false);
             return false; // This should hopefully never happen.
         }
-        bool ok1, ok2, ok3;
+        bool ok1;
+        bool ok2;
+        bool ok3;
         std::array<qulonglong, 3> minversion_numbers_as_qulonglong = {
             minversion_numbers_as_strings[0].toULongLong(&ok1),
             minversion_numbers_as_strings[1].toULongLong(&ok2),
@@ -170,15 +171,17 @@ bool stVi::checkSystemRequirements() const
             Q_ASSERT(false);
             return false; // This should hopefully never happen.
         }
-        qDebug() << "[stVi] Check min version min = " << min_version << " current = " << Globals::VERSION;
-        if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minversion_numbers_as_qulonglong)) {
-            QMessageBox::information(0, "MINIMUM VERSION",
+        qDebug() << "[stVi] Check min version min = "
+                 << min_version << " current = " << Globals::VERSION;
+        if (!versionIsGreaterOrEqual(Globals::VersionNumbers,
+                                     minversion_numbers_as_qulonglong)) {
+            QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
                                      "This version of the software is not supported anymore, please update!");
             return false;
         }
     } else {
         qDebug() << "[MAIN] Network ERROR : Check min version min " << reply->getText();
-        QMessageBox::information(0, "MINIMUM VERSION",
+        QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return false;
     }
@@ -190,30 +193,21 @@ void stVi::setupUi()
 {
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
-    resize(1217, 706);
+    resize(1024, 768);
 
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
     sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-
     setSizePolicy(sizePolicy);
     setMinimumSize(QSize(1024, 768));
-    setMouseTracking(false);
-    setFocusPolicy(Qt::NoFocus);
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
     actionExit = new QAction(this);
     actionHelp = new QAction(this);
     actionVersion = new QAction(this);
-    actionPrint = new QAction(this);
-    actionPrint->setIcon(QIcon(QStringLiteral(":/images/print-printer-icone-7769-64.png")));
     actionAbout = new QAction(this);
     actionClear_Cache = new QAction(this);
 
     centralwidget = new QWidget(this);
-    centralwidget->setMouseTracking(false);
-    centralwidget->setFocusPolicy(Qt::NoFocus);
 
     mainlayout = new QVBoxLayout(centralwidget);
     mainTab = new ExtendedTabWidget(centralwidget);
@@ -242,7 +236,6 @@ void stVi::setupUi()
     actionExit->setText(QApplication::translate("MainWindow", "&Exit", 0));
     actionHelp->setText(QApplication::translate("MainWindow", "Help", 0));
     actionVersion->setText(QApplication::translate("MainWindow", "Version", 0));
-    actionPrint->setText(QApplication::translate("MainWindow", "Print", 0));
     actionAbout->setText(QApplication::translate("MainWindow", "&About...", 0));
     actionClear_Cache->setText(QApplication::translate("MainWindow", "Clear Cache", 0));
     menuLoad->setTitle(QApplication::translate("MainWindow", "File", 0));
@@ -258,7 +251,8 @@ void stVi::handleMessage(QString message)
 
 void stVi::showAbout()
 {
-    QScopedPointer<AboutDialog> about(new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    QScopedPointer<AboutDialog> about(new AboutDialog(this,
+                                                      Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     about->exec();
 }
 
@@ -296,18 +290,22 @@ void stVi::slotClearCache()
 void stVi::createLayouts()
 {
     statusBar()->showMessage("Spatial Transcriptomics Viewer");
+    //TODO make several status bar updates in different parts of the application
 }
 
 void stVi::initStyle()
 {
     // apply stylesheet and configurations
 #ifdef Q_OS_MAC
-    setUnifiedTitleAndToolBarOnMac(true); //working again in qt 5.2.1
+    setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
-    QApplication::setAttribute(Qt::AA_NativeWindows, true); //NOTE this is actually pretty important
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true); //osx does not show icons on menus
+    //NOTE this is actually pretty important
+    QApplication::setAttribute(Qt::AA_NativeWindows, true);
+    //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
-    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint)); // no close icon on MAC
+     // no close icon on MAC
+    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint));
 #endif
 
     //TODO move to styleshee.css file

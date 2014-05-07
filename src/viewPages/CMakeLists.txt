@@ -8,13 +8,11 @@ set(LIBRARY_ARG_INCLUDES
     ExperimentPage.h
     InitPage.h
     Page.h
-    AnimatedDatasetsTableView.h
+    DatasetsTableView.h
     GenesTableView.h
     GeneSelectionTableView.h
-    WidgetBackgroundAnimation.h
     CellViewPageToolBar.h
     BooleanItemDelegate.h
-    DatasetsViewItemDelegate.h
     GeneViewDelegate.h
     ColorListEditor.h
     ExtendedTabWidget.cpp
@@ -28,13 +26,11 @@ set(LIBRARY_ARG_SOURCES
     ExperimentPage.cpp
     InitPage.cpp
     Page.cpp
-    AnimatedDatasetsTableView.cpp
+    DatasetsTableView.cpp
     GenesTableView.cpp
     GeneSelectionTableView.cpp
-    WidgetBackgroundAnimation.cpp
     CellViewPageToolBar.cpp
     BooleanItemDelegate.cpp
-    DatasetsViewItemDelegate.cpp
     GeneViewDelegate.cpp
     ColorListEditor.cpp
     ExtendedTabWidget.cpp

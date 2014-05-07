@@ -128,6 +128,11 @@ const QString Configuration::dataEndpointUsers() const
    return readSetting(QStringLiteral("data/endpoints/user"));
 }
 
+const QString Configuration::dataEndpointSelections() const
+{
+   return readSetting(QStringLiteral("data/endpoints/selections"));
+}
+
 const QString Configuration::dataEndpointFigures() const
 {
    return readSetting(QStringLiteral("data/endpoints/figure"));

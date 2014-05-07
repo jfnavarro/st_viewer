@@ -8,9 +8,21 @@
 #include "Chip.h"
 
 Chip::Chip()
-    : m_id(""), m_barcodes(0), m_name(""),
-      m_x1(0), m_x2(0), m_x1Total(0), m_x2Total(0), m_x1Border(0), m_x2Border(0),
-      m_y1(0), m_y2(0), m_y1Total(0), m_y2Total(0), m_y1Border(0), m_y2Border(0)
+    : m_id(""),
+      m_barcodes(0),
+      m_name(""),
+      m_x1(0),
+      m_x2(0),
+      m_x1Total(0),
+      m_x2Total(0),
+      m_x1Border(0),
+      m_x2Border(0),
+      m_y1(0),
+      m_y2(0),
+      m_y1Total(0),
+      m_y2Total(0),
+      m_y1Border(0),
+      m_y2Border(0)
 {
 
 }

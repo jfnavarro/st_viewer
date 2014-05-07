@@ -144,3 +144,11 @@ void GeneData::resetValues()
         floatAttribute(i, valuesVertex) = 0.0;
     }
 }
+
+void GeneData::resetSelection(bool state)
+{
+    const float reset_value =  state ? 1.0 : 0.0;
+    for(int i = 0; i < attributes(selectionVertex).count(); ++i) {
+        floatAttribute(i, selectionVertex) = reset_value;
+    }
+}

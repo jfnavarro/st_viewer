@@ -43,14 +43,14 @@ public:
     virtual ~GeneTXTExporter();
 
     virtual void exportItem(QIODevice *device,
-                            const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
+                            const DataProxy::UniqueGeneSelectedList& selectionList) const;
 
 private:
 
     const QString delimiterCharacter() const;
     void exportStrings(QTextStream &otxt, const QStringList &strings) const;
-    void exportItem(QTextStream &otxt, const DataProxy::FeaturePtr &feature, const QObject &context) const;
-    void exportItem(QTextStream &otxt, const DataProxy::FeatureListPtr featurelist, const QObject &context) const;
+    void exportItem(QTextStream &otxt, const GeneSelection &selection) const;
+    void exportItem(QTextStream &otxt, const DataProxy::UniqueGeneSelectedList& selectionList) const;
 
     DetailLevels m_detailLevel;
     SeparationModes m_separationMode;

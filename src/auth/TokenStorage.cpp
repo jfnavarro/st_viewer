@@ -16,14 +16,14 @@
 
 TokenStorage::TokenStorage(QObject* parent)
     : QObject(parent),
-      m_storage(0)
+      m_storage(nullptr)
 {
-    m_storage.reset(new QSettings());
+    m_storage = new QSettings();
 }
 
 TokenStorage::~TokenStorage()
 {
-    //m_storage is scoped pointer
+    //m_storage is smart pointer
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken)

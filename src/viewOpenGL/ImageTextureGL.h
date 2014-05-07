@@ -47,6 +47,8 @@ private:
     QList<QGLSceneNode *> m_nodes;
     qreal m_intensity;
     QRectF m_bounds;
+
+    Q_DISABLE_COPY(ImageTextureGL)
 };
 
 #endif // IMAGETEXTUREGL_H

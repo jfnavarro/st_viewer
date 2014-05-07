@@ -106,6 +106,12 @@ NetworkCommand* RESTCommandFactory::getUser()
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
+NetworkCommand* RESTCommandFactory::getSelections()
+{
+    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointUsers());
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+}
+
 NetworkCommand* RESTCommandFactory::getMinVersion()
 {
     QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointMinVersion());
