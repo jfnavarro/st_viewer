@@ -11,7 +11,9 @@
 #include "math/Common.h"
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
     : QAbstractTableModel(parent),
-      m_geneselection_reference(0)
+      m_geneselection_reference(0),
+      m_min(1), 
+      m_max(1)
 {
 
 }

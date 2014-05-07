@@ -88,7 +88,7 @@ protected:
     const QTransform adjustForAnchor(const QTransform& transform) const;
 
     QTransform m_transform;
-    Globals::Anchor m_anchor = Globals::Anchor::NorthWest;
+    Globals::Anchor m_anchor;
     GraphicItemGL::VisualOptions m_visualOptions;
 };
 

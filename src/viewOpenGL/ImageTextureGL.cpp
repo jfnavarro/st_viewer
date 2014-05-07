@@ -14,7 +14,7 @@
 #include <cmath>
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    GraphicItemGL(parent)
+    GraphicItemGL(parent), m_intensity(1.0f)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);

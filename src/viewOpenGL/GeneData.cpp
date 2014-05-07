@@ -135,7 +135,7 @@ qreal GeneData::quadValue(const int index) const
 
 void GeneData::resetRefCount()
 {
-    std::fill(m_refCount.begin(), m_refCount.end(), 0.0);
+    std::fill(m_refCount.begin(), m_refCount.end(), 0.0f);
 }
 
 void GeneData::resetValues()

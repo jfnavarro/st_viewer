@@ -122,11 +122,11 @@ void main(void)
         
         //adjust color for globalMode
         if (geneMode == 1) {
-            outColor.a = computeDynamicRangeAlpha(value, in_pooledLower, in_pooledUpper)
+            outColor.a = computeDynamicRangeAlpha(value, lower_limit, upper_limit)
             + (1.0 - in_intensity);
         }
         else if (geneMode == 2) {
-            float nv = norm(value, in_pooledLower, in_pooledUpper);
+            float nv = norm(value, lower_limit, upper_limit);
             float wavel = sqrt(clamp(nv, 0.0, 1.0));
             float nt = denorm(wavel, 380.0, 780.0);
             outColor = createHeatMapColor(nt);

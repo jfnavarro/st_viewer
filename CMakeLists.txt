@@ -2,7 +2,7 @@
 # NAME AND VERSION
 ###############################################################################
 project(stVi C CXX)
-cmake_minimum_required(VERSION 3.0.20140411 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.11.2 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 
 #Configuration stuff
@@ -91,6 +91,6 @@ endif()
 foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
 endforeach()
-
+initialise_project()
 add_subdirectory(ext) # include third party libraries
 add_subdirectory(src) # include source code

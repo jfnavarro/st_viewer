@@ -45,7 +45,7 @@ private:
 
     QList<QGLTexture2D *> m_textures;
     QList<QGLSceneNode *> m_nodes;
-    qreal m_intensity = 1.0f;
+    qreal m_intensity;
     QRectF m_bounds;
 };
 

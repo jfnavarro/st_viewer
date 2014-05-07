@@ -29,13 +29,8 @@ message( STATUS )
 
 ### PROJECT AND GLOBAL VARIABLES ##############################################
 
-# Initialise the project
-initialise_project()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/math)
-include_directories(${CMAKE_SOURCE_DIR}/ext/QtDebugHelper/src)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -111,7 +106,7 @@ add_subdirectory(QtUnitTest)
 
 #link static libraries and third party libraries
 
-set(LIB_COMPONENTS QtDebugHelper QtSingleApplication)
+set(LIB_COMPONENTS QtSingleApplication)
 
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
@@ -134,18 +129,16 @@ include_directories(${PROJECT_SOURCE_DIR}/ext/QtSingleApplication/src)
 set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 if(WIN32)
-  add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
+    add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
 elseif(APPLE)
-  add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${ST_CLIENT_SOURCES})
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${ST_CLIENT_SOURCES})
 else()
-  add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
+    add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
-
-target_compile_features(${PROJECT_NAME} PRIVATE ${REQUIRED_CXX_FEATURES})
 
 # Platform specific library includes
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} ${Qt5Core_QTMAIN_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
 endif()
 
 if(APPLE)
@@ -177,6 +170,22 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
 
+
+set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
+set(PLUGINS_IN_CATEGORY_accessible qtaccessiblequick qtaccessiblewidgets)
+set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+set(PLUGINS_IN_CATEGORY_printsupport)
+set(PLUGINS_IN_CATEGORY_platforms)
+
+if(WIN32) 
+    list(APPEND PLUGINS_IN_CATEGORY_printsupport windowsprintersupport)
+endif()
+
+if(UNIX AND NOT APPLE)
+    list(APPEND PLUGINS_IN_CATEGORY_printsupport cupsprintersupport)
+    list(APPEND PLUGINS_IN_CATEGORY_platforms qlinuxfb qminimal qxcb)
+endif()
+
 if(UNIX AND NOT APPLE)
 
     # use, i.e. don't skip the full RPATH for the build tree
@@ -202,12 +211,6 @@ if(UNIX AND NOT APPLE)
     set(CPACK_GENERATOR " TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
     set(CPACK_SYSTEM_NAME "${CMAKE_BUILD_TYPE}-${CPACK_SYSTEM_NAME}-32")
-
-    foreach(QT_LIBRARY ${ST_QT_LIBS})
-      foreach(QT_PLUGIN ${Qt5${QT_LIBRARY}_PLUGINS})
-        get_target_property(QT_PLUGIN_LO "${QT_PLUGIN}" LOCATION)
-      endforeach()
-    endforeach()
 
     foreach(QT_LIBRARY ${ST_QT_LIBS})
       # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG 
@@ -258,16 +261,12 @@ if(UNIX AND NOT APPLE)
     #           DESTINATION plugins/${PLUGIN_PARENT_DIR_NAME})
     # endforeach()
 
-    linux_deploy_qt_plugin(accessible qtaccessiblequick qtaccessiblewidgets)
-    linux_deploy_qt_plugin(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
-    linux_deploy_qt_plugin(platforms qlinuxfb qminimal qxcb)
-    linux_deploy_qt_plugin(printsupport cupsprintersupport)
+    deploy_qt_plugins()
 
     #install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
     install(TARGETS ${PROJECT_NAME} DESTINATION bin)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
-#     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}} DESTINATION lib )
 endif()
 
 if(APPLE)
@@ -338,6 +337,8 @@ if(WIN32)
     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION . )
 
     #add systems libs to build directory
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
     foreach(LIB ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy ${LIB} 
@@ -378,49 +379,50 @@ if(WIN32)
     #TODO  Refactor and optmize this!!
     
     # Qt libraries required by stVi
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E make_directory 
+                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E make_directory 
+                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins)
+
+    foreach(QT_LIBRARY ${ST_QT_LIBS})
+        get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+        install(FILES ${ST_QT_LOC} DESTINATION .)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD   
+                           COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC} 
+                           ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
+    endforeach()
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:stVi>
+                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
+
+    set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-    
-        windows_deploy_qt_libraries(Qt5CLucened Qt5Cored Qt5Guid Qt5Helpd Qt5Multimediad
-                                    Qt5MultimediaWidgetsd Qt5Networkd Qt5OpenGLd
-                                    Qt5PrintSupportd Qt5Qmld Qt5Quickd Qt5Sqld Qt5Svgd Qt5V8d
-                                    Qt5WebKitd Qt5WebKitWidgetsd Qt5Widgetsd Qt5Xmld Qt5Sensorsd)
-
-        # Qt plugins required by stVi
-        windows_deploy_qt_plugin(accessible qtaccessiblequickd qtaccessiblewidgetsd)
-        windows_deploy_qt_plugin(imageformats qgifd qicod qjpegd qmngd qsvgd qtgad qtiffd qwbmpd)
-        windows_deploy_qt_plugin(printsupport windowsprintersupportd)
-        set(PLUGINS qminimald qwindowsd)
-        
-    else()
-    
-        windows_deploy_qt_libraries(Qt5CLucene Qt5Core Qt5Gui Qt5Help Qt5Multimedia
-                                    Qt5MultimediaWidgets Qt5Network Qt5OpenGL
-                                    Qt5PrintSupport Qt5Qml Qt5Quick Qt5Sql Qt5Svg
-                                    Qt5V8 Qt5WebKit Qt5WebKitWidgets Qt5Widgets Qt5Xml Qt5Sensors)
-
-        # Qt plugins required by stVi
-        windows_deploy_qt_plugin(accessible qtaccessiblequick qtaccessiblewidgets)
-        windows_deploy_qt_plugin(imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
-        windows_deploy_qt_plugin(printsupport windowsprintersupport)
-        set(PLUGINS qminimal qwindows)
-        
+        set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
     endif()
+
+    deploy_qt_plugins()
     
     #qt5.1.1 icu is 51 for lower versions is 49
     windows_deploy_qt_libraries(icudt51 icuin51 icuuc51)
     
     #install platforms plugins
-    foreach(QT_PLUGIN_FILE ${PLUGINS})
 
+    foreach(QT_PLUGIN_FILE qminimal qwindows)
         install(FILES ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
                 DESTINATION platforms)
 		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                                   COMMAND ${CMAKE_COMMAND} -E copy ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                                   COMMAND ${CMAKE_COMMAND} -E copy 
+                                   ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}
                                    ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
     endforeach()
 
     #install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
+                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )

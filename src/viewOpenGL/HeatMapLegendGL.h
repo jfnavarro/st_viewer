@@ -49,10 +49,10 @@ private:
     void drawText(QGLPainter *painter, const QPointF& posn, const QString& str);
 
     // limits and boundaries
-    qreal m_lower_threshold = Globals::GENE_THRESHOLD_MIN;
-    qreal m_upper_threshold = Globals::GENE_THRESHOLD_MAX;
-    qreal m_max = Globals::GENE_THRESHOLD_MAX;
-    qreal m_min = Globals::GENE_THRESHOLD_MIN;
+    qreal m_lower_threshold;
+    qreal m_upper_threshold;
+    qreal m_max;
+    qreal m_min;
 
     // texture color data
     QGLTexture2D m_texture;

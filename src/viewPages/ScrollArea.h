@@ -43,7 +43,7 @@ private:
 
     void adjustScrollBars();
 
-    const int m_scrollBarSteps = 100000;
+    static const int m_scrollBarSteps = 100000;
 
     CellGLView *m_view;
     QWidget *m_container;

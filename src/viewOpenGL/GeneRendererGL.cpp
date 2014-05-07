@@ -18,7 +18,10 @@
 static const int INVALID_INDEX = -1;
 
 GeneRendererGL::GeneRendererGL(QObject *parent)
-    : GraphicItemGL(parent)
+    : GraphicItemGL(parent),
+      m_geneNode(nullptr),
+      m_shaderProgram(nullptr),
+      m_isDirty(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -173,7 +176,7 @@ void GeneRendererGL::generateData()
         const QPointF point(feature->x(), feature->y());
 
         // test if point already exists
-        GeneInfoQuadTree::PointItem item = { point, INVALID_INDEX };
+        GeneInfoQuadTree::PointItem item( point, INVALID_INDEX );
         m_geneInfoQuadTree.select(point, item);
 
         //if it exists

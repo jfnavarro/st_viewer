@@ -43,13 +43,13 @@ private:
     void setLowerValuePrivate(const int min);
     void setUpperValuePrivate(const int max);
 
-    QxtSpanSlider *m_spanslider = nullptr;
-    QSpinBox *m_left_spinbox = nullptr;
-    QSpinBox *m_right_spinbox = nullptr;
-    QHBoxLayout *m_layout = nullptr;
+    QxtSpanSlider *m_spanslider;
+    QSpinBox *m_left_spinbox;
+    QSpinBox *m_right_spinbox;
+    QHBoxLayout *m_layout;
 
-    int m_upper_value = 0;
-    int m_lower_value = 0;
+    int m_upper_value;
+    int m_lower_value;
 };
 
 #endif

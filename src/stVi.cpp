@@ -8,6 +8,8 @@
 #include "stVi.h"
 
 #if defined Q_OS_WIN
+
+#define NOMINMAX
 #include <windows.h>
 #include "qt_windows.h"
 #endif
@@ -62,7 +64,18 @@ bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
     return true;
 }
 
-stVi::stVi(QWidget* parent): QMainWindow(parent)
+stVi::stVi(QWidget* parent): QMainWindow(parent),
+    actionExit(nullptr),
+    actionHelp(nullptr),
+    actionVersion(nullptr),
+    actionPrint(nullptr),
+    actionAbout(nullptr),
+    actionClear_Cache(nullptr),
+    menuLoad(nullptr),
+    menuHelp(nullptr),
+    centralwidget(nullptr),
+    mainlayout(nullptr),
+    mainTab(nullptr)
 {
     //init single instances (this must be done the very very first)       
     initSingleInstances();
@@ -148,11 +161,11 @@ bool stVi::checkSystemRequirements() const
             return false; // This should hopefully never happen.
         }
         bool ok1, ok2, ok3;
-        std::array<qulonglong, 3> minversion_numbers_as_qulonglong{{
+        std::array<qulonglong, 3> minversion_numbers_as_qulonglong = {
             minversion_numbers_as_strings[0].toULongLong(&ok1),
             minversion_numbers_as_strings[1].toULongLong(&ok2),
             minversion_numbers_as_strings[2].toULongLong(&ok3)
-        }};
+        };
         if (!ok1 || !ok2 || !ok3) {
             Q_ASSERT(false);
             return false; // This should hopefully never happen.

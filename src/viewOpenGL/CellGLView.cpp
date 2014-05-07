@@ -35,7 +35,9 @@ bool nodeIsSelectable(const GraphicItemGL &node) {
 }
 
 CellGLView::CellGLView(QScreen *parent) :
-    QWindow(parent)
+    QWindow(parent), m_context(nullptr), m_initialized(false), m_originPanning(QPoint(-1, -1)),
+    m_originRubberBand(QPoint(-1, -1)), m_panning(false), m_rubberBanding(false),
+    m_selecting(false), m_rubberband(nullptr), m_rotate(0.0), m_zoom_factor(1.0)
 {
     //init projection matrix to id
     m_projm.setToIdentity();

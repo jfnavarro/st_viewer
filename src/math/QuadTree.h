@@ -218,7 +218,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
         return INSERT_ERROR_FULL;
     }
     else {
-        PointItem pair = { p, t };
+        PointItem pair( p, t );
         data.push_back(pair);
         return INSERT_OK;
     }

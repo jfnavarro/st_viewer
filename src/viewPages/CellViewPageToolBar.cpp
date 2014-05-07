@@ -58,7 +58,25 @@ void addSliderToMenu(QWidget *parent, const QString &str,
 }
 
 CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
-    QToolBar(parent)
+    QToolBar(parent), m_actionActivateSelectionMode(nullptr), m_actionNavigate_goBack(nullptr), 
+    m_actionSave_save(nullptr), m_actionSave_print(nullptr),
+    m_actionSelection_showSelectionDialog(nullptr), m_actionZoom_zoomIn(nullptr),
+    m_actionZoom_zoomOut(nullptr), m_menu_genePlotter(nullptr), m_actionShow_showGrid(nullptr),
+    m_actionShow_showGenes(nullptr), m_actionColor_selectColorGenes(nullptr),
+    m_actionColor_selectColorGrid(nullptr), m_actionGroup_toggleVisualMode(nullptr),
+    m_actionShow_toggleNormal(nullptr), m_actionShow_toggleDynamicRange(nullptr), 
+    m_actionShow_toggleHeatMap(nullptr), m_actionGroup_toggleLegendPosition(nullptr), 
+    m_action_toggleLegendTopRight(nullptr), m_action_toggleLegendTopLeft(nullptr), 
+    m_action_toggleLegendDownRight(nullptr), m_action_toggleLegendDownLeft(nullptr), 
+    m_actionGroup_toggleMinimapPosition(nullptr), m_action_toggleMinimapTopRight(nullptr), 
+    m_action_toggleMinimapTopLeft(nullptr), m_action_toggleMinimapDownRight(nullptr),
+    m_action_toggleMinimapDownLeft(nullptr), m_geneHitsThreshold(nullptr), 
+    m_geneIntensitySlider(nullptr), m_geneSizeSlider(nullptr), m_geneShineSlider(nullptr),
+    m_geneBrightnessSlider(nullptr), m_geneShapeComboBox(nullptr), m_menu_cellTissue(nullptr),
+    m_actionGroup_cellTissue(nullptr), m_actionShow_cellTissueBlue(nullptr),
+    m_actionShow_cellTissueRed(nullptr), m_actionShow_showCellTissue(nullptr), 
+    m_actionShow_showLegend(nullptr), m_actionShow_showMiniMap(nullptr), 
+    m_actionRotation_rotateLeft(nullptr), m_actionRotation_rotateRight(nullptr)
 {
     createActions();
 

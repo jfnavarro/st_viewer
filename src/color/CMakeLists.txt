@@ -1,3 +1,5 @@
+FIX_QT3D_COMPILATION_BUG()
+
 set(LIBRARY_ARG_INCLUDES
     ColorPalette.h
     HeatMap.h

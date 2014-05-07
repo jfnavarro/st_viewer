@@ -104,20 +104,19 @@ protected:
 
 private:
 
-    // graphical items
-    MiniMapGL *m_minimap = nullptr;
-    HeatMapLegendGL *m_legend = nullptr;
-    GeneRendererGL *m_gene_plotter = nullptr;
-    ImageTextureGL *m_image = nullptr;
-    GridRendererGL *m_grid = nullptr;
-    CellGLView *m_view = nullptr;
+    MiniMapGL *m_minimap;
+    HeatMapLegendGL *m_legend;
+    GeneRendererGL *m_gene_plotter;
+    ImageTextureGL *m_image;
+    GridRendererGL *m_grid;
+    CellGLView *m_view;
 
     // selection dialogs
-    SelectionDialog *selectionDialog = nullptr;
+    SelectionDialog *selectionDialog;
 
     // color dialogs
-    QColorDialog *m_colorDialogGenes = nullptr;
-    QColorDialog *m_colorDialogGrid = nullptr;
+    QColorDialog *m_colorDialogGenes;
+    QColorDialog *m_colorDialogGrid;
 
     // tool bar
     CellViewPageToolBar *m_toolBar;

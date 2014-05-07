@@ -116,9 +116,10 @@ private:
 				       const MouseEventType type, const FilterFunc filterFunc);
 
     // openGL context variables
-    QOpenGLContext *m_context = nullptr;
+
+    QOpenGLContext *m_context;
     QSurfaceFormat format;
-    bool m_initialized = false;
+    bool m_initialized;
 
     // scene and viewport aux variables
     QRectF m_viewport;
@@ -128,17 +129,17 @@ private:
     QList<GraphicItemGL *> m_nodes;
 
     // auxiliary variables for panning, zoom and selection
-    QPoint m_originPanning = QPoint(-1, -1);
-    QPoint m_originRubberBand = QPoint(-1, -1);
-    bool m_panning = false;
-    bool m_rubberBanding = false;
-    bool m_selecting = false;
-    RubberbandGL *m_rubberband = nullptr;
-    qreal m_rotate = 0.0;
+    QPoint m_originPanning;
+    QPoint m_originRubberBand;
+    bool m_panning;
+    bool m_rubberBanding;
+    bool m_selecting;
+    RubberbandGL *m_rubberband;
+    qreal m_rotate;
     QPointF m_scene_focus_center_point;
     // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later
     // we set the value here. This value should never be used though.
-    qreal m_zoom_factor = 1.0;
+    qreal m_zoom_factor;
 
     // scene viewport projection
     QMatrix4x4 m_projm;

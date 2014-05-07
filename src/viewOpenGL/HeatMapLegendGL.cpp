@@ -24,7 +24,11 @@ static const qreal legend_height = 150.0;
 static const qreal bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : GraphicItemGL(parent)
+    : GraphicItemGL(parent),
+      m_lower_threshold(Globals::GENE_THRESHOLD_MIN),
+      m_upper_threshold(Globals::GENE_THRESHOLD_MAX),
+      m_max(Globals::GENE_THRESHOLD_MAX),
+      m_min(Globals::GENE_THRESHOLD_MIN)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);

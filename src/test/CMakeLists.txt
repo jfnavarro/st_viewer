@@ -2,6 +2,8 @@
 # Unit Test CMake                                                             #
 ###############################################################################
 
+FIX_QT3D_COMPILATION_BUG()
+
 use_qt5lib(Qt5Test)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/QtUnitTest ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
@@ -55,14 +57,12 @@ set(ST_UNITTEST_SOURCES
 
 if(WIN32)
     add_executable(${TARGET_NAME} WIN32 ${ST_UNITTEST_SOURCES})
-    target_link_libraries(${TARGET_NAME} ${Qt5Core_QTMAIN_LIBRARIES}) #Note: allows compile windows application (ie. not console)
+    target_link_libraries(${TARGET_NAME} Qt5::WinMain) #Note: allows compile windows application (ie. not console)
 else()
     add_executable(${TARGET_NAME} ${ST_UNITTEST_SOURCES})
 endif()
 
-target_compile_features(${TARGET_NAME} PRIVATE ${REQUIRED_CXX_FEATURES})
-
-target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} QtDebugHelper) #STCoreWidgets
+target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY}) #STCoreWidgets
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})

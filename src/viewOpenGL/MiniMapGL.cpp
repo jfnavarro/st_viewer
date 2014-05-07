@@ -22,7 +22,7 @@ static const qreal minimap_width = 100.0;
 MiniMapGL::MiniMapGL(QObject *parent)
     : GraphicItemGL(parent), 
       m_sceneColor(minimap_scene_color),
-      m_viewColor(minimap_view_color)
+      m_viewColor(minimap_view_color), m_selecting(false)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, true);

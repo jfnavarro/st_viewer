@@ -1,3 +1,42 @@
+# The macro FIX_QT3D_COMPILATION_BUG, is a hack fix to get rid of compile errors in Cygwin 
+# when including some of the Qt3d headers.
+# The compile error is probably caused by the confusion of having
+# the interchangable representations of the same directory /cygdrive/c/tmp and C:\tmp
+# Some how a ".." to much is specified in the include statements in the QMake generated files.
+# When Qt3d gets merged into the standard Qt library we could remove this hack.
+
+macro(FIX_QT3D_COMPILATION_BUG)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy/dummy)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy/dummy)
+endmacro()
+
+macro(COPY_FILE_TO_BUILD_DIR ORIG_DIRNAME DEST_DIRNAME FILENAME)
+    if(EXISTS ${CMAKE_BINARY_DIR}/../cmake)
+        set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
+    else()
+        if(WIN32)
+            set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${DEST_DIRNAME})
+        else()
+            set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})
+        endif()
+    endif()
+    if("${ARGN}" STREQUAL "")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
+                                                            ${REAL_DEST_DIRNAME}/${FILENAME})
+    else()
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy ${ORIG_DIRNAME}/${FILENAME}
+                                                            ${REAL_DEST_DIRNAME}/${ARGN})
+    endif()
+endmacro()
+
 macro(INITIALISE_PROJECT)
 
 #    set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -23,10 +62,15 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
-
-
     if(WIN32)
-        #TODO
+        string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
+        if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+            set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
+        else()
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
+        endif()
     else()
         # Adding -std=c++11 flag explicitly
         # It is a temporary fix to get building with CLANG working again.
@@ -53,15 +97,6 @@ macro(INITIALISE_PROJECT)
         set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
     endif()
 
-    set(REQUIRED_CXX_FEATURES
-        cxx_long_long_type
-        cxx_range_for
-        cxx_constexpr
-        cxx_auto_type
-        cxx_nullptr
-        cxx_static_assert
-    )
-  
     if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
     endif()
@@ -75,10 +110,19 @@ macro(use_qt5lib qt5lib)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
 endmacro()
 
-macro(LINUX_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
-    foreach(PLUGIN_NAME ${ARGN})
-        install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                DESTINATION plugins/${PLUGIN_CATEGORY})
+macro(DEPLOY_QT_PLUGINS)
+    foreach(PLUGIN_CATEGORY ${QT_PLUGIN_CATEGORIES})
+        foreach(PLUGIN_NAME ${PLUGINS_IN_CATEGORY_${PLUGIN_CATEGORY}})
+            if(WIN32) 
+                windows_deploy_library(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}
+                ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                plugins/${PLUGIN_CATEGORY})
+            endif()
+            if(NOT WIN32 AND NOT APPLE)
+                install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                        DESTINATION plugins/${PLUGIN_CATEGORY})
+            endif()
+        endforeach()
     endforeach()
 endmacro()
 
@@ -86,14 +130,6 @@ macro(WINDOWS_DEPLOY_QT_LIBRARIES)
     foreach(LIBRARY ${ARGN})
         windows_deploy_library(${QT_BINARY_DIR}
         ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBRARY}${CMAKE_SHARED_LIBRARY_SUFFIX} .)
-    endforeach()
-endmacro()
-
-macro(WINDOWS_DEPLOY_QT_PLUGIN PLUGIN_CATEGORY)
-    foreach(PLUGIN_NAME ${ARGN})
-        windows_deploy_library(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}
-        ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-        plugins/${PLUGIN_CATEGORY})
     endforeach()
 endmacro()
 
@@ -118,7 +154,6 @@ function(ST_LIBRARY)
     endif()
     add_library("${PARENTDIR}" OBJECT ${UI_GENERATED_FILES} ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
     source_group("${PARENTDIR}" FILES ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
-    target_compile_features("${PARENTDIR}" PUBLIC ${REQUIRED_CXX_FEATURES} PRIVATE ${REQUIRED_CXX_FEATURES})
 endfunction()
 
 function(INSTALL_LIBRARY_AND_SYMLINKS SRCPATH DEST)

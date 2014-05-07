@@ -34,8 +34,12 @@ public:
 
     int hitsSum() { return m_sum; }
 
-    qreal min();
-    qreal max();
+    // The functions minValue() and maxValue() 
+    // were previously called min() and max() but that led to compile problems
+    // in Visual Studio. (error message: not enough actual parameters for macro 'min')
+    
+    qreal minValue();
+    qreal maxValue();
     qreal pooledMin();
     qreal pooledMax();
 

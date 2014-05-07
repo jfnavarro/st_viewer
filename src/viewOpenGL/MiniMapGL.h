@@ -71,7 +71,7 @@ private:
     QTransform m_parentSceneTransformations;
 
     // mouse events
-    bool m_selecting = false;
+    bool m_selecting;
 };
 
 #endif // MINIMAPGL_H //

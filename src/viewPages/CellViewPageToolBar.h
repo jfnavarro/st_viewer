@@ -29,55 +29,56 @@ public:
 
     // actions for toolbar
 
-    QAction *m_actionActivateSelectionMode = nullptr;
-    QAction *m_actionNavigate_goBack = nullptr;
-    QAction *m_actionSave_save = nullptr;
-    QAction *m_actionSave_print = nullptr;
-    QAction *m_actionSelection_showSelectionDialog = nullptr;
 
-    QAction *m_actionZoom_zoomIn = nullptr;
-    QAction *m_actionZoom_zoomOut = nullptr;
+    QAction *m_actionActivateSelectionMode;
+    QAction *m_actionNavigate_goBack;
+    QAction *m_actionSave_save;
+    QAction *m_actionSave_print;
+    QAction *m_actionSelection_showSelectionDialog;
 
-    QMenu *m_menu_genePlotter = nullptr;
-    QAction *m_actionShow_showGrid = nullptr;
-    QAction *m_actionShow_showGenes = nullptr;
-    QAction *m_actionColor_selectColorGenes = nullptr;
-    QAction *m_actionColor_selectColorGrid = nullptr;
+    QAction *m_actionZoom_zoomIn;
+    QAction *m_actionZoom_zoomOut;
 
-    QActionGroup *m_actionGroup_toggleVisualMode = nullptr;
-    QAction *m_actionShow_toggleNormal = nullptr;
-    QAction *m_actionShow_toggleDynamicRange = nullptr;
-    QAction *m_actionShow_toggleHeatMap = nullptr;
+    QMenu *m_menu_genePlotter;
+    QAction *m_actionShow_showGrid;
+    QAction *m_actionShow_showGenes;
+    QAction *m_actionColor_selectColorGenes;
+    QAction *m_actionColor_selectColorGrid;
+
+    QActionGroup *m_actionGroup_toggleVisualMode;
+    QAction *m_actionShow_toggleNormal;
+    QAction *m_actionShow_toggleDynamicRange;
+    QAction *m_actionShow_toggleHeatMap;
  
-    QActionGroup *m_actionGroup_toggleLegendPosition = nullptr;
-    QAction *m_action_toggleLegendTopRight= nullptr;
-    QAction *m_action_toggleLegendTopLeft= nullptr;
-    QAction *m_action_toggleLegendDownRight= nullptr;
-    QAction *m_action_toggleLegendDownLeft = nullptr;
+    QActionGroup *m_actionGroup_toggleLegendPosition;
+    QAction *m_action_toggleLegendTopRight;
+    QAction *m_action_toggleLegendTopLeft;
+    QAction *m_action_toggleLegendDownRight;
+    QAction *m_action_toggleLegendDownLeft;
 
-    QActionGroup *m_actionGroup_toggleMinimapPosition = nullptr;
-    QAction *m_action_toggleMinimapTopRight= nullptr;
-    QAction *m_action_toggleMinimapTopLeft= nullptr;
-    QAction *m_action_toggleMinimapDownRight= nullptr;
-    QAction *m_action_toggleMinimapDownLeft = nullptr;
+    QActionGroup *m_actionGroup_toggleMinimapPosition;
+    QAction *m_action_toggleMinimapTopRight;
+    QAction *m_action_toggleMinimapTopLeft;
+    QAction *m_action_toggleMinimapDownRight;
+    QAction *m_action_toggleMinimapDownLeft;
 
-    SpinBoxSlider *m_geneHitsThreshold = nullptr;
-    QSlider *m_geneIntensitySlider = nullptr;
-    QSlider *m_geneSizeSlider = nullptr;
-    QSlider *m_geneShineSlider = nullptr;
-    QSlider *m_geneBrightnessSlider = nullptr;
+    SpinBoxSlider *m_geneHitsThreshold;
+    QSlider *m_geneIntensitySlider;
+    QSlider *m_geneSizeSlider;
+    QSlider *m_geneShineSlider;
+    QSlider *m_geneBrightnessSlider;
 
-    QComboBox *m_geneShapeComboBox = nullptr;
+    QComboBox *m_geneShapeComboBox;
 
-    QMenu *m_menu_cellTissue = nullptr;
-    QActionGroup *m_actionGroup_cellTissue = nullptr;
-    QAction *m_actionShow_cellTissueBlue = nullptr;
-    QAction *m_actionShow_cellTissueRed = nullptr;
-    QAction *m_actionShow_showCellTissue = nullptr;
-    QAction *m_actionShow_showLegend = nullptr;
-    QAction *m_actionShow_showMiniMap = nullptr;
-    QAction *m_actionRotation_rotateLeft = nullptr;
-    QAction *m_actionRotation_rotateRight = nullptr;
+    QMenu *m_menu_cellTissue;
+    QActionGroup *m_actionGroup_cellTissue;
+    QAction *m_actionShow_cellTissueBlue;
+    QAction *m_actionShow_cellTissueRed;
+    QAction *m_actionShow_showCellTissue;
+    QAction *m_actionShow_showLegend;
+    QAction *m_actionShow_showMiniMap;
+    QAction *m_actionRotation_rotateLeft;
+    QAction *m_actionRotation_rotateRight;
 
 signals:
 

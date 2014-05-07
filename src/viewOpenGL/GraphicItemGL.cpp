@@ -10,7 +10,7 @@
 #include <QGLPainter>
 
 GraphicItemGL::GraphicItemGL(QObject *parent) :
-    QObject(parent)
+    QObject(parent), m_anchor(Globals::Anchor::NorthWest)
 {
 
 }

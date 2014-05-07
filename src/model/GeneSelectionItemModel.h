@@ -51,8 +51,8 @@ private:
     typedef QPair<QString, int> featurePair;
     QVector<featurePair> m_geneselection_reference;
     //DataProxy::FeatureListPtr m_geneselection_reference;
-    int m_min = 1.0;
-    int m_max = 1.0;
+    int m_min;
+    int m_max;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)
 

@@ -48,7 +48,9 @@
 #include "ui_cellview.h"
 
 CellViewPage::CellViewPage(QWidget *parent)
-    : Page(parent)
+    : Page(parent), m_minimap(nullptr), m_legend(nullptr), m_gene_plotter(nullptr), 
+      m_image(nullptr), m_grid(nullptr), m_view(nullptr), selectionDialog(nullptr), 
+      m_colorDialogGenes(nullptr), m_colorDialogGrid(nullptr)
 {
     onInit();
 }
@@ -133,8 +135,8 @@ void CellViewPage::onEnter()
 
     const QTransform alignment = dataset->alignment();
 
-    const qreal min = statistics->min(); //1st quantile
-    const qreal max = statistics->max(); // 2nd quantile;
+    const qreal min = statistics->minValue(); //1st quantile
+    const qreal max = statistics->maxValue(); // 2nd quantile;
     const qreal pooledMin = statistics->pooledMin();
     const qreal pooledMax = statistics->pooledMax();
     //const qreal sum = statistics->sum(); // total sum
@@ -508,8 +510,8 @@ void CellViewPage::slotExportSelection()
     DataProxy::DatasetStatisticsPtr statistics = dataProxy->getStatistics(dataProxy->getSelectedDataset());
 
     QObject context;
-    context.setProperty("hitCountMin", QVariant(statistics->min()));
-    context.setProperty("hitCountMax", QVariant(statistics->max()));
+    context.setProperty("hitCountMin", QVariant(statistics->minValue()));
+    context.setProperty("hitCountMax", QVariant(statistics->maxValue()));
     context.setProperty("hitCountSum", QVariant(statistics->hitsSum()));
 
     QFile textFile(filename);
@@ -600,6 +602,6 @@ void CellViewPage::selectionUpdated()
             dataProxy->getStatistics(dataProxy->getSelectedDataset());
     Q_ASSERT(statistics);
 
-    selectionModel->setHitCountLimits(statistics->min(), statistics->max());
+    selectionModel->setHitCountLimits(statistics->minValue(), statistics->maxValue());
     selectionModel->loadGenes(features);
 }

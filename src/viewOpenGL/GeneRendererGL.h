@@ -99,7 +99,7 @@ private:
 
     // gene visual data
     GeneData m_geneData;
-    QGLSceneNode *m_geneNode = nullptr;
+    QGLSceneNode *m_geneNode;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
@@ -136,10 +136,10 @@ private:
     // shader programs
     typedef QMap<uint, QGLShaderProgramEffect *> ShaderProgramList;
     ShaderProgramList m_shaderProgramList;
-    QGLShaderProgramEffect *m_shaderProgram = nullptr;
+    QGLShaderProgramEffect *m_shaderProgram;
 
     // tells if something has changed
-    bool m_isDirty = false;
+    bool m_isDirty;
 };
 
 

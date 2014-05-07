@@ -50,7 +50,7 @@ bool DatasetStatistics::operator==(const DatasetStatistics& other) const
         );
 }
 
-qreal DatasetStatistics::min()
+qreal DatasetStatistics::minValue()
 {
     Q_ASSERT(m_quartilesHits.size() == 5);
     // max ( q1 - 1.5 * (q3-q1), q0 )
@@ -60,7 +60,7 @@ qreal DatasetStatistics::min()
     return std::max(q1 - 1.5 * (q3 - q1), q0);
 }
 
-qreal DatasetStatistics::max()
+qreal DatasetStatistics::maxValue()
 {
     Q_ASSERT(m_quartilesHits.size() == 5);
     // min ( q3 + 1.5 * (q3-q1), q4 )

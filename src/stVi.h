@@ -77,19 +77,19 @@ private:
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event);
 
-    QAction *actionExit = nullptr;
-    QAction *actionHelp = nullptr;
-    QAction *actionVersion = nullptr;
-    QAction *actionPrint = nullptr;
-    QAction *actionAbout = nullptr;
-    QAction *actionClear_Cache = nullptr;
+    QAction *actionExit;
+    QAction *actionHelp;
+    QAction *actionVersion;
+    QAction *actionPrint;
+    QAction *actionAbout;
+    QAction *actionClear_Cache;
 
-    QMenu *menuLoad = nullptr;
-    QMenu *menuHelp = nullptr;
+    QMenu *menuLoad;
+    QMenu *menuHelp;
 
-    QWidget *centralwidget = nullptr;
-    QVBoxLayout *mainlayout = nullptr;
-    ExtendedTabWidget *mainTab = nullptr;
+    QWidget *centralwidget;
+    QVBoxLayout *mainlayout;
+    ExtendedTabWidget *mainTab;
 };
 
 #endif // stVi_H

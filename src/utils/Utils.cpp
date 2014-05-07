@@ -9,6 +9,7 @@
 
 #if defined(Q_OS_WIN) || defined(_WIN32)
 #define WIN32_LEAN_AND_CLEAN
+#define NOMINMAX
 #include <windows.h>
 #endif // _WIN32 //
 
