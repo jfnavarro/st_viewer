@@ -1,60 +1,68 @@
 #!/bin/sh
 
 set -e
-echo This is a work in progress. Right now it does not work.
 
-exit
+if [ $# -ne 1 ]; then
+    echo "Usage: build_cygwin.sh path_to_st_client_source" >&2
+    exit 1
+fi
 
+tempdir1=`mktemp -d`
+tempdir2=`mktemp -d`
+#tempdir2=/tmp/tmp.wHe0yT3Qpn
+#tempdir=/tmp/tmp.jm8Xyaz0al
 
-tempdir=`mktemp -d`
-
-
-qt3d_srcdir=$tempdir/qt3d/src
-qt3d_builddir=$tempdir/qt3d/build
+qt3d_srcdir=$tempdir1/qt3d/src
+qt3d_builddir=$tempdir1/qt3d/build
 
 mkdir -p $qt3d_srcdir 
 mkdir -p $qt3d_builddir 
 
-stclient_srcdir=/cygdrive/z/code/st_client
-stclient_builddir=$tempdir/stclient/build
+stclient_srcdir="$1"
+stclient_builddir=$tempdir2/stclient/build
 
 mkdir -p $stclient_builddir
 
-
+# instead of hard coding the following paths we should be able to use something like
+# what is described here: http://stackoverflow.com/a/15335686
 
 filepath1=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/VC/vcvarsall.bat'`
 filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.2.1/5.2.1/msvc2012_64_opengl/bin/qtenv2.bat'`
 
-if /bin/false; then
-
-if /bin/false; then
-  qt3d_srcdir=/home/erik.sjolund/qt3d
-else
-  git clone git://gitorious.org/qt/qt3d.git $qt3d_srcdir
-  cd $qt3d_srcdir
-  # Following the advice found in:
-  # http://dragly.org/2014/03/30/recent-commit-causes-qt3d-to-fail-compilation/
-  git checkout d3338a9 -b older_version
-  echo "INCLUDEPATH += \$\$PWD/dummy" >> src/imports/threed/threed.pro
-  mkdir src/imports/threed/dummy
-fi
-
-qt3d_srcdir_windows=`cygpath -w $qt3d_srcdir`
-qt3d_builddir_windows=`cygpath -w $qt3d_builddir`
-
-
-cmd /Q /C call "$filepath1" x86_amd64 "&&" \
+# If you don't want to build the whole (qt3d + stclient), you could edit this section:
+if /bin/true; then
+  if /bin/true; then
+    git clone git://gitorious.org/qt/qt3d.git $qt3d_srcdir
+    cd $qt3d_srcdir
+    # Following the advice found in:
+    # http://dragly.org/2014/03/30/recent-commit-causes-qt3d-to-fail-compilation/
+    git checkout d3338a9 -b older_version
+    echo "INCLUDEPATH += \$\$PWD/dummy" >> src/imports/threed/threed.pro
+    mkdir src/imports/threed/dummy
+  else
+    qt3d_srcdir=/home/erik.sjolund/qt3d
+  fi
+  qt3d_srcdir_windows=`cygpath -w $qt3d_srcdir`
+  qt3d_builddir_windows=`cygpath -w $qt3d_builddir`
+  cmd /Q /C call "$filepath1" x86_amd64 "&&" \
   "$filepath2" "&&" \
-   cd "$qt3d_builddir_windows" "&&" \
-   qmake QMAKE_CXXFLAGS+=/MP "$qt3d_srcdir_windows\\qt3d.pro"  "&&" \
-   nmake "&&" \
-   nmake install 
+  cd "$qt3d_builddir_windows" "&&" \
+  qmake QMAKE_CXXFLAGS+=/MP "$qt3d_srcdir_windows\\qt3d.pro"  "&&" \
+  nmake release "&&" \
+  nmake install 
+else
+  qt3d_builddir=/tmp/tmp.haIlCvIBVQ/qt3d/build
+  qt3d_builddir_windows=`cygpath -w $qt3d_builddir`
 fi
+
+cp $qt3d_builddir/lib/*.dll $qt3d_builddir/bin/
 
 cd "$stclient_builddir" 
 stclient_builddir_windows=`cygpath -w $stclient_builddir`
 stclient_srcdir_windows=`cygpath -w $stclient_srcdir`
 
+# The cmake that is found in cygwin does not contain the "NMake Makefiles" generator
+# so we need to use the windows version of cmake
 
 cmake_path="/cygdrive/c/Program Files (x86)/CMake 2.8/bin/cmake.exe"
 cmake_path_windows=`cygpath -w "$cmake_path"`
@@ -62,9 +70,11 @@ cmake_path_windows=`cygpath -w "$cmake_path"`
 cmd /Q /C call "$filepath1" x86_amd64 "&&" \
   "$filepath2" "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   "$cmake_path_windows" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_PREFIX_PATH=$qt3d_builddir_windows" "$stclient_srcdir_windows" "&&" \
+   "$cmake_path_windows" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DSERVER:STRING=production "-DCMAKE_PREFIX_PATH=$qt3d_builddir_windows" "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
-   nmake install 
+   nmake package
 
-echo "qt3d_srcdir=$qt3d_srcdir"
-echo "qt3d_builddir=$qt3d_builddir"
+echo "path to exe file: ${stclient_builddir}/Release/stVi.exe"
+
+echo "path to package file:"
+ls ${stclient_builddir}/stVi-*-win64.exe
