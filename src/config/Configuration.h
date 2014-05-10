@@ -52,10 +52,9 @@ public:
     // data access
     const QString dataEndpointChips() const;
     const QString dataEndpointDatasets() const;
+    const QString dataEndpointImageAlingment() const;
     const QString dataEndpointFeatures() const;
     const QString dataEndpointGenes() const;
-    const QString dataEndpointHitCounts() const;
-    const QString dataEndpointReducedFeatures() const;
     const QString dataEndpointUsers() const;
     const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;

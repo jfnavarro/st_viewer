@@ -19,13 +19,13 @@
 // The AABB provides simple functionality for testing collisions and
 // intersections. In addition convenience functions for splitting the
 // AABB is provided to simplify implementations of for instance quad trees.
-struct QuadTreeAABB {
-
+class QuadTreeAABB
+{
     QuadTreeAABB();
     virtual ~QuadTreeAABB();
     QuadTreeAABB(const qreal x, const qreal y, const qreal width, const qreal height);
     QuadTreeAABB(const QPointF &p, const QSizeF &size);
-    QuadTreeAABB(const QRectF &rect);
+    explicit QuadTreeAABB(const QRectF &rect);
 
     // create an QuadTreeAABB between two given points
     static const QuadTreeAABB fromPoints(const QPointF &p0, const QPointF &p1);

@@ -20,8 +20,9 @@
             <dataset>${ENDPOINT}/${APIPATH}/rest/dataset</dataset>
             <feature>${ENDPOINT}/${APIPATH}/rest/feature</feature>
             <gene>${ENDPOINT}/${APIPATH}/rest/gene</gene>
-            <hitcount>${ENDPOINT}/${APIPATH}/rest/datasetstatistics</hitcount>
+            <selection>${ENDPOINT}/${APIPATH}/rest/selection</selection>
             <user>${ENDPOINT}/${APIPATH}/rest/account/current/user</user>
+            <imagealignment>${ENDPOINT}/${APIPATH}/rest/imagealignment</imagealignment>
             <figure>${ENDPOINT}/${APIPATH}/rest/image</figure>
             <version>${ENDPOINT}/${APIPATH}/rest/versionsupportinfo</version>
         </endpoints>

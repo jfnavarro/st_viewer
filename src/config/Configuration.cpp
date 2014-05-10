@@ -103,6 +103,11 @@ const QString Configuration::dataEndpointDatasets() const
    return readSetting(QStringLiteral("data/endpoints/dataset"));
 }
 
+const QString Configuration::dataEndpointImageAlingment() const
+{
+   return readSetting(QStringLiteral("data/endpoints/imagealignment"));
+}
+
 const QString Configuration::dataEndpointFeatures() const
 {
    return readSetting(QStringLiteral("data/endpoints/feature"));
@@ -113,16 +118,6 @@ const QString Configuration::dataEndpointGenes() const
    return readSetting(QStringLiteral("data/endpoints/gene"));
 }
 
-const QString Configuration::dataEndpointHitCounts() const
-{
-   return readSetting(QStringLiteral("data/endpoints/hitcount"));
-}
-
-const QString Configuration::dataEndpointReducedFeatures() const
-{
-   return readSetting(QStringLiteral("data/endpoints/reducedfeature"));
-}
-
 const QString Configuration::dataEndpointUsers() const
 {
    return readSetting(QStringLiteral("data/endpoints/user"));
@@ -130,7 +125,7 @@ const QString Configuration::dataEndpointUsers() const
 
 const QString Configuration::dataEndpointSelections() const
 {
-   return readSetting(QStringLiteral("data/endpoints/selections"));
+   return readSetting(QStringLiteral("data/endpoints/selection"));
 }
 
 const QString Configuration::dataEndpointFigures() const

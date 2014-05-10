@@ -96,7 +96,6 @@ private:
         StaticPointItemList data; // store all data as part of bucket struct
     };
 
-    // inplace memory allocation, all data stored sequentially in memory
     typedef QVector<Bucket> BucketList;
     BucketList m_data;
 };
@@ -141,15 +140,14 @@ void QuadTree<T, N>::Bucket::select(const QuadTreeAABB &b, PointItemList &items,
 
     // else add data selected
     // add all items if bucket contained (speed up)
+    const typename StaticPointItemList::size_type size = data.size();
     if (b.contains(aabb)) {
-        typename StaticPointItemList::size_type size = data.size();
         for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
             items.push_back(data[i]);
         }
     }
     // else test and add individual items
     else {
-        const typename StaticPointItemList::size_type size = data.size();
         for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
             if (b.contains(data[i].first)) {
                 items.push_back(data[i]);
@@ -303,9 +301,7 @@ void QuadTree<T, N>::select(const QuadTreeAABB &b, PointItemList &items) const
         const int idx = indicies.back();
         indicies.pop_back();
 
-        //int ret[4];
         typename Bucket::QuadArrayType ret;
-
         m_data[idx].select(b, items, ret);
 
         if (ret[0] >= 0) {
@@ -337,7 +333,6 @@ void QuadTree<T, N>::select(const QPointF &p, PointItem &item) const
         const int idx = indicies.back();
         indicies.pop_back();
 
-        //int ret[4];
         typename Bucket::QuadArrayType ret;
         m_data[idx].select(p, item, ret);
 

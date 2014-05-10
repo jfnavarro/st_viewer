@@ -54,11 +54,7 @@ void GeneRendererGL::clearData()
     m_geneData.clear();
 
     //clear selection
-    DataProxy* dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        feature->selected(false);
-    }
+    updateFeaturesSelected(false);
 
     // lookup data
     m_geneInfoById.clear();
@@ -110,7 +106,7 @@ void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
-    if ( m_intensity != intensity) {
+    if (m_intensity != intensity) {
         m_intensity = intensity;
         m_isDirty = true;
         emit updated();
@@ -454,14 +450,19 @@ void GeneRendererGL::updateVisual()
 void GeneRendererGL::clearSelection()
 {
     m_geneData.resetSelection(false);
-    DataProxy* dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        feature->selected(false);
-    }
+    updateFeaturesSelected(false);
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
+}
+
+void GeneRendererGL::updateFeaturesSelected(bool selected)
+{
+    DataProxy* dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        feature->selected(selected);
+    }
 }
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)

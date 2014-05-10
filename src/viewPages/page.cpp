@@ -39,13 +39,10 @@ void Page::setWaiting(bool waiting)
         m_progressDialog->show();
         m_steps = 0;
         m_timer->start(100);
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     } else {
         m_timer->stop();
         m_progressDialog->hide();
-        QApplication::restoreOverrideCursor();
     }
-    QApplication::processEvents();
 }
 
 void Page::increaseBar()
@@ -54,5 +51,6 @@ void Page::increaseBar()
     if (++m_steps > m_progressDialog->maximum()) {
         m_timer->start(100);
         m_steps = 0;
+        m_progressDialog->setValue(0);
     }
 }

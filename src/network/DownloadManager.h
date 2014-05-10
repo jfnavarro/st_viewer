@@ -19,8 +19,9 @@ class NetworkReply;
 
 namespace async
 {
-// Asynchronous data request handle used to synchronize request events
-// (such as finished, error etc.).
+
+//NOTE for now DataRequest is synchronous,
+//it could be easily be made async (see commented code)
 
 class DataRequest
 {
