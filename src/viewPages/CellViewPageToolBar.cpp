@@ -193,8 +193,12 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_cellTissue->addActions(m_actionGroup_toggleMinimapPosition->actions());
     m_menu_cellTissue->addSeparator();
 
+    /*
+       We don't show the rotate actions in the GUI before we have fixed the rotation functionality
+
     m_menu_cellTissue->addAction(m_actionRotation_rotateLeft);
     m_menu_cellTissue->addAction(m_actionRotation_rotateRight);
+    */
     m_menu_cellTissue->addSeparator();
 
     m_actionGroup_cellTissue = new QActionGroup(m_menu_cellTissue);
