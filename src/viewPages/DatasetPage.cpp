@@ -8,7 +8,6 @@
 #include "DatasetPage.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 #include <QModelIndex>
 
 #include "data/DataProxy.h"
@@ -53,8 +52,6 @@ void DatasetPage::onInit()
 
 void DatasetPage::onEnter()
 {
-    DEBUG_FUNC_NAME
-
     loadDatasets();
     //clear selection/focus
     ui->datasets_tableview->clearSelection();
@@ -65,7 +62,6 @@ void DatasetPage::onEnter()
 
 void DatasetPage::onExit()
 {
-    DEBUG_FUNC_NAME
 }
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)

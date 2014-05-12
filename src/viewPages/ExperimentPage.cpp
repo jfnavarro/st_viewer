@@ -6,7 +6,6 @@
 */
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 #include "model/ExperimentsItemModel.h"
 

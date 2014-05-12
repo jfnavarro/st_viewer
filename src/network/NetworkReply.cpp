@@ -10,7 +10,6 @@
 #include <QApplication>
 #include <QStringList>
 #include <QDebug>
-#include "utils/DebugHelper.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>

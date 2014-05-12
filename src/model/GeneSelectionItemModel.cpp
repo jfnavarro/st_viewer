@@ -7,7 +7,6 @@
 #include "GeneSelectionItemModel.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 #include "dataModel/GeneSelection.h"
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)

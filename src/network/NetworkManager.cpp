@@ -23,7 +23,6 @@
 #include <QDesktopServices>
 #include <QHostInfo>
 
-#include "utils/DebugHelper.h"
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
 #include "auth/AuthorizationManager.h"
@@ -34,12 +33,10 @@ NetworkManager::NetworkManager(QObject* parent):
     QObject(parent),
     m_nam(0)
 {
-
 }
 
 NetworkManager::~NetworkManager()
 {
-
 }
 
 void NetworkManager::init()
@@ -99,8 +96,6 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator 
 NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
                                           QVariant data, NetworkFlags flags)
 {
-    DEBUG_FUNC_NAME
-
     // early out
     if (cmd == nullptr) {
         //NOTE something went wrong, return NULL

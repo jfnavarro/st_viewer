@@ -11,7 +11,6 @@
 #include <QStringList>
 #include <QDir>
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 const QChar SettingsFormatXML::GROUP_DELIMITER = QDir::separator();
 

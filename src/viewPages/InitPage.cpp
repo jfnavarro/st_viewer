@@ -9,7 +9,6 @@
 
 #include <QWidget>
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 #include "error/Error.h"
 #include "auth/AuthorizationManager.h"
@@ -33,8 +32,6 @@ InitPage::~InitPage()
 
 void InitPage::onInit()
 {
-    DEBUG_FUNC_NAME
-
     //create the start widget
     ui = new Ui::InitPage;
     ui->setupUi(this);
@@ -55,14 +52,12 @@ void InitPage::onInit()
 
 void InitPage::onEnter()
 {
-    DEBUG_FUNC_NAME
     ui->newExpButt->clearFocus();
     ui->logoutButt->clearFocus();
 }
 
 void InitPage::onExit()
 {
-    DEBUG_FUNC_NAME
 }
 
 void InitPage::slotAuthorizationError(Error *error)

@@ -7,8 +7,6 @@
 
 #include "GeneRendererGL.h"
 
-#include "utils/DebugHelper.h"
-
 #include "data/DataProxy.h"
 #include "dataModel/GeneSelection.h"
 

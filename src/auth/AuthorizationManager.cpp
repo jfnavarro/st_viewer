@@ -10,8 +10,6 @@
 #include <QDebug>
 #include <QUuid>
 
-#include "utils/DebugHelper.h"
-
 #include "auth/OAuth2.h"
 
 AuthorizationManager::AuthorizationManager(QObject* parent)

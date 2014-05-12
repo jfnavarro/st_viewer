@@ -8,8 +8,6 @@
 #include "ExtendedTabWidget.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
-
 #include <QMetaProperty>
 #include <QtGui>
 #include <QVBoxLayout>

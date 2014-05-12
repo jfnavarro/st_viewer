@@ -8,8 +8,6 @@
 #include "LoginDialog.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
-
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QKeyEvent>

@@ -8,7 +8,6 @@
 #include "DataStore.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 #include "simpleCrypt/SimpleCryptDevice.h"
 
@@ -23,12 +22,10 @@ static const QString RESTORE_FILE = QStringLiteral("stvi_filemap");
 DataStore::DataStore(QObject* parent)
     : ResourceStore(parent)
 {
-
 }
 
 DataStore::~DataStore()
 {
-
 }
 
 void DataStore::init()
@@ -64,7 +61,6 @@ QIODevice* DataStore::accessResource(const QString& name, Options options)
 
 void DataStore::clearResources()
 {
-    DEBUG_FUNC_NAME
     const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
     foreach(const QString & resourceid, restore.allKeys()) {

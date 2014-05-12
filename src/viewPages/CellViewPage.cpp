@@ -9,7 +9,6 @@
 #include "CellViewPage.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 #include <QMetaObject>
 #include <QMetaMethod>
@@ -118,8 +117,6 @@ void CellViewPage::onInit()
 
 void CellViewPage::onEnter()
 {
-    DEBUG_FUNC_NAME
-
     loadData();
 
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -177,8 +174,6 @@ void CellViewPage::onEnter()
 
 void CellViewPage::onExit()
 {
-    DEBUG_FUNC_NAME
-
     ui->lineEdit->clearFocus();
     ui->genes_tableview->clearFocus();
     ui->selectAllGenes->clearFocus();

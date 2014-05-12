@@ -12,8 +12,6 @@
 #include <QString>
 #include <QUuid>
 
-#include "utils/DebugHelper.h"
-
 #include "dialogs/LoginDialog.h"
 
 #include "network/RESTCommandFactory.h"
@@ -41,7 +39,6 @@ OAuth2::~OAuth2()
 
 void OAuth2::startQuietLogin(const QUuid& refreshToken)
 {
-    DEBUG_FUNC_NAME
     // request token based on valid refresh token
     const StringPair requestType(Globals::LBL_GRANT_TYPE, Globals::SettingsRefreshToken);
     const StringPair requestData(Globals::SettingsRefreshToken,
@@ -51,7 +48,6 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
 
 void OAuth2::startInteractiveLogin()
 {
-    DEBUG_FUNC_NAME
     // lazy init
     if (m_loginDialog.isNull()) {
         m_loginDialog = new LoginDialog();

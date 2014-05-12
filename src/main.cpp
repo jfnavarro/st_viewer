@@ -6,8 +6,6 @@
 */
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
-
 #include <QtSingleApplication>
 #include <QMessageBox>
 #include <QDir>

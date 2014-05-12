@@ -8,7 +8,6 @@
 #include "DataProxy.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QObject>

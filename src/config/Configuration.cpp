@@ -8,7 +8,6 @@
 #include "Configuration.h"
 
 #include <QDebug>
-#include "utils/DebugHelper.h"
 
 #include "utils/Utils.h"
 #include "SettingsFormatXML.h"

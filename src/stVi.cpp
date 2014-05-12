@@ -31,7 +31,6 @@
 #include <QMenuBar>
 #include <QStatusBar>
 
-#include "utils/DebugHelper.h"
 #include "utils/Utils.h"
 #include "config/Configuration.h"
 #include "auth/AuthorizationManager.h"
@@ -86,8 +85,7 @@ stVi::~stVi()
 
 void stVi::init()
 {
-    DEBUG_FUNC_NAME
-    
+        
     // init style, size and icons
     initStyle();
     
@@ -343,8 +341,6 @@ void stVi::createShorcuts()
 
 void stVi::initSingleInstances()
 {
-    DEBUG_FUNC_NAME
-
     // init configurations
     Configuration *configuration = Configuration::getInstance();
     configuration->init();
@@ -373,8 +369,6 @@ void stVi::initSingleInstances()
 
 void stVi::finalizeSingleInstances()
 {
-    DEBUG_FUNC_NAME
-
     // finalize authentication manager
     AuthorizationManager::getInstance()->finalize();
     AuthorizationManager::getInstance(true);
