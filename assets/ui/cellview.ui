@@ -249,6 +249,37 @@
             </layout>
            </item>
            <item>
+            <widget class="QLineEdit" name="geneSelectionFilterLineEdit">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::DefaultContextMenu</enum>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>Search for a gene name among the selected genes</string>
+             </property>
+             <property name="statusTip">
+              <string>Search for a gene name among the selected genes</string>
+             </property>
+             <property name="whatsThis">
+              <string>Search for a gene name among the selected genes</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="GeneSelectionTableView" name="selections_tableview">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">

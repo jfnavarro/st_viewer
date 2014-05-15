@@ -16,18 +16,32 @@
 GeneViewDelegate::GeneViewDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
-    QItemEditorFactory* factory = new QItemEditorFactory();
-    Q_ASSERT(factory != 0);
-    QItemEditorCreatorBase* colorListCreator =
-            new QStandardItemEditorCreator<ColorListEditor>();
-    factory->registerEditor(QVariant::Color, colorListCreator);
-    setItemEditorFactory(factory);
+}
+
+void GeneViewDelegate::editorFinished(int)
+{
+    QWidget *editor = qobject_cast<QWidget *>(sender());
+    emit commitData(editor);
+    emit closeEditor(editor);
+}
+
+QWidget* GeneViewDelegate::createEditor(QWidget *parent,
+					const QStyleOptionViewItem & /*option*/,
+					const QModelIndex &index) const
+{
+    QVariant v = index.model()->data(index, Qt::DisplayRole);
+    Q_ASSERT(v.type() == QVariant::Color);
+    QColor color = qvariant_cast<QColor>(v);
+    ColorListEditor *editor = new ColorListEditor(parent);
+    connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(editorFinished(int)));
+    editor->setColor(color);
+    return editor;
 }
 
 GeneViewDelegate::~GeneViewDelegate()
 {
-
 }
+
 
 void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                              const QModelIndex& index) const

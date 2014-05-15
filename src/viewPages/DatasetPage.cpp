@@ -9,7 +9,7 @@
 
 #include <QDebug>
 #include <QModelIndex>
-
+#include <QSortFilterProxyModel>
 #include "data/DataProxy.h"
 #include "data/DataStore.h"
 
@@ -34,6 +34,22 @@ DatasetPage::~DatasetPage()
     delete ui;
 }
 
+QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
+{
+    QSortFilterProxyModel* datasetsProxyModel =
+        qobject_cast<QSortFilterProxyModel*>(ui->datasets_tableview->model());
+    Q_ASSERT(datasetsProxyModel);
+    return datasetsProxyModel;
+}
+
+DatasetItemModel *DatasetPage::datasetsModel()
+{
+    DatasetItemModel *model =
+        qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
+    Q_ASSERT(model);
+    return model;
+}
+
 void DatasetPage::onInit()
 {
     // create UI
@@ -41,9 +57,9 @@ void DatasetPage::onInit()
     ui->setupUi(this);
     
     //connect signals
-    const DatasetItemModel *model =
-            qobject_cast<DatasetItemModel*>(ui->datasets_tableview->model());
-    connect(model, SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
+    connect(ui->datasetsFilterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
+            SLOT(setFilterFixedString(QString)));
+    connect(datasetsModel(), SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
             this, SLOT(datasetSelected(DataProxy::DatasetPtr)), Qt::UniqueConnection);
     connect(ui->backtodatasets, SIGNAL(clicked(bool)), this,
             SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
@@ -88,9 +104,7 @@ void DatasetPage::loadDatasets()
         emit signalError(error);
     } else {
         // refresh datasets on the model
-        DatasetItemModel *model =
-                qobject_cast<DatasetItemModel*>(ui->datasets_tableview->model());
-        model->loadDatasets();
+        datasetsModel()->loadDatasets();
     }
 }
 

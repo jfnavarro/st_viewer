@@ -20,13 +20,12 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     // the model
     m_datasetModel = new DatasetItemModel(this);
 
-    //TODO fix the sorting, it seg faults now..
-    //QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
-    //sortProxyModel->setSourceModel(m_datasetModel);
-    //sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    //sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    sortProxyModel->setSourceModel(m_datasetModel);
+    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    setModel(m_datasetModel);
+    setModel(sortProxyModel);
     setSortingEnabled(true);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->setSortIndicatorShown(false);

@@ -22,6 +22,9 @@ class GridRendererGL;
 class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
+class GeneSelectionItemModel;
+class GeneFeatureItemModel;
+class QSortFilterProxyModel;
 
 namespace Ui{
 class CellView;
@@ -95,7 +98,10 @@ protected:
     void resetActionStates();
 
 private:
-
+    GeneFeatureItemModel *geneModel();
+    QSortFilterProxyModel *geneProxyModel();
+    GeneSelectionItemModel *selectionModel();
+    QSortFilterProxyModel *selectionProxyModel();
     MiniMapGL *m_minimap;
     HeatMapLegendGL *m_legend;
     GeneRendererGL *m_gene_plotter;

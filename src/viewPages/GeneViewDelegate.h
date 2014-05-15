@@ -15,7 +15,7 @@
 
 class GeneViewDelegate : public QStyledItemDelegate
 {
-
+      Q_OBJECT
 public:
 
     explicit GeneViewDelegate(QObject* parent = 0);
@@ -23,8 +23,13 @@ public:
 
     virtual void paint(QPainter* painter, const QStyleOptionViewItem& option,
                        const QModelIndex& index) const;
+    virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                                  const QModelIndex &index) const;
 
     Q_DISABLE_COPY(GeneViewDelegate)
+
+private slots:
+    void editorFinished(int);
 };
 
 #endif // GENEVIEWDELEGATE_H //

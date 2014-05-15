@@ -180,6 +180,37 @@
     </layout>
    </item>
    <item>
+    <widget class="QLineEdit" name="datasetsFilterLineEdit">
+     <property name="minimumSize">
+      <size>
+       <width>50</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Search for a dataset</string>
+     </property>
+     <property name="statusTip">
+      <string>Search for a dataset</string>
+     </property>
+     <property name="whatsThis">
+      <string>Search for a dataset</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="DatasetsTableView" name="datasets_tableview">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">

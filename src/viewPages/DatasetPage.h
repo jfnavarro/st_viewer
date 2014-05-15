@@ -25,6 +25,8 @@ class DataSets;
 // the methods onEnter and onExit are called dynamically from the page manager.
 
 class Error;
+class DatasetItemModel;
+class QSortFilterProxyModel;
 
 class DatasetPage : public Page
 {
@@ -52,7 +54,8 @@ protected:
     void setWaiting(bool waiting = true);
 
 private:
-
+    QSortFilterProxyModel *datasetsProxyModel();
+    DatasetItemModel *datasetsModel();
     Ui::DataSets *ui;
 
     Q_DISABLE_COPY(DatasetPage)

@@ -18,12 +18,16 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     geneSelectionModel = new GeneSelectionItemModel(this);
 
     //TODO fix the sorting, it seg faults now..
-    //QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
-    //sortProxyModel->setSourceModel(geneSelectionModel);
-    //sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    //sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    sortProxyModel->setSourceModel(geneSelectionModel);
+    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    setModel(geneSelectionModel);
+    setModel(sortProxyModel);
+    setSortingEnabled(true);
+    sortByColumn(0, Qt::AscendingOrder);
+    horizontalHeader()->setSortIndicatorShown(true);
+
     setSortingEnabled(true);
     horizontalHeader()->setSortIndicatorShown(true);
     sortByColumn(0, Qt::AscendingOrder);
