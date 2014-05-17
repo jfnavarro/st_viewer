@@ -5,22 +5,20 @@
 
 */
 
-#include <QDebug>
-#include "utils/DebugHelper.h"
+#include "UserExperimentDTO.h"
 
-#include "DatasetDTO.h"
-
-DatasetDTO::DatasetDTO(QObject* parent) : QObject(parent), m_dataset()
+UserExperimentDTO::UserExperimentDTO(QObject* parent) : QObject(parent), m_userExperiment()
 {
 
 }
 
-DatasetDTO::DatasetDTO(const Dataset& dataset, QObject* parent) : QObject(parent), m_dataset(dataset)
+UserExperimentDTO::UserExperimentDTO(const UserExperiment& userExperiment, QObject* parent) :
+    QObject(parent), m_userExperiment(userExperiment)
 {
 
 }
 
-DatasetDTO::~DatasetDTO()
+UserExperimentDTO::~UserExperimentDTO()
 {
 
 }

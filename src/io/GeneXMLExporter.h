@@ -26,11 +26,8 @@ public:
 
 private:
 
-    void exportItem(QXmlStreamWriter &oxml,
-                    const GeneSelection &selection) const;
-
-    void exportItem(QXmlStreamWriter &oxml,
-                    const DataProxy::UniqueGeneSelectedList& selectionList) const;
+    void exportItem(QXmlStreamWriter &oxml, const GeneSelection& selection) const;
+    void exportItem(QXmlStreamWriter &oxml, const GeneSelectionList& selectionList) const;
 };
 
 #endif // GENEXMLEXPORTER_H //

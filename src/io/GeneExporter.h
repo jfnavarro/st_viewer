@@ -9,8 +9,9 @@
 #define GENEEXPORTER_H
 
 #include <QObject>
+#include <QStringList>
 
-#include "data/DataProxy.h"
+#include "dataModel/GeneSelection.h"
 
 class QIODevice;
 
@@ -18,25 +19,23 @@ class QIODevice;
 class GeneExporter : public QObject
 {
 public:
-    typedef QList<QString> PropertyList;
 
     explicit GeneExporter(QObject *parent = 0);
     virtual ~GeneExporter();
 
-    virtual void exportItem(QIODevice *device,
-                            const DataProxy::UniqueGeneSelectedList& selectionList) const = 0;
+    virtual void exportItem(QIODevice *device, const GeneSelection& selectionList) const = 0;
 
-    void addExportProperty(const QString &property);
-    void addExportProperty(const PropertyList &properties);
-    static const QString encodePropertyList(const PropertyList &properties);
-    static const PropertyList decodePropertyList(const QString &properties);
+    void addExportProperty(const QString& property);
+    void addExportProperty(const QStringList& properties);
+
+    static const QString encodePropertyList(const QStringList& properties);
+    static const QStringList decodePropertyList(const QString& properties);
 
 protected:
-    static const QString PROPERTY_LIST_DELIMITER;
 
-    const QList<QString> &exportPropertyList() const;
+    const QStringList& exportPropertyList() const;
 
-    PropertyList m_propertyList;
+    QStringList m_propertyList;
 };
 
 #endif // GENEEXPORTER_H //

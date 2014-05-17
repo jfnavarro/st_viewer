@@ -21,8 +21,11 @@
 // AABB is provided to simplify implementations of for instance quad trees.
 class QuadTreeAABB
 {
+
+public:
+
     QuadTreeAABB();
-    virtual ~QuadTreeAABB();
+    ~QuadTreeAABB();
     QuadTreeAABB(const qreal x, const qreal y, const qreal width, const qreal height);
     QuadTreeAABB(const QPointF &p, const QSizeF &size);
     explicit QuadTreeAABB(const QRectF &rect);

@@ -18,11 +18,10 @@
 // data objects
 #include "dataModel/Chip.h"
 #include "dataModel/Dataset.h"
-#include "dataModel/FeatureExtended.h"
+#include "dataModel/Feature.h"
 #include "dataModel/Gene.h"
-#include "dataModel/DatasetStatistics.h"
+#include "dataModel/ImageAlignment.h"
 #include "dataModel/User.h"
-#include "dataModel/UserExperiment.h"
 #include "dataModel/GeneSelection.h"
 
 // network
@@ -50,23 +49,23 @@ public:
         DatasetDataType,
         FeatureDataType,
         GeneDataType,
-        HitCountDataType,
-        UserExperimentDataType,
+        ImageAlignmentDataType,
+        GeneSelectionDataType,
         UserType
     };
 
     // MAIN CONTAINERS (MVC)
     typedef QSharedPointer<Chip> ChipPtr;
     typedef QSharedPointer<Dataset> DatasetPtr;
-    typedef QSharedPointer<FeatureExtended> FeaturePtr;
+    typedef QSharedPointer<Feature> FeaturePtr;
     typedef QSharedPointer<Gene> GenePtr;
-    typedef QSharedPointer<DatasetStatistics> DatasetStatisticsPtr;
-    typedef QSharedPointer<UserExperiment> UserExperimentPtr;
+    typedef QSharedPointer<ImageAlignment> ImageAlignmentPtr;
+    typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
-    //map of unique genes
+    //map of unique genes (gene name to gene pointer)
     typedef QMap<QString, GenePtr> GeneMap;
     //gene map hashed by dataset id
     typedef QMap<QString, GeneMap> GeneMapMap;
@@ -88,14 +87,12 @@ public:
     typedef QVector<DatasetPtr> DatasetList;
     //datasets hashed by dataset id
     typedef QMap<QString, DatasetPtr> DatasetMap;
-    //hitcount hashed by dataset id
-    typedef QMap<QString, DatasetStatisticsPtr> DatasetStatisticsMap;
+    //image alignment hashed by dataset id
+    typedef QMap<QString, ImageAlignmentPtr> ImageAlignmentMap;
     //gene selection objects
-    typedef QVector<UserExperimentPtr> UserExperimentList;
+    typedef QVector<GeneSelectionPtr> GeneSelectionList;
     //cell figure hashed by figure name (figure names are unique)
     typedef QMap<QString, QString> CellFigureMap;
-    // selection set
-    typedef QVector<GeneSelection> UniqueGeneSelectedList;
 
     DataProxy();
     virtual ~DataProxy();
@@ -118,14 +115,14 @@ public:
     async::DataRequest loadFeatureByDatasetId(const QString& datasetId);
     // genes
     async::DataRequest loadGenesByDatasetId(const QString& datasetId);
-    // dataset statistics
-    async::DataRequest loadDatasetStatisticsByDatasetId(const QString& datasetId);
+    // image alignment
+    async::DataRequest loadImageAlignmentByDatasetId(const QString& datasetId);
     // cell tissue figure
     async::DataRequest loadCellTissueByName(const QString& name);
     // current logged user
     async::DataRequest loadUser();
     // selection objects
-    async::DataRequest loadSelectionObjects();
+    async::DataRequest loadGeneSelections();
 
     //data getters
     const DatasetList& getDatasetList() const;
@@ -136,27 +133,27 @@ public:
                                       const QString& geneName);
     FeaturePtr getFeature(const QString& datasetId, const QString &featureId);
     DatasetPtr getDatasetById(const QString& datasetId) const;
-    DatasetStatisticsPtr getStatistics(const QString& datasetId);
+    ImageAlignmentPtr getStatistics(const QString& datasetId);
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser() const;
     QIODevice *getFigure(const QString& figureId) const;
-    const UserExperimentList& getSelectedObjects() const;
+    const GeneSelectionList& getGeneSelections() const;
     const QString getSelectedDataset() const;
-
-    //returns a vector of unique gene selection objects
-    static UniqueGeneSelectedList getUniqueGeneSelected(const qreal roof,
-                                                        const FeatureList& features);
 
     //setters
     void setSelectedDataset(const QString &datasetId) const;
 
     //updaters
     async::DataRequest updateDataset(const Dataset& dataset);
+    async::DataRequest updateGeneSelection(const GeneSelection& geneSelection);
+
+    //creation
+    async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
 
 private:
 
     bool hasCellTissue(const QString& name) const;
-    bool hasStatistics(const QString& datasetId) const;
+    bool hasImageAlignment(const QString& datasetId) const;
     bool hasGene(const QString& datasetId) const;
     bool hasFeature(const QString& datasetId) const;
     bool hasFeature(const QString& datasetId, const QString& gene) const;
@@ -191,10 +188,10 @@ private:
     FeatureListGeneMap m_geneFeatureListMap;
     // the current user logged in
     UserPtr m_user;
-     // map dataset id to list of Hits
-    DatasetStatisticsMap m_datasetStatisticsMap;
-    // the current selection objects
-    UserExperimentList m_selectedObjects;
+     // map dataset id to image alignment
+    ImageAlignmentMap m_datasetStatisticsMap;
+    // the current gene selections
+    GeneSelectionList m_selectedObjects;
     // the current selected dataset
     mutable QString m_selected_datasetId;
 

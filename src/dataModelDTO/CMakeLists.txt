@@ -4,22 +4,22 @@ set(LIBRARY_ARG_INCLUDES
     ErrorDTO.h
     FeatureDTO.h
     GeneDTO.h
-    DatasetStatisticsDTO.h
+    GeneSelectionDTO.h
     OAuth2TokenDTO.h
     UserDTO.h
-    UserExperimentDTO.h
+    ImageAlignmentDTO.h
 )
 
 set(LIBRARY_ARG_SOURCES
-    ChipDTO.cpp
-    DatasetDTO.cpp
+    #ChipDTO.cpp
+    #DatasetDTO.cpp
     ErrorDTO.cpp
-    FeatureDTO.cpp
+    #FeatureDTO.cpp
     GeneDTO.cpp
-    DatasetStatisticsDTO.cpp
+    GeneSelectionDTO.cpp
     OAuth2TokenDTO.cpp
     UserDTO.cpp
-    UserExperimentDTO.cpp
+    ImageAlignmentDTO.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
