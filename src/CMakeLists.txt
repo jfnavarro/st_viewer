@@ -220,7 +220,7 @@ if(UNIX AND NOT APPLE)
     endforeach()
 
     #qt needs ICU libaries in Linux
-    set(ICU_VERSION "51.1")
+    set(ICU_VERSION "52.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})

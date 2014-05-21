@@ -63,26 +63,39 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
 QVariant DatasetItemModel::headerData(int section,
                                       Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant(QVariant::Invalid);
-    }
-
-    if (orientation == Qt::Horizontal) {
+    if (role == Qt::ToolTipRole) {
         switch (section) {
-        case Name : return tr("Name");
-        case Created : return tr("Created");
-        case Tissue : return tr("Tissue");
-        case Specie : return tr("Species");
+        case Name : return tr("Dataset name");
+        case Created : return tr("Time of creation");
+        case Tissue : return tr("Tissue name");
+        case Specie : return tr("Species name");
         case Aligned : return tr("Aligned");
-        case Barcodes : return tr("Reads");
-        case Genes : return tr("Events");
-        case UBarcodes : return tr("Detected Barcodes");
-        case UGenes : return tr("Detected Genes");
+        case Barcodes : return tr("Number of reads");
+        case Genes : return tr("Number of gene detection events");
+        case UBarcodes : return tr("Number of uniquely detected barcodes");
+        case UGenes : return tr("Number of uniquely detected genes");
         case Comments: return tr("Comments");
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
-    } else if (orientation == Qt::Vertical) {
-        return (section + 1);
+    }
+    if (role == Qt::DisplayRole) {
+        if (orientation == Qt::Horizontal) {
+            switch (section) {
+            case Name : return tr("Name");
+            case Created : return tr("Created");
+            case Tissue : return tr("Tissue");
+            case Specie : return tr("Species");
+            case Aligned : return tr("Aligned");
+            case Barcodes : return tr("Reads");
+            case Genes : return tr("Events");
+            case UBarcodes : return tr("Detected Barcodes");
+            case UGenes : return tr("Detected Genes");
+            case Comments: return tr("Comments");
+            default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
+            }
+        } else if (orientation == Qt::Vertical) {
+            return (section + 1);
+        }
     }
     return QVariant(QVariant::Invalid);
 }

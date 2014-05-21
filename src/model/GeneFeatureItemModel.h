@@ -9,6 +9,7 @@
 #define GENEFEATUREITEMMODEL_H
 
 #include "data/DataProxy.h"
+#include "model/GeneNamesModel.h"
 
 #include <QAbstractTableModel>
 
@@ -18,7 +19,7 @@ class QMimeData;
 
 // Wrapper model class for the gene data (specific to a dataset) found in the
 // data proxy. Primarily used to enumerate the genes in the cell view.
-class GeneFeatureItemModel : public QAbstractTableModel
+class GeneFeatureItemModel : public GeneNamesModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
@@ -37,8 +38,8 @@ public:
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-
     void loadGenes();
+    virtual bool geneName(const QModelIndex &index, QString *genename) const;
 
 signals:
 

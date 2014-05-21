@@ -16,7 +16,7 @@ const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST =
         QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
-    : QAbstractTableModel(parent)
+    : GeneNamesModel(parent)
 {
 
 }
@@ -175,6 +175,20 @@ void GeneFeatureItemModel::loadGenes()
     DataProxy* dataProxy = DataProxy::getInstance();
     m_genelist_reference = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     endResetModel();
+}
+
+bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
+{
+    if (!index.isValid() || m_genelist_reference.isEmpty()) {
+        return false;
+    }
+    DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+    Q_ASSERT(!item.isNull());
+    if (index.column() == Name) {
+         *genename = item->name();
+         return true;
+    }
+    return false;
 }
 
 void GeneFeatureItemModel::selectAllGenesPressed(bool selected)

@@ -9,6 +9,7 @@
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 
+#include "model/SortGenesProxyModel.h"
 #include "model/GeneFeatureItemModel.h"
 
 #include "viewPages/BooleanItemDelegate.h"
@@ -22,7 +23,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     GeneViewDelegate* geneViewDelegate = new GeneViewDelegate(this);
     geneModel = new GeneFeatureItemModel(this);
     
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    SortGenesProxyModel* sortProxyModel = new SortGenesProxyModel(this);
     sortProxyModel->setSourceModel(geneModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
