@@ -292,53 +292,53 @@ void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
     DataProxy* dataProxy = DataProxy::getInstance();
 
     for (auto &gene : geneList) {
-    const auto& features =
-            dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+        const auto& features =
+                dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
-    const bool selected = gene->selected();
+        const bool selected = gene->selected();
 
-    GeneInfoByIdMap::const_iterator it;
-    GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
-    foreach(DataProxy::FeaturePtr feature, features) {
-        it = m_geneInfoById.find(feature);
-        Q_ASSERT(it != end);
+        GeneInfoByIdMap::const_iterator it;
+        GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+        foreach(DataProxy::FeaturePtr feature, features) {
+            it = m_geneInfoById.find(feature);
+            Q_ASSERT(it != end);
 
-        const int index = it.value();
-        const int currentHits = feature->hits();
+            const int index = it.value();
+            const int currentHits = feature->hits();
 
-        // update values
-        const int oldValue = m_geneData.quadValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : -currentHits));
-        m_geneData.updateQuadValue(index, newValue);
+            // update values
+            const int oldValue = m_geneData.quadValue(index);
+            const int newValue = (oldValue + (selected ? currentHits : -currentHits));
+            m_geneData.updateQuadValue(index, newValue);
 
-        // update ref count
-        const int oldRefCount = m_geneData.quadRefCount(index);
-        int newRefCount = (oldRefCount + (selected ? 1 : -1));
-        const bool offlimits =  (m_visualMode == Globals::NormalMode
-                           && ( currentHits < m_thresholdLower || currentHits > m_thresholdUpper ) );
-        if ( selected && offlimits ) {
-            newRefCount = oldRefCount;
+            // update ref count
+            const int oldRefCount = m_geneData.quadRefCount(index);
+            int newRefCount = (oldRefCount + (selected ? 1 : -1));
+            const bool offlimits =  (m_visualMode == Globals::NormalMode
+                         && ( currentHits < m_thresholdLower || currentHits > m_thresholdUpper ) );
+            if ( selected && offlimits ) {
+                newRefCount = oldRefCount;
+            }
+            m_geneData.updateQuadRefCount(index, newRefCount);
+
+            if ( newRefCount > 0 ) {
+                QColor4ub featureColor = QColor4ub(feature->color());
+                QColor4ub color = m_geneData.quadColor(index);
+                // inverse or normal color interpolation if selected
+                color = (selected && !offlimits) ?
+                            STMath::lerp((1.0f / qreal(newRefCount)), color, featureColor) :
+                            STMath::invlerp((1.0f / qreal(oldRefCount)), color, featureColor);
+                m_geneData.updateQuadColor(index, color);
+            }
+
+            // update visible
+            if ( selected && newRefCount == 1 ) {
+                m_geneData.updateQuadVisible(index, true);
+            }
+            else if ( !selected && newRefCount == 0 ) {
+                m_geneData.updateQuadVisible(index, false);
+            }
         }
-        m_geneData.updateQuadRefCount(index, newRefCount);
-
-        if ( newRefCount > 0 ) {
-            QColor4ub featureColor = QColor4ub(feature->color());
-            QColor4ub color = m_geneData.quadColor(index);
-            // inverse or normal color interpolation if selected
-            color = (selected && !offlimits) ?
-                        STMath::lerp((1.0f / qreal(newRefCount)), color, featureColor) :
-                        STMath::invlerp((1.0f / qreal(oldRefCount)), color, featureColor);
-            m_geneData.updateQuadColor(index, color);
-        }
-
-        // update visible
-        if ( selected && newRefCount == 1 ) {
-            m_geneData.updateQuadVisible(index, true);
-        }
-        else if ( !selected && newRefCount == 0 ) {
-            m_geneData.updateQuadVisible(index, false);
-        }
-    }
     }
     m_isDirty = true;
     emit updated();
