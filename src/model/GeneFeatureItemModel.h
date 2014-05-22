@@ -16,6 +16,7 @@
 class QModelIndex;
 class QStringList;
 class QMimeData;
+class QItemSelection;
 
 // Wrapper model class for the gene data (specific to a dataset) found in the
 // data proxy. Primarily used to enumerate the genes in the cell view.
@@ -40,15 +41,15 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     void loadGenes();
     virtual bool geneName(const QModelIndex &index, QString *genename) const;
+    void setGeneVisibility(const QItemSelection &selection, bool visible);
 
 signals:
 
-    void signalSelectionChanged(DataProxy::GenePtr gene);
+    void signalSelectionChanged(DataProxy::GeneList geneList);
     void signalColorChanged(DataProxy::GenePtr gene);
 
 public slots:
 
-    void selectAllGenesPressed(bool selected);
     void setColorGenes(const QColor& color);
 
 private:

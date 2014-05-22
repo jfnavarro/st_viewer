@@ -56,7 +56,7 @@ public slots:
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
 
     void updateColor(DataProxy::GenePtr);
-    void updateSelection(DataProxy::GenePtr);
+    void updateSelection(DataProxy::GeneList geneList);
 
     void updateAllColor(const QColor color);
     void updateAllSelection(bool selected);

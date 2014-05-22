@@ -287,9 +287,11 @@ void GeneRendererGL::updateAllColor(const QColor geneQColor)
     emit updated();
 }
 
-void GeneRendererGL::updateSelection(DataProxy::GenePtr gene)
+void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
 {
     DataProxy* dataProxy = DataProxy::getInstance();
+
+    for (auto &gene : geneList) {
     const auto& features =
             dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
@@ -337,13 +339,14 @@ void GeneRendererGL::updateSelection(DataProxy::GenePtr gene)
             m_geneData.updateQuadVisible(index, false);
         }
     }
-
+    }
     m_isDirty = true;
     emit updated();
 }
 
 void GeneRendererGL::updateAllSelection(bool selected)
 {
+  qDebug() << "void GeneRendererGL::updateAllSelection(bool selected)";
     DataProxy* dataProxy = DataProxy::getInstance();
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 

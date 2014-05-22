@@ -82,6 +82,12 @@ protected slots:
     // genes were selected
     void slotSelectionUpdated();
 
+    // show all genes that are filtered out by the regexp filter
+    void slotShowAllGenes(bool);
+
+    // hide all genes that are filtered out by the regexp filter
+    void slotHideAllGenes(bool);
+
 protected:
     
     // create GL graphical elements and their connections
@@ -98,6 +104,9 @@ protected:
     void resetActionStates();
 
 private:
+
+    void setVisibilityForAllGenes(bool visible);
+
     GeneFeatureItemModel *geneModel();
     QSortFilterProxyModel *geneProxyModel();
     GeneSelectionItemModel *selectionModel();

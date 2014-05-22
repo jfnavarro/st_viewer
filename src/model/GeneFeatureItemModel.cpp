@@ -7,10 +7,12 @@
 
 #include "GeneFeatureItemModel.h"
 
+#include <set>
 #include <QDebug>
 #include <QModelIndex>
 #include <QMimeData>
 #include <QStringList>
+#include <QItemSelection>
 
 const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST =
         QStringLiteral("application/gene.list");
@@ -107,7 +109,9 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             if (item->selected() != value.toBool()) {
                 item->selected(value.toBool());
                 emit dataChanged(index, index);
-                emit signalSelectionChanged(item);
+                DataProxy::GeneList geneList;
+                geneList.push_back(item);
+                emit signalSelectionChanged(geneList);
                 return true;
             }
             break;
@@ -191,17 +195,22 @@ bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename)
     return false;
 }
 
-void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
+void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
 {
-    if (m_genelist_reference.isEmpty()) {
-        return;
-    }
     beginResetModel();
-    foreach(DataProxy::GenePtr gene, m_genelist_reference) {
-        if (!gene.isNull() && gene->selected() != selected) {
-            gene->selected(selected);
+    std::set<int> rows;
+    for (const auto &index : selection.indexes()) {
+        rows.insert(index.row());
+    }
+    DataProxy::GeneList geneList;
+    for (const auto &row : rows) {
+        auto &gene(m_genelist_reference[row]);
+        if (!gene.isNull() && gene->selected() != visible) {
+            gene->selected(visible);
+            geneList.push_back(gene);
         }
     }
+    emit signalSelectionChanged(geneList);
     endResetModel();
 }
 
