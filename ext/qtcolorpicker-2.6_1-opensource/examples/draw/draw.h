@@ -47,7 +47,7 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 
 class QSize;
 class QColor;

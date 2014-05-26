@@ -1,6 +1,6 @@
 TEMPLATE = app
 INCLUDEPATH += .
-
+QT += widgets
 include(../../src/qtcolorpicker.pri)
 
 # Input

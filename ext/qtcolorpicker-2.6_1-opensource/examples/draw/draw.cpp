@@ -47,10 +47,10 @@
 #include "draw.h"
 #include "drawboard.h"
 
-#include <QtGui/QLayout>
+#include <QtWidgets/QLayout>
 #include <qtcolorpicker.h>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
 
 /* \class Draw
 

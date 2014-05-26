@@ -44,24 +44,25 @@
 ** 
 ****************************************************************************/
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QPainter>
-#include <QtGui/QPushButton>
-#include <QtGui/QColorDialog>
+#include <QGuiApplication>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
+#include <QPainter>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QColorDialog>
 #include <QtCore/QMap>
-#include <QtGui/QLayout>
-#include <QtGui/QStyle>
-#include <QtGui/QLabel>
-#include <QtGui/QToolTip>
-#include <QtGui/QPixmap>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QGridLayout>
-#include <QtGui/QHideEvent>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QShowEvent>
-#include <QtGui/QMouseEvent>
+#include <QtWidgets/QLayout>
+#include <QtWidgets/QStyle>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QToolTip>
+#include <QPixmap>
+#include <QFocusEvent>
+#include <QPaintEvent>
+#include <QtWidgets/QGridLayout>
+#include <QHideEvent>
+#include <QKeyEvent>
+#include <QShowEvent>
+#include <QMouseEvent>
 #include <math.h>
 
 #include "qtcolorpicker.h"
@@ -160,93 +161,10 @@ protected:
     void focusOutEvent(QFocusEvent *e);
 };
 
-/*
-    This class represents each "color" or item in the color grid.
-*/
-class ColorPickerItem : public QFrame
-{
-    Q_OBJECT
-
-public:
-    ColorPickerItem(const QColor &color = Qt::white, const QString &text = QString::null,
-		      QWidget *parent = 0);
-    ~ColorPickerItem();
-
-    QColor color() const;
-    QString text() const;
-
-    void setSelected(bool);
-    bool isSelected() const;
-signals:
-    void clicked();
-    void selected();
-
-public slots:
-    void setColor(const QColor &color, const QString &text = QString());
-
-protected:
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void paintEvent(QPaintEvent *e);
-
-private:
-    QColor c;
-    QString t;
-    bool sel;
-};
 
 /*
 
 */
-class ColorPickerPopup : public QFrame
-{
-    Q_OBJECT
-
-public:
-    ColorPickerPopup(int width, bool withColorDialog,
-		       QWidget *parent = 0);
-    ~ColorPickerPopup();
-
-    void insertColor(const QColor &col, const QString &text, int index);
-    void exec();
-
-    void setExecFlag();
-
-    QColor lastSelected() const;
-
-    ColorPickerItem *find(const QColor &col) const;
-    QColor color(int index) const;
-
-signals:
-    void selected(const QColor &);
-    void hid();
-
-public slots:
-    void getColorFromDialog();
-
-protected slots:
-    void updateSelected();
-
-protected:
-    void keyPressEvent(QKeyEvent *e);
-    void showEvent(QShowEvent *e);
-    void hideEvent(QHideEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-
-    void regenerateGrid();
-
-private:
-    QMap<int, QMap<int, QWidget *> > widgetAt;
-    QList<ColorPickerItem *> items;
-    QGridLayout *grid;
-    ColorPickerButton *moreButton;
-    QEventLoop *eventLoop;
-
-    int lastPos;
-    int cols;
-    QColor lastSel;
-};
 
 /*!
     Constructs a QtColorPicker widget. The popup will display a grid
@@ -681,8 +599,6 @@ void ColorPickerPopup::updateSelected()
 */
 void ColorPickerPopup::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (!rect().contains(e->pos()))
-	hide();
 }
 
 /*! \internal

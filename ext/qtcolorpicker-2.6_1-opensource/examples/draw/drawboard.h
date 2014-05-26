@@ -46,12 +46,12 @@
 
 #ifndef DRAWBOARD_H
 #define DRAWBOARD_H
-#include <QtGui/QWidget>
-#include <QtGui/QPixmap>
-#include <QtGui/QColor>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QPaintEvent>
+#include <QtWidgets/QWidget>
+#include <QPixmap>
+#include <QColor>
+#include <QMouseEvent>
+#include <QResizeEvent>
+#include <QPaintEvent>
 
 class DrawBoard : public QWidget
 {

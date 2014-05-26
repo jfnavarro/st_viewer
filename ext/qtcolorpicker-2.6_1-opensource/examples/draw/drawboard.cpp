@@ -53,10 +53,10 @@
 #include <qtcolorpicker.h>
 #include <QtGui/QCursor>
 #include <QtGui/QImage>
-#include <QtGui/QSizePolicy>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QPaintEvent>
+#include <QtWidgets/QSizePolicy>
+#include <QMouseEvent>
+#include <QResizeEvent>
+#include <QPaintEvent>
 
 #include <stdlib.h>
 

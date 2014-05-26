@@ -44,11 +44,11 @@
 ** 
 ****************************************************************************/
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtCore/QEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QPixmap>
-#include <QtGui/QLayout>
+#include <QPainter>
+#include <QPixmap>
+#include <QtWidgets/QLayout>
 #include <math.h>
 #include "draw.h"
 
