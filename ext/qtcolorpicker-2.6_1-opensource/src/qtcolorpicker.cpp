@@ -133,33 +133,6 @@
     To obtain the color's name, use text().
 */
 
-/*
-    A class  that acts very much  like a QPushButton. It's not styled,
-    so we  can  expect  the  exact  same    look,  feel and   geometry
-    everywhere.     Also,  this  button     always emits   clicked  on
-    mouseRelease, even if the mouse button was  not pressed inside the
-    widget.
-*/
-class ColorPickerButton : public QFrame
-{
-    Q_OBJECT
-
-public:
-    ColorPickerButton(QWidget *parent);
-
-signals:
-    void clicked();
-
-protected:
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void keyReleaseEvent(QKeyEvent *e);
-    void paintEvent(QPaintEvent *e);
-    void focusInEvent(QFocusEvent *e);
-    void focusOutEvent(QFocusEvent *e);
-};
 
 
 /*
@@ -1056,5 +1029,5 @@ void ColorPickerButton::paintEvent(QPaintEvent *e)
 
 }
 
-#include "qtcolorpicker.moc"
+//#include "qtcolorpicker.moc"
 

@@ -64,6 +64,9 @@ foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
 
+
+
+
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
 #NOTE this is very useful for Visual Studio
