@@ -13,7 +13,8 @@
 #include <QComboBox>
 #include <QToolButton>
 #include <QMacNativeWidget>
-
+#include <qtcolorpicker.h>
+#include "CreateColorPickerPopup.h"
 #include "SpinBoxSlider.h"
 
 static const int GENE_INTENSITY_MIN = 1;
@@ -72,11 +73,14 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_action_toggleMinimapTopLeft(nullptr), m_action_toggleMinimapDownRight(nullptr),
     m_action_toggleMinimapDownLeft(nullptr), m_geneHitsThreshold(nullptr), 
     m_geneIntensitySlider(nullptr), m_geneSizeSlider(nullptr), m_geneShineSlider(nullptr),
-    m_geneBrightnessSlider(nullptr), m_geneShapeComboBox(nullptr), m_menu_cellTissue(nullptr),
-    m_actionGroup_cellTissue(nullptr), m_actionShow_cellTissueBlue(nullptr),
-    m_actionShow_cellTissueRed(nullptr), m_actionShow_showCellTissue(nullptr), 
-    m_actionShow_showLegend(nullptr), m_actionShow_showMiniMap(nullptr), 
-    m_actionRotation_rotateLeft(nullptr), m_actionRotation_rotateRight(nullptr)
+    m_geneBrightnessSlider(nullptr), m_geneShapeComboBox(nullptr), m_colorPickerPopup(nullptr), 
+    m_menu_cellTissue(nullptr), m_actionGroup_cellTissue(nullptr), 
+    m_actionShow_cellTissueBlue(nullptr), m_actionShow_cellTissueRed(nullptr), 
+    m_actionShow_showCellTissue(nullptr), m_actionShow_showLegend(nullptr), 
+    m_actionShow_showMiniMap(nullptr), m_actionRotation_rotateLeft(nullptr), 
+    m_actionRotation_rotateRight(nullptr), m_actionSelectAllRows(nullptr),
+    m_actionDeselectAllRows(nullptr), m_actionShowAllSelected(nullptr), 
+    m_actionHideAllSelected(nullptr)
 {
     createActions();
 
@@ -95,6 +99,40 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addAction(m_actionSave_save);
     addAction(m_actionSave_print);
     addSeparator();
+
+
+
+    QMenu *selectionMenu = new QMenu(this);
+    selectionMenu->setTitle(tr("Selection menu"));
+    selectionMenu->addAction(m_actionSelectAllRows);
+    selectionMenu->addAction(m_actionDeselectAllRows);
+
+    QToolButton* toolButtonSelectionMenu = new QToolButton(this);
+    toolButtonSelectionMenu->setMenu(selectionMenu);
+    toolButtonSelectionMenu->setPopupMode(QToolButton::InstantPopup);
+    toolButtonSelectionMenu->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));
+    toolButtonSelectionMenu->setToolTip(tr("Selection of rows"));
+    toolButtonSelectionMenu->setText(tr("Selection of rows"));
+    addWidget(toolButtonSelectionMenu);
+
+
+    QMenu *actionOnSelectedMenu = new QMenu(this);
+    actionOnSelectedMenu->setTitle(tr("Action menu"));
+    actionOnSelectedMenu->addAction(m_actionShowAllSelected);
+    actionOnSelectedMenu->addAction(m_actionHideAllSelected);
+    actionOnSelectedMenu->addSeparator();
+    
+    m_colorPickerPopup = createColorPickerPopup(QColor(), parent);
+
+    addWidgetToMenu(tr("Set color of selected:"), actionOnSelectedMenu, m_colorPickerPopup);
+
+    QToolButton* toolButtonActionOnSelectedMenu = new QToolButton(this);
+    toolButtonActionOnSelectedMenu->setMenu(actionOnSelectedMenu);
+    toolButtonActionOnSelectedMenu->setPopupMode(QToolButton::InstantPopup);
+    toolButtonActionOnSelectedMenu->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));
+    toolButtonActionOnSelectedMenu->setToolTip(tr("Action on selected rows"));
+    toolButtonActionOnSelectedMenu->setText(tr("Action on selected rows"));
+    addWidget(toolButtonActionOnSelectedMenu);
 
     // menu gene plotter actions
     m_menu_genePlotter = new QMenu(this);
@@ -157,6 +195,10 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addWidgetToMenu(tr("Shape:"), m_menu_genePlotter, m_geneShapeComboBox);
 
     //second menu
+
+
+
+
     QToolButton* toolButtonGene = new QToolButton(this);
     toolButtonGene->setMenu(m_menu_genePlotter);
     toolButtonGene->setPopupMode(QToolButton::InstantPopup);
@@ -371,6 +413,14 @@ void CellViewPageToolBar::createActions()
 
     m_actionRotation_rotateLeft = new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")), tr("Rotate &left"), this);
     m_actionRotation_rotateRight = new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")), tr("Rotate &right"), this);
+
+    // table row selections
+    m_actionSelectAllRows = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Select &all rows"), this);
+    m_actionDeselectAllRows = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Deselect &all rows"), this);
+
+    // actions on selected rows
+    m_actionShowAllSelected = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Show selected"), this);
+    m_actionHideAllSelected = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Hide selected"), this);
 }
 
 void CellViewPageToolBar::createConnections()

@@ -27,6 +27,8 @@
           <layout class="QVBoxLayout" name="genesLayout">
            <item>
             <layout class="QHBoxLayout" name="geneListLayout">
+
+<!--
              <item>
               <widget class="QPushButton" name="showAllGenes">
                <property name="sizePolicy">
@@ -103,6 +105,7 @@
                </property>
               </widget>
              </item>
+-->
              <item>
               <widget class="QLineEdit" name="lineEdit">
                <property name="minimumSize">

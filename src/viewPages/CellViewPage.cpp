@@ -26,6 +26,8 @@
 #include <QRubberBand>
 #include <QStyleFactory>
 
+#include <qtcolorpicker.h>
+
 #include "error/Error.h"
 
 #include "network/DownloadManager.h"
@@ -48,7 +50,9 @@
 #include "model/GeneSelectionItemModel.h"
 #include "model/GeneFeatureItemModel.h"
 
+#include "CreateColorPickerPopup.h"
 #include "ui_cellview.h"
+
 
 CellViewPage::CellViewPage(QWidget *parent)
     : Page(parent), m_minimap(nullptr), m_legend(nullptr), m_gene_plotter(nullptr), 
@@ -178,8 +182,10 @@ void CellViewPage::onExit()
     ui->lineEdit->clearFocus();
     ui->geneSelectionFilterLineEdit->clearFocus();
     ui->genes_tableview->clearFocus();
+    /*
     ui->showAllGenes->clearFocus();
     ui->hideAllGenes->clearFocus();
+    */
     ui->selections_tableview->clearFocus();
     ui->clearSelection->clearFocus();
     ui->saveSelection->clearFocus();
@@ -300,10 +306,12 @@ void CellViewPage::createConnections()
     connect(ui->geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), selectionProxyModel(),
             SLOT(setFilterFixedString(QString)));
 
+    /*
     connect(ui->showAllGenes, SIGNAL(clicked(bool)), this,
             SLOT(slotShowAllGenes(bool)));
     connect(ui->hideAllGenes, SIGNAL(clicked(bool)), this,
             SLOT(slotHideAllGenes(bool)));
+    */
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel(),
             SLOT(setColorGenes(const QColor&)));
 
@@ -341,6 +349,15 @@ void CellViewPage::createConnections()
             SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
     connect(m_toolBar->m_actionColor_selectColorGrid,
             SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+
+    //selection actions
+    connect(m_toolBar->m_actionSelectAllRows, SIGNAL(triggered(bool)), ui->genes_tableview, SLOT(selectAll()));
+    connect(m_toolBar->m_actionDeselectAllRows, SIGNAL(triggered(bool)), ui->genes_tableview, SLOT(clearSelection()));
+
+    //actions on selected rows
+    connect(m_toolBar->m_actionShowAllSelected, SIGNAL(triggered(bool)), this, SLOT(slotShowAllSelected()));
+    connect(m_toolBar->m_actionHideAllSelected, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
+    connect(m_toolBar->m_colorPickerPopup, SIGNAL(selected(const QColor &)), this, SLOT(slotSetColorAllSelected(const QColor &)));
 }
 
 QSortFilterProxyModel *CellViewPage::selectionProxyModel()
@@ -479,9 +496,9 @@ void CellViewPage::createGLConnections()
     connect(geneModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter,
             SLOT(updateSelection(DataProxy::GeneList)));
-    connect(geneModel(), SIGNAL(signalColorChanged(DataProxy::GenePtr)),
+    connect(geneModel(), SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_gene_plotter,
-            SLOT(updateColor(DataProxy::GenePtr)));
+            SLOT(updateColor(DataProxy::GeneList)));
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)),
             m_gene_plotter, SLOT(updateAllColor(QColor)));
 
@@ -728,6 +745,34 @@ void CellViewPage::slotSelectionUpdated()
     selectionModel()->loadSelectedGenes(uniqueSelected);
 }
 
+QItemSelection CellViewPage::geneTableItemSelection()
+{
+    auto selected = ui->genes_tableview->selectionModel()->selection();
+    auto mapped_selected = geneProxyModel()->mapSelectionToSource(selected);
+    return mapped_selected;
+}
+
+void CellViewPage::setVisibilityForSelectedRows(bool visible)
+{
+    geneModel()->setGeneVisibility(geneTableItemSelection(), visible);
+}
+
+void CellViewPage::slotShowAllSelected()
+{   
+    setVisibilityForSelectedRows(true);
+}
+
+void CellViewPage::slotHideAllSelected()
+{
+    setVisibilityForSelectedRows(false);
+}
+
+void CellViewPage::slotSetColorAllSelected(const QColor &color)
+{
+    geneModel()->setGeneColor(geneTableItemSelection(), color);
+}
+
+/*
 void CellViewPage::slotShowAllGenes(bool)
 {
     setVisibilityForAllGenes(true);
@@ -749,3 +794,4 @@ void CellViewPage::setVisibilityForAllGenes(bool visible)
         geneModel()->setGeneVisibility(selection, visible);
     }
 }
+*/

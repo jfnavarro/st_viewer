@@ -42,11 +42,12 @@ public:
     void loadGenes();
     virtual bool geneName(const QModelIndex &index, QString *genename) const;
     void setGeneVisibility(const QItemSelection &selection, bool visible);
+    void setGeneColor(const QItemSelection &selection, const QColor& color);
 
 signals:
 
     void signalSelectionChanged(DataProxy::GeneList geneList);
-    void signalColorChanged(DataProxy::GenePtr gene);
+    void signalColorChanged(DataProxy::GeneList geneList);
 
 public slots:
 

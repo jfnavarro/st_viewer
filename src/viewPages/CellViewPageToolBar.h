@@ -20,6 +20,7 @@ class QToolBar;
 class SpinBoxSlider;
 class QSlider;
 class QComboBox;
+class ColorPickerPopup;
 
 class CellViewPageToolBar : public QToolBar
 {
@@ -69,6 +70,7 @@ public:
     QSlider *m_geneBrightnessSlider;
 
     QComboBox *m_geneShapeComboBox;
+    ColorPickerPopup *m_colorPickerPopup;
 
     QMenu *m_menu_cellTissue;
     QActionGroup *m_actionGroup_cellTissue;
@@ -79,6 +81,10 @@ public:
     QAction *m_actionShow_showMiniMap;
     QAction *m_actionRotation_rotateLeft;
     QAction *m_actionRotation_rotateRight;
+    QAction *m_actionSelectAllRows;
+    QAction *m_actionDeselectAllRows;
+    QAction *m_actionShowAllSelected;
+    QAction *m_actionHideAllSelected;
 
 signals:
 
@@ -97,7 +103,7 @@ public slots:
     void resetActions();
 
 private slots:
-
+  
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);

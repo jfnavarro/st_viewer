@@ -19,6 +19,7 @@ class QGLPainter;
 class QGLTexture2D;
 class QVector2DArray;
 class QGLShaderProgramEffect;
+class FeatureFunctor;
 
 class GeneRendererGL : public GraphicItemGL
 {
@@ -55,11 +56,11 @@ public slots:
 
     void setHitCount(int min, int max, int pooledMin, int pooledMax);
 
-    void updateColor(DataProxy::GenePtr);
+    void updateColor(DataProxy::GeneList geneList);
     void updateSelection(DataProxy::GeneList geneList);
 
-    void updateAllColor(const QColor color);
-    void updateAllSelection(bool selected);
+    //    void updateAllColor(const QColor color);
+    //  void updateAllSelection(bool selected);
 
     void clearSelection();
 
@@ -74,6 +75,8 @@ signals:
     void selectionUpdated();
 
 private:
+
+    void visitFeatures(const FeatureFunctor &featureFunctor, DataProxy::GeneList geneList);
 
     // internal rendering functions
     void updateSize();

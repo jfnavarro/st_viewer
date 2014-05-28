@@ -11,18 +11,46 @@
 #include <QItemEditorCreatorBase>
 #include <QApplication>
 
-#include "ColorListEditor.h"
+#include <qtcolorpicker.h>
+#include <QDebug>
+#include "CreateColorPickerPopup.h"
 
 GeneViewDelegate::GeneViewDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
 }
 
-void GeneViewDelegate::editorFinished(int)
+void GeneViewDelegate::editorFinished(const QColor &)
 {
+  qDebug() << "in void GeneViewDelegate::editorFinished(const QColor &)";
     QWidget *editor = qobject_cast<QWidget *>(sender());
     emit commitData(editor);
     emit closeEditor(editor);
+}
+
+void GeneViewDelegate::setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const {
+    ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
+    Q_ASSERT(colorPickerPopup);
+    QColor color = colorPickerPopup->lastSelected();
+    if (color.isValid()) {
+    bool res = model->setData(index, color);
+    Q_ASSERT(res);    
+    }
+}
+
+void GeneViewDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const {
+    ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
+    Q_ASSERT(colorPickerPopup);
+    //    QColor color = colorPickerPopup->lastSelected();
+    QVariant v = index.model()->data(index, Qt::DisplayRole);
+    Q_ASSERT(v.type() == QVariant::Color);
+    QColor color = qvariant_cast<QColor>(v);
+
+    if (color.isValid()) {
+    ColorPickerItem *item = colorPickerPopup->find(color);
+    Q_ASSERT(item);
+    item->setSelected(true);
+    }
 }
 
 QWidget* GeneViewDelegate::createEditor(QWidget *parent,
@@ -32,16 +60,24 @@ QWidget* GeneViewDelegate::createEditor(QWidget *parent,
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     Q_ASSERT(v.type() == QVariant::Color);
     QColor color = qvariant_cast<QColor>(v);
-    ColorListEditor *editor = new ColorListEditor(parent);
-    connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(editorFinished(int)));
-    editor->setColor(color);
-    return editor;
+
+    //    QtColorPicker *colorPicker = new QtColorPicker(parent);
+    //    QtColorPicker *colorPicker = new QtColorPicker();
+
+
+    ColorPickerPopup *colorPickerPopup = createColorPickerPopup(color, parent);
+    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this, SLOT(editorFinished(const QColor &)));
+//    editor->setColor(color);
+
+//colorPicker->setColorDialogEnabled(false);
+//    colorPicker->show();
+    //  colorPicker->click();
+    return colorPickerPopup;
 }
 
 GeneViewDelegate::~GeneViewDelegate()
 {
 }
-
 
 void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                              const QModelIndex& index) const
@@ -68,3 +104,4 @@ void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
         QStyledItemDelegate::paint(painter, option, index);
     }
 }
+

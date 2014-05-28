@@ -25,6 +25,7 @@ class GeneRendererGL;
 class GeneSelectionItemModel;
 class GeneFeatureItemModel;
 class QSortFilterProxyModel;
+class QItemSelection;
 
 namespace Ui{
 class CellView;
@@ -82,11 +83,15 @@ protected slots:
     // genes were selected
     void slotSelectionUpdated();
 
+/*
     // show all genes that are filtered out by the regexp filter
     void slotShowAllGenes(bool);
 
     // hide all genes that are filtered out by the regexp filter
     void slotHideAllGenes(bool);
+*/
+
+    void slotSetColorAllSelected(const QColor &);
 
 protected:
     
@@ -103,9 +108,16 @@ protected:
     // reset all the visual variables to default
     void resetActionStates();
 
+private slots:
+
+  void slotShowAllSelected();
+  void slotHideAllSelected();
+
 private:
 
+    QItemSelection geneTableItemSelection();
     void setVisibilityForAllGenes(bool visible);
+    void setVisibilityForSelectedRows(bool visible);
 
     GeneFeatureItemModel *geneModel();
     QSortFilterProxyModel *geneProxyModel();

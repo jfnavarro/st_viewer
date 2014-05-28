@@ -524,7 +524,7 @@ QColor ColorPickerPopup::color(int index) const
     if (index < 0 || index > (int) items.count() - 1)
         return QColor();
 
-    ColorPickerPopup *that = (ColorPickerPopup *)this;
+    ColorPickerPopup *that = const_cast<ColorPickerPopup *>(this);
     return that->items.at(index)->color();
 }
 
@@ -564,13 +564,13 @@ void ColorPickerPopup::updateSelected()
 	emit selected(item->color());
     }
 
-    hide();
+    //    hide();
 }
 
 /*! \internal
 
 */
-void ColorPickerPopup::mouseReleaseEvent(QMouseEvent *e)
+void ColorPickerPopup::mouseReleaseEvent(QMouseEvent * /*e*/)
 {
 }
 
