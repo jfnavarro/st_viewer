@@ -16,24 +16,28 @@ class QUuid;
 class QString;
 
 // TokenStorage provides a data model for authentication data.
-class TokenStorage : public QObject
+// it is based on QSettings to store access token and refresh token
+// information
+class TokenStorage
 {
-    Q_OBJECT
-
 public:
 
-    explicit TokenStorage(QObject* parent = 0);
-    virtual ~TokenStorage();
+    TokenStorage();
+    ~TokenStorage();
 
+    //setters
     void setAccessToken(const QUuid& accessToken);
     void setAccessToken(const QUuid& accessToken, int expiresIn);
-
     void setRefreshToken(const QUuid& refreshToken);
 
+    //wether the access token has expired or not
     bool isExpired() const;
+
+    //getters
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 
+    //to check if the user has already an access token or refresh token
     bool hasAccessToken() const;
     bool hasRefreshToken() const;
 

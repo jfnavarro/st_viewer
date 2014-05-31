@@ -19,6 +19,7 @@ NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
 {
 
 }
+
 NetworkCommand::NetworkCommand(const QUrl& url,
                                Globals::HttpRequestType type,
                                QObject* parent) :
@@ -45,19 +46,21 @@ void NetworkCommand::addQueryItems(QObject* object)
 
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
 
-        QMetaProperty metaproperty = metaObject->property(i);
+        const QMetaProperty metaproperty = metaObject->property(i);
         // abort if not readable
-        QString  param = metaproperty.name();
+        const QString  param = metaproperty.name();
         if (!metaproperty.isReadable()) {
-            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName()
+            qDebug() << "[NetworkCommand] Warning: The property "
+                     << metaproperty.typeName()
                      << param << "is not readable and will be ignored!";
             continue;
         }
 
         // abort if not convertable
-        QVariant value = metaproperty.read(object);
+        const QVariant value = metaproperty.read(object);
         if (!value.canConvert(QVariant::String)) {
-            qDebug() << "[NetworkCommand] Warning: The property" << metaproperty.typeName() << param
+            qDebug() << "[NetworkCommand] Warning: The property "
+                     << metaproperty.typeName() << param
                      << "is not convertable to QString, and will be ignored!";
             continue;
         }

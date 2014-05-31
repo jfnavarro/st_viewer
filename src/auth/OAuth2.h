@@ -30,12 +30,12 @@ public:
 
     //parent container should be qwidget
     explicit OAuth2(QObject* parent);
-    virtual ~OAuth2();
+    ~OAuth2();
 
     // shows login dialog
     void startInteractiveLogin();
 
-    // try logs in with stored access token
+    // try to log in with stored access token
     void startQuietLogin(const QUuid& refreshToken);
 
 signals:
@@ -43,7 +43,7 @@ signals:
     void signalLoginDone(const QUuid& accessToken,
                          int expiresIn, const QUuid& refreshToken);
     void signalLoginAborted();
-    void signalError(Error* error);
+    void signalError(QSharedPointer<Error> error);
 
 private slots:
 

@@ -56,6 +56,46 @@ bool Gene::operator==(const Gene& other) const
         );
 }
 
+const QString Gene::id() const
+{
+    return m_id;
+}
+
+const QString Gene::name() const
+{
+    return m_name;
+}
+
+bool Gene::selected() const
+{
+    return m_selected;
+}
+
+const QColor Gene::color() const
+{
+    return m_color;
+}
+
+void Gene::id(const QString& id)
+{
+    m_id = id;
+}
+
+void Gene::name(const QString& name)
+{
+    m_name = name;
+}
+
+void Gene::selected(bool selected)
+{
+    m_selected = selected;
+}
+
+void Gene::color(const QColor& color)
+{
+    m_color = color;
+}
+
 bool Gene::isAmbiguous() const
 {
     return m_name.startsWith("ambiguous", Qt::CaseSensitive);

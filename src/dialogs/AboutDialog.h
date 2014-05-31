@@ -20,9 +20,10 @@ class AboutDialog : public QDialog
 
 public:
     explicit AboutDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
-    virtual ~AboutDialog();
+    ~AboutDialog();
 
 private:
+
     Ui::AboutDialog *ui;
 
     Q_DISABLE_COPY(AboutDialog)

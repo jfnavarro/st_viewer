@@ -23,29 +23,30 @@ public:
     static NetworkCommand* getAuthorizationToken();
 
     // data access commands
-    static NetworkCommand* getChips();
     static NetworkCommand* getChipByChipId(const QString& chipId);
 
     static NetworkCommand* getDatasets();
     static NetworkCommand* getDatasetByDatasetId(const QString& datasetId);
     static NetworkCommand* updateDatsetByDatasetId(const QString& datasetId);
 
-    static NetworkCommand* getGenes();
     static NetworkCommand* getGenesByDatasetId(const QString& datasetId);
 
-    static NetworkCommand* getFeatures();
     static NetworkCommand* getFeatureByDatasetId(const QString& datasetId);
     static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId,
                                                         const QString& gene);
 
-    static NetworkCommand* getHitCounts();
-    static NetworkCommand* getHitCountByDatasetId(const QString& datasetId);
+    static NetworkCommand* getImageAlignmentById(const QString& imageAlignmentId);
 
     static NetworkCommand* getCellTissueFigureByName(const QString& name);
 
     static NetworkCommand* getUser();
+    //static NetworkCommand* updateUserbyUserId(const QString &userId);
 
     static NetworkCommand* getSelections();
+    //static NetworkCommand* getSelectionsByDatasetId(const QString& datasetId);
+    //static NetworkCommand* upateSelectionBySelectionId(const QString& selectionId);
+    //static NetworkCommand* removeSelectionBySelectionId(const QString& selectionId);
+    static NetworkCommand* addSelection();
 
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion();

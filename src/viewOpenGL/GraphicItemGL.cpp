@@ -122,7 +122,8 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     switch (m_anchor)
     {
         case Globals::Anchor::Center:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height()) * -0.5);
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
+                                        (rect.y() + rect.height()) * -0.5);
             break;
         case Globals::Anchor::North:
             adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
@@ -131,13 +132,16 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
             adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
             break;
         case Globals::Anchor::East:
-            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, (rect.y() + rect.height()) * -0.5);
+            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
+                                        (rect.y() + rect.height()) * -0.5);
             break;
         case Globals::Anchor::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, (rect.y() + rect.height() + padding_y) * -1.0);
+            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
+                                        (rect.y() + rect.height() + padding_y) * -1.0);
             break;
         case Globals::Anchor::South:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, (rect.y() + rect.height() + padding_y) * -1.0);
+            adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
+                                        (rect.y() + rect.height() + padding_y) * -1.0);
             break;
         case Globals::Anchor::SouthWest:
             adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);

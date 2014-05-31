@@ -18,13 +18,16 @@ DataStoreTest::DataStoreTest(QObject *parent) : QObject(parent) { }
 
 void DataStoreTest::initTestCase()
 {
-    DataStore *dataStore = DataStore::getInstance();
+    DataStore *dataStore = new DataStore;
     QVERIFY(dataStore != 0);
 }
 
 void DataStoreTest::cleanupTestCase()
 {
-    DataStore *dataStore = DataStore::getInstance(true);
+    DataStore *dataStore = new DataStore;
+    delete dataStore;
+    dataStore = 0;
+    //TODO this is a dumb test
     QVERIFY(dataStore == 0);
 }
 
@@ -34,15 +37,15 @@ void DataStoreTest::testCreateFile()
     QFETCH(uint, options);
     QFETCH(bool, expected);
 
-    DataStore *dataStore = DataStore::getInstance();
-    dataStore->init();
+    DataStore dataStore;
 
     // create and verify
-    QIODevice *file = dataStore->accessResource(name, static_cast<ResourceStore::Option>(options));
+    auto file = dataStore.accessResource(name,
+                                                static_cast<DataStore::Option>(options));
     QVERIFY(file != 0);
 
     // test that file is registered in data store correctly
-    QCOMPARE(dataStore->hasResource(name), expected);
+    QCOMPARE(dataStore.hasResource(name), expected);
 
     // test that file is created (on disk) correctly
     QVERIFY(file->open(QIODevice::WriteOnly));
@@ -61,8 +64,10 @@ void DataStoreTest::testCreateFile_data()
     QTest::addColumn<uint>("options");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("normal") << QString("somefilename") << static_cast<uint>(DataStore::Empty) << true;
-    QTest::newRow("temporary") << QString("someotherfilename") << static_cast<uint>(DataStore::Empty) << true;
+    QTest::newRow("normal") << QString("somefilename")
+                            << static_cast<uint>(DataStore::Empty) << true;
+    QTest::newRow("temporary") << QString("someotherfilename")
+                               << static_cast<uint>(DataStore::Empty) << true;
 }
 
 } // namespace unit //

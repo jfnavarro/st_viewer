@@ -14,11 +14,9 @@
 
 #include "utils/Utils.h"
 
-TokenStorage::TokenStorage(QObject* parent)
-    : QObject(parent),
-      m_storage(nullptr)
+TokenStorage::TokenStorage() :
+      m_storage(new QSettings())
 {
-    m_storage = new QSettings();
 }
 
 TokenStorage::~TokenStorage()
@@ -28,22 +26,23 @@ TokenStorage::~TokenStorage()
 
 void TokenStorage::setAccessToken(const QUuid& accessToken)
 {
-    Q_ASSERT(!accessToken.isNull() && "[TokenStorage] Trying to set invalid access token!");
+    Q_ASSERT(!accessToken.isNull());
     m_storage->setValue(Globals::SettingsAcessToken, accessToken);
 }
 
 bool TokenStorage::isExpired() const
 {
-    QDateTime currentDate = QDateTime::currentDateTimeUtc();
-    QDateTime expirationDate = m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
+    const QDateTime currentDate = QDateTime::currentDateTimeUtc();
+    const QDateTime expirationDate =
+            m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
     return (currentDate > expirationDate);
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken, int expiresIn)
 {
-    Q_ASSERT(!accessToken.isNull() && "[TokenStorage] Trying to set invalid access token!");
+    Q_ASSERT(!accessToken.isNull());
     // use UTC time as the reference point
-    QDateTime expirationDate = QDateTime::currentDateTimeUtc().addSecs(expiresIn);
+    const QDateTime expirationDate = QDateTime::currentDateTimeUtc().addSecs(expiresIn);
     m_storage->setValue(Globals::SettingsAcessToken, accessToken);
     m_storage->setValue(Globals::SettingsTokenExpiresAt, expirationDate);
 }
@@ -56,7 +55,7 @@ const QUuid TokenStorage::getAccessToken() const
 
 void TokenStorage::setRefreshToken(const QUuid& refreshToken)
 {
-    Q_ASSERT(!refreshToken.isNull() && "[TokenStorage] Trying to set invalid refresh token!");
+    Q_ASSERT(!refreshToken.isNull());
     m_storage->setValue(Globals::SettingsRefreshToken, refreshToken);
 }
 

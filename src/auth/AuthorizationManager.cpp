@@ -7,9 +7,6 @@
 
 #include "AuthorizationManager.h"
 
-#include <QDebug>
-#include <QUuid>
-
 #include "auth/OAuth2.h"
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
@@ -30,21 +27,21 @@ void AuthorizationManager::finalize()
     //m_oAuth2 and m_tokenStorage are smart pointers
 }
 
-
 void AuthorizationManager::init()
 {
-    m_tokenStorage = new TokenStorage();
+    m_tokenStorage.reset(new TokenStorage());
 }
 
 void AuthorizationManager::start()
 {
     //lazy init
     if (m_oAuth2.isNull()) {
-        m_oAuth2 = new OAuth2(this);
+        m_oAuth2.reset(new OAuth2(this));
         connect(m_oAuth2.data(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
         connect(m_oAuth2.data(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
-        connect(m_oAuth2.data(), SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
+        connect(m_oAuth2.data(), SIGNAL(signalError(QSharedPointer<Error>)),
+                this, SIGNAL(signalError(QSharedPointer<Error>)));
     }
     // check if we already have been authorized and have access token saved
     // initialize authentication on valid token storage
@@ -57,7 +54,6 @@ void AuthorizationManager::start()
 
 void AuthorizationManager::cleanAccesToken()
 {
-    qDebug() << "[AuthorizationManager] Cleaning access token/refresh token...";
     m_tokenStorage->cleanAll();
 }
 

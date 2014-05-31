@@ -46,7 +46,7 @@ public:
     virtual ~CellViewPage();
 
     // load the content of the currently selected dataset
-    void loadData();
+    bool loadData();
 
 public slots:
     
@@ -82,6 +82,9 @@ protected slots:
     // genes were selected
     void slotSelectionUpdated();
 
+    // slot to save the currently selected genes
+    void slotSaveSelection();
+
 protected:
     
     // create GL graphical elements and their connections
@@ -98,16 +101,18 @@ protected:
     void resetActionStates();
 
 private:
+
     GeneFeatureItemModel *geneModel();
     QSortFilterProxyModel *geneProxyModel();
     GeneSelectionItemModel *selectionModel();
     QSortFilterProxyModel *selectionProxyModel();
-    MiniMapGL *m_minimap;
-    HeatMapLegendGL *m_legend;
-    GeneRendererGL *m_gene_plotter;
-    ImageTextureGL *m_image;
-    GridRendererGL *m_grid;
-    CellGLView *m_view;
+
+    QSharedPointer<MiniMapGL> m_minimap;
+    QSharedPointer<HeatMapLegendGL> m_legend;
+    QSharedPointer<GeneRendererGL> m_gene_plotter;
+    QSharedPointer<ImageTextureGL> m_image;
+    QSharedPointer<GridRendererGL> m_grid;
+    QSharedPointer<CellGLView> m_view;
 
     // selection dialogs
     SelectionDialog *selectionDialog;

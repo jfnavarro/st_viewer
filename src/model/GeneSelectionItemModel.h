@@ -9,7 +9,7 @@
 
 #include <QAbstractTableModel>
 
-#include "data/DataProxy.h"
+#include "dataModel/GeneSelection.h"
 
 class QModelIndex;
 class QStringList;
@@ -41,13 +41,13 @@ public:
 public slots:
 
     void reset();
-    void loadSelectedGenes(const DataProxy::UniqueGeneSelectedList& selectionList);
+    void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 
 private:
 
     static const int COLUMN_NUMBER = 3;
 
-    DataProxy::UniqueGeneSelectedList m_geneselection;
+    GeneSelection::selectedItemsList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)
 };

@@ -12,10 +12,11 @@ class ScrollArea : public QAbstractScrollArea
 
 public:
 
-    explicit ScrollArea(QWidget * parent = 0 );
+    explicit ScrollArea(QWidget *parent = 0 );
     virtual ~ScrollArea();
 
-    CellGLView *cellGlView() const;
+    void initializeView(QSharedPointer<CellGLView> view);
+
     virtual void setupViewport(QWidget *viewport) override;
 
 public slots:
@@ -47,8 +48,8 @@ private:
     //TOFIX magic number?
     static const int m_scrollBarSteps = 100000;
 
-    CellGLView* m_view;
-    QWidget* m_container;
+    QSharedPointer<CellGLView> m_view;
+    QScopedPointer<QWidget> m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;

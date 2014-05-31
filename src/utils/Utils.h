@@ -65,13 +65,7 @@ static const Anchor DEFAULT_ANCHOR_GENE = None;
 static const qulonglong MAJOR = VERSION_MAJOR;
 static const qulonglong MINOR = VERSION_MINOR;
 static const qulonglong PATCH = VERSION_REVISION;
-
-
-// It seems Visual Studio does not support the following c++11 functionality
-// static const std::array< qulonglong, 3> VersionNumbers{{ MAJOR, MINOR, PATCH }};
-// So we write instead:
 static const std::array< qulonglong, 3> VersionNumbers = { MAJOR, MINOR, PATCH };
-
 static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
 /** SETTINGS **/

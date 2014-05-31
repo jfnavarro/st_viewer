@@ -24,13 +24,13 @@ class NetworkCommand : public QObject
 
 public:
 
-    explicit NetworkCommand(QObject* parent = 0);
+    explicit NetworkCommand(QObject *parent = 0);
 
-    explicit NetworkCommand(const QUrl& url,
-                            Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
-                            QObject* parent = 0);
+    NetworkCommand(const QUrl& url,
+                   Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
+                   QObject *parent = 0);
 
-    virtual ~NetworkCommand();
+    ~NetworkCommand();
 
     // member access
     const QUrl& url() const;
@@ -38,10 +38,10 @@ public:
     const QUrlQuery& query() const;
 
     // convenience wrapper functions
-    void addQueryItem(const QString& param, const QString& value = QString());
-    void addQueryItem(const QString& param, const int value);
-    void addQueryItem(const QString& param, const qreal value);
-    void addQueryItems(QObject* object); // adds query items from qobject meta data
+    void addQueryItem(const QString &param, const QString &value = QString());
+    void addQueryItem(const QString &param, const int value);
+    void addQueryItem(const QString &param, const qreal value);
+    void addQueryItems(QObject *object); // adds query items from qobject meta data
 
     const QString getQueryItem(const QString& param) const;
 

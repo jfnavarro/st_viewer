@@ -14,12 +14,10 @@
 GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     : QTableView(parent)
 {
-    //model view gene selections table
-    geneSelectionModel = new GeneSelectionItemModel(this);
+    m_geneSelectionModel = new GeneSelectionItemModel(this);
 
-    //TODO fix the sorting, it seg faults now..
     QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
-    sortProxyModel->setSourceModel(geneSelectionModel);
+    sortProxyModel->setSourceModel(m_geneSelectionModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 

@@ -25,7 +25,8 @@ static const int GENE_SHIMME_MAX = 50;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
 
-void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget) {
+void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget)
+{
     Q_ASSERT(menu != nullptr);
     Q_ASSERT(widget != nullptr);
     QWidgetAction *widgetAction = new QWidgetAction(menu);
@@ -36,7 +37,9 @@ void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget) {
 
 void addSliderToMenu(QWidget *parent, const QString &str,
                      const QString &tooltipStr, QMenu *menu,
-                     QSlider **slider_ptr, int rangeMin, int rangeMax) {
+                     QSlider **slider_ptr, int rangeMin, int rangeMax)
+{
+
     Q_ASSERT(parent != nullptr);
     Q_ASSERT(slider_ptr != nullptr);
     Q_ASSERT(*slider_ptr == nullptr);
@@ -58,25 +61,49 @@ void addSliderToMenu(QWidget *parent, const QString &str,
 }
 
 CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
-    QToolBar(parent), m_actionActivateSelectionMode(nullptr), m_actionNavigate_goBack(nullptr), 
-    m_actionSave_save(nullptr), m_actionSave_print(nullptr),
-    m_actionSelection_showSelectionDialog(nullptr), m_actionZoom_zoomIn(nullptr),
-    m_actionZoom_zoomOut(nullptr), m_menu_genePlotter(nullptr), m_actionShow_showGrid(nullptr),
-    m_actionShow_showGenes(nullptr), m_actionColor_selectColorGenes(nullptr),
-    m_actionColor_selectColorGrid(nullptr), m_actionGroup_toggleVisualMode(nullptr),
-    m_actionShow_toggleNormal(nullptr), m_actionShow_toggleDynamicRange(nullptr), 
-    m_actionShow_toggleHeatMap(nullptr), m_actionGroup_toggleLegendPosition(nullptr), 
-    m_action_toggleLegendTopRight(nullptr), m_action_toggleLegendTopLeft(nullptr), 
-    m_action_toggleLegendDownRight(nullptr), m_action_toggleLegendDownLeft(nullptr), 
-    m_actionGroup_toggleMinimapPosition(nullptr), m_action_toggleMinimapTopRight(nullptr), 
-    m_action_toggleMinimapTopLeft(nullptr), m_action_toggleMinimapDownRight(nullptr),
-    m_action_toggleMinimapDownLeft(nullptr), m_geneHitsThreshold(nullptr), 
-    m_geneIntensitySlider(nullptr), m_geneSizeSlider(nullptr), m_geneShineSlider(nullptr),
-    m_geneBrightnessSlider(nullptr), m_geneShapeComboBox(nullptr), m_menu_cellTissue(nullptr),
-    m_actionGroup_cellTissue(nullptr), m_actionShow_cellTissueBlue(nullptr),
-    m_actionShow_cellTissueRed(nullptr), m_actionShow_showCellTissue(nullptr), 
-    m_actionShow_showLegend(nullptr), m_actionShow_showMiniMap(nullptr), 
-    m_actionRotation_rotateLeft(nullptr), m_actionRotation_rotateRight(nullptr)
+    QToolBar(parent),
+    m_actionActivateSelectionMode(nullptr),
+    m_actionNavigate_goBack(nullptr),
+    m_actionNavigate_goNext(nullptr),
+    m_actionSave_save(nullptr),
+    m_actionSave_print(nullptr),
+    m_actionSelection_showSelectionDialog(nullptr),
+    m_actionZoom_zoomIn(nullptr),
+    m_actionZoom_zoomOut(nullptr),
+    m_menu_genePlotter(nullptr),
+    m_actionShow_showGrid(nullptr),
+    m_actionShow_showGenes(nullptr),
+    m_actionColor_selectColorGenes(nullptr),
+    m_actionColor_selectColorGrid(nullptr),
+    m_actionGroup_toggleVisualMode(nullptr),
+    m_actionShow_toggleNormal(nullptr),
+    m_actionShow_toggleDynamicRange(nullptr),
+    m_actionShow_toggleHeatMap(nullptr),
+    m_actionGroup_toggleLegendPosition(nullptr),
+    m_action_toggleLegendTopRight(nullptr),
+    m_action_toggleLegendTopLeft(nullptr),
+    m_action_toggleLegendDownRight(nullptr),
+    m_action_toggleLegendDownLeft(nullptr),
+    m_actionGroup_toggleMinimapPosition(nullptr),
+    m_action_toggleMinimapTopRight(nullptr),
+    m_action_toggleMinimapTopLeft(nullptr),
+    m_action_toggleMinimapDownRight(nullptr),
+    m_action_toggleMinimapDownLeft(nullptr),
+    m_geneHitsThreshold(nullptr),
+    m_geneIntensitySlider(nullptr),
+    m_geneSizeSlider(nullptr),
+    m_geneShineSlider(nullptr),
+    m_geneBrightnessSlider(nullptr),
+    m_geneShapeComboBox(nullptr),
+    m_menu_cellTissue(nullptr),
+    m_actionGroup_cellTissue(nullptr),
+    m_actionShow_cellTissueBlue(nullptr),
+    m_actionShow_cellTissueRed(nullptr),
+    m_actionShow_showCellTissue(nullptr),
+    m_actionShow_showLegend(nullptr),
+    m_actionShow_showMiniMap(nullptr),
+    m_actionRotation_rotateLeft(nullptr),
+    m_actionRotation_rotateRight(nullptr)
 {
     createActions();
 
@@ -193,12 +220,9 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_cellTissue->addActions(m_actionGroup_toggleMinimapPosition->actions());
     m_menu_cellTissue->addSeparator();
 
-    /*
-       We don't show the rotate actions in the GUI before we have fixed the rotation functionality
-
-    m_menu_cellTissue->addAction(m_actionRotation_rotateLeft);
-    m_menu_cellTissue->addAction(m_actionRotation_rotateRight);
-    */
+    //We don't show the rotate actions in the GUI before we have fixed the rotation functionality
+    //m_menu_cellTissue->addAction(m_actionRotation_rotateLeft);
+    //m_menu_cellTissue->addAction(m_actionRotation_rotateRight);
     m_menu_cellTissue->addSeparator();
 
     m_actionGroup_cellTissue = new QActionGroup(m_menu_cellTissue);
@@ -218,7 +242,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
                     BRIGHTNESS_MIN,
                     BRIGHTNESS_MAX);
 
-
     QToolButton* toolButtonCell = new QToolButton();
     toolButtonCell->setMenu(m_menu_cellTissue);
     toolButtonCell->setPopupMode(QToolButton::InstantPopup);
@@ -227,6 +250,9 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     toolButtonCell->setText(tr("Configuration of Cell Tissue"));
     addWidget(toolButtonCell);
     addSeparator();
+
+    //next button
+    addAction(m_actionNavigate_goNext);
 
     createConnections();
 }
@@ -288,35 +314,47 @@ void CellViewPageToolBar::resetActions()
 void CellViewPageToolBar::createActions()
 {
     //show grid/genes
-    m_actionShow_showGrid = new QAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show Grid"), this);
+    m_actionShow_showGrid =
+            new QAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show Grid"), this);
     m_actionShow_showGrid->setCheckable(true);
-    m_actionShow_showGenes = new QAction(QIcon(QStringLiteral(":/images/genes.png")), tr("Show &Genes"), this);
+    m_actionShow_showGenes =
+            new QAction(QIcon(QStringLiteral(":/images/genes.png")), tr("Show &Genes"), this);
     m_actionShow_showGenes->setCheckable(true);
 
     //zomming
-    m_actionZoom_zoomIn = new QAction(QIcon(QStringLiteral(":/images/Zoom-In-icon.png")), tr("Zoom &In"), this);
-    m_actionZoom_zoomOut = new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
+    m_actionZoom_zoomIn =
+            new QAction(QIcon(QStringLiteral(":/images/Zoom-In-icon.png")), tr("Zoom &In"), this);
+    m_actionZoom_zoomOut =
+            new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
 
     //cell tissue controls
-    m_actionShow_cellTissueBlue = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Load &Blue Cell Tissue"), this);
+    m_actionShow_cellTissueBlue =
+            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Load &Blue Cell Tissue"), this);
     m_actionShow_cellTissueBlue->setCheckable(true);
-    m_actionShow_cellTissueRed = new QAction(QIcon(QStringLiteral(":/images/red-icon.png")), tr("Load &Red Cell Tissue"), this);
+    m_actionShow_cellTissueRed =
+            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")), tr("Load &Red Cell Tissue"), this);
     m_actionShow_cellTissueRed->setCheckable(true);
-    m_actionShow_showCellTissue = new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell &Tissue"), this);
+    m_actionShow_showCellTissue =
+            new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell &Tissue"), this);
     m_actionShow_showCellTissue->setCheckable(true);
 
     //navigation
-    m_actionNavigate_goBack = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Go Back"), this);
+    m_actionNavigate_goBack = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Back"), this);
     m_actionNavigate_goBack->setAutoRepeat(false);
+    m_actionNavigate_goNext = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Next"), this);
+    m_actionNavigate_goNext->setAutoRepeat(false);
 
     //color modes
-    m_actionShow_toggleNormal = new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
+    m_actionShow_toggleNormal =
+            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
-    m_actionShow_toggleDynamicRange = new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
+    m_actionShow_toggleDynamicRange =
+            new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
     m_actionShow_toggleDynamicRange->setCheckable(true);
     m_actionShow_toggleDynamicRange->setProperty("mode", Globals::GeneVisualMode::DynamicRangeMode);
-    m_actionShow_toggleHeatMap = new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
+    m_actionShow_toggleHeatMap =
+            new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
     m_actionShow_toggleHeatMap->setCheckable(true);
     m_actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
 
@@ -357,28 +395,38 @@ void CellViewPageToolBar::createActions()
     m_actionShow_showMiniMap->setCheckable(true);
 
      //save print
-    m_actionSave_save = new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
-    m_actionSave_print = new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
+    m_actionSave_save =
+            new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
+    m_actionSave_print =
+            new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
 
     //selection actions
-    m_actionActivateSelectionMode = new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
+    m_actionActivateSelectionMode =
+            new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
     m_actionActivateSelectionMode->setCheckable(true);
-    m_actionSelection_showSelectionDialog = new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
+    m_actionSelection_showSelectionDialog =
+            new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
 
     // color dialogs
-    m_actionColor_selectColorGenes = new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Choose &Color Genes"), this);
-    m_actionColor_selectColorGrid = new QAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Choose Color Grid"), this);
+    m_actionColor_selectColorGenes =
+            new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Choose &Color Genes"), this);
+    m_actionColor_selectColorGrid =
+            new QAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Choose Color Grid"), this);
 
-    m_actionRotation_rotateLeft = new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")), tr("Rotate &left"), this);
-    m_actionRotation_rotateRight = new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")), tr("Rotate &right"), this);
+    m_actionRotation_rotateLeft =
+            new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")), tr("Rotate &left"), this);
+    m_actionRotation_rotateRight =
+            new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")), tr("Rotate &right"), this);
 }
 
 void CellViewPageToolBar::createConnections()
 {
     //threshold slider signal
     Q_ASSERT(m_geneHitsThreshold);
-    connect(m_geneHitsThreshold, SIGNAL(lowerValueChanged(int)), this, SIGNAL(thresholdLowerValueChanged(int)));
-    connect(m_geneHitsThreshold, SIGNAL(upperValueChanged(int)), this, SIGNAL(thresholdUpperValueChanged(int)));
+    connect(m_geneHitsThreshold, SIGNAL(lowerValueChanged(int)),
+            this, SIGNAL(thresholdLowerValueChanged(int)));
+    connect(m_geneHitsThreshold, SIGNAL(upperValueChanged(int)),
+            this, SIGNAL(thresholdUpperValueChanged(int)));
 
     //gene attributes signals
     Q_ASSERT(m_geneIntensitySlider);

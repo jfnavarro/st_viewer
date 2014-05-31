@@ -8,7 +8,7 @@
 #define VERSION_BUILD @PROJECT_VERSION_MAJOR@
 #define TRANSLATION_FILE "@TRANSLATION_FILE@"
 
-// This is flag for unit tests
+// This flag is for unit tests
 #cmakedefine01 BUILD_UNIT_TESTS
 
 #endif // __COMMON_OPTIONS_CMAKE_H__

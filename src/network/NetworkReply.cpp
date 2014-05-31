@@ -24,48 +24,13 @@
 #include "dataModelDTO/ErrorDTO.h"
 #include "dataModel/ObjectParser.h"
 
-ContentType::ContentType(QObject* parent)
-    : QObject(parent),
-      m_mime()
-{
-
-}
-
-ContentType::ContentType(const QString& contentType, QObject* parent)
-    : QObject(parent),
-      m_mime()
-{
-    // parse the content type header
-    header(contentType);
-}
-
-ContentType::~ContentType()
-{
-
-}
-
-const QString ContentType::mime() const
-{
-    return m_mime;
-}
-
-void ContentType::header(const QString& value)
-{
-    //NOTE currently we only parse the mime type but charset might also be worth exposing
-    //     use meta properties to assign key/value pairs if so
-    m_mime = value.split(';')[0];
-}
-
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
-    :  m_reply(networkReply),
-      m_contentType(nullptr)
+    :  m_reply(networkReply)
 {
     Q_ASSERT_X(networkReply != nullptr, "NetworkReply", "Null-pointer assertion error!");
+
     //try to download as fast as possible
     networkReply->setReadBufferSize(0);
-
-    // construct empty content type object
-    m_contentType = new ContentType(this);
 
     // connect signals
     connect(networkReply, SIGNAL(finished()), this, SLOT(slotFinished()));
@@ -78,7 +43,7 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
 
 NetworkReply::~NetworkReply()
 {
-    //reply will be deleted by the sender once data is parsed or error handled (data proxy most likely)
+
 }
 
 const QVariant NetworkReply::customData() const
@@ -96,11 +61,13 @@ QJsonDocument NetworkReply::getJSON()
     QByteArray rawJSON = m_reply->readAll();
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
+
     // trigger error signals on error
     if (parseError.error != QJsonParseError::NoError) {
-        Error* error = new JSONError(parseError.error, this);
+        QSharedPointer<Error> error(new JSONError(parseError.error, this));
         registerError(error);
     }
+
     return doc;
 }
 
@@ -112,16 +79,6 @@ QString NetworkReply::getText() const
 QByteArray NetworkReply::getRaw() const
 {
     return m_reply->readAll();
-}
-
-const ContentType* NetworkReply::contentType() const
-{
-    return m_contentType;
-}
-
-bool NetworkReply::isType(const QString &mime) const
-{
-    return m_contentType->mime() == mime;
 }
 
 bool NetworkReply::isFinished() const
@@ -159,7 +116,9 @@ void NetworkReply::slotFinished()
     default:
         ret = CodeError;
     }
+
     m_code = ret;
+
     emit signalFinished(QVariant::fromValue<int>(ret), m_data);
 }
 
@@ -167,7 +126,7 @@ void NetworkReply::slotMetaDataChanged()
 {
     QString contentTypeHeader =
             m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
-    m_contentType->header(contentTypeHeader);
+    m_mime = contentTypeHeader.split(';')[0];
 }
 
 void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
@@ -175,7 +134,7 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
     // create and register error only if the error was not an abort
     if (networkError != QNetworkReply::OperationCanceledError
         && networkError != QNetworkReply::NoError) {
-        Error* error = new NetworkError(networkError, this);
+        QSharedPointer<Error> error(new NetworkError(networkError, this));
         registerError(error);
     }
 }
@@ -188,27 +147,27 @@ void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
     m_reply->ignoreSslErrors(sslErrorList);
 }
 
-void NetworkReply::registerError(Error *error)
+void NetworkReply::registerError(QSharedPointer<Error> error)
 {
     m_errors += error;
 }
 
-Error *NetworkReply::parseErrors()
+QSharedPointer<Error> NetworkReply::parseErrors()
 {
-    Error *error = nullptr;
+    QSharedPointer<Error> error;
     if (m_errors.count() > 1) {
         QString errortext;
-        foreach(Error *e, m_errors) {
+        foreach(QSharedPointer<Error> e, m_errors) {
             errortext += QString("%1 : %2 \n").arg(e->name()).arg(e->description());
         }
         //NOTE need to emit a standard Error that packs all the errors descriptions
-        error = new Error("Multiple Data Error", errortext, nullptr);
+        error = QSharedPointer<Error>(new Error("Multiple Data Error", errortext, nullptr));
     } else {
         const QJsonDocument doc = getJSON();
         QVariant var = doc.toVariant();
         ErrorDTO dto;
         ObjectParser::parseObject(var, &dto);
-        error = new ServerError(dto.errorName(), dto.errorDescription());
+        error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
     }
 
     return error;

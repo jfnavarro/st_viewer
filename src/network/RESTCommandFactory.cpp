@@ -11,109 +11,113 @@
 
 NetworkCommand* RESTCommandFactory::getAuthorizationToken()
 {
-    Configuration* config = Configuration::getInstance();
-    QUrl endpoint = QUrl(config->oauthEndpointToken());
+    Configuration config;
+    const QUrl endpoint = QUrl(config.oauthEndpointToken());
     NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
     cmd->addQueryItem(Globals::LBL_GRANT_TYPE, Globals::LBL_GRANT_PASSWORD);
-    cmd->addQueryItem(Globals::LBL_SCOPE, config->oauthScope());
+    cmd->addQueryItem(Globals::LBL_SCOPE, config.oauthScope());
     return cmd;
-}
-
-NetworkCommand* RESTCommandFactory::getChips()
-{
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointChips());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand* RESTCommandFactory::getChipByChipId(const QString& chipId)
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointChips() + "/" + chipId);
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointChips() + "/" + chipId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand* RESTCommandFactory::getDatasets()
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointDatasets());
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointDatasets());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::getDatasetByDatasetId(const QString& datasetId)
+NetworkCommand*
+RESTCommandFactory::getDatasetByDatasetId(const QString& datasetId)
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointDatasets() + "/" + datasetId);
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointDatasets() + "/" + datasetId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::updateDatsetByDatasetId(const QString& datasetId)
+NetworkCommand*
+RESTCommandFactory::updateDatsetByDatasetId(const QString& datasetId)
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointDatasets() + "/" + datasetId);
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointDatasets() + "/" + datasetId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
 }
 
-NetworkCommand* RESTCommandFactory::getGenes()
+NetworkCommand*
+RESTCommandFactory::getGenesByDatasetId(const QString& datasetId)
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointGenes());
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointGenes());
+    NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    cmd->addQueryItem("dataset", datasetId);
+    return cmd;
+}
+
+NetworkCommand*
+RESTCommandFactory::getFeatureByDatasetId(const QString& datasetId)
+{
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointFeatures());
+    NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    cmd->addQueryItem("dataset", datasetId);
+    return cmd;
+}
+
+NetworkCommand*
+RESTCommandFactory::getFeatureByDatasetIdAndGene(
+        const QString& datasetId, const QString& gene)
+{
+    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(datasetId);
+    cmd->addQueryItem("gene", gene);
+    return cmd;
+}
+
+NetworkCommand*
+RESTCommandFactory::getImageAlignmentById(const QString& imageAlignmentId)
+{
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointImageAlingment() + "/" + imageAlignmentId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::getGenesByDatasetId(const QString& datasetId)
+NetworkCommand*
+RESTCommandFactory::getCellTissueFigureByName(const QString& name)
 {
-    NetworkCommand* cmd = RESTCommandFactory::getGenes(); // call base endpoint
-    cmd->addQueryItem("dataset", datasetId);              // with dataset parameter
-    return cmd;
-}
-
-NetworkCommand* RESTCommandFactory::getFeatures()
-{
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointFeatures());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
-}
-NetworkCommand* RESTCommandFactory::getFeatureByDatasetId(const QString& datasetId)
-{
-    NetworkCommand* cmd = RESTCommandFactory::getFeatures(); // call base endpoint
-    cmd->addQueryItem("dataset", datasetId);                 // with dataset parameter
-    return cmd;
-}
-
-NetworkCommand* RESTCommandFactory::getFeatureByDatasetIdAndGene(const QString& datasetId, const QString& gene)
-{
-    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(datasetId); // call by-dataset endpoint
-    cmd->addQueryItem("gene", gene);                                            // with additional gene parameter
-    return cmd;
-}
-
-NetworkCommand* RESTCommandFactory::getHitCounts()
-{
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointHitCounts());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
-}
-
-NetworkCommand* RESTCommandFactory::getHitCountByDatasetId(const QString& datasetId)
-{
-    NetworkCommand* cmd = RESTCommandFactory::getHitCounts(); // call base endpoint
-    cmd->addQueryItem("dataset", datasetId);                  // with dataset parameter
-    return cmd;
-}
-
-NetworkCommand* RESTCommandFactory::getCellTissueFigureByName(const QString& name)
-{
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointFigures() + "/" + name);
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointFigures() + "/" + name);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand* RESTCommandFactory::getUser()
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointUsers());
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointUsers());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand* RESTCommandFactory::getSelections()
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointUsers());
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointSelections());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+}
+
+NetworkCommand* RESTCommandFactory::addSelection()
+{
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointSelections());
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
 }
 
 NetworkCommand* RESTCommandFactory::getMinVersion()
 {
-    QUrl endpoint = QUrl(Configuration::getInstance()->dataEndpointMinVersion());
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointMinVersion());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }

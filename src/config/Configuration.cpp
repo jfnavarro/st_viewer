@@ -12,12 +12,13 @@
 #include "utils/Utils.h"
 #include "SettingsFormatXML.h"
 
-
-
-Configuration::Configuration(QObject *parent)
-    : QObject(parent), m_settings(0)
+Configuration::Configuration()
+    : m_settings(nullptr)
 {
-
+    QSettings::Format format = QSettings::registerFormat(
+                                   "conf", &SettingsFormatXML::readXMLFile,
+                                   &SettingsFormatXML::writeXMLFile);
+    m_settings = QPointer<QSettings>(new QSettings(":/config/application.conf", format, nullptr));
 }
 
 Configuration::~Configuration()
@@ -25,30 +26,17 @@ Configuration::~Configuration()
     //no need to delete m_settings
 }
 
-void Configuration::init()
-{
-    QSettings::Format format = QSettings::registerFormat(
-                                   "conf", &SettingsFormatXML::readXMLFile,
-                                   &SettingsFormatXML::writeXMLFile);
-    m_settings = QPointer<QSettings>(new QSettings(":/config/application.conf", format, this));
-}
-
-void Configuration::finalize()
-{
-
-}
-
 const QString Configuration::readSetting(const QString& key) const
 {
     // early out
-    if (m_settings == 0) {
+    if (m_settings.isNull()) {
         return QString();
     }
     m_settings->beginGroup(Globals::SettingsPrefixConfFile);
-    QVariant value = m_settings->value(key);
+    const QVariant value = m_settings->value(key);
     m_settings->endGroup();
     if (!value.isValid() || !value.canConvert(QVariant::String)) {
-        qWarning() << "[Confiuration] Warning: Invalid configuration key:"
+        qWarning() << "[Configuration] Warning: Invalid configuration key:"
                    << (Globals::SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER +  key);
     }
     return value.toString();
@@ -102,6 +90,11 @@ const QString Configuration::dataEndpointDatasets() const
    return readSetting(QStringLiteral("data/endpoints/dataset"));
 }
 
+const QString Configuration::dataEndpointImageAlingment() const
+{
+   return readSetting(QStringLiteral("data/endpoints/imagealignment"));
+}
+
 const QString Configuration::dataEndpointFeatures() const
 {
    return readSetting(QStringLiteral("data/endpoints/feature"));
@@ -112,16 +105,6 @@ const QString Configuration::dataEndpointGenes() const
    return readSetting(QStringLiteral("data/endpoints/gene"));
 }
 
-const QString Configuration::dataEndpointHitCounts() const
-{
-   return readSetting(QStringLiteral("data/endpoints/hitcount"));
-}
-
-const QString Configuration::dataEndpointReducedFeatures() const
-{
-   return readSetting(QStringLiteral("data/endpoints/reducedfeature"));
-}
-
 const QString Configuration::dataEndpointUsers() const
 {
    return readSetting(QStringLiteral("data/endpoints/user"));
@@ -129,7 +112,7 @@ const QString Configuration::dataEndpointUsers() const
 
 const QString Configuration::dataEndpointSelections() const
 {
-   return readSetting(QStringLiteral("data/endpoints/selections"));
+   return readSetting(QStringLiteral("data/endpoints/selection"));
 }
 
 const QString Configuration::dataEndpointFigures() const

@@ -32,7 +32,9 @@ public:
 
     const QRectF boundingRect() const;
     void setRubberbandRect(const QRectF rect);
-    void setSelectionArea(const SelectionEvent *event);
+
+    void setSelectionArea(const SelectionEvent *) {}
+
     void draw(QGLPainter *painter);
 
 private:

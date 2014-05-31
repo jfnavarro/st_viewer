@@ -18,9 +18,6 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-// User defines the parsing object for the underlying User data object.
-// Mapping Notes:
-//     1:1 mapping. No conversions.
 class UserDTO : public QObject
 {
 
@@ -28,21 +25,35 @@ public:
 
     Q_OBJECT
 
-    Q_PROPERTY(QString username READ username WRITE username)
-    Q_PROPERTY(QString role READ role WRITE role)
+    Q_PROPERTY(QString username WRITE username)
+    Q_PROPERTY(QString institution WRITE institution)
+    Q_PROPERTY(QString first_name WRITE firstName)
+    Q_PROPERTY(QString last_name WRITE lastName)
+    Q_PROPERTY(QString street_address WRITE streetAddress)
+    Q_PROPERTY(int postcode WRITE postcode)
+    Q_PROPERTY(QString city WRITE city)
+    Q_PROPERTY(QString country WRITE country)
+    Q_PROPERTY(QString role WRITE role)
+    Q_PROPERTY(QString password WRITE password)
+    Q_PROPERTY(bool enabled WRITE enabled)
 
 public:
 
-    explicit UserDTO(QObject* parent = 0);
-    UserDTO(const User& user, QObject* parent = 0);
-    virtual ~UserDTO();
+    explicit UserDTO(QObject* parent = 0) : QObject(parent) { }
+    ~UserDTO() { }
 
     // binding
-    const QString& username() const { return m_user.username(); }
-    const QString& role() const {return m_user.role(); }
-    
     void username(const QString& username) { m_user.username(username); }
+    void institution(const QString& institution) { m_user.institution(institution); }
+    void firstName(const QString& firstName) { m_user.firstName(firstName); }
+    void lastName(const QString& lastName) { m_user.secondName(lastName); }
+    void streetAddress(const QString& streetAddress) { m_user.address(streetAddress); }
+    void postcode(int postcode) { m_user.postcode(postcode); }
+    void city(const QString& city) { m_user.city(city); }
+    void country(const QString& country) { m_user.country(country); }
     void role(const QString& role) { m_user.role(role);}
+    void password(const QString& password) { m_user.password(password); }
+    void enabled(bool enabled) { m_user.enabled(enabled); }
 
     // get parsed data model
     const User& user() const { return m_user; }

@@ -5,7 +5,6 @@ set(LIBRARY_ARG_INCLUDES
     OAuth2Error.h
     ApplicationError.h
     Error.h
-    ErrorManager.h
     ServerError.h
 )
 set(LIBRARY_ARG_SOURCES
@@ -15,7 +14,6 @@ set(LIBRARY_ARG_SOURCES
     OAuth2Error.cpp
     ApplicationError.cpp
     Error.cpp
-    ErrorManager.cpp
     ServerError.cpp
 )
 set(LIBRARY_ARG_UI_FILES)

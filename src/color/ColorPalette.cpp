@@ -44,7 +44,9 @@ const int HSVPalette::DEFAULT_VALUE = 255;
 const int HSVPalette::DEFAULT_COUNT = 12;
 
 HSVPalette::HSVPalette(QObject* parent)
-    : ColorPalette(parent), m_saturation(DEFAULT_SATURATION), m_value(DEFAULT_VALUE)
+    : ColorPalette(parent),
+      m_saturation(DEFAULT_SATURATION),
+      m_value(DEFAULT_VALUE)
 {
 
 }

@@ -40,8 +40,7 @@ public:
     virtual ~JSONError();
 
 private:
-    // localization contex
-    static const char* LOC_CONTEXT;
+
     void init(QJsonParseError::ParseError error);
 };
 

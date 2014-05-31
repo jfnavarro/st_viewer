@@ -37,6 +37,7 @@ class CellGLView : public QWindow
 
 public:
 
+    //used to filter nodes for mouse events
     typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
 
     enum MouseEventType {
@@ -48,38 +49,39 @@ public:
     explicit CellGLView(QScreen *parent = 0);
     virtual ~CellGLView();
 
+    //add/remove nodes from the rendering queue
     void addRenderingNode(GraphicItemGL *node);
     void removeRenderingNode(GraphicItemGL *node);
 
+    //return a QImage representation of the canvas
     const QImage grabPixmapGL() const;
 
+    //used for the Scroll Area container to adjust the scroll bars
     QRectF allowedCenterPoints() const;
     QPointF sceneFocusCenterPoint() const;
 
 public slots:
 
+    //some public slots to configure properties of the view
     void setSelectionMode(const bool selectionMode);
-
     void zoomOut();
     void zoomIn();
-
     void centerOn(const QPointF& point);
-
     void rotate(qreal angle);
-
     void update();
-
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
     void setSceneFocusCenterPointWithClamping(const QPointF center_point);
 
 protected:
 
+    //OpenGL rendering and initialization functions
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
     void ensureContext();
 
+    //overloaded key and mouse events for zooming/panning/selection/rendering
     void wheelEvent(QWheelEvent* event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -92,6 +94,7 @@ protected:
 
     void setZoomFactorAndUpdate(const qreal zoom);
 
+    //returns the node local transformations in the view CS
     const QTransform nodeTransformations(GraphicItemGL *node) const;
 
 signals:
@@ -102,6 +105,7 @@ signals:
 
 private:
 
+    //helper functions used to compute center position/zoom/padding
     const QTransform sceneTransformations() const;
     void resizeFromGeometry();
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
@@ -116,8 +120,7 @@ private:
 				       const MouseEventType type, const FilterFunc filterFunc);
 
     // openGL context variables
-
-    QOpenGLContext *m_context;
+    QScopedPointer<QOpenGLContext> m_context;
     QSurfaceFormat format;
     bool m_initialized;
 
@@ -134,7 +137,7 @@ private:
     bool m_panning;
     bool m_rubberBanding;
     bool m_selecting;
-    RubberbandGL *m_rubberband;
+    QScopedPointer<RubberbandGL> m_rubberband;
     qreal m_rotate;
     QPointF m_scene_focus_center_point;
     // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later

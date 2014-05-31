@@ -17,6 +17,7 @@
 #include "network/RESTCommandFactory.h"
 #include "network/NetworkManager.h"
 #include "network/NetworkReply.h"
+
 #include "error/OAuth2Error.h"
 
 #include "dataModelDTO/ErrorDTO.h"
@@ -64,7 +65,6 @@ void OAuth2::startInteractiveLogin()
 
 void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 {
-    qDebug() << "[OAuth2] Trying to log in with = " << username << " " << password;
     //request token based on password//username
     requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME, username),
                  StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD, password));
@@ -72,21 +72,25 @@ void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
 {
-    NetworkCommand* cmd = RESTCommandFactory::getAuthorizationToken();
+    NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken();
     cmd->addQueryItem(requestUser.first, requestUser.second);
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
+
     // send empty flags to ensure access token is not appended to request
-    NetworkManager *m_networkManager = NetworkManager::getInstance();
-    NetworkReply* request =
-            m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+    NetworkManager networkManager;
+    NetworkReply *request =
+            networkManager.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+
     //check reply is correct
     if (request == nullptr) {
-        OAuth2Error* error = new OAuth2Error("Log in Error", "Connection Problem", this);
+        QSharedPointer<OAuth2Error>
+                error(new OAuth2Error("Log in Error", "Connection Problem", this));
         emit signalError(error);
     } else {
         connect(request, SIGNAL(signalFinished(QVariant, QVariant)),
                 this, SLOT(slotNetworkReply(QVariant, QVariant)));
     }
+
     //clean up
     cmd->deleteLater();
 }
@@ -98,37 +102,48 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
 
     // get reference to network reply from sender object
     NetworkReply* reply = dynamic_cast<NetworkReply*>(sender());
+
     // null reply, prob no connection
     if (reply == nullptr) {
-        OAuth2Error* error = new OAuth2Error("Log in Error", "Connection Problem", this);
+        QSharedPointer<OAuth2Error>
+                error(new OAuth2Error("Log in Error", "Connection Problem", this));
         emit signalError(error);
         return;
     }
+
+    //check the return code
     const NetworkReply::ReturnCode returnCode =
             static_cast<NetworkReply::ReturnCode>(reply->return_code());
     if (returnCode == NetworkReply::CodeError) {
-        OAuth2Error* error = new OAuth2Error("Log in Error", "Authorization Failed", this);
+        QSharedPointer<OAuth2Error>
+                error(new OAuth2Error("Log in Error", "Authorization Failed", this));
         emit signalError(error);
         reply->deleteLater();
         return;
     }
+
     //parse the reply
     const QJsonDocument document = reply->getJSON();
     const QVariant result = document.toVariant();
+
     //no errors, good
     if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
         ObjectParser::parseObject(result, &dto);
-        const QUuid accessToken = QUuid(dto.accessToken());
+        const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
-        const QUuid refreshToken = QUuid(dto.refreshToken());
-        if (!accessToken.isNull() && (expiresIn >= 0) && !refreshToken.isNull()) {
+        const QUuid refreshToken(dto.refreshToken());
+        if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
+        } else {
+             QSharedPointer<OAuth2Error>
+                    error(new OAuth2Error("Log in Error", "Access token is expired", this));
+            emit signalError(error);
         }
     } else {
-        Error *error = reply->parseErrors();
-        emit signalError(error);
+        emit signalError(reply->parseErrors());
     }
+
     //clean up
     reply->deleteLater();
 }

@@ -51,7 +51,7 @@ public slots:
 
     void draw(QGLPainter *painter);
 
-    void setSelectionArea(const SelectionEvent *) {};
+    void setSelectionArea(const SelectionEvent *) {}
 
 signals:
 

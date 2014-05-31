@@ -18,7 +18,7 @@ public:
     virtual ~GenesTableView();
 
 private:
-    GeneFeatureItemModel *geneModel;
+    GeneFeatureItemModel *m_geneModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };

@@ -32,8 +32,9 @@ public:
         UnknownError = 0xa5757acb,
     };
 
-    explicit OAuth2Error(QObject* parent = 0);
-    explicit OAuth2Error(const QString& errorName, const QString& errorDescription, QObject* parent = 0);
+    explicit OAuth2Error(QObject *parent = 0);
+    OAuth2Error(const QString& errorName,
+                const QString& errorDescription, QObject *parent = 0);
     virtual ~OAuth2Error();
 
 private:
@@ -51,12 +52,9 @@ private:
         // Custom error codes
         _EmptyToken = 0x5AFDB487
     };
-    // localization contex
-    static const char* LOC_CONTEXT;
-    void init(uint error);
-    // store internal variables
-    QString m_internalName;
-    QString m_internalDescription;
+
+    void init(uint error, const QString& errorName = QString(),
+              const QString& errorDescription = QString());
 };
 
 #endif // OAUTH2ERROR_H //

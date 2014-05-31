@@ -8,7 +8,6 @@
 #include "config/Configuration.h"
 #include "auth/AuthorizationManager.h"
 #include "data/DataProxy.h"
-#include "error/ErrorManager.h"
 #include "network/NetworkManager.h"
 
 #include <QMainWindow>
@@ -42,19 +41,14 @@ void WidgetsTest::initTestCase()
     //         QVERIFY(authManager != 0);
 
     // init configurations
-    Configuration *configuration = Configuration::getInstance();
-    configuration->init();
-    QVERIFY(configuration != 0);
-
-    // init error manager
-    ErrorManager* errorManager = ErrorManager::getInstance();
-    errorManager->init();
-    QVERIFY(errorManager != 0);
+    //Configuration *configuration = Configuration::getInstance();
+    //configuration->init();
+    //QVERIFY(configuration != 0);
 
     // init network manager
-    NetworkManager* networkManager = NetworkManager::getInstance();
-    networkManager->init();
-    QVERIFY(networkManager != 0);
+    //NetworkManager* networkManager = NetworkManager::getInstance();
+    //networkManager->init();
+    //QVERIFY(networkManager != 0);
 
     // init data proxy
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -70,24 +64,19 @@ void WidgetsTest::cleanupTestCase()
     QVERIFY(authManager == 0);
 
     // finalize network manager
-    NetworkManager::getInstance()->finalize();
-    NetworkManager *networkManager = NetworkManager::getInstance(true);
-    QVERIFY(networkManager == 0);
+    //NetworkManager::getInstance()->finalize();
+    //NetworkManager *networkManager = NetworkManager::getInstance(true);
+    //QVERIFY(networkManager == 0);
 
     // finalize data proxy
     DataProxy::getInstance()->finalize();
     DataProxy *dataProxy = DataProxy::getInstance(true);
     QVERIFY(dataProxy == 0);
 
-    // finalize error manager
-    ErrorManager::getInstance()->finalize();
-    ErrorManager *errorManager = ErrorManager::getInstance(true);
-    QVERIFY(errorManager == 0);
-
     // finalize configurations
-    Configuration::getInstance()->finalize();
-    Configuration *configuration = Configuration::getInstance(true);
-    QVERIFY(configuration == 0);
+    //Configuration::getInstance()->finalize();
+    //Configuration *configuration = Configuration::getInstance(true);
+    //QVERIFY(configuration == 0);
 
 }
 

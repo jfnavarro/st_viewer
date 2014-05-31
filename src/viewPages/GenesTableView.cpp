@@ -20,10 +20,10 @@ GenesTableView::GenesTableView(QWidget *parent)
     // model view for genes list selector
     BooleanItemDelegate* booleanItemDelegate = new BooleanItemDelegate(this);
     GeneViewDelegate* geneViewDelegate = new GeneViewDelegate(this);
-    geneModel = new GeneFeatureItemModel(this);
+    m_geneModel = new GeneFeatureItemModel(this);
     
     QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
-    sortProxyModel->setSourceModel(geneModel);
+    sortProxyModel->setSourceModel(m_geneModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",

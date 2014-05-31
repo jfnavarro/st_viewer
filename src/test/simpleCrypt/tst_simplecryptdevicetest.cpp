@@ -155,8 +155,8 @@ void SimpleCryptDeviceTest::testLargeFile()
 
     QByteArray encoded;
     {
-        QBuffer buffer(&encoded);
-        SimpleCryptDevice cryptBuffer(&buffer);
+        QSharedPointer<QBuffer> buffer(new QBuffer(&encoded));
+        SimpleCryptDevice cryptBuffer(buffer);
 
         cryptBuffer.open(QIODevice::WriteOnly);
         cryptBuffer.write(bytes);
@@ -165,8 +165,8 @@ void SimpleCryptDeviceTest::testLargeFile()
 
     QByteArray decoded;
     {
-        QBuffer buffer(&encoded);
-        SimpleCryptDevice cryptBuffer(&buffer);
+        QSharedPointer<QBuffer> buffer(new QBuffer(&encoded));
+        SimpleCryptDevice cryptBuffer(buffer);
 
         cryptBuffer.open(QIODevice::ReadOnly);
         decoded = cryptBuffer.readAll();

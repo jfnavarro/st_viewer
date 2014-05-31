@@ -19,12 +19,16 @@ class NetworkReply;
 
 namespace async
 {
-// Asynchronous data request handle used to synchronize request events
-// (such as finished, error etc.).
+
+//NOTE for now DataRequest is synchronous,
+//it could be easily be made async (see commented code)
 
 class DataRequest
 {
 public:
+
+    //TODO make Q_OBJECT and add it a slot/signal to allow to
+    //abort downloads from user(progress bar dialog) or timer
 
     enum Code {
         CodeSuccess = 0x01,
@@ -43,48 +47,14 @@ public:
 
     DataRequest::Code return_code() const;
     void return_code(DataRequest::Code flag);
-    void addError(const Error *error);
-    QList<const Error*> getErrors() const;
+    void addError(QSharedPointer<Error> error);
+    QList<QSharedPointer<Error>> getErrors() const;
 
 private:
-    QList<const Error*> m_error_list;
+    QList<QSharedPointer<Error>> m_error_list;
     DataRequest::Code m_return_code;
 };
-/*
-class DownloadManager: public QObject
-{
 
-    Q_OBJECT
-
-public:
-
-    DownloadManager(async::DataRequest* request, QObject* parent = 0);
-    virtual ~DownloadManager();
-
-    void addItem(NetworkReply *item);
-    void delItem(NetworkReply *item);
-    void addError(Error *error);
-    int countItems() const;
-    int countErrors() const;
-    //check errors and replies left and send signal to DataRequest
-    void finish();
-    //start a timer that will call finish after some seconds
-    void start();
-
-public slots:
-
-    void timedOut();
-    void slotAbort();
-
-private:
-
-    QPointer<async::DataRequest> m_request;
-    QList<Error*> m_error_list;
-    QList<NetworkReply*> m_reply_list;
-
-    Q_DISABLE_COPY(DownloadManager)
-};
-*/
 } // namespace async //
 
 #endif  /* // DOWNLOADMANAGER_H */

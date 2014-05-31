@@ -26,17 +26,17 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const GeneSelection& item = m_geneselection.at(index.row());
+        const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
         QVariant value;
         switch (index.column()) {
         case Name:
-            value = item.name();
+            value = item.name;
             break;
         case Hits:
-            value = item.reads();
+            value = item.reads;
         break;
         case NormalizedHits:
-            value = QString::number(item.normalizedReads(), 'f', 2);
+            value = QString::number(item.normalizedReads, 'f', 2);
             break;
         default:
             return QVariant(QVariant::Invalid);
@@ -47,7 +47,8 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
     return QVariant(QVariant::Invalid);
 }
 
-QVariant GeneSelectionItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant GeneSelectionItemModel::headerData(int section,
+                                            Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
@@ -107,7 +108,8 @@ void GeneSelectionItemModel::reset()
     endResetModel();
 }
 
-void GeneSelectionItemModel::loadSelectedGenes(const DataProxy::UniqueGeneSelectedList &selectionList)
+void GeneSelectionItemModel::loadSelectedGenes(
+        const GeneSelection::selectedItemsList& selectionList)
 {
     beginResetModel();
     m_geneselection = selectionList;

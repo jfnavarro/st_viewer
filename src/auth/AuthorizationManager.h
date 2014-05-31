@@ -31,8 +31,9 @@ class AuthorizationManager : public QObject, public Singleton<AuthorizationManag
 public:
 
     explicit AuthorizationManager(QObject* parent = 0);
-    virtual ~AuthorizationManager();
+    ~AuthorizationManager();
 
+    //singleton initialization and destroying methos
     void finalize();
     void init();
 
@@ -42,11 +43,14 @@ public:
     //clean access token
     void cleanAccesToken();
 
+    //true if the user is already authenticated
     bool isAuthenticated() const;
 
     //force to log out and clean cache
     void forceAuthentication();
 
+    //user acces token methods to check
+    //if the user is already logged in
     bool hasAccessToken() const;
     QUuid getAccessToken() const;
 
@@ -54,16 +58,17 @@ signals:
 
     void signalLoginAborted();
     void signalAuthorize();
-    void signalError(Error* error);
+    void signalError(QSharedPointer<Error> error);
 
 private slots:
 
-    void slotLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
+    void slotLoginDone(const QUuid& accessToken, int expiresIn,
+                       const QUuid& refreshToken);
 
 private:
 
-    QPointer<OAuth2> m_oAuth2;
-    QPointer<TokenStorage> m_tokenStorage;
+    QScopedPointer<OAuth2> m_oAuth2;
+    QScopedPointer<TokenStorage> m_tokenStorage;
 
     Q_DISABLE_COPY(AuthorizationManager)
 };

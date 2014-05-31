@@ -24,13 +24,13 @@ class Error : public QObject
 public:
 
     explicit Error(QObject* parent = 0);
-    explicit Error(const QString& name,
-                   const QString& description = QString(),
-                   QObject* parent = 0);
+    Error(const QString& name,
+          const QString& description = QString(),
+          QObject* parent = 0);
     virtual ~Error();
 
-    const QString& name() const;
-    const QString& description() const;
+    const QString name() const;
+    const QString description() const;
 
 protected:
 

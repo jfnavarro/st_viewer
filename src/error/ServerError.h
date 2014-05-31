@@ -22,9 +22,9 @@ public:
         ResourceNotFound = 0x3e9ccb22,
         UnknownError = 0x179026e3
     };
-    explicit ServerError(QObject* parent = 0);
-    explicit ServerError(const QString& serverErrorName,
-                         const QString& serverErrorDescription, QObject* parent = 0);
+    explicit ServerError(QObject *parent = 0);
+    ServerError(const QString& serverErrorName,
+                const QString& serverErrorDescription, QObject *parent = 0);
     virtual ~ServerError();
 
 private:
@@ -35,12 +35,10 @@ private:
         _BadRequest = 0x1af9dd54,
         _ResourceNotFound = 0xbb041683
     };
-    // localization context
-    static const char* LOC_CONTEXT;
-    void init(uint error);
-    // store internal variables
-    QString m_serverErrorName;
-    QString m_serverErrorDescription;
+
+    void init(uint error, const QString &serverErrorName = QString(),
+              const QString &serverErrorDescription = QString());
+
 };
 
 #endif // SERVERERROR_H //

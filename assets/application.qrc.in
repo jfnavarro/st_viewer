@@ -56,12 +56,8 @@
     <file alias="images/clear2.png">${PROJECT_SOURCE_DIR}/assets/images/clear2.png</file>
     <file alias="images/qtlogo.png">${PROJECT_SOURCE_DIR}/assets/images/qtlogo.png</file>
     <file alias="images/file_export.png">${PROJECT_SOURCE_DIR}/assets/images/file_export.png</file>
-    <file alias="shader/geneCircle.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneCircle.vert</file>
-    <file alias="shader/geneCircle.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneCircle.frag</file>
-    <file alias="shader/geneCross.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneCross.vert</file>
-    <file alias="shader/geneCross.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneCross.frag</file>
-    <file alias="shader/geneSquare.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneSquare.vert</file>
-    <file alias="shader/geneSquare.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneSquare.frag</file>
+    <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
+    <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
     <file alias="config/application.conf">application.conf</file>
     <file alias="public_key.pem">${PUBLICKEY}</file>

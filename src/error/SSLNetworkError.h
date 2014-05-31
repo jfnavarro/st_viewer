@@ -50,13 +50,12 @@ public:
         UnknownError = 0x47a93544
     };
 
-    explicit SSLNetworkError(QObject* parent = 0);
-    explicit SSLNetworkError(const QSslError& sslError, QObject* parent = 0);
+    explicit SSLNetworkError(QObject *parent = 0);
+    SSLNetworkError(const QSslError& sslError, QObject *parent = 0);
     virtual ~SSLNetworkError();
 
 private:
-    // localization context
-    static const char* LOC_CONTEXT;
+
     void init(const QSslError& sslError);
 };
 

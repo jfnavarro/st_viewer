@@ -229,38 +229,6 @@ if(UNIX AND NOT APPLE)
       INSTALL_LIBRARY_AND_SYMLINKS("${loc${ICU_LIB}}" lib)
     endforeach()
 
-    # As of Qt 5.2.1 the cups plugin is not registered in CMake
-    #
-    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ grep -r _PLUGINS . | grep -i jpeg
-    #  ./Qt5Gui/Qt5Gui_QJpegPlugin.cmake:list(APPEND Qt5Gui_PLUGINS Qt5::QJpegPlugin)
-    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ grep -r _PLUGINS . | grep -i cups
-    #  esjolund@zebra:~/Qt5.2.1/5.2.1/gcc_64/lib/cmake$ 
-    #
-    #  When all needed Qt plugins are available as CMake variables we should start using
-    #  something like this:
-
-    # set(QT_PLUGIN_LIST Qt5::QMinimalEglIntegrationPlugin
-    #                    Qt5::QMinimalEglIntegrationPlugin
-    #                    Qt5::QTgaPlugin
-    #                    Qt5::QSvgPlugin
-    #                    Qt5::QTiffPlugin
-    #                    Qt5::QXcbIntegrationPlugin
-    #                    Qt5::QLinuxFbIntegrationPlugin
-    #                    Qt5::QMinimalIntegrationPlugin
-    #                    Qt5::QICOPlugin
-    #                    Qt5::QWbmpPlugin
-    #                    Qt5::QGifPlugin
-    #                    Qt5::QMngPlugin
-    #                    Qt5::QJpegPlugin)
-
-    # foreach(PLUGIN ${QT_PLUGIN_LIST})
-    #   get_target_property(PLUGIN_LOC "${PLUGIN}" LOCATION)
-    #   get_filename_component(PLUGIN_PARENT_DIR_PATH ${PLUGIN_LOC} PATH)
-    #   get_filename_component(PLUGIN_PARENT_DIR_NAME ${PLUGIN_PARENT_DIR_PATH} NAME)
-    #   install(FILES ${PLUGIN_LOC}
-    #           DESTINATION plugins/${PLUGIN_PARENT_DIR_NAME})
-    # endforeach()
-
     deploy_qt_plugins()
 
     #install libraries and resources
@@ -374,12 +342,8 @@ if(WIN32)
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
         Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
     ")
-    
-    
-    #TODO  Refactor and optmize this!!
-    
-    # Qt libraries required by stVi
 
+    # Qt libraries required by stVi
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory 
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -409,7 +373,6 @@ if(WIN32)
     windows_deploy_qt_libraries(icudt51 icuin51 icuuc51)
     
     #install platforms plugins
-
     foreach(QT_PLUGIN_FILE qminimal qwindows)
         install(FILES ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
                 DESTINATION platforms)

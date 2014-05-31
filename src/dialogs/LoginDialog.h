@@ -26,8 +26,7 @@ class LoginDialog : public QDialog
 public:
 
     explicit LoginDialog(QDialog *parent = 0);
-
-    virtual ~LoginDialog();
+     ~LoginDialog();
 
     // clear off the fields
     void clear();
@@ -53,12 +52,11 @@ public slots:
     //A slot to adjust the emitting of the signal.
     void slotAcceptLogin();
 
+protected:
+
+    virtual void keyPressEvent(QKeyEvent *e);
+
 private:
-
-    Ui::LogIn *ui;
-
-    QCompleter* m_completer;
-
     //init graphic stuff
     void setUpGUI();
 
@@ -68,11 +66,10 @@ private:
     //save users from qsettings
     void saveUsers();
 
-protected:
+    Ui::LogIn *ui;
+    QScopedPointer<QCompleter> m_completer;
 
-    virtual void keyPressEvent(QKeyEvent *e);
-
-     Q_DISABLE_COPY(LoginDialog)
+    Q_DISABLE_COPY(LoginDialog)
 };
 
 

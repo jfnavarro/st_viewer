@@ -10,8 +10,7 @@
 #include <QWidget>
 #include <QProgressDialog>
 #include <QTimer>
-
-class Error;
+#include <QPointer>
 
 // this an abstract class to represent the different pages
 // for the tab manager
@@ -26,7 +25,6 @@ public:
 
 signals:
 
-    void signalError(Error* error);
     void moveToNextPage();
     void moveToPreviousPage();
 
@@ -43,11 +41,13 @@ private slots:
 protected:
 
     void setWaiting(bool waiting = true);
+    void showWarning(const QString &header, const QString &body);
+    void showError(const QString &header, const QString &body);
 
 private:
 
-    QProgressDialog* m_progressDialog;
-    QTimer *m_timer;
+    QPointer<QProgressDialog> m_progressDialog;
+    QPointer<QTimer> m_timer;
     int m_steps;
 };
 

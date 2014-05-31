@@ -57,12 +57,14 @@ void DatasetPage::onInit()
     ui->setupUi(this);
     
     //connect signals
-    connect(ui->datasetsFilterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
+    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(datasetsModel(), SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
             this, SLOT(datasetSelected(DataProxy::DatasetPtr)), Qt::UniqueConnection);
-    connect(ui->backtodatasets, SIGNAL(clicked(bool)), this,
+    connect(ui->back, SIGNAL(clicked(bool)), this,
             SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
+    connect(ui->next, SIGNAL(clicked(bool)), this,
+            SIGNAL(moveToNextPage()), Qt::UniqueConnection);
     connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()), Qt::UniqueConnection);
 }
 
@@ -72,7 +74,7 @@ void DatasetPage::onEnter()
     //clear selection/focus
     ui->datasets_tableview->clearSelection();
     ui->datasets_tableview->clearFocus();
-    ui->backtodatasets->clearFocus();
+    ui->back->clearFocus();
     ui->refresh->clearFocus();
 }
 
@@ -82,9 +84,8 @@ void DatasetPage::onExit()
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 {
-    if (item.isNull() || item->id().isEmpty()) {       
-        Error *error = new Error("Dataset Error", "Error loading the selected dataset.", this);
-        emit signalError(error);
+    if (item.isNull() || item->id().isEmpty()) {
+        showError("Data Error", "Error loading the selected dataset.");
     } else {       
         DataProxy *dataProxy = DataProxy::getInstance();
         dataProxy->setSelectedDataset(item->id());
@@ -100,8 +101,8 @@ void DatasetPage::loadDatasets()
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
-        Error *error = new Error("Data Error", "Error loading the datasets.", this);
-        emit signalError(error);
+        //TODO show the error present in request.getErrors()
+        showError("Data Error", "Error loading the datasets.");
     } else {
         // refresh datasets on the model
         datasetsModel()->loadDatasets();
@@ -118,7 +119,7 @@ void DatasetPage::refreshDatasets()
 void DatasetPage::setWaiting(bool waiting)
 {
     ui->datasets_tableview->setEnabled(!waiting);
-    ui->backtodatasets->setEnabled(!waiting);
+    ui->back->setEnabled(!waiting);
     ui->refresh->setEnabled(!waiting);
     Page::setWaiting(waiting);
 }

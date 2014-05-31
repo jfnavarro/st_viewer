@@ -54,6 +54,7 @@ protected:
     void setWaiting(bool waiting = true);
 
 private:
+
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
     Ui::DataSets *ui;

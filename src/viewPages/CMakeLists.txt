@@ -18,6 +18,7 @@ set(LIBRARY_ARG_INCLUDES
     ExtendedTabWidget.cpp
     SpinBoxSlider.h
     ScrollArea.h
+    ExperimentsTableView.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -36,6 +37,7 @@ set(LIBRARY_ARG_SOURCES
     ExtendedTabWidget.cpp
     SpinBoxSlider.cpp
     ScrollArea.cpp
+    ExperimentsTableView.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

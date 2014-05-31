@@ -42,44 +42,44 @@ QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
     qreal green;
     qreal blue;
 
-    if (380.0f <= cwavelength && cwavelength < 440.0f) {
-        red = -(cwavelength - 440.0f) / (440.0f - 380.0f);
-        green = 0.0f;
-        blue = 1.0f;
-    } else if (440.0f <= cwavelength && cwavelength < 490.0f) {
-        red = 0.0f;
-        green = (cwavelength - 440.0f) / (490.0f - 440.0f);
-        blue = 1.0f;
+    if (380.0 <= cwavelength && cwavelength < 440.0) {
+        red = -(cwavelength - 440.0) / (440.0f - 380.0);
+        green = 0.0;
+        blue = 1.0;
+    } else if (440.0 <= cwavelength && cwavelength < 490.0) {
+        red = 0.0;
+        green = (cwavelength - 440.0) / (490.0 - 440.0);
+        blue = 1.0;
     } else if (490.0f <= cwavelength && cwavelength < 510.0f) {
         red = 0.0f;
-        green = 1.0f;
-        blue = -(cwavelength - 510.0f) / (510.0f - 490.0f);
-    } else if (510.0f <= cwavelength && cwavelength < 580.0f) {
-        red = (cwavelength - 510.0f) / (580.0f - 510.0f);
-        green = 1.0f;
-        blue = 0.0f;
-    } else if (580.0f <= cwavelength && cwavelength < 645.0f) {
-        red = 1.0f;
-        green = -(cwavelength - 645.0f) / (645.0f - 580.0f);
-        blue = 0.0f;
-    } else if (645.0f <= cwavelength && cwavelength <= 780.0f) {
-        red = 1.0f;
-        green = 0.0f;
-        blue = 0.0f;
+        green = 1.0;
+        blue = -(cwavelength - 510.0) / (510.0 - 490.0);
+    } else if (510.0 <= cwavelength && cwavelength < 580.0) {
+        red = (cwavelength - 510.0) / (580.0 - 510.0);
+        green = 1.0;
+        blue = 0.0;
+    } else if (580.0 <= cwavelength && cwavelength < 645.0) {
+        red = 1.0;
+        green = -(cwavelength - 645.0) / (645.0 - 580.0);
+        blue = 0.0;
+    } else if (645.0 <= cwavelength && cwavelength <= 780.0) {
+        red = 1.0;
+        green = 0.0;
+        blue = 0.0;
     } else {
-        red = 0.0f;
-        green = 0.0f;
-        blue = 0.0f;
+        red = 0.0;
+        green = 0.0;
+        blue = 0.0;
     }
 
     // Let the intensity fall off near the vision limits
     qreal factor;
-    if (380.0f <= cwavelength && cwavelength < 420.0f) {
-        factor = 0.3f + 0.7f * (cwavelength - 380.0f) / (420.0f - 380.0f);
-    } else if (420.0f <= cwavelength && cwavelength < 700.0f) {
-        factor = 1.0f;
-    } else if (700.0f <= cwavelength && cwavelength <= 780.0f) {
-        factor = 0.3f + 0.7f * (780.0f - cwavelength) / (780.0f - 700.0f);
+    if (380.0 <= cwavelength && cwavelength < 420.0) {
+        factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
+    } else if (420.0 <= cwavelength && cwavelength < 700.0) {
+        factor = 1.0;
+    } else if (700.0 <= cwavelength && cwavelength <= 780.0) {
+        factor = 0.3 + 0.7 * (780.0 - cwavelength) / (780.0 - 700.0);
     } else {
         factor = 0.3f;
     }
@@ -90,7 +90,7 @@ QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
     blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
-    return QColor4ub::fromRgbF(red, green, blue, 1.0f);
+    return QColor4ub::fromRgbF(red, green, blue, 1.0);
 }
 
 qreal Heatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
@@ -100,7 +100,7 @@ qreal Heatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
 
     switch (mode) {
     case Heatmap::SpectrumLog:
-        nt = qLn(nt + 1.0) * 1.442695f; //NOTE [0,1] -> [0,1]
+        nt = qLn(nt + 1.0) * 1.442695; //NOTE [0,1] -> [0,1]
         break;
     case Heatmap::SpectrumExp:
         nt = qSqrt(nt);

@@ -15,9 +15,6 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-// ErrorDTO defines the parsing object for the underlying Error data object.
-// Mapping Notes:
-//     1:1 mapping. No conversions.
 class ErrorDTO : public QObject
 {
     Q_OBJECT
@@ -27,8 +24,9 @@ class ErrorDTO : public QObject
 
 public:
 
-    explicit ErrorDTO(QObject* parent = 0);
-    virtual ~ErrorDTO();
+    explicit ErrorDTO(QObject* parent = 0) :
+        QObject(parent), m_errorName(), m_errorDescription() {}
+    ~ErrorDTO() {}
 
     // binding
     const QString& errorName() const { return m_errorName; }

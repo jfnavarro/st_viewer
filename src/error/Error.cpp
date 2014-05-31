@@ -11,6 +11,7 @@ Error::Error(QObject* parent)
     : QObject(parent),
       m_name(),
       m_description()
+
 {
 
 }
@@ -28,12 +29,12 @@ Error::~Error()
 
 }
 
-const QString& Error::name() const
+const QString Error::name() const
 {
    return m_name;
 }
 
-const QString& Error::description() const
+const QString Error::description() const
 {
    return m_description;
 }

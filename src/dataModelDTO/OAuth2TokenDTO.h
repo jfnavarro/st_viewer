@@ -15,10 +15,6 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-// OAuth2Token defines the parsing object for the underlying OAuth2Token data
-// object.
-// Mapping Notes:
-//     1:1 mapping. No conversions.
 class OAuth2TokenDTO : public QObject
 {
     Q_OBJECT
@@ -31,21 +27,22 @@ class OAuth2TokenDTO : public QObject
 
 public:
 
-    explicit OAuth2TokenDTO(QObject* parent = 0);
-    virtual ~OAuth2TokenDTO();
+    explicit OAuth2TokenDTO(QObject* parent = 0)
+        : QObject(parent), m_accessToken(), m_refreshToken(), m_expiresIn(0) { }
+    ~OAuth2TokenDTO() { }
 
     // binding
     const QString& accessToken() const { return m_accessToken; }
     const QString& tokenType() const { return m_tokenType; }
     const QString& refreshToken() const { return m_refreshToken; }
-    const QString& scope() const { return m_scope; }
+    const QString& scope() const { return m_scopeType; }
     int expiresIn() const { return m_expiresIn; }
 
     // getters
     void accessToken(const QString& accessToken) { m_accessToken = accessToken; }
     void tokenType(const QString& tokenType) { m_tokenType = tokenType; }
     void refreshToken(const QString& refreshToken) { m_refreshToken = refreshToken; }
-    void scope(const QString& scope) { m_scope = scope; }
+    void scope(const QString& scope) { m_scopeType = scope; }
     void expiresIn(int expiresIn) { m_expiresIn = expiresIn; }
 
 private:
@@ -53,7 +50,7 @@ private:
     QString m_accessToken;
     QString m_tokenType;
     QString m_refreshToken;
-    QString m_scope;
+    QString m_scopeType;
     int m_expiresIn;
 };
 

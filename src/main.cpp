@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     setLocalPaths(app);
     if (!installTranslator(app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
-        QMessageBox::information(0, "Error",
+        QMessageBox::critical(nullptr, "Error",
                                  "Unable to install the translations");
         delete app;
         return EXIT_FAILURE;

@@ -37,10 +37,6 @@ void RubberbandGL::setRubberbandRect(const QRectF rect)
     }
 }
 
-void RubberbandGL::setSelectionArea(const SelectionEvent *)
-{
-}
-
 void RubberbandGL::draw(QGLPainter *painter)
 {
     if ( !m_rubberbandrect.isNull() && m_rubberbandrect.isValid() ) {

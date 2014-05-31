@@ -29,8 +29,8 @@ void ObjectParser::parseObject(const QVariant& source, QObject* target)
         if (index < 0) {
             continue;
         }
-        QMetaProperty metaproperty = metaobject->property(index);
-        QVariant::Type type = metaproperty.type();
+        const QMetaProperty metaproperty = metaobject->property(index);
+        const QVariant::Type type = metaproperty.type();
         QVariant v = it.value();
         if (v.canConvert(type)) {
             v.convert(type);

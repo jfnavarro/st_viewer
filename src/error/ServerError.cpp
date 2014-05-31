@@ -9,20 +9,21 @@
 
 #include <QApplication>
 
-const char* ServerError::LOC_CONTEXT = "ServerError";
+static const char* LOC_CONTEXT = "ServerError";
 
 ServerError::ServerError(QObject* parent)
-    : Error(parent), m_serverErrorName(), m_serverErrorDescription()
+    :  Error(parent)
 {
     init(ServerError::_NoError);
 }
 
-ServerError::ServerError(const QString& serverErrorName, const QString& serverErrorDescription, QObject* parent)
-    : Error(parent), m_serverErrorName(serverErrorName), m_serverErrorDescription(serverErrorDescription)
+ServerError::ServerError(const QString& serverErrorName,
+                         const QString& serverErrorDescription, QObject* parent)
+    : Error(parent)
 {
     // can't switch on QString so compute hash
     uint error = qHash(serverErrorName);
-    init(error);
+    init(error, serverErrorName, serverErrorDescription);
 }
 
 ServerError::~ServerError()
@@ -30,38 +31,35 @@ ServerError::~ServerError()
 
 }
 
-void ServerError::init(uint error)
+void ServerError::init(uint error, const QString& serverErrorName,
+                       const QString& serverErrorDescription)
 {
-    uint type;
     QString name;
     QString description;
 
     switch (error) {
     case ServerError::_NoError:
-        type = ServerError::NoError;
-        name = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Name");
-        description = QApplication::translate(ServerError::LOC_CONTEXT, "NoError:Description");
+        name = QApplication::translate(LOC_CONTEXT, "NoError:Name");
+        description = QApplication::translate(LOC_CONTEXT, "NoError:Description");
         break;
     case ServerError::_BadRequest:
-        type = ServerError::BadRequest;
-        name = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Name").arg(m_serverErrorName);
-        description = QApplication::translate(ServerError::LOC_CONTEXT, "BadRequest:Description").arg(m_serverErrorDescription);
+        name = QApplication::translate(LOC_CONTEXT,
+                                       "BadRequest:Name").arg(serverErrorName);
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "BadRequest:Description").arg(serverErrorDescription);
         break;
     case ServerError::_ResourceNotFound:
-        type = ServerError::ResourceNotFound;
-        name = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Name").arg(m_serverErrorName);
-        description = QApplication::translate(ServerError::LOC_CONTEXT, "ResourceNotFound:Description").arg(m_serverErrorDescription);
+        name = QApplication::translate(LOC_CONTEXT,
+                                       "ResourceNotFound:Name").arg(serverErrorName);
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "ResourceNotFound:Description").arg(serverErrorDescription);
         break;
     default:
-        type = ServerError::UnknownError;
-        //I would rather show the original error when it is a unknown error
-        name = m_serverErrorName;
-        description = m_serverErrorDescription;
-        //name  = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Name");
-        //description = QApplication::translate(ServerError::LOC_CONTEXT, "UnknownError:Description").arg(error);
+        //show the original error message when it is a unknown error
+        name = serverErrorName;
+        description = serverErrorDescription;
     }
 
-    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

@@ -1,7 +1,6 @@
 set(LIBRARY_ARG_INCLUDES
     DataStore.h
     DataProxy.h
-    ResourceStore.h
 )
 
 set(LIBRARY_ARG_SOURCES

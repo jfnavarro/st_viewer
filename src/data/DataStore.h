@@ -11,46 +11,46 @@
 #include <QObject>
 #include <QMap>
 #include <QFile>
-
-#include "utils/Singleton.h"
-
-#include "ResourceStore.h"
-
-class Error;
+#include <QSharedPointer>
 
 // The data store extend the resource store interface and provides simple
 // functionality to manage temporarily stored files. Files stored through the
 // data store are indexed and labelled so as to provide easy lookup. This makes
 // it possible to check for previously stored temporary files despite the
 // unique name prefix QT prepends.
-class DataStore : public ResourceStore, public Singleton<DataStore>
+class DataStore : public QObject
 {
     Q_OBJECT
+    Q_FLAGS(Options)
 
 public:
 
-    explicit DataStore(QObject* parent = 0);
-    virtual ~DataStore();
+    typedef QSharedPointer<QIODevice> resourceDeviceType;
 
-    void init();
-    void finalize();
+    enum Option {
+        Empty = 0x00,       // No options.
+        Temporary = 0x01,   // Mark file as temporary.
+        Persistent = 0x02,  // Make temporary file persistent.
+        Secure = 0x04       // Encrypt cached data.
+    };
+    Q_DECLARE_FLAGS(Options, Option)
+
+    explicit DataStore(QObject* parent = 0);
+    ~DataStore();
 
     // store resources on disk, provide interface to store in files
     bool hasResource(const QString& resourceid) const;
-    QIODevice* accessResource(const QString& resourceid, Options options = Empty);
+    resourceDeviceType accessResource(const QString& resourceid, Options options = Empty);
     void clearResources();
-
-signals:
-
-    void signalError(Error* error);
 
 private:
 
+    //save and load resources into QSettings
     void loadResourceMap();
     void saveResourceMap();
 
-    QIODevice* createFile(const QString& name, Options options);
-    QIODevice* accessFile(const QString& name, Options options);
+    resourceDeviceType createFile(const QString& name, Options options);
+    resourceDeviceType accessFile(const QString& name, Options options);
     //NOTE temporary files are prefixed with a set of characters so as to
     // guarantee its uniqueness. This map provides a means of mapping the
     // requested file name with the actual name.

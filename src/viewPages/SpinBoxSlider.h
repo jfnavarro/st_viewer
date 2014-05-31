@@ -20,8 +20,8 @@ public:
     
     explicit SpinBoxSlider(QWidget *parent = 0);
     virtual ~SpinBoxSlider();
-    void setToolTip(const QString &str);
 
+    void setToolTip(const QString &str);
     void setMaximumValue(const int max);
     void setMinimumValue(const int min);
     void setTickInterval(const int interval);

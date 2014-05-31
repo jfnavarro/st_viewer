@@ -40,7 +40,7 @@ public:
 
     const QRectF boundingRect() const;
 
-    void setSelectionArea(const SelectionEvent *){};
+    void setSelectionArea(const SelectionEvent *) {}
 
 public slots:
 

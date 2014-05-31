@@ -40,7 +40,7 @@ public slots:
 
 private slots:
 
-    void slotAuthorizationError(Error*);
+    void slotAuthorizationError(QSharedPointer<Error> error);
     void slotLogOutButton();
     void slotAuthorized();
 

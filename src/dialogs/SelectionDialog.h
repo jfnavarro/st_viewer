@@ -30,7 +30,7 @@ public:
     typedef DataProxy::GeneList GeneList;
 
     explicit SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
-    virtual ~SelectionDialog();
+    ~SelectionDialog();
 
     const GeneList& selectedGenes() const;
     static const GeneList selectGenes(QWidget *parent = 0);

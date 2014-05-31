@@ -40,6 +40,9 @@ public:
     void selectGenes(const DataProxy::GeneList&);
     void selectFeatures(const DataProxy::FeatureList&);
 
+    // returns the currently selected genes
+    const GeneSelection::selectedItemsList getSelectedIItems() const;
+
 public slots:
 
     void setIntensity(qreal intensity);
@@ -63,21 +66,25 @@ public slots:
 
     void clearSelection();
 
+signals:
+
+    void selectionUpdated();
+
+protected:
+
     void setSelectionArea(const SelectionEvent *event);
 
     void draw(QGLPainter *painter);
 
     const QRectF boundingRect() const;
 
-signals:
-
-    void selectionUpdated();
-
 private:
 
     // internal rendering functions
     void updateSize();
     void updateVisual();
+
+    void updateFeaturesSelected(bool selected);
 
     // reset quad tree to rect size
     void resetQuadTree(const QRectF &rect);
@@ -94,7 +101,7 @@ private:
 
     // gene visual data
     GeneData m_geneData;
-    QGLSceneNode *m_geneNode;
+    QScopedPointer<QGLSceneNode> m_geneNode;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
@@ -125,10 +132,8 @@ private:
     // visual mode
     Globals::GeneVisualMode m_visualMode;
 
-    // shader programs
-    typedef QMap<uint, QGLShaderProgramEffect *> ShaderProgramList;
-    ShaderProgramList m_shaderProgramList;
-    QGLShaderProgramEffect *m_shaderProgram;
+    // shader program
+    QScopedPointer<QGLShaderProgramEffect> m_shaderProgram;
 
     // tells if something has changed
     bool m_isDirty;

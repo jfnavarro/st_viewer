@@ -21,21 +21,21 @@ SET(SERVER "development" CACHE STRING "The server providing the experimental dat
 if(SERVER STREQUAL development)
   #DEV configuration
   set(ENDPOINT "https://esox.scilifelab.se")
-  set(APIPATH  "api-0.4")
+  set(APIPATH  "api-0.5")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "secret")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 elseif(SERVER STREQUAL production)
   #Production configuration
   set(ENDPOINT "https://api.spatialtranscriptomics.com")
-  set(APIPATH  "api")
+  set(APIPATH  "api-0-5")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "ayfBaF5UAKR2")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 elseif(SERVER STREQUAL production-qa)
   #QA configuration
   set(ENDPOINT "https://api-qa.spatialtranscriptomics.com")
-  set(APIPATH  "api-0.4")
+  set(APIPATH  "api-0.5")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "secret")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
@@ -62,10 +62,7 @@ if(WIN32)
   add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o
     COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR} -i${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.rc
     -o ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o )
-  # On the newly bought windows laptop st-windows1.scilifelab.se
-  # git-gui gives the error:
-  # Failed to find "glu32" 
-  # 
+  # Failed to find "glu32"
   # The suggested solution in 
   # http://www.qtcentre.org/threads/56185-cmake-error-with-Failed-to-find-quot-glu32-quot-in-quot-quot?p=251234
   # solves the issue. Maybe it's a Qt bug?

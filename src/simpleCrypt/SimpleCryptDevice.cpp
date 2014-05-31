@@ -9,28 +9,29 @@
 
 #include <QBuffer>
 
-const qint64 SimpleCryptDevice::DEFAULT_BUFFER_SIZE = Q_INT64_C(1000);
+static const qint64 DEFAULT_BUFFER_SIZE = Q_INT64_C(1000);
 
-SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, QObject *parent)
+SimpleCryptDevice::SimpleCryptDevice(QSharedPointer<QIODevice> device, QObject *parent)
     : QIODevice(parent),
       m_crypt(SimpleCrypt::EMPTY_KEY),
       m_device(device)
 {
-    connect(device, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
-    connect(device, SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
-    connect(device, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
-    connect(device, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(device.data(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
+    connect(device.data(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
+    connect(device.data(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
+    connect(device.data(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
-SimpleCryptDevice::SimpleCryptDevice(QIODevice *device, quint64 key, QObject *parent)
+SimpleCryptDevice::SimpleCryptDevice(QSharedPointer<QIODevice> device,
+                                     quint64 key, QObject *parent)
     : QIODevice(parent),
       m_crypt(key),
       m_device(device)
 {
-    connect(device, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
-    connect(device, SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
-    connect(device, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
-    connect(device, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(device.data(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
+    connect(device.data(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
+    connect(device.data(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
+    connect(device.data(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
 SimpleCryptDevice::~SimpleCryptDevice() 

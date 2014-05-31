@@ -37,7 +37,7 @@ LoginDialog::LoginDialog(QDialog *parent):
     loadUsers();
 
     //set the completer to the username field
-    ui->username->setCompleter(m_completer);
+    ui->username->setCompleter(m_completer.data());
 
     // connects slots
     //TODO user QDialog signals instead
@@ -52,17 +52,12 @@ LoginDialog::~LoginDialog()
     //elements are children of main layout
     //save users
     saveUsers();
-    if (m_completer) {
-        delete m_completer;
-    }
-    m_completer = nullptr;
+    //m_completer is smart pointer
     delete ui;
 }
 
 void LoginDialog::clear()
 {
-    ui->username->setText("");
-    ui->password->setText("");
     ui->username->clear();
     ui->password->clear();
 }
@@ -87,7 +82,7 @@ void LoginDialog::loadUsers()
     QSettings settings;
     QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
-    m_completer = new QCompleter(stringSet.toList());
+    m_completer.reset(new QCompleter(stringSet.toList()));
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
 }
 

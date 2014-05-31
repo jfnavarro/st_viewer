@@ -9,6 +9,7 @@
 #define CRYPTDEVICE_H
 
 #include <QIODevice>
+#include <QSharedPointer>
 
 #include "SimpleCrypt.h"
 
@@ -21,11 +22,11 @@ class SimpleCryptDevice : public QIODevice
 
 public:
     
-    explicit SimpleCryptDevice(QIODevice *device, QObject *parent = 0);
-    explicit SimpleCryptDevice(QIODevice *device, quint64 key, QObject *parent = 0);
+    SimpleCryptDevice(QSharedPointer<QIODevice> device, QObject *parent = 0);
+    SimpleCryptDevice(QSharedPointer<QIODevice>, quint64 key, QObject *parent = 0);
     virtual ~SimpleCryptDevice();
     
-    // clear the bugger
+    // clear the buffer
     void flush();
     
     virtual qint64 bytesAvailable() const;
@@ -47,10 +48,8 @@ private:
     qint64 readBuffer(char *out, qint64 maxSize);
     qint64 writeBuffer(const char *out, qint64 maxSize);
 
-    static const qint64 DEFAULT_BUFFER_SIZE;
-    
     SimpleCrypt m_crypt;
-    QIODevice *m_device;
+    QSharedPointer<QIODevice> m_device;
     QByteArray m_buffer;
 
     Q_DISABLE_COPY(SimpleCryptDevice)

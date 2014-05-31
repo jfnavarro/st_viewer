@@ -18,7 +18,7 @@ public:
     virtual ~GeneSelectionTableView();
 
 private:
-    GeneSelectionItemModel *geneSelectionModel;
+    GeneSelectionItemModel *m_geneSelectionModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)
 };

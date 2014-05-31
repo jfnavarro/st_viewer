@@ -14,16 +14,14 @@
 #include <QFlags>
 #include <QPointer>
 
-#include "utils/Singleton.h"
-
 class NetworkCommand;
 class NetworkReply;
 class QNetworkReply;
 class Error;
 
-// Singleton class used to manage all network related functionality. Creates
+// class used to manage all network related functionality. Creates
 // an abstract layer to easily send network requests.
-class NetworkManager : public QObject, public Singleton<NetworkManager>
+class NetworkManager : public QObject
 {
     Q_OBJECT
     Q_FLAGS(NetworkFlags)
@@ -40,11 +38,8 @@ public:
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
-    explicit NetworkManager(QObject* parent = 0);
-    virtual ~NetworkManager();
-
-    void init();
-    void finalize();
+    explicit NetworkManager(QObject *parent = 0);
+    ~NetworkManager();
 
     //default use Authentication
     NetworkReply* httpRequest(NetworkCommand* cmd, QVariant data = QVariant(),
@@ -60,6 +55,7 @@ private:
 
     Q_DISABLE_COPY(NetworkManager)
 };
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)
 
 #endif // NETWORKMANAGER_H //

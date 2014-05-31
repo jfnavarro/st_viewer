@@ -11,13 +11,15 @@ uniform mediump mat4 qt_ModelViewProjectionMatrix;
 
 // passed along to fragment shader
 varying highp vec4 textCoord;
-varying highp vec4 outColor;
-varying highp float outSelected;
+varying lowp vec4 outColor;
+varying lowp float outSelected;
+varying lowp int outShape;
 
 // uniform variables
 uniform lowp int in_visualMode;
 uniform lowp int in_pooledUpper;
 uniform lowp int in_pooledLower;
+uniform lowp int in_shape;
 uniform lowp float in_intensity;
 uniform lowp vec4 in_values;
 uniform lowp float in_shine;
@@ -101,11 +103,11 @@ float computeDynamicRangeAlpha(inout float value, in float min_Value, in float m
 
 void main(void)
 {
-
     outSelected = float(qt_Custom0);
     outColor = qt_Color;
     bool visible = qt_Color.a != 0.0;
     textCoord = qt_MultiTexCoord0;
+    outShape = int(in_shape);
     
     // input parameters to compute color
     int geneMode = int(in_visualMode);
@@ -119,7 +121,7 @@ void main(void)
         outColor.a = 0.0;
     }
     else {
-        
+    
         //adjust color for globalMode
         if (geneMode == 1) {
             outColor.a = computeDynamicRangeAlpha(value, lower_limit, upper_limit)
@@ -136,10 +138,12 @@ void main(void)
             outColor.a = in_intensity;
         }
         
+        
         if ( (value < in_pooledLower || value > in_pooledUpper)
             && (geneMode == 1 || geneMode == 2)) {
             outColor.a = 0.0;
         }
+        
     }
     
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;

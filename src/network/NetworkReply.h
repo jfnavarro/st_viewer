@@ -17,26 +17,6 @@ class Error;
 class QSslError;
 class QJsonDocument;
 
-// ContentType provides convenience functionality for managing content-type
-// information. Currently it only supports parsing and extracting mime-data.
-class ContentType : public QObject
-{
-    Q_OBJECT
-public:
-
-    explicit ContentType(QObject* parent = 0);
-    ContentType(const QString& contentType, QObject* parent = 0);
-    virtual ~ContentType();
-
-    const QString mime() const;
-
-    void header(const QString& value);
-
-private:
-
-    QString m_mime;
-};
-
 // NetworkReply represents a handle to the asynchronous network request
 // managed by the NetworkManager. This handle provides a means of parsing
 // the resulting data as well as listening to any errors.
@@ -54,31 +34,28 @@ public:
         CodeError = 0x04
     };
 
-    typedef QList<Error*> ErrorList;
+    typedef QList<QSharedPointer<Error>> ErrorList;
 
-    explicit NetworkReply(QNetworkReply* networkReply = 0);
-    virtual ~NetworkReply();
+    explicit NetworkReply(QNetworkReply *networkReply = 0);
+    ~NetworkReply();
 
     // user data
-     const QVariant customData() const;
-     void setCustomData(QVariant data);
+    const QVariant customData() const;
+    void setCustomData(QVariant data);
 
     // parse body
     QJsonDocument getJSON();
     QString getText() const;
     QByteArray getRaw() const;
 
-     const ContentType* contentType() const;
-     bool isType(const QString& mime) const;
+    //reply status
+    bool isFinished() const;
+    bool hasErrors() const;
+    ReturnCode return_code() const;
 
-     bool isFinished() const;
-     bool hasErrors() const;
-
-     const NetworkReply::ErrorList& errors() const;
-
-     ReturnCode return_code() const;
-
-     Error *parseErrors();
+    //reply errors
+    const NetworkReply::ErrorList& errors() const;
+    QSharedPointer<Error> parseErrors();
 
 public slots:
 
@@ -94,18 +71,18 @@ signals:
 
 private:
 
-     void registerError(Error* error);
+    void registerError(QSharedPointer<Error> error);
 
     // Qt network reply
     QSharedPointer<QNetworkReply> m_reply;
-    // derived data
-    mutable ContentType *m_contentType;
     // errors
     ErrorList m_errors;
     // custom data
     QVariant m_data;
     // return status code
     ReturnCode m_code;
+    // header content type
+    QString m_mime;
 
     Q_DISABLE_COPY(NetworkReply)
 };

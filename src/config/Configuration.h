@@ -12,22 +12,17 @@
 #include <QString>
 #include <QPointer>
 
-#include "utils/Singleton.h"
-
 // Configuration is a convenience class that simplifies the access of
 // statically stored configuration data by providing a globally
-// accessible instance.
-class Configuration : public QObject, public Singleton<Configuration>
+// accessible instance thanks to the fact that the data
+// is stored in QSettings
+class Configuration
 {
-    Q_OBJECT
+
 public:
 
-    explicit Configuration(QObject *parent = 0);
-    virtual ~Configuration();
-
-    // singleton initialize/finalize
-    void init();
-    void finalize();
+    Configuration();
+    ~Configuration();
 
 public:
 
@@ -52,10 +47,9 @@ public:
     // data access
     const QString dataEndpointChips() const;
     const QString dataEndpointDatasets() const;
+    const QString dataEndpointImageAlingment() const;
     const QString dataEndpointFeatures() const;
     const QString dataEndpointGenes() const;
-    const QString dataEndpointHitCounts() const;
-    const QString dataEndpointReducedFeatures() const;
     const QString dataEndpointUsers() const;
     const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;

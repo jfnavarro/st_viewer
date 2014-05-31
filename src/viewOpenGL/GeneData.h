@@ -26,6 +26,8 @@ class GeneData : public QGeometryData
 
 public:
 
+    //ref count represents how many times a
+    //certain position(feature) is being shown
     typedef QArray<GLfloat> refCountType;
 
     GeneData();
@@ -33,8 +35,10 @@ public:
 
     void clearData();
 
+    //adds a new geometry to the arrays
     int addQuad(qreal x, qreal y, qreal size = 1.0f, QColor4ub color = Qt::white);
 
+    //update geometry
     void updateQuadSize(const int index, qreal x, qreal y, qreal size);
     void updateQuadColor(const int index, QColor4ub newcolor);
     void updateQuadVisible(const int index, bool visible);
@@ -42,12 +46,14 @@ public:
     void updateQuadRefCount(const int index, qreal refcount);
     void updateQuadValue(const int index, qreal value);
 
+    //some getters
     QColor4ub quadColor(const int index) const;
     bool quadVisible(const int index) const;
     bool quadSelected(const int index) const;
     qreal quadRefCount(const int index) const;
     qreal quadValue(const int index) const;
 
+    //reset functions for some arrays
     void resetRefCount();
     void resetValues();
     void resetSelection(bool state);

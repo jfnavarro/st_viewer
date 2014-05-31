@@ -9,7 +9,7 @@
 
 #include <QApplication>
 
-const char* ApplicationError::LOC_CONTEXT = "ApplicationError";
+static const char* LOC_CONTEXT = "ApplicationError";
 
 ApplicationError::ApplicationError(QObject* parent)
     : Error(parent)
@@ -30,30 +30,29 @@ ApplicationError::~ApplicationError()
 
 void ApplicationError::init(ApplicationError::Type errorType)
 {
-    uint type;
     QString name;
     QString description;
 
     switch (errorType) {
     case ApplicationError::NoError:
-        type = ApplicationError::NoError; // because because!
-        name  = QApplication::translate(ApplicationError::LOC_CONTEXT, "NoError:Name");
-        description = QApplication::translate(ApplicationError::LOC_CONTEXT, "NoError:Description");
+        name  = QApplication::translate(LOC_CONTEXT,
+                                        "NoError:Name");
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "NoError:Description");
         break;
-    //NOTE well this is awkward... the error handling system relies on localization to show the error
-    //     message but if there was an error initializing the localization system... yeeeeaaaah... *sigh*
     case ApplicationError::LocalizationError:
-        type = ApplicationError::LocalizationError;
-        name = QApplication::translate(ApplicationError::LOC_CONTEXT, "LocalizationError:Name");
-        description = QApplication::translate(ApplicationError::LOC_CONTEXT, "LocalizationError:Description");
+        name = QApplication::translate(LOC_CONTEXT,
+                                       "LocalizationError:Name");
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "LocalizationError:Description");
         break;
     default:
-        type = ApplicationError::UnknownError;
-        name = QApplication::translate(ApplicationError::LOC_CONTEXT, "UnknownError:Name");
-        description = QApplication::translate(ApplicationError::LOC_CONTEXT, "UnknownError:Description").arg(errorType);
+        name = QApplication::translate(LOC_CONTEXT,
+                                       "UnknownError:Name");
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "UnknownError:Description").arg(errorType);
     }
 
-    Q_UNUSED(type);
     // assign name and description
     Error::name(name);
     Error::description(description);

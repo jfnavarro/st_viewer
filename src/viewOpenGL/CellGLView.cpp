@@ -35,9 +35,17 @@ bool nodeIsSelectable(const GraphicItemGL &node) {
 }
 
 CellGLView::CellGLView(QScreen *parent) :
-    QWindow(parent), m_context(nullptr), m_initialized(false), m_originPanning(QPoint(-1, -1)),
-    m_originRubberBand(QPoint(-1, -1)), m_panning(false), m_rubberBanding(false),
-    m_selecting(false), m_rubberband(nullptr), m_rotate(0.0), m_zoom_factor(1.0)
+    QWindow(parent),
+    m_context(nullptr),
+    m_initialized(false),
+    m_originPanning(QPoint(-1, -1)),
+    m_originRubberBand(QPoint(-1, -1)),
+    m_panning(false),
+    m_rubberBanding(false),
+    m_selecting(false),
+    m_rubberband(nullptr),
+    m_rotate(0.0),
+    m_zoom_factor(1.0)
 {
     //init projection matrix to id
     m_projm.setToIdentity();
@@ -59,7 +67,7 @@ CellGLView::CellGLView(QScreen *parent) :
     create();
 
     //TODO consider decoupling rubberband object and view
-    m_rubberband = new RubberbandGL();
+    m_rubberband.reset(new RubberbandGL());
     m_rubberband->setAnchor(Globals::Anchor::None);
 }
 
@@ -69,16 +77,6 @@ CellGLView::~CellGLView()
         delete node;
         node = 0;
     }
-
-    if ( m_context ) {
-        delete m_context;
-    }
-    m_context = 0;
-
-    if ( m_rubberband ) {
-        delete m_rubberband;
-    }
-    m_rubberband = 0;
 }
 
 void CellGLView::resizeFromGeometry()
@@ -123,7 +121,7 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 void CellGLView::ensureContext()
 {
     if ( !m_context ) {
-        m_context = new QOpenGLContext();
+        m_context.reset(new QOpenGLContext());
         m_context->setFormat(format);
         const bool success = m_context->create();
         qDebug() << "CellGLView, OpenGL context create = " << success;
@@ -150,16 +148,18 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    //NOTE not needed it seems...
-    //QGLTexture2D::processPendingResourceDeallocations();
     //create OpenGL painter
     QGLPainter painter;
     painter.begin();
+
     // set the projection matrix
     painter.projectionMatrix() = m_projm;
+
     // clear color buffer
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    //render nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if ( node->visible() ) {
             QTransform local_transform = nodeTransformations(node);
@@ -172,7 +172,9 @@ void CellGLView::paintGL()
             painter.modelViewMatrix().pop();
         }
     }
+
     glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
         m_rubberband->draw(&painter);
@@ -192,7 +194,7 @@ void CellGLView::resizeGL(int width, int height)
     //create viewport
     glViewport(0.0, 0.0, newWidth, newHeight);
     setViewPort(newViewport);
-
+    //update local variables
     if ( m_scene.isValid() ) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);  

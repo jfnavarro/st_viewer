@@ -25,10 +25,8 @@ public:
 
     enum Column {
         Name,
-        Created,
         Tissue,
         Specie,
-        Aligned,
         Barcodes,
         Genes,
         UBarcodes,
@@ -60,7 +58,7 @@ signals:
 
 private:
 
-    static const int COLUMN_NUMBER = 10;
+    static const int COLUMN_NUMBER = 8;
     DataProxy::DatasetList m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel)

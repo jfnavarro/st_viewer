@@ -34,21 +34,29 @@
 #include "utils/Utils.h"
 #include "config/Configuration.h"
 #include "auth/AuthorizationManager.h"
+
 #include "error/Error.h"
 #include "error/ApplicationError.h"
-#include "error/ErrorManager.h"
 #include "error/ServerError.h"
+
 #include "network/RESTCommandFactory.h"
 #include "network/NetworkManager.h"
 #include "network/NetworkReply.h"
 #include "network/NetworkCommand.h"
+
 #include "data/DataProxy.h"
 #include "data/DataStore.h"
+
+#include "dataModelDTO/MinVersionDTO.h"
+#include "dataModel/ObjectParser.h"
+
 #include "dialogs/AboutDialog.h"
+
 #include "viewPages/ExtendedTabWidget.h"
 
-bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
-                             const std::array< qulonglong, 3> &version2) {
+static bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
+                                    const std::array< qulonglong, 3> &version2)
+{
     int index = 0;
     for(const auto &num : version1) {
         if (num > version2[index]) {
@@ -109,77 +117,58 @@ bool stVi::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
-        QMessageBox::information(this->centralWidget(), "OpenGL 2.x Support",
+        QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Support",
                                  "This system does not support OpenGL.");
         return false;
     }
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
-        QMessageBox::information(this->centralWidget(), "OpenGL 2.x Context",
+        QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Context",
                                  "This system does not support OpenGL 2.x Contexts");
         return false;
     }
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
-        QMessageBox::information(this->centralWidget(), "HTTPS",
+        QMessageBox::critical(this->centralWidget(), "HTTPS",
                                  "This system does not secure SSL connections");
         return false;
     }
 
-    //TODO move this network call to dataproxy and add a specific object parser
-    
     // check if the version is supported in the server and check for updates
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion();
-    NetworkManager *nm = NetworkManager::getInstance();
-    NetworkReply *reply = nm->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
-    
+    NetworkManager nm;
+    NetworkReply *reply =
+            nm.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
     QEventLoop loop; // I want to wait until this finishes
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
     loop.exec();
     
     cmd->deleteLater();
     if (reply == nullptr) {
-        QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
+        QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return false;
     }
     
-    //parse reply
-    QJsonDocument document = reply->getJSON();
+    //parse the reply
+    const QJsonDocument document = reply->getJSON();
+    const QVariant result = document.toVariant();
     reply->deleteLater();
 
     // if no errors
     if (!reply->hasErrors()) {
-        const QString min_version =
-                document.toVariant().toMap().find("minSupportedClientVersion").value().toString();
-        const QStringList minversion_numbers_as_strings = min_version.split(".");
-        if (minversion_numbers_as_strings.size() != 3) {
-            Q_ASSERT(false);
-            return false; // This should hopefully never happen.
-        }
-        bool ok1;
-        bool ok2;
-        bool ok3;
-        std::array<qulonglong, 3> minversion_numbers_as_qulonglong = {
-            minversion_numbers_as_strings[0].toULongLong(&ok1),
-            minversion_numbers_as_strings[1].toULongLong(&ok2),
-            minversion_numbers_as_strings[2].toULongLong(&ok3)
-        };
-        if (!ok1 || !ok2 || !ok3) {
-            Q_ASSERT(false);
-            return false; // This should hopefully never happen.
-        }
+        MinVersionDTO dto;
+        ObjectParser::parseObject(result, &dto);
         qDebug() << "[stVi] Check min version min = "
-                 << min_version << " current = " << Globals::VERSION;
+                 << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers,
-                                     minversion_numbers_as_qulonglong)) {
-            QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
+                                     dto.minVersionAsNumber())) {
+            QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
                                      "This version of the software is not supported anymore, please update!");
             return false;
         }
     } else {
-        qDebug() << "[MAIN] Network ERROR : Check min version min " << reply->getText();
-        QMessageBox::information(this->centralWidget(), "MINIMUM VERSION",
+        QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
                                  "Required version could not be retrieved from the server, try again");
         return false;
     }
@@ -242,9 +231,10 @@ void stVi::setupUi()
     QMetaObject::connectSlotsByName(this);
 }
 
-void stVi::handleMessage(QString message)
+void stVi::handleMessage(const QString &message)
 {
-    emit signalError(new Error("System Error", message));
+    Q_UNUSED(message);
+    //TODO show error
 }
 
 void stVi::showAbout()
@@ -259,7 +249,8 @@ void stVi::slotExit()
     const int answer = QMessageBox::warning(
                      this, tr("Exit application"),
                      tr("Are you really sure you want to exit now?"),
-                     QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+                     QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
@@ -276,7 +267,8 @@ void stVi::slotClearCache()
     const int answer = QMessageBox::warning(
                      this, tr("Clear the Cache"),
                      tr("Are you really sure you want to clear the cache?"),
-                     QMessageBox::No | QMessageBox::Escape, QMessageBox::Yes | QMessageBox::Escape);
+                     QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Cleaaring the cache...";
@@ -308,7 +300,8 @@ void stVi::initStyle()
 
     //TODO move to styleshee.css file
     setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}"
-                  "QToolButton:checked {background-color: rgb(175,175,175);}QToolButton{background-color: transparent;}"
+                  "QToolButton:checked {background-color: rgb(175,175,175);}"
+                  "QToolButton{background-color: transparent;}"
                   "QToolButton:hover {background-color: rgb(175,175,175);}"
                   "QLineEdit {border: 1px solid gray;background: white;selection-background-color: darkgray;}"
                   "QTableView {background-color: transparent;}"
@@ -342,21 +335,16 @@ void stVi::createShorcuts()
 void stVi::initSingleInstances()
 {
     // init configurations
-    Configuration *configuration = Configuration::getInstance();
-    configuration->init();
-
-    // init error manager
-    ErrorManager* errorManager = ErrorManager::getInstance();
-    connect(this, SIGNAL(signalError(Error*)), errorManager, SLOT(slotHandleError(Error*)));
-    errorManager->init(this);
+    //Configuration *configuration = Configuration::getInstance();
+    //configuration->init();
 
     // init data stored
-    DataStore* dataStore = DataStore::getInstance();
-    dataStore->init();
+    //DataStore* dataStore = DataStore::getInstance();
+    //dataStore->init();
 
     // init network manager
-    NetworkManager* networkManager = NetworkManager::getInstance();
-    networkManager->init();
+    //NetworkManager* networkManager = NetworkManager::getInstance();
+    //networkManager->init();
 
     // init data proxy
     DataProxy* dataProxy = DataProxy::getInstance();
@@ -374,32 +362,26 @@ void stVi::finalizeSingleInstances()
     AuthorizationManager::getInstance(true);
 
     // finalize network manager
-    NetworkManager::getInstance()->finalize();
-    NetworkManager::getInstance(true);
+    //NetworkManager::getInstance()->finalize();
+    //NetworkManager::getInstance(true);
 
     // finalize data proxy
     DataProxy::getInstance()->finalize();
     DataProxy::getInstance(true);
 
     // finalize data stored
-    DataStore::getInstance()->finalize();
-    DataStore::getInstance(true);
-
-    // finalize error manager
-    ErrorManager::getInstance()->finalize();
-    ErrorManager::getInstance(true);
+    //DataStore::getInstance()->finalize();
+    //DataStore::getInstance(true);
 
     // finalize configurations
-    Configuration::getInstance()->finalize();
-    Configuration::getInstance(true);
+    //Configuration::getInstance()->finalize();
+    //Configuration::getInstance(true);
 }
 
 void stVi::createConnections()
 {
     //exit and print action
     connect(actionExit, SIGNAL(triggered(bool)), this, SLOT(slotExit()));
-    //connect error signals here from child components
-    connect(mainTab, SIGNAL(signalError(Error*)), this, SIGNAL(signalError(Error*)));
     //clear cache action
     connect(actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
     //signal that shows the about dialog

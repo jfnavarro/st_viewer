@@ -6,6 +6,7 @@
 */
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include "Page.h"
 
@@ -37,15 +38,14 @@ void Page::setWaiting(bool waiting)
     if (waiting) {
         m_progressDialog->setValue(0);
         m_progressDialog->show();
+        m_progressDialog->raise();
+        m_progressDialog->activateWindow();
         m_steps = 0;
         m_timer->start(100);
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     } else {
         m_timer->stop();
         m_progressDialog->hide();
-        QApplication::restoreOverrideCursor();
     }
-    QApplication::processEvents();
 }
 
 void Page::increaseBar()
@@ -54,5 +54,16 @@ void Page::increaseBar()
     if (++m_steps > m_progressDialog->maximum()) {
         m_timer->start(100);
         m_steps = 0;
+        m_progressDialog->setValue(0);
     }
+}
+
+void Page::showWarning(const QString &header, const QString &body)
+{
+    QMessageBox::warning(this, header, body);
+}
+
+void Page::showError(const QString &header, const QString &body)
+{
+    QMessageBox::critical(this, header, body);
 }

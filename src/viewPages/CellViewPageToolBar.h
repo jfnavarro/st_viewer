@@ -24,14 +24,15 @@ class QComboBox;
 class CellViewPageToolBar : public QToolBar
 {
     Q_OBJECT
+
 public:
+
     explicit CellViewPageToolBar(QWidget *parent = 0);
 
     // actions for toolbar
-
-
     QAction *m_actionActivateSelectionMode;
     QAction *m_actionNavigate_goBack;
+    QAction *m_actionNavigate_goNext;
     QAction *m_actionSave_save;
     QAction *m_actionSave_print;
     QAction *m_actionSelection_showSelectionDialog;

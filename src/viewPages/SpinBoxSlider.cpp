@@ -11,13 +11,19 @@
 #include "utils/Utils.h"
 
 SpinBoxSlider::SpinBoxSlider(QWidget *parent)
-    : QWidget(parent), m_spanslider(nullptr), m_left_spinbox(nullptr), m_right_spinbox(nullptr),
-      m_layout(nullptr), m_upper_value(0), m_lower_value(0)
+    : QWidget(parent),
+      m_spanslider(nullptr),
+      m_left_spinbox(nullptr),
+      m_right_spinbox(nullptr),
+      m_layout(nullptr),
+      m_upper_value(0),
+      m_lower_value(0)
 {
     m_layout = new QHBoxLayout(this);
     m_left_spinbox = new QSpinBox(this);
     m_right_spinbox = new QSpinBox(this);
     m_spanslider = new QxtSpanSlider(this);
+
     m_spanslider->setMinimumWidth(200);
     m_spanslider->setOrientation(Qt::Horizontal);
     m_spanslider->setTickPosition(QSlider::TicksAbove);

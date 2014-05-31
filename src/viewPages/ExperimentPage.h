@@ -12,6 +12,8 @@
 #include "Page.h"
 
 class ExperimentsItemModel;
+class QSortFilterProxyModel;
+
 namespace Ui
 {
 class Experiments;
@@ -26,18 +28,24 @@ public:
     explicit ExperimentPage(QWidget *parent = 0);
     virtual ~ExperimentPage();
 
-protected:
-
-    virtual void mousePressEvent(QMouseEvent* event);
-    void setWaiting(bool waiting = true);
-
 public slots:
 
     void onInit();
     void onEnter();
     void onExit();
 
+protected slots:
+
+    void loadSelections();
+
+protected:
+
+    void setWaiting(bool waiting = true);
+
 private:
+    QSortFilterProxyModel *selectionsProxyModel();
+    ExperimentsItemModel *selectionsModel();
+
     Ui::Experiments *ui;
 
     Q_DISABLE_COPY(ExperimentPage)

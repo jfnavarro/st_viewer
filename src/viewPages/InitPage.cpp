@@ -35,7 +35,7 @@ void InitPage::onInit()
     //create the start widget
     ui = new Ui::InitPage;
     ui->setupUi(this);
-    ui->user_name->setText("");
+    ui->user_name->clear();
     ui->newExpButt->setEnabled(false);
 
     //connect signals
@@ -45,8 +45,8 @@ void InitPage::onInit()
     AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
     connect(authorizationManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
-    connect(authorizationManager, SIGNAL(signalError(Error*)),
-            this, SLOT(slotAuthorizationError(Error*)));
+    connect(authorizationManager, SIGNAL(signalError(QSharedPointer<Error>)),
+            this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
     authorizationManager->start();
 }
 
@@ -60,13 +60,14 @@ void InitPage::onExit()
 {
 }
 
-void InitPage::slotAuthorizationError(Error *error)
+void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    Q_UNUSED(error);
     AuthorizationManager *auth = AuthorizationManager::getInstance();
-    auth->cleanAccesToken(); //force clean access token
-    auth->forceAuthentication(); //authorize again
-    //emit signalError(error); //NOTE do we want to emit an error for this?
+     //force clean access token and authorize again
+    auth->cleanAccesToken();
+    auth->forceAuthentication();
+    //TODO show error? it will show it the user types wrong credentails...
+    Q_UNUSED(error);
 }
 
 void InitPage::slotAuthorized()
@@ -86,8 +87,8 @@ void InitPage::slotAuthorized()
         ui->user_name->setText(user.data()->username());
         ui->newExpButt->setEnabled(true);
     } else {
-       Error *error = new Error("Authorization Error", "Error loading the current user.", this);
-       emit signalError(error);
+       //TODO use the text present in request.getErrors()
+       showError("Authorization Error", "Error loading the current user.");
     }
 }
 
@@ -95,7 +96,7 @@ void InitPage::slotLogOutButton()
 {
     //go to log in mode and force authorization
     ui->newExpButt->setEnabled(false);
-    ui->user_name->setText("");
+    ui->user_name->clear();
     
     AuthorizationManager *auth = AuthorizationManager::getInstance();
     //force clean access token and authorize again

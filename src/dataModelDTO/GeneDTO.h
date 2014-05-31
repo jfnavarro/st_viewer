@@ -18,29 +18,19 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-// GeneDTO defines the parsing object for the underlying Gene data object.
-// Mapping Notes:
-//     1:1 mapping. No conversions.
 class GeneDTO : public QObject
 {
-
-public:
-
     Q_OBJECT
 
-    Q_PROPERTY(QString id READ id WRITE id)
-    Q_PROPERTY(QString gene READ name WRITE name) //NOTE gene name is called "gene" on server side
+    Q_PROPERTY(QString id WRITE id)
+    Q_PROPERTY(QString gene WRITE name)
 
 public:
 
-    explicit GeneDTO(QObject* parent = 0);
-    explicit GeneDTO(const Gene& gene, QObject* parent = 0);
-    virtual ~GeneDTO();
+    explicit GeneDTO(QObject* parent = 0) : QObject(parent) {}
+    ~GeneDTO() {}
 
     // binding
-    const QString& id() const { return m_gene.id(); }
-    const QString& name() const { return m_gene.name(); }
-
     void id(const QString& id) { m_gene.id(id); }
     void name(const QString& name) { m_gene.name(name); }
 

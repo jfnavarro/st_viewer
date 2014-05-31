@@ -9,34 +9,66 @@
 #define GENEEXPORTER_H
 
 #include <QObject>
+#include <QStringList>
 
 #include "data/DataProxy.h"
+#include "dataModel/GeneSelection.h"
 
 class QIODevice;
 
 // Interface defining gene export functionality
-class GeneExporter : public QObject
+class GeneExporter
 {
+    Q_FLAGS(DetailLevel)
+    Q_FLAGS(SeparationMode)
+
 public:
-    typedef QList<QString> PropertyList;
+    // exporter state enums
+    enum DetailLevel {
+        Simple   = 0x00,
+        Extended = 0x01,
+        Comments = 0x10,
+        // composite flags
+        SimpleFull = Simple | Comments,
+        ExtendedFull = Extended | Comments
+    };
+    Q_DECLARE_FLAGS(DetailLevels, DetailLevel)
 
-    explicit GeneExporter(QObject *parent = 0);
-    virtual ~GeneExporter();
+    //separation mode for items in the file
+    enum SeparationMode {
+        TabDelimited,
+        CommaDelimited
+    };
+    Q_DECLARE_FLAGS(SeparationModes, SeparationMode)
 
-    virtual void exportItem(QIODevice *device,
-                            const DataProxy::UniqueGeneSelectedList& selectionList) const = 0;
+    GeneExporter();
+    GeneExporter(DetailLevels detailLevel, SeparationModes separationMode);
+    ~GeneExporter();
 
-    void addExportProperty(const QString &property);
-    void addExportProperty(const PropertyList &properties);
-    static const QString encodePropertyList(const PropertyList &properties);
-    static const PropertyList decodePropertyList(const QString &properties);
+    void exportItem(QIODevice *device,
+                    const GeneSelection::selectedItemsList& selectionList) const;
+
+    void addExportProperty(const QString& property);
+    void addExportProperty(const QStringList& properties);
+
+    static const QString encodePropertyList(const QStringList& properties);
+    static const QStringList decodePropertyList(const QString& properties);
 
 protected:
-    static const QString PROPERTY_LIST_DELIMITER;
 
-    const QList<QString> &exportPropertyList() const;
+    const QStringList exportPropertyList() const;
+    const QString delimiterCharacter() const;
+    void exportStrings(QTextStream &otxt, const QStringList &strings) const;
+    void exportItem(QTextStream &otxt, const GeneSelection::SelectionType &selection) const;
+    void exportItem(QTextStream &otxt,
+                     const GeneSelection::selectedItemsList& selectionList) const;
 
-    PropertyList m_propertyList;
+    DetailLevels m_detailLevel;
+    SeparationModes m_separationMode;
+    QStringList m_propertyList;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::DetailLevels)
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::SeparationModes)
 
 #endif // GENEEXPORTER_H //

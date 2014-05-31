@@ -13,7 +13,7 @@
 class QColor4ub;
 class QImage;
 
-// GLheatmap is a convenience class containing functions to generate
+// Heatmap is a convenience class containing functions to generate
 // heatmap related data.
 class Heatmap
 {
@@ -31,6 +31,7 @@ public:
                                    const SpectrumMode mode = SpectrumLinear,
                                    int lowerbound = 0, int upperbound = 100);
 
+    // convenience function to generate a OpenGL color from a wavelenght value
     static QColor4ub createHeatMapColor(const qreal wavelength);
 
     // convenience function to generate a heat map wavelength

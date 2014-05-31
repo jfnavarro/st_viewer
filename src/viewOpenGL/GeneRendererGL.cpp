@@ -35,18 +35,7 @@ GeneRendererGL::GeneRendererGL(QObject *parent)
 
 GeneRendererGL::~GeneRendererGL()
 {
-    if (m_geneNode) {
-        delete m_geneNode;
-    }
-    m_geneNode = 0;
 
-    foreach(QGLShaderProgramEffect *shader, m_shaderProgramList) {
-        if (shader) {
-            delete shader;
-        }
-        shader = 0;
-    }
-    m_shaderProgram = 0; //has been deleted in the list
 }
 
 void GeneRendererGL::clearData()
@@ -55,11 +44,7 @@ void GeneRendererGL::clearData()
     m_geneData.clear();
 
     //clear selection
-    DataProxy* dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        feature->selected(false);
-    }
+    updateFeaturesSelected(false);
 
     // lookup data
     m_geneInfoById.clear();
@@ -81,11 +66,10 @@ void GeneRendererGL::clearData()
     // update visual mode
     m_visualMode = Globals::NormalMode;
 
-    if (m_geneNode) {
-        delete m_geneNode;
-    }
-    m_geneNode = 0;
-    m_geneNode = new QGLSceneNode();
+    //reset scene node
+    m_geneNode.reset(new QGLSceneNode());
+    //update shader
+    setupShaders();
 
     m_isDirty = true;
 }
@@ -111,7 +95,7 @@ void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
-    if ( m_intensity != intensity) {
+    if (m_intensity != intensity) {
         m_intensity = intensity;
         m_isDirty = true;
         emit updated();
@@ -260,7 +244,7 @@ void GeneRendererGL::updateColor(DataProxy::GenePtr gene)
 
 void GeneRendererGL::updateAllColor(const QColor geneQColor)
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features =
             dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
@@ -289,7 +273,7 @@ void GeneRendererGL::updateAllColor(const QColor geneQColor)
 
 void GeneRendererGL::updateSelection(DataProxy::GenePtr gene)
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features =
             dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
@@ -455,14 +439,19 @@ void GeneRendererGL::updateVisual()
 void GeneRendererGL::clearSelection()
 {
     m_geneData.resetSelection(false);
-    DataProxy* dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        feature->selected(false);
-    }
+    updateFeaturesSelected(false);
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
+}
+
+void GeneRendererGL::updateFeaturesSelected(bool selected)
+{
+    DataProxy* dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        feature->selected(selected);
+    }
 }
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
@@ -507,6 +496,20 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
+}
+
+const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
+{
+    GeneSelection::selectedItemsList selectionList;
+    DataProxy* dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        if (feature->selected()) {
+            selectionList.append(GeneSelection::SelectionType(feature->gene(), feature->hits()));
+        }
+    }
+
+    return selectionList;
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
@@ -593,12 +596,8 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
     Q_ASSERT(m_geneNode);
-    Q_ASSERT(m_shaderProgram);
 
-    // add shader program to node
-    m_geneNode->setUserEffect(m_shaderProgram);
-
-    if ( m_isDirty ) {
+    if (m_isDirty) {
         m_isDirty = false;
         // add data to node
         m_geneNode->setGeometry(m_geneData);
@@ -614,7 +613,7 @@ void GeneRendererGL::draw(QGLPainter *painter)
     m_shaderProgram->program()->setUniformValue(mode, modeValue);
 
     int shine = m_shaderProgram->program()->uniformLocation("in_shine");
-    m_shaderProgram->program()->setUniformValue(shine, (GLfloat)m_shine);
+    m_shaderProgram->program()->setUniformValue(shine, static_cast<GLfloat>(m_shine));
 
     int upperLimit = m_shaderProgram->program()->uniformLocation("in_pooledUpper");
     m_shaderProgram->program()->setUniformValue(upperLimit, m_thresholdUpperPooled);
@@ -623,7 +622,10 @@ void GeneRendererGL::draw(QGLPainter *painter)
     m_shaderProgram->program()->setUniformValue(lowerLimit, m_thresholdLowerPooled);
 
     int intensity = m_shaderProgram->program()->uniformLocation("in_intensity");
-    m_shaderProgram->program()->setUniformValue(intensity, (GLfloat)m_intensity);
+    m_shaderProgram->program()->setUniformValue(intensity, static_cast<GLfloat>(m_intensity));
+
+    int shape = m_shaderProgram->program()->uniformLocation("in_shape");
+    m_shaderProgram->program()->setUniformValue(shape, static_cast<int>(m_shape));
 
     // draw the data
     m_geneNode->draw(painter);
@@ -633,23 +635,12 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
 void GeneRendererGL::setupShaders()
 {
-    QGLShaderProgramEffect *shaderCircle = new QGLShaderProgramEffect();
-    QGLShaderProgramEffect *shaderRectangle = new QGLShaderProgramEffect();
-    QGLShaderProgramEffect *shaderCross = new QGLShaderProgramEffect();
-
-    shaderRectangle->setVertexShaderFromFile(":shader/geneSquare.vert");
-    shaderRectangle->setFragmentShaderFromFile(":shader/geneSquare.frag");
-
-    shaderCircle->setFragmentShaderFromFile(":shader/geneCircle.frag");
-    shaderCircle->setVertexShaderFromFile(":shader/geneCircle.vert");
-
-    shaderCross->setFragmentShaderFromFile( ":shader/geneCross.frag");
-    shaderCross->setVertexShaderFromFile(":shader/geneCross.vert");
-
-    m_shaderProgramList[Globals::Circle] = shaderCircle;
-    m_shaderProgramList[Globals::Cross] = shaderCross;
-    m_shaderProgramList[Globals::Square] = shaderRectangle;
-    m_shaderProgram = shaderCircle; //default
+    m_shaderProgram.reset(new QGLShaderProgramEffect());
+    m_shaderProgram->setVertexShaderFromFile(":shader/geneShader.vert");
+    m_shaderProgram->setFragmentShaderFromFile(":shader/geneShaderver.frag");
+    Q_ASSERT(m_geneNode);
+    // add shader program to node
+    m_geneNode->setUserEffect(m_shaderProgram.data());
 }
 
 void GeneRendererGL::setDimensions(const QRectF border)
@@ -669,7 +660,6 @@ void GeneRendererGL::setShape(Globals::GeneShape shape)
 {
     if ( m_shape != shape ) {
         m_shape = shape;
-        m_shaderProgram = m_shaderProgramList.value(shape, 0);
         m_isDirty = true;
         emit updated();
     }

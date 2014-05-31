@@ -8,32 +8,24 @@
 #include "DataStore.h"
 
 #include <QDebug>
-
-#include "simpleCrypt/SimpleCryptDevice.h"
-
 #include <QTemporaryFile>
 #include <QDir>
 #include <QString>
 #include <QSettings>
 
+#include "simpleCrypt/SimpleCryptDevice.h"
+
 static const QString TEMP_PREFIX = QStringLiteral("stvi_temp_XXXXXX_");
 static const QString RESTORE_FILE = QStringLiteral("stvi_filemap");
+static const quint64 ENCRYPT_KEY = 0xDEADC0DEBAADC0DE;
 
-DataStore::DataStore(QObject* parent)
-    : ResourceStore(parent)
-{
-}
-
-DataStore::~DataStore()
-{
-}
-
-void DataStore::init()
+DataStore::DataStore(QObject *parent) :
+    QObject(parent)
 {
     loadResourceMap();
 }
 
-void DataStore::finalize()
+DataStore::~DataStore()
 {
     saveResourceMap();
 }
@@ -45,17 +37,19 @@ bool DataStore::hasResource(const QString& resourceid) const
     return ok;
 }
 
-QIODevice* DataStore::accessResource(const QString& name, Options options)
+DataStore::resourceDeviceType DataStore::accessResource(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::accessResource(%1, %2)").arg(name).arg(options);
+
     // load or create file with given resourceid and options
-    QIODevice *device = (m_fileMap.contains(name)) ?
-                        accessFile(name, options) :
-                        createFile(name, options);
+    resourceDeviceType device = m_fileMap.contains(name) ?
+                accessFile(name, options) : createFile(name, options);
+
     // add encryption layer if specified
     if (options.testFlag(Secure)) {
-        device = new SimpleCryptDevice(device, 0xDEADC0DEBAADC0DE, this);
+        device = resourceDeviceType(new SimpleCryptDevice(device, ENCRYPT_KEY, this));
     }
+
     return device;
 }
 
@@ -63,6 +57,7 @@ void DataStore::clearResources()
 {
     const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     foreach(const QString & resourceid, restore.allKeys()) {
         const QString possibleFile = qvariant_cast<QString>(restore.value(resourceid, QString()));
         if (QFile::exists(possibleFile)) {
@@ -73,6 +68,7 @@ void DataStore::clearResources()
         }
         restore.remove(resourceid); //remove it from qsettigns as well
     }
+
     m_fileMap.clear();
 }
 
@@ -80,6 +76,7 @@ void DataStore::loadResourceMap()
 {
     const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     foreach(const QString & resourceid, restore.allKeys()) {
         const QString possibleFile = qvariant_cast<QString>(restore.value(resourceid, QString()));
         if (QFile::exists(possibleFile)) {
@@ -89,54 +86,63 @@ void DataStore::loadResourceMap()
             qDebug() << QString("[DataStore] Warning: Failed to load file: %1").arg(possibleFile);
         }
     }
+
 }
 
 void DataStore::saveResourceMap()
 {
     const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     foreach(const QString & resourceid, m_fileMap.keys()) {
         qDebug() << QString("[DataStore] Save: (%1 -> %2)").arg(resourceid).arg(m_fileMap[resourceid]);
         restore.setValue(resourceid, m_fileMap[resourceid]);
     }
+
 }
 
-QIODevice* DataStore::createFile(const QString& name, Options options)
+DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::createFile(%1, %2)").arg(name).arg(options);
+
     // early out
     if (m_fileMap.contains(name)) {
         return accessFile(name, options);
     }
-    QFile* file;
-    if (options.testFlag(ResourceStore::Temporary)) {
+
+    QSharedPointer<QFile> file;
+    if (options.testFlag(Option::Temporary)) {
         const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
-        QTemporaryFile* tempFile = new QTemporaryFile(filePath, this);
+        QScopedPointer<QTemporaryFile> tempFile(new QTemporaryFile(filePath, this));
         // apply options
-        tempFile->setAutoRemove(!options.testFlag(ResourceStore::Persistent));
+        tempFile->setAutoRemove(!options.testFlag(Option::Persistent));
         // force file name generation
         tempFile->open();
         tempFile->close();
-        file = tempFile;
+        file = QSharedPointer<QFile>(tempFile.data());
     } else {
         const QString filePath = QDir::current().filePath(name);
-        file = new QFile(filePath, this);
+        file = QSharedPointer<QFile>(new QFile(filePath, this));
     }
+
     // save filename map
-    QString filename = file->fileName();
+    const QString filename = file->fileName();
     qDebug() << QString("[DataStore] Map: (%1 -> %2)").arg(name).arg(filename);
     m_fileMap[name] = filename;
-    return file;
+
+    return resourceDeviceType(file);
 }
 
-QIODevice* DataStore::accessFile(const QString& name, Options options)
+DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::accessFile(%1, %2)").arg(name).arg(options);
+
     // early out
     FileMap::const_iterator it = m_fileMap.find(name);
     if (it == m_fileMap.end()) {
-        return nullptr;
+        return resourceDeviceType(nullptr);
     }
+
     const QString filename = it.value();
-    return new QFile(filename, this);
+    return resourceDeviceType(new QFile(filename, this));
 }

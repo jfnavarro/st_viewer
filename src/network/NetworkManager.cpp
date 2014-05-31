@@ -31,15 +31,7 @@
 
 NetworkManager::NetworkManager(QObject* parent):
     QObject(parent),
-    m_nam(0)
-{
-}
-
-NetworkManager::~NetworkManager()
-{
-}
-
-void NetworkManager::init()
+    m_nam(nullptr)
 {
     // setup network access manager
     m_nam = QPointer<QNetworkAccessManager>(new QNetworkAccessManager(this));
@@ -51,15 +43,16 @@ void NetworkManager::init()
     m_nam->setProxy(proxy);
 #endif
 
-    Configuration* config = Configuration::getInstance();
+    Configuration config;
 
     // make DND look up ahead of time
-    QHostInfo::lookupHost(config->EndPointUrl(), 0, 0);
+    QHostInfo::lookupHost(config.EndPointUrl(), 0, 0);
 
     // connect to the HTTPS TCP port ahead of time
-    m_nam->connectToHostEncrypted(config->EndPointUrl());
+    m_nam->connectToHostEncrypted(config.EndPointUrl());
 
-    // add ssl support  (we need the public key) //TODO finish and try this (me dont like ignoring ssl errors)
+    // add ssl support  (we need the public key)
+    //TODO finish and try this (me dont like ignoring ssl errors)
     //QFile cafile(":public_key.pem");
     //cafile.open(QIODevice::ReadOnly);
     //QSslCertificate cert(&cafile);
@@ -77,20 +70,17 @@ void NetworkManager::init()
             SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
 }
 
-void NetworkManager::finalize()
+NetworkManager::~NetworkManager()
 {
-    if (!m_nam.isNull()) {
-        m_nam.clear();
-    }
 }
 
-void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
+void NetworkManager::provideAuthentication(QNetworkReply *reply,
+                                           QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
-
-    Configuration* config = Configuration::getInstance();
-    authenticator->setUser(config->oauthClientID());
-    authenticator->setPassword(config->oauthSecret());
+    Configuration config;
+    authenticator->setUser(config.oauthClientID());
+    authenticator->setPassword(config.oauthSecret());
 }
 
 NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
@@ -98,7 +88,6 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
 {
     // early out
     if (cmd == nullptr) {
-        //NOTE something went wrong, return NULL
         qDebug() << "[NetworkManager] Error: Unable to create Network Command";
         return nullptr;
     }

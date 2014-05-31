@@ -35,10 +35,10 @@ public:
     typedef QVector<QuadTreeAABB> BoundingBoxList;
 
     QuadTree();
+    explicit QuadTree(const QSizeF& size);
+    explicit QuadTree(const QuadTreeAABB& boundingBox);
+    explicit QuadTree(const QRectF& rect);
     virtual ~QuadTree();
-
-    explicit QuadTree(const QSizeF &size);
-    explicit QuadTree(const QuadTreeAABB &boundingBox);
 
     bool contains(const QPointF &p) const;
 
@@ -96,7 +96,6 @@ private:
         StaticPointItemList data; // store all data as part of bucket struct
     };
 
-    // inplace memory allocation, all data stored sequentially in memory
     typedef QVector<Bucket> BucketList;
     BucketList m_data;
 };
@@ -141,15 +140,14 @@ void QuadTree<T, N>::Bucket::select(const QuadTreeAABB &b, PointItemList &items,
 
     // else add data selected
     // add all items if bucket contained (speed up)
+    const typename StaticPointItemList::size_type size = data.size();
     if (b.contains(aabb)) {
-        typename StaticPointItemList::size_type size = data.size();
         for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
             items.push_back(data[i]);
         }
     }
     // else test and add individual items
     else {
-        const typename StaticPointItemList::size_type size = data.size();
         for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
             if (b.contains(data[i].first)) {
                 items.push_back(data[i]);
@@ -257,17 +255,26 @@ QuadTree<T, N>::~QuadTree()
 }
 
 template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QSizeF &size)
+QuadTree<T, N>::QuadTree(const QSizeF& size)
     : m_data()
 {
-    const QuadTreeAABB boundingBox = QuadTreeAABB(0.0f, 0.0f, size.width(), size.height());
+    const QuadTreeAABB boundingBox =
+            QuadTreeAABB(0.0, 0.0, size.width(), size.height());
     m_data.push_back(Bucket(boundingBox));
 }
 
 template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QuadTreeAABB &boundingBox)
+QuadTree<T, N>::QuadTree(const QuadTreeAABB& boundingBox)
     : m_data()
 {
+    m_data.push_back(Bucket(boundingBox));
+}
+
+template <typename T, int N>
+QuadTree<T, N>::QuadTree(const QRectF& rect)
+    : m_data()
+{
+    const QuadTreeAABB boundingBox = QuadTreeAABB(rect);
     m_data.push_back(Bucket(boundingBox));
 }
 
@@ -303,9 +310,7 @@ void QuadTree<T, N>::select(const QuadTreeAABB &b, PointItemList &items) const
         const int idx = indicies.back();
         indicies.pop_back();
 
-        //int ret[4];
         typename Bucket::QuadArrayType ret;
-
         m_data[idx].select(b, items, ret);
 
         if (ret[0] >= 0) {
@@ -337,7 +342,6 @@ void QuadTree<T, N>::select(const QPointF &p, PointItem &item) const
         const int idx = indicies.back();
         indicies.pop_back();
 
-        //int ret[4];
         typename Bucket::QuadArrayType ret;
         m_data[idx].select(p, item, ret);
 
