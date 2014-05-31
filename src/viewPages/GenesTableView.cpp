@@ -9,6 +9,7 @@
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 
+#include "model/SortGenesProxyModel.h"
 #include "model/GeneFeatureItemModel.h"
 
 #include "viewPages/BooleanItemDelegate.h"
@@ -18,11 +19,11 @@ GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent)
 {
     // model view for genes list selector
-    BooleanItemDelegate* booleanItemDelegate = new BooleanItemDelegate(this);
-    GeneViewDelegate* geneViewDelegate = new GeneViewDelegate(this);
+    BooleanItemDelegate *booleanItemDelegate = new BooleanItemDelegate(this);
+    GeneViewDelegate *geneViewDelegate = new GeneViewDelegate(this);
     m_geneModel = new GeneFeatureItemModel(this);
     
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    SortGenesProxyModel *sortProxyModel = new SortGenesProxyModel(this);
     sortProxyModel->setSourceModel(m_geneModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

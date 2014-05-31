@@ -7,16 +7,18 @@
 
 #include "GeneFeatureItemModel.h"
 
+#include <set>
 #include <QDebug>
 #include <QModelIndex>
 #include <QMimeData>
 #include <QStringList>
+#include <QItemSelection>
 
 const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST =
         QStringLiteral("application/gene.list");
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
-    : QAbstractTableModel(parent)
+    : GeneNamesModel(parent)
 {
 
 }
@@ -107,7 +109,9 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             if (item->selected() != value.toBool()) {
                 item->selected(value.toBool());
                 emit dataChanged(index, index);
-                emit signalSelectionChanged(item);
+                DataProxy::GeneList geneList;
+                geneList.push_back(item);
+                emit signalSelectionChanged(geneList);
                 return true;
             }
             break;
@@ -116,7 +120,9 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             if (color.isValid() && item->color() != color) {
                 item->color(color);
                 emit dataChanged(index, index);
-                emit signalColorChanged(item);
+                DataProxy::GeneList geneList;
+                geneList.push_back(item);
+                emit signalColorChanged(geneList);
                 return true;
             }
         }
@@ -177,30 +183,68 @@ void GeneFeatureItemModel::loadGenes()
     endResetModel();
 }
 
-void GeneFeatureItemModel::selectAllGenesPressed(bool selected)
+bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
+{
+    if (!index.isValid() || m_genelist_reference.isEmpty()) {
+        return false;
+    }
+
+    DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+    Q_ASSERT(!item.isNull());
+
+    if (index.column() == Name) {
+         *genename = item->name();
+         return true;
+    }
+
+    return false;
+}
+
+void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
+                                             bool visible)
 {
     if (m_genelist_reference.isEmpty()) {
         return;
     }
+
     beginResetModel();
-    foreach(DataProxy::GenePtr gene, m_genelist_reference) {
-        if (!gene.isNull() && gene->selected() != selected) {
-            gene->selected(selected);
+    std::set<int> rows;
+    for (const auto &index : selection.indexes()) {
+        rows.insert(index.row());
+    }
+    DataProxy::GeneList geneList;
+    for (const auto &row : rows) {
+        auto &gene(m_genelist_reference[row]);
+        if (!gene.isNull() && gene->selected() != visible) {
+            gene->selected(visible);
+            geneList.push_back(gene);
         }
     }
+    emit signalSelectionChanged(geneList);
     endResetModel();
 }
 
-void GeneFeatureItemModel::setColorGenes(const QColor& color)
+void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection,
+                                        const QColor& color)
 {
     if (m_genelist_reference.isEmpty()) {
         return;
     }
-    beginResetModel();
-    foreach(DataProxy::GenePtr gene, m_genelist_reference) {
-        if (!gene.isNull() && gene->color() != color) {
-            gene->color(color);
-        }
-    }
+
+   beginResetModel();
+   std::set<int> rows;
+   for (const auto &index : selection.indexes()) {
+       rows.insert(index.row());
+   }
+   DataProxy::GeneList geneList;
+   for (const auto &row : rows) {
+       auto &gene(m_genelist_reference[row]);
+       if (!gene.isNull() && gene->color() != color) {
+           gene->color(color);
+           geneList.push_back(gene);
+       }
+   }
+   emit signalColorChanged(geneList);
    endResetModel();
+
 }

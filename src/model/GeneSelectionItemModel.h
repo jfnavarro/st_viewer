@@ -4,6 +4,7 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
+
 #ifndef GENESELECTIONITEMMODEL_H
 #define GENESELECTIONITEMMODEL_H
 
@@ -11,10 +12,14 @@
 
 #include "dataModel/GeneSelection.h"
 
+#include "model/GeneNamesModel.h"
+
+#include "data/DataProxy.h"
+
 class QModelIndex;
 class QStringList;
 
-class GeneSelectionItemModel : public QAbstractTableModel
+class GeneSelectionItemModel : public GeneNamesModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
@@ -26,6 +31,7 @@ public:
         Hits = 1,
         NormalizedHits = 2,
     };
+
     explicit GeneSelectionItemModel(QObject* parent = 0);
     virtual ~GeneSelectionItemModel();
 
@@ -38,7 +44,7 @@ public:
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-public slots:
+    virtual bool geneName(const QModelIndex &index, QString *genename) const;
 
     void reset();
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);

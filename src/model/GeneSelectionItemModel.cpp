@@ -10,7 +10,7 @@
 #include "dataModel/GeneSelection.h"
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
-    : QAbstractTableModel(parent)
+    : GeneNamesModel(parent)
 {
 
 }
@@ -84,6 +84,19 @@ Qt::ItemFlags GeneSelectionItemModel::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
     return defaultFlags;
+}
+
+bool GeneSelectionItemModel::geneName(const QModelIndex &index, QString *genename) const
+{
+    if (!index.isValid() || m_geneselection.empty()) {
+        return false;
+    }
+    const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
+    if (index.column() == Name) {
+         *genename = item.name;
+         return true;
+    }
+    return false;
 }
 
 void GeneSelectionItemModel::sort(int column, Qt::SortOrder order)

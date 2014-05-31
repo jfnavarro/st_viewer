@@ -9,46 +9,55 @@
 #define GENEFEATUREITEMMODEL_H
 
 #include "data/DataProxy.h"
+#include "model/GeneNamesModel.h"
 
 #include <QAbstractTableModel>
 
 class QModelIndex;
 class QStringList;
 class QMimeData;
+class QItemSelection;
 
 // Wrapper model class for the gene data (specific to a dataset) found in the
 // data proxy. Primarily used to enumerate the genes in the cell view.
-class GeneFeatureItemModel : public QAbstractTableModel
+class GeneFeatureItemModel : public GeneNamesModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
 
 public:
 
-    enum Column {Name = 0, Show, Color};
+    enum Column {
+        Name = 0,
+        Show,
+        Color
+    };
 
     explicit GeneFeatureItemModel(QObject* parent = 0);
     virtual ~GeneFeatureItemModel();
 
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+
+    virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    virtual bool geneName(const QModelIndex &index, QString *genename) const;
+
+    void setGeneVisibility(const QItemSelection &selection, bool visible);
+    void setGeneColor(const QItemSelection &selection, const QColor& color);
 
     void loadGenes();
 
 signals:
 
-    void signalSelectionChanged(DataProxy::GenePtr gene);
-    void signalColorChanged(DataProxy::GenePtr gene);
-
-public slots:
-
-    void selectAllGenesPressed(bool selected);
-    void setColorGenes(const QColor& color);
+    void signalSelectionChanged(DataProxy::GeneList geneList);
+    void signalColorChanged(DataProxy::GeneList geneList);
 
 private:
 

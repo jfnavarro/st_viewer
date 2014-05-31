@@ -5,6 +5,9 @@ set(LIBRARY_ARG_INCLUDES
     ExperimentsItemModel.h
     GeneFeatureItemModel.h
     GeneSelectionItemModel.h
+    SortGenesProxyModel.h
+    CompareGeneNames.h
+    GeneNamesModel.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -12,6 +15,9 @@ set(LIBRARY_ARG_SOURCES
     ExperimentsItemModel.cpp
     GeneFeatureItemModel.cpp
     GeneSelectionItemModel.cpp
+    SortGenesProxyModel.cpp
+    CompareGeneNames.cpp
+    GeneNamesModel.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

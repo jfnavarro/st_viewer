@@ -187,7 +187,8 @@ void CellViewPage::onExit()
     ui->lineEdit->clearFocus();
     ui->geneSelectionFilterLineEdit->clearFocus();
     ui->genes_tableview->clearFocus();
-    ui->selectAllGenes->clearFocus();
+    ui->showAllGenes->clearFocus();
+    ui->hideAllGenes->clearFocus();
     ui->selections_tableview->clearFocus();
     ui->clearSelection->clearFocus();
     ui->saveSelection->clearFocus();
@@ -312,10 +313,10 @@ void CellViewPage::createConnections()
             SLOT(setFilterFixedString(QString)));
     connect(ui->geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), selectionProxyModel(),
             SLOT(setFilterFixedString(QString)));
-    connect(ui->selectAllGenes, SIGNAL(clicked(bool)), geneModel(),
-            SLOT(selectAllGenesPressed(bool)));
-    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel(),
-            SLOT(setColorGenes(const QColor&)));
+    connect(ui->showAllGenes, &QPushButton::clicked, this, [=](bool) {
+            this->setVisibilityForAllGenes(true); });
+    connect(ui->hideAllGenes, &QPushButton::clicked, this, [=](bool) {
+            this->setVisibilityForAllGenes(false); });
 
     // cell tissue
     connect(m_toolBar->m_actionShow_cellTissueBlue,
@@ -394,21 +395,17 @@ void CellViewPage::resetActionStates()
     // reset gene model data
     geneModel()->loadGenes();
 
-    // reset gene colors
-    geneModel()->setColorGenes(Globals::DEFAULT_COLOR_GENE);
+    // reset gene colors and selection
+    //TODO fix this
+    //geneModel()->setGeneColor(Globals::DEFAULT_COLOR_GENE);
+    //geneModel()->setGeneVisibility(false);
 
-    // set all genes selected to false
-    geneModel()->selectAllGenesPressed(false);
-    
     // reset gene selection model data
     selectionModel()->reset();
 
     // reset color dialogs
     m_colorDialogGenes->setCurrentColor(Globals::DEFAULT_COLOR_GENE);
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);
-
-    // reset gene list selection status
-    ui->selectAllGenes->setChecked(false);
 
     // reset cell image to show
     m_image->setVisible(true);
@@ -495,16 +492,12 @@ void CellViewPage::initGLView()
 void CellViewPage::createGLConnections()
 {
     //connect gene list model to gene plotter
-  connect(geneModel(), SIGNAL(signalSelectionChanged(DataProxy::GenePtr)),
+    connect(geneModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
-            SLOT(updateSelection(DataProxy::GenePtr)));
-    connect(geneModel(), SIGNAL(signalColorChanged(DataProxy::GenePtr)),
+            SLOT(updateSelection(DataProxy::GeneList)));
+    connect(geneModel(), SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
-            SLOT(updateColor(DataProxy::GenePtr)));
-    connect(ui->selectAllGenes, SIGNAL(clicked(bool)),
-            m_gene_plotter.data(), SLOT(updateAllSelection(bool)));
-    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)),
-            m_gene_plotter.data(), SLOT(updateAllColor(QColor)));
+            SLOT(updateColor(DataProxy::GeneList)));
 
     //connect gene plotter to gene selection model
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()),
@@ -761,5 +754,17 @@ void CellViewPage::slotSaveSelection()
             qDebug() << "Selection object saved succesfully";
         }
 
+    }
+}
+
+void CellViewPage::setVisibilityForAllGenes(bool visible)
+{
+    const int rows = geneProxyModel()->rowCount(QModelIndex());
+    if (rows > 0) {
+        QModelIndex topLeft = geneProxyModel()->index(0, 0, QModelIndex());
+        QModelIndex bottomLeft = geneProxyModel()->index(rows-1, 0, QModelIndex());
+        QItemSelection proxySelection(topLeft, bottomLeft);
+        QItemSelection selection = geneProxyModel()->mapSelectionToSource(proxySelection);
+        geneModel()->setGeneVisibility(selection, visible);
     }
 }

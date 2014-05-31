@@ -85,6 +85,9 @@ protected slots:
     // slot to save the currently selected genes
     void slotSaveSelection();
 
+    // hide/show all genes that are filtered out by the regexp filter
+    void setVisibilityForAllGenes(bool);
+
 protected:
     
     // create GL graphical elements and their connections

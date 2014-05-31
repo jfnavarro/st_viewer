@@ -4,11 +4,11 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
+
 #include "GeneSelectionTableView.h"
 
 #include <QHeaderView>
-#include <QSortFilterProxyModel>
-
+#include "model/SortGenesProxyModel.h"
 #include "model/GeneSelectionItemModel.h"
 
 GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
@@ -16,7 +16,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 {
     m_geneSelectionModel = new GeneSelectionItemModel(this);
 
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    SortGenesProxyModel *sortProxyModel = new SortGenesProxyModel(this);
     sortProxyModel->setSourceModel(m_geneSelectionModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
