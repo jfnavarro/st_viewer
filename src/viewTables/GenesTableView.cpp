@@ -12,8 +12,8 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneFeatureItemModel.h"
 
-#include "viewPages/BooleanItemDelegate.h"
-#include "viewPages/GeneViewDelegate.h"
+#include "viewTables/BooleanItemDelegate.h"
+#include "viewTables/GeneViewDelegate.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent)

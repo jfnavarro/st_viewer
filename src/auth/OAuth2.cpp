@@ -20,8 +20,8 @@
 
 #include "error/OAuth2Error.h"
 
-#include "dataModelDTO/ErrorDTO.h"
-#include "dataModelDTO/OAuth2TokenDTO.h"
+#include "dataModel/ErrorDTO.h"
+#include "dataModel/OAuth2TokenDTO.h"
 #include "dataModel/ObjectParser.h"
 
 #include "utils/Utils.h"

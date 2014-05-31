@@ -21,7 +21,7 @@
 #include "error/SSLNetworkError.h"
 #include "error/ServerError.h"
 
-#include "dataModelDTO/ErrorDTO.h"
+#include "dataModel/ErrorDTO.h"
 #include "dataModel/ObjectParser.h"
 
 NetworkReply::NetworkReply(QNetworkReply* networkReply)

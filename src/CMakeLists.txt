@@ -43,13 +43,14 @@ set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
-set(subdir_list    dialogs
+set(subdir_list
+                   dialogs
                    color
                    dataModel
-                   dataModelDTO
                    network
                    auth
                    data
+                   viewTables
                    viewPages
                    viewOpenGL
                    utils
@@ -63,9 +64,6 @@ set(subdir_list    dialogs
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
-
-
-
 
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
@@ -117,7 +115,7 @@ endforeach()
 
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 
-set(QT_TARGET_LINK_LIBS      Qt5::Core
+set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::Network
                              Qt5::Gui
                              Qt5::Widgets
@@ -172,7 +170,6 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 #add systems libraries
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
-
 
 set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
 set(PLUGINS_IN_CATEGORY_accessible qtaccessiblequick qtaccessiblewidgets)

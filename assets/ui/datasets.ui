@@ -270,7 +270,7 @@
   <customwidget>
    <class>DatasetsTableView</class>
    <extends>QTableView</extends>
-   <header>viewPages/DatasetsTableView.h</header>
+   <header>viewTables/DatasetsTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

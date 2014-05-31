@@ -23,13 +23,13 @@
 
 // parse objects
 #include "dataModel/ObjectParser.h"
-#include "dataModelDTO/ChipDTO.h"
-#include "dataModelDTO/DatasetDTO.h"
-#include "dataModelDTO/GeneDTO.h"
-#include "dataModelDTO/FeatureDTO.h"
-#include "dataModelDTO/ImageAlignmentDTO.h"
-#include "dataModelDTO/UserDTO.h"
-#include "dataModelDTO/GeneSelectionDTO.h"
+#include "dataModel/ChipDTO.h"
+#include "dataModel/DatasetDTO.h"
+#include "dataModel/GeneDTO.h"
+#include "dataModel/FeatureDTO.h"
+#include "dataModel/ImageAlignmentDTO.h"
+#include "dataModel/UserDTO.h"
+#include "dataModel/GeneSelectionDTO.h"
 
 DataProxy::DataProxy() :
     m_user(nullptr)

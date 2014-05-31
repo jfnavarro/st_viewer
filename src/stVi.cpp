@@ -47,7 +47,7 @@
 #include "data/DataProxy.h"
 #include "data/DataStore.h"
 
-#include "dataModelDTO/MinVersionDTO.h"
+#include "dataModel/MinVersionDTO.h"
 #include "dataModel/ObjectParser.h"
 
 #include "dialogs/AboutDialog.h"

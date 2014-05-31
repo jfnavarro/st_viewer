@@ -7,6 +7,16 @@ set(LIBRARY_ARG_INCLUDES
     User.h
     GeneSelection.h
     ImageAlignment.h
+    ChipDTO.h
+    DatasetDTO.h
+    ErrorDTO.h
+    FeatureDTO.h
+    GeneDTO.h
+    GeneSelectionDTO.h
+    ImageAlignmentDTO.h
+    OAuth2TokenDTO.h
+    UserDTO.h
+    MinVersionDTO.h
 )
 
 set(LIBRARY_ARG_SOURCES

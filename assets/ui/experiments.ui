@@ -128,7 +128,7 @@
   <customwidget>
    <class>ExperimentsTableView</class>
    <extends>QTableView</extends>
-   <header>viewPages/ExperimentsTableView.h</header>
+   <header>viewTables/ExperimentsTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

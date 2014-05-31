@@ -394,12 +394,12 @@
   <customwidget>
    <class>GenesTableView</class>
    <extends>QTableView</extends>
-   <header>viewPages/GenesTableView.h</header>
+   <header>viewTables/GenesTableView.h</header>
   </customwidget>
   <customwidget>
    <class>GeneSelectionTableView</class>
    <extends>QTableView</extends>
-   <header>viewPages/GeneSelectionTableView.h</header>
+   <header>viewTables/GeneSelectionTableView.h</header>
   </customwidget>
   <customwidget>
    <class>ScrollArea</class>
