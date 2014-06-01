@@ -4,6 +4,10 @@
 #include <QString>
 #include <QVector>
 
+//Gene selection represents a selection of genes
+//made by the user trough the UI.
+//Gene selections are meant to be stored and shown
+//in the experiments view
 class GeneSelection
 {
 

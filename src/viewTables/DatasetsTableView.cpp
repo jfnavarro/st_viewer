@@ -15,7 +15,7 @@
 
 DatasetsTableView::DatasetsTableView(QWidget *parent)
     : QTableView(parent),
-      m_datasetModel(0)
+      m_datasetModel(nullptr)
 {
     // the model
     m_datasetModel = new DatasetItemModel(this);

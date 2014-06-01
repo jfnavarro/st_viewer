@@ -12,11 +12,13 @@
 
 #include "color/ColorPalette.h"
 
+static const int DEFAULT_SATURATION = 200;
+
 ColorListEditor::ColorListEditor(QWidget* widget)
     : QComboBox(widget)
 {
     HSVPalette palette(this);
-    palette.setSaturation(190); // lighter colors
+    palette.setSaturation(DEFAULT_SATURATION); // lighter colors
     populateList(&palette);
 }
 

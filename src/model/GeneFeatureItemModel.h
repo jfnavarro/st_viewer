@@ -49,9 +49,15 @@ public:
 
     virtual bool geneName(const QModelIndex &index, QString *genename) const;
 
+    //this function will set to visible the genes included in the selection
+    //and emit a signal with the modified genes
     void setGeneVisibility(const QItemSelection &selection, bool visible);
+
+    //this function will modify the color of the genes included in the selection
+    //and emit a signal with the modified genes
     void setGeneColor(const QItemSelection &selection, const QColor& color);
 
+    //reload the reference to the genes from DataProxy
     void loadGenes();
 
 signals:

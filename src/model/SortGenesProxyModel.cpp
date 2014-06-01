@@ -35,5 +35,6 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
         && (geneNameModel->geneName(right, &rightName))) {
         return geneNameLessThan(leftName, rightName, sortCaseSensitivity(), isSortLocaleAware());
     }
+
     return QSortFilterProxyModel::lessThan(left, right);
 }

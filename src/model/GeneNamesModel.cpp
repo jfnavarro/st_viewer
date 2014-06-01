@@ -7,9 +7,12 @@
 
 #include "GeneNamesModel.h"
 
-GeneNamesModel::GeneNamesModel(QObject* parent) : QAbstractTableModel(parent)
+GeneNamesModel::GeneNamesModel(QObject* parent) :
+    QAbstractTableModel(parent)
 {
+
 }
 GeneNamesModel::~GeneNamesModel()
 {
+
 }

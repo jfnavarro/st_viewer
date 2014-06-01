@@ -36,7 +36,7 @@ DatasetPage::~DatasetPage()
 
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
-    QSortFilterProxyModel* datasetsProxyModel =
+    QSortFilterProxyModel *datasetsProxyModel =
         qobject_cast<QSortFilterProxyModel*>(ui->datasets_tableview->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;

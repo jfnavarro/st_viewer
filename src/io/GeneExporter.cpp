@@ -94,14 +94,14 @@ void GeneExporter::exportItem(QTextStream &otxt,
     }
 }
 
-void GeneExporter::exportItem(QIODevice *device,
+void GeneExporter::exportItem(QIODevice &device,
                                  const GeneSelection::selectedItemsList& selectionList) const
 {
     // early out
-    if (!device->isWritable()) {
+    if (!device.isWritable()) {
         return;
     }
-    QTextStream otxt(device);
+    QTextStream otxt(&device);
     // prepend header
     if (m_detailLevel.testFlag(GeneExporter::Extended)) {
         // identifying comment

@@ -24,8 +24,6 @@ public:
     Configuration();
     ~Configuration();
 
-public:
-
     //TODO if more settings are added let each object accessing the
     //     configurations store the access string literals as static values
     //     and make readSetting public instead. doesn't make sense to provide

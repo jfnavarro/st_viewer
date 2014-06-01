@@ -24,13 +24,12 @@ class QRubberBand;
 class RubberbandGL;
 class QGLFramebufferObject;
 
-/* CellGLView is a container
- * to render OpenGL GraphicItemGL type objects
- * QGLWidget is deprecated so Qt3D is the way to go
- * however, QGLView adds camera and things that we do not
- * need so since QGLView is a wraper around QWindow
- * we built our own customized wrapper
- */
+// CellGLView is a container
+// to render OpenGL GraphicItemGL type objects
+// QGLWidget is deprecated so Qt3D is the way to go
+// however, QGLView adds camera and things that we do not
+// need so since QGLView is a wraper around QWindow
+// we built our own customized wrapper
 class CellGLView : public QWindow
 {
     Q_OBJECT

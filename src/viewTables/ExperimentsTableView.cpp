@@ -6,7 +6,8 @@
 #include "model/ExperimentsItemModel.h"
 
 ExperimentsTableView::ExperimentsTableView(QWidget *parent)
-    : QTableView(parent)
+    : QTableView(parent),
+      m_experimentModel(nullptr)
 {
     m_experimentModel = new ExperimentsItemModel(this);
 

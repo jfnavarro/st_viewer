@@ -13,11 +13,14 @@ class GeneSelectionItemModel;
 
 class GeneSelectionTableView : public QTableView
 {
+
 public:
+
     explicit GeneSelectionTableView(QWidget *parent = 0);
     virtual ~GeneSelectionTableView();
 
 private:
+
     GeneSelectionItemModel *m_geneSelectionModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)

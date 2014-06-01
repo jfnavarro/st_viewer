@@ -132,12 +132,13 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     page->setWindowIcon(pix);
 
     // Add QPushButton
-    ExtendedButton* button = new ExtendedButton(pix, label);
+    ExtendedButton *button = new ExtendedButton(pix, label);
     button->setCheckable(true);
     button->setMouseTracking(false);
     button->setFocusPolicy(Qt::NoFocus);
     button->setChecked(count() == 1);
     button->setStyleSheet("QPushButton {width: 100px; height: 100px; icon-size: 50px; }");
+
     buttonGroup->addButton(button, index);
     buttonLayout->addWidget(button);
 }
@@ -147,6 +148,7 @@ void ExtendedTabWidget::setCurrentIndex(int index)
     if (index < 0 || index >= count()) {
         index = 0;
     }
+
     if (index != currentIndex()) {
         stackWidget->setCurrentIndex(index);
         buttonGroup->button(index)->setChecked(true);
@@ -163,8 +165,8 @@ void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
 {
     qDebug() << QString("[PageContainerWidget] Page: %1 -> %2").arg(fromIndex).arg(toIndex);
 
-    QWidget* fromWidget = widget(fromIndex);
-    QWidget* toWidget = widget(toIndex);
+    QWidget *fromWidget = widget(fromIndex);
+    QWidget *toWidget = widget(toIndex);
     if (fromWidget != 0) {
         QMetaObject::invokeMethod(fromWidget, "onExit", Qt::DirectConnection);
     }

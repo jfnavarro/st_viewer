@@ -30,12 +30,13 @@ public:
     explicit RubberbandGL(QObject* parent = 0);
     virtual ~RubberbandGL();
 
-    const QRectF boundingRect() const;
     void setRubberbandRect(const QRectF rect);
 
-    void setSelectionArea(const SelectionEvent *) {}
-
     void draw(QGLPainter *painter);
+
+    const QRectF boundingRect() const;
+
+    void setSelectionArea(const SelectionEvent *) {}
 
 private:
 

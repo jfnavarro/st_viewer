@@ -76,6 +76,7 @@ void ExperimentPage::loadSelections()
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use the text in reques.getErrors(
         showError("Data Error", "Error loading the selections.");
     } else {
         // refresh gene selections on the model

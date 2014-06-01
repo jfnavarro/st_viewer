@@ -45,7 +45,7 @@ public:
     GeneExporter(DetailLevels detailLevel, SeparationModes separationMode);
     ~GeneExporter();
 
-    void exportItem(QIODevice *device,
+    void exportItem(QIODevice &device,
                     const GeneSelection::selectedItemsList& selectionList) const;
 
     void addExportProperty(const QString& property);

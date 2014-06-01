@@ -13,6 +13,9 @@
 
 class QItemSelectionModel;
 class QItemSelection;
+class Error;
+class DatasetItemModel;
+class QSortFilterProxyModel;
 
 namespace Ui
 {
@@ -20,14 +23,10 @@ class DataSets;
 } // namespace Ui //
 
 // this is the definition of the datasets page which contains a list of datasets to be selected
-// it gets updated everytime we enter the page and by selecting a dataset we invoke the dataproxy to load the data
+// it gets updated everytime we enter the page and by selecting a dataset
+// we invoke the dataproxy to load the data
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
-
-class Error;
-class DatasetItemModel;
-class QSortFilterProxyModel;
-
 class DatasetPage : public Page
 {
     Q_OBJECT
@@ -57,6 +56,7 @@ private:
 
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
+
     Ui::DataSets *ui;
 
     Q_DISABLE_COPY(DatasetPage)

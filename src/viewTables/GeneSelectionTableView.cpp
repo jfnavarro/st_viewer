@@ -12,7 +12,8 @@
 #include "model/GeneSelectionItemModel.h"
 
 GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
-    : QTableView(parent)
+    : QTableView(parent),
+      m_geneSelectionModel(nullptr)
 {
     m_geneSelectionModel = new GeneSelectionItemModel(this);
 

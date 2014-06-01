@@ -61,6 +61,7 @@ void DataProxy::finalize()
     m_user.clear();
     m_imageAlignmentMap.clear();
     m_geneSelectionsList.clear();
+    m_selected_datasetId = QString();
 }
 
 void DataProxy::clean()

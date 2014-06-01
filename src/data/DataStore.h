@@ -40,7 +40,10 @@ public:
 
     // store resources on disk, provide interface to store in files
     bool hasResource(const QString& resourceid) const;
-    resourceDeviceType accessResource(const QString& resourceid, Options options = Empty);
+    resourceDeviceType accessResource(const QString& resourceid,
+                                      Options options = Empty);
+
+    //remove all the stored resources
     void clearResources();
 
 private:
@@ -49,8 +52,10 @@ private:
     void loadResourceMap();
     void saveResourceMap();
 
+    //create/open file resources and store them if necessary
     resourceDeviceType createFile(const QString& name, Options options);
     resourceDeviceType accessFile(const QString& name, Options options);
+
     //NOTE temporary files are prefixed with a set of characters so as to
     // guarantee its uniqueness. This map provides a means of mapping the
     // requested file name with the actual name.

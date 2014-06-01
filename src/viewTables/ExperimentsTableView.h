@@ -7,11 +7,14 @@ class ExperimentsItemModel;
 
 class ExperimentsTableView : public QTableView
 {
+
 public:
+
     explicit ExperimentsTableView(QWidget *parent = 0);
     virtual ~ExperimentsTableView();
 
 private:
+
     ExperimentsItemModel *m_experimentModel;
 
     Q_DISABLE_COPY(ExperimentsTableView)

@@ -24,9 +24,10 @@ class QVBoxLayout;
 class QHBoxLayout;
 class Error;
 
+//this class extends QButtonGroup to unable the mouse events
 class ExtendedButtonGroup : public QButtonGroup
 {
-    //this class extends QButtonGroup to unable the mouse events
+
 public:
 
     explicit ExtendedButtonGroup(QWidget* parent = 0) : QButtonGroup(parent){}
@@ -39,9 +40,10 @@ protected:
     virtual bool event(QEvent *event);
 };
 
+ //this class extends QPushButton to unable the mouse events
 class ExtendedButton : public QPushButton
 {
-    //this class extends QPushButton to unable the mouse events
+
 public:
 
     explicit ExtendedButton(QWidget* parent = 0) :
@@ -63,7 +65,6 @@ protected:
 //customized tab manager based on a QStackedWidget and a QButtonGroup.
 //it has the same functionality as the QTabWidget.
 //Pages are member variables
-
 class ExtendedTabWidget : public QWidget
 {
     Q_OBJECT
@@ -99,9 +100,12 @@ protected:
 private:
 
     QWidget* widget(int index);
+
     void insertPage(QWidget* page, const QIcon &icon = QIcon(),
                     const QString &title = QString());
+
     void setCurrentIndex(int index);
+
     void tabChanged(int toIndex, int fromIndex = -1);
 
     void createPages();

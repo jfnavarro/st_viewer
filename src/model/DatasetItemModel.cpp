@@ -111,6 +111,11 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
     return flags;
 }
 
+bool DatasetItemModel::setHeaderData(int, Qt::Orientation, const QVariant &, int)
+{
+    return false;
+}
+
 void DatasetItemModel::loadDatasets()
 {
     beginResetModel();

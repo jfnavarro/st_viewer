@@ -30,7 +30,6 @@ GeneRendererGL::GeneRendererGL(QObject *parent)
     setVisualOption(GraphicItemGL::RubberBandable, true);
 
     clearData();
-    setupShaders();
 }
 
 GeneRendererGL::~GeneRendererGL()
@@ -153,7 +152,7 @@ void GeneRendererGL::setLowerLimit(int limit)
 
 void GeneRendererGL::generateData()
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     foreach(const DataProxy::FeaturePtr feature, features) {
@@ -204,9 +203,10 @@ void GeneRendererGL::updateSize()
 
 void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
 
-    for (auto &gene : geneList) {
+    foreach (DataProxy::GenePtr gene, geneList) {
+        Q_ASSERT(gene);
 
         const auto& features =
                 dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
@@ -214,9 +214,10 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
         const bool selected = gene->selected();
 
         GeneInfoByIdMap::const_iterator it;
+        GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
         foreach(DataProxy::FeaturePtr feature, features) {
             it = m_geneInfoById.find(feature);
-            Q_ASSERT(it != m_geneInfoById.end());
+            Q_ASSERT(it != end);
 
             const int index = it.value();
             const int refCount = m_geneData.quadRefCount(index);
@@ -248,9 +249,11 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
 
-    for (auto &gene : geneList) {
+    foreach (DataProxy::GenePtr gene, geneList) {
+        Q_ASSERT(gene);
+
         const auto& features =
                 dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
 
@@ -299,13 +302,14 @@ void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
             }
         }
     }
+
     m_isDirty = true;
     emit updated();
 }
 
 void GeneRendererGL::updateVisual()
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
 
     // reset ref count and values when in visual mode
@@ -372,7 +376,7 @@ void GeneRendererGL::clearSelection()
 
 void GeneRendererGL::updateFeaturesSelected(bool selected)
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
     foreach(DataProxy::FeaturePtr feature, features) {
         feature->selected(selected);
@@ -426,7 +430,7 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
     GeneSelection::selectedItemsList selectionList;
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
     foreach(DataProxy::FeaturePtr feature, features) {
         if (feature->selected()) {

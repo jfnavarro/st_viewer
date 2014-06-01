@@ -93,7 +93,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
     }
 
     // append authentication token to network command
-    AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
+    AuthorizationManager *authorizationManager = AuthorizationManager::getInstance();
     if (flags.testFlag(UseAuthentication) && authorizationManager->hasAccessToken()) {
         //TODO hide auth from network manager by appending QObject that encapsulates the key value pair
         const QUuid accessToken = authorizationManager->getAccessToken();

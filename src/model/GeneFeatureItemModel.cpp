@@ -37,22 +37,13 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
-
-        QVariant value;
         switch (index.column()) {
-        case Name:
-            value = item->name();
-            break;
-        case Show:
-            value = item->selected() ? Qt::Checked : Qt::Unchecked;
-            break;
-        case Color:
-            value = item->color();
-            break;
+        case Name: return item->name();
+        case Show: return item->selected() ? Qt::Checked : Qt::Unchecked;
+        case Color: return item->color();
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     }
 
     // return invalid value
@@ -67,21 +58,13 @@ QVariant GeneFeatureItemModel::headerData(int section,
     }
 
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        QVariant value;
         switch (section) {
-        case Name:
-            value = tr("Name");
-            break;
-        case Show:
-            value = tr("Show");
-            break;
-        case Color:
-            value = tr("Color");
-            break;
+        case Name: return tr("Name");
+        case Show: return tr("Show");
+        case Color: return tr("Color");
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label
         QVariant value(QVariant::Int);
@@ -207,11 +190,12 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
         return;
     }
 
-    beginResetModel();
     std::set<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
+
+    beginResetModel();
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
         auto &gene(m_genelist_reference[row]);
@@ -220,8 +204,9 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
             geneList.push_back(gene);
         }
     }
-    emit signalSelectionChanged(geneList);
     endResetModel();
+
+    emit signalSelectionChanged(geneList);
 }
 
 void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection,
@@ -231,11 +216,12 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection,
         return;
     }
 
-   beginResetModel();
    std::set<int> rows;
    for (const auto &index : selection.indexes()) {
        rows.insert(index.row());
    }
+
+   beginResetModel();
    DataProxy::GeneList geneList;
    for (const auto &row : rows) {
        auto &gene(m_genelist_reference[row]);
@@ -244,7 +230,7 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection,
            geneList.push_back(gene);
        }
    }
-   emit signalColorChanged(geneList);
    endResetModel();
 
+   emit signalColorChanged(geneList);
 }

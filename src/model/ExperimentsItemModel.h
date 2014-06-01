@@ -33,6 +33,7 @@ public:
         Dataset = 1,
         Comment = 2,
     };
+
     explicit ExperimentsItemModel(QObject* parent = 0);
     virtual ~ExperimentsItemModel();
 
@@ -45,9 +46,9 @@ public:
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-public slots:
-
+    //reset current model
     void reset();
+    //loads the data of the model from DataProxys
     void loadSelectedGenes();
 
 private:

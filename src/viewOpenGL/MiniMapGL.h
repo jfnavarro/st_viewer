@@ -37,8 +37,6 @@ public:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
-    const QRectF boundingRect() const;
-
 public slots:
 
     void setViewColor(const QColor viewColor);
@@ -49,13 +47,17 @@ public slots:
 
     void setParentSceneTransformations(const QTransform transform);
 
-    void draw(QGLPainter *painter);
-
-    void setSelectionArea(const SelectionEvent *) {}
-
 signals:
 
     void signalCenterOn(const QPointF& point);
+
+protected:
+
+    void draw(QGLPainter *painter);
+
+    const QRectF boundingRect() const;
+
+    void setSelectionArea(const SelectionEvent *) {}
 
 private:
 

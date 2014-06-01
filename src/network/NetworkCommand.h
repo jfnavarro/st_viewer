@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QUrlQuery>
+
 #include "utils/Utils.h"
 
 class QString;
@@ -41,8 +42,10 @@ public:
     void addQueryItem(const QString &param, const QString &value = QString());
     void addQueryItem(const QString &param, const int value);
     void addQueryItem(const QString &param, const qreal value);
-    void addQueryItems(QObject *object); // adds query items from qobject meta data
+    // adds query items from qobject meta data
+    void addQueryItems(QObject *object);
 
+    //returns the current query item for the param given
     const QString getQueryItem(const QString& param) const;
 
     // returns the query part fully encoded.

@@ -16,7 +16,8 @@
 #include "viewTables/GeneViewDelegate.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
-    : QTableView(parent)
+    : QTableView(parent),
+      m_geneModel(nullptr)
 {
     // model view for genes list selector
     BooleanItemDelegate *booleanItemDelegate = new BooleanItemDelegate(this);

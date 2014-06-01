@@ -29,14 +29,14 @@ QWidget* BooleanItemDelegate::createEditor(QWidget* parent,
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    QCheckBox* box = new QCheckBox(parent);
+    QCheckBox *box = new QCheckBox(parent);
     return box;
 }
 
 void BooleanItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     const bool value = index.model()->data(index).toBool();
-    QCheckBox* box = static_cast<QCheckBox*>(editor);
+    QCheckBox *box = qobject_cast<QCheckBox*>(editor);
     box->setChecked(value);
 }
 
@@ -52,7 +52,7 @@ void BooleanItemDelegate::updateEditorGeometry(QWidget* editor,
 void BooleanItemDelegate::setModelData(QWidget* editor,
                                        QAbstractItemModel* model, const QModelIndex& index) const
 {
-    QCheckBox* box = static_cast<QCheckBox*>(editor);
+    QCheckBox *box = qobject_cast<QCheckBox*>(editor);
     const bool value = box->isChecked();
     model->setData(index, value);
 }
@@ -75,9 +75,9 @@ void BooleanItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
 bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
                                       const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    if ((event->type() == QEvent::MouseButtonRelease) ||
-        (event->type() == QEvent::MouseButtonDblClick)) {
-        QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+    if (event->type() == QEvent::MouseButtonRelease ||
+        event->type() == QEvent::MouseButtonDblClick) {
+        QMouseEvent *mouse_event = dynamic_cast<QMouseEvent*>(event);
         if (mouse_event->button() != Qt::LeftButton ||
             !BooleanItemDelegate::checkBoxRect(option).contains(mouse_event->pos())) {
             return false;
@@ -86,8 +86,8 @@ bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
             return true;
         }
     } else if (event->type() == QEvent::KeyPress) {
-        if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space &&
-            static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select) {
+        if (dynamic_cast<QKeyEvent*>(event)->key() != Qt::Key_Space &&
+            dynamic_cast<QKeyEvent*>(event)->key() != Qt::Key_Select) {
             return false;
         }
     } else {
@@ -110,5 +110,6 @@ const QRect BooleanItemDelegate::checkBoxRect(const QStyleOptionViewItem &view_i
         view_item_style_options.rect.y() +
         view_item_style_options.rect.height() / 2 -
         check_box_rect.height() / 2);
+
     return QRect(check_box_point, check_box_rect.size());
 }

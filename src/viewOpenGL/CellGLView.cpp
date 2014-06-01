@@ -75,7 +75,7 @@ CellGLView::~CellGLView()
 {
     foreach(GraphicItemGL *node, m_nodes) {
         delete node;
-        node = 0;
+        node = nullptr;
     }
 }
 
@@ -120,7 +120,7 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 
 void CellGLView::ensureContext()
 {
-    if ( !m_context ) {
+    if (!m_context) {
         m_context.reset(new QOpenGLContext());
         m_context->setFormat(format);
         const bool success = m_context->create();

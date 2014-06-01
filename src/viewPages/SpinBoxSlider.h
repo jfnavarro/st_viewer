@@ -12,6 +12,8 @@
 #include <QSpinBox>
 #include "qxtspanslider.h"
 
+//Wrapper around QxtSpanSlider
+//to add two spin boxes one on each side
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT

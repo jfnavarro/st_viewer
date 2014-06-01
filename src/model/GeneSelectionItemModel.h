@@ -46,7 +46,10 @@ public:
 
     virtual bool geneName(const QModelIndex &index, QString *genename) const;
 
+    //resets the model
     void reset();
+
+    //load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 
 private:

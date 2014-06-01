@@ -14,13 +14,12 @@ class QColor4ub;
 class QGLAttributeValue;
 class QCustomDataArray;
 
-/* this class contains the gene plotter visual
- * data containers and it gives and an easy interface
- * to add/remove/update data
- * OpenGL buffers are configured automatically
- * the principle is that the data points are stored
- * as triangles but they are quads
- */
+// this class contains the gene plotter visual
+// data containers and it gives and an easy interface
+// to add/remove/update data
+// OpenGL buffers are configured automatically
+// the principle is that the data points are stored
+// as triangles but they are quads
 class GeneData : public QGeometryData
 {
 

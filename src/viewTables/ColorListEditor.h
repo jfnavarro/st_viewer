@@ -20,17 +20,21 @@ class ColorListEditor : public QComboBox
     Q_PROPERTY(QColor color READ color WRITE setColor USER true)
 
 public:
+
     static const int DEFAULT_COLOR_COUNT = 12;
 
     explicit ColorListEditor(QWidget* widget = 0);
     virtual ~ColorListEditor();
 
 public:
+
     const QColor color() const;
     void setColor(const QColor& color);
 
 private:
+
     void populateList(const ColorPalette* palette);
+
 };
 
 #endif // #define COLORLISTEDITOR_H //

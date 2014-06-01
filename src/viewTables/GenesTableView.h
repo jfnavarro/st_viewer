@@ -13,11 +13,14 @@ class GeneFeatureItemModel;
 
 class GenesTableView : public QTableView
 {
+
 public:
+
     explicit GenesTableView(QWidget *parent = 0);
     virtual ~GenesTableView();
 
 private:
+
     GeneFeatureItemModel *m_geneModel;
 
     Q_DISABLE_COPY(GenesTableView)

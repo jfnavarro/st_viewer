@@ -12,8 +12,6 @@
 #include <QPointer>
 #include <QObject>
 
-// this object is a simple wrapper for network reply to handle
-// asynchronus downloads
 class Error;
 class NetworkReply;
 
@@ -23,11 +21,13 @@ namespace async
 //NOTE for now DataRequest is synchronous,
 //it could be easily be made async (see commented code)
 
+// this object is a simple wrapper for network reply to handle
+// asynchronus/syncrhonous downloads
 class DataRequest
 {
 public:
 
-    //TODO make Q_OBJECT and add it a slot/signal to allow to
+    //TODO make it Q_OBJECT and add it a slot/signal to allow to
     //abort downloads from user(progress bar dialog) or timer
 
     enum Code {
@@ -47,12 +47,15 @@ public:
 
     DataRequest::Code return_code() const;
     void return_code(DataRequest::Code flag);
+
     void addError(QSharedPointer<Error> error);
     QList<QSharedPointer<Error>> getErrors() const;
 
 private:
+
     QList<QSharedPointer<Error>> m_error_list;
     DataRequest::Code m_return_code;
+
 };
 
 } // namespace async //

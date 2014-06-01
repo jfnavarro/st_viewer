@@ -66,6 +66,13 @@ public:
     typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
+    //TODO number of containers can be decreased for Genes and Features
+    //what is really needed is a super fast lookup for :
+    //   - get features from dataset ID and Gene Name
+    //   - get gene from feature ID or Gene Name
+    //   - get features from dataset ID
+    //   - get genes from dataset ID
+
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
     //map of unique genes (gene name to gene pointer)

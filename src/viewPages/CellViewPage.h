@@ -26,7 +26,8 @@ class GeneSelectionItemModel;
 class GeneFeatureItemModel;
 class QSortFilterProxyModel;
 
-namespace Ui{
+namespace Ui
+{
 class CellView;
 } // namespace Ui
 
@@ -86,7 +87,10 @@ protected slots:
     void slotSaveSelection();
 
     // hide/show all genes that are filtered out by the regexp filter
-    void setVisibilityForAllGenes(bool);
+    void setVisibilityForAllGenes(const bool);
+
+    //set the color to all genes that are filtered out by the regexp filter
+    void setColorForAllGenes(const QColor);
 
 protected:
     
@@ -121,11 +125,11 @@ private:
     SelectionDialog *selectionDialog;
 
     // color dialogs
-    QColorDialog *m_colorDialogGenes;
-    QColorDialog *m_colorDialogGrid;
+    QScopedPointer<QColorDialog> m_colorDialogGenes;
+    QScopedPointer<QColorDialog> m_colorDialogGrid;
 
     // tool bar
-    CellViewPageToolBar *m_toolBar;
+    QScopedPointer<CellViewPageToolBar> m_toolBar;
 
     // User interface
     Ui::CellView *ui;

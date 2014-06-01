@@ -13,6 +13,13 @@
 class QModelIndex;
 class QString;
 
+//abstract class for Gene Based Models
+//that provides a function to retrieve the gene name
+//from a model index, this function is used to sort
+//the genes in a proxy model
+
+//TODO this class could be removed and use
+//QT_INVOKE_METHOD on each model when needed
 class GeneNamesModel : public QAbstractTableModel
 {
     Q_OBJECT

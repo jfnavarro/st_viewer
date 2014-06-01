@@ -37,7 +37,8 @@ bool DataStore::hasResource(const QString& resourceid) const
     return ok;
 }
 
-DataStore::resourceDeviceType DataStore::accessResource(const QString& name, Options options)
+DataStore::resourceDeviceType
+DataStore::accessResource(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::accessResource(%1, %2)").arg(name).arg(options);
 
@@ -143,6 +144,5 @@ DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options
         return resourceDeviceType(nullptr);
     }
 
-    const QString filename = it.value();
-    return resourceDeviceType(new QFile(filename, this));
+    return resourceDeviceType(new QFile(it.value(), this));
 }

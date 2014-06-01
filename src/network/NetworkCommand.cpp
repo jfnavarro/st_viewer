@@ -45,7 +45,6 @@ void NetworkCommand::addQueryItems(QObject* object)
     const int size = metaObject->propertyCount();
 
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
-
         const QMetaProperty metaproperty = metaObject->property(i);
         // abort if not readable
         const QString  param = metaproperty.name();
@@ -112,7 +111,6 @@ const QString NetworkCommand::getQueryItem(const QString& param) const
     return m_query.queryItemValue(param);
 }
 
-// returns the query part fully encoded.
 const QString NetworkCommand::getEncodedQuery() const
 {
     return m_query.query(QUrl::FullyEncoded);

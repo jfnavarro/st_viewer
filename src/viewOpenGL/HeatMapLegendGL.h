@@ -27,17 +27,19 @@ public:
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
 
-    void draw(QGLPainter *painter);
-
-    const QRectF boundingRect() const;
-
-    void setSelectionArea(const SelectionEvent *) {}
-
 public slots:
     
     void setBoundaries(qreal min, qreal max);
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
+
+protected:
+
+    void draw(QGLPainter *painter);
+
+    const QRectF boundingRect() const;
+
+    void setSelectionArea(const SelectionEvent *) {}
 
 private:
 

@@ -55,6 +55,7 @@ enum Anchor
     None = 10
 };
 
+/** GRAPHICAL ITEMS ANCHOR POSITIONS **/
 static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;
 static const Anchor DEFAULT_ANCHOR_LEGEND = NorthEast;
 static const Anchor DEFAULT_ANCHOR_GRID = None;
@@ -88,7 +89,6 @@ static const QString SettingsTokenExpiresAt = QStringLiteral("expires_at");
 /** NETWORK **/
 static const QString LBL_ACCESS_TOKEN_USERNAME = QStringLiteral("username");
 static const QString LBL_ACCESS_TOKEN_PASSWORD = QStringLiteral("password");
-
 static const QString LBL_GRANT_TYPE = QStringLiteral("grant_type");
 static const QString LBL_GRANT_PASSWORD = QStringLiteral("password");
 static const QString LBL_SCOPE = QStringLiteral("scope");

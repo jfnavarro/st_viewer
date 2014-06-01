@@ -48,11 +48,13 @@ public:
 
     //NOTE do not want the user to edit columns name
     virtual bool setHeaderData(int, Qt::Orientation,
-                               const QVariant&, int = Qt::EditRole) { return false; }
+                               const QVariant&, int = Qt::EditRole);
+
+    //loads the data of the model from DatProxy
+    void loadDatasets();
 
 public slots:
 
-    void loadDatasets();
     void datasetSelected(const QModelIndex&);
 
 signals:

@@ -7,7 +7,7 @@
 
 ScrollArea::ScrollArea(QWidget *parent)
   : QAbstractScrollArea(parent),
-    m_view(0),
+    m_view(nullptr),
     m_container(nullptr)
 {
 

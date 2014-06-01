@@ -68,21 +68,6 @@ CellViewPage::CellViewPage(QWidget *parent)
 
 CellViewPage::~CellViewPage()
 {
-    if (m_colorDialogGrid) {
-        delete m_colorDialogGrid;
-    }
-    m_colorDialogGrid = nullptr;
-
-    if (m_colorDialogGenes) {
-        delete m_colorDialogGenes;
-    }
-    m_colorDialogGenes = nullptr;
-
-    if (m_toolBar) {
-        delete m_toolBar;
-    }
-    m_toolBar = nullptr;
-
     delete ui;
 }
 
@@ -101,10 +86,11 @@ void CellViewPage::onInit()
     ui->geneSelectionFilterLineEdit->setClearButtonEnabled(true);
 
     // color dialogs
-    m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID);
+    m_colorDialogGrid.reset(new QColorDialog(Globals::DEFAULT_COLOR_GRID));
      //OSX native color dialog gives problems
     m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
-    m_colorDialogGenes = new QColorDialog(Globals::DEFAULT_COLOR_GENE);
+
+    m_colorDialogGenes.reset(new QColorDialog(Globals::DEFAULT_COLOR_GENE));
     //OSX native color dialog gives problems
     m_colorDialogGenes->setOption(QColorDialog::DontUseNativeDialog, true);
 
@@ -205,6 +191,12 @@ void CellViewPage::onExit()
 bool CellViewPage::loadData()
 {
     DataProxy *dataProxy = DataProxy::getInstance();
+
+    if (dataProxy->getSelectedDataset().isNull()) {
+        qDebug() << "CellViewPage : no dataset is selected";
+        return false;
+    }
+
     const auto dataset =
             dataProxy->getDatasetById(dataProxy->getSelectedDataset());
 
@@ -317,6 +309,8 @@ void CellViewPage::createConnections()
             this->setVisibilityForAllGenes(true); });
     connect(ui->hideAllGenes, &QPushButton::clicked, this, [=](bool) {
             this->setVisibilityForAllGenes(false); });
+    connect(m_colorDialogGenes.data(), &QColorDialog::colorSelected, this, [=](const QColor &color) {
+            this->setColorForAllGenes(color); });
 
     // cell tissue
     connect(m_toolBar->m_actionShow_cellTissueBlue,
@@ -329,7 +323,7 @@ void CellViewPage::createConnections()
             SIGNAL(triggered(bool)), m_view.data(), SLOT(zoomIn()));
     connect(m_toolBar->m_actionZoom_zoomOut,
             SIGNAL(triggered(bool)), m_view.data(), SLOT(zoomOut()));
-    connect(m_toolBar, SIGNAL(rotateView(qreal)), m_view.data(), SLOT(rotate(qreal)));
+    connect(m_toolBar.data(), SIGNAL(rotateView(qreal)), m_view.data(), SLOT(rotate(qreal)));
 
     // print canvas
     connect(m_toolBar->m_actionSave_save,
@@ -360,7 +354,7 @@ void CellViewPage::createConnections()
 
 QSortFilterProxyModel *CellViewPage::selectionProxyModel()
 {
-    QSortFilterProxyModel* selectionsProxyModel =
+    QSortFilterProxyModel *selectionsProxyModel =
         qobject_cast<QSortFilterProxyModel*>(ui->selections_tableview->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
@@ -368,7 +362,7 @@ QSortFilterProxyModel *CellViewPage::selectionProxyModel()
 
 GeneSelectionItemModel *CellViewPage::selectionModel()
 {
-    GeneSelectionItemModel* selectionModel =
+    GeneSelectionItemModel *selectionModel =
         qobject_cast<GeneSelectionItemModel*>(selectionProxyModel()->sourceModel());
     Q_ASSERT(selectionModel);
     return selectionModel;
@@ -376,7 +370,7 @@ GeneSelectionItemModel *CellViewPage::selectionModel()
 
 QSortFilterProxyModel *CellViewPage::geneProxyModel()
 {
-    QSortFilterProxyModel* proxyModel =
+    QSortFilterProxyModel *proxyModel =
         qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
     Q_ASSERT(proxyModel);
     return proxyModel;
@@ -384,7 +378,7 @@ QSortFilterProxyModel *CellViewPage::geneProxyModel()
 
 GeneFeatureItemModel *CellViewPage::geneModel()
 {
-    GeneFeatureItemModel* geneModel =
+    GeneFeatureItemModel *geneModel =
         qobject_cast<GeneFeatureItemModel*>(geneProxyModel()->sourceModel());
     Q_ASSERT(geneModel);
     return geneModel;
@@ -439,9 +433,9 @@ void CellViewPage::resetActionStates()
 
 void CellViewPage::createToolBar()
 {
-    m_toolBar = new CellViewPageToolBar();
+    m_toolBar.reset(new CellViewPageToolBar());
     // add tool bar to the layout
-    ui->pageLayout->insertWidget(0, m_toolBar);
+    ui->pageLayout->insertWidget(0, m_toolBar.data());
 }
 
 void CellViewPage::initGLView()
@@ -508,19 +502,19 @@ void CellViewPage::createGLConnections()
             m_gene_plotter.data(), SLOT(clearSelection()) );
 
     //threshold slider signal
-    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
             m_gene_plotter.data(), SLOT(setLowerLimit(int)));
-    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setUpperLimit(int)));
     
     //gene attributes signals
-    connect(m_toolBar, SIGNAL(intensityValueChanged(qreal)),
+    connect(m_toolBar.data(), SIGNAL(intensityValueChanged(qreal)),
             m_gene_plotter.data(), SLOT(setIntensity(qreal)));
-    connect(m_toolBar, SIGNAL(sizeValueChanged(qreal)),
+    connect(m_toolBar.data(), SIGNAL(sizeValueChanged(qreal)),
             m_gene_plotter.data(), SLOT(setSize(qreal)));
-    connect(m_toolBar, SIGNAL(shapeIndexChanged(Globals::GeneShape)),
+    connect(m_toolBar.data(), SIGNAL(shapeIndexChanged(Globals::GeneShape)),
             m_gene_plotter.data(), SLOT(setShape(Globals::GeneShape)));
-    connect(m_toolBar, SIGNAL(shineValueChanged(qreal)),
+    connect(m_toolBar.data(), SIGNAL(shineValueChanged(qreal)),
             m_gene_plotter.data(), SLOT(setShine(qreal)));
 
     //show/not genes signal
@@ -532,7 +526,7 @@ void CellViewPage::createGLConnections()
             SLOT(slotSetGeneVisualMode(QAction*)));
 
     // grid signals
-    connect(m_colorDialogGrid, SIGNAL(colorSelected(const QColor&)),
+    connect(m_colorDialogGrid.data(), SIGNAL(colorSelected(const QColor&)),
             m_grid.data(), SLOT(setColor(const QColor&)));
     connect(m_toolBar->m_actionShow_showGrid, SIGNAL(triggered(bool)),
             m_grid.data(), SLOT(setVisible(bool)));
@@ -540,7 +534,7 @@ void CellViewPage::createGLConnections()
     // cell tissue canvas
     connect(m_toolBar->m_actionShow_showCellTissue, SIGNAL(triggered(bool)),
             m_image.data(), SLOT(setVisible(bool)));
-    connect(m_toolBar, SIGNAL(brightnessValueChanged(qreal)),
+    connect(m_toolBar.data(), SIGNAL(brightnessValueChanged(qreal)),
             m_image.data(), SLOT(setIntensity(qreal)));
 
     // legend signals
@@ -558,9 +552,9 @@ void CellViewPage::createGLConnections()
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
     // connect threshold slider to the heatmap
-    connect(m_toolBar, SIGNAL(thresholdLowerValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
             m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_toolBar, SIGNAL(thresholdUpperValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
 }
 
@@ -665,7 +659,7 @@ void CellViewPage::slotExportSelection()
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
-        exporter.exportItem(&textFile, GeneSelection::getUniqueSelectedItems(geneSelection));
+        exporter.exportItem(textFile, GeneSelection::getUniqueSelectedItems(geneSelection));
     }
 
     textFile.close();
@@ -757,14 +751,28 @@ void CellViewPage::slotSaveSelection()
     }
 }
 
-void CellViewPage::setVisibilityForAllGenes(bool visible)
+void CellViewPage::setVisibilityForAllGenes(const bool visible)
 {
     const int rows = geneProxyModel()->rowCount(QModelIndex());
     if (rows > 0) {
         QModelIndex topLeft = geneProxyModel()->index(0, 0, QModelIndex());
-        QModelIndex bottomLeft = geneProxyModel()->index(rows-1, 0, QModelIndex());
+        QModelIndex bottomLeft = geneProxyModel()->index(rows - 1, 0, QModelIndex());
         QItemSelection proxySelection(topLeft, bottomLeft);
         QItemSelection selection = geneProxyModel()->mapSelectionToSource(proxySelection);
         geneModel()->setGeneVisibility(selection, visible);
+    }
+}
+
+void CellViewPage::setColorForAllGenes(const QColor color)
+{
+    //TODO duplicated code with setVisibilityForAllGenes
+    //refactor duplicated code out
+    const int rows = geneProxyModel()->rowCount(QModelIndex());
+    if (rows > 0) {
+        QModelIndex topLeft = geneProxyModel()->index(0, 0, QModelIndex());
+        QModelIndex bottomLeft = geneProxyModel()->index(rows - 1, 0, QModelIndex());
+        QItemSelection proxySelection(topLeft, bottomLeft);
+        QItemSelection selection = geneProxyModel()->mapSelectionToSource(proxySelection);
+        geneModel()->setGeneColor(selection, color);
     }
 }

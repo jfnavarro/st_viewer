@@ -16,6 +16,7 @@
 class GeneViewDelegate : public QStyledItemDelegate
 {
       Q_OBJECT
+
 public:
 
     explicit GeneViewDelegate(QObject* parent = 0);
@@ -29,7 +30,9 @@ public:
     Q_DISABLE_COPY(GeneViewDelegate)
 
 private slots:
+
     void editorFinished(int);
+
 };
 
 #endif // GENEVIEWDELEGATE_H //

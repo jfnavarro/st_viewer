@@ -184,7 +184,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addWidgetToMenu(tr("Shape:"), m_menu_genePlotter, m_geneShapeComboBox);
 
     //second menu
-    QToolButton* toolButtonGene = new QToolButton(this);
+    QToolButton *toolButtonGene = new QToolButton(this);
     toolButtonGene->setMenu(m_menu_genePlotter);
     toolButtonGene->setPopupMode(QToolButton::InstantPopup);
     toolButtonGene->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));
@@ -242,7 +242,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
                     BRIGHTNESS_MIN,
                     BRIGHTNESS_MAX);
 
-    QToolButton* toolButtonCell = new QToolButton();
+    QToolButton *toolButtonCell = new QToolButton();
     toolButtonCell->setMenu(m_menu_cellTissue);
     toolButtonCell->setPopupMode(QToolButton::InstantPopup);
     toolButtonCell->setIcon(QIcon(QStringLiteral(":/images/settings.png")));

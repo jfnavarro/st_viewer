@@ -28,21 +28,14 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
-        QVariant value;
+        Q_ASSERT(item);
         switch (index.column()) {
-        case Name:
-            value = item->name();
-            break;
-        case Dataset:
-            value = item->datasetId();
-        break;
-        case Comment:
-            value = item->comment();
-            break;
+        case Name: return item->name();
+        case Dataset: return item->datasetId();
+        case Comment: return item->comment();
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     }
     // return invalid value
     return QVariant(QVariant::Invalid);
@@ -55,21 +48,13 @@ QVariant ExperimentsItemModel::headerData(int section,
         return QVariant(QVariant::Invalid);
     }
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        QVariant value;
         switch (section) {
-        case Name:
-            value = tr("Name");
-            break;
-        case Dataset:
-            value = tr("Dataset");
-            break;
-        case Comment:
-            value = tr("Comment");
-            break;
+        case Name: return tr("Name");
+        case Dataset: return tr("Dataset");
+        case Comment: return tr("Comment");
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label
         QVariant value(QVariant::Int);
@@ -112,6 +97,7 @@ void ExperimentsItemModel::reset()
 void ExperimentsItemModel::loadSelectedGenes()
 {
     beginResetModel();
+    m_geneselectionList.clear();
     DataProxy* dataProxy = DataProxy::getInstance();
     m_geneselectionList = dataProxy->getGeneSelections();
     endResetModel();

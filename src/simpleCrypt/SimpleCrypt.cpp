@@ -112,6 +112,8 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QSharedPointer<QIODevice> in,
     if (in->bytesAvailable() < (static_cast<qint64>(sizeof(SegmentHeader)) + segment.size) ) {
         return (m_lastError = StreamPartialSegmentError);
     }
+
+    //read data
     in->read(reinterpret_cast<char *>(&segment), sizeof(SegmentHeader));
     decryptData = in->read(segment.size);
     
@@ -131,16 +133,12 @@ int SimpleCrypt::getProperty(Property code) const
     switch (code) {
     case StreamHeaderSize:
         return sizeof(StreamHeader);
-        break;
     case SegmentHeaderSize:
         return sizeof(SegmentHeader) + sizeof(quint16);
-        break;
     case LastErrorCode:
         return static_cast<int>(m_lastError);
-        break;
     default:
         return -1;
-        break;
     }
 }
 
@@ -161,7 +159,7 @@ bool SimpleCrypt::hasKey() const
 
 void SimpleCrypt::encodeByteArray(QByteArray &data) const
 {
-    int size = data.size();
+    const int size = data.size();
     int hist = 0;
     for (int i = 0; i < size; ++i) {
         data[i] = data[i] ^ m_key.key8[i % 8] ^ hist;
