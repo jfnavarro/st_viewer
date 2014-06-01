@@ -429,10 +429,9 @@ async::DataRequest DataProxy::loadDatasets()
     }
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets();
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(DatasetDataType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //return the request
@@ -454,11 +453,10 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
     }
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getGenesByDatasetId(datasetId);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneDataType)));
     parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -480,10 +478,9 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
     }
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getChipByChipId(chipId);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(ChipDataType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -505,11 +502,10 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     }
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getFeatureByDatasetId(datasetId);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(FeatureDataType)));
     parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -538,10 +534,9 @@ async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignme
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getImageAlignmentById(imageAlignmentId);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(ImageAlignmentDataType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -553,10 +548,9 @@ async::DataRequest DataProxy::loadUser()
     //no need to check if present (we always reload the user)
     //creates the requet
     NetworkCommand *cmd = RESTCommandFactory::getUser();
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(UserType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -568,10 +562,9 @@ async::DataRequest DataProxy::loadGeneSelections()
     //no need to check if present (we always reload the selections)
     //creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections();
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //returns the request
@@ -585,10 +578,9 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     NetworkCommand *cmd = RESTCommandFactory::addSelection();
     // add all (meta) properties of the dto as query items
     cmd->addQueryItems(&dto);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     //return the request
@@ -611,11 +603,10 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
     }
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getCellTissueFigureByName(name);
-    NetworkManager nm;
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
     parameters.insert(Globals::PARAM_FILE, QVariant(name));
-    NetworkReply *reply = nm.httpRequest(cmd, QVariant(parameters));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();
     return createRequest(reply);

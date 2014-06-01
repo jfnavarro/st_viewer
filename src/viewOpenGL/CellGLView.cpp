@@ -51,15 +51,20 @@ CellGLView::CellGLView(QScreen *parent) :
     m_projm.setToIdentity();
 
     //creates and sets the OpenGL format
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    format.setDepthBufferSize(0);
-    format.setAlphaBufferSize(24);
-    format.setBlueBufferSize(24);
-    format.setGreenBufferSize(24);
-    format.setRedBufferSize(24);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setStereo(false);
+
+    //TODO some of this attribures is making
+    //the create context to fail for invalid pixel format
+    //needs to be fixed
+
+    //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    //format.setDepthBufferSize(0);
+    //format.setAlphaBufferSize(24);
+    //format.setBlueBufferSize(24);
+    //format.setGreenBufferSize(24);
+    //format.setRedBufferSize(24);
+    //format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    //format.setRenderableType(QSurfaceFormat::OpenGL);
+    //format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
 
@@ -121,7 +126,7 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 void CellGLView::ensureContext()
 {
     if (!m_context) {
-        m_context.reset(new QOpenGLContext());
+        m_context.reset(new QOpenGLContext);
         m_context->setFormat(format);
         const bool success = m_context->create();
         qDebug() << "CellGLView, OpenGL context create = " << success;

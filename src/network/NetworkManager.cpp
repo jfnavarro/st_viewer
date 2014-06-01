@@ -83,7 +83,7 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply,
     authenticator->setPassword(config.oauthSecret());
 }
 
-NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
+NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
                                           QVariant data, NetworkFlags flags)
 {
     // early out
@@ -102,7 +102,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
     }
 
     // keep track of reply to match command later on (async callback)
-    QNetworkReply* networkReply = nullptr;
+    QNetworkReply *networkReply = nullptr;
 
     // creating the request
     QNetworkRequest request;
@@ -171,15 +171,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd,
         return nullptr;
     }
 
-    NetworkReply* replyWrapper = nullptr;
-    replyWrapper = new NetworkReply(networkReply);
-    replyWrapper->setCustomData(data);
-
+    NetworkReply *replyWrapper = new NetworkReply(networkReply);
     if (replyWrapper == nullptr) {
         // something didn't work out :/
         qDebug() << "[NetworkManager] Error: Unable to create network request!";
         return nullptr;
     }
 
+    replyWrapper->setCustomData(data);
     return replyWrapper;
 }

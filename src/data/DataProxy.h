@@ -205,6 +205,10 @@ private:
     // the current selected dataset
     mutable QString m_selected_datasetId;
 
+    //network manager to make network requests
+    //must be a member variable
+    NetworkManager m_networkManager;
+
     Q_DISABLE_COPY(DataProxy)
 };
 

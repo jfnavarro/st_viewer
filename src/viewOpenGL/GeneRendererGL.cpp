@@ -566,7 +566,7 @@ void GeneRendererGL::setupShaders()
 {
     m_shaderProgram.reset(new QGLShaderProgramEffect());
     m_shaderProgram->setVertexShaderFromFile(":shader/geneShader.vert");
-    m_shaderProgram->setFragmentShaderFromFile(":shader/geneShaderver.frag");
+    m_shaderProgram->setFragmentShaderFromFile(":shader/geneShader.frag");
     Q_ASSERT(m_geneNode);
     // add shader program to node
     m_geneNode->setUserEffect(m_shaderProgram.data());

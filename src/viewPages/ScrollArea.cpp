@@ -45,6 +45,7 @@ void ScrollArea::initializeView(QSharedPointer<CellGLView> view)
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
     viewport()->update();
 }
 

@@ -42,7 +42,7 @@ void InitPage::onInit()
     connect(ui->newExpButt, SIGNAL(released()), this, SIGNAL(moveToNextPage()));
     connect(ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
     
-    AuthorizationManager* authorizationManager = AuthorizationManager::getInstance();
+    AuthorizationManager  *authorizationManager = AuthorizationManager::getInstance();
     connect(authorizationManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
     connect(authorizationManager, SIGNAL(signalError(QSharedPointer<Error>)),
@@ -67,7 +67,7 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
     auth->cleanAccesToken();
     auth->forceAuthentication();
     //TODO show error? it will show it the user types wrong credentails...
-    Q_UNUSED(error);
+    qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 
 void InitPage::slotAuthorized()

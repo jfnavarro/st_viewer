@@ -11,6 +11,8 @@
 #include <QObject>
 #include <QPointer>
 
+#include "network/NetworkManager.h"
+
 class LoginDialog;
 class Error;
 class QUuid;
@@ -61,6 +63,10 @@ private:
 
     // login dialog component
     QPointer<LoginDialog> m_loginDialog;
+
+    //network manager to make network requests
+    //must be a member variable
+    NetworkManager m_networkManager;
 
     Q_DISABLE_COPY(OAuth2)
 };

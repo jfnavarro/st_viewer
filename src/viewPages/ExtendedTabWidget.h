@@ -111,6 +111,9 @@ private:
     void createPages();
     void createActions();
 
+    //TODO use smart pointers here
+    //though the objects are being removed now
+
     //pages
     InitPage *startpage;
     DatasetPage *datasets;

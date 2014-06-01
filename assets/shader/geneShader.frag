@@ -1,7 +1,7 @@
 varying highp vec4 textCoord;
 varying lowp vec4 outColor;
 varying lowp float outSelected;
-varying lowp int outShape;
+varying lowp float outShape;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -23,8 +23,9 @@ void main(void)
     
     // input options
     bool selected = bool(outSelected);
+    int shape = int(outShape);
     
-    if (outShape == 0) { //circle
+    if (shape == 0) { //circle
         // calculate distance from center
         vec2 pos = mod(textCoord.xy, vec2(1.0)) - vec2(0.5);
         float dist = length(pos);
@@ -37,7 +38,7 @@ void main(void)
             fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist));
         }
     }
-    else if (outShape == 1) { //cross
+    else if (shape == 1) { //cross
         // calculate distance from center
         vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
         float mindist = min(pos.x, pos.y);

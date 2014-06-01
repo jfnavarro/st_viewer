@@ -15,7 +15,6 @@
 #include "dialogs/LoginDialog.h"
 
 #include "network/RESTCommandFactory.h"
-#include "network/NetworkManager.h"
 #include "network/NetworkReply.h"
 
 #include "error/OAuth2Error.h"
@@ -77,9 +76,8 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
 
     // send empty flags to ensure access token is not appended to request
-    NetworkManager networkManager;
     NetworkReply *request =
-            networkManager.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+            m_networkManager.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
 
     //check reply is correct
     if (request == nullptr) {
@@ -101,7 +99,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     Q_UNUSED(code);
 
     // get reference to network reply from sender object
-    NetworkReply* reply = dynamic_cast<NetworkReply*>(sender());
+    NetworkReply *reply = dynamic_cast<NetworkReply*>(sender());
 
     // null reply, prob no connection
     if (reply == nullptr) {

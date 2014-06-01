@@ -13,7 +13,7 @@ uniform mediump mat4 qt_ModelViewProjectionMatrix;
 varying highp vec4 textCoord;
 varying lowp vec4 outColor;
 varying lowp float outSelected;
-varying lowp int outShape;
+varying lowp float outShape;
 
 // uniform variables
 uniform lowp int in_visualMode;
@@ -107,7 +107,7 @@ void main(void)
     outColor = qt_Color;
     bool visible = qt_Color.a != 0.0;
     textCoord = qt_MultiTexCoord0;
-    outShape = int(in_shape);
+    outShape = float(in_shape);
     
     // input parameters to compute color
     int geneMode = int(in_visualMode);

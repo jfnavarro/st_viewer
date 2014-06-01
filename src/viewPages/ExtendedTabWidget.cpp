@@ -56,15 +56,19 @@ ExtendedTabWidget::ExtendedTabWidget(QWidget *parent) :
     layout(nullptr),
     buttonLayout(nullptr)
 {
-    buttonGroup = new ExtendedButtonGroup(this);
-    stackWidget = new QStackedWidget(this);
+    buttonGroup = new ExtendedButtonGroup;
+
+    stackWidget = new QStackedWidget;
     stackWidget->setFrameShape(QFrame::StyledPanel);
-    buttonLayout = new QVBoxLayout(this);
+
+    buttonLayout = new QVBoxLayout;
     buttonLayout->setSpacing(0);
-    QVBoxLayout* buttonStretchLayout = new QVBoxLayout(this);
+
+    QVBoxLayout  *buttonStretchLayout = new QVBoxLayout;
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(buttonLayout);
     buttonStretchLayout->addStretch();
+
     layout = new QHBoxLayout;
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -90,7 +94,7 @@ QSize ExtendedTabWidget::sizeHint() const
 {
     int xMax = 0;
     int yMax = 0;
-    foreach(QAbstractButton* button, buttonGroup->buttons()) {
+    foreach(QAbstractButton  *button, buttonGroup->buttons()) {
         xMax = qMax(xMax, button->sizeHint().width());
         yMax = qMax(yMax, button->sizeHint().height());
     }
