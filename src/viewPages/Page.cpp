@@ -22,6 +22,7 @@ Page::Page(QWidget *parent) :
     //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
     //                                 Qt::WindowTitleHint);
     m_progressDialog->setCancelButton(nullptr);
+    m_progressDialog->setAutoClose(false);
     //TODO implement abort logic
     //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
     m_timer = new QTimer(this);

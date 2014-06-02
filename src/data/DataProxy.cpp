@@ -76,8 +76,7 @@ void DataProxy::clean()
 void DataProxy::cleanAll()
 {
     qDebug() << "Cleaning memory cache and disk cache in Dataproxy";
-    DataStore dataStore;
-    dataStore.clearResources();
+    m_dataStore.clearResources();
     clean();
 }
 
@@ -246,8 +245,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
         // keep track of file pointer
         QScopedPointer<QIODevice> device;
-        DataStore dataStore;
-        device.reset(dataStore.accessResource(fileid,
+        device.reset(m_dataStore.accessResource(fileid,
                                                               DataStore::Temporary |
                                                               DataStore::Persistent |
                                                               DataStore::Secure).data());
@@ -385,10 +383,9 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment(const QString& imageAl
     return it.value();
 }
 
-DataStore::resourceDeviceType DataProxy::getFigure(const QString& figureId) const
+DataStore::resourceDeviceType DataProxy::getFigure(const QString& figureId)
 {
-    DataStore dataStore;
-    return dataStore.accessResource(figureId,
+    return m_dataStore.accessResource(figureId,
                                      DataStore::Temporary |
                                      DataStore::Persistent |
                                      DataStore::Secure);
@@ -589,8 +586,7 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
 
 bool DataProxy::hasCellTissue(const QString& name) const
 {
-    DataStore dataStore;
-    return dataStore.hasResource(name);
+    return m_dataStore.hasResource(name);
 }
 
 async::DataRequest DataProxy::loadCellTissueByName(const QString& name)

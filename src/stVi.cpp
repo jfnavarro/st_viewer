@@ -334,18 +334,6 @@ void stVi::createShorcuts()
 
 void stVi::initSingleInstances()
 {
-    // init configurations
-    //Configuration *configuration = Configuration::getInstance();
-    //configuration->init();
-
-    // init data stored
-    //DataStore* dataStore = DataStore::getInstance();
-    //dataStore->init();
-
-    // init network manager
-    //NetworkManager* networkManager = NetworkManager::getInstance();
-    //networkManager->init();
-
     // init data proxy
     DataProxy* dataProxy = DataProxy::getInstance();
     dataProxy->init();
@@ -361,21 +349,9 @@ void stVi::finalizeSingleInstances()
     AuthorizationManager::getInstance()->finalize();
     AuthorizationManager::getInstance(true);
 
-    // finalize network manager
-    //NetworkManager::getInstance()->finalize();
-    //NetworkManager::getInstance(true);
-
     // finalize data proxy
     DataProxy::getInstance()->finalize();
     DataProxy::getInstance(true);
-
-    // finalize data stored
-    //DataStore::getInstance()->finalize();
-    //DataStore::getInstance(true);
-
-    // finalize configurations
-    //Configuration::getInstance()->finalize();
-    //Configuration::getInstance(true);
 }
 
 void stVi::createConnections()

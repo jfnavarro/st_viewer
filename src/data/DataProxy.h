@@ -145,7 +145,7 @@ public:
     ImageAlignmentPtr getImageAlignment(const QString& imageAlignmentId);
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser() const;
-    DataStore::resourceDeviceType getFigure(const QString& figureId) const;
+    DataStore::resourceDeviceType getFigure(const QString& figureId);
     const GeneSelectionList& getGeneSelections() const;
     const QString getSelectedDataset() const;
 
@@ -208,6 +208,9 @@ private:
     //network manager to make network requests
     //must be a member variable
     NetworkManager m_networkManager;
+
+    //data storage to handle image files
+    DataStore m_dataStore;
 
     Q_DISABLE_COPY(DataProxy)
 };
