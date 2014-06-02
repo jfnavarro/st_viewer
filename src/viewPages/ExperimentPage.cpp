@@ -15,7 +15,8 @@
 #include "network/DownloadManager.h"
 
 ExperimentPage::ExperimentPage(QWidget *parent)
-    : Page(parent), ui(new Ui::Experiments)
+    : Page(parent),
+      ui(nullptr)
 {
     onInit();
 }
