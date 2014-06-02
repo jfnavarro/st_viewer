@@ -17,7 +17,6 @@
 ExperimentPage::ExperimentPage(QWidget *parent)
     : Page(parent), ui(new Ui::Experiments)
 {
-    ui->setupUi(this);
     onInit();
 }
 
