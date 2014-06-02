@@ -22,6 +22,7 @@
 #include <QRubberBand>
 #include <QOpenGLFramebufferObject>
 
+//TODO make this names smaller!!!
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;

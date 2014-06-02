@@ -74,7 +74,10 @@ private:
     void registerError(QSharedPointer<Error> error);
 
     // Qt network reply
-    QSharedPointer<QNetworkReply> m_reply;
+    //QSharedPointer<QNetworkReply> m_reply;
+    //TODO shared pointe crashes, fix it
+    QNetworkReply *m_reply;
+
     // errors
     ErrorList m_errors;
     // custom data
