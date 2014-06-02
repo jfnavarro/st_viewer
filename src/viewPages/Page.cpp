@@ -6,28 +6,64 @@
 */
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include "Page.h"
 
-Page::Page(QWidget *parent) : QWidget(parent)
+Page::Page(QWidget *parent) :
+    QWidget(parent),
+    m_progressDialog(nullptr),
+    m_timer(nullptr),
+    m_steps(0)
 {
+    m_progressDialog= new QProgressDialog("Downloading data.", "Cancel", 0, 100, this);
+    m_progressDialog->setWindowModality(Qt::ApplicationModal);
+    //TODO remove max/min buttons
+    //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
+    //                                 Qt::WindowTitleHint);
+    m_progressDialog->setCancelButton(nullptr);
+    //TODO implement abort logic
+    //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(increaseBar()));
 }
 
 Page::~Page()
 {
+
 }
 
 void Page::setWaiting(bool waiting)
 {
     if (waiting) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        m_progressDialog->setValue(0);
+        m_progressDialog->show();
+        m_progressDialog->raise();
+        m_progressDialog->activateWindow();
+        m_steps = 0;
+        m_timer->start(100);
     } else {
-        QApplication::restoreOverrideCursor();
-        QApplication::processEvents();
+        m_timer->stop();
+        m_progressDialog->hide();
     }
 }
 
 void Page::increaseBar()
 {
+    m_progressDialog->setValue(m_steps);
+    if (++m_steps > m_progressDialog->maximum()) {
+        m_timer->start(100);
+        m_steps = 0;
+        m_progressDialog->setValue(0);
+    }
 }
 
+void Page::showWarning(const QString &header, const QString &body)
+{
+    QMessageBox::warning(this, header, body);
+}
+
+void Page::showError(const QString &header, const QString &body)
+{
+    QMessageBox::critical(this, header, body);
+}

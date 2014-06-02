@@ -518,7 +518,7 @@ QColor ColorPickerPopup::color(int index) const
     if (index < 0 || index > (int) items.count() - 1)
         return QColor();
 
-    ColorPickerPopup *that = (ColorPickerPopup *)this;
+    ColorPickerPopup *that = const_cast<ColorPickerPopup *>(this);
     return that->items.at(index)->color();
 }
 
