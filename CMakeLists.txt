@@ -28,7 +28,7 @@ if(SERVER STREQUAL development)
 elseif(SERVER STREQUAL production)
   #Production configuration
   set(ENDPOINT "https://api.spatialtranscriptomics.com")
-  set(APIPATH  "api-0-5")
+  set(APIPATH  "api-0.4")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "ayfBaF5UAKR2")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
