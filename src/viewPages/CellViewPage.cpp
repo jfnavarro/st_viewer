@@ -209,6 +209,8 @@ bool CellViewPage::loadData()
 
     //load the image alignment first
     {
+      Q_ASSERT(!dataset->imageAlignmentId().isNull());
+      Q_ASSERT(!dataset->imageAlignmentId().isEmpty());
         async::DataRequest request =
                 dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
         if (request.return_code() == async::DataRequest::CodeError
@@ -224,6 +226,10 @@ bool CellViewPage::loadData()
     const auto ImageAlignment =
             dataProxy->getImageAlignment(dataset->id());
     Q_ASSERT(ImageAlignment);
+    Q_ASSERT(!ImageAlignment->figureBlue().isNull());
+    Q_ASSERT(!ImageAlignment->figureBlue().isEmpty());
+    Q_ASSERT(!ImageAlignment->figureRed().isNull());
+    Q_ASSERT(!ImageAlignment->figureRed().isEmpty());
 
     //load cell tissue blue
     {
