@@ -60,19 +60,22 @@ QWidget* GeneViewDelegate::createEditor(QWidget *parent,
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     Q_ASSERT(v.type() == QVariant::Color);
     QColor color = qvariant_cast<QColor>(v);
-
-    //    QtColorPicker *colorPicker = new QtColorPicker(parent);
-    //    QtColorPicker *colorPicker = new QtColorPicker();
-
-
     ColorPickerPopup *colorPickerPopup = createColorPickerPopup(color, parent);
     connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this, SLOT(editorFinished(const QColor &)));
-//    editor->setColor(color);
-
-//colorPicker->setColorDialogEnabled(false);
-//    colorPicker->show();
-    //  colorPicker->click();
     return colorPickerPopup;
+}
+
+void GeneViewDelegate::updateEditorGeometry(QWidget* editor,
+                                               const QStyleOptionViewItem& option,
+                                               const QModelIndex& index) const
+{
+    Q_UNUSED(index);
+    // The colorpicker is a bit misplaced. But right now this function doesn't solve the issue
+
+    //    const QRect rect = option.rect;
+    //    editor->setGeometry(rect);
+    qDebug() << option.rect;
+    editor->setGeometry( QRect(option.rect.topLeft(), editor->geometry().size() ));
 }
 
 GeneViewDelegate::~GeneViewDelegate()

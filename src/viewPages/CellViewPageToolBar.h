@@ -81,10 +81,6 @@ public:
     QAction *m_actionShow_showMiniMap;
     QAction *m_actionRotation_rotateLeft;
     QAction *m_actionRotation_rotateRight;
-    QAction *m_actionSelectAllRows;
-    QAction *m_actionDeselectAllRows;
-    QAction *m_actionShowAllSelected;
-    QAction *m_actionHideAllSelected;
 
 signals:
 

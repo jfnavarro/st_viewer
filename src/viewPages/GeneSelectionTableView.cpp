@@ -10,29 +10,14 @@
 #include <QHeaderView>
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneSelectionItemModel.h"
+#include "viewPages/GeneNamesTableView.h"
 
 GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
-    : QTableView(parent)
+    : GeneNamesTableView(parent)
 {
     //model view gene selections table
-    geneSelectionModel = new GeneSelectionItemModel(this);
 
-    SortGenesProxyModel* sortProxyModel = new SortGenesProxyModel(this);
-    sortProxyModel->setSourceModel(geneSelectionModel);
-    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    setModel(sortProxyModel);
-    setSortingEnabled(true);
-    sortByColumn(0, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
-
-    setSortingEnabled(true);
-    horizontalHeader()->setSortIndicatorShown(true);
-    sortByColumn(0, Qt::AscendingOrder);
-
-    resizeColumnsToContents();
-    resizeRowsToContents();
 
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -40,15 +25,29 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     setShowGrid(true);
 
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-
     verticalHeader()->hide();
-    model()->submit(); //support for caching (speed up)
 }
 
 GeneSelectionTableView::~GeneSelectionTableView()
 {
 
+}
+
+void GeneSelectionTableView::setGeneSelectionItemModel(GeneSelectionItemModel *geneSelectionItemModel)
+{
+    Q_ASSERT(geneSelectionItemModel);
+    Q_ASSERT(m_sortGenesProxyModel);
+    m_sortGenesProxyModel->setSourceModel(geneSelectionItemModel);
+    setModel(m_sortGenesProxyModel);
+    sortByColumn(0, Qt::AscendingOrder);
+
+    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+
+    resizeColumnsToContents();
+    resizeRowsToContents();
+
+    // Is submit() needed? I don't know what it is meant for /Erik Sjolund
+    model()->submit(); //support for caching (speed up)
 }

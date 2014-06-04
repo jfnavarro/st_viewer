@@ -4,7 +4,8 @@
 #include "color/ColorPalette.h"
 #include <qtcolorpicker.h>
 
-ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor, QWidget *parent) {
+ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor, QWidget *parent)
+{
     ColorPickerPopup *colorPickerPopup = new ColorPickerPopup(6, false, parent);
     HSVPalette palette(parent);
     palette.setSaturation(190); // lighter colors

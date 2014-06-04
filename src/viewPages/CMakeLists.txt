@@ -2,8 +2,6 @@ include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt;$
 
 FIX_QT3D_COMPILATION_BUG()
 
-
-
 set(LIBRARY_ARG_INCLUDES
     CellViewPage.h
     DatasetPage.h
@@ -20,8 +18,10 @@ set(LIBRARY_ARG_INCLUDES
     ExtendedTabWidget.cpp
     SpinBoxSlider.h
     ScrollArea.h
-    SelectionMenu.h
+    SelectionMenuButton.h
+    ActionMenuButton.h
     CreateColorPickerPopup.h
+    GeneNamesTableView.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -40,8 +40,10 @@ set(LIBRARY_ARG_SOURCES
     ExtendedTabWidget.cpp
     SpinBoxSlider.cpp
     ScrollArea.cpp
-    SelectionMenu.cpp
+    SelectionMenuButton.cpp
+    ActionMenuButton.cpp
     CreateColorPickerPopup.cpp
+    GeneNamesTableView.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

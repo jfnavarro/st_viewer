@@ -55,7 +55,8 @@
 
 
 CellViewPage::CellViewPage(QWidget *parent)
-    : Page(parent), m_minimap(nullptr), m_legend(nullptr), m_gene_plotter(nullptr), 
+    : Page(parent), m_geneModel(nullptr), m_geneSelectionModel(nullptr),
+      m_minimap(nullptr), m_legend(nullptr), m_gene_plotter(nullptr),
       m_image(nullptr), m_grid(nullptr), m_view(nullptr), selectionDialog(nullptr), 
       m_colorDialogGenes(nullptr), m_colorDialogGrid(nullptr)
 {
@@ -84,10 +85,14 @@ CellViewPage::~CellViewPage()
 
 void CellViewPage::onInit()
 {
+    // create models (TODO: we should move the creation of the models out of the GUI)
+    m_geneModel = new GeneFeatureItemModel(this);
+    m_geneSelectionModel = new GeneSelectionItemModel(this);
+
     //create UI objects
     ui = new Ui::CellView;
     ui->setupUi(this);
-    
+
     ui->clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
     ui->saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
     ui->exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
@@ -113,8 +118,16 @@ void CellViewPage::onInit()
     // init OpenGL graphical objects
     initGLView();
 
+    // set the table view models
+    ui->genes_tableview->setGeneFeatureItemModel(m_geneModel);
+    ui->selections_tableview->setGeneSelectionItemModel(m_geneSelectionModel);
+
     //create connections
     createConnections();
+
+    // setup menu buttons
+    ui->selectionMenuButton->init(ui->genes_tableview);
+    ui->actionMenuButton->init(this);
 
     //create OpenGL connections
     createGLConnections();
@@ -293,6 +306,7 @@ void CellViewPage::loadData()
     //succes downloading the data
     setWaiting(false);
 }
+
 void CellViewPage::createConnections()
 {
     // go back signal
@@ -301,10 +315,10 @@ void CellViewPage::createConnections()
 
     // gene model signals
 
-    connect(ui->lineEdit, SIGNAL(textChanged(QString)), geneProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(ui->geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), selectionProxyModel(),
-            SLOT(setFilterFixedString(QString)));
+    connect(ui->lineEdit, SIGNAL(textChanged(QString)), ui->genes_tableview,
+            SLOT(setGeneNameFilter(QString)));
+    connect(ui->geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), ui->selections_tableview,
+            SLOT(setGeneNameFilter(QString)));
 
     /*
     connect(ui->showAllGenes, SIGNAL(clicked(bool)), this,
@@ -312,7 +326,7 @@ void CellViewPage::createConnections()
     connect(ui->hideAllGenes, SIGNAL(clicked(bool)), this,
             SLOT(slotHideAllGenes(bool)));
     */
-    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), geneModel(),
+    connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)), m_geneModel,
             SLOT(setColorGenes(const QColor&)));
 
     // cell tissue
@@ -349,61 +363,18 @@ void CellViewPage::createConnections()
             SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
     connect(m_toolBar->m_actionColor_selectColorGrid,
             SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
-
-    //selection actions
-    connect(m_toolBar->m_actionSelectAllRows, SIGNAL(triggered(bool)), ui->genes_tableview, SLOT(selectAll()));
-    connect(m_toolBar->m_actionDeselectAllRows, SIGNAL(triggered(bool)), ui->genes_tableview, SLOT(clearSelection()));
-
-    //actions on selected rows
-    connect(m_toolBar->m_actionShowAllSelected, SIGNAL(triggered(bool)), this, SLOT(slotShowAllSelected()));
-    connect(m_toolBar->m_actionHideAllSelected, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
-    connect(m_toolBar->m_colorPickerPopup, SIGNAL(selected(const QColor &)), this, SLOT(slotSetColorAllSelected(const QColor &)));
-}
-
-QSortFilterProxyModel *CellViewPage::selectionProxyModel()
-{
-    QSortFilterProxyModel* selectionsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(ui->selections_tableview->model());
-
-    Q_ASSERT(selectionsProxyModel);
-    return selectionsProxyModel;
-}
-
-GeneSelectionItemModel *CellViewPage::selectionModel()
-{
-    GeneSelectionItemModel* selectionModel =
-        qobject_cast<GeneSelectionItemModel*>(selectionProxyModel()->sourceModel());
-    Q_ASSERT(selectionModel);
-    return selectionModel;
-}
-
-
-QSortFilterProxyModel *CellViewPage::geneProxyModel()
-{
-    QSortFilterProxyModel* proxyModel =
-        qobject_cast<QSortFilterProxyModel*>(ui->genes_tableview->model());
-    Q_ASSERT(proxyModel);
-    return proxyModel;
-}
-
-GeneFeatureItemModel *CellViewPage::geneModel()
-{
-    GeneFeatureItemModel* geneModel =
-        qobject_cast<GeneFeatureItemModel*>(geneProxyModel()->sourceModel());
-    Q_ASSERT(geneModel);
-    return geneModel;
 }
 
 void CellViewPage::resetActionStates()
 {
     // reset gene model data
-    geneModel()->loadGenes();
+    m_geneModel->loadGenes();
 
     // reset gene colors
-    geneModel()->setColorGenes(Globals::DEFAULT_COLOR_GENE);
+    m_geneModel->setColorGenes(Globals::DEFAULT_COLOR_GENE);
 
     // reset gene selection model data
-    selectionModel()->reset();
+    m_geneSelectionModel->reset();
 
     // reset color dialogs
     m_colorDialogGenes->setCurrentColor(Globals::DEFAULT_COLOR_GENE);
@@ -493,10 +464,10 @@ void CellViewPage::createGLConnections()
 {
 
     //connect gene list model to gene plotter
-    connect(geneModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
+    connect(m_geneModel, SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter,
             SLOT(updateSelection(DataProxy::GeneList)));
-    connect(geneModel(), SIGNAL(signalColorChanged(DataProxy::GeneList)),
+    connect(m_geneModel, SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_gene_plotter,
             SLOT(updateColor(DataProxy::GeneList)));
     connect(m_colorDialogGenes, SIGNAL(colorSelected(QColor)),
@@ -742,19 +713,12 @@ void CellViewPage::slotSelectionUpdated()
     //TODO pooledMax is not actually a correct roof since the reads per gene are sum
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
     const auto& uniqueSelected = DataProxy::getUniqueGeneSelected(max, features);
-    selectionModel()->loadSelectedGenes(uniqueSelected);
-}
-
-QItemSelection CellViewPage::geneTableItemSelection()
-{
-    auto selected = ui->genes_tableview->selectionModel()->selection();
-    auto mapped_selected = geneProxyModel()->mapSelectionToSource(selected);
-    return mapped_selected;
+    m_geneSelectionModel->loadSelectedGenes(uniqueSelected);
 }
 
 void CellViewPage::setVisibilityForSelectedRows(bool visible)
 {
-    geneModel()->setGeneVisibility(geneTableItemSelection(), visible);
+    m_geneModel->setGeneVisibility(ui->genes_tableview->geneTableItemSelection(), visible);
 }
 
 void CellViewPage::slotShowAllSelected()
@@ -769,29 +733,5 @@ void CellViewPage::slotHideAllSelected()
 
 void CellViewPage::slotSetColorAllSelected(const QColor &color)
 {
-    geneModel()->setGeneColor(geneTableItemSelection(), color);
+    m_geneModel->setGeneColor(ui->genes_tableview->geneTableItemSelection(), color);
 }
-
-/*
-void CellViewPage::slotShowAllGenes(bool)
-{
-    setVisibilityForAllGenes(true);
-}
-
-void CellViewPage::slotHideAllGenes(bool)
-{
-    setVisibilityForAllGenes(false);
-}
-
-void CellViewPage::setVisibilityForAllGenes(bool visible)
-{
-    int rows = geneProxyModel()->rowCount(QModelIndex());
-    if (rows > 0) {
-        QModelIndex topLeft = geneProxyModel()->index(0, 0, QModelIndex());
-        QModelIndex bottomLeft = geneProxyModel()->index(rows-1, 0, QModelIndex());
-        QItemSelection proxySelection(topLeft, bottomLeft);
-        QItemSelection selection = geneProxyModel()->mapSelectionToSource(proxySelection);
-        geneModel()->setGeneVisibility(selection, visible);
-    }
-}
-*/

@@ -8,17 +8,22 @@
 #define GENESELECTIONTABLEVIEW_H
 
 #include <QTableView>
+#include "viewPages/GeneNamesTableView.h"
 
 class GeneSelectionItemModel;
 
-class GeneSelectionTableView : public QTableView
+class GeneSelectionTableView : public GeneNamesTableView
 {
+    Q_OBJECT
+
 public:
+
     explicit GeneSelectionTableView(QWidget *parent = 0);
     virtual ~GeneSelectionTableView();
 
+    void setGeneSelectionItemModel(GeneSelectionItemModel *geneSelectionItemModel);
+
 private:
-    GeneSelectionItemModel *geneSelectionModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)
 };

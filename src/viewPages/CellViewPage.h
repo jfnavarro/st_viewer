@@ -83,14 +83,6 @@ protected slots:
     // genes were selected
     void slotSelectionUpdated();
 
-/*
-    // show all genes that are filtered out by the regexp filter
-    void slotShowAllGenes(bool);
-
-    // hide all genes that are filtered out by the regexp filter
-    void slotHideAllGenes(bool);
-*/
-
     void slotSetColorAllSelected(const QColor &);
 
 protected:
@@ -115,14 +107,12 @@ private slots:
 
 private:
 
-    QItemSelection geneTableItemSelection();
     void setVisibilityForAllGenes(bool visible);
     void setVisibilityForSelectedRows(bool visible);
 
-    GeneFeatureItemModel *geneModel();
-    QSortFilterProxyModel *geneProxyModel();
-    GeneSelectionItemModel *selectionModel();
-    QSortFilterProxyModel *selectionProxyModel();
+    GeneFeatureItemModel *m_geneModel;
+    GeneSelectionItemModel *m_geneSelectionModel;
+
     MiniMapGL *m_minimap;
     HeatMapLegendGL *m_legend;
     GeneRendererGL *m_gene_plotter;
