@@ -241,7 +241,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
     // cell tissue figure
     case TissueDataType: {
         Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE),
-                   "DataProxy", "BlueTissueData must include file parameter!");
+                   "DataProxy", "Tissue must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
         // keep track of file pointer
         QScopedPointer<QIODevice> device;

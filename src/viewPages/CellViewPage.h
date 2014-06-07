@@ -121,9 +121,6 @@ private:
     QSharedPointer<GridRendererGL> m_grid;
     QSharedPointer<CellGLView> m_view;
 
-    // selection dialogs
-    SelectionDialog *selectionDialog;
-
     // color dialogs
     QScopedPointer<QColorDialog> m_colorDialogGenes;
     QScopedPointer<QColorDialog> m_colorDialogGrid;

@@ -59,7 +59,6 @@ CellViewPage::CellViewPage(QWidget *parent)
       m_image(nullptr),
       m_grid(nullptr),
       m_view(nullptr),
-      selectionDialog(nullptr),
       m_colorDialogGenes(nullptr),
       m_colorDialogGrid(nullptr)
 {
@@ -93,9 +92,6 @@ void CellViewPage::onInit()
     m_colorDialogGenes.reset(new QColorDialog(Globals::DEFAULT_COLOR_GENE));
     //OSX native color dialog gives problems
     m_colorDialogGenes->setOption(QColorDialog::DontUseNativeDialog, true);
-
-    // selection dialog
-    selectionDialog = new SelectionDialog(this);
 
     //create tool bar and add it
     createToolBar();

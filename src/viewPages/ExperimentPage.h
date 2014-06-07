@@ -19,6 +19,8 @@ namespace Ui
 class Experiments;
 } // namespace Ui //
 
+//TODO add print and remove functions
+
 class ExperimentPage : public Page
 {
     Q_OBJECT
