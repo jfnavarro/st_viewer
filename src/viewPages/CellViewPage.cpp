@@ -109,7 +109,8 @@ void CellViewPage::onInit()
 void CellViewPage::onEnter()
 {
     if (!loadData()) {
-        //TODO show warning
+        //TODO show warning?
+        emit moveToPreviousPage();
         return;
     }
 
@@ -222,10 +223,6 @@ bool CellViewPage::loadData()
     const auto ImageAlignment =
             dataProxy->getImageAlignment(dataset->id());
     Q_ASSERT(ImageAlignment);
-    Q_ASSERT(!ImageAlignment->figureBlue().isNull());
-    Q_ASSERT(!ImageAlignment->figureBlue().isEmpty());
-    Q_ASSERT(!ImageAlignment->figureRed().isNull());
-    Q_ASSERT(!ImageAlignment->figureRed().isEmpty());
 
     //load cell tissue blue
     {
@@ -562,7 +559,7 @@ void CellViewPage::createGLConnections()
 
 void CellViewPage::slotLoadCellFigure()
 {
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     const auto current_user = dataProxy->getUser();
     Q_ASSERT(current_user);
     const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());

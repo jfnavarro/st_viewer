@@ -113,6 +113,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     const NetworkReply::ReturnCode returnCode =
             static_cast<NetworkReply::ReturnCode>(reply->return_code());
     if (returnCode == NetworkReply::CodeError) {
+        //TODO use the test from reply->getError()
         QSharedPointer<OAuth2Error>
                 error(new OAuth2Error("Log in Error", "Authorization Failed", this));
         emit signalError(error);

@@ -56,12 +56,16 @@ public:
 
 signals:
 
+    //the login was canceled
     void signalLoginAborted();
+    //the login is succesful
     void signalAuthorize();
+    //there was an error trying to log in
     void signalError(QSharedPointer<Error> error);
 
 private slots:
 
+    //internal slot to process login object from OAuth2
     void slotLoginDone(const QUuid& accessToken, int expiresIn,
                        const QUuid& refreshToken);
 
