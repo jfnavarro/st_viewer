@@ -29,10 +29,21 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //create genes table
     m_genes_tableview = new GenesTableView();
-    genesLayout->addWidget(m_genes_tableview);
+
+    //create selections menu
+    m_selectionMenu = new QPushButton(this);
+    QMenu *selectionsMenu = new QMenu(m_selectionMenu);
+    m_selectionMenu->setToolTip(tr("Selection options"));
+    m_selectionMenu->setText(tr("Selection"));
+    m_selectionMenu->setMenu(selectionsMenu);
+    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
+                                       tr("Select all rows"), m_genes_tableview, SLOT(selectAll()));
+    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
+                                       tr("Deselect all rows"), m_genes_tableview, SLOT(clearSelection()));
+    geneListLayout->addWidget(m_selectionMenu);
 
     //create actions menu
-    m_actionMenu = new QPushButton();
+    m_actionMenu = new QPushButton(this);
     QMenu *actionsMenu = new QMenu();
     m_actionMenu->setMenu(actionsMenu);
     m_actionMenu->setToolTip(tr("Action on selected rows"));
@@ -44,31 +55,25 @@ GenesWidget::GenesWidget(QWidget *parent) :
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
     m_actionMenu->menu()->addSeparator();
     //create color picker and add actions/connections
-    m_colorPickerPopup = ColorPicker::createColorPickerPopup(QColor(), parent);
-    QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
-    widgetAction->setDefaultWidget(m_colorPickerPopup);
-    m_actionMenu->menu()->addAction(tr("Set color of selected:"));
-    m_actionMenu->menu()->addAction(widgetAction);
+    //TODO this seg faults (seems like QColorPicker can only be created after initialization is done)
+    //m_colorPickerPopup = ColorPicker::createColorPickerPopup(QColor(), this);
+    //QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
+    //widgetAction->setDefaultWidget(m_colorPickerPopup);
+    //m_actionMenu->menu()->addAction(tr("Set color of selected:"));
+    //m_actionMenu->menu()->addAction(widgetAction);
     geneListLayout->addWidget(m_actionMenu);
 
-    //create selections menu
-    m_selectionMenu = new QPushButton();
-    QMenu *selectionsMenu = new QMenu(m_selectionMenu);
-    m_selectionMenu->setMenu(selectionsMenu);
-    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
-                                       tr("Select all rows"), m_genes_tableview, SLOT(selectAll()));
-    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
-                                       tr("Deselect all rows"), m_genes_tableview, SLOT(clearSelection()));
-    geneListLayout->addWidget(m_selectionMenu);
-
     //create line edit search
-    m_lineEdit = new QLineEdit();
+    m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setMinimumSize(QSize(50, 0));
-    geneListLayout->addWidget(m_selectionMenu);
+    geneListLayout->addWidget(m_lineEdit);
 
-    //add actions menu to layout
+    //add actions menu to main layout
     genesLayout->addLayout(geneListLayout);
+
+    //add table to main layout
+    genesLayout->addWidget(m_genes_tableview);
 
     //set main layout
     setLayout(genesLayout);
@@ -78,8 +83,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slowHideAllSelected()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)), m_genes_tableview,
             SLOT(setGeneNameFilter(QString)));
-    connect(m_colorPickerPopup, SIGNAL(selected(const QColor &)), this,
-            SLOT(slotSetColorAllSelected(const QColor &)));
+    //connect(m_colorPickerPopup, SIGNAL(selected(const QColor &)), this,
+    //        SLOT(slotSetColorAllSelected(const QColor &)));
     connect(getModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             this,
             SIGNAL(signalSelectionChanged(DataProxy::GeneList)));

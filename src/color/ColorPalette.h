@@ -75,7 +75,7 @@ class ColorPicker
 public:
 
     static ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor,
-                                                    QWidget *parent);
+                                                    QWidget *parent = 0);
 };
 
 #endif // COLORPALETTE_H //

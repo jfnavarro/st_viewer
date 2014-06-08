@@ -94,7 +94,7 @@ void CellViewPage::onEnter()
 {
     if (!loadData()) {
         //TODO show warning?
-        emit moveToPreviousPage();
+        //emit moveToPreviousPage();
         return;
     }
 

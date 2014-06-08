@@ -48,6 +48,7 @@ public:
 
     //reset current model
     void reset();
+
     //loads the data of the model from DataProxys
     void loadSelectedGenes();
 

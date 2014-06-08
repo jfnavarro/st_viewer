@@ -85,7 +85,9 @@ const ColorPalette::ColorList HSVPalette::colorList(const int count) const
 
 ColorPickerPopup *ColorPicker::createColorPickerPopup(const QColor &selectedColor, QWidget *parent)
 {
-    ColorPickerPopup *colorPickerPopup = new ColorPickerPopup(6, false, parent);
+    const int width = 6;
+    const bool hasColorDialog = false;
+    ColorPickerPopup *colorPickerPopup = new ColorPickerPopup(width, hasColorDialog, parent);
     HSVPalette palette(parent);
     palette.setSaturation(300);
     const ColorPalette::ColorList colorList = palette.colorList();

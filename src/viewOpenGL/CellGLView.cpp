@@ -79,10 +79,6 @@ CellGLView::CellGLView(QScreen *parent) :
 
 CellGLView::~CellGLView()
 {
-    foreach(GraphicItemGL *node, m_nodes) {
-        delete node;
-        node = nullptr;
-    }
 }
 
 void CellGLView::resizeFromGeometry()

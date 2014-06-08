@@ -46,7 +46,7 @@ public:
 
     virtual Qt::ItemFlags flags(const QModelIndex& index) const;
 
-    //NOTE do not want the user to edit columns name
+    //NOTE we do not want the user to edit columns name
     virtual bool setHeaderData(int, Qt::Orientation,
                                const QVariant&, int = Qt::EditRole);
 

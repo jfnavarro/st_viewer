@@ -181,10 +181,6 @@ void stVi::setupUi()
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
     resize(1024, 768);
-
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-    setSizePolicy(sizePolicy);
     setMinimumSize(QSize(1024, 768));
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 

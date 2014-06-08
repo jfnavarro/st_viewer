@@ -120,7 +120,7 @@ void DatasetItemModel::loadDatasets()
 {
     beginResetModel();
     m_datasets_reference.clear();
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     m_datasets_reference = dataProxy->getDatasetList();
     endResetModel();
 }
