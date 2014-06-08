@@ -558,15 +558,15 @@ void ColorPickerPopup::updateSelected()
         emit selected(item->color());
     }
 
-    hide();
+    //    hide();
 }
 
 /*! \internal
 
 */
-void ColorPickerPopup::mouseReleaseEvent(QMouseEvent *e)
+void ColorPickerPopup::mouseReleaseEvent(QMouseEvent * /*e*/)
 {
-    Q_UNUSED(e)
+
 }
 
 /*! \internal

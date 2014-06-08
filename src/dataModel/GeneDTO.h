@@ -22,8 +22,8 @@ class GeneDTO : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString id WRITE id)
-    Q_PROPERTY(QString gene WRITE name)
+    Q_PROPERTY(QString id READ id WRITE id)
+    Q_PROPERTY(QString gene READ name WRITE name)
 
 public:
 
@@ -33,6 +33,10 @@ public:
     // binding
     void id(const QString& id) { m_gene.id(id); }
     void name(const QString& name) { m_gene.name(name); }
+
+    //read
+    const QString id() { return m_gene.id(); }
+    const QString name() { return m_gene.name(); }
 
     // get parsed data model
     const Gene& gene() const { return m_gene; }

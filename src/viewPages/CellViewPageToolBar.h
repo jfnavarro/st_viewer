@@ -98,7 +98,7 @@ public slots:
     void resetActions();
 
 private slots:
-
+  
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);

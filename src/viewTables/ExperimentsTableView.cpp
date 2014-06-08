@@ -11,7 +11,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
 {
     m_experimentModel = new ExperimentsItemModel(this);
 
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    QSortFilterProxyModel *sortProxyModel = new QSortFilterProxyModel(this);
     sortProxyModel->setSourceModel(m_experimentModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

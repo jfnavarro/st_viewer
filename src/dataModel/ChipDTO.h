@@ -24,21 +24,21 @@ class ChipDTO : public QObject
 
     Q_OBJECT
 
-    Q_PROPERTY(int x1 WRITE x1)
-    Q_PROPERTY(int x2 WRITE x2)
-    Q_PROPERTY(int x1_total WRITE x1Total)
-    Q_PROPERTY(int x2_total WRITE x2Total)
-    Q_PROPERTY(int x1_border WRITE x1Border)
-    Q_PROPERTY(int x2_border WRITE x2Border)
-    Q_PROPERTY(int y1 WRITE y1)
-    Q_PROPERTY(int y2 WRITE y2)
-    Q_PROPERTY(int y1_total WRITE y1Total)
-    Q_PROPERTY(int y2_total WRITE y2Total)
-    Q_PROPERTY(int y1_border WRITE y1Border)
-    Q_PROPERTY(int y2_border WRITE y2Border)
-    Q_PROPERTY(int barcodes WRITE barcodes)
-    Q_PROPERTY(QString id WRITE id)
-    Q_PROPERTY(QString name WRITE name)
+    Q_PROPERTY(int x1 READ x1 WRITE x1)
+    Q_PROPERTY(int x2 READ x2 WRITE x2)
+    Q_PROPERTY(int x1_total READ x1Total WRITE x1Total)
+    Q_PROPERTY(int x2_total READ x2Total WRITE x2Total)
+    Q_PROPERTY(int x1_border READ x1Border WRITE x1Border)
+    Q_PROPERTY(int x2_border READ x2Border WRITE x2Border)
+    Q_PROPERTY(int y1 READ y1 WRITE y1)
+    Q_PROPERTY(int y2 READ y2 WRITE y2)
+    Q_PROPERTY(int y1_total READ y1Total WRITE y1Total)
+    Q_PROPERTY(int y2_total READ y2Total WRITE y2Total)
+    Q_PROPERTY(int y1_border READ y1Border WRITE y1Border)
+    Q_PROPERTY(int y2_border READ y2Border WRITE y2Border)
+    Q_PROPERTY(int barcodes READ barcodes WRITE barcodes)
+    Q_PROPERTY(QString id READ id WRITE id)
+    Q_PROPERTY(QString name READ name WRITE name)
 
 public:
 
@@ -61,6 +61,23 @@ public:
     void y2Total(int y2Total) { m_chip.y2Total(y2Total); }
     void y1Border(int y1Border) { m_chip.y1Border(y1Border); }
     void y2Border(int y2Border) { m_chip.y2Border(y2Border); }
+
+    // read
+    const QString id() { return m_chip.id(); }
+    int barcodes() { return m_chip.barcodes(); }
+    const QString name() { return m_chip.name(); }
+    int x1() { return m_chip.x1(); }
+    int x2() { return m_chip.x2();  }
+    int x1Total() { return m_chip.x1Total();  }
+    int x2Total() { return m_chip.x2Total(); }
+    int x1Border() { return m_chip.x1Border(); }
+    int x2Border() { return m_chip.x2Border(); }
+    int y1() { return m_chip.y1(); }
+    int y2() { return m_chip.y2(); }
+    int y1Total() { return m_chip.y1Total(); }
+    int y2Total() { return m_chip.y2Total(); }
+    int y1Border() { return m_chip.y1Border(); }
+    int y2Border() { return m_chip.y2Border(); }
 
     // get parsed data model
     const Chip& chip() const { return m_chip; }

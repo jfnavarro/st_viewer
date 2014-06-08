@@ -12,14 +12,12 @@
 
 #include "dataModel/GeneSelection.h"
 
-#include "model/GeneNamesModel.h"
-
 #include "data/DataProxy.h"
 
 class QModelIndex;
 class QStringList;
 
-class GeneSelectionItemModel : public GeneNamesModel
+class GeneSelectionItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
@@ -44,13 +42,15 @@ public:
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    virtual bool geneName(const QModelIndex &index, QString *genename) const;
-
     //resets the model
     void reset();
 
     //load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
+
+public slots:
+
+    bool geneName(const QModelIndex &index, QString *genename) const;
 
 private:
 

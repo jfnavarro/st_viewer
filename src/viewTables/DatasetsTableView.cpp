@@ -20,7 +20,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     // the model
     m_datasetModel = new DatasetItemModel(this);
 
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel(this);
+    QSortFilterProxyModel *sortProxyModel = new QSortFilterProxyModel(this);
     sortProxyModel->setSourceModel(m_datasetModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

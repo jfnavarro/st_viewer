@@ -24,12 +24,12 @@ class ImageAlignmentDTO : public QObject
 
     Q_OBJECT
 
-    Q_PROPERTY(QString id WRITE id)
-    Q_PROPERTY(QString name WRITE name)
-    Q_PROPERTY(QString chip_id WRITE chipId)
-    Q_PROPERTY(QString figure_red WRITE figureRed)
-    Q_PROPERTY(QString figure_blue WRITE figureBlue)
-    Q_PROPERTY(QVariantList alignment_matrix WRITE alignment)
+    Q_PROPERTY(QString id READ id WRITE id)
+    Q_PROPERTY(QString name READ name WRITE name)
+    Q_PROPERTY(QString chip_id READ chipId WRITE chipId)
+    Q_PROPERTY(QString figure_red READ figureRed WRITE figureRed)
+    Q_PROPERTY(QString figure_blue READ figureBlue WRITE figureBlue)
+    Q_PROPERTY(QVariantList alignment_matrix READ alignment WRITE alignment)
 
 public:
 
@@ -44,6 +44,15 @@ public:
     void figureBlue(const QString& figureBlue) { m_imageAlignment.figureBlue(figureBlue); }
     void alignment(const QVariantList& alignment)
       { m_imageAlignment.alignment(unserializeTransform(alignment)); }
+
+    //read
+    const QString id() { return m_imageAlignment.id(); }
+    const QString name() { return m_imageAlignment.name(); }
+    const QString chipId() { return m_imageAlignment.chipId(); }
+    const QString figureRed() { return m_imageAlignment.figureRed(); }
+    const QString figureBlue() { return m_imageAlignment.figureBlue(); }
+    const QVariantList alignment()
+      { return serializeTransform(m_imageAlignment.alignment()); }
 
     // get parsed data model
     const ImageAlignment& imageAlignment() const { return m_imageAlignment; }

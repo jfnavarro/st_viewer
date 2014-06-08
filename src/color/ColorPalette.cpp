@@ -7,6 +7,8 @@
 
 #include "color/ColorPalette.h"
 
+#include <qtcolorpicker.h>
+
 ColorPalette::ColorPalette(QObject* parent)
     : QObject(parent)
 {
@@ -79,4 +81,22 @@ const ColorPalette::ColorList HSVPalette::colorList(const int count) const
         colorList << ColorPair(color, QString());
     }
     return colorList;
+}
+
+ColorPickerPopup *ColorPicker::createColorPickerPopup(const QColor &selectedColor, QWidget *parent)
+{
+    ColorPickerPopup *colorPickerPopup = new ColorPickerPopup(6, false, parent);
+    HSVPalette palette(parent);
+    palette.setSaturation(300);
+    const ColorPalette::ColorList colorList = palette.colorList();
+    for (int i = 0; i < colorList.size(); ++i) {
+        const ColorPalette::ColorPair pair = colorList[i];
+        colorPickerPopup->insertColor(pair.first, pair.second, i);
+    }
+    if (selectedColor.isValid()) {
+        ColorPickerItem *item = colorPickerPopup->find(selectedColor);
+        Q_ASSERT(item);
+        item->setSelected(true);
+    }
+    return colorPickerPopup;
 }

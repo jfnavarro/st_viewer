@@ -22,9 +22,6 @@ class GridRendererGL;
 class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
-class GeneSelectionItemModel;
-class GeneFeatureItemModel;
-class QSortFilterProxyModel;
 
 namespace Ui
 {
@@ -63,6 +60,8 @@ protected slots:
     // save current scene
     void slotSaveImage();
     void slotPrintImage();
+
+    //shows a file dialog to save the current gene selection to a file
     void slotExportSelection();
     
     // selection of genes
@@ -86,12 +85,6 @@ protected slots:
     // slot to save the currently selected genes
     void slotSaveSelection();
 
-    // hide/show all genes that are filtered out by the regexp filter
-    void setVisibilityForAllGenes(const bool);
-
-    //set the color to all genes that are filtered out by the regexp filter
-    void setColorForAllGenes(const QColor);
-
 protected:
     
     // create GL graphical elements and their connections
@@ -108,11 +101,6 @@ protected:
     void resetActionStates();
 
 private:
-
-    GeneFeatureItemModel *geneModel();
-    QSortFilterProxyModel *geneProxyModel();
-    GeneSelectionItemModel *selectionModel();
-    QSortFilterProxyModel *selectionProxyModel();
 
     QSharedPointer<MiniMapGL> m_minimap;
     QSharedPointer<HeatMapLegendGL> m_legend;

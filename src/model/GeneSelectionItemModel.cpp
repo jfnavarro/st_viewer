@@ -10,7 +10,7 @@
 #include "dataModel/GeneSelection.h"
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
-    : GeneNamesModel(parent)
+    : QAbstractTableModel(parent)
 {
 
 }

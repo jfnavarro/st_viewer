@@ -9,7 +9,6 @@
 #define GENEFEATUREITEMMODEL_H
 
 #include "data/DataProxy.h"
-#include "model/GeneNamesModel.h"
 
 #include <QAbstractTableModel>
 
@@ -20,7 +19,7 @@ class QItemSelection;
 
 // Wrapper model class for the gene data (specific to a dataset) found in the
 // data proxy. Primarily used to enumerate the genes in the cell view.
-class GeneFeatureItemModel : public GeneNamesModel
+class GeneFeatureItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
@@ -47,8 +46,6 @@ public:
 
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    virtual bool geneName(const QModelIndex &index, QString *genename) const;
-
     //this function will set to visible the genes included in the selection
     //and emit a signal with the modified genes
     void setGeneVisibility(const QItemSelection &selection, bool visible);
@@ -59,6 +56,10 @@ public:
 
     //reload the reference to the genes from DataProxy
     void loadGenes();
+
+public slots:
+
+    virtual bool geneName(const QModelIndex &index, QString *genename) const;
 
 signals:
 

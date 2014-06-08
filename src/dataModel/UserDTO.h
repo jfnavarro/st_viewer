@@ -25,17 +25,17 @@ public:
 
     Q_OBJECT
 
-    Q_PROPERTY(QString username WRITE username)
-    Q_PROPERTY(QString institution WRITE institution)
-    Q_PROPERTY(QString first_name WRITE firstName)
-    Q_PROPERTY(QString last_name WRITE lastName)
-    Q_PROPERTY(QString street_address WRITE streetAddress)
-    Q_PROPERTY(int postcode WRITE postcode)
-    Q_PROPERTY(QString city WRITE city)
-    Q_PROPERTY(QString country WRITE country)
-    Q_PROPERTY(QString role WRITE role)
-    Q_PROPERTY(QString password WRITE password)
-    Q_PROPERTY(bool enabled WRITE enabled)
+    Q_PROPERTY(QString username READ username WRITE username)
+    Q_PROPERTY(QString institution READ institution WRITE institution)
+    Q_PROPERTY(QString first_name READ firstName WRITE firstName)
+    Q_PROPERTY(QString last_name READ lastName WRITE lastName)
+    Q_PROPERTY(QString street_address READ streetAddress WRITE streetAddress)
+    Q_PROPERTY(int postcode READ postcode WRITE postcode)
+    Q_PROPERTY(QString city READ city WRITE city)
+    Q_PROPERTY(QString country READ country WRITE country)
+    Q_PROPERTY(QString role READ role WRITE role)
+    Q_PROPERTY(QString password READ password WRITE password)
+    Q_PROPERTY(bool enabled READ enabled WRITE enabled)
 
 public:
 
@@ -54,6 +54,19 @@ public:
     void role(const QString& role) { m_user.role(role);}
     void password(const QString& password) { m_user.password(password); }
     void enabled(bool enabled) { m_user.enabled(enabled); }
+
+    //read
+    const QString username() { return m_user.username(); }
+    const QString institution() { return m_user.institution(); }
+    const QString firstName() { return m_user.firstName(); }
+    const QString lastName() { return m_user.secondName(); }
+    const QString streetAddress() { return m_user.address(); }
+    int postcode() { return m_user.postcode(); }
+    const QString city() { return m_user.city(); }
+    const QString country() { return m_user.country(); }
+    const QString role() { return m_user.role();}
+    const QString password() { return m_user.password(); }
+    bool enabled() { return m_user.enabled(); }
 
     // get parsed data model
     const User& user() const { return m_user; }

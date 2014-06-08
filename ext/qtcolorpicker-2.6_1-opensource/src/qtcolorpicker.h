@@ -112,7 +112,6 @@ private:
     bool sel;
 };
 
-
 class ColorPickerPopup : public QFrame
 {
     Q_OBJECT

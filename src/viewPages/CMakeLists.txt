@@ -1,4 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt)
+include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt;${PROJECT_SOURCE_DIR}/ext/qtcolorpicker-2.6_1-opensource/src)
 
 FIX_QT3D_COMPILATION_BUG()
 
@@ -12,6 +12,8 @@ set(LIBRARY_ARG_INCLUDES
     ExtendedTabWidget.cpp
     SpinBoxSlider.h
     ScrollArea.h
+    GenesWidget.h
+    SelectionsWidget.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -24,6 +26,8 @@ set(LIBRARY_ARG_SOURCES
     ExtendedTabWidget.cpp
     SpinBoxSlider.cpp
     ScrollArea.cpp
+    GenesWidget.cpp
+    SelectionsWidget.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

@@ -12,7 +12,7 @@
 #include <QWidgetAction>
 #include <QComboBox>
 #include <QToolButton>
-#include <QMacNativeWidget>
+#include <qtcolorpicker.h>
 
 #include "SpinBoxSlider.h"
 
@@ -102,8 +102,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_actionShow_showCellTissue(nullptr),
     m_actionShow_showLegend(nullptr),
     m_actionShow_showMiniMap(nullptr),
-    m_actionRotation_rotateLeft(nullptr),
-    m_actionRotation_rotateRight(nullptr)
+    m_actionRotation_rotateLeft(nullptr)
 {
     createActions();
 
@@ -184,7 +183,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addWidgetToMenu(tr("Shape:"), m_menu_genePlotter, m_geneShapeComboBox);
 
     //second menu
-    QToolButton *toolButtonGene = new QToolButton(this);
+    QToolButton* toolButtonGene = new QToolButton(this);
     toolButtonGene->setMenu(m_menu_genePlotter);
     toolButtonGene->setPopupMode(QToolButton::InstantPopup);
     toolButtonGene->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));

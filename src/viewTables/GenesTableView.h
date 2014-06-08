@@ -8,20 +8,30 @@
 #define GENESTABLEVIEW_H
 
 #include <QTableView>
+#include <QItemSelection>
 
 class GeneFeatureItemModel;
+class SortGenesProxyModel;
 
 class GenesTableView : public QTableView
 {
+    Q_OBJECT
 
 public:
 
     explicit GenesTableView(QWidget *parent = 0);
     virtual ~GenesTableView();
 
+    QItemSelection geneTableItemSelection() const;
+
+public slots:
+
+    void setGeneNameFilter(QString);
+
 private:
 
     GeneFeatureItemModel *m_geneModel;
+    SortGenesProxyModel *m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };

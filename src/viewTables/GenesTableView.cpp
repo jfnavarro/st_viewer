@@ -17,44 +17,57 @@
 
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent),
-      m_geneModel(nullptr)
+      m_geneModel(nullptr),
+      m_sortGenesProxyModel(nullptr)
 {
     // model view for genes list selector
     BooleanItemDelegate *booleanItemDelegate = new BooleanItemDelegate(this);
     GeneViewDelegate *geneViewDelegate = new GeneViewDelegate(this);
+
     m_geneModel = new GeneFeatureItemModel(this);
     
-    SortGenesProxyModel *sortProxyModel = new SortGenesProxyModel(this);
-    sortProxyModel->setSourceModel(m_geneModel);
-    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",
+    m_sortGenesProxyModel = new SortGenesProxyModel(this);
+    m_sortGenesProxyModel->setSourceModel(m_geneModel);
+    m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_sortGenesProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",
                                             Qt::CaseInsensitive)); //I do not want to show ambiguous genes or numbers
-    setModel(sortProxyModel);
+    setModel(m_sortGenesProxyModel);
+
     setSortingEnabled(true);
-    sortByColumn(0, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
 
     setItemDelegateForColumn(GeneFeatureItemModel::Show, booleanItemDelegate);
     setItemDelegateForColumn(GeneFeatureItemModel::Color, geneViewDelegate);
 
-    resizeColumnsToContents();
-    resizeRowsToContents();
-
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
-    setSelectionMode(QAbstractItemView::SingleSelection);
 
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
-    verticalHeader()->hide();
+    resizeColumnsToContents();
+    resizeRowsToContents();
 
     model()->submit(); //support for caching (speed up)
+
+    verticalHeader()->hide();
 }
 
 GenesTableView::~GenesTableView()
 {
 
+}
+
+QItemSelection GenesTableView::geneTableItemSelection() const
+{
+    auto selected = selectionModel()->selection();
+    auto mapped_selected = m_sortGenesProxyModel->mapSelectionToSource(selected);
+    return mapped_selected;
+}
+
+void GenesTableView::setGeneNameFilter(QString str)
+{
+    m_sortGenesProxyModel->setFilterFixedString(str);
 }

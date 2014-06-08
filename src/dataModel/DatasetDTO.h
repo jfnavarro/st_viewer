@@ -23,17 +23,17 @@ class DatasetDTO : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString id WRITE id)
-    Q_PROPERTY(QString name WRITE name)
-    Q_PROPERTY(QString image_alignment_id WRITE imageAlignmentId)
-    Q_PROPERTY(QString tissue WRITE statTissue)
-    Q_PROPERTY(QString species WRITE statSpecie)
-    Q_PROPERTY(int overall_barcodes WRITE statBarcodes)
-    Q_PROPERTY(int overall_genes WRITE statGenes)
-    Q_PROPERTY(int overall_unique_barcodes WRITE statUniqueBarcodes)
-    Q_PROPERTY(int overall_unique_genes WRITE statUniqueGenes)
-    Q_PROPERTY(QVariantList overall_hit_quartiles WRITE hitsQuartiles)
-    Q_PROPERTY(QString comment WRITE statComments)
+    Q_PROPERTY(QString id READ id WRITE id)
+    Q_PROPERTY(QString name READ name WRITE name)
+    Q_PROPERTY(QString image_alignment_id READ imageAlignmentId WRITE imageAlignmentId)
+    Q_PROPERTY(QString tissue READ statTissue WRITE statTissue)
+    Q_PROPERTY(QString species READ statSpecie WRITE statSpecie)
+    Q_PROPERTY(int overall_barcodes READ statBarcodes WRITE statBarcodes)
+    Q_PROPERTY(int overall_genes READ statGenes WRITE statGenes)
+    Q_PROPERTY(int overall_unique_barcodes READ statUniqueBarcodes WRITE statUniqueBarcodes)
+    Q_PROPERTY(int overall_unique_genes READ statUniqueGenes WRITE statUniqueGenes)
+    Q_PROPERTY(QVariantList overall_hit_quartiles READ hitsQuartiles WRITE hitsQuartiles)
+    Q_PROPERTY(QString comment READ statComments WRITE statComments)
 
 public:
 
@@ -52,6 +52,19 @@ public:
     void statUniqueGenes(int unique_genes) { m_dataset.statUniqueGenes(unique_genes); }
     void hitsQuartiles(QVariantList hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
+
+    // read
+    const QString id() { return m_dataset.id(); }
+    const QString name() { return m_dataset.name(); }
+    const QString imageAlignmentId() { return m_dataset.imageAlignmentId(); }
+    const QString statTissue() { return m_dataset.statTissue(); }
+    const QString statSpecie() { return m_dataset.statSpecie(); }
+    int statBarcodes() { return m_dataset.statBarcodes(); }
+    int statGenes() { return m_dataset.statGenes(); }
+    int statUniqueBarcodes() { return m_dataset.statUniqueBarcodes(); }
+    int statUniqueGenes() { return m_dataset.statUniqueGenes(); }
+    const QVariantList hitsQuartiles() { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
+    const QString statComments() { return m_dataset.statComments(); }
 
     // get parsed data model
     const Dataset& dataset() const { return m_dataset; }

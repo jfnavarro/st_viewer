@@ -5,8 +5,8 @@
 
 */
 
-#ifndef ANIMATEDDATASETSTABLEVIEW_H
-#define ANIMATEDDATASETSTABLEVIEW_H
+#ifndef DATASETSTABLEVIEW_H
+#define DATASETSTABLEVIEW_H
 
 #include <QTableView>
 
@@ -28,4 +28,4 @@ private:
     Q_DISABLE_COPY(DatasetsTableView)
 };
 
-#endif // ANIMATEDDATASETSTABLEVIEW_H //
+#endif // DATASETSTABLEVIEW_H //

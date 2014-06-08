@@ -10,18 +10,27 @@
 #include <QTableView>
 
 class GeneSelectionItemModel;
+class SortGenesProxyModel;
 
 class GeneSelectionTableView : public QTableView
 {
+    Q_OBJECT
 
 public:
 
     explicit GeneSelectionTableView(QWidget *parent = 0);
     virtual ~GeneSelectionTableView();
 
+    QItemSelection geneTableItemSelection() const;
+
+public slots:
+
+    void setGeneNameFilter(QString);
+
 private:
 
     GeneSelectionItemModel *m_geneSelectionModel;
+    SortGenesProxyModel *m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)
 };

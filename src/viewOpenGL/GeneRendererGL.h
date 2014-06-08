@@ -19,6 +19,7 @@ class QGLPainter;
 class QGLTexture2D;
 class QVector2DArray;
 class QGLShaderProgramEffect;
+class FeatureFunctor;
 
 class GeneRendererGL : public GraphicItemGL
 {
@@ -76,6 +77,8 @@ protected:
     const QRectF boundingRect() const;
 
 private:
+
+    void visitFeatures(const FeatureFunctor &featureFunctor, DataProxy::GeneList geneList);
 
     // internal rendering functions
     void updateSize();

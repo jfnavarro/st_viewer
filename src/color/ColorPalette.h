@@ -46,7 +46,9 @@ private:
 // generate colors
 class HSVPalette : public ColorPalette
 {
+
 public:
+
     static const int DEFAULT_SATURATION;
     static const int DEFAULT_VALUE;
     static const int DEFAULT_COUNT;
@@ -61,8 +63,19 @@ public:
     virtual const ColorList colorList(const int count) const;
 
 private:
+
     int m_saturation;
     int m_value;
+};
+
+class ColorPickerPopup;
+//TODO move it somewhere else, create namespace for Color
+class ColorPicker
+{
+public:
+
+    static ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor,
+                                                    QWidget *parent);
 };
 
 #endif // COLORPALETTE_H //
