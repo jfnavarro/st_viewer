@@ -340,7 +340,7 @@ void CellViewPageToolBar::createActions()
     //navigation
     m_actionNavigate_goBack = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Back"), this);
     m_actionNavigate_goBack->setAutoRepeat(false);
-    m_actionNavigate_goNext = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Next"), this);
+    m_actionNavigate_goNext = new QAction(QIcon(QStringLiteral(":/images/next.png")), tr("Next"), this);
     m_actionNavigate_goNext->setAutoRepeat(false);
 
     //color modes

@@ -7,6 +7,7 @@
     <file alias="images/red-icon.png">${PROJECT_SOURCE_DIR}/assets/images/red-icon.png</file>
     <file alias="images/blue-icon.png">${PROJECT_SOURCE_DIR}/assets/images/blue-icon.png</file>
     <file alias="images/back.png">${PROJECT_SOURCE_DIR}/assets/images/back.png</file>
+    <file alias="images/next.png">${PROJECT_SOURCE_DIR}/assets/images/next.png</file>
     <file alias="images/st.png">${PROJECT_SOURCE_DIR}/assets/images/st.png</file>
     <file alias="images/st_small.png">${PROJECT_SOURCE_DIR}/assets/images/st_small.png</file>
     <file alias="images/scilifelab.png">${PROJECT_SOURCE_DIR}/assets/images/scilifelab.png</file>

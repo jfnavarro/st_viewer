@@ -29,6 +29,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //create genes table
     m_genes_tableview = new GenesTableView();
+    m_genes_tableview->setMinimumSize(QSize(100, 0));
 
     //create selections menu
     m_selectionMenu = new QPushButton(this);
@@ -66,7 +67,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
-    m_lineEdit->setMinimumSize(QSize(50, 0));
+    m_lineEdit->setFixedSize(200, 25);
     geneListLayout->addWidget(m_lineEdit);
 
     //add actions menu to main layout
@@ -80,7 +81,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //connections
     connect(showAllAction, SIGNAL(triggered(bool)), this, SLOT(slotShowAllSelected()));
-    connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slowHideAllSelected()));
+    connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)), m_genes_tableview,
             SLOT(setGeneNameFilter(QString)));
     //connect(m_colorPickerPopup, SIGNAL(selected(const QColor &)), this,

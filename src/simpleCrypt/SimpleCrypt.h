@@ -46,11 +46,10 @@ public:
     quint64 getKey() const;
     bool hasKey() const;
 
-    ErrorCode encodeStream(resourceDeviceType out) const;
-    ErrorCode decodeStream(resourceDeviceType in);
-    ErrorCode encodeSegment(resourceDeviceType out,
-                            const QByteArray &data) const;
-    ErrorCode decodeSegment(resourceDeviceType in, QByteArray &data) const;
+    ErrorCode encodeStream(QIODevice *out) const;
+    ErrorCode decodeStream(QIODevice *in);
+    ErrorCode encodeSegment(QIODevice *out, const QByteArray &data) const;
+    ErrorCode decodeSegment(QIODevice *in, QByteArray &data) const;
 
     int getProperty(Property code) const;
 

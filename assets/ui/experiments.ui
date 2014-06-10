@@ -88,10 +88,16 @@
      </item>
      <item>
       <widget class="QLineEdit" name="filterLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
-         <width>50</width>
-         <height>0</height>
+         <width>200</width>
+         <height>25</height>
         </size>
        </property>
        <property name="mouseTracking">

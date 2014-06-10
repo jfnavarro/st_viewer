@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QFile>
 #include <QSharedPointer>
+#include <memory>
 
 // The data store extend the resource store interface and provides simple
 // functionality to manage temporarily stored files. Files stored through the

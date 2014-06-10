@@ -8,6 +8,7 @@
 #ifndef CRYPTDEVICE_H
 #define CRYPTDEVICE_H
 
+#include <memory>
 #include <QIODevice>
 #include <QSharedPointer>
 
@@ -21,10 +22,12 @@ class SimpleCryptDevice : public QIODevice
 {
 
 public:
+
     typedef std::unique_ptr<QIODevice> resourceDeviceType;
 
     SimpleCryptDevice(resourceDeviceType device, QObject *parent = 0);
     SimpleCryptDevice(resourceDeviceType device, quint64 key, QObject *parent = 0);
+
     virtual ~SimpleCryptDevice();
     
     // clear the buffer

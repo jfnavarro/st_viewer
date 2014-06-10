@@ -28,28 +28,31 @@ SimpleCrypt::~SimpleCrypt()
 
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(resourceDeviceType out) const
+SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QIODevice *out) const
 {
     // write stream header and abort on write error
     const StreamHeader header = { VERSION, 0x00 };
     if (out->write(reinterpret_cast<const char *>(&header), sizeof(header)) == -1) {
-        return (m_lastError = StreamWriteError);
+        m_lastError = StreamWriteError;
+        return StreamWriteError;
     }
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(resourceDeviceType in)
+SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QIODevice *in)
 {
     // read stream header and abort on read error
     StreamHeader header;
     if (in->peek(reinterpret_cast<char *>(&header), sizeof(header)) == -1) {
         return (m_lastError = StreamReadError);
     }
+
     // abort on invalid version
     if (header.version != VERSION) {
-        return (m_lastError = UnknownVersionError);
-
+        m_lastError = StreamWriteError;
+        return StreamWriteError;
     }
+
     // configure simple crypt
     //TODO
 
@@ -58,8 +61,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(resourceDeviceType in)
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(resourceDeviceType out,
-                                                  const QByteArray &data) const
+SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QIODevice *out, const QByteArray &data) const
 {
     QByteArray encryptData;
     QBuffer encryptDataDevice(&encryptData);
@@ -91,14 +93,15 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(resourceDeviceType out,
     
     // abort on write error
     if (out->write(outputData) == -1) {
-        return (m_lastError = StreamWriteError);
+        m_lastError = StreamWriteError;
+        return StreamWriteError;
     }
 
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(resourceDeviceType in,
-                                                  QByteArray &data) const
+
+SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QIODevice *in, QByteArray &data) const
 {
     QByteArray decryptData;
     
@@ -110,7 +113,8 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(resourceDeviceType in,
     
     // abort on partial segment
     if (in->bytesAvailable() < (static_cast<qint64>(sizeof(SegmentHeader)) + segment.size) ) {
-        return (m_lastError = StreamPartialSegmentError);
+        m_lastError = StreamPartialSegmentError;
+        return StreamPartialSegmentError;
     }
 
     //read data

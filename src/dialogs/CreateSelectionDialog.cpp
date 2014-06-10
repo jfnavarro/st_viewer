@@ -8,7 +8,8 @@ CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
 {
     ui->setupUi(this);
 
-    //TODO handle the OK and CANCEL button to close the dialog
+    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 CreateSelectionDialog::~CreateSelectionDialog()

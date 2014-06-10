@@ -23,22 +23,22 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     QHBoxLayout *selectionBottonsLayout = new QHBoxLayout();
 
     m_saveSelection = new QPushButton(this);
-    m_saveSelection->setMinimumSize(QSize(25, 25));
+    m_saveSelection->setFixedSize(QSize(75, 25));
     m_saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
     selectionBottonsLayout->addWidget(m_saveSelection);
 
     m_exportSelection = new QPushButton(this);
-    m_exportSelection->setMinimumSize(QSize(25, 25));
+    m_exportSelection->setFixedSize(QSize(75, 25));
     m_exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
     selectionBottonsLayout->addWidget(m_exportSelection);
 
     m_clearSelection = new QPushButton(this);
-    m_clearSelection->setMinimumSize(QSize(25, 25));
+    m_clearSelection->setFixedSize(QSize(75, 25));
     m_clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
     selectionBottonsLayout->addWidget(m_clearSelection);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
-    m_geneSelectionFilterLineEdit->setMinimumSize(QSize(50, 0));
+    m_geneSelectionFilterLineEdit->setFixedSize(200, 25);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
 

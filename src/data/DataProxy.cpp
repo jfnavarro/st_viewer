@@ -11,6 +11,7 @@
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QObject>
+#include <QtGlobal>
 
 #include "config/Configuration.h"
 
@@ -111,7 +112,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
-    // gene
+        // gene
     case GeneDataType: {
         const QJsonDocument doc = reply->getJSON();
         // gene list by dataset
@@ -139,7 +140,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
-    // chip
+        // chip
     case ChipDataType: {
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
@@ -156,7 +157,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
-    // image alignment
+        // image alignment
     case ImageAlignmentDataType: {
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
@@ -168,12 +169,13 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             ObjectParser::parseObject(var, &dto);
             ImageAlignmentPtr imageAlignement =
                     ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
+            Q_ASSERT(!m_imageAlignmentMap.contains(imageAlignement->id()));
             m_imageAlignmentMap.insert(imageAlignement->id(), imageAlignement);
             dirty = true;
         }
         break;
     }
-    // gene selection
+        // gene selection
     case GeneSelectionDataType: {
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
@@ -186,13 +188,14 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         //parse the data
         foreach(QVariant var, list) {
             ObjectParser::parseObject(var, &dto);
+            qDebug() << "Parsing selection " << var;
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
             m_geneSelectionsList.append(selection);
             dirty = true;
         }
         break;
     }
-    // feature
+        // feature
     case FeatureDataType: {
         const QJsonDocument doc = reply->getJSON();
         // feature list by dataset
@@ -223,7 +226,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
-    // user
+        // user
     case UserType: {
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
@@ -238,20 +241,21 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
-    // cell tissue figure
+        // cell tissue figure
     case TissueDataType: {
         Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE),
                    "DataProxy", "Tissue must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
-        // keep track of file pointer
-        QScopedPointer<QIODevice> device;
-        device.reset(m_dataStore.accessResource(fileid,
-                                                              DataStore::Temporary |
-                                                              DataStore::Persistent |
-                                                              DataStore::Secure).get());
+        DataStore::resourceDeviceType device;
+        Q_ASSERT(! fileid.isNull() && ! fileid.isEmpty());
+        device = m_dataStore.accessResource(fileid,
+                                            DataStore::Temporary |
+                                            DataStore::Persistent |
+                                            DataStore::Secure);
         // store data in file
+        Q_ASSERT(!device->isOpen());
         const bool dataOpen = device->open(QIODevice::WriteOnly);
-        if (dataOpen) {
+        if (!dataOpen) {
             qDebug() << QString("[DataProxy] Unable to open image fileid: %1").arg(fileid);
         }
         const qint64 dataWrite = device->write(reply->getRaw());
@@ -330,7 +334,7 @@ DataProxy::GenePtr DataProxy::getGene(const QString& datasetId,
 }
 
 DataProxy::FeatureList& DataProxy::getGeneFeatureList(const QString& datasetId,
-                                                        const QString &geneName)
+                                                      const QString &geneName)
 {
     FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId);
     FeatureListGeneMap::iterator end = m_geneFeatureListMap.end();
@@ -378,7 +382,7 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment(const QString& imageAl
     ImageAlignmentMap::const_iterator end = m_imageAlignmentMap.end();
     if (it == end) {
         it = m_imageAlignmentMap.insert(imageAlignmentId,
-                                           ImageAlignmentPtr(new ImageAlignment()));
+                                        ImageAlignmentPtr(new ImageAlignment()));
     }
     return it.value();
 }
@@ -386,9 +390,9 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment(const QString& imageAl
 DataStore::resourceDeviceType DataProxy::getFigure(const QString& figureId)
 {
     return m_dataStore.accessResource(figureId,
-                                     DataStore::Temporary |
-                                     DataStore::Persistent |
-                                     DataStore::Secure);
+                                      DataStore::Temporary |
+                                      DataStore::Persistent |
+                                      DataStore::Secure);
 }
 
 const DataProxy::GeneSelectionList& DataProxy::getGeneSelections() const

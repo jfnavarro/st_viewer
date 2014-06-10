@@ -155,7 +155,8 @@ void SimpleCryptDeviceTest::testLargeFile()
 
     QByteArray encoded;
     {
-        std::unique_ptr<QBuffer> buffer(new QBuffer(&encoded));
+
+        std::unique_ptr<QIODevice> buffer(new QBuffer(&encoded));
         SimpleCryptDevice cryptBuffer(std::move(buffer));
 
         cryptBuffer.open(QIODevice::WriteOnly);
@@ -165,7 +166,7 @@ void SimpleCryptDeviceTest::testLargeFile()
 
     QByteArray decoded;
     {
-        std::unique_ptr<QBuffer> buffer(new QBuffer(&encoded));
+        std::unique_ptr<QIODevice> buffer(new QBuffer(&encoded));
         SimpleCryptDevice cryptBuffer(std::move(buffer));
 
         cryptBuffer.open(QIODevice::ReadOnly);

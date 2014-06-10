@@ -40,15 +40,24 @@ bool DataStore::hasResource(const QString& resourceid) const
 DataStore::resourceDeviceType
 DataStore::accessResource(const QString& name, Options options)
 {
+    Q_ASSERT(! name.isNull() && ! name.isEmpty());
     qDebug() << QString("DataStore::accessResource(%1, %2)").arg(name).arg(options);
 
     // load or create file with given resourceid and options
-    resourceDeviceType device = m_fileMap.contains(name) ?
-                accessFile(name, options) : createFile(name, options);
+
+    DataStore::resourceDeviceType device;
+    if (m_fileMap.contains(name)) {  
+        device = std::move(accessFile(name, options));
+    } else { 
+        device = std::move(createFile(name, options));
+    }
+    Q_ASSERT(device.get());
 
     // add encryption layer if specified
     if (options.testFlag(Secure)) {
-        return resourceDeviceType(new SimpleCryptDevice(std::move(device), ENCRYPT_KEY, this));
+      SimpleCryptDevice *simpleCryptDevice = new SimpleCryptDevice(std::move(device), ENCRYPT_KEY);
+      Q_ASSERT(simpleCryptDevice);
+      device.reset(simpleCryptDevice);
     }
 
     return device;
@@ -104,6 +113,7 @@ void DataStore::saveResourceMap()
 
 DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options options)
 {
+    Q_ASSERT(! name.isNull() && ! name.isEmpty());
     qDebug() << QString("DataStore::createFile(%1, %2)").arg(name).arg(options);
 
     // early out
@@ -111,27 +121,26 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
         return accessFile(name, options);
     }
 
-    std::unique_ptr<QFile> file = nullptr;
+    std::unique_ptr< QFile > file;
     if (options.testFlag(Option::Temporary)) {
         const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
-        QScopedPointer<QTemporaryFile> tempFile(new QTemporaryFile(filePath, this));
+        std::unique_ptr< QTemporaryFile > tempFile(new QTemporaryFile(filePath));
         // apply options
         tempFile->setAutoRemove(!options.testFlag(Option::Persistent));
         // force file name generation
         tempFile->open();
         tempFile->close();
-        file = std::unique_ptr<QFile>(tempFile.data());
+        file.reset(tempFile.release());
     } else {
         const QString filePath = QDir::current().filePath(name);
-        file = std::unique_ptr<QFile>(new QFile(filePath, this));
+        file.reset(new QFile(filePath));
     }
-
     // save filename map
     const QString filename = file->fileName();
     qDebug() << QString("[DataStore] Map: (%1 -> %2)").arg(name).arg(filename);
     m_fileMap[name] = filename;
 
-    return resourceDeviceType(std::move(file));
+    return DataStore::resourceDeviceType(file.release());
 }
 
 DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options options)

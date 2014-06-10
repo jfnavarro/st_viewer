@@ -23,7 +23,7 @@ class GeneDTO : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString id READ id WRITE id)
-    Q_PROPERTY(QString gene READ name WRITE name)
+    Q_PROPERTY(QString geneNomenclature READ name WRITE name)
 
 public:
 

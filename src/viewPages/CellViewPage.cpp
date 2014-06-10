@@ -418,7 +418,8 @@ void CellViewPage::createGLConnections()
             SLOT(updateColor(DataProxy::GeneList)));
 
     //connect gene selection signals from selectionsWidget
-    connect(ui->selectionsWidget, SIGNAL(signalClearSelection()), m_gene_plotter.data(), SLOT(clearSelection()));
+    connect(ui->selectionsWidget, SIGNAL(signalClearSelection()),
+            m_gene_plotter.data(), SLOT(clearSelection()));
     connect(ui->selectionsWidget, SIGNAL(signalExportSelection()), this, SLOT(slotExportSelection()));
     connect(ui->selectionsWidget, SIGNAL(signalSaveSelection()), this, SLOT(slotSaveSelection()));
 
@@ -490,7 +491,7 @@ void CellViewPage::slotLoadCellFigure()
     Q_ASSERT(current_user);
     const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     Q_ASSERT(dataset);
-    const auto imageAlignment = dataProxy->getImageAlignment(dataset->id());
+    const auto imageAlignment = dataProxy->getImageAlignment(dataset->imageAlignmentId());
     Q_ASSERT(imageAlignment);
 
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
@@ -498,7 +499,7 @@ void CellViewPage::slotLoadCellFigure()
     const bool defaultRedFigure = current_user->role() == Globals::ROLE_CM;
     const bool loadRedFigure = (defaultRedFigure || forceRedFigure) && !forceBlueFigure;
 
-    QString figureid = (loadRedFigure) ? imageAlignment->figureRed() : imageAlignment->figureBlue();
+    const QString figureid = (loadRedFigure) ? imageAlignment->figureRed() : imageAlignment->figureBlue();
     auto device = dataProxy->getFigure(figureid);
 
     //read image (TODO check file is present or corrupted)
