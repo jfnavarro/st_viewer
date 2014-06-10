@@ -62,9 +62,9 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
     bool leftNameFound =  false;
     bool righNameFound = false;
     QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
-                              Q_RETURN_ARG(bool, leftNameFound), Q_ARG(QString*, &leftName));
+                              Q_RETURN_ARG(bool, leftNameFound), Q_ARG(const QModelIndex &, left), Q_ARG(QString*, &leftName));
     QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
-                              Q_RETURN_ARG(bool, righNameFound), Q_ARG(QString*, &rightName));
+                              Q_RETURN_ARG(bool, righNameFound), Q_ARG(const QModelIndex &, right), Q_ARG(QString*, &rightName));
 
     if (leftNameFound && righNameFound){
         return geneNameLessThan(leftName, rightName, sortCaseSensitivity(), isSortLocaleAware());

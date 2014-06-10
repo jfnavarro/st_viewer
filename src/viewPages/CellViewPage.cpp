@@ -496,7 +496,7 @@ void CellViewPage::slotLoadCellFigure()
     Q_ASSERT(current_user);
     const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
     Q_ASSERT(dataset);
-    const auto imageAlignment = dataProxy->getImageAlignment(dataset->id());
+    const auto imageAlignment = dataProxy->getImageAlignment(dataset->imageAlignmentId());
     Q_ASSERT(imageAlignment);
     Q_ASSERT(! imageAlignment->id().isNull());
     Q_ASSERT(! imageAlignment->id().isEmpty());
