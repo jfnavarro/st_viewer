@@ -35,6 +35,7 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     }
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        Q_ASSERT(m_genelist_reference.size() > index.row());
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
         switch (index.column()) {
