@@ -193,7 +193,7 @@ bool CellViewPage::loadData()
 
     //get image alignmet object
     const auto ImageAlignment =
-            dataProxy->getImageAlignment(dataset->id());
+            dataProxy->getImageAlignment(dataset->imageAlignmentId());
     Q_ASSERT(ImageAlignment);
 
     //load cell tissue blue
@@ -502,7 +502,7 @@ void CellViewPage::slotLoadCellFigure()
     auto device = dataProxy->getFigure(figureid);
 
     //read image (TODO check file is present or corrupted)
-    QImageReader reader(device.data());
+    QImageReader reader(device.get());
     const QImage image = reader.read();
 
     //deallocate device

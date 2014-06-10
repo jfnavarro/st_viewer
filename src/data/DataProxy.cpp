@@ -248,7 +248,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         device.reset(m_dataStore.accessResource(fileid,
                                                               DataStore::Temporary |
                                                               DataStore::Persistent |
-                                                              DataStore::Secure).data());
+                                                              DataStore::Secure).get());
         // store data in file
         const bool dataOpen = device->open(QIODevice::WriteOnly);
         if (dataOpen) {

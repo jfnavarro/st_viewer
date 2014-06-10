@@ -21,9 +21,10 @@ class SimpleCryptDevice : public QIODevice
 {
 
 public:
-    
-    SimpleCryptDevice(QSharedPointer<QIODevice> device, QObject *parent = 0);
-    SimpleCryptDevice(QSharedPointer<QIODevice>, quint64 key, QObject *parent = 0);
+    typedef std::unique_ptr<QIODevice> resourceDeviceType;
+
+    SimpleCryptDevice(resourceDeviceType device, QObject *parent = 0);
+    SimpleCryptDevice(resourceDeviceType device, quint64 key, QObject *parent = 0);
     virtual ~SimpleCryptDevice();
     
     // clear the buffer
@@ -49,7 +50,7 @@ private:
     qint64 writeBuffer(const char *out, qint64 maxSize);
 
     SimpleCrypt m_crypt;
-    QSharedPointer<QIODevice> m_device;
+    resourceDeviceType m_device;
     QByteArray m_buffer;
 
     Q_DISABLE_COPY(SimpleCryptDevice)

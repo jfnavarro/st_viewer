@@ -48,7 +48,7 @@ DataStore::accessResource(const QString& name, Options options)
 
     // add encryption layer if specified
     if (options.testFlag(Secure)) {
-        device = resourceDeviceType(new SimpleCryptDevice(device, ENCRYPT_KEY, this));
+        return resourceDeviceType(new SimpleCryptDevice(std::move(device), ENCRYPT_KEY, this));
     }
 
     return device;
@@ -111,7 +111,7 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
         return accessFile(name, options);
     }
 
-    QSharedPointer<QFile> file;
+    std::unique_ptr<QFile> file = nullptr;
     if (options.testFlag(Option::Temporary)) {
         const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
         QScopedPointer<QTemporaryFile> tempFile(new QTemporaryFile(filePath, this));
@@ -120,10 +120,10 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
         // force file name generation
         tempFile->open();
         tempFile->close();
-        file = QSharedPointer<QFile>(tempFile.data());
+        file = std::unique_ptr<QFile>(tempFile.data());
     } else {
         const QString filePath = QDir::current().filePath(name);
-        file = QSharedPointer<QFile>(new QFile(filePath, this));
+        file = std::unique_ptr<QFile>(new QFile(filePath, this));
     }
 
     // save filename map
@@ -131,7 +131,7 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
     qDebug() << QString("[DataStore] Map: (%1 -> %2)").arg(name).arg(filename);
     m_fileMap[name] = filename;
 
-    return resourceDeviceType(file);
+    return resourceDeviceType(std::move(file));
 }
 
 DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options options)
@@ -141,7 +141,7 @@ DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options
     // early out
     FileMap::const_iterator it = m_fileMap.find(name);
     if (it == m_fileMap.end()) {
-        return resourceDeviceType(nullptr);
+        return nullptr;
     }
 
     return resourceDeviceType(new QFile(it.value(), this));

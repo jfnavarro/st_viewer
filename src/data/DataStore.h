@@ -25,7 +25,7 @@ class DataStore : public QObject
 
 public:
 
-    typedef QSharedPointer<QIODevice> resourceDeviceType;
+    typedef std::unique_ptr<QIODevice> resourceDeviceType;
 
     enum Option {
         Empty = 0x00,       // No options.

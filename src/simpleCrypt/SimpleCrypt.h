@@ -21,6 +21,7 @@ class SimpleCrypt
     
 public:
     
+    typedef std::unique_ptr<QIODevice> resourceDeviceType;
     static const quint64 EMPTY_KEY = Q_UINT64_C(0x00);
 
     enum ErrorCode {
@@ -45,11 +46,11 @@ public:
     quint64 getKey() const;
     bool hasKey() const;
 
-    ErrorCode encodeStream(QSharedPointer<QIODevice> out) const;
-    ErrorCode decodeStream(QSharedPointer<QIODevice> in);
-    ErrorCode encodeSegment(QSharedPointer<QIODevice> out,
+    ErrorCode encodeStream(resourceDeviceType out) const;
+    ErrorCode decodeStream(resourceDeviceType in);
+    ErrorCode encodeSegment(resourceDeviceType out,
                             const QByteArray &data) const;
-    ErrorCode decodeSegment(QSharedPointer<QIODevice> in, QByteArray &data) const;
+    ErrorCode decodeSegment(resourceDeviceType in, QByteArray &data) const;
 
     int getProperty(Property code) const;
 
