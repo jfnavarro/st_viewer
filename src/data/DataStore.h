@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QFile>
 #include <QSharedPointer>
+#include <memory>
 
 // The data store extend the resource store interface and provides simple
 // functionality to manage temporarily stored files. Files stored through the
@@ -25,7 +26,7 @@ class DataStore : public QObject
 
 public:
 
-    typedef QSharedPointer<QIODevice> resourceDeviceType;
+    typedef std::unique_ptr<QIODevice> resourceDeviceType;
 
     enum Option {
         Empty = 0x00,       // No options.

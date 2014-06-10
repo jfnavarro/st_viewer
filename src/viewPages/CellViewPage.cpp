@@ -190,11 +190,15 @@ bool CellViewPage::loadData()
             return false;
         }
     }
+    Q_ASSERT(! dataset->id().isNull());
+    Q_ASSERT(! dataset->id().isEmpty());
 
     //get image alignmet object
     const auto ImageAlignment =
-            dataProxy->getImageAlignment(dataset->id());
+            dataProxy->getImageAlignment(dataset->imageAlignmentId());
     Q_ASSERT(ImageAlignment);
+    Q_ASSERT(! ImageAlignment->figureBlue().isNull());
+    Q_ASSERT(! ImageAlignment->figureBlue().isEmpty());
 
     //load cell tissue blue
     {
@@ -246,6 +250,8 @@ bool CellViewPage::loadData()
     }
     //load chip
     {
+        Q_ASSERT(! ImageAlignment->chipId().isNull());
+        Q_ASSERT(! ImageAlignment->chipId().isEmpty());
         async::DataRequest request =
                 dataProxy->loadChipById(ImageAlignment->chipId());
         if (request.return_code() == async::DataRequest::CodeError
@@ -492,6 +498,8 @@ void CellViewPage::slotLoadCellFigure()
     Q_ASSERT(dataset);
     const auto imageAlignment = dataProxy->getImageAlignment(dataset->id());
     Q_ASSERT(imageAlignment);
+    Q_ASSERT(! imageAlignment->id().isNull());
+    Q_ASSERT(! imageAlignment->id().isEmpty());
 
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
@@ -502,7 +510,7 @@ void CellViewPage::slotLoadCellFigure()
     auto device = dataProxy->getFigure(figureid);
 
     //read image (TODO check file is present or corrupted)
-    QImageReader reader(device.data());
+    QImageReader reader(device.get());
     const QImage image = reader.read();
 
     //deallocate device

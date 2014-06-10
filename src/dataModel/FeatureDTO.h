@@ -24,7 +24,7 @@ class FeatureDTO : public QObject
 
     Q_PROPERTY(QString id READ id WRITE id)
     Q_PROPERTY(QString barcode READ barcode WRITE barcode)
-    Q_PROPERTY(QString gene READ gene WRITE gene)
+    Q_PROPERTY(QString gene_nomenclature READ gene WRITE gene)
     Q_PROPERTY(QString annotation READ annotation WRITE annotation)
     Q_PROPERTY(int hits READ hits WRITE hits)
     Q_PROPERTY(int x READ x WRITE x)

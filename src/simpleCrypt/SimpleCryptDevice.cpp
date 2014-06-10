@@ -11,27 +11,28 @@
 
 static const qint64 DEFAULT_BUFFER_SIZE = Q_INT64_C(1000);
 
-SimpleCryptDevice::SimpleCryptDevice(QSharedPointer<QIODevice> device, QObject *parent)
+SimpleCryptDevice::SimpleCryptDevice(std::unique_ptr<QIODevice> device, QObject *parent)
     : QIODevice(parent),
       m_crypt(SimpleCrypt::EMPTY_KEY),
-      m_device(device)
+      m_device(std::move(device))
 {
-    connect(device.data(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
-    connect(device.data(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
-    connect(device.data(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
-    connect(device.data(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(device.get(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
+    connect(device.get(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
+    connect(device.get(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
+    connect(device.get(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
-SimpleCryptDevice::SimpleCryptDevice(QSharedPointer<QIODevice> device,
+SimpleCryptDevice::SimpleCryptDevice(std::unique_ptr<QIODevice> device,
                                      quint64 key, QObject *parent)
     : QIODevice(parent),
       m_crypt(key),
-      m_device(device)
+      m_device(std::move(device))
 {
-    connect(device.data(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
-    connect(device.data(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
-    connect(device.data(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
-    connect(device.data(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    Q_ASSERT(m_device.get());
+    connect(m_device.get(), SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()));
+    connect(m_device.get(), SIGNAL(bytesWritten(qint64)), this, SIGNAL(bytesWritten(qint64)));
+    connect(m_device.get(), SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()));
+    connect(m_device.get(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
 SimpleCryptDevice::~SimpleCryptDevice() 
@@ -42,7 +43,7 @@ SimpleCryptDevice::~SimpleCryptDevice()
 void SimpleCryptDevice::flush()
 {
     if (isOpen() && !m_buffer.isEmpty()) {
-        m_crypt.encodeSegment(m_device, m_buffer);
+        m_crypt.encodeSegment(m_device.get(), m_buffer);
     }
 }
 
@@ -94,7 +95,7 @@ qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
     it += readBuffer(it, (end - it));
     // read segments to output
     while (!m_device->atEnd() && (it < end)) {
-        if (m_crypt.decodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
+        if (m_crypt.decodeSegment(m_device.get(), m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
         it += readBuffer(it, (end - it));
@@ -116,7 +117,7 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
     while ((it < end)) {
         it += writeBuffer(it, qMin(static_cast<qint64>(end - it), DEFAULT_BUFFER_SIZE));
         if ((m_buffer.size() < DEFAULT_BUFFER_SIZE)
-                || m_crypt.encodeSegment(m_device, m_buffer) != SimpleCrypt::StreamOK) {
+	       || m_crypt.encodeSegment(m_device.get(), m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
         m_buffer.clear();

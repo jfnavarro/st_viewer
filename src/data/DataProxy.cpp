@@ -11,6 +11,7 @@
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QObject>
+#include <QtGlobal>
 
 #include "config/Configuration.h"
 
@@ -82,6 +83,8 @@ void DataProxy::cleanAll()
 
 bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
 {
+    Q_ASSERT(reply->isFinished());
+    Q_ASSERT(! reply->hasErrors());
     // mark data proxy as dirty if something is changed
     bool dirty = false;
 
@@ -168,6 +171,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             ObjectParser::parseObject(var, &dto);
             ImageAlignmentPtr imageAlignement =
                     ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
+	    Q_ASSERT(!m_imageAlignmentMap.contains(imageAlignement->id()));
             m_imageAlignmentMap.insert(imageAlignement->id(), imageAlignement);
             dirty = true;
         }
@@ -243,15 +247,16 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE),
                    "DataProxy", "Tissue must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
-        // keep track of file pointer
-        QScopedPointer<QIODevice> device;
-        device.reset(m_dataStore.accessResource(fileid,
+        DataStore::resourceDeviceType device;
+        Q_ASSERT(! fileid.isNull() && ! fileid.isEmpty());
+        device = m_dataStore.accessResource(fileid,
                                                               DataStore::Temporary |
                                                               DataStore::Persistent |
-                                                              DataStore::Secure).data());
+                                                              DataStore::Secure);
         // store data in file
+        Q_ASSERT(!device->isOpen());
         const bool dataOpen = device->open(QIODevice::WriteOnly);
-        if (dataOpen) {
+        if (!dataOpen) {
             qDebug() << QString("[DataProxy] Unable to open image fileid: %1").arg(fileid);
         }
         const qint64 dataWrite = device->write(reply->getRaw());
@@ -378,7 +383,7 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment(const QString& imageAl
     ImageAlignmentMap::const_iterator end = m_imageAlignmentMap.end();
     if (it == end) {
         it = m_imageAlignmentMap.insert(imageAlignmentId,
-                                           ImageAlignmentPtr(new ImageAlignment()));
+                                        ImageAlignmentPtr(new ImageAlignment()));
     }
     return it.value();
 }

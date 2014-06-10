@@ -28,7 +28,7 @@ SimpleCrypt::~SimpleCrypt()
 
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QSharedPointer<QIODevice> out) const
+SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QIODevice *out) const
 {
     // write stream header and abort on write error
     const StreamHeader header = { VERSION, 0x00 };
@@ -38,7 +38,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QSharedPointer<QIODevice> out) 
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QSharedPointer<QIODevice> in)
+SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QIODevice *in)
 {
     // read stream header and abort on read error
     StreamHeader header;
@@ -58,7 +58,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::decodeStream(QSharedPointer<QIODevice> in)
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QSharedPointer<QIODevice> out,
+SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QIODevice *out,
                                                   const QByteArray &data) const
 {
     QByteArray encryptData;
@@ -97,7 +97,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeSegment(QSharedPointer<QIODevice> out,
     return StreamOK;
 }
 
-SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QSharedPointer<QIODevice> in,
+SimpleCrypt::ErrorCode SimpleCrypt::decodeSegment(QIODevice *in,
                                                   QByteArray &data) const
 {
     QByteArray decryptData;

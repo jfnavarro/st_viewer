@@ -45,11 +45,11 @@ public:
     quint64 getKey() const;
     bool hasKey() const;
 
-    ErrorCode encodeStream(QSharedPointer<QIODevice> out) const;
-    ErrorCode decodeStream(QSharedPointer<QIODevice> in);
-    ErrorCode encodeSegment(QSharedPointer<QIODevice> out,
+    ErrorCode encodeStream(QIODevice *out) const;
+    ErrorCode decodeStream(QIODevice *in);
+    ErrorCode encodeSegment(QIODevice *out,
                             const QByteArray &data) const;
-    ErrorCode decodeSegment(QSharedPointer<QIODevice> in, QByteArray &data) const;
+    ErrorCode decodeSegment(QIODevice *in, QByteArray &data) const;
 
     int getProperty(Property code) const;
 
