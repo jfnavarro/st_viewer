@@ -8,6 +8,7 @@
 #ifndef SIMPLECRYPT_H
 #define SIMPLECRYPT_H
 
+#include <memory>
 #include <QByteArray>
 #include <QSharedPointer>
 

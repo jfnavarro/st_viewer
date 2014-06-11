@@ -35,6 +35,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
+    sortByColumn(0, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
 
     setItemDelegateForColumn(GeneFeatureItemModel::Show, booleanItemDelegate);

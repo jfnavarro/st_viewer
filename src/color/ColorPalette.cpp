@@ -7,6 +7,7 @@
 
 #include "color/ColorPalette.h"
 
+#include <QDebug>
 #include <qtcolorpicker.h>
 
 ColorPalette::ColorPalette(QObject* parent)
@@ -77,6 +78,9 @@ const ColorPalette::ColorList HSVPalette::colorList(const int count) const
     const qreal step = qreal(360) / qreal(count);
     for (int i = 0; i < count; ++i) {
         const int hue = int(i * step);
+        Q_ASSERT(hue >= 0 && hue <= 359);
+        Q_ASSERT(m_saturation >= 0 && m_saturation <= 255);
+        Q_ASSERT(m_value >= 0 && m_value <= 255);
         const QColor color = QColor::fromHsv(hue, m_saturation, m_value);
         colorList << ColorPair(color, QString());
     }
@@ -89,7 +93,7 @@ ColorPickerPopup *ColorPicker::createColorPickerPopup(const QColor &selectedColo
     const bool hasColorDialog = false;
     ColorPickerPopup *colorPickerPopup = new ColorPickerPopup(width, hasColorDialog, parent);
     HSVPalette palette(parent);
-    palette.setSaturation(300);
+    palette.setSaturation(255);
     const ColorPalette::ColorList colorList = palette.colorList();
     for (int i = 0; i < colorList.size(); ++i) {
         const ColorPalette::ColorPair pair = colorList[i];

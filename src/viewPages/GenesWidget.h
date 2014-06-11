@@ -12,7 +12,6 @@
 
 #include "data/DataProxy.h"
 
-class ColorPickerPopup;
 class QPushButton;
 class QLineEdit;
 class GenesTableView;
@@ -51,7 +50,6 @@ private slots:
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 
-    ColorPickerPopup *m_colorPickerPopup;
     QPushButton *m_selectionMenu;
     QPushButton *m_actionMenu;
     QLineEdit *m_lineEdit;
