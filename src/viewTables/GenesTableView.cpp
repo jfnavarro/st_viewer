@@ -42,6 +42,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     setItemDelegateForColumn(GeneFeatureItemModel::Color, geneViewDelegate);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionMode(QAbstractItemView::MultiSelection);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
