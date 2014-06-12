@@ -13,7 +13,7 @@
 namespace async
 {
 
-DataRequest::DataRequest()
+DataRequest::DataRequest() : m_return_code(CodeError)
 {
 }
 
