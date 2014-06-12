@@ -11,12 +11,9 @@
 #include <QPainter>
 #include <QCheckBox>
 #include <QMouseEvent>
-#include <QItemSelectionModel>
 
-#include <QTableView>
-
-BooleanItemDelegate::BooleanItemDelegate(QTableView *table) :
-  QStyledItemDelegate(table), m_tableView(table)
+BooleanItemDelegate::BooleanItemDelegate(QObject* parent) :
+    QStyledItemDelegate(parent)
 {
 
 }
@@ -75,30 +72,6 @@ void BooleanItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     QApplication::style()->drawControl(QStyle::CE_CheckBox, &check_box_style_option, painter);
 }
 
-// Maybe we should use unamed namespaces instead of the static keyword
-// It was recommended here http://stackoverflow.com/a/558210/757777
-
-static void selectIndicesInRow(const QModelIndex &index, QItemSelectionModel::SelectionFlags selectionFlags,  QItemSelectionModel *selectionModel) {
-    // The GenesTableView contains 3 columns. The variable "index" corresponds to the middle column.
-    selectionModel->select(index, selectionFlags);
-    selectionModel->select(index.sibling(index.row(),0), selectionFlags);
-    selectionModel->select(index.sibling(index.row(),2), selectionFlags);
-}
-
-// This function checks the selection state of "index". Then is sets the opposite selection state
-// for the whole row where index resides.
-
-static void toggleSelectionInRow(const QModelIndex &index, QTableView *tableView) {
-    Q_ASSERT(tableView);
-    auto selectionModel = tableView->selectionModel();
-    QModelIndexList list = selectionModel->selectedRows(1);
-    if (list.contains(index)) {
-        selectIndicesInRow(index,  QItemSelectionModel::Deselect, selectionModel);
-    } else {
-        selectIndicesInRow(index,  QItemSelectionModel::Select, selectionModel);
-    }
-}
-
 bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
                                       const QStyleOptionViewItem& option, const QModelIndex& index)
 {
@@ -121,9 +94,6 @@ bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
         return false;
     }
     const bool checked = index.model()->data(index, Qt::DisplayRole).toBool();
-
-    // Clicking in a checkbox should not change the selection so we change it back
-    toggleSelectionInRow(index, m_tableView);
     return model->setData(index, !checked, Qt::EditRole);
 }
 

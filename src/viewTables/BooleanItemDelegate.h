@@ -10,8 +10,6 @@
 
 #include <QStyledItemDelegate>
 
-class QTableView;
-
 // Specialized item delegate to manage the visualizing and modification of
 // boolean values in a table view.
 class BooleanItemDelegate : public QStyledItemDelegate
@@ -20,7 +18,7 @@ class BooleanItemDelegate : public QStyledItemDelegate
 
 public:
 
-    explicit BooleanItemDelegate(QTableView *table);
+    explicit BooleanItemDelegate(QObject* parent = 0);
     virtual ~BooleanItemDelegate();
 
     virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option,
@@ -37,10 +35,6 @@ public:
     static const QRect checkBoxRect(const QStyleOptionViewItem &view_item_style_options);
 
     Q_DISABLE_COPY(BooleanItemDelegate)
-
-private:
-
-    QTableView *m_tableView;
 };
 
 #endif // BOOLEANITEMDELEGATE_H //
