@@ -51,11 +51,11 @@ void ImageTextureGL::clearTextures()
 
 void ImageTextureGL::clearNodes()
 {
-    foreach( QGLSceneNode *node, m_nodes) {
-        if ( node ) {
+    foreach(QGLSceneNode *node, m_nodes) {
+        if (node) {
             delete node;
         }
-        node = 0;
+        node = nullptr;
     }
     m_nodes.clear();
 }
@@ -158,7 +158,7 @@ const QRectF ImageTextureGL::boundingRect() const
 
 void ImageTextureGL::setIntensity(qreal intensity)
 {
-    if ( m_intensity != intensity ) {
+    if (m_intensity != intensity) {
         m_intensity = intensity;
         emit updated();
     }

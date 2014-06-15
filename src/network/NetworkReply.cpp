@@ -160,13 +160,13 @@ QSharedPointer<Error> NetworkReply::parseErrors()
         foreach(QSharedPointer<Error> e, m_errors) {
             errortext += QString("%1 : %2 \n").arg(e->name()).arg(e->description());
         }
-        //NOTE need to emit a standard Error that packs all the errors descriptions
+        // need to emit a standard Error that packs all the errors descriptions
         error = QSharedPointer<Error>(new Error("Multiple Data Error", errortext, nullptr));
     } else {
         const QJsonDocument doc = getJSON();
         QVariant var = doc.toVariant();
         ErrorDTO dto;
-        ObjectParser::parseObject(var, &dto);
+        data::parseObject(var, &dto);
         error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
     }
 

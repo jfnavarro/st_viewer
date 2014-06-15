@@ -93,12 +93,11 @@ void CellViewPage::onInit()
 void CellViewPage::onEnter()
 {
     if (!loadData()) {
-        //TODO show warning?
-        //emit moveToPreviousPage();
+        //TODO do something here,
         return;
     }
 
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
 
     const auto dataset =
             dataProxy->getDatasetById(dataProxy->getSelectedDataset());
@@ -164,7 +163,7 @@ bool CellViewPage::loadData()
     DataProxy *dataProxy = DataProxy::getInstance();
 
     if (dataProxy->getSelectedDataset().isNull()) {
-        qDebug() << "CellViewPage : no dataset is selected";
+        showWarning("Cell View", "No dataset has been selected");
         return false;
     }
 
@@ -184,9 +183,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the image alignment.");
-            setWaiting(false);
             return false;
         }
     }
@@ -202,9 +201,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the cell tissue image(red).");
-            setWaiting(false);
             return false;
         }
     }
@@ -214,9 +213,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the cell tissue image(blue).");
-            setWaiting(false);
             return false;
         }
     }
@@ -226,9 +225,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadFeatureByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the features.");
-            setWaiting(false);
             return false;
         }
     }
@@ -238,9 +237,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadGenesByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the genes.");
-            setWaiting(false);
             return false;
         }
     }
@@ -250,9 +249,9 @@ bool CellViewPage::loadData()
                 dataProxy->loadChipById(ImageAlignment->chipId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
+            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the chip array.");
-            setWaiting(false);
             return false;
         }
     }
@@ -271,9 +270,9 @@ void CellViewPage::createConnections()
     connect(m_toolBar->m_actionNavigate_goNext,
             SIGNAL(triggered(bool)), this, SIGNAL(moveToNextPage()));
 
-    //color selector for genes (TODO connect to geneWidget or remove)
-    connect(m_colorDialogGenes.data(), &QColorDialog::colorSelected, this, [=](const QColor &color) {
-            this->ui->genesWidget->slotSetColorAllSelected(color); });
+    //color selector for genes
+    connect(m_colorDialogGenes.data(), &QColorDialog::colorSelected, this,
+            [=](const QColor &color) { this->ui->genesWidget->slotSetColorAllSelected(color); });
 
     // cell tissue
     connect(m_toolBar->m_actionShow_cellTissueBlue,
@@ -547,16 +546,19 @@ void CellViewPage::slotSaveImage()
     if (filename.isEmpty()) {
         return;
     }
+
     // append default extension
     QRegExp regex("^.*\\.(jpg|jpeg|png)$", Qt::CaseInsensitive);
     if (!regex.exactMatch(filename)) {
         filename.append(".jpg");
     }
+
     const int quality = 100; //quality format (100 max, 0 min, -1 default)
     const QString format = filename.split(".", QString::SkipEmptyParts).at(1); //get the file extension
+
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        QMessageBox::warning(this, tr("Save Image"), tr("Error saving image."));
+        showError("Save Image", tr("Error saving image."));
     }
 }
 
@@ -585,7 +587,7 @@ void CellViewPage::slotExportSelection()
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
-        exporter.exportItem(textFile, GeneSelection::getUniqueSelectedItems(geneSelection));
+        exporter.exportItem(textFile, geneSelection);
     }
 
     textFile.close();
@@ -652,17 +654,22 @@ void CellViewPage::slotSaveSelection()
                                                                           Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
         DataProxy *dataProxy = DataProxy::getInstance();
+
         // get selected features
         const auto& geneSelection = m_gene_plotter->getSelectedIItems();
         //create the selection object
+
         GeneSelection selection;
         selection.name(createSelection->getName());
         selection.comment(createSelection->getComment());
         selection.type("Bounding box");
+        //add datasets
         DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
         Q_ASSERT(dataset != nullptr);
         selection.datasetId(dataset->id());
+        //add selected genes
         selection.selectedItems(geneSelection);
+
         //save the selection object
         async::DataRequest request = dataProxy->addGeneSelection(selection);
         if (request.return_code() == async::DataRequest::CodeError

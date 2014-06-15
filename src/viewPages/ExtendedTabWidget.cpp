@@ -171,13 +171,16 @@ void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
 
     QWidget *fromWidget = widget(fromIndex);
     QWidget *toWidget = widget(toIndex);
+
     if (fromWidget != 0) {
         QMetaObject::invokeMethod(fromWidget, "onExit", Qt::DirectConnection);
     }
+
+    setCurrentIndex(toIndex);
+
     if (toWidget != 0) {
         QMetaObject::invokeMethod(toWidget, "onEnter", Qt::DirectConnection);
     }
-    setCurrentIndex(toIndex);
 }
 
 void ExtendedTabWidget::moveToNextPage()

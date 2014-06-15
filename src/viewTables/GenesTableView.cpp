@@ -13,25 +13,27 @@
 #include "model/GeneFeatureItemModel.h"
 
 #include "viewTables/BooleanItemDelegate.h"
-#include "viewTables/GeneViewDelegate.h"
+#include "viewTables/ColorItemDelegate.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent),
       m_geneModel(nullptr),
       m_sortGenesProxyModel(nullptr)
 {
-    // model view for genes list selector
+    // item delegates
     BooleanItemDelegate *booleanItemDelegate = new BooleanItemDelegate(this);
-    GeneViewDelegate *geneViewDelegate = new GeneViewDelegate(this);
+    ColorItemDelegate *colorItemDelegate = new ColorItemDelegate(this);
 
+    // model
     m_geneModel = new GeneFeatureItemModel(this);
     
+    // sorting model
     m_sortGenesProxyModel = new SortGenesProxyModel(this);
     m_sortGenesProxyModel->setSourceModel(m_geneModel);
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",
-                                            Qt::CaseInsensitive)); //I do not want to show ambiguous genes or numbers
+                                            Qt::CaseInsensitive)); //not show ambiguous genes or numbers
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
@@ -39,7 +41,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     horizontalHeader()->setSortIndicatorShown(true);
 
     setItemDelegateForColumn(GeneFeatureItemModel::Show, booleanItemDelegate);
-    setItemDelegateForColumn(GeneFeatureItemModel::Color, geneViewDelegate);
+    setItemDelegateForColumn(GeneFeatureItemModel::Color, colorItemDelegate);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
@@ -64,9 +66,8 @@ GenesTableView::~GenesTableView()
 
 QItemSelection GenesTableView::geneTableItemSelection() const
 {
-    auto selected = selectionModel()->selection();
-    auto mapped_selected = m_sortGenesProxyModel->mapSelectionToSource(selected);
-    return mapped_selected;
+    const auto selected = selectionModel()->selection();
+    return m_sortGenesProxyModel->mapSelectionToSource(selected);
 }
 
 void GenesTableView::setGeneNameFilter(QString str)

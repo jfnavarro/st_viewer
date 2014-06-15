@@ -18,6 +18,10 @@ class GenesTableView;
 class GeneFeatureItemModel;
 class QSortFilterProxyModel;
 
+//This widget is part of the CellView,
+//it is componsed of the Gene Table
+//a search field and the select and action
+//menus
 class GenesWidget : public QWidget
 {
     Q_OBJECT

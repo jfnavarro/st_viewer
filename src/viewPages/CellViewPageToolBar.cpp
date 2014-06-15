@@ -25,6 +25,9 @@ static const int GENE_SHIMME_MAX = 50;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
 
+namespace
+{
+
 void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget)
 {
     Q_ASSERT(menu != nullptr);
@@ -58,6 +61,8 @@ void addSliderToMenu(QWidget *parent, const QString &str,
     slider->setTickInterval(1);
     slider->setToolTip(tooltipStr);
     addWidgetToMenu(str, menu, slider);
+}
+
 }
 
 CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
@@ -254,6 +259,11 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addAction(m_actionNavigate_goNext);
 
     createConnections();
+}
+
+CellViewPageToolBar::~CellViewPageToolBar()
+{
+
 }
 
 void CellViewPageToolBar::resetTresholdActions(int min, int max)

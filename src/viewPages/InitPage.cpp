@@ -103,10 +103,3 @@ void InitPage::slotLogOutButton()
     auth->cleanAccesToken();
     auth->forceAuthentication();
 }
-
-void InitPage::setWaiting(bool waiting)
-{
-    ui->logoutButt->setEnabled(!waiting);
-    ui->newExpButt->setEnabled(!waiting);
-    Page::setWaiting(waiting);
-}

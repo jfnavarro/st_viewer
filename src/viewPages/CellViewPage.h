@@ -23,8 +23,7 @@ class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
 
-namespace Ui
-{
+namespace Ui{
 class CellView;
 } // namespace Ui
 
@@ -48,9 +47,9 @@ public:
 
 public slots:
     
-    void onInit();
-    void onEnter();
-    void onExit();
+    void onInit() override;
+    void onEnter() override;
+    void onExit() override;
 
 protected slots:
     

@@ -109,6 +109,7 @@ void GridRendererGL::generateData()
         m_grid_vertex.append(m_rect.left(), m_rect.bottom());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());
     }
+
     if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), GRID_LINE_SIZE), 0.0)) {
         m_grid_vertex.append(m_rect.right(), m_rect.top());
         m_grid_vertex.append(m_rect.right(), m_rect.bottom());

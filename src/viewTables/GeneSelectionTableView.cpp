@@ -17,8 +17,10 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
       m_geneSelectionModel(nullptr),
       m_sortGenesProxyModel(nullptr)
 {
+    // model
     m_geneSelectionModel = new GeneSelectionItemModel(this);
 
+    // the sorting model
     m_sortGenesProxyModel = new SortGenesProxyModel(this);
     m_sortGenesProxyModel->setSourceModel(m_geneSelectionModel);
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
@@ -54,9 +56,8 @@ GeneSelectionTableView::~GeneSelectionTableView()
 
 QItemSelection GeneSelectionTableView::geneTableItemSelection() const
 {
-    auto selected = selectionModel()->selection();
-    auto mapped_selected = m_sortGenesProxyModel->mapSelectionToSource(selected);
-    return mapped_selected;
+    const auto selected = selectionModel()->selection();
+    return m_sortGenesProxyModel->mapSelectionToSource(selected);
 }
 
 void GeneSelectionTableView::setGeneNameFilter(QString str)

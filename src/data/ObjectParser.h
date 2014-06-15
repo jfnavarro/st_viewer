@@ -19,13 +19,15 @@
 // mapped to the properties of the QObject trying to convert the variant data
 // to the data type of the mapped object member variable.
 // Currently the parsing only supports flat structures.
+
+//TODO move to a namespace
 class ObjectParser
 {
 
 public:
 
     // parse an object from variant map using intermediary DTO type
-    static void parseObject(const QVariant& source, QObject* target);
+    static void parseObject(const QVariant& source, QObject *target);
 };
 
 #endif // OBJECTPARSER_H //

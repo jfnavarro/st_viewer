@@ -100,7 +100,9 @@ public:
     //image alignment hashed by image alignment id
     typedef QMap<QString, ImageAlignmentPtr> ImageAlignmentMap;
     //gene selection objects
-    typedef QVector<GeneSelectionPtr> GeneSelectionList;
+    typedef QList<GeneSelectionPtr> GeneSelectionList;
+    //gene selection hashed by id
+    typedef QMap<QString, GeneSelectionPtr> GeneSelectionMap;
     //cell figure hashed by figure name (figure names are unique)
     typedef QMap<QString, QString> CellFigureMap;
 
@@ -146,7 +148,7 @@ public:
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser() const;
     DataStore::resourceDeviceType getFigure(const QString& figureId);
-    const GeneSelectionList& getGeneSelections() const;
+    const GeneSelectionList getGeneSelections() const;
     const QString getSelectedDataset() const;
 
     //setters
@@ -160,7 +162,7 @@ public:
     async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
 
     //deletion
-    //async::DataRequest removeGeneSelection(const GeneSelection& geneSelection);
+    async::DataRequest removeGeneSelectionById(const QString& id);
 
 private:
 
@@ -201,7 +203,7 @@ private:
      // map dataset id to image alignment
     ImageAlignmentMap m_imageAlignmentMap;
     // the current gene selections
-    GeneSelectionList m_geneSelectionsList;
+    GeneSelectionMap m_geneSelectionsMap;
     // the current selected dataset
     mutable QString m_selected_datasetId;
 

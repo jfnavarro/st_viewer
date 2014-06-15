@@ -14,9 +14,8 @@ class Singleton
 
 protected:
 
-    Singleton() {};
-
-    virtual ~Singleton() {};
+    Singleton() {}
+    virtual ~Singleton() {}
 
 private:
 
@@ -34,7 +33,6 @@ public:
                 delete _instance;
                 _instance = 0;
             }
-
         } else if (_instance == 0) {
             _instance = new T();
         }
@@ -58,7 +56,6 @@ public:
     }
 
 };
-
 
 template <class T>  T* Singleton<T>::_instance = 0;
 

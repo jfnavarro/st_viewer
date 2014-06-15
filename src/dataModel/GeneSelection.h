@@ -14,6 +14,7 @@ class GeneSelection
 public:
 
     //TODO move definition to cpp
+    //TODO make it a class
     struct SelectionType {
         SelectionType() : name(), reads(0), normalizedReads(0), pixeIntensity(0) {}
         SelectionType(QString name, qreal reads,

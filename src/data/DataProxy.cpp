@@ -61,8 +61,8 @@ void DataProxy::finalize()
     m_geneFeatureListMap.clear();
     m_user.clear();
     m_imageAlignmentMap.clear();
-    m_geneSelectionsList.clear();
-    m_selected_datasetId = QString();
+    m_geneSelectionsMap.clear();
+    m_selected_datasetId.clear();
 }
 
 void DataProxy::clean()
@@ -105,7 +105,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the objects
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
             m_datasetMap.insert(dataset->id(), dataset);
             dirty = true;
@@ -132,7 +132,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         geneMapByDatasetId.clear();
         //parse the data
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             GenePtr gene = GenePtr(new Gene(dto.gene()));
             geneListByDatasetId.push_back(gene);
             geneMapByDatasetId.insert(gene->name(), gene);
@@ -150,7 +150,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the data
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             ChipPtr chip = ChipPtr(new Chip(dto.chip()));
             m_chipMap.insert(chip->id(), chip);
             dirty = true;
@@ -166,7 +166,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             ImageAlignmentPtr imageAlignement =
                     ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
             Q_ASSERT(!m_imageAlignmentMap.contains(imageAlignement->id()));
@@ -183,14 +183,12 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // ensure even single items are encapsulated in a variant list
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-        //clear the data
-        m_geneSelectionsList.clear();
         //parse the data
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             qDebug() << "Parsing selection " << var;
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
-            m_geneSelectionsList.append(selection);
+            m_geneSelectionsMap.insert(selection->id(), selection);
             dirty = true;
         }
         break;
@@ -215,7 +213,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         featureMapByDatasetId.clear();
         //parse the data
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
             FeatureList& featureListByGeneIdAndDatasetId =
                     getGeneFeatureList(datasetId, feature->gene());
@@ -235,7 +233,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         foreach(QVariant var, list) {
-            ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             m_user = UserPtr(new User(dto.user()));
             dirty = true;
         }
@@ -395,9 +393,9 @@ DataStore::resourceDeviceType DataProxy::getFigure(const QString& figureId)
                                       DataStore::Secure);
 }
 
-const DataProxy::GeneSelectionList& DataProxy::getGeneSelections() const
+const DataProxy::GeneSelectionList DataProxy::getGeneSelections() const
 {
-    return m_geneSelectionsList;
+    return m_geneSelectionsMap.values();
 }
 
 const QString DataProxy::getSelectedDataset() const
@@ -588,6 +586,18 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     return createRequest(reply);
 }
 
+async::DataRequest DataProxy::removeGeneSelectionById(const QString &id)
+{
+    NetworkCommand *cmd = RESTCommandFactory::removeSelectionBySelectionId(id);
+    QVariantMap parameters;
+    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
+    NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
+    //delete the command
+    cmd->deleteLater();
+    //return the request
+    return createRequest(reply);
+}
+
 bool DataProxy::hasCellTissue(const QString& name) const
 {
     return m_dataStore.hasResource(name);
@@ -633,18 +643,23 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
     if (reply->hasErrors()) {
         request.addError(reply->parseErrors());
         request.return_code(async::DataRequest::CodeError);
-    } else {
+    }
+    else {
         const NetworkReply::ReturnCode returnCode =
                 static_cast<NetworkReply::ReturnCode>(reply->return_code());
+
         if (returnCode == NetworkReply::CodeError) {
+            //TODO use reply->getError() text message instead
             QSharedPointer<Error>
                     error(new Error("Data Error", "There was an error downloading data", nullptr));
             request.addError(error);
             request.return_code(async::DataRequest::CodeError);
-        } else if (returnCode == NetworkReply::CodeAbort) {
+        }
+        else if (returnCode == NetworkReply::CodeAbort) {
             //nothing for now
             request.return_code(async::DataRequest::CodeAbort);
-        } else {
+        }
+        else {
             // convert data
             const QVariant data = reply->customData();
             Q_ASSERT_X(data.canConvert(QVariant::Map),
@@ -652,7 +667,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
             const QVariantMap parameters = data.toMap();
             const bool ok = parseData(reply, parameters);
             if (!ok) {
-                //no data has been modified...nothing to do here..
+                //TODO no data has been modified...what to do here?
             }
             request.return_code(async::DataRequest::CodeSuccess);
         }

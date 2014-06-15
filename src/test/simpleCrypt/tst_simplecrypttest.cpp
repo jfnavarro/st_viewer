@@ -8,7 +8,7 @@
 #include <QtTest/QTest>
 #include <QDebug>
 
-#include <simpleCrypt/SimpleCrypt.h>
+#include "data/SimpleCrypt.h"
 
 #include "tst_simplecrypttest.h"
 

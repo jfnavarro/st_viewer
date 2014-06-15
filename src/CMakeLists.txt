@@ -58,7 +58,6 @@ set(subdir_list
                    io
                    model
                    config
-                   simpleCrypt
                    math)
 
 foreach(dir ${subdir_list})

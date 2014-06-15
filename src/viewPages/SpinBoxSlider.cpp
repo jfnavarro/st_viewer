@@ -36,14 +36,14 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
     m_layout->addWidget(m_spanslider);
     m_layout->addWidget(m_right_spinbox);
 
-    QObject::connect(m_spanslider, &QxtSpanSlider::lowerValueChanged,
-                     this, &SpinBoxSlider::setLowerValue);
-    QObject::connect(m_spanslider, &QxtSpanSlider::upperValueChanged,
-                     this, &SpinBoxSlider::setUpperValue);
-    QObject::connect(m_right_spinbox, SIGNAL(valueChanged(int)),
-                     this, SLOT(setUpperValue(int)));   
-    QObject::connect(m_left_spinbox, SIGNAL(valueChanged(int)),
-                     this, SLOT(setLowerValue(int)));   
+    connect(m_spanslider, &QxtSpanSlider::lowerValueChanged,
+            this, &SpinBoxSlider::setLowerValue);
+    connect(m_spanslider, &QxtSpanSlider::upperValueChanged,
+            this, &SpinBoxSlider::setUpperValue);
+    connect(m_right_spinbox, SIGNAL(valueChanged(int)),
+            this, SLOT(setUpperValue(int)));
+    connect(m_left_spinbox, SIGNAL(valueChanged(int)),
+            this, SLOT(setLowerValue(int)));
 
     setLayout(m_layout);
 }

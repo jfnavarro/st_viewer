@@ -38,19 +38,15 @@ public:
 
 public slots:
 
-    void onInit();
-    void onEnter();
-    void onExit();
+    void onInit() override;
+    void onEnter() override;
+    void onExit() override;
 
 protected slots:
 
     void datasetSelected(DataProxy::DatasetPtr);
     void refreshDatasets();
     void loadDatasets();
-
-protected:
-
-    void setWaiting(bool waiting = true);
 
 private:
 

@@ -28,19 +28,21 @@ public:
         Name = 0,
         Hits = 1,
         NormalizedHits = 2,
+        PixelItensity = 3
     };
 
     explicit GeneSelectionItemModel(QObject* parent = 0);
     virtual ~GeneSelectionItemModel();
 
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
-    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     //resets the model
     void reset();
@@ -54,7 +56,7 @@ public slots:
 
 private:
 
-    static const int COLUMN_NUMBER = 3;
+    static const int COLUMN_NUMBER = 4;
 
     GeneSelection::selectedItemsList m_geneselection;
 

@@ -37,18 +37,19 @@ public:
     explicit DatasetItemModel(QObject* parent = 0);
     virtual ~DatasetItemModel();
 
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    virtual bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool setData(const QModelIndex & index,
+                 const QVariant & value, int role = Qt::EditRole) override;
 
-    virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    //NOTE we do not want the user to edit columns name
-    virtual bool setHeaderData(int, Qt::Orientation,
-                               const QVariant&, int = Qt::EditRole);
+    //we do not want the user to edit columns name
+    bool setHeaderData(int, Qt::Orientation,
+                       const QVariant&, int = Qt::EditRole) override;
 
     //loads the data of the model from DatProxy
     void loadDatasets();

@@ -14,8 +14,7 @@
 #include <QList>
 #include <data/DataProxy.h>
 
-namespace Ui
-{
+namespace Ui{
 class SelectionDialog;
 } // namespace Ui //
 

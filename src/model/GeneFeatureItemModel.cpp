@@ -36,8 +36,10 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         Q_ASSERT(m_genelist_reference.size() > index.row());
+
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
+
         switch (index.column()) {
         case Name: return item->name();
         case Show: return item->selected() ? Qt::Checked : Qt::Unchecked;
@@ -81,13 +83,13 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                                    const QVariant& value, int role)
 {
     if (!index.isValid() || m_genelist_reference.isEmpty()) {
-        qDebug() << "in first";
         return false;
     }
 
     if (role == Qt::EditRole) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
+
         const int column = index.column();
         switch (column) {
         case Show:
@@ -99,7 +101,6 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                 emit signalSelectionChanged(geneList);
             }
             return true;
-            break;
         case Color: {
             const QColor color = qvariant_cast<QColor>(value);
             if (color.isValid() && item->color() != color) {
@@ -110,18 +111,12 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                 emit signalColorChanged(geneList);
             }
             return true;
-            break;
         }
         default:
             return false;
         }
     }
     return false;
-}
-
-void GeneFeatureItemModel::sort(int column, Qt::SortOrder order)
-{
-    QAbstractItemModel::sort(column, order);
 }
 
 int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
@@ -145,13 +140,10 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     switch (index.column()) {
     case Name:
         return Qt::ItemIsDragEnabled | defaultFlags;
-        break;
     case Show:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | defaultFlags;
-        break;
     case Color:
         return Qt::ItemIsEditable | Qt::ItemIsDragEnabled | defaultFlags;
-        break;
     default:
         Q_ASSERT(false && "[GeneFeatureItemModel] Invalid column index!");
     }
@@ -200,7 +192,7 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
     beginResetModel();
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
-        auto &gene(m_genelist_reference[row]);
+        auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
@@ -226,7 +218,7 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     beginResetModel();
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
-        auto &gene(m_genelist_reference[row]);
+        auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);

@@ -20,6 +20,7 @@
 
 class QModelIndex;
 class QStringList;
+class QItemSelection;
 
 class ExperimentsItemModel : public QAbstractTableModel
 {
@@ -32,19 +33,23 @@ public:
         Name = 0,
         Dataset = 1,
         Comment = 2,
+        Type = 3,
+        NGenes = 4
     };
 
     explicit ExperimentsItemModel(QObject* parent = 0);
     virtual ~ExperimentsItemModel();
 
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
-    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     //reset current model
     void reset();
@@ -52,9 +57,12 @@ public:
     //loads the data of the model from DataProxys
     void loadSelectedGenes();
 
+    //returns a list of selections items from the indexes given as input
+    DataProxy::GeneSelectionList getSelections(const QItemSelection &selection);
+
 private:
 
-    static const int COLUMN_NUMBER = 3;
+    static const int COLUMN_NUMBER = 5;
 
     DataProxy::GeneSelectionList m_geneselectionList;
 

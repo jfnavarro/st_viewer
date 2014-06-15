@@ -65,15 +65,20 @@ void GeneExporter::exportStrings(QTextStream &otxt, const QStringList &strings) 
     otxt << strings.join(delimiter) << endl;
 }
 
-void GeneExporter::exportItem(QTextStream &otxt, const GeneSelection::SelectionType& selection) const
+void GeneExporter::exportItem(QTextStream &otxt,
+                              const GeneSelection::SelectionType& selection) const
 {
-    QStringList list;
     const qreal reads = selection.reads;
     const qreal normalizedReads = selection.normalizedReads;
     const QString name = selection.name;
+    const qreal pixelIntensity = selection.pixeIntensity;
+
+    QStringList list;
     list << QString("%1").arg(name)
          << QString("%1").arg(reads)
-         << QString("%1").arg(normalizedReads);
+         << QString("%1").arg(normalizedReads)
+         << QString("%1").arg(pixelIntensity) ;
+
     exportStrings(otxt, list);
 }
 
@@ -85,10 +90,12 @@ void GeneExporter::exportItem(QTextStream &otxt,
         QStringList list;
         list << "gene_name"
              << "reads_count"
-             << "normalized_reads_count";
+             << "normalized_reads_count"
+             << "pixel_intensity" ;
         otxt << QString("# ");
         exportStrings(otxt, list);
     }
+
     foreach(const GeneSelection::SelectionType &selection, selectionList) {
         exportItem(otxt, selection);
     }
@@ -101,6 +108,7 @@ void GeneExporter::exportItem(QIODevice &device,
     if (!device.isWritable()) {
         return;
     }
+
     QTextStream otxt(&device);
     // prepend header
     if (m_detailLevel.testFlag(GeneExporter::Extended)) {

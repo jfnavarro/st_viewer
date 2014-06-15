@@ -5,7 +5,7 @@
 
 */
 
-#include "GeneViewDelegate.h"
+#include "ColorItemDelegate.h"
 
 #include <QItemEditorFactory>
 #include <QItemEditorCreatorBase>
@@ -15,19 +15,23 @@
 
 #include "color/ColorPalette.h"
 
-GeneViewDelegate::GeneViewDelegate(QObject* parent)
+ColorItemDelegate::ColorItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
 }
 
-void GeneViewDelegate::editorFinished(const QColor &)
+ColorItemDelegate::~ColorItemDelegate()
+{
+}
+
+void ColorItemDelegate::editorFinished(const QColor &)
 {
     QWidget *editor = qobject_cast<QWidget *>(sender());
     emit commitData(editor);
     emit closeEditor(editor);
 }
 
-void GeneViewDelegate::setModelData(QWidget *editor,
+void ColorItemDelegate::setModelData(QWidget *editor,
                                     QAbstractItemModel *model, const QModelIndex &index) const
 {
     ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
@@ -39,7 +43,7 @@ void GeneViewDelegate::setModelData(QWidget *editor,
     }
 }
 
-void GeneViewDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void ColorItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
     Q_ASSERT(colorPickerPopup);
@@ -55,19 +59,26 @@ void GeneViewDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     }
 }
 
-QWidget* GeneViewDelegate::createEditor(QWidget *parent,
-                                        const QStyleOptionViewItem & /*option*/,
+QWidget* ColorItemDelegate::createEditor(QWidget *parent,
+                                        const QStyleOptionViewItem &option,
                                         const QModelIndex &index) const
 {
+    Q_UNUSED(option);
+
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     Q_ASSERT(v.type() == QVariant::Color);
+
     const QColor color = qvariant_cast<QColor>(v);
-    ColorPickerPopup *colorPickerPopup = ColorPicker::createColorPickerPopup(color, parent);
-    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this, SLOT(editorFinished(const QColor &)));
+    ColorPickerPopup *colorPickerPopup =
+            color::createColorPickerPopup(color, parent);
+
+    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this,
+            SLOT(editorFinished(const QColor &)));
+
     return colorPickerPopup;
 }
 
-void GeneViewDelegate::updateEditorGeometry(QWidget* editor,
+void ColorItemDelegate::updateEditorGeometry(QWidget* editor,
                                             const QStyleOptionViewItem& option,
                                             const QModelIndex& index) const
 {
@@ -79,11 +90,8 @@ void GeneViewDelegate::updateEditorGeometry(QWidget* editor,
     editor->setGeometry( QRect(option.rect.topLeft(), editor->geometry().size() ));
 }
 
-GeneViewDelegate::~GeneViewDelegate()
-{
-}
-
-void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+void ColorItemDelegate::paint(QPainter* painter,
+                             const QStyleOptionViewItem& option,
                              const QModelIndex& index) const
 {
     QVariant v = index.model()->data(index, Qt::DisplayRole);
@@ -101,7 +109,8 @@ void GeneViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
         comboBoxOption.iconSize = QSize(10, 10);
         comboBoxOption.editable = false;
         // draw
-        QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel, &comboBoxOption, painter);
+        QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel,
+                                           &comboBoxOption, painter);
         break;
     }
     default:

@@ -49,10 +49,9 @@ LoginDialog::LoginDialog(QDialog *parent):
 
 LoginDialog::~LoginDialog()
 {
-    //elements are children of main layout
     //save users
     saveUsers();
-    //m_completer is smart pointer
+
     delete ui;
 }
 
@@ -80,7 +79,7 @@ const QString LoginDialog::getCurrentPassword() const
 void LoginDialog::loadUsers()
 {
     QSettings settings;
-    QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
+    const QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
     m_completer.reset(new QCompleter(stringSet.toList()));
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);

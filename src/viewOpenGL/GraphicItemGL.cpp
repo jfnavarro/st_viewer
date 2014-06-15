@@ -86,7 +86,7 @@ Globals::Anchor GraphicItemGL::anchor() const
 
 void GraphicItemGL::setAnchor(Globals::Anchor anchor)
 {
-    if ( m_anchor != anchor ) {
+    if (m_anchor != anchor) {
         m_anchor = anchor;
         emit updated();
     }

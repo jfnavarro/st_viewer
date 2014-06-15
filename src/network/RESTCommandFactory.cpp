@@ -108,11 +108,18 @@ NetworkCommand* RESTCommandFactory::getSelections()
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
+NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const QString &selectionId)
+{
+    Configuration config;
+    QUrl endpoint = QUrl(config.dataEndpointSelections() + "/" + selectionId);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
+}
+
 NetworkCommand* RESTCommandFactory::addSelection()
 {
     Configuration config;
     QUrl endpoint = QUrl(config.dataEndpointSelections());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
 }
 
 NetworkCommand* RESTCommandFactory::getMinVersion()

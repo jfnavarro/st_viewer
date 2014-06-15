@@ -45,7 +45,7 @@ public:
     static NetworkCommand* getSelections();
     //static NetworkCommand* getSelectionsByDatasetId(const QString& datasetId);
     //static NetworkCommand* upateSelectionBySelectionId(const QString& selectionId);
-    //static NetworkCommand* removeSelectionBySelectionId(const QString& selectionId);
+    static NetworkCommand* removeSelectionBySelectionId(const QString& selectionId);
     static NetworkCommand* addSelection();
 
     //NOTE this end point does not need authorization

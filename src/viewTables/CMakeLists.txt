@@ -5,7 +5,7 @@ set(LIBRARY_ARG_INCLUDES
     GenesTableView.h
     GeneSelectionTableView.h
     BooleanItemDelegate.h
-    GeneViewDelegate.h
+    ColorItemDelegate.h
     ExperimentsTableView.h
 )
 
@@ -14,7 +14,7 @@ set(LIBRARY_ARG_SOURCES
     GenesTableView.cpp
     GeneSelectionTableView.cpp
     BooleanItemDelegate.cpp
-    GeneViewDelegate.cpp
+    ColorItemDelegate.cpp
     ExperimentsTableView.cpp
 )
 

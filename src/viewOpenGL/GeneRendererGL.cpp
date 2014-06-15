@@ -436,6 +436,7 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
     foreach(DataProxy::FeaturePtr feature, features) {
         if (feature->selected()) {
+            //TODO add pixel intensity and normalized hits
             selectionList.append(GeneSelection::SelectionType(feature->gene(), feature->hits()));
         }
     }

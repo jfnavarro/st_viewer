@@ -172,6 +172,7 @@ const GeneSelection::selectedItemsList
 GeneSelection::getUniqueSelectedItems(const selectedItemsList &selectedItems)
 {
     //TODO this can be optimized to do in one loop
+    //TODO updgrade this to also account for normalized reads and pixel intensities
     QMap<QString, qreal> geneSelectionsMap;
     GeneSelection::selectedItemsList geneSelectionsList;
     foreach(const SelectionType &item, selectedItems) {

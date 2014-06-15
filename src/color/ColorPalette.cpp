@@ -87,7 +87,8 @@ const ColorPalette::ColorList HSVPalette::colorList(const int count) const
     return colorList;
 }
 
-ColorPickerPopup *ColorPicker::createColorPickerPopup(const QColor &selectedColor, QWidget *parent)
+namespace color {
+ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor, QWidget *parent)
 {
     const int width = 6;
     const bool hasColorDialog = false;
@@ -105,4 +106,5 @@ ColorPickerPopup *ColorPicker::createColorPickerPopup(const QColor &selectedColo
         item->setSelected(true);
     }
     return colorPickerPopup;
+}
 }

@@ -13,7 +13,7 @@
 #include <QByteArray>
 #include <QBuffer>
 
-#include <simpleCrypt/SimpleCryptDevice.h>
+#include "data/SimpleCryptDevice.h"
 
 #include <QtUnitTest/data/binarygenerator.h>
 #include <QtUnitTest/data/asciigenerator.h>

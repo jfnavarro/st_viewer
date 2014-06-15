@@ -115,7 +115,8 @@ enum HttpRequestType {
     HttpRequestTypeNone = 0,
     HttpRequestTypeGet = 1,
     HttpRequestTypePost = 2,
-    HttpRequestTypePut = 3
+    HttpRequestTypePut = 3,
+    HttpRequestTypeDelete = 4
 };
 
 }

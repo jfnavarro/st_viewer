@@ -27,12 +27,16 @@ static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 
+namespace   {
+
 bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node) {
     return !node.transformable() && node.selectable();
 }
 
 bool nodeIsSelectable(const GraphicItemGL &node) {
     return node.selectable();
+}
+
 }
 
 CellGLView::CellGLView(QScreen *parent) :
@@ -52,20 +56,10 @@ CellGLView::CellGLView(QScreen *parent) :
     m_projm.setToIdentity();
 
     //creates and sets the OpenGL format
-
-    //TODO some of this attribures is making
-    //the create context to fail for invalid pixel format
-    //needs to be fixed
-
-    //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    //format.setDepthBufferSize(0);
-    //format.setAlphaBufferSize(24);
-    //format.setBlueBufferSize(24);
-    //format.setGreenBufferSize(24);
-    //format.setRedBufferSize(24);
-    //format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    //format.setRenderableType(QSurfaceFormat::OpenGL);
-    //format.setStereo(false);
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setStereo(false);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
 
@@ -199,7 +193,7 @@ void CellGLView::resizeGL(int width, int height)
     //update local variables
     if ( m_scene.isValid() ) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
-        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);  
+        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
@@ -261,7 +255,7 @@ void CellGLView::rotate(qreal angle)
         update();
     }
 }
-  
+
 void CellGLView::setViewPort(const QRectF viewport)
 {
     if ( m_viewport != viewport && viewport.isValid() ) {
@@ -287,8 +281,6 @@ qreal CellGLView::minZoom() const
 {
     Q_ASSERT(m_scene.isValid());
     Q_ASSERT(m_viewport.isValid());
-    Q_ASSERT(!m_scene.isNull());
-    Q_ASSERT(!m_viewport.isNull());
     const qreal min_zoom_height = m_viewport.height( ) / m_scene.height();
     const qreal min_zoom_width = m_viewport.width() / m_scene.width();
     return qMax(min_zoom_height, min_zoom_width);
@@ -298,8 +290,6 @@ qreal CellGLView::maxZoom() const
 {
     Q_ASSERT(m_scene.isValid());
     Q_ASSERT(m_viewport.isValid());
-    Q_ASSERT(!m_scene.isNull());
-    Q_ASSERT(!m_viewport.isNull());
     const qreal max_zoom_x = m_viewport.width() /
             MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
     const qreal max_zoom_y = m_viewport.height() /
@@ -342,7 +332,7 @@ void CellGLView::zoomOut()
 }
 
 bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
-				       const MouseEventType type, const FilterFunc filterFunc)
+                                       const MouseEventType type, const FilterFunc filterFunc)
 
 {
     bool mouseEventWasSentToAtleastOneNode = false;
@@ -444,7 +434,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
         const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                                 qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+                                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
 
         sendRubberBandEventToNodes(rubberBandRect, event);
 
@@ -472,9 +462,9 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
         const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                                 qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
-         m_rubberband->setRubberbandRect(rubberBandRect);
-         update();
+                                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+        m_rubberband->setRubberbandRect(rubberBandRect);
+        update();
     }
     else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {
         QPoint point = event->globalPos(); //panning needs global pos
@@ -495,7 +485,7 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
     const qreal delta_panning_key =  shortest_side_length /
             (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
-    QPointF pan_adjustment(0,0);  
+    QPointF pan_adjustment(0,0);
     switch(event->key()) {
     case Qt::Key_Right:
         pan_adjustment = QPoint(-delta_panning_key, 0);
@@ -551,7 +541,7 @@ const QTransform CellGLView::sceneTransformations() const
     transform.translate(point.x(), point.y());
     transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
     transform.translate( -m_viewport.width() / 2.0,  -m_viewport.height() / 2.0);
-    if ( m_rotate != 0.0 ) {
+    if (m_rotate != 0.0) {
         //TOFIX should rotate around its center
         transform.rotate(m_rotate, Qt::ZAxis);
     }
@@ -597,8 +587,10 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;
     }
+
     if ( node->invertedX() || node->invertedY() ) {
         transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
     }
+
     return node->transform() * transform;
 }

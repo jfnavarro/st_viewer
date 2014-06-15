@@ -27,6 +27,7 @@ inline const QSizeF clamp(const QSizeF& size,
                           Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio)
 {
     QSizeF clampSize = size;
+
     if ((clampSize.width() < min.width()) || (clampSize.height() < min.height())) {
         if (mode == Qt::IgnoreAspectRatio) {
             clampSize = clampSize.expandedTo(min);
@@ -34,6 +35,7 @@ inline const QSizeF clamp(const QSizeF& size,
             clampSize = clampSize.scaled(min, Qt::KeepAspectRatioByExpanding);
         }
     }
+
     if ((clampSize.width() > max.width()) || (clampSize.height() > max.height())) {
         if (mode == Qt::IgnoreAspectRatio) {
             clampSize = clampSize.boundedTo(max);
@@ -41,6 +43,7 @@ inline const QSizeF clamp(const QSizeF& size,
             clampSize = clampSize.scaled(max, Qt::KeepAspectRatio);
         }
     }
+
     return clampSize;
 }
 

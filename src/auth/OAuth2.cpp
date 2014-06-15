@@ -112,6 +112,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     //check the return code
     const NetworkReply::ReturnCode returnCode =
             static_cast<NetworkReply::ReturnCode>(reply->return_code());
+
     if (returnCode == NetworkReply::CodeError) {
         //TODO use the test from reply->getError()
         QSharedPointer<OAuth2Error>
@@ -128,7 +129,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     //no errors, good
     if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
-        ObjectParser::parseObject(result, &dto);
+        data::parseObject(result, &dto);
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid refreshToken(dto.refreshToken());

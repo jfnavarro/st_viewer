@@ -9,17 +9,15 @@
 #define EXPERIMENTPAGE_H
 
 #include <QWidget>
+#include <QModelIndex>
 #include "Page.h"
 
 class ExperimentsItemModel;
 class QSortFilterProxyModel;
 
-namespace Ui
-{
+namespace Ui{
 class Experiments;
 } // namespace Ui //
-
-//TODO add print and remove functions
 
 class ExperimentPage : public Page
 {
@@ -32,19 +30,19 @@ public:
 
 public slots:
 
-    void onInit();
-    void onEnter();
-    void onExit();
+    void onInit() override;
+    void onEnter() override;
+    void onExit() override;
 
-protected slots:
+private slots:
 
-    void loadSelections();
-
-protected:
-
-    void setWaiting(bool waiting = true);
+    void slotLoadSelections();
+    void slotSelectionSelected(QModelIndex index);
+    void slotExportSelections();
+    void slotRemoveSelections();
 
 private:
+
     QSortFilterProxyModel *selectionsProxyModel();
     ExperimentsItemModel *selectionsModel();
 

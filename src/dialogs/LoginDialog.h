@@ -13,8 +13,7 @@
 class QCompleter;
 class QString;
 
-namespace Ui
-{
+namespace Ui {
 class LogIn;
 } // namespace Ui //
 

@@ -28,6 +28,7 @@ class CellViewPageToolBar : public QToolBar
 public:
 
     explicit CellViewPageToolBar(QWidget *parent = 0);
+    virtual ~CellViewPageToolBar();
 
     // actions for toolbar
     QAction *m_actionActivateSelectionMode;

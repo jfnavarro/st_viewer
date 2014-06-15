@@ -38,7 +38,7 @@ public:
     explicit QuadTree(const QSizeF& size);
     explicit QuadTree(const QuadTreeAABB& boundingBox);
     explicit QuadTree(const QRectF& rect);
-    virtual ~QuadTree();
+    ~QuadTree();
 
     bool contains(const QPointF &p) const;
 
@@ -57,6 +57,7 @@ public:
 
     int buckets() const;
     int bucketCapacity() const;
+
     void boundingBoxList(BoundingBoxList &buckets) const;
 
 private:
@@ -77,14 +78,16 @@ private:
         typedef std::array<int, 4> QuadArrayType;
 
         Bucket();
-        virtual ~Bucket();
         explicit Bucket(const QuadTreeAABB &b);
-        
+        ~Bucket();
+
         bool contains(const QPointF &p) const;
         
         int insert(const QPointF &p, const T &t);
+
         void select(const QuadTreeAABB &b, PointItemList &items,
                     QuadArrayType &point_array) const;
+
         void select(const QPointF &p, PointItem &item,
                     QuadArrayType &point_array) const;
         

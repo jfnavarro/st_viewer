@@ -20,18 +20,17 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     // the model
     m_datasetModel = new DatasetItemModel(this);
 
+    // the sorting model
     QSortFilterProxyModel *sortProxyModel = new QSortFilterProxyModel(this);
     sortProxyModel->setSourceModel(m_datasetModel);
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
     setModel(sortProxyModel);
     setSortingEnabled(true);
-    horizontalHeader()->setSortIndicatorShown(true);
-    verticalHeader()->setSortIndicatorShown(false);
+
     sortByColumn(0, Qt::AscendingOrder);
 
-    setSelectionBehavior(QAbstractItemView::SelectRows);
+    horizontalHeader()->setSortIndicatorShown(true);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
     horizontalHeader()->setStretchLastSection(true);
 
@@ -42,13 +41,14 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
+    setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
     model()->submit(); //support for caching (speed up)
     verticalHeader()->hide();
 
-    //notify the model I have selected a dataset TODO should be a better way to do this
+    //notify the model I have selected a dataset
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             m_datasetModel , SLOT(datasetSelected(QModelIndex)));
 }

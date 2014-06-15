@@ -34,19 +34,15 @@ public:
 
 public slots:
 
-    void onInit();
-    void onEnter();
-    void onExit();
+    void onInit() override;
+    void onEnter() override;
+    void onExit() override;
 
 private slots:
 
     void slotAuthorizationError(QSharedPointer<Error> error);
     void slotLogOutButton();
     void slotAuthorized();
-
-protected:
-
-    void setWaiting(bool waiting = true);
 
 private:
 

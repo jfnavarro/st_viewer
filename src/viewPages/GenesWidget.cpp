@@ -56,11 +56,13 @@ GenesWidget::GenesWidget(QWidget *parent) :
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
     m_actionMenu->menu()->addSeparator();
 
-    ColorPickerPopup *colorPickerPopup = ColorPicker::createColorPickerPopup(QColor(), this);
-    QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
-    widgetAction->setDefaultWidget(colorPickerPopup);
-    m_actionMenu->menu()->addAction(tr("Set color of selected:"));
-    m_actionMenu->menu()->addAction(widgetAction);
+    //TODO this seg faults in MAC
+    //ColorPickerPopup *colorPickerPopup = color::createColorPickerPopup(QColor(), this);
+    //QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
+    //widgetAction->setDefaultWidget(colorPickerPopup);
+    //m_actionMenu->menu()->addAction(tr("Set color of selected:"));
+    //m_actionMenu->menu()->addAction(widgetAction);
+
     geneListLayout->addWidget(m_actionMenu);
 
     //create line edit search
@@ -83,8 +85,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)), m_genes_tableview,
             SLOT(setGeneNameFilter(QString)));
-    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this,
-            SLOT(slotSetColorAllSelected(const QColor &)));
+    //connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this,
+    //        SLOT(slotSetColorAllSelected(const QColor &)));
     connect(getModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             this,
             SIGNAL(signalSelectionChanged(DataProxy::GeneList)));

@@ -3,7 +3,6 @@ set(LIBRARY_ARG_INCLUDES
     Dataset.h
     Feature.h
     Gene.h
-    ObjectParser.h
     User.h
     GeneSelection.h
     ImageAlignment.h
@@ -24,7 +23,6 @@ set(LIBRARY_ARG_SOURCES
     Dataset.cpp
     Feature.cpp
     Gene.cpp
-    ObjectParser.cpp
     User.cpp
     GeneSelection.cpp
     ImageAlignment.cpp

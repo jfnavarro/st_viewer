@@ -36,9 +36,6 @@ class CellGLView : public QWindow
 
 public:
 
-    //used to filter nodes for mouse events
-    typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
-
     enum MouseEventType {
         moveType,
         pressType,
@@ -104,6 +101,9 @@ signals:
 
 private:
 
+    //used to filter nodes for mouse events
+    typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
+
     //helper functions used to compute center position/zoom/padding
     const QTransform sceneTransformations() const;
     void resizeFromGeometry();
@@ -112,7 +112,8 @@ private:
     qreal maxZoom() const;
 
     // notify rubberbandable nodes with a rubberband event
-    void sendRubberBandEventToNodes(const QRectF rubberBand, const QMouseEvent *event);
+    void sendRubberBandEventToNodes(const QRectF rubberBand,
+                                    const QMouseEvent *event);
 
     // returns true if the event was sent to at least one of the nodes
     bool sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,

@@ -43,7 +43,7 @@ public:
     const QVariant customData() const;
     void setCustomData(QVariant data);
 
-    // parse body
+    // parse body (once parsed data cannot be parsed again)
     QJsonDocument getJSON();
     QString getText() const;
     QByteArray getRaw() const;
@@ -74,10 +74,8 @@ private:
     void registerError(QSharedPointer<Error> error);
 
     // Qt network reply
-    //QSharedPointer<QNetworkReply> m_reply;
-    //TODO shared pointe crashes, fix it
+    //TODO consider make it a smart pointer
     QNetworkReply *m_reply;
-
     // errors
     ErrorList m_errors;
     // custom data

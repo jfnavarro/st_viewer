@@ -69,13 +69,11 @@ private:
 };
 
 class ColorPickerPopup;
-//TODO move it somewhere else, create namespace for Color
-class ColorPicker
-{
-public:
+//TODO move this somewhere else,
+namespace color {
 
-    static ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor,
+    ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor,
                                                     QWidget *parent = 0);
-};
+}
 
 #endif // COLORPALETTE_H //

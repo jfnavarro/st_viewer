@@ -12,6 +12,26 @@
 #include <QCheckBox>
 #include <QMouseEvent>
 
+namespace {
+
+const QRect checkBoxRect(const QStyleOptionViewItem &view_item_style_options)
+{
+    QStyleOptionButton check_box_style_option;
+    QRect check_box_rect = QApplication::style()->subElementRect(
+                               QStyle::SE_CheckBoxIndicator,
+                               &check_box_style_option);
+    QPoint check_box_point(
+        view_item_style_options.rect.x() +
+        view_item_style_options.rect.width() / 2 -
+        check_box_rect.width() / 2,
+        view_item_style_options.rect.y() +
+        view_item_style_options.rect.height() / 2 -
+        check_box_rect.height() / 2);
+
+    return QRect(check_box_point, check_box_rect.size());
+}
+
+}
 BooleanItemDelegate::BooleanItemDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
 {
@@ -50,25 +70,29 @@ void BooleanItemDelegate::updateEditorGeometry(QWidget* editor,
 }
 
 void BooleanItemDelegate::setModelData(QWidget* editor,
-                                       QAbstractItemModel* model, const QModelIndex& index) const
+                                       QAbstractItemModel* model,
+                                       const QModelIndex& index) const
 {
     QCheckBox *box = qobject_cast<QCheckBox*>(editor);
     const bool value = box->isChecked();
     model->setData(index, value);
 }
 
-void BooleanItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+void BooleanItemDelegate::paint(QPainter* painter,
+                                const QStyleOptionViewItem& option,
                                 const QModelIndex& index) const
 {
     const bool checked = index.model()->data(index, Qt::DisplayRole).toBool();
     QStyleOptionButton check_box_style_option;
     check_box_style_option.state |= QStyle::State_Enabled;
+
     if (checked) {
         check_box_style_option.state |= QStyle::State_On;
     } else {
         check_box_style_option.state |= QStyle::State_Off;
     }
-    check_box_style_option.rect = BooleanItemDelegate::checkBoxRect(option);
+
+    check_box_style_option.rect = checkBoxRect(option);
     QApplication::style()->drawControl(QStyle::CE_CheckBox, &check_box_style_option, painter);
 }
 
@@ -79,7 +103,7 @@ bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
         event->type() == QEvent::MouseButtonDblClick) {
         QMouseEvent *mouse_event = dynamic_cast<QMouseEvent*>(event);
         if (mouse_event->button() != Qt::LeftButton ||
-            !BooleanItemDelegate::checkBoxRect(option).contains(mouse_event->pos())) {
+            !checkBoxRect(option).contains(mouse_event->pos())) {
             return false;
         }
         if (event->type() == QEvent::MouseButtonDblClick) {
@@ -97,19 +121,4 @@ bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
     return model->setData(index, !checked, Qt::EditRole);
 }
 
-const QRect BooleanItemDelegate::checkBoxRect(const QStyleOptionViewItem &view_item_style_options)
-{
-    QStyleOptionButton check_box_style_option;
-    QRect check_box_rect = QApplication::style()->subElementRect(
-                               QStyle::SE_CheckBoxIndicator,
-                               &check_box_style_option);
-    QPoint check_box_point(
-        view_item_style_options.rect.x() +
-        view_item_style_options.rect.width() / 2 -
-        check_box_rect.width() / 2,
-        view_item_style_options.rect.y() +
-        view_item_style_options.rect.height() / 2 -
-        check_box_rect.height() / 2);
 
-    return QRect(check_box_point, check_box_rect.size());
-}

@@ -1,7 +1,7 @@
 ###############################################################################
 # NAME AND VERSION
 ###############################################################################
-project(stVi C CXX)
+project(stVi CXX)
 cmake_minimum_required(VERSION 2.8.11.2 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 

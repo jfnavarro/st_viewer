@@ -60,12 +60,10 @@ void DatasetPage::onInit()
     connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(datasetsModel(), SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
-            this, SLOT(datasetSelected(DataProxy::DatasetPtr)), Qt::UniqueConnection);
-    connect(ui->back, SIGNAL(clicked(bool)), this,
-            SIGNAL(moveToPreviousPage()), Qt::UniqueConnection);
-    connect(ui->next, SIGNAL(clicked(bool)), this,
-            SIGNAL(moveToNextPage()), Qt::UniqueConnection);
-    connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()), Qt::UniqueConnection);
+            this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
+    connect(ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
+    connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()));
 }
 
 void DatasetPage::onEnter()
@@ -76,10 +74,17 @@ void DatasetPage::onEnter()
     ui->datasets_tableview->clearFocus();
     ui->back->clearFocus();
     ui->refresh->clearFocus();
+    ui->next->clearFocus();
 }
 
 void DatasetPage::onExit()
 {
+    //clear selection/focus
+    ui->datasets_tableview->clearSelection();
+    ui->datasets_tableview->clearFocus();
+    ui->back->clearFocus();
+    ui->refresh->clearFocus();
+    ui->next->clearFocus();
 }
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
@@ -96,7 +101,8 @@ void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 void DatasetPage::loadDatasets()
 {
     setWaiting(true);
-    async::DataRequest request = DataProxy::getInstance()->loadDatasets();
+    DataProxy *dataProxy = DataProxy::getInstance();
+    async::DataRequest request = dataProxy->loadDatasets();
     setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
@@ -114,12 +120,4 @@ void DatasetPage::refreshDatasets()
     DataProxy *dataProxy = DataProxy::getInstance();
     dataProxy->clean(); //clean the cache
     loadDatasets();
-}
-
-void DatasetPage::setWaiting(bool waiting)
-{
-    ui->datasets_tableview->setEnabled(!waiting);
-    ui->back->setEnabled(!waiting);
-    ui->refresh->setEnabled(!waiting);
-    Page::setWaiting(waiting);
 }

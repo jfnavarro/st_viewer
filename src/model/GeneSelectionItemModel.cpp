@@ -25,24 +25,20 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
     if (!index.isValid() || m_geneselection.empty()) {
         return QVariant(QVariant::Invalid);
     }
+
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
-        QVariant value;
+
         switch (index.column()) {
-        case Name:
-            value = item.name;
-            break;
-        case Hits:
-            value = item.reads;
-        break;
-        case NormalizedHits:
-            value = QString::number(item.normalizedReads, 'f', 2);
-            break;
+        case Name: return item.name;
+        case Hits: return item.reads;
+        case NormalizedHits: return QString::number(item.normalizedReads, 'f', 2);
+        case PixelItensity: return QString::number(item.pixeIntensity, 'f', 2);
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     }
+
     // return invalid value
     return QVariant(QVariant::Invalid);
 }
@@ -53,22 +49,16 @@ QVariant GeneSelectionItemModel::headerData(int section,
     if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
     }
+
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        QVariant value;
         switch (section) {
-        case Name:
-            value = tr("Name");
-            break;
-        case Hits:
-            value = tr("Reads");
-            break;
-        case NormalizedHits:
-            value = tr("Normalized Reads");
-            break;
+        case Name: return tr("Name");
+        case Hits: return tr("Reads");
+        case NormalizedHits: return tr("Normalized Reads");
+        case PixelItensity: return tr("Pixel Intensity");
         default:
             return QVariant(QVariant::Invalid);
         }
-        return value;
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label
         QVariant value(QVariant::Int);
@@ -91,17 +81,14 @@ bool GeneSelectionItemModel::geneName(const QModelIndex &index, QString *genenam
     if (!index.isValid() || m_geneselection.empty()) {
         return false;
     }
+
     const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
     if (index.column() == Name) {
          *genename = item.name;
          return true;
     }
-    return false;
-}
 
-void GeneSelectionItemModel::sort(int column, Qt::SortOrder order)
-{
-    QAbstractItemModel::sort(column, order);
+    return false;
 }
 
 int GeneSelectionItemModel::rowCount(const QModelIndex& parent) const

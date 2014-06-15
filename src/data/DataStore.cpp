@@ -13,7 +13,7 @@
 #include <QString>
 #include <QSettings>
 
-#include "simpleCrypt/SimpleCryptDevice.h"
+#include "data/SimpleCryptDevice.h"
 
 static const QString TEMP_PREFIX = QStringLiteral("stvi_temp_XXXXXX_");
 static const QString RESTORE_FILE = QStringLiteral("stvi_filemap");
@@ -55,7 +55,8 @@ DataStore::accessResource(const QString& name, Options options)
 
     // add encryption layer if specified
     if (options.testFlag(Secure)) {
-      SimpleCryptDevice *simpleCryptDevice = new SimpleCryptDevice(std::move(device), ENCRYPT_KEY);
+      SimpleCryptDevice *simpleCryptDevice =
+              new SimpleCryptDevice(std::move(device), ENCRYPT_KEY);
       Q_ASSERT(simpleCryptDevice);
       device.reset(simpleCryptDevice);
     }
@@ -108,7 +109,6 @@ void DataStore::saveResourceMap()
         qDebug() << QString("[DataStore] Save: (%1 -> %2)").arg(resourceid).arg(m_fileMap[resourceid]);
         restore.setValue(resourceid, m_fileMap[resourceid]);
     }
-
 }
 
 DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options options)
@@ -121,7 +121,7 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
         return accessFile(name, options);
     }
 
-    std::unique_ptr< QFile > file;
+    std::unique_ptr<QFile> file;
     if (options.testFlag(Option::Temporary)) {
         const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
         std::unique_ptr< QTemporaryFile > tempFile(new QTemporaryFile(filePath));

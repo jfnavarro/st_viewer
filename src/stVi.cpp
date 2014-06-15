@@ -54,7 +54,9 @@
 
 #include "viewPages/ExtendedTabWidget.h"
 
-static bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
+namespace {
+
+ bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
                                     const std::array< qulonglong, 3> &version2)
 {
     int index = 0;
@@ -68,6 +70,8 @@ static bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
         ++index;
     }
     return true;
+}
+
 }
 
 stVi::stVi(QWidget* parent): QMainWindow(parent),
@@ -158,7 +162,7 @@ bool stVi::checkSystemRequirements() const
     // if no errors
     if (!reply->hasErrors()) {
         MinVersionDTO dto;
-        ObjectParser::parseObject(result, &dto);
+        data::parseObject(result, &dto);
         qDebug() << "[stVi] Check min version min = "
                  << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers,
@@ -229,8 +233,7 @@ void stVi::setupUi()
 
 void stVi::handleMessage(const QString &message)
 {
-    Q_UNUSED(message);
-    //TODO show error
+    QMessageBox::critical(this->centralWidget(), "Main Application", message);
 }
 
 void stVi::showAbout()
@@ -253,7 +256,9 @@ void stVi::slotExit()
         saveSettings();
         QApplication::exit();
 #if defined Q_OS_LINUX || defined Q_OS_WIN
-        QApplication::processEvents(); //TOFIX this hides the mainwindow on MAC platforms
+        // this hides the mainwindow on MAC platforms
+        // TODO : this bug is fixed in qt 5.3.1 (test and validate)
+        QApplication::processEvents();
 #endif
     }
 }

@@ -78,8 +78,6 @@ protected:
 
 private:
 
-    void visitFeatures(const FeatureFunctor &featureFunctor, DataProxy::GeneList geneList);
-
     // internal rendering functions
     void updateSize();
     void updateVisual();

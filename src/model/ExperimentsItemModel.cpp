@@ -8,6 +8,10 @@
 #include "ExperimentsItemModel.h"
 
 #include <QDebug>
+#include <QItemSelection>
+
+#include <set>
+
 #include "dataModel/GeneSelection.h"
 
 ExperimentsItemModel::ExperimentsItemModel(QObject* parent)
@@ -26,17 +30,29 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
     if (!index.isValid() || m_geneselectionList.empty()) {
         return QVariant(QVariant::Invalid);
     }
+
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(item);
+
         switch (index.column()) {
         case Name: return item->name();
-        case Dataset: return item->datasetId();
+        case Dataset: {
+            DataProxy *dataProxy = DataProxy::getInstance();
+            const QString datasetName =
+                    dataProxy->getDatasetById(item->datasetId())->name();
+            return datasetName;
+        }
         case Comment: return item->comment();
+        case Type: return item->type();
+        case NGenes: {
+            return QString(item->selectedItems().size());
+        }
         default:
             return QVariant(QVariant::Invalid);
         }
     }
+
     // return invalid value
     return QVariant(QVariant::Invalid);
 }
@@ -47,15 +63,19 @@ QVariant ExperimentsItemModel::headerData(int section,
     if (role != Qt::DisplayRole) {
         return QVariant(QVariant::Invalid);
     }
+
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Name");
         case Dataset: return tr("Dataset");
         case Comment: return tr("Comment");
+        case Type: return tr("Type");
+        case NGenes: return tr("Number Genes");
         default:
             return QVariant(QVariant::Invalid);
         }
-    } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
+    }
+    else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label
         QVariant value(QVariant::Int);
         value = section + 1;
@@ -98,8 +118,25 @@ void ExperimentsItemModel::loadSelectedGenes()
 {
     beginResetModel();
     m_geneselectionList.clear();
-    DataProxy* dataProxy = DataProxy::getInstance();
+    DataProxy *dataProxy = DataProxy::getInstance();
     m_geneselectionList = dataProxy->getGeneSelections();
     endResetModel();
 }
 
+DataProxy::GeneSelectionList
+ExperimentsItemModel::getSelections(const QItemSelection &selection)
+{
+    std::set<int> rows;
+    for (const auto &index : selection.indexes()) {
+        rows.insert(index.row());
+    }
+
+    DataProxy::GeneSelectionList selectionList;
+    for (const auto &row : rows) {
+        auto selection = m_geneselectionList.at(row);
+        Q_ASSERT(selection);
+        selectionList.push_back(selection);
+    }
+
+    return selectionList;
+}
