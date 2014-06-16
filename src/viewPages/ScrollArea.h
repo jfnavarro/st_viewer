@@ -51,6 +51,7 @@ private:
     //TOFIX magic number?
     static const int m_scrollBarSteps = 100000;
 
+    //TODO this causes seg faults in the destructor
     QSharedPointer<CellGLView> m_view;
     QScopedPointer<QWidget> m_container;
     QRectF m_cellglview_scene;
