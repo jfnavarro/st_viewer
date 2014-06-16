@@ -21,7 +21,7 @@
 
 #include "dataModel/ErrorDTO.h"
 #include "dataModel/OAuth2TokenDTO.h"
-#include "dataModel/ObjectParser.h"
+#include "data/ObjectParser.h"
 
 #include "utils/Utils.h"
 
@@ -129,7 +129,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     //no errors, good
     if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
-        data::parseObject(result, &dto);
+        data::ObjectParser::parseObject(result, &dto);
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid refreshToken(dto.refreshToken());

@@ -22,7 +22,7 @@
 #include "error/ServerError.h"
 
 #include "dataModel/ErrorDTO.h"
-#include "dataModel/ObjectParser.h"
+#include "data/ObjectParser.h"
 
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
@@ -166,7 +166,7 @@ QSharedPointer<Error> NetworkReply::parseErrors()
         const QJsonDocument doc = getJSON();
         QVariant var = doc.toVariant();
         ErrorDTO dto;
-        data::parseObject(var, &dto);
+        data::ObjectParser::parseObject(var, &dto);
         error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
     }
 

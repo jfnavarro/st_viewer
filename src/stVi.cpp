@@ -48,7 +48,7 @@
 #include "data/DataStore.h"
 
 #include "dataModel/MinVersionDTO.h"
-#include "dataModel/ObjectParser.h"
+#include "data/ObjectParser.h"
 
 #include "dialogs/AboutDialog.h"
 
@@ -162,7 +162,7 @@ bool stVi::checkSystemRequirements() const
     // if no errors
     if (!reply->hasErrors()) {
         MinVersionDTO dto;
-        data::parseObject(result, &dto);
+        data::ObjectParser::parseObject(result, &dto);
         qDebug() << "[stVi] Check min version min = "
                  << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers,

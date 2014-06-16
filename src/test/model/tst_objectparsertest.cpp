@@ -7,7 +7,7 @@
 
 #include <QtTest/QTest>
 
-#include "dataModel/ObjectParser.h"
+#include "data/ObjectParser.h"
 
 #include "tst_objectparsertest.h"
 

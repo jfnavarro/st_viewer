@@ -13,11 +13,11 @@
 
 #include <QDebug>
 
-#include "dataModel/ObjectParser.h"
+#include "data/ObjectParser.h"
 
 namespace data {
 
-bool parseObject(const QVariant& source, QObject* target)
+bool ObjectParser::parseObject(const QVariant& source, QObject* target)
 {
     if (!source.isValid() || !source.canConvert(QVariant::Map)) {
         qDebug() << "[ObjectParser] Error: Invalid object... " << source.toByteArray();
