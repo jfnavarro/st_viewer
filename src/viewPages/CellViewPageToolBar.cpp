@@ -12,7 +12,6 @@
 #include <QWidgetAction>
 #include <QComboBox>
 #include <QToolButton>
-#include <qtcolorpicker.h>
 
 #include "SpinBoxSlider.h"
 

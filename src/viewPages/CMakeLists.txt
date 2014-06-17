@@ -1,4 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt;${PROJECT_SOURCE_DIR}/ext/qtcolorpicker-2.6_1-opensource/src)
+include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt)
 
 FIX_QT3D_COMPILATION_BUG()
 

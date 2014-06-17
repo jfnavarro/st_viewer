@@ -12,8 +12,9 @@
 #include <QWidgetAction>
 #include <QPushButton>
 #include <QLineEdit>
-#include <qtcolorpicker.h>
 #include <QSortFilterProxyModel>
+#include <QColorDialog>
+#include <QAction>
 
 #include "viewTables/GenesTableView.h"
 
@@ -56,19 +57,32 @@ GenesWidget::GenesWidget(QWidget *parent) :
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
     m_actionMenu->menu()->addSeparator();
 
-    //TODO this seg faults in MAC
-    ColorPickerPopup *colorPickerPopup = color::createColorPickerPopup(QColor(), this);
+    QColorDialog *colorPickerPopup = new QColorDialog(this);
+    colorPickerPopup->setOption(QColorDialog::NoButtons, true);
+    colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
+    colorPickerPopup->setWindowFlags(Qt::Widget);
+    //colorPickerPopup->hide();
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorPickerPopup);
+
     m_actionMenu->menu()->addAction(tr("Set color of selected:"));
     m_actionMenu->menu()->addAction(widgetAction);
-
+    //TODO colorPicker does not show
+    connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->open(); });
+    connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
+    connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
+    connect( colorPickerPopup, &QColorDialog::colorSelected,
+        [=]( const QColor& color )
+        {
+            colorPickerPopup->close();
+            slotSetColorAllSelected(color);
+        });
     geneListLayout->addWidget(m_actionMenu);
 
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
-    m_lineEdit->setFixedSize(200, 25);
+    m_lineEdit->setFixedSize(200, 20);
     geneListLayout->addWidget(m_lineEdit);
 
     //add actions menu to main layout
@@ -85,8 +99,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)), m_genes_tableview,
             SLOT(setGeneNameFilter(QString)));
-    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this,
-            SLOT(slotSetColorAllSelected(const QColor &)));
     connect(getModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             this,
             SIGNAL(signalSelectionChanged(DataProxy::GeneList)));

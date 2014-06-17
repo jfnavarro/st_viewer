@@ -220,6 +220,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             //TODO clear featureListByGeneIdAndDatasetId (check if this is consistent)
             featureMapByDatasetId.insert(feature->id(), feature);
             featureListByGeneIdAndDatasetId.push_back(feature);
+            featureListByDatasetId.push_back(feature);
             dirty = true;
         }
         break;

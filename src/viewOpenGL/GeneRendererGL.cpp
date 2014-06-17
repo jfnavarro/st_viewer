@@ -249,8 +249,6 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
 {
-    qDebug() << "Selecting genes to true to draw";
-
     DataProxy *dataProxy = DataProxy::getInstance();
 
     foreach (DataProxy::GenePtr gene, geneList) {

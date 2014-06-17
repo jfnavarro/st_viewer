@@ -92,8 +92,11 @@ void CellViewPage::onInit()
 
 void CellViewPage::onEnter()
 {
+    setWaiting(true);
+
     if (!loadData()) {
         //TODO do something here,
+        setWaiting(false);
         return;
     }
 
@@ -146,6 +149,8 @@ void CellViewPage::onEnter()
 
     // reset main variabless
     resetActionStates();
+
+    setWaiting(false);
 }
 
 void CellViewPage::onExit()
@@ -175,15 +180,12 @@ bool CellViewPage::loadData()
         return false;
     }
 
-    setWaiting(true);
-
     //load the image alignment first
     {
         async::DataRequest request =
                 dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the image alignment.");
             return false;
@@ -201,7 +203,6 @@ bool CellViewPage::loadData()
                 dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the cell tissue image(red).");
             return false;
@@ -213,7 +214,6 @@ bool CellViewPage::loadData()
                 dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the cell tissue image(blue).");
             return false;
@@ -225,7 +225,6 @@ bool CellViewPage::loadData()
                 dataProxy->loadFeatureByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the features.");
             return false;
@@ -237,7 +236,6 @@ bool CellViewPage::loadData()
                 dataProxy->loadGenesByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the genes.");
             return false;
@@ -249,7 +247,6 @@ bool CellViewPage::loadData()
                 dataProxy->loadChipById(ImageAlignment->chipId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            setWaiting(false);
             //TODO use text in request.getErrors()
             showError("Data loading Error", "Error loading the chip array.");
             return false;
@@ -257,7 +254,6 @@ bool CellViewPage::loadData()
     }
 
     //succes downloading the data
-    setWaiting(false);
     return true;
 }
 

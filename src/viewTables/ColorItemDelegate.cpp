@@ -10,8 +10,8 @@
 #include <QItemEditorFactory>
 #include <QItemEditorCreatorBase>
 #include <QApplication>
-#include <qtcolorpicker.h>
 #include <QDebug>
+#include <QColorDialog>
 
 #include "color/ColorPalette.h"
 
@@ -27,16 +27,18 @@ ColorItemDelegate::~ColorItemDelegate()
 void ColorItemDelegate::editorFinished(const QColor &)
 {
     QWidget *editor = qobject_cast<QWidget *>(sender());
-    emit commitData(editor);
-    emit closeEditor(editor);
+    editor->close();
+
+    //emit commitData(editor);
+    //emit closeEditor(editor);
 }
 
 void ColorItemDelegate::setModelData(QWidget *editor,
                                     QAbstractItemModel *model, const QModelIndex &index) const
 {
-    ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
+    QColorDialog  *colorPickerPopup = qobject_cast<QColorDialog *>(editor);
     Q_ASSERT(colorPickerPopup);
-    const QColor color = colorPickerPopup->lastSelected();
+    const QColor color = colorPickerPopup->currentColor();
     if (color.isValid()) {
         const bool res = model->setData(index, color);
         Q_ASSERT(res);
@@ -45,7 +47,7 @@ void ColorItemDelegate::setModelData(QWidget *editor,
 
 void ColorItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    ColorPickerPopup  *colorPickerPopup = qobject_cast<ColorPickerPopup *>(editor);
+    QColorDialog  *colorPickerPopup = qobject_cast<QColorDialog *>(editor);
     Q_ASSERT(colorPickerPopup);
 
     QVariant v = index.model()->data(index, Qt::DisplayRole);
@@ -53,9 +55,7 @@ void ColorItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index)
     const QColor color = qvariant_cast<QColor>(v);
 
     if (color.isValid()) {
-        ColorPickerItem *item = colorPickerPopup->find(color);
-        Q_ASSERT(item);
-        item->setSelected(true);
+        colorPickerPopup->setCurrentColor(color);
     }
 }
 
@@ -69,11 +69,24 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
     Q_ASSERT(v.type() == QVariant::Color);
 
     const QColor color = qvariant_cast<QColor>(v);
-    ColorPickerPopup *colorPickerPopup =
-            color::createColorPickerPopup(color, parent);
 
-    connect(colorPickerPopup, SIGNAL(selected(const QColor &)), this,
-            SLOT(editorFinished(const QColor &)));
+    QColorDialog *colorPickerPopup = new QColorDialog(color, parent);
+    colorPickerPopup->setOption(QColorDialog::NoButtons, true);
+    colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
+    colorPickerPopup->setWindowFlags(Qt::Widget);
+    //colorPickerPopup->hide();
+
+    //TODO close here or in editor finished
+    //connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
+    //connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
+    connect( colorPickerPopup, &QColorDialog::colorSelected,
+        [=]( const QColor& color )
+        {
+            colorPickerPopup->close();
+            Q_UNUSED(color);
+            //TODO set color here or in editorFinished
+            //editorFinished(color);
+        });
 
     return colorPickerPopup;
 }
@@ -84,10 +97,9 @@ void ColorItemDelegate::updateEditorGeometry(QWidget* editor,
 {
     Q_UNUSED(index);
     // The colorpicker is a bit misplaced. But right now this function doesn't solve the issue
-    //    const QRect rect = option.rect;
-    //    editor->setGeometry(rect);
-    qDebug() << option.rect;
-    editor->setGeometry( QRect(option.rect.topLeft(), editor->geometry().size() ));
+    const QRect rect = option.rect;
+    editor->setGeometry(rect);
+    //editor->setGeometry( QRect(option.rect.topLeft(), editor->geometry().size() ));
 }
 
 void ColorItemDelegate::paint(QPainter* painter,

@@ -106,7 +106,7 @@ add_subdirectory(QtUnitTest)
 
 #link static libraries and third party libraries
 
-set(LIB_COMPONENTS QtSingleApplication qtcolorpicker)
+set(LIB_COMPONENTS QtSingleApplication)
 
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")

@@ -22,8 +22,8 @@ void ScrollArea::initializeView(QSharedPointer<CellGLView> view)
 {
     Q_ASSERT(view != nullptr);
 
-    m_view = QSharedPointer<CellGLView>(view);
-    m_container.reset(QWidget::createWindowContainer(m_view.data()));
+    m_view = view.data();
+    m_container.reset(QWidget::createWindowContainer(m_view));
     m_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     setViewport(m_container.data());
@@ -31,11 +31,11 @@ void ScrollArea::initializeView(QSharedPointer<CellGLView> view)
     verticalScrollBar()->setTracking(true);
     horizontalScrollBar()->setTracking(true);
 
-    connect(m_view.data(), SIGNAL(signalViewPortUpdated(const QRectF)),
+    connect(m_view, SIGNAL(signalViewPortUpdated(const QRectF)),
             this, SLOT(setCellGLViewViewPort(const QRectF)));
-    connect(m_view.data(), SIGNAL(signalSceneUpdated(const QRectF)),
+    connect(m_view, SIGNAL(signalSceneUpdated(const QRectF)),
             this, SLOT(setCellGLViewScene(const QRectF)));
-    connect(m_view.data(), SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
+    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
             this, SLOT(setCellGLViewSceneTransformations(const QTransform)));
 
     connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
