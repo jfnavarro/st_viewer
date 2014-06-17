@@ -20,6 +20,7 @@ class QToolBar;
 class SpinBoxSlider;
 class QSlider;
 class QComboBox;
+class QPushButton;
 
 class CellViewPageToolBar : public QToolBar
 {
@@ -32,8 +33,8 @@ public:
 
     // actions for toolbar
     QAction *m_actionActivateSelectionMode;
-    QAction *m_actionNavigate_goBack;
-    QAction *m_actionNavigate_goNext;
+    QWidgetAction *m_actionNavigate_goBack;
+    QWidgetAction *m_actionNavigate_goNext;
     QAction *m_actionSave_save;
     QAction *m_actionSave_print;
     QAction *m_actionSelection_showSelectionDialog;
@@ -81,6 +82,9 @@ public:
     QAction *m_actionShow_showMiniMap;
     QAction *m_actionRotation_rotateLeft;
     QAction *m_actionRotation_rotateRight;
+
+    QPushButton *m_buttonNavigate_goBack;
+    QPushButton *m_buttonNavigate_goNext;
 
 signals:
 

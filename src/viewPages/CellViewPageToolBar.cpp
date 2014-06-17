@@ -12,6 +12,7 @@
 #include <QWidgetAction>
 #include <QComboBox>
 #include <QToolButton>
+#include <QCoreApplication>
 #include <qtcolorpicker.h>
 
 #include "SpinBoxSlider.h"
@@ -107,7 +108,10 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_actionShow_showCellTissue(nullptr),
     m_actionShow_showLegend(nullptr),
     m_actionShow_showMiniMap(nullptr),
-    m_actionRotation_rotateLeft(nullptr)
+    m_actionRotation_rotateLeft(nullptr),
+    m_actionRotation_rotateRight(nullptr),
+    m_buttonNavigate_goBack(nullptr),
+    m_buttonNavigate_goNext(nullptr)
 {
     createActions();
 
@@ -167,13 +171,13 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
                     &m_geneSizeSlider,
                     GENE_SIZE_MIN,
                     GENE_SIZE_MAX);
-    addSliderToMenu(this,
-                    tr("Shine:"),
-                    tr("Shine level of the genes"),
-                    m_menu_genePlotter,
-                    &m_geneShineSlider,
-                    GENE_SHIMME_MIN,
-                    GENE_SHIMME_MAX);
+    // addSliderToMenu(this,
+    //                 tr("Shine:"),
+    //                 tr("Shine level of the genes"),
+    //                 m_menu_genePlotter,
+    //                 &m_geneShineSlider,
+    //                 GENE_SHIMME_MIN,
+    //                 GENE_SHIMME_MAX);
 
     m_menu_genePlotter->addSeparator();
 
@@ -320,6 +324,23 @@ void CellViewPageToolBar::resetActions()
     resetTresholdActions(Globals::GENE_THRESHOLD_MIN, Globals::GENE_THRESHOLD_MAX);
 }
 
+namespace {
+void createPushButton(const QString &text, const QString &tip, const QIcon &icon, QWidget *parent, 
+                      QWidgetAction **widgetAction, QPushButton **pushButton) {
+    Q_ASSERT(*widgetAction == nullptr);
+    Q_ASSERT(*pushButton == nullptr);
+    QWidgetAction *action = new QWidgetAction(parent);
+    QPushButton *button = new QPushButton(icon, text, parent);
+    button->setMinimumSize(QSize(100,50));
+    button->setMaximumSize(QSize(100,50));
+    action->setDefaultWidget(button);
+    button->setToolTip(tip);
+    button->setStatusTip(tip);
+    *widgetAction = action;
+    *pushButton = button;
+}
+}
+
 void CellViewPageToolBar::createActions()
 {
     //show grid/genes
@@ -347,11 +368,11 @@ void CellViewPageToolBar::createActions()
             new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell &Tissue"), this);
     m_actionShow_showCellTissue->setCheckable(true);
 
-    //navigation
-    m_actionNavigate_goBack = new QAction(QIcon(QStringLiteral(":/images/back.png")), tr("Back"), this);
-    m_actionNavigate_goBack->setAutoRepeat(false);
-    m_actionNavigate_goNext = new QAction(QIcon(QStringLiteral(":/images/next.png")), tr("Next"), this);
-    m_actionNavigate_goNext->setAutoRepeat(false);
+    // navigation push buttons
+    createPushButton(tr("Back"), tr("Go back to Dataset Page"), QIcon(QStringLiteral(":/images/back.png")),
+                     this, &m_actionNavigate_goBack, &m_buttonNavigate_goBack);
+    createPushButton(tr("Next"), tr("Go to Analyzation Page"), QIcon(QStringLiteral(":/images/next.png")),
+                     this, &m_actionNavigate_goNext, &m_buttonNavigate_goNext);
 
     //color modes
     m_actionShow_toggleNormal =
@@ -430,6 +451,10 @@ void CellViewPageToolBar::createActions()
 
 void CellViewPageToolBar::createConnections()
 {
+    // navigation signals
+    connect(m_buttonNavigate_goBack, SIGNAL(clicked(bool)), m_actionNavigate_goBack, SLOT(trigger()));
+    connect(m_buttonNavigate_goNext, SIGNAL(clicked(bool)), m_actionNavigate_goNext, SLOT(trigger()));
+
     //threshold slider signal
     Q_ASSERT(m_geneHitsThreshold);
     connect(m_geneHitsThreshold, SIGNAL(lowerValueChanged(int)),
@@ -442,8 +467,8 @@ void CellViewPageToolBar::createConnections()
     connect(m_geneIntensitySlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneIntensity(int)));
     Q_ASSERT(m_geneSizeSlider);
     connect(m_geneSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneSize(int)));
-    Q_ASSERT(m_geneShineSlider);
-    connect(m_geneShineSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneShine(int)));
+    //    Q_ASSERT(m_geneShineSlider);
+    //    connect(m_geneShineSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneShine(int)));
     Q_ASSERT(m_geneBrightnessSlider);
     connect(m_geneBrightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneBrightness(int)));
     Q_ASSERT(m_geneShapeComboBox);

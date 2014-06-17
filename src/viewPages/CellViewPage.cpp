@@ -21,6 +21,7 @@
 #include <QColorDialog>
 #include <QImageReader>
 #include <QPainter>
+#include <QWidgetAction>
 
 #include "error/Error.h"
 
