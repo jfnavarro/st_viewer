@@ -79,7 +79,7 @@ class QEventLoop;
 /*
     This class represents each "color" or item in the color grid.
 */
-class ColorPickerItem : public QFrame
+class QT_QTCOLORPICKER_EXPORT ColorPickerItem : public QFrame
 {
     Q_OBJECT
 
@@ -112,7 +112,7 @@ private:
     bool sel;
 };
 
-class ColorPickerPopup : public QFrame
+class QT_QTCOLORPICKER_EXPORT ColorPickerPopup : public QFrame
 {
     Q_OBJECT
 
@@ -215,7 +215,7 @@ private:
     mouseRelease, even if the mouse button was  not pressed inside the
     widget.
 */
-class ColorPickerButton : public QFrame
+class QT_QTCOLORPICKER_EXPORT ColorPickerButton : public QFrame
 {
     Q_OBJECT
 
