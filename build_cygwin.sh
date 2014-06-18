@@ -26,17 +26,18 @@ mkdir -p $stclient_builddir
 # instead of hard coding the following paths we should be able to use something like
 # what is described here: http://stackoverflow.com/a/15335686
 
-filepath1=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 11.0/VC/vcvarsall.bat'`
-filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.2.1/5.2.1/msvc2012_64_opengl/bin/qtenv2.bat'`
+filepath1=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'`
+filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.3.0/5.3/msvc2013_64_opengl/bin/qtenv2.bat'`
 
 # If you don't want to build the whole (qt3d + stclient), you could edit this section:
 if /bin/true; then
   if /bin/true; then
     git clone git://gitorious.org/qt/qt3d.git $qt3d_srcdir
     cd $qt3d_srcdir
-    # Following the advice found in:
-    # http://dragly.org/2014/03/30/recent-commit-causes-qt3d-to-fail-compilation/
-    git checkout d3338a9 -b older_version
+    # Better settle on a specific commit of qt3d.
+    # Commit bdb98baf8253c69949a8c259369203da9ffb269c is from 2014-06-18
+    # I just took the latest from today/ Erik Sjolund 
+    git checkout bdb98baf8253c69949a8c259369203da9ffb269c -b tmpbranch
     echo "INCLUDEPATH += \$\$PWD/dummy" >> src/imports/threed/threed.pro
     mkdir src/imports/threed/dummy
   else
@@ -64,7 +65,7 @@ stclient_srcdir_windows=`cygpath -w $stclient_srcdir`
 # The cmake that is found in cygwin does not contain the "NMake Makefiles" generator
 # so we need to use the windows version of cmake
 
-cmake_path="/cygdrive/c/Program Files (x86)/CMake 2.8/bin/cmake.exe"
+cmake_path="/cygdrive/c/Program Files (x86)/CMake/bin/cmake.exe"
 cmake_path_windows=`cygpath -w "$cmake_path"`
 #"Visual Studio 11 Win64" 
 cmd /Q /C call "$filepath1" x86_amd64 "&&" \

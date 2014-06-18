@@ -369,7 +369,7 @@ if(WIN32)
     deploy_qt_plugins()
     
     #qt5.1.1 icu is 51 for lower versions is 49
-    windows_deploy_qt_libraries(icudt51 icuin51 icuuc51)
+    windows_deploy_qt_libraries(icudt52 icuin52 icuuc52)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)
