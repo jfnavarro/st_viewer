@@ -71,10 +71,9 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->open(); });
     connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
     connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::colorSelected,
+    connect( colorPickerPopup, &QColorDialog::currentColorChanged,
         [=]( const QColor& color )
         {
-            colorPickerPopup->close();
             slotSetColorAllSelected(color);
         });
     geneListLayout->addWidget(m_actionMenu);

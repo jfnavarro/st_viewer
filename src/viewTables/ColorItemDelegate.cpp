@@ -79,13 +79,15 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
     //TODO close here or in editor finished
     //connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
     //connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::colorSelected,
+    connect( colorPickerPopup, &QColorDialog::currentColorChanged,
         [=]( const QColor& color )
         {
             colorPickerPopup->close();
             Q_UNUSED(color);
             //TODO set color here or in editorFinished
             //editorFinished(color);
+	    emit commitData(colorPickerPopup);
+	    emit closeEditor(colorPickerPopup);
         });
 
     return colorPickerPopup;

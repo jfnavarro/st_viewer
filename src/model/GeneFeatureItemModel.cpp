@@ -189,7 +189,6 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
         rows.insert(index.row());
     }
 
-    beginResetModel();
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
@@ -200,7 +199,6 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-    endResetModel();
     emit signalSelectionChanged(geneList);
 }
 
@@ -215,7 +213,6 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
         rows.insert(index.row());
     }
 
-    beginResetModel();
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
@@ -226,7 +223,6 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-    endResetModel();
     emit signalColorChanged(geneList);
 }
 
