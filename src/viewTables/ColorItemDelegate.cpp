@@ -86,8 +86,8 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
             Q_UNUSED(color);
             //TODO set color here or in editorFinished
             //editorFinished(color);
-	    emit commitData(colorPickerPopup);
-	    emit closeEditor(colorPickerPopup);
+            //emit commitData(colorPickerPopup);
+            //emit closeEditor(colorPickerPopup);
         });
 
     return colorPickerPopup;
