@@ -151,6 +151,7 @@ void CellViewPage::onEnter()
     // reset main variabless
     resetActionStates();
 
+    //loading finished
     setWaiting(false);
 }
 
@@ -159,9 +160,12 @@ void CellViewPage::onExit()
     //TODO implement clear focus/data for genesWidget and selectionsWidget
     m_gene_plotter->clearData();
     m_grid->clearData();
+    //TODO implement these two
     //m_legend->clearData();
     //m_minimap->clearData();
     m_image->clear();
+    //update the view after clearing graphical objects
+    m_view->update();
 }
 
 bool CellViewPage::loadData()
@@ -507,7 +511,10 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     m_image->createTexture(image);
+    // set the scene size in the view to the image bounding box
     m_view->setScene(image.rect());
+    // set the image in the gene plotter
+    m_gene_plotter->setImage(image);
 
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
@@ -543,16 +550,13 @@ void CellViewPage::slotSaveImage()
     if (filename.isEmpty()) {
         return;
     }
-
     // append default extension
     QRegExp regex("^.*\\.(jpg|jpeg|png)$", Qt::CaseInsensitive);
     if (!regex.exactMatch(filename)) {
         filename.append(".jpg");
     }
-
     const int quality = 100; //quality format (100 max, 0 min, -1 default)
     const QString format = filename.split(".", QString::SkipEmptyParts).at(1); //get the file extension
-
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         showError("Save Image", tr("Error saving image."));
@@ -573,13 +577,10 @@ void CellViewPage::slotExportSelection()
     if (!regex.exactMatch(filename)) {
         filename.append(".txt");
     }
-
     // get selected features
     const auto& geneSelection = m_gene_plotter->getSelectedIItems();
-
     //create file
     QFile textFile(filename);
-
     //export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
@@ -642,7 +643,7 @@ void CellViewPage::slotSelectionUpdated()
 {
     // get selected features
     const auto& geneSelection = m_gene_plotter->getSelectedIItems();
-    ui->selectionsWidget->slotLoadModel(GeneSelection::getUniqueSelectedItems(geneSelection));
+    ui->selectionsWidget->slotLoadModel(geneSelection);
 }
 
 void CellViewPage::slotSaveSelection()

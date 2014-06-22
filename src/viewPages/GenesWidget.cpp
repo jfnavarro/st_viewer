@@ -30,7 +30,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //create genes table
     m_genes_tableview = new GenesTableView();
-    m_genes_tableview->setMinimumSize(QSize(100, 0));
 
     //create selections menu
     m_selectionMenu = new QPushButton(this);
@@ -58,23 +57,23 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_actionMenu->menu()->addSeparator();
 
     QColorDialog *colorPickerPopup = new QColorDialog(this);
-    colorPickerPopup->setOption(QColorDialog::NoButtons, true);
+    colorPickerPopup->setOption(QColorDialog::NoButtons, false);
     colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
-    colorPickerPopup->setWindowFlags(Qt::Widget);
-    //colorPickerPopup->hide();
+    colorPickerPopup->setWindowFlags(Qt::Popup);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorPickerPopup);
 
     m_actionMenu->menu()->addAction(tr("Set color of selected:"));
     m_actionMenu->menu()->addAction(widgetAction);
-    //TODO colorPicker does not show
-    connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->open(); });
+
+    connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->show(); });
     connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
     connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
     connect( colorPickerPopup, &QColorDialog::currentColorChanged,
         [=]( const QColor& color )
         {
             slotSetColorAllSelected(color);
+            colorPickerPopup->close();
         });
     geneListLayout->addWidget(m_actionMenu);
 

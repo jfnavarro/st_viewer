@@ -193,6 +193,21 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         }
         break;
     }
+        // gene selection remove
+    case GeneSelectionDataTypeRemove: {
+        // gene list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "GeneSelectionDataTypeRemove must include Id parameter!");
+        const QString selectionId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_SELECTION));
+        if (m_geneSelectionsMap.count(selectionId)) {
+            m_geneFeatureListMap.remove(selectionId);
+            dirty = true;
+        } else {
+            Q_ASSERT_X(true, "DataProxy", "GeneSelectionDataTypeRemove id not found");
+        }
+        break;
+    }
         // feature
     case FeatureDataType: {
         const QJsonDocument doc = reply->getJSON();
@@ -576,8 +591,17 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     // intermediary dto object
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection();
-    // add all (meta) properties of the dto as query items
-    cmd->addQueryItems(&dto);
+    // add properties of the dto as query items (TODO avoid implicit parsing,
+    //we just need to not send the Id)
+    cmd->addQueryItem("name", dto.name());
+    cmd->addQueryItem("account_id", dto.userId());
+    cmd->addQueryItem("dataset_id", dto.datasetId());
+    cmd->addQueryItem("gene_hits", QVariant(dto.selectedItems()).toString());
+    cmd->addQueryItem("type", dto.type());
+    cmd->addQueryItem("status", dto.status());
+    cmd->addQueryItem("obo_foundry_terms", QVariant(dto.oboFoundryTerms()).toString());
+    cmd->addQueryItem("comment", dto.comment());
+    cmd->addQueryItem("resul_file", dto.resultFile());
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
     NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
@@ -591,7 +615,8 @@ async::DataRequest DataProxy::removeGeneSelectionById(const QString &id)
 {
     NetworkCommand *cmd = RESTCommandFactory::removeSelectionBySelectionId(id);
     QVariantMap parameters;
-    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
+    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataTypeRemove)));
+    parameters.insert(Globals::PARAM_SELECTION, QVariant(id));
     NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();

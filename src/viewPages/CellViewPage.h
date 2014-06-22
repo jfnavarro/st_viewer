@@ -51,10 +51,7 @@ public slots:
     void onEnter() override;
     void onExit() override;
 
-protected slots:
-    
-    // load the cell tissue figure into the stage
-    void slotLoadCellFigure();
+private slots:
     
     // save current scene
     void slotSaveImage();
@@ -84,7 +81,10 @@ protected slots:
     // slot to save the currently selected genes
     void slotSaveSelection();
 
-protected:
+    // load the cell tissue figure into the stage
+    void slotLoadCellFigure();
+
+private:
     
     // create GL graphical elements and their connections
     void initGLView();
@@ -98,8 +98,6 @@ protected:
 
     // reset all the visual variables to default
     void resetActionStates();
-
-private:
 
     QSharedPointer<MiniMapGL> m_minimap;
     QSharedPointer<HeatMapLegendGL> m_legend;

@@ -25,7 +25,7 @@ class LoginDialog : public QDialog
 public:
 
     explicit LoginDialog(QDialog *parent = 0);
-     ~LoginDialog();
+    virtual ~LoginDialog();
 
     // clear off the fields
     void clear();
@@ -53,7 +53,7 @@ public slots:
 
 protected:
 
-    virtual void keyPressEvent(QKeyEvent *e);
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     //init graphic stuff

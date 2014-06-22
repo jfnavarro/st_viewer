@@ -31,7 +31,7 @@ class AuthorizationManager : public QObject, public Singleton<AuthorizationManag
 public:
 
     explicit AuthorizationManager(QObject* parent = 0);
-    ~AuthorizationManager();
+    virtual ~AuthorizationManager();
 
     //singleton initialization and destroying methos
     void finalize();

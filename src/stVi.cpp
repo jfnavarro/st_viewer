@@ -8,8 +8,6 @@
 #include "stVi.h"
 
 #if defined Q_OS_WIN
-
-#define NOMINMAX
 #include <windows.h>
 #include "qt_windows.h"
 #endif

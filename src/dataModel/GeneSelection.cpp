@@ -167,23 +167,3 @@ void GeneSelection::resultFile(const QString& file)
 {
     m_resultFile = file;
 }
-
-const GeneSelection::selectedItemsList
-GeneSelection::getUniqueSelectedItems(const selectedItemsList &selectedItems)
-{
-    //TODO this can be optimized to do in one loop
-    //TODO updgrade this to also account for normalized reads and pixel intensities
-    QMap<QString, qreal> geneSelectionsMap;
-    GeneSelection::selectedItemsList geneSelectionsList;
-    foreach(const SelectionType &item, selectedItems) {
-        geneSelectionsMap[item.name] += item.reads;
-    }
-
-    QMap<QString, qreal>::const_iterator it = geneSelectionsMap.begin();
-    QMap<QString, qreal>::const_iterator end = geneSelectionsMap.end();
-    for( ; it != end; ++it) {
-        geneSelectionsList.append(SelectionType(it.key(), it.value()));
-    }
-
-    return geneSelectionsList;
-}

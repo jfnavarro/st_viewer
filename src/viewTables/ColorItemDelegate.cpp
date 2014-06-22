@@ -24,15 +24,6 @@ ColorItemDelegate::~ColorItemDelegate()
 {
 }
 
-void ColorItemDelegate::editorFinished(const QColor &)
-{
-    QWidget *editor = qobject_cast<QWidget *>(sender());
-    editor->close();
-
-    //emit commitData(editor);
-    //emit closeEditor(editor);
-}
-
 void ColorItemDelegate::setModelData(QWidget *editor,
                                     QAbstractItemModel *model, const QModelIndex &index) const
 {
@@ -71,21 +62,17 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
     const QColor color = qvariant_cast<QColor>(v);
 
     QColorDialog *colorPickerPopup = new QColorDialog(color, parent);
-    colorPickerPopup->setOption(QColorDialog::NoButtons, true);
+    colorPickerPopup->setOption(QColorDialog::NoButtons, false);
     colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
-    colorPickerPopup->setWindowFlags(Qt::Widget);
-    //colorPickerPopup->hide();
-
-    //TODO close here or in editor finished
-    //connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
-    //connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
+    colorPickerPopup->setWindowFlags(Qt::Popup);
+    colorPickerPopup->show();
+    connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
+    connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
     connect( colorPickerPopup, &QColorDialog::currentColorChanged,
         [=]( const QColor& color )
         {
-            colorPickerPopup->close();
+            //colorPickerPopup->close();
             Q_UNUSED(color);
-            //TODO set color here or in editorFinished
-            //editorFinished(color);
             //emit commitData(colorPickerPopup);
             //emit closeEditor(colorPickerPopup);
         });

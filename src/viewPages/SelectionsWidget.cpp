@@ -22,18 +22,21 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     QHBoxLayout *selectionBottonsLayout = new QHBoxLayout();
 
     m_saveSelection = new QPushButton(this);
-    m_saveSelection->setFixedSize(QSize(75, 20));
     m_saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
+    m_saveSelection->setText(tr("Save selection"));
+    m_saveSelection->setToolTip(tr("Save the current selection in the cloud"));
     selectionBottonsLayout->addWidget(m_saveSelection);
 
     m_exportSelection = new QPushButton(this);
-    m_exportSelection->setFixedSize(QSize(75, 20));
     m_exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
+    m_exportSelection->setText(tr("Export selection"));
+    m_exportSelection->setToolTip(tr("Export the current selection to a file"));
     selectionBottonsLayout->addWidget(m_exportSelection);
 
     m_clearSelection = new QPushButton(this);
-    m_clearSelection->setFixedSize(QSize(75, 20));
     m_clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
+    m_clearSelection->setText(tr("Clear selection"));
+    m_clearSelection->setToolTip(tr("Remove the current selection"));
     selectionBottonsLayout->addWidget(m_clearSelection);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
@@ -44,7 +47,6 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     selectionLayout->addLayout(selectionBottonsLayout);
 
     m_selections_tableview = new GeneSelectionTableView(this);
-    m_selections_tableview->setMinimumSize(QSize(100, 0));
     selectionLayout->addWidget(m_selections_tableview);
 
     setLayout(selectionLayout);

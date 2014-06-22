@@ -13,6 +13,7 @@
 #include <QGLShaderProgramEffect>
 #include <QOpenGLShaderProgram>
 #include <QGLAttributeValue>
+#include <QImageReader>
 
 static const int INVALID_INDEX = -1;
 
@@ -67,6 +68,7 @@ void GeneRendererGL::clearData()
 
     //reset scene node
     m_geneNode.reset(new QGLSceneNode());
+
     //update shader
     setupShaders();
 
@@ -103,7 +105,7 @@ void GeneRendererGL::setIntensity(qreal intensity)
 
 void GeneRendererGL::setSize(qreal size)
 {
-    if ( m_size != size ) {
+    if (m_size != size) {
         m_size = size;
         updateSize();
     }
@@ -111,7 +113,7 @@ void GeneRendererGL::setSize(qreal size)
 
 void GeneRendererGL::setShine(qreal shine)
 {
-    if ( m_shine != shine ) {
+    if (m_shine != shine) {
         m_shine = shine;
         m_isDirty = true;
         emit updated();
@@ -127,7 +129,7 @@ void GeneRendererGL::setUpperLimit(int limit)
     const qreal range_pooled = m_pooledMax - m_pooledMin;
     const qreal adjusted_limit_pooled =  (qreal(limit) / offlimit ) * range_pooled;
 
-    if ( m_thresholdUpper != adjusted_limit ) {
+    if (m_thresholdUpper != adjusted_limit) {
         m_thresholdUpper = adjusted_limit;
         m_thresholdUpperPooled = adjusted_limit_pooled;
         updateVisual();
@@ -143,7 +145,7 @@ void GeneRendererGL::setLowerLimit(int limit)
     const qreal range_pooled = m_pooledMax - m_pooledMin;
     const qreal adjusted_limit_pooled =  (qreal(limit) / offlimit ) * range_pooled;
 
-    if ( m_thresholdLower != adjusted_limit ) {
+    if (m_thresholdLower != adjusted_limit) {
         m_thresholdLower = adjusted_limit;
         m_thresholdLowerPooled = adjusted_limit_pooled;
         updateVisual();
@@ -197,6 +199,7 @@ void GeneRendererGL::updateSize()
         Q_ASSERT(feature);
         m_geneData.updateQuadSize(index, feature->x(), feature->y(), m_size);
     }
+
     m_isDirty = true;
     emit updated();
 }
@@ -206,7 +209,7 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
     DataProxy *dataProxy = DataProxy::getInstance();
 
     foreach (DataProxy::GenePtr gene, geneList) {
-        Q_ASSERT(gene);
+        Q_ASSERT(!gene.isNull());
 
         const auto& features =
                 dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
@@ -252,7 +255,7 @@ void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
     DataProxy *dataProxy = DataProxy::getInstance();
 
     foreach (DataProxy::GenePtr gene, geneList) {
-        Q_ASSERT(gene);
+        Q_ASSERT(!gene.isNull());
 
         const auto& features =
                 dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
@@ -328,7 +331,7 @@ void GeneRendererGL::updateVisual()
         // easy access
         DataProxy::GenePtr gene =
                 dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
-        Q_ASSERT(gene);
+        Q_ASSERT(!gene.isNull());
 
         const bool selected = gene->selected();
         const int index = it.value();
@@ -429,17 +432,50 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 
 const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
-    GeneSelection::selectedItemsList selectionList;
+    //TODO optimize with STL and/or concurrent methods
+
     DataProxy *dataProxy = DataProxy::getInstance();
+    //the max pixel value (gray scale)
+    const int maxPixelValue = 255;
+    //get the selected items
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    QMap<QString, GeneSelection::SelectionType> geneSelectionsMap;
+    GeneSelection::selectedItemsList geneSelectionsList;
     foreach(DataProxy::FeaturePtr feature, features) {
         if (feature->selected()) {
-            //TODO add pixel intensity and normalized hits
-            selectionList.append(GeneSelection::SelectionType(feature->gene(), feature->hits()));
+            //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
+            const int adjustedReads = std::min(feature->hits(), m_max);
+            const QString gene = feature->gene();
+            geneSelectionsMap[gene].reads += adjustedReads;
+            geneSelectionsMap[gene].normalizedReads += adjustedReads;
+            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(feature->x(), feature->y()));
+            geneSelectionsMap[gene].count++;
         }
     }
 
-    return selectionList;
+    QMap<QString, GeneSelection::SelectionType>::const_iterator it = geneSelectionsMap.begin();
+    QMap<QString, GeneSelection::SelectionType>::const_iterator end = geneSelectionsMap.end();
+    for( ; it != end; ++it) {
+        const int count = it.value().count;
+        //TODO consider dividing reads by counts too
+        const int reads = it.value().reads;
+        const qreal adjustedNormalizedReads = it.value().normalizedReads /
+                static_cast<qreal>(m_max * count);
+        const qreal adjustedNormalizedPixelIntensity = it.value().pixeIntensity /
+                static_cast<qreal>(maxPixelValue * count);
+        const QString gene = it.key();
+        geneSelectionsList.append(GeneSelection::SelectionType(gene, reads,
+                                                adjustedNormalizedReads, adjustedNormalizedPixelIntensity));
+    }
+
+    return geneSelectionsList;
+}
+
+void GeneRendererGL::setImage(const QImage &image)
+{
+    Q_ASSERT(!image.isNull());
+    Q_ASSERT(!transform().isIdentity());
+    m_image = image.transformed(transform().inverted().toAffine());
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
@@ -517,7 +553,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
 {
     // update visual mode
-    if ( m_visualMode != mode ) {
+    if (m_visualMode != mode) {
         m_visualMode = mode;
         updateVisual();
     }
@@ -588,7 +624,7 @@ const QRectF GeneRendererGL::boundingRect() const
 
 void GeneRendererGL::setShape(Globals::GeneShape shape)
 {
-    if ( m_shape != shape ) {
+    if (m_shape != shape) {
         m_shape = shape;
         m_isDirty = true;
         emit updated();

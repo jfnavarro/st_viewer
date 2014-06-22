@@ -32,7 +32,7 @@ public:
 
     //parent container should be qwidget
     explicit OAuth2(QObject* parent);
-    ~OAuth2();
+    virtual ~OAuth2();
 
     // shows login dialog
     void startInteractiveLogin();

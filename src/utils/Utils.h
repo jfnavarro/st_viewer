@@ -107,6 +107,7 @@ static const QString PARAM_TYPE = QStringLiteral("type");
 static const QString PARAM_DATASET = QStringLiteral("dataset");
 static const QString PARAM_GENE = QStringLiteral("gene");
 static const QString PARAM_FILE = QStringLiteral("file");
+static const QString PARAM_SELECTION = QStringLiteral("selection");
 
 static const QString ROLE_USER = QStringLiteral("ROLE_USER");
 static const QString ROLE_CM = QStringLiteral("ROLE_CM");

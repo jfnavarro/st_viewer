@@ -41,10 +41,6 @@ public:
 
     Q_DISABLE_COPY(ColorItemDelegate)
 
-private slots:
-
-    void editorFinished(const QColor &);
-
 };
 
 #endif // COLORITEMDELEGATE_H //

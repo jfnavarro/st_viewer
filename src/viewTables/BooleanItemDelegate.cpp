@@ -117,6 +117,7 @@ bool BooleanItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
     } else {
         return false;
     }
+
     const bool checked = index.model()->data(index, Qt::DisplayRole).toBool();
     return model->setData(index, !checked, Qt::EditRole);
 }

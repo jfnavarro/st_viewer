@@ -33,8 +33,7 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
-        Q_ASSERT(item);
-
+        Q_ASSERT(!item.isNull());
         switch (index.column()) {
         case Name: return item->name();
         case Dataset: {
@@ -45,15 +44,12 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         }
         case Comment: return item->comment();
         case Type: return item->type();
-        case NGenes: {
-            return QString(item->selectedItems().size());
-        }
+        case NGenes: return QString(item->selectedItems().size());
         default:
             return QVariant(QVariant::Invalid);
         }
     }
 
-    // return invalid value
     return QVariant(QVariant::Invalid);
 }
 

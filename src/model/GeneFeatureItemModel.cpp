@@ -49,7 +49,6 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    // return invalid value
     return QVariant(QVariant::Invalid);
 }
 
@@ -89,18 +88,18 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
-
         const int column = index.column();
         switch (column) {
-        case Show:
+        case Show: {
             if (item->selected() != value.toBool()) {
                 item->selected(value.toBool());
                 emit dataChanged(index, index);
                 DataProxy::GeneList geneList;
                 geneList.push_back(item);
                 emit signalSelectionChanged(geneList);
+                return true;
             }
-            return true;
+        }
         case Color: {
             const QColor color = qvariant_cast<QColor>(value);
             if (color.isValid() && item->color() != color) {
@@ -109,13 +108,14 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                 DataProxy::GeneList geneList;
                 geneList.push_back(item);
                 emit signalColorChanged(geneList);
+                return true;
             }
-            return true;
         }
         default:
             return false;
         }
     }
+
     return false;
 }
 
@@ -177,8 +177,7 @@ bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename)
     return false;
 }
 
-void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
-                                             bool visible)
+void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
 {
     if (m_genelist_reference.isEmpty()) {
         return;
@@ -199,6 +198,7 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection,
             emit dataChanged(selectIndex, selectIndex);
         }
     }
+
     emit signalSelectionChanged(geneList);
 }
 
@@ -223,6 +223,7 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
             emit dataChanged(selectIndex, selectIndex);
         }
     }
+
     emit signalColorChanged(geneList);
 }
 

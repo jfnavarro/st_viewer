@@ -14,18 +14,24 @@ class GeneSelection
 public:
 
     //TODO move definition to cpp
+    //TODO defined operator+  and operator<
     //TODO make it a class
     struct SelectionType {
-        SelectionType() : name(), reads(0), normalizedReads(0), pixeIntensity(0) {}
-        SelectionType(QString name, qreal reads,
+
+        SelectionType() : name(), reads(0), normalizedReads(0), pixeIntensity(0), count(0) {}
+
+        SelectionType(QString name, int reads,
                       qreal normalizedReads = 0, qreal pixeIntensity = 0)
-            : name(name), reads(reads), normalizedReads(normalizedReads), pixeIntensity(pixeIntensity) {}
+            : name(name), reads(reads),
+              normalizedReads(normalizedReads), pixeIntensity(pixeIntensity), count(0) {}
+
         SelectionType& operator= (const SelectionType& other)
         {
             name = other.name;
             reads = other.reads;
             normalizedReads = other.normalizedReads;
             pixeIntensity = other.pixeIntensity;
+            count = other.count;
             return (*this);
         }
 
@@ -34,13 +40,16 @@ public:
             return( name == other.name &&
                       reads == other.reads &&
                       normalizedReads == other.normalizedReads &&
-                      pixeIntensity == other.pixeIntensity
+                      pixeIntensity == other.pixeIntensity &&
+                      count == other.count
                 );
         }
+
         QString name;
-        qreal reads;
+        int reads;
         qreal normalizedReads;
         qreal pixeIntensity;
+        int count;
     };
 
     typedef QVector<SelectionType> selectedItemsList;
@@ -73,11 +82,6 @@ public:
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void comment(const QString& comment);
     void resultFile(const QString& file);
-
-    //auxiliary function to get the unique seletion items (aka unique names with summed
-    //reads
-    static const selectedItemsList getUniqueSelectedItems(
-            const selectedItemsList& selectedItems);
 
 private:
 

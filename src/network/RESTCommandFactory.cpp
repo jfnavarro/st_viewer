@@ -6,8 +6,7 @@
 */
 
 #include "RESTCommandFactory.h"
-
-#include <config/Configuration.h>
+#include "config/Configuration.h"
 
 NetworkCommand* RESTCommandFactory::getAuthorizationToken()
 {

@@ -28,7 +28,6 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
-
         switch (index.column()) {
         case Name: return item.name;
         case Hits: return item.reads;
@@ -39,7 +38,6 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    // return invalid value
     return QVariant(QVariant::Invalid);
 }
 

@@ -15,7 +15,6 @@
 
 #include "utils/Singleton.h"
 
-// data objects
 #include "dataModel/Chip.h"
 #include "dataModel/Dataset.h"
 #include "dataModel/Feature.h"
@@ -26,7 +25,6 @@
 
 #include "data/DataStore.h"
 
-// network
 #include "network/NetworkManager.h"
 #include "network/NetworkReply.h"
 
@@ -54,6 +52,7 @@ public:
         GeneDataType,
         ImageAlignmentDataType,
         GeneSelectionDataType,
+        GeneSelectionDataTypeRemove,
         UserType
     };
 
@@ -206,11 +205,9 @@ private:
     GeneSelectionMap m_geneSelectionsMap;
     // the current selected dataset
     mutable QString m_selected_datasetId;
-
     //network manager to make network requests
     //must be a member variable
     NetworkManager m_networkManager;
-
     //data storage to handle image files
     DataStore m_dataStore;
 

@@ -14,12 +14,12 @@
 #include "data/DataProxy.h"
 #include "utils/Utils.h"
 #include "GeneData.h"
+#include <QImage>
 
 class QGLPainter;
 class QGLTexture2D;
 class QVector2DArray;
 class QGLShaderProgramEffect;
-class FeatureFunctor;
 
 class GeneRendererGL : public GraphicItemGL
 {
@@ -41,8 +41,12 @@ public:
     void selectGenes(const DataProxy::GeneList&);
     void selectFeatures(const DataProxy::FeatureList&);
 
-    // returns the currently selected genes
+    //returns the currently selected genes
     const GeneSelection::selectedItemsList getSelectedIItems() const;
+
+    //sets the local copy of the cell tissue image
+    //be aware the local transformation matrix has been assigned
+    void setImage(const QImage& image);
 
 public slots:
 
@@ -111,6 +115,9 @@ private:
     qreal m_size;
     qreal m_shine;
     Globals::GeneShape m_shape;
+
+    // cell tissue image (in genes coordinate system)
+    QImage m_image;
 
     // threshold limits for gene hits
     int m_thresholdLower;

@@ -66,7 +66,8 @@ void addSliderToMenu(QWidget *parent, const QString &str,
 
 void createPushButton(const QString &text, const QString &tip,
                       const QIcon &icon, QWidget *parent,
-                      QWidgetAction **widgetAction, QPushButton **pushButton) {
+                      QWidgetAction **widgetAction, QPushButton **pushButton)
+{
     Q_ASSERT(*widgetAction == nullptr);
     Q_ASSERT(*pushButton == nullptr);
     QWidgetAction *action = new QWidgetAction(parent);

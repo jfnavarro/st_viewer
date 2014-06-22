@@ -51,7 +51,7 @@ public:
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 
 public slots:
-
+    //TODO pass reference instead for genename
     bool geneName(const QModelIndex &index, QString *genename) const;
 
 private:

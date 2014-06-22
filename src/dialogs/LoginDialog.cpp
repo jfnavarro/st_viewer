@@ -51,7 +51,7 @@ LoginDialog::~LoginDialog()
 {
     //save users
     saveUsers();
-
+    //delete ui objects
     delete ui;
 }
 
