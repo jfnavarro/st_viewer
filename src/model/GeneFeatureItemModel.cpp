@@ -115,7 +115,6 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             return false;
         }
     }
-
     return false;
 }
 
@@ -189,6 +188,7 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
     }
 
     DataProxy::GeneList geneList;
+    beginResetModel();
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && gene->selected() != visible) {
@@ -198,7 +198,7 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-
+    endResetModel();
     emit signalSelectionChanged(geneList);
 }
 

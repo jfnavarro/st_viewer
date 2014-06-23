@@ -64,6 +64,21 @@ GenesTableView::~GenesTableView()
 
 }
 
+void GenesTableView::createColorComboBoxes()
+{
+    int rows =  m_geneModel->rowCount();
+    for (int i = 0; i < rows ; ++i) {
+       auto index = m_geneModel->index(i, GeneFeatureItemModel::Color);
+       Q_ASSERT(index.isValid());
+       openPersistentEditor(m_sortGenesProxyModel->mapFromSource(index));
+    }
+}
+
+void GenesTableView::reset()
+{
+    createColorComboBoxes();
+}
+
 QItemSelection GenesTableView::geneTableItemSelection() const
 {
     const auto selected = selectionModel()->selection();
