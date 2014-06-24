@@ -42,16 +42,8 @@ void ColorItemDelegate::setModelData(QWidget *editor,
     const QColor color = colorListEditor->color();
     if (color.isValid()) {
         const bool res = model->setData(index, color);
-	//        Q_ASSERT(res);
 	Q_UNUSED(res);
     }
-
-    // This is not the right solution but at least we will see the selected color in the background
-    QPalette palette = colorListEditor->palette();
-    palette.setColor(QPalette::Base, color);
-    palette.setColor(QPalette::Button, color);
-    colorListEditor->setPalette(palette);
-    colorListEditor->setAutoFillBackground(true);
 }
 
 

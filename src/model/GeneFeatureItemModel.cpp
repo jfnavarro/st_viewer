@@ -214,6 +214,7 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     }
 
     DataProxy::GeneList geneList;
+    beginResetModel();
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
@@ -223,7 +224,8 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-
+    endResetModel();
     emit signalColorChanged(geneList);
+
 }
 
