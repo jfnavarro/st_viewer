@@ -64,8 +64,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->show(); });
 
-    // QComboBox::currentIndexChanged is overloaded so we need a static_cast<>
-    connect( colorPickerPopup, static_cast< void (QComboBox::*)(int) >(&QComboBox::currentIndexChanged),
+    // QComboBox::activated is overloaded so we need a static_cast<>
+    connect( colorPickerPopup, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
         [=]()
         {
             slotSetColorAllSelected(colorPickerPopup->color());

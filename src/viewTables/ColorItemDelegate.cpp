@@ -70,7 +70,8 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
     Q_ASSERT(v.type() == QVariant::Color);
     QColor color = qvariant_cast<QColor>(v);
     ColorListEditor *editor = new ColorListEditor(parent);
-    connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(editorFinished(int)));
+    //    connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(editorFinished(int)));
+    connect(editor, SIGNAL(activated(int)), this, SLOT(editorFinished(int)));
     editor->setColor(color);
     return editor;
 }
