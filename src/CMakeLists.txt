@@ -207,7 +207,7 @@ if(UNIX AND NOT APPLE)
     endif("${isSystemDir}" STREQUAL "-1")
 
     # Select TGZ as the packager on Linux
-    set(CPACK_GENERATOR " TGZ")
+    set(CPACK_GENERATOR "TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
     set(CPACK_SYSTEM_NAME "${CMAKE_BUILD_TYPE}-${CPACK_SYSTEM_NAME}-32")
 
