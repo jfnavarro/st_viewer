@@ -59,7 +59,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorPickerPopup);
 
-    m_actionMenu->menu()->addAction(tr("Set color of selected:"));
+    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected:"));
     m_actionMenu->menu()->addAction(widgetAction);
 
     connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->show(); });
