@@ -54,6 +54,17 @@ GenesTableView::GenesTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
+    /*
+      We can make the Show and Color columns even smaller by specifying their pixel width.
+
+       setColumnWidth(GeneFeatureItemModel::Show, 40);
+       setColumnWidth(GeneFeatureItemModel::Color, 40);
+
+      Right now we let Qt decide about the width.
+    */
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
+
     model()->submit(); //support for caching (speed up)
 
     verticalHeader()->hide();
