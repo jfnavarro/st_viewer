@@ -525,7 +525,7 @@ void CellViewPage::slotPrintImage()
 {
     QPrinter printer;
     printer.setOrientation(QPrinter::Landscape);
-    QScopedPointer<QPrintDialog> dialog(new QPrintDialog(&printer, this));
+    QScopedPointer<QPrintDialog> dialog(new QPrintDialog(&printer));
     if (dialog->exec() != QDialog::Accepted) {
         return;
     }
