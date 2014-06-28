@@ -36,7 +36,7 @@ void AuthorizationManager::start()
 {
     //lazy init
     if (m_oAuth2.isNull()) {
-        m_oAuth2 = new OAuth2(this);
+        m_oAuth2.reset(new OAuth2(this));
         connect(m_oAuth2.data(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
         connect(m_oAuth2.data(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
