@@ -78,6 +78,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(200, 20);
     geneListLayout->addWidget(m_lineEdit);
+    geneListLayout->addStretch(1);
 
     //add actions menu to main layout
     genesLayout->addLayout(geneListLayout);

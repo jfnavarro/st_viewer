@@ -40,6 +40,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_geneSelectionFilterLineEdit->setFixedSize(200, 20);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
+    selectionBottonsLayout->addStretch(1);
 
     selectionLayout->addLayout(selectionBottonsLayout);
 

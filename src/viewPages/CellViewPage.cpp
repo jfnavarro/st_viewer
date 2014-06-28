@@ -368,8 +368,9 @@ void CellViewPage::initGLView()
     m_view = QSharedPointer<CellGLView>(new CellGLView());
     ui->area->initializeView(m_view);
 
-    // Adding a stretch to make the opengl window occupy more space
-    ui->selectionLayout->setStretch(1,10);
+    // Setting stretch factors in the QSplitter to make the opengl window occupy more space
+    ui->gridLayout->setStretchFactor(0, 0);
+    ui->gridLayout->setStretchFactor(1, 1);
 
     // image texture graphical object
     m_image = QSharedPointer<ImageTextureGL>(new ImageTextureGL(this));
