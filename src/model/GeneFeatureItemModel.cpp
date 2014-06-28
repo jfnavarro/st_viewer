@@ -115,7 +115,6 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             return false;
         }
     }
-
     return false;
 }
 
@@ -198,7 +197,6 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-
     emit signalSelectionChanged(geneList);
 }
 
@@ -223,7 +221,6 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
             emit dataChanged(selectIndex, selectIndex);
         }
     }
-
     emit signalColorChanged(geneList);
 }
 

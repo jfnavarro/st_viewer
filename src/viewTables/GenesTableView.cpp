@@ -47,12 +47,20 @@ GenesTableView::GenesTableView(QWidget *parent)
     setSelectionMode(QAbstractItemView::MultiSelection);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-
     resizeColumnsToContents();
     resizeRowsToContents();
+
+    /*
+      We can make the Show and Color columns even smaller by specifying their pixel width.
+
+       setColumnWidth(GeneFeatureItemModel::Show, 40);
+       setColumnWidth(GeneFeatureItemModel::Color, 40);
+
+      Right now we let Qt decide about the width.
+    */
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
 
     model()->submit(); //support for caching (speed up)
 
@@ -62,6 +70,21 @@ GenesTableView::GenesTableView(QWidget *parent)
 GenesTableView::~GenesTableView()
 {
 
+}
+
+void GenesTableView::createColorComboBoxes()
+{
+    int rows =  m_geneModel->rowCount();
+    for (int i = 0; i < rows ; ++i) {
+       auto index = m_geneModel->index(i, GeneFeatureItemModel::Color);
+       Q_ASSERT(index.isValid());
+       openPersistentEditor(m_sortGenesProxyModel->mapFromSource(index));
+    }
+}
+
+void GenesTableView::reset()
+{
+    createColorComboBoxes();
 }
 
 QItemSelection GenesTableView::geneTableItemSelection() const

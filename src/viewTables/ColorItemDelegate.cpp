@@ -12,7 +12,9 @@
 #include <QApplication>
 #include <QDebug>
 #include <QColorDialog>
+#include <QPalette>
 
+#include "viewTables/ColorListEditor.h"
 #include "color/ColorPalette.h"
 
 ColorItemDelegate::ColorItemDelegate(QObject* parent)
@@ -24,29 +26,38 @@ ColorItemDelegate::~ColorItemDelegate()
 {
 }
 
+void ColorItemDelegate::editorFinished(int) {
+QWidget *editor = qobject_cast<QWidget *>(sender());
+emit commitData(editor);
+emit closeEditor(editor);
+}
+
+
+
 void ColorItemDelegate::setModelData(QWidget *editor,
                                     QAbstractItemModel *model, const QModelIndex &index) const
 {
-    QColorDialog  *colorPickerPopup = qobject_cast<QColorDialog *>(editor);
-    Q_ASSERT(colorPickerPopup);
-    const QColor color = colorPickerPopup->currentColor();
+    ColorListEditor  *colorListEditor = qobject_cast<ColorListEditor *>(editor);
+    Q_ASSERT(colorListEditor);
+    const QColor color = colorListEditor->color();
     if (color.isValid()) {
         const bool res = model->setData(index, color);
-        Q_ASSERT(res);
+	Q_UNUSED(res);
     }
 }
 
+
 void ColorItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QColorDialog  *colorPickerPopup = qobject_cast<QColorDialog *>(editor);
-    Q_ASSERT(colorPickerPopup);
+    ColorListEditor  *colorListEditor = qobject_cast<ColorListEditor *>(editor);
+    Q_ASSERT(colorListEditor);
 
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     Q_ASSERT(v.type() == QVariant::Color);
     const QColor color = qvariant_cast<QColor>(v);
 
     if (color.isValid()) {
-        colorPickerPopup->setCurrentColor(color);
+        colorListEditor->setColor(color);
     }
 }
 
@@ -55,67 +66,12 @@ QWidget* ColorItemDelegate::createEditor(QWidget *parent,
                                         const QModelIndex &index) const
 {
     Q_UNUSED(option);
-
     QVariant v = index.model()->data(index, Qt::DisplayRole);
     Q_ASSERT(v.type() == QVariant::Color);
-
-    const QColor color = qvariant_cast<QColor>(v);
-
-    QColorDialog *colorPickerPopup = new QColorDialog(color, parent);
-    colorPickerPopup->setOption(QColorDialog::NoButtons, false);
-    colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
-    colorPickerPopup->setWindowFlags(Qt::Popup);
-    colorPickerPopup->show();
-    connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::currentColorChanged,
-        [=]( const QColor& color )
-        {
-            //colorPickerPopup->close();
-            Q_UNUSED(color);
-            //emit commitData(colorPickerPopup);
-            //emit closeEditor(colorPickerPopup);
-        });
-
-    return colorPickerPopup;
+    QColor color = qvariant_cast<QColor>(v);
+    ColorListEditor *editor = new ColorListEditor(parent);
+    //    connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(editorFinished(int)));
+    connect(editor, SIGNAL(activated(int)), this, SLOT(editorFinished(int)));
+    editor->setColor(color);
+    return editor;
 }
-
-void ColorItemDelegate::updateEditorGeometry(QWidget* editor,
-                                            const QStyleOptionViewItem& option,
-                                            const QModelIndex& index) const
-{
-    Q_UNUSED(index);
-    // The colorpicker is a bit misplaced. But right now this function doesn't solve the issue
-    const QRect rect = option.rect;
-    editor->setGeometry(rect);
-    //editor->setGeometry( QRect(option.rect.topLeft(), editor->geometry().size() ));
-}
-
-void ColorItemDelegate::paint(QPainter* painter,
-                             const QStyleOptionViewItem& option,
-                             const QModelIndex& index) const
-{
-    QVariant v = index.model()->data(index, Qt::DisplayRole);
-    switch (v.type()) {
-    case QVariant::Color: {
-        // retrieve color and generate pixmap
-        QColor color = qvariant_cast<QColor>(v);
-        QPixmap pixmap(10, 10);
-        pixmap.fill(color);
-        // set style options for ombo box and assign icon from pixmap
-        QStyleOptionComboBox comboBoxOption;
-        comboBoxOption.rect = option.rect;
-        comboBoxOption.state = option.state | QStyle::State_Enabled;
-        comboBoxOption.currentIcon = QIcon(pixmap);
-        comboBoxOption.iconSize = QSize(10, 10);
-        comboBoxOption.editable = false;
-        // draw
-        QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel,
-                                           &comboBoxOption, painter);
-        break;
-    }
-    default:
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-}
-

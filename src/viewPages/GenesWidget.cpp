@@ -13,13 +13,12 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
-#include <QColorDialog>
 #include <QAction>
 
 #include "viewTables/GenesTableView.h"
 
 #include "model/GeneFeatureItemModel.h"
-
+#include "viewTables/ColorListEditor.h"
 #include "color/ColorPalette.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
@@ -56,25 +55,22 @@ GenesWidget::GenesWidget(QWidget *parent) :
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
     m_actionMenu->menu()->addSeparator();
 
-    QColorDialog *colorPickerPopup = new QColorDialog(this);
-    colorPickerPopup->setOption(QColorDialog::NoButtons, false);
-    colorPickerPopup->setOption(QColorDialog::DontUseNativeDialog, true);
-    colorPickerPopup->setWindowFlags(Qt::Popup);
+    ColorListEditor *colorPickerPopup = new ColorListEditor(this);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorPickerPopup);
 
-    m_actionMenu->menu()->addAction(tr("Set color of selected:"));
+    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected:"));
     m_actionMenu->menu()->addAction(widgetAction);
 
     connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->show(); });
-    connect( colorPickerPopup, &QColorDialog::rejected, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::accept, [=] { colorPickerPopup->close();  } );
-    connect( colorPickerPopup, &QColorDialog::currentColorChanged,
-        [=]( const QColor& color )
+
+    // QComboBox::activated is overloaded so we need a static_cast<>
+    connect( colorPickerPopup, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
+        [=]()
         {
-            slotSetColorAllSelected(color);
-            colorPickerPopup->close();
+            slotSetColorAllSelected(colorPickerPopup->color());
         });
+
     geneListLayout->addWidget(m_actionMenu);
 
     //create line edit search
@@ -82,6 +78,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(200, 20);
     geneListLayout->addWidget(m_lineEdit);
+    geneListLayout->addStretch(1);
 
     //add actions menu to main layout
     genesLayout->addLayout(geneListLayout);

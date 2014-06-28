@@ -28,7 +28,11 @@ public slots:
 
     void setGeneNameFilter(QString);
 
+    virtual void reset();
+
 private:
+
+    void createColorComboBoxes();
 
     GeneFeatureItemModel *m_geneModel;
     SortGenesProxyModel *m_sortGenesProxyModel;
