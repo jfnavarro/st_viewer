@@ -47,10 +47,6 @@ GenesTableView::GenesTableView(QWidget *parent)
     setSelectionMode(QAbstractItemView::MultiSelection);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-
     resizeColumnsToContents();
     resizeRowsToContents();
 
@@ -62,6 +58,7 @@ GenesTableView::GenesTableView(QWidget *parent)
 
       Right now we let Qt decide about the width.
     */
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
 
