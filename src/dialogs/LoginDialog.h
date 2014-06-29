@@ -24,7 +24,7 @@ class LoginDialog : public QDialog
 
 public:
 
-    explicit LoginDialog(QDialog *parent = 0);
+    explicit LoginDialog(QWidget *parent = 0);
     virtual ~LoginDialog();
 
     // clear off the fields

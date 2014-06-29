@@ -8,6 +8,7 @@
 #ifndef OAUTH2_H
 #define OAUTH2_H
 
+#include <memory>
 #include <QObject>
 #include <QPointer>
 
@@ -62,7 +63,7 @@ private:
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 
     // login dialog component
-    QPointer<LoginDialog> m_loginDialog;
+    std::unique_ptr<LoginDialog> m_loginDialog;
 
     //network manager to make network requests
     //must be a member variable
