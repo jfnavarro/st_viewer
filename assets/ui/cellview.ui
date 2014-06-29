@@ -21,17 +21,12 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-      <widget class="QSplitter" name="gridLayout">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <widget class="QSplitter" name="gridLayout">
+       <widget class="QSplitter" name="gridLayout2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
         <widget class="GenesWidget" name="genesWidget" native="true"/>
         <widget class="SelectionsWidget" name="selectionsWidget" native="true"/>
-       </widget>
        </widget>
        <widget class="ScrollArea" name="area" native="true">
         <property name="minimumSize">
