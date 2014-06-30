@@ -21,7 +21,7 @@
 #include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QDialog *parent):
+LoginDialog::LoginDialog(QWidget *parent):
     QDialog(parent),
     ui(nullptr),
     m_completer(nullptr)

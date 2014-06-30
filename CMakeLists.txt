@@ -82,7 +82,7 @@ find_package(Qt5LinguistTools REQUIRED CONFIG)
 
 set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml)
 if(UNIX AND NOT APPLE)
-  list(APPEND ST_QT_LIBS DBus)
+  list(APPEND ST_QT_LIBS DBus Svg)
 endif()
 
 foreach(i ${ST_QT_LIBS})
