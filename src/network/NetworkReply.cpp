@@ -166,7 +166,7 @@ QSharedPointer<Error> NetworkReply::parseErrors()
         const QJsonDocument doc = getJSON();
         QVariant var = doc.toVariant();
         ErrorDTO dto;
-        data::ObjectParser::parseObject(var, &dto);
+        data::parseObject(var, &dto);
         error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
     }
 

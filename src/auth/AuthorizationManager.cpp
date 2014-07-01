@@ -29,18 +29,18 @@ void AuthorizationManager::finalize()
 
 void AuthorizationManager::init()
 {
-    m_tokenStorage.reset(new TokenStorage());
+        m_tokenStorage.reset(new TokenStorage());
 }
 
 void AuthorizationManager::start()
 {
     //lazy init
-    if (m_oAuth2.isNull()) {
+    if (m_oAuth2 == nullptr) {
         m_oAuth2.reset(new OAuth2(this));
-        connect(m_oAuth2.data(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
+        connect(m_oAuth2.get(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
-        connect(m_oAuth2.data(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
-        connect(m_oAuth2.data(), SIGNAL(signalError(QSharedPointer<Error>)),
+        connect(m_oAuth2.get(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
+        connect(m_oAuth2.get(), SIGNAL(signalError(QSharedPointer<Error>)),
                 this, SIGNAL(signalError(QSharedPointer<Error>)));
     }
     // check if we already have been authorized and have access token saved

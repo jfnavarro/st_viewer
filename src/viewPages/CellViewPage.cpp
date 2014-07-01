@@ -53,7 +53,6 @@ CellViewPage::CellViewPage(QWidget *parent)
       m_image(nullptr),
       m_grid(nullptr),
       m_view(nullptr),
-      m_colorDialogGenes(nullptr),
       m_colorDialogGrid(nullptr)
 {
     onInit();
@@ -74,9 +73,6 @@ void CellViewPage::onInit()
     m_colorDialogGrid.reset(new QColorDialog(Globals::DEFAULT_COLOR_GRID));
     //OSX native color dialog gives problems
     m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
-    m_colorDialogGenes.reset(new QColorDialog(Globals::DEFAULT_COLOR_GENE));
-    //OSX native color dialog gives problems
-    m_colorDialogGenes->setOption(QColorDialog::DontUseNativeDialog, true);
 
     //create tool bar and add it
     createToolBar();
@@ -271,10 +267,6 @@ void CellViewPage::createConnections()
     connect(m_toolBar->m_actionNavigate_goNext,
             SIGNAL(triggered(bool)), this, SIGNAL(moveToNextPage()));
 
-    //color selector for genes
-    connect(m_colorDialogGenes.data(), &QColorDialog::colorSelected, this,
-            [=](const QColor &color) { this->ui->genesWidget->slotSetColorAllSelected(color); });
-
     // cell tissue
     connect(m_toolBar->m_actionShow_cellTissueBlue,
             SIGNAL(triggered(bool)), this, SLOT(slotLoadCellFigure()));
@@ -301,28 +293,21 @@ void CellViewPage::createConnections()
             SIGNAL(triggered(bool)), this, SLOT(slotSelectByRegExp()));
 
     //color selectors
-    connect(m_toolBar->m_actionColor_selectColorGenes,
-            SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
-    connect(m_toolBar->m_actionColor_selectColorGrid,
-            SIGNAL(triggered(bool)), this, SLOT(slotLoadColor()));
+    connect(m_toolBar->m_actionColor_selectColorGrid, &QAction::triggered,
+            [=]{ m_colorDialogGrid->show(); });
 }
 
 
 void CellViewPage::resetActionStates()
 {
-    // reset gene and selection model data
-    ui->genesWidget->slotClearModel();
-    ui->selectionsWidget->slotClearModel();
-
     // load data for gene model (NOTE move to onEnter() ? )
     ui->genesWidget->slotLoadModel();
 
-    // reset gene colors and selection
-    ui->genesWidget->slotSetColorAllSelected(Globals::DEFAULT_COLOR_GENE);
-    ui->genesWidget->slotSetVisibilityForSelectedRows(false);
+    // reset gene colors and selection (TODO these are not workign since nothing is selected)
+    //ui->genesWidget->slotSetColorAllSelected(Globals::DEFAULT_COLOR_GENE);
+    //ui->genesWidget->slotSetVisibilityForSelectedRows(false);
 
     // reset color dialogs
-    m_colorDialogGenes->setCurrentColor(Globals::DEFAULT_COLOR_GENE);
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);
 
     // reset cell image to show
@@ -351,8 +336,7 @@ void CellViewPage::resetActionStates()
     DataProxy *dataProxy = DataProxy::getInstance();
     // restrict interface
     DataProxy::UserPtr current_user = dataProxy->getUser();
-    m_toolBar->m_actionGroup_cellTissue->setVisible(
-                (current_user->role() == Globals::ROLE_CM));
+    m_toolBar->m_actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
 }
 
 void CellViewPage::createToolBar()
@@ -622,15 +606,6 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
         m_legend->setAnchor(mode);
     } else {
         Q_ASSERT("[CellViewPage] Undefined anchor!");
-    }
-}
-
-void CellViewPage::slotLoadColor()
-{
-    if (QObject::sender() == m_toolBar->m_actionColor_selectColorGenes) {
-        m_colorDialogGenes->open();
-    } else if (QObject::sender() == m_toolBar->m_actionColor_selectColorGrid) {
-        m_colorDialogGrid->open();
     }
 }
 

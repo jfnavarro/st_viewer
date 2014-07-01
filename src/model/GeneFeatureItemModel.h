@@ -28,8 +28,8 @@ public:
 
     enum Column {
         Name = 0,
-        Show,
-        Color
+        Show = 1,
+        Color = 2
     };
 
     explicit GeneFeatureItemModel(QObject* parent = 0);
@@ -68,9 +68,6 @@ signals:
     void signalColorChanged(DataProxy::GeneList geneList);
 
 private:
-
-    static const QString MIMETYPE_APPGENELIST;
-    static const int COLUMN_NUMBER = 3;
 
     DataProxy::GeneList m_genelist_reference;
 

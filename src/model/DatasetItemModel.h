@@ -64,7 +64,6 @@ signals:
 
 private:
 
-    static const int COLUMN_NUMBER = 8;
     DataProxy::DatasetList m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel)

@@ -160,7 +160,7 @@ bool stVi::checkSystemRequirements() const
     // if no errors
     if (!reply->hasErrors()) {
         MinVersionDTO dto;
-        data::ObjectParser::parseObject(result, &dto);
+        data::parseObject(result, &dto);
         qDebug() << "[stVi] Check min version min = "
                  << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers,

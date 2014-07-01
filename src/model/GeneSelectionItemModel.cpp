@@ -99,17 +99,11 @@ int GeneSelectionItemModel::columnCount(const QModelIndex& parent) const
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
-void GeneSelectionItemModel::reset()
-{
-    beginResetModel();
-    m_geneselection.clear();
-    endResetModel();
-}
-
 void GeneSelectionItemModel::loadSelectedGenes(
         const GeneSelection::selectedItemsList& selectionList)
 {
     beginResetModel();
+    m_geneselection.clear();
     m_geneselection = selectionList;
     endResetModel();
 }

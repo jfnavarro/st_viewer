@@ -31,7 +31,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     sortByColumn(0, Qt::AscendingOrder);
 
     horizontalHeader()->setSortIndicatorShown(true);
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::Interactive);
     horizontalHeader()->setStretchLastSection(true);
 
     setShowGrid(true);

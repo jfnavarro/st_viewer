@@ -71,8 +71,8 @@ private slots:
 
 private:
 
-    QScopedPointer<OAuth2> m_oAuth2;
-    QScopedPointer<TokenStorage> m_tokenStorage;
+    std::unique_ptr<OAuth2> m_oAuth2;
+    std::unique_ptr<TokenStorage> m_tokenStorage;
 
     Q_DISABLE_COPY(AuthorizationManager)
 };

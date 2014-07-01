@@ -13,6 +13,8 @@
 #include <QModelIndex>
 #include <QStandardItemModel>
 
+ static const int COLUMN_NUMBER = 8;
+
 DatasetItemModel::DatasetItemModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
@@ -94,7 +96,7 @@ QVariant DatasetItemModel::headerData(int section,
 
 int DatasetItemModel::columnCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : DatasetItemModel::COLUMN_NUMBER;
+    return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
 int DatasetItemModel::rowCount(const QModelIndex& parent) const

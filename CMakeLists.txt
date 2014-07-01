@@ -1,7 +1,7 @@
 ###############################################################################
 # NAME AND VERSION
 ###############################################################################
-project(stVi C CXX)
+project(stVi CXX)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 
@@ -28,7 +28,7 @@ if(SERVER STREQUAL development)
 elseif(SERVER STREQUAL production)
   #Production configuration
   set(ENDPOINT "https://api.spatialtranscriptomics.com")
-  set(APIPATH  "api")
+  set(APIPATH  "api-0-5")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "ayfBaF5UAKR2")
   set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")

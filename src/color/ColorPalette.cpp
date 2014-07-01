@@ -26,23 +26,26 @@ StandardPalette::StandardPalette(QObject* parent)
         m_colorList << ColorPair(QColor(colorName), colorName);
     }
 }
+
 StandardPalette::~StandardPalette()
 {
 
 }
+
 const ColorPalette::ColorList StandardPalette::colorList() const
 {
     return m_colorList;
 }
+
 const ColorPalette::ColorList StandardPalette::colorList(const int count) const
 {
     const int limit = qMin(m_colorList.size(), count);
     return m_colorList.mid(0, limit);
 }
 
-const int HSVPalette::DEFAULT_SATURATION = 255;
-const int HSVPalette::DEFAULT_VALUE = 255;
-const int HSVPalette::DEFAULT_COUNT = 12;
+static const int DEFAULT_SATURATION = 255;
+static const int DEFAULT_VALUE = 255;
+static const int DEFAULT_COUNT = 12;
 
 HSVPalette::HSVPalette(QObject* parent)
     : ColorPalette(parent),

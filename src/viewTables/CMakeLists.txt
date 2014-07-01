@@ -6,7 +6,6 @@ set(LIBRARY_ARG_INCLUDES
     BooleanItemDelegate.h
     ColorItemDelegate.h
     ExperimentsTableView.h
-    ColorListEditor.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -16,7 +15,6 @@ set(LIBRARY_ARG_SOURCES
     BooleanItemDelegate.cpp
     ColorItemDelegate.cpp
     ExperimentsTableView.cpp
-    ColorListEditor.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

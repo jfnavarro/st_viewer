@@ -34,7 +34,6 @@ public:
 public slots:
 
     void slotLoadModel(const GeneSelection::selectedItemsList &geneList);
-    void slotClearModel();
 
 signals:
 

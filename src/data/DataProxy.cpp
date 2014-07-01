@@ -105,7 +105,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the objects
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
             m_datasetMap.insert(dataset->id(), dataset);
             dirty = true;
@@ -132,7 +132,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         geneMapByDatasetId.clear();
         //parse the data
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             GenePtr gene = GenePtr(new Gene(dto.gene()));
             geneListByDatasetId.push_back(gene);
             geneMapByDatasetId.insert(gene->name(), gene);
@@ -150,7 +150,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the data
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             ChipPtr chip = ChipPtr(new Chip(dto.chip()));
             m_chipMap.insert(chip->id(), chip);
             dirty = true;
@@ -166,7 +166,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             ImageAlignmentPtr imageAlignement =
                     ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
             Q_ASSERT(!m_imageAlignmentMap.contains(imageAlignement->id()));
@@ -185,7 +185,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the data
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             qDebug() << "Parsing selection " << var;
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
             m_geneSelectionsMap.insert(selection->id(), selection);
@@ -228,7 +228,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         featureMapByDatasetId.clear();
         //parse the data
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
             FeatureList& featureListByGeneIdAndDatasetId =
                     getGeneFeatureList(datasetId, feature->gene());
@@ -249,7 +249,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         foreach(QVariant var, list) {
-            data::ObjectParser::parseObject(var, &dto);
+            data::parseObject(var, &dto);
             m_user = UserPtr(new User(dto.user()));
             dirty = true;
         }

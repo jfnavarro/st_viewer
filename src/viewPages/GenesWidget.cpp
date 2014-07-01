@@ -18,7 +18,8 @@
 #include "viewTables/GenesTableView.h"
 
 #include "model/GeneFeatureItemModel.h"
-#include "viewTables/ColorListEditor.h"
+
+#include "color/ColorListEditor.h"
 #include "color/ColorPalette.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
@@ -55,21 +56,18 @@ GenesWidget::GenesWidget(QWidget *parent) :
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
     m_actionMenu->menu()->addSeparator();
 
-    ColorListEditor *colorPickerPopup = new ColorListEditor(this);
+    ColorListEditor *colorList = new ColorListEditor(this);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
-    widgetAction->setDefaultWidget(colorPickerPopup);
+    widgetAction->setDefaultWidget(colorList);
 
     m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected:"));
     m_actionMenu->menu()->addAction(widgetAction);
 
-    connect( widgetAction, &QAction::triggered, [=]{ colorPickerPopup->show(); });
+    connect(widgetAction, &QAction::triggered, [=]{ colorList->show(); });
 
     // QComboBox::activated is overloaded so we need a static_cast<>
-    connect( colorPickerPopup, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-        [=]()
-        {
-            slotSetColorAllSelected(colorPickerPopup->color());
-        });
+    connect(colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
+        [=]() { slotSetColorAllSelected(colorList->color()); });
 
     geneListLayout->addWidget(m_actionMenu);
 
@@ -130,11 +128,6 @@ void GenesWidget::slotSetColorAllSelected(const QColor &color)
 void GenesWidget::slotLoadModel()
 {
     getModel()->loadGenes();
-}
-
-void GenesWidget::slotClearModel()
-{
-    //nothing for now
 }
 
 GeneFeatureItemModel *GenesWidget::getModel()

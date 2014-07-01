@@ -130,7 +130,7 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
     //no errors, good
     if (!reply->hasErrors()) {
         OAuth2TokenDTO dto;
-        data::ObjectParser::parseObject(result, &dto);
+        data::parseObject(result, &dto);
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid refreshToken(dto.refreshToken());

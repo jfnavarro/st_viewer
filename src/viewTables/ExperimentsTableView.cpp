@@ -34,11 +34,11 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
 
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes, QHeaderView::Stretch);
 
     verticalHeader()->hide();
     model()->submit(); //support for caching (speed up)

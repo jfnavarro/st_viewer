@@ -62,8 +62,6 @@ public:
 
 private:
 
-    static const int COLUMN_NUMBER = 5;
-
     DataProxy::GeneSelectionList m_geneselectionList;
 
     Q_DISABLE_COPY(ExperimentsItemModel)

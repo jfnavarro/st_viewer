@@ -18,7 +18,6 @@ ColorListEditor::ColorListEditor(QWidget* widget)
     : QComboBox(widget)
 {
     HSVPalette palette(this);
-    palette.setSaturation(190); // lighter colors
     populateList(&palette);
 }
 
@@ -34,8 +33,8 @@ const QColor ColorListEditor::color() const
 
 void ColorListEditor::setColor(const QColor& color)
 {
-    int res = findData(color, Qt::UserRole);
-    Q_ASSERT(res != -1); // Would indicate programming error.
+    const int res = findData(color, Qt::UserRole);
+    //Q_ASSERT(res != -1); // Would indicate programming error.
     setCurrentIndex(res);
 }
 
@@ -44,8 +43,8 @@ void ColorListEditor::populateList(const ColorPalette* palette)
     const ColorPalette::ColorList colorList = palette->colorList();
     for (int i = 0; i < colorList.size(); ++i) {
         const ColorPalette::ColorPair pair = colorList[i];
-	QPixmap pix(QSize(20,20));
+        QPixmap pix(QSize(20,20));
         pix.fill(pair.first);
-	insertItem(i, QIcon(pix), "", pair.first);
+        insertItem(i, QIcon(pix), "", pair.first);
     }
 }

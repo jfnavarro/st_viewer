@@ -70,11 +70,6 @@ void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &gen
     getModel()->loadSelectedGenes(geneList);
 }
 
-void SelectionsWidget::slotClearModel()
-{
-    getModel()->reset();
-}
-
 GeneSelectionItemModel *SelectionsWidget::getModel()
 {
     GeneSelectionItemModel *selectionModel =

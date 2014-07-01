@@ -44,9 +44,6 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    //resets the model
-    void reset();
-
     //load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 

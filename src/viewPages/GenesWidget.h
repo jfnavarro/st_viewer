@@ -42,7 +42,6 @@ public slots:
     void slotSetVisibilityForSelectedRows(bool visible);
 
     void slotLoadModel();
-    void slotClearModel();
 
 private slots:
 

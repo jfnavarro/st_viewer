@@ -14,8 +14,7 @@
 #include <QStringList>
 #include <QItemSelection>
 
-const QString GeneFeatureItemModel::MIMETYPE_APPGENELIST =
-        QStringLiteral("application/gene.list");
+static const int COLUMN_NUMBER = 3;
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -36,7 +35,6 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         Q_ASSERT(m_genelist_reference.size() > index.row());
-
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(!item.isNull());
 
@@ -64,8 +62,7 @@ QVariant GeneFeatureItemModel::headerData(int section,
         case Name: return tr("Name");
         case Show: return tr("Show");
         case Color: return tr("Color");
-        default:
-            return QVariant(QVariant::Invalid);
+        default: return QVariant(QVariant::Invalid);
         }
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label
@@ -115,6 +112,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
             return false;
         }
     }
+
     return false;
 }
 
@@ -144,7 +142,7 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     case Color:
         return Qt::ItemIsEditable | Qt::ItemIsDragEnabled | defaultFlags;
     default:
-        Q_ASSERT(false && "[GeneFeatureItemModel] Invalid column index!");
+        Q_ASSERT("[GeneFeatureItemModel] Invalid column index!");
     }
 
     return defaultFlags;
@@ -197,6 +195,7 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
             emit dataChanged(selectIndex, selectIndex);
         }
     }
+
     emit signalSelectionChanged(geneList);
 }
 
@@ -221,6 +220,7 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
             emit dataChanged(selectIndex, selectIndex);
         }
     }
+
     emit signalColorChanged(geneList);
 }
 

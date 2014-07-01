@@ -72,9 +72,6 @@ private slots:
     // select minimap anchor
     void slotSetMiniMapAnchor(QAction *action);
 
-    // launch a color selector
-    void slotLoadColor();
-
     // genes were selected
     void slotSelectionUpdated();
 
@@ -107,7 +104,6 @@ private:
     QSharedPointer<CellGLView> m_view;
 
     // color dialogs
-    QScopedPointer<QColorDialog> m_colorDialogGenes;
     QScopedPointer<QColorDialog> m_colorDialogGrid;
 
     // tool bar

@@ -22,14 +22,8 @@
 
 namespace data {
 
-class ObjectParser
-{
-
-public:
-
     // parse an object from variant map using intermediary DTO type
-    static bool parseObject(const QVariant& source, QObject *target);
-};
+    bool parseObject(const QVariant& source, QObject *target);
 
 }
 

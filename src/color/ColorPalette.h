@@ -17,7 +17,9 @@
 // primarily used as a data loader class.
 class ColorPalette : public QObject
 {
+
 public:
+
     explicit ColorPalette(QObject* parent = 0);
     virtual ~ColorPalette();
 
@@ -31,7 +33,9 @@ public:
 // StandardPalette loads the standard colours as defined by QT.
 class StandardPalette : public ColorPalette
 {
+
 public:
+
     explicit StandardPalette(QObject* parent = 0);
     virtual ~StandardPalette();
 
@@ -39,7 +43,9 @@ public:
     virtual const ColorList colorList(const int count) const = 0;
 
 private:
+
     ColorList m_colorList;
+
 };
 
 // HSVPalette is a simple palette using the HSV color space to
@@ -48,10 +54,6 @@ class HSVPalette : public ColorPalette
 {
 
 public:
-
-    static const int DEFAULT_SATURATION;
-    static const int DEFAULT_VALUE;
-    static const int DEFAULT_COUNT;
 
     HSVPalette(QObject* parent = 0);
     virtual ~HSVPalette();
@@ -67,13 +69,5 @@ private:
     int m_saturation;
     int m_value;
 };
-
-class ColorPickerPopup;
-//TODO move this somewhere else,
-namespace color {
-
-    ColorPickerPopup *createColorPickerPopup(const QColor &selectedColor,
-                                                    QWidget *parent = 0);
-}
 
 #endif // COLORPALETTE_H //

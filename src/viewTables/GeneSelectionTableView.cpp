@@ -39,10 +39,14 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     resizeColumnsToContents();
 
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits, QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::NormalizedHits, QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::PixelItensity, QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::NormalizedHits,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::PixelItensity,
+                                             QHeaderView::ResizeToContents);
 
     resizeRowsToContents();
 
