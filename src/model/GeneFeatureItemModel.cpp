@@ -16,6 +16,61 @@
 
 static const int COLUMN_NUMBER = 3;
 
+namespace {
+
+struct ContiguousSegment {
+  ContiguousSegment(int start, int end) :
+      start(start),
+      end(end) {}
+  int start;
+  int end;
+};
+
+// This function has the the selected rows as input and returns a vector of
+// contiguous rows. For instance the rows
+// 2,3,4,7,8,11,15,16,17
+// would yield the row segments (2,4) (7,8), (11,11), (15,17)
+std::vector<ContiguousSegment> getContiguousRowSegments(const QItemSelection &selection)
+{
+    std::set<int> rows_set;
+    for (const auto &index : selection.indexes()) {
+        rows_set.insert(index.row());
+    }
+
+    std::vector<int> rows_vector;
+    std::copy(rows_set.begin(), rows_set.end(), std::back_inserter(rows_vector));
+    std::sort(rows_vector.begin(), rows_vector.end());
+    std::vector<ContiguousSegment> contiguousSegments;
+
+    bool firstLoop = true;
+    int rectangle_start_row_number = -1;
+    int last_rectangle_number = -1;
+    for (const auto &row : rows_vector) {
+        if (firstLoop) {
+            firstLoop = false;
+            rectangle_start_row_number = row;
+            last_rectangle_number = row;
+        } else {
+            if (last_rectangle_number + 1 == row) {
+                last_rectangle_number = row;
+            } else {
+                contiguousSegments.push_back(ContiguousSegment(rectangle_start_row_number,
+                                                               last_rectangle_number));
+                rectangle_start_row_number = row;
+                last_rectangle_number = row;
+            }
+        }
+    }
+
+    if (!rows_vector.empty()) {
+         contiguousSegments.push_back(ContiguousSegment(rectangle_start_row_number,
+                                                        rows_vector.back()));
+    }
+
+    return contiguousSegments;
+}
+
+}
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
@@ -94,8 +149,8 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                 DataProxy::GeneList geneList;
                 geneList.push_back(item);
                 emit signalSelectionChanged(geneList);
-                return true;
             }
+            return true;
         }
         case Color: {
             const QColor color = qvariant_cast<QColor>(value);
@@ -105,8 +160,8 @@ bool GeneFeatureItemModel::setData(const QModelIndex& index,
                 DataProxy::GeneList geneList;
                 geneList.push_back(item);
                 emit signalColorChanged(geneList);
-                return true;
             }
+            return true;
         }
         default:
             return false;
@@ -180,20 +235,22 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
         return;
     }
 
-    std::set<int> rows;
-    for (const auto &index : selection.indexes()) {
-        rows.insert(index.row());
-    }
-
     DataProxy::GeneList geneList;
-    for (const auto &row : rows) {
-        auto &gene = m_genelist_reference.at(row);
-        if (!gene.isNull() && gene->selected() != visible) {
-            gene->selected(visible);
-            geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Show, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
+    auto rowSegments = getContiguousRowSegments(selection);
+    for (auto rowSegment : rowSegments) {
+        int row = rowSegment.start;
+        while (row < rowSegment.end + 1) {
+            auto &gene = m_genelist_reference.at(row);
+            if (!gene.isNull() && gene->selected() != visible) {
+                gene->selected(visible);
+                geneList.push_back(gene);
+            }
+            ++row;
         }
+
+        QModelIndex topLeftIndex = index(rowSegment.start, Show, QModelIndex());
+        QModelIndex bottomRightIndex = index(rowSegment.end, Show, QModelIndex());
+        emit dataChanged(topLeftIndex, bottomRightIndex);
     }
 
     emit signalSelectionChanged(geneList);
@@ -205,20 +262,22 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
         return;
     }
 
-    std::set<int> rows;
-    for (const auto &index : selection.indexes()) {
-        rows.insert(index.row());
-    }
-
     DataProxy::GeneList geneList;
-    for (const auto &row : rows) {
-        auto &gene = m_genelist_reference.at(row);
-        if (!gene.isNull() && color.isValid() && gene->color() != color) {
-            gene->color(color);
-            geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Color, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
+    auto rowSegments = getContiguousRowSegments(selection);
+    for (auto rowSegment : rowSegments) {
+        int row = rowSegment.start;
+        while (row < rowSegment.end + 1) {
+            auto &gene = m_genelist_reference.at(row);
+            if (!gene.isNull() && color.isValid() && gene->color() != color) {
+                gene->color(color);
+                geneList.push_back(gene);
+            }
+            ++row;
         }
+
+        QModelIndex topLeftIndex = index(rowSegment.start, Color, QModelIndex());
+        QModelIndex bottomRightIndex = index(rowSegment.end, Color, QModelIndex());
+        emit dataChanged(topLeftIndex, bottomRightIndex);
     }
 
     emit signalColorChanged(geneList);
