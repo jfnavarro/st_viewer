@@ -3,6 +3,7 @@
     <file alias="images/filesave.png">${PROJECT_SOURCE_DIR}/assets/images/filesave.png</file>
     <file alias="images/refresh2.png">${PROJECT_SOURCE_DIR}/assets/images/refresh2.png</file>
     <file alias="images/kth.png">${PROJECT_SOURCE_DIR}/assets/images/kth.png</file>
+    <file alias="images/sulogo_ny_en.png">${PROJECT_SOURCE_DIR}/assets/images/sulogo_ny_en.png</file>
     <file alias="images/ki.png">${PROJECT_SOURCE_DIR}/assets/images/ki.png</file>
     <file alias="images/red-icon.png">${PROJECT_SOURCE_DIR}/assets/images/red-icon.png</file>
     <file alias="images/blue-icon.png">${PROJECT_SOURCE_DIR}/assets/images/blue-icon.png</file>
