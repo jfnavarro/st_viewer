@@ -12,6 +12,7 @@
 #include <QButtonGroup>
 #include <QPushButton>
 #include <QMouseEvent>
+#include <QPointer>
 
 class InitPage;
 class DatasetPage;
@@ -111,20 +112,17 @@ private:
     void createPages();
     void createActions();
 
-    //TODO use smart pointers here
-    //though the objects are being removed now
-
     //pages
-    InitPage *startpage;
-    DatasetPage *datasets;
-    CellViewPage *cellview;
-    ExperimentPage *experiments;
+    QPointer<InitPage> startpage;
+    QPointer<DatasetPage> datasets;
+    QPointer<CellViewPage> cellview;
+    QPointer<ExperimentPage> experiments;
 
     //components
-    QStackedWidget *stackWidget;
-    QButtonGroup *buttonGroup;
-    QHBoxLayout *layout;
-    QVBoxLayout *buttonLayout;
+    QPointer<QStackedWidget> stackWidget;
+    QPointer<QButtonGroup> buttonGroup;
+    QPointer<QHBoxLayout> layout;
+    QPointer<QVBoxLayout> buttonLayout;
 
     Q_DISABLE_COPY(ExtendedTabWidget)
 };

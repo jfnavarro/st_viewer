@@ -11,8 +11,7 @@
 
 AuthorizationManager::AuthorizationManager(QObject* parent)
     : QObject(parent),
-      m_oAuth2(nullptr),
-      m_tokenStorage(nullptr)
+      m_oAuth2(nullptr)
 {
 
 }
@@ -24,23 +23,24 @@ AuthorizationManager::~AuthorizationManager()
 
 void AuthorizationManager::finalize()
 {
-    //m_oAuth2 and m_tokenStorage are smart pointers
+    m_oAuth2->deleteLater();
+    m_oAuth2 = nullptr;
 }
 
 void AuthorizationManager::init()
 {
-        m_tokenStorage.reset(new TokenStorage());
+
 }
 
 void AuthorizationManager::start()
 {
     //lazy init
-    if (m_oAuth2 == nullptr) {
-        m_oAuth2.reset(new OAuth2(this));
-        connect(m_oAuth2.get(), SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
+    if (m_oAuth2.isNull()) {
+        m_oAuth2 = new OAuth2(this);
+        connect(m_oAuth2, SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
-        connect(m_oAuth2.get(), SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
-        connect(m_oAuth2.get(), SIGNAL(signalError(QSharedPointer<Error>)),
+        connect(m_oAuth2, SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
+        connect(m_oAuth2, SIGNAL(signalError(QSharedPointer<Error>)),
                 this, SIGNAL(signalError(QSharedPointer<Error>)));
     }
     // check if we already have been authorized and have access token saved
@@ -54,13 +54,13 @@ void AuthorizationManager::start()
 
 void AuthorizationManager::cleanAccesToken()
 {
-    m_tokenStorage->cleanAll();
+    m_tokenStorage.cleanAll();
 }
 
 void AuthorizationManager::forceAuthentication()
 {
-    if (m_tokenStorage->hasRefreshToken()) {
-        m_oAuth2->startQuietLogin(m_tokenStorage->getRefreshToken());
+    if (m_tokenStorage.hasRefreshToken()) {
+        m_oAuth2->startQuietLogin(m_tokenStorage.getRefreshToken());
     } else {
         m_oAuth2->startInteractiveLogin();
     }
@@ -69,23 +69,23 @@ void AuthorizationManager::forceAuthentication()
 void AuthorizationManager::slotLoginDone(const QUuid& accessToken, int expiresIn,
         const QUuid& refreshToken)
 {
-    m_tokenStorage->setAccessToken(accessToken, expiresIn);
-    m_tokenStorage->setRefreshToken(refreshToken);
+    m_tokenStorage.setAccessToken(accessToken, expiresIn);
+    m_tokenStorage.setRefreshToken(refreshToken);
     emit signalAuthorize();
 }
 
 bool AuthorizationManager::isAuthenticated() const
 {
-   return m_tokenStorage->hasAccessToken()
-          && !m_tokenStorage->isExpired();
+   return m_tokenStorage.hasAccessToken()
+          && !m_tokenStorage.isExpired();
 }
 
 bool AuthorizationManager::hasAccessToken() const
 {
-    return m_tokenStorage->hasAccessToken();
+    return m_tokenStorage.hasAccessToken();
 }
 
 QUuid AuthorizationManager::getAccessToken() const
 {
-    return m_tokenStorage->getAccessToken();
+    return m_tokenStorage.getAccessToken();
 }

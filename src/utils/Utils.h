@@ -20,7 +20,7 @@ namespace Globals
 {
 
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
-static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 190, 255);
+static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
 static const int GENE_THRESHOLD_MAX = 100;
 static const int GENE_THRESHOLD_MIN = 1;
 static const qreal GENE_SIZE_DEFAULT = 1.0;

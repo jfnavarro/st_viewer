@@ -71,6 +71,7 @@ public:
     const QVector<QString> oboFoundryTerms() const;
     const QString comment() const;
     const QString resultFile() const;
+    bool enabled() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -82,6 +83,7 @@ public:
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void comment(const QString& comment);
     void resultFile(const QString& file);
+    void enabled(const bool enabled);
 
 private:
 
@@ -95,6 +97,7 @@ private:
     QVector<QString> m_oboFroundryTerms;
     QString m_comment;
     QString m_resultFile;
+    bool m_enabled;
 };
 
 #endif // GENESELECTION_H

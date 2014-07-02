@@ -43,7 +43,8 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
 
 NetworkReply::~NetworkReply()
 {
-
+    m_reply->deleteLater();
+    m_reply = nullptr;
 }
 
 const QVariant NetworkReply::customData() const

@@ -11,7 +11,6 @@
 #include <QObject>
 #include <QMap>
 #include <QFile>
-#include <QSharedPointer>
 #include <memory>
 
 // The data store extend the resource store interface and provides simple

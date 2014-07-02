@@ -16,7 +16,7 @@ Page::Page(QWidget *parent) :
     m_timer(nullptr),
     m_steps(0)
 {
-    m_progressDialog= new QProgressDialog("Downloading data.", "Cancel", 0, 100, this);
+    m_progressDialog= new QProgressDialog("Downloading data.", "Cancel", 0, 200, this);
     m_progressDialog->setWindowModality(Qt::ApplicationModal);
     //TODO remove max/min buttons
     //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
@@ -31,7 +31,11 @@ Page::Page(QWidget *parent) :
 
 Page::~Page()
 {
+   m_progressDialog->deleteLater();
+   m_progressDialog = nullptr;
 
+   m_timer->deleteLater();
+   m_timer = nullptr;
 }
 
 void Page::setWaiting(bool waiting)

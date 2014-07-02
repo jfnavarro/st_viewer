@@ -34,6 +34,7 @@ class GeneSelectionDTO : public QObject
     Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
     Q_PROPERTY(QString comment READ comment WRITE comment)
     Q_PROPERTY(QString resul_file READ resultFile WRITE resultFile)
+    Q_PROPERTY(bool enabled READ enabled WRITE enabled)
 
 public:
 
@@ -55,6 +56,7 @@ public:
       { return serializeVector<QString>(m_geneSelection.oboFoundryTerms()); }
     const QString comment() { return m_geneSelection.comment(); }
     const QString resultFile() { return m_geneSelection.resultFile(); }
+    void enabled(const bool enabled) { m_geneSelection.enabled(enabled); }
 
     // binding
     void id(const QString& id) { m_geneSelection.id(id); }
@@ -69,6 +71,7 @@ public:
       { m_geneSelection.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
     void comment(const QString& comment) { m_geneSelection.comment(comment); }
     void resultFile(const QString& file) { m_geneSelection.resultFile(file); }
+    bool enabled() { return m_geneSelection.enabled(); }
 
     // get parsed data model
     const GeneSelection& geneSelection() const { return m_geneSelection; }

@@ -35,7 +35,13 @@ GeneRendererGL::GeneRendererGL(QObject *parent)
 
 GeneRendererGL::~GeneRendererGL()
 {
+    m_geneNode->deleteLater();
+    m_geneNode = nullptr;
 
+   if (m_shaderProgram != nullptr) {
+       delete m_shaderProgram;
+   }
+   m_shaderProgram = nullptr;
 }
 
 void GeneRendererGL::clearData()
@@ -67,7 +73,11 @@ void GeneRendererGL::clearData()
     m_visualMode = Globals::NormalMode;
 
     //reset scene node
-    m_geneNode.reset(new QGLSceneNode());
+    if (!m_geneNode.isNull()) {
+        m_geneNode->deleteLater();
+        m_geneNode = nullptr;
+    }
+    m_geneNode = new QGLSceneNode();
 
     //update shader
     setupShaders();
@@ -601,12 +611,19 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
 void GeneRendererGL::setupShaders()
 {
-    m_shaderProgram.reset(new QGLShaderProgramEffect());
+    if (m_shaderProgram != nullptr) {
+        delete m_shaderProgram;
+        m_shaderProgram = nullptr;
+    }
+    m_shaderProgram = new QGLShaderProgramEffect();
+
+    //load and compile shaders
     m_shaderProgram->setVertexShaderFromFile(":shader/geneShader.vert");
     m_shaderProgram->setFragmentShaderFromFile(":shader/geneShader.frag");
-    Q_ASSERT(m_geneNode);
+
+    Q_ASSERT(!m_geneNode.isNull());
     // add shader program to node
-    m_geneNode->setUserEffect(m_shaderProgram.data());
+    m_geneNode->setUserEffect(m_shaderProgram);
 }
 
 void GeneRendererGL::setDimensions(const QRectF border)

@@ -28,6 +28,7 @@ InitPage::InitPage(QWidget *parent) :
 InitPage::~InitPage()
 {
     delete ui;
+    ui = nullptr;
 }
 
 void InitPage::onInit()
@@ -77,9 +78,9 @@ void InitPage::slotAuthorized()
     dataProxy->clean();
 
     //load user from network (synchronous)
-    setWaiting(true);
+    //setWaiting(true);
     async::DataRequest request = dataProxy->loadUser();
-    setWaiting(false);
+    //setWaiting(false);
 
    if (request.return_code() == async::DataRequest::CodePresent
                || request.return_code() == async::DataRequest::CodeSuccess) {

@@ -71,8 +71,8 @@ private slots:
 
 private:
 
-    std::unique_ptr<OAuth2> m_oAuth2;
-    std::unique_ptr<TokenStorage> m_tokenStorage;
+    QPointer<OAuth2> m_oAuth2;
+    TokenStorage m_tokenStorage;
 
     Q_DISABLE_COPY(AuthorizationManager)
 };

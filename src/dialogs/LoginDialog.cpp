@@ -53,6 +53,10 @@ LoginDialog::~LoginDialog()
     saveUsers();
     //delete ui objects
     delete ui;
+    ui = nullptr;
+    //delete completer
+    m_completer->deleteLater();
+    m_completer = nullptr;
 }
 
 void LoginDialog::clear()
@@ -81,7 +85,7 @@ void LoginDialog::loadUsers()
     QSettings settings;
     const QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
-    m_completer.reset(new QCompleter(stringSet.toList()));
+    m_completer = new QCompleter(stringSet.toList());
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
 }
 

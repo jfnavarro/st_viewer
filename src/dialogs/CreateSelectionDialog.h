@@ -13,8 +13,9 @@ class CreateSelectionDialog : public QDialog
     Q_OBJECT
 
 public:
+
     explicit CreateSelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
-    ~CreateSelectionDialog();
+    virtual ~CreateSelectionDialog();
 
     const QString getName() const;
     const QString getComment() const;

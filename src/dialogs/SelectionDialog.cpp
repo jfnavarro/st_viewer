@@ -24,6 +24,7 @@ SelectionDialog::SelectionDialog(QWidget *parent, Qt::WindowFlags f) :
 SelectionDialog::~SelectionDialog()
 {
     delete ui;
+    ui = nullptr;
 }
 
 const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const

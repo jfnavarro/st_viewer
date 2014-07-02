@@ -12,7 +12,8 @@ GeneSelection::GeneSelection()
       m_status(),
       m_oboFroundryTerms(),
       m_comment(),
-      m_resultFile()
+      m_resultFile(),
+      m_enabled(false)
 {
 
 }
@@ -27,7 +28,8 @@ GeneSelection::GeneSelection(const GeneSelection& other)
       m_status(other.m_status),
       m_oboFroundryTerms(other.m_oboFroundryTerms),
       m_comment(other.m_comment),
-      m_resultFile(other.m_resultFile)
+      m_resultFile(other.m_resultFile),
+      m_enabled(other.m_enabled)
 {
 
 }
@@ -49,6 +51,7 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_comment = other.m_comment;
     m_resultFile = other.m_resultFile;
+    m_enabled = other.m_enabled;
     return (*this);
 }
 
@@ -64,7 +67,8 @@ bool GeneSelection::operator==(const GeneSelection& other) const
                 m_status == other.m_status &&
                 m_oboFroundryTerms == other.m_oboFroundryTerms &&
                 m_comment == other.m_comment &&
-                m_resultFile == other.m_resultFile
+                m_resultFile == other.m_resultFile &&
+                m_enabled == other.m_enabled
         );
 }
 
@@ -118,6 +122,11 @@ const QString GeneSelection::resultFile() const
     return m_resultFile;
 }
 
+bool GeneSelection::enabled() const
+{
+    return m_enabled;
+}
+
 void GeneSelection::id(const QString& id)
 {
     m_id = id;
@@ -166,4 +175,9 @@ void GeneSelection::comment(const QString& comment)
 void GeneSelection::resultFile(const QString& file)
 {
     m_resultFile = file;
+}
+
+void GeneSelection::enabled(const bool enabled)
+{
+    m_enabled = enabled;
 }

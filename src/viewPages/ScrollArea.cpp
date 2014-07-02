@@ -15,15 +15,19 @@ ScrollArea::ScrollArea(QWidget *parent)
 
 ScrollArea::~ScrollArea()
 {
+    m_view->deleteLater();
+    m_view = nullptr;
 
+    m_container->deleteLater();
+    m_container = nullptr;
 }
 
-void ScrollArea::initializeView(QSharedPointer<CellGLView> view)
+void ScrollArea::initializeView(QPointer<CellGLView> view)
 {
-    Q_ASSERT(view != nullptr);
+    Q_ASSERT(!view.isNull());
 
-    m_view = view.data();
-    m_container.reset(QWidget::createWindowContainer(m_view));
+    m_view = view;
+    m_container = QWidget::createWindowContainer(m_view);
     m_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     setViewport(m_container.data());

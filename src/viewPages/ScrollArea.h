@@ -3,6 +3,7 @@
 
 #include <QAbstractScrollArea>
 #include <QTransform>
+#include <QPointer>
 
 class CellGLView;
 
@@ -18,7 +19,7 @@ public:
     explicit ScrollArea(QWidget *parent = 0 );
     virtual ~ScrollArea();
 
-    void initializeView(QSharedPointer<CellGLView> view);
+    void initializeView(QPointer<CellGLView> view);
 
     void setupViewport(QWidget *viewport) override;
 
@@ -51,10 +52,8 @@ private:
     //TOFIX magic number?
     static const int m_scrollBarSteps = 100000;
 
-    //TODO QSharedPointer<CellGLView> causes a seg fault when exitting
-    //the app, find cause and fix
-    CellGLView *m_view;
-    QScopedPointer<QWidget> m_container;
+    QPointer<CellGLView> m_view;
+    QPointer<QWidget> m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform  m_cellglview_sceneTransformations;

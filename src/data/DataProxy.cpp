@@ -52,6 +52,7 @@ void DataProxy::init()
 void DataProxy::finalize()
 {
     //every data member is a smart pointer
+    //TODO make totally sure data is being de-allocated
     m_datasetMap.clear();
     m_geneMap.clear();
     m_geneListMap.clear();
@@ -107,8 +108,10 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         foreach(QVariant var, list) {
             data::parseObject(var, &dto);
             DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
-            m_datasetMap.insert(dataset->id(), dataset);
-            dirty = true;
+            if (dataset->enabled()) {
+                m_datasetMap.insert(dataset->id(), dataset);
+                dirty = true;
+            }
         }
         break;
     }
@@ -188,8 +191,10 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             data::parseObject(var, &dto);
             qDebug() << "Parsing selection " << var;
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
-            m_geneSelectionsMap.insert(selection->id(), selection);
-            dirty = true;
+            if (selection->enabled()) {
+                m_geneSelectionsMap.insert(selection->id(), selection);
+                dirty = true;
+            }
         }
         break;
     }

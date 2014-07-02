@@ -23,7 +23,11 @@
 #include "color/ColorPalette.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    m_selectionMenu(nullptr),
+    m_actionMenu(nullptr),
+    m_lineEdit(nullptr),
+    m_genes_tableview(nullptr)
 {
     QVBoxLayout *genesLayout = new QVBoxLayout();
     QHBoxLayout *geneListLayout = new QHBoxLayout();
@@ -102,7 +106,17 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
 GenesWidget::~GenesWidget()
 {
+    m_selectionMenu->deleteLater();
+    m_selectionMenu = nullptr;
 
+    m_actionMenu->deleteLater();
+    m_actionMenu = nullptr;
+
+    m_lineEdit->deleteLater();
+    m_lineEdit = nullptr;
+
+    m_genes_tableview->deleteLater();
+    m_genes_tableview = nullptr;
 }
 
 void GenesWidget::slotShowAllSelected()

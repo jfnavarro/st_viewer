@@ -32,6 +32,7 @@ public:
     virtual ~CellViewPageToolBar();
 
     // actions for toolbar
+    //TODO use QPointer and delete in destructor
     QAction *m_actionActivateSelectionMode;
     QWidgetAction *m_actionNavigate_goBack;
     QWidgetAction *m_actionNavigate_goNext;

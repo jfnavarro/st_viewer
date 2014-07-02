@@ -38,6 +38,7 @@ public:
     const QString statComments() const;
     const QList<QString> oboFoundryTerms() const;
     const QVector<qreal> hitsQuartiles() const;
+    bool enabled() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -51,6 +52,7 @@ public:
     void statComments(const QString& statComments);
     void oboFoundryTerms(const QList<QString>& oboFoundryTerms);
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
+    void enabled(const bool enabled);
 
     //extended methods to get statistics
     qreal statisticsMin() const;
@@ -72,6 +74,7 @@ private:
     QString m_statComments;
     QList<QString> m_oboFroundryTerms;
     QVector<qreal> m_genePooledHitsQuartiles;
+    bool m_enabled;
 };
 
 #endif // DATASET_H

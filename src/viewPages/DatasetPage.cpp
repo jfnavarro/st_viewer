@@ -32,6 +32,7 @@ DatasetPage::DatasetPage(QWidget *parent) :
 DatasetPage::~DatasetPage()
 {
     delete ui;
+    ui = nullptr;
 }
 
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
@@ -100,10 +101,10 @@ void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 
 void DatasetPage::loadDatasets()
 {
-    setWaiting(true);
+    //setWaiting(true);
     DataProxy *dataProxy = DataProxy::getInstance();
     async::DataRequest request = dataProxy->loadDatasets();
-    setWaiting(false);
+    //setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {

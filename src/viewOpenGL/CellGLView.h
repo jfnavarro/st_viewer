@@ -9,6 +9,7 @@
 
 #include <QWindow>
 #include <QGLFramebufferObjectSurface>
+#include <QPointer>
 
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
@@ -120,7 +121,7 @@ private:
 				       const MouseEventType type, const FilterFunc filterFunc);
 
     // openGL context variables
-    QScopedPointer<QOpenGLContext> m_context;
+    QPointer<QOpenGLContext> m_context;
     QSurfaceFormat format;
     bool m_initialized;
 
@@ -137,7 +138,7 @@ private:
     bool m_panning;
     bool m_rubberBanding;
     bool m_selecting;
-    QScopedPointer<RubberbandGL> m_rubberband;
+    QPointer<RubberbandGL> m_rubberband;
     qreal m_rotate;
     QPointF m_scene_focus_center_point;
     // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later

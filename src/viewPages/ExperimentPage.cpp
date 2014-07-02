@@ -28,6 +28,7 @@ ExperimentPage::ExperimentPage(QWidget *parent)
 ExperimentPage::~ExperimentPage()
 {
     delete ui;
+    ui = nullptr;
 }
 
 QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()

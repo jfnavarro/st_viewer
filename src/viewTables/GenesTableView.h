@@ -28,7 +28,7 @@ public slots:
 
     void setGeneNameFilter(QString);
 
-    virtual void reset();
+    void reset() override;
 
 private:
 

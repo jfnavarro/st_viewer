@@ -33,8 +33,7 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         case Hits: return item.reads;
         case NormalizedHits: return QString::number(item.normalizedReads, 'f', 2);
         case PixelItensity: return QString::number(item.pixeIntensity, 'f', 2);
-        default:
-            return QVariant(QVariant::Invalid);
+        default: return QVariant(QVariant::Invalid);
         }
     }
 
@@ -54,8 +53,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
         case Hits: return tr("Reads");
         case NormalizedHits: return tr("Normalized Reads");
         case PixelItensity: return tr("Pixel Intensity");
-        default:
-            return QVariant(QVariant::Invalid);
+        default: return QVariant(QVariant::Invalid);
         }
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         // return row number as label

@@ -40,11 +40,10 @@ bool DataStore::hasResource(const QString& resourceid) const
 DataStore::resourceDeviceType
 DataStore::accessResource(const QString& name, Options options)
 {
-    Q_ASSERT(! name.isNull() && ! name.isEmpty());
+    Q_ASSERT(!name.isNull() && !name.isEmpty());
     qDebug() << QString("DataStore::accessResource(%1, %2)").arg(name).arg(options);
 
     // load or create file with given resourceid and options
-
     DataStore::resourceDeviceType device;
     if (m_fileMap.contains(name)) {  
         device = std::move(accessFile(name, options));
@@ -55,10 +54,10 @@ DataStore::accessResource(const QString& name, Options options)
 
     // add encryption layer if specified
     if (options.testFlag(Secure)) {
-      SimpleCryptDevice *simpleCryptDevice =
-              new SimpleCryptDevice(std::move(device), ENCRYPT_KEY);
-      Q_ASSERT(simpleCryptDevice);
-      device.reset(simpleCryptDevice);
+        SimpleCryptDevice *simpleCryptDevice =
+                new SimpleCryptDevice(std::move(device), ENCRYPT_KEY);
+        Q_ASSERT(simpleCryptDevice);
+        device.reset(simpleCryptDevice);
     }
 
     return device;
@@ -77,6 +76,7 @@ void DataStore::clearResources()
         } else {
             qDebug() << QString("[DataStore] Warning: Failed to clear file: %1").arg(possibleFile);
         }
+
         restore.remove(resourceid); //remove it from qsettigns as well
     }
 
@@ -135,6 +135,7 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
         const QString filePath = QDir::current().filePath(name);
         file.reset(new QFile(filePath));
     }
+
     // save filename map
     const QString filename = file->fileName();
     qDebug() << QString("[DataStore] Map: (%1 -> %2)").arg(name).arg(filename);

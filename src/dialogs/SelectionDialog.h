@@ -9,10 +9,9 @@
 #define SELECTIONDIALOG_H
 
 #include <QDialog>
-
-#include <QScopedPointer>
 #include <QList>
-#include <data/DataProxy.h>
+
+#include "data/DataProxy.h"
 
 namespace Ui{
 class SelectionDialog;
@@ -29,7 +28,7 @@ public:
     typedef DataProxy::GeneList GeneList;
 
     explicit SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
-    ~SelectionDialog();
+    virtual ~SelectionDialog();
 
     const GeneList& selectedGenes() const;
     static const GeneList selectGenes(QWidget *parent = 0);
@@ -40,7 +39,7 @@ signals:
 
 public slots:
     
-    virtual void accept(); // overloaded method
+    void accept() override;
 
     void slotValidateRegExp(const QString &pattern);
     void slotIncludeAmbiguous(bool includeAmbiguous);

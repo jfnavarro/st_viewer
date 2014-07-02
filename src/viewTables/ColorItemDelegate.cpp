@@ -28,9 +28,11 @@ ColorItemDelegate::~ColorItemDelegate()
 
 }
 
-void ColorItemDelegate::editorFinished(int)
+void ColorItemDelegate::editorFinished(int status)
 {
+    Q_UNUSED(status);
     QWidget *editor = qobject_cast<QWidget *>(sender());
+    Q_ASSERT(editor);
     emit commitData(editor);
     emit closeEditor(editor);
 }

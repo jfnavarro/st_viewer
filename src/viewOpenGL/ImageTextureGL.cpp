@@ -37,14 +37,14 @@ void ImageTextureGL::clear()
 
 void ImageTextureGL::clearTextures()
 {
-    foreach( QGLTexture2D *texture, m_textures ) {
+    foreach(QGLTexture2D *texture, m_textures) {
         if (texture) {
             texture->cleanupResources();
             texture->release();
             texture->clearImage();
-            delete texture;
+            texture->deleteLater();
         }
-        texture = 0;
+        texture = nullptr;
     }
     m_textures.clear();
 }
@@ -53,7 +53,7 @@ void ImageTextureGL::clearNodes()
 {
     foreach(QGLSceneNode *node, m_nodes) {
         if (node) {
-            delete node;
+            node->deleteLater();
         }
         node = nullptr;
     }

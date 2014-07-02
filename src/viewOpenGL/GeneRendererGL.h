@@ -103,7 +103,7 @@ private:
 
     // gene visual data
     GeneData m_geneData;
-    QScopedPointer<QGLSceneNode> m_geneNode;
+    QPointer<QGLSceneNode> m_geneNode;
 
     // gene lookup data
     GeneInfoByIdMap m_geneInfoById;
@@ -137,8 +137,8 @@ private:
     // visual mode
     Globals::GeneVisualMode m_visualMode;
 
-    // shader program
-    QScopedPointer<QGLShaderProgramEffect> m_shaderProgram;
+    // shader program (TODO use smart pointer)
+    QGLShaderProgramEffect *m_shaderProgram;
 
     // tells if something has changed
     bool m_isDirty;

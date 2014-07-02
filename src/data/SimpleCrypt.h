@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <QByteArray>
-#include <QSharedPointer>
 
 class QIODevice;
 

@@ -53,10 +53,10 @@ private slots:
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 
-    QPushButton *m_selectionMenu;
-    QPushButton *m_actionMenu;
-    QLineEdit *m_lineEdit;
-    GenesTableView *m_genes_tableview;
+    QPointer<QPushButton> m_selectionMenu;
+    QPointer<QPushButton> m_actionMenu;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<GenesTableView> m_genes_tableview;
 
     Q_DISABLE_COPY(GenesWidget)
 };

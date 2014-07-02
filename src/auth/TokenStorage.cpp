@@ -21,7 +21,8 @@ TokenStorage::TokenStorage() :
 
 TokenStorage::~TokenStorage()
 {
-    //m_storage is smart pointer
+    m_storage->deleteLater();
+    m_storage = nullptr;
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken)

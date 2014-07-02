@@ -19,7 +19,8 @@ Dataset::Dataset()
       m_statUniqueGenes(0),
       m_statTissue(),
       m_statSpecie(),
-      m_statComments()
+      m_statComments(),
+      m_enabled(false)
 {
 
 }
@@ -38,6 +39,7 @@ Dataset::Dataset(const Dataset& other)
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
+    m_enabled = other.m_enabled;
 }
 
 Dataset::~Dataset()
@@ -59,6 +61,7 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
+    m_enabled = other.m_enabled;
     return (*this);
 }
 
@@ -76,7 +79,8 @@ bool Dataset::operator==(const Dataset& other) const
                m_statSpecie == other.m_statSpecie &&
                m_statComments == other.m_statComments &&
                m_oboFroundryTerms == other.m_oboFroundryTerms &&
-               m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles
+               m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles &&
+               m_enabled == other.m_enabled
            );
 }
 
@@ -140,6 +144,11 @@ const QVector<qreal> Dataset::hitsQuartiles() const
     return m_genePooledHitsQuartiles;
 }
 
+bool Dataset::enabled() const
+{
+    return m_enabled;
+}
+
 void Dataset::id(const QString& id)
 {
     m_id = id;
@@ -198,6 +207,11 @@ void Dataset::oboFoundryTerms(const QList<QString>& oboFoundryTerms)
 void Dataset::hitsQuartiles(const QVector<qreal>& hitsQuartiles)
 {
     m_genePooledHitsQuartiles = hitsQuartiles;
+}
+
+void Dataset::enabled(const bool enabled)
+{
+    m_enabled = enabled;
 }
 
 qreal Dataset::statisticsMin() const

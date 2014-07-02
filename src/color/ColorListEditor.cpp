@@ -8,7 +8,6 @@
 #include "ColorListEditor.h"
 
 #include <QVariant>
-#include <QScopedPointer>
 #include <QPixmap>
 #include <QDebug>
 
@@ -34,7 +33,7 @@ const QColor ColorListEditor::color() const
 void ColorListEditor::setColor(const QColor& color)
 {
     const int res = findData(color, Qt::UserRole);
-    //Q_ASSERT(res != -1); // Would indicate programming error.
+    Q_ASSERT(res != -1); // Would indicate programming error.
     setCurrentIndex(res);
 }
 
@@ -45,6 +44,6 @@ void ColorListEditor::populateList(const ColorPalette* palette)
         const ColorPalette::ColorPair pair = colorList[i];
         QPixmap pix(QSize(20,20));
         pix.fill(pair.first);
-        insertItem(i, QIcon(pix), "", pair.first);
+        insertItem(i, QIcon(pix), pair.second, pair.first);
     }
 }

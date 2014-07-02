@@ -9,6 +9,7 @@
 #define LOGINDIALOG_H
 
 #include <QDialog>
+#include <QPointer>
 
 class QCompleter;
 class QString;
@@ -19,7 +20,6 @@ class LogIn;
 
 class LoginDialog : public QDialog
 {
-
     Q_OBJECT
 
 public:
@@ -56,6 +56,7 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
 
 private:
+
     //init graphic stuff
     void setUpGUI();
 
@@ -66,7 +67,7 @@ private:
     void saveUsers();
 
     Ui::LogIn *ui;
-    QScopedPointer<QCompleter> m_completer;
+    QPointer<QCompleter> m_completer;
 
     Q_DISABLE_COPY(LoginDialog)
 };

@@ -63,7 +63,7 @@ private:
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 
     // login dialog component
-    std::unique_ptr<LoginDialog> m_loginDialog;
+    QPointer<LoginDialog> m_loginDialog;
 
     //network manager to make network requests
     //must be a member variable

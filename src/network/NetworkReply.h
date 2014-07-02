@@ -74,8 +74,7 @@ private:
     void registerError(QSharedPointer<Error> error);
 
     // Qt network reply
-    //TODO consider make it a smart pointer
-    QNetworkReply *m_reply;
+    QPointer<QNetworkReply> m_reply;
     // errors
     ErrorList m_errors;
     // custom data

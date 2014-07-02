@@ -96,18 +96,18 @@ private:
     // reset all the visual variables to default
     void resetActionStates();
 
-    QSharedPointer<MiniMapGL> m_minimap;
-    QSharedPointer<HeatMapLegendGL> m_legend;
-    QSharedPointer<GeneRendererGL> m_gene_plotter;
-    QSharedPointer<ImageTextureGL> m_image;
-    QSharedPointer<GridRendererGL> m_grid;
-    QSharedPointer<CellGLView> m_view;
+    QPointer<MiniMapGL> m_minimap;
+    QPointer<HeatMapLegendGL> m_legend;
+    QPointer<GeneRendererGL> m_gene_plotter;
+    QPointer<ImageTextureGL> m_image;
+    QPointer<GridRendererGL> m_grid;
+    QPointer<CellGLView> m_view;
 
-    // color dialogs
-    QScopedPointer<QColorDialog> m_colorDialogGrid;
+    // color dialog for the grid
+    QPointer<QColorDialog> m_colorDialogGrid;
 
     // tool bar
-    QScopedPointer<CellViewPageToolBar> m_toolBar;
+    QPointer<CellViewPageToolBar> m_toolBar;
 
     // User interface
     Ui::CellView *ui;

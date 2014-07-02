@@ -16,7 +16,12 @@
 #include "model/GeneSelectionItemModel.h"
 
 SelectionsWidget::SelectionsWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    m_saveSelection(nullptr),
+    m_exportSelection(nullptr),
+    m_clearSelection(nullptr),
+    m_geneSelectionFilterLineEdit(nullptr),
+    m_selections_tableview(nullptr)
 {
     QVBoxLayout *selectionLayout = new QVBoxLayout();
     QHBoxLayout *selectionBottonsLayout = new QHBoxLayout();
@@ -62,7 +67,20 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
 
 SelectionsWidget::~SelectionsWidget()
 {
+    m_saveSelection->deleteLater();
+    m_saveSelection = nullptr;
 
+    m_exportSelection->deleteLater();
+    m_exportSelection = nullptr;
+
+    m_clearSelection->deleteLater();
+    m_clearSelection = nullptr;
+
+    m_geneSelectionFilterLineEdit->deleteLater();
+    m_geneSelectionFilterLineEdit = nullptr;
+
+    m_selections_tableview->deleteLater();
+    m_selections_tableview = nullptr;
 }
 
 void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &geneList)

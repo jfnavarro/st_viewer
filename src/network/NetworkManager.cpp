@@ -72,6 +72,8 @@ NetworkManager::NetworkManager(QObject* parent):
 
 NetworkManager::~NetworkManager()
 {
+    m_nam->deleteLater();
+    m_nam = nullptr;
 }
 
 void NetworkManager::provideAuthentication(QNetworkReply *reply,

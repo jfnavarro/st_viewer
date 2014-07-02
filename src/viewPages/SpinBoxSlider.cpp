@@ -50,6 +50,17 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
 
 SpinBoxSlider::~SpinBoxSlider()
 {
+    m_spanslider->deleteLater();
+    m_spanslider = nullptr;
+
+    m_left_spinbox->deleteLater();
+    m_left_spinbox = nullptr;
+
+    m_right_spinbox->deleteLater();
+    m_right_spinbox = nullptr;
+
+    m_layout->deleteLater();
+    m_layout = nullptr;
 }
 
 void SpinBoxSlider::setToolTip(const QString &str)

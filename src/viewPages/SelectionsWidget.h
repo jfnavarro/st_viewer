@@ -9,6 +9,7 @@
 #define SELECTIONSWIDGET_H
 
 #include <QWidget>
+#include <QPointer>
 
 #include "dataModel/GeneSelection.h"
 
@@ -46,11 +47,11 @@ private:
     GeneSelectionItemModel *getModel();
     QSortFilterProxyModel *getProxyModel();
 
-    QPushButton *m_saveSelection;
-    QPushButton *m_exportSelection;
-    QPushButton *m_clearSelection;
-    QLineEdit *m_geneSelectionFilterLineEdit;
-    GeneSelectionTableView *m_selections_tableview;
+    QPointer<QPushButton> m_saveSelection;
+    QPointer<QPushButton> m_exportSelection;
+    QPointer<QPushButton> m_clearSelection;
+    QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
+    QPointer<GeneSelectionTableView> m_selections_tableview;
 
     Q_DISABLE_COPY(SelectionsWidget)
 };

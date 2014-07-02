@@ -10,6 +10,8 @@
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QSpinBox>
+#include <QPointer>
+
 #include "qxtspanslider.h"
 
 //TODO move to folder Widgets(create if it does not exist)
@@ -45,10 +47,10 @@ private:
     void setLowerValuePrivate(const int min);
     void setUpperValuePrivate(const int max);
 
-    QxtSpanSlider *m_spanslider;
-    QSpinBox *m_left_spinbox;
-    QSpinBox *m_right_spinbox;
-    QHBoxLayout *m_layout;
+    QPointer<QxtSpanSlider> m_spanslider;
+    QPointer<QSpinBox> m_left_spinbox;
+    QPointer<QSpinBox> m_right_spinbox;
+    QPointer<QHBoxLayout> m_layout;
 
     int m_upper_value;
     int m_lower_value;

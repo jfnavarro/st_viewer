@@ -34,6 +34,7 @@ class DatasetDTO : public QObject
     Q_PROPERTY(int unique_gene_count READ statUniqueGenes WRITE statUniqueGenes)
     Q_PROPERTY(QVariantList overall_hit_quartiles READ hitsQuartiles WRITE hitsQuartiles)
     Q_PROPERTY(QString comment READ statComments WRITE statComments)
+    Q_PROPERTY(bool enabled READ enabled WRITE enabled)
 
 public:
 
@@ -52,6 +53,7 @@ public:
     void statUniqueGenes(int unique_genes) { m_dataset.statUniqueGenes(unique_genes); }
     void hitsQuartiles(QVariantList hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
+    void enabled(const bool enabled) { m_dataset.enabled(enabled); }
 
     // read
     const QString id() { return m_dataset.id(); }
@@ -65,6 +67,7 @@ public:
     int statUniqueGenes() { return m_dataset.statUniqueGenes(); }
     const QVariantList hitsQuartiles() { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
     const QString statComments() { return m_dataset.statComments(); }
+    bool enabled() { return m_dataset.enabled(); }
 
     // get parsed data model
     const Dataset& dataset() const { return m_dataset; }

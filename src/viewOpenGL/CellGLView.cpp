@@ -67,18 +67,23 @@ CellGLView::CellGLView(QScreen *parent) :
     create();
 
     //TODO consider decoupling rubberband object and view
-    m_rubberband.reset(new RubberbandGL());
+    m_rubberband = new RubberbandGL();
     m_rubberband->setAnchor(Globals::Anchor::None);
 }
 
 CellGLView::~CellGLView()
 {
+    m_rubberband->deleteLater();
+    m_rubberband = nullptr;
+
+    m_context->deleteLater();
+    m_context = nullptr;
 }
 
 void CellGLView::resizeFromGeometry()
 {
     ensureContext();
-    if ( !m_initialized ) {
+    if (!m_initialized) {
         initializeGL();
     }
     const QRect rect = geometry();
@@ -100,7 +105,7 @@ void CellGLView::exposeEvent(QExposeEvent *event)
 {
     Q_UNUSED(event);
     ensureContext();
-    if ( !m_initialized ) {
+    if (!m_initialized) {
         initializeGL();
     }
     //paint
@@ -116,8 +121,8 @@ void CellGLView::resizeEvent(QResizeEvent *event)
 
 void CellGLView::ensureContext()
 {
-    if (!m_context) {
-        m_context.reset(new QOpenGLContext);
+    if (m_context.isNull()) {
+        m_context = new QOpenGLContext();
         m_context->setFormat(format);
         const bool success = m_context->create();
         qDebug() << "CellGLView, OpenGL context create = " << success;
@@ -157,7 +162,7 @@ void CellGLView::paintGL()
 
     //render nodes
     foreach(GraphicItemGL *node, m_nodes) {
-        if ( node->visible() ) {
+        if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
             if ( node->transformable() ) {
                 local_transform *= sceneTransformations();
@@ -248,7 +253,7 @@ void CellGLView::centerOn(const QPointF& point)
 
 void CellGLView::rotate(qreal angle)
 {
-    if ( angle >= -180.0 && angle <= 180.0 && m_rotate != angle ) {
+    if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle) {
         m_rotate += angle;
         STMath::clamp(m_rotate, -360.0, 360.0);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -258,7 +263,7 @@ void CellGLView::rotate(qreal angle)
 
 void CellGLView::setViewPort(const QRectF viewport)
 {
-    if ( m_viewport != viewport && viewport.isValid() ) {
+    if (m_viewport != viewport && viewport.isValid()) {
         m_viewport = viewport;
         emit signalViewPortUpdated(m_viewport);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -267,7 +272,7 @@ void CellGLView::setViewPort(const QRectF viewport)
 
 void CellGLView::setScene(const QRectF scene)
 {
-    if ( m_scene != scene && scene.isValid() ) {
+    if (m_scene != scene && scene.isValid()) {
         m_scene = scene;
         m_scene_focus_center_point = m_scene.center();
         Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
@@ -370,15 +375,15 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
                                             const QMouseEvent *event) {
     // notify nodes for rubberband
     foreach(GraphicItemGL *node, m_nodes) {
-        if ( node->rubberBandable() ) {
+        if (node->rubberBandable()) {
             QTransform node_trans = nodeTransformations(node);
-            if ( node->transformable() ) {
+            if (node->transformable()) {
                 node_trans *= sceneTransformations();
             }
             // map selected area to node cordinate system
             QRectF transformed = node_trans.inverted().mapRect(rubberBand);
             // if selection area is not inside the bounding rect select empty rect
-            if ( !node->boundingRect().contains(transformed) ) {
+            if (!node->boundingRect().contains(transformed)) {
                 transformed = QRectF();
             }
             // Set the new selection area
@@ -395,7 +400,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     const QPoint point = event->pos();
 
-    if ( event->button() == Qt::LeftButton && m_selecting && !m_rubberBanding ) {
+    if (event->button() == Qt::LeftButton && m_selecting && !m_rubberBanding) {
         // rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
         m_rubberBanding = true;
@@ -423,13 +428,14 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
             }
         }
     }
+
     event->ignore();
 }
 
 void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
     // first check if we are selecting
-    if ( event->button() == Qt::LeftButton && m_selecting && m_rubberBanding ) {
+    if (event->button() == Qt::LeftButton && m_selecting && m_rubberBanding) {
         unsetCursor();
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
@@ -451,13 +457,14 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, releaseType, nodeIsSelectable);
     }
+
     event->ignore();
 }
 
 void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     // first check if we are in selection mode
-    if ( event->buttons() & Qt::LeftButton && m_selecting && m_rubberBanding  ) {
+    if (event->buttons() & Qt::LeftButton && m_selecting && m_rubberBanding ) {
         // get rubberband
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
@@ -477,6 +484,7 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);
     }
+
     event->ignore();
 }
 
@@ -527,7 +535,7 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF center_point
     clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
     clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
 
-    if ( clamped_point != m_scene_focus_center_point ) {
+    if (clamped_point != m_scene_focus_center_point) {
         m_scene_focus_center_point = clamped_point;
         emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
@@ -588,7 +596,7 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
         break;
     }
 
-    if ( node->invertedX() || node->invertedY() ) {
+    if (node->invertedX() || node->invertedY()) {
         transform.scale(node->invertedX() ? -1.0 : 1.0, node->invertedY() ? -1.0 : 1.0);
     }
 

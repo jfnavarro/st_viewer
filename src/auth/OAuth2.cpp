@@ -34,7 +34,8 @@ OAuth2::OAuth2(QObject* parent)
 
 OAuth2::~OAuth2()
 {
-    //m_loginDialog is smart pointer
+    m_loginDialog->deleteLater();
+    m_loginDialog = nullptr;
 }
 
 void OAuth2::startQuietLogin(const QUuid& refreshToken)
@@ -49,11 +50,10 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
 void OAuth2::startInteractiveLogin()
 {
     // lazy init
-
-    if (!m_loginDialog.get()) {
-      m_loginDialog.reset(new LoginDialog());
-        connect(m_loginDialog.get(), SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
-        connect(m_loginDialog.get(), SIGNAL(acceptLogin(const QString&, const QString&)), this,
+    if (m_loginDialog.isNull()) {
+        m_loginDialog = new LoginDialog();
+        connect(m_loginDialog, SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
+        connect(m_loginDialog, SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
     //launch login dialog

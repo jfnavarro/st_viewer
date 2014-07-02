@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <QIODevice>
-#include <QSharedPointer>
 
 #include "SimpleCrypt.h"
 

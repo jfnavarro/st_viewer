@@ -49,6 +49,7 @@ bool ExtendedTabWidget::event(QEvent *event)
 ExtendedTabWidget::ExtendedTabWidget(QWidget *parent) :
     QWidget(parent),
     startpage(nullptr),
+    datasets(nullptr),
     cellview(nullptr),
     experiments(nullptr),
     stackWidget(nullptr),
@@ -88,6 +89,30 @@ ExtendedTabWidget::~ExtendedTabWidget()
     // exit last page
     const int index = currentIndex();
     tabChanged(-1, index);
+
+    startpage->deleteLater();
+    startpage = nullptr;
+
+    datasets->deleteLater();
+    datasets = nullptr;
+
+    cellview->deleteLater();
+    cellview = nullptr;
+
+    experiments->deleteLater();
+    experiments = nullptr;
+
+    stackWidget->deleteLater();
+    stackWidget = nullptr;
+
+    buttonGroup->deleteLater();
+    buttonGroup = nullptr;
+
+    layout->deleteLater();
+    layout = nullptr;
+
+    buttonLayout->deleteLater();
+    buttonLayout = nullptr;
 }
 
 QSize ExtendedTabWidget::sizeHint() const
