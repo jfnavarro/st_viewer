@@ -13,7 +13,7 @@
 #include "utils/Utils.h"
 
 void Heatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
-        int lowerbound, int upperbound)
+                                 int lowerbound, int upperbound)
 {
     const int h = image.height();
     const int w = image.width();

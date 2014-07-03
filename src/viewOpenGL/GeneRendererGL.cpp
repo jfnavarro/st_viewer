@@ -174,7 +174,7 @@ void GeneRendererGL::generateData()
         const QPointF point(feature->x(), feature->y());
 
         // test if point already exists
-        GeneInfoQuadTree::PointItem item( point, INVALID_INDEX );
+        GeneInfoQuadTree::PointItem item(point, INVALID_INDEX);
         m_geneInfoQuadTree.select(point, item);
 
         //if it exists
@@ -449,7 +449,7 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
     const int maxPixelValue = 255;
     //get the selected items
     const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
-    QMap<QString, GeneSelection::SelectionType> geneSelectionsMap;
+    QMap<QString, SelectionType> geneSelectionsMap;
     GeneSelection::selectedItemsList geneSelectionsList;
     foreach(DataProxy::FeaturePtr feature, features) {
         if (feature->selected()) {
@@ -463,8 +463,8 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         }
     }
 
-    QMap<QString, GeneSelection::SelectionType>::const_iterator it = geneSelectionsMap.begin();
-    QMap<QString, GeneSelection::SelectionType>::const_iterator end = geneSelectionsMap.end();
+    QMap<QString, SelectionType>::const_iterator it = geneSelectionsMap.begin();
+    QMap<QString, SelectionType>::const_iterator end = geneSelectionsMap.end();
     for( ; it != end; ++it) {
         const int count = it.value().count;
         //TODO consider dividing reads by counts too
@@ -474,7 +474,7 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         const qreal adjustedNormalizedPixelIntensity = it.value().pixeIntensity /
                 static_cast<qreal>(maxPixelValue * count);
         const QString gene = it.key();
-        geneSelectionsList.append(GeneSelection::SelectionType(gene, reads,
+        geneSelectionsList.append(SelectionType(gene, reads,
                                                 adjustedNormalizedReads, adjustedNormalizedPixelIntensity));
     }
 

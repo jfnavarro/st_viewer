@@ -22,6 +22,26 @@
 #include "viewPages/CellViewPage.h"
 #include "viewPages/ExperimentPage.h"
 
+ExtendedButtonGroup::ExtendedButtonGroup(QWidget *parent) : QButtonGroup(parent)
+{
+
+}
+
+void ExtendedButtonGroup::mousePressEvent(QMouseEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedButtonGroup::KeyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedButtonGroup::wheelEvent(QWheelEvent *event)
+{
+    event->ignore();
+}
+
 bool ExtendedButtonGroup::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
@@ -30,20 +50,44 @@ bool ExtendedButtonGroup::event(QEvent *event)
     return QButtonGroup::event(event);
 }
 
+ExtendedButton::ExtendedButton(QWidget* parent) : QPushButton(parent)
+{
+
+}
+
+ExtendedButton::ExtendedButton(const QString &text, QWidget *parent)
+    : QPushButton(text, parent)
+{
+
+}
+
+ExtendedButton::ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent)
+    : QPushButton(icon, text, parent)
+{
+
+}
+
+void ExtendedButton::mousePressEvent(QMouseEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedButton::KeyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedButton::wheelEvent(QWheelEvent *event)
+{
+    event->ignore();
+}
+
 bool ExtendedButton::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
         return true;
     }
     return QPushButton::event(event);
-}
-
-bool ExtendedTabWidget::event(QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
-        return true;
-    }
-    return QWidget::event(event);
 }
 
 ExtendedTabWidget::ExtendedTabWidget(QWidget *parent) :
@@ -256,4 +300,28 @@ void ExtendedTabWidget::resetStatus()
     for (int index = currentIndex(); index > 0; --index) {
         tabChanged(index - 1, index);
     }
+}
+
+void ExtendedTabWidget::mousePressEvent(QMouseEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedTabWidget::KeyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+void ExtendedTabWidget::wheelEvent(QWheelEvent *event)
+{
+    event->ignore();
+}
+
+bool ExtendedTabWidget::event(QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
+        event->ignore();
+        return true;
+    }
+    return QWidget::event(event);
 }

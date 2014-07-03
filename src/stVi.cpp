@@ -73,16 +73,16 @@ namespace {
 }
 
 stVi::stVi(QWidget* parent): QMainWindow(parent),
-    actionExit(nullptr),
-    actionHelp(nullptr),
-    actionVersion(nullptr),
-    actionAbout(nullptr),
-    actionClear_Cache(nullptr),
-    menuLoad(nullptr),
-    menuHelp(nullptr),
-    centralwidget(nullptr),
-    mainlayout(nullptr),
-    mainTab(nullptr)
+    m_actionExit(nullptr),
+    m_actionHelp(nullptr),
+    m_actionVersion(nullptr),
+    m_actionAbout(nullptr),
+    m_actionClear_Cache(nullptr),
+    m_menuLoad(nullptr),
+    m_menuHelp(nullptr),
+    m_centralwidget(nullptr),
+    m_mainlayout(nullptr),
+    m_mainTab(nullptr)
 {
     //init single instances (this must be done the very very first)       
     initSingleInstances();
@@ -91,6 +91,34 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
 stVi::~stVi()
 {
     finalizeSingleInstances();
+
+    m_actionExit->deleteLater();
+    m_actionExit = nullptr;
+
+    m_actionHelp->deleteLater();
+    m_actionHelp = nullptr;
+
+    m_actionVersion->deleteLater();
+    m_actionVersion = nullptr;
+
+    m_actionAbout->deleteLater();
+    m_actionAbout = nullptr;
+
+    m_menuLoad->deleteLater();
+    m_menuLoad = nullptr;
+
+    m_menuHelp->deleteLater();
+    m_menuHelp = nullptr;
+
+    m_centralwidget->deleteLater();
+    m_centralwidget = nullptr;
+
+    m_mainlayout->deleteLater();
+    m_mainlayout = nullptr;
+
+    m_mainTab->deleteLater();
+    m_mainTab = nullptr;
+
 }
 
 void stVi::init()
@@ -186,45 +214,45 @@ void stVi::setupUi()
     setMinimumSize(QSize(1024, 768));
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
-    actionExit = new QAction(this);
-    actionHelp = new QAction(this);
-    actionVersion = new QAction(this);
-    actionAbout = new QAction(this);
-    actionClear_Cache = new QAction(this);
+    m_actionExit = new QAction(this);
+    m_actionHelp = new QAction(this);
+    m_actionVersion = new QAction(this);
+    m_actionAbout = new QAction(this);
+    m_actionClear_Cache = new QAction(this);
 
-    centralwidget = new QWidget(this);
+    m_centralwidget = new QWidget(this);
 
-    mainlayout = new QVBoxLayout(centralwidget);
-    mainTab = new ExtendedTabWidget(centralwidget);
-    mainlayout->addWidget(mainTab);
-    setCentralWidget(centralwidget);
+    m_mainlayout = new QVBoxLayout(m_centralwidget);
+    m_mainTab = new ExtendedTabWidget(m_centralwidget);
+    m_mainlayout->addWidget(m_mainTab);
+    setCentralWidget(m_centralwidget);
 
     QStatusBar *statusbar = new QStatusBar(this);
     setStatusBar(statusbar);
 
     QMenuBar *menubar = new QMenuBar(this);
     menubar->setNativeMenuBar(true);
-    menubar->setGeometry(QRect(0, 0, 1217, 22));
+    menubar->setGeometry(QRect(0, 0, 1024, 22));
 
-    menuLoad = new QMenu(menubar);
-    menuHelp = new QMenu(menubar);
+    m_menuLoad = new QMenu(menubar);
+    m_menuHelp = new QMenu(menubar);
 
     setMenuBar(menubar);
 
-    menubar->addAction(menuLoad->menuAction());
-    menubar->addAction(menuHelp->menuAction());
-    menuLoad->addSeparator();
-    menuLoad->addAction(actionExit);
-    menuLoad->addAction(actionClear_Cache);
-    menuHelp->addAction(actionAbout);
+    menubar->addAction(m_menuLoad->menuAction());
+    menubar->addAction(m_menuHelp->menuAction());
+    m_menuLoad->addSeparator();
+    m_menuLoad->addAction(m_actionExit);
+    m_menuLoad->addAction(m_actionClear_Cache);
+    m_menuHelp->addAction(m_actionAbout);
 
-    actionExit->setText(QApplication::translate("MainWindow", "&Exit", 0));
-    actionHelp->setText(QApplication::translate("MainWindow", "Help", 0));
-    actionVersion->setText(QApplication::translate("MainWindow", "Version", 0));
-    actionAbout->setText(QApplication::translate("MainWindow", "&About...", 0));
-    actionClear_Cache->setText(QApplication::translate("MainWindow", "Clear Cache", 0));
-    menuLoad->setTitle(QApplication::translate("MainWindow", "File", 0));
-    menuHelp->setTitle(QApplication::translate("MainWindow", "About", 0));
+    m_actionExit->setText(tr("Exit"));
+    m_actionHelp->setText(tr("Help"));
+    m_actionVersion->setText(tr("Version"));
+    m_actionAbout->setText(tr("About..."));
+    m_actionClear_Cache->setText(tr("Clear Cache"));
+    m_menuLoad->setTitle(tr("File"));
+    m_menuHelp->setTitle(tr("About"));
 
     QMetaObject::connectSlotsByName(this);
 }
@@ -272,7 +300,7 @@ void stVi::slotClearCache()
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Cleaaring the cache...";
         DataProxy::getInstance()->cleanAll();
-        mainTab->resetStatus();
+        m_mainTab->resetStatus();
     }
 }
 
@@ -317,17 +345,17 @@ void stVi::initStyle()
 void stVi::createShorcuts()
 {
 #if defined(Q_OS_WIN)
-    actionExit->setShortcuts(QList<QKeySequence>()
+    m_actionExit->setShortcuts(QList<QKeySequence>()
                              << QKeySequence(Qt::ALT | Qt::Key_F4)
                              << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
-    actionExit->setShortcut(QKeySequence::Quit);
+    m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
 
 #if defined Q_OS_MAC
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
-    actionExit->setShortcut(QKeySequence("Ctrl+W"));
+    m_actionExit->setShortcut(QKeySequence("Ctrl+W"));
 #endif
 }
 
@@ -356,11 +384,11 @@ void stVi::finalizeSingleInstances()
 void stVi::createConnections()
 {
     //exit and print action
-    connect(actionExit, SIGNAL(triggered(bool)), this, SLOT(slotExit()));
+    connect(m_actionExit, SIGNAL(triggered(bool)), this, SLOT(slotExit()));
     //clear cache action
-    connect(actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
+    connect(m_actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
     //signal that shows the about dialog
-    connect(actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 }
 
 void stVi::closeEvent(QCloseEvent* event)

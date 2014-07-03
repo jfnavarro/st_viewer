@@ -41,11 +41,16 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_clearSelection->setToolTip(tr("Remove the current selection"));
     selectionBottonsLayout->addWidget(m_clearSelection);
 
+    //add separation and stretch in between the search box
+    selectionBottonsLayout->addSpacing(5);
+    selectionBottonsLayout->addStretch(5);
+
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
     m_geneSelectionFilterLineEdit->setFixedSize(200, 20);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
+    m_geneSelectionFilterLineEdit->setToolTip(tr("Search by gene name..."));
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
-    selectionBottonsLayout->addStretch(1);
+    selectionBottonsLayout->setAlignment(m_geneSelectionFilterLineEdit, Qt::AlignRight);
 
     selectionLayout->addLayout(selectionBottonsLayout);
 

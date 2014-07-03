@@ -16,7 +16,7 @@ Page::Page(QWidget *parent) :
     m_timer(nullptr),
     m_steps(0)
 {
-    m_progressDialog= new QProgressDialog("Downloading data.", "Cancel", 0, 200, this);
+    m_progressDialog= new QProgressDialog("Downloading data...", "Cancel", 0, 100, this);
     m_progressDialog->setWindowModality(Qt::ApplicationModal);
     //TODO remove max/min buttons
     //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
@@ -25,7 +25,7 @@ Page::Page(QWidget *parent) :
     m_progressDialog->setAutoClose(false);
     //TODO implement abort logic
     //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
-    m_timer = new QTimer(this);
+    m_timer = new QTimer();
     connect(m_timer, SIGNAL(timeout()), this, SLOT(increaseBar()));
 }
 
@@ -49,6 +49,7 @@ void Page::setWaiting(bool waiting)
         m_timer->start(100);
     } else {
         m_timer->stop();
+        m_progressDialog->cancel();
         m_progressDialog->hide();
     }
 }

@@ -24,14 +24,14 @@ class DatasetItemModel : public QAbstractTableModel
 public:
 
     enum Column {
-        Name,
-        Tissue,
-        Specie,
-        Barcodes,
-        Genes,
-        UBarcodes,
-        UGenes,
-        Comments
+        Name = 0,
+        Tissue = 1,
+        Specie = 2,
+        Barcodes = 3,
+        Genes = 4,
+        UBarcodes = 5,
+        UGenes = 6,
+        Comments = 7
     };
 
     explicit DatasetItemModel(QObject* parent = 0);

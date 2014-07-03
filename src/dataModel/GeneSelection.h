@@ -4,6 +4,27 @@
 #include <QString>
 #include <QVector>
 
+//Selection Type is a container meant to be used
+//to store aggregated selections
+//TODO defined operator+  and operator<
+class SelectionType {
+
+public:
+
+    SelectionType();
+    SelectionType(QString name, int reads, qreal
+                  normalizedReads = 0, qreal pixeIntensity = 0);
+
+    SelectionType& operator= (const SelectionType& other);
+    bool operator== (const SelectionType& other) const;
+
+    QString name;
+    int reads;
+    qreal normalizedReads;
+    qreal pixeIntensity;
+    int count;
+};
+
 //Gene selection represents a selection of genes
 //made by the user trough the UI.
 //Gene selections are meant to be stored and shown
@@ -12,45 +33,6 @@ class GeneSelection
 {
 
 public:
-
-    //TODO move definition to cpp
-    //TODO defined operator+  and operator<
-    //TODO make it a class
-    struct SelectionType {
-
-        SelectionType() : name(), reads(0), normalizedReads(0), pixeIntensity(0), count(0) {}
-
-        SelectionType(QString name, int reads,
-                      qreal normalizedReads = 0, qreal pixeIntensity = 0)
-            : name(name), reads(reads),
-              normalizedReads(normalizedReads), pixeIntensity(pixeIntensity), count(0) {}
-
-        SelectionType& operator= (const SelectionType& other)
-        {
-            name = other.name;
-            reads = other.reads;
-            normalizedReads = other.normalizedReads;
-            pixeIntensity = other.pixeIntensity;
-            count = other.count;
-            return (*this);
-        }
-
-        bool operator== (const SelectionType& other) const
-        {
-            return( name == other.name &&
-                      reads == other.reads &&
-                      normalizedReads == other.normalizedReads &&
-                      pixeIntensity == other.pixeIntensity &&
-                      count == other.count
-                );
-        }
-
-        QString name;
-        int reads;
-        qreal normalizedReads;
-        qreal pixeIntensity;
-        int count;
-    };
 
     typedef QVector<SelectionType> selectedItemsList;
 

@@ -151,6 +151,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     // menu gene plotter actions
     m_menu_genePlotter = new QMenu(this);
     m_menu_genePlotter->setTitle(tr("Gene Plotter"));
+    m_menu_genePlotter->setToolTip(tr("Tools for visualization of genes"));
     m_menu_genePlotter->addAction(m_actionShow_showGrid);
     m_menu_genePlotter->addAction(m_actionShow_showGenes);
     m_menu_genePlotter->addSeparator();
@@ -221,6 +222,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     // cell tissue menu
     m_menu_cellTissue = new QMenu(this);
     m_menu_cellTissue->setTitle(tr("Cell Tissue"));
+    m_menu_cellTissue->setToolTip(tr("Tools for  visualization of the cell tissue"));
 
     m_menu_cellTissue->addAction(m_actionShow_showMiniMap);
     m_menu_cellTissue->addAction(m_actionShow_showLegend);
@@ -275,6 +277,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     toolButtonCell->setText(tr("Configuration of Cell Tissue"));
     addWidget(toolButtonCell);
     addSeparator();
+
+    //TODO add some space between the button and the rest
 
     //next button
     addAction(m_actionNavigate_goNext);
@@ -354,8 +358,10 @@ void CellViewPageToolBar::createActions()
     //zomming
     m_actionZoom_zoomIn =
             new QAction(QIcon(QStringLiteral(":/images/Zoom-In-icon.png")), tr("Zoom &In"), this);
+    m_actionZoom_zoomIn->setToolTip(tr("Increases the zoom level in the cell tissue"));
     m_actionZoom_zoomOut =
             new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
+    m_actionZoom_zoomOut->setToolTip(tr("Decreases the zoom level in the cell tissue"));
 
     //cell tissue controls
     m_actionShow_cellTissueBlue =
@@ -371,7 +377,7 @@ void CellViewPageToolBar::createActions()
     // navigation push buttons
     createPushButton(tr("Back"), tr("Go back to Dataset Page"), QIcon(QStringLiteral(":/images/back.png")),
                      this, &m_actionNavigate_goBack, &m_buttonNavigate_goBack);
-    createPushButton(tr("Next"), tr("Go to Analyzation Page"), QIcon(QStringLiteral(":/images/next.png")),
+    createPushButton(tr("Next"), tr("Go to Analysis Page"), QIcon(QStringLiteral(":/images/next.png")),
                      this, &m_actionNavigate_goNext, &m_buttonNavigate_goNext);
 
     //color modes
@@ -427,15 +433,19 @@ void CellViewPageToolBar::createActions()
      //save print
     m_actionSave_save =
             new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
+    m_actionSave_save->setToolTip(tr("Save the cell tissue canvas into a file"));
     m_actionSave_print =
             new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
+    m_actionSave_print->setToolTip(tr("Print the cell tissue canvas"));
 
     //selection actions
     m_actionActivateSelectionMode =
             new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
     m_actionActivateSelectionMode->setCheckable(true);
+    m_actionActivateSelectionMode->setToolTip(tr("Activates/desactivates the selection mode"));
     m_actionSelection_showSelectionDialog =
             new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
+    m_actionSelection_showSelectionDialog->setToolTip(tr("Shows a dialog to select genes by Reg. Exp."));
 
     // color dialogs
     m_actionColor_selectColorGenes =

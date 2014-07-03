@@ -26,40 +26,39 @@ class QHBoxLayout;
 class Error;
 
 //this class extends QButtonGroup to unable the mouse events
+//TODO move to a separate class
 class ExtendedButtonGroup : public QButtonGroup
 {
 
 public:
 
-    explicit ExtendedButtonGroup(QWidget* parent = 0) : QButtonGroup(parent){}
+    explicit ExtendedButtonGroup(QWidget* parent = 0);
 
 protected:
-
-    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
-    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
-    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
-    virtual bool event(QEvent *event);
+    //we do not want the user to interact with the buttons
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void KeyPressEvent(QKeyEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
+    bool event(QEvent *event) override;
 };
 
  //this class extends QPushButton to unable the mouse events
+//TODO move to a separate class
 class ExtendedButton : public QPushButton
 {
 
 public:
 
-    explicit ExtendedButton(QWidget* parent = 0) :
-        QPushButton(parent) {}
-    ExtendedButton(const QString &text, QWidget *parent = 0) :
-        QPushButton(text, parent) {}
-    ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0):
-        QPushButton(icon, text, parent) {}
+    explicit ExtendedButton(QWidget* parent = 0);
+    ExtendedButton(const QString &text, QWidget *parent = 0);
+    ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0);
 
 protected:
-
-    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
-    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
-    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
-    virtual bool event(QEvent *event);
+    //we do not want the user to interact with the buttons
+    void mousePressEvent(QMouseEvent *event) override;
+    virtual void KeyPressEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent *event) override;
+    bool event(QEvent *event) override;
 
 };
 
@@ -92,11 +91,11 @@ signals:
     void currentIndexChanged(int index);
 
 protected:
-
-    virtual void mousePressEvent(QMouseEvent *event) { event->ignore(); }
-    virtual void KeyPressEvent(QKeyEvent *event) { event->ignore(); }
-    virtual void wheelEvent(QWheelEvent *event) { event->ignore(); }
-    virtual bool event(QEvent *event);
+    //we do not want the user to interact with the buttons
+    void mousePressEvent(QMouseEvent *event) override;
+    virtual void KeyPressEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent *event) override;
+    bool event(QEvent *event) override;
 
 private:
 

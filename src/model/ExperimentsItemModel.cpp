@@ -33,7 +33,7 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+    if (role == Qt::DisplayRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(!item.isNull());
         switch (index.column()) {
@@ -47,8 +47,7 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         case Comment: return item->comment();
         case Type: return item->type();
         case NGenes: return QString(item->selectedItems().size());
-        default:
-            return QVariant(QVariant::Invalid);
+        default: return QVariant(QVariant::Invalid);
         }
     }
 
@@ -58,10 +57,6 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
 QVariant ExperimentsItemModel::headerData(int section,
                                             Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant(QVariant::Invalid);
-    }
-
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Name");
@@ -69,15 +64,21 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Comment: return tr("Comment");
         case Type: return tr("Type");
         case NGenes: return tr("Number Genes");
-        default:
-            return QVariant(QVariant::Invalid);
+        default: return QVariant(QVariant::Invalid);
         }
     }
     else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        // return row number as label
-        QVariant value(QVariant::Int);
-        value = section + 1;
-        return value;
+        return (section + 1);
+    }
+    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+        switch (section) {
+        case Name: return tr("The name of the selection");
+        case Dataset: return tr("The dataset name where the selection was made");
+        case Comment: return tr("The comments made on the selection");
+        case Type: return tr("The type of selection");
+        case NGenes: return tr("The number of unique genes present in the selection");
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     // return invalid value

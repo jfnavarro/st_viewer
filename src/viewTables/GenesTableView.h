@@ -8,7 +8,7 @@
 #define GENESTABLEVIEW_H
 
 #include <QTableView>
-#include <QItemSelection>
+#include <QPointer>
 
 class GeneFeatureItemModel;
 class SortGenesProxyModel;
@@ -28,14 +28,10 @@ public slots:
 
     void setGeneNameFilter(QString);
 
-    void reset() override;
-
 private:
 
-    void createColorComboBoxes();
-
-    GeneFeatureItemModel *m_geneModel;
-    SortGenesProxyModel *m_sortGenesProxyModel;
+    QPointer<GeneFeatureItemModel> m_geneModel;
+    QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };

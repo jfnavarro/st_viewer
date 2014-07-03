@@ -49,7 +49,7 @@ private:
 
     void adjustScrollBars();
 
-    //TOFIX magic number?
+    //TODO magic number?
     static const int m_scrollBarSteps = 100000;
 
     QPointer<CellGLView> m_view;

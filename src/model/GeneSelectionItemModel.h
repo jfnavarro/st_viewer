@@ -53,8 +53,6 @@ public slots:
 
 private:
 
-    static const int COLUMN_NUMBER = 4;
-
     GeneSelection::selectedItemsList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)

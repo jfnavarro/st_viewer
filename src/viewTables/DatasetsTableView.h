@@ -9,6 +9,7 @@
 #define DATASETSTABLEVIEW_H
 
 #include <QTableView>
+#include <QPointer>
 
 class DatasetItemModel;
 
@@ -23,7 +24,7 @@ public:
 
 private:
 
-    DatasetItemModel *m_datasetModel;
+    QPointer<DatasetItemModel> m_datasetModel;
 
     Q_DISABLE_COPY(DatasetsTableView)
 };

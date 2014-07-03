@@ -12,18 +12,11 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneFeatureItemModel.h"
 
-#include "viewTables/BooleanItemDelegate.h"
-#include "viewTables/ColorItemDelegate.h"
-
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent),
       m_geneModel(nullptr),
       m_sortGenesProxyModel(nullptr)
 {
-    // item delegates
-    BooleanItemDelegate *booleanItemDelegate = new BooleanItemDelegate(this);
-    ColorItemDelegate *colorItemDelegate = new ColorItemDelegate(this);
-
     // model
     m_geneModel = new GeneFeatureItemModel(this);
     
@@ -37,11 +30,8 @@ GenesTableView::GenesTableView(QWidget *parent)
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
-    sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(GeneFeatureItemModel::Name, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
-
-    setItemDelegateForColumn(GeneFeatureItemModel::Show, booleanItemDelegate);
-    setItemDelegateForColumn(GeneFeatureItemModel::Color, colorItemDelegate);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
@@ -61,22 +51,11 @@ GenesTableView::GenesTableView(QWidget *parent)
 
 GenesTableView::~GenesTableView()
 {
+    m_geneModel->deleteLater();
+    m_geneModel = nullptr;
 
-}
-
-void GenesTableView::createColorComboBoxes()
-{
-    const int rows =  m_geneModel->rowCount();
-    for (int i = 0; i < rows ; ++i) {
-       auto index = m_geneModel->index(i, GeneFeatureItemModel::Color);
-       Q_ASSERT(index.isValid());
-       openPersistentEditor(m_sortGenesProxyModel->mapFromSource(index));
-    }
-}
-
-void GenesTableView::reset()
-{
-    createColorComboBoxes();
+    m_sortGenesProxyModel->deleteLater();
+    m_sortGenesProxyModel = nullptr;
 }
 
 QItemSelection GenesTableView::geneTableItemSelection() const

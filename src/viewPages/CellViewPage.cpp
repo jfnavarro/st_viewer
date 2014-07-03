@@ -54,7 +54,8 @@ CellViewPage::CellViewPage(QWidget *parent)
       m_grid(nullptr),
       m_view(nullptr),
       m_colorDialogGrid(nullptr),
-      m_toolBar(nullptr)
+      m_toolBar(nullptr),
+      ui(nullptr)
 {
     onInit();
 }
@@ -74,7 +75,7 @@ CellViewPage::~CellViewPage()
 void CellViewPage::onInit()
 {
     //create UIobjects
-    ui = new Ui::CellView;
+    ui = new Ui::CellView();
     ui->setupUi(this);
 
     // color dialogs
@@ -97,7 +98,7 @@ void CellViewPage::onInit()
 
 void CellViewPage::onEnter()
 {
-    //setWaiting(true);
+    setWaiting(true);
 
     if (!loadData()) {
         //TODO do something here,
@@ -156,15 +157,16 @@ void CellViewPage::onEnter()
     resetActionStates();
 
     //loading finished
-    //setWaiting(false);
+    setWaiting(false);
 }
 
 void CellViewPage::onExit()
 {
-    //TODO implement clear focus/data for genesWidget and selectionsWidget
+    ui->genesWidget->clearFocus();
+    ui->selectionsWidget->clearFocus();
     m_gene_plotter->clearData();
     m_grid->clearData();
-    //TODO implement these two
+    //TODO implement the clear for legend and minimap
     //m_legend->clearData();
     //m_minimap->clearData();
     m_image->clear();
@@ -311,10 +313,6 @@ void CellViewPage::resetActionStates()
     // load data for gene model (NOTE move to onEnter() ? )
     ui->genesWidget->slotLoadModel();
 
-    // reset gene colors and selection (TODO these are not workign since nothing is selected)
-    //ui->genesWidget->slotSetColorAllSelected(Globals::DEFAULT_COLOR_GENE);
-    //ui->genesWidget->slotSetVisibilityForSelectedRows(false);
-
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);
 
@@ -361,8 +359,8 @@ void CellViewPage::initGLView()
     ui->area->initializeView(m_view);
 
     // Setting stretch factors in the QSplitter to make the opengl window occupy more space
-    ui->gridLayout->setStretchFactor(0, 1);
-    ui->gridLayout->setStretchFactor(1, 5);
+    ui->gridLayout->setStretchFactor(0, 0);
+    ui->gridLayout->setStretchFactor(1, 8);
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);
@@ -639,8 +637,8 @@ void CellViewPage::slotSaveSelection()
 
         // get selected features
         const auto& geneSelection = m_gene_plotter->getSelectedIItems();
-        //create the selection object
 
+        //create the selection object
         GeneSelection selection;
         selection.name(createSelection->getName());
         selection.comment(createSelection->getComment());

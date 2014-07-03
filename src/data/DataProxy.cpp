@@ -601,6 +601,7 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     cmd->addQueryItem("name", dto.name());
     cmd->addQueryItem("account_id", dto.userId());
     cmd->addQueryItem("dataset_id", dto.datasetId());
+    qDebug() << "Saving selection, selected items " << dto.selectedItems();
     cmd->addQueryItem("gene_hits", QVariant(dto.selectedItems()).toString());
     cmd->addQueryItem("type", dto.type());
     cmd->addQueryItem("status", dto.status());

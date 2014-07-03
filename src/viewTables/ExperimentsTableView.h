@@ -2,6 +2,7 @@
 #define EXPERIMENTSTABLEVIEW_H
 
 #include <QTableView>
+#include <QPointer>
 
 class ExperimentsItemModel;
 
@@ -15,7 +16,7 @@ public:
 
 private:
 
-    ExperimentsItemModel *m_experimentModel;
+    QPointer<ExperimentsItemModel> m_experimentModel;
 
     Q_DISABLE_COPY(ExperimentsTableView)
 };

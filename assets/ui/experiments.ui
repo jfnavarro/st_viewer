@@ -43,10 +43,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
-        <string>Go back to Start Page</string>
+        <string>Go back to the previous page</string>
        </property>
        <property name="statusTip">
-        <string>Go back to Start Page</string>
+        <string>Go back to the previous page</string>
        </property>
        <property name="text">
         <string>Back</string>
@@ -137,6 +137,9 @@
          <height>50</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Export the selected selections</string>
+       </property>
        <property name="text">
         <string>Export</string>
        </property>
@@ -159,6 +162,9 @@
          <width>100</width>
          <height>50</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Remove the selected selections</string>
        </property>
        <property name="text">
         <string>Remove</string>

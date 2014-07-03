@@ -18,7 +18,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-Q_DECLARE_METATYPE(GeneSelection::SelectionType)
+Q_DECLARE_METATYPE(SelectionType)
 
 class GeneSelectionDTO : public QObject
 {
@@ -49,7 +49,7 @@ public:
     const QString userId() { return m_geneSelection.userId(); }
     const QString datasetId() { return m_geneSelection.datasetId(); }
     const QVariantList selectedItems()
-      { return serializeGeneSelection(m_geneSelection.selectedItems()); }
+      { return serializeVector<SelectionType>(m_geneSelection.selectedItems()); }
     const QString type() { return m_geneSelection.type(); }
     const QString status() { return m_geneSelection.status(); }
     const QVariantList oboFoundryTerms()
@@ -64,7 +64,7 @@ public:
     void userId(const QString& userId) { m_geneSelection.userId(userId); }
     void datasetId(const QString& datasetId) { m_geneSelection.datasetId(datasetId); }
     void selectedItems(const QVariantList& selectedItems)
-      { m_geneSelection.selectedItems(unserializeVector<GeneSelection::SelectionType>(selectedItems)); }
+      { m_geneSelection.selectedItems(unserializeVector<SelectionType>(selectedItems)); }
     void type(const QString& type) { m_geneSelection.type(type); }
     void status(const QString& status) { m_geneSelection.status(status); }
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
@@ -85,21 +85,7 @@ private:
     {
         QVariantList newList;
         foreach( const N &item, unserializedVector.toList() ) {
-            newList << item;
-        }
-        return newList;
-    }
-
-    //TODO try to do this in the function above with templates
-    const QVariantList serializeGeneSelection(
-            const QVector<GeneSelection::SelectionType> &unserializedVector) const
-    {
-        QVariantList newList;
-        foreach( const GeneSelection::SelectionType &item, unserializedVector.toList() ) {
-            QVariantList pair;
-            pair << item.name;
-            pair << item.reads;
-            newList << pair;
+            newList << QVariant::fromValue(item);
         }
         return newList;
     }

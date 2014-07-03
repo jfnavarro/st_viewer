@@ -20,7 +20,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     setModel(sortProxyModel);
     setSortingEnabled(true);
 
-    sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(ExperimentsItemModel::Name, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
 
     resizeColumnsToContents();
@@ -34,7 +34,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
 
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::Interactive);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);
@@ -46,5 +46,6 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
 
 ExperimentsTableView::~ExperimentsTableView()
 {
-
+    m_experimentModel->deleteLater();
+    m_experimentModel = nullptr;
 }

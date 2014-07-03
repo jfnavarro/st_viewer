@@ -66,7 +66,7 @@ void GeneExporter::exportStrings(QTextStream &otxt, const QStringList &strings) 
 }
 
 void GeneExporter::exportItem(QTextStream &otxt,
-                              const GeneSelection::SelectionType& selection) const
+                              const SelectionType& selection) const
 {
     const qreal reads = selection.reads;
     const qreal normalizedReads = selection.normalizedReads;
@@ -96,7 +96,7 @@ void GeneExporter::exportItem(QTextStream &otxt,
         exportStrings(otxt, list);
     }
 
-    foreach(const GeneSelection::SelectionType &selection, selectionList) {
+    foreach(const SelectionType &selection, selectionList) {
         exportItem(otxt, selection);
     }
 }

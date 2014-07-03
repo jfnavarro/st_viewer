@@ -9,6 +9,8 @@
 #include <QDebug>
 #include "dataModel/GeneSelection.h"
 
+ static const int COLUMN_NUMBER = 4;
+
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
@@ -26,13 +28,23 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
+    const SelectionType& item = m_geneselection.at(index.row());
+
+    if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name: return item.name;
         case Hits: return item.reads;
         case NormalizedHits: return QString::number(item.normalizedReads, 'f', 2);
         case PixelItensity: return QString::number(item.pixeIntensity, 'f', 2);
+        default: return QVariant(QVariant::Invalid);
+        }
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        switch (index.column()) {
+        case Hits: return Qt::AlignRight;
+        case NormalizedHits: return Qt::AlignRight;
+        case PixelItensity: return Qt::AlignRight;
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -43,23 +55,25 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
 QVariant GeneSelectionItemModel::headerData(int section,
                                             Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant(QVariant::Invalid);
-    }
-
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Name");
         case Hits: return tr("Reads");
-        case NormalizedHits: return tr("Normalized Reads");
-        case PixelItensity: return tr("Pixel Intensity");
+        case NormalizedHits: return tr("N. Reads");
+        case PixelItensity: return tr("P. Intensity");
         default: return QVariant(QVariant::Invalid);
         }
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        // return row number as label
-        QVariant value(QVariant::Int);
-        value = section + 1;
-        return value;
+        return (section + 1);
+    }
+    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+        switch (section) {
+        case Name: return tr("The name of the gene");
+        case Hits: return tr("The aggregated number of reads");
+        case NormalizedHits: return tr("The normalized aggregated number of reads");
+        case PixelItensity: return tr("The normalized pixel intensity");
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     // return invalid value
@@ -78,7 +92,7 @@ bool GeneSelectionItemModel::geneName(const QModelIndex &index, QString *genenam
         return false;
     }
 
-    const GeneSelection::SelectionType& item = m_geneselection.at(index.row());
+    const SelectionType& item = m_geneselection.at(index.row());
     if (index.column() == Name) {
          *genename = item.name;
          return true;

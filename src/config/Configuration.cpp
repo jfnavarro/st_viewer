@@ -23,7 +23,8 @@ Configuration::Configuration()
 
 Configuration::~Configuration()
 {
-    //no need to delete m_settings
+    m_settings->deleteLater();
+    m_settings = nullptr;
 }
 
 const QString Configuration::readSetting(const QString& key) const

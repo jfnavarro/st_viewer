@@ -13,6 +13,7 @@
 #include <QSettings>
 
 // Import/Export plug-in for saving settings data in an XML format.
+//TODO replace for namespace and remove the class
 class SettingsFormatXML
 {
 

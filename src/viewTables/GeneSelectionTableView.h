@@ -8,6 +8,7 @@
 #define GENESELECTIONTABLEVIEW_H
 
 #include <QTableView>
+#include <QPointer>
 
 class GeneSelectionItemModel;
 class SortGenesProxyModel;
@@ -29,8 +30,8 @@ public slots:
 
 private:
 
-    GeneSelectionItemModel *m_geneSelectionModel;
-    SortGenesProxyModel *m_sortGenesProxyModel;
+    QPointer<GeneSelectionItemModel> m_geneSelectionModel;
+    QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)
 };

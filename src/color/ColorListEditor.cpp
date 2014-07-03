@@ -33,7 +33,7 @@ const QColor ColorListEditor::color() const
 void ColorListEditor::setColor(const QColor& color)
 {
     const int res = findData(color, Qt::UserRole);
-    Q_ASSERT(res != -1); // Would indicate programming error.
+    Q_ASSERT(res != -1);
     setCurrentIndex(res);
 }
 

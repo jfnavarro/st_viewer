@@ -28,7 +28,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     setModel(sortProxyModel);
     setSortingEnabled(true);
 
-    sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(DatasetItemModel::Name, Qt::AscendingOrder);
 
     horizontalHeader()->setSortIndicatorShown(true);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::Interactive);
@@ -55,5 +55,6 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
 
 DatasetsTableView::~DatasetsTableView()
 {
-
+    m_datasetModel->deleteLater();
+    m_datasetModel = nullptr;
 }

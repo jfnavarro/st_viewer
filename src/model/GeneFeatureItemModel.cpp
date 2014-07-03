@@ -33,16 +33,36 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-        Q_ASSERT(!item.isNull());
+    DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+    Q_ASSERT(!item.isNull());
+
+    if (role == Qt::DisplayRole ) {
         switch (index.column()) {
         case Name: return item->name();
+        default: return QVariant(QVariant::Invalid);
+        }
+    }
+
+    if (role == Qt::CheckStateRole) {
+        switch (index.column()) {
         case Show: return item->selected() ? Qt::Checked : Qt::Unchecked;
+        default: return QVariant(QVariant::Invalid);
+        }
+    }
+
+    if (role == Qt::DecorationRole) {
+        switch (index.column()) {
         case Color: return item->color();
         default: return QVariant(QVariant::Invalid);
         }
+    }
 
+    if (role == Qt::TextAlignmentRole) {
+        switch (index.column()) {
+        case Show: return Qt::AlignCenter;
+        case Color: return Qt::AlignCenter;
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     return QVariant(QVariant::Invalid);
@@ -51,10 +71,6 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 QVariant GeneFeatureItemModel::headerData(int section,
                                           Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant(QVariant::Invalid);
-    }
-
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Name");
@@ -63,56 +79,19 @@ QVariant GeneFeatureItemModel::headerData(int section,
         default: return QVariant(QVariant::Invalid);
         }
     } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        // return row number as label
-        QVariant value(QVariant::Int);
-        value = section + 1;
-        return value;
+        return (section + 1);
+    }
+    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+        switch (section) {
+        case Name: return tr("The name of the gene");
+        case Show: return tr("Indicates if the genes is visible on the screen");
+        case Color: return tr("Indicates the color of the gene on the screen");
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     // return invalid value
     return QVariant(QVariant::Invalid);
-}
-
-bool GeneFeatureItemModel::setData(const QModelIndex& index,
-                                   const QVariant& value, int role)
-{
-    if (!index.isValid() || m_genelist_reference.isEmpty()) {
-        return false;
-    }
-
-    if (role == Qt::EditRole) {
-        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-        Q_ASSERT(!item.isNull());
-        qDebug() << "Gene Model set data " << item->name() << item->selected() << item->color();
-        const int column = index.column();
-        switch (column) {
-        case Show: {
-            if (item->selected() != value.toBool()) {
-                item->selected(value.toBool());
-                emit dataChanged(index, index);
-                DataProxy::GeneList geneList;
-                geneList.push_back(item);
-                emit signalSelectionChanged(geneList);
-                return true;
-            }
-        }
-        case Color: {
-            const QColor color = qvariant_cast<QColor>(value);
-            if (color.isValid() && item->color() != color) {
-                item->color(color);
-                emit dataChanged(index, index);
-                DataProxy::GeneList geneList;
-                geneList.push_back(item);
-                emit signalColorChanged(geneList);
-                return true;
-            }
-        }
-        default:
-            return false;
-        }
-    }
-
-    return false;
 }
 
 int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
@@ -134,14 +113,10 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     }
 
     switch (index.column()) {
-    case Name:
-        return Qt::ItemIsSelectable | defaultFlags;
-    case Show:
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | defaultFlags;
-    case Color:
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | defaultFlags;
-    default:
-        Q_ASSERT("[GeneFeatureItemModel] Invalid column index!");
+    case Name: return  defaultFlags;
+    case Show: return Qt::ItemIsUserCheckable | defaultFlags;
+    case Color: return  defaultFlags;
+    default: Q_ASSERT("[GeneFeatureItemModel] Invalid column index!");
     }
 
     return defaultFlags;
@@ -149,9 +124,9 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
 
 void GeneFeatureItemModel::loadGenes()
 {
+    DataProxy *dataProxy = DataProxy::getInstance();
     beginResetModel();
     m_genelist_reference.clear();
-    DataProxy *dataProxy = DataProxy::getInstance();
     m_genelist_reference = dataProxy->getGeneList(dataProxy->getSelectedDataset());
     endResetModel();
 }
@@ -185,15 +160,15 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
     }
 
     DataProxy::GeneList geneList;
+    beginResetModel();
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Show, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
         }
     }
+    endResetModel();
 
     emit signalSelectionChanged(geneList);
 }
@@ -210,15 +185,15 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     }
 
     DataProxy::GeneList geneList;
+    beginResetModel();
     for (const auto &row : rows) {
         auto &gene = m_genelist_reference.at(row);
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Color, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
         }
     }
+    endResetModel();
 
     emit signalColorChanged(geneList);
 }

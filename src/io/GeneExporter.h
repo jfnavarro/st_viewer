@@ -59,7 +59,7 @@ protected:
     const QStringList exportPropertyList() const;
     const QString delimiterCharacter() const;
     void exportStrings(QTextStream &otxt, const QStringList &strings) const;
-    void exportItem(QTextStream &otxt, const GeneSelection::SelectionType &selection) const;
+    void exportItem(QTextStream &otxt, const SelectionType &selection) const;
     void exportItem(QTextStream &otxt,
                      const GeneSelection::selectedItemsList& selectionList) const;
 

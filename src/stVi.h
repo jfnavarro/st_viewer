@@ -9,6 +9,7 @@
 #define stVi_H
 
 #include <QMainWindow>
+#include <QPointer>
 
 class QSettings;
 class QCloseEvent;
@@ -75,18 +76,18 @@ private:
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event);
 
-    QAction *actionExit;
-    QAction *actionHelp;
-    QAction *actionVersion;
-    QAction *actionAbout;
-    QAction *actionClear_Cache;
+    QPointer<QAction> m_actionExit;
+    QPointer<QAction> m_actionHelp;
+    QPointer<QAction> m_actionVersion;
+    QPointer<QAction> m_actionAbout;
+    QPointer<QAction> m_actionClear_Cache;
 
-    QMenu *menuLoad;
-    QMenu *menuHelp;
+    QPointer<QMenu> m_menuLoad;
+    QPointer<QMenu> m_menuHelp;
 
-    QWidget *centralwidget;
-    QVBoxLayout *mainlayout;
-    ExtendedTabWidget *mainTab;
+    QPointer<QWidget> m_centralwidget;
+    QPointer<QVBoxLayout> m_mainlayout;
+    QPointer<ExtendedTabWidget> m_mainTab;
 };
 
 #endif // stVi_H

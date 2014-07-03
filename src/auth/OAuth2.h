@@ -31,8 +31,7 @@ public:
 
     typedef QPair<QString, QString> StringPair;
 
-    //parent container should be qwidget
-    explicit OAuth2(QObject* parent);
+    explicit OAuth2(QObject* parent = 0);
     virtual ~OAuth2();
 
     // shows login dialog

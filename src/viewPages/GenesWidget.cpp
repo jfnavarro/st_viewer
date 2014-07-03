@@ -53,34 +53,42 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_actionMenu->setMenu(actionsMenu);
     m_actionMenu->setToolTip(tr("Action on selected rows"));
     m_actionMenu->setText(tr("Action"));
+
     // add actions to act on selected rows
     QAction *showAllAction = m_actionMenu->menu()->addAction(
-                QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show all selected rows"));
+                QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show selected genes"));
     QAction *hideAllAction  = m_actionMenu->menu()->addAction(
-                QIcon(QStringLiteral(":/images/grid-icon-md.png")),tr("Hide all selected rows"));
+                QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Hide selected genes"));
     m_actionMenu->menu()->addSeparator();
-
+    //color action
     ColorListEditor *colorList = new ColorListEditor(this);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorList);
-
-    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected:"));
+    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected genes:"));
+    //TODO have the color combobox in the same line as the text and/or make it less width and centered
     m_actionMenu->menu()->addAction(widgetAction);
 
+    //show combobox when menu opens
     connect(widgetAction, &QAction::triggered, [=]{ colorList->show(); });
-
     // QComboBox::activated is overloaded so we need a static_cast<>
     connect(colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
         [=]() { slotSetColorAllSelected(colorList->color()); });
 
+    //adds the menu to the layout
     geneListLayout->addWidget(m_actionMenu);
+
+    //add separation and stretch in between the search box
+    geneListLayout->addSpacing(5);
+    geneListLayout->addStretch(5);
 
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(200, 20);
+    m_lineEdit->setToolTip(tr("Search by gene name..."));
     geneListLayout->addWidget(m_lineEdit);
-    geneListLayout->addStretch(1);
+    geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);
+
 
     //add actions menu to main layout
     genesLayout->addLayout(geneListLayout);

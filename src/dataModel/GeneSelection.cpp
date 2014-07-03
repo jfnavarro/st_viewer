@@ -2,6 +2,47 @@
 
 #include <QMap>
 
+SelectionType::SelectionType() :
+    name(),
+    reads(0),
+    normalizedReads(0),
+    pixeIntensity(0),
+    count(0)
+{
+
+}
+
+SelectionType::SelectionType(QString name, int reads,
+                                            qreal normalizedReads, qreal pixeIntensity)
+    : name(name),
+      reads(reads),
+      normalizedReads(normalizedReads),
+      pixeIntensity(pixeIntensity),
+      count(0)
+{
+
+}
+
+SelectionType& SelectionType::operator= (const SelectionType& other)
+{
+    name = other.name;
+    reads = other.reads;
+    normalizedReads = other.normalizedReads;
+    pixeIntensity = other.pixeIntensity;
+    count = other.count;
+    return (*this);
+}
+
+bool SelectionType::operator== (const SelectionType& other) const
+{
+    return( name == other.name &&
+              reads == other.reads &&
+              normalizedReads == other.normalizedReads &&
+              pixeIntensity == other.pixeIntensity &&
+              count == other.count
+        );
+}
+
 GeneSelection::GeneSelection()
     : m_id(),
       m_name(),

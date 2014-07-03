@@ -28,7 +28,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
-    sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(GeneSelectionItemModel::Name, Qt::AscendingOrder);
     horizontalHeader()->setSortIndicatorShown(true);
 
     setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -38,6 +38,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     setShowGrid(true);
 
     resizeColumnsToContents();
+    resizeRowsToContents();
 
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name,
                                              QHeaderView::Stretch);
@@ -48,8 +49,6 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::PixelItensity,
                                              QHeaderView::ResizeToContents);
 
-    resizeRowsToContents();
-
     verticalHeader()->hide();
 
     model()->submit(); //support for caching (speed up)
@@ -57,7 +56,11 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
 GeneSelectionTableView::~GeneSelectionTableView()
 {
+    m_geneSelectionModel->deleteLater();
+    m_geneSelectionModel = nullptr;
 
+    m_sortGenesProxyModel->deleteLater();
+    m_sortGenesProxyModel = nullptr;
 }
 
 QItemSelection GeneSelectionTableView::geneTableItemSelection() const
