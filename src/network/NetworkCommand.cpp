@@ -38,12 +38,11 @@ NetworkCommand::~NetworkCommand()
 
 void NetworkCommand::addQueryItems(QObject* object)
 {
-    Q_ASSERT_X(object != 0, "NetworkCommand", "null-pointer assertion error!");
+    Q_ASSERT_X(object == nullptr, "NetworkCommand", "null-pointer assertion error!");
 
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();
     const int size = metaObject->propertyCount();
-
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
         const QMetaProperty metaproperty = metaObject->property(i);
         // abort if not readable
@@ -63,6 +62,8 @@ void NetworkCommand::addQueryItems(QObject* object)
                      << "is not convertable to QString, and will be ignored!";
             continue;
         }
+
+        qDebug() << "Adding param " << value.toString();
 
         // convert and add property
         m_query.addQueryItem(param, value.toString());

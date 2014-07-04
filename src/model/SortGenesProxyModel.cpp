@@ -12,7 +12,9 @@
 
 #include "data/DataProxy.h"
 
-static SortGenesProxyModel::SortCategory sortCategory(const QString &name)
+namespace {
+
+SortGenesProxyModel::SortCategory sortCategory(const QString &name)
 {
     if (name.size() == 0) {
         return SortGenesProxyModel::numericGene;
@@ -27,11 +29,12 @@ static SortGenesProxyModel::SortCategory sortCategory(const QString &name)
     return SortGenesProxyModel::normalGene;
 }
 
-static bool geneNameLessThan(const QString &geneName1, const QString &geneName2,
+bool geneNameLessThan(const QString &geneName1, const QString &geneName2,
                       const Qt::CaseSensitivity &caseSensitivity, bool isSortLocaleAware)
 {
     SortGenesProxyModel::SortCategory geneName1_category = sortCategory(geneName1);
     SortGenesProxyModel::SortCategory geneName2_category = sortCategory(geneName2);
+
     if (geneName1_category == geneName2_category) {
         if (isSortLocaleAware) {
             return geneName1.localeAwareCompare(geneName2) < 0;
@@ -41,6 +44,8 @@ static bool geneNameLessThan(const QString &geneName1, const QString &geneName2,
     }
 
     return geneName2_category < geneName1_category;
+}
+
 }
 
 SortGenesProxyModel::SortGenesProxyModel(QObject *parent) :

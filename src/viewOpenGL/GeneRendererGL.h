@@ -87,6 +87,7 @@ private:
     void updateVisual();
 
     void updateFeaturesSelected(bool selected);
+    void updateFeaturesColor(QColor color);
 
     // reset quad tree to rect size
     void resetQuadTree(const QRectF &rect);

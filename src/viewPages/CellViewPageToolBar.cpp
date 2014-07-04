@@ -319,12 +319,12 @@ void CellViewPageToolBar::resetActions()
     m_actionShow_showGenes->setChecked(true);
 
     // gene controls
-    Q_ASSERT(m_geneIntensitySlider);
     m_geneIntensitySlider->setValue(GENE_INTENSITY_MAX);
-    Q_ASSERT(m_geneSizeSlider);
     m_geneSizeSlider->setValue(GENE_SIZE_MIN);
-    Q_ASSERT(m_geneShapeComboBox);
     m_geneShapeComboBox->setCurrentIndex(Globals::GeneShape::Circle);
+
+    // selection mode
+    m_actionActivateSelectionMode->setChecked(false);
 
     // anchor signals
     m_action_toggleLegendTopRight->setChecked(true);

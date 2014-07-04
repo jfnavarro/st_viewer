@@ -80,6 +80,17 @@ CellGLView::~CellGLView()
     m_context = nullptr;
 }
 
+void CellGLView::clearData()
+{
+    m_originPanning = QPoint(-1, -1);
+    m_originRubberBand = QPoint(-1, -1);
+    m_panning = false;
+    m_rubberBanding = false;
+    m_selecting = false;
+    m_rotate = 0.0;
+    m_zoom_factor = 1.0;
+}
+
 void CellGLView::resizeFromGeometry()
 {
     ensureContext();

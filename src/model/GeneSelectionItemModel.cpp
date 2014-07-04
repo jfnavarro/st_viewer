@@ -57,7 +57,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case Name: return tr("Name");
+        case Name: return tr("Gene");
         case Hits: return tr("Reads");
         case NormalizedHits: return tr("N. Reads");
         case PixelItensity: return tr("P. Intensity");

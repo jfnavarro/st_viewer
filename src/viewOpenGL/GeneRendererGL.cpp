@@ -46,11 +46,14 @@ GeneRendererGL::~GeneRendererGL()
 
 void GeneRendererGL::clearData()
 {
-    // gene plot data
-    m_geneData.clear();
+    // clear gene plot data
+    m_geneData.clearData();
 
     //clear selection
     updateFeaturesSelected(false);
+
+    //clear colors
+    updateFeaturesColor(Globals::DEFAULT_COLOR_GENE);
 
     // lookup data
     m_geneInfoById.clear();
@@ -396,6 +399,15 @@ void GeneRendererGL::updateFeaturesSelected(bool selected)
     }
 }
 
+void GeneRendererGL::updateFeaturesColor(QColor color)
+{
+    DataProxy *dataProxy = DataProxy::getInstance();
+    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    foreach(DataProxy::FeaturePtr feature, features) {
+        feature->color(color);
+    }
+}
+
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
 {
     DataProxy *dataProxy = DataProxy::getInstance();
@@ -486,6 +498,7 @@ void GeneRendererGL::setImage(const QImage &image)
     Q_ASSERT(!image.isNull());
     Q_ASSERT(!transform().isIdentity());
     m_image = image.transformed(transform().inverted().toAffine());
+    //TODO get max pixel value here and store it
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)

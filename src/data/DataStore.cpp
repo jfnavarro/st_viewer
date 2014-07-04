@@ -124,7 +124,7 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
     std::unique_ptr<QFile> file;
     if (options.testFlag(Option::Temporary)) {
         const QString filePath = QDir::temp().filePath(TEMP_PREFIX + name);
-        std::unique_ptr< QTemporaryFile > tempFile(new QTemporaryFile(filePath));
+        std::unique_ptr<QTemporaryFile> tempFile(new QTemporaryFile(filePath));
         // apply options
         tempFile->setAutoRemove(!options.testFlag(Option::Persistent));
         // force file name generation

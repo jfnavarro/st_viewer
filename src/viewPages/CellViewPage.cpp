@@ -134,6 +134,9 @@ void CellViewPage::onEnter()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
+    // clear view data
+    m_view->clearData();
+
     // updade grid size and data
     m_grid->clearData();
     m_grid->setDimensions(chip_border, chip_rect);
@@ -164,14 +167,6 @@ void CellViewPage::onExit()
 {
     ui->genesWidget->clearFocus();
     ui->selectionsWidget->clearFocus();
-    m_gene_plotter->clearData();
-    m_grid->clearData();
-    //TODO implement the clear for legend and minimap
-    //m_legend->clearData();
-    //m_minimap->clearData();
-    m_image->clear();
-    //update the view after clearing graphical objects
-    m_view->update();
 }
 
 bool CellViewPage::loadData()
@@ -206,7 +201,7 @@ bool CellViewPage::loadData()
     //get image alignmet object
     const auto ImageAlignment =
             dataProxy->getImageAlignment(dataset->imageAlignmentId());
-    Q_ASSERT(ImageAlignment);
+    Q_ASSERT(!ImageAlignment.isNull());
 
     //load cell tissue blue
     {
@@ -310,8 +305,19 @@ void CellViewPage::createConnections()
 
 void CellViewPage::resetActionStates()
 {
-    // load data for gene model (NOTE move to onEnter() ? )
+    // resets genes color and visible to default (must be done first)
+    DataProxy *dataProxy = DataProxy::getInstance();
+    auto &geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    for (auto gene : geneList) {
+        gene->selected(false);
+        gene->color(Globals::DEFAULT_COLOR_GENE);
+    }
+
+    // load data for gene model, also resets it
     ui->genesWidget->slotLoadModel();
+
+    // resets gene selection model
+    ui->selectionsWidget->slotLoadModel(GeneSelection::selectedItemsList());
 
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);
@@ -339,7 +345,6 @@ void CellViewPage::resetActionStates()
     // reset tool bar actions
     m_toolBar->resetActions();
 
-    DataProxy *dataProxy = DataProxy::getInstance();
     // restrict interface
     DataProxy::UserPtr current_user = dataProxy->getUser();
     m_toolBar->m_actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
@@ -498,6 +503,7 @@ void CellViewPage::slotLoadCellFigure()
     const QImage image = reader.read();
 
     //deallocate device
+    device->close();
     device->deleteLater();
 
     // add image to the texture image holder
@@ -600,7 +606,7 @@ void CellViewPage::slotSetMiniMapAnchor(QAction *action)
         const Globals::Anchor mode = static_cast<Globals::Anchor>(variant.toInt());
         m_minimap->setAnchor(mode);
     } else {
-        Q_ASSERT("[CellViewPage] Undefined anchor!");
+        Q_ASSERT("[CellViewPage] Undefined minimap anchor!");
     }
 }
 
@@ -611,7 +617,7 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
         const Globals::Anchor mode = static_cast<Globals::Anchor>(variant.toInt());
         m_legend->setAnchor(mode);
     } else {
-        Q_ASSERT("[CellViewPage] Undefined anchor!");
+        Q_ASSERT("[CellViewPage] Undefined legend anchor!");
     }
 }
 
@@ -645,7 +651,7 @@ void CellViewPage::slotSaveSelection()
         selection.type("Bounding box");
         //add datasets
         DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
-        Q_ASSERT(dataset != nullptr);
+        Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
         //add selected genes
         selection.selectedItems(geneSelection);

@@ -73,7 +73,7 @@ QVariant GeneFeatureItemModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case Name: return tr("Name");
+        case Name: return tr("Gene");
         case Show: return tr("Show");
         case Color: return tr("Color");
         default: return QVariant(QVariant::Invalid);
@@ -160,15 +160,15 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
     }
 
     DataProxy::GeneList geneList;
-    beginResetModel();
     for (const auto &row : rows) {
-        auto &gene = m_genelist_reference.at(row);
+        DataProxy::GenePtr gene = m_genelist_reference.at(row);
         if (!gene.isNull() && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
+            QModelIndex selectIndex = index(row, Show, QModelIndex());
+            emit dataChanged(selectIndex, selectIndex);
         }
     }
-    endResetModel();
 
     emit signalSelectionChanged(geneList);
 }
@@ -185,15 +185,15 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     }
 
     DataProxy::GeneList geneList;
-    beginResetModel();
     for (const auto &row : rows) {
-        auto &gene = m_genelist_reference.at(row);
+        DataProxy::GenePtr gene = m_genelist_reference.at(row);
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
+            QModelIndex selectIndex = index(row, Show, QModelIndex());
+            emit dataChanged(selectIndex, selectIndex);
         }
     }
-    endResetModel();
 
     emit signalColorChanged(geneList);
 }

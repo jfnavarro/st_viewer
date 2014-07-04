@@ -598,16 +598,7 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     NetworkCommand *cmd = RESTCommandFactory::addSelection();
     // add properties of the dto as query items (TODO avoid implicit parsing,
     //we just need to not send the Id)
-    cmd->addQueryItem("name", dto.name());
-    cmd->addQueryItem("account_id", dto.userId());
-    cmd->addQueryItem("dataset_id", dto.datasetId());
-    qDebug() << "Saving selection, selected items " << dto.selectedItems();
-    cmd->addQueryItem("gene_hits", QVariant(dto.selectedItems()).toString());
-    cmd->addQueryItem("type", dto.type());
-    cmd->addQueryItem("status", dto.status());
-    cmd->addQueryItem("obo_foundry_terms", QVariant(dto.oboFoundryTerms()).toString());
-    cmd->addQueryItem("comment", dto.comment());
-    cmd->addQueryItem("resul_file", dto.resultFile());
+    cmd->addQueryItems(dto);
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
     NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));

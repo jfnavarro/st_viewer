@@ -57,6 +57,8 @@ public:
     QRectF allowedCenterPoints() const;
     QPointF sceneFocusCenterPoint() const;
 
+    void clearData();
+
 public slots:
 
     //some public slots to configure properties of the view

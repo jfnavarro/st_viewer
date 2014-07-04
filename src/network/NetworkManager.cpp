@@ -34,14 +34,7 @@ NetworkManager::NetworkManager(QObject* parent):
     m_nam(nullptr)
 {
     // setup network access manager
-    m_nam = QPointer<QNetworkAccessManager>(new QNetworkAccessManager(this));
-
-#if defined Q_OS_MAC
-    //workaround for this : https://bugreports.qt-project.org/browse/QTBUG-22033
-    QNetworkProxy proxy = m_nam->proxy();
-    proxy.setHostName(" ");
-    m_nam->setProxy(proxy);
-#endif
+    m_nam = new QNetworkAccessManager(this);
 
     Configuration config;
 
@@ -134,9 +127,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
         request.setUrl(queryUrl);
-
         qDebug() << "[NetworkManager] GET:" << request.url();
-
         // send request
         networkReply = m_nam->get(request);
         break;
@@ -144,9 +135,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
     case Globals::HttpRequestTypePost: {
         // set clean url and explicit content type
         request.setUrl(cmd->url());
-
         qDebug() << "[NetworkManager] POST:" << request.url() << "DATA:" << cmd->getEncodedQuery();
-
         //setting headers
         request.setHeader(QNetworkRequest::ContentTypeHeader,
                           QVariant(QStringLiteral("application/x-www-form-urlencoded")));
@@ -159,9 +148,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         request.setUrl(cmd->url());
         request.setHeader(QNetworkRequest::ContentTypeHeader,
                           QVariant(QStringLiteral("application/x-www-form-urlencoded")));
-
         qDebug() << "[NetworkManager] PUT:" << request.url() << "DATA:" << cmd->getEncodedQuery();
-
         // send request
         networkReply = m_nam->put(request, cmd->getEncodedQuery().toUtf8());
         break;
@@ -171,9 +158,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
         request.setUrl(queryUrl);
-
         qDebug() << "[NetworkManager] DELETE:" << request.url();
-
         // send request
         networkReply = m_nam->deleteResource(request);
         break;
