@@ -36,6 +36,14 @@ NetworkManager::NetworkManager(QObject* parent):
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
 
+#if defined Q_OS_MAC
+    //workaround for this : https://bugreports.qt-project.org/browse/QTBUG-22033
+    //it is not working for HTTPS sites even though they say it is fixed... :(
+    QNetworkProxy proxy = m_nam->proxy();
+    proxy.setHostName(" ");
+    m_nam->setProxy(proxy);
+#endif
+
     Configuration config;
 
     // make DND look up ahead of time

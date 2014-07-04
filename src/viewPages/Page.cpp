@@ -40,6 +40,8 @@ Page::~Page()
 
 void Page::setWaiting(bool waiting)
 {
+    Q_UNUSED(waiting)
+    /*
     if (waiting) {
         m_progressDialog->setValue(0);
         m_progressDialog->show();
@@ -52,6 +54,7 @@ void Page::setWaiting(bool waiting)
         m_progressDialog->cancel();
         m_progressDialog->hide();
     }
+    */
 }
 
 void Page::increaseBar()

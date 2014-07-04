@@ -25,6 +25,7 @@ public:
 
     Q_OBJECT
 
+    Q_PROPERTY(QString id READ id WRITE id)
     Q_PROPERTY(QString username READ username WRITE username)
     Q_PROPERTY(QString institution READ institution WRITE institution)
     Q_PROPERTY(QString first_name READ firstName WRITE firstName)
@@ -43,6 +44,7 @@ public:
     ~UserDTO() { }
 
     // binding
+    void id(const QString& id) { m_user.id(id); }
     void username(const QString& username) { m_user.username(username); }
     void institution(const QString& institution) { m_user.institution(institution); }
     void firstName(const QString& firstName) { m_user.firstName(firstName); }
@@ -56,6 +58,7 @@ public:
     void enabled(bool enabled) { m_user.enabled(enabled); }
 
     //read
+    const QString id() { return m_user.id(); }
     const QString username() { return m_user.username(); }
     const QString institution() { return m_user.institution(); }
     const QString firstName() { return m_user.firstName(); }

@@ -71,6 +71,7 @@ void GeneRendererGL::clearData()
     m_thresholdUpper = Globals::GENE_THRESHOLD_MAX;
     m_pooledMax = Globals::GENE_THRESHOLD_MAX;
     m_thresholdUpperPooled = Globals::GENE_THRESHOLD_MAX;
+    m_shape = Globals::DEFAULT_SHAPE_GENE;
 
     // update visual mode
     m_visualMode = Globals::NormalMode;
@@ -584,7 +585,9 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
 
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
-    Q_ASSERT(m_geneNode);
+    if (m_geneNode.isNull()) {
+        return;
+    }
 
     if (m_isDirty) {
         m_isDirty = false;
@@ -598,26 +601,26 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
     // add UNIFORM values to shader program
     int mode = m_shaderProgram->program()->uniformLocation("in_visualMode");
-    int modeValue = static_cast<int>(m_visualMode);
-    m_shaderProgram->program()->setUniformValue(mode, modeValue);
+    m_shaderProgram->program()->setUniformValue(mode, static_cast<GLint>(m_visualMode));
 
     int shine = m_shaderProgram->program()->uniformLocation("in_shine");
     m_shaderProgram->program()->setUniformValue(shine, static_cast<GLfloat>(m_shine));
 
     int upperLimit = m_shaderProgram->program()->uniformLocation("in_pooledUpper");
-    m_shaderProgram->program()->setUniformValue(upperLimit, m_thresholdUpperPooled);
+    m_shaderProgram->program()->setUniformValue(upperLimit, static_cast<GLint>(m_thresholdUpperPooled));
 
     int lowerLimit = m_shaderProgram->program()->uniformLocation("in_pooledLower");
-    m_shaderProgram->program()->setUniformValue(lowerLimit, m_thresholdLowerPooled);
+    m_shaderProgram->program()->setUniformValue(lowerLimit, static_cast<GLint>(m_thresholdLowerPooled));
 
     int intensity = m_shaderProgram->program()->uniformLocation("in_intensity");
     m_shaderProgram->program()->setUniformValue(intensity, static_cast<GLfloat>(m_intensity));
 
     int shape = m_shaderProgram->program()->uniformLocation("in_shape");
-    m_shaderProgram->program()->setUniformValue(shape, static_cast<int>(m_shape));
+    m_shaderProgram->program()->setUniformValue(shape, static_cast<GLint>(m_shape));
 
     // draw the data
     m_geneNode->draw(painter);
+
     // unable shader
     m_shaderProgram->setActive(painter, false);
 }

@@ -11,6 +11,10 @@
 #include <QObject>
 #include <QString>
 #include <QVariantList>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonValue>
+
 #include "dataModel/GeneSelection.h"
 
 // DTOs (Data transform objects) provides the bridge between the client
@@ -84,7 +88,7 @@ private:
     const QVariantList serializeVector(const QVector<N> &unserializedVector) const
     {
         QVariantList newList;
-        foreach( const N &item, unserializedVector.toList() ) {
+        foreach(const N &item, unserializedVector.toList()) {
             newList << QVariant::fromValue(item);
         }
         return newList;
@@ -95,7 +99,8 @@ private:
     {
         // unserialize data
         QList<N> values;
-        QVariantList::const_iterator it, end = serializedVector.end();
+        QVariantList::const_iterator it;
+        QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {
             values << it->value<N>();
         }

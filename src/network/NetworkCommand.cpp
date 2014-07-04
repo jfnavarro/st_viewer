@@ -11,6 +11,7 @@
 #include <QMetaProperty>
 #include <QDebug>
 #include <QString>
+#include <QJsonArray>
 
 NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
     m_url(),
@@ -38,15 +39,17 @@ NetworkCommand::~NetworkCommand()
 
 void NetworkCommand::addQueryItems(QObject* object)
 {
-    Q_ASSERT_X(object == nullptr, "NetworkCommand", "null-pointer assertion error!");
+    Q_ASSERT_X(object != nullptr, "NetworkCommand", "null-pointer assertion error!");
 
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();
     const int size = metaObject->propertyCount();
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
         const QMetaProperty metaproperty = metaObject->property(i);
-        // abort if not readable
+
+        // ignore if not readable
         const QString  param = metaproperty.name();
+        qDebug() << "Parsing query object name " << param;
         if (!metaproperty.isReadable()) {
             qDebug() << "[NetworkCommand] Warning: The property "
                      << metaproperty.typeName()
@@ -54,16 +57,23 @@ void NetworkCommand::addQueryItems(QObject* object)
             continue;
         }
 
-        // abort if not convertable
+        // ignore if not convertable
         const QVariant value = metaproperty.read(object);
+        qDebug() << "Parsing query object value " << value;
         if (!value.canConvert(QVariant::String)) {
-            qDebug() << "[NetworkCommand] Warning: The property "
-                     << metaproperty.typeName() << param
-                     << "is not convertable to QString, and will be ignored!";
+
+            QJsonArray array;
+            foreach(QVariant var, value.toList()) {
+                array.append(QJsonValue::fromVariant(var.convert(var.type())));
+            }
+
+            qDebug() << "Json array " << array;
+
+            //qDebug() << "[NetworkCommand] Warning: The property "
+           //          << metaproperty.typeName() << param
+          //           << "is not convertable to QString, and will be ignored!";
             continue;
         }
-
-        qDebug() << "Adding param " << value.toString();
 
         // convert and add property
         m_query.addQueryItem(param, value.toString());

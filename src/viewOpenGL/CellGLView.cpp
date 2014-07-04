@@ -56,10 +56,12 @@ CellGLView::CellGLView(QScreen *parent) :
     m_projm.setToIdentity();
 
     //creates and sets the OpenGL format
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    format.setSwapBehavior(QSurfaceFormat::SingleBuffer);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStereo(false);
+    format.setStencilBufferSize(0);
+    format.setDepthBufferSize(0);
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
 
@@ -88,7 +90,7 @@ void CellGLView::clearData()
     m_rubberBanding = false;
     m_selecting = false;
     m_rotate = 0.0;
-    m_zoom_factor = 1.0;
+    //m_zoom_factor = 1.0;
 }
 
 void CellGLView::resizeFromGeometry()
@@ -185,7 +187,7 @@ void CellGLView::paintGL()
         }
     }
 
-    //glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+    glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
@@ -207,7 +209,7 @@ void CellGLView::resizeGL(int width, int height)
     glViewport(0.0, 0.0, newWidth, newHeight);
     setViewPort(newViewport);
     //update local variables
-    if ( m_scene.isValid() ) {
+    if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         emit signalSceneTransformationsUpdated(sceneTransformations());

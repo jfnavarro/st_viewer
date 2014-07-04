@@ -20,15 +20,6 @@ namespace Globals
 {
 
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
-static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
-static const int GENE_THRESHOLD_MAX = 100;
-static const int GENE_THRESHOLD_MIN = 1;
-static const qreal GENE_SIZE_DEFAULT = 1.0;
-static const qreal GENE_INTENSITY_DEFAULT = 1.0;
-static const qreal GENE_SHINNE_DEFAULT = 1.0;
-static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
-static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
-
 enum GeneVisualMode {
     NormalMode = 0,
     DynamicRangeMode = 1,
@@ -54,6 +45,16 @@ enum Anchor
     NorthWest = 9,
     None = 10
 };
+
+static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
+static const int GENE_THRESHOLD_MAX = 100;
+static const int GENE_THRESHOLD_MIN = 1;
+static const qreal GENE_SIZE_DEFAULT = 1.0;
+static const qreal GENE_INTENSITY_DEFAULT = 1.0;
+static const qreal GENE_SHINNE_DEFAULT = 1.0;
+static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
+static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
+static const GeneShape DEFAULT_SHAPE_GENE = GeneShape::Circle;
 
 /** GRAPHICAL ITEMS ANCHOR POSITIONS **/
 static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;

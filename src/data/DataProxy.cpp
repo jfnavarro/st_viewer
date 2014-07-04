@@ -593,12 +593,15 @@ async::DataRequest DataProxy::loadGeneSelections()
 
 async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelection)
 {
+    //QMetaType::registerConverter<SelectionType, QJsonValue>(&SelectionType::toJson);
+    //QMetaType::registerConverter<QJsonValue, SelectionType>(&SelectionType::fromJson);
+
     // intermediary dto object
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection();
     // add properties of the dto as query items (TODO avoid implicit parsing,
     //we just need to not send the Id)
-    cmd->addQueryItems(dto);
+    cmd->addQueryItems(&dto);
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
     NetworkReply *reply = m_networkManager.httpRequest(cmd, QVariant(parameters));

@@ -368,27 +368,27 @@ void CellViewPage::initGLView()
     ui->gridLayout->setStretchFactor(1, 8);
 
     // image texture graphical object
-    m_image = new ImageTextureGL(this);
+    m_image = new ImageTextureGL();
     m_image->setAnchor(Globals::DEFAULT_ANCHOR_IMAGE);
     m_view->addRenderingNode(m_image.data());
 
     // grid graphical object
-    m_grid = new GridRendererGL(this);
+    m_grid = new GridRendererGL();
     m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
     m_view->addRenderingNode(m_grid.data());
 
     // gene plotter component
-    m_gene_plotter = new GeneRendererGL(this);
+    m_gene_plotter = new GeneRendererGL();
     m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
     m_view->addRenderingNode(m_gene_plotter.data());
 
     // heatmap component
-    m_legend = new HeatMapLegendGL(this);
+    m_legend = new HeatMapLegendGL();
     m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
     m_view->addRenderingNode(m_legend.data());
 
     // minimap component
-    m_minimap = new MiniMapGL(this);
+    m_minimap = new MiniMapGL();
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap.data());
     // minimap needs to be notified when the canvas is resized and when the image
@@ -649,10 +649,17 @@ void CellViewPage::slotSaveSelection()
         selection.name(createSelection->getName());
         selection.comment(createSelection->getComment());
         selection.type("Bounding box");
+        selection.enabled(true);
+
         //add datasets
-        DataProxy::DatasetPtr dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+        const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
         Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
+
+        //add account
+        const auto user = dataProxy->getUser();
+        Q_ASSERT(!user.isNull());
+        selection.userId(user->id());
         //add selected genes
         selection.selectedItems(geneSelection);
 

@@ -86,7 +86,7 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
     const int val = (qFuzzyCompare(value_range,0.0)) ? std::numeric_limits<int>::max() :
                                      static_cast<int>(scrollBarSteps * viewPortInSceneCoordinatesRange / value_range);
     scrollBar->setPageStep(val);
-    //NOTE 300 magic number?
+    //TODO 300 magic number?
     scrollBar->setSingleStep(300);
 }
 
