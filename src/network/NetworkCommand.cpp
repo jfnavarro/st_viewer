@@ -94,6 +94,11 @@ const QString NetworkCommand::getEncodedUrl() const
     return url.toString(QUrl::FullyEncoded);
 }
 
+void NetworkCommand::setQuery(const QString &queryString)
+{
+    m_query.setQuery(queryString);
+}
+
 void NetworkCommand::addQueryItem(const QString& param, const QString& value)
 {
     m_query.addQueryItem(param, value);

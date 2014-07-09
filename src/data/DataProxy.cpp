@@ -113,14 +113,13 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // ensure even single items are encapsulated in a variant list
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        //no need to clear the storage to allow updates
         //parse the objects
         foreach(QVariant var, list) {
             data::parseObject(var, &dto);
             DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
-            if (dataset->enabled()) {
-                m_datasetMap.insert(dataset->id(), dataset);
-                dirty = true;
-            }
+            m_datasetMap.insert(dataset->id(), dataset);
+            dirty = true;
         }
         break;
     }
@@ -157,16 +156,13 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
         ChipDTO dto;
-        // ensure even single items are encapsulated in a variant list
+        // should only be one item
         const QVariant root = doc.toVariant();
-        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the data
-        foreach(QVariant var, list) {
-            data::parseObject(var, &dto);
-            ChipPtr chip = ChipPtr(new Chip(dto.chip()));
-            m_chipMap.insert(chip->id(), chip);
-            dirty = true;
-        }
+        data::parseObject(root, &dto);
+        ChipPtr chip = ChipPtr(new Chip(dto.chip()));
+        m_chipMap.insert(chip->id(), chip);
+        dirty = true;
         break;
     }
         // image alignment
@@ -177,11 +173,11 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // ensure even single items are encapsulated in a variant list
         const QVariant root = doc.toVariant();
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        //parse the data
         foreach(QVariant var, list) {
             data::parseObject(var, &dto);
             ImageAlignmentPtr imageAlignement =
                     ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
-            Q_ASSERT(!m_imageAlignmentMap.contains(imageAlignement->id()));
             m_imageAlignmentMap.insert(imageAlignement->id(), imageAlignement);
             dirty = true;
         }
@@ -198,27 +194,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         //parse the data
         foreach(QVariant var, list) {
             data::parseObject(var, &dto);
-            qDebug() << "Parsing selection " << var;
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
-            if (selection->enabled()) {
-                m_geneSelectionsMap.insert(selection->id(), selection);
-                dirty = true;
-            }
-        }
-        break;
-    }
-        // gene selection remove
-    case GeneSelectionDataTypeRemove: {
-        // gene list by dataset
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
-                   "DataProxy", "GeneSelectionDataTypeRemove must include Id parameter!");
-        const QString selectionId =
-                qvariant_cast<QString>(parameters.value(Globals::PARAM_SELECTION));
-        if (m_geneSelectionsMap.count(selectionId)) {
-            m_geneFeatureListMap.remove(selectionId);
+            m_geneSelectionsMap.insert(selection->id(), selection);
             dirty = true;
-        } else {
-            Q_ASSERT_X(true, "DataProxy", "GeneSelectionDataTypeRemove id not found");
         }
         break;
     }
@@ -259,14 +237,11 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
         UserDTO dto;
-        // ensure even single items are encapsulated in a variant list
+        // should only be one item
         const QVariant root = doc.toVariant();
-        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-        foreach(QVariant var, list) {
-            data::parseObject(var, &dto);
-            m_user = UserPtr(new User(dto.user()));
-            dirty = true;
-        }
+        data::parseObject(root, &dto);
+        m_user = UserPtr(new User(dto.user()));
+        dirty = true;
         break;
     }
         // cell tissue figure
@@ -275,7 +250,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
                    "DataProxy", "Tissue must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
         DataStore::resourceDeviceType device;
-        Q_ASSERT(! fileid.isNull() && ! fileid.isEmpty());
+        Q_ASSERT(!fileid.isNull() && !fileid.isEmpty());
         device = m_dataStore.accessResource(fileid,
                                             DataStore::Temporary |
                                             DataStore::Persistent |
@@ -291,7 +266,6 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             qDebug() << QString("[DataProxy] Unable to write data to fileid: %1").arg(fileid);
         }
         device->close();
-
         dirty = true;
         break;
     }
@@ -300,16 +274,13 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QJsonDocument doc = reply->getJSON();
         // intermediary parse object
         MinVersionDTO dto;
-        // ensure even single items are encapsulated in a variant list
+        // should only be one item
         const QVariant root = doc.toVariant();
-        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
-        foreach(QVariant var, list) {
-            data::parseObject(var, &dto);
-            m_minVersion = dto.minVersionAsNumber();
-            qDebug() << "[stVi] Check min version min = "
+        data::parseObject(root, &dto);
+        m_minVersion = dto.minVersionAsNumber();
+        qDebug() << "[stVi] Check min version min = "
                      << dto.minSupportedVersion() << " current = " << Globals::VERSION;
-            dirty = true;
-        }
+        dirty = true;
         break;
     }
     default:
@@ -329,7 +300,7 @@ DataProxy::GeneMap& DataProxy::getGeneMap(const QString& datasetId)
     return it.value();
 }
 
-DataProxy::GeneList& DataProxy::getGeneList(const QString& datasetId)
+DataProxy::GeneList &DataProxy::getGeneList(const QString& datasetId)
 {
     GeneListMap::iterator it = m_geneListMap.find(datasetId);
     GeneListMap::iterator end = m_geneListMap.end();
@@ -339,7 +310,7 @@ DataProxy::GeneList& DataProxy::getGeneList(const QString& datasetId)
     return it.value();
 }
 
-DataProxy::FeatureList& DataProxy::getFeatureList(const QString& datasetId)
+DataProxy::FeatureList &DataProxy::getFeatureList(const QString& datasetId)
 {
     FeatureListMap::iterator it = m_featureListMap.find(datasetId);
     FeatureListMap::iterator end = m_featureListMap.end();
@@ -378,7 +349,7 @@ DataProxy::GenePtr DataProxy::getGene(const QString& datasetId,
     return it2.value();
 }
 
-DataProxy::FeatureList& DataProxy::getGeneFeatureList(const QString& datasetId,
+DataProxy::FeatureList &DataProxy::getGeneFeatureList(const QString& datasetId,
                                                       const QString &geneName)
 {
     FeatureListGeneMap::iterator it = m_geneFeatureListMap.find(datasetId);
@@ -645,36 +616,15 @@ async::DataRequest DataProxy::loadGeneSelections()
 
 async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelection)
 {
-    //QMetaType::registerConverter<SelectionType, QJsonValue>(&SelectionType::toJson);
-    //QMetaType::registerConverter<QJsonValue, SelectionType>(&SelectionType::fromJson);
-
     // intermediary dto object
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection(m_configurationManager);
-    // add properties of the dto as query items (TODO avoid implicit parsing,
-    //we just need to not send the Id)
-    cmd->addQueryItems(&dto);
+    cmd->setQuery(dto.toJson());
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
-    NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
-    //delete the command
-    cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
-}
-
-async::DataRequest DataProxy::removeGeneSelectionById(const QString &id)
-{
-    NetworkCommand *cmd = RESTCommandFactory::removeSelectionBySelectionId(m_configurationManager, id);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
-    QVariantMap parameters;
-    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataTypeRemove)));
-    parameters.insert(Globals::PARAM_SELECTION, QVariant(id));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
     //delete the command
     cmd->deleteLater();

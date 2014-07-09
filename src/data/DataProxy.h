@@ -13,8 +13,6 @@
 #include <QMap>
 #include <QSharedPointer>
 
-#include "utils/Singleton.h"
-
 #include "dataModel/Chip.h"
 #include "dataModel/Dataset.h"
 #include "dataModel/Feature.h"
@@ -56,7 +54,6 @@ public:
         GeneDataType,
         ImageAlignmentDataType,
         GeneSelectionDataType,
-        GeneSelectionDataTypeRemove,
         UserType,
         MinVersionType
     };
@@ -73,42 +70,43 @@ public:
     //TODO number of containers can be decreased for Genes and Features
     //what is really needed is a super fast lookup for :
     //   - get features from dataset ID and Gene Name
-    //   - get gene from feature ID or Gene Name
+    //   - get gene/s from feature ID or Gene Name
     //   - get features from dataset ID
     //   - get genes from dataset ID
+    //   - get gene from dataset ID and gene Name
 
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
     //map of unique genes (gene name to gene pointer)
-    typedef QMap<QString, GenePtr> GeneMap;
+    typedef QHash<QString, GenePtr> GeneMap;
     //gene list hashed by dataset id
-    typedef QMap<QString, GeneList> GeneListMap;
+    typedef QHash<QString, GeneList> GeneListMap;
     //gene map hashed by dataset id
-    typedef QMap<QString, GeneMap> GeneMapMap;
+    typedef QHash<QString, GeneMap> GeneMapMap;
     //list of features
     typedef QVector<FeaturePtr> FeatureList;
     // map of features hashed by feature id
-    typedef QMap<QString, FeaturePtr> FeatureMap;
+    typedef QHash<QString, FeaturePtr> FeatureMap;
     //features hashed by dataset id
-    typedef QMap<QString, FeatureList> FeatureListMap;
+    typedef QHash<QString, FeatureList> FeatureListMap;
     //features hashed by dataset id and feature id
-    typedef QMap<QString, FeatureMap> FeatureMapMap;
+    typedef QHash<QString, FeatureMap> FeatureMapMap;
     //features hashed by dataset id and gene name
-    typedef QMap<QString, FeatureListMap> FeatureListGeneMap;
+    typedef QHash<QString, FeatureListMap> FeatureListGeneMap;
     //chip hashed by dataset id
-    typedef QMap<QString, ChipPtr> ChipMap;
+    typedef QHash<QString, ChipPtr> ChipMap;
     //list of unique datasets
     typedef QList<DatasetPtr> DatasetList;
     //datasets hashed by dataset id
-    typedef QMap<QString, DatasetPtr> DatasetMap;
+    typedef QHash<QString, DatasetPtr> DatasetMap;
     //image alignment hashed by image alignment id
-    typedef QMap<QString, ImageAlignmentPtr> ImageAlignmentMap;
+    typedef QHash<QString, ImageAlignmentPtr> ImageAlignmentMap;
     //gene selection objects
     typedef QList<GeneSelectionPtr> GeneSelectionList;
     //gene selection hashed by id
-    typedef QMap<QString, GeneSelectionPtr> GeneSelectionMap;
+    typedef QHash<QString, GeneSelectionPtr> GeneSelectionMap;
     //cell figure hashed by figure name (figure names are unique)
-    typedef QMap<QString, QString> CellFigureMap;
+    typedef QHash<QString, QString> CellFigureMap;
     //array of three elements containing the min version supported
     typedef std::array<qulonglong, 3> MinVersionArray;
 
@@ -159,18 +157,16 @@ public:
     const QString getSelectedDataset() const;
     const MinVersionArray getMinVersion() const;
 
-    //setters
+    //setters (the currently opened datasets)
     void setSelectedDataset(const QString &datasetId) const;
 
     //updaters
     //async::DataRequest updateDataset(const Dataset& dataset);
     //async::DataRequest updateUser(const User& user);
+    //async::DataRequest updateGeneSelection(const GeneSelection& geneSelection);
 
     //creation
     async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
-
-    //deletion
-    async::DataRequest removeGeneSelectionById(const QString& id);
 
 private:
 
@@ -189,6 +185,7 @@ private:
     //internal function to create network requests
     async::DataRequest createRequest(NetworkReply *reply);
 
+    //helper function to map genes/features to datasets
     GeneMap& getGeneMap(const QString &datasetId);
     FeatureMap& getFeatureMap(const QString &datasetId);
 
@@ -217,11 +214,11 @@ private:
     // the application min supported version
     MinVersionArray m_minVersion;
 
-    //configuration manager
+    //configuration manager (dataproxy owns it)
     Configuration m_configurationManager;
-    //data storage to handle image files
+    //data storage to handle image files (dataproxy owns it)
     DataStore m_dataStore;
-    //network manager to make network requests
+    //network manager to make network requests (dataproxy owns it)
     QPointer<NetworkManager> m_networkManager;
     //authorization manager to handle access token (own by DataProxy but altered by InitPage)
     QPointer<AuthorizationManager> m_authorizationManager;

@@ -33,8 +33,8 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
-    connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelections()));
-    connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelections()));
+    connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
+    connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
 }
@@ -104,7 +104,8 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     m_ui->ddaAnalysis->setEnabled(index.isValid());
 }
 
-void ExperimentPage::slotRemoveSelections()
+//TODO make it work for only unique selections
+void ExperimentPage::slotRemoveSelection()
 {
     const int answer = QMessageBox::warning(
                      this, tr("Exit application"),
@@ -124,21 +125,14 @@ void ExperimentPage::slotRemoveSelections()
     }
 
     //setWaiting(true);
-    for (auto selection : currentSelection) {
-        Q_ASSERT(selection);
-        async::DataRequest request = m_dataProxy->removeGeneSelectionById(selection->id());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO show the error present in request.getErrors()
-            showError("Data Error", QString("Error Remove the selection %1").arg(selection->name()));
-        }
-    }
+    //TODO set the enabled field to false and send an update request
     //setWaiting(false);
 
     slotLoadSelections();
 }
 
-void ExperimentPage::slotExportSelections()
+//TODO make it work for only unique selections
+void ExperimentPage::slotExportSelection()
 {
     const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
     const auto currentSelection = selectionsModel()->getSelections(selected);

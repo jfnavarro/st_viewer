@@ -36,6 +36,11 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(!item.isNull());
+
+        if (!item->enabled()) {
+            return QVariant(QVariant::Invalid);
+        }
+
         switch (index.column()) {
         case Name: return item->name();
         case Dataset: {

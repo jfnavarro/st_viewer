@@ -28,7 +28,6 @@ bool parseObject(const QVariant& source, QObject* target)
 
     QVariantMap::const_iterator it;
     QVariantMap::const_iterator end = map.constEnd();
-
     for (it = map.constBegin(); it != end; ++it) {
         const int index = metaobject->indexOfProperty(it.key().toLatin1());
         if (index < 0) {

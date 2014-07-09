@@ -42,6 +42,10 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
     DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
     Q_ASSERT(!item.isNull());
 
+    if (!item->enabled()) {
+        return QVariant(QVariant::Invalid);
+    }
+
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name: return item->name();
@@ -55,6 +59,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
+
     return QVariant(QVariant::Invalid);
 }
 

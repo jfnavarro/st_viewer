@@ -52,6 +52,9 @@ public:
     // returns the URL part fully encoded. Note this includes the URL query.
     const QString getEncodedUrl() const;
 
+    // sets the whole query string
+    void setQuery(const QString &queryString);
+
 private:
 
     typedef Globals::HttpRequestType Type;

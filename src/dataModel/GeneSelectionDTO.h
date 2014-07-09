@@ -14,6 +14,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QJsonObject>
 
 #include "dataModel/GeneSelection.h"
 
@@ -48,19 +49,19 @@ public:
     ~GeneSelectionDTO() {}
 
     //getters
-    const QString id() { return m_geneSelection.id(); }
-    const QString name() { return m_geneSelection.name(); }
-    const QString userId() { return m_geneSelection.userId(); }
-    const QString datasetId() { return m_geneSelection.datasetId(); }
-    const QVariantList selectedItems()
+    const QString id() const { return m_geneSelection.id(); }
+    const QString name() const { return m_geneSelection.name(); }
+    const QString userId() const { return m_geneSelection.userId(); }
+    const QString datasetId() const { return m_geneSelection.datasetId(); }
+    const QVariantList selectedItems() const
       { return serializeSelectiosVector(m_geneSelection.selectedItems()); }
-    const QString type() { return m_geneSelection.type(); }
-    const QString status() { return m_geneSelection.status(); }
-    const QVariantList oboFoundryTerms()
+    const QString type() const { return m_geneSelection.type(); }
+    const QString status() const { return m_geneSelection.status(); }
+    const QVariantList oboFoundryTerms() const
       { return serializeVector<QString>(m_geneSelection.oboFoundryTerms()); }
-    const QString comment() { return m_geneSelection.comment(); }
-    const QString resultFile() { return m_geneSelection.resultFile(); }
-    void enabled(const bool enabled) { m_geneSelection.enabled(enabled); }
+    const QString comment() const { return m_geneSelection.comment(); }
+    const QString resultFile() const { return m_geneSelection.resultFile(); }
+    bool enabled() const { return m_geneSelection.enabled(); }
 
     // binding
     void id(const QString& id) { m_geneSelection.id(id); }
@@ -75,11 +76,43 @@ public:
       { m_geneSelection.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
     void comment(const QString& comment) { m_geneSelection.comment(comment); }
     void resultFile(const QString& file) { m_geneSelection.resultFile(file); }
-    bool enabled() { return m_geneSelection.enabled(); }
+    void enabled(const bool enabled) { m_geneSelection.enabled(enabled); }
 
     // get parsed data model
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
+
+    QString toJson() const
+    {
+        QJsonObject jsonObj;
+        //jsonObj["id"] = id();
+        jsonObj["name"] = name();
+        jsonObj["account_id"] = userId();
+        jsonObj["dataset_id"] = datasetId();
+        QJsonArray geneHits;
+        foreach(const SelectionType &item, m_geneSelection.selectedItems()) {
+            QJsonArray geneHit;
+            geneHit.append(item.name);
+            geneHit.append(item.reads);
+            geneHit.append(item.normalizedReads);
+            geneHit.append(item.pixeIntensity);
+            geneHits.append(geneHit);
+        }
+        jsonObj["gene_hits"] = geneHits;
+        jsonObj["type"] = type();
+        jsonObj["status"] = status();
+        QJsonArray oboTerms;
+        foreach(const QString &item, m_geneSelection.oboFoundryTerms()) {
+            oboTerms.append(item);
+        }
+        jsonObj["obo_foundry_terms"] = oboTerms;
+        jsonObj["comment"] = comment();
+        jsonObj["resul_file"] = resultFile();
+        jsonObj["enabled"] = enabled();
+        QJsonDocument doc(jsonObj);
+        QString result(doc.toJson(QJsonDocument::Indented));
+        return result;
+    }
 
 private:
 

@@ -14,7 +14,6 @@
 
 #include "auth/TokenStorage.h"
 #include "config/Configuration.h"
-#include "utils/Singleton.h"
 
 class NetworkManager;
 class OAuth2;

@@ -59,7 +59,8 @@ set(subdir_list
                    io
                    model
                    config
-                   math)
+                   math
+                   analysis)
 
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
