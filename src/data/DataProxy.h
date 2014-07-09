@@ -75,38 +75,41 @@ public:
     //   - get genes from dataset ID
     //   - get gene from dataset ID and gene Name
 
+    //TODO some of the QMap could be replaced for QHash(std::unordered_map) which
+    //is faster
+
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
     //map of unique genes (gene name to gene pointer)
-    typedef QHash<QString, GenePtr> GeneMap;
+    typedef QMap<QString, GenePtr> GeneMap;
     //gene list hashed by dataset id
-    typedef QHash<QString, GeneList> GeneListMap;
+    typedef QMap<QString, GeneList> GeneListMap;
     //gene map hashed by dataset id
-    typedef QHash<QString, GeneMap> GeneMapMap;
+    typedef QMap<QString, GeneMap> GeneMapMap;
     //list of features
     typedef QVector<FeaturePtr> FeatureList;
     // map of features hashed by feature id
-    typedef QHash<QString, FeaturePtr> FeatureMap;
+    typedef QMap<QString, FeaturePtr> FeatureMap;
     //features hashed by dataset id
-    typedef QHash<QString, FeatureList> FeatureListMap;
+    typedef QMap<QString, FeatureList> FeatureListMap;
     //features hashed by dataset id and feature id
-    typedef QHash<QString, FeatureMap> FeatureMapMap;
+    typedef QMap<QString, FeatureMap> FeatureMapMap;
     //features hashed by dataset id and gene name
-    typedef QHash<QString, FeatureListMap> FeatureListGeneMap;
+    typedef QMap<QString, FeatureListMap> FeatureListGeneMap;
     //chip hashed by dataset id
-    typedef QHash<QString, ChipPtr> ChipMap;
+    typedef QMap<QString, ChipPtr> ChipMap;
     //list of unique datasets
     typedef QList<DatasetPtr> DatasetList;
     //datasets hashed by dataset id
-    typedef QHash<QString, DatasetPtr> DatasetMap;
+    typedef QMap<QString, DatasetPtr> DatasetMap;
     //image alignment hashed by image alignment id
-    typedef QHash<QString, ImageAlignmentPtr> ImageAlignmentMap;
+    typedef QMap<QString, ImageAlignmentPtr> ImageAlignmentMap;
     //gene selection objects
     typedef QList<GeneSelectionPtr> GeneSelectionList;
     //gene selection hashed by id
-    typedef QHash<QString, GeneSelectionPtr> GeneSelectionMap;
+    typedef QMap<QString, GeneSelectionPtr> GeneSelectionMap;
     //cell figure hashed by figure name (figure names are unique)
-    typedef QHash<QString, QString> CellFigureMap;
+    typedef QMap<QString, QString> CellFigureMap;
     //array of three elements containing the min version supported
     typedef std::array<qulonglong, 3> MinVersionArray;
 
