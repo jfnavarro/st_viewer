@@ -55,13 +55,14 @@ public:
     void reset();
 
     //loads the data of the model from DataProxys
-    void loadSelectedGenes();
+    void loadSelectedGenes(const DataProxy::GeneSelectionList selectionList);
 
     //returns a list of selections items from the indexes given as input
     DataProxy::GeneSelectionList getSelections(const QItemSelection &selection);
 
 private:
 
+    //TODO make this a pure reference
     DataProxy::GeneSelectionList m_geneselectionList;
 
     Q_DISABLE_COPY(ExperimentsItemModel)

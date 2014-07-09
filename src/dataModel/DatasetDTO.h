@@ -35,6 +35,7 @@ class DatasetDTO : public QObject
     Q_PROPERTY(QVariantList overall_hit_quartiles READ hitsQuartiles WRITE hitsQuartiles)
     Q_PROPERTY(QString comment READ statComments WRITE statComments)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
+    Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
 
 public:
 
@@ -54,6 +55,8 @@ public:
     void hitsQuartiles(QVariantList hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
     void enabled(const bool enabled) { m_dataset.enabled(enabled); }
+    void oboFoundryTerms(const QVariantList& oboFoundryTerms)
+      { m_dataset.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
 
     // read
     const QString id() { return m_dataset.id(); }
@@ -68,6 +71,8 @@ public:
     const QVariantList hitsQuartiles() { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
     const QString statComments() { return m_dataset.statComments(); }
     bool enabled() { return m_dataset.enabled(); }
+    const QVariantList oboFoundryTerms()
+      { return serializeVector<QString>(m_dataset.oboFoundryTerms()); }
 
     // get parsed data model
     const Dataset& dataset() const { return m_dataset; }
@@ -80,8 +85,8 @@ private:
     const QVariantList serializeVector(const QVector<N>& unserializedVector) const
     {
         QVariantList newList;
-        foreach( const N &item, unserializedVector.toList() ) {
-            newList << item;
+        foreach(const N &item, unserializedVector.toList()) {
+            newList << QVariant::fromValue(item);
         }
         return newList;
     }
@@ -90,12 +95,13 @@ private:
     const QVector<N> unserializeVector(const QVariantList& serializedVector) const
     {
         // unserialize data
-        QList<N> values;
-        QVariantList::const_iterator it, end = serializedVector.end();
+        QVector<N> values;
+        QVariantList::const_iterator it;
+        QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {
-            values << it->value<N>();
+            values.push_back(it->value<N>());
         }
-        return QVector<N>::fromList(values);
+        return values;
     }
 
 

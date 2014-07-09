@@ -20,9 +20,8 @@ class QUuid;
 class QString;
 
 // simple class that handles OAuth2 authorization requests
-// it contains a LogIn widget to let the user input the credentials
+// it contains a Login widget to let the user input the credentials
 // it implements basic error handling and two modes of authorization (interactive and silent)
-
 class OAuth2 : public QObject
 {
     Q_OBJECT
@@ -31,11 +30,12 @@ public:
 
     typedef QPair<QString, QString> StringPair;
 
-    explicit OAuth2(QObject* parent = 0);
+    OAuth2(QPointer<NetworkManager> networkManager,
+           const Configuration &configurationManager, QObject* parent = 0);
     virtual ~OAuth2();
 
     // shows login dialog
-    void startInteractiveLogin();
+    void startInteractiveLogin(QWidget *parent = 0);
 
     // try to log in with stored access token
     void startQuietLogin(const QUuid& refreshToken);
@@ -64,9 +64,9 @@ private:
     // login dialog component
     QPointer<LoginDialog> m_loginDialog;
 
-    //network manager to make network requests
-    //must be a member variable
-    NetworkManager m_networkManager;
+    //reference to network manager and configuration manager
+    QPointer<NetworkManager> m_networkManager;
+    const Configuration &m_configurationManager;
 
     Q_DISABLE_COPY(OAuth2)
 };

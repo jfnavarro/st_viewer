@@ -50,6 +50,7 @@ set(subdir_list
                    network
                    auth
                    data
+                   customWidgets
                    viewTables
                    viewPages
                    viewOpenGL
@@ -102,7 +103,7 @@ set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ###STATIC LIBRARIES#####################################
 
-add_subdirectory(QtUnitTest)
+add_subdirectory(testTools)
 
 #link static libraries and third party libraries
 

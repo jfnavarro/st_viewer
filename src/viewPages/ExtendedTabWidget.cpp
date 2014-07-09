@@ -90,36 +90,37 @@ bool ExtendedButton::event(QEvent *event)
     return QPushButton::event(event);
 }
 
-ExtendedTabWidget::ExtendedTabWidget(QWidget *parent) :
+ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *parent) :
     QWidget(parent),
-    startpage(nullptr),
-    datasets(nullptr),
-    cellview(nullptr),
-    experiments(nullptr),
-    stackWidget(nullptr),
-    buttonGroup(nullptr),
-    layout(nullptr),
-    buttonLayout(nullptr)
+    m_startpage(nullptr),
+    m_datasets(nullptr),
+    m_cellview(nullptr),
+    m_experiments(nullptr),
+    m_stackWidget(nullptr),
+    m_buttonGroup(nullptr),
+    m_layout(nullptr),
+    m_buttonLayout(nullptr),
+    m_dataProxy(dataProxy)
 {
-    buttonGroup = new ExtendedButtonGroup;
+    m_buttonGroup = new ExtendedButtonGroup();
 
-    stackWidget = new QStackedWidget;
-    stackWidget->setFrameShape(QFrame::StyledPanel);
+    m_stackWidget = new QStackedWidget();
+    m_stackWidget->setFrameShape(QFrame::StyledPanel);
 
-    buttonLayout = new QVBoxLayout;
-    buttonLayout->setSpacing(0);
+    m_buttonLayout = new QVBoxLayout();
+    m_buttonLayout->setSpacing(0);
 
-    QVBoxLayout  *buttonStretchLayout = new QVBoxLayout;
+    QVBoxLayout  *buttonStretchLayout = new QVBoxLayout();
     buttonStretchLayout->setSpacing(0);
-    buttonStretchLayout->addLayout(buttonLayout);
+    buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();
 
-    layout = new QHBoxLayout;
-    layout->setSpacing(0);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addLayout(buttonStretchLayout);
-    layout->addWidget(stackWidget);
-    setLayout(layout);
+    m_layout = new QHBoxLayout();
+    m_layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->addLayout(buttonStretchLayout);
+    m_layout->addWidget(m_stackWidget);
+    setLayout(m_layout);
 
     createPages(); //create pages and add them to the tab manager
     createActions(); //create signals - action connections
@@ -134,36 +135,36 @@ ExtendedTabWidget::~ExtendedTabWidget()
     const int index = currentIndex();
     tabChanged(-1, index);
 
-    startpage->deleteLater();
-    startpage = nullptr;
+    m_startpage->deleteLater();
+    m_startpage = nullptr;
 
-    datasets->deleteLater();
-    datasets = nullptr;
+    m_datasets->deleteLater();
+    m_datasets = nullptr;
 
-    cellview->deleteLater();
-    cellview = nullptr;
+    m_cellview->deleteLater();
+    m_cellview = nullptr;
 
-    experiments->deleteLater();
-    experiments = nullptr;
+    m_experiments->deleteLater();
+    m_experiments = nullptr;
 
-    stackWidget->deleteLater();
-    stackWidget = nullptr;
+    m_stackWidget->deleteLater();
+    m_stackWidget = nullptr;
 
-    buttonGroup->deleteLater();
-    buttonGroup = nullptr;
+    m_buttonGroup->deleteLater();
+    m_buttonGroup = nullptr;
 
-    layout->deleteLater();
-    layout = nullptr;
+    m_layout->deleteLater();
+    m_layout = nullptr;
 
-    buttonLayout->deleteLater();
-    buttonLayout = nullptr;
+    m_buttonLayout->deleteLater();
+    m_buttonLayout = nullptr;
 }
 
 QSize ExtendedTabWidget::sizeHint() const
 {
     int xMax = 0;
     int yMax = 0;
-    foreach(QAbstractButton  *button, buttonGroup->buttons()) {
+    foreach(QAbstractButton  *button, m_buttonGroup->buttons()) {
         xMax = qMax(xMax, button->sizeHint().width());
         yMax = qMax(yMax, button->sizeHint().height());
     }
@@ -172,23 +173,23 @@ QSize ExtendedTabWidget::sizeHint() const
 
 int ExtendedTabWidget::count() const
 {
-    Q_ASSERT(stackWidget);
-    return stackWidget->count();
+    Q_ASSERT(!m_stackWidget.isNull());
+    return m_stackWidget->count();
 }
 
 int ExtendedTabWidget::currentIndex() const
 {
-     Q_ASSERT(stackWidget);
-    return stackWidget->currentIndex();
+    Q_ASSERT(!m_stackWidget.isNull());
+    return m_stackWidget->currentIndex();
 }
 
 void ExtendedTabWidget::insertPage(QWidget *page,
                                    const QIcon &icon, const QString &title)
 {
-    Q_ASSERT(stackWidget);
+    Q_ASSERT(!m_stackWidget.isNull());
 
     const int index = count();
-    stackWidget->insertWidget(index, page);
+    m_stackWidget->insertWidget(index, page);
 
     // Set label
     QString label = title;
@@ -212,8 +213,8 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     button->setChecked(count() == 1);
     button->setStyleSheet("QPushButton {width: 100px; height: 100px; icon-size: 50px; }");
 
-    buttonGroup->addButton(button, index);
-    buttonLayout->addWidget(button);
+    m_buttonGroup->addButton(button, index);
+    m_buttonLayout->addWidget(button);
 }
 
 void ExtendedTabWidget::setCurrentIndex(int index)
@@ -223,15 +224,14 @@ void ExtendedTabWidget::setCurrentIndex(int index)
     }
 
     if (index != currentIndex()) {
-        stackWidget->setCurrentIndex(index);
-        buttonGroup->button(index)->setChecked(true);
-        emit currentIndexChanged(index);
+        m_stackWidget->setCurrentIndex(index);
+        m_buttonGroup->button(index)->setChecked(true);
     }
 }
 
 QWidget* ExtendedTabWidget::widget(int index)
 {
-    return stackWidget->widget(index);
+    return m_stackWidget->widget(index);
 }
 
 void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
@@ -241,13 +241,13 @@ void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
     QWidget *fromWidget = widget(fromIndex);
     QWidget *toWidget = widget(toIndex);
 
-    if (fromWidget != 0) {
+    if (fromWidget != nullptr) {
         QMetaObject::invokeMethod(fromWidget, "onExit", Qt::DirectConnection);
     }
 
     setCurrentIndex(toIndex);
 
-    if (toWidget != 0) {
+    if (toWidget != nullptr) {
         QMetaObject::invokeMethod(toWidget, "onEnter", Qt::DirectConnection);
     }
 }
@@ -266,32 +266,32 @@ void ExtendedTabWidget::moveToPreviousPage()
 
 void ExtendedTabWidget::createPages()
 {
-    Q_ASSERT(stackWidget);
+    Q_ASSERT(!m_stackWidget.isNull());
 
-    startpage = new InitPage(stackWidget);
-    insertPage(startpage, QIcon(QStringLiteral(":/images/startpage-icon.png")), "Start");
+    m_startpage = new InitPage(m_dataProxy, m_stackWidget);
+    insertPage(m_startpage, QIcon(QStringLiteral(":/images/startpage-icon.png")), "Start");
 
-    datasets = new DatasetPage(stackWidget);
-    insertPage(datasets, QIcon(QStringLiteral(":/images/datasetpage-icon.png")), "Datasets");
+    m_datasets = new DatasetPage(m_dataProxy, m_stackWidget);
+    insertPage(m_datasets, QIcon(QStringLiteral(":/images/datasetpage-icon.png")), "Datasets");
 
-    cellview = new CellViewPage(stackWidget);
-    insertPage(cellview, QIcon(QStringLiteral(":/images/gene.png")), "Cell View");
+    m_cellview = new CellViewPage(m_dataProxy, m_stackWidget);
+    insertPage(m_cellview, QIcon(QStringLiteral(":/images/gene.png")), "Cell View");
 
-    experiments = new ExperimentPage(stackWidget);
-    insertPage(experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
+    m_experiments = new ExperimentPage(m_dataProxy, m_stackWidget);
+    insertPage(m_experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
 }
 
 void ExtendedTabWidget::createActions()
 {
     // transition signals
-    connect(startpage, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
-    connect(startpage, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
-    connect(datasets, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
-    connect(datasets, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
-    connect(cellview, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
-    connect(cellview, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
-    connect(experiments, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
-    connect(experiments, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
+    connect(m_startpage, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
+    connect(m_startpage, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
+    connect(m_datasets, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
+    connect(m_datasets, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
+    connect(m_cellview, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
+    connect(m_cellview, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
+    connect(m_experiments, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));
+    connect(m_experiments, SIGNAL(moveToPreviousPage()), this, SLOT(moveToPreviousPage()));
 }
 
 void ExtendedTabWidget::resetStatus()

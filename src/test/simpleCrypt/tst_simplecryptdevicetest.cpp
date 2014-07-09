@@ -15,8 +15,8 @@
 
 #include "data/SimpleCryptDevice.h"
 
-#include <QtUnitTest/data/binarygenerator.h>
-#include <QtUnitTest/data/asciigenerator.h>
+#include "testTools/data/binarygenerator.h"
+#include "testTools/data/asciigenerator.h"
 
 #include "tst_simplecryptdevicetest.h"
 

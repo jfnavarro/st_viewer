@@ -25,13 +25,10 @@ GenesTableView::GenesTableView(QWidget *parent)
     m_sortGenesProxyModel->setSourceModel(m_geneModel);
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_sortGenesProxyModel->setFilterRegExp(QRegExp("(ambiguous)*|(^[0-9])*",
-                                            Qt::CaseInsensitive)); //not show ambiguous genes or numbers
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
     sortByColumn(GeneFeatureItemModel::Name, Qt::AscendingOrder);
-    horizontalHeader()->setSortIndicatorShown(true);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
@@ -43,10 +40,10 @@ GenesTableView::GenesTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
+    horizontalHeader()->setSortIndicatorShown(true);
+    verticalHeader()->hide();
 
     model()->submit(); //support for caching (speed up)
-
-    verticalHeader()->hide();
 }
 
 GenesTableView::~GenesTableView()

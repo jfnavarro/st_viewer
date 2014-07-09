@@ -40,7 +40,8 @@ Page::~Page()
 
 void Page::setWaiting(bool waiting)
 {
-    Q_UNUSED(waiting)
+    Q_UNUSED(waiting);
+    //TODO finish
     /*
     if (waiting) {
         m_progressDialog->setValue(0);

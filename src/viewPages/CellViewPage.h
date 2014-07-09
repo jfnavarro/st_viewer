@@ -39,7 +39,7 @@ class CellViewPage : public Page
 
 public:
     
-    explicit CellViewPage(QWidget *parent = 0);
+    explicit CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~CellViewPage();
 
     // load the content of the currently selected dataset
@@ -47,7 +47,6 @@ public:
 
 public slots:
     
-    void onInit() override;
     void onEnter() override;
     void onExit() override;
 
@@ -110,7 +109,10 @@ private:
     QPointer<CellViewPageToolBar> m_toolBar;
 
     // User interface
-    Ui::CellView *ui;
+    Ui::CellView *m_ui;
+
+    // reference to dataProxy
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(CellViewPage)
 };

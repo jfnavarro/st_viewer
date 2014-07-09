@@ -8,14 +8,19 @@
 #include "SelectionDialog.h"
 #include "ui_selectiondialog.h"
 
-SelectionDialog::SelectionDialog(QWidget *parent, Qt::WindowFlags f) :
+SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy, QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
-    ui(new Ui::SelectionDialog),
+    m_ui(nullptr),
     m_includeAmbiguous(false),
     m_caseSensitive(false),
-    m_regExpValid(false)
+    m_regExpValid(false),
+    m_dataProxy(dataProxy)
 {
-    ui->setupUi(this);
+    Q_ASSERT(!m_dataProxy.isNull());
+
+    m_ui = new Ui::SelectionDialog();
+    m_ui->setupUi(this);
+
     // set default state
     slotCaseSensitive(false);
     slotIncludeAmbiguous(false);
@@ -23,8 +28,10 @@ SelectionDialog::SelectionDialog(QWidget *parent, Qt::WindowFlags f) :
 
 SelectionDialog::~SelectionDialog()
 {
-    delete ui;
-    ui = nullptr;
+    if (m_ui != nullptr) {
+        delete m_ui;
+    }
+    m_ui = nullptr;
 }
 
 const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const
@@ -32,9 +39,9 @@ const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const
     return m_selectedGeneList;
 }
 
-const SelectionDialog::GeneList SelectionDialog::selectGenes(QWidget *parent)
+const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy> dataProxy, QWidget *parent)
 {
-    SelectionDialog dialog(parent);
+    SelectionDialog dialog(dataProxy, parent);
     if (dialog.exec() == QDialog::Accepted) {
         return dialog.selectedGenes();
     }
@@ -48,9 +55,9 @@ void SelectionDialog::accept()
         reject();
         return;
     }
+
     // get the current list of genes
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto& geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    const auto& geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
     
     // find all genes that match the regular expression
     m_selectedGeneList.clear();
@@ -63,6 +70,7 @@ void SelectionDialog::accept()
             m_selectedGeneList.append(gene);
         }
     }
+
     // and propagate accept call
     QDialog::accept();
 }
@@ -80,8 +88,8 @@ void SelectionDialog::slotValidateRegExp(const QString &pattern)
 void SelectionDialog::slotIncludeAmbiguous(bool includeAmbiguous)
 {
     m_includeAmbiguous = includeAmbiguous;
-    if (m_includeAmbiguous != ui->checkAmbiguous->isChecked()) {
-        ui->checkAmbiguous->setChecked(m_includeAmbiguous);
+    if (m_includeAmbiguous != m_ui->checkAmbiguous->isChecked()) {
+        m_ui->checkAmbiguous->setChecked(m_includeAmbiguous);
     }
 }
 
@@ -90,16 +98,16 @@ void SelectionDialog::slotCaseSensitive(bool caseSensitive)
     // toggle case sensitive
     m_regExp.setCaseSensitivity((caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive));
     m_caseSensitive = caseSensitive;
-    if (m_caseSensitive != ui->checkCaseSense->isChecked()) {
-        ui->checkCaseSense->setChecked(m_caseSensitive);
+    if (m_caseSensitive != m_ui->checkCaseSense->isChecked()) {
+        m_ui->checkCaseSense->setChecked(m_caseSensitive);
     }
 }
 
 void SelectionDialog::slotEnableAcceptAction(bool enableAcceptAction)
 {
     // disable any "accept/yes/apply" type buttons when regexp is invalid
-    foreach(QAbstractButton * button, ui->buttonBox->buttons()) {
-        const QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(button);
+    foreach(QAbstractButton *button, m_ui->buttonBox->buttons()) {
+        const QDialogButtonBox::ButtonRole role = m_ui->buttonBox->buttonRole(button);
         if (role == QDialogButtonBox::AcceptRole ||
             role == QDialogButtonBox::YesRole ||
             role == QDialogButtonBox::ApplyRole) {

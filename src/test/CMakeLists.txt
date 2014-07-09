@@ -6,7 +6,7 @@ FIX_QT3D_COMPILATION_BUG()
 
 use_qt5lib(Qt5Test)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/QtUnitTest ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/testTools ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
 
 set(TARGET_NAME stVi_test)
 
@@ -49,7 +49,7 @@ set(ST_UNITTEST_SOURCES
     ${LIB_ST_SIMPLECRYPT}
     ${LIB_ST_MATH}
     ${LIB_ST_NETWORK}
-    $<TARGET_OBJECTS:QtUnitTest>
+    $<TARGET_OBJECTS:testTools>
     ${ST_TARGET_OBJECTS}
 )
  
@@ -62,7 +62,7 @@ else()
     add_executable(${TARGET_NAME} ${ST_UNITTEST_SOURCES})
 endif()
 
-target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY}) #STCoreWidgets
+target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})

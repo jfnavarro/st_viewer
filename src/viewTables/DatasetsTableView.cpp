@@ -26,27 +26,26 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     setModel(sortProxyModel);
+
     setSortingEnabled(true);
-
-    sortByColumn(DatasetItemModel::Name, Qt::AscendingOrder);
-
-    horizontalHeader()->setSortIndicatorShown(true);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::Interactive);
-    horizontalHeader()->setStretchLastSection(true);
-
     setShowGrid(true);
     setWordWrap(true);
     setAlternatingRowColors(true);
-
-    resizeColumnsToContents();
-    resizeRowsToContents();
+    sortByColumn(DatasetItemModel::Name, Qt::AscendingOrder);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
-    model()->submit(); //support for caching (speed up)
+    resizeColumnsToContents();
+    resizeRowsToContents();
+
+    horizontalHeader()->setSortIndicatorShown(true);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::Interactive);
+    horizontalHeader()->setStretchLastSection(true);
     verticalHeader()->hide();
+
+    model()->submit(); //support for caching (speed up)
 
     //notify the model I have selected a dataset
     connect(this, SIGNAL(doubleClicked(QModelIndex)),

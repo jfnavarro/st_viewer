@@ -54,7 +54,7 @@ public:
     void setGeneColor(const QItemSelection &selection, const QColor& color);
 
     //reload the reference to the genes from DataProxy
-    void loadGenes();
+    void loadGenes(DataProxy::GeneList &geneList);
 
 public slots:
     //TODO pass reference instead for genename
@@ -67,6 +67,7 @@ signals:
 
 private:
 
+    //TODO make this a pure reference
     DataProxy::GeneList m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel)

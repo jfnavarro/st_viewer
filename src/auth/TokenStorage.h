@@ -30,7 +30,7 @@ public:
     void setAccessToken(const QUuid& accessToken, int expiresIn);
     void setRefreshToken(const QUuid& refreshToken);
 
-    //wether the access token has expired or not
+    //if the access token has expired or not
     bool isExpired() const;
 
     //getters

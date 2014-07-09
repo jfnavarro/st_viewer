@@ -18,7 +18,7 @@ Configuration::Configuration()
     QSettings::Format format = QSettings::registerFormat(
                                    "conf", &SettingsFormatXML::readXMLFile,
                                    &SettingsFormatXML::writeXMLFile);
-    m_settings = QPointer<QSettings>(new QSettings(":/config/application.conf", format, nullptr));
+    m_settings = new QSettings(":/config/application.conf", format, nullptr);
 }
 
 Configuration::~Configuration()

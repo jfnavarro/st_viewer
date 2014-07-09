@@ -25,9 +25,12 @@
 
 #include "utils/Utils.h"
 
-OAuth2::OAuth2(QObject* parent)
+OAuth2::OAuth2(QPointer<NetworkManager> networkManager,
+               const Configuration &configurationManager, QObject* parent)
     : QObject(parent),
-      m_loginDialog(nullptr)
+      m_loginDialog(nullptr),
+      m_networkManager(networkManager),
+      m_configurationManager(configurationManager)
 {
 
 }
@@ -47,11 +50,11 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
     requestToken(requestType, requestData);
 }
 
-void OAuth2::startInteractiveLogin()
+void OAuth2::startInteractiveLogin(QWidget *parent)
 {
     // lazy init
     if (m_loginDialog.isNull()) {
-        m_loginDialog = new LoginDialog();
+        m_loginDialog = new LoginDialog(parent);
         connect(m_loginDialog, SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
         connect(m_loginDialog, SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
@@ -72,13 +75,13 @@ void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
 {
-    NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken();
+    NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken(m_configurationManager);
     cmd->addQueryItem(requestUser.first, requestUser.second);
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
 
     // send empty flags to ensure access token is not appended to request
     NetworkReply *request =
-            m_networkManager.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+            m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
 
     //check reply is correct
     if (request == nullptr) {

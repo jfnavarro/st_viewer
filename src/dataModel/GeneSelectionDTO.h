@@ -53,7 +53,7 @@ public:
     const QString userId() { return m_geneSelection.userId(); }
     const QString datasetId() { return m_geneSelection.datasetId(); }
     const QVariantList selectedItems()
-      { return serializeVector<SelectionType>(m_geneSelection.selectedItems()); }
+      { return serializeSelectiosVector(m_geneSelection.selectedItems()); }
     const QString type() { return m_geneSelection.type(); }
     const QString status() { return m_geneSelection.status(); }
     const QVariantList oboFoundryTerms()
@@ -84,8 +84,19 @@ public:
 private:
 
     //TODO duplicated in other DTOs move to Utils class
+    const QVariantList serializeSelectiosVector(const QVector<SelectionType> &unserializedVector) const
+    {
+        QVariantList newList;
+        foreach(const SelectionType &item, unserializedVector.toList()) {
+            QVariantList itemList;
+            itemList << item.name << item.reads << item.normalizedReads << item.pixeIntensity;
+            newList << QVariant::fromValue(itemList);
+        }
+        return newList;
+    }
+
     template<typename N>
-    const QVariantList serializeVector(const QVector<N> &unserializedVector) const
+    const QVariantList serializeVector(const QVector<N>& unserializedVector) const
     {
         QVariantList newList;
         foreach(const N &item, unserializedVector.toList()) {
@@ -98,13 +109,13 @@ private:
     const QVector<N> unserializeVector(const QVariantList &serializedVector) const
     {
         // unserialize data
-        QList<N> values;
+        QVector<N> values;
         QVariantList::const_iterator it;
         QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {
-            values << it->value<N>();
+            values.push_back(it->value<N>());
         }
-        return QVector<N>::fromList(values);
+        return values;
     }
 
     GeneSelection m_geneSelection;

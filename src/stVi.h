@@ -20,6 +20,7 @@ class Error;
 class QVBoxLayout;
 class ExtendedTabWidget;
 class QWidget;
+class DataProxy;
 
 class stVi : public QMainWindow
 {
@@ -33,10 +34,10 @@ public:
     //initialize main visual components
     void init();
 
-    // check that the host has all the required hardware (1 yes : 0 no )
+    // check that the host has all the required hardware (true yes : false no )
     bool checkSystemRequirements() const;
 
-    //settings
+    //system settings
     void loadSettings();
     void saveSettings() const;
 
@@ -46,16 +47,16 @@ public slots:
     // instance trying to run at the same time
     void handleMessage(const QString& message);
 
-    // opens pop up static widget to show info about the application
-    void showAbout();
-
 private slots:
 
     // exit the application
     void slotExit();
 
-    //clear the cache and files
+    //clear the cache and local stored files
     void slotClearCache();
+
+    // opens pop up static widget to show info about the application
+    void showAbout();
 
 private:
 
@@ -65,16 +66,13 @@ private:
     void createLayouts();
     // load style sheets
     void initStyle();
-    // initialize singleton objects
-    void initSingleInstances();
     // create keyboard shortcuts
     void createShorcuts();
-    // finalize and destroy singleton objects
-    void finalizeSingleInstances();
     // create some connections
     void createConnections();
+
     // overloaded close Event function to handle the exit
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
     QPointer<QAction> m_actionExit;
     QPointer<QAction> m_actionHelp;
@@ -88,6 +86,9 @@ private:
     QPointer<QWidget> m_centralwidget;
     QPointer<QVBoxLayout> m_mainlayout;
     QPointer<ExtendedTabWidget> m_mainTab;
+
+    //stVi owns dataProxy
+    QPointer<DataProxy> m_dataProxy;
 };
 
 #endif // stVi_H

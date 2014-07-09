@@ -23,22 +23,39 @@
 
 #include "ui_datasets.h"
 
-DatasetPage::DatasetPage(QWidget *parent) :
-    Page(parent)
+DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
+    Page(parent),
+    m_ui(nullptr),
+    m_dataProxy(dataProxy)
 {
-    onInit();
+    Q_ASSERT(!m_dataProxy.isNull());
+
+    // create UI
+    m_ui = new Ui::DataSets();
+    m_ui->setupUi(this);
+
+    //connect signals
+    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
+            SLOT(setFilterFixedString(QString)));
+    connect(datasetsModel(), SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
+            this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
+    connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
+    connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()));
 }
 
 DatasetPage::~DatasetPage()
 {
-    delete ui;
-    ui = nullptr;
+    if (m_ui != nullptr) {
+        delete m_ui;
+    }
+    m_ui = nullptr;
 }
 
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(ui->datasets_tableview->model());
+        qobject_cast<QSortFilterProxyModel*>(m_ui->datasets_tableview->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
@@ -51,50 +68,28 @@ DatasetItemModel *DatasetPage::datasetsModel()
     return model;
 }
 
-void DatasetPage::onInit()
-{
-    // create UI
-    ui = new Ui::DataSets;
-    ui->setupUi(this);
-    
-    //connect signals
-    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(datasetsModel(), SIGNAL(datasetSelected(DataProxy::DatasetPtr)),
-            this, SLOT(datasetSelected(DataProxy::DatasetPtr)));
-    connect(ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
-    connect(ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
-    connect(ui->refresh, SIGNAL(clicked(bool)), this, SLOT(refreshDatasets()));
-}
-
 void DatasetPage::onEnter()
 {
     loadDatasets();
     //clear selection/focus
-    ui->datasets_tableview->clearSelection();
-    ui->datasets_tableview->clearFocus();
-    ui->back->clearFocus();
-    ui->refresh->clearFocus();
-    ui->next->clearFocus();
+    m_ui->datasets_tableview->clearSelection();
+    m_ui->datasets_tableview->clearFocus();
+    m_ui->back->clearFocus();
+    m_ui->refresh->clearFocus();
+    m_ui->next->clearFocus();
 }
 
 void DatasetPage::onExit()
 {
-    //clear selection/focus
-    ui->datasets_tableview->clearSelection();
-    ui->datasets_tableview->clearFocus();
-    ui->back->clearFocus();
-    ui->refresh->clearFocus();
-    ui->next->clearFocus();
+
 }
 
 void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 {
     if (item.isNull() || item->id().isEmpty()) {
         showError("Data Error", "Error loading the selected dataset.");
-    } else {       
-        DataProxy *dataProxy = DataProxy::getInstance();
-        dataProxy->setSelectedDataset(item->id());
+    } else {
+        m_dataProxy->setSelectedDataset(item->id());
         emit moveToNextPage();
     }
 }
@@ -102,8 +97,7 @@ void DatasetPage::datasetSelected(DataProxy::DatasetPtr item)
 void DatasetPage::loadDatasets()
 {
     setWaiting(true);
-    DataProxy *dataProxy = DataProxy::getInstance();
-    async::DataRequest request = dataProxy->loadDatasets();
+    async::DataRequest request = m_dataProxy->loadDatasets();
     setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
@@ -112,13 +106,14 @@ void DatasetPage::loadDatasets()
         showError("Data Error", "Error loading the datasets.");
     } else {
         // refresh datasets on the model
-        datasetsModel()->loadDatasets();
+        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 }
 
 void DatasetPage::refreshDatasets()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    dataProxy->clean(); //clean the cache
+    //clean the cache TODO this should not happen here, loadDatasets should clear the previous
+    //datasets
+    //m_dataProxy->clean();
     loadDatasets();
 }

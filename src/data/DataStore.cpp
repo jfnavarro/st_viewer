@@ -147,12 +147,10 @@ DataStore::resourceDeviceType DataStore::createFile(const QString& name, Options
 DataStore::resourceDeviceType DataStore::accessFile(const QString& name, Options options)
 {
     qDebug() << QString("DataStore::accessFile(%1, %2)").arg(name).arg(options);
-
     // early out
     FileMap::const_iterator it = m_fileMap.find(name);
     if (it == m_fileMap.end()) {
         return nullptr;
     }
-
     return resourceDeviceType(new QFile(it.value(), this));
 }

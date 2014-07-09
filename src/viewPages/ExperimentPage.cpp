@@ -18,23 +18,39 @@
 
 #include "network/DownloadManager.h"
 
-ExperimentPage::ExperimentPage(QWidget *parent)
+ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
-      ui(nullptr)
+      m_ui(nullptr),
+      m_dataProxy(dataProxy)
 {
-    onInit();
+    Q_ASSERT(!m_dataProxy.isNull());
+
+    // create UI
+    m_ui = new Ui::Experiments();
+    m_ui->setupUi(this);
+
+    //connect signals
+    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
+            SLOT(setFilterFixedString(QString)));
+    connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
+    connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelections()));
+    connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelections()));
+    connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(slotSelectionSelected(QModelIndex)));
 }
 
 ExperimentPage::~ExperimentPage()
 {
-    delete ui;
-    ui = nullptr;
+    if (m_ui != nullptr) {
+        delete m_ui;
+    }
+    m_ui = nullptr;
 }
 
 QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
 {
     QSortFilterProxyModel* selectionsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(ui->experiments_tableView->model());
+        qobject_cast<QSortFilterProxyModel*>(m_ui->experiments_tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
@@ -47,32 +63,17 @@ ExperimentsItemModel *ExperimentPage::selectionsModel()
     return model;
 }
 
-void ExperimentPage::onInit()
-{
-    // create UI
-    ui = new Ui::Experiments;
-    ui->setupUi(this);
-
-    //connect signals
-    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
-    connect(ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelections()));
-    connect(ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelections()));
-    connect(ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(slotSelectionSelected(QModelIndex)));
-}
-
 void ExperimentPage::onEnter()
 {
     slotLoadSelections();
     //clear selection/focus
-    ui->experiments_tableView->clearSelection();
-    ui->experiments_tableView->clearFocus();
-    ui->back->clearFocus();
+    m_ui->experiments_tableView->clearSelection();
+    m_ui->experiments_tableView->clearFocus();
+    m_ui->back->clearFocus();
     //remove and export not enable by default
-    ui->removeSelections->setEnabled(false);
-    ui->exportSelections->setEnabled(false);
+    m_ui->removeSelections->setEnabled(false);
+    m_ui->exportSelections->setEnabled(false);
+    m_ui->ddaAnalysis->setEnabled(false);
 }
 
 void ExperimentPage::onExit()
@@ -82,7 +83,7 @@ void ExperimentPage::onExit()
 void ExperimentPage::slotLoadSelections()
 {
     setWaiting(true);
-    async::DataRequest request = DataProxy::getInstance()->loadGeneSelections();
+    async::DataRequest request = m_dataProxy->loadGeneSelections();
     setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
@@ -91,15 +92,16 @@ void ExperimentPage::slotLoadSelections()
         showError("Data Error", "Error loading the selections.");
     } else {
         // refresh gene selections on the model
-        selectionsModel()->loadSelectedGenes();
+        selectionsModel()->loadSelectedGenes(m_dataProxy->getGeneSelections());
     }
 }
 
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
 {
     //TODO check that the proper dataset object is selected and available
-    ui->removeSelections->setEnabled(index.isValid());
-    ui->exportSelections->setEnabled(index.isValid());
+    m_ui->removeSelections->setEnabled(index.isValid());
+    m_ui->exportSelections->setEnabled(index.isValid());
+    m_ui->ddaAnalysis->setEnabled(index.isValid());
 }
 
 void ExperimentPage::slotRemoveSelections()
@@ -114,32 +116,31 @@ void ExperimentPage::slotRemoveSelections()
         return;
     }
 
-    const auto selected = ui->experiments_tableView->selectionModel()->selection();
+    const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
     if (currentSelection.empty()) {
         return;
     }
 
-    setWaiting(true);
+    //setWaiting(true);
     for (auto selection : currentSelection) {
         Q_ASSERT(selection);
-        DataProxy *dataProxy = DataProxy::getInstance();
-        async::DataRequest request = dataProxy->removeGeneSelectionById(selection->id());
+        async::DataRequest request = m_dataProxy->removeGeneSelectionById(selection->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO show the error present in request.getErrors()
             showError("Data Error", QString("Error Remove the selection %1").arg(selection->name()));
         }
     }
-    setWaiting(false);
+    //setWaiting(false);
 
     slotLoadSelections();
 }
 
 void ExperimentPage::slotExportSelections()
 {
-    const auto selected = ui->experiments_tableView->selectionModel()->selection();
+    const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
     if (currentSelection.empty()) {

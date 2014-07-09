@@ -9,34 +9,27 @@
 
 #include "auth/OAuth2.h"
 
-AuthorizationManager::AuthorizationManager(QObject* parent)
+AuthorizationManager::AuthorizationManager(QPointer<NetworkManager> networkManager,
+                                           const Configuration &configurationManager, QObject* parent)
     : QObject(parent),
-      m_oAuth2(nullptr)
+      m_oAuth2(nullptr),
+      m_networkManager(networkManager),
+      m_configurationManager(configurationManager)
 {
 
 }
 
 AuthorizationManager::~AuthorizationManager()
 {
-
-}
-
-void AuthorizationManager::finalize()
-{
     m_oAuth2->deleteLater();
     m_oAuth2 = nullptr;
 }
 
-void AuthorizationManager::init()
-{
-
-}
-
-void AuthorizationManager::start()
+void AuthorizationManager::start(QWidget *parent)
 {
     //lazy init
     if (m_oAuth2.isNull()) {
-        m_oAuth2 = new OAuth2();
+        m_oAuth2 = new OAuth2(m_networkManager, m_configurationManager, this);
         connect(m_oAuth2, SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
         connect(m_oAuth2, SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
@@ -48,7 +41,7 @@ void AuthorizationManager::start()
     if (isAuthenticated()) {
         emit signalAuthorize();
     } else {
-        forceAuthentication();
+        forceAuthentication(parent);
     }
 }
 
@@ -57,12 +50,12 @@ void AuthorizationManager::cleanAccesToken()
     m_tokenStorage.cleanAll();
 }
 
-void AuthorizationManager::forceAuthentication()
+void AuthorizationManager::forceAuthentication(QWidget *parent)
 {
     if (m_tokenStorage.hasRefreshToken()) {
         m_oAuth2->startQuietLogin(m_tokenStorage.getRefreshToken());
     } else {
-        m_oAuth2->startInteractiveLogin();
+        m_oAuth2->startInteractiveLogin(parent);
     }
 }
 

@@ -8,122 +8,116 @@
 #include "RESTCommandFactory.h"
 #include "config/Configuration.h"
 
-NetworkCommand* RESTCommandFactory::getAuthorizationToken()
+NetworkCommand* RESTCommandFactory::getAuthorizationToken(const Configuration& configuration)
 {
-    Configuration config;
-    const QUrl endpoint = QUrl(config.oauthEndpointToken());
+    const QUrl endpoint = QUrl(configuration.oauthEndpointToken());
     NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
     cmd->addQueryItem(Globals::LBL_GRANT_TYPE, Globals::LBL_GRANT_PASSWORD);
-    cmd->addQueryItem(Globals::LBL_SCOPE, config.oauthScope());
+    cmd->addQueryItem(Globals::LBL_SCOPE, configuration.oauthScope());
     return cmd;
 }
 
-NetworkCommand* RESTCommandFactory::getChipByChipId(const QString& chipId)
+NetworkCommand* RESTCommandFactory::getChipByChipId(const Configuration& configuration,
+                                                    const QString& chipId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointChips() + "/" + chipId);
+    QUrl endpoint = QUrl(configuration.dataEndpointChips() + "/" + chipId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::getDatasets()
+NetworkCommand* RESTCommandFactory::getDatasets(const Configuration& configuration)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointDatasets());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
-}
-
-NetworkCommand*
-RESTCommandFactory::getDatasetByDatasetId(const QString& datasetId)
-{
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointDatasets() + "/" + datasetId);
+    QUrl endpoint = QUrl(configuration.dataEndpointDatasets());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand*
-RESTCommandFactory::updateDatsetByDatasetId(const QString& datasetId)
+RESTCommandFactory::getDatasetByDatasetId(const Configuration& configuration,
+                                          const QString& datasetId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointDatasets() + "/" + datasetId);
+    QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+}
+
+NetworkCommand*
+RESTCommandFactory::updateDatsetByDatasetId(const Configuration& configuration,
+                                            const QString& datasetId)
+{
+    QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
 }
 
 NetworkCommand*
-RESTCommandFactory::getGenesByDatasetId(const QString& datasetId)
+RESTCommandFactory::getGenesByDatasetId(const Configuration& configuration,
+                                        const QString& datasetId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointGenes());
+    QUrl endpoint = QUrl(configuration.dataEndpointGenes());
     NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
     cmd->addQueryItem("dataset", datasetId);
     return cmd;
 }
 
 NetworkCommand*
-RESTCommandFactory::getFeatureByDatasetId(const QString& datasetId)
+RESTCommandFactory::getFeatureByDatasetId(const Configuration& configuration,
+                                          const QString& datasetId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointFeatures());
+    QUrl endpoint = QUrl(configuration.dataEndpointFeatures());
     NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
     cmd->addQueryItem("dataset", datasetId);
     return cmd;
 }
 
 NetworkCommand*
-RESTCommandFactory::getFeatureByDatasetIdAndGene(
+RESTCommandFactory::getFeatureByDatasetIdAndGene(const Configuration &configuration,
         const QString& datasetId, const QString& gene)
 {
-    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(datasetId);
+    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(configuration, datasetId);
     cmd->addQueryItem("gene", gene);
     return cmd;
 }
 
 NetworkCommand*
-RESTCommandFactory::getImageAlignmentById(const QString& imageAlignmentId)
+RESTCommandFactory::getImageAlignmentById(const Configuration& configuration,
+                                          const QString& imageAlignmentId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointImageAlingment() + "/" + imageAlignmentId);
+    QUrl endpoint = QUrl(configuration.dataEndpointImageAlingment() + "/" + imageAlignmentId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
 NetworkCommand*
-RESTCommandFactory::getCellTissueFigureByName(const QString& name)
+RESTCommandFactory::getCellTissueFigureByName(const Configuration& configuration,
+                                              const QString& name)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointFigures() + "/" + name);
+    QUrl endpoint = QUrl(configuration.dataEndpointFigures() + "/" + name);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::getUser()
+NetworkCommand* RESTCommandFactory::getUser(const Configuration& configuration)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointUsers());
+    QUrl endpoint = QUrl(configuration.dataEndpointUsers());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::getSelections()
+NetworkCommand* RESTCommandFactory::getSelections(const Configuration& configuration)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointSelections());
+    QUrl endpoint = QUrl(configuration.dataEndpointSelections());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const QString &selectionId)
+NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const Configuration& configuration,
+                                                                 const QString &selectionId)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointSelections() + "/" + selectionId);
+    QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
 }
 
-NetworkCommand* RESTCommandFactory::addSelection()
+NetworkCommand* RESTCommandFactory::addSelection(const Configuration& configuration)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointSelections());
+    QUrl endpoint = QUrl(configuration.dataEndpointSelections());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
 }
 
-NetworkCommand* RESTCommandFactory::getMinVersion()
+NetworkCommand* RESTCommandFactory::getMinVersion(const Configuration& configuration)
 {
-    Configuration config;
-    QUrl endpoint = QUrl(config.dataEndpointMinVersion());
+    QUrl endpoint = QUrl(configuration.dataEndpointMinVersion());
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }

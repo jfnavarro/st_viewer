@@ -18,29 +18,28 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     setModel(sortProxyModel);
-    setSortingEnabled(true);
 
+    setSortingEnabled(true);
+    setShowGrid(true);
+    setWordWrap(true);
+    setAlternatingRowColors(true);
     sortByColumn(ExperimentsItemModel::Name, Qt::AscendingOrder);
-    horizontalHeader()->setSortIndicatorShown(true);
 
     resizeColumnsToContents();
     resizeRowsToContents();
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
-    setSelectionMode(QAbstractItemView::MultiSelection);
-
-    setShowGrid(true);
-    setWordWrap(true);
-    setAlternatingRowColors(true);
+    setSelectionMode(QAbstractItemView::SingleSelection);
 
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::Interactive);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes, QHeaderView::Stretch);
-
+    horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
+
     model()->submit(); //support for caching (speed up)
 }
 

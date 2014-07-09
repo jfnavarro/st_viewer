@@ -10,6 +10,8 @@
 
 #include "Page.h"
 
+#include "data/DataProxy.h"
+
 class QVBoxLayout;
 class Error;
 
@@ -29,12 +31,11 @@ class InitPage : public Page
 
 public:
 
-    explicit InitPage(QWidget *parent = 0);
+    InitPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~InitPage();
 
 public slots:
 
-    void onInit() override;
     void onEnter() override;
     void onExit() override;
 
@@ -46,7 +47,8 @@ private slots:
 
 private:
 
-    Ui::InitPage *ui;
+    Ui::InitPage *m_ui;
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(InitPage)
 };

@@ -53,6 +53,7 @@ public slots:
 
 private:
 
+    //TODO make this a pure reference
     GeneSelection::selectedItemsList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)

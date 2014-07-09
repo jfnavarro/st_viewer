@@ -27,11 +27,12 @@ public:
     
     typedef DataProxy::GeneList GeneList;
 
-    explicit SelectionDialog(QWidget * parent = 0, Qt::WindowFlags f = 0);
+    SelectionDialog(QPointer<DataProxy> dataProxy, QWidget * parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
     const GeneList& selectedGenes() const;
-    static const GeneList selectGenes(QWidget *parent = 0);
+
+    static const GeneList selectGenes(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
 
 signals:
     
@@ -48,12 +49,14 @@ public slots:
 
 private:
     
-    Ui::SelectionDialog *ui;
+    Ui::SelectionDialog *m_ui;
     bool m_includeAmbiguous;
     bool m_caseSensitive;
     bool m_regExpValid;
     QRegExp m_regExp;
     GeneList m_selectedGeneList;
+
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(SelectionDialog)
 };

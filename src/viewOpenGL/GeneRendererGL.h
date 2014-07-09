@@ -21,13 +21,14 @@ class QGLTexture2D;
 class QVector2DArray;
 class QGLShaderProgramEffect;
 
+//TODO add better comments to class and functions
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
 
 public:
 
-    explicit GeneRendererGL(QObject *parent = 0);
+    explicit GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
     // data builders
@@ -143,6 +144,9 @@ private:
 
     // tells if something has changed
     bool m_isDirty;
+
+    //reference to dataProxy
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(GeneRendererGL)
 };

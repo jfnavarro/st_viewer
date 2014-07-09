@@ -10,6 +10,8 @@
 
 #include "network/NetworkCommand.h"
 
+class Configuration;
+
 // RESTCommandFactory provides a convenient way of generating preconfigured
 // network commands for specific REST actions. Each data request is represented
 // as a one or more functions.
@@ -19,37 +21,47 @@ class RESTCommandFactory
 public:
 
     // authentication commands
-    static NetworkCommand* getAuthorization();
-    static NetworkCommand* getAuthorizationToken();
+    //static NetworkCommand* getAuthorization();
+    static NetworkCommand* getAuthorizationToken(const Configuration &configuration);
 
     // data access commands
-    static NetworkCommand* getChipByChipId(const QString& chipId);
+    static NetworkCommand* getChipByChipId(const Configuration &configuration,
+                                           const QString& chipId);
 
-    static NetworkCommand* getDatasets();
-    static NetworkCommand* getDatasetByDatasetId(const QString& datasetId);
-    static NetworkCommand* updateDatsetByDatasetId(const QString& datasetId);
+    static NetworkCommand* getDatasets(const Configuration& configuration);
+    static NetworkCommand* getDatasetByDatasetId(const Configuration& configuration,
+                                                 const QString& datasetId);
+    static NetworkCommand* updateDatsetByDatasetId(const Configuration &configuration,
+                                                   const QString& datasetId);
 
-    static NetworkCommand* getGenesByDatasetId(const QString& datasetId);
+    static NetworkCommand* getGenesByDatasetId(const Configuration& configuration,
+                                               const QString& datasetId);
 
-    static NetworkCommand* getFeatureByDatasetId(const QString& datasetId);
-    static NetworkCommand* getFeatureByDatasetIdAndGene(const QString& datasetId,
+    static NetworkCommand* getFeatureByDatasetId(const Configuration &configuration,
+                                                 const QString& datasetId);
+    static NetworkCommand* getFeatureByDatasetIdAndGene(const Configuration& configuration,
+                                                        const QString& datasetId,
                                                         const QString& gene);
 
-    static NetworkCommand* getImageAlignmentById(const QString& imageAlignmentId);
+    static NetworkCommand* getImageAlignmentById(const Configuration &configuration,
+                                                 const QString& imageAlignmentId);
 
-    static NetworkCommand* getCellTissueFigureByName(const QString& name);
+    static NetworkCommand* getCellTissueFigureByName(const Configuration& configuration,
+                                                     const QString& name);
 
-    static NetworkCommand* getUser();
-    //static NetworkCommand* updateUserbyUserId(const QString &userId);
+    static NetworkCommand* getUser(const Configuration& configuration);
+    //static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString &userId);
 
-    static NetworkCommand* getSelections();
-    //static NetworkCommand* getSelectionsByDatasetId(const QString& datasetId);
-    //static NetworkCommand* upateSelectionBySelectionId(const QString& selectionId);
-    static NetworkCommand* removeSelectionBySelectionId(const QString& selectionId);
-    static NetworkCommand* addSelection();
+    static NetworkCommand* getSelections(const Configuration& configuration);
+    //static NetworkCommand* getSelectionsByDatasetId(const Configuration& configuration, const QString& datasetId);
+    //static NetworkCommand* upateSelectionBySelectionId(const Configuration& configuration, const QString& selectionId);
+    static NetworkCommand* removeSelectionBySelectionId(const Configuration& configuration,
+                                                        const QString& selectionId);
+    static NetworkCommand* addSelection(const Configuration& configuration);
 
     //NOTE this end point does not need authorization
-    static NetworkCommand* getMinVersion();
+    static NetworkCommand* getMinVersion(const Configuration& configuration);
+
 };
 
 #endif // RESTMANAGER_H //

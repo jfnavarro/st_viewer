@@ -19,42 +19,46 @@
 
 #include "ui_initpage.h"
 
-InitPage::InitPage(QWidget *parent) :
-    Page(parent)
+InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
+    Page(parent),
+    m_ui(nullptr),
+    m_dataProxy(dataProxy)
 {
-    onInit();
-}
+    Q_ASSERT(!m_dataProxy.isNull());
 
-InitPage::~InitPage()
-{
-    delete ui;
-    ui = nullptr;
-}
-
-void InitPage::onInit()
-{
     //create the start widget
-    ui = new Ui::InitPage;
-    ui->setupUi(this);
-    ui->user_name->clear();
-    ui->newExpButt->setEnabled(false);
+    m_ui = new Ui::InitPage();
+    m_ui->setupUi(this);
+    m_ui->user_name->clear();
+    m_ui->newExpButt->setEnabled(false);
 
-    //connect signals
-    connect(ui->newExpButt, SIGNAL(released()), this, SIGNAL(moveToNextPage()));
-    connect(ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
-    
-    AuthorizationManager  *authorizationManager = AuthorizationManager::getInstance();
+    //connect signals for navigation
+    connect(m_ui->newExpButt, SIGNAL(released()), this, SIGNAL(moveToNextPage()));
+    connect(m_ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
+
+    QPointer<AuthorizationManager> authorizationManager =
+            m_dataProxy->getAuthorizationManager();
+    //connect authorization signals
     connect(authorizationManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
     connect(authorizationManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
-    authorizationManager->start();
+    //start authorization
+    authorizationManager->start(this);
+}
+
+InitPage::~InitPage()
+{
+    if (m_ui != nullptr) {
+        delete m_ui;
+    }
+    m_ui = nullptr;
 }
 
 void InitPage::onEnter()
 {
-    ui->newExpButt->clearFocus();
-    ui->logoutButt->clearFocus();
+    m_ui->newExpButt->clearFocus();
+    m_ui->logoutButt->clearFocus();
 }
 
 void InitPage::onExit()
@@ -63,30 +67,31 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    AuthorizationManager *auth = AuthorizationManager::getInstance();
+    QPointer<AuthorizationManager> authorizationManager =
+            m_dataProxy->getAuthorizationManager();
      //force clean access token and authorize again
-    auth->cleanAccesToken();
-    auth->forceAuthentication();
+    authorizationManager->cleanAccesToken();
+    authorizationManager->forceAuthentication();
     //TODO show error? it will show it the user types wrong credentails...
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 
 void InitPage::slotAuthorized()
 {
-    //clean the cache
-    DataProxy *dataProxy = DataProxy::getInstance();
-    dataProxy->clean();
+    //clean the cache in the dataproxy
+    m_dataProxy->clean();
 
-    //load user from network (synchronous)
+    //load user from network
     setWaiting(true);
-    async::DataRequest request = dataProxy->loadUser();
+    async::DataRequest request = m_dataProxy->loadUser();
     setWaiting(false);
 
    if (request.return_code() == async::DataRequest::CodePresent
                || request.return_code() == async::DataRequest::CodeSuccess) {
-        const auto user = dataProxy->getUser();
-        ui->user_name->setText(user.data()->username());
-        ui->newExpButt->setEnabled(true);
+        const auto user = m_dataProxy->getUser();
+        Q_ASSERT(!user.isNull());
+        m_ui->user_name->setText(user->username());
+        m_ui->newExpButt->setEnabled(true);
     } else {
        //TODO use the text present in request.getErrors()
        showError("Authorization Error", "Error loading the current user.");
@@ -96,11 +101,12 @@ void InitPage::slotAuthorized()
 void InitPage::slotLogOutButton()
 {
     //go to log in mode and force authorization
-    ui->newExpButt->setEnabled(false);
-    ui->user_name->clear();
+    m_ui->newExpButt->setEnabled(false);
+    m_ui->user_name->clear();
     
-    AuthorizationManager *auth = AuthorizationManager::getInstance();
+    QPointer<AuthorizationManager> authorizationManager =
+            m_dataProxy->getAuthorizationManager();
     //force clean access token and authorize again
-    auth->cleanAccesToken();
-    auth->forceAuthentication();
+    authorizationManager->cleanAccesToken();
+    authorizationManager->forceAuthentication();
 }

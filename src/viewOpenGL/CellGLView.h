@@ -31,6 +31,8 @@ class QGLFramebufferObject;
 // however, QGLView adds camera and things that we do not
 // need so since QGLView is a wraper around QWindow
 // we built our own customized wrapper
+
+//TODO add better comments to class and functions
 class CellGLView : public QWindow
 {
     Q_OBJECT
@@ -81,15 +83,15 @@ protected:
     void ensureContext();
 
     //overloaded key and mouse events for zooming/panning/selection/rendering
-    void wheelEvent(QWheelEvent* event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
-    void exposeEvent(QExposeEvent *eevent);
-    void resizeEvent(QResizeEvent * event);
+    void wheelEvent(QWheelEvent* event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+    void exposeEvent(QExposeEvent *eevent) override;
+    void resizeEvent(QResizeEvent * event) override;
 
     void setZoomFactorAndUpdate(const qreal zoom);
 

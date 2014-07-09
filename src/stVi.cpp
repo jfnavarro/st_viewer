@@ -24,28 +24,18 @@
 #include <QApplication>
 #include <QGLFormat>
 #include <QSslSocket>
-#include <QJsonParseError>
-#include <QJsonDocument>
 #include <QMenuBar>
 #include <QStatusBar>
 
 #include "utils/Utils.h"
-#include "config/Configuration.h"
-#include "auth/AuthorizationManager.h"
 
 #include "error/Error.h"
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
 
-#include "network/RESTCommandFactory.h"
-#include "network/NetworkManager.h"
-#include "network/NetworkReply.h"
-#include "network/NetworkCommand.h"
+#include "network/DownloadManager.h"
 
 #include "data/DataProxy.h"
-#include "data/DataStore.h"
-
-#include "dataModel/MinVersionDTO.h"
 #include "data/ObjectParser.h"
 
 #include "dialogs/AboutDialog.h"
@@ -82,15 +72,18 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
     m_menuHelp(nullptr),
     m_centralwidget(nullptr),
     m_mainlayout(nullptr),
-    m_mainTab(nullptr)
+    m_mainTab(nullptr),
+    m_dataProxy(nullptr)
 {
-    //init single instances (this must be done the very very first)       
-    initSingleInstances();
+    m_dataProxy = new DataProxy();
 }
 
 stVi::~stVi()
 {
-    finalizeSingleInstances();
+    if (!m_dataProxy.isNull()) {
+        delete m_dataProxy;
+    }
+    m_dataProxy = nullptr;
 
     m_actionExit->deleteLater();
     m_actionExit = nullptr;
@@ -122,8 +115,7 @@ stVi::~stVi()
 }
 
 void stVi::init()
-{
-        
+{ 
     // init style, size and icons
     initStyle();
     
@@ -148,59 +140,40 @@ bool stVi::checkSystemRequirements() const
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
         QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Support",
-                                 "This system does not support OpenGL.");
+                                 tr("This system does not support OpenGL"));
         return false;
     }
+
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
         QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Context",
-                                 "This system does not support OpenGL 2.x Contexts");
+                                 tr("This system does not support OpenGL 2.x Contexts"));
         return false;
     }
+
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
         QMessageBox::critical(this->centralWidget(), "HTTPS",
-                                 "This system does not secure SSL connections");
+                                 tr("This system does not secure SSL connections"));
         return false;
     }
 
-    // check if the version is supported in the server and check for updates
-    NetworkCommand *cmd = RESTCommandFactory::getMinVersion();
-    NetworkManager nm;
-    NetworkReply *reply =
-            nm.httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
-    QEventLoop loop; // I want to wait until this finishes
-    connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
-    loop.exec();
-    
-    cmd->deleteLater();
-    if (reply == nullptr) {
+    // Fail if min version is not supported
+    async::DataRequest request = m_dataProxy->loadMinVersion();
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO show the error present in request.getErrors()
         QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
-                                 "Required version could not be retrieved from the server, try again");
+                                tr("Required version could not be retrieved from the server, try again"));
         return false;
-    }
-    
-    //parse the reply
-    const QJsonDocument document = reply->getJSON();
-    const QVariant result = document.toVariant();
-    reply->deleteLater();
-
-    // if no errors
-    if (!reply->hasErrors()) {
-        MinVersionDTO dto;
-        data::parseObject(result, &dto);
-        qDebug() << "[stVi] Check min version min = "
-                 << dto.minSupportedVersion() << " current = " << Globals::VERSION;
-        if (!versionIsGreaterOrEqual(Globals::VersionNumbers,
-                                     dto.minVersionAsNumber())) {
+    } else {
+        // refresh datasets on the model
+        const auto minVersion  = m_dataProxy->getMinVersion();
+        if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
             QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
-                                     "This version of the software is not supported anymore, please update!");
+                                     tr("This version of the software is not supported anymore, please update!"));
             return false;
         }
-    } else {
-        QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
-                                 "Required version could not be retrieved from the server, try again");
-        return false;
     }
 
     return true;
@@ -223,7 +196,8 @@ void stVi::setupUi()
     m_centralwidget = new QWidget(this);
 
     m_mainlayout = new QVBoxLayout(m_centralwidget);
-    m_mainTab = new ExtendedTabWidget(m_centralwidget);
+    //pass reference to dataProxy to tab manager
+    m_mainTab = new ExtendedTabWidget(m_dataProxy, m_centralwidget);
     m_mainlayout->addWidget(m_mainTab);
     setCentralWidget(m_centralwidget);
 
@@ -298,8 +272,8 @@ void stVi::slotClearCache()
                 QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
-        qDebug() << "[stVi] Info: Cleaaring the cache...";
-        DataProxy::getInstance()->cleanAll();
+        qDebug() << "[stVi] : Cleaning the cache...";
+        m_dataProxy->cleanAll();
         m_mainTab->resetStatus();
     }
 }
@@ -357,28 +331,6 @@ void stVi::createShorcuts()
     connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
     m_actionExit->setShortcut(QKeySequence("Ctrl+W"));
 #endif
-}
-
-void stVi::initSingleInstances()
-{
-    // init data proxy
-    DataProxy* dataProxy = DataProxy::getInstance();
-    dataProxy->init();
-
-    // inir AuthorizationManager
-    AuthorizationManager *auth = AuthorizationManager::getInstance();
-    auth->init();
-}
-
-void stVi::finalizeSingleInstances()
-{
-    // finalize authentication manager
-    AuthorizationManager::getInstance()->finalize();
-    AuthorizationManager::getInstance(true);
-
-    // finalize data proxy
-    DataProxy::getInstance()->finalize();
-    DataProxy::getInstance(true);
 }
 
 void stVi::createConnections()

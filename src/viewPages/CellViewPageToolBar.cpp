@@ -15,7 +15,7 @@
 #include <QCoreApplication>
 #include <QPushButton>
 
-#include "SpinBoxSlider.h"
+#include "customWidgets/SpinBoxSlider.h"
 
 static const int GENE_INTENSITY_MIN = 1;
 static const int GENE_INTENSITY_MAX = 10;

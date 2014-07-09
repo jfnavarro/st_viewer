@@ -10,7 +10,6 @@ set(LIBRARY_ARG_INCLUDES
     Page.h
     CellViewPageToolBar.h
     ExtendedTabWidget.cpp
-    SpinBoxSlider.h
     ScrollArea.h
     GenesWidget.h
     SelectionsWidget.h
@@ -24,7 +23,6 @@ set(LIBRARY_ARG_SOURCES
     Page.cpp
     CellViewPageToolBar.cpp
     ExtendedTabWidget.cpp
-    SpinBoxSlider.cpp
     ScrollArea.cpp
     GenesWidget.cpp
     SelectionsWidget.cpp

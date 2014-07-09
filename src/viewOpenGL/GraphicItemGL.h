@@ -26,8 +26,7 @@ class GraphicItemGL : public QObject
 
 public:
 
-    enum VisualOption
-    {
+    enum VisualOption {
         Visible = 1,
         Selectable = 2,
         Transformable = 4,

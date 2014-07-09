@@ -17,8 +17,7 @@ class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 
-namespace Ui
-{
+namespace Ui {
 class DataSets;
 } // namespace Ui //
 
@@ -33,12 +32,11 @@ class DatasetPage : public Page
 
 public:
 
-    explicit DatasetPage(QWidget *parent = 0);
+    DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~DatasetPage();
 
 public slots:
 
-    void onInit() override;
     void onEnter() override;
     void onExit() override;
 
@@ -53,7 +51,8 @@ private:
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
 
-    Ui::DataSets *ui;
+    Ui::DataSets *m_ui;
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(DatasetPage)
 };

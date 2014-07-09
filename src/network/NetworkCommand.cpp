@@ -61,17 +61,9 @@ void NetworkCommand::addQueryItems(QObject* object)
         const QVariant value = metaproperty.read(object);
         qDebug() << "Parsing query object value " << value;
         if (!value.canConvert(QVariant::String)) {
-
-            QJsonArray array;
-            foreach(QVariant var, value.toList()) {
-                array.append(QJsonValue::fromVariant(var.convert(var.type())));
-            }
-
-            qDebug() << "Json array " << array;
-
-            //qDebug() << "[NetworkCommand] Warning: The property "
-           //          << metaproperty.typeName() << param
-          //           << "is not convertable to QString, and will be ignored!";
+            qDebug() << "[NetworkCommand] Warning: The property "
+                     << metaproperty.typeName() << param
+                     << " is not convertable to QString, and will be ignored!";
             continue;
         }
 

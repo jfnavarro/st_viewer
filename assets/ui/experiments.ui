@@ -87,39 +87,28 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLineEdit" name="filterLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QPushButton" name="ddaAnalysis">
        <property name="minimumSize">
         <size>
-         <width>200</width>
-         <height>25</height>
+         <width>100</width>
+         <height>50</height>
         </size>
        </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
        </property>
        <property name="toolTip">
-        <string>Search for a dataset</string>
+        <string>Performs a Differential Expression analysis </string>
        </property>
-       <property name="statusTip">
-        <string>Search for a dataset</string>
+       <property name="text">
+        <string>D.E.A</string>
        </property>
-       <property name="whatsThis">
-        <string>Search for a dataset</string>
+       <property name="icon">
+        <iconset resource="../../../st_client-build/application.qrc">
+         <normaloff>:/images/dynamicrange.png</normaloff>:/images/dynamicrange.png</iconset>
        </property>
       </widget>
      </item>
@@ -172,6 +161,43 @@
        <property name="icon">
         <iconset resource="../../../st_client-build/application.qrc">
          <normaloff>:/images/abort.png</normaloff>:/images/abort.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="filterLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::DefaultContextMenu</enum>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Search for a dataset</string>
+       </property>
+       <property name="statusTip">
+        <string>Search for a dataset</string>
+       </property>
+       <property name="whatsThis">
+        <string>Search for a dataset</string>
        </property>
       </widget>
      </item>

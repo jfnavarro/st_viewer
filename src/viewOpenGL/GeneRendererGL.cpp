@@ -17,11 +17,12 @@
 
 static const int INVALID_INDEX = -1;
 
-GeneRendererGL::GeneRendererGL(QObject *parent)
+GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent),
       m_geneNode(nullptr),
       m_shaderProgram(nullptr),
-      m_isDirty(false)
+      m_isDirty(false),
+      m_dataProxy(dataProxy)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -168,11 +169,10 @@ void GeneRendererGL::setLowerLimit(int limit)
 
 void GeneRendererGL::generateData()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
     foreach(const DataProxy::FeaturePtr feature, features) {
-        Q_ASSERT(feature);
+        Q_ASSERT(!feature.isNull());
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -210,7 +210,7 @@ void GeneRendererGL::updateSize()
         // update size of the shape
         const int index = it.value();
         DataProxy::FeaturePtr feature = it.key();
-        Q_ASSERT(feature);
+        Q_ASSERT(!feature.isNull());
         m_geneData.updateQuadSize(index, feature->x(), feature->y(), m_size);
     }
 
@@ -220,18 +220,17 @@ void GeneRendererGL::updateSize()
 
 void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-
     foreach (DataProxy::GenePtr gene, geneList) {
         Q_ASSERT(!gene.isNull());
 
         const auto& features =
-                dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+                m_dataProxy->getGeneFeatureList(m_dataProxy->getSelectedDataset(), gene->name());
 
         const bool selected = gene->selected();
 
         GeneInfoByIdMap::const_iterator it;
         GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+        Q_UNUSED(end);
         foreach(DataProxy::FeaturePtr feature, features) {
             it = m_geneInfoById.find(feature);
             Q_ASSERT(it != end);
@@ -266,18 +265,17 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-
     foreach (DataProxy::GenePtr gene, geneList) {
         Q_ASSERT(!gene.isNull());
 
         const auto& features =
-                dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+                m_dataProxy->getGeneFeatureList(m_dataProxy->getSelectedDataset(), gene->name());
 
         const bool selected = gene->selected();
 
         GeneInfoByIdMap::const_iterator it;
         GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+        Q_UNUSED(end);
         foreach(DataProxy::FeaturePtr feature, features) {
             it = m_geneInfoById.find(feature);
             Q_ASSERT(it != end);
@@ -326,8 +324,7 @@ void GeneRendererGL::updateSelection(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateVisual()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
     // reset ref count and values when in visual mode
     m_geneData.resetRefCount();
@@ -338,13 +335,14 @@ void GeneRendererGL::updateVisual()
 
     GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
+    Q_UNUSED(end);
     foreach(DataProxy::FeaturePtr feature, features) {
         it = m_geneInfoById.find(feature);
         Q_ASSERT(it != end);
 
         // easy access
         DataProxy::GenePtr gene =
-                dataProxy->getGene(dataProxy->getSelectedDataset(), feature->gene());
+                m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
         Q_ASSERT(!gene.isNull());
 
         const bool selected = gene->selected();
@@ -393,8 +391,7 @@ void GeneRendererGL::clearSelection()
 
 void GeneRendererGL::updateFeaturesSelected(bool selected)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
     foreach(DataProxy::FeaturePtr feature, features) {
         feature->selected(selected);
     }
@@ -402,8 +399,7 @@ void GeneRendererGL::updateFeaturesSelected(bool selected)
 
 void GeneRendererGL::updateFeaturesColor(QColor color)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
     foreach(DataProxy::FeaturePtr feature, features) {
         feature->color(color);
     }
@@ -411,11 +407,11 @@ void GeneRendererGL::updateFeaturesColor(QColor color)
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
     DataProxy::FeatureList aggregateFeatureList;
     foreach(DataProxy::GenePtr gene, geneList) {
+        Q_ASSERT(!gene.isNull());
         aggregateFeatureList <<
-                                dataProxy->getGeneFeatureList(dataProxy->getSelectedDataset(), gene->name());
+                                m_dataProxy->getGeneFeatureList(m_dataProxy->getSelectedDataset(), gene->name());
     }
     selectFeatures(aggregateFeatureList);
 }
@@ -457,11 +453,10 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
     //TODO optimize with STL and/or concurrent methods
 
-    DataProxy *dataProxy = DataProxy::getInstance();
     //the max pixel value (gray scale)
     const int maxPixelValue = 255;
     //get the selected items
-    const auto& features = dataProxy->getFeatureList(dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
     QMap<QString, SelectionType> geneSelectionsMap;
     GeneSelection::selectedItemsList geneSelectionsList;
     foreach(DataProxy::FeaturePtr feature, features) {

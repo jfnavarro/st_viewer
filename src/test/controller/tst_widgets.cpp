@@ -12,6 +12,7 @@
 
 #include <QMainWindow>
 #include <QApplication>
+#include "stVi.h"
 
 #include "tst_widgets.h"
 
@@ -32,52 +33,29 @@ void WidgetsTest::initTestCase()
     QApplication *app = new QApplication(argc, &argv);
     QVERIFY(app != 0);
 
-    QMainWindow *mainWindow = new QMainWindow();
-    QVERIFY(mainWindow != 0);
-
-    // init authorization //NOTE we cannot include this in the test for now
-    //         AuthorizationManager *authManager = AuthorizationManager::getInstance();
-    //         authManager->init();
-    //         QVERIFY(authManager != 0);
+    //stVi *mainWindow = new stVi();
+    //QVERIFY(mainWindow != 0);
 
     // init configurations
-    //Configuration *configuration = Configuration::getInstance();
-    //configuration->init();
-    //QVERIFY(configuration != 0);
+    Configuration *configuration = new Configuration();
+    QVERIFY(configuration != 0);
 
     // init network manager
-    //NetworkManager* networkManager = NetworkManager::getInstance();
-    //networkManager->init();
-    //QVERIFY(networkManager != 0);
+    NetworkManager* networkManager = new NetworkManager(*configuration);
+    QVERIFY(networkManager != 0);
 
     // init data proxy
-    DataProxy* dataProxy = DataProxy::getInstance();
-    dataProxy->init();
+    DataProxy* dataProxy = new DataProxy();
     QVERIFY(dataProxy != 0);
+
+    // auth manager
+    AuthorizationManager *authManager = new AuthorizationManager(networkManager, *configuration);
+    QVERIFY(authManager != 0);
 }
 
 void WidgetsTest::cleanupTestCase()
 {
-    // finalize authentication manager
-    AuthorizationManager::getInstance()->finalize();
-    AuthorizationManager *authManager = AuthorizationManager::getInstance(true);
-    QVERIFY(authManager == 0);
-
-    // finalize network manager
-    //NetworkManager::getInstance()->finalize();
-    //NetworkManager *networkManager = NetworkManager::getInstance(true);
-    //QVERIFY(networkManager == 0);
-
-    // finalize data proxy
-    DataProxy::getInstance()->finalize();
-    DataProxy *dataProxy = DataProxy::getInstance(true);
-    QVERIFY(dataProxy == 0);
-
-    // finalize configurations
-    //Configuration::getInstance()->finalize();
-    //Configuration *configuration = Configuration::getInstance(true);
-    //QVERIFY(configuration == 0);
-
+    //TODO
 }
 
 

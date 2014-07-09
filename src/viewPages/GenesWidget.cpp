@@ -33,7 +33,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     QHBoxLayout *geneListLayout = new QHBoxLayout();
 
     //create genes table
-    m_genes_tableview = new GenesTableView();
+    m_genes_tableview = new GenesTableView(this);
 
     //create selections menu
     m_selectionMenu = new QPushButton(this);
@@ -60,6 +60,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     QAction *hideAllAction  = m_actionMenu->menu()->addAction(
                 QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Hide selected genes"));
     m_actionMenu->menu()->addSeparator();
+
     //color action
     ColorListEditor *colorList = new ColorListEditor(this);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
@@ -147,9 +148,9 @@ void GenesWidget::slotSetColorAllSelected(const QColor &color)
     getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
 }
 
-void GenesWidget::slotLoadModel()
+void GenesWidget::slotLoadModel(DataProxy::GeneList &geneList)
 {
-    getModel()->loadGenes();
+    getModel()->loadGenes(geneList);
 }
 
 GeneFeatureItemModel *GenesWidget::getModel()

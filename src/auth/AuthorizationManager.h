@@ -13,32 +13,31 @@
 #include <QUuid>
 
 #include "auth/TokenStorage.h"
+#include "config/Configuration.h"
 #include "utils/Singleton.h"
 
+class NetworkManager;
 class OAuth2;
 class QWidget;
 class Error;
 
-//  This class implements singleton pattern. It gives an interface for oAuth2 authorization
+//  This class gives an interface for oAuth2 authorization
 //  trough the objects OAuth2 and TokenStorage.
 //  It emits signals for error, authorized and abortion.
 //  It allows for local storage of access token.
 
-class AuthorizationManager : public QObject, public Singleton<AuthorizationManager>
+class AuthorizationManager : public QObject
 {
     Q_OBJECT
 
 public:
 
-    explicit AuthorizationManager(QObject* parent = 0);
+    AuthorizationManager(QPointer<NetworkManager> networkManager,
+                                  const Configuration &configurationManager, QObject* parent = 0);
     virtual ~AuthorizationManager();
 
-    //singleton initialization and destroying methos
-    void finalize();
-    void init();
-
-    //initilize the log in on the QApp (modal)
-    void start();
+    //start the login process using the widget as parent is given
+    void start(QWidget *parent = 0);
 
     //clean access token
     void cleanAccesToken();
@@ -47,7 +46,7 @@ public:
     bool isAuthenticated() const;
 
     //force to log out and clean cache
-    void forceAuthentication();
+    void forceAuthentication(QWidget *parent = 0);
 
     //user acces token methods to check
     //if the user is already logged in
@@ -73,6 +72,10 @@ private:
 
     QPointer<OAuth2> m_oAuth2;
     TokenStorage m_tokenStorage;
+
+    //reference to network manager and configuration manager
+    QPointer<NetworkManager> m_networkManager;
+    const Configuration &m_configurationManager;
 
     Q_DISABLE_COPY(AuthorizationManager)
 };

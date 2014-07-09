@@ -45,7 +45,7 @@
 
 #include "ui_cellview.h"
 
-CellViewPage::CellViewPage(QWidget *parent)
+CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
       m_minimap(nullptr),
       m_legend(nullptr),
@@ -55,28 +55,14 @@ CellViewPage::CellViewPage(QWidget *parent)
       m_view(nullptr),
       m_colorDialogGrid(nullptr),
       m_toolBar(nullptr),
-      ui(nullptr)
+      m_ui(nullptr),
+      m_dataProxy(dataProxy)
 {
-    onInit();
-}
+    Q_ASSERT(!m_dataProxy.isNull());
 
-CellViewPage::~CellViewPage()
-{
-    delete ui;
-    ui = nullptr;
-
-    m_colorDialogGrid->deleteLater();
-    m_colorDialogGrid = nullptr;
-
-    m_toolBar->deleteLater();
-    m_toolBar = nullptr;
-}
-
-void CellViewPage::onInit()
-{
     //create UIobjects
-    ui = new Ui::CellView();
-    ui->setupUi(this);
+    m_ui = new Ui::CellView();
+    m_ui->setupUi(this);
 
     // color dialogs
     m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID);
@@ -96,28 +82,40 @@ void CellViewPage::onInit()
     createGLConnections();
 }
 
+CellViewPage::~CellViewPage()
+{
+    if (m_ui != nullptr) {
+        delete m_ui;
+    }
+    m_ui = nullptr;
+
+    m_colorDialogGrid->deleteLater();
+    m_colorDialogGrid = nullptr;
+
+    m_toolBar->deleteLater();
+    m_toolBar = nullptr;
+}
+
 void CellViewPage::onEnter()
 {
     setWaiting(true);
 
     if (!loadData()) {
-        //TODO do something here,
-        //setWaiting(false);
+        //TODO do something here (show warning or move to next page or disable elements)
+        setWaiting(false);
         return;
     }
 
-    DataProxy *dataProxy = DataProxy::getInstance();
-
     const auto dataset =
-            dataProxy->getDatasetById(dataProxy->getSelectedDataset());
-    Q_ASSERT(dataset);
+            m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
+    Q_ASSERT(!dataset.isNull());
 
     const auto imageAlignment =
-            dataProxy->getImageAlignment(dataset->imageAlignmentId());
-    Q_ASSERT(imageAlignment);
+            m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
+    Q_ASSERT(!imageAlignment.isNull());
 
-    const auto currentChip = dataProxy->getChip(imageAlignment->chipId());
-    Q_ASSERT(currentChip);
+    const auto currentChip = m_dataProxy->getChip(imageAlignment->chipId());
+    Q_ASSERT(!currentChip.isNull());
 
     const QTransform alignment = imageAlignment->alignment();
     const qreal min = dataset->statisticsMin(); //1st quantile
@@ -165,31 +163,29 @@ void CellViewPage::onEnter()
 
 void CellViewPage::onExit()
 {
-    ui->genesWidget->clearFocus();
-    ui->selectionsWidget->clearFocus();
+    m_ui->genesWidget->clearFocus();
+    m_ui->selectionsWidget->clearFocus();
 }
 
 bool CellViewPage::loadData()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-
-    if (dataProxy->getSelectedDataset().isNull()) {
+    if (m_dataProxy->getSelectedDataset().isNull()) {
         showWarning("Cell View", "No dataset has been selected");
         return false;
     }
 
     const auto dataset =
-            dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+            m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
 
     if (dataset.isNull()) {
-        showError("Cell View Error", "The current selected dataset is not valid.");
+        showError("Cell View", "The current selected dataset is not valid.");
         return false;
     }
 
     //load the image alignment first
     {
         async::DataRequest request =
-                dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
+                m_dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -200,13 +196,13 @@ bool CellViewPage::loadData()
 
     //get image alignmet object
     const auto ImageAlignment =
-            dataProxy->getImageAlignment(dataset->imageAlignmentId());
+            m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
     Q_ASSERT(!ImageAlignment.isNull());
 
     //load cell tissue blue
     {
         async::DataRequest request =
-                dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
+                m_dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -217,7 +213,7 @@ bool CellViewPage::loadData()
     //load cell tissue red
     {
         async::DataRequest request =
-                dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
+                m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -228,7 +224,7 @@ bool CellViewPage::loadData()
     //load features
     {
         async::DataRequest request =
-                dataProxy->loadFeatureByDatasetId(dataset->id());
+                m_dataProxy->loadFeatureByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -239,7 +235,7 @@ bool CellViewPage::loadData()
     //load genes
     {
         async::DataRequest request =
-                dataProxy->loadGenesByDatasetId(dataset->id());
+                m_dataProxy->loadGenesByDatasetId(dataset->id());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -250,7 +246,7 @@ bool CellViewPage::loadData()
     //load chip
     {
         async::DataRequest request =
-                dataProxy->loadChipById(ImageAlignment->chipId());
+                m_dataProxy->loadChipById(ImageAlignment->chipId());
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use text in request.getErrors()
@@ -306,18 +302,17 @@ void CellViewPage::createConnections()
 void CellViewPage::resetActionStates()
 {
     // resets genes color and visible to default (must be done first)
-    DataProxy *dataProxy = DataProxy::getInstance();
-    auto &geneList = dataProxy->getGeneList(dataProxy->getSelectedDataset());
+    auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
     for (auto gene : geneList) {
         gene->selected(false);
         gene->color(Globals::DEFAULT_COLOR_GENE);
     }
 
     // load data for gene model, also resets it
-    ui->genesWidget->slotLoadModel();
+    m_ui->genesWidget->slotLoadModel(geneList);
 
     // resets gene selection model
-    ui->selectionsWidget->slotLoadModel(GeneSelection::selectedItemsList());
+    m_ui->selectionsWidget->slotLoadModel(GeneSelection::selectedItemsList());
 
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);
@@ -346,26 +341,27 @@ void CellViewPage::resetActionStates()
     m_toolBar->resetActions();
 
     // restrict interface
-    DataProxy::UserPtr current_user = dataProxy->getUser();
-    m_toolBar->m_actionGroup_cellTissue->setVisible((current_user->role() == Globals::ROLE_CM));
+    DataProxy::UserPtr current_user = m_dataProxy->getUser();
+    Q_ASSERT(!current_user.isNull());
+    m_toolBar->m_actionGroup_cellTissue->setVisible(current_user->role() == Globals::ROLE_CM);
 }
 
 void CellViewPage::createToolBar()
 {
     m_toolBar = new CellViewPageToolBar();
     // add tool bar to the layout
-    ui->pageLayout->insertWidget(0, m_toolBar.data());
+    m_ui->pageLayout->insertWidget(0, m_toolBar);
 }
 
 void CellViewPage::initGLView()
 {
     //ui->area contains the openGL window
     m_view = new CellGLView();
-    ui->area->initializeView(m_view);
+    m_ui->area->initializeView(m_view);
 
     // Setting stretch factors in the QSplitter to make the opengl window occupy more space
-    ui->gridLayout->setStretchFactor(0, 0);
-    ui->gridLayout->setStretchFactor(1, 8);
+    m_ui->gridLayout->setStretchFactor(0, 0);
+    m_ui->gridLayout->setStretchFactor(1, 8);
 
     // image texture graphical object
     m_image = new ImageTextureGL();
@@ -378,7 +374,7 @@ void CellViewPage::initGLView()
     m_view->addRenderingNode(m_grid.data());
 
     // gene plotter component
-    m_gene_plotter = new GeneRendererGL();
+    m_gene_plotter = new GeneRendererGL(m_dataProxy);
     m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
     m_view->addRenderingNode(m_gene_plotter.data());
 
@@ -406,18 +402,18 @@ void CellViewPage::initGLView()
 void CellViewPage::createGLConnections()
 {
     //connect gene list model to gene plotter
-    connect(ui->genesWidget, SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
+    connect(m_ui->genesWidget, SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
             SLOT(updateSelection(DataProxy::GeneList)));
-    connect(ui->genesWidget, SIGNAL(signalColorChanged(DataProxy::GeneList)),
+    connect(m_ui->genesWidget, SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
             SLOT(updateColor(DataProxy::GeneList)));
 
     //connect gene selection signals from selectionsWidget
-    connect(ui->selectionsWidget, SIGNAL(signalClearSelection()),
+    connect(m_ui->selectionsWidget, SIGNAL(signalClearSelection()),
             m_gene_plotter.data(), SLOT(clearSelection()));
-    connect(ui->selectionsWidget, SIGNAL(signalExportSelection()), this, SLOT(slotExportSelection()));
-    connect(ui->selectionsWidget, SIGNAL(signalSaveSelection()), this, SLOT(slotSaveSelection()));
+    connect(m_ui->selectionsWidget, SIGNAL(signalExportSelection()), this, SLOT(slotExportSelection()));
+    connect(m_ui->selectionsWidget, SIGNAL(signalSaveSelection()), this, SLOT(slotSaveSelection()));
 
     //connect gene plotter to gene selection model
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()),
@@ -482,13 +478,12 @@ void CellViewPage::createGLConnections()
 
 void CellViewPage::slotLoadCellFigure()
 {
-    DataProxy *dataProxy = DataProxy::getInstance();
-    const auto current_user = dataProxy->getUser();
-    Q_ASSERT(current_user);
-    const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
-    Q_ASSERT(dataset);
-    const auto imageAlignment = dataProxy->getImageAlignment(dataset->imageAlignmentId());
-    Q_ASSERT(imageAlignment);
+    const auto current_user = m_dataProxy->getUser();
+    Q_ASSERT(!current_user.isNull());
+    const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
+    Q_ASSERT(!dataset.isNull());
+    const auto imageAlignment = m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
+    Q_ASSERT(!imageAlignment.isNull());
 
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
@@ -496,7 +491,7 @@ void CellViewPage::slotLoadCellFigure()
     const bool loadRedFigure = (defaultRedFigure || forceRedFigure) && !forceBlueFigure;
 
     const QString figureid = (loadRedFigure) ? imageAlignment->figureRed() : imageAlignment->figureBlue();
-    auto device = dataProxy->getFigure(figureid);
+    auto device = m_dataProxy->getFigure(figureid);
 
     //read image (TODO check file is present or corrupted)
     QImageReader reader(device.get());
@@ -623,7 +618,7 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
 
 void CellViewPage::slotSelectByRegExp()
 {
-    const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(this);
+    const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(m_dataProxy, this);
     m_gene_plotter->selectGenes(geneList);
 }
 
@@ -631,7 +626,7 @@ void CellViewPage::slotSelectionUpdated()
 {
     // get selected features
     const auto& geneSelection = m_gene_plotter->getSelectedIItems();
-    ui->selectionsWidget->slotLoadModel(geneSelection);
+    m_ui->selectionsWidget->slotLoadModel(geneSelection);
 }
 
 void CellViewPage::slotSaveSelection()
@@ -639,7 +634,6 @@ void CellViewPage::slotSaveSelection()
     QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
                                                                           Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
-        DataProxy *dataProxy = DataProxy::getInstance();
 
         // get selected features
         const auto& geneSelection = m_gene_plotter->getSelectedIItems();
@@ -652,19 +646,23 @@ void CellViewPage::slotSaveSelection()
         selection.enabled(true);
 
         //add datasets
-        const auto dataset = dataProxy->getDatasetById(dataProxy->getSelectedDataset());
+        const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
         Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
 
         //add account
-        const auto user = dataProxy->getUser();
+        const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         selection.userId(user->id());
+
         //add selected genes
         selection.selectedItems(geneSelection);
 
         //save the selection object
-        async::DataRequest request = dataProxy->addGeneSelection(selection);
+        setWaiting(true);
+        async::DataRequest request = m_dataProxy->addGeneSelection(selection);
+        setWaiting(false);
+
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO use the test in request.getErrors()

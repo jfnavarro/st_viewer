@@ -10,7 +10,10 @@
 
 #include <QWidget>
 #include <QModelIndex>
+
 #include "Page.h"
+
+#include "data/DataProxy.h"
 
 class ExperimentsItemModel;
 class QSortFilterProxyModel;
@@ -25,12 +28,11 @@ class ExperimentPage : public Page
 
 public:
 
-    explicit ExperimentPage(QWidget *parent = 0);
+    explicit ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~ExperimentPage();
 
 public slots:
 
-    void onInit() override;
     void onEnter() override;
     void onExit() override;
 
@@ -46,7 +48,8 @@ private:
     QSortFilterProxyModel *selectionsProxyModel();
     ExperimentsItemModel *selectionsModel();
 
-    Ui::Experiments *ui;
+    Ui::Experiments *m_ui;
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(ExperimentPage)
 };

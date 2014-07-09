@@ -36,7 +36,7 @@ public:
     const QString statTissue() const;
     const QString statSpecie() const;
     const QString statComments() const;
-    const QList<QString> oboFoundryTerms() const;
+    const QVector<QString> oboFoundryTerms() const;
     const QVector<qreal> hitsQuartiles() const;
     bool enabled() const;
 
@@ -50,7 +50,7 @@ public:
     void statTissue(const QString& statTissue);
     void statSpecie(const QString& statSpecie);
     void statComments(const QString& statComments);
-    void oboFoundryTerms(const QList<QString>& oboFoundryTerms);
+    void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
     void enabled(const bool enabled);
 
@@ -72,7 +72,7 @@ private:
     QString m_statTissue;
     QString m_statSpecie;
     QString m_statComments;
-    QList<QString> m_oboFroundryTerms;
+    QVector<QString> m_oboFroundryTerms;
     QVector<qreal> m_genePooledHitsQuartiles;
     bool m_enabled;
 };

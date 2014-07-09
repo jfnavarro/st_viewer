@@ -25,13 +25,13 @@
 
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
-#include "auth/AuthorizationManager.h"
-#include "error/Error.h"
-#include "config/Configuration.h"
 
-NetworkManager::NetworkManager(QObject* parent):
+#include "error/Error.h"
+
+NetworkManager::NetworkManager(const Configuration &configurationManager, QObject *parent):
     QObject(parent),
-    m_nam(nullptr)
+    m_nam(nullptr),
+    m_configurationManager(configurationManager)
 {
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
@@ -44,13 +44,11 @@ NetworkManager::NetworkManager(QObject* parent):
     m_nam->setProxy(proxy);
 #endif
 
-    Configuration config;
-
     // make DND look up ahead of time
-    QHostInfo::lookupHost(config.EndPointUrl(), 0, 0);
+    QHostInfo::lookupHost(m_configurationManager.EndPointUrl(), 0, 0);
 
     // connect to the HTTPS TCP port ahead of time
-    m_nam->connectToHostEncrypted(config.EndPointUrl());
+    m_nam->connectToHostEncrypted(m_configurationManager.EndPointUrl());
 
     // add ssl support  (we need the public key)
     //TODO finish and try this (me dont like ignoring ssl errors)
@@ -81,9 +79,8 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply,
                                            QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
-    Configuration config;
-    authenticator->setUser(config.oauthClientID());
-    authenticator->setPassword(config.oauthSecret());
+    authenticator->setUser(m_configurationManager.oauthClientID());
+    authenticator->setPassword(m_configurationManager.oauthSecret());
 }
 
 NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
@@ -95,17 +92,10 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         return nullptr;
     }
 
-    // append authentication token to network command
-    AuthorizationManager *authorizationManager =
-            AuthorizationManager::getInstance();
-
-    if (flags.testFlag(UseAuthentication)
-            && authorizationManager->hasAccessToken()) {
-        //TODO hide auth from network manager by appending
-        //QObject that encapsulates the key value pair
-        const QUuid accessToken = authorizationManager->getAccessToken();
-        cmd->addQueryItem(QStringLiteral("access_token"),
-                          accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
+    // check if accces_token is appended
+    if (flags.testFlag(UseAuthentication) && cmd->getQueryItem("access_token").isEmpty()) {
+        qDebug() << "[NetworkManager] Error: Access token is empty";
+        return nullptr;
     }
 
     // creating the request

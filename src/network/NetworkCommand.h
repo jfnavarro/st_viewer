@@ -26,11 +26,9 @@ class NetworkCommand : public QObject
 public:
 
     explicit NetworkCommand(QObject *parent = 0);
-
     NetworkCommand(const QUrl& url,
                    Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
                    QObject *parent = 0);
-
     ~NetworkCommand();
 
     // member access

@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     app->setApplicationVersion(Globals::VERSION);
 
     if (app->isRunning()) {
-        app->sendMessage("Another instance of stVi is already open");
+        app->sendMessage(app->tr("Another instance of stVi is already open"));
         delete app;
         return EXIT_FAILURE;
     } else {
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     if (!installTranslator(app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
         QMessageBox::critical(nullptr, "Error",
-                                 "Unable to install the translations");
+                                app->tr("Unable to install the translations"));
         delete app;
         return EXIT_FAILURE;
     }

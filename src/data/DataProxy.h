@@ -22,11 +22,14 @@
 #include "dataModel/ImageAlignment.h"
 #include "dataModel/User.h"
 #include "dataModel/GeneSelection.h"
+#include "dataModel/MinVersionDTO.h"
 
 #include "data/DataStore.h"
 
 #include "network/NetworkManager.h"
 #include "network/NetworkReply.h"
+
+#include "config/Configuration.h"
 
 namespace async {
 class DataRequest;
@@ -38,8 +41,9 @@ class DataRequest;
 // It provides the backbone for most of the data models which are in turn used
 // to access specific subsets of the data store in the data proxy.
 // it also provides and API to load the data from the network
-class DataProxy : public Singleton<DataProxy>
+class DataProxy : public QObject
 {
+    Q_OBJECT
     Q_ENUMS(DataType)
 
 public:
@@ -53,7 +57,8 @@ public:
         ImageAlignmentDataType,
         GeneSelectionDataType,
         GeneSelectionDataTypeRemove,
-        UserType
+        UserType,
+        MinVersionType
     };
 
     // MAIN CONTAINERS (MVC)
@@ -104,18 +109,19 @@ public:
     typedef QMap<QString, GeneSelectionPtr> GeneSelectionMap;
     //cell figure hashed by figure name (figure names are unique)
     typedef QMap<QString, QString> CellFigureMap;
+    //array of three elements containing the min version supported
+    typedef std::array<qulonglong, 3> MinVersionArray;
 
-    DataProxy();
+    DataProxy(QObject *parent = 0);
     ~DataProxy();
 
-    //init instance
-    void init();
-    //finalize instance
-    void finalize();
     //clean up memory cache
     void clean();
     //clean up memory cache and local cache
     void cleanAll();
+
+    //returns the authorization manager which is owned by dataProxy
+    QPointer<AuthorizationManager> getAuthorizationManager() const;
 
     //data loaders
     // chip
@@ -134,6 +140,8 @@ public:
     async::DataRequest loadUser();
     // selection objects
     async::DataRequest loadGeneSelections();
+    // min version supported
+    async::DataRequest loadMinVersion();
 
     //data getters
     const DatasetList getDatasetList() const;
@@ -149,6 +157,7 @@ public:
     DataStore::resourceDeviceType getFigure(const QString& figureId);
     const GeneSelectionList getGeneSelections() const;
     const QString getSelectedDataset() const;
+    const MinVersionArray getMinVersion() const;
 
     //setters
     void setSelectedDataset(const QString &datasetId) const;
@@ -205,11 +214,17 @@ private:
     GeneSelectionMap m_geneSelectionsMap;
     // the current selected dataset
     mutable QString m_selected_datasetId;
-    //network manager to make network requests
-    //must be a member variable
-    NetworkManager m_networkManager;
+    // the application min supported version
+    MinVersionArray m_minVersion;
+
+    //configuration manager
+    Configuration m_configurationManager;
     //data storage to handle image files
     DataStore m_dataStore;
+    //network manager to make network requests
+    QPointer<NetworkManager> m_networkManager;
+    //authorization manager to handle access token (own by DataProxy but altered by InitPage)
+    QPointer<AuthorizationManager> m_authorizationManager;
 
     Q_DISABLE_COPY(DataProxy)
 };

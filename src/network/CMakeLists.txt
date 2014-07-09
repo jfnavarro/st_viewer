@@ -14,7 +14,6 @@ set(LIBRARY_ARG_SOURCES
     DownloadManager.cpp
 )
 
-set(LIBRARY_ARG_UI_FILES
-)
+set(LIBRARY_ARG_UI_FILES)
 
 ST_LIBRARY()

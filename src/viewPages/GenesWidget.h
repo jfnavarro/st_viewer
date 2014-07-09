@@ -41,7 +41,7 @@ public slots:
     void slotSetColorAllSelected(const QColor &color);
     void slotSetVisibilityForSelectedRows(bool visible);
 
-    void slotLoadModel();
+    void slotLoadModel(DataProxy::GeneList &geneList);
 
 private slots:
 

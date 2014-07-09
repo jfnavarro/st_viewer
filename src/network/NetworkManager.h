@@ -14,6 +14,9 @@
 #include <QFlags>
 #include <QPointer>
 
+#include "auth/AuthorizationManager.h"
+#include "config/Configuration.h"
+
 class NetworkCommand;
 class NetworkReply;
 class QNetworkReply;
@@ -38,8 +41,8 @@ public:
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
-    explicit NetworkManager(QObject *parent = 0);
-    ~NetworkManager();
+    NetworkManager(const Configuration &configurationManager, QObject *parent = 0);
+    virtual ~NetworkManager();
 
     //default use Authentication
     NetworkReply* httpRequest(NetworkCommand* cmd, QVariant data = QVariant(),
@@ -51,7 +54,10 @@ private slots:
 
 private:
 
+    //qt network manager object
     QPointer<QNetworkAccessManager> m_nam;
+    //reference to configuration manager
+    const Configuration &m_configurationManager;
 
     Q_DISABLE_COPY(NetworkManager)
 };

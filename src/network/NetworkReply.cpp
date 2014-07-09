@@ -119,7 +119,6 @@ void NetworkReply::slotFinished()
     }
 
     m_code = ret;
-
     emit signalFinished(QVariant::fromValue<int>(ret), m_data);
 }
 

@@ -39,14 +39,14 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         switch (index.column()) {
         case Name: return item->name();
         case Dataset: {
-            DataProxy *dataProxy = DataProxy::getInstance();
-            const QString datasetName =
-                    dataProxy->getDatasetById(item->datasetId())->name();
-            return datasetName;
+            //const QString datasetName =
+            //        dataProxy->getDatasetById(item->datasetId())->name();
+            //return datasetName;
+            return tr("TOFIX");
         }
         case Comment: return item->comment();
         case Type: return item->type();
-        case NGenes: return QString(item->selectedItems().size());
+        case NGenes: return QString::number(item->selectedItems().size());
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -113,12 +113,11 @@ void ExperimentsItemModel::reset()
     endResetModel();
 }
 
-void ExperimentsItemModel::loadSelectedGenes()
+void ExperimentsItemModel::loadSelectedGenes(const DataProxy::GeneSelectionList selectionList)
 {
     beginResetModel();
     m_geneselectionList.clear();
-    DataProxy *dataProxy = DataProxy::getInstance();
-    m_geneselectionList = dataProxy->getGeneSelections();
+    m_geneselectionList = selectionList;
     endResetModel();
 }
 
@@ -133,7 +132,6 @@ ExperimentsItemModel::getSelections(const QItemSelection &selection)
     DataProxy::GeneSelectionList selectionList;
     for (const auto &row : rows) {
         auto selection = m_geneselectionList.at(row);
-        Q_ASSERT(selection);
         selectionList.push_back(selection);
     }
 

@@ -14,6 +14,8 @@
 #include <QMouseEvent>
 #include <QPointer>
 
+#include "data/DataProxy.h"
+
 class InitPage;
 class DatasetPage;
 class CellViewPage;
@@ -71,8 +73,8 @@ class ExtendedTabWidget : public QWidget
 
 public:
 
-    explicit ExtendedTabWidget(QWidget *parent = 0);
-    virtual ~ ExtendedTabWidget();
+    explicit ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    virtual ~ExtendedTabWidget();
 
     QSize sizeHint() const;
     int count() const;
@@ -82,13 +84,10 @@ public slots:
 
     void moveToNextPage();
     void moveToPreviousPage();
-    //it sets the start page as current page going trough all
+
+    //sets the start page as current page going trough all
     //the previuos pages (needed when we clean cache)
     void resetStatus();
-
-signals:
-
-    void currentIndexChanged(int index);
 
 protected:
     //we do not want the user to interact with the buttons
@@ -112,16 +111,19 @@ private:
     void createActions();
 
     //pages
-    QPointer<InitPage> startpage;
-    QPointer<DatasetPage> datasets;
-    QPointer<CellViewPage> cellview;
-    QPointer<ExperimentPage> experiments;
+    QPointer<InitPage> m_startpage;
+    QPointer<DatasetPage> m_datasets;
+    QPointer<CellViewPage> m_cellview;
+    QPointer<ExperimentPage> m_experiments;
 
     //components
-    QPointer<QStackedWidget> stackWidget;
-    QPointer<QButtonGroup> buttonGroup;
-    QPointer<QHBoxLayout> layout;
-    QPointer<QVBoxLayout> buttonLayout;
+    QPointer<QStackedWidget> m_stackWidget;
+    QPointer<QButtonGroup> m_buttonGroup;
+    QPointer<QHBoxLayout> m_layout;
+    QPointer<QVBoxLayout> m_buttonLayout;
+
+    //refence to datProxy
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(ExtendedTabWidget)
 };

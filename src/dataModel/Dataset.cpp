@@ -134,7 +134,7 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
-const QList<QString> Dataset::oboFoundryTerms() const
+const QVector<QString> Dataset::oboFoundryTerms() const
 {
     return m_oboFroundryTerms;
 }
@@ -199,7 +199,7 @@ void Dataset::statComments(const QString& statComments)
     m_statComments = statComments;
 }
 
-void Dataset::oboFoundryTerms(const QList<QString>& oboFoundryTerms)
+void Dataset::oboFoundryTerms(const QVector<QString>& oboFoundryTerms)
 {
     m_oboFroundryTerms = oboFoundryTerms;
 }

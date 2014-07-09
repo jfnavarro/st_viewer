@@ -52,7 +52,7 @@ public:
                        const QVariant&, int = Qt::EditRole) override;
 
     //loads the data of the model from DatProxy
-    void loadDatasets();
+    void loadDatasets(const DataProxy::DatasetList &datasetList);
 
 public slots:
 
@@ -64,6 +64,7 @@ signals:
 
 private:
 
+    //TODO make this a pure reference
     DataProxy::DatasetList m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel)

@@ -1,8 +1,6 @@
 #ifndef MINVERSIONDTO_H
 #define MINVERSIONDTO_H
 
-#endif // MINVERSIONDTO_H
-
 #include <QObject>
 
 // DTOs (Data transform objects) provides the bridge between the client
@@ -53,3 +51,5 @@ private:
 
     QString m_minVersion;
 };
+
+#endif // MINVERSIONDTO_H

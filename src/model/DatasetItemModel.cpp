@@ -118,12 +118,11 @@ bool DatasetItemModel::setHeaderData(int, Qt::Orientation, const QVariant &, int
     return false;
 }
 
-void DatasetItemModel::loadDatasets()
+void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
 {
     beginResetModel();
     m_datasets_reference.clear();
-    DataProxy *dataProxy = DataProxy::getInstance();
-    m_datasets_reference = dataProxy->getDatasetList();
+    m_datasets_reference = datasetList;
     endResetModel();
 }
 

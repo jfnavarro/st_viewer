@@ -8,7 +8,7 @@
 #include <QtTest/QTest>
 
 // unit test lib
-#include "QtUnitTest/testsuite.h"
+#include "testTools/testsuite.h"
 
 // unit tests
 #include "test/controller/data/tst_datastoretest.h"

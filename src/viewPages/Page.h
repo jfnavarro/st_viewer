@@ -30,7 +30,6 @@ signals:
 
 public slots:
 
-    virtual void onInit() = 0;
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
 
