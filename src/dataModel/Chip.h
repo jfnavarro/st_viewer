@@ -61,6 +61,8 @@ public:
     int y2Total() const;
     int y1Border() const;
     int y2Border() const;
+    const QString created() const;
+    const QString lastModified() const;
 
     void id(const QString& id);
     void barcodes(int barcodes);
@@ -77,6 +79,8 @@ public:
     void y2Total(int y2Total);
     void y1Border(int y1Border);
     void y2Border(int y2Border);
+    void created(const QString& created);
+    void lastModified(const QString& lastModified);
 
 private:
 
@@ -95,6 +99,8 @@ private:
     int m_y2Total;
     int m_y1Border;
     int m_y2Border;
+    QString m_created;
+    QString m_lastMofidied;
 };
 
 #endif // CHIPID_H

@@ -6,6 +6,7 @@
 */
 
 #include "User.h"
+#include <QDate>
 
 User::User()
     : m_id(),
@@ -18,7 +19,10 @@ User::User()
       m_country(),
       m_password(),
       m_role(),
-      m_enabled(false)
+      m_enabled(false),
+      m_grantedDatasets(),
+      m_created(QDate::currentDate().toString()),
+      m_lastMofidied(QDate::currentDate().toString())
 {
 
 }
@@ -35,7 +39,10 @@ User::User(const User& other)
       m_country(other.m_country),
       m_password(other.m_password),
       m_role(other.m_role),
-      m_enabled(other.m_enabled)
+      m_enabled(other.m_enabled),
+      m_grantedDatasets(other.m_grantedDatasets),
+      m_created(other.m_created),
+      m_lastMofidied(other.m_lastMofidied)
 {
 
 }
@@ -58,6 +65,9 @@ User& User::operator=(const User& other)
     m_password = other.m_password;
     m_role = other.m_role;
     m_enabled = other.m_enabled;
+    m_grantedDatasets = other.m_grantedDatasets;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
     return (*this);
 }
 
@@ -74,7 +84,10 @@ bool User::operator==(const User& other) const
                 m_country == other.m_country &&
                 m_password == other.m_password &&
                 m_role == other.m_role &&
-                m_enabled == other.m_enabled
+                m_enabled == other.m_enabled &&
+                m_grantedDatasets == other.m_grantedDatasets &&
+                m_created == other.m_created &&
+                m_lastMofidied == other.m_lastMofidied
         );
 }
 
@@ -138,6 +151,21 @@ bool User::enabled() const
     return m_enabled;
 }
 
+const QVector<QString> User::grantedDatasets() const
+{
+    return m_grantedDatasets;
+}
+
+const QString User::created() const
+{
+    return m_created;
+}
+
+const QString User::lastModified() const
+{
+    return m_lastMofidied;
+}
+
 void User::id(const QString& id)
 {
     m_id = id;
@@ -196,4 +224,19 @@ void User::role(const QString& role)
 void User::enabled(bool enabled)
 {
     m_enabled = enabled;
+}
+
+void User::grantedDatasets(const QVector<QString> &grantedDatasets)
+{
+    m_grantedDatasets = grantedDatasets;
+}
+
+void User::created(const QString& created)
+{
+    m_created = created;
+}
+
+void User::lastModified(const QString& lastModified)
+{
+    m_lastMofidied = lastModified;
 }

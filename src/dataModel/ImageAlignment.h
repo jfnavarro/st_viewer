@@ -21,6 +21,8 @@ public:
     const QString figureRed() const;
     const QString figureBlue() const;
     const QTransform alignment() const;
+    const QString created() const;
+    const QString lastModified() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -28,6 +30,8 @@ public:
     void figureRed(const QString& figureRed);
     void figureBlue(const QString& figureBlue);
     void alignment(const QTransform& alignment);
+    void created(const QString& created);
+    void lastModified(const QString& lastModified);
 
 private:
 
@@ -37,6 +41,8 @@ private:
     QString m_figureRed;
     QString m_figureBlue;
     QTransform m_alignment;
+    QString m_created;
+    QString m_lastMofidied;
 };
 
 #endif // IMAGEALIGNMENT_H

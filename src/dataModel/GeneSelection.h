@@ -52,8 +52,9 @@ public:
     const QString status() const;
     const QVector<QString> oboFoundryTerms() const;
     const QString comment() const;
-    const QString resultFile() const;
     bool enabled() const;
+    const QString created() const;
+    const QString lastModified() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -64,8 +65,9 @@ public:
     void status(const QString& status);
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void comment(const QString& comment);
-    void resultFile(const QString& file);
     void enabled(const bool enabled);
+    void created(const QString& created);
+    void lastModified(const QString& lastModified);
 
 private:
 
@@ -78,8 +80,9 @@ private:
     QString m_status;
     QVector<QString> m_oboFroundryTerms;
     QString m_comment;
-    QString m_resultFile;
     bool m_enabled;
+    QString m_created;
+    QString m_lastMofidied;
 };
 
 #endif // GENESELECTION_H

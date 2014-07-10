@@ -30,6 +30,8 @@ class ImageAlignmentDTO : public QObject
     Q_PROPERTY(QString figure_red READ figureRed WRITE figureRed)
     Q_PROPERTY(QString figure_blue READ figureBlue WRITE figureBlue)
     Q_PROPERTY(QVariantList alignment_matrix READ alignment WRITE alignment)
+    Q_PROPERTY(QString created_at READ created WRITE created)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
 
@@ -44,6 +46,8 @@ public:
     void figureBlue(const QString& figureBlue) { m_imageAlignment.figureBlue(figureBlue); }
     void alignment(const QVariantList& alignment)
       { m_imageAlignment.alignment(unserializeTransform(alignment)); }
+    void created(const QString& created) { m_imageAlignment.created(created); }
+    void lastModified(const QString& lastModified) { m_imageAlignment.lastModified(lastModified); }
 
     //read
     const QString id() { return m_imageAlignment.id(); }
@@ -53,6 +57,8 @@ public:
     const QString figureBlue() { return m_imageAlignment.figureBlue(); }
     const QVariantList alignment()
       { return serializeTransform(m_imageAlignment.alignment()); }
+    const QString created() const { return m_imageAlignment.created(); }
+    const QString lastModified() const { return m_imageAlignment.lastModified(); }
 
     // get parsed data model
     const ImageAlignment& imageAlignment() const { return m_imageAlignment; }

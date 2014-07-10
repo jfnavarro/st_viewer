@@ -131,24 +131,31 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         break;
     }
     case Globals::HttpRequestTypePost: {
-        // set clean url and explicit content type
-        request.setUrl(cmd->url());
-        qDebug() << "[NetworkManager] POST:" << request.url() << "DATA:" << cmd->getEncodedQuery();
-        //setting headers
-        request.setHeader(QNetworkRequest::ContentTypeHeader,
-                          QVariant(QStringLiteral("application/x-www-form-urlencoded")));
+        // encode query as part of the url
+        QUrl queryUrl(cmd->url());
+        queryUrl.setQuery(cmd->query());
+        request.setUrl(queryUrl);
+        // get json data
+        QByteArray jsonData = cmd->jsonQuery();
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
+        qDebug() << "[NetworkManager] POST:" << request.url() << "DATA: " << jsonData;
         // send request
-        networkReply = m_nam->post(request, cmd->getEncodedQuery().toUtf8());
+        networkReply = m_nam->post(request, jsonData);
         break;
     }
     case Globals::HttpRequestTypePut: {
-        // set clean url and explicit content type
-        request.setUrl(cmd->url());
-        request.setHeader(QNetworkRequest::ContentTypeHeader,
-                          QVariant(QStringLiteral("application/x-www-form-urlencoded")));
-        qDebug() << "[NetworkManager] PUT:" << request.url() << "DATA:" << cmd->getEncodedQuery();
+        // encode query as part of the url
+        QUrl queryUrl(cmd->url());
+        queryUrl.setQuery(cmd->query());
+        request.setUrl(queryUrl);
+        // get json data
+        QByteArray jsonData = cmd->jsonQuery();
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
+        qDebug() << "[NetworkManager] PUT:" << request.url() << "DATA: " << jsonData;
         // send request
-        networkReply = m_nam->put(request, cmd->getEncodedQuery().toUtf8());
+        networkReply = m_nam->put(request, jsonData);
         break;
     }
     case Globals::HttpRequestTypeDelete: {
@@ -156,7 +163,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
         request.setUrl(queryUrl);
-        qDebug() << "[NetworkManager] DELETE:" << request.url();
+        qDebug() << "[NetworkManager] DELETE: " << request.url();
         // send request
         networkReply = m_nam->deleteResource(request);
         break;

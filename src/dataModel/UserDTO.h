@@ -37,6 +37,9 @@ public:
     Q_PROPERTY(QString role READ role WRITE role)
     Q_PROPERTY(QString password READ password WRITE password)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
+    Q_PROPERTY(QVariantList granted_datasets READ grantedDatasets WRITE grantedDatasets)
+    Q_PROPERTY(QString created_at READ created WRITE created)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
 
@@ -56,6 +59,10 @@ public:
     void role(const QString& role) { m_user.role(role);}
     void password(const QString& password) { m_user.password(password); }
     void enabled(bool enabled) { m_user.enabled(enabled); }
+    void grantedDatasets(QVariantList grantedDatasets)
+            { m_user.grantedDatasets(unserializeVector<QString>(grantedDatasets)); }
+    void created(const QString& created) { m_user.created(created); }
+    void lastModified(const QString& lastModified) { m_user.lastModified(lastModified); }
 
     //read
     const QString id() { return m_user.id(); }
@@ -70,12 +77,45 @@ public:
     const QString role() { return m_user.role();}
     const QString password() { return m_user.password(); }
     bool enabled() { return m_user.enabled(); }
+    const QVariantList grantedDatasets() const
+            { return serializeVector<QString>(m_user.grantedDatasets()); }
+    const QString created() const { return m_user.created(); }
+    const QString lastModified() const { return m_user.lastModified(); }
+
+    //const QByteArray toJson() const
+    //{
+        //TODO
+    //}
 
     // get parsed data model
     const User& user() const { return m_user; }
     User& user() { return m_user; }
 
 private:
+
+    //TODO duplicated in other DTOs move to Utils class
+    template<typename N>
+    const QVariantList serializeVector(const QVector<N>& unserializedVector) const
+    {
+        QVariantList newList;
+        foreach(const N &item, unserializedVector.toList()) {
+            newList << QVariant::fromValue(item);
+        }
+        return newList;
+    }
+
+    template<typename N>
+    const QVector<N> unserializeVector(const QVariantList& serializedVector) const
+    {
+        // unserialize data
+        QVector<N> values;
+        QVariantList::const_iterator it;
+        QVariantList::const_iterator end = serializedVector.end();
+        for (it = serializedVector.begin(); it != end; ++it) {
+            values.push_back(it->value<N>());
+        }
+        return values;
+    }
 
     User m_user;
 };

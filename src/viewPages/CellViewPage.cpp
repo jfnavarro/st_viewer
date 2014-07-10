@@ -665,7 +665,11 @@ void CellViewPage::slotSaveSelection()
 
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use the test in request.getErrors()
+            qDebug() << "Error creating selection : ";
+            foreach(QSharedPointer<Error> error, request.getErrors()) {
+                qDebug() << error->name() << " - " << error->description();
+            }
+
             showError("Create Gene Selection", "Error saving the gene selection");
         }
         else {

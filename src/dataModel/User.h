@@ -9,6 +9,7 @@
 #define USER_H
 
 #include <QString>
+#include <QVector>
 
 // Data model class to store user data.
 class User
@@ -35,6 +36,9 @@ public:
     const QString password() const;
     const QString role() const;
     bool enabled() const;
+    const QVector<QString> grantedDatasets() const;
+    const QString created() const;
+    const QString lastModified() const;
 
     void id(const QString& id);
     void username(const QString& username);
@@ -48,6 +52,9 @@ public:
     void password(const QString& password);
     void role(const QString& role);
     void enabled(bool enabled);
+    void grantedDatasets(const QVector<QString> &grantedDatasets);
+    void created(const QString& created);
+    void lastModified(const QString& lastModified);
 
 private:
 
@@ -63,6 +70,9 @@ private:
     QString m_password;
     QString m_role;
     bool m_enabled;
+    QVector<QString> m_grantedDatasets;
+    QString m_created;
+    QString m_lastMofidied;
 };
 
 #endif // USER_H

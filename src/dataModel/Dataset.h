@@ -39,6 +39,10 @@ public:
     const QVector<QString> oboFoundryTerms() const;
     const QVector<qreal> hitsQuartiles() const;
     bool enabled() const;
+    const QVector<QString> grantedAccounts() const;
+    const QString createdByAccount() const;
+    const QString created() const;
+    const QString lastModified() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -53,6 +57,10 @@ public:
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
     void enabled(const bool enabled);
+    void grantedAccounts(const QVector<QString> &grantedAccounts);
+    void createdByAccount(const QString& created);
+    void created(const QString& created);
+    void lastModified(const QString& lastModified);
 
     //extended methods to get statistics
     qreal statisticsMin() const;
@@ -75,6 +83,10 @@ private:
     QVector<QString> m_oboFroundryTerms;
     QVector<qreal> m_genePooledHitsQuartiles;
     bool m_enabled;
+    QVector<QString> m_grantedAccounts;
+    QString m_createdByAccount;
+    QString m_created;
+    QString m_lastMofidied;
 };
 
 #endif // DATASET_H

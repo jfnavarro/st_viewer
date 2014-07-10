@@ -37,6 +37,8 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Created, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::LastModified, QHeaderView::Stretch);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

@@ -39,6 +39,8 @@ class ChipDTO : public QObject
     Q_PROPERTY(int barcodes READ barcodes WRITE barcodes)
     Q_PROPERTY(QString id READ id WRITE id)
     Q_PROPERTY(QString name READ name WRITE name)
+    Q_PROPERTY(QString created_at READ created WRITE created)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
 
@@ -61,6 +63,8 @@ public:
     void y2Total(int y2Total) { m_chip.y2Total(y2Total); }
     void y1Border(int y1Border) { m_chip.y1Border(y1Border); }
     void y2Border(int y2Border) { m_chip.y2Border(y2Border); }
+    void created(const QString& created) { m_chip.created(created); }
+    void lastModified(const QString& lastModified) { m_chip.lastModified(lastModified); }
 
     // read
     const QString id() { return m_chip.id(); }
@@ -78,6 +82,8 @@ public:
     int y2Total() { return m_chip.y2Total(); }
     int y1Border() { return m_chip.y1Border(); }
     int y2Border() { return m_chip.y2Border(); }
+    const QString created() const { return m_chip.created(); }
+    const QString lastModified() const { return m_chip.lastModified(); }
 
     // get parsed data model
     const Chip& chip() const { return m_chip; }

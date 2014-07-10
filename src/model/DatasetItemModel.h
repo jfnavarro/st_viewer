@@ -31,7 +31,9 @@ public:
         Genes = 4,
         UBarcodes = 5,
         UGenes = 6,
-        Comments = 7
+        Created = 7,
+        LastModified = 8,
+        Comments = 9
     };
 
     explicit DatasetItemModel(QObject* parent = 0);

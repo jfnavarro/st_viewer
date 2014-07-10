@@ -5,6 +5,8 @@
 
 */
 
+#include <QUuid>
+
 #include "RESTCommandFactory.h"
 #include "config/Configuration.h"
 

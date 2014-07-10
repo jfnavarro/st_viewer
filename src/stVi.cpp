@@ -236,7 +236,7 @@ void stVi::handleMessage(const QString &message)
     QMessageBox::critical(this->centralWidget(), "Main Application", message);
 }
 
-void stVi::showAbout()
+void stVi::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(new AboutDialog(this,
                                                       Qt::CustomizeWindowHint | Qt::WindowTitleHint));
@@ -340,7 +340,7 @@ void stVi::createConnections()
     //clear cache action
     connect(m_actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
     //signal that shows the about dialog
-    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(slotShowAbout()));
 }
 
 void stVi::closeEvent(QCloseEvent* event)

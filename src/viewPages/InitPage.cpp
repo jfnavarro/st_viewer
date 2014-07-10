@@ -90,6 +90,10 @@ void InitPage::slotAuthorized()
                || request.return_code() == async::DataRequest::CodeSuccess) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
+        if (!user->enabled()) {
+            showError("Authorization Error", "The current user is disabled.");
+            return;
+        }
         m_ui->user_name->setText(user->username());
         m_ui->newExpButt->setEnabled(true);
     } else {

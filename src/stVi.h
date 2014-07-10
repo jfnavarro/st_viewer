@@ -56,7 +56,7 @@ private slots:
     void slotClearCache();
 
     // opens pop up static widget to show info about the application
-    void showAbout();
+    void slotShowAbout();
 
 private:
 

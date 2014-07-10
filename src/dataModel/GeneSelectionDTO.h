@@ -38,8 +38,9 @@ class GeneSelectionDTO : public QObject
     Q_PROPERTY(QString status READ status WRITE status)
     Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
     Q_PROPERTY(QString comment READ comment WRITE comment)
-    Q_PROPERTY(QString resul_file READ resultFile WRITE resultFile)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
+    Q_PROPERTY(QString created_at READ created WRITE created)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
 
@@ -60,8 +61,9 @@ public:
     const QVariantList oboFoundryTerms() const
       { return serializeVector<QString>(m_geneSelection.oboFoundryTerms()); }
     const QString comment() const { return m_geneSelection.comment(); }
-    const QString resultFile() const { return m_geneSelection.resultFile(); }
     bool enabled() const { return m_geneSelection.enabled(); }
+    const QString created() const { return m_geneSelection.created(); }
+    const QString lastModified() const { return m_geneSelection.lastModified(); }
 
     // binding
     void id(const QString& id) { m_geneSelection.id(id); }
@@ -75,14 +77,15 @@ public:
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
       { m_geneSelection.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
     void comment(const QString& comment) { m_geneSelection.comment(comment); }
-    void resultFile(const QString& file) { m_geneSelection.resultFile(file); }
     void enabled(const bool enabled) { m_geneSelection.enabled(enabled); }
+    void created(const QString& created) { m_geneSelection.created(created); }
+    void lastModified(const QString& lastModified) { m_geneSelection.lastModified(lastModified); }
 
     // get parsed data model
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
 
-    QString toJson() const
+    QByteArray toJson() const
     {
         QJsonObject jsonObj;
         //jsonObj["id"] = id();
@@ -93,25 +96,27 @@ public:
         foreach(const SelectionType &item, m_geneSelection.selectedItems()) {
             QJsonArray geneHit;
             geneHit.append(item.name);
-            geneHit.append(item.reads);
-            geneHit.append(item.normalizedReads);
-            geneHit.append(item.pixeIntensity);
+            geneHit.append(QString::number(item.reads));
+            geneHit.append(QString::number(item.normalizedReads));
+            geneHit.append(QString::number(item.pixeIntensity));
             geneHits.append(geneHit);
         }
         jsonObj["gene_hits"] = geneHits;
-        jsonObj["type"] = type();
-        jsonObj["status"] = status();
+        jsonObj["type"] = !type().isEmpty() ? QJsonValue(type()) : QJsonValue::Null;
+        jsonObj["status"] = !status().isEmpty() ? QJsonValue(status()) : QJsonValue::Null;
         QJsonArray oboTerms;
         foreach(const QString &item, m_geneSelection.oboFoundryTerms()) {
             oboTerms.append(item);
         }
         jsonObj["obo_foundry_terms"] = oboTerms;
-        jsonObj["comment"] = comment();
-        jsonObj["resul_file"] = resultFile();
+        jsonObj["comment"] = !comment().isEmpty() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
+        jsonObj["created_at"] = QJsonValue::Null; //null for now until we know what format is used in server
+        jsonObj["last_modified"] = QJsonValue::Null; //null for now until we know what format is used in server
+
         QJsonDocument doc(jsonObj);
-        QString result(doc.toJson(QJsonDocument::Indented));
-        return result;
+        QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);
+        return serializedDoc;
     }
 
 private:

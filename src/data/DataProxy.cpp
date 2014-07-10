@@ -619,7 +619,8 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     // intermediary dto object
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection(m_configurationManager);
-    cmd->setQuery(dto.toJson());
+    //append json data
+    cmd->setJsonQuery(dto.toJson());
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"

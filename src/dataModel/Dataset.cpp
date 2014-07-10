@@ -8,6 +8,7 @@
 #include "Dataset.h"
 #include <QStringList>
 #include <QVariant>
+#include <QDate>
 
 Dataset::Dataset()
     : m_id(),
@@ -20,7 +21,11 @@ Dataset::Dataset()
       m_statTissue(),
       m_statSpecie(),
       m_statComments(),
-      m_enabled(false)
+      m_enabled(false),
+      m_grantedAccounts(),
+      m_createdByAccount(),
+      m_created(QDate::currentDate().toString()),
+      m_lastMofidied(QDate::currentDate().toString())
 {
 
 }
@@ -40,6 +45,10 @@ Dataset::Dataset(const Dataset& other)
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
     m_enabled = other.m_enabled;
+    m_grantedAccounts = other.m_grantedAccounts;
+    m_createdByAccount = other.m_createdByAccount;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
 }
 
 Dataset::~Dataset()
@@ -62,6 +71,10 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
     m_enabled = other.m_enabled;
+    m_grantedAccounts = other.m_grantedAccounts;
+    m_createdByAccount = other.m_createdByAccount;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
     return (*this);
 }
 
@@ -80,7 +93,11 @@ bool Dataset::operator==(const Dataset& other) const
                m_statComments == other.m_statComments &&
                m_oboFroundryTerms == other.m_oboFroundryTerms &&
                m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles &&
-               m_enabled == other.m_enabled
+               m_enabled == other.m_enabled &&
+               m_grantedAccounts == other.m_grantedAccounts &&
+               m_createdByAccount == other.m_createdByAccount &&
+               m_created == other.m_created &&
+               m_lastMofidied == other.m_lastMofidied
            );
 }
 
@@ -149,6 +166,26 @@ bool Dataset::enabled() const
     return m_enabled;
 }
 
+const QVector<QString> Dataset::grantedAccounts() const
+{
+    return m_grantedAccounts;
+}
+
+const QString Dataset::createdByAccount() const
+{
+    return m_createdByAccount;
+}
+
+const QString Dataset::created() const
+{
+    return m_created;
+}
+
+const QString Dataset::lastModified() const
+{
+    return m_lastMofidied;
+}
+
 void Dataset::id(const QString& id)
 {
     m_id = id;
@@ -212,6 +249,26 @@ void Dataset::hitsQuartiles(const QVector<qreal>& hitsQuartiles)
 void Dataset::enabled(const bool enabled)
 {
     m_enabled = enabled;
+}
+
+void Dataset::grantedAccounts(const QVector<QString> &grantedAccounts)
+{
+    m_grantedAccounts = grantedAccounts;
+}
+
+void Dataset::createdByAccount(const QString& created)
+{
+    m_createdByAccount = created;
+}
+
+void Dataset::created(const QString& created)
+{
+    m_created = created;
+}
+
+void Dataset::lastModified(const QString& lastModified)
+{
+    m_lastMofidied = lastModified;
 }
 
 qreal Dataset::statisticsMin() const

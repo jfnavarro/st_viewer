@@ -122,6 +122,8 @@ public:
     void cleanAll();
 
     //returns the authorization manager which is owned by dataProxy
+    //TODO DataProxy shuld not own AuthorizationManager, perhaps
+    //move the ownership to stVi
     QPointer<AuthorizationManager> getAuthorizationManager() const;
 
     //data loaders

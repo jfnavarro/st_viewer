@@ -7,6 +7,8 @@
 
 #include "Chip.h"
 
+#include <QDate>
+
 Chip::Chip()
     : m_id(),
       m_barcodes(0),
@@ -22,7 +24,9 @@ Chip::Chip()
       m_y1Total(0),
       m_y2Total(0),
       m_y1Border(0),
-      m_y2Border(0)
+      m_y2Border(0),
+      m_created(QDate::currentDate().toString()),
+      m_lastMofidied(QDate::currentDate().toString())
 {
 
 }
@@ -44,6 +48,8 @@ Chip::Chip(const Chip& other)
     m_x2Total = other.m_x2Total;
     m_y1Total = other.m_y1Total;
     m_y2Total = other.m_y2Total;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
 }
 
 Chip::~Chip()
@@ -68,6 +74,8 @@ Chip& Chip::operator=(const Chip& other)
     m_x2Total = other.m_x2Total;
     m_y1Total = other.m_y1Total;
     m_y2Total = other.m_y2Total;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
     return (*this);
 }
 
@@ -88,7 +96,9 @@ bool Chip::operator==(const Chip& other) const
             m_x1Total == other.m_x1Total &&
             m_x2Total == other.m_x2Total &&
             m_y1Total == other.m_y1Total &&
-            m_y2Total == other.m_y2Total
+            m_y2Total == other.m_y2Total &&
+            m_created == other.m_created &&
+            m_lastMofidied == other.m_lastMofidied
         );
 }
 
@@ -167,6 +177,17 @@ int Chip::y2Border() const
     return m_y2Border;
 }
 
+const QString Chip::created() const
+{
+    return m_created;
+}
+
+const QString Chip::lastModified() const
+{
+    return m_lastMofidied;
+}
+
+
 void Chip::id(const QString& id)
 {
     m_id = id;
@@ -240,4 +261,14 @@ void Chip::y1Border(int y1Border)
 void Chip::y2Border(int y2Border)
 {
     m_y2Border = y2Border;
+}
+
+void Chip::created(const QString& created)
+{
+    m_created = created;
+}
+
+void Chip::lastModified(const QString& lastModified)
+{
+    m_lastMofidied = lastModified;
 }

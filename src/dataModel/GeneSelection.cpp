@@ -1,6 +1,7 @@
 #include "GeneSelection.h"
 
 #include <QMap>
+#include <QDate>
 
 SelectionType::SelectionType() :
     name(),
@@ -53,8 +54,9 @@ GeneSelection::GeneSelection()
       m_status(),
       m_oboFroundryTerms(),
       m_comment(),
-      m_resultFile(),
-      m_enabled(false)
+      m_enabled(false),
+      m_created(QDate::currentDate().toString()),
+      m_lastMofidied(QDate::currentDate().toString())
 {
 
 }
@@ -69,8 +71,9 @@ GeneSelection::GeneSelection(const GeneSelection& other)
       m_status(other.m_status),
       m_oboFroundryTerms(other.m_oboFroundryTerms),
       m_comment(other.m_comment),
-      m_resultFile(other.m_resultFile),
-      m_enabled(other.m_enabled)
+      m_enabled(other.m_enabled),
+      m_created(other.m_created),
+      m_lastMofidied(other.m_lastMofidied)
 {
 
 }
@@ -91,8 +94,9 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
     m_status = other.m_status;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_comment = other.m_comment;
-    m_resultFile = other.m_resultFile;
     m_enabled = other.m_enabled;
+    m_created = other.m_created;
+    m_lastMofidied = other.m_lastMofidied;
     return (*this);
 }
 
@@ -108,8 +112,9 @@ bool GeneSelection::operator==(const GeneSelection& other) const
                 m_status == other.m_status &&
                 m_oboFroundryTerms == other.m_oboFroundryTerms &&
                 m_comment == other.m_comment &&
-                m_resultFile == other.m_resultFile &&
-                m_enabled == other.m_enabled
+                m_enabled == other.m_enabled &&
+                m_created == other.m_created &&
+                m_lastMofidied == other.m_lastMofidied
         );
 }
 
@@ -158,14 +163,19 @@ const QString GeneSelection::comment() const
     return m_comment;
 }
 
-const QString GeneSelection::resultFile() const
-{
-    return m_resultFile;
-}
-
 bool GeneSelection::enabled() const
 {
     return m_enabled;
+}
+
+const QString GeneSelection::created() const
+{
+    return m_created;
+}
+
+const QString GeneSelection::lastModified() const
+{
+    return m_lastMofidied;
 }
 
 void GeneSelection::id(const QString& id)
@@ -213,12 +223,17 @@ void GeneSelection::comment(const QString& comment)
     m_comment = comment;
 }
 
-void GeneSelection::resultFile(const QString& file)
-{
-    m_resultFile = file;
-}
-
 void GeneSelection::enabled(const bool enabled)
 {
     m_enabled = enabled;
+}
+
+void GeneSelection::created(const QString& created)
+{
+    m_created = created;
+}
+
+void GeneSelection::lastModified(const QString& lastModified)
+{
+    m_lastMofidied = lastModified;
 }

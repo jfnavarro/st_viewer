@@ -36,6 +36,10 @@ class DatasetDTO : public QObject
     Q_PROPERTY(QString comment READ statComments WRITE statComments)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
     Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
+    Q_PROPERTY(QVariantList granted_accounts READ grantedAccounts WRITE grantedAccounts)
+    Q_PROPERTY(QString created_by_account_id READ createdByAccount WRITE createdByAccount)
+    Q_PROPERTY(QString created_at READ created WRITE created)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
 
@@ -52,11 +56,16 @@ public:
     void statGenes(int genes) { m_dataset.statGenes(genes); }
     void statUniqueBarcodes(int unique_barcodes) { m_dataset.statUniqueBarcodes(unique_barcodes); }
     void statUniqueGenes(int unique_genes) { m_dataset.statUniqueGenes(unique_genes); }
-    void hitsQuartiles(QVariantList hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
+    void hitsQuartiles(const QVariantList& hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
     void enabled(const bool enabled) { m_dataset.enabled(enabled); }
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
       { m_dataset.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
+    void grantedAccounts(QVariantList grantedAccounts)
+            { m_dataset.grantedAccounts(unserializeVector<QString>(grantedAccounts)); }
+    void created(const QString& created) { m_dataset.created(created); }
+    void createdByAccount(const QString& created) { m_dataset.createdByAccount(created); }
+    void lastModified(const QString& lastModified) { m_dataset.lastModified(lastModified); }
 
     // read
     const QString id() { return m_dataset.id(); }
@@ -73,6 +82,16 @@ public:
     bool enabled() { return m_dataset.enabled(); }
     const QVariantList oboFoundryTerms()
       { return serializeVector<QString>(m_dataset.oboFoundryTerms()); }
+    const QVariantList grantedAccounts()
+            { return serializeVector<QString>(m_dataset.grantedAccounts()); }
+    const QString createdByAccount() { return m_dataset.createdByAccount(); }
+    const QString created() const { return m_dataset.created(); }
+    const QString lastModified() const { return m_dataset.lastModified(); }
+
+    //const QByteArray toJson() const
+    //{
+        //TODO
+    //}
 
     // get parsed data model
     const Dataset& dataset() const { return m_dataset; }

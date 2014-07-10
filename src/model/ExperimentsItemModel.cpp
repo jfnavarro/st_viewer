@@ -14,7 +14,7 @@
 
 #include "dataModel/GeneSelection.h"
 
- static const int COLUMN_NUMBER = 5;
+ static const int COLUMN_NUMBER = 7;
 
 ExperimentsItemModel::ExperimentsItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -52,6 +52,8 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         case Comment: return item->comment();
         case Type: return item->type();
         case NGenes: return QString::number(item->selectedItems().size());
+        case Created: return item->created();
+        case LastModified: return item->lastModified();
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -69,6 +71,8 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Comment: return tr("Comment");
         case Type: return tr("Type");
         case NGenes: return tr("Number Genes");
+        case Created: return tr("Created");
+        case LastModified: return tr("Last Modified");
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -82,6 +86,8 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Comment: return tr("The comments made on the selection");
         case Type: return tr("The type of selection");
         case NGenes: return tr("The number of unique genes present in the selection");
+        case Created: return tr("Created at this date");
+        case LastModified: return tr("Last Modified at this date");
         default: return QVariant(QVariant::Invalid);
         }
     }

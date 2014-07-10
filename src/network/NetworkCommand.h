@@ -52,8 +52,10 @@ public:
     // returns the URL part fully encoded. Note this includes the URL query.
     const QString getEncodedUrl() const;
 
-    // sets the whole query string
-    void setQuery(const QString &queryString);
+    // sets the a QByteArray corresponding to a json query (used in PUT/POST)
+    void setJsonQuery(const QByteArray &query);
+
+    const QByteArray jsonQuery() const;
 
 private:
 
@@ -61,6 +63,7 @@ private:
     QUrl m_url;
     Type m_type;
     QUrlQuery m_query;
+    QByteArray m_jsonQuery;
 
     Q_DISABLE_COPY(NetworkCommand)
 };
