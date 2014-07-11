@@ -105,11 +105,11 @@ NetworkCommand* RESTCommandFactory::getSelections(const Configuration& configura
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const Configuration& configuration,
-                                                                 const QString &selectionId)
+NetworkCommand* RESTCommandFactory::upateSelectionBySelectionById(const Configuration& configuration,
+                                                                  const QString& selectionId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
 }
 
 NetworkCommand* RESTCommandFactory::addSelection(const Configuration& configuration)

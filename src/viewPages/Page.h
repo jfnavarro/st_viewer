@@ -40,6 +40,8 @@ private slots:
 protected:
 
     void setWaiting(bool waiting = true);
+
+    void showInfo(const QString &header, const QString &body);
     void showWarning(const QString &header, const QString &body);
     void showError(const QString &header, const QString &body);
 

@@ -97,8 +97,8 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
     bool dirty = false;
 
     // data type
-    Q_ASSERT_X(parameters.contains(Globals::PARAM_TYPE),
-               "DataProxy", "Data type must be defined!");
+    Q_ASSERT(parameters.contains(Globals::PARAM_TYPE));
+
     //get the type of data request
     const DataType type =
             static_cast<DataType>(parameters.value(Globals::PARAM_TYPE).toInt());
@@ -195,6 +195,14 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         foreach(QVariant var, list) {
             data::parseObject(var, &dto);
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
+            //get the dataset name here (easier)
+            //assuming we have loaded the datasets every time load the selections
+            //TODO check consistency, disabling a dataset
+            //well, if the selection's dataset is not loaded or present when get here
+            //there will be problems :)
+            DatasetPtr selectionDataset = getDatasetById(selection->datasetId());
+            Q_ASSERT(!selectionDataset.isNull());
+            selection->datasetName(selectionDataset->name());
             m_geneSelectionsMap.insert(selection->id(), selection);
             dirty = true;
         }
@@ -613,6 +621,25 @@ async::DataRequest DataProxy::loadGeneSelections()
     //returns the request
     return createRequest(reply);
 }
+async::DataRequest DataProxy::updateGeneSelection(GeneSelectionPtr geneSelection)
+{
+    // intermediary dto object
+    GeneSelectionDTO dto(*geneSelection);
+    NetworkCommand *cmd =
+            RESTCommandFactory::upateSelectionBySelectionById(m_configurationManager, geneSelection->id());
+    //append json data
+    cmd->setJsonQuery(dto.toJson());
+    //append access token
+    const QUuid accessToken = m_authorizationManager->getAccessToken();
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    QVariantMap parameters;
+    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(None)));
+    NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
+    //delete the command
+    cmd->deleteLater();
+    //return the request
+    return createRequest(reply);
+}
 
 async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelection)
 {
@@ -686,7 +713,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
     }
 
     QEventLoop loop; // I want to wait until this finishes
-    QObject::connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop,SLOT(quit()));
+    QObject::connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
     loop.exec();
 
     //TODO add slot Abort to DataRequest and connect it to the reply

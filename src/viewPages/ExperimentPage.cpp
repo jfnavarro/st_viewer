@@ -104,12 +104,11 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     m_ui->ddaAnalysis->setEnabled(index.isValid());
 }
 
-//TODO make it work for only unique selections
 void ExperimentPage::slotRemoveSelection()
 {
     const int answer = QMessageBox::warning(
                      this, tr("Exit application"),
-                     tr("Are you really sure you want to remove the selections?"),
+                     tr("Are you really sure you want to remove the selection?"),
                      QMessageBox::No | QMessageBox::Escape,
                 QMessageBox::Yes | QMessageBox::Escape);
 
@@ -124,14 +123,29 @@ void ExperimentPage::slotRemoveSelection()
         return;
     }
 
-    //setWaiting(true);
-    //TODO set the enabled field to false and send an update request
-    //setWaiting(false);
+    //currentSelection should only have one element
+    auto selectionItem = currentSelection.first();
+    Q_ASSERT(!selectionItem.isNull());
+
+    //sets enabled to false
+    selectionItem->enabled(false);
+
+    //update the selection object
+    setWaiting(true);
+    async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
+    setWaiting(false);
+
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO get error from request
+        showError("Remove Gene Selection", "Error removing the gene selection");
+    } else {
+        showInfo("Remove Gene Selection", "Gene selection removed successfully");
+    }
 
     slotLoadSelections();
 }
 
-//TODO make it work for only unique selections
 void ExperimentPage::slotExportSelection()
 {
     const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
@@ -161,11 +175,11 @@ void ExperimentPage::slotExportSelection()
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
-        //TODO make sure gene exporter allows multiple writes
-        for (auto geneSelection : currentSelection) {
-            Q_ASSERT(geneSelection);
-            exporter.exportItem(textFile, geneSelection->selectedItems());
-        }
+        //currentSelection should only have one element
+        auto selectionItem = currentSelection.first();
+        Q_ASSERT(!selectionItem.isNull());
+        exporter.exportItem(textFile, selectionItem->selectedItems());
+        showInfo("Export Gene Selection", "Gene selection was exported successfully");
     }
 
     textFile.close();

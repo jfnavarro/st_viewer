@@ -21,7 +21,6 @@ class RESTCommandFactory
 public:
 
     // authentication commands
-    //static NetworkCommand* getAuthorization();
     static NetworkCommand* getAuthorizationToken(const Configuration &configuration);
 
     // data access commands
@@ -53,10 +52,7 @@ public:
     //static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString &userId);
 
     static NetworkCommand* getSelections(const Configuration& configuration);
-    //static NetworkCommand* getSelectionsByDatasetId(const Configuration& configuration, const QString& datasetId);
-    //static NetworkCommand* upateSelectionBySelectionId(const Configuration& configuration, const QString& selectionId);
-    static NetworkCommand* removeSelectionBySelectionId(const Configuration& configuration,
-                                                        const QString& selectionId);
+    static NetworkCommand* upateSelectionBySelectionById(const Configuration& configuration, const QString& selectionId);
     static NetworkCommand* addSelection(const Configuration& configuration);
 
     //NOTE this end point does not need authorization

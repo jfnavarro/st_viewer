@@ -55,6 +55,7 @@ public:
     bool enabled() const;
     const QString created() const;
     const QString lastModified() const;
+    const QString datasetName() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -68,6 +69,7 @@ public:
     void enabled(const bool enabled);
     void created(const QString& created);
     void lastModified(const QString& lastModified);
+    void datasetName(const QString& datasetName);
 
 private:
 
@@ -83,6 +85,8 @@ private:
     bool m_enabled;
     QString m_created;
     QString m_lastMofidied;
+    //added
+    QString m_datasetName;
 };
 
 #endif // GENESELECTION_H

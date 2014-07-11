@@ -182,16 +182,15 @@ bool CellViewPage::loadData()
         return false;
     }
 
+    async::DataRequest request;
+
     //load the image alignment first
-    {
-        async::DataRequest request =
-                m_dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the image alignment.");
-            return false;
-        }
+    request = m_dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the image alignment.");
+        return false;
     }
 
     //get image alignmet object
@@ -200,59 +199,48 @@ bool CellViewPage::loadData()
     Q_ASSERT(!ImageAlignment.isNull());
 
     //load cell tissue blue
-    {
-        async::DataRequest request =
-                m_dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the cell tissue image(red).");
-            return false;
-        }
+    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the cell tissue image(red).");
+        return false;
     }
+
     //load cell tissue red
-    {
-        async::DataRequest request =
-                m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the cell tissue image(blue).");
-            return false;
-        }
+    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the cell tissue image(blue).");
+        return false;
     }
-    //load features
-    {
-        async::DataRequest request =
-                m_dataProxy->loadFeatureByDatasetId(dataset->id());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the features.");
-            return false;
-        }
-    }
+
     //load genes
-    {
-        async::DataRequest request =
-                m_dataProxy->loadGenesByDatasetId(dataset->id());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the genes.");
-            return false;
-        }
+    request = m_dataProxy->loadGenesByDatasetId(dataset->id());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the genes.");
+        return false;
     }
+
     //load chip
-    {
-        async::DataRequest request =
-                m_dataProxy->loadChipById(ImageAlignment->chipId());
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
-            //TODO use text in request.getErrors()
-            showError("Data loading Error", "Error loading the chip array.");
-            return false;
-        }
+    request = m_dataProxy->loadChipById(ImageAlignment->chipId());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the chip array.");
+        return false;
+    }
+
+    //load features
+    request =  m_dataProxy->loadFeatureByDatasetId(dataset->id());
+    if (request.return_code() == async::DataRequest::CodeError
+            || request.return_code() == async::DataRequest::CodeAbort) {
+        //TODO use text in request.getErrors()
+        showError("Data loading Error", "Error loading the features.");
+        return false;
     }
 
     //succes downloading the data
@@ -578,6 +566,7 @@ void CellViewPage::slotExportSelection()
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
         exporter.exportItem(textFile, geneSelection);
+        showInfo("Export Gene Selection", "Gene selection was exported successfully");
     }
 
     textFile.close();
@@ -665,15 +654,10 @@ void CellViewPage::slotSaveSelection()
 
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
-            qDebug() << "Error creating selection : ";
-            foreach(QSharedPointer<Error> error, request.getErrors()) {
-                qDebug() << error->name() << " - " << error->description();
-            }
-
+            //TODO get error from request
             showError("Create Gene Selection", "Error saving the gene selection");
-        }
-        else {
-            qDebug() << "Selection object saved succesfully";
+        } else {
+            showInfo("Create Gene Selection", "Gene selection created successfully");
         }
 
     }

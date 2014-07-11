@@ -148,6 +148,9 @@ private:
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
+    //max value of pixel intensity used to normalize
+    int m_maxPixelIntensity;
+
     Q_DISABLE_COPY(GeneRendererGL)
 };
 

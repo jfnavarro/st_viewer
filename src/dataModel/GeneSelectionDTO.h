@@ -55,7 +55,7 @@ public:
     const QString userId() const { return m_geneSelection.userId(); }
     const QString datasetId() const { return m_geneSelection.datasetId(); }
     const QVariantList selectedItems() const
-      { return serializeSelectiosVector(m_geneSelection.selectedItems()); }
+      { return serializeSelectionVector(m_geneSelection.selectedItems()); }
     const QString type() const { return m_geneSelection.type(); }
     const QString status() const { return m_geneSelection.status(); }
     const QVariantList oboFoundryTerms() const
@@ -71,7 +71,7 @@ public:
     void userId(const QString& userId) { m_geneSelection.userId(userId); }
     void datasetId(const QString& datasetId) { m_geneSelection.datasetId(datasetId); }
     void selectedItems(const QVariantList& selectedItems)
-      { m_geneSelection.selectedItems(unserializeVector<SelectionType>(selectedItems)); }
+      { m_geneSelection.selectedItems(unserializeSelectionVector(selectedItems)); }
     void type(const QString& type) { m_geneSelection.type(type); }
     void status(const QString& status) { m_geneSelection.status(status); }
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
@@ -85,10 +85,11 @@ public:
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
 
+    //TODO transform this to obtain fields dynamically using the meta_properties
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
-        //jsonObj["id"] = id();
+        jsonObj["id"] = !id().isEmpty() ? QJsonValue(id()) : QJsonValue::Null;
         jsonObj["name"] = name();
         jsonObj["account_id"] = userId();
         jsonObj["dataset_id"] = datasetId();
@@ -96,6 +97,7 @@ public:
         foreach(const SelectionType &item, m_geneSelection.selectedItems()) {
             QJsonArray geneHit;
             geneHit.append(item.name);
+            //TODO temp hack coz they are wronly defined as strings in the server
             geneHit.append(QString::number(item.reads));
             geneHit.append(QString::number(item.normalizedReads));
             geneHit.append(QString::number(item.pixeIntensity));
@@ -111,7 +113,7 @@ public:
         jsonObj["obo_foundry_terms"] = oboTerms;
         jsonObj["comment"] = !comment().isEmpty() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
-        jsonObj["created_at"] = QJsonValue::Null; //null for now until we know what format is used in server
+        jsonObj["created_at"] =  QJsonValue::Null; //null for now until we know what format is used in server
         jsonObj["last_modified"] = QJsonValue::Null; //null for now until we know what format is used in server
 
         QJsonDocument doc(jsonObj);
@@ -121,8 +123,9 @@ public:
 
 private:
 
-    //TODO duplicated in other DTOs move to Utils class
-    const QVariantList serializeSelectiosVector(const QVector<SelectionType> &unserializedVector) const
+    //TODO this could be done automatically in serializeVector() we just need to register
+    //the selection metatype conversion
+    const QVariantList serializeSelectionVector(const QVector<SelectionType> &unserializedVector) const
     {
         QVariantList newList;
         foreach(const SelectionType &item, unserializedVector.toList()) {
@@ -133,6 +136,28 @@ private:
         return newList;
     }
 
+    //TODO this could be done automatically in serializeVector() we just need to register
+    //the selection metatype conversion
+    const QVector<SelectionType> unserializeSelectionVector(const QVariantList &serializedVector) const
+    {
+        // unserialize data
+        QVector<SelectionType> values;
+        QVariantList::const_iterator it;
+        QVariantList::const_iterator end = serializedVector.end();
+        for (it = serializedVector.begin(); it != end; ++it) {
+            QVariantList elementList = it->toList();
+            Q_ASSERT(elementList.size() == 4);
+            const QString name = elementList.at(0).toString();
+            const qreal reads = elementList.at(1).toDouble();
+            const qreal normalizedReads = elementList.at(2).toDouble();
+            const qreal pixelIntensity = elementList.at(3).toDouble();
+            SelectionType selection(name, reads, normalizedReads, pixelIntensity);
+            values.push_back(selection);
+        }
+        return values;
+    }
+
+    //TODO duplicated in other DTOs move to Utils class
     template<typename N>
     const QVariantList serializeVector(const QVector<N>& unserializedVector) const
     {

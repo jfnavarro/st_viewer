@@ -39,14 +39,10 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
-    Q_ASSERT(!item.isNull());
-
-    if (!item->enabled()) {
-        return QVariant(QVariant::Invalid);
-    }
-
     if (role == Qt::DisplayRole) {
+        DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
+        Q_ASSERT(!item.isNull());
+
         switch (index.column()) {
         case Name: return item->name();
         case Tissue: return item->statTissue();
@@ -133,7 +129,14 @@ void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
 {
     beginResetModel();
     m_datasets_reference.clear();
-    m_datasets_reference = datasetList;
+    //std::copy_if (datasetList.begin(), datasetList.end(), m_datasets_reference.begin(),
+    //              [ ] (DataProxy::DatasetPtr dataset) { return dataset->enabled(); } );
+    foreach(DataProxy::DatasetPtr dataset, datasetList) {
+        if (dataset->enabled()) {
+            m_datasets_reference.push_back(dataset);
+        }
+    }
+    //m_datasets_reference = datasetList;
     endResetModel();
 }
 

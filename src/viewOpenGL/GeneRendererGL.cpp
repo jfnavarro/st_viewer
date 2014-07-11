@@ -17,6 +17,7 @@
 
 static const int INVALID_INDEX = -1;
 
+//TODO initialize int/real variables to something here
 GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent),
       m_geneNode(nullptr),
@@ -73,6 +74,7 @@ void GeneRendererGL::clearData()
     m_pooledMax = Globals::GENE_THRESHOLD_MAX;
     m_thresholdUpperPooled = Globals::GENE_THRESHOLD_MAX;
     m_shape = Globals::DEFAULT_SHAPE_GENE;
+    m_maxPixelIntensity = 255; //TODO make a global variable
 
     // update visual mode
     m_visualMode = Globals::NormalMode;
@@ -453,8 +455,6 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
     //TODO optimize with STL and/or concurrent methods
 
-    //the max pixel value (gray scale)
-    const int maxPixelValue = 255;
     //get the selected items
     const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
     QMap<QString, SelectionType> geneSelectionsMap;
@@ -480,7 +480,7 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         const qreal adjustedNormalizedReads = it.value().normalizedReads /
                 static_cast<qreal>(m_max * count);
         const qreal adjustedNormalizedPixelIntensity = it.value().pixeIntensity /
-                static_cast<qreal>(maxPixelValue * count);
+                static_cast<qreal>(m_maxPixelIntensity * count);
         const QString gene = it.key();
         geneSelectionsList.append(SelectionType(gene, reads,
                                                 adjustedNormalizedReads, adjustedNormalizedPixelIntensity));
@@ -494,7 +494,12 @@ void GeneRendererGL::setImage(const QImage &image)
     Q_ASSERT(!image.isNull());
     Q_ASSERT(!transform().isIdentity());
     m_image = image.transformed(transform().inverted().toAffine());
-    //TODO get max pixel value here and store it
+    m_maxPixelIntensity = 0;
+    for (int x = 0; x < m_image.size().width(); x++) {
+        for (int y = 0; y < m_image.size().height(); y++) {
+            m_maxPixelIntensity = std::max(m_maxPixelIntensity, qGray(m_image.pixel(x,y)));
+        }
+    }
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)

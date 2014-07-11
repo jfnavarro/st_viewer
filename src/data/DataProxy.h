@@ -47,6 +47,7 @@ class DataProxy : public QObject
 public:
 
     enum DataType {
+        None,
         TissueDataType,
         ChipDataType,
         DatasetDataType,
@@ -168,7 +169,7 @@ public:
     //updaters
     //async::DataRequest updateDataset(const Dataset& dataset);
     //async::DataRequest updateUser(const User& user);
-    //async::DataRequest updateGeneSelection(const GeneSelection& geneSelection);
+    async::DataRequest updateGeneSelection(GeneSelectionPtr geneSelection);
 
     //creation
     async::DataRequest addGeneSelection(const GeneSelection& geneSelection);

@@ -17,7 +17,7 @@ Page::Page(QWidget *parent) :
     m_steps(0)
 {
     m_progressDialog= new QProgressDialog("Downloading data...", "Cancel", 0, 100, this);
-    m_progressDialog->setWindowModality(Qt::ApplicationModal);
+    m_progressDialog->setModal(true);
     //TODO remove max/min buttons
     //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
     //                                 Qt::WindowTitleHint);
@@ -63,6 +63,11 @@ void Page::increaseBar()
         m_steps = 0;
         m_progressDialog->setValue(0);
     }
+}
+
+void Page::showInfo(const QString &header, const QString &body)
+{
+    QMessageBox::information(this, header, body);
 }
 
 void Page::showWarning(const QString &header, const QString &body)

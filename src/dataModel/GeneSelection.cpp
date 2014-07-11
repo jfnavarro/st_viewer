@@ -56,7 +56,8 @@ GeneSelection::GeneSelection()
       m_comment(),
       m_enabled(false),
       m_created(QDate::currentDate().toString()),
-      m_lastMofidied(QDate::currentDate().toString())
+      m_lastMofidied(QDate::currentDate().toString()),
+      m_datasetName()
 {
 
 }
@@ -73,7 +74,8 @@ GeneSelection::GeneSelection(const GeneSelection& other)
       m_comment(other.m_comment),
       m_enabled(other.m_enabled),
       m_created(other.m_created),
-      m_lastMofidied(other.m_lastMofidied)
+      m_lastMofidied(other.m_lastMofidied),
+      m_datasetName(other.m_datasetName)
 {
 
 }
@@ -97,6 +99,7 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
     m_enabled = other.m_enabled;
     m_created = other.m_created;
     m_lastMofidied = other.m_lastMofidied;
+    m_datasetName = other.m_datasetName;
     return (*this);
 }
 
@@ -114,7 +117,8 @@ bool GeneSelection::operator==(const GeneSelection& other) const
                 m_comment == other.m_comment &&
                 m_enabled == other.m_enabled &&
                 m_created == other.m_created &&
-                m_lastMofidied == other.m_lastMofidied
+                m_lastMofidied == other.m_lastMofidied &&
+                m_datasetName == other.m_datasetName
         );
 }
 
@@ -178,6 +182,11 @@ const QString GeneSelection::lastModified() const
     return m_lastMofidied;
 }
 
+const QString GeneSelection::datasetName() const
+{
+    return m_datasetName;
+}
+
 void GeneSelection::id(const QString& id)
 {
     m_id = id;
@@ -236,4 +245,9 @@ void GeneSelection::created(const QString& created)
 void GeneSelection::lastModified(const QString& lastModified)
 {
     m_lastMofidied = lastModified;
+}
+
+void GeneSelection::datasetName(const QString& datasetName)
+{
+    m_datasetName = datasetName;
 }

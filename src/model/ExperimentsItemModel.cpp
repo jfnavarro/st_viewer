@@ -37,18 +37,9 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(!item.isNull());
 
-        if (!item->enabled()) {
-            return QVariant(QVariant::Invalid);
-        }
-
         switch (index.column()) {
         case Name: return item->name();
-        case Dataset: {
-            //const QString datasetName =
-            //        dataProxy->getDatasetById(item->datasetId())->name();
-            //return datasetName;
-            return tr("TOFIX");
-        }
+        case Dataset: return item->datasetName();
         case Comment: return item->comment();
         case Type: return item->type();
         case NGenes: return QString::number(item->selectedItems().size());
@@ -128,7 +119,14 @@ void ExperimentsItemModel::loadSelectedGenes(const DataProxy::GeneSelectionList 
 {
     beginResetModel();
     m_geneselectionList.clear();
-    m_geneselectionList = selectionList;
+    //std::copy_if (selectionList.begin(), selectionList.end(), m_geneselectionList.begin(),
+    //              [ ] (DataProxy::GeneSelectionPtr selection) { return selection->enabled(); } );
+    foreach(DataProxy::GeneSelectionPtr selection, selectionList) {
+        if (selection->enabled()) {
+            m_geneselectionList.push_back(selection);
+        }
+    }
+    //m_geneselectionList = selectionList;
     endResetModel();
 }
 

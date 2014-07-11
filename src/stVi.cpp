@@ -1,3 +1,4 @@
+
 /*
     Copyright (C) 2012  Spatial Transcriptomics AB,
     read LICENSE for licensing terms.
@@ -36,7 +37,6 @@
 #include "network/DownloadManager.h"
 
 #include "data/DataProxy.h"
-#include "data/ObjectParser.h"
 
 #include "dialogs/AboutDialog.h"
 

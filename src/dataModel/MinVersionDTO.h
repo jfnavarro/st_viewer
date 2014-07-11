@@ -29,9 +29,9 @@ public:
         if (minversion_numbers_as_strings.size() != 3) {
             Q_ASSERT_X(false, "minSupportedVersion", "Error parsing min version String");
         }
-        bool ok1;
-        bool ok2;
-        bool ok3;
+        bool ok1 = false;
+        bool ok2 = false;
+        bool ok3 = false;
         std::array<qulonglong, 3> minversion_numbers_as_qulonglong = {
             minversion_numbers_as_strings[0].toULongLong(&ok1),
             minversion_numbers_as_strings[1].toULongLong(&ok2),
