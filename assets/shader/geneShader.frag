@@ -8,22 +8,21 @@ float smoothband(float lo, float hi, float e, float t) {
     return (lo < hi) ?
     smoothstep(lo-e, lo+e, t) - smoothstep(hi-e, hi+e, t) :
     1.0 - (smoothstep(hi-e, hi+e, t) - smoothstep(lo-e, lo+e, t));
-    
 }
 
 
 void main(void)
 {
-    // colors
+    // helper colors
     const vec4 cNone = vec4(0.0,0.0,0.0,0.0);
     const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
     
-    // derive circle color
+    // derive color
     vec4 fragColor = outColor;
     
     // input options
-    bool selected = bool(outSelected);
-    int shape = int(outShape);
+    const bool selected = bool(outSelected);
+    const int shape = int(outShape);
     
     if (shape == 0) { //circle
         // calculate distance from center
@@ -33,9 +32,9 @@ void main(void)
         // radii of circle
         float radii = (selected) ? 0.3 : 0.5;
     
-        fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
+        fragColor = mix(fragColor, cNone, smoothstep(radii - 0.02, radii, dist));
         if (selected) {
-            fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist));
+            fragColor = mix(fragColor, cWhite, smoothband(radii + 0.02, 0.49, 0.01, dist));
         }
     }
     else if (shape == 1) { //cross
@@ -47,11 +46,11 @@ void main(void)
         // radii of circle
         float radii = 0.2;
         
-        fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, mindist));
+        fragColor = mix(fragColor, cNone, smoothstep(radii - 0.02, radii, mindist));
         if (selected) {
-            fragColor = mix(fragColor, cWhite, smoothstep(radii+0.02, radii+0.04, mindist));
+            fragColor = mix(fragColor, cWhite, smoothstep(radii + 0.02, radii + 0.04, mindist));
         }
-        fragColor = mix(fragColor, cNone, smoothstep(0.5-0.02, 0.5, maxdist));
+        fragColor = mix(fragColor, cNone, smoothstep(0.5 - 0.02, 0.5, maxdist));
     }
     else { //rectangle
         // calculate distance from center
@@ -61,9 +60,9 @@ void main(void)
         // radii of circle
         float radii = (selected) ? 0.3 : 0.5;
         
-        fragColor = mix(fragColor, cNone, smoothstep(radii-0.02, radii, dist));
+        fragColor = mix(fragColor, cNone, smoothstep(radii - 0.02, radii, dist));
         if (selected) {
-            fragColor = mix(fragColor, cWhite, smoothband(radii+0.02, 0.49, 0.01, dist));
+            fragColor = mix(fragColor, cWhite, smoothband(radii + 0.02, 0.49, 0.01, dist));
         }
     }
     

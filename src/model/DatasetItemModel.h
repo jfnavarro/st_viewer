@@ -13,6 +13,7 @@
 
 class QModelIndex;
 class QStandardItemModel;
+class QItemSelection;
 
 // Wrapper model class for the dataset data in the data proxy. Provides an easy
 // means of enumerating all the data sets connected to a single user.
@@ -56,13 +57,8 @@ public:
     //loads the data of the model from DatProxy
     void loadDatasets(const DataProxy::DatasetList &datasetList);
 
-public slots:
-
-    void datasetSelected(const QModelIndex&);
-
-signals:
-
-    void datasetSelected(DataProxy::DatasetPtr);
+    //returns a list of datasets for the given item selection
+    DataProxy::DatasetList getDatasets(const QItemSelection &selection);
 
 private:
 

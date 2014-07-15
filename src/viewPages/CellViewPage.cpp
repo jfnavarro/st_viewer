@@ -169,8 +169,7 @@ void CellViewPage::onExit()
 
 bool CellViewPage::loadData()
 {
-    if (m_dataProxy->getSelectedDataset().isNull()) {
-        showWarning("Cell View", "No dataset has been selected");
+    if (m_dataProxy->getSelectedDataset().isNull() || m_dataProxy->getSelectedDataset().isEmpty()) {
         return false;
     }
 
@@ -392,7 +391,7 @@ void CellViewPage::createGLConnections()
     //connect gene list model to gene plotter
     connect(m_ui->genesWidget, SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
-            SLOT(updateSelection(DataProxy::GeneList)));
+            SLOT(updateVisible(DataProxy::GeneList)));
     connect(m_ui->genesWidget, SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
             SLOT(updateColor(DataProxy::GeneList)));

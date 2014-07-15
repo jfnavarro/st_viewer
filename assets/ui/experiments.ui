@@ -176,6 +176,32 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="editSelection">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Edit the current selection</string>
+       </property>
+       <property name="text">
+        <string>Edit</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../st_client-build/application.qrc">
+         <normaloff>:/images/edit_color.png</normaloff>:/images/edit_color.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="removeSelections">
        <property name="minimumSize">
         <size>

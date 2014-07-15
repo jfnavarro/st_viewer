@@ -8,8 +8,11 @@
 #ifndef DATASETPAGE_H
 #define DATASETPAGE_H
 
-#include "data/DataProxy.h"
 #include "Page.h"
+
+#include <QModelIndex>
+
+#include "data/DataProxy.h"
 
 class QItemSelectionModel;
 class QItemSelection;
@@ -42,9 +45,12 @@ public slots:
 
 protected slots:
 
-    void datasetSelected(DataProxy::DatasetPtr);
-    void refreshDatasets();
-    void loadDatasets();
+    void slotDatasetSelected(QModelIndex index);
+    void slotRefreshDatasets();
+    void slotLoadDatasets();
+    void slotOpenDataset();
+    void slotRemoveDataset();
+    void slotEditDataset();
 
 private:
 

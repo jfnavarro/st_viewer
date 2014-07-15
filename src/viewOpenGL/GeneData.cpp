@@ -45,7 +45,9 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
     appendVertex( QVector3D(x + size / 2.0, y - size / 2.0, 0.0) );
     appendVertex( QVector3D(x + size / 2.0, y + size / 2.0, 0.0) );
     appendVertex( QVector3D(x - size / 2.0, y + size / 2.0, 0.0) );
+
     appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
+
     color.setAlphaF(0.0);
     appendColor(color, color, color, color);
 

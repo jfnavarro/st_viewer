@@ -32,7 +32,7 @@ GenesTableView::GenesTableView(QWidget *parent)
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
-    setEditTriggers(QAbstractItemView::AllEditTriggers);
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     resizeColumnsToContents();
     resizeRowsToContents();

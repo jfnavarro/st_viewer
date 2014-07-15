@@ -12,6 +12,7 @@
 #include <QPointer>
 
 class DatasetItemModel;
+class QSortFilterProxyModel;
 
 class DatasetsTableView : public QTableView
 {
@@ -22,9 +23,12 @@ public:
     explicit DatasetsTableView(QWidget *parent = 0);
     virtual ~DatasetsTableView();
 
+    QItemSelection datasetsTableItemSelection() const;
+
 private:
 
     QPointer<DatasetItemModel> m_datasetModel;
+    QPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 
     Q_DISABLE_COPY(DatasetsTableView)
 };

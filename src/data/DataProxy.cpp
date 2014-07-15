@@ -64,7 +64,6 @@ DataProxy::~DataProxy()
 void DataProxy::clean()
 {
     qDebug() << "Cleaning memory cache in Dataproxy";
-
     //every data member is a smart pointer
     //TODO make totally sure data is being de-allocated
     m_datasetMap.clear();
@@ -91,6 +90,7 @@ QPointer<AuthorizationManager> DataProxy::getAuthorizationManager() const
     return m_authorizationManager;
 }
 
+//TODO too big function (split)
 bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
 {
     // mark data proxy as dirty if something is changed
@@ -196,12 +196,12 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             data::parseObject(var, &dto);
             GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
             //get the dataset name here (easier)
-            //assuming we have loaded the datasets every time load the selections
-            //TODO check consistency, disabling a dataset
-            //well, if the selection's dataset is not loaded or present when get here
-            //there will be problems :)
+            //TODO selections whose dataset is disabled will not be added
+            //but a more advance implementation is needed so the selections
+            //are always sync to the datasets
             DatasetPtr selectionDataset = getDatasetById(selection->datasetId());
             Q_ASSERT(!selectionDataset.isNull());
+            selection->enabled(selectionDataset->enabled() && selection->enabled());
             selection->datasetName(selectionDataset->name());
             m_geneSelectionsMap.insert(selection->id(), selection);
             dirty = true;
@@ -439,24 +439,11 @@ void DataProxy::setSelectedDataset(const QString &datasetId) const
     m_selected_datasetId = datasetId;
 }
 
-bool DataProxy::hasDatasets() const
-{
-    return !m_datasetMap.isEmpty();
-}
-
-bool DataProxy::hasDataset(const QString& datasetId) const
-{
-    return m_datasetMap.contains(datasetId);
-}
-
 async::DataRequest DataProxy::loadDatasets()
 {
-    //check if present already
-    if (hasDatasets()) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
-    }
+    //NOTE not checking if there are datasets already loaded
+    //it is safer to always force to download them
+
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
     //append access token
@@ -471,19 +458,32 @@ async::DataRequest DataProxy::loadDatasets()
     return createRequest(reply);
 }
 
-bool DataProxy::hasGene(const QString& datasetId) const
+async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
 {
-    return m_geneListMap.contains(datasetId);
+    // intermediary dto object
+    DatasetDTO dto(*dataset);
+    NetworkCommand *cmd =
+            RESTCommandFactory::updateDatsetByDatasetId(m_configurationManager, dataset->id());
+    //append json data
+    cmd->setJsonQuery(dto.toJson());
+    //append access token
+    const QUuid accessToken = m_authorizationManager->getAccessToken();
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    QVariantMap parameters;
+    parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(None)));
+    NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
+    //delete the command
+    cmd->deleteLater();
+    //return the request
+    return createRequest(reply);
 }
+
 
 async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
 {
-    //check if present already
-    if (hasGene(datasetId)) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
-    }
+    //NOTE not checking if there are datasets already loaded
+    //it is safer to always force to download them
+
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getGenesByDatasetId(m_configurationManager, datasetId);
     //append access token
@@ -499,19 +499,11 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
-bool DataProxy::hasChip(const QString& chipId) const
-{
-    return m_chipMap.contains(chipId);
-}
-
 async::DataRequest DataProxy::loadChipById(const QString& chipId)
 {
-    //check if present already
-    if (hasChip(chipId)) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
-    }
+    //NOTE not checking if there are datasets already loaded
+    //it is safer to always force to download them
+
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
     //append access token
@@ -526,19 +518,11 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
     return createRequest(reply);
 }
 
-bool DataProxy::hasFeature(const QString& datasetId) const
-{
-    return m_featureListMap.contains(datasetId);
-}
-
 async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 {
-    //check if present already
-    if (hasFeature(datasetId)) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
-    }
+    //NOTE not checking if there are datasets already loaded
+    //it is safer to always force to download them
+
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
     //append access token
@@ -554,25 +538,11 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
-bool DataProxy::hasFeature(const QString& datasetId, const QString& gene) const
-{
-    const FeatureListGeneMap::const_iterator it = m_geneFeatureListMap.find(datasetId);
-    return (it != m_geneFeatureListMap.end() ? it.value().contains(gene) : false);
-}
-
-bool DataProxy::hasImageAlignment(const QString& datasetId) const
-{
-    return m_imageAlignmentMap.contains(datasetId);
-}
-
 async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignmentId)
 {
-    //check if present already
-    if (hasImageAlignment(imageAlignmentId)) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
-    }
+    //NOTE not checking if there are datasets already loaded
+    //it is safer to always force to download them
+
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getImageAlignmentById(m_configurationManager, imageAlignmentId);
@@ -591,6 +561,7 @@ async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignme
 async::DataRequest DataProxy::loadUser()
 {
     //no need to check if present (we always reload the user)
+
     //creates the requet
     NetworkCommand *cmd = RESTCommandFactory::getUser(m_configurationManager);
     //append access token
@@ -608,6 +579,7 @@ async::DataRequest DataProxy::loadUser()
 async::DataRequest DataProxy::loadGeneSelections()
 {
     //no need to check if present (we always reload the selections)
+
     //creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     //append access token
@@ -621,6 +593,7 @@ async::DataRequest DataProxy::loadGeneSelections()
     //returns the request
     return createRequest(reply);
 }
+
 async::DataRequest DataProxy::updateGeneSelection(GeneSelectionPtr geneSelection)
 {
     // intermediary dto object
@@ -667,7 +640,7 @@ bool DataProxy::hasCellTissue(const QString& name) const
 
 async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
 {
-    //check if present already
+    //check if present already (cell tissue file should always be the same)
     if (hasCellTissue(name)) {
         async::DataRequest request;
         request.return_code(async::DataRequest::CodePresent);
@@ -712,9 +685,13 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
         return request;
     }
 
-    QEventLoop loop; // I want to wait until this finishes
-    QObject::connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
-    loop.exec();
+    //Well, the reason to use an eventloop here is to make the network request, synchronous.
+    //A better solution would be to use threads and parse the reply in a different slot.
+    //In order to avoid possible problems in the main UI event loop some
+    //flags are sent in the exec()
+    QEventLoop loop;
+    connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
+    loop.exec(QEventLoop::ExcludeUserInputEvents | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents);
 
     //TODO add slot Abort to DataRequest and connect it to the reply
     //to allow to abort requests trough the progress bar dialog
@@ -733,12 +710,10 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
                     error(new Error("Data Error", "There was an error downloading data", nullptr));
             request.addError(error);
             request.return_code(async::DataRequest::CodeError);
-        }
-        else if (returnCode == NetworkReply::CodeAbort) {
+        } else if (returnCode == NetworkReply::CodeAbort) {
             //nothing for now
             request.return_code(async::DataRequest::CodeAbort);
-        }
-        else {
+        } else {
             // convert data
             const QVariant data = reply->customData();
             Q_ASSERT_X(data.canConvert(QVariant::Map),

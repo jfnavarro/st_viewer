@@ -27,3 +27,13 @@ const QString CreateSelectionDialog::getComment() const
 {
     return ui->comment->toPlainText();
 }
+
+void CreateSelectionDialog::setName(const QString name)
+{
+    return ui->name->setText(name);
+}
+
+void CreateSelectionDialog::setComment(const QString comment)
+{
+    return ui->comment->setText(comment);
+}

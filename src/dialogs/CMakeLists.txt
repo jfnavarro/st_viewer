@@ -3,6 +3,7 @@ set(LIBRARY_ARG_INCLUDES
     SelectionDialog.h
     LoginDialog.h
     CreateSelectionDialog.h
+    EditDatasetDialog.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -10,6 +11,7 @@ set(LIBRARY_ARG_SOURCES
     SelectionDialog.cpp
     LoginDialog.cpp
     CreateSelectionDialog.cpp
+    EditDatasetDialog.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
@@ -17,6 +19,7 @@ set(LIBRARY_ARG_UI_FILES
     "${PROJECT_SOURCE_DIR}/assets/ui/selectiondialog.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/login.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/createSelectionDialog.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/editDatasetDialog.ui"
 )
 
 ST_LIBRARY()

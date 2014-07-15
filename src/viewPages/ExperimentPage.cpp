@@ -5,6 +5,7 @@
 
 */
 #include "ExperimentPage.h"
+
 #include "ui_experiments.h"
 
 #include <QDebug>
@@ -17,6 +18,8 @@
 #include "model/ExperimentsItemModel.h"
 
 #include "network/DownloadManager.h"
+
+#include "dialogs/CreateSelectionDialog.h"
 
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
@@ -37,6 +40,7 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
+    connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
 }
 
 ExperimentPage::~ExperimentPage()
@@ -70,10 +74,11 @@ void ExperimentPage::onEnter()
     m_ui->experiments_tableView->clearSelection();
     m_ui->experiments_tableView->clearFocus();
     m_ui->back->clearFocus();
-    //remove and export not enable by default
+    //remove, edit, dda and export not enable by default
     m_ui->removeSelections->setEnabled(false);
     m_ui->exportSelections->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
+    m_ui->editSelection->setEnabled(false);
 }
 
 void ExperimentPage::onExit()
@@ -102,12 +107,13 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     m_ui->removeSelections->setEnabled(index.isValid());
     m_ui->exportSelections->setEnabled(index.isValid());
     m_ui->ddaAnalysis->setEnabled(index.isValid());
+    m_ui->editSelection->setEnabled(index.isValid());
 }
 
 void ExperimentPage::slotRemoveSelection()
 {
     const int answer = QMessageBox::warning(
-                     this, tr("Exit application"),
+                     this, tr("Remove Selection"),
                      tr("Are you really sure you want to remove the selection?"),
                      QMessageBox::No | QMessageBox::Escape,
                 QMessageBox::Yes | QMessageBox::Escape);
@@ -116,7 +122,7 @@ void ExperimentPage::slotRemoveSelection()
         return;
     }
 
-    const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
     if (currentSelection.empty()) {
@@ -143,12 +149,13 @@ void ExperimentPage::slotRemoveSelection()
         showInfo("Remove Gene Selection", "Gene selection removed successfully");
     }
 
+    //refresh selection list
     slotLoadSelections();
 }
 
 void ExperimentPage::slotExportSelection()
 {
-    const auto selected = m_ui->experiments_tableView->selectionModel()->selection();
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
     if (currentSelection.empty()) {
@@ -183,4 +190,50 @@ void ExperimentPage::slotExportSelection()
     }
 
     textFile.close();
+}
+
+void ExperimentPage::slotEditSelection()
+{
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+
+    if (currentSelection.empty()) {
+        return;
+    }
+
+    //currentSelection should only have one element
+    auto selectionItem = currentSelection.first();
+    Q_ASSERT(!selectionItem.isNull());
+
+    QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
+                                                                          Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    createSelection->setName(selectionItem->name());
+    createSelection->setComment(selectionItem->comment());
+
+    if (createSelection->exec() == CreateSelectionDialog::Accepted) {
+        if (createSelection->getName() != selectionItem->name()
+                && createSelection->getComment() != selectionItem->comment()) {
+
+            //TODO check that name is not empty
+
+            selectionItem->name(createSelection->getName());
+            selectionItem->comment(createSelection->getComment());
+
+            //update the dataset
+            setWaiting(true);
+            async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
+            setWaiting(false);
+
+            if (request.return_code() == async::DataRequest::CodeError
+                    || request.return_code() == async::DataRequest::CodeAbort) {
+                //TODO get error from request
+                showError("Update Gene Selection", "Error updating the gene selection");
+            } else {
+                showInfo("Update Gene Selection", "Gene Selection updated successfully");
+            }
+
+            //refresh selection list
+            slotLoadSelections();
+        }
+    }
 }

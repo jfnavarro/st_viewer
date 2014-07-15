@@ -55,6 +55,7 @@ public:
 
     //reply errors
     const NetworkReply::ErrorList& errors() const;
+    //parseErrors will create a single error with all the error messages
     QSharedPointer<Error> parseErrors();
 
 public slots:
@@ -70,7 +71,7 @@ signals:
     void signalFinished(QVariant code, QVariant data);
 
 private:
-
+    //adds an error to the list
     void registerError(QSharedPointer<Error> error);
 
     // Qt network reply

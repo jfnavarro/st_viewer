@@ -42,6 +42,7 @@ private slots:
     void slotSelectionSelected(QModelIndex index);
     void slotExportSelection();
     void slotRemoveSelection();
+    void slotEditSelection();
 
 private:
 

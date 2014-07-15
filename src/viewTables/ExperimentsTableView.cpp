@@ -13,11 +13,11 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     m_experimentModel = new ExperimentsItemModel(this);
 
     // sorting model
-    QSortFilterProxyModel *sortProxyModel = new QSortFilterProxyModel(this);
-    sortProxyModel->setSourceModel(m_experimentModel);
-    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    setModel(sortProxyModel);
+    m_sortSelectionsProxyModel = new QSortFilterProxyModel(this);
+    m_sortSelectionsProxyModel->setSourceModel(m_experimentModel);
+    m_sortSelectionsProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_sortSelectionsProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setModel(m_sortSelectionsProxyModel);
 
     setSortingEnabled(true);
     setShowGrid(true);
@@ -28,7 +28,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
-    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionBehavior(QAbstractItemView::SelectItems);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -49,4 +49,13 @@ ExperimentsTableView::~ExperimentsTableView()
 {
     m_experimentModel->deleteLater();
     m_experimentModel = nullptr;
+
+    m_sortSelectionsProxyModel->deleteLater();
+    m_sortSelectionsProxyModel = nullptr;
+}
+
+QItemSelection ExperimentsTableView::experimentTableItemSelection() const
+{
+    const auto selected = selectionModel()->selection();
+    return m_sortSelectionsProxyModel->mapSelectionToSource(selected);
 }

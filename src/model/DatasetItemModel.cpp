@@ -7,13 +7,16 @@
 
 #include "DatasetItemModel.h"
 
-#include "dataModel/Dataset.h"
-
 #include <QModelIndex>
 #include <QModelIndex>
 #include <QStandardItemModel>
+#include <QItemSelection>
 
- static const int COLUMN_NUMBER = 10;
+#include "dataModel/Dataset.h"
+
+#include <set>
+
+static const int COLUMN_NUMBER = 10;
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -140,11 +143,19 @@ void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
     endResetModel();
 }
 
-void DatasetItemModel::datasetSelected(const QModelIndex &index)
+DataProxy::DatasetList
+DatasetItemModel::getDatasets(const QItemSelection &selection)
 {
-    if (index.isValid()) {
-        DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
-        Q_ASSERT(!item.isNull());
-        emit datasetSelected(item);
+    std::set<int> rows;
+    for (const auto &index : selection.indexes()) {
+        rows.insert(index.row());
     }
+
+    DataProxy::DatasetList datasetList;
+    for (const auto &row : rows) {
+        auto selection = m_datasets_reference.at(row);
+        datasetList.push_back(selection);
+    }
+
+    return datasetList;
 }

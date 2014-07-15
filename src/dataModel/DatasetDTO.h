@@ -11,6 +11,10 @@
 #include <QObject>
 #include <QString>
 #include <QVariantList>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonValue>
+#include <QJsonObject>
 
 #include "dataModel/Dataset.h"
 
@@ -44,6 +48,8 @@ class DatasetDTO : public QObject
 public:
 
     explicit DatasetDTO(QObject* parent = 0) : QObject(parent) { }
+    DatasetDTO(const Dataset& dataset, QObject* parent = 0) :
+        QObject(parent), m_dataset(dataset) { }
     ~DatasetDTO() { }
 
     // binding
@@ -68,30 +74,64 @@ public:
     void lastModified(const QString& lastModified) { m_dataset.lastModified(lastModified); }
 
     // read
-    const QString id() { return m_dataset.id(); }
-    const QString name() { return m_dataset.name(); }
-    const QString imageAlignmentId() { return m_dataset.imageAlignmentId(); }
-    const QString statTissue() { return m_dataset.statTissue(); }
-    const QString statSpecie() { return m_dataset.statSpecie(); }
-    int statBarcodes() { return m_dataset.statBarcodes(); }
-    int statGenes() { return m_dataset.statGenes(); }
-    int statUniqueBarcodes() { return m_dataset.statUniqueBarcodes(); }
-    int statUniqueGenes() { return m_dataset.statUniqueGenes(); }
-    const QVariantList hitsQuartiles() { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
-    const QString statComments() { return m_dataset.statComments(); }
-    bool enabled() { return m_dataset.enabled(); }
-    const QVariantList oboFoundryTerms()
+    const QString id() const { return m_dataset.id(); }
+    const QString name() const { return m_dataset.name(); }
+    const QString imageAlignmentId() const { return m_dataset.imageAlignmentId(); }
+    const QString statTissue() const { return m_dataset.statTissue(); }
+    const QString statSpecie() const { return m_dataset.statSpecie(); }
+    int statBarcodes() const { return m_dataset.statBarcodes(); }
+    int statGenes() const { return m_dataset.statGenes(); }
+    int statUniqueBarcodes() const { return m_dataset.statUniqueBarcodes(); }
+    int statUniqueGenes() const { return m_dataset.statUniqueGenes(); }
+    const QVariantList hitsQuartiles() const { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
+    const QString statComments() const { return m_dataset.statComments(); }
+    bool enabled() const { return m_dataset.enabled(); }
+    const QVariantList oboFoundryTerms() const
       { return serializeVector<QString>(m_dataset.oboFoundryTerms()); }
-    const QVariantList grantedAccounts()
+    const QVariantList grantedAccounts() const
             { return serializeVector<QString>(m_dataset.grantedAccounts()); }
-    const QString createdByAccount() { return m_dataset.createdByAccount(); }
+    const QString createdByAccount() const { return m_dataset.createdByAccount(); }
     const QString created() const { return m_dataset.created(); }
     const QString lastModified() const { return m_dataset.lastModified(); }
 
-    //const QByteArray toJson() const
-    //{
-        //TODO
-    //}
+    //TODO transform this to obtain fields dynamically using the meta_properties
+    QByteArray toJson() const
+    {
+        QJsonObject jsonObj;
+        jsonObj["id"] = !id().isEmpty() ? QJsonValue(id()) : QJsonValue::Null;
+        jsonObj["name"] = name();
+        jsonObj["image_alignment_id"] = imageAlignmentId();
+        jsonObj["tissue"] = statTissue();
+        jsonObj["species"] = statSpecie();
+        jsonObj["overall_feature_count"] = statBarcodes();
+        jsonObj["overall_hit_count"] = statGenes();
+        jsonObj["unique_barcode_count"] = statUniqueBarcodes();
+        jsonObj["unique_gene_count"] = statUniqueGenes();
+        QJsonArray hitsQuartiles;
+        foreach(const qreal &item, m_dataset.hitsQuartiles()) {
+            hitsQuartiles.append(item);
+        }
+        jsonObj["overall_hit_quartiles"] = hitsQuartiles;
+        jsonObj["comment"] = !statComments().isEmpty() ? QJsonValue(statComments()) : QJsonValue::Null;
+        jsonObj["enabled"] = enabled();
+        QJsonArray oboTerms;
+        foreach(const QString &item, m_dataset.oboFoundryTerms()) {
+            oboTerms.append(item);
+        }
+        jsonObj["obo_foundry_terms"] = oboTerms;
+        QJsonArray grantedAccounts;
+        foreach(const QString &item, m_dataset.grantedAccounts()) {
+            grantedAccounts.append(item);
+        }
+        jsonObj["granted_accounts"] = grantedAccounts;
+        jsonObj["created_by_account_id"] = createdByAccount();
+        jsonObj["created_at"] =  QJsonValue::Null; //TODO null for now until we know what format is used in server
+        jsonObj["last_modified"] = QJsonValue::Null; //TODO null for now until we know what format is used in server
+
+        QJsonDocument doc(jsonObj);
+        QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);
+        return serializedDoc;
+    }
 
     // get parsed data model
     const Dataset& dataset() const { return m_dataset; }

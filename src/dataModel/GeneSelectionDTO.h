@@ -113,8 +113,8 @@ public:
         jsonObj["obo_foundry_terms"] = oboTerms;
         jsonObj["comment"] = !comment().isEmpty() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
-        jsonObj["created_at"] =  QJsonValue::Null; //null for now until we know what format is used in server
-        jsonObj["last_modified"] = QJsonValue::Null; //null for now until we know what format is used in server
+        jsonObj["created_at"] =  QJsonValue::Null; //TODO null for now until we know what format is used in server
+        jsonObj["last_modified"] = QJsonValue::Null; //TODO  null for now until we know what format is used in server
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);

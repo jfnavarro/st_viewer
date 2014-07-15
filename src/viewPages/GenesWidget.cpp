@@ -90,7 +90,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
     geneListLayout->addWidget(m_lineEdit);
     geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);
 
-
     //add actions menu to main layout
     genesLayout->addLayout(geneListLayout);
 

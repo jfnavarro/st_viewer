@@ -14,7 +14,7 @@
 
 #include "dataModel/GeneSelection.h"
 
- static const int COLUMN_NUMBER = 7;
+static const int COLUMN_NUMBER = 7;
 
 ExperimentsItemModel::ExperimentsItemModel(QObject* parent)
     : QAbstractTableModel(parent)

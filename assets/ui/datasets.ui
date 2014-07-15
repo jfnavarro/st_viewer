@@ -130,6 +130,84 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="openDataset">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="statusTip">
+        <string>Open the selected dataset</string>
+       </property>
+       <property name="text">
+        <string>Open</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../st_client-build/application.qrc">
+         <normaloff>:/images/images.png</normaloff>:/images/images.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="editDataset">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Edit the selected dataset</string>
+       </property>
+       <property name="text">
+        <string>Edit</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../st_client-build/application.qrc">
+         <normaloff>:/images/edit_color.png</normaloff>:/images/edit_color.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="deleteDataset">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Delete the selected dataset</string>
+       </property>
+       <property name="text">
+        <string>Delete</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../st_client-build/application.qrc">
+         <normaloff>:/images/abort.png</normaloff>:/images/abort.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="refresh">
        <property name="minimumSize">
         <size>

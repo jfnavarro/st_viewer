@@ -71,13 +71,29 @@ public:
     //TODO number of containers can be decreased for Genes and Features
     //what is really needed is a super fast lookup for :
     //   - get features from dataset ID and Gene Name
-    //   - get gene/s from feature ID or Gene Name
+    //   - get gene/s from feature ID or Gene Name (replace feature-gene text field for gene ptr)
     //   - get features from dataset ID
     //   - get genes from dataset ID
     //   - get gene from dataset ID and gene Name
 
     //TODO some of the QMap could be replaced for QHash(std::unordered_map) which
     //is faster
+
+    //TODO too much logic in one class :
+    // split data adquisition and data loading
+
+    //TODO add a local cache (hard drive) for every data type
+
+    //TODO a more advanced system should be implemented that would
+    //consider the meta_data (last_modified)
+    //at the moment we always re-download (genes, features, chips and image alignment) but not
+    //cell tissue images. We should cache everything in memory and/or disk and only re-download
+    //when needed
+
+    //TODO data adquision could splitted for each entity and connect
+    //them to observ each other when needed
+
+    //TODO find a way to update DataProxy when data is updated trough the backend ( a timed request )
 
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
@@ -119,11 +135,11 @@ public:
 
     //clean up memory cache
     void clean();
-    //clean up memory cache and local cache
+    //clean up memory cache and local cache (hard drive)
     void cleanAll();
 
     //returns the authorization manager which is owned by dataProxy
-    //TODO DataProxy shuld not own AuthorizationManager, perhaps
+    //TODO DataProxy should not own AuthorizationManager, perhaps
     //move the ownership to stVi
     QPointer<AuthorizationManager> getAuthorizationManager() const;
 
@@ -164,10 +180,11 @@ public:
     const MinVersionArray getMinVersion() const;
 
     //setters (the currently opened datasets)
+    //TODO this function in a way will define the status of the DataProxy
     void setSelectedDataset(const QString &datasetId) const;
 
     //updaters
-    //async::DataRequest updateDataset(const Dataset& dataset);
+    async::DataRequest updateDataset(DatasetPtr dataset);
     //async::DataRequest updateUser(const User& user);
     async::DataRequest updateGeneSelection(GeneSelectionPtr geneSelection);
 
@@ -177,13 +194,16 @@ public:
 private:
 
     bool hasCellTissue(const QString& name) const;
-    bool hasImageAlignment(const QString& datasetId) const;
-    bool hasGene(const QString& datasetId) const;
-    bool hasFeature(const QString& datasetId) const;
-    bool hasFeature(const QString& datasetId, const QString& gene) const;
-    bool hasDatasets() const;
-    bool hasDataset(const QString& datasetId) const;
-    bool hasChip(const QString& chipId) const;
+
+    //TODO memory cache functions have been disabled for safetiness
+    //restore them with a more advance caching
+    //bool hasImageAlignment(const QString& datasetId) const;
+    //bool hasGenes(const QString& datasetId) const;
+    //bool hasFeatures(const QString& datasetId) const;
+    //bool hasFeatures(const QString& datasetId, const QString& gene) const;
+    //bool hasDatasets() const;
+    //bool hasDataset(const QString& datasetId) const;
+    //bool hasChip(const QString& chipId) const;
 
     // internal functions to parse network reply
     bool parseData(NetworkReply* reply, const QVariantMap& map);

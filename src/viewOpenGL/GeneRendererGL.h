@@ -49,24 +49,28 @@ public:
     //be aware the local transformation matrix has been assigned
     void setImage(const QImage& image);
 
+    // threshold limits pooled and not pooled for feature hits
+    void setHitCount(int min, int max, int pooledMin, int pooledMax);
+
 public slots:
 
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShine(qreal shine);
-
     void setShape(Globals::GeneShape shape);
-
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
-
     void setVisualMode(const Globals::GeneVisualMode &mode);
 
-    void setHitCount(int min, int max, int pooledMin, int pooledMax);
-
+    //for the given gene list updates the color
+    //according to the color of the selected genes
     void updateColor(DataProxy::GeneList geneList);
-    void updateSelection(DataProxy::GeneList geneList);
 
+    //for the given gene list see all its features to visible
+    //according if the gene is selected or not
+    void updateVisible(DataProxy::GeneList geneList);
+
+    //clear all the selected features
     void clearSelection();
 
 signals:
@@ -75,11 +79,9 @@ signals:
 
 protected:
 
-    void setSelectionArea(const SelectionEvent *event);
-
-    void draw(QGLPainter *painter);
-
-    const QRectF boundingRect() const;
+    void setSelectionArea(const SelectionEvent *event) override;
+    void draw(QGLPainter *painter) override;
+    const QRectF boundingRect() const override;
 
 private:
 
@@ -87,6 +89,7 @@ private:
     void updateSize();
     void updateVisual();
 
+    // helper function to update all features selected and color attributes
     void updateFeaturesSelected(bool selected);
     void updateFeaturesColor(QColor color);
 

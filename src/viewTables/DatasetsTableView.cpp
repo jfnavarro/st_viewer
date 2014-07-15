@@ -21,11 +21,11 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     m_datasetModel = new DatasetItemModel(this);
 
     // the sorting model
-    QSortFilterProxyModel *sortProxyModel = new QSortFilterProxyModel(this);
-    sortProxyModel->setSourceModel(m_datasetModel);
-    sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    setModel(sortProxyModel);
+    m_sortDatasetsProxyModel = new QSortFilterProxyModel(this);
+    m_sortDatasetsProxyModel->setSourceModel(m_datasetModel);
+    m_sortDatasetsProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_sortDatasetsProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setModel(m_sortDatasetsProxyModel);
 
     setSortingEnabled(true);
     setShowGrid(true);
@@ -46,14 +46,16 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     verticalHeader()->hide();
 
     model()->submit(); //support for caching (speed up)
-
-    //notify the model I have selected a dataset
-    connect(this, SIGNAL(doubleClicked(QModelIndex)),
-            m_datasetModel , SLOT(datasetSelected(QModelIndex)));
 }
 
 DatasetsTableView::~DatasetsTableView()
 {
     m_datasetModel->deleteLater();
     m_datasetModel = nullptr;
+}
+
+QItemSelection DatasetsTableView::datasetsTableItemSelection() const
+{
+    const auto selected = selectionModel()->selection();
+    return m_sortDatasetsProxyModel->mapSelectionToSource(selected);
 }
