@@ -29,11 +29,13 @@ static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 
 namespace   {
 
-bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node) {
+bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node)
+{
     return !node.transformable() && node.selectable();
 }
 
-bool nodeIsSelectable(const GraphicItemGL &node) {
+bool nodeIsSelectable(const GraphicItemGL &node)
+{
     return node.selectable();
 }
 
@@ -177,7 +179,7 @@ void CellGLView::paintGL()
     foreach(GraphicItemGL *node, m_nodes) {
         if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
-            if ( node->transformable() ) {
+            if (node->transformable()) {
                 local_transform *= sceneTransformations();
             }
             painter.modelViewMatrix().push();
@@ -187,7 +189,7 @@ void CellGLView::paintGL()
         }
     }
 
-    glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
+    //glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
 
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {

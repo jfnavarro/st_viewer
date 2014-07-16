@@ -20,7 +20,7 @@ static const qreal minimap_height = 100.0;
 static const qreal minimap_width = 100.0;
 
 MiniMapGL::MiniMapGL(QObject *parent)
-    : GraphicItemGL(parent), 
+    : GraphicItemGL(parent),
       m_sceneColor(minimap_scene_color),
       m_viewColor(minimap_view_color), m_selecting(false)
 {
@@ -39,14 +39,14 @@ MiniMapGL::~MiniMapGL()
 
 void MiniMapGL::setScene(const QRectF scene)
 {
-    if ( scene.isValid() && scene != m_scene) {
+    if (scene.isValid() && scene != m_scene) {
         m_scene = scene;
     }
 }
 
 void MiniMapGL::setViewPort(const QRectF view)
 {
-    if ( view.isValid() && m_viewPort != view) {
+    if (view.isValid() && m_viewPort != view) {
         m_viewPort = view;
     }
 }
@@ -72,7 +72,7 @@ QTransform MiniMapGL::localTransform() const
 
 void MiniMapGL::draw(QGLPainter *painter)
 {
-    if ( !m_viewPort.isValid() || !m_scene.isValid() ) {
+    if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
     }
     const QRectF viewPortInSceneCoordinates =
@@ -83,9 +83,9 @@ void MiniMapGL::draw(QGLPainter *painter)
 
 void MiniMapGL::setSceneColor(const QColor sceneColor)
 {
-    if ( m_sceneColor != sceneColor ) {
-      m_sceneColor = sceneColor;
-      emit updated();
+    if (m_sceneColor != sceneColor ) {
+        m_sceneColor = sceneColor;
+        emit updated();
     }
 }
 
@@ -96,9 +96,9 @@ const QColor MiniMapGL::sceneColor() const
 
 void MiniMapGL::setViewColor(const QColor viewColor)
 {
-    if ( m_viewColor != viewColor ) {
-      m_viewColor = viewColor;
-      emit updated();
+    if (m_viewColor != viewColor ) {
+        m_viewColor = viewColor;
+        emit updated();
     }
 }
 
@@ -112,10 +112,15 @@ const QRectF MiniMapGL::boundingRect() const
     return localTransform().mapRect(m_scene);
 }
 
+void MiniMapGL::setSelectionArea(const SelectionEvent *)
+{
+
+}
+
 void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 {
     // move
-    if ( event->buttons() & Qt::LeftButton ) {
+    if (event->buttons() & Qt::LeftButton) {
         centerOnLocalPos(event->localPos());
     }
 }
@@ -123,7 +128,7 @@ void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 void MiniMapGL::mousePressEvent(QMouseEvent* event)
 {
     // center if left button is pressed down
-    if ( event->button() == Qt::LeftButton ) {
+    if (event->button() == Qt::LeftButton) {
         m_selecting = true;
         centerOnLocalPos(event->localPos());
     }
@@ -132,7 +137,7 @@ void MiniMapGL::mousePressEvent(QMouseEvent* event)
 void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
-    if ( event->button() == Qt::LeftButton  ) {
+    if (event->button() == Qt::LeftButton ) {
         m_selecting = false;
     }
 }

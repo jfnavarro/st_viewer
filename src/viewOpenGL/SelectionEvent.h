@@ -12,6 +12,8 @@
 #include <QPainterPath>
 
 // Selection event used to propagate selection data to view items.
+//TODO move definition to CPP
+//TODO extend to allow other type of selections
 class SelectionEvent : public QEvent
 {
 

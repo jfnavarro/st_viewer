@@ -29,6 +29,7 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     //create the start widget
     m_ui = new Ui::InitPage();
     m_ui->setupUi(this);
+
     m_ui->user_name->clear();
     m_ui->newExpButt->setEnabled(false);
 
@@ -38,11 +39,13 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
 
     QPointer<AuthorizationManager> authorizationManager =
             m_dataProxy->getAuthorizationManager();
+
     //connect authorization signals
     connect(authorizationManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
     connect(authorizationManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
+
     //start authorization
     authorizationManager->start(this);
 }
@@ -69,9 +72,11 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
     QPointer<AuthorizationManager> authorizationManager =
             m_dataProxy->getAuthorizationManager();
-     //force clean access token and authorize again
+
+    //force clean access token and authorize again
     authorizationManager->cleanAccesToken();
     authorizationManager->forceAuthentication();
+
     //TODO show error? it will show it the user types wrong credentails...
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
@@ -86,19 +91,19 @@ void InitPage::slotAuthorized()
     async::DataRequest request = m_dataProxy->loadUser();
     setWaiting(false);
 
-   if (request.return_code() == async::DataRequest::CodePresent
-               || request.return_code() == async::DataRequest::CodeSuccess) {
+    if (request.return_code() == async::DataRequest::CodePresent
+            || request.return_code() == async::DataRequest::CodeSuccess) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         if (!user->enabled()) {
-            showError("Authorization Error", "The current user is disabled.");
+            showError(tr("Authorization Error"), tr("The current user is disabled"));
             return;
         }
         m_ui->user_name->setText(user->username());
         m_ui->newExpButt->setEnabled(true);
     } else {
-       //TODO use the text present in request.getErrors()
-       showError("Authorization Error", "Error loading the current user.");
+        //TODO use the text present in request.getErrors()
+        showError(tr("Authorization Error"), tr("Error loading the current user"));
     }
 }
 
@@ -110,6 +115,7 @@ void InitPage::slotLogOutButton()
     
     QPointer<AuthorizationManager> authorizationManager =
             m_dataProxy->getAuthorizationManager();
+
     //force clean access token and authorize again
     authorizationManager->cleanAccesToken();
     authorizationManager->forceAuthentication();

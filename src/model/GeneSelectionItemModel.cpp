@@ -9,7 +9,7 @@
 #include <QDebug>
 #include "dataModel/GeneSelection.h"
 
- static const int COLUMN_NUMBER = 4;
+static const int COLUMN_NUMBER = 5;
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -33,6 +33,7 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name: return item.name;
+        case Count: return QString::number(item.count);
         case Hits: return item.reads;
         case NormalizedHits: return QString::number(item.normalizedReads, 'f', 2);
         case PixelItensity: return QString::number(item.pixeIntensity, 'f', 2);
@@ -42,6 +43,7 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
+        case Count: return Qt::AlignRight;
         case Hits: return Qt::AlignRight;
         case NormalizedHits: return Qt::AlignRight;
         case PixelItensity: return Qt::AlignRight;
@@ -58,6 +60,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Gene");
+        case Count: return tr("Count");
         case Hits: return tr("Reads");
         case NormalizedHits: return tr("N. Reads");
         case PixelItensity: return tr("P. Intensity");
@@ -69,6 +72,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
     else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
         case Name: return tr("The name of the gene");
+        case Count: return tr("The number of occurences of the gene");
         case Hits: return tr("The aggregated number of reads");
         case NormalizedHits: return tr("The normalized aggregated number of reads");
         case PixelItensity: return tr("The normalized pixel intensity");
@@ -94,8 +98,8 @@ bool GeneSelectionItemModel::geneName(const QModelIndex &index, QString *genenam
 
     const SelectionType& item = m_geneselection.at(index.row());
     if (index.column() == Name) {
-         *genename = item.name;
-         return true;
+        *genename = item.name;
+        return true;
     }
 
     return false;

@@ -23,7 +23,6 @@ public:
     void setName(const QString name);
     void setComment(const QString name);
 
-
 private:
 
     Ui::createSelectionDialog *ui;

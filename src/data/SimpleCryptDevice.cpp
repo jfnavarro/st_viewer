@@ -115,7 +115,7 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
     while ((it < end)) {
         it += writeBuffer(it, qMin(static_cast<qint64>(end - it), DEFAULT_BUFFER_SIZE));
         if ((m_buffer.size() < DEFAULT_BUFFER_SIZE)
-	       || m_crypt.encodeSegment(m_device.get(), m_buffer) != SimpleCrypt::StreamOK) {
+                || m_crypt.encodeSegment(m_device.get(), m_buffer) != SimpleCrypt::StreamOK) {
             break;
         }
         m_buffer.clear();

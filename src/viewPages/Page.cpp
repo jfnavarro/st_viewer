@@ -31,16 +31,15 @@ Page::Page(QWidget *parent) :
 
 Page::~Page()
 {
-   m_progressDialog->deleteLater();
-   m_progressDialog = nullptr;
+    m_progressDialog->deleteLater();
+    m_progressDialog = nullptr;
 
-   m_timer->deleteLater();
-   m_timer = nullptr;
+    m_timer->deleteLater();
+    m_timer = nullptr;
 }
 
 void Page::setWaiting(bool waiting)
 {
-    //TODO check consistence of this
     if (waiting) {
         m_progressDialog->setValue(0);
         m_progressDialog->show();

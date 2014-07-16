@@ -17,6 +17,15 @@
 
 static const int INVALID_INDEX = -1;
 
+namespace {
+
+inline int toGreyAverage(QRgb rgb)
+{
+    return (qRed(rgb) + qGreen(rgb) + qBlue(rgb)) / 3;
+}
+
+}
+
 GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent),
       m_geneNode(nullptr),
@@ -40,10 +49,10 @@ GeneRendererGL::~GeneRendererGL()
     m_geneNode->deleteLater();
     m_geneNode = nullptr;
 
-   if (m_shaderProgram != nullptr) {
-       delete m_shaderProgram;
-   }
-   m_shaderProgram = nullptr;
+    if (m_shaderProgram != nullptr) {
+        delete m_shaderProgram;
+    }
+    m_shaderProgram = nullptr;
 }
 
 void GeneRendererGL::clearData()
@@ -74,7 +83,6 @@ void GeneRendererGL::clearData()
     m_pooledMax = Globals::GENE_THRESHOLD_MAX;
     m_thresholdUpperPooled = Globals::GENE_THRESHOLD_MAX;
     m_shape = Globals::DEFAULT_SHAPE_GENE;
-    m_maxPixelIntensity = 255; //TODO make a global variable
 
     // update visual mode
     m_visualMode = Globals::NormalMode;
@@ -290,15 +298,15 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             const int oldRefCount = m_geneData.quadRefCount(index);
             int newRefCount = (oldRefCount + (selected ? 1 : -1));
             const bool offlimits =  m_visualMode == Globals::NormalMode
-                                     && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper);
+                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper);
             if (selected && offlimits) {
                 newRefCount = oldRefCount;
             }
             m_geneData.updateQuadRefCount(index, newRefCount);
 
             if (newRefCount > 0) {
-                const QColor4ub featureColor = QColor4ub(feature->color());
-                const QColor4ub color = m_geneData.quadColor(index);
+                QColor4ub featureColor = QColor4ub(feature->color());
+                QColor4ub color = m_geneData.quadColor(index);
                 // inverse or normal color interpolation if selected
                 color = (selected && !offlimits) ?
                             STMath::lerp(1.0 / qreal(newRefCount), color, featureColor) :
@@ -353,7 +361,7 @@ void GeneRendererGL::updateVisual()
         const int oldRefCount = m_geneData.quadRefCount(index);
         int newRefCount = oldRefCount + (selected ? 1 : 0);
         const bool offlimits =  m_visualMode == Globals::NormalMode
-                                 && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper );
+                && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper );
         if ( selected && offlimits ) {
             newRefCount = oldRefCount;
         }
@@ -448,42 +456,40 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 
 const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
-    //TODO optimize with STL and/or concurrent methods
+    typedef QMap<QString, SelectionType> selectionGeneMap;
 
     // get the features
-    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
+    const auto& features =
+            m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
+    //TODO optimize with using STL
     // aggregate all the selected features
-    QMap<QString, SelectionType> geneSelectionsMap;
+    selectionGeneMap geneSelectionsMap;
     GeneSelection::selectedItemsList geneSelectionsList;
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
-
         if (feature->selected()) {
             //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
             const int adjustedReads = std::min(feature->hits(), m_max);
             const QString gene = feature->gene();
             geneSelectionsMap[gene].reads += adjustedReads;
             geneSelectionsMap[gene].normalizedReads += adjustedReads;
-            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(feature->x(), feature->y()));
+            //qGray gives more weight to the green channel
+            geneSelectionsMap[gene].pixeIntensity +=
+                    toGreyAverage(m_image.pixel(feature->x(), feature->y()));
             geneSelectionsMap[gene].count++;
         }
     }
 
     // create selection list
-    QMap<QString, SelectionType>::const_iterator it = geneSelectionsMap.begin();
-    QMap<QString, SelectionType>::const_iterator end = geneSelectionsMap.end();
+    selectionGeneMap::const_iterator it = geneSelectionsMap.begin();
+    selectionGeneMap::const_iterator end = geneSelectionsMap.end();
     for( ; it != end; ++it) {
-        const int count = it.value().count;
-        //TODO consider dividing reads by counts too
-        const int reads = it.value().reads;
-        const qreal adjustedNormalizedReads = it.value().normalizedReads /
-                static_cast<qreal>(m_max);
-        const qreal adjustedNormalizedPixelIntensity = it.value().pixeIntensity /
-                static_cast<qreal>(m_maxPixelIntensity * count);
-        const QString gene = it.key();
-        geneSelectionsList.append(SelectionType(gene, reads,
-                                                adjustedNormalizedReads, adjustedNormalizedPixelIntensity));
+        SelectionType selectionItem = it.value();
+        selectionItem.normalizedReads = selectionItem.normalizedReads / (m_max * selectionItem.count);
+        selectionItem.pixeIntensity = selectionItem.pixeIntensity / (255 * selectionItem.count);
+        selectionItem.name = it.key();
+        geneSelectionsList.append(selectionItem);
     }
 
     return geneSelectionsList;
@@ -493,16 +499,8 @@ void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
     Q_ASSERT(!transform().isIdentity());
-
     // stores a local copy of the tissue image in genes cordinate space
     m_image = image.transformed(transform().inverted().toAffine());
-    // stores the max pixel value
-    m_maxPixelIntensity = 0;
-    for (int x = 0; x < m_image.size().width(); x++) {
-        for (int y = 0; y < m_image.size().height(); y++) {
-            m_maxPixelIntensity = std::max(m_maxPixelIntensity, qGray(m_image.pixel(x,y)));
-        }
-    }
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)

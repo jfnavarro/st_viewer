@@ -1,3 +1,9 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
 #ifndef SCROLLAREA_H
 #define SCROLLAREA_H
 
@@ -16,7 +22,7 @@ class ScrollArea : public QAbstractScrollArea
 
 public:
 
-    explicit ScrollArea(QWidget *parent = 0 );
+    explicit ScrollArea(QWidget *parent = 0);
     virtual ~ScrollArea();
 
     void initializeView(QPointer<CellGLView> view);

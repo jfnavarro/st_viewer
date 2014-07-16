@@ -32,8 +32,7 @@ enum GeneShape  {
     Square = 2
 };
 
-enum Anchor
-{
+enum Anchor {
     Center = 1,
     North = 2,
     NorthEast = 3,
@@ -112,6 +111,7 @@ static const QString PARAM_SELECTION = QStringLiteral("selection");
 
 static const QString ROLE_USER = QStringLiteral("ROLE_USER");
 static const QString ROLE_CM = QStringLiteral("ROLE_CM");
+static const QString ROLE_ADMIN = QStringLiteral("ROLE_ADMIN");
 
 enum HttpRequestType {
     HttpRequestTypeNone = 0,

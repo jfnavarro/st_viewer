@@ -32,16 +32,15 @@ public slots:
 
 protected:
 
-    void draw(QGLPainter *painter);
-
-    const QRectF boundingRect() const;
-
-    void setSelectionArea(const SelectionEvent *) {}
+    void draw(QGLPainter *painter) override;
+    const QRectF boundingRect() const override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
 
     void createTiles(const QImage &image);
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
+
     void clearTextures();
     void clearNodes();
 

@@ -157,6 +157,9 @@ void CellViewPage::onEnter()
     // reset main variabless
     resetActionStates();
 
+    // refresh view
+    m_view->update();
+
     //loading finished
     setWaiting(false);
 }
@@ -167,6 +170,7 @@ void CellViewPage::onExit()
     m_ui->selectionsWidget->clearFocus();
 }
 
+//TODO double check that showing a error message while having progress bar is OK
 bool CellViewPage::loadData()
 {
     if (m_dataProxy->getSelectedDataset().isNull() || m_dataProxy->getSelectedDataset().isEmpty()) {
@@ -177,7 +181,7 @@ bool CellViewPage::loadData()
             m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
 
     if (dataset.isNull()) {
-        showError("Cell View", "The current selected dataset is not valid.");
+        showError(tr("Cell View"), tr("The current selected dataset is not valid"));
         return false;
     }
 
@@ -188,7 +192,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the image alignment.");
+        showError(tr("Data loading Error"), tr("Error loading the image alignment"));
         return false;
     }
 
@@ -202,7 +206,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the cell tissue image(red).");
+        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(red)"));
         return false;
     }
 
@@ -211,7 +215,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the cell tissue image(blue).");
+        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(blue)"));
         return false;
     }
 
@@ -220,7 +224,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the genes.");
+        showError(tr("Data loading Error"), tr("Error loading the genes"));
         return false;
     }
 
@@ -229,7 +233,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the chip array.");
+        showError(tr("Data loading Error"), tr("Error loading the chip"));
         return false;
     }
 
@@ -238,7 +242,7 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError("Data loading Error", "Error loading the features.");
+        showError(tr("Data loading Error"), tr("Error loading the features"));
         return false;
     }
 
@@ -330,7 +334,8 @@ void CellViewPage::resetActionStates()
     // restrict interface
     DataProxy::UserPtr current_user = m_dataProxy->getUser();
     Q_ASSERT(!current_user.isNull());
-    m_toolBar->m_actionGroup_cellTissue->setVisible(current_user->role() == Globals::ROLE_CM);
+    m_toolBar->m_actionGroup_cellTissue->setVisible(current_user->role() == Globals::ROLE_CM
+                                                    || current_user->role() == Globals::ROLE_ADMIN);
 }
 
 void CellViewPage::createToolBar()
@@ -474,8 +479,7 @@ void CellViewPage::slotLoadCellFigure()
 
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
-    const bool defaultRedFigure = current_user->role() == Globals::ROLE_CM;
-    const bool loadRedFigure = (defaultRedFigure || forceRedFigure) && !forceBlueFigure;
+    const bool loadRedFigure = forceRedFigure && !forceBlueFigure;
 
     const QString figureid = (loadRedFigure) ? imageAlignment->figureRed() : imageAlignment->figureBlue();
     auto device = m_dataProxy->getFigure(figureid);
@@ -521,10 +525,10 @@ void CellViewPage::slotPrintImage()
 void CellViewPage::slotSaveImage()
 {
     QString filename =
-                       QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
-                       QString("%1;;%2").
-                       arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
-                       arg(tr("PNG Image Files (*.png)")));
+            QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
+                                         QString("%1;;%2").
+                                         arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
+                                         arg(tr("PNG Image Files (*.png)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -538,15 +542,15 @@ void CellViewPage::slotSaveImage()
     const QString format = filename.split(".", QString::SkipEmptyParts).at(1); //get the file extension
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        showError("Save Image", tr("Error saving image."));
+        showError(tr("Save Image"), tr("Error saving image."));
     }
 }
 
 void CellViewPage::slotExportSelection()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
-                       QString("%1").
-                       arg(tr("Text Files (*.txt)")));
+                                                    QString("%1").
+                                                    arg(tr("Text Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -565,7 +569,7 @@ void CellViewPage::slotExportSelection()
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
         exporter.exportItem(textFile, geneSelection);
-        showInfo("Export Gene Selection", "Gene selection was exported successfully");
+        showInfo(tr("Export Gene Selection"), tr("Gene selection was exported successfully"));
     }
 
     textFile.close();
@@ -620,7 +624,7 @@ void CellViewPage::slotSelectionUpdated()
 void CellViewPage::slotSaveSelection()
 {
     QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
-                                                                          Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                                                                                    Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
 
         // get selected features
@@ -654,9 +658,9 @@ void CellViewPage::slotSaveSelection()
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO get error from request
-            showError("Create Gene Selection", "Error saving the gene selection");
+            showError(tr("Create Gene Selection"), tr("Error saving the gene selection"));
         } else {
-            showInfo("Create Gene Selection", "Gene selection created successfully");
+            showInfo(tr("Create Gene Selection"), tr("Gene selection created successfully"));
         }
 
     }

@@ -54,7 +54,7 @@ ExperimentPage::~ExperimentPage()
 QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
 {
     QSortFilterProxyModel* selectionsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(m_ui->experiments_tableView->model());
+            qobject_cast<QSortFilterProxyModel*>(m_ui->experiments_tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
@@ -62,18 +62,25 @@ QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
 ExperimentsItemModel *ExperimentPage::selectionsModel()
 {
     ExperimentsItemModel *model =
-        qobject_cast<ExperimentsItemModel*>(selectionsProxyModel()->sourceModel());
+            qobject_cast<ExperimentsItemModel*>(selectionsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
 
 void ExperimentPage::onEnter()
 {
+    //load selections
     slotLoadSelections();
+
     //clear selection/focus
     m_ui->experiments_tableView->clearSelection();
     m_ui->experiments_tableView->clearFocus();
+    m_ui->removeSelections->clearFocus();
+    m_ui->exportSelections->clearFocus();
+    m_ui->ddaAnalysis->clearFocus();
+    m_ui->editSelection->clearFocus();
     m_ui->back->clearFocus();
+
     //remove, edit, dda and export not enable by default
     m_ui->removeSelections->setEnabled(false);
     m_ui->exportSelections->setEnabled(false);
@@ -94,7 +101,7 @@ void ExperimentPage::slotLoadSelections()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use the text in reques.getErrors(
-        showError("Data Error", "Error loading the selections.");
+        showError(tr("Data Error"), tr("Error loading the selections"));
     } else {
         // refresh gene selections on the model
         selectionsModel()->loadSelectedGenes(m_dataProxy->getGeneSelections());
@@ -104,6 +111,7 @@ void ExperimentPage::slotLoadSelections()
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
 {
     //TODO check that the proper dataset object is selected and available
+    //TODO two items select = activate DDA, one item activates the others
     m_ui->removeSelections->setEnabled(index.isValid());
     m_ui->exportSelections->setEnabled(index.isValid());
     m_ui->ddaAnalysis->setEnabled(index.isValid());
@@ -112,20 +120,20 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
 
 void ExperimentPage::slotRemoveSelection()
 {
-    const int answer = QMessageBox::warning(
-                     this, tr("Remove Selection"),
-                     tr("Are you really sure you want to remove the selection?"),
-                     QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
-
-    if (answer != QMessageBox::Yes) {
-        return;
-    }
-
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
-    if (currentSelection.empty()) {
+    if (currentSelection.empty() || currentSelection.size() > 1) {
+        return;
+    }
+
+    const int answer = QMessageBox::warning(
+                this, tr("Remove Selection"),
+                tr("Are you really sure you want to remove the selection?"),
+                QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
+
+    if (answer != QMessageBox::Yes) {
         return;
     }
 
@@ -144,10 +152,11 @@ void ExperimentPage::slotRemoveSelection()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO get error from request
-        showError("Remove Gene Selection", "Error removing the gene selection");
-    } else {
-        showInfo("Remove Gene Selection", "Gene selection removed successfully");
+        showError(tr("Remove Gene Selection"), tr("Error removing the gene selection"));
+        return;
     }
+
+    showInfo(tr("Remove Gene Selection"), tr("Gene selection removed successfully"));
 
     //refresh selection list
     slotLoadSelections();
@@ -158,7 +167,7 @@ void ExperimentPage::slotExportSelection()
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
-    if (currentSelection.empty()) {
+    if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
 
@@ -178,15 +187,16 @@ void ExperimentPage::slotExportSelection()
     //create file
     QFile textFile(filename);
 
+    //currentSelection should only have one element
+    auto selectionItem = currentSelection.first();
+    Q_ASSERT(!selectionItem.isNull());
+
     //export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
-        //currentSelection should only have one element
-        auto selectionItem = currentSelection.first();
-        Q_ASSERT(!selectionItem.isNull());
         exporter.exportItem(textFile, selectionItem->selectedItems());
-        showInfo("Export Gene Selection", "Gene selection was exported successfully");
+        showInfo(tr("Export Gene Selection"), tr("Gene selection was exported successfully"));
     }
 
     textFile.close();
@@ -197,7 +207,7 @@ void ExperimentPage::slotEditSelection()
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
 
-    if (currentSelection.empty()) {
+    if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
 
@@ -206,7 +216,7 @@ void ExperimentPage::slotEditSelection()
     Q_ASSERT(!selectionItem.isNull());
 
     QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
-                                                                          Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                                                                                    Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     createSelection->setName(selectionItem->name());
     createSelection->setComment(selectionItem->comment());
 
@@ -227,10 +237,11 @@ void ExperimentPage::slotEditSelection()
             if (request.return_code() == async::DataRequest::CodeError
                     || request.return_code() == async::DataRequest::CodeAbort) {
                 //TODO get error from request
-                showError("Update Gene Selection", "Error updating the gene selection");
-            } else {
-                showInfo("Update Gene Selection", "Gene Selection updated successfully");
+                showError(tr("Update Gene Selection"), tr("Error updating the gene selection"));
+                return;
             }
+
+            showInfo(tr("Update Gene Selection"), tr("Gene Selection updated successfully"));
 
             //refresh selection list
             slotLoadSelections();

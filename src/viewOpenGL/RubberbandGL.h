@@ -32,15 +32,17 @@ public:
 
     void setRubberbandRect(const QRectF rect);
 
-    void draw(QGLPainter *painter);
+    //made public for convenience
+    void draw(QGLPainter *painter) override;
 
-    const QRectF boundingRect() const;
+protected:
 
-    void setSelectionArea(const SelectionEvent *) {}
+    const QRectF boundingRect() const override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
 
-    QRectF m_rubberbandrect;
+    QRectF m_rubberbandRect;
 
     Q_DISABLE_COPY(RubberbandGL)
 };

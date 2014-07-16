@@ -46,6 +46,7 @@ public:
     const QTransform transform() const;
     void setTransform(const QTransform& transform);
 
+    //properties stored in the flags
     bool visible() const;
     bool selectable() const;
     bool transformable() const;
@@ -57,10 +58,14 @@ public:
     void setVisualOptions(GraphicItemGL::VisualOptions visualOptions);
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
+    // drawing method, must be implemented when sub-classing
     virtual void draw(QGLPainter *painter) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
+
+    // must be implemented in the node supports selection events
+    virtual void setSelectionArea(const SelectionEvent *event) = 0;
 
     // bounding rect boundaries check
     bool contains(const QPointF& point) const;
@@ -71,21 +76,23 @@ public:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
-    virtual void setSelectionArea(const SelectionEvent *event) = 0;
-
     // drawing functions
     void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
 
 public slots:
 
+    //TODO should prepend "slot"
     void setVisible(bool);
 
 signals:
 
+    //TODO should prepend "signal"
+    //tells the view the rendering is needed
     void updated();
 
 protected:
 
+    //returns local transform adjusted for the anchor position
     const QTransform adjustForAnchor(const QTransform& transform) const;
 
     QTransform m_transform;

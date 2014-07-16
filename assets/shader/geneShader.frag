@@ -14,15 +14,15 @@ float smoothband(float lo, float hi, float e, float t) {
 void main(void)
 {
     // helper colors
-    const vec4 cNone = vec4(0.0,0.0,0.0,0.0);
-    const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
+    vec4 cNone = vec4(0.0,0.0,0.0,0.0);
+    vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
     
     // derive color
     vec4 fragColor = outColor;
     
     // input options
-    const bool selected = bool(outSelected);
-    const int shape = int(outShape);
+    bool selected = bool(outSelected);
+    int shape = int(outShape);
     
     if (shape == 0) { //circle
         // calculate distance from center

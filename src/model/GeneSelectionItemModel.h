@@ -26,9 +26,10 @@ public:
 
     enum Column {
         Name = 0,
-        Hits = 1,
-        NormalizedHits = 2,
-        PixelItensity = 3
+        Count = 1,
+        Hits = 2,
+        NormalizedHits = 3,
+        PixelItensity = 4
     };
 
     explicit GeneSelectionItemModel(QObject* parent = 0);

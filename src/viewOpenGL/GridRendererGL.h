@@ -38,15 +38,15 @@ public:
 
 public slots:
 
+    //TODO slots should have the prefix "slot"
+
     void setColor(const QColor color);
 
 protected:
 
-    void draw(QGLPainter *painter);
-
-    const QRectF boundingRect() const;
-
-    void setSelectionArea(const SelectionEvent *) {}
+    void draw(QGLPainter *painter) override;
+    const QRectF boundingRect() const override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
 

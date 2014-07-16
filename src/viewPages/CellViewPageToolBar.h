@@ -53,7 +53,7 @@ public:
     QAction *m_actionShow_toggleNormal;
     QAction *m_actionShow_toggleDynamicRange;
     QAction *m_actionShow_toggleHeatMap;
- 
+
     QActionGroup *m_actionGroup_toggleLegendPosition;
     QAction *m_action_toggleLegendTopRight;
     QAction *m_action_toggleLegendTopLeft;
@@ -104,7 +104,7 @@ public slots:
     void resetActions();
 
 private slots:
-  
+
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);

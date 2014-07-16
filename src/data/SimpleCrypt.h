@@ -57,6 +57,7 @@ private:
     
     void encodeByteArray(QByteArray &data) const;
     void decodeByteArray(QByteArray &data) const;
+
     static quint8 randomSeed();
     
     // internal version control

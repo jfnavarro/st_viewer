@@ -32,19 +32,19 @@ public:
     // clear the buffer
     void flush();
     
-    virtual qint64 bytesAvailable() const;
-    virtual qint64 bytesToWrite() const;
-    virtual void close();
-    virtual bool isSequential() const;
-    virtual bool open(OpenMode mode);
-    virtual qint64 pos() const;
-    virtual bool seek(qint64 pos);
-    virtual qint64 size() const;
+    qint64 bytesAvailable() const override;
+    qint64 bytesToWrite() const override;
+    void close() override;
+    bool isSequential() const override;
+    bool open(OpenMode mode) override;
+    qint64 pos() const override;
+    bool seek(qint64 pos) override;
+    qint64 size() const override;
 
 protected:
     
-    virtual qint64 readData(char *data, qint64 maxSize);
-    virtual qint64 writeData(const char *data, qint64 maxSize);
+    qint64 readData(char *data, qint64 maxSize) override;
+    qint64 writeData(const char *data, qint64 maxSize) override;
 
 private:
     

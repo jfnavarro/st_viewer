@@ -37,7 +37,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //create selections menu
     m_selectionMenu = new QPushButton(this);
-    QMenu *selectionsMenu = new QMenu(m_selectionMenu);
+    QMenu *selectionsMenu = new QMenu();
     m_selectionMenu->setToolTip(tr("Selection options"));
     m_selectionMenu->setText(tr("Selection"));
     m_selectionMenu->setMenu(selectionsMenu);
@@ -65,7 +65,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     ColorListEditor *colorList = new ColorListEditor(this);
     QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
     widgetAction->setDefaultWidget(colorList);
-    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Set color of selected genes:"));
+    m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")),
+                                    tr("Set color of selected genes:"));
     //TODO have the color combobox in the same line as the text and/or make it less width and centered
     m_actionMenu->menu()->addAction(widgetAction);
 
@@ -73,7 +74,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(widgetAction, &QAction::triggered, [=]{ colorList->show(); });
     // QComboBox::activated is overloaded so we need a static_cast<>
     connect(colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-        [=]() { slotSetColorAllSelected(colorList->color()); });
+            [=]() { slotSetColorAllSelected(colorList->color()); });
 
     //adds the menu to the layout
     geneListLayout->addWidget(m_actionMenu);
@@ -155,7 +156,7 @@ void GenesWidget::slotLoadModel(DataProxy::GeneList &geneList)
 GeneFeatureItemModel *GenesWidget::getModel()
 {
     GeneFeatureItemModel *geneModel =
-        qobject_cast<GeneFeatureItemModel*>(getProxyModel()->sourceModel());
+            qobject_cast<GeneFeatureItemModel*>(getProxyModel()->sourceModel());
     Q_ASSERT(geneModel);
     return geneModel;
 }
@@ -163,7 +164,7 @@ GeneFeatureItemModel *GenesWidget::getModel()
 QSortFilterProxyModel *GenesWidget::getProxyModel()
 {
     QSortFilterProxyModel *proxyModel =
-        qobject_cast<QSortFilterProxyModel*>(m_genes_tableview->model());
+            qobject_cast<QSortFilterProxyModel*>(m_genes_tableview->model());
     Q_ASSERT(proxyModel);
     return proxyModel;
 }

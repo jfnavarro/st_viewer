@@ -96,7 +96,7 @@ void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &gen
 GeneSelectionItemModel *SelectionsWidget::getModel()
 {
     GeneSelectionItemModel *selectionModel =
-        qobject_cast<GeneSelectionItemModel*>(getProxyModel()->sourceModel());
+            qobject_cast<GeneSelectionItemModel*>(getProxyModel()->sourceModel());
     Q_ASSERT(selectionModel);
     return selectionModel;
 }
@@ -104,7 +104,7 @@ GeneSelectionItemModel *SelectionsWidget::getModel()
 QSortFilterProxyModel *SelectionsWidget::getProxyModel()
 {
     QSortFilterProxyModel *selectionsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(m_selections_tableview->model());
+            qobject_cast<QSortFilterProxyModel*>(m_selections_tableview->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }

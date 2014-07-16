@@ -65,7 +65,7 @@ void ImageTextureGL::draw(QGLPainter *painter)
     glEnable(GL_TEXTURE_2D);
     {
         foreach(QGLSceneNode *node, m_nodes ) {
-            if ( node && node->material() && node->material()->texture() ) {
+            if (node && node->material() && node->material()->texture()) {
                 node->material()->texture()->bind();
                 QColor texture_color = Qt::black;
                 texture_color.setAlphaF(m_intensity);
@@ -78,12 +78,18 @@ void ImageTextureGL::draw(QGLPainter *painter)
     glDisable(GL_TEXTURE_2D);
 }
 
+void ImageTextureGL::setSelectionArea(const SelectionEvent *)
+{
+
+}
+
 void ImageTextureGL::createTexture(const QImage& image)
 {
-   clear();
-   // we always tile, it is not secure to create one texture from the whole image
-   createTiles(image);
-   m_bounds = image.rect();
+    //clear memory
+    clear();
+    // we always tile, it is not secure to create one texture from the whole image
+    createTiles(image);
+    m_bounds = image.rect();
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
@@ -98,7 +104,7 @@ void ImageTextureGL::createTiles(const QImage &image)
 
     for (int i = 0; i < count; ++i) {
 
-         // texture sizes
+        // texture sizes
         const int x = tile_width * (i % xCount);
         const int y = tile_height * (i / xCount);
         const int texture_width = std::min(width -  x, tile_width);

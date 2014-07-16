@@ -54,6 +54,8 @@ public:
 
 public slots:
 
+    //TODO slots should have the prefix "slot"
+
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShine(qreal shine);
@@ -75,6 +77,7 @@ public slots:
 
 signals:
 
+    //to notify the selection view
     void selectionUpdated();
 
 protected:
@@ -150,9 +153,6 @@ private:
 
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
-
-    //max value of pixel intensity used to normalize
-    int m_maxPixelIntensity;
 
     Q_DISABLE_COPY(GeneRendererGL)
 };

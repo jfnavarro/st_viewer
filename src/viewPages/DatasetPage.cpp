@@ -62,7 +62,7 @@ DatasetPage::~DatasetPage()
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel =
-        qobject_cast<QSortFilterProxyModel*>(m_ui->datasets_tableview->model());
+            qobject_cast<QSortFilterProxyModel*>(m_ui->datasets_tableview->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
@@ -70,7 +70,7 @@ QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 DatasetItemModel *DatasetPage::datasetsModel()
 {
     DatasetItemModel *model =
-        qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
+            qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -101,6 +101,7 @@ void DatasetPage::onExit()
 
 void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
+    //TODO check selected dataset is valid
     m_ui->deleteDataset->setEnabled(index.isValid());
     m_ui->editDataset->setEnabled(index.isValid());
     m_ui->openDataset->setEnabled(index.isValid());
@@ -115,7 +116,7 @@ void DatasetPage::slotLoadDatasets()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO show the error present in request.getErrors()
-        showError("Data Error", "Error loading the datasets.");
+        showError(tr("Data Error"), tr("Error loading the datasets"));
     } else {
         // refresh datasets on the model
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
@@ -133,7 +134,7 @@ void DatasetPage::slotEditDataset()
     const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
-    if (currentDataset.empty()) {
+    if (currentDataset.empty() || currentDataset.size() > 1) {
         return;
     }
 
@@ -142,7 +143,7 @@ void DatasetPage::slotEditDataset()
     Q_ASSERT(!dataset.isNull());
 
     QScopedPointer<EditDatasetDialog> editdataset(new EditDatasetDialog(this,
-                                                                          Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                                                                        Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editdataset->setName(dataset->name());
     editdataset->setComment(dataset->statComments());
 
@@ -154,6 +155,7 @@ void DatasetPage::slotEditDataset()
 
             dataset->name(editdataset->getName());
             dataset->statComments(editdataset->getComment());
+
             //update the dataset
             setWaiting(true);
             async::DataRequest request = m_dataProxy->updateDataset(dataset);
@@ -162,9 +164,9 @@ void DatasetPage::slotEditDataset()
             if (request.return_code() == async::DataRequest::CodeError
                     || request.return_code() == async::DataRequest::CodeAbort) {
                 //TODO get error from request
-                showError("Update Dataset", "Error updating the dataset");
+                showError(tr("Update Dataset"), tr("Error updating the dataset"));
             } else {
-                showInfo("Update Dataset", "Dataset updated successfully");
+                showInfo(tr("Update Dataset"), tr("Dataset updated successfully"));
             }
 
             //refresh dataset list
@@ -178,36 +180,36 @@ void DatasetPage::slotOpenDataset()
     const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
-    if (currentDataset.empty()) {
+    if (currentDataset.empty() || currentDataset.size() > 1) {
         return;
     }
 
     //currentDataset should only have one element
     auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
+    Q_ASSERT(!dataset->id().isEmpty());
 
-    //TODO should check a valid dataset is selected
-
+    //updates state of  DataProxy and move to next page
     m_dataProxy->setSelectedDataset(dataset->id());
     emit moveToNextPage();
 }
 
 void DatasetPage::slotRemoveDataset()
 {
-    const int answer = QMessageBox::warning(
-                     this, tr("Remove Dataset"),
-                     tr("Are you really sure you want to remove the dataset?"),
-                     QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
-
-    if (answer != QMessageBox::Yes) {
-        return;
-    }
-
     const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
-    if (currentDataset.empty()) {
+    if (currentDataset.empty() || currentDataset.size() > 1) {
+        return;
+    }
+
+    const int answer = QMessageBox::warning(
+                this, tr("Remove Dataset"),
+                tr("Are you really sure you want to remove the dataset?"),
+                QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
+
+    if (answer != QMessageBox::Yes) {
         return;
     }
 
@@ -226,9 +228,9 @@ void DatasetPage::slotRemoveDataset()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO get error from request
-        showError("Remove Dataset", "Error removing the dataset");
+        showError(tr("Remove Dataset"), tr("Error removing the dataset"));
     } else {
-        showInfo("Remove Dataset", "Dataset removed successfully");
+        showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
     }
 
     //TODO remove selections performs in the datasets

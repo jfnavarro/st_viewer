@@ -25,6 +25,7 @@ class InitPage;
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 
+//TODO authorizationManager should be passed as a reference here (currently obtaining it from DataProxy)
 class InitPage : public Page
 {
     Q_OBJECT

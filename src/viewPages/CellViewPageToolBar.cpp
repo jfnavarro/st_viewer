@@ -430,7 +430,7 @@ void CellViewPageToolBar::createActions()
     m_actionShow_showMiniMap = new QAction(QIcon(), tr("Show MiniMap"), this);
     m_actionShow_showMiniMap->setCheckable(true);
 
-     //save print
+    //save print
     m_actionSave_save =
             new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
     m_actionSave_save->setToolTip(tr("Save the cell tissue canvas into a file"));

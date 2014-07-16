@@ -40,6 +40,8 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name,
                                              QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Count,
+                                             QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits,
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::NormalizedHits,

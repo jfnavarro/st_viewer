@@ -82,6 +82,8 @@ public:
 
 public slots:
 
+    //TODO slots should have the previx "slot"
+
     void moveToNextPage();
     void moveToPreviousPage();
 
@@ -98,17 +100,22 @@ protected:
 
 private:
 
+    //returns the widget(page) for a given index
     QWidget* widget(int index);
 
+    //adds page to the tab manager
     void insertPage(QWidget* page, const QIcon &icon = QIcon(),
                     const QString &title = QString());
 
+    //set the current index in the tab manager
     void setCurrentIndex(int index);
 
+    //makes a page transition
     void tabChanged(int toIndex, int fromIndex = -1);
 
+    //helper function to instanciate the pages and create the connections
     void createPages();
-    void createActions();
+    void createConnections();
 
     //pages
     QPointer<InitPage> m_startpage;

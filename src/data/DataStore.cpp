@@ -45,9 +45,9 @@ DataStore::accessResource(const QString& name, Options options)
 
     // load or create file with given resourceid and options
     DataStore::resourceDeviceType device;
-    if (m_fileMap.contains(name)) {  
+    if (m_fileMap.contains(name)) {
         device = std::move(accessFile(name, options));
-    } else { 
+    } else {
         device = std::move(createFile(name, options));
     }
     Q_ASSERT(device.get());

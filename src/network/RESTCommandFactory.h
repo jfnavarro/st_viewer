@@ -52,7 +52,8 @@ public:
     //static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString &userId);
 
     static NetworkCommand* getSelections(const Configuration& configuration);
-    static NetworkCommand* upateSelectionBySelectionById(const Configuration& configuration, const QString& selectionId);
+    static NetworkCommand* upateSelectionBySelectionById(const Configuration&
+                                                         configuration, const QString& selectionId);
     static NetworkCommand* addSelection(const Configuration& configuration);
 
     //NOTE this end point does not need authorization

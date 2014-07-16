@@ -63,13 +63,18 @@ public:
 
 public slots:
 
+    //TODO slots should have the prefix "slot"
+
     //some public slots to configure properties of the view
     void setSelectionMode(const bool selectionMode);
     void zoomOut();
     void zoomIn();
     void centerOn(const QPointF& point);
     void rotate(qreal angle);
+
+    //update the view
     void update();
+
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
     void setSceneFocusCenterPointWithClamping(const QPointF center_point);
@@ -95,7 +100,7 @@ protected:
 
     void setZoomFactorAndUpdate(const qreal zoom);
 
-    //returns the node local transformations in the view CS
+    //returns the node local transformations in the view CS adjusted for anchor
     const QTransform nodeTransformations(GraphicItemGL *node) const;
 
 signals:

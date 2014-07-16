@@ -70,7 +70,7 @@ RESTCommandFactory::getFeatureByDatasetId(const Configuration& configuration,
 
 NetworkCommand*
 RESTCommandFactory::getFeatureByDatasetIdAndGene(const Configuration &configuration,
-        const QString& datasetId, const QString& gene)
+                                                 const QString& datasetId, const QString& gene)
 {
     NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(configuration, datasetId);
     cmd->addQueryItem("gene", gene);

@@ -287,7 +287,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         data::parseObject(root, &dto);
         m_minVersion = dto.minVersionAsNumber();
         qDebug() << "[stVi] Check min version min = "
-                     << dto.minSupportedVersion() << " current = " << Globals::VERSION;
+                 << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         dirty = true;
         break;
     }
@@ -691,7 +691,8 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
     //flags are sent in the exec()
     QEventLoop loop;
     connect(reply, SIGNAL(signalFinished(QVariant, QVariant)), &loop, SLOT(quit()));
-    loop.exec(QEventLoop::ExcludeUserInputEvents | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents);
+    loop.exec(QEventLoop::ExcludeUserInputEvents
+              | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents);
 
     //TODO add slot Abort to DataRequest and connect it to the reply
     //to allow to abort requests trough the progress bar dialog
@@ -699,8 +700,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
     if (reply->hasErrors()) {
         request.addError(reply->parseErrors());
         request.return_code(async::DataRequest::CodeError);
-    }
-    else {
+    } else {
         const NetworkReply::ReturnCode returnCode =
                 static_cast<NetworkReply::ReturnCode>(reply->return_code());
 

@@ -123,7 +123,7 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *par
     setLayout(m_layout);
 
     createPages(); //create pages and add them to the tab manager
-    createActions(); //create signals - action connections
+    createConnections(); //create signals - action connections
 
     // enter first pages
     tabChanged(0, -1);
@@ -281,7 +281,7 @@ void ExtendedTabWidget::createPages()
     insertPage(m_experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
 }
 
-void ExtendedTabWidget::createActions()
+void ExtendedTabWidget::createConnections()
 {
     // transition signals
     connect(m_startpage, SIGNAL(moveToNextPage()), this, SLOT(moveToNextPage()));

@@ -33,11 +33,13 @@ public:
     const QColor sceneColor() const;
     const QColor viewColor() const;
 
-    virtual void mouseMoveEvent(QMouseEvent* event);
-    virtual void mousePressEvent(QMouseEvent* event);
-    virtual void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 public slots:
+
+    //TODO slots should have the prefix "slot"
 
     void setViewColor(const QColor viewColor);
     void setSceneColor(const QColor sceneColor);
@@ -49,15 +51,14 @@ public slots:
 
 signals:
 
+    //to notify the view
     void signalCenterOn(const QPointF& point);
 
 protected:
 
-    void draw(QGLPainter *painter);
-
-    const QRectF boundingRect() const;
-
-    void setSelectionArea(const SelectionEvent *) {}
+    void draw(QGLPainter *painter) override;
+    const QRectF boundingRect() const override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
 
@@ -72,7 +73,7 @@ private:
     QColor m_viewColor;
     QTransform m_parentSceneTransformations;
 
-    // mouse events
+    // doing mouse events
     bool m_selecting;
 
     Q_DISABLE_COPY(MiniMapGL)

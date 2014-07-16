@@ -15,6 +15,7 @@
 
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex0;
 static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex1;
+static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex2;
 static const int QUAD_SIZE = 4;
 
 GeneData::GeneData()
@@ -48,7 +49,6 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
 
     appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
 
-    color.setAlphaF(0.0);
     appendColor(color, color, color, color);
 
     appendIndices(index_count, index_count + 1, index_count + 2);
@@ -56,9 +56,11 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
 
     // update custom vertex arrays
     for(int i = 0; i < QUAD_SIZE; i++) {
+        //QGeometryData does not support int or bool types yet
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
-        m_refCount.append(0.0);
+        appendAttribute(0.0, visibleVertex);
+        m_refCount.append(0);
     }
     // return first index of the quad created
     return index_count;
@@ -83,27 +85,28 @@ void GeneData::updateQuadVisible(const int index, bool visible)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
         color(index + i).setAlphaF(visible ? 1.0 : 0.0);
+        //floatAttribute(index  + i, visibleVertex) = static_cast<float>(visible);
     }
 }
 
 void GeneData::updateQuadSelected(const int index, bool selected)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
-        floatAttribute(index  + i, selectionVertex) = float(selected);
+        floatAttribute(index  + i, selectionVertex) = static_cast<float>(selected);
     }
 }
 
-void GeneData::updateQuadRefCount(const int index, qreal refcount)
+void GeneData::updateQuadRefCount(const int index, int refcount)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
         m_refCount[index + i] = refcount;
     }
 }
 
-void GeneData::updateQuadValue(const int index, qreal value)
+void GeneData::updateQuadValue(const int index, int value)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
-        floatAttribute(index + i , valuesVertex) = value;
+        floatAttribute(index + i , valuesVertex) = static_cast<float>(value);
     }
 }
 
@@ -115,6 +118,8 @@ QColor4ub GeneData::quadColor(const int index) const
 bool GeneData::quadVisible(const int index) const
 {
     return colorAt(index).alphaF() != 0.0;
+    // all vertices has same value
+    //return floatAttributeAt(index, visibleVertex) == 1.0;
 }
 
 bool GeneData::quadSelected(const int index) const
@@ -123,13 +128,13 @@ bool GeneData::quadSelected(const int index) const
     return floatAttributeAt(index, selectionVertex) == 1.0;
 }
 
-qreal GeneData::quadRefCount(const int index) const
+int GeneData::quadRefCount(const int index) const
 {
     // all vertices has same value
     return m_refCount.at(index);
 }
 
-qreal GeneData::quadValue(const int index) const
+int GeneData::quadValue(const int index) const
 {
     // all vertices has same value
     return floatAttributeAt(index, valuesVertex);
@@ -137,7 +142,7 @@ qreal GeneData::quadValue(const int index) const
 
 void GeneData::resetRefCount()
 {
-    std::fill(m_refCount.begin(), m_refCount.end(), 0.0f);
+    std::fill(m_refCount.begin(), m_refCount.end(), 0.0);
 }
 
 void GeneData::resetValues()
@@ -147,10 +152,18 @@ void GeneData::resetValues()
     }
 }
 
-void GeneData::resetSelection(bool state)
+void GeneData::resetSelection(bool selected)
 {
-    const float reset_value =  state ? 1.0 : 0.0;
+    const float reset_value =  selected ? 1.0 : 0.0;
     for(int i = 0; i < attributes(selectionVertex).count(); ++i) {
         floatAttribute(i, selectionVertex) = reset_value;
+    }
+}
+
+void GeneData::resetVisible(bool visible)
+{
+    const float reset_value =  visible ? 1.0 : 0.0;
+    for(int i = 0; i < attributes(visibleVertex).count(); ++i) {
+        floatAttribute(i, visibleVertex) = reset_value;
     }
 }

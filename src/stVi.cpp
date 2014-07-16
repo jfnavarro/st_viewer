@@ -139,21 +139,21 @@ bool stVi::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
-        QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Support",
+        QMessageBox::critical(this->centralWidget(), tr("OpenGL Support"),
                                  tr("This system does not support OpenGL"));
         return false;
     }
 
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
-        QMessageBox::critical(this->centralWidget(), "OpenGL 2.x Context",
+        QMessageBox::critical(this->centralWidget(), tr("OpenGL 2.x Context"),
                                  tr("This system does not support OpenGL 2.x Contexts"));
         return false;
     }
 
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
-        QMessageBox::critical(this->centralWidget(), "HTTPS",
+        QMessageBox::critical(this->centralWidget(), tr("Secure connection"),
                                  tr("This system does not secure SSL connections"));
         return false;
     }
@@ -163,14 +163,14 @@ bool stVi::checkSystemRequirements() const
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO show the error present in request.getErrors()
-        QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
+        QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
                                 tr("Required version could not be retrieved from the server, try again"));
         return false;
     } else {
         // refresh datasets on the model
         const auto minVersion  = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
-            QMessageBox::critical(this->centralWidget(), "MINIMUM VERSION",
+            QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
                                      tr("This version of the software is not supported anymore, please update!"));
             return false;
         }
@@ -233,7 +233,7 @@ void stVi::setupUi()
 
 void stVi::handleMessage(const QString &message)
 {
-    QMessageBox::critical(this->centralWidget(), "Main Application", message);
+    QMessageBox::critical(this->centralWidget(), "stVi", message);
 }
 
 void stVi::slotShowAbout()

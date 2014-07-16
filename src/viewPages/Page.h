@@ -25,6 +25,7 @@ public:
 
 signals:
 
+    //navigation signals
     void moveToNextPage();
     void moveToPreviousPage();
 
@@ -35,12 +36,15 @@ public slots:
 
 private slots:
 
+    //slot used to connect with the timer for the progress bar dialog
     void increaseBar();
 
 protected:
 
+    //launches a progress bar dialog (true = show, false = hide)
     void setWaiting(bool waiting = true);
 
+    //helper functions to show messages
     void showInfo(const QString &header, const QString &body);
     void showWarning(const QString &header, const QString &body);
     void showError(const QString &header, const QString &body);

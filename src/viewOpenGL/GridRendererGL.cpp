@@ -56,6 +56,11 @@ void GridRendererGL::draw(QGLPainter *painter)
     glDisable(GL_LINE_SMOOTH);
 }
 
+void GridRendererGL::setSelectionArea(const SelectionEvent *)
+{
+
+}
+
 void GridRendererGL::clearData()
 {
     // chip grid stuff

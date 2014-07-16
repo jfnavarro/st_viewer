@@ -6,6 +6,7 @@ attribute lowp vec4 qt_Color;
 attribute highp vec4 qt_Vertex;
 attribute lowp float qt_Custom0;
 attribute lowp float qt_Custom1;
+attribute lowp float qt_Custom2;
 uniform mediump mat4 qt_ModelViewMatrix;
 uniform mediump mat4 qt_ModelViewProjectionMatrix;
 
@@ -106,6 +107,7 @@ void main(void)
     outSelected = float(qt_Custom0);
     outColor = qt_Color;
     bool visible = qt_Color.a != 0.0;
+    //bool visible = bool(qt_Custom2);
     textCoord = qt_MultiTexCoord0;
     outShape = float(in_shape);
     

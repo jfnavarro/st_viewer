@@ -80,6 +80,11 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
     glDisable(GL_TEXTURE_2D);
 }
 
+void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
+{
+
+}
+
 void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 {
     m_min = min;
@@ -92,24 +97,26 @@ void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 
 void HeatMapLegendGL::setLowerLimit(int limit)
 {
-    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
+            - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
+    const qreal adjusted_limit =  (limit / offlimit) * range;
     const qreal normalized_limit = adjusted_limit / range;
     m_lower_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
-    m_lower_text = QString::number( limit );
+    m_lower_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
 }
 
 void HeatMapLegendGL::setUpperLimit(int limit)
 {
-    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
+    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
+            - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (qreal(limit) / offlimit ) * range;
+    const qreal adjusted_limit =  (limit / offlimit) * range;
     const qreal normalized_limit = adjusted_limit / range;
     m_upper_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
-    m_upper_text = QString::number( limit );
+    m_upper_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
 }
@@ -119,6 +126,7 @@ void HeatMapLegendGL::generateHeatMap()
     // generate image texture
     QImage image(m_min, m_max, QImage::Format_ARGB32);
     Heatmap::createHeatMapImage(image, Heatmap::SpectrumExp, m_min, m_max);
+
     m_texture.cleanupResources();
     m_texture.release();
     m_texture.clearImage();
@@ -126,7 +134,7 @@ void HeatMapLegendGL::generateHeatMap()
     m_texture.setVerticalWrap(QGL::ClampToEdge);
     m_texture.setHorizontalWrap(QGL::ClampToEdge);
     m_texture.setBindOptions(QGLTexture2D::LinearFilteringBindOption
-                              | QGLTexture2D::MipmapBindOption);
+                             | QGLTexture2D::MipmapBindOption);
 
     m_texture_vertices.clear();
     m_texture_vertices.append(legend_x, legend_y);
@@ -150,8 +158,8 @@ void HeatMapLegendGL::generateHeatMap()
 void HeatMapLegendGL::generateBarAndTexts()
 {
     // threshold bars
-    const qreal thresholdLowerHeight = (1.0f - m_lower_threshold) * legend_height;
-    const qreal thresholdUpperHeight = (1.0f - m_upper_threshold) * legend_height;
+    const qreal thresholdLowerHeight = (1.0 - m_lower_threshold) * legend_height;
+    const qreal thresholdUpperHeight = (1.0 - m_upper_threshold) * legend_height;
 
     m_bars.clear();
     m_bars.append(legend_x, thresholdLowerHeight);
@@ -159,7 +167,7 @@ void HeatMapLegendGL::generateBarAndTexts()
     m_bars.append(legend_x, thresholdUpperHeight);
     m_bars.append(legend_x + bars_width, thresholdUpperHeight);
 
-     // create text
+    // create text
     m_lower_text_position = QPointF(legend_x + bars_width, thresholdLowerHeight);
     m_upper_text_position = QPointF(legend_x + bars_width, thresholdUpperHeight);
 }

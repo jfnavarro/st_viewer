@@ -39,7 +39,8 @@ const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const
     return m_selectedGeneList;
 }
 
-const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy> dataProxy, QWidget *parent)
+const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy> dataProxy,
+                                                             QWidget *parent)
 {
     SelectionDialog dialog(dataProxy, parent);
     if (dialog.exec() == QDialog::Accepted) {

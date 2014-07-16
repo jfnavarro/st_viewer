@@ -19,10 +19,10 @@ namespace async
 {
 
 //NOTE for now DataRequest is synchronous,
-//it could be easily be made async (see commented code)
+//it could be easily be made async
 
-// this object is a simple wrapper for network reply to handle
-// asynchronus/syncrhonous downloads
+// this object is a simple wrapper for the status of network replies to handle
+// asynchronus/syncrhonous downloads and abort operations
 class DataRequest
 {
 public:

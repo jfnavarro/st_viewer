@@ -10,7 +10,8 @@
 #include <QGLPainter>
 
 GraphicItemGL::GraphicItemGL(QObject *parent) :
-    QObject(parent), m_anchor(Globals::Anchor::NorthWest)
+    QObject(parent),
+    m_anchor(Globals::Anchor::NorthWest)
 {
 
 }
@@ -27,7 +28,7 @@ GraphicItemGL::VisualOptions GraphicItemGL::visualOptions() const
 
 void GraphicItemGL::setVisualOptions(GraphicItemGL::VisualOptions visualOptions)
 {
-    if ( m_visualOptions != visualOptions ) {
+    if (m_visualOptions != visualOptions) {
         m_visualOptions = visualOptions;
         emit updated();
     }
@@ -37,7 +38,7 @@ void GraphicItemGL::setVisualOption(GraphicItemGL::VisualOption visualOption, bo
 {
     if (value) {
         m_visualOptions |= visualOption;
-     }
+    }
     else {
         m_visualOptions &= ~visualOption;
     }
@@ -121,41 +122,41 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     QTransform adjustedTransform = transform;
     switch (m_anchor)
     {
-        case Globals::Anchor::Center:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
-                                        (rect.y() + rect.height()) * -0.5);
-            break;
-        case Globals::Anchor::North:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
-            break;
-        case Globals::Anchor::NorthEast:
-            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
-            break;
-        case Globals::Anchor::East:
-            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
-                                        (rect.y() + rect.height()) * -0.5);
-            break;
-        case Globals::Anchor::SouthEast:
-            adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
-                                        (rect.y() + rect.height() + padding_y) * -1.0);
-            break;
-        case Globals::Anchor::South:
-            adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
-                                        (rect.y() + rect.height() + padding_y) * -1.0);
-            break;
-        case Globals::Anchor::SouthWest:
-            adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);
-            break;
-        case Globals::Anchor::West:
-            adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height()) * -0.5);
-            break;
-        case Globals::Anchor::NorthWest:
-            adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
-            break;
-        case Globals::Anchor::None:
-            // fall trough
-        default:
-            break;
+    case Globals::Anchor::Center:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
+                                    (rect.y() + rect.height()) * -0.5);
+        break;
+    case Globals::Anchor::North:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
+        break;
+    case Globals::Anchor::NorthEast:
+        adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
+        break;
+    case Globals::Anchor::East:
+        adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
+                                    (rect.y() + rect.height()) * -0.5);
+        break;
+    case Globals::Anchor::SouthEast:
+        adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
+                                    (rect.y() + rect.height() + padding_y) * -1.0);
+        break;
+    case Globals::Anchor::South:
+        adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
+                                    (rect.y() + rect.height() + padding_y) * -1.0);
+        break;
+    case Globals::Anchor::SouthWest:
+        adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);
+        break;
+    case Globals::Anchor::West:
+        adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height()) * -0.5);
+        break;
+    case Globals::Anchor::NorthWest:
+        adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
+        break;
+    case Globals::Anchor::None:
+        // fall trough
+    default:
+        break;
     }
     return adjustedTransform;
 }

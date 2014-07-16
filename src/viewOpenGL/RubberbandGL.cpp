@@ -22,24 +22,31 @@ RubberbandGL::RubberbandGL(QObject *parent)
     setVisualOption(GraphicItemGL::RubberBandable, false);
 }
 
-RubberbandGL::~RubberbandGL() {
+RubberbandGL::~RubberbandGL()
+{
 }
 
 const QRectF RubberbandGL::boundingRect() const
 {
+    //TODO should prob return m_rubberbandRect but it is not relevant
     return QRectF();
 }
 
 void RubberbandGL::setRubberbandRect(const QRectF rect)
 {
-    if ( m_rubberbandrect != rect ) {
-        m_rubberbandrect = rect;
+    if (m_rubberbandRect != rect) {
+        m_rubberbandRect = rect;
     }
 }
 
 void RubberbandGL::draw(QGLPainter *painter)
 {
-    if ( !m_rubberbandrect.isNull() && m_rubberbandrect.isValid() ) {
-        drawBorderRect(m_rubberbandrect, Qt::blue, painter);
+    if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
+        drawBorderRect(m_rubberbandRect, Qt::blue, painter);
     }
+}
+
+void RubberbandGL::setSelectionArea(const SelectionEvent *)
+{
+
 }
