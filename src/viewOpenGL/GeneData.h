@@ -56,7 +56,7 @@ public:
     void resetRefCount();
     void resetValues();
     void resetSelection(bool selected);
-    void resetVisible(bool visible);
+    //void resetVisible(bool visible);
 
 private:
 

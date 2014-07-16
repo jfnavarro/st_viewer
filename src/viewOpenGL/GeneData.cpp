@@ -15,7 +15,6 @@
 
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex0;
 static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex1;
-static const QGL::VertexAttribute visibleVertex = QGL::CustomVertex2;
 static const int QUAD_SIZE = 4;
 
 GeneData::GeneData()
@@ -59,7 +58,7 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
         //QGeometryData does not support int or bool types yet
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
-        appendAttribute(0.0, visibleVertex);
+        //appendAttribute(0.0, visibleVertex);
         m_refCount.append(0);
     }
     // return first index of the quad created
@@ -160,10 +159,10 @@ void GeneData::resetSelection(bool selected)
     }
 }
 
-void GeneData::resetVisible(bool visible)
-{
-    const float reset_value =  visible ? 1.0 : 0.0;
-    for(int i = 0; i < attributes(visibleVertex).count(); ++i) {
-        floatAttribute(i, visibleVertex) = reset_value;
-    }
-}
+//void GeneData::resetVisible(bool visible)
+//{
+//    const float reset_value =  visible ? 1.0 : 0.0;
+//    for(int i = 0; i < attributes(visibleVertex).count(); ++i) {
+//        floatAttribute(i, visibleVertex) = reset_value;
+//    }
+//}
