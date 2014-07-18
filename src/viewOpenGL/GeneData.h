@@ -35,19 +35,17 @@ public:
     void clearData();
 
     //adds a new geometry to the arrays
-    int addQuad(qreal x, qreal y, qreal size = 1.0f, QColor4ub color = Qt::white);
+    int addQuad(qreal x, qreal y, qreal size = 1.0, QColor4ub color = Qt::white);
 
     //update geometry
     void updateQuadSize(const int index, qreal x, qreal y, qreal size);
     void updateQuadColor(const int index, QColor4ub newcolor);
-    void updateQuadVisible(const int index, bool visible);
     void updateQuadSelected(const int index, bool selected);
     void updateQuadRefCount(const int index, int refcount);
     void updateQuadValue(const int index, int value);
 
     //some getters
     QColor4ub quadColor(const int index) const;
-    bool quadVisible(const int index) const;
     bool quadSelected(const int index) const;
     int quadRefCount(const int index) const;
     int quadValue(const int index) const;
@@ -56,7 +54,6 @@ public:
     void resetRefCount();
     void resetValues();
     void resetSelection(bool selected);
-    //void resetVisible(bool visible);
 
 private:
 

@@ -35,7 +35,7 @@ public:
                                   const Configuration &configurationManager, QObject* parent = 0);
     virtual ~AuthorizationManager();
 
-    //start the login process using the widget as parent is given
+    //start the login process using the widget as parent if given
     void start(QWidget *parent = 0);
 
     //clean access token
@@ -44,7 +44,7 @@ public:
     //true if the user is already authenticated
     bool isAuthenticated() const;
 
-    //force to log out and clean cache
+    //force to log out, shows the login dialog and clean cache
     void forceAuthentication(QWidget *parent = 0);
 
     //user acces token methods to check

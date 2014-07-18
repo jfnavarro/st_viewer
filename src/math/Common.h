@@ -47,6 +47,11 @@ inline const QSizeF clamp(const QSizeF& size,
     return clampSize;
 }
 
+inline int toGreyAverage(QRgb rgb)
+{
+    return (qRed(rgb) + qGreen(rgb) + qBlue(rgb)) / 3;
+}
+
 inline qreal qMod(qreal x, qreal y)
 {
     return x - y * qFloor(x / y);

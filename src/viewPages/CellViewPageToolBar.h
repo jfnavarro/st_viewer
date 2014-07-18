@@ -46,7 +46,6 @@ public:
     QMenu *m_menu_genePlotter;
     QAction *m_actionShow_showGrid;
     QAction *m_actionShow_showGenes;
-    QAction *m_actionColor_selectColorGenes;
     QAction *m_actionColor_selectColorGrid;
 
     QActionGroup *m_actionGroup_toggleVisualMode;

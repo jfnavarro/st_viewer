@@ -4,9 +4,8 @@
 attribute lowp vec4 qt_MultiTexCoord0;
 attribute lowp vec4 qt_Color;
 attribute highp vec4 qt_Vertex;
-attribute lowp float qt_Custom0;
+attribute lowp vec4 qt_Custom0;
 attribute lowp float qt_Custom1;
-attribute lowp float qt_Custom2;
 uniform mediump mat4 qt_ModelViewMatrix;
 uniform mediump mat4 qt_ModelViewProjectionMatrix;
 
@@ -22,7 +21,6 @@ uniform lowp int in_pooledUpper;
 uniform lowp int in_pooledLower;
 uniform lowp int in_shape;
 uniform lowp float in_intensity;
-uniform lowp vec4 in_values;
 uniform lowp float in_shine;
 
 //Some in-house functions
@@ -104,14 +102,11 @@ float computeDynamicRangeAlpha(inout float value, in float min_Value, in float m
 
 void main(void)
 {
-    outSelected = float(qt_Custom0);
     outColor = qt_Color;
-    bool visible = qt_Color.a != 0.0;
-    //bool visible = bool(qt_Custom2);
+    outSelected = float(qt_Custom0);
     textCoord = qt_MultiTexCoord0;
     outShape = float(in_shape);
     
-    // input parameters to compute color
     int geneMode = int(in_visualMode);
     float value = float(qt_Custom1);
     float upper_limit = float(in_pooledUpper);
@@ -119,34 +114,26 @@ void main(void)
     float shine = float(in_shine);
     
     // is visible?
-    if (!visible) {
+    if (value == 0.0 ||
+        ((value < in_pooledLower || value > in_pooledUpper)
+         && (geneMode == 1 || geneMode == 2))) {
         outColor.a = 0.0;
     }
-    else {
-    
-        //adjust color for globalMode
-        if (geneMode == 1) {
-            outColor.a = computeDynamicRangeAlpha(value, lower_limit, upper_limit)
-            + (1.0 - in_intensity);
-        }
-        else if (geneMode == 2) {
-            float nv = norm(value, lower_limit, upper_limit);
-            float wavel = sqrt(clamp(nv, 0.0, 1.0));
-            float nt = denorm(wavel, 380.0, 780.0);
-            outColor = createHeatMapColor(nt);
-            outColor.a = in_intensity;
-        }
-        else {
-            outColor.a = in_intensity;
-        }
-        
-        
-        if ( (value < in_pooledLower || value > in_pooledUpper)
-            && (geneMode == 1 || geneMode == 2)) {
-            outColor.a = 0.0;
-        }
-        
+    else if (geneMode == 1) {
+        outColor.a =
+            computeDynamicRangeAlpha(value, lower_limit, upper_limit) + (1.0 - in_intensity);
     }
+    else if (geneMode == 2) {
+        float nv = norm(value, lower_limit, upper_limit);
+        float wavel = sqrt(clamp(nv, 0.0, 1.0));
+        float nt = denorm(wavel, 380.0, 780.0);
+        outColor = createHeatMapColor(nt);
+        outColor.a = in_intensity;
+    }
+    else {
+        outColor.a = in_intensity;
+    }
+    
     
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
 }

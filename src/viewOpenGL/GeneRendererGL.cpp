@@ -17,15 +17,6 @@
 
 static const int INVALID_INDEX = -1;
 
-namespace {
-
-inline int toGreyAverage(QRgb rgb)
-{
-    return (qRed(rgb) + qGreen(rgb) + qBlue(rgb)) / 3;
-}
-
-}
-
 GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent),
       m_geneNode(nullptr),
@@ -97,6 +88,7 @@ void GeneRendererGL::clearData()
     //update shader
     setupShaders();
 
+    // set dirty to true when the geometry changes
     m_isDirty = true;
 }
 
@@ -116,14 +108,12 @@ void GeneRendererGL::setHitCount(int min, int max, int pooledMin, int pooledMax)
     m_thresholdUpper = max;
     m_pooledMax = pooledMax;
     m_thresholdUpperPooled = pooledMax;
-    m_isDirty = true;
 }
 
 void GeneRendererGL::setIntensity(qreal intensity)
 {
     if (m_intensity != intensity) {
         m_intensity = intensity;
-        m_isDirty = true;
         emit updated();
     }
 }
@@ -140,7 +130,6 @@ void GeneRendererGL::setShine(qreal shine)
 {
     if (m_shine != shine) {
         m_shine = shine;
-        m_isDirty = true;
         emit updated();
     }
 }
@@ -154,7 +143,7 @@ void GeneRendererGL::setUpperLimit(int limit)
     const qreal range_pooled = m_pooledMax - m_pooledMin;
     const qreal adjusted_limit_pooled =  (limit / offlimit) * range_pooled;
 
-    if (m_thresholdUpper != adjusted_limit) {
+    if (m_thresholdUpper != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdUpper = adjusted_limit;
         m_thresholdUpperPooled = adjusted_limit_pooled;
         updateVisual();
@@ -170,7 +159,7 @@ void GeneRendererGL::setLowerLimit(int limit)
     const qreal range_pooled = m_pooledMax - m_pooledMin;
     const qreal adjusted_limit_pooled =  (limit / offlimit) * range_pooled;
 
-    if (m_thresholdLower != adjusted_limit) {
+    if (m_thresholdLower != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdLower = adjusted_limit;
         m_thresholdLowerPooled = adjusted_limit_pooled;
         updateVisual();
@@ -289,6 +278,10 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             const int index = m_geneInfoById.value(feature); //the key should be present
             const int currentHits = feature->hits();
 
+            // if in normal mode and hits are outside
+            const bool offlimits =  m_visualMode == Globals::NormalMode
+                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper);
+
             // update values
             const int oldValue = m_geneData.quadValue(index);
             const int newValue = (oldValue + (selected ? currentHits : -currentHits));
@@ -297,8 +290,6 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             // update ref count
             const int oldRefCount = m_geneData.quadRefCount(index);
             int newRefCount = (oldRefCount + (selected ? 1 : -1));
-            const bool offlimits =  m_visualMode == Globals::NormalMode
-                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper);
             if (selected && offlimits) {
                 newRefCount = oldRefCount;
             }
@@ -315,12 +306,12 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             }
 
             // update visible
-            if (selected && newRefCount >= 1) {
-                m_geneData.updateQuadVisible(index, true);
-            }
-            else if (!selected && newRefCount == 0) {
-                m_geneData.updateQuadVisible(index, false);
-            }
+           // if (selected && newRefCount >= 1) {
+          //      m_geneData.updateQuadVisible(index, true);
+          //  }
+          //  else if (!selected && newRefCount == 0) {
+         //       m_geneData.updateQuadVisible(index, false);
+         //   }
         }
     }
 
@@ -373,10 +364,10 @@ void GeneRendererGL::updateVisual()
             QColor4ub color = m_geneData.quadColor(index);
             color = STMath::lerp(1.0 / qreal(newRefCount), color, featureColor);
             m_geneData.updateQuadColor(index, color);
-            m_geneData.updateQuadVisible(index, true);
-        } else {
-            m_geneData.updateQuadVisible(index, false);
-        }
+            //m_geneData.updateQuadVisible(index, true);
+        } //else {
+            //m_geneData.updateQuadVisible(index, false);
+       // }
     }
 
     m_isDirty = true;
@@ -476,7 +467,7 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
             geneSelectionsMap[gene].normalizedReads += adjustedReads;
             //qGray gives more weight to the green channel
             geneSelectionsMap[gene].pixeIntensity +=
-                    toGreyAverage(m_image.pixel(feature->x(), feature->y()));
+                    STMath::toGreyAverage(m_image.pixel(feature->x(), feature->y()));
             geneSelectionsMap[gene].count++;
         }
     }
@@ -498,7 +489,6 @@ const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
-    Q_ASSERT(!transform().isIdentity());
     // stores a local copy of the tissue image in genes cordinate space
     m_image = image.transformed(transform().inverted().toAffine());
 }
@@ -557,9 +547,9 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 
     }
 
+    m_isDirty = true;
     emit selectionUpdated();
     emit updated();
-    m_isDirty = true;
 }
 
 void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)

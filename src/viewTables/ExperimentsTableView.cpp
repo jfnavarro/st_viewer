@@ -28,7 +28,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
-    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::SingleSelection);
 

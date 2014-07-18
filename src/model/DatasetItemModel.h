@@ -34,7 +34,6 @@ public:
         UGenes = 6,
         Created = 7,
         LastModified = 8,
-        Comments = 9
     };
 
     explicit DatasetItemModel(QObject* parent = 0);

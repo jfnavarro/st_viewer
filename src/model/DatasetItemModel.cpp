@@ -16,7 +16,7 @@
 
 #include <set>
 
-static const int COLUMN_NUMBER = 10;
+static const int COLUMN_NUMBER = 9;
 
 DatasetItemModel::DatasetItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -56,7 +56,6 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         case UGenes: return item->statUniqueGenes();
         case Created: return item->created();
         case LastModified: return item->lastModified();
-        case Comments: return item->statComments();
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
@@ -78,7 +77,6 @@ QVariant DatasetItemModel::headerData(int section,
         case UGenes : return tr("Number of uniquely detected genes");
         case Created: return tr("Created at this date");
         case LastModified: return tr("Last Modified at this date");
-        case Comments: return tr("Comments");
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
@@ -94,7 +92,6 @@ QVariant DatasetItemModel::headerData(int section,
             case UGenes : return tr("Detected Genes");
             case Created: return tr("Created");
             case LastModified: return tr("Last Modified");
-            case Comments: return tr("Comments");
             default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
             }
         } else if (orientation == Qt::Vertical) {

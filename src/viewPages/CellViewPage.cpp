@@ -526,15 +526,16 @@ void CellViewPage::slotSaveImage()
 {
     QString filename =
             QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
-                                         QString("%1;;%2").
+                                         QString("%1;%2;%3").
                                          arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
-                                         arg(tr("PNG Image Files (*.png)")));
+                                         arg(tr("PNG Image Files (*.png)")).
+                                         arg(tr("BMP Image Files (*.bmp)")));
     // early out
     if (filename.isEmpty()) {
         return;
     }
     // append default extension
-    QRegExp regex("^.*\\.(jpg|jpeg|png)$", Qt::CaseInsensitive);
+    QRegExp regex("^.*\\.(jpg|jpeg|png|bmp)$", Qt::CaseInsensitive);
     if (!regex.exactMatch(filename)) {
         filename.append(".jpg");
     }

@@ -290,11 +290,18 @@ void stVi::initStyle()
 #ifdef Q_OS_MAC
     setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
+    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
     //NOTE this is actually pretty important
     QApplication::setAttribute(Qt::AA_NativeWindows, true);
-    //osx does not show icons on menus
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
+    //osx does not show icons on menus (seems to work now, not needed it seems)
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
+    //unhandled mouse events will not be translated
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
+    QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
+    //allows to create high-dpi pixmaps
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    //consistent font rendering
+    QApplication::setAttribute(Qt::AA_Use96Dpi, true);
      // no close icon on MAC
     setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint));
 #endif

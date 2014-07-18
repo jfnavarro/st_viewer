@@ -38,9 +38,9 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //create selections menu
     m_selectionMenu = new QPushButton(this);
     QMenu *selectionsMenu = new QMenu();
+    m_selectionMenu->setMenu(selectionsMenu);
     m_selectionMenu->setToolTip(tr("Selection options"));
     m_selectionMenu->setText(tr("Selection"));
-    m_selectionMenu->setMenu(selectionsMenu);
     m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
                                        tr("Select all rows"), m_genes_tableview, SLOT(selectAll()));
     m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
@@ -62,8 +62,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_actionMenu->menu()->addSeparator();
 
     //color action
-    ColorListEditor *colorList = new ColorListEditor(this);
-    QWidgetAction *widgetAction = new QWidgetAction(m_actionMenu);
+    QWidgetAction *widgetAction = new QWidgetAction(this);
+    ColorListEditor *colorList = new ColorListEditor();
     widgetAction->setDefaultWidget(colorList);
     m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")),
                                     tr("Set color of selected genes:"));

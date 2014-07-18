@@ -80,6 +80,7 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
 
     // send empty flags to ensure access token is not appended to request
+    //TODO make this syncrhonous
     NetworkReply *request =
             m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
 

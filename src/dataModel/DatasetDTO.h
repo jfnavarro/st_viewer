@@ -150,6 +150,7 @@ private:
         return newList;
     }
 
+    //TODO duplicated in other DTOs move to Utils class
     template<typename N>
     const QVector<N> unserializeVector(const QVariantList& serializedVector) const
     {

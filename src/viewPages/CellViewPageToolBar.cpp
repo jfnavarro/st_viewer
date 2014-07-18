@@ -96,7 +96,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter(nullptr),
     m_actionShow_showGrid(nullptr),
     m_actionShow_showGenes(nullptr),
-    m_actionColor_selectColorGenes(nullptr),
     m_actionColor_selectColorGrid(nullptr),
     m_actionGroup_toggleVisualMode(nullptr),
     m_actionShow_toggleNormal(nullptr),
@@ -155,7 +154,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter->addAction(m_actionShow_showGrid);
     m_menu_genePlotter->addAction(m_actionShow_showGenes);
     m_menu_genePlotter->addSeparator();
-    m_menu_genePlotter->addAction(m_actionColor_selectColorGenes);
     m_menu_genePlotter->addAction(m_actionColor_selectColorGrid);
     m_menu_genePlotter->addSeparator();
 
@@ -448,8 +446,6 @@ void CellViewPageToolBar::createActions()
     m_actionSelection_showSelectionDialog->setToolTip(tr("Shows a dialog to select genes by Reg. Exp."));
 
     // color dialogs
-    m_actionColor_selectColorGenes =
-            new QAction(QIcon(QStringLiteral(":/images/select-by-color-icon.png")), tr("Choose &Color Genes"), this);
     m_actionColor_selectColorGrid =
             new QAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Choose Color Grid"), this);
 

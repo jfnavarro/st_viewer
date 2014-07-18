@@ -15,6 +15,7 @@
 
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex0;
 static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex1;
+
 static const int QUAD_SIZE = 4;
 
 GeneData::GeneData()
@@ -55,12 +56,11 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
 
     // update custom vertex arrays
     for(int i = 0; i < QUAD_SIZE; i++) {
-        //QGeometryData does not support int or bool types yet
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
-        //appendAttribute(0.0, visibleVertex);
         m_refCount.append(0);
     }
+
     // return first index of the quad created
     return index_count;
 }
@@ -80,18 +80,10 @@ void GeneData::updateQuadColor(const int index, QColor4ub newcolor)
     }
 }
 
-void GeneData::updateQuadVisible(const int index, bool visible)
-{
-    for(int i = 0; i < QUAD_SIZE; i++) {
-        color(index + i).setAlphaF(visible ? 1.0 : 0.0);
-        //floatAttribute(index  + i, visibleVertex) = static_cast<float>(visible);
-    }
-}
-
 void GeneData::updateQuadSelected(const int index, bool selected)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
-        floatAttribute(index  + i, selectionVertex) = static_cast<float>(selected);
+        floatAttribute(index  + i, selectionVertex) = selected ? 1.0 : 0.0;
     }
 }
 
@@ -114,13 +106,6 @@ QColor4ub GeneData::quadColor(const int index) const
     return colorAt(index);
 }
 
-bool GeneData::quadVisible(const int index) const
-{
-    return colorAt(index).alphaF() != 0.0;
-    // all vertices has same value
-    //return floatAttributeAt(index, visibleVertex) == 1.0;
-}
-
 bool GeneData::quadSelected(const int index) const
 {
     // all vertices has same value
@@ -136,7 +121,7 @@ int GeneData::quadRefCount(const int index) const
 int GeneData::quadValue(const int index) const
 {
     // all vertices has same value
-    return floatAttributeAt(index, valuesVertex);
+    return static_cast<int>(floatAttributeAt(index, valuesVertex));
 }
 
 void GeneData::resetRefCount()
@@ -158,11 +143,3 @@ void GeneData::resetSelection(bool selected)
         floatAttribute(i, selectionVertex) = reset_value;
     }
 }
-
-//void GeneData::resetVisible(bool visible)
-//{
-//    const float reset_value =  visible ? 1.0 : 0.0;
-//    for(int i = 0; i < attributes(visibleVertex).count(); ++i) {
-//        floatAttribute(i, visibleVertex) = reset_value;
-//    }
-//}

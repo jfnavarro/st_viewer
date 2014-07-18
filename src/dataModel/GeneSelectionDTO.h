@@ -146,7 +146,8 @@ private:
         QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {
             QVariantList elementList = it->toList();
-            Q_ASSERT(elementList.size() == 4);
+            //TODO there seems to be some buggy selection items in the DB with 5 elements
+            Q_ASSERT(elementList.size() >= 4);
             const QString name = elementList.at(0).toString();
             const qreal reads = elementList.at(1).toDouble();
             const qreal normalizedReads = elementList.at(2).toDouble();
@@ -168,6 +169,7 @@ private:
         return newList;
     }
 
+    //TODO duplicated in other DTOs move to Utils class
     template<typename N>
     const QVector<N> unserializeVector(const QVariantList &serializedVector) const
     {

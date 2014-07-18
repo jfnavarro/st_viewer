@@ -31,7 +31,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     setShowGrid(true);
     sortByColumn(GeneSelectionItemModel::Name, Qt::AscendingOrder);
 
-    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);
 
