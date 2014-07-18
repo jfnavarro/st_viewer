@@ -114,9 +114,7 @@ void main(void)
     float shine = float(in_shine);
     
     // is visible?
-    if (value == 0.0 ||
-        ((value < in_pooledLower || value > in_pooledUpper)
-         && (geneMode == 1 || geneMode == 2))) {
+    if (value == 0.0) {
         outColor.a = 0.0;
     }
     else if (geneMode == 1) {

@@ -231,6 +231,18 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
             const int index = m_geneInfoById.value(feature); //the key should be present
             const int refCount = m_geneData.quadRefCount(index);
+            const int currentHits = feature->hits();
+            const int currentValue = m_geneData.quadValue(index);
+
+            // if in normal mode and hits are outside
+            const bool offlimits = (m_visualMode == Globals::NormalMode
+                                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
+                    || (m_visualMode != Globals::NormalMode
+                    && (currentValue < m_thresholdLowerPooled || currentValue > m_thresholdUpperPooled));
+
+            if (offlimits) {
+                continue;
+            }
 
             // update feature color
             const QColor oldQColor = feature->color();
@@ -278,40 +290,39 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             const int index = m_geneInfoById.value(feature); //the key should be present
             const int currentHits = feature->hits();
 
-            // if in normal mode and hits are outside
-            const bool offlimits =  m_visualMode == Globals::NormalMode
-                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper);
-
-            // update values
+            // compute values
             const int oldValue = m_geneData.quadValue(index);
             const int newValue = (oldValue + (selected ? currentHits : -currentHits));
-            m_geneData.updateQuadValue(index, newValue);
 
-            // update ref count
+            // compute ref count
             const int oldRefCount = m_geneData.quadRefCount(index);
-            int newRefCount = (oldRefCount + (selected ? 1 : -1));
-            if (selected && offlimits) {
-                newRefCount = oldRefCount;
+            const int newRefCount = (oldRefCount + (selected ? 1 : -1));
+
+            // if in normal mode and hits are outside
+            const bool offlimits = (m_visualMode == Globals::NormalMode
+                                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
+                    || (m_visualMode != Globals::NormalMode
+                    && (newValue < m_thresholdLowerPooled || newValue > m_thresholdUpperPooled));
+
+            if (offlimits) {
+                continue;
             }
+
+            //update value and ref count
+            m_geneData.updateQuadValue(index, newValue);
             m_geneData.updateQuadRefCount(index, newRefCount);
 
+            //update color
             if (newRefCount > 0) {
                 QColor4ub featureColor = QColor4ub(feature->color());
                 QColor4ub color = m_geneData.quadColor(index);
                 // inverse or normal color interpolation if selected
-                color = (selected && !offlimits) ?
+                color =  selected ?
                             STMath::lerp(1.0 / qreal(newRefCount), color, featureColor) :
                             STMath::invlerp(1.0 / qreal(oldRefCount), color, featureColor);
                 m_geneData.updateQuadColor(index, color);
             }
 
-            // update visible
-           // if (selected && newRefCount >= 1) {
-          //      m_geneData.updateQuadVisible(index, true);
-          //  }
-          //  else if (!selected && newRefCount == 0) {
-         //       m_geneData.updateQuadVisible(index, false);
-         //   }
         }
     }
 
@@ -343,31 +354,36 @@ void GeneRendererGL::updateVisual()
         const int index = m_geneInfoById.value(feature); //the key should be present
         const int currentHits = feature->hits();
 
-        // update values
+        // compute values
         const int oldValue = m_geneData.quadValue(index);
         const int newValue = (oldValue + (selected ? currentHits : 0));
-        m_geneData.updateQuadValue(index, newValue);
 
-        // update ref count
+        // compute ref count
         const int oldRefCount = m_geneData.quadRefCount(index);
         int newRefCount = oldRefCount + (selected ? 1 : 0);
-        const bool offlimits =  m_visualMode == Globals::NormalMode
-                && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper );
-        if ( selected && offlimits ) {
-            newRefCount = oldRefCount;
+
+        // if in normal mode and hits are outside
+        const bool offlimits = (m_visualMode == Globals::NormalMode
+                                && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
+                || (m_visualMode != Globals::NormalMode
+                && (newValue < m_thresholdLowerPooled || newValue > m_thresholdUpperPooled));
+
+        if (offlimits) {
+            continue;
         }
+
+        // update values
+        m_geneData.updateQuadValue(index, newValue);
+        // update ref count
         m_geneData.updateQuadRefCount(index, newRefCount);
 
         // update color && visible
-        if (selected && newRefCount > 0 && !offlimits) {
+        if (selected && newRefCount > 0) {
             const QColor4ub featureColor = QColor4ub(feature->color());
             QColor4ub color = m_geneData.quadColor(index);
             color = STMath::lerp(1.0 / qreal(newRefCount), color, featureColor);
             m_geneData.updateQuadColor(index, color);
-            //m_geneData.updateQuadVisible(index, true);
-        } //else {
-            //m_geneData.updateQuadVisible(index, false);
-       // }
+        }
     }
 
     m_isDirty = true;
