@@ -43,7 +43,7 @@ public:
     void selectFeatures(const DataProxy::FeatureList&);
 
     //returns the currently selected genes
-    const GeneSelection::selectedItemsList getSelectedIItems() const;
+    GeneSelection::selectedItemsList getSelectedIItems() const;
 
     //sets the local copy of the cell tissue image
     //be aware the local transformation matrix has been assigned
@@ -87,6 +87,10 @@ protected:
     const QRectF boundingRect() const override;
 
 private:
+
+    //helper function to test whether a feature is outside the threshold
+    //area or not
+    bool isFeatureOutsideRange(const int hits, const int totalValue);
 
     // internal rendering functions
     void updateSize();

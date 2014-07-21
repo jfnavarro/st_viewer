@@ -125,10 +125,10 @@ private:
 
     //TODO this could be done automatically in serializeVector() we just need to register
     //the selection metatype conversion
-    const QVariantList serializeSelectionVector(const QVector<SelectionType> &unserializedVector) const
+    const QVariantList serializeSelectionVector(const GeneSelection::selectedItemsList &unserializedVector) const
     {
         QVariantList newList;
-        foreach(const SelectionType &item, unserializedVector.toList()) {
+        foreach(const SelectionType &item, unserializedVector) {
             QVariantList itemList;
             itemList << item.name << item.reads << item.normalizedReads << item.pixeIntensity;
             newList << QVariant::fromValue(itemList);
@@ -138,10 +138,10 @@ private:
 
     //TODO this could be done automatically in serializeVector() we just need to register
     //the selection metatype conversion
-    const QVector<SelectionType> unserializeSelectionVector(const QVariantList &serializedVector) const
+    const GeneSelection::selectedItemsList unserializeSelectionVector(const QVariantList &serializedVector) const
     {
         // unserialize data
-        QVector<SelectionType> values;
+        GeneSelection::selectedItemsList values;
         QVariantList::const_iterator it;
         QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {

@@ -34,7 +34,7 @@ class GeneSelection
 
 public:
 
-    typedef QVector<SelectionType> selectedItemsList;
+    typedef QList<SelectionType> selectedItemsList;
 
     GeneSelection();
     explicit GeneSelection(const GeneSelection& other);

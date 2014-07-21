@@ -138,10 +138,8 @@ void GeneRendererGL::setUpperLimit(int limit)
 {   
     static const qreal offlimit =
             Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
-    const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (limit / offlimit) * range;
-    const qreal range_pooled = m_pooledMax - m_pooledMin;
-    const qreal adjusted_limit_pooled =  (limit / offlimit) * range_pooled;
+    const qreal adjusted_limit =  (limit / offlimit) * (m_max - m_min);
+    const qreal adjusted_limit_pooled =  (limit / offlimit) * (m_pooledMax - m_pooledMin);
 
     if (m_thresholdUpper != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdUpper = adjusted_limit;
@@ -154,10 +152,8 @@ void GeneRendererGL::setLowerLimit(int limit)
 {
     static const qreal offlimit =
             Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
-    const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (limit / offlimit) * range;
-    const qreal range_pooled = m_pooledMax - m_pooledMin;
-    const qreal adjusted_limit_pooled =  (limit / offlimit) * range_pooled;
+    const qreal adjusted_limit =  (limit / offlimit) * (m_max - m_min);
+    const qreal adjusted_limit_pooled =  (limit / offlimit) * (m_pooledMax - m_pooledMin);
 
     if (m_thresholdLower != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdLower = adjusted_limit;
@@ -203,7 +199,7 @@ void GeneRendererGL::updateSize()
     GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
     for( ; it != end; ++it) {
-        // update size of the shape
+        // update size of the quad for all features
         const int index = it.value();
         DataProxy::FeaturePtr feature = it.key();
         Q_ASSERT(!feature.isNull());
@@ -216,6 +212,11 @@ void GeneRendererGL::updateSize()
 
 void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 {
+    //TODO should return if an empty geneList
+    updateVisual();
+    return;
+
+    //iterate the list of genes
     foreach (DataProxy::GenePtr gene, geneList) {
         Q_ASSERT(!gene.isNull());
 
@@ -225,24 +226,14 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
         // is gene selected?
         const bool selected = gene->selected();
 
-        // iterate the features
+        // iterate the list of features for the specific gene
         foreach(DataProxy::FeaturePtr feature, features) {
             Q_ASSERT(!feature.isNull());
 
             const int index = m_geneInfoById.value(feature); //the key should be present
             const int refCount = m_geneData.quadRefCount(index);
-            const int currentHits = feature->hits();
-            const int currentValue = m_geneData.quadValue(index);
-
-            // if in normal mode and hits are outside
-            const bool offlimits = (m_visualMode == Globals::NormalMode
-                                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
-                    || (m_visualMode != Globals::NormalMode
-                    && (currentValue < m_thresholdLowerPooled || currentValue > m_thresholdUpperPooled));
-
-            if (offlimits) {
-                continue;
-            }
+            //const int currentHits = feature->hits();
+            //const int currentValue = m_geneData.quadValue(index);
 
             // update feature color
             const QColor oldQColor = feature->color();
@@ -251,7 +242,11 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
                 feature->color(geneQColor);
             }
 
-            // update the color if gene is visible and selected
+            //if (isFeatureOutsideRange(currentHits, currentValue)) {
+           //     continue;
+            //}
+
+            // update the color data
             if (selected && refCount > 0) {
                 QColor4ub color = m_geneData.quadColor(index);
                 if (refCount > 1) {
@@ -271,7 +266,12 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
 {
-    // clear previous selections when updating visible (expensive...)
+    //TODO should return if an empty geneList
+    updateVisual();
+    return;
+
+    // clear previous selections when updating visible
+    //TODO this is expensive, check if needed or find a way around
     clearSelection();
 
     foreach (DataProxy::GenePtr gene, geneList) {
@@ -292,25 +292,18 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
 
             // compute values
             const int oldValue = m_geneData.quadValue(index);
-            const int newValue = (oldValue + (selected ? currentHits : -currentHits));
-
+            const int newValue = oldValue + (selected ? currentHits : -currentHits);
             // compute ref count
             const int oldRefCount = m_geneData.quadRefCount(index);
-            const int newRefCount = (oldRefCount + (selected ? 1 : -1));
+            const int newRefCount = oldRefCount + (selected ? 1 : -1);
 
-            // if in normal mode and hits are outside
-            const bool offlimits = (m_visualMode == Globals::NormalMode
-                                    && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
-                    || (m_visualMode != Globals::NormalMode
-                    && (newValue < m_thresholdLowerPooled || newValue > m_thresholdUpperPooled));
-
-            if (offlimits) {
-                continue;
-            }
-
-            //update value and ref count
-            m_geneData.updateQuadValue(index, newValue);
+            //update ref count
             m_geneData.updateQuadRefCount(index, newRefCount);
+
+            if (!isFeatureOutsideRange(currentHits, newValue)) {
+                //update value
+                m_geneData.updateQuadValue(index, newValue);
+            }
 
             //update color
             if (newRefCount > 0) {
@@ -332,13 +325,15 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateVisual()
 {
-    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
+    const auto& features =
+            m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
     // reset ref count and values when updating visuals
     m_geneData.resetRefCount();
     m_geneData.resetValues();
 
-    // clear previous selections when updating visuals (expensive...)
+    // clear previous selections when updating visuals
+    //TODO this is expensive, check if needed or find a way around
     clearSelection();
 
     // iterate the features
@@ -356,28 +351,26 @@ void GeneRendererGL::updateVisual()
 
         // compute values
         const int oldValue = m_geneData.quadValue(index);
-        const int newValue = (oldValue + (selected ? currentHits : 0));
-
+        const int newValue = oldValue + (selected ? currentHits : 0);
         // compute ref count
         const int oldRefCount = m_geneData.quadRefCount(index);
-        int newRefCount = oldRefCount + (selected ? 1 : 0);
+        const int newRefCount = oldRefCount + (selected ? 1 : 0);
 
-        // if in normal mode and hits are outside
-        const bool offlimits = (m_visualMode == Globals::NormalMode
-                                && (currentHits < m_thresholdLower || currentHits > m_thresholdUpper))
-                || (m_visualMode != Globals::NormalMode
-                && (newValue < m_thresholdLowerPooled || newValue > m_thresholdUpperPooled));
+        // update feature color
+        if (feature->color() != gene->color()) {
+            feature->color(gene->color());
+        }
 
-        if (offlimits) {
+        if (isFeatureOutsideRange(currentHits, newValue)) {
             continue;
         }
 
-        // update values
-        m_geneData.updateQuadValue(index, newValue);
         // update ref count
         m_geneData.updateQuadRefCount(index, newRefCount);
+        // update values
+        m_geneData.updateQuadValue(index, newValue);
 
-        // update color && visible
+        // update color
         if (selected && newRefCount > 0) {
             const QColor4ub featureColor = QColor4ub(feature->color());
             QColor4ub color = m_geneData.quadColor(index);
@@ -422,12 +415,15 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
     DataProxy::FeatureList aggregateFeatureList;
     foreach(DataProxy::GenePtr gene, geneList) {
         Q_ASSERT(!gene.isNull());
-        aggregateFeatureList <<
+        if (gene->selected()) {
+            aggregateFeatureList <<
                                 m_dataProxy->getGeneFeatureList(m_dataProxy->getSelectedDataset(), gene->name());
+        }
     }
     selectFeatures(aggregateFeatureList);
 }
 
+//asssumes the genes of the given features are all selected
 void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
 {
     // unselect previous selection
@@ -436,18 +432,13 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, featureList) {
         Q_ASSERT(!feature.isNull());
-
         if (m_geneInfoById.contains(feature)) {
             const int index = m_geneInfoById.value(feature);
             const int refCount = m_geneData.quadRefCount(index);
             const int hits = feature->hits();
             const int value = m_geneData.quadValue(index);
             // do not select non-visible features or outside threshold
-            if (refCount <= 0
-                    || (m_visualMode == Globals::NormalMode
-                        && (hits < m_thresholdLower || hits > m_thresholdUpper) )
-                    || (m_visualMode != Globals::NormalMode
-                        && (value < m_thresholdLowerPooled || value > m_thresholdUpperPooled) )) {
+            if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
                 continue;
             }
             // make the selection
@@ -461,45 +452,33 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
     emit updated();
 }
 
-const GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
+GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
-    typedef QMap<QString, SelectionType> selectionGeneMap;
-
     // get the features
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
-    //TODO optimize with using STL
-    // aggregate all the selected features
-    selectionGeneMap geneSelectionsMap;
-    GeneSelection::selectedItemsList geneSelectionsList;
+    //TODO optimize with STL
+    //aggregate all the selected features
+    QMap<QString, SelectionType> geneSelectionsMap;
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
+        //assumes if a feature is selected, its gene is selected as well
         if (feature->selected()) {
             //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
             const int adjustedReads = std::min(feature->hits(), m_max);
             const QString gene = feature->gene();
-            geneSelectionsMap[gene].reads += adjustedReads;
-            geneSelectionsMap[gene].normalizedReads += adjustedReads;
-            //qGray gives more weight to the green channel
-            geneSelectionsMap[gene].pixeIntensity +=
-                    STMath::toGreyAverage(m_image.pixel(feature->x(), feature->y()));
             geneSelectionsMap[gene].count++;
+            geneSelectionsMap[gene].reads += adjustedReads;
+            geneSelectionsMap[gene].normalizedReads =
+                    geneSelectionsMap[gene].reads / (m_max * geneSelectionsMap[gene].count);
+            //qGray gives more weight to the green channel
+            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(feature->x(), feature->y()));
+            geneSelectionsMap[gene].name = gene;
         }
     }
 
-    // create selection list
-    selectionGeneMap::const_iterator it = geneSelectionsMap.begin();
-    selectionGeneMap::const_iterator end = geneSelectionsMap.end();
-    for( ; it != end; ++it) {
-        SelectionType selectionItem = it.value();
-        selectionItem.normalizedReads = selectionItem.normalizedReads / (m_max * selectionItem.count);
-        selectionItem.pixeIntensity = selectionItem.pixeIntensity / (255 * selectionItem.count);
-        selectionItem.name = it.key();
-        geneSelectionsList.append(selectionItem);
-    }
-
-    return geneSelectionsList;
+    return geneSelectionsMap.values();
 }
 
 void GeneRendererGL::setImage(const QImage &image)
@@ -533,33 +512,29 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         const int refCount = m_geneData.quadRefCount(index);
         const int value = m_geneData.quadValue(index);
 
-        const auto &featureList = m_geneInfoReverse.values(index);
-
-        // iterate all the features in the position to get the min value of hits
-        // TODO replace m_geneInfoReverse for a cache of index -> (min, max)
-        int hits = m_max;
-        foreach(DataProxy::FeaturePtr feature, featureList) {
-            hits = std::min(hits, feature->hits());
-        }
-
-        // do not select non-visible features or outside threshold
-        if (refCount <= 0
-                || (m_visualMode == Globals::NormalMode
-                    && (hits < m_thresholdLower || hits > m_thresholdUpper))
-                || (m_visualMode != Globals::NormalMode
-                    && (value < m_thresholdLowerPooled || value > m_thresholdUpperPooled)) ) {
+        if (refCount <= 0) {
             continue;
         }
 
-        // make the selection (update selected flag in features)
+        const auto &featureList = m_geneInfoReverse.values(index);
+        bool featuresWasSelected = false;
+        //TODO exclude selection not working now
         const bool isSelected = (mode == SelectionEvent::ExcludeSelection) ? false : true;
+
+        // iterate all the features in the position to select when possible
         foreach(DataProxy::FeaturePtr feature, featureList) {
-            //check the gene of the feature is selected
-            //TODO replace feature-gene text field for gene ptr
+            const int hits = feature->hits();
+            // do not select non-visible features or outside threshold
+            if (isFeatureOutsideRange(hits, value) ) {
+                continue;
+            }
             const auto gene = m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
-            feature->selected(isSelected && gene->selected());
+            const bool featureSelected = isSelected && gene->selected();
+            featuresWasSelected |= featureSelected;
+            feature->selected(featureSelected);
         }
-        m_geneData.updateQuadSelected(index, isSelected);
+
+        m_geneData.updateQuadSelected(index, featuresWasSelected);
 
     }
 
@@ -656,4 +631,13 @@ void GeneRendererGL::setShape(Globals::GeneShape shape)
         m_isDirty = true;
         emit updated();
     }
+}
+
+bool GeneRendererGL::isFeatureOutsideRange(const int hits, const int totalValue)
+{
+    // check if the feature is outside the threshold range
+    return ((m_visualMode == Globals::NormalMode
+             && (hits < m_thresholdLower || hits > m_thresholdUpper))
+            || (m_visualMode != Globals::NormalMode
+            && (totalValue < m_thresholdLowerPooled || totalValue > m_thresholdUpperPooled)));
 }
