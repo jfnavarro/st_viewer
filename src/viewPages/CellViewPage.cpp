@@ -118,8 +118,8 @@ void CellViewPage::onEnter()
     Q_ASSERT(!currentChip.isNull());
 
     const QTransform alignment = imageAlignment->alignment();
-    const qreal min = dataset->statisticsMin(); //1st quantile
-    const qreal max = dataset->statisticsMax(); // 2nd quantile;
+    const qreal min = dataset->statisticsMin();
+    const qreal max = dataset->statisticsMax();
     const qreal pooledMin = dataset->statisticsPooledMin();
     const qreal pooledMax = dataset->statisticsPooledMax();
 
@@ -166,8 +166,8 @@ void CellViewPage::onEnter()
 
 void CellViewPage::onExit()
 {
-    m_ui->genesWidget->clearFocus();
-    m_ui->selectionsWidget->clearFocus();
+    m_ui->genesWidget->clear();
+    m_ui->selectionsWidget->clear();
 }
 
 //TODO double check that showing a error message while having progress bar is OK

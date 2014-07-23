@@ -43,6 +43,10 @@ HeatMapLegendGL::~HeatMapLegendGL()
     m_texture.cleanupResources();
     m_texture.release();
     m_texture.clearImage();
+
+    m_textureText.cleanupResources();
+    m_textureText.release();
+    m_textureText.clearImage();
 }
 
 void HeatMapLegendGL::draw(QGLPainter *painter)
@@ -97,6 +101,7 @@ void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
 
 void HeatMapLegendGL::setLowerLimit(int limit)
 {
+    //TODO this formula might not be correct
     static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
             - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
@@ -110,6 +115,7 @@ void HeatMapLegendGL::setLowerLimit(int limit)
 
 void HeatMapLegendGL::setUpperLimit(int limit)
 {
+    //TODO this formula might not be correct
     static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
             - Globals::GENE_THRESHOLD_MIN;
     const qreal range = m_max - m_min;
@@ -188,8 +194,10 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     qpainter.drawText(textRect.x(), metrics.ascent(), str);
     qpainter.end();
 
-    QGLTexture2D texture;
-    texture.setImage(image);
+    m_textureText.cleanupResources();
+    m_textureText.release();
+    m_textureText.clearImage();
+    m_textureText.setImage(image);
     const int x = posn.x();
     const int y = posn.y();
 
@@ -209,9 +217,9 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     painter->setStandardEffect(QGL::FlatReplaceTexture2D);
     painter->setVertexAttribute(QGL::Position, vertices);
     painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
-    texture.bind();
+    m_textureText.bind();
     painter->draw(QGL::TriangleFan, vertices.size());
-    texture.release();
+    m_textureText.release();
 }
 
 const QRectF HeatMapLegendGL::boundingRect() const

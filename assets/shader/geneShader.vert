@@ -118,8 +118,9 @@ void main(void)
         outColor.a = 0.0;
     }
     else if (geneMode == 1) {
+        //add 0.1 to alpha to be able to show very lowly expressed genes
         outColor.a =
-            computeDynamicRangeAlpha(value, lower_limit, upper_limit) + (1.0 - in_intensity);
+            computeDynamicRangeAlpha(value, lower_limit, upper_limit) + (1.1 - in_intensity);
     }
     else if (geneMode == 2) {
         float nv = norm(value, lower_limit, upper_limit);

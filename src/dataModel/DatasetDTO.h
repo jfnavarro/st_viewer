@@ -37,6 +37,7 @@ class DatasetDTO : public QObject
     Q_PROPERTY(int unique_barcode_count READ statUniqueBarcodes WRITE statUniqueBarcodes)
     Q_PROPERTY(int unique_gene_count READ statUniqueGenes WRITE statUniqueGenes)
     Q_PROPERTY(QVariantList overall_hit_quartiles READ hitsQuartiles WRITE hitsQuartiles)
+    Q_PROPERTY(QVariantList gene_pooled_hit_quartiles READ hitsPooledQuartiles WRITE hitsPooledQuartiles)
     Q_PROPERTY(QString comment READ statComments WRITE statComments)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
     Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
@@ -62,7 +63,10 @@ public:
     void statGenes(int genes) { m_dataset.statGenes(genes); }
     void statUniqueBarcodes(int unique_barcodes) { m_dataset.statUniqueBarcodes(unique_barcodes); }
     void statUniqueGenes(int unique_genes) { m_dataset.statUniqueGenes(unique_genes); }
-    void hitsQuartiles(const QVariantList& hitQuartiles) { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
+    void hitsQuartiles(const QVariantList& hitQuartiles)
+        { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
+    void hitsPooledQuartiles(const QVariantList& hitPooledQuartiles)
+        { m_dataset.hitsPooledQuartiles(unserializeVector<qreal>(hitPooledQuartiles)); }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
     void enabled(const bool enabled) { m_dataset.enabled(enabled); }
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
@@ -84,6 +88,7 @@ public:
     int statUniqueBarcodes() const { return m_dataset.statUniqueBarcodes(); }
     int statUniqueGenes() const { return m_dataset.statUniqueGenes(); }
     const QVariantList hitsQuartiles() const { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
+    const QVariantList hitsPooledQuartiles() const { return serializeVector<qreal>(m_dataset.hitsPooledQuartiles()); }
     const QString statComments() const { return m_dataset.statComments(); }
     bool enabled() const { return m_dataset.enabled(); }
     const QVariantList oboFoundryTerms() const
@@ -112,6 +117,11 @@ public:
             hitsQuartiles.append(item);
         }
         jsonObj["overall_hit_quartiles"] = hitsQuartiles;
+        QJsonArray hitsPooledQuartiles;
+        foreach(const qreal &item, m_dataset.hitsPooledQuartiles()) {
+            hitsPooledQuartiles.append(item);
+        }
+        jsonObj["gene_pooled_hit_quartiles"] = hitsPooledQuartiles;
         jsonObj["comment"] = !statComments().isEmpty() ? QJsonValue(statComments()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
         QJsonArray oboTerms;

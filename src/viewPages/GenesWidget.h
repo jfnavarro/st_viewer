@@ -17,6 +17,7 @@ class QLineEdit;
 class GenesTableView;
 class GeneFeatureItemModel;
 class QSortFilterProxyModel;
+class ColorListEditor;
 
 //This widget is part of the CellView,
 //it is componsed of the Gene Table
@@ -30,6 +31,9 @@ public:
 
     explicit GenesWidget(QWidget *parent = 0);
     virtual ~GenesWidget();
+
+    //clear focus/status and selections
+    void clear();
 
 signals:
 
@@ -58,6 +62,7 @@ private slots:
     QPointer<QPushButton> m_actionMenu;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
+    QPointer<ColorListEditor> m_colorList;
 
     Q_DISABLE_COPY(GenesWidget)
 };

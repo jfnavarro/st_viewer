@@ -41,9 +41,9 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_selectionMenu->setMenu(selectionsMenu);
     m_selectionMenu->setToolTip(tr("Selection options"));
     m_selectionMenu->setText(tr("Selection"));
-    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
+    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/checkall.png")),
                                        tr("Select all rows"), m_genes_tableview, SLOT(selectAll()));
-    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")),
+    m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/checkall.png")),
                                        tr("Deselect all rows"), m_genes_tableview, SLOT(clearSelection()));
     geneListLayout->addWidget(m_selectionMenu);
 
@@ -56,25 +56,25 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     // add actions to act on selected rows
     QAction *showAllAction = m_actionMenu->menu()->addAction(
-                QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show selected genes"));
+                QIcon(QStringLiteral(":/images/visible.png")), tr("Show selected genes"));
     QAction *hideAllAction  = m_actionMenu->menu()->addAction(
-                QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Hide selected genes"));
+                QIcon(QStringLiteral(":/images/novisible.png")), tr("Hide selected genes"));
     m_actionMenu->menu()->addSeparator();
 
     //color action
     QWidgetAction *widgetAction = new QWidgetAction(this);
-    ColorListEditor *colorList = new ColorListEditor();
-    widgetAction->setDefaultWidget(colorList);
+    m_colorList = new ColorListEditor();
+    widgetAction->setDefaultWidget(m_colorList);
     m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")),
                                     tr("Set color of selected genes:"));
     //TODO have the color combobox in the same line as the text and/or make it less width and centered
     m_actionMenu->menu()->addAction(widgetAction);
 
     //show combobox when menu opens
-    connect(widgetAction, &QAction::triggered, [=]{ colorList->show(); });
+    connect(widgetAction, &QAction::triggered, [=]{ m_colorList->show(); });
     // QComboBox::activated is overloaded so we need a static_cast<>
-    connect(colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-            [=]() { slotSetColorAllSelected(colorList->color()); });
+    connect(m_colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
+            [=]() { slotSetColorAllSelected(m_colorList->color());});
 
     //adds the menu to the layout
     geneListLayout->addWidget(m_actionMenu);
@@ -126,6 +126,19 @@ GenesWidget::~GenesWidget()
 
     m_genes_tableview->deleteLater();
     m_genes_tableview = nullptr;
+
+    m_colorList->deleteLater();
+    m_colorList = nullptr;
+}
+
+void GenesWidget::clear()
+{
+    m_lineEdit->clearFocus();
+    m_lineEdit->clear();
+
+    m_colorList->setColor(Globals::DEFAULT_COLOR_GENE);
+
+    m_genes_tableview->clearSelection();
 }
 
 void GenesWidget::slotShowAllSelected()
@@ -141,11 +154,13 @@ void GenesWidget::slotHideAllSelected()
 void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
     getModel()->setGeneVisibility(m_genes_tableview->geneTableItemSelection(), visible);
+    m_genes_tableview->repaint();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
     getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
+    m_genes_tableview->repaint();
 }
 
 void GenesWidget::slotLoadModel(DataProxy::GeneList &geneList)

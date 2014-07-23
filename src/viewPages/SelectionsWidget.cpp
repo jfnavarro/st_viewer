@@ -88,6 +88,12 @@ SelectionsWidget::~SelectionsWidget()
     m_selections_tableview = nullptr;
 }
 
+void SelectionsWidget::clear()
+{
+    m_geneSelectionFilterLineEdit->clearFocus();
+    m_geneSelectionFilterLineEdit->clear();
+}
+
 void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &geneList)
 {
     getModel()->loadSelectedGenes(geneList);

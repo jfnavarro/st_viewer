@@ -6,9 +6,11 @@
 */
 
 #include "Dataset.h"
+
 #include <QStringList>
 #include <QVariant>
 #include <QDate>
+#include <QDebug>
 
 Dataset::Dataset()
     : m_id(),
@@ -43,6 +45,7 @@ Dataset::Dataset(const Dataset& other)
     m_statSpecie = other.m_statSpecie;
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
+    m_geneHitsQuartiles = other.m_geneHitsQuartiles;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
     m_enabled = other.m_enabled;
     m_grantedAccounts = other.m_grantedAccounts;
@@ -69,6 +72,7 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_statSpecie = other.m_statSpecie;
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
+    m_geneHitsQuartiles = other.m_geneHitsQuartiles;
     m_genePooledHitsQuartiles = other.m_genePooledHitsQuartiles;
     m_enabled = other.m_enabled;
     m_grantedAccounts = other.m_grantedAccounts;
@@ -92,6 +96,7 @@ bool Dataset::operator==(const Dataset& other) const
                m_statSpecie == other.m_statSpecie &&
                m_statComments == other.m_statComments &&
                m_oboFroundryTerms == other.m_oboFroundryTerms &&
+                m_geneHitsQuartiles == other.m_geneHitsQuartiles &&
                m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles &&
                m_enabled == other.m_enabled &&
                m_grantedAccounts == other.m_grantedAccounts &&
@@ -157,6 +162,11 @@ const QVector<QString> Dataset::oboFoundryTerms() const
 }
 
 const QVector<qreal> Dataset::hitsQuartiles() const
+{
+    return m_geneHitsQuartiles;
+}
+
+const QVector<qreal> Dataset::hitsPooledQuartiles() const
 {
     return m_genePooledHitsQuartiles;
 }
@@ -243,7 +253,12 @@ void Dataset::oboFoundryTerms(const QVector<QString>& oboFoundryTerms)
 
 void Dataset::hitsQuartiles(const QVector<qreal>& hitsQuartiles)
 {
-    m_genePooledHitsQuartiles = hitsQuartiles;
+    m_geneHitsQuartiles = hitsQuartiles;
+}
+
+void Dataset::hitsPooledQuartiles(const QVector<qreal>& hitsPooledQuartiles)
+{
+    m_genePooledHitsQuartiles = hitsPooledQuartiles;
 }
 
 void Dataset::enabled(const bool enabled)
@@ -273,21 +288,21 @@ void Dataset::lastModified(const QString& lastModified)
 
 qreal Dataset::statisticsMin() const
 {
-    Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
+    Q_ASSERT(m_geneHitsQuartiles.size() == 5);
     // max ( q1 - 1.5 * (q3-q1), q0 )
-    const qreal q0 = m_genePooledHitsQuartiles.at(0);
-    const qreal q1 = m_genePooledHitsQuartiles.at(1);
-    const qreal q3 = m_genePooledHitsQuartiles.at(3);
+    const qreal q0 = m_geneHitsQuartiles.at(0);
+    const qreal q1 = m_geneHitsQuartiles.at(1);
+    const qreal q3 = m_geneHitsQuartiles.at(3);
     return std::max(q1 - 1.5 * (q3 - q1), q0);
 }
 
 qreal Dataset::statisticsMax() const
 {
-    Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
+    Q_ASSERT(m_geneHitsQuartiles.size() == 5);
     // min ( q3 + 1.5 * (q3-q1), q4 )
-    const qreal q4 = m_genePooledHitsQuartiles.at(4);
-    const qreal q1 = m_genePooledHitsQuartiles.at(1);
-    const qreal q3 = m_genePooledHitsQuartiles.at(3);
+    const qreal q4 = m_geneHitsQuartiles.at(4);
+    const qreal q1 = m_geneHitsQuartiles.at(1);
+    const qreal q3 = m_geneHitsQuartiles.at(3);
     return std::min(q3 + 1.5 * (q3 - q1), q4);
 }
 

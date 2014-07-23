@@ -301,7 +301,7 @@ void stVi::initStyle()
     //allows to create high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     //consistent font rendering
-    QApplication::setAttribute(Qt::AA_Use96Dpi, true);
+    QApplication::setAttribute(Qt::AA_Use96Dpi, false);
      // no close icon on MAC
     setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint));
 #endif

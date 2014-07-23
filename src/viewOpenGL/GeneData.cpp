@@ -58,7 +58,7 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
     for(int i = 0; i < QUAD_SIZE; i++) {
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
-        m_refCount.append(0);
+        m_refCount.append(0.0);
     }
 
     // return first index of the quad created
@@ -82,22 +82,23 @@ void GeneData::updateQuadColor(const int index, QColor4ub newcolor)
 
 void GeneData::updateQuadSelected(const int index, bool selected)
 {
+    const float value =  selected ? 1.0 : 0.0;
     for(int i = 0; i < QUAD_SIZE; i++) {
-        floatAttribute(index  + i, selectionVertex) = selected ? 1.0 : 0.0;
+        floatAttribute(index  + i, selectionVertex) = value;
     }
 }
 
-void GeneData::updateQuadRefCount(const int index, int refcount)
+void GeneData::updateQuadRefCount(const int index, float refcount)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
         m_refCount[index + i] = refcount;
     }
 }
 
-void GeneData::updateQuadValue(const int index, int value)
+void GeneData::updateQuadValue(const int index, float value)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
-        floatAttribute(index + i , valuesVertex) = static_cast<float>(value);
+        floatAttribute(index + i , valuesVertex) = value;
     }
 }
 
@@ -112,16 +113,16 @@ bool GeneData::quadSelected(const int index) const
     return floatAttributeAt(index, selectionVertex) == 1.0;
 }
 
-int GeneData::quadRefCount(const int index) const
+float GeneData::quadRefCount(const int index) const
 {
     // all vertices has same value
     return m_refCount.at(index);
 }
 
-int GeneData::quadValue(const int index) const
+float GeneData::quadValue(const int index) const
 {
     // all vertices has same value
-    return static_cast<int>(floatAttributeAt(index, valuesVertex));
+    return floatAttributeAt(index, valuesVertex);
 }
 
 void GeneData::resetRefCount()
@@ -138,8 +139,8 @@ void GeneData::resetValues()
 
 void GeneData::resetSelection(bool selected)
 {
-    const float reset_value =  selected ? 1.0 : 0.0;
+    const float value =  selected ? 1.0 : 0.0;
     for(int i = 0; i < attributes(selectionVertex).count(); ++i) {
-        floatAttribute(i, selectionVertex) = reset_value;
+        floatAttribute(i, selectionVertex) = value;
     }
 }

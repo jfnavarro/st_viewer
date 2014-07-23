@@ -32,6 +32,9 @@ public:
     explicit SelectionsWidget(QWidget *parent = 0);
     virtual ~SelectionsWidget();
 
+    //clear focus/status and selections
+    void clear();
+
 public slots:
 
     void slotLoadModel(const GeneSelection::selectedItemsList &geneList);

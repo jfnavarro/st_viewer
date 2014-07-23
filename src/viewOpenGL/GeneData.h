@@ -27,7 +27,7 @@ public:
 
     //ref count represents how many times a
     //certain position(feature) is being shown
-    typedef QArray<GLint> refCountType;
+    typedef QArray<qreal> refCountType;
 
     GeneData();
     virtual ~GeneData();
@@ -41,14 +41,14 @@ public:
     void updateQuadSize(const int index, qreal x, qreal y, qreal size);
     void updateQuadColor(const int index, QColor4ub newcolor);
     void updateQuadSelected(const int index, bool selected);
-    void updateQuadRefCount(const int index, int refcount);
-    void updateQuadValue(const int index, int value);
+    void updateQuadRefCount(const int index, float refcount);
+    void updateQuadValue(const int index, float value);
 
     //some getters
     QColor4ub quadColor(const int index) const;
     bool quadSelected(const int index) const;
-    int quadRefCount(const int index) const;
-    int quadValue(const int index) const;
+    float quadRefCount(const int index) const;
+    float quadValue(const int index) const;
 
     //reset functions for custom arrays
     void resetRefCount();

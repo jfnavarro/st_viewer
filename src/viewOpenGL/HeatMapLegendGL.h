@@ -70,6 +70,7 @@ private:
     QPointF m_lower_text_position;
     QString m_upper_text;
     QPointF m_upper_text_position;
+    QGLTexture2D m_textureText;
 
     Q_DISABLE_COPY(HeatMapLegendGL)
 };

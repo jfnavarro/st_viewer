@@ -169,7 +169,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     //threshold slider
     Q_ASSERT(m_geneHitsThreshold == nullptr);
     m_geneHitsThreshold = new SpinBoxSlider(this);
-    m_geneHitsThreshold->setToolTip(tr("Limit of the number of transcripts."));
+    m_geneHitsThreshold->setToolTip(
+                tr("Limit of the number of transcripts (numbers represent percentage not real read counts)."));
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
 
     // transcripts intensity
@@ -350,7 +351,7 @@ void CellViewPageToolBar::createActions()
             new QAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show Grid"), this);
     m_actionShow_showGrid->setCheckable(true);
     m_actionShow_showGenes =
-            new QAction(QIcon(QStringLiteral(":/images/genes.png")), tr("Show &Genes"), this);
+            new QAction(QIcon(QStringLiteral(":/images/genes.png")), tr("Show Genes"), this);
     m_actionShow_showGenes->setCheckable(true);
 
     //zomming
@@ -363,13 +364,13 @@ void CellViewPageToolBar::createActions()
 
     //cell tissue controls
     m_actionShow_cellTissueBlue =
-            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Load &Blue Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Load Blue Cell Tissue"), this);
     m_actionShow_cellTissueBlue->setCheckable(true);
     m_actionShow_cellTissueRed =
-            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")), tr("Load &Red Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")), tr("Load Red Cell Tissue"), this);
     m_actionShow_cellTissueRed->setCheckable(true);
     m_actionShow_showCellTissue =
-            new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell &Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell Tissue"), this);
     m_actionShow_showCellTissue->setCheckable(true);
 
     // navigation push buttons
@@ -381,28 +382,35 @@ void CellViewPageToolBar::createActions()
     //color modes
     m_actionShow_toggleNormal =
             new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
+    m_actionShow_toggleNormal->setToolTip(tr("Color mode where the genes are treated individually per feature."));
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
     m_actionShow_toggleDynamicRange =
             new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
+    m_actionShow_toggleDynamicRange->setToolTip(tr("Color mode where the features tranparency is related to the level of expression."));
     m_actionShow_toggleDynamicRange->setCheckable(true);
     m_actionShow_toggleDynamicRange->setProperty("mode", Globals::GeneVisualMode::DynamicRangeMode);
     m_actionShow_toggleHeatMap =
             new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
+    m_actionShow_toggleHeatMap->setToolTip(tr("Color mode where the color is computed according to the level of expression."));
     m_actionShow_toggleHeatMap->setCheckable(true);
     m_actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
 
     // legend position
-    m_action_toggleLegendTopRight = new QAction(QIcon(), tr("Legend North East"), this);
+    m_action_toggleLegendTopRight = new QAction(QIcon(), tr("Legend Top Right Corner"), this);
+    m_action_toggleLegendTopRight->setToolTip(tr("Places the legend on the top right part of the canvas"));
     m_action_toggleLegendTopRight->setCheckable(true);
     m_action_toggleLegendTopRight->setProperty("mode", Globals::Anchor::NorthEast);
-    m_action_toggleLegendTopLeft = new QAction(QIcon(), tr("Legend North West"), this);
+    m_action_toggleLegendTopLeft = new QAction(QIcon(), tr("Legend Top Left Corner"), this);
+    m_action_toggleLegendTopLeft->setToolTip(tr("Places the legend on the top left part of the canvas"));
     m_action_toggleLegendTopLeft->setCheckable(true);
     m_action_toggleLegendTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
-    m_action_toggleLegendDownRight = new QAction(QIcon(), tr("Legend South East"), this);
+    m_action_toggleLegendDownRight = new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
+    m_action_toggleLegendDownRight->setToolTip(tr("Places the legend on the bottom right part of the canvas"));
     m_action_toggleLegendDownRight->setCheckable(true);
     m_action_toggleLegendDownRight->setProperty("mode", Globals::Anchor::SouthEast);
-    m_action_toggleLegendDownLeft= new QAction(QIcon(), tr("Legend South West"), this);
+    m_action_toggleLegendDownLeft= new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
+    m_action_toggleLegendDownLeft->setToolTip(tr("Places the legend on the bottom left part of the canvas"));
     m_action_toggleLegendDownLeft->setCheckable(true);
     m_action_toggleLegendDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
 
@@ -411,16 +419,20 @@ void CellViewPageToolBar::createActions()
     m_actionShow_showLegend->setCheckable(true);
 
     // minimap position
-    m_action_toggleMinimapTopRight = new QAction(QIcon(), tr("Minimap North East"), this);
+    m_action_toggleMinimapTopRight = new QAction(QIcon(), tr("Minimap Top Right Corner"), this);
+    m_action_toggleMinimapTopRight->setToolTip(tr("Places the minimap on the top right part of the canvas"));
     m_action_toggleMinimapTopRight->setCheckable(true);
     m_action_toggleMinimapTopRight->setProperty("mode", Globals::Anchor::NorthEast);
-    m_action_toggleMinimapTopLeft = new QAction(QIcon(), tr("Minimap North West"), this);
+    m_action_toggleMinimapTopLeft = new QAction(QIcon(), tr("Minimap Top Left Corner"), this);
+    m_action_toggleMinimapTopLeft->setToolTip(tr("Places the minimap on the top left part of the canvas"));
     m_action_toggleMinimapTopLeft->setCheckable(true);
     m_action_toggleMinimapTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
-    m_action_toggleMinimapDownRight = new QAction(QIcon(), tr("Minimap South East"), this);
+    m_action_toggleMinimapDownRight = new QAction(QIcon(), tr("Bottom Right Corner"), this);
+    m_action_toggleMinimapDownRight->setToolTip(tr("Places the minimap on the bottom right part of the canvas"));
     m_action_toggleMinimapDownRight->setCheckable(true);
     m_action_toggleMinimapDownRight->setProperty("mode", Globals::Anchor::SouthEast);
-    m_action_toggleMinimapDownLeft= new QAction(QIcon(), tr("Minimap South West"), this);
+    m_action_toggleMinimapDownLeft= new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
+    m_action_toggleMinimapDownLeft->setToolTip(tr("Places the minimap on the bottom left part of the canvas"));
     m_action_toggleMinimapDownLeft->setCheckable(true);
     m_action_toggleMinimapDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
 

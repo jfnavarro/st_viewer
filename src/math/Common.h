@@ -95,10 +95,10 @@ inline const T denorm(const R nv, const T t0, const T t1)
 inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
     return QColor4ub(
-                (c0.red() + (c1.red() - c0.red()) * t),
-                (c0.green() + (c1.green() - c0.green()) * t),
-                (c0.blue() + (c1.blue() - c0.blue()) * t),
-                (c0.alpha() + (c1.alpha() - c0.alpha()) * t)
+                (c0.red() + ((c1.red() - c0.red()) * t)),
+                (c0.green() + ((c1.green() - c0.green()) * t)),
+                (c0.blue() + ((c1.blue() - c0.blue()) * t)),
+                (c0.alpha() + ((c1.alpha() - c0.alpha()) * t))
                 );
 }
 
@@ -106,10 +106,10 @@ inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4
 {
     const qreal invt = 1.0 / (1.0 - t);
     return QColor4ub(
-                (c0.red() - t * c1.red()) * invt,
-                (c0.green() - t * c1.green()) * invt,
-                (c0.blue() - t * c1.blue()) * invt,
-                (c0.alpha() - t * c1.alpha()) * invt
+                (c0.red() - (t * c1.red())) * invt,
+                (c0.green() - (t * c1.green())) * invt,
+                (c0.blue() - (t * c1.blue())) * invt,
+                (c0.alpha() - (t * c1.alpha())) * invt
                 );
 }
 

@@ -56,6 +56,9 @@
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
     <file alias="images/clear2.png">${PROJECT_SOURCE_DIR}/assets/images/clear2.png</file>
     <file alias="images/qtlogo.png">${PROJECT_SOURCE_DIR}/assets/images/qtlogo.png</file>
+    <file alias="images/checkall.png">${PROJECT_SOURCE_DIR}/assets/images/checkall.png</file>
+    <file alias="images/visible.png">${PROJECT_SOURCE_DIR}/assets/images/visible.png</file>
+    <file alias="images/novisible.png">${PROJECT_SOURCE_DIR}/assets/images/novisible.png</file>
     <file alias="images/file_export.png">${PROJECT_SOURCE_DIR}/assets/images/file_export.png</file>
     <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>

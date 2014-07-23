@@ -29,6 +29,8 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
     m_spanslider->setTickPosition(QSlider::TicksAbove);
     m_spanslider->setHandleMovementMode(QxtSpanSlider::NoOverlapping);
 
+    setMaximumValue(Globals::GENE_THRESHOLD_MAX);
+    setMinimumValue(Globals::GENE_THRESHOLD_MIN);
     setLowerValuePrivate(Globals::GENE_THRESHOLD_MIN);
     setUpperValuePrivate(Globals::GENE_THRESHOLD_MAX);
 
@@ -88,7 +90,6 @@ void SpinBoxSlider::setLowerValuePrivate(const int value)
     m_spanslider->setLowerPosition(value);
     m_spanslider->setLowerValue(value);
     m_left_spinbox->setValue(value);
-    m_right_spinbox->setMinimum(value + 1);
     emit lowerValueChanged(value);
 }
 
@@ -98,7 +99,6 @@ void SpinBoxSlider::setUpperValuePrivate(const int value)
     m_spanslider->setUpperPosition(value);
     m_spanslider->setUpperValue(value);
     m_right_spinbox->setValue(value);
-    m_left_spinbox->setMaximum(value - 1);
     emit upperValueChanged(value);
 }
 

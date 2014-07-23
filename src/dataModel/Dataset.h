@@ -38,6 +38,7 @@ public:
     const QString statComments() const;
     const QVector<QString> oboFoundryTerms() const;
     const QVector<qreal> hitsQuartiles() const;
+    const QVector<qreal> hitsPooledQuartiles() const;
     bool enabled() const;
     const QVector<QString> grantedAccounts() const;
     const QString createdByAccount() const;
@@ -56,6 +57,7 @@ public:
     void statComments(const QString& statComments);
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
+    void hitsPooledQuartiles(const QVector<qreal>& hitsPooledQuartiles);
     void enabled(const bool enabled);
     void grantedAccounts(const QVector<QString> &grantedAccounts);
     void createdByAccount(const QString& created);
@@ -81,6 +83,7 @@ private:
     QString m_statSpecie;
     QString m_statComments;
     QVector<QString> m_oboFroundryTerms;
+    QVector<qreal> m_geneHitsQuartiles;
     QVector<qreal> m_genePooledHitsQuartiles;
     bool m_enabled;
     QVector<QString> m_grantedAccounts;
