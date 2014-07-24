@@ -145,7 +145,7 @@ void ExperimentPage::slotRemoveSelection()
     selectionItem->enabled(false);
 
     //update the selection object
-    setWaiting(true);
+    setWaiting(true, "Removing selection....");
     async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
     setWaiting(false);
 
@@ -230,7 +230,7 @@ void ExperimentPage::slotEditSelection()
             selectionItem->comment(createSelection->getComment());
 
             //update the dataset
-            setWaiting(true);
+            setWaiting(true, "Updating selection...");
             async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
             setWaiting(false);
 

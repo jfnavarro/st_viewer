@@ -18,6 +18,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+//TODO move declarations to CPP and/or consider removing DTOs
 class FeatureDTO : public QObject
 {
     Q_OBJECT
@@ -25,7 +26,7 @@ class FeatureDTO : public QObject
     Q_PROPERTY(QString id READ id WRITE id)
     Q_PROPERTY(QString barcode READ barcode WRITE barcode)
     Q_PROPERTY(QString gene READ gene WRITE gene)
-    //Q_PROPERTY(QString annotation READ annotation WRITE annotation)
+    Q_PROPERTY(QString annotation READ annotation WRITE annotation)
     Q_PROPERTY(int hits READ hits WRITE hits)
     Q_PROPERTY(int x READ x WRITE x)
     Q_PROPERTY(int y READ y WRITE y)

@@ -32,11 +32,13 @@ public:
 
 signals:
 
+    //TODO signals should have prefix "signal"
     void lowerValueChanged(int);
     void upperValueChanged(int);
 
 public slots:
     
+    //TODO slots should have prefix "slot"
     void setLowerValue(const int min);
     void setUpperValue(const int max);
 

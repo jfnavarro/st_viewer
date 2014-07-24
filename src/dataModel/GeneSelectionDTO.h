@@ -25,6 +25,7 @@
 
 Q_DECLARE_METATYPE(SelectionType)
 
+//TODO move declarations to CPP and/or consider removing DTOs
 class GeneSelectionDTO : public QObject
 {
     Q_OBJECT
@@ -125,7 +126,8 @@ private:
 
     //TODO this could be done automatically in serializeVector() we just need to register
     //the selection metatype conversion
-    const QVariantList serializeSelectionVector(const GeneSelection::selectedItemsList &unserializedVector) const
+    const QVariantList
+    serializeSelectionVector(const GeneSelection::selectedItemsList &unserializedVector) const
     {
         QVariantList newList;
         foreach(const SelectionType &item, unserializedVector) {
@@ -138,7 +140,8 @@ private:
 
     //TODO this could be done automatically in serializeVector() we just need to register
     //the selection metatype conversion
-    const GeneSelection::selectedItemsList unserializeSelectionVector(const QVariantList &serializedVector) const
+    const GeneSelection::selectedItemsList
+    unserializeSelectionVector(const QVariantList &serializedVector) const
     {
         // unserialize data
         GeneSelection::selectedItemsList values;

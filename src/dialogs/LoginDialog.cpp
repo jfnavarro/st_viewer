@@ -23,12 +23,12 @@
 
 LoginDialog::LoginDialog(QWidget *parent):
     QDialog(parent),
-    ui(nullptr),
+    m_ui(nullptr),
     m_completer(nullptr)
 {
     //init UI
-    ui = new Ui::LogIn();
-    ui->setupUi(this);
+    m_ui = new Ui::LogIn();
+    m_ui->setupUi(this);
 
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
                                     QApplication::desktop()->availableGeometry()));
@@ -37,13 +37,13 @@ LoginDialog::LoginDialog(QWidget *parent):
     loadUsers();
 
     //set the completer to the username field
-    ui->username->setCompleter(m_completer.data());
+    m_ui->username->setCompleter(m_completer.data());
 
     // connects slots
     //TODO user QDialog signals instead
-    connect(ui->buttons->button(QDialogButtonBox::Cancel),
+    connect(m_ui->buttons->button(QDialogButtonBox::Cancel),
             SIGNAL(clicked()), this, SIGNAL(exitLogin()));
-    connect(ui->buttons->button(QDialogButtonBox::Ok),
+    connect(m_ui->buttons->button(QDialogButtonBox::Ok),
             SIGNAL(clicked()), this, SLOT(slotAcceptLogin()));
 }
 
@@ -52,8 +52,8 @@ LoginDialog::~LoginDialog()
     //save users
     saveUsers();
     //delete ui objects
-    delete ui;
-    ui = nullptr;
+    delete m_ui;
+    m_ui = nullptr;
     //delete completer
     m_completer->deleteLater();
     m_completer = nullptr;
@@ -61,23 +61,23 @@ LoginDialog::~LoginDialog()
 
 void LoginDialog::clear()
 {
-    ui->username->clear();
-    ui->password->clear();
+    m_ui->username->clear();
+    m_ui->password->clear();
 }
 
 void LoginDialog::setUsername(const QString &username)
 {
-    ui->username->setText(username);
+    m_ui->username->setText(username);
 }
 
 const QString LoginDialog::getCurrentUser() const
 {
-    return ui->username->text();
+    return m_ui->username->text();
 }
 
 const QString LoginDialog::getCurrentPassword() const
 {
-    return ui->password->text();
+    return m_ui->password->text();
 }
 
 void LoginDialog::loadUsers()
@@ -94,7 +94,7 @@ void LoginDialog::saveUsers()
     //TODO check if the user is present already
     QSettings settings;
     QStringList users = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
-    const QString username = ui->username->text();
+    const QString username = m_ui->username->text();
     qDebug() << "[LoginDialog] Saving User = " << username;
     users.append(username);
     settings.setValue(Globals::SettingsUsers, users);
@@ -102,12 +102,12 @@ void LoginDialog::saveUsers()
 
 void LoginDialog::setPassword(const QString &password)
 {
-    ui->password->setText(password);
+    m_ui->password->setText(password);
 }
 
 void LoginDialog::slotAcceptLogin()
 {
-    emit acceptLogin(ui->username->text(), ui->password->text());
+    emit acceptLogin(m_ui->username->text(), m_ui->password->text());
     // close this dialog
     close();
 }

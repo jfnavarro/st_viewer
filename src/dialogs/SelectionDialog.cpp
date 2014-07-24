@@ -8,7 +8,8 @@
 #include "SelectionDialog.h"
 #include "ui_selectiondialog.h"
 
-SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy, QWidget *parent, Qt::WindowFlags f) :
+SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
+                                 QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(nullptr),
     m_includeAmbiguous(false),

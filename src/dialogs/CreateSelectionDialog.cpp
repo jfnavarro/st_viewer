@@ -4,36 +4,36 @@
 
 CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f),
-      ui(new Ui::createSelectionDialog)
+      m_ui(new Ui::createSelectionDialog)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 CreateSelectionDialog::~CreateSelectionDialog()
 {
-    delete ui;
-    ui = nullptr;
+    delete m_ui;
+    m_ui = nullptr;
 }
 
 const QString CreateSelectionDialog::getName() const
 {
-    return ui->name->text();
+    return m_ui->name->text();
 }
 
 const QString CreateSelectionDialog::getComment() const
 {
-    return ui->comment->toPlainText();
+    return m_ui->comment->toPlainText();
 }
 
 void CreateSelectionDialog::setName(const QString name)
 {
-    return ui->name->setText(name);
+    return m_ui->name->setText(name);
 }
 
 void CreateSelectionDialog::setComment(const QString comment)
 {
-    return ui->comment->setText(comment);
+    return m_ui->comment->setText(comment);
 }

@@ -10,13 +10,13 @@
 
 AboutDialog::AboutDialog(QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f),
-      ui(new Ui::AboutDialog)
+      m_ui(new Ui::AboutDialog)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 AboutDialog::~AboutDialog()
 {
-    delete ui;
-    ui = nullptr;
+    delete m_ui;
+    m_ui = nullptr;
 }

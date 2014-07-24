@@ -19,6 +19,8 @@
 namespace Globals
 {
 
+//TODO move elements to where they are used as much as possible
+
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
 enum GeneVisualMode {
     NormalMode = 0,

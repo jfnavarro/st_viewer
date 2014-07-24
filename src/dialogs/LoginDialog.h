@@ -66,7 +66,7 @@ private:
     //save users from qsettings
     void saveUsers();
 
-    Ui::LogIn *ui;
+    Ui::LogIn *m_ui;
     QPointer<QCompleter> m_completer;
 
     Q_DISABLE_COPY(LoginDialog)

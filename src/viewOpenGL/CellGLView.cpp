@@ -26,6 +26,8 @@
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
+static const int DEFAULT_MIN_ZOOM = 1;
+static const int DEFAULT_MAX_ZOOM = 100;
 
 namespace   {
 
@@ -45,6 +47,7 @@ CellGLView::CellGLView(QScreen *parent) :
     QWindow(parent),
     m_context(nullptr),
     m_initialized(false),
+    m_updateQueued(false),
     m_originPanning(QPoint(-1, -1)),
     m_originRubberBand(QPoint(-1, -1)),
     m_panning(false),
@@ -58,14 +61,14 @@ CellGLView::CellGLView(QScreen *parent) :
     m_projm.setToIdentity();
 
     //creates and sets the OpenGL format
-    format.setSwapBehavior(QSurfaceFormat::SingleBuffer);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setStereo(false);
-    format.setStencilBufferSize(0);
-    format.setDepthBufferSize(0);
+    m_format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    m_format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    m_format.setRenderableType(QSurfaceFormat::OpenGL);
+    m_format.setStereo(false);
+    m_format.setStencilBufferSize(0);
+    m_format.setDepthBufferSize(0);
     setSurfaceType(QWindow::OpenGLSurface);
-    setFormat(format);
+    setFormat(m_format);
 
     // creates qwindow context
     create();
@@ -97,18 +100,23 @@ void CellGLView::clearData()
 
 void CellGLView::resizeFromGeometry()
 {
-    ensureContext();
-    if (!m_initialized) {
-        initializeGL();
-    }
     const QRect rect = geometry();
-    resizeGL(rect.width(), rect.height());
+    if (rect.size() != m_viewport.size()) {
+        ensureContext();
+        if (!m_initialized) {
+            initializeGL();
+        }
+        resizeGL(rect.width(), rect.height());
+    }
 }
 
 void CellGLView::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
-    resizeFromGeometry();
+    ensureContext();
+    if (!m_initialized) {
+        initializeGL();
+    }
 }
 
 void CellGLView::hideEvent(QHideEvent *event)
@@ -119,11 +127,11 @@ void CellGLView::hideEvent(QHideEvent *event)
 void CellGLView::exposeEvent(QExposeEvent *event)
 {
     Q_UNUSED(event);
+    m_updateQueued = false;
     ensureContext();
     if (!m_initialized) {
         initializeGL();
     }
-    //paint
     paintGL();
     m_context->swapBuffers(this); // this is important
 }
@@ -138,7 +146,7 @@ void CellGLView::ensureContext()
 {
     if (m_context.isNull()) {
         m_context = new QOpenGLContext();
-        m_context->setFormat(format);
+        m_context->setFormat(m_format);
         const bool success = m_context->create();
         qDebug() << "CellGLView, OpenGL context create = " << success;
     }
@@ -147,6 +155,8 @@ void CellGLView::ensureContext()
 
 void CellGLView::initializeGL()
 {
+    initializeOpenGLFunctions();
+
     QGLPainter painter;
     painter.begin();
 
@@ -157,7 +167,22 @@ void CellGLView::initializeGL()
 
     glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Set the default blend options.
+    if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendColor)) {
+        painter.glBlendColor(0, 0, 0, 0);
+    }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquation)) {
+        painter.glBlendEquation(GL_FUNC_ADD);
+    }
+    else if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquationSeparate)) {
+        painter.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    }
+
+    QRect rect = geometry();
+    resizeGL(rect.width(), rect.height());
 
     m_initialized = true;
 }
@@ -167,6 +192,8 @@ void CellGLView::paintGL()
     //create OpenGL painter
     QGLPainter painter;
     painter.begin();
+
+    painter.setEye(QGL::NoEye);
 
     // set the projection matrix
     painter.projectionMatrix() = m_projm;
@@ -241,7 +268,10 @@ void CellGLView::removeRenderingNode(GraphicItemGL *node)
 
 void CellGLView::update()
 {
-    QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
+    if (!m_updateQueued) {
+        m_updateQueued = true;
+        QGuiApplication::postEvent(this, new QExposeEvent(geometry()));
+    }
 }
 
 qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
@@ -253,7 +283,7 @@ qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
 void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
 {
     const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
-    if ( m_zoom_factor != new_zoom_factor ) {
+    if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -290,7 +320,6 @@ void CellGLView::setScene(const QRectF scene)
     if (m_scene != scene && scene.isValid()) {
         m_scene = scene;
         m_scene_focus_center_point = m_scene.center();
-        Q_ASSERT(m_scene.contains(m_scene_focus_center_point));
         m_zoom_factor = minZoom();
         emit signalSceneUpdated(m_scene);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -299,8 +328,9 @@ void CellGLView::setScene(const QRectF scene)
 
 qreal CellGLView::minZoom() const
 {
-    Q_ASSERT(m_scene.isValid());
-    Q_ASSERT(m_viewport.isValid());
+    if (!m_viewport.isValid() || !m_scene.isValid()) {
+        return DEFAULT_MIN_ZOOM;
+    }
     const qreal min_zoom_height = m_viewport.height( ) / m_scene.height();
     const qreal min_zoom_width = m_viewport.width() / m_scene.width();
     return qMax(min_zoom_height, min_zoom_width);
@@ -308,8 +338,9 @@ qreal CellGLView::minZoom() const
 
 qreal CellGLView::maxZoom() const
 {
-    Q_ASSERT(m_scene.isValid());
-    Q_ASSERT(m_viewport.isValid());
+    if (!m_viewport.isValid() || !m_scene.isValid()) {
+        return DEFAULT_MAX_ZOOM;
+    }
     const qreal max_zoom_x = m_viewport.width() /
             MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
     const qreal max_zoom_y = m_viewport.height() /
@@ -317,7 +348,7 @@ qreal CellGLView::maxZoom() const
     return qMin(max_zoom_x, max_zoom_y);
 }
 
-const QImage CellGLView::grabPixmapGL() const
+const QImage CellGLView::grabPixmapGL()
 {
     const int w = width();
     const int h = height();
@@ -549,7 +580,6 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF center_point
     clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
     clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
     clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
-
     if (clamped_point != m_scene_focus_center_point) {
         m_scene_focus_center_point = clamped_point;
         emit signalSceneTransformationsUpdated(sceneTransformations());

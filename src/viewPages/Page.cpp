@@ -38,9 +38,10 @@ Page::~Page()
     m_timer = nullptr;
 }
 
-void Page::setWaiting(bool waiting)
+void Page::setWaiting(bool waiting, const QString &label)
 {
     if (waiting) {
+        m_progressDialog->setLabelText(label);
         m_progressDialog->setValue(0);
         m_progressDialog->show();
         m_progressDialog->raise();

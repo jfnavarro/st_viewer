@@ -157,7 +157,7 @@ void DatasetPage::slotEditDataset()
             dataset->statComments(editdataset->getComment());
 
             //update the dataset
-            setWaiting(true);
+            setWaiting(true, "Updating dataset...");
             async::DataRequest request = m_dataProxy->updateDataset(dataset);
             setWaiting(false);
 
@@ -221,7 +221,7 @@ void DatasetPage::slotRemoveDataset()
     dataset->enabled(false);
 
     //update the dataset
-    setWaiting(true);
+    setWaiting(true, "Removing dataset...");
     async::DataRequest request = m_dataProxy->updateDataset(dataset);
     setWaiting(false);
 

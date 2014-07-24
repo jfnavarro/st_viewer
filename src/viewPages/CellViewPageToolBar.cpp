@@ -290,6 +290,18 @@ CellViewPageToolBar::~CellViewPageToolBar()
 
 }
 
+void CellViewPageToolBar::setEnableButtons(bool enable)
+{
+    m_actionActivateSelectionMode->setEnabled(enable);
+    m_actionSave_save->setEnabled(enable);
+    m_actionSave_print->setEnabled(enable);
+    m_actionSelection_showSelectionDialog->setEnabled(enable);
+    m_actionZoom_zoomIn->setEnabled(enable);
+    m_actionZoom_zoomOut->setEnabled(enable);
+    m_menu_genePlotter->setEnabled(enable);
+    m_menu_cellTissue->setEnabled(enable);
+}
+
 void CellViewPageToolBar::resetTresholdActions(int min, int max)
 {
     Q_ASSERT(m_geneHitsThreshold != nullptr);

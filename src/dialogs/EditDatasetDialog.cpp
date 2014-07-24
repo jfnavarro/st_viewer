@@ -4,36 +4,36 @@
 
 EditDatasetDialog::EditDatasetDialog(QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f),
-      ui(new Ui::editDatasetDialog)
+      m_ui(new Ui::editDatasetDialog)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 EditDatasetDialog::~EditDatasetDialog()
 {
-    delete ui;
-    ui = nullptr;
+    delete m_ui;
+    m_ui = nullptr;
 }
 
 const QString EditDatasetDialog::getName() const
 {
-    return ui->name->text();
+    return m_ui->name->text();
 }
 
 const QString EditDatasetDialog::getComment() const
 {
-    return ui->comment->toPlainText();
+    return m_ui->comment->toPlainText();
 }
 
 void EditDatasetDialog::setName(const QString name)
 {
-    return ui->name->setText(name);
+    return m_ui->name->setText(name);
 }
 
 void EditDatasetDialog::setComment(const QString comment)
 {
-    return ui->comment->setText(comment);
+    return m_ui->comment->setText(comment);
 }

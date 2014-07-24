@@ -18,6 +18,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+//TODO move declarations to CPP and/or consider removing DTOs
 class GeneDTO : public QObject
 {
     Q_OBJECT

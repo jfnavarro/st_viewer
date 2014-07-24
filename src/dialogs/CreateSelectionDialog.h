@@ -25,7 +25,7 @@ public:
 
 private:
 
-    Ui::createSelectionDialog *ui;
+    Ui::createSelectionDialog *m_ui;
 
     Q_DISABLE_COPY(CreateSelectionDialog)
 };

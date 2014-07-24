@@ -101,10 +101,18 @@ void CellViewPage::onEnter()
     setWaiting(true);
 
     if (!loadData()) {
-        //TODO do something here (show warning or move to next page or disable elements)
         setWaiting(false);
+        m_ui->genesWidget->setEnabled(false);
+        m_ui->selectionsWidget->setEnabled(false);
+        m_ui->area->setEnabled(false);
+        m_toolBar->setEnableButtons(false);
         return;
     }
+
+    m_ui->genesWidget->setEnabled(true);
+    m_ui->selectionsWidget->setEnabled(true);
+    m_ui->area->setEnabled(true);
+    m_toolBar->setEnableButtons(true);
 
     const auto dataset =
             m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
@@ -652,7 +660,7 @@ void CellViewPage::slotSaveSelection()
         selection.selectedItems(geneSelection);
 
         //save the selection object
-        setWaiting(true);
+        setWaiting(true, "Saving selection...");
         async::DataRequest request = m_dataProxy->addGeneSelection(selection);
         setWaiting(false);
 

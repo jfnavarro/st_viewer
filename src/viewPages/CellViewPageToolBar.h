@@ -86,6 +86,8 @@ public:
     QPushButton *m_buttonNavigate_goBack;
     QPushButton *m_buttonNavigate_goNext;
 
+    void setEnableButtons(bool enable);
+
 signals:
 
     void thresholdLowerValueChanged(int);

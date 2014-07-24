@@ -25,7 +25,7 @@ public:
 
 private:
 
-    Ui::AboutDialog *ui;
+    Ui::AboutDialog *m_ui;
 
     Q_DISABLE_COPY(AboutDialog)
 };

@@ -42,7 +42,7 @@ private slots:
 protected:
 
     //launches a progress bar dialog (true = show, false = hide)
-    void setWaiting(bool waiting = true);
+    void setWaiting(bool waiting = true, const QString &label = "Downloading data...");
 
     //helper functions to show messages
     void showInfo(const QString &header, const QString &body);

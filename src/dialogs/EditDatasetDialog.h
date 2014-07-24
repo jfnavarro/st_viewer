@@ -24,7 +24,7 @@ public:
 
 private:
 
-    Ui::editDatasetDialog *ui;
+    Ui::editDatasetDialog *m_ui;
 
     Q_DISABLE_COPY(EditDatasetDialog)
 };

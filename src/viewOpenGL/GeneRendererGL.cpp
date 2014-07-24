@@ -507,6 +507,8 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
     //TODO optimize with STL
     //aggregate all the selected features
     QMap<QString, SelectionType> geneSelectionsMap;
+    int mappedX = 0;
+    int mappedY = 0;
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
@@ -518,8 +520,10 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
             geneSelectionsMap[gene].reads += adjustedReads;
             geneSelectionsMap[gene].normalizedReads =
                     geneSelectionsMap[gene].reads / static_cast<qreal>(m_max * geneSelectionsMap[gene].count);
+            //mapping points to image CS (would be faster to convert the image)
+            transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
             //qGray gives more weight to the green channel
-            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(feature->x(), feature->y()));
+            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(mappedX, mappedY));
             geneSelectionsMap[gene].name = gene;
         }
     }
@@ -531,7 +535,9 @@ void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
     // stores a local copy of the tissue image in genes cordinate space
-    m_image = image.transformed(transform().inverted().toAffine());
+    //TODO seems like doing the inverse transformation is not accurate
+    //m_image = image.transformed(transform().inverted().toAffine());
+    m_image = image;
 }
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)

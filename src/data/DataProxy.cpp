@@ -44,7 +44,8 @@ DataProxy::DataProxy(QObject *parent) :
     m_networkManager = new NetworkManager(m_configurationManager);
     Q_ASSERT(!m_networkManager.isNull());
 
-    m_authorizationManager = new AuthorizationManager(m_networkManager, m_configurationManager);
+    m_authorizationManager =
+            new AuthorizationManager(m_networkManager, m_configurationManager);
     Q_ASSERT(!m_authorizationManager.isNull());
 }
 

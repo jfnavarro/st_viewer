@@ -90,10 +90,13 @@ public:
     //cell tissue images. We should cache everything in memory and/or disk and only re-download
     //when needed
 
-    //TODO data adquision could splitted for each entity and connect
-    //them to observ each other when needed
+    //TODO data adquision could splitted for each entity and
+    //use the observer pattern to account for entities that are linked
 
     //TODO find a way to update DataProxy when data is updated trough the backend ( a timed request )
+
+    //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
+    //direct references or other type of smart pointer
 
     //list of unique genes
     typedef QVector<GenePtr> GeneList;
@@ -181,6 +184,7 @@ public:
 
     //setters (the currently opened datasets)
     //TODO this function in a way will define the status of the DataProxy
+    //this logic should be changed or improved
     void setSelectedDataset(const QString &datasetId) const;
 
     //updaters
@@ -196,7 +200,8 @@ private:
     bool hasCellTissue(const QString& name) const;
 
     //TODO memory cache functions have been disabled for safetiness
-    //restore them with a more advance caching
+    //restore them with a more advance caching system (memmory and HD)
+
     //bool hasImageAlignment(const QString& datasetId) const;
     //bool hasGenes(const QString& datasetId) const;
     //bool hasFeatures(const QString& datasetId) const;

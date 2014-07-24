@@ -10,6 +10,7 @@
 #include <QWindow>
 #include <QGLFramebufferObjectSurface>
 #include <QPointer>
+#include <QOpenGLFunctions>
 
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
@@ -33,7 +34,7 @@ class QGLFramebufferObject;
 // we built our own customized wrapper
 
 //TODO add better comments to class and functions
-class CellGLView : public QWindow
+class CellGLView : public QWindow, protected QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -53,7 +54,7 @@ public:
     void removeRenderingNode(GraphicItemGL *node);
 
     //return a QImage representation of the canvas
-    const QImage grabPixmapGL() const;
+    const QImage grabPixmapGL();
 
     //used for the Scroll Area container to adjust the scroll bars
     QRectF allowedCenterPoints() const;
@@ -131,8 +132,9 @@ private:
 
     // openGL context variables
     QPointer<QOpenGLContext> m_context;
-    QSurfaceFormat format;
+    QSurfaceFormat m_format;
     bool m_initialized;
+    bool m_updateQueued;
 
     // scene and viewport aux variables
     QRectF m_viewport;

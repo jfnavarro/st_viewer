@@ -72,7 +72,9 @@ void GeneExporter::exportItem(QTextStream &otxt,
     const int count = selection.count;
     const qreal normalizedReads = selection.normalizedReads;
     const QString name = selection.name;
-    const qreal pixelIntensity = selection.pixeIntensity;
+    //normalize pixel intensity by the max gray scale(255) multiplied by the number of
+    //occurrences
+    const qreal pixelIntensity = selection.pixeIntensity / (255 * count);
 
     QStringList list;
     list << QString("%1").arg(name)
