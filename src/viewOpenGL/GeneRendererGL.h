@@ -21,7 +21,10 @@ class QGLTexture2D;
 class QVector2DArray;
 class QGLShaderProgramEffect;
 
-//TODO add better comments to class and functions
+//Gene renderer is what renders the genes/features on the canvas.
+//It uses data arrays (GeneData) to render trough shaders.
+//It has some attributes and variables changeable by slots
+//It also allows to select features trough areas or gene names
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -31,16 +34,16 @@ public:
     explicit GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
-    // data builders
+    // data builder (create data arrays from the features)
     void generateData();
+    // clears data and reset variables
     void clearData();
 
     //set the dimensions of the bounding rect, also for the QuadTree
     void setDimensions(const QRectF border);
 
-    //selection functions
-    void selectGenes(const DataProxy::GeneList&);
-    void selectFeatures(const DataProxy::FeatureList&);
+    //makes a selection of features given a list of genes
+    void selectGenes(const DataProxy::GeneList& genes);
 
     //returns the currently selected genes
     GeneSelection::selectedItemsList getSelectedIItems() const;
@@ -55,7 +58,7 @@ public:
 public slots:
 
     //TODO slots should have the prefix "slot"
-
+    //slot to configure atttributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShine(qreal shine);
@@ -72,12 +75,13 @@ public slots:
     //according if the gene is selected or not
     void updateVisible(DataProxy::GeneList geneList);
 
-    //clear all the selected features
+    //clear all the selected features and notify observers
     void clearSelection();
 
 signals:
 
-    //to notify the selection view
+    //to notify the gene selections model controller that a selection
+    //has been made
     void selectionUpdated();
 
 protected:
@@ -92,13 +96,18 @@ private:
     //area or not
     bool isFeatureOutsideRange(const int hits, const int totalValue);
 
-    // internal rendering functions
+    // internal rendering functions that alters the rendering data
     void updateSize();
     void updateVisual();
 
     // helper function to update all features selected and color attributes
     void updateFeaturesSelected(bool selected);
     void updateFeaturesColor(QColor color);
+
+    // helper function to be used when user whan to select features using
+    // a list of genes
+    // function assumes the genes were all selected
+    void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
     void resetQuadTree(const QRectF &rect);
@@ -142,6 +151,7 @@ private:
     int m_max;
     int m_pooledMin;
     int m_pooledMax;
+    int m_totalCount;
 
     // bounding rect area
     QRectF m_border;

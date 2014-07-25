@@ -29,6 +29,10 @@ public:
     const QColor color() const;
     void setColor(const QColor& color);
 
+signals:
+
+    void currentIndexChanged(int index);
+
 private:
 
     void populateList(const ColorPalette* palette);

@@ -232,6 +232,7 @@ void CellGLView::resizeGL(int width, int height)
     const qreal newHeight = height * pixelRatio;
     const QRectF newViewport = QRectF(0.0, 0.0, newWidth, newHeight);
     //update projection matrix
+    //TODO for MAC retina support the pixel ratio should not be corrected in the projection matrix
     m_projm.setToIdentity();
     m_projm.ortho(newViewport);
     //create viewport
@@ -453,8 +454,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         m_originRubberBand = event->pos();
         m_rubberband->setRubberbandRect(QRect());
         update();
-    }
-    else {
+    } else {
         // first send the event to any non-transformable nodes under the mouse click
         const bool mouseEventCaptureByNode = sendMouseEventToNodes(point,
                                                                    event,
@@ -518,14 +518,12 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
                                             qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
         m_rubberband->setRubberbandRect(rubberBandRect);
         update();
-    }
-    else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {
+    } else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {
         QPoint point = event->globalPos(); //panning needs global pos
         const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
         m_originPanning = point;
-    }
-    else {
+    } else {
         const QPoint point = event->pos();
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);

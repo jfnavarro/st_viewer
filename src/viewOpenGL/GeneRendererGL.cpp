@@ -79,6 +79,9 @@ void GeneRendererGL::clearData()
     // update visual mode
     m_visualMode = Globals::NormalMode;
 
+    // total count will hold the total sum of the reads of all the features
+    m_totalCount = 0;
+
     //reset scene node
     if (!m_geneNode.isNull()) {
         m_geneNode->deleteLater();
@@ -194,6 +197,10 @@ void GeneRendererGL::generateData()
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
+
+        // update the total sum variable
+        //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
+        m_totalCount += std::min(feature->hits(), m_max);
 
         // test if point already exists (quad tree)
         GeneInfoQuadTree::PointItem item(point, INVALID_INDEX);
@@ -342,7 +349,8 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
             const float newRefCount = oldRefCount + (selected ? 1 : -1);
 
             //we do not want to show features outside the threshold
-            if (isFeatureOutsideRange(currentHits, newValue) && newRefCount != 0 && newValue != 0) {
+            if (isFeatureOutsideRange(currentHits, newValue)
+                    && newRefCount != 0 && newValue != 0) {
                 continue;
             }
 
@@ -400,8 +408,9 @@ void GeneRendererGL::updateVisual()
         const float oldRefCount = m_geneData.quadRefCount(index);
         const float newRefCount = oldRefCount + (selected ? 1 : 0);
 
-        //we do not want to show features outside the threshold
-        if (isFeatureOutsideRange(currentHits, newValue) && newRefCount != 0 && newValue != 0) {
+        // we do not want to show features outside the threshold
+        if (isFeatureOutsideRange(currentHits, newValue)
+                && newRefCount != 0 && newValue != 0) {
             continue;
         }
 
@@ -456,10 +465,10 @@ void GeneRendererGL::updateFeaturesColor(QColor color)
     }
 }
 
-void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
+void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
     DataProxy::FeatureList aggregateFeatureList;
-    foreach(DataProxy::GenePtr gene, geneList) {
+    foreach(DataProxy::GenePtr gene, genes) {
         Q_ASSERT(!gene.isNull());
         if (gene->selected()) {
             aggregateFeatureList <<
@@ -469,28 +478,26 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &geneList)
     selectFeatures(aggregateFeatureList);
 }
 
-//asssumes the genes of the given features are all selected
-void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &featureList)
+void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 {
     // unselect previous selection
     clearSelection();
 
     // iterate the features
-    foreach(DataProxy::FeaturePtr feature, featureList) {
+    // asssumes the genes of the given features are all selected
+    foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
-        if (m_geneInfoById.contains(feature)) {
-            const int index = m_geneInfoById.value(feature);
-            const int refCount = m_geneData.quadRefCount(index);
-            const int hits = feature->hits();
-            const int value = m_geneData.quadValue(index);
-            // do not select non-visible features or outside threshold
-            if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
-                continue;
-            }
-            // make the selection
-            feature->selected(true);
-            m_geneData.updateQuadSelected(index, true);
+        const int index = m_geneInfoById.value(feature);
+        const int refCount = m_geneData.quadRefCount(index);
+        const int hits = feature->hits();
+        const int value = m_geneData.quadValue(index);
+        // do not select non-visible features or outside threshold
+        if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
+            continue;
         }
+        // make the selection
+        feature->selected(true);
+        m_geneData.updateQuadSelected(index, true);
     }
 
     m_isDirty = true;
@@ -504,8 +511,7 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
-    //TODO optimize with STL
-    //aggregate all the selected features
+    //aggregate all the selected features using SelectionType objects
     QMap<QString, SelectionType> geneSelectionsMap;
     int mappedX = 0;
     int mappedY = 0;
@@ -518,8 +524,9 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
             const QString gene = feature->gene();
             geneSelectionsMap[gene].count++;
             geneSelectionsMap[gene].reads += adjustedReads;
+            // normalization as reads per million described in literature
             geneSelectionsMap[gene].normalizedReads =
-                    geneSelectionsMap[gene].reads / static_cast<qreal>(m_max * geneSelectionsMap[gene].count);
+                    ((geneSelectionsMap[gene].reads * 10e5) / static_cast<qreal>(m_totalCount)) + 1;
             //mapping points to image CS (would be faster to convert the image)
             transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
             //qGray gives more weight to the green channel
@@ -535,6 +542,8 @@ void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
     // stores a local copy of the tissue image in genes cordinate space
+    // so we can obtain pixel intensity values when storing selections
+
     //TODO seems like doing the inverse transformation is not accurate
     //m_image = image.transformed(transform().inverted().toAffine());
     m_image = image;
@@ -544,19 +553,19 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    //get selection area
+    // get selection area
     QRectF rect = event->path();
     QuadTreeAABB aabb(rect);
 
-    //get selection mode
+    // get selection mode
     const SelectionEvent::SelectionMode mode = event->mode();
 
-    //if new selection clear the current selection
+    // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
         clearSelection();
     }
 
-    //get selected points from selection shape
+    // get selected points from selection shape
     GeneInfoQuadTree::PointItemList pointList;
     m_geneInfoQuadTree.select(aabb, pointList);
 
@@ -574,7 +583,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         }
 
         bool featuresWasSelected = false;
-        const bool isSelected = (mode == SelectionEvent::ExcludeSelection) ? false : true;
+        const bool isSelected = mode == SelectionEvent::ExcludeSelection ? false : true;
 
         // iterate all the features in the position to select when possible
         const auto &featureList = m_geneInfoReverse.values(index);

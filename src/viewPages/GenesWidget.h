@@ -23,6 +23,9 @@ class ColorListEditor;
 //it is componsed of the Gene Table
 //a search field and the select and action
 //menus
+
+//TODO current approach with menus gives problems
+//in MAC, replaced temporary for push buttons
 class GenesWidget : public QWidget
 {
     Q_OBJECT
@@ -58,11 +61,15 @@ private slots:
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 
-    QPointer<QPushButton> m_selectionMenu;
-    QPointer<QPushButton> m_actionMenu;
+    //QPointer<QPushButton> m_selectionMenu;
+    QPointer<QPushButton> m_selectionAllButton;
+    QPointer<QPushButton> m_selectionClearAllButton;
+    //QPointer<QPushButton> m_actionMenu;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
     QPointer<ColorListEditor> m_colorList;
+    QPointer<QPushButton> m_showSelectedButton;
+    QPointer<QPushButton> m_hideSelectedButton;
 
     Q_DISABLE_COPY(GenesWidget)
 };

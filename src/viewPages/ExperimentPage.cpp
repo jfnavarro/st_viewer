@@ -21,6 +21,8 @@
 
 #include "dialogs/CreateSelectionDialog.h"
 
+#include "qcustomplot/qcustomplot.h"
+
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
       m_ui(nullptr),
@@ -38,6 +40,7 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
     connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
+    connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDDA()));
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
@@ -112,10 +115,16 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
 {
     //TODO check that the proper dataset object is selected and available
     //TODO two items select = activate DDA, one item activates the others
-    m_ui->removeSelections->setEnabled(index.isValid());
-    m_ui->exportSelections->setEnabled(index.isValid());
-    m_ui->ddaAnalysis->setEnabled(index.isValid());
-    m_ui->editSelection->setEnabled(index.isValid());
+
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+    const bool enableDDA = index.isValid() && currentSelection.size() == 2;
+    const bool enableRest = index.isValid() && currentSelection.size() == 1;
+
+    m_ui->removeSelections->setEnabled(enableRest);
+    m_ui->exportSelections->setEnabled(enableRest);
+    m_ui->ddaAnalysis->setEnabled(enableDDA);
+    m_ui->editSelection->setEnabled(enableRest);
 }
 
 void ExperimentPage::slotRemoveSelection()
@@ -247,4 +256,37 @@ void ExperimentPage::slotEditSelection()
             slotLoadSelections();
         }
     }
+}
+
+void ExperimentPage::slotPerformDDA()
+{
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+
+    if (currentSelection.empty() || currentSelection.size() != 2) {
+        return;
+    }
+
+    //auto selectionItem1 = currentSelection.at(0);
+    //auto selectionItem2 = currentSelection.at(1);
+    /*
+    QCustomPlot *customPlot = new QCustomPlot(this);
+
+    // generate some data:
+    QVector<double> x(101), y(101); // initialize with entries 0..100
+    for (int i=0; i<101; ++i)
+    {
+      x[i] = i/50.0 - 1; // x goes from -1 to 1
+      y[i] = x[i]*x[i]; // let's plot a quadratic function
+    }
+    // create graph and assign data to it:
+    customPlot->addGraph();
+    customPlot->graph(0)->setData(x, y);
+    // give the axes some labels:
+    customPlot->xAxis->setLabel("x");
+    customPlot->yAxis->setLabel("y");
+    // set axes ranges, so we see all data:
+    customPlot->xAxis->setRange(-1, 1);
+    customPlot->yAxis->setRange(0, 1);
+    customPlot->replot();*/
 }

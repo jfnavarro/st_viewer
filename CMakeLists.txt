@@ -88,6 +88,9 @@ endif()
 foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
 endforeach()
+
+#initialize project stuff (important first)
 initialise_project()
+
 add_subdirectory(ext) # include third party libraries
 add_subdirectory(src) # include source code

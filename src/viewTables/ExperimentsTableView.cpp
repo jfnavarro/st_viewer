@@ -30,9 +30,9 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
-    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionMode(QAbstractItemView::MultiSelection);
 
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);

@@ -43,6 +43,7 @@ private slots:
     void slotExportSelection();
     void slotRemoveSelection();
     void slotEditSelection();
+    void slotPerformDDA();
 
 private:
 

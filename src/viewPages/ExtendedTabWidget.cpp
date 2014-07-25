@@ -22,7 +22,8 @@
 #include "viewPages/CellViewPage.h"
 #include "viewPages/ExperimentPage.h"
 
-ExtendedButtonGroup::ExtendedButtonGroup(QWidget *parent) : QButtonGroup(parent)
+ExtendedButtonGroup::ExtendedButtonGroup(QWidget *parent) :
+    QButtonGroup(parent)
 {
 
 }
