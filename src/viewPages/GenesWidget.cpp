@@ -24,10 +24,8 @@
 
 GenesWidget::GenesWidget(QWidget *parent) :
     QWidget(parent),
-    //m_selectionMenu(nullptr),
     m_selectionAllButton(nullptr),
     m_selectionClearAllButton(nullptr),
-    //m_actionMenu(nullptr),
     m_lineEdit(nullptr),
     m_genes_tableview(nullptr),
     m_colorList(nullptr),
@@ -40,32 +38,21 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //create genes table
     m_genes_tableview = new GenesTableView(this);
 
-    //create selections menu
-
+    //create selections buttons
     m_selectionAllButton = new QPushButton(this);
-    m_selectionAllButton->setText(tr("Select All"));
+    m_selectionAllButton->setIcon(QIcon(QStringLiteral(":/images/checkall.png")));
+    m_selectionAllButton->setToolTip(tr("Select all genes"));
     connect(m_selectionAllButton, SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
 
     m_selectionClearAllButton = new QPushButton(this);
-    m_selectionClearAllButton->setText(tr("Deselect All"));
+    m_selectionClearAllButton->setIcon(QIcon(QStringLiteral(":/images/uncheckall.png")));
+    m_selectionClearAllButton->setToolTip(tr("Deselect all genes"));
     connect(m_selectionClearAllButton, SIGNAL(clicked(bool)), m_genes_tableview, SLOT(clearSelection()));
 
     geneListLayout->addWidget(m_selectionAllButton);
     geneListLayout->addWidget(m_selectionClearAllButton);
 
-    //m_selectionMenu = new QPushButton(this);
-    //QMenu *selectionsMenu = new QMenu();
-    //m_selectionMenu->setMenu(selectionsMenu);
-    //m_selectionMenu->setToolTip(tr("Selection options"));
-    //m_selectionMenu->setText(tr("Selection"));
-    //m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/checkall.png")),
-    //                                   tr("Select all rows"), m_genes_tableview, SLOT(selectAll()));
-    //m_selectionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/checkall.png")),
-    //                                   tr("Deselect all rows"), m_genes_tableview, SLOT(clearSelection()));
-    //geneListLayout->addWidget(m_selectionMenu);
-
-
-    //create actions menu
+    //create actions buttons
     m_showSelectedButton = new QPushButton(this);
     m_showSelectedButton->setToolTip(tr("Show selected genes"));
     m_showSelectedButton->setIcon(QIcon(QStringLiteral(":/images/visible.png")));
@@ -77,6 +64,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(m_hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
 
     m_colorList = new ColorListEditor(this);
+    m_colorList->setFixedWidth(60);
     m_colorList->setToolTip(tr("Set color of selected genes:"));
     connect(m_colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
             [=]() { slotSetColorAllSelected(m_colorList->color());});
@@ -84,34 +72,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
     geneListLayout->addWidget(m_showSelectedButton);
     geneListLayout->addWidget(m_hideSelectedButton);
     geneListLayout->addWidget(m_colorList);
-
-    //m_actionMenu = new QPushButton(this);
-    //QMenu *actionsMenu = new QMenu();
-    //m_actionMenu->setMenu(actionsMenu);
-    //m_actionMenu->setToolTip(tr("Action on selected rows"));
-    //m_actionMenu->setText(tr("Action"));
-    // add actions to act on selected rows
-    //QAction *showAllAction = m_actionMenu->menu()->addAction(
-    //            QIcon(QStringLiteral(":/images/visible.png")), tr("Show selected genes"));
-    //QAction *hideAllAction  = m_actionMenu->menu()->addAction(
-    //            QIcon(QStringLiteral(":/images/novisible.png")), tr("Hide selected genes"));
-    //m_actionMenu->menu()->addSeparator();
-    //color action
-    //QWidgetAction *widgetAction = new QWidgetAction(this);
-    //m_colorList = new ColorListEditor();
-    //widgetAction->setDefaultWidget(m_colorList);
-    //m_actionMenu->menu()->addAction(QIcon(QStringLiteral(":/images/edit_color.png")),
-    //                                tr("Set color of selected genes:"));
-    //TODO have the color combobox in the same line as the text and/or make it less width and centered
-    //m_actionMenu->menu()->addAction(widgetAction);
-    //show combobox when menu opens
-    //connect(widgetAction, &QAction::triggered, [=]{ m_colorList->show(); });
-    // QComboBox::activated is overloaded so we need a static_cast<>
-    //connect(m_colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-   //         [=]() { slotSetColorAllSelected(m_colorList->color());});
-
-    //adds the menu to the layout
-    //geneListLayout->addWidget(m_actionMenu);
 
     //add separation and stretch in between the search box
     geneListLayout->addSpacing(5);
@@ -135,8 +95,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
     setLayout(genesLayout);
 
     //connections
-    //connect(showAllAction, SIGNAL(triggered(bool)), this, SLOT(slotShowAllSelected()));
-    //connect(hideAllAction, SIGNAL(triggered(bool)), this, SLOT(slotHideAllSelected()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)), m_genes_tableview,
             SLOT(setGeneNameFilter(QString)));
     connect(getModel(), SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
@@ -149,17 +107,11 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
 GenesWidget::~GenesWidget()
 {
-    //m_selectionMenu->deleteLater();
-    //m_selectionMenu = nullptr;
-
     m_selectionAllButton->deleteLater();
     m_selectionAllButton = nullptr;
 
     m_selectionClearAllButton->deleteLater();
     m_selectionClearAllButton = nullptr;
-
-    //m_actionMenu->deleteLater();
-    //m_actionMenu = nullptr;
 
     m_lineEdit->deleteLater();
     m_lineEdit = nullptr;

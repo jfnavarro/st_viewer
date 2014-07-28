@@ -13,6 +13,16 @@ SelectionType::SelectionType() :
 
 }
 
+SelectionType::SelectionType(const SelectionType& other) :
+    name(other.name),
+    reads(other.reads),
+    normalizedReads(other.normalizedReads),
+    pixeIntensity(other.pixeIntensity),
+    count(other.count)
+{
+
+}
+
 SelectionType::SelectionType(QString name, int reads,
                                             qreal normalizedReads, qreal pixeIntensity)
     : name(name),
@@ -32,6 +42,20 @@ SelectionType& SelectionType::operator= (const SelectionType& other)
     pixeIntensity = other.pixeIntensity;
     count = other.count;
     return (*this);
+}
+
+SelectionType& SelectionType::operator+= (const SelectionType& other)
+{
+    count++;
+    reads += other.reads;
+    normalizedReads = (reads * 10e5 / static_cast<qreal>(count)) + 1;
+    pixeIntensity += other.pixeIntensity;
+    return (*this);
+}
+
+bool SelectionType::operator< (const SelectionType& other) const
+{
+    return name < other.name;
 }
 
 bool SelectionType::operator== (const SelectionType& other) const
@@ -140,6 +164,11 @@ const QString GeneSelection::userId() const
 const QString GeneSelection::datasetId() const
 {
     return m_datasetId;
+}
+
+GeneSelection::selectedItemsList GeneSelection::selectedItems()
+{
+    return m_selectedItems;
 }
 
 const GeneSelection::selectedItemsList GeneSelection::selectedItems() const

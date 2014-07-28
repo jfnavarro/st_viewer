@@ -37,9 +37,12 @@ GenesTableView::GenesTableView(QWidget *parent)
     resizeColumnsToContents();
     resizeRowsToContents();
 
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show,
+                                             QHeaderView::ResizeToContents);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

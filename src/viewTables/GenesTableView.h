@@ -22,9 +22,11 @@ public:
     explicit GenesTableView(QWidget *parent = 0);
     virtual ~GenesTableView();
 
+    // returns the current selection mapped to the sorting model
     QItemSelection geneTableItemSelection() const;
 
 public slots:
+
 
     void setGeneNameFilter(QString);
 

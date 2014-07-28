@@ -21,7 +21,7 @@
 
 #include "dialogs/CreateSelectionDialog.h"
 
-#include "qcustomplot/qcustomplot.h"
+#include "analysis/ScatterPlot.h"
 
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
@@ -267,26 +267,39 @@ void ExperimentPage::slotPerformDDA()
         return;
     }
 
-    //auto selectionItem1 = currentSelection.at(0);
-    //auto selectionItem2 = currentSelection.at(1);
-    /*
-    QCustomPlot *customPlot = new QCustomPlot(this);
+    // get the two selection objects
+    auto selectionObject1 = currentSelection.at(0);
+    Q_ASSERT(!selectionObject1.isNull());
+    auto selectionObject2 = currentSelection.at(1);
+    Q_ASSERT(!selectionObject2.isNull());
 
-    // generate some data:
-    QVector<double> x(101), y(101); // initialize with entries 0..100
-    for (int i=0; i<101; ++i)
-    {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
+    // get the selection items lists
+    auto selectionItem1 = selectionObject1->selectedItems();
+    auto selectionItem2 = selectionObject2->selectedItems();
+
+    // sort the selection lists by name
+    qSort(selectionItem1);
+    qSort(selectionItem2);
+
+    // get the size of the biggest list
+    const int biggestSize = qMax(selectionItem1.size(), selectionItem2.size());
+
+    // compute correlation (TODO)
+
+    // get the plotting data
+    //TODO should take into account different genes
+    QVector<qreal> x(biggestSize);
+    QVector<qreal> y(biggestSize);
+    for (int i = 0; i < biggestSize; ++i) {
+        x[i] = selectionItem1.size() > i ? selectionItem1.at(i).normalizedReads : 0.0;
+        y[i] = selectionItem2.size() > i ? selectionItem2.at(i).normalizedReads : 0.0;
     }
-    // create graph and assign data to it:
-    customPlot->addGraph();
-    customPlot->graph(0)->setData(x, y);
-    // give the axes some labels:
-    customPlot->xAxis->setLabel("x");
-    customPlot->yAxis->setLabel("y");
-    // set axes ranges, so we see all data:
-    customPlot->xAxis->setRange(-1, 1);
-    customPlot->yAxis->setRange(0, 1);
-    customPlot->replot();*/
+
+    //TODO send correlation to show in the header
+    ScatterPlot *scatterPlot = new ScatterPlot();
+    scatterPlot->plot(x, y, selectionObject1->name() + " - (tpm+1)",
+                      selectionObject2->name() + " - (tpm+1)");
+
+    //TODO memmory leak solve this
+    //scatterPlot->deleteLater();
 }

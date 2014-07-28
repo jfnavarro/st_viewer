@@ -6,16 +6,19 @@
 
 //Selection Type is a container meant to be used
 //to store aggregated selections
-//TODO defined operator+  and operator<
+//TODO move to a separate file
 class SelectionType {
 
 public:
 
     SelectionType();
+    explicit SelectionType(const SelectionType& other);
     SelectionType(QString name, int reads, qreal
                   normalizedReads = 0, qreal pixeIntensity = 0);
 
     SelectionType& operator= (const SelectionType& other);
+    SelectionType& operator+= (const SelectionType& other);
+    bool operator< (const SelectionType& other) const;
     bool operator== (const SelectionType& other) const;
 
     QString name;
@@ -48,6 +51,7 @@ public:
     const QString userId() const;
     const QString datasetId() const;
     const selectedItemsList selectedItems() const;
+    selectedItemsList selectedItems();
     const QString type() const;
     const QString status() const;
     const QVector<QString> oboFoundryTerms() const;

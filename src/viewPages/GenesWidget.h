@@ -61,10 +61,8 @@ private slots:
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 
-    //QPointer<QPushButton> m_selectionMenu;
     QPointer<QPushButton> m_selectionAllButton;
     QPointer<QPushButton> m_selectionClearAllButton;
-    //QPointer<QPushButton> m_actionMenu;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
     QPointer<ColorListEditor> m_colorList;

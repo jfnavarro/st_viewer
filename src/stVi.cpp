@@ -314,7 +314,7 @@ void stVi::initStyle()
                   "QLineEdit {border: 1px solid gray;background: white;selection-background-color: darkgray;}"
                   "QTableView {background-color: transparent;}"
                   "QHeaderView::section {background-color: rgb(176,196,222);}"
-                  "QHeaderView {background-color: rgb(176,196,222);;}"
+                  "QHeaderView {background-color: rgb(176,196,222);}"
                   "QTableCornerButton::section{background-color: transparent;}");
 
     // apply font
@@ -368,11 +368,10 @@ void stVi::loadSettings()
 void stVi::saveSettings() const
 {
     QSettings settings;
-    // Keep track of the geometry and state of the main window
+    // save the geometry and state of the main window
     QByteArray geometry = saveGeometry();
     settings.setValue(Globals::SettingsGeometry, geometry);
     QByteArray state = saveState();
-    // save settings
     settings.setValue(Globals::SettingsState, state);
     //TODO save global settings (menus and status)
 }
