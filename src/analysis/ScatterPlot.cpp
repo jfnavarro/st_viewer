@@ -43,3 +43,7 @@ ScatterPlot::~ScatterPlot()
     m_customPlot = nullptr;
 }
 
+void ScatterPlot::setHeaderText(const QString& text)
+{
+    m_ui->textBrowser->setText(text);
+}

@@ -8,6 +8,8 @@
 
 #include "ui_experiments.h"
 
+#include <cmath>
+
 #include <QDebug>
 #include <QSortFilterProxyModel>
 #include <QFileDialog>
@@ -258,6 +260,8 @@ void ExperimentPage::slotEditSelection()
     }
 }
 
+//TODO add waiting cursor
+//TODO move computations to AnalysisDDA class
 void ExperimentPage::slotPerformDDA()
 {
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
@@ -274,29 +278,111 @@ void ExperimentPage::slotPerformDDA()
     Q_ASSERT(!selectionObject2.isNull());
 
     // get the selection items lists
-    auto selectionItem1 = selectionObject1->selectedItems();
-    auto selectionItem2 = selectionObject2->selectedItems();
+    auto selectionItems1 = selectionObject1->selectedItems();
+    auto selectionItems2 = selectionObject2->selectedItems();
 
     // sort the selection lists by name
-    qSort(selectionItem1);
-    qSort(selectionItem2);
+    qSort(selectionItems1);
+    qSort(selectionItems2);
 
     // get the size of the biggest list
-    const int biggestSize = qMax(selectionItem1.size(), selectionItem2.size());
+    const int selection1Size = selectionItems1.size();
+    const int selection2Size = selectionItems2.size();
+    const int biggestSize = qMax(selection1Size, selection2Size);
 
-    // compute correlation (TODO)
-
-    // get the plotting data
-    //TODO should take into account different genes
-    QVector<qreal> x(biggestSize);
-    QVector<qreal> y(biggestSize);
+    //take into account different genes that some genes might be present in only one selection
+    QHash<QString, QPair<qreal,qreal> > genesToNormalizedReads;
     for (int i = 0; i < biggestSize; ++i) {
-        x[i] = selectionItem1.size() > i ? selectionItem1.at(i).normalizedReads : 0.0;
-        y[i] = selectionItem2.size() > i ? selectionItem2.at(i).normalizedReads : 0.0;
+        if (selection1Size > i) {
+            const auto& selection1 = selectionItems1.at(i);
+            if (!genesToNormalizedReads.contains(selection1.name)) {
+                genesToNormalizedReads[selection1.name] = QPair<qreal,qreal>(-1.0, -1.0);
+            }
+            genesToNormalizedReads[selection1.name].first = selection1.normalizedReads;
+        }
+        if (selection2Size > i) {
+            const auto& selection2 = selectionItems2.at(i);
+            if (!genesToNormalizedReads.contains(selection2.name)) {
+                genesToNormalizedReads[selection2.name] = QPair<qreal,qreal>(-1.0, -1.0);
+            }
+            genesToNormalizedReads[selection2.name].second = selection2.normalizedReads;
+        }
     }
 
-    //TODO send correlation to show in the header
+    QVector<qreal> x;
+    QVector<qreal> y;
+    QVector<qreal> logX;
+    QVector<qreal> logY;
+    qreal sumSelection1 = 0.0;
+    qreal sumSelection2 = 0.0;
+    qreal sumSquaredSelection1 = 0.0;
+    qreal sumSquaredSelection2 = 0.0;
+    qreal sumSquaredSelection12 = 0.0;
+    int countOnly1 = 0;
+    int countOnly2 = 0;
+    int countBoth = 0;
+    QHash<QString, QPair<qreal,qreal> >::const_iterator it = genesToNormalizedReads.begin();
+    QHash<QString, QPair<qreal,qreal> >::const_iterator end = genesToNormalizedReads.end();
+    for ( ; it != end; ++it) {
+
+        const bool geneNotInSelection1 = it.value().first == -1;
+        const bool geneNotInSelection2 = it.value().second == -1;
+
+        if (geneNotInSelection1) {
+            countOnly2++;
+        } else if (geneNotInSelection2) {
+            countOnly1++;
+        } else {
+            countBoth++;
+        }
+
+        //TODO validate 1.0 is a good value to assign when no gene present
+        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
+        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
+
+        x.push_back(valueSelection1);
+        y.push_back(valueSelection2);
+
+        logX.push_back(std::log10(valueSelection1));
+        logY.push_back(std::log10(valueSelection2));
+
+        sumSelection1 += valueSelection1;
+        sumSelection2 += valueSelection2;
+        sumSquaredSelection1 += valueSelection1 * valueSelection1;
+        sumSquaredSelection2 += valueSelection2 * valueSelection2;
+        sumSquaredSelection12 += valueSelection1 * valueSelection2;
+        //TODO consider use log values for correlation
+    }
+
+    const qreal meanSelection1 = sumSelection1 / biggestSize;
+    const qreal meanSelection2 = sumSelection2 / biggestSize;
+    const qreal stdDevSelection1 =
+            std::sqrt(sumSquaredSelection1 / biggestSize - meanSelection1 * meanSelection1);
+    const qreal stdDevSelection2 =
+            std::sqrt(sumSquaredSelection2 / biggestSize - meanSelection2 * meanSelection2);
+    const qreal correlation = (biggestSize * sumSquaredSelection12 - sumSelection1 * sumSelection2)
+            / std::sqrt((biggestSize * sumSquaredSelection2 - sumSelection1 * sumSelection1)
+                        * (biggestSize * sumSquaredSelection2 - sumSelection2 * sumSelection2));
+
+    //TODO use string formatter for this
+    QString headerText = "DDA Analysis\n"  +
+            QString::fromUtf8("Selection ") + selectionObject1->name() + QString::fromUtf8("\n") +
+            QString::fromUtf8("  number of genes ") + QString::number(selection1Size) + QString::fromUtf8("\n") +
+            QString::fromUtf8("  mean ") + QString::number(meanSelection1) + QString::fromUtf8("\n") +
+            QString::fromUtf8("  std dev ") + QString::number(stdDevSelection1) + QString::fromUtf8("\n") +
+            QString::fromUtf8("Selection ") + selectionObject2->name() + QString::fromUtf8("\n") +
+            QString::fromUtf8("  number of genes ") + QString::number(selection2Size) + QString::fromUtf8("\n") +
+            QString::fromUtf8("  mean ") + QString::number(meanSelection2) + QString::fromUtf8("\n") +
+            QString::fromUtf8("  std dev ") + QString::number(stdDevSelection2) + QString::fromUtf8("\n") +
+            QString::fromUtf8("Correlation ") + QString::number(correlation) + QString::fromUtf8("\n") +
+            QString::fromUtf8("Overlapping genes ") + QString::number(countBoth) + QString::fromUtf8("\n") +
+            QString::fromUtf8("Genes only in ") + selectionObject1->name() + " " + QString::number(countOnly1) + QString::fromUtf8("\n") +
+            QString::fromUtf8("Genes only in ") + selectionObject2->name() + " " + QString::number(countOnly2);
+
+    //TODO send values to ScatterPlot to be whoen in a widget
+    //TODO rename ScatterPlot
     ScatterPlot *scatterPlot = new ScatterPlot();
+    scatterPlot->setHeaderText(headerText);
     scatterPlot->plot(x, y, selectionObject1->name() + " - (tpm+1)",
                       selectionObject2->name() + " - (tpm+1)");
 

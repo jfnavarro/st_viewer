@@ -24,6 +24,8 @@ public:
     explicit ScatterPlot(QWidget *parent = 0);
     ~ScatterPlot();
 
+    void setHeaderText(const QString& text);
+
     template<typename T>
     void plot(const QVector<T> &listX, const QVector<T> &listY,
               const QString& labelX = "X axes",

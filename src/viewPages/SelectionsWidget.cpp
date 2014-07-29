@@ -92,6 +92,11 @@ void SelectionsWidget::clear()
 {
     m_geneSelectionFilterLineEdit->clearFocus();
     m_geneSelectionFilterLineEdit->clear();
+
+    m_selections_tableview->clearSelection();
+    m_selections_tableview->clearFocus();
+
+    getModel()->clearSelectedGenes();
 }
 
 void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &geneList)

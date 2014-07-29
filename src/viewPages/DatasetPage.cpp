@@ -125,7 +125,6 @@ void DatasetPage::slotLoadDatasets()
 
 void DatasetPage::slotRefreshDatasets()
 {
-    //TODO make sure dataset cache does not need to be cleaned here
     slotLoadDatasets();
 }
 

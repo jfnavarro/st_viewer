@@ -130,6 +130,13 @@ void GeneFeatureItemModel::loadGenes(DataProxy::GeneList &geneList)
     endResetModel();
 }
 
+void GeneFeatureItemModel::clearGenes()
+{
+    beginResetModel();
+    m_genelist_reference.clear();
+    endResetModel();
+}
+
 bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
 {
     if (!index.isValid() || m_genelist_reference.isEmpty()) {
@@ -164,10 +171,9 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
         if (!gene.isNull() && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Show, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
         }
     }
+
 
     emit signalSelectionChanged(geneList);
 }
@@ -189,8 +195,6 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
-            QModelIndex selectIndex = index(row, Show, QModelIndex());
-            emit dataChanged(selectIndex, selectIndex);
         }
     }
 

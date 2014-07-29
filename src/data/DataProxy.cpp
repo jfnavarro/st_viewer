@@ -486,7 +486,8 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
     //it is safer to always force to download them
 
     //creates the request
-    NetworkCommand *cmd = RESTCommandFactory::getGenesByDatasetId(m_configurationManager, datasetId);
+    NetworkCommand *cmd =
+            RESTCommandFactory::getGenesByDatasetId(m_configurationManager, datasetId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
@@ -506,7 +507,8 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
     //it is safer to always force to download them
 
     //creates the request
-    NetworkCommand *cmd = RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
+    NetworkCommand *cmd =
+            RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
@@ -525,7 +527,8 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     //it is safer to always force to download them
 
     //creates the request
-    NetworkCommand *cmd = RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
+    NetworkCommand *cmd =
+            RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
@@ -648,7 +651,8 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
         return request;
     }
     //creates the request
-    NetworkCommand *cmd = RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
+    NetworkCommand *cmd =
+            RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
     cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"

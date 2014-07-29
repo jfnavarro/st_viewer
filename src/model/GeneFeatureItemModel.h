@@ -56,6 +56,9 @@ public:
     //reload the reference to the genes from DataProxy
     void loadGenes(DataProxy::GeneList &geneList);
 
+    //clear and reset the model
+    void clearGenes();
+
 public slots:
     //TODO pass reference instead for genename
     bool geneName(const QModelIndex &index, QString *genename) const;

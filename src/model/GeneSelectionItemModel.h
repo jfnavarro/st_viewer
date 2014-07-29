@@ -48,6 +48,9 @@ public:
     //load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 
+    //resets and clears the model
+    void clearSelectedGenes();
+
 public slots:
     //TODO pass reference instead for genename
     bool geneName(const QModelIndex &index, QString *genename) const;

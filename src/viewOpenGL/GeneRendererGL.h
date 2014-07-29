@@ -106,7 +106,6 @@ private:
 
     // helper function to be used when user whan to select features using
     // a list of genes
-    // function assumes the genes were all selected
     void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
@@ -151,7 +150,6 @@ private:
     int m_max;
     int m_pooledMin;
     int m_pooledMax;
-    int m_totalCount;
 
     // bounding rect area
     QRectF m_border;

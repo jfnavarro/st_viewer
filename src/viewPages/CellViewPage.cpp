@@ -176,6 +176,13 @@ void CellViewPage::onExit()
 {
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();
+
+    m_gene_plotter->clearData();
+    m_grid->clearData();
+    //m_legend->clearData();
+    m_image->clear();
+    m_view->clearData();
+    m_view->update();
 }
 
 //TODO double check that showing a error message while having progress bar is OK
@@ -301,17 +308,15 @@ void CellViewPage::createConnections()
 void CellViewPage::resetActionStates()
 {
     // resets genes color and visible to default (must be done first)
+    // TODO should be a function to do this in DataProxy
     auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
     for (auto gene : geneList) {
         gene->selected(false);
         gene->color(Globals::DEFAULT_COLOR_GENE);
     }
 
-    // load data for gene model, also resets it
+    // load data for gene model,
     m_ui->genesWidget->slotLoadModel(geneList);
-
-    // resets gene selection model
-    m_ui->selectionsWidget->slotLoadModel(GeneSelection::selectedItemsList());
 
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(Globals::DEFAULT_COLOR_GRID);

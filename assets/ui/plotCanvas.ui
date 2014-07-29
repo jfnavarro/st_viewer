@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>477</height>
+    <width>826</width>
+    <height>886</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -40,6 +40,9 @@
         </size>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QTextBrowser" name="textBrowser"/>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">

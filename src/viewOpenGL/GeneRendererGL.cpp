@@ -79,9 +79,6 @@ void GeneRendererGL::clearData()
     // update visual mode
     m_visualMode = Globals::NormalMode;
 
-    // total count will hold the total sum of the reads of all the features
-    m_totalCount = 0;
-
     //reset scene node
     if (!m_geneNode.isNull()) {
         m_geneNode->deleteLater();
@@ -198,10 +195,6 @@ void GeneRendererGL::generateData()
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
 
-        // update the total sum variable
-        //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
-        m_totalCount += std::min(feature->hits(), m_max);
-
         // test if point already exists (quad tree)
         GeneInfoQuadTree::PointItem item(point, INVALID_INDEX);
         m_geneInfoQuadTree.select(point, item);
@@ -229,7 +222,7 @@ void GeneRendererGL::updateSize()
 {
     GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
-    for( ; it != end; ++it) {
+    for ( ; it != end; ++it) {
         // update size of the quad for all features
         const int index = it.value();
         DataProxy::FeaturePtr feature = it.key();
@@ -255,8 +248,8 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
     //are fixed the following two lines should be removed. Other problems
     //are related to the threshold filtering.
     updateVisual();
-    return;
 
+    /*
     //iterate the list of genes
     foreach (DataProxy::GenePtr gene, geneList) {
         Q_ASSERT(!gene.isNull());
@@ -303,6 +296,7 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
 
     m_isDirty = true;
     emit updated();
+    */
 }
 
 void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
@@ -319,8 +313,8 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
     //are fixed the following two lines should be removed. Other problems
     //are related to the threshold filtering.
     updateVisual();
-    return;
 
+    /*
     // clear previous selections when updating visible
     //TODO this is expensive, check if needed or find a way around
     clearSelection();
@@ -371,6 +365,7 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
 
     m_isDirty = true;
     emit updated();
+    */
 }
 
 void GeneRendererGL::updateVisual()
@@ -484,15 +479,17 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
     clearSelection();
 
     // iterate the features
-    // asssumes the genes of the given features are all selected
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
         const int index = m_geneInfoById.value(feature);
         const int refCount = m_geneData.quadRefCount(index);
         const int hits = feature->hits();
         const int value = m_geneData.quadValue(index);
+        //TODO a ref to the gene ptr should be member of the feature
+        const auto gene =
+                m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
         // do not select non-visible features or outside threshold
-        if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
+        if (refCount <= 0 || isFeatureOutsideRange(hits, value) || !gene->selected()) {
             continue;
         }
         // make the selection
@@ -511,28 +508,45 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
-    //aggregate all the selected features using SelectionType objects
-    QMap<QString, SelectionType> geneSelectionsMap;
+    //aggregate all the selected features using SelectionType objects (aggregate by gene)
+    QHash<QString, SelectionType> geneSelectionsMap;
     int mappedX = 0;
     int mappedY = 0;
+    qreal totaReads = 0.0;
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
         if (feature->selected()) {
+
+            const QString geneName = feature->gene();
+
+            //TODO a ref to the gene ptr should be member of the feature
+            const auto gene =
+                    m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), geneName);
+            //not include non selected genes
+            if (!gene->selected()) {
+                continue;
+            }
+
             //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
             const int adjustedReads = std::min(feature->hits(), m_max);
-            const QString gene = feature->gene();
-            geneSelectionsMap[gene].count++;
-            geneSelectionsMap[gene].reads += adjustedReads;
-            // normalization as reads per million described in literature
-            geneSelectionsMap[gene].normalizedReads =
-                    ((geneSelectionsMap[gene].reads * 10e5) / static_cast<qreal>(m_totalCount)) + 1;
+            totaReads += adjustedReads;
+            geneSelectionsMap[geneName].count++;
+            geneSelectionsMap[geneName].reads += adjustedReads;
             //mapping points to image CS (would be faster to convert the image)
             transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
             //qGray gives more weight to the green channel
-            geneSelectionsMap[gene].pixeIntensity += qGray(m_image.pixel(mappedX, mappedY));
-            geneSelectionsMap[gene].name = gene;
+            geneSelectionsMap[geneName].pixeIntensity += qGray(m_image.pixel(mappedX, mappedY));
+            geneSelectionsMap[geneName].name = geneName;
         }
+    }
+
+    QHash<QString, SelectionType>::iterator it = geneSelectionsMap.begin();
+    QHash<QString, SelectionType>::iterator end = geneSelectionsMap.end();
+    //compute the normalization using the total sum of reads in the selection
+    for ( ; it != end; ++it) {
+        // normalization as reads per million described in literature
+        it.value().normalizedReads = ((it.value().reads * 10e5) / totaReads) + 1;
     }
 
     return geneSelectionsMap.values();

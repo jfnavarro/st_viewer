@@ -67,7 +67,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_colorList->setFixedWidth(60);
     m_colorList->setToolTip(tr("Set color of selected genes:"));
     connect(m_colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-            [=]() { slotSetColorAllSelected(m_colorList->color());});
+            [=]() { slotSetColorAllSelected(m_colorList->color()); });
 
     geneListLayout->addWidget(m_showSelectedButton);
     geneListLayout->addWidget(m_hideSelectedButton);
@@ -134,9 +134,12 @@ void GenesWidget::clear()
     m_lineEdit->clearFocus();
     m_lineEdit->clear();
 
-    m_colorList->setColor(Globals::DEFAULT_COLOR_GENE);
-
     m_genes_tableview->clearSelection();
+    m_genes_tableview->clearFocus();
+
+    getModel()->clearGenes();
+
+    m_colorList->setColor(Globals::DEFAULT_COLOR_GENE);
 }
 
 void GenesWidget::slotShowAllSelected()
@@ -152,13 +155,14 @@ void GenesWidget::slotHideAllSelected()
 void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
     getModel()->setGeneVisibility(m_genes_tableview->geneTableItemSelection(), visible);
-    m_genes_tableview->repaint();
+    m_genes_tableview->update();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
+    qDebug() << "Setting color to " << color;
     getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
-    m_genes_tableview->repaint();
+    m_genes_tableview->update();
 }
 
 void GenesWidget::slotLoadModel(DataProxy::GeneList &geneList)

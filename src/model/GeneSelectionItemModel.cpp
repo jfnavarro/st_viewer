@@ -125,3 +125,10 @@ void GeneSelectionItemModel::loadSelectedGenes(
     m_geneselection = selectionList;
     endResetModel();
 }
+
+void GeneSelectionItemModel::clearSelectedGenes()
+{
+    beginResetModel();
+    m_geneselection.clear();
+    endResetModel();
+}
