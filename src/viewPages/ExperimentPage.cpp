@@ -14,6 +14,7 @@
 #include <QSortFilterProxyModel>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTableWidgetItem>
 
 #include "io/GeneExporter.h"
 
@@ -309,6 +310,10 @@ void ExperimentPage::slotPerformDDA()
         }
     }
 
+    //TODO send values to ScatterPlot to be whoen in a widget
+    //TODO rename ScatterPlot
+    ScatterPlot *scatterPlot = new ScatterPlot(biggestSize);
+
     QVector<qreal> x;
     QVector<qreal> y;
     QVector<qreal> logX;
@@ -321,12 +326,22 @@ void ExperimentPage::slotPerformDDA()
     int countOnly1 = 0;
     int countOnly2 = 0;
     int countBoth = 0;
+    int index = 0;
     QHash<QString, QPair<qreal,qreal> >::const_iterator it = genesToNormalizedReads.begin();
     QHash<QString, QPair<qreal,qreal> >::const_iterator end = genesToNormalizedReads.end();
     for ( ; it != end; ++it) {
 
         const bool geneNotInSelection1 = it.value().first == -1;
         const bool geneNotInSelection2 = it.value().second == -1;
+
+        //TODO validate 1.0 is a good value to assign when no gene present
+        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
+        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
+
+        scatterPlot->getTable()->setItem(index, 0, new QTableWidgetItem(it.key()));
+        scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem(QString::number(it.value().first)));
+        scatterPlot->getTable()->setItem(index, 2, new QTableWidgetItem(QString::number(it.value().second)));
+        index++;
 
         if (geneNotInSelection1) {
             countOnly2++;
@@ -335,10 +350,6 @@ void ExperimentPage::slotPerformDDA()
         } else {
             countBoth++;
         }
-
-        //TODO validate 1.0 is a good value to assign when no gene present
-        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
-        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
 
         x.push_back(valueSelection1);
         y.push_back(valueSelection2);
@@ -379,9 +390,6 @@ void ExperimentPage::slotPerformDDA()
             QString::fromUtf8("Genes only in ") + selectionObject1->name() + " " + QString::number(countOnly1) + QString::fromUtf8("\n") +
             QString::fromUtf8("Genes only in ") + selectionObject2->name() + " " + QString::number(countOnly2);
 
-    //TODO send values to ScatterPlot to be whoen in a widget
-    //TODO rename ScatterPlot
-    ScatterPlot *scatterPlot = new ScatterPlot();
     scatterPlot->setHeaderText(headerText);
     scatterPlot->plot(x, y, selectionObject1->name() + " - (tpm+1)",
                       selectionObject2->name() + " - (tpm+1)");

@@ -15,16 +15,20 @@ namespace Ui {
 class plotCanvas;
 }
 
+class QTableWidget;
+
 class ScatterPlot : public QWidget
 {
     Q_OBJECT
 
 public:
 
-    explicit ScatterPlot(QWidget *parent = 0);
+    explicit ScatterPlot(int size, QWidget *parent = 0);
     ~ScatterPlot();
 
     void setHeaderText(const QString& text);
+
+    QTableWidget* getTable() const;
 
     template<typename T>
     void plot(const QVector<T> &listX, const QVector<T> &listY,
@@ -54,7 +58,7 @@ public:
         m_customPlot->xAxis->setTicks(true);
         m_customPlot->yAxis->setTicks(true);
         // plot and add mouse interaction
-        m_customPlot->setFixedSize(800, 800);
+        m_customPlot->setFixedSize(800, 400);
         m_customPlot->replot();
         m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
         m_customPlot->show();
