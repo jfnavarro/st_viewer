@@ -44,8 +44,6 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits,
                                              QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::NormalizedHits,
-                                             QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::PixelItensity,
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSortIndicatorShown(true);

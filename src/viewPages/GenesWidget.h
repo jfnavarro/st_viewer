@@ -17,15 +17,13 @@ class QLineEdit;
 class GenesTableView;
 class GeneFeatureItemModel;
 class QSortFilterProxyModel;
-class ColorListEditor;
+class QColorDialog;
 
 //This widget is part of the CellView,
 //it is componsed of the Gene Table
 //a search field and the select and action
 //menus
 
-//TODO current approach with menus gives problems
-//in MAC, replaced temporary for push buttons
 class GenesWidget : public QWidget
 {
     Q_OBJECT
@@ -65,7 +63,8 @@ private slots:
     QPointer<QPushButton> m_selectionClearAllButton;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
-    QPointer<ColorListEditor> m_colorList;
+    QPointer<QColorDialog> m_colorList;
+    QPointer<QPushButton> m_showColorButton;
     QPointer<QPushButton> m_showSelectedButton;
     QPointer<QPushButton> m_hideSelectedButton;
 

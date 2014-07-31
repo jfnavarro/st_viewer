@@ -86,8 +86,8 @@ QVariant DatasetItemModel::headerData(int section,
             case Name : return tr("Name");
             case Tissue : return tr("Tissue");
             case Specie : return tr("Species");
-            case Barcodes : return tr("Reads");
-            case Genes : return tr("Events");
+            case Barcodes : return tr("Unique events");
+            case Genes : return tr("Transcript reads");
             case UBarcodes : return tr("Detected Barcodes");
             case UGenes : return tr("Detected Genes");
             case Created: return tr("Created");

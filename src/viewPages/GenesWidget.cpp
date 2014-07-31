@@ -14,13 +14,11 @@
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QAction>
+#include <QColorDialog>
 
 #include "viewTables/GenesTableView.h"
-
 #include "model/GeneFeatureItemModel.h"
 
-#include "color/ColorListEditor.h"
-#include "color/ColorPalette.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
     QWidget(parent),
@@ -29,6 +27,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_lineEdit(nullptr),
     m_genes_tableview(nullptr),
     m_colorList(nullptr),
+    m_showColorButton(nullptr),
     m_showSelectedButton(nullptr),
     m_hideSelectedButton(nullptr)
 {
@@ -42,12 +41,14 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_selectionAllButton = new QPushButton(this);
     m_selectionAllButton->setIcon(QIcon(QStringLiteral(":/images/checkall.png")));
     m_selectionAllButton->setToolTip(tr("Select all genes"));
-    connect(m_selectionAllButton, SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
+    connect(m_selectionAllButton,
+            SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
 
     m_selectionClearAllButton = new QPushButton(this);
     m_selectionClearAllButton->setIcon(QIcon(QStringLiteral(":/images/uncheckall.png")));
     m_selectionClearAllButton->setToolTip(tr("Deselect all genes"));
-    connect(m_selectionClearAllButton, SIGNAL(clicked(bool)), m_genes_tableview, SLOT(clearSelection()));
+    connect(m_selectionClearAllButton,
+            SIGNAL(clicked(bool)), m_genes_tableview, SLOT(clearSelection()));
 
     geneListLayout->addWidget(m_selectionAllButton);
     geneListLayout->addWidget(m_selectionClearAllButton);
@@ -63,15 +64,19 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_hideSelectedButton->setIcon(QIcon(QStringLiteral(":/images/novisible.png")));
     connect(m_hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
 
-    m_colorList = new ColorListEditor(this);
-    m_colorList->setFixedWidth(60);
-    m_colorList->setToolTip(tr("Set color of selected genes:"));
-    connect(m_colorList, static_cast< void (QComboBox::*)(int) >(&QComboBox::activated),
-            [=]() { slotSetColorAllSelected(m_colorList->color()); });
+    m_showColorButton = new QPushButton(this);
+    m_showColorButton->setToolTip(tr("Set color of selected genes:"));
+    m_showColorButton->setIcon(QIcon(QStringLiteral(":/images/select-by-color-icon.png")));
+    m_colorList = new QColorDialog(Globals::DEFAULT_COLOR_GENE, this);
+    //OSX native color dialog gives problems
+    m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
+    connect(m_showColorButton, &QPushButton::clicked, [=]{ m_colorList->show(); });
+    connect(m_colorList, &QColorDialog::colorSelected,
+            [=]() { slotSetColorAllSelected(m_colorList->currentColor()); });
 
     geneListLayout->addWidget(m_showSelectedButton);
     geneListLayout->addWidget(m_hideSelectedButton);
-    geneListLayout->addWidget(m_colorList);
+    geneListLayout->addWidget(m_showColorButton);
 
     //add separation and stretch in between the search box
     geneListLayout->addSpacing(5);
@@ -122,6 +127,9 @@ GenesWidget::~GenesWidget()
     m_colorList->deleteLater();
     m_colorList = nullptr;
 
+    m_showColorButton->deleteLater();
+    m_showColorButton = nullptr;
+
     m_showSelectedButton->deleteLater();
     m_showSelectedButton = nullptr;
 
@@ -139,7 +147,7 @@ void GenesWidget::clear()
 
     getModel()->clearGenes();
 
-    m_colorList->setColor(Globals::DEFAULT_COLOR_GENE);
+    m_colorList->setCurrentColor(Globals::DEFAULT_COLOR_GENE);
 }
 
 void GenesWidget::slotShowAllSelected()

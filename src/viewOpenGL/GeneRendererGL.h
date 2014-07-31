@@ -48,8 +48,8 @@ public:
     //returns the currently selected genes
     GeneSelection::selectedItemsList getSelectedIItems() const;
 
-    //sets the local copy of the cell tissue image
-    //be aware the local transformation matrix has been assigned
+    // stores a local copy of the tissue image in genes cordinate space
+    // so we can obtain pixel intensity values when storing selections
     void setImage(const QImage& image);
 
     // threshold limits pooled and not pooled for feature hits

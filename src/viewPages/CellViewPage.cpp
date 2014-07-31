@@ -65,7 +65,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->setupUi(this);
 
     // color dialogs
-    m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID);
+    m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID, this);
     //OSX native color dialog gives problems
     m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
 
@@ -177,9 +177,7 @@ void CellViewPage::onExit()
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();
 
-    m_gene_plotter->clearData();
     m_grid->clearData();
-    //m_legend->clearData();
     m_image->clear();
     m_view->clearData();
     m_view->update();

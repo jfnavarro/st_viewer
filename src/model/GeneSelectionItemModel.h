@@ -28,8 +28,7 @@ public:
         Name = 0,
         Count = 1,
         Hits = 2,
-        NormalizedHits = 3,
-        PixelItensity = 4
+        PixelItensity = 3
     };
 
     explicit GeneSelectionItemModel(QObject* parent = 0);

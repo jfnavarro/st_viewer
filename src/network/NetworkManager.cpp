@@ -139,7 +139,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         QByteArray jsonData = cmd->jsonQuery();
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
         request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
-        qDebug() << "[NetworkManager] POST:" << request.url() << "DATA: " << jsonData;
+        qDebug() << "[NetworkManager] POST:" << request.url();
         // send request
         networkReply = m_nam->post(request, jsonData);
         break;
@@ -153,7 +153,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         QByteArray jsonData = cmd->jsonQuery();
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
         request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
-        qDebug() << "[NetworkManager] PUT:" << request.url() << "DATA: " << jsonData;
+        qDebug() << "[NetworkManager] PUT:" << request.url();
         // send request
         networkReply = m_nam->put(request, jsonData);
         break;

@@ -365,6 +365,8 @@ void ExperimentPage::slotPerformDDA()
         //TODO consider use log values for correlation
     }
 
+    scatterPlot->getTable()->setSortingEnabled(true);
+
     const qreal meanSelection1 = sumSelection1 / biggestSize;
     const qreal meanSelection2 = sumSelection2 / biggestSize;
     const qreal stdDevSelection1 =
@@ -376,21 +378,14 @@ void ExperimentPage::slotPerformDDA()
                         * (biggestSize * sumSquaredSelection2 - sumSelection2 * sumSelection2));
 
     //TODO use string formatter for this
-    QString headerText = "DDA Analysis\n"  +
-            QString::fromUtf8("Selection ") + selectionObject1->name() + QString::fromUtf8("\n") +
-            QString::fromUtf8("  number of genes ") + QString::number(selection1Size) + QString::fromUtf8("\n") +
-            QString::fromUtf8("  mean ") + QString::number(meanSelection1) + QString::fromUtf8("\n") +
-            QString::fromUtf8("  std dev ") + QString::number(stdDevSelection1) + QString::fromUtf8("\n") +
-            QString::fromUtf8("Selection ") + selectionObject2->name() + QString::fromUtf8("\n") +
-            QString::fromUtf8("  number of genes ") + QString::number(selection2Size) + QString::fromUtf8("\n") +
-            QString::fromUtf8("  mean ") + QString::number(meanSelection2) + QString::fromUtf8("\n") +
-            QString::fromUtf8("  std dev ") + QString::number(stdDevSelection2) + QString::fromUtf8("\n") +
-            QString::fromUtf8("Correlation ") + QString::number(correlation) + QString::fromUtf8("\n") +
-            QString::fromUtf8("Overlapping genes ") + QString::number(countBoth) + QString::fromUtf8("\n") +
-            QString::fromUtf8("Genes only in ") + selectionObject1->name() + " " + QString::number(countOnly1) + QString::fromUtf8("\n") +
-            QString::fromUtf8("Genes only in ") + selectionObject2->name() + " " + QString::number(countOnly2);
-
-    scatterPlot->setHeaderText(headerText);
+    //TODO the idea is to do the computation in AnalysisDDA class and pass that object
+    //to the visualization widget
+    scatterPlot->setNumberGenes(QString::number(selection1Size) , QString::number(selection2Size));
+    scatterPlot->setMean(QString::number(meanSelection1), QString::number(meanSelection2));
+    scatterPlot->setStdDev(QString::number(stdDevSelection1), QString::number(stdDevSelection2));
+    scatterPlot->setCorrelation(QString::number(correlation));
+    scatterPlot->setOverlapping(QString::number(countBoth), QString::number(countOnly1), QString::number(countOnly2));
+    scatterPlot->setSelection(selectionObject1->name(), selectionObject2->name());
     scatterPlot->plot(x, y, selectionObject1->name() + " - (tpm+1)",
                       selectionObject2->name() + " - (tpm+1)");
 

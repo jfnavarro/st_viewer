@@ -95,6 +95,7 @@ void CellGLView::clearData()
     m_rubberBanding = false;
     m_selecting = false;
     m_rotate = 0.0;
+    //TODO fix to set zoom to default
     //m_zoom_factor = 1.0;
 }
 

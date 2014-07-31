@@ -53,7 +53,6 @@ private:
 
     QPointer<QProgressDialog> m_progressDialog;
     QPointer<QTimer> m_timer;
-    int m_steps;
 };
 
 #endif // PAGE_H

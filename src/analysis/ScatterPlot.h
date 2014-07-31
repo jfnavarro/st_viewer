@@ -26,7 +26,12 @@ public:
     explicit ScatterPlot(int size, QWidget *parent = 0);
     ~ScatterPlot();
 
-    void setHeaderText(const QString& text);
+    void setOverlapping(const QString& both, const QString& onlyA, const QString& onlyB);
+    void setCorrelation(const QString& text);
+    void setStdDev(const QString& textA, const QString& textB);
+    void setMean(const QString& textA, const QString& textB);
+    void setNumberGenes(const QString& textA, const QString& textB);
+    void setSelection(const QString& textA, const QString& textB);
 
     QTableWidget* getTable() const;
 
@@ -46,7 +51,7 @@ public:
         m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
         m_customPlot->graph(0)->rescaleAxes(true);
         // sets the legend
-        m_customPlot->legend->setVisible(true);
+        m_customPlot->legend->setVisible(false);
         // give the axes some labels:
         m_customPlot->xAxis->setLabel(labelX);
         m_customPlot->yAxis->setLabel(labelY);
@@ -58,7 +63,7 @@ public:
         m_customPlot->xAxis->setTicks(true);
         m_customPlot->yAxis->setTicks(true);
         // plot and add mouse interaction
-        m_customPlot->setFixedSize(800, 400);
+        m_customPlot->setFixedSize(521, 491);
         m_customPlot->replot();
         m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
         m_customPlot->show();

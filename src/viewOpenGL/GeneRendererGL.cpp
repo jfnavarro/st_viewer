@@ -555,8 +555,7 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
-    // stores a local copy of the tissue image in genes cordinate space
-    // so we can obtain pixel intensity values when storing selections
+
 
     //TODO seems like doing the inverse transformation is not accurate
     //m_image = image.transformed(transform().inverted().toAffine());

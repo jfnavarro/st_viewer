@@ -7,25 +7,32 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QStyle>
+#include <QDesktopWidget>
 
 #include "Page.h"
 
 Page::Page(QWidget *parent) :
     QWidget(parent),
     m_progressDialog(nullptr),
-    m_timer(nullptr),
-    m_steps(0)
+    m_timer(nullptr)
 {
-    m_progressDialog= new QProgressDialog("Downloading data...", "Cancel", 0, 100, this);
+    m_progressDialog = new QProgressDialog(this);
+    m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
-    //TODO remove max/min buttons
-    //m_progressDialog->setWindowFlags(Qt::CustomizeWindowHint |
-    //                                 Qt::WindowTitleHint);
+    m_progressDialog->setWindowFlags(m_progressDialog->windowFlags()
+                                     & ~Qt::WindowContextHelpButtonHint
+                                     & ~Qt::WindowCancelButtonHint
+                                     & ~Qt::WindowCloseButtonHint
+                                     & ~Qt::WindowMinMaxButtonsHint);
     m_progressDialog->setCancelButton(nullptr);
     m_progressDialog->setAutoClose(false);
+    m_progressDialog->setRange(0,0);
+
     //TODO implement abort logic
     //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
-    m_timer = new QTimer();
+    m_timer = new QTimer(this);
+    m_timer->setInterval(500);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(increaseBar()));
 }
 
@@ -42,27 +49,17 @@ void Page::setWaiting(bool waiting, const QString &label)
 {
     if (waiting) {
         m_progressDialog->setLabelText(label);
-        m_progressDialog->setValue(0);
         m_progressDialog->show();
-        m_progressDialog->raise();
-        m_progressDialog->activateWindow();
-        m_steps = 0;
-        m_timer->start(100);
+        m_timer->start();
     } else {
         m_timer->stop();
         m_progressDialog->cancel();
-        m_progressDialog->hide();
     }
 }
 
 void Page::increaseBar()
 {
-    m_progressDialog->setValue(m_steps);
-    if (++m_steps > m_progressDialog->maximum()) {
-        m_timer->start(100);
-        m_steps = 0;
-        m_progressDialog->setValue(0);
-    }
+    m_progressDialog->setValue(m_progressDialog->value() + 1);
 }
 
 void Page::showInfo(const QString &header, const QString &body)
