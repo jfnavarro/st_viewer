@@ -9,7 +9,7 @@ set(SRC_libqcustomplot
 
 # Add library and include directory
 add_library(qcustomplot OBJECT ${SRC_libqcustomplot})
-include_directories(${PROJECT_SOURCE_DIR}/ext/libqcustomplot)
+include_directories(${PROJECT_SOURCE_DIR}/ext/qcustomplot)
 
 # Organize lib into solution folder
 project_group(qcustomplot "ext")

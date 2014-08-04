@@ -203,12 +203,18 @@ void CellGLView::paintGL()
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    //get DPI to adjust for retina screens
+    const qreal pixelRatio = devicePixelRatio();
+
     //render nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
             if (node->transformable()) {
                 local_transform *= sceneTransformations();
+            }
+            if (pixelRatio != 1.0) {
+                local_transform *= QTransform::fromScale(pixelRatio, pixelRatio);
             }
             painter.modelViewMatrix().push();
             painter.modelViewMatrix() *= local_transform;

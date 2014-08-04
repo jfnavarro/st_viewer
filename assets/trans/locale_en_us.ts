@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en">
+<TS version="2.1" language="en">
 <context>
     <name>ApplicationError</name>
     <message>
@@ -38,7 +38,6 @@
         <source>NoError:Description</source>
         <translation type="unfinished">Unknown error occurred.</translation>
     </message>
-
     <message>
         <source>BadRequest:Name</source>
         <translation>%1</translation>
@@ -47,7 +46,6 @@
         <source>BadRequest:Description</source>
         <translation type="unfinished">%1</translation>
     </message>
-
     <message>
         <source>ResourceNotFound:Name</source>
         <translation>%1</translation>
@@ -64,7 +62,6 @@
         <source>UnknownError:Description</source>
         <translation>An unknown server error has occured (internal error code: %1).</translation>
     </message>
-
 </context>
 <context>
     <name>OAuth2Error</name>
@@ -710,13 +707,20 @@
         <translation type="unfinished">The JSON document is too deeply nested for the parser to parse it.</translation>
     </message>
     <message>
+        <source>DocumentTooLarge:Name</source>
+        <translation type="unfinished">Document Too Large Error</translation>
+    </message>
+    <message>
+        <source>DocumentTooLarge:Description</source>
+        <translation type="unfinished">The JSON document is too large to be parsed.</translation>
+    </message>
+    <message>
         <source>UnknownError:Name</source>
         <translation type="unfinished">Unknown JSON Error</translation>
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation type="unfinished">An unknown JSON error has occured (internal error code: %1).</translation>
+        <translation>An unknown JSON error has occured (internal error code: %1).</translation>
     </message>
 </context>
 </TS>
-

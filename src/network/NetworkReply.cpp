@@ -24,6 +24,10 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
+#include "japy/japy.hpp"
+
+#include <iostream>
+
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
 {
@@ -65,6 +69,7 @@ QJsonDocument NetworkReply::getJSON()
 
     // trigger error signals on error
     if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "Error parsing JSON " << parseError.errorString();
         QSharedPointer<Error> error(new JSONError(parseError.error, this));
         registerError(error);
     }

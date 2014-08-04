@@ -109,6 +109,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
     // dataset
     case DatasetDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         DatasetDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -127,6 +130,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // gene
     case GeneDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // gene list by dataset
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
                    "DataProxy", "GeneData must include dataset parameter!");
@@ -155,6 +161,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // chip
     case ChipDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         ChipDTO dto;
         // should only be one item
@@ -169,6 +178,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // image alignment
     case ImageAlignmentDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         ImageAlignmentDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -187,6 +199,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // gene selection
     case GeneSelectionDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         GeneSelectionDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -212,6 +227,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // feature
     case FeatureDataType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // feature list by dataset
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
                    "DataProxy", "FeatureData must be include dataset parameter!");
@@ -244,6 +262,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // user
     case UserType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         UserDTO dto;
         // should only be one item
@@ -281,6 +302,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // min supported version
     case MinVersionType: {
         const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
         // intermediary parse object
         MinVersionDTO dto;
         // should only be one item
@@ -725,10 +749,17 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
                        "DataProxy", "Network transport data must be of map type!");
             const QVariantMap parameters = data.toMap();
             const bool ok = parseData(reply, parameters);
-            if (!ok) {
-                //TODO no data has been modified...what to do here?
+
+            //errors could happen parsing the json object
+            if (reply->hasErrors()) {
+                request.addError(reply->parseErrors());
+                request.return_code(async::DataRequest::CodeError);
             }
-            request.return_code(async::DataRequest::CodeSuccess);
+            else if (!ok) {
+                //TODO no data has been modified...what to do here?
+            } else {
+                request.return_code(async::DataRequest::CodeSuccess);
+            }
         }
     }
 

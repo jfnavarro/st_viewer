@@ -241,7 +241,7 @@ void GeneRendererGL::updateColor(DataProxy::GeneList geneList)
     }
 
     //TODO Well, right now we call updateVisual() which will
-    //build the data arrays from scratch, there should not be
+    //update the data arrays from scratch, there should not be
     //any need to do that expensive operation when updating few genes
     //there seems to be problems with this function when turning genes on/off
     //mainly related to interpolation of colors. Once those problems
@@ -306,7 +306,7 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
     }
 
     //TODO Well, right now we call updateVisual() which will
-    //build the data arrays from scratch, there should not be
+    //update the data arrays from scratch, there should not be
     //any need to do that expensive operation when updating few genes
     //there seems to be problems with this function when turning genes on/off
     //mainly related to interpolation of colors. Once those problems

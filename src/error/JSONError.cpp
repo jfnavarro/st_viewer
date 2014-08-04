@@ -112,6 +112,12 @@ void JSONError::init(QJsonParseError::ParseError error)
         description = QApplication::translate(LOC_CONTEXT,
                                               "DeepNesting:Description");
         break;
+    case QJsonParseError::DocumentTooLarge:
+        name = QApplication::translate(LOC_CONTEXT,
+                                       "DocumentTooLarge:Name");
+        description = QApplication::translate(LOC_CONTEXT,
+                                              "DocumentTooLarge:Description");
+        break;
     default:
         name = QApplication::translate(LOC_CONTEXT,
                                        "UnknownError:Name");

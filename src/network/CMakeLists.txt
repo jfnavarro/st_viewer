@@ -1,3 +1,5 @@
+include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/japy)
+
 set(LIBRARY_ARG_INCLUDES
     NetworkCommand.h
     NetworkManager.h
