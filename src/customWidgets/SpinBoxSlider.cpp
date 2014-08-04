@@ -38,9 +38,9 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent)
     m_layout->addWidget(m_spanslider);
     m_layout->addWidget(m_right_spinbox);
 
-    connect(m_spanslider, &QxtSpanSlider::lowerValueChanged,
+    connect(m_spanslider.data(), &QxtSpanSlider::lowerValueChanged,
             this, &SpinBoxSlider::setLowerValue);
-    connect(m_spanslider, &QxtSpanSlider::upperValueChanged,
+    connect(m_spanslider.data(), &QxtSpanSlider::upperValueChanged,
             this, &SpinBoxSlider::setUpperValue);
     connect(m_right_spinbox, SIGNAL(valueChanged(int)),
             this, SLOT(setUpperValue(int)));
