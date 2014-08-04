@@ -20,11 +20,7 @@ Page::Page(QWidget *parent) :
     m_progressDialog = new QProgressDialog(this);
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
-    m_progressDialog->setWindowFlags(m_progressDialog->windowFlags()
-                                     & ~Qt::WindowContextHelpButtonHint
-                                     & ~Qt::WindowCancelButtonHint
-                                     & ~Qt::WindowCloseButtonHint
-                                     & ~Qt::WindowMinMaxButtonsHint);
+    m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags() | Qt::CustomizeWindowHint) & (~Qt::WindowCloseButtonHint | ~Qt::WindowMinMaxButtonsHint)));
     m_progressDialog->setCancelButton(nullptr);
     m_progressDialog->setAutoClose(false);
     m_progressDialog->setRange(0,0);
