@@ -12,7 +12,7 @@ class SelectionType {
 public:
 
     SelectionType();
-    explicit SelectionType(const SelectionType& other);
+    SelectionType(const SelectionType& other);
     SelectionType(QString name, int reads, qreal
                   normalizedReads = 0, qreal pixeIntensity = 0);
 

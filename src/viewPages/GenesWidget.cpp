@@ -70,8 +70,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_colorList = new QColorDialog(Globals::DEFAULT_COLOR_GENE, this);
     //OSX native color dialog gives problems
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
-    connect(m_showColorButton, &QPushButton::clicked, [=]{ m_colorList->show(); });
-    connect(m_colorList, &QColorDialog::colorSelected,
+    connect(m_showColorButton.data(), &QPushButton::clicked, [=]{ m_colorList->show(); });
+    connect(m_colorList.data(), &QColorDialog::colorSelected,
             [=]() { slotSetColorAllSelected(m_colorList->currentColor()); });
 
     geneListLayout->addWidget(m_showSelectedButton);
