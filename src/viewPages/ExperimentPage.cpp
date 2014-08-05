@@ -9,7 +9,6 @@
 #include "ui_experiments.h"
 
 #include <cmath>
-#include <algorithm>
 
 #include <QDebug>
 #include <QSortFilterProxyModel>
@@ -284,8 +283,8 @@ void ExperimentPage::slotPerformDDA()
     auto selectionItems2 = selectionObject2->selectedItems();
 
     // sort the selection lists by name
-    std::sort(selectionItems1.begin(), selectionItems1.end());
-    std::sort(selectionItems2.begin(), selectionItems2.end());
+    qSort(selectionItems1);
+    qSort(selectionItems2);
 
     // get the size of the biggest list
     const int selection1Size = selectionItems1.size();
