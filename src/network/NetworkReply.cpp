@@ -25,10 +25,10 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
-#include "japy/japy.hpp"
 #include "picojson/picojson.h"
 
 #include <iostream>
+#include <sstream>
 
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
@@ -69,40 +69,34 @@ QJsonDocument NetworkReply::getJSON()
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
 
+    //TODO this is a hack to deal with the problem of having a Features JSON
+    //file big enough that Qt cannot parse it. This will only happen with Features
+    //a better and faster approach will be implemented soon
     if (parseError.error == QJsonParseError::DocumentTooLarge) {
-        /*QJsonArray features;
-        japy::parser_t parser ("$");
-        std::string stream = QString(rawJSON).toStdString();
-        for (auto part : stream) {
-
-            parser.put(part);
-
-            for (auto object: parser) {
-                QJsonObject feature;
-                feature["id"] = QString::fromStdString(object["id"].value());
-                std::string barcode;
-                object["barcode"] >> barcode;
-                feature["barcode"] = QString::fromStdString(barcode);
-                std::string gene;
-                object["gene"] >> gene;
-                feature["gene"] = QString::fromStdString(gene);
-                std::string annotation;
-                object["annotation"] >> annotation;
-                feature["annotation"] = QString::fromStdString(annotation);
-                int hits;
-                object["hits"] >> hits;
-                feature["hits"] = hits;
-                int x;
-                object["x"] >> x;
-                feature["x"] = x;
-                int y;
-                object["y"] >> y;
-                feature["y"] = y;
-                features.append(feature);
-            }
+        QJsonArray features;
+        std::stringstream jsonStream(std::string(rawJSON.data(), rawJSON.size()));
+        picojson::value v;
+        jsonStream >> v;
+        const picojson::array& a = v.get<picojson::array>();
+        for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
+          const picojson::object& o = i->get<picojson::object>();
+          QJsonObject feature;
+          for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
+              QString key = QString::fromStdString(i->first);
+              if (i->second.is<picojson::null>()) {
+                 //feature.insert(key, QJsonValue::Null);
+               } else if (i->second.is<bool>()) {
+                 feature.insert(key, i->second.get<bool>());
+               } else if (i->second.is<double>()) {
+                 feature.insert(key, i->second.get<double>());
+               } else if (i->second.is<std::string>()) {
+                 feature.insert(key, QString::fromStdString(i->second.get<std::string>()));
+               }
+          }
+          features.append(feature);
         }
         QJsonDocument newDoc(features);
-        doc = newDoc;*/
+        doc = newDoc;
     }
     // trigger error signals on error
     else if (parseError.error != QJsonParseError::NoError) {
