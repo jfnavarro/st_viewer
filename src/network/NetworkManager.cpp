@@ -98,19 +98,17 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         return nullptr;
     }
 
-    // creating the request
+    // create the qt network request
     QNetworkRequest request;
 
-    // add caching to request (only if network caching is active)
+    // add caching to request
     if (flags.testFlag(UseCache)) {
         request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                              QNetworkRequest::PreferCache);
     }
-
     // add pipeline to the request
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute,
                          flags.testFlag(UsePipelineMode));
-
     // add high priority
     if (flags.testFlag(UseHighPriority)) {
         request.setPriority(QNetworkRequest::HighPriority);
@@ -129,8 +127,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         // send request
         networkReply = m_nam->get(request);
         break;
-    }
-    case Globals::HttpRequestTypePost: {
+    } case Globals::HttpRequestTypePost: {
         // encode query as part of the url
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
@@ -143,8 +140,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         // send request
         networkReply = m_nam->post(request, jsonData);
         break;
-    }
-    case Globals::HttpRequestTypePut: {
+    } case Globals::HttpRequestTypePut: {
         // encode query as part of the url
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
@@ -157,8 +153,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
         // send request
         networkReply = m_nam->put(request, jsonData);
         break;
-    }
-    case Globals::HttpRequestTypeDelete: {
+    } case Globals::HttpRequestTypeDelete: {
         // encode query as part of the url
         QUrl queryUrl(cmd->url());
         queryUrl.setQuery(cmd->query());
@@ -171,8 +166,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
     case Globals::HttpRequestTypeNone: {
         qDebug() << "[NetworkManager] Error: Unkown request type";
         break;
-    }
-    default:
+    } default:
         qDebug() << "[NetworkManager] Error: Unkown network command!";
     }
 

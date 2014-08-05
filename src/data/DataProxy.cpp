@@ -754,8 +754,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
             if (reply->hasErrors()) {
                 request.addError(reply->parseErrors());
                 request.return_code(async::DataRequest::CodeError);
-            }
-            else if (!ok) {
+            } else if (!ok) {
                 //TODO no data has been modified...what to do here?
             } else {
                 request.return_code(async::DataRequest::CodeSuccess);

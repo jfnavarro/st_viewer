@@ -13,6 +13,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QJsonArray>
 
 #include "network/NetworkCommand.h"
 #include "error/Error.h"
@@ -25,6 +26,7 @@
 #include "data/ObjectParser.h"
 
 #include "japy/japy.hpp"
+#include "picojson/picojson.h"
 
 #include <iostream>
 
@@ -67,8 +69,43 @@ QJsonDocument NetworkReply::getJSON()
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
 
+    if (parseError.error == QJsonParseError::DocumentTooLarge) {
+        /*QJsonArray features;
+        japy::parser_t parser ("$");
+        std::string stream = QString(rawJSON).toStdString();
+        for (auto part : stream) {
+
+            parser.put(part);
+
+            for (auto object: parser) {
+                QJsonObject feature;
+                feature["id"] = QString::fromStdString(object["id"].value());
+                std::string barcode;
+                object["barcode"] >> barcode;
+                feature["barcode"] = QString::fromStdString(barcode);
+                std::string gene;
+                object["gene"] >> gene;
+                feature["gene"] = QString::fromStdString(gene);
+                std::string annotation;
+                object["annotation"] >> annotation;
+                feature["annotation"] = QString::fromStdString(annotation);
+                int hits;
+                object["hits"] >> hits;
+                feature["hits"] = hits;
+                int x;
+                object["x"] >> x;
+                feature["x"] = x;
+                int y;
+                object["y"] >> y;
+                feature["y"] = y;
+                features.append(feature);
+            }
+        }
+        QJsonDocument newDoc(features);
+        doc = newDoc;*/
+    }
     // trigger error signals on error
-    if (parseError.error != QJsonParseError::NoError) {
+    else if (parseError.error != QJsonParseError::NoError) {
         qDebug() << "Error parsing JSON " << parseError.errorString();
         QSharedPointer<Error> error(new JSONError(parseError.error, this));
         registerError(error);
