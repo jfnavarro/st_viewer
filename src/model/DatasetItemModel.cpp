@@ -55,7 +55,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         case UBarcodes: return item->statUniqueBarcodes();
         case UGenes: return item->statUniqueGenes();
         case Created: return item->created();
-        case LastModified: return item->lastModified();
+        case LastModified: return QDate::fromMSecsSinceEpoch(item->lastModified() * 1000);
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
