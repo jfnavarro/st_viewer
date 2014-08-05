@@ -21,6 +21,7 @@
 #include <QVector2DArray>
 #include <QRubberBand>
 #include <QOpenGLFramebufferObject>
+#include <QTransform>
 
 //TODO make this names smaller!!!
 static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
@@ -334,7 +335,8 @@ void CellGLView::setScene(const QRectF scene)
     }
 
     const qreal dpi = devicePixelRatio();
-    const QRectF adjustedScene = scene * dpi;
+    const QTransform transform = QTransform::fromScale(dpi, dpi);
+    const QRectF adjustedScene = transform.mapRect(scene);
     if (m_scene != adjustedScene) {
         m_scene = adjustedScene;
         m_scene_focus_center_point = m_scene.center();
