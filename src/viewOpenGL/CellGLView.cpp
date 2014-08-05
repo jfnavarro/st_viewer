@@ -316,7 +316,11 @@ void CellGLView::rotate(qreal angle)
 
 void CellGLView::setViewPort(const QRectF viewport)
 {
-    if (m_viewport != viewport && viewport.isValid()) {
+    if (!viewport.isValid() || viewport.isEmpty() || viewport.isNull()) {
+        return;
+    }
+
+    if (m_viewport != viewport) {
         m_viewport = viewport;
         emit signalViewPortUpdated(m_viewport);
         emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -325,8 +329,14 @@ void CellGLView::setViewPort(const QRectF viewport)
 
 void CellGLView::setScene(const QRectF scene)
 {
-    if (m_scene != scene && scene.isValid()) {
-        m_scene = scene;
+    if (!scene.isValid() || scene.isEmpty() || scene.isNull()) {
+        return;
+    }
+
+    const qreal dpi = devicePixelRatio();
+    const QRectF adjustedScene = scene * dpi;
+    if (m_scene != adjustedScene) {
+        m_scene = adjustedScene;
         m_scene_focus_center_point = m_scene.center();
         m_zoom_factor = minZoom();
         emit signalSceneUpdated(m_scene);
@@ -503,7 +513,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         update();
 
     } //otherwise
-    else if ( event->button() == Qt::LeftButton && m_panning && !m_selecting) {
+    else if (event->button() == Qt::LeftButton && m_panning && !m_selecting) {
         unsetCursor();
         m_panning = false;
         const QPoint point = event->pos();
@@ -544,6 +554,7 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
     const qreal delta_panning_key =  shortest_side_length /
             (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+
     QPointF pan_adjustment(0,0);
     switch(event->key()) {
     case Qt::Key_Right:
@@ -561,19 +572,21 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     default:
         break;
     }
+
     setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
     event->ignore();
 }
 
 QRectF CellGLView::allowedCenterPoints() const {
     QRectF allowed_center_points(0, 0,
-                                 qMax(m_scene.width() - m_viewport.width() / m_zoom_factor,0.0),
-                                 qMax(m_scene.height() - m_viewport.height() / m_zoom_factor,0.0));
+                                 qMax(m_scene.width() - m_viewport.width() / m_zoom_factor, 0.0),
+                                 qMax(m_scene.height() - m_viewport.height() / m_zoom_factor, 0.0));
     allowed_center_points.moveCenter(m_scene.center());
     return allowed_center_points;
 }
 
-QPointF CellGLView::sceneFocusCenterPoint() const {
+QPointF CellGLView::sceneFocusCenterPoint() const
+{
     return m_scene_focus_center_point;
 }
 
@@ -598,9 +611,9 @@ const QTransform CellGLView::sceneTransformations() const
     const QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
     transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
-    transform.translate( -m_viewport.width() / 2.0,  -m_viewport.height() / 2.0);
+    transform.translate(-m_viewport.width() / 2.0,  -m_viewport.height() / 2.0);
     if (m_rotate != 0.0) {
-        //TOFIX should rotate around its center
+        //TODO should rotate around its center, complete rotation
         transform.rotate(m_rotate, Qt::ZAxis);
     }
     return transform.inverted();
