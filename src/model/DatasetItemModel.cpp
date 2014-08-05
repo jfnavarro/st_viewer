@@ -11,6 +11,7 @@
 #include <QModelIndex>
 #include <QStandardItemModel>
 #include <QItemSelection>
+#include <QDateTime>
 
 #include "dataModel/Dataset.h"
 
@@ -54,8 +55,8 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         case Genes: return item->statGenes();
         case UBarcodes: return item->statUniqueBarcodes();
         case UGenes: return item->statUniqueGenes();
-        case Created: return item->created();
-        case LastModified: return item->lastModified();
+        case Created: return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
+        case LastModified: return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
