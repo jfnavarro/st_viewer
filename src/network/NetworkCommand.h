@@ -40,7 +40,7 @@ public:
     void addQueryItem(const QString &param, const QString &value = QString());
     void addQueryItem(const QString &param, const int value);
     void addQueryItem(const QString &param, const qreal value);
-    // adds query items from qobject meta data
+    // adds query items from qobject meta data if its element are possible to parse to QVariant
     void addQueryItems(QObject *object);
 
     //returns the current query item for the param given
@@ -54,7 +54,6 @@ public:
 
     // sets the a QByteArray corresponding to a json query (used in PUT/POST)
     void setJsonQuery(const QByteArray &query);
-
     const QByteArray jsonQuery() const;
 
 private:
