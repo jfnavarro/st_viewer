@@ -43,8 +43,8 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         case Comment: return item->comment();
         case Type: return item->type();
         case NGenes: return QString::number(item->selectedItems().size());
-        case Created: return item->created();
-        case LastModified: return item->lastModified();
+        case Created: return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
+        case LastModified: return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
         default: return QVariant(QVariant::Invalid);
         }
     }
