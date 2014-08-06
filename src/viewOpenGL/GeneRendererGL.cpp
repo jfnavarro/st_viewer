@@ -422,8 +422,14 @@ void GeneRendererGL::updateVisual()
         // update color data for visible features
         if (selected && newRefCount > 0) {
             QColor4ub color = m_geneData.quadColor(index);
-            color = STMath::lerp(1.0 / newRefCount, color, feature->color());
-            m_geneData.updateQuadColor(index, color);
+            //color interpolation (adjusted by how expressed is the gene)
+            //could use 1/refCount to adjust by drawing order
+            if (feature->color() != color.toColor()) {
+                //const qreal adjustment = currentHits / m_max;
+                const qreal adjustment = 1 / newRefCount;
+                color = STMath::lerp(adjustment, color, feature->color());
+                m_geneData.updateQuadColor(index, color);
+            }
         }
     }
 

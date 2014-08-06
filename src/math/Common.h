@@ -94,6 +94,7 @@ inline const T denorm(const R nv, const T t0, const T t1)
 
 inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
+    //TODO should do the interpolation in HSV space
     return QColor4ub(
                 (c0.red() + ((c1.red() - c0.red()) * t)),
                 (c0.green() + ((c1.green() - c0.green()) * t)),
@@ -104,6 +105,7 @@ inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub 
 
 inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
+     //TODO should do the interpolation in HSV space
     const qreal invt = 1.0 / (1.0 - t);
     return QColor4ub(
                 (c0.red() - (t * c1.red())) * invt,

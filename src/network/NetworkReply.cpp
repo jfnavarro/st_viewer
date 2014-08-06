@@ -25,11 +25,6 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
-#include "picojson/picojson.h"
-
-#include <iostream>
-#include <sstream>
-
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
 {
@@ -69,37 +64,8 @@ QJsonDocument NetworkReply::getJSON()
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
 
-    //TODO this is a hack to deal with the problem of having a Features JSON
-    //file big enough that Qt cannot parse it. This will only happen with Features
-    //a better and faster approach will be implemented soon
-    if (parseError.error == QJsonParseError::DocumentTooLarge) {
-        QJsonArray features;
-        std::stringstream jsonStream(std::string(rawJSON.data(), rawJSON.size()));
-        picojson::value v;
-        jsonStream >> v;
-        const picojson::array& a = v.get<picojson::array>();
-        for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
-          const picojson::object& o = i->get<picojson::object>();
-          QJsonObject feature;
-          for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
-              QString key = QString::fromStdString(i->first);
-              if (i->second.is<picojson::null>()) {
-                 //feature.insert(key, QJsonValue::Null);
-               } else if (i->second.is<bool>()) {
-                 feature.insert(key, i->second.get<bool>());
-               } else if (i->second.is<double>()) {
-                 feature.insert(key, i->second.get<double>());
-               } else if (i->second.is<std::string>()) {
-                 feature.insert(key, QString::fromStdString(i->second.get<std::string>()));
-               }
-          }
-          features.append(feature);
-        }
-        QJsonDocument newDoc(features);
-        doc = newDoc;
-    }
     // trigger error signals on error
-    else if (parseError.error != QJsonParseError::NoError) {
+    if (parseError.error != QJsonParseError::NoError) {
         qDebug() << "Error parsing JSON " << parseError.errorString();
         QSharedPointer<Error> error(new JSONError(parseError.error, this));
         registerError(error);

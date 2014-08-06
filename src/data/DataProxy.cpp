@@ -32,6 +32,10 @@
 #include "dataModel/UserDTO.h"
 #include "dataModel/GeneSelectionDTO.h"
 
+#include "picojson/picojson.h"
+#include <iostream>
+#include <sstream>
+
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
     m_user(nullptr),
@@ -91,7 +95,7 @@ QPointer<AuthorizationManager> DataProxy::getAuthorizationManager() const
     return m_authorizationManager;
 }
 
-//TODO too big function (split)
+//TODO too big function (SPLIT ASAP)
 bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
 {
     // mark data proxy as dirty if something is changed
@@ -226,10 +230,10 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
     }
         // feature
     case FeatureDataType: {
-        const QJsonDocument doc = reply->getJSON();
-        if (doc.isNull() || doc.isEmpty()) {
-            return false;
-        }
+        //TODO this is a hack to deal with the problem of having a Features JSON
+        //file big enough that Qt cannot parse it. This will only happen with Features
+        //a better and faster approach will be implemented soon
+
         // feature list by dataset
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
                    "DataProxy", "FeatureData must be include dataset parameter!");
@@ -239,14 +243,30 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         FeatureDTO dto;
         FeatureList& featureListByDatasetId = getFeatureList(datasetId);
         FeatureMap& featureMapByDatasetId = getFeatureMap(datasetId);
-        // ensure even single items are encapsulated in a variant list
-        const QVariant root = doc.toVariant();
-        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //clear the data
         featureListByDatasetId.clear();
         featureMapByDatasetId.clear();
-        //parse the data
-        foreach(QVariant var, list) {
+        //parse the reply as raw text to stream it to the json parser
+        QByteArray rawText = reply->getRaw();
+        std::stringstream jsonStream(std::string(rawText.data(), rawText.size()));
+        picojson::value v;
+        jsonStream >> v;
+        const picojson::array& a = v.get<picojson::array>();
+        for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
+            const picojson::object& o = i->get<picojson::object>();
+            QVariantMap var;
+            for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
+                QString key = QString::fromStdString(i->first);
+                if (i->second.is<picojson::null>()) {
+                    var.insert(key, QJsonValue::Null);
+                } else if (i->second.is<bool>()) {
+                    var.insert(key, i->second.get<bool>());
+                } else if (i->second.is<double>()) {
+                    var.insert(key, i->second.get<double>());
+                } else if (i->second.is<std::string>()) {
+                    var.insert(key, QString::fromStdString(i->second.get<std::string>()));
+                }
+            }
             data::parseObject(var, &dto);
             FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
             FeatureList& featureListByGeneIdAndDatasetId =
