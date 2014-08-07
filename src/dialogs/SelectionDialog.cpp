@@ -25,6 +25,8 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
     // set default state
     slotCaseSensitive(false);
     slotIncludeAmbiguous(false);
+    move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
+        mapToGlobal(rect().center()));
 }
 
 SelectionDialog::~SelectionDialog()

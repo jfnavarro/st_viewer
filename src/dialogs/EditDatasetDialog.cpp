@@ -2,6 +2,7 @@
 
 #include "ui_editDatasetDialog.h"
 
+
 EditDatasetDialog::EditDatasetDialog(QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f),
       m_ui(new Ui::editDatasetDialog)
@@ -10,6 +11,8 @@ EditDatasetDialog::EditDatasetDialog(QWidget* parent, Qt::WindowFlags f)
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
+        mapToGlobal(rect().center()));
 }
 
 EditDatasetDialog::~EditDatasetDialog()
