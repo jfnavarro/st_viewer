@@ -39,7 +39,7 @@ public:
     explicit StandardPalette(QObject* parent = 0);
     virtual ~StandardPalette();
 
-    virtual const ColorList colorList() const;
+    const ColorList colorList() const override;
     virtual const ColorList colorList(const int count) const = 0;
 
 private:
@@ -61,8 +61,8 @@ public:
     void setSaturation(const int saturation);
     void setValue(const int value);
 
-    virtual const ColorList colorList() const;
-    virtual const ColorList colorList(const int count) const;
+    const ColorList colorList() const override;
+    const ColorList colorList(const int count) const override;
 
 private:
 

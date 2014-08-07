@@ -79,6 +79,11 @@ public:
     //TODO some of the QMap could be replaced for QHash(std::unordered_map) which
     //is faster
 
+    //TODO at the moment that we are forcing to re-download everything to avoid
+    //race conditions, there is no point to cache in memory all the data for each dataset
+
+    //TODO replace loading everything into memory for using file system cache
+
     //TODO too much logic in one class :
     // split data adquisition and data loading
 

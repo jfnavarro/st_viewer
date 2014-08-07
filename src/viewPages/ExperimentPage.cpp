@@ -116,9 +116,6 @@ void ExperimentPage::slotLoadSelections()
 
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
 {
-    //TODO check that the proper dataset object is selected and available
-    //TODO two items select = activate DDA, one item activates the others
-
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
     const bool enableDDA = index.isValid() && currentSelection.size() == 2;
@@ -234,9 +231,8 @@ void ExperimentPage::slotEditSelection()
 
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
         if (createSelection->getName() != selectionItem->name()
-                && createSelection->getComment() != selectionItem->comment()) {
-
-            //TODO check that name is not empty
+                && createSelection->getComment() != selectionItem->comment()
+                && !createSelection->getName().isNull() && !createSelection->getName().isEmpty()) {
 
             selectionItem->name(createSelection->getName());
             selectionItem->comment(createSelection->getComment());
@@ -281,10 +277,6 @@ void ExperimentPage::slotPerformDDA()
     // get the selection items lists
     auto selectionItems1 = selectionObject1->selectedItems();
     auto selectionItems2 = selectionObject2->selectedItems();
-
-    // sort the selection lists by name
-    qSort(selectionItems1);
-    qSort(selectionItems2);
 
     // get the size of the biggest list
     const int selection1Size = selectionItems1.size();
@@ -334,15 +326,18 @@ void ExperimentPage::slotPerformDDA()
         const bool geneNotInSelection1 = it.value().first == -1;
         const bool geneNotInSelection2 = it.value().second == -1;
 
-        //TODO validate 1.0 is a good value to assign when no gene present
-        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
-        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
-
         scatterPlot->getTable()->setItem(index, 0, new QTableWidgetItem(it.key()));
-        scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem(QString::number(it.value().first)));
+        if (it.value().first != -1) {
+            scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem(QString::number(it.value().first)));
+        } else {
+            scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem("None"));
+        }
         scatterPlot->getTable()->setItem(index, 2, new QTableWidgetItem(QString::number(it.value().second)));
         index++;
 
+        //TODO validate 1.0 is a good value to assign when no gene present
+        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
+        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
         if (geneNotInSelection1) {
             countOnly2++;
         } else if (geneNotInSelection2) {

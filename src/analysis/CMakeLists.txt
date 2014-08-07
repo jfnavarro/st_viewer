@@ -11,6 +11,6 @@ set(LIBRARY_ARG_SOURCES
 )
 
 set(LIBRARY_ARG_UI_FILES
-    "${PROJECT_SOURCE_DIR}/assets/ui/plotCanvas.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/ddaWidget.ui"
 )
 ST_LIBRARY()

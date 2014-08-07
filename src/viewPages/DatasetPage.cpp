@@ -89,6 +89,7 @@ void DatasetPage::onEnter()
     m_ui->editDataset->clearFocus();
     m_ui->openDataset->clearFocus();
 
+    //controls disable by default
     m_ui->deleteDataset->setEnabled(false);
     m_ui->editDataset->setEnabled(false);
     m_ui->openDataset->setEnabled(false);
@@ -101,7 +102,12 @@ void DatasetPage::onExit()
 
 void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
-    //TODO check selected dataset is valid
+    const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
+    const auto currentDataset = datasetsModel()->getDatasets(selected);
+    if (currentDataset.empty() || currentDataset.first().isNull()) {
+        return;
+    }
+
     m_ui->deleteDataset->setEnabled(index.isValid());
     m_ui->editDataset->setEnabled(index.isValid());
     m_ui->openDataset->setEnabled(index.isValid());
@@ -148,9 +154,8 @@ void DatasetPage::slotEditDataset()
 
     if (editdataset->exec() == EditDatasetDialog::Accepted) {
         if (editdataset->getName() != dataset->name()
-                && editdataset->getComment() != dataset->statComments()) {
-
-            //TODO check that name is not empty
+                && editdataset->getComment() != dataset->statComments()
+                && !editdataset->getName().isEmpty() && !editdataset->getName().isNull()) {
 
             dataset->name(editdataset->getName());
             dataset->statComments(editdataset->getComment());
@@ -188,7 +193,7 @@ void DatasetPage::slotOpenDataset()
     Q_ASSERT(!dataset.isNull());
     Q_ASSERT(!dataset->id().isEmpty());
 
-    //updates state of  DataProxy and move to next page
+    //updates state of DataProxy and move to next page
     m_dataProxy->setSelectedDataset(dataset->id());
     emit moveToNextPage();
 }
@@ -229,11 +234,28 @@ void DatasetPage::slotRemoveDataset()
         //TODO get error from request
         showError(tr("Remove Dataset"), tr("Error removing the dataset"));
     } else {
-        showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
-    }
 
-    //TODO remove selections performs in the datasets
-    //TODO update selection status (buttoms)
+        //set enable to false for the selections made on the dataset
+        const auto& datasetSelections = m_dataProxy->getGeneSelections();
+        bool errorDeletingSelections = false;
+        for(auto selection : datasetSelections) {
+            if (selection->datasetId() == dataset->id()) {
+                selection->enabled(false);
+                async::DataRequest request = m_dataProxy->updateGeneSelection(selection);
+                if (request.return_code() == async::DataRequest::CodeError
+                        || request.return_code() == async::DataRequest::CodeAbort) {
+                    errorDeletingSelections = true;
+                }
+            }
+        }
+
+        if (errorDeletingSelections) {
+            showInfo(tr("Remove Dataset"),
+                     tr("Dataset removed successfully but\n there was an error removing its selections"));
+        } else {
+            showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
+        }
+    }
 
     //refresh dataset list
     slotLoadDatasets();

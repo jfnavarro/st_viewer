@@ -22,6 +22,7 @@ class QSlider;
 class QComboBox;
 class QPushButton;
 
+//TODO add comments
 class CellViewPageToolBar : public QToolBar
 {
     Q_OBJECT

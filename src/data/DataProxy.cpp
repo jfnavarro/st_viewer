@@ -768,14 +768,13 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
             Q_ASSERT_X(data.canConvert(QVariant::Map),
                        "DataProxy", "Network transport data must be of map type!");
             const QVariantMap parameters = data.toMap();
-            const bool ok = parseData(reply, parameters);
-
+            const bool dataLoaded = parseData(reply, parameters);
             //errors could happen parsing the json object
             if (reply->hasErrors()) {
                 request.addError(reply->parseErrors());
                 request.return_code(async::DataRequest::CodeError);
-            } else if (!ok) {
-                //TODO no data has been modified...what to do here?
+            } else if (!dataLoaded) {
+                //TODO no data has been loaded...what to do here?
             } else {
                 request.return_code(async::DataRequest::CodeSuccess);
             }

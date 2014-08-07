@@ -12,7 +12,7 @@
 #include "qcustomplot/qcustomplot.h"
 
 namespace Ui {
-class plotCanvas;
+class ddaWidget;
 }
 
 class QTableWidget;
@@ -56,14 +56,14 @@ public:
         m_customPlot->xAxis->setLabel(labelX);
         m_customPlot->yAxis->setLabel(labelY);
         // set axes ranges, so we see all data:
-        m_customPlot->xAxis->setRange(0, 10e4);
-        m_customPlot->yAxis->setRange(0, 10e4);
+        m_customPlot->xAxis->setRange(0, 10e5);
+        m_customPlot->yAxis->setRange(0, 10e5);
         m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
         m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
         m_customPlot->xAxis->setTicks(true);
         m_customPlot->yAxis->setTicks(true);
         // plot and add mouse interaction
-        m_customPlot->setFixedSize(521, 491);
+        m_customPlot->setFixedSize(500, 400);
         m_customPlot->replot();
         m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
         m_customPlot->show();
@@ -76,7 +76,7 @@ protected slots:
 
 private:
 
-    Ui::plotCanvas *m_ui;
+    Ui::ddaWidget *m_ui;
     QCustomPlot *m_customPlot;
 
 };

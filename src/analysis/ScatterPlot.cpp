@@ -9,7 +9,7 @@
 
 #include <QPushButton>
 
-#include "ui_plotCanvas.h"
+#include "ui_ddaWidget.h"
 
 ScatterPlot::ScatterPlot(int size, QWidget *parent) :
     QWidget(parent),
@@ -18,7 +18,7 @@ ScatterPlot::ScatterPlot(int size, QWidget *parent) :
 {
 
     // create UI
-    m_ui = new Ui::plotCanvas;
+    m_ui = new Ui::ddaWidget;
     m_ui->setupUi(this);
 
     m_ui->tableWidget->setRowCount(size);

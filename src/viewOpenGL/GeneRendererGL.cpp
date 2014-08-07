@@ -170,7 +170,6 @@ void GeneRendererGL::setLowerLimit(int limit)
     //TODO there are cleaner and nicer ways to achieve this
 
     //We do not want the threshold to be lower than the min value of the distribution
-
     const int adjusted_limit =
             limit == Globals::GENE_THRESHOLD_MIN ?
                 m_min : std::max(m_min, static_cast<int>((limit / offlimit) * (m_max - m_min)));
@@ -370,7 +369,7 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
 
 void GeneRendererGL::updateVisual()
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
@@ -421,22 +420,22 @@ void GeneRendererGL::updateVisual()
 
         // update color data for visible features
         if (selected && newRefCount > 0) {
-            QColor4ub color = m_geneData.quadColor(index);
+            QColor4ub dataColor = m_geneData.quadColor(index);
+            const QColor4ub featureColor = feature->color();
             //color interpolation (adjusted by how expressed is the gene)
             //could use 1/refCount to adjust by drawing order
-            if (feature->color() != color.toColor()) {
+            if (featureColor != dataColor) {
                 //const qreal adjustment = currentHits / m_max;
                 const qreal adjustment = 1 / newRefCount;
-                color = STMath::lerp(adjustment, color, feature->color());
-                m_geneData.updateQuadColor(index, color);
+                dataColor = STMath::lerp(adjustment, dataColor, featureColor);
+                m_geneData.updateQuadColor(index, dataColor);
             }
         }
     }
 
     m_isDirty = true;
     emit updated();
-
-    QApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void GeneRendererGL::clearSelection()
@@ -523,9 +522,7 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
         if (feature->selected()) {
-
             const QString geneName = feature->gene();
-
             //TODO a ref to the gene ptr should be member of the feature
             const auto gene =
                     m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), geneName);
@@ -533,16 +530,16 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
             if (!gene->selected()) {
                 continue;
             }
-
-            //TODO m_max is the 3rd quartile (not the total max) check this assumption is correct
+            //floor reads to m_max(3rd quartile of distribution) to avoid PCR duplicates
             const int adjustedReads = std::min(feature->hits(), m_max);
             totaReads += adjustedReads;
             geneSelectionsMap[geneName].count++;
             geneSelectionsMap[geneName].reads += adjustedReads;
-            //mapping points to image CS (would be faster to convert the image)
+            //mapping points to image CS (would be faster to convert the image to the CS)
             transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
             //qGray gives more weight to the green channel
-            geneSelectionsMap[geneName].pixeIntensity += qGray(m_image.pixel(mappedX, mappedY));
+            geneSelectionsMap[geneName].pixeIntensity
+                    += qGray(m_image.pixel(mappedX, mappedY));
             geneSelectionsMap[geneName].name = geneName;
         }
     }
@@ -562,7 +559,6 @@ void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
 
-
     //TODO seems like doing the inverse transformation is not accurate
     //m_image = image.transformed(transform().inverted().toAffine());
     m_image = image;
@@ -570,7 +566,7 @@ void GeneRendererGL::setImage(const QImage &image)
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     // get selection area
     QRectF rect = event->path();
@@ -607,16 +603,13 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         // iterate all the features in the position to select when possible
         const auto &featureList = m_geneInfoReverse.values(index);
         foreach(DataProxy::FeaturePtr feature, featureList) {
-
             //TODO a ref to the gene ptr should be member of the feature
             const auto gene =
                     m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
-
             // do not select features outside threshold or whose gene is not selected
             if (isFeatureOutsideRange(feature->hits(), value) || !gene->selected()) {
                 continue;
             }
-
             featuresWasSelected = true;
             feature->selected(isSelected);
         }
@@ -631,7 +624,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
     emit selectionUpdated();
     emit updated();
 
-    QApplication::restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)

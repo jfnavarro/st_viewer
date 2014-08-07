@@ -103,9 +103,9 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *par
     m_buttonLayout(nullptr),
     m_dataProxy(dataProxy)
 {
-    m_buttonGroup = new ExtendedButtonGroup();
+    m_buttonGroup = new ExtendedButtonGroup(this);
 
-    m_stackWidget = new QStackedWidget();
+    m_stackWidget = new QStackedWidget(this);
     m_stackWidget->setFrameShape(QFrame::StyledPanel);
 
     m_buttonLayout = new QVBoxLayout();

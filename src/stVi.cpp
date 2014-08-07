@@ -208,11 +208,10 @@ void stVi::setupUi()
     QMenuBar *menubar = new QMenuBar(this);
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
+    setMenuBar(menubar);
 
     m_menuLoad = new QMenu(menubar);
     m_menuHelp = new QMenu(menubar);
-
-    setMenuBar(menubar);
 
     menubar->addAction(m_menuLoad->menuAction());
     menubar->addAction(m_menuHelp->menuAction());
@@ -228,8 +227,6 @@ void stVi::setupUi()
     m_actionClear_Cache->setText(tr("Clear Cache"));
     m_menuLoad->setTitle(tr("File"));
     m_menuHelp->setTitle(tr("About"));
-
-    QMetaObject::connectSlotsByName(this);
 }
 
 void stVi::handleMessage(const QString &message)

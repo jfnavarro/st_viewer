@@ -15,47 +15,57 @@
 Page::Page(QWidget *parent) :
     QWidget(parent),
     m_progressDialog(nullptr),
-    m_timer(nullptr)
+    m_animationLoading(false)
 {
     m_progressDialog = new QProgressDialog(this);
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
-    m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags() | Qt::CustomizeWindowHint) & (~Qt::WindowCloseButtonHint | ~Qt::WindowMinMaxButtonsHint)));
+    m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags()
+                                       | Qt::CustomizeWindowHint)
+                                      & (~Qt::WindowCloseButtonHint | ~Qt::WindowMinMaxButtonsHint)));
     m_progressDialog->setCancelButton(nullptr);
     m_progressDialog->setAutoClose(false);
     m_progressDialog->setRange(0,0);
 
     //TODO implement abort logic
     //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
-    m_timer = new QTimer(this);
-    m_timer->setInterval(500);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(increaseBar()));
 }
 
 Page::~Page()
 {
     m_progressDialog->deleteLater();
     m_progressDialog = nullptr;
-
-    m_timer->deleteLater();
-    m_timer = nullptr;
 }
 
 void Page::setWaiting(bool waiting, const QString &label)
 {
+    //Q_UNUSED(waiting);
+    Q_UNUSED(label);
+
+    //TODO currently showing the QPogressDialog causes
+    //to have some GUI elements not responding in MAC
+
     if (waiting) {
-        m_progressDialog->setLabelText(label);
-        m_progressDialog->show();
-        m_timer->start();
+        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+        //m_progressDialog->setLabelText(label);
+        //m_progressDialog->show();
+        m_animationLoading = true;
     } else {
-        m_timer->stop();
-        m_progressDialog->cancel();
+        //m_progressDialog->cancel();
+        //m_progressDialog->close();
+        QGuiApplication::restoreOverrideCursor();
+        m_animationLoading = false;
     }
 }
 
-void Page::increaseBar()
+bool Page::event(QEvent *event)
 {
-    m_progressDialog->setValue(m_progressDialog->value() + 1);
+    if (m_animationLoading) {
+        event->ignore();
+        return true;
+    }
+
+    return QWidget::event(event);
 }
 
 void Page::showInfo(const QString &header, const QString &body)

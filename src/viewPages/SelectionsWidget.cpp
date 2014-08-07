@@ -97,7 +97,7 @@ void SelectionsWidget::clear()
     m_selections_tableview->clearFocus();
 
     //TODO this causes a error when using dataproxy
-    //getModel()->clearSelectedGenes();
+    getModel()->clearSelectedGenes();
 }
 
 void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &geneList)

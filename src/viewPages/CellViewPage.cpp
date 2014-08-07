@@ -60,7 +60,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    //create UIobjects
+    //create UI object
     m_ui = new Ui::CellView();
     m_ui->setupUi(this);
 
@@ -102,6 +102,10 @@ void CellViewPage::onEnter()
 
     if (!loadData()) {
         setWaiting(false);
+        //there was a problem loading data
+        //most likely user entered the view
+        //without loading a dataset so we allow
+        //to go back and forth
         m_ui->genesWidget->setEnabled(false);
         m_ui->selectionsWidget->setEnabled(false);
         m_ui->area->setEnabled(false);
@@ -174,19 +178,16 @@ void CellViewPage::onEnter()
 
 void CellViewPage::onExit()
 {
-    m_ui->genesWidget->clear();
-    m_ui->selectionsWidget->clear();
-
     m_grid->clearData();
     m_image->clear();
     m_view->clearData();
     m_view->update();
 }
 
-//TODO double check that showing a error message while having progress bar is OK
 bool CellViewPage::loadData()
 {
-    if (m_dataProxy->getSelectedDataset().isNull() || m_dataProxy->getSelectedDataset().isEmpty()) {
+    if (m_dataProxy->getSelectedDataset().isNull()
+            || m_dataProxy->getSelectedDataset().isEmpty()) {
         return false;
     }
 
@@ -305,6 +306,10 @@ void CellViewPage::createConnections()
 
 void CellViewPage::resetActionStates()
 {
+    //reset genes and selections model
+    m_ui->genesWidget->clear();
+    m_ui->selectionsWidget->clear();
+
     // resets genes color and visible to default (must be done first)
     // TODO should be a function to do this in DataProxy
     auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
@@ -367,27 +372,27 @@ void CellViewPage::initGLView()
     m_ui->gridLayout->setStretchFactor(1, 8);
 
     // image texture graphical object
-    m_image = new ImageTextureGL();
+    m_image = new ImageTextureGL(this);
     m_image->setAnchor(Globals::DEFAULT_ANCHOR_IMAGE);
     m_view->addRenderingNode(m_image.data());
 
     // grid graphical object
-    m_grid = new GridRendererGL();
+    m_grid = new GridRendererGL(this);
     m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
     m_view->addRenderingNode(m_grid.data());
 
     // gene plotter component
-    m_gene_plotter = new GeneRendererGL(m_dataProxy);
+    m_gene_plotter = new GeneRendererGL(m_dataProxy, this);
     m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
     m_view->addRenderingNode(m_gene_plotter.data());
 
     // heatmap component
-    m_legend = new HeatMapLegendGL();
+    m_legend = new HeatMapLegendGL(this);
     m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
     m_view->addRenderingNode(m_legend.data());
 
     // minimap component
-    m_minimap = new MiniMapGL();
+    m_minimap = new MiniMapGL(this);
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap.data());
     // minimap needs to be notified when the canvas is resized and when the image

@@ -78,10 +78,6 @@ GenesWidget::GenesWidget(QWidget *parent) :
     geneListLayout->addWidget(m_hideSelectedButton);
     geneListLayout->addWidget(m_showColorButton);
 
-    //add separation and stretch in between the search box
-    geneListLayout->addSpacing(5);
-    geneListLayout->addStretch(5);
-
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);

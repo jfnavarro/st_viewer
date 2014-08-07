@@ -9,7 +9,6 @@
 
 #include <QWidget>
 #include <QProgressDialog>
-#include <QTimer>
 #include <QPointer>
 
 // this an abstract class to represent the different pages
@@ -23,6 +22,8 @@ public:
     explicit Page(QWidget *parent = 0);
     virtual ~Page();
 
+    virtual bool event(QEvent *event);
+
 signals:
 
     //navigation signals
@@ -33,11 +34,6 @@ public slots:
 
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
-
-private slots:
-
-    //slot used to connect with the timer for the progress bar dialog
-    void increaseBar();
 
 protected:
 
@@ -52,7 +48,7 @@ protected:
 private:
 
     QPointer<QProgressDialog> m_progressDialog;
-    QPointer<QTimer> m_timer;
+    bool m_animationLoading;
 };
 
 #endif // PAGE_H
