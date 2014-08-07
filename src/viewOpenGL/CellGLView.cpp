@@ -88,6 +88,12 @@ CellGLView::~CellGLView()
     m_context = nullptr;
 }
 
+void CellGLView::setDefaultPanningAndZooming() {
+    m_scene_focus_center_point = m_scene.center();
+    m_zoom_factor = minZoom();
+    emit signalSceneTransformationsUpdated(sceneTransformations());
+}
+
 void CellGLView::clearData()
 {
     m_originPanning = QPoint(-1, -1);
@@ -96,8 +102,7 @@ void CellGLView::clearData()
     m_rubberBanding = false;
     m_selecting = false;
     m_rotate = 0.0;
-    //TODO fix to set zoom to default
-    //m_zoom_factor = 1.0;
+    setDefaultPanningAndZooming();
 }
 
 void CellGLView::resizeFromGeometry()
@@ -339,10 +344,8 @@ void CellGLView::setScene(const QRectF scene)
     const QRectF adjustedScene = transform.mapRect(scene);
     if (m_scene != adjustedScene) {
         m_scene = adjustedScene;
-        m_scene_focus_center_point = m_scene.center();
-        m_zoom_factor = minZoom();
         emit signalSceneUpdated(m_scene);
-        emit signalSceneTransformationsUpdated(sceneTransformations());
+        setDefaultPanningAndZooming();
     }
 }
 

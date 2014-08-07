@@ -10,6 +10,8 @@ CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
+        mapToGlobal(rect().center()));
 }
 
 CreateSelectionDialog::~CreateSelectionDialog()
