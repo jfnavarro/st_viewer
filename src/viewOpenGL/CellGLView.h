@@ -121,6 +121,7 @@ private:
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
+    void setDefaultPanningAndZooming();
 
     // notify rubberbandable nodes with a rubberband event
     void sendRubberBandEventToNodes(const QRectF rubberBand,
