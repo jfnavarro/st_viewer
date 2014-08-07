@@ -100,6 +100,10 @@ void CellViewPage::onEnter()
 {
     setWaiting(true);
 
+    //reset genes and selections model
+    m_ui->genesWidget->clear();
+    m_ui->selectionsWidget->clear();
+
     if (!loadData()) {
         setWaiting(false);
         //there was a problem loading data
@@ -306,10 +310,6 @@ void CellViewPage::createConnections()
 
 void CellViewPage::resetActionStates()
 {
-    //reset genes and selections model
-    m_ui->genesWidget->clear();
-    m_ui->selectionsWidget->clear();
-
     // resets genes color and visible to default (must be done first)
     // TODO should be a function to do this in DataProxy
     auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
@@ -356,7 +356,7 @@ void CellViewPage::resetActionStates()
 
 void CellViewPage::createToolBar()
 {
-    m_toolBar = new CellViewPageToolBar();
+    m_toolBar = new CellViewPageToolBar(this);
     // add tool bar to the layout
     m_ui->pageLayout->insertWidget(0, m_toolBar);
 }

@@ -56,8 +56,8 @@ public:
         m_customPlot->xAxis->setLabel(labelX);
         m_customPlot->yAxis->setLabel(labelY);
         // set axes ranges, so we see all data:
-        m_customPlot->xAxis->setRange(0, 10e5);
-        m_customPlot->yAxis->setRange(0, 10e5);
+        m_customPlot->xAxis->setRange(0, 10e3);
+        m_customPlot->yAxis->setRange(0, 10e3);
         m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
         m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
         m_customPlot->xAxis->setTicks(true);

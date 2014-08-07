@@ -327,12 +327,16 @@ void ExperimentPage::slotPerformDDA()
         const bool geneNotInSelection2 = it.value().second == -1;
 
         scatterPlot->getTable()->setItem(index, 0, new QTableWidgetItem(it.key()));
-        if (it.value().first != -1) {
+        if (!geneNotInSelection1) {
             scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem(QString::number(it.value().first)));
         } else {
             scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem("None"));
         }
-        scatterPlot->getTable()->setItem(index, 2, new QTableWidgetItem(QString::number(it.value().second)));
+        if (!geneNotInSelection2) {
+            scatterPlot->getTable()->setItem(index, 2, new QTableWidgetItem(QString::number(it.value().second)));
+        } else {
+            scatterPlot->getTable()->setItem(index, 2,  new QTableWidgetItem("None"));
+        }
         index++;
 
         //TODO validate 1.0 is a good value to assign when no gene present
