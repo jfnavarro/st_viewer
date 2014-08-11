@@ -11,6 +11,10 @@
 #include <QDir>
 #include <QTranslator>
 
+#if defined Q_OS_LINUX
+    #include <QStyleFactory>
+#endif
+
 #include <iostream>
 
 #include "utils/Utils.h"
@@ -49,6 +53,9 @@ static bool installTranslator(QtSingleApplication *app)
 
 int main(int argc, char** argv)
 {
+#if defined Q_OS_LINUX
+    QApplication::setStyle("Windows");
+#endif
     QtSingleApplication *app = new QtSingleApplication(argc, argv);
     app->setApplicationName(app->translate("main", "stVi"));
     app->setOrganizationName("Spatial Transcriptomics AB");
