@@ -18,7 +18,7 @@
 
 #include "viewTables/GenesTableView.h"
 #include "model/GeneFeatureItemModel.h"
-
+#include "utils/setTips.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
     QWidget(parent),
@@ -40,13 +40,17 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //create selections buttons
     m_selectionAllButton = new QPushButton(this);
     m_selectionAllButton->setIcon(QIcon(QStringLiteral(":/images/checkall.png")));
-    m_selectionAllButton->setToolTip(tr("Select all genes"));
+    setToolTipAndStatusTip(
+            tr("Select all genes"),
+            m_selectionAllButton);
     connect(m_selectionAllButton,
             SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
 
     m_selectionClearAllButton = new QPushButton(this);
     m_selectionClearAllButton->setIcon(QIcon(QStringLiteral(":/images/uncheckall.png")));
-    m_selectionClearAllButton->setToolTip(tr("Deselect all genes"));
+    setToolTipAndStatusTip(
+            tr("Deselect all genes"),
+            m_selectionClearAllButton);
     connect(m_selectionClearAllButton,
             SIGNAL(clicked(bool)), m_genes_tableview, SLOT(clearSelection()));
 
@@ -55,17 +59,23 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
     //create actions buttons
     m_showSelectedButton = new QPushButton(this);
-    m_showSelectedButton->setToolTip(tr("Show selected genes"));
+    setToolTipAndStatusTip(
+            tr("Show selected genes"),
+            m_showSelectedButton);
     m_showSelectedButton->setIcon(QIcon(QStringLiteral(":/images/visible.png")));
     connect(m_showSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotShowAllSelected()));
 
     m_hideSelectedButton = new QPushButton(this);
-    m_hideSelectedButton->setToolTip(tr("Hide selected genes"));
+    setToolTipAndStatusTip(
+            tr("Hide selected genes"),
+            m_hideSelectedButton);
     m_hideSelectedButton->setIcon(QIcon(QStringLiteral(":/images/novisible.png")));
     connect(m_hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
 
     m_showColorButton = new QPushButton(this);
-    m_showColorButton->setToolTip(tr("Set color of selected genes:"));
+    setToolTipAndStatusTip(
+            tr("Set color of selected genes"),
+            m_showColorButton);
     m_showColorButton->setIcon(QIcon(QStringLiteral(":/images/select-by-color-icon.png")));
     m_colorList = new QColorDialog(Globals::DEFAULT_COLOR_GENE, this);
     //OSX native color dialog gives problems

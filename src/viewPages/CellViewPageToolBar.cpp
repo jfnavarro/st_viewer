@@ -15,6 +15,7 @@
 #include <QCoreApplication>
 #include <QPushButton>
 
+#include "utils/setTips.h"
 #include "customWidgets/SpinBoxSlider.h"
 
 static const int GENE_INTENSITY_MIN = 1;
@@ -40,8 +41,9 @@ void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget)
 }
 
 void addSliderToMenu(QWidget *parent, const QString &str,
-                     const QString &tooltipStr, QMenu *menu,
-                     QSlider **slider_ptr, int rangeMin, int rangeMax)
+                     const QString &tooltipStr, const QString &statustipStr,
+                     QMenu *menu, QSlider **slider_ptr, int rangeMin,
+                     int rangeMax)
 {
 
     Q_ASSERT(parent != nullptr);
@@ -61,6 +63,7 @@ void addSliderToMenu(QWidget *parent, const QString &str,
     slider->setTickPosition(QSlider::TicksAbove);
     slider->setTickInterval(1);
     slider->setToolTip(tooltipStr);
+    slider->setStatusTip(statustipStr);
     addWidgetToMenu(str, menu, slider);
 }
 
@@ -150,7 +153,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     // menu gene plotter actions
     m_menu_genePlotter = new QMenu(this);
     m_menu_genePlotter->setTitle(tr("Gene Plotter"));
-    m_menu_genePlotter->setToolTip(tr("Tools for visualization of genes"));
+    setToolTipAndStatusTip(tr("Tools for visualization of genes"), m_menu_genePlotter);
     m_menu_genePlotter->addAction(m_actionShow_showGrid);
     m_menu_genePlotter->addAction(m_actionShow_showGenes);
     m_menu_genePlotter->addSeparator();
@@ -169,21 +172,25 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     //threshold slider
     Q_ASSERT(m_geneHitsThreshold == nullptr);
     m_geneHitsThreshold = new SpinBoxSlider(this);
-    m_geneHitsThreshold->setToolTip(
-                tr("Limit of the number of transcripts (numbers represent percentage not real read counts)."));
+    setToolTipAndStatusTip(
+            tr("Limit of the number of transcripts "
+               "(numbers represent percentage not real read counts)."),
+            m_geneHitsThreshold);
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
 
     // transcripts intensity
     addSliderToMenu(this,
                     tr("Opacity:"),
-                    tr("Intensity of the genes."),
+                    tr("Set the intensity of the genes"),
+                    tr("Set the intensity of the genes"),
                     m_menu_genePlotter,
                     &m_geneIntensitySlider,
                     GENE_INTENSITY_MIN,
                     GENE_INTENSITY_MAX);
     addSliderToMenu(this,
                     tr("Size:"),
-                    tr("Size of the genes."),
+                    tr("Set the size of the genes"),
+                    tr("Set the size of the genes"),
                     m_menu_genePlotter,
                     &m_geneSizeSlider,
                     GENE_SIZE_MIN,
@@ -205,7 +212,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_geneShapeComboBox->addItem("Crosses", Globals::GeneShape::Cross);
     m_geneShapeComboBox->addItem("Squares", Globals::GeneShape::Square);
     m_geneShapeComboBox->setCurrentIndex(Globals::GeneShape::Circle);
-    m_geneShapeComboBox->setToolTip(tr("Shape of the genes."));
+    m_geneShapeComboBox->setToolTip(tr("Set the shape of the genes"));
+    m_geneShapeComboBox->setStatusTip(tr("Set the shape of the genes"));
     addWidgetToMenu(tr("Shape:"), m_menu_genePlotter, m_geneShapeComboBox);
 
     //second menu
@@ -214,6 +222,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     toolButtonGene->setPopupMode(QToolButton::InstantPopup);
     toolButtonGene->setIcon(QIcon(QStringLiteral(":/images/settings2.png")));
     toolButtonGene->setToolTip(tr("Configuration of Genes"));
+    toolButtonGene->setStatusTip(tr("Configuration of Genes"));
     toolButtonGene->setText(tr("Configuration of Genes"));
     addWidget(toolButtonGene);
     addSeparator();
@@ -221,8 +230,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     // cell tissue menu
     m_menu_cellTissue = new QMenu(this);
     m_menu_cellTissue->setTitle(tr("Cell Tissue"));
-    m_menu_cellTissue->setToolTip(tr("Tools for  visualization of the cell tissue"));
-
+    setToolTipAndStatusTip(tr("Tools for visualization of the cell tissue"), m_menu_cellTissue);
     m_menu_cellTissue->addAction(m_actionShow_showMiniMap);
     m_menu_cellTissue->addAction(m_actionShow_showLegend);
 
@@ -263,6 +271,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addSliderToMenu(this,
                     tr("Brightness:"),
                     tr("Brightness level of the Cell Tissue"),
+                    tr("Brightness level of the Cell Tissue"),
                     m_menu_cellTissue,
                     &m_geneBrightnessSlider,
                     BRIGHTNESS_MIN,
@@ -272,7 +281,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     toolButtonCell->setMenu(m_menu_cellTissue);
     toolButtonCell->setPopupMode(QToolButton::InstantPopup);
     toolButtonCell->setIcon(QIcon(QStringLiteral(":/images/settings.png")));
-    toolButtonCell->setToolTip(tr("Configuration of Cell Tissue"));
+    setToolTipAndStatusTip(tr("Configuration of Cell Tissue"), toolButtonCell);
     toolButtonCell->setText(tr("Configuration of Cell Tissue"));
     addWidget(toolButtonCell);
     addSeparator();
@@ -369,10 +378,10 @@ void CellViewPageToolBar::createActions()
     //zomming
     m_actionZoom_zoomIn =
             new QAction(QIcon(QStringLiteral(":/images/Zoom-In-icon.png")), tr("Zoom &In"), this);
-    m_actionZoom_zoomIn->setToolTip(tr("Increases the zoom level in the cell tissue"));
+    setToolTipAndStatusTip(tr("Increases the zoom level in the cell tissue"), m_actionZoom_zoomIn);
     m_actionZoom_zoomOut =
             new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
-    m_actionZoom_zoomOut->setToolTip(tr("Decreases the zoom level in the cell tissue"));
+    setToolTipAndStatusTip(tr("Decreases the zoom level in the cell tissue"), m_actionZoom_zoomOut);
 
     //cell tissue controls
     m_actionShow_cellTissueBlue =
@@ -394,35 +403,49 @@ void CellViewPageToolBar::createActions()
     //color modes
     m_actionShow_toggleNormal =
             new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
-    m_actionShow_toggleNormal->setToolTip(tr("Color mode where the genes are treated individually per feature."));
+    setToolTipAndStatusTip(
+            tr("Color mode where the genes are treated individually per feature."),
+            m_actionShow_toggleNormal);
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
     m_actionShow_toggleDynamicRange =
             new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
-    m_actionShow_toggleDynamicRange->setToolTip(tr("Color mode where the features tranparency is related to the level of expression."));
+    setToolTipAndStatusTip(
+            tr("Color mode where the features tranparency is related to the level of expression"),
+            m_actionShow_toggleDynamicRange);
     m_actionShow_toggleDynamicRange->setCheckable(true);
     m_actionShow_toggleDynamicRange->setProperty("mode", Globals::GeneVisualMode::DynamicRangeMode);
     m_actionShow_toggleHeatMap =
             new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
-    m_actionShow_toggleHeatMap->setToolTip(tr("Color mode where the color is computed according to the level of expression."));
+    setToolTipAndStatusTip(
+            tr("Color mode where the color is computed according to the level of expression"),
+            m_actionShow_toggleHeatMap);
     m_actionShow_toggleHeatMap->setCheckable(true);
     m_actionShow_toggleHeatMap->setProperty("mode", Globals::GeneVisualMode::HeatMapMode);
 
     // legend position
     m_action_toggleLegendTopRight = new QAction(QIcon(), tr("Legend Top Right Corner"), this);
-    m_action_toggleLegendTopRight->setToolTip(tr("Places the legend on the top right part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the legend on the top right part of the canvas"),
+            m_action_toggleLegendTopRight);
     m_action_toggleLegendTopRight->setCheckable(true);
     m_action_toggleLegendTopRight->setProperty("mode", Globals::Anchor::NorthEast);
     m_action_toggleLegendTopLeft = new QAction(QIcon(), tr("Legend Top Left Corner"), this);
-    m_action_toggleLegendTopLeft->setToolTip(tr("Places the legend on the top left part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the legend on the top left part of the canvas"),
+            m_action_toggleLegendTopLeft);
     m_action_toggleLegendTopLeft->setCheckable(true);
     m_action_toggleLegendTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
     m_action_toggleLegendDownRight = new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
-    m_action_toggleLegendDownRight->setToolTip(tr("Places the legend on the bottom right part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the legend on the bottom right part of the canvas"),
+            m_action_toggleLegendDownRight);
     m_action_toggleLegendDownRight->setCheckable(true);
     m_action_toggleLegendDownRight->setProperty("mode", Globals::Anchor::SouthEast);
     m_action_toggleLegendDownLeft= new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
-    m_action_toggleLegendDownLeft->setToolTip(tr("Places the legend on the bottom left part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the legend on the bottom left part of the canvas"),
+            m_action_toggleLegendDownLeft);
     m_action_toggleLegendDownLeft->setCheckable(true);
     m_action_toggleLegendDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
 
@@ -432,19 +455,27 @@ void CellViewPageToolBar::createActions()
 
     // minimap position
     m_action_toggleMinimapTopRight = new QAction(QIcon(), tr("Minimap Top Right Corner"), this);
-    m_action_toggleMinimapTopRight->setToolTip(tr("Places the minimap on the top right part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the minimap on the top right part of the canvas"),
+            m_action_toggleMinimapTopRight);
     m_action_toggleMinimapTopRight->setCheckable(true);
     m_action_toggleMinimapTopRight->setProperty("mode", Globals::Anchor::NorthEast);
     m_action_toggleMinimapTopLeft = new QAction(QIcon(), tr("Minimap Top Left Corner"), this);
-    m_action_toggleMinimapTopLeft->setToolTip(tr("Places the minimap on the top left part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the minimap on the top left part of the canvas"),
+            m_action_toggleMinimapTopLeft);
     m_action_toggleMinimapTopLeft->setCheckable(true);
     m_action_toggleMinimapTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
     m_action_toggleMinimapDownRight = new QAction(QIcon(), tr("Bottom Right Corner"), this);
-    m_action_toggleMinimapDownRight->setToolTip(tr("Places the minimap on the bottom right part of the canvas"));
+    setToolTipAndStatusTip(
+            tr("Places the minimap on the bottom right part of the canvas"),
+            m_action_toggleMinimapDownRight);
     m_action_toggleMinimapDownRight->setCheckable(true);
     m_action_toggleMinimapDownRight->setProperty("mode", Globals::Anchor::SouthEast);
-    m_action_toggleMinimapDownLeft= new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
-    m_action_toggleMinimapDownLeft->setToolTip(tr("Places the minimap on the bottom left part of the canvas"));
+    m_action_toggleMinimapDownLeft = new QAction(QIcon(), tr("Legend Bottom Right Corner"), this);
+    setToolTipAndStatusTip(
+            tr("Places the minimap on the bottom left part of the canvas"),
+            m_action_toggleMinimapDownLeft);
     m_action_toggleMinimapDownLeft->setCheckable(true);
     m_action_toggleMinimapDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
 
@@ -455,19 +486,28 @@ void CellViewPageToolBar::createActions()
     //save print
     m_actionSave_save =
             new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
-    m_actionSave_save->setToolTip(tr("Save the cell tissue canvas into a file"));
+
+    setToolTipAndStatusTip(
+            tr("Save the cell tissue canvas into a file"),
+            m_actionSave_save);
     m_actionSave_print =
             new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
-    m_actionSave_print->setToolTip(tr("Print the cell tissue canvas"));
+    setToolTipAndStatusTip(
+            tr("Print the cell tissue canvas"),
+            m_actionSave_print);
 
     //selection actions
     m_actionActivateSelectionMode =
             new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
     m_actionActivateSelectionMode->setCheckable(true);
-    m_actionActivateSelectionMode->setToolTip(tr("Activates/desactivates the selection mode"));
+    setToolTipAndStatusTip(
+            tr("Activates/desactivates the selection mode"),
+            m_actionActivateSelectionMode);
     m_actionSelection_showSelectionDialog =
             new QAction(QIcon(QStringLiteral(":/images/reg_search.png")), tr("Select Genes"), this);
-    m_actionSelection_showSelectionDialog->setToolTip(tr("Shows a dialog to select genes by Reg. Exp."));
+    setToolTipAndStatusTip(
+            tr("Shows a dialog to select genes by Reg. Exp."),
+            m_actionSelection_showSelectionDialog);
 
     // color dialogs
     m_actionColor_selectColorGrid =
