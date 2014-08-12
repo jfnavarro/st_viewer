@@ -75,7 +75,7 @@ CellGLView::CellGLView(QScreen *parent) :
     create();
 
     //TODO consider decoupling rubberband object and view
-    m_rubberband = new RubberbandGL();
+    m_rubberband = new RubberbandGL(this);
     m_rubberband->setAnchor(Globals::Anchor::None);
 }
 
@@ -233,22 +233,16 @@ void CellGLView::paintGL()
     }
 
     m_context->swapBuffers(this); // this is important
-    m_context->doneCurrent();
 }
 
 void CellGLView::resizeGL(int width, int height)
 {
-    //devicePixelRatio() fixes the problem with MAC retina
-    const qreal pixelRatio = devicePixelRatio();
-    const qreal newWidth = width * pixelRatio;
-    const qreal newHeight = height * pixelRatio;
-    const QRectF newViewport = QRectF(0.0, 0.0, newWidth, newHeight);
+    const QRectF newViewport = QRectF(0.0, 0.0, width, height);
     //update projection matrix
-    //TODO for MAC retina support the pixel ratio should not be corrected in the projection matrix
     m_projm.setToIdentity();
     m_projm.ortho(newViewport);
     //create viewport
-    glViewport(0.0, 0.0, newWidth, newHeight);
+    glViewport(0.0, 0.0, width, height);
     setViewPort(newViewport);
     //update local variables
     if (m_scene.isValid()) {
@@ -503,8 +497,10 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         unsetCursor();
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
-        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()),
+                                            qMin(origin.y(), destiny.y()),
+                                            qAbs(origin.x() - destiny.x()) + 1,
+                                            qAbs(origin.y() - destiny.y()) + 1);
 
         sendRubberBandEventToNodes(rubberBandRect, event);
 
@@ -532,8 +528,10 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
         // get rubberband
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
-        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()), qMin(origin.y(), destiny.y()),
-                                            qAbs(origin.x() - destiny.x()) + 1, qAbs(origin.y() - destiny.y()) + 1);
+        const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()),
+                                            qMin(origin.y(), destiny.y()),
+                                            qAbs(origin.x() - destiny.x()) + 1,
+                                            qAbs(origin.y() - destiny.y()) + 1);
         m_rubberband->setRubberbandRect(rubberBandRect);
         update();
     } else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {

@@ -378,12 +378,9 @@ void GeneRendererGL::updateVisual()
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
-    // reset ref count and values when updating visuals
-    m_geneData.resetRefCount();
-    m_geneData.resetValues();
-
-    // clear previous selections when updating visuals
-    //clearSelection();
+    // reset ref count, selection and values when updating visuals
+    m_geneData.resetRefCountSelectAndValues();
+    updateFeaturesSelected(false);
 
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -395,8 +392,10 @@ void GeneRendererGL::updateVisual()
         Q_ASSERT(!gene.isNull());
 
         const bool selected = gene->selected();
-        const int index = m_geneInfoById.value(feature); //the key should be present
-        const int currentHits = feature->hits();
+        //the key should always be present
+        const int index = m_geneInfoById.value(feature);
+        //adjust feature's hits to account for PCR duplicates
+        const int currentHits = std::min(m_max, feature->hits());
 
         // compute values
         const float oldValue = m_geneData.quadValue(index);
@@ -409,8 +408,6 @@ void GeneRendererGL::updateVisual()
         // we do not want to show features outside the threshold
         if (isFeatureOutsideRange(currentHits, newValue)
                 && newRefCount != 0 && newValue != 0) {
-            //feature->selected(true);
-            //m_geneData.updateQuadSelected(index, true);
             continue;
         }
 
@@ -496,15 +493,12 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
         const int refCount = m_geneData.quadRefCount(index);
         const int hits = feature->hits();
         const int value = m_geneData.quadValue(index);
-        //TODO a ref to the gene ptr should be member of the feature
-        //const auto gene =
-        //        m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
+        //TODO not filtering if the feature's gene is selected
         // do not select non-visible features or outside threshold
-        // allowing now to select all genes in the feature || !gene->selected()
         if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
             continue;
         }
-        // make the selection
+        // update gene data and feature selected
         feature->selected(true);
         m_geneData.updateQuadSelected(index, true);
     }
@@ -516,12 +510,14 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
+    typedef QHash<QString, SelectionType> geneToSelectionMap;
+
     // get the features
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
     //aggregate all the selected features using SelectionType objects (aggregate by gene)
-    QHash<QString, SelectionType> geneSelectionsMap;
+    geneToSelectionMap geneSelectionsMap;
     int mappedX = 0;
     int mappedY = 0;
     qreal totaReads = 0.0;
@@ -530,15 +526,8 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         //assumes if a feature is selected, its gene is selected as well
         if (feature->selected()) {
             const QString geneName = feature->gene();
-            //TODO a ref to the gene ptr should be member of the feature
-            const auto gene =
-                    m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), geneName);
-            //not include non selected genes
-            // allowing now to select all genes in the feature
-            //if (!gene->selected()) {
-            //    continue;
-            //}
-            //floor reads to m_max(3rd quartile of distribution) to avoid PCR duplicates
+            //TODO not filtering is the gene is selected
+            //floor reads to avoid PCR duplicates
             const int adjustedReads = std::min(feature->hits(), m_max);
             totaReads += adjustedReads;
             geneSelectionsMap[geneName].count++;
@@ -552,10 +541,10 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
         }
     }
 
-    QHash<QString, SelectionType>::iterator it = geneSelectionsMap.begin();
-    QHash<QString, SelectionType>::iterator end = geneSelectionsMap.end();
+
+    geneToSelectionMap::iterator end = geneSelectionsMap.end();
     //compute the normalization using the total sum of reads in the selection
-    for ( ; it != end; ++it) {
+    for (geneToSelectionMap::iterator it = geneSelectionsMap.begin(); it != end; ++it) {
         // normalization as reads per million described in literature
         it.value().normalizedReads = ((it.value().reads * 10e5) / totaReads) + 1;
     }
@@ -605,28 +594,19 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
             continue;
         }
 
-        bool featuresWasSelected = false;
         const bool isSelected = (mode == SelectionEvent::ExcludeSelection) ? false : true;
-
-        qDebug() << "Exclude selection = " << isSelected;
 
         // iterate all the features in the position to select when possible
         const auto &featureList = m_geneInfoReverse.values(index);
         foreach(DataProxy::FeaturePtr feature, featureList) {
-            //TODO a ref to the gene ptr should be member of the feature
-            const auto gene =
-                    m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
-            // do not select features outside threshold or whose gene is not selected
-            if (isFeatureOutsideRange(feature->hits(), value) || !gene->selected()) {
+            //TODO not checking if gene is selected or not
+            // do not select features outside threshold
+            if (!isFeatureOutsideRange(feature->hits(), value)) {
                 continue;
             }
-            featuresWasSelected = true;
-            feature->selected(isSelected);
-        }
-
-        if (featuresWasSelected) {
-            //update selection data if any feature was selected
+            //update gene data and feature selected
             m_geneData.updateQuadSelected(index, isSelected);
+            feature->selected(isSelected);
         }
     }
 

@@ -289,24 +289,15 @@ void Dataset::lastModified(const QString& lastModified)
 qreal Dataset::statisticsMin() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
-
-    //returning q0 (temp until a decision is made on this)
-    //return m_geneHitsQuartiles.at(0);
-
+    // returning q0 of the distribution
+    // alternatively we could do
     // max ( q1 - 1.5 * (q3-q1), q0 )
-    const qreal q0 = m_geneHitsQuartiles.at(0);
-    const qreal q1 = m_geneHitsQuartiles.at(1);
-    const qreal q3 = m_geneHitsQuartiles.at(3);
-    return std::max(q1 - 1.5 * (q3 - q1), q0);
+    return m_geneHitsQuartiles.at(0);
 }
 
 qreal Dataset::statisticsMax() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
-
-    //returning q4 (temp until a decision is made on this)
-    //return m_geneHitsQuartiles.at(4);
-
     // min ( q3 + 1.5 * (q3-q1), q4 )
     const qreal q4 = m_geneHitsQuartiles.at(4);
     const qreal q1 = m_geneHitsQuartiles.at(1);
@@ -317,11 +308,10 @@ qreal Dataset::statisticsMax() const
 qreal Dataset::statisticsPooledMin() const
 {
     Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
+    // returning q0 of the distribution
+    // alternatively we could do
     // max ( q1 - 1.5 * (q3-q1), q0 )
-    const qreal q0 = m_genePooledHitsQuartiles.at(0);
-    const qreal q1 = m_genePooledHitsQuartiles.at(1);
-    const qreal q3 = m_genePooledHitsQuartiles.at(3);
-    return std::max(q1 - 1.5 * (q3 - q1), q0);
+    return m_genePooledHitsQuartiles.at(0);
 }
 
 qreal Dataset::statisticsPooledMax() const

@@ -65,7 +65,9 @@ public:
     void lastModified(const QString& lastModified);
 
     //extended methods to get statistics
+    //returns the adjusted first quartile (account for sparse distributions)
     qreal statisticsMin() const;
+    //returns the adjusted first quartile (account for sparse distributions)
     qreal statisticsMax() const;
     //returns the adjusted first quartile (account for sparse distributions)
     qreal statisticsPooledMin() const;

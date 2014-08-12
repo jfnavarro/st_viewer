@@ -54,6 +54,8 @@ public:
     void resetRefCount();
     void resetValues();
     void resetSelection(bool selected);
+    //wrapper of the three above to speed up
+    void resetRefCountSelectAndValues();
 
 private:
 

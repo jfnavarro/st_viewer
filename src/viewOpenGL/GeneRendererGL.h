@@ -117,6 +117,7 @@ private:
     // lookup maps
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
     typedef QHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
+    typedef QVector<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
 
     // lookup quadtree
     typedef QuadTree<int, 8> GeneInfoQuadTree;
@@ -125,9 +126,15 @@ private:
     GeneData m_geneData;
     QPointer<QGLSceneNode> m_geneNode;
 
-    // gene lookup data
+    // gene lookup data (feature -> index)
     GeneInfoByIdMap m_geneInfoById;
-    GeneInfoReverseMap m_geneInfoReverse; //TODO can probably be removed
+    // gene lookup data (index -> features)
+    //TODO can probably be removed
+    GeneInfoReverseMap m_geneInfoReverse;
+    // vector of selected features
+    //TODO implement this to replace the selected field
+    //in the feature class, this should be faster
+    GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
     GeneInfoQuadTree m_geneInfoQuadTree;
 
     // visual attributes

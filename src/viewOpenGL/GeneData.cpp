@@ -137,6 +137,16 @@ void GeneData::resetValues()
     }
 }
 
+void GeneData::resetRefCountSelectAndValues()
+{
+    //both list have the same size
+    for(int i = 0; i < attributes(valuesVertex).count(); ++i) {
+        floatAttribute(i, valuesVertex) = 0.0;
+        m_refCount[i] = 0.0;
+        floatAttribute(i, selectionVertex) = 0.0;
+    }
+}
+
 void GeneData::resetSelection(bool selected)
 {
     const float value =  selected ? 1.0 : 0.0;
