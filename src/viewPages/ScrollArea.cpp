@@ -123,12 +123,6 @@ void ScrollArea::adjustScrollBars()
     }
 }
 
-void ScrollArea::paintEvent(QPaintEvent *e)
-{
-    Q_UNUSED(e);
-    m_container->update();
-}
-
 void ScrollArea::resizeEvent(QResizeEvent *e)
 {
     viewport()->resize(e->size());
