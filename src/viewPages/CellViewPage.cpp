@@ -595,6 +595,7 @@ void CellViewPage::slotExportSelection()
 void CellViewPage::slotSetGeneVisualMode(QAction *action)
 {
     const QVariant variant = action->property("mode");
+    qDebug() << "Setting visual mode to " << variant;
     if (variant.canConvert(QVariant::Int)) {
         const Globals::GeneVisualMode mode = static_cast<Globals::GeneVisualMode>(variant.toInt());
         m_gene_plotter->setVisualMode(mode);
@@ -640,9 +641,13 @@ void CellViewPage::slotSelectionUpdated()
 
 void CellViewPage::slotSaveSelection()
 {
-    QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
-                                                                                    Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    QScopedPointer<CreateSelectionDialog>
+            createSelection(new CreateSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
+
+        if (createSelection->getName().isNull() || createSelection->getName().isEmpty()) {
+            return;
+        }
 
         // get selected features
         const auto& geneSelection = m_gene_plotter->getSelectedIItems();

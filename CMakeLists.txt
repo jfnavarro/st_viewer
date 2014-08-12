@@ -1,6 +1,9 @@
-###############################################################################
-# NAME AND VERSION
-###############################################################################
+#
+#    Copyright (C) 2012  Spatial Transcriptomics AB,
+#    read LICENSE for licensing terms.
+#    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+#
+#
 project(stVi CXX C)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
@@ -72,19 +75,19 @@ endif (WIN32)
 # Some in-house CMake functions/macros
 include(${CMAKE_SOURCE_DIR}/cmake/utils.cmake)
 
+# compile cmake based files
 configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT_BINARY_DIR}/application.conf )
 configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
 configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
 
 include_directories(${PROJECT_BINARY_DIR})
 
+# find qt libraries
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-
 set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL 3D Xml)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()
-
 foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
 endforeach()

@@ -18,7 +18,9 @@
 
 #include "options_cmake.h"
 
-static void setLocalPaths(QtSingleApplication *app)
+namespace {
+
+void setLocalPaths(QtSingleApplication *app)
 {
     // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
@@ -37,7 +39,7 @@ static void setLocalPaths(QtSingleApplication *app)
 #endif
 }
 
-static bool installTranslator(QtSingleApplication *app)
+bool installTranslator(QtSingleApplication *app)
 {
     //install translation file
     bool initialized = true;
@@ -47,8 +49,35 @@ static bool installTranslator(QtSingleApplication *app)
     return initialized;
 }
 
+//application flags must be set before instantiating QApplication
+void setApplicationFlags()
+{
+
+#ifdef Q_OS_MAC
+    QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
+    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
+    //NOTE this is actually pretty important (be false)
+    QApplication::setAttribute(Qt::AA_NativeWindows, false);
+    //osx does not show icons on menus
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
+#endif
+
+    //unhandled mouse events will not be translated
+    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
+    QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
+    //allows to create high-dpi pixmaps
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, false);
+    //consistent font rendering
+    QApplication::setAttribute(Qt::AA_Use96Dpi, false);
+    //force usages of desktop opengl
+    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
+}
+
+}
+
 int main(int argc, char** argv)
 {
+    setApplicationFlags();
     QtSingleApplication *app = new QtSingleApplication(argc, argv);
     app->setApplicationName(app->translate("main", "stVi"));
     app->setOrganizationName("Spatial Transcriptomics AB");

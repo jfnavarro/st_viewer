@@ -45,16 +45,6 @@ public:
 
     static  SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
     {
-#if defined Q_OS_MAC
-        return
-                (modifiers.testFlag(Qt::ShiftModifier) ?
-                     (modifiers.testFlag(Qt::MetaModifier) ?
-                          SelectionEvent::ExcludeSelection :
-                          SelectionEvent::IncludeSelection
-                          ) :
-                     SelectionEvent::NewSelection
-                     );
-#else
         return
                 (modifiers.testFlag(Qt::ShiftModifier) ?
                      (modifiers.testFlag(Qt::ControlModifier) ?
@@ -63,7 +53,6 @@ public:
                           ) :
                      SelectionEvent::NewSelection
                      );
-#endif // Q_OS_MAC //
     }
 
 private:

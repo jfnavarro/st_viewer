@@ -17,6 +17,7 @@
 
 class ExperimentsItemModel;
 class QSortFilterProxyModel;
+class AnalysisDEA;
 
 namespace Ui{
 class Experiments;
@@ -52,6 +53,7 @@ private:
 
     Ui::Experiments *m_ui;
     QPointer<DataProxy> m_dataProxy;
+    QPointer<AnalysisDEA> m_analysisDEA;
 
     Q_DISABLE_COPY(ExperimentPage)
 };

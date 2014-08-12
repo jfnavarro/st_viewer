@@ -379,7 +379,7 @@ void GeneRendererGL::updateVisual()
     m_geneData.resetValues();
 
     // clear previous selections when updating visuals
-    clearSelection();
+    //clearSelection();
 
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -405,6 +405,8 @@ void GeneRendererGL::updateVisual()
         // we do not want to show features outside the threshold
         if (isFeatureOutsideRange(currentHits, newValue)
                 && newRefCount != 0 && newValue != 0) {
+            //feature->selected(true);
+            //m_geneData.updateQuadSelected(index, true);
             continue;
         }
 
@@ -491,10 +493,11 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
         const int hits = feature->hits();
         const int value = m_geneData.quadValue(index);
         //TODO a ref to the gene ptr should be member of the feature
-        const auto gene =
-                m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
+        //const auto gene =
+        //        m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), feature->gene());
         // do not select non-visible features or outside threshold
-        if (refCount <= 0 || isFeatureOutsideRange(hits, value) || !gene->selected()) {
+        // allowing now to select all genes in the feature || !gene->selected()
+        if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
             continue;
         }
         // make the selection
@@ -527,9 +530,10 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
             const auto gene =
                     m_dataProxy->getGene(m_dataProxy->getSelectedDataset(), geneName);
             //not include non selected genes
-            if (!gene->selected()) {
-                continue;
-            }
+            // allowing now to select all genes in the feature
+            //if (!gene->selected()) {
+            //    continue;
+            //}
             //floor reads to m_max(3rd quartile of distribution) to avoid PCR duplicates
             const int adjustedReads = std::min(feature->hits(), m_max);
             totaReads += adjustedReads;
@@ -598,7 +602,9 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         }
 
         bool featuresWasSelected = false;
-        const bool isSelected = mode == SelectionEvent::ExcludeSelection ? false : true;
+        const bool isSelected = (mode == SelectionEvent::ExcludeSelection) ? false : true;
+
+        qDebug() << "Exclude selection = " << isSelected;
 
         // iterate all the features in the position to select when possible
         const auto &featureList = m_geneInfoReverse.values(index);

@@ -5,11 +5,7 @@
 #
 #
 
-###############################################################################
-# PREPARING TO INSTALL
-###############################################################################
-
-# PRINT VARIABLES
+# print main variables
 message( STATUS )
 message( STATUS
 "-------------------------------------------------------------------------------"
@@ -37,12 +33,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+#load resource and translations files
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
-
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
+#define what  sub  folders will be compiled
 set(subdir_list
                    dialogs
                    color
@@ -65,6 +62,8 @@ set(subdir_list
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
+
+add_subdirectory(testTools)
 
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
@@ -104,12 +103,8 @@ set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ###STATIC LIBRARIES#####################################
 
-add_subdirectory(testTools)
-
 #link static libraries and third party libraries
-
 set(LIB_COMPONENTS QtSingleApplication)
-
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
@@ -126,7 +121,6 @@ set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::3D)
 
 #create main target (resources needs to be part of the target)
-
 include_directories(${PROJECT_SOURCE_DIR}/ext/QtSingleApplication/src)
 
 set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
@@ -144,9 +138,10 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
 endif()
 
-if(APPLE)
-   target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS}) 
-endif()
+##no need to link to these libraries unless we find problems
+#if(APPLE)
+#   target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS})
+#endif()
 
 #link libraries to the main target
 

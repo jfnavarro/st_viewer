@@ -289,6 +289,10 @@ void Dataset::lastModified(const QString& lastModified)
 qreal Dataset::statisticsMin() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
+
+    //returning q0 (temp hack)
+    return m_geneHitsQuartiles.at(0);
+
     // max ( q1 - 1.5 * (q3-q1), q0 )
     const qreal q0 = m_geneHitsQuartiles.at(0);
     const qreal q1 = m_geneHitsQuartiles.at(1);
@@ -299,6 +303,10 @@ qreal Dataset::statisticsMin() const
 qreal Dataset::statisticsMax() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
+
+    //returning q4 (temp hack)
+    return m_geneHitsQuartiles.at(4);
+
     // min ( q3 + 1.5 * (q3-q1), q4 )
     const qreal q4 = m_geneHitsQuartiles.at(4);
     const qreal q1 = m_geneHitsQuartiles.at(1);

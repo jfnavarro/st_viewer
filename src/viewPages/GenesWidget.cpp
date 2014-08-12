@@ -81,7 +81,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
-    m_lineEdit->setFixedSize(200, 20);
+    m_lineEdit->setFixedSize(150, 20);
     m_lineEdit->setToolTip(tr("Search by gene name..."));
     geneListLayout->addWidget(m_lineEdit);
     geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);
