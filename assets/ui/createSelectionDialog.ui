@@ -17,10 +17,10 @@
    <string>Gene Selection</string>
   </property>
   <property name="toolTip">
-   <string>Gene Selection Creation Dialog </string>
+   <string>Gene Selection Creation Dialog</string>
   </property>
   <property name="statusTip">
-   <string>Gene Selections Creation Dialog</string>
+   <string>Gene Selection Creation Dialog</string>
   </property>
   <property name="modal">
    <bool>true</bool>

@@ -19,6 +19,9 @@
   <property name="toolTip">
    <string>Use a regular expression to make a selection of genes</string>
   </property>
+  <property name="statusTip">
+   <string>Use a regular expression to make a selection of genes</string>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>

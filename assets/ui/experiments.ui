@@ -138,7 +138,10 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Performs a Differential Expression analysis </string>
+        <string>Perform a Differential Expression analysis</string>
+       </property>
+       <property name="statusTip">
+        <string>Perform a Differential Expression analysis</string>
        </property>
        <property name="text">
         <string>D.E.A</string>
@@ -164,6 +167,9 @@
         </size>
        </property>
        <property name="toolTip">
+        <string>Export the selected selections</string>
+       </property>
+       <property name="statusTip">
         <string>Export the selected selections</string>
        </property>
        <property name="text">
@@ -192,6 +198,9 @@
        <property name="toolTip">
         <string>Edit the current selection</string>
        </property>
+       <property name="statusTip">
+        <string>Edit the current selection</string>
+       </property>
        <property name="text">
         <string>Edit</string>
        </property>
@@ -216,6 +225,9 @@
         </size>
        </property>
        <property name="toolTip">
+        <string>Remove the selected selections</string>
+       </property>
+       <property name="statusTip">
         <string>Remove the selected selections</string>
        </property>
        <property name="text">

@@ -14,6 +14,7 @@
 
 #include "viewTables/GeneSelectionTableView.h"
 #include "model/GeneSelectionItemModel.h"
+#include "utils/setTips.h"
 
 SelectionsWidget::SelectionsWidget(QWidget *parent) :
     QWidget(parent),
@@ -28,17 +29,23 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
 
     m_saveSelection = new QPushButton(this);
     m_saveSelection->setIcon(QIcon(QStringLiteral(":/images/file_export.png")));
-    m_saveSelection->setToolTip(tr("Save the current selection in the cloud"));
+    setToolTipAndStatusTip(
+            tr("Save the current selection in the cloud"),
+            m_saveSelection);
     selectionBottonsLayout->addWidget(m_saveSelection);
 
     m_exportSelection = new QPushButton(this);
     m_exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
-    m_exportSelection->setToolTip(tr("Export the current selection to a file"));
+    setToolTipAndStatusTip(
+            tr("Export the current selection to a file"),
+            m_exportSelection);
     selectionBottonsLayout->addWidget(m_exportSelection);
 
     m_clearSelection = new QPushButton(this);
     m_clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
-    m_clearSelection->setToolTip(tr("Remove the current selection"));
+    setToolTipAndStatusTip(
+            tr("Remove the current selection"),
+            m_clearSelection);
     selectionBottonsLayout->addWidget(m_clearSelection);
 
     //add separation and stretch in between the search box
@@ -48,7 +55,9 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
     m_geneSelectionFilterLineEdit->setFixedSize(150, 20);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
-    m_geneSelectionFilterLineEdit->setToolTip(tr("Search by gene name..."));
+    setToolTipAndStatusTip(
+            tr("Search by gene name"),
+            m_geneSelectionFilterLineEdit);
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
     selectionBottonsLayout->setAlignment(m_geneSelectionFilterLineEdit, Qt::AlignRight);
 

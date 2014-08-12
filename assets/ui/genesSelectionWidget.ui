@@ -33,13 +33,13 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Save the current selection </string>
+          <string>Save the current selection</string>
          </property>
          <property name="statusTip">
-          <string>Save the current selection </string>
+          <string>Save the current selection</string>
          </property>
          <property name="whatsThis">
-          <string>Save the current selection </string>
+          <string>Save the current selection</string>
          </property>
          <property name="text">
           <string/>
