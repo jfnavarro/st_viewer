@@ -340,8 +340,8 @@ void CellGLView::setScene(const QRectF scene)
 
     if (m_scene != scene) {
         m_scene = scene;
-        emit signalSceneUpdated(m_scene);
         setDefaultPanningAndZooming();
+        emit signalSceneUpdated(m_scene);
     }
 }
 
