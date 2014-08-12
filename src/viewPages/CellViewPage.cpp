@@ -368,8 +368,8 @@ void CellViewPage::initGLView()
     m_ui->area->initializeView(m_view);
 
     // Setting stretch factors in the QSplitter to make the opengl window occupy more space
-    m_ui->gridLayout->setStretchFactor(0, 0);
-    m_ui->gridLayout->setStretchFactor(1, 8);
+    m_ui->horizontalSplitter->setStretchFactor(0, 0);
+    m_ui->horizontalSplitter->setStretchFactor(1, 8);
 
     // image texture graphical object
     m_image = new ImageTextureGL(this);

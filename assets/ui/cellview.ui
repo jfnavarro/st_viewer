@@ -17,11 +17,11 @@
    <item>
     <layout class="QVBoxLayout" name="pageLayout">
      <item>
-      <widget class="QSplitter" name="gridLayout">
+      <widget class="QSplitter" name="horizontalSplitter">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <widget class="QSplitter" name="gridLayout2">
+       <widget class="QSplitter" name="verticalSplitter">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -29,12 +29,6 @@
         <widget class="SelectionsWidget" name="selectionsWidget" native="true"/>
        </widget>
        <widget class="ScrollArea" name="area" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>600</width>
-          <height>600</height>
-         </size>
-        </property>
        </widget>
       </widget>
      </item>
