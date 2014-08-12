@@ -8,8 +8,6 @@
 
 #include "ui_experiments.h"
 
-#include <cmath>
-
 #include <QDebug>
 #include <QSortFilterProxyModel>
 #include <QFileDialog>
@@ -17,14 +15,10 @@
 #include <QTableWidgetItem>
 
 #include "io/GeneExporter.h"
-
 #include "model/ExperimentsItemModel.h"
-
 #include "network/DownloadManager.h"
-
 #include "dialogs/CreateSelectionDialog.h"
-
-#include "analysis/ScatterPlot.h"
+#include "analysis/AnalysisDEA.h"
 
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
@@ -36,6 +30,9 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     // create UI
     m_ui = new Ui::Experiments();
     m_ui->setupUi(this);
+
+    //create DEA object (not parent)
+    m_analysisDEA = new AnalysisDEA();
 
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
@@ -55,6 +52,9 @@ ExperimentPage::~ExperimentPage()
         delete m_ui;
     }
     m_ui = nullptr;
+
+    m_analysisDEA->deleteLater();
+    m_analysisDEA = nullptr;
 }
 
 QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
@@ -257,8 +257,7 @@ void ExperimentPage::slotEditSelection()
     }
 }
 
-//TODO add waiting cursor
-//TODO move computations to AnalysisDDA class
+//TODO add waiting cursor if takes time to compute
 void ExperimentPage::slotPerformDDA()
 {
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
@@ -278,116 +277,7 @@ void ExperimentPage::slotPerformDDA()
     auto selectionItems1 = selectionObject1->selectedItems();
     auto selectionItems2 = selectionObject2->selectedItems();
 
-    // get the size of the biggest list
-    const int selection1Size = selectionItems1.size();
-    const int selection2Size = selectionItems2.size();
-    const int biggestSize = qMax(selection1Size, selection2Size);
-
-    //take into account different genes that some genes might be present in only one selection
-    QHash<QString, QPair<qreal,qreal> > genesToNormalizedReads;
-    for (int i = 0; i < biggestSize; ++i) {
-        if (selection1Size > i) {
-            const auto& selection1 = selectionItems1.at(i);
-            if (!genesToNormalizedReads.contains(selection1.name)) {
-                genesToNormalizedReads[selection1.name] = QPair<qreal,qreal>(-1.0, -1.0);
-            }
-            genesToNormalizedReads[selection1.name].first = selection1.normalizedReads;
-        }
-        if (selection2Size > i) {
-            const auto& selection2 = selectionItems2.at(i);
-            if (!genesToNormalizedReads.contains(selection2.name)) {
-                genesToNormalizedReads[selection2.name] = QPair<qreal,qreal>(-1.0, -1.0);
-            }
-            genesToNormalizedReads[selection2.name].second = selection2.normalizedReads;
-        }
-    }
-
-    //TODO send values to ScatterPlot to be whoen in a widget
-    //TODO rename ScatterPlot
-    ScatterPlot *scatterPlot = new ScatterPlot(biggestSize);
-
-    QVector<qreal> x;
-    QVector<qreal> y;
-    QVector<qreal> logX;
-    QVector<qreal> logY;
-    qreal sumSelection1 = 0.0;
-    qreal sumSelection2 = 0.0;
-    qreal sumSquaredSelection1 = 0.0;
-    qreal sumSquaredSelection2 = 0.0;
-    qreal sumSquaredSelection12 = 0.0;
-    int countOnly1 = 0;
-    int countOnly2 = 0;
-    int countBoth = 0;
-    int index = 0;
-    QHash<QString, QPair<qreal,qreal> >::const_iterator it = genesToNormalizedReads.begin();
-    QHash<QString, QPair<qreal,qreal> >::const_iterator end = genesToNormalizedReads.end();
-    for ( ; it != end; ++it) {
-
-        const bool geneNotInSelection1 = it.value().first == -1;
-        const bool geneNotInSelection2 = it.value().second == -1;
-
-        scatterPlot->getTable()->setItem(index, 0, new QTableWidgetItem(it.key()));
-        if (!geneNotInSelection1) {
-            scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem(QString::number(it.value().first)));
-        } else {
-            scatterPlot->getTable()->setItem(index, 1,  new QTableWidgetItem("None"));
-        }
-        if (!geneNotInSelection2) {
-            scatterPlot->getTable()->setItem(index, 2, new QTableWidgetItem(QString::number(it.value().second)));
-        } else {
-            scatterPlot->getTable()->setItem(index, 2,  new QTableWidgetItem("None"));
-        }
-        index++;
-
-        //TODO validate 1.0 is a good value to assign when no gene present
-        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
-        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
-        if (geneNotInSelection1) {
-            countOnly2++;
-        } else if (geneNotInSelection2) {
-            countOnly1++;
-        } else {
-            countBoth++;
-        }
-
-        x.push_back(valueSelection1);
-        y.push_back(valueSelection2);
-
-        logX.push_back(std::log10(valueSelection1));
-        logY.push_back(std::log10(valueSelection2));
-
-        sumSelection1 += valueSelection1;
-        sumSelection2 += valueSelection2;
-        sumSquaredSelection1 += valueSelection1 * valueSelection1;
-        sumSquaredSelection2 += valueSelection2 * valueSelection2;
-        sumSquaredSelection12 += valueSelection1 * valueSelection2;
-        //TODO consider use log values for correlation
-    }
-
-    scatterPlot->getTable()->setSortingEnabled(true);
-
-    const qreal meanSelection1 = sumSelection1 / biggestSize;
-    const qreal meanSelection2 = sumSelection2 / biggestSize;
-    const qreal stdDevSelection1 =
-            std::sqrt(sumSquaredSelection1 / biggestSize - meanSelection1 * meanSelection1);
-    const qreal stdDevSelection2 =
-            std::sqrt(sumSquaredSelection2 / biggestSize - meanSelection2 * meanSelection2);
-    const qreal correlation = (biggestSize * sumSquaredSelection12 - sumSelection1 * sumSelection2)
-            / std::sqrt((biggestSize * sumSquaredSelection2 - sumSelection1 * sumSelection1)
-                        * (biggestSize * sumSquaredSelection2 - sumSelection2 * sumSelection2));
-
-    //TODO use string formatter for this
-    //TODO the idea is to do the computation in AnalysisDDA class and pass that object
-    //to the visualization widget
-    scatterPlot->setNumberGenes(QString::number(selection1Size) , QString::number(selection2Size));
-    scatterPlot->setMean(QString::number(meanSelection1), QString::number(meanSelection2));
-    scatterPlot->setStdDev(QString::number(stdDevSelection1), QString::number(stdDevSelection2));
-    scatterPlot->setCorrelation(QString::number(correlation));
-    scatterPlot->setOverlapping(QString::number(countBoth), QString::number(countOnly1), QString::number(countOnly2));
-    scatterPlot->setSelection(selectionObject1->name(), selectionObject2->name());
-    scatterPlot->plot(x, y, selectionObject1->name() + " - (tpm+1)",
-                      selectionObject2->name() + " - (tpm+1)");
-
-    //TODO memmory leak solve this
-    //scatterPlot->deleteLater();
+    m_analysisDEA->compute(selectionItems1, selectionItems2,
+                         selectionObject1->name(), selectionObject2->name());
+    m_analysisDEA->plot();
 }

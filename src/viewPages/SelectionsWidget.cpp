@@ -53,7 +53,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     selectionBottonsLayout->addStretch(5);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
-    m_geneSelectionFilterLineEdit->setFixedSize(200, 20);
+    m_geneSelectionFilterLineEdit->setFixedSize(150, 20);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
     setToolTipAndStatusTip(
             tr("Search by gene name"),

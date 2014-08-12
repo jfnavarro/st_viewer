@@ -88,7 +88,8 @@ CellGLView::~CellGLView()
     m_context = nullptr;
 }
 
-void CellGLView::setDefaultPanningAndZooming() {
+void CellGLView::setDefaultPanningAndZooming()
+{
     m_scene_focus_center_point = m_scene.center();
     m_zoom_factor = minZoom();
     emit signalSceneTransformationsUpdated(sceneTransformations());
@@ -196,11 +197,13 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
+    if (!isExposed()) {
+        return;
+    }
+
     //create OpenGL painter
     QGLPainter painter;
     painter.begin();
-
-    painter.setEye(QGL::NoEye);
 
     // set the projection matrix
     painter.projectionMatrix() = m_projm;
@@ -209,18 +212,12 @@ void CellGLView::paintGL()
     painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //get DPI to adjust for retina screens
-    const qreal pixelRatio = devicePixelRatio();
-
     //render nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
             if (node->transformable()) {
                 local_transform *= sceneTransformations();
-            }
-            if (pixelRatio != 1.0) {
-                local_transform *= QTransform::fromScale(pixelRatio, pixelRatio);
             }
             painter.modelViewMatrix().push();
             painter.modelViewMatrix() *= local_transform;
@@ -339,11 +336,8 @@ void CellGLView::setScene(const QRectF scene)
         return;
     }
 
-    const qreal dpi = devicePixelRatio();
-    const QTransform transform = QTransform::fromScale(dpi, dpi);
-    const QRectF adjustedScene = transform.mapRect(scene);
-    if (m_scene != adjustedScene) {
-        m_scene = adjustedScene;
+    if (m_scene != scene) {
+        m_scene = scene;
         emit signalSceneUpdated(m_scene);
         setDefaultPanningAndZooming();
     }
@@ -354,6 +348,7 @@ qreal CellGLView::minZoom() const
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MIN_ZOOM;
     }
+
     const qreal min_zoom_height = m_viewport.height( ) / m_scene.height();
     const qreal min_zoom_width = m_viewport.width() / m_scene.width();
     return qMax(min_zoom_height, min_zoom_width);
@@ -364,6 +359,7 @@ qreal CellGLView::maxZoom() const
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MAX_ZOOM;
     }
+
     const qreal max_zoom_x = m_viewport.width() /
             MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
     const qreal max_zoom_y = m_viewport.height() /
@@ -425,14 +421,11 @@ bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *ev
                         );
             if (type == pressType) {
                 node->mousePressEvent(&newEvent);
-            }
-            else if (type == moveType) {
+            } else if (type == moveType) {
                 node->mouseMoveEvent(&newEvent);
-            }
-            else if (type == releaseType) {
+            } else if (type == releaseType) {
                 node->mouseReleaseEvent(&newEvent);
-            }
-            else {
+            } else {
                 qDebug() << "Mouse event type not recognized";
             }
         }
@@ -458,6 +451,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
             // Set the new selection area
             SelectionEvent::SelectionMode mode =
                     SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+            qDebug() << "Selection mode = " << mode;
             SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);

@@ -5,7 +5,7 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
-    <string>True</string> 
+    <string>False</string> 
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>

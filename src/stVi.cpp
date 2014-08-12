@@ -76,6 +76,7 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
     m_mainTab(nullptr),
     m_dataProxy(nullptr)
 {
+    setUnifiedTitleAndToolBarOnMac(true);
     m_dataProxy = new DataProxy();
 }
 
@@ -188,12 +189,6 @@ void stVi::setupUi()
     setMinimumSize(QSize(1024, 768));
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
-    m_actionExit = new QAction(this);
-    m_actionHelp = new QAction(this);
-    m_actionVersion = new QAction(this);
-    m_actionAbout = new QAction(this);
-    m_actionClear_Cache = new QAction(this);
-
     m_centralwidget = new QWidget(this);
 
     m_mainlayout = new QVBoxLayout(m_centralwidget);
@@ -210,23 +205,28 @@ void stVi::setupUi()
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);
 
-    m_menuLoad = new QMenu(menubar);
-    m_menuHelp = new QMenu(menubar);
-
-    menubar->addAction(m_menuLoad->menuAction());
-    menubar->addAction(m_menuHelp->menuAction());
-    m_menuLoad->addSeparator();
-    m_menuLoad->addAction(m_actionExit);
-    m_menuLoad->addAction(m_actionClear_Cache);
-    m_menuHelp->addAction(m_actionAbout);
-
+    m_actionExit = new QAction(this);
+    m_actionHelp = new QAction(this);
+    m_actionVersion = new QAction(this);
+    m_actionAbout = new QAction(this);
+    m_actionClear_Cache = new QAction(this);
     m_actionExit->setText(tr("Exit"));
     m_actionHelp->setText(tr("Help"));
     m_actionVersion->setText(tr("Version"));
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
+
+    m_menuLoad = new QMenu(menubar);
+    m_menuHelp = new QMenu(menubar);
     m_menuLoad->setTitle(tr("File"));
-    m_menuHelp->setTitle(tr("About"));
+    m_menuHelp->setTitle(tr("Help"));
+
+    m_menuLoad->addAction(m_actionExit);
+    m_menuLoad->addAction(m_actionClear_Cache);
+    m_menuHelp->addAction(m_actionAbout);
+
+    menubar->addAction(m_menuLoad->menuAction());
+    menubar->addAction(m_menuHelp->menuAction());
 }
 
 void stVi::handleMessage(const QString &message)
@@ -282,31 +282,9 @@ void stVi::createLayouts()
     //TODO make several status bar updates in different parts of the application
 }
 
+// apply stylesheet and configurations
 void stVi::initStyle()
 {
-    // apply stylesheet and configurations
-#ifdef Q_OS_MAC
-    setUnifiedTitleAndToolBarOnMac(true);
-    QApplication::setAttribute(Qt::AA_MacPluginApplication, true);
-    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
-    //NOTE this is actually pretty important (be false)
-    QApplication::setAttribute(Qt::AA_NativeWindows, false);
-    //osx does not show icons on menus
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
-     // no close icon on MAC
-    setWindowFlags(((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowCloseButtonHint));
-#endif
-
-    //unhandled mouse events will not be translated
-    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
-    QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
-    //allows to create high-dpi pixmaps
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, false);
-    //consistent font rendering
-    QApplication::setAttribute(Qt::AA_Use96Dpi, false);
-    //force usages of desktop opengl
-    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
-
     //TODO move to styleshee.css file
     setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}"
                   "QToolButton:checked {background-color: rgb(175,175,175);}"
