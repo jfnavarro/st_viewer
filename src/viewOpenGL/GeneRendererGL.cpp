@@ -145,10 +145,16 @@ void GeneRendererGL::setUpperLimit(int limit)
             Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
 
     //We do not want the threshold to be bigger than the max value of the distribution
+    //for distributions where the values are very spread, we do not want
+    //the first last of the threshold to be bigger than the maximum.
+    //TODO there are cleaner and nicer ways to achieve this
     const int adjusted_limit =
-            std::min(m_max, static_cast<int>((limit / offlimit) * (m_max - m_min)));
+            limit == Globals::GENE_THRESHOLD_MAX ?
+                m_max : std::min(m_max, static_cast<int>((limit / offlimit) * (m_max - m_min)));
     const int adjusted_limit_pooled =
-            std::min(m_pooledMax, static_cast<int>((limit / offlimit) * (m_pooledMax - m_pooledMin)));
+            limit == Globals::GENE_THRESHOLD_MAX ?
+                m_pooledMax : std::min(m_pooledMax, static_cast<int>((limit / offlimit)
+                                                                     * (m_pooledMax - m_pooledMin)));
 
     if (m_thresholdUpper != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdUpper = adjusted_limit;
@@ -161,21 +167,20 @@ void GeneRendererGL::setLowerLimit(int limit)
 {
     //limit will be in a range 0...100, we adjust the threshold
     //using the distribution of reads (min - max)
-
     static const qreal offlimit =
             Globals::GENE_THRESHOLD_MAX - Globals::GENE_THRESHOLD_MIN;
 
+    //We do not want the threshold to be lower than the min value of the distribution
     //for distributions where the values are very spread, we do not want
     //the first level of the threshold to be bigger than the minimum.
     //TODO there are cleaner and nicer ways to achieve this
-
-    //We do not want the threshold to be lower than the min value of the distribution
     const int adjusted_limit =
             limit == Globals::GENE_THRESHOLD_MIN ?
                 m_min : std::max(m_min, static_cast<int>((limit / offlimit) * (m_max - m_min)));
     const int adjusted_limit_pooled =
             limit == Globals::GENE_THRESHOLD_MIN ?
-                m_pooledMin : std::max(m_pooledMin, static_cast<int>((limit / offlimit) * (m_pooledMax - m_pooledMin)));
+                m_pooledMin : std::max(m_pooledMin, static_cast<int>((limit / offlimit)
+                                                                     * (m_pooledMax - m_pooledMin)));
 
     if (m_thresholdLower != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdLower = adjusted_limit;
@@ -219,9 +224,8 @@ void GeneRendererGL::generateData()
 
 void GeneRendererGL::updateSize()
 {
-    GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin();
     GeneInfoByIdMap::const_iterator end = m_geneInfoById.end();
-    for ( ; it != end; ++it) {
+    for (GeneInfoByIdMap::const_iterator it = m_geneInfoById.begin(); it != end; ++it) {
         // update size of the quad for all features
         const int index = it.value();
         DataProxy::FeaturePtr feature = it.key();

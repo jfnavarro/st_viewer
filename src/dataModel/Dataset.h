@@ -67,7 +67,9 @@ public:
     //extended methods to get statistics
     qreal statisticsMin() const;
     qreal statisticsMax() const;
+    //returns the adjusted first quartile (account for sparse distributions)
     qreal statisticsPooledMin() const;
+    //returns the adjusted third quartile (account for sparse distributions)
     qreal statisticsPooledMax() const;
 
 private:

@@ -141,7 +141,6 @@ void CellGLView::exposeEvent(QExposeEvent *event)
         initializeGL();
     }
     paintGL();
-    m_context->swapBuffers(this); // this is important
 }
 
 void CellGLView::resizeEvent(QResizeEvent *event)
@@ -232,6 +231,9 @@ void CellGLView::paintGL()
     if (m_rubberBanding && m_selecting) {
         m_rubberband->draw(&painter);
     }
+
+    m_context->swapBuffers(this); // this is important
+    m_context->doneCurrent();
 }
 
 void CellGLView::resizeGL(int width, int height)

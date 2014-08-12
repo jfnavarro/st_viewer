@@ -107,7 +107,7 @@ void HeatMapLegendGL::setLowerLimit(int limit)
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (limit / offlimit) * range;
     const qreal normalized_limit = adjusted_limit / range;
-    m_lower_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
+    m_lower_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
     m_lower_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
@@ -121,7 +121,7 @@ void HeatMapLegendGL::setUpperLimit(int limit)
     const qreal range = m_max - m_min;
     const qreal adjusted_limit =  (limit / offlimit) * range;
     const qreal normalized_limit = adjusted_limit / range;
-    m_upper_threshold = STMath::clamp( normalized_limit, 0.0, 1.0 );
+    m_upper_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
     m_upper_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
@@ -167,13 +167,14 @@ void HeatMapLegendGL::generateBarAndTexts()
     const qreal thresholdLowerHeight = (1.0 - m_lower_threshold) * legend_height;
     const qreal thresholdUpperHeight = (1.0 - m_upper_threshold) * legend_height;
 
+    // compute new bars positions
     m_bars.clear();
     m_bars.append(legend_x, thresholdLowerHeight);
     m_bars.append(legend_x + bars_width, thresholdLowerHeight);
     m_bars.append(legend_x, thresholdUpperHeight);
     m_bars.append(legend_x + bars_width, thresholdUpperHeight);
 
-    // create text
+    // compute text position
     m_lower_text_position = QPointF(legend_x + bars_width, thresholdLowerHeight);
     m_upper_text_position = QPointF(legend_x + bars_width, thresholdUpperHeight);
 }
