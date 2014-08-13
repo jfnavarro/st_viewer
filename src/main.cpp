@@ -83,6 +83,14 @@ void setApplicationFlags()
 
 int main(int argc, char** argv)
 {
+#ifdef Q_OS_LINUX
+    // If this environment variable is not set we get 
+    // "Segmentation fault (core dumped)" when we exit
+    // the application (running Ubuntu 14.04, Qt 5.3.1 with an nVidia graphics card)
+    // The idea for this workaround came from here
+    // http://www.opengl.org/discussion_boards/archive/index.php/t-173485.html
+    setenv("__GL_NO_DSO_FINALIZER", "1", 1);
+#endif
     setApplicationFlags();
 
     QtSingleApplication *app = new QtSingleApplication(argc, argv);
