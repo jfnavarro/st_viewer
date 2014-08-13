@@ -38,12 +38,12 @@ void ImageTextureGL::clear()
 void ImageTextureGL::clearTextures()
 {
     foreach(QGLTexture2D *texture, m_textures) {
-        if (texture != nullptr) {
+        if (texture) {
             texture->cleanupResources();
             texture->release();
             texture->clearImage();
+            texture->deleteLater();
         }
-        texture->deleteLater();
         texture = nullptr;
     }
     m_textures.clear();
@@ -52,7 +52,9 @@ void ImageTextureGL::clearTextures()
 void ImageTextureGL::clearNodes()
 {
     foreach(QGLSceneNode *node, m_nodes) {
-        node->deleteLater();
+        if (node) {
+            node->deleteLater();
+        }
         node = nullptr;
     }
     m_nodes.clear();
@@ -63,8 +65,7 @@ void ImageTextureGL::draw(QGLPainter *painter)
     glEnable(GL_TEXTURE_2D);
     {
         foreach(QGLSceneNode *node, m_nodes ) {
-            if (node != nullptr && node->material() != nullptr
-                    && node->material()->texture() != nullptr) {
+            if (node && node->material() && node->material()->texture()) {
                 node->material()->texture()->bind();
                 QColor texture_color = Qt::black;
                 texture_color.setAlphaF(m_intensity);
@@ -140,14 +141,14 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     builder.addQuads(data);
     QGLSceneNode *node  = builder.finalizedSceneNode();
 
-    QGLTexture2D *m_texture = new QGLTexture2D(this);
+    QGLTexture2D *m_texture = new QGLTexture2D();
     m_texture->setImage(image);
     m_texture->setVerticalWrap(QGL::ClampToEdge);
     m_texture->setHorizontalWrap(QGL::ClampToEdge);
     m_texture->setBindOptions(QGLTexture2D::NoBindOption);
     m_texture->setSize(QSize(width, height));
 
-    QGLMaterial *mat = new QGLMaterial(this);
+    QGLMaterial *mat = new QGLMaterial();
     mat->setColor(Qt::black);
     mat->setTexture(m_texture);
     node->setMaterial(mat);
