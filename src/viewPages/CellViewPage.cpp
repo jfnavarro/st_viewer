@@ -165,7 +165,7 @@ void CellViewPage::onEnter()
     m_gene_plotter->setHitCount(min, max, pooledMin, pooledMax);
 
     // updated legend size and data
-    m_legend->setBoundaries(pooledMin, pooledMax);
+    m_legend->setBoundaries(min, max);
 
     // load cell tissue
     slotLoadCellFigure();

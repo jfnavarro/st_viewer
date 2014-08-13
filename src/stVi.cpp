@@ -30,17 +30,12 @@
 #include <QStatusBar>
 
 #include "utils/Utils.h"
-
 #include "error/Error.h"
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
-
 #include "network/DownloadManager.h"
-
 #include "data/DataProxy.h"
-
 #include "dialogs/AboutDialog.h"
-
 #include "viewPages/ExtendedTabWidget.h"
 
 namespace {
@@ -69,10 +64,6 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
     m_actionVersion(nullptr),
     m_actionAbout(nullptr),
     m_actionClear_Cache(nullptr),
-    m_menuLoad(nullptr),
-    m_menuHelp(nullptr),
-    m_centralwidget(nullptr),
-    m_mainlayout(nullptr),
     m_mainTab(nullptr),
     m_dataProxy(nullptr)
 {
@@ -99,21 +90,8 @@ stVi::~stVi()
     m_actionAbout->deleteLater();
     m_actionAbout = nullptr;
 
-    m_menuLoad->deleteLater();
-    m_menuLoad = nullptr;
-
-    m_menuHelp->deleteLater();
-    m_menuHelp = nullptr;
-
-    m_centralwidget->deleteLater();
-    m_centralwidget = nullptr;
-
-    m_mainlayout->deleteLater();
-    m_mainlayout = nullptr;
-
     m_mainTab->deleteLater();
     m_mainTab = nullptr;
-
 }
 
 void stVi::init()
@@ -189,22 +167,28 @@ void stVi::setupUi()
     setMinimumSize(QSize(1024, 768));
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
-    m_centralwidget = new QWidget(this);
+    //create main widget
+    QWidget *centralwidget = new QWidget(this);
+    setCentralWidget(centralwidget);
+    //create main layout
+    QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
 
-    m_mainlayout = new QVBoxLayout(m_centralwidget);
+    //create tab manager
     //pass reference to dataProxy to tab manager
-    m_mainTab = new ExtendedTabWidget(m_dataProxy, m_centralwidget);
-    m_mainlayout->addWidget(m_mainTab);
-    setCentralWidget(m_centralwidget);
+    m_mainTab = new ExtendedTabWidget(m_dataProxy, centralwidget);
+    mainlayout->addWidget(m_mainTab);
 
+    //create status bar
     QStatusBar *statusbar = new QStatusBar(this);
     setStatusBar(statusbar);
 
+    //create menu bar
     QMenuBar *menubar = new QMenuBar(this);
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);
 
+    //create actions
     m_actionExit = new QAction(this);
     m_actionHelp = new QAction(this);
     m_actionVersion = new QAction(this);
@@ -216,17 +200,17 @@ void stVi::setupUi()
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
 
-    m_menuLoad = new QMenu(menubar);
-    m_menuHelp = new QMenu(menubar);
-    m_menuLoad->setTitle(tr("File"));
-    m_menuHelp->setTitle(tr("Help"));
+    //create menus
+    QMenu *menuLoad = new QMenu(menubar);
+    QMenu *menuHelp = new QMenu(menubar);
+    menuLoad->setTitle(tr("File"));
+    menuHelp->setTitle(tr("Help"));
+    menuLoad->addAction(m_actionExit);
+    menuLoad->addAction(m_actionClear_Cache);
+    menuHelp->addAction(m_actionAbout);
 
-    m_menuLoad->addAction(m_actionExit);
-    m_menuLoad->addAction(m_actionClear_Cache);
-    m_menuHelp->addAction(m_actionAbout);
-
-    menubar->addAction(m_menuLoad->menuAction());
-    menubar->addAction(m_menuHelp->menuAction());
+    menubar->addAction(menuLoad->menuAction());
+    menubar->addAction(menuHelp->menuAction());
 }
 
 void stVi::handleMessage(const QString &message)

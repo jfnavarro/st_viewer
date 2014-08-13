@@ -394,8 +394,7 @@ void GeneRendererGL::updateVisual()
         const bool selected = gene->selected();
         //the key should always be present
         const int index = m_geneInfoById.value(feature);
-        //adjust feature's hits to account for PCR duplicates
-        const int currentHits = std::min(m_max, feature->hits());
+        const int currentHits = feature->hits();
 
         // compute values
         const float oldValue = m_geneData.quadValue(index);
@@ -484,7 +483,8 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 {
     // unselect previous selection
-    clearSelection();
+    m_geneData.resetSelection(false);
+    updateFeaturesSelected(false);
 
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -601,7 +601,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         foreach(DataProxy::FeaturePtr feature, featureList) {
             //TODO not checking if gene is selected or not
             // do not select features outside threshold
-            if (!isFeatureOutsideRange(feature->hits(), value)) {
+            if (isFeatureOutsideRange(feature->hits(), value)) {
                 continue;
             }
             //update gene data and feature selected

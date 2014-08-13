@@ -289,8 +289,7 @@ void Dataset::lastModified(const QString& lastModified)
 qreal Dataset::statisticsMin() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
-    // returning q0 of the distribution
-    // alternatively we could do
+    // returning q0, alternatively could return
     // max ( q1 - 1.5 * (q3-q1), q0 )
     return m_geneHitsQuartiles.at(0);
 }
@@ -308,8 +307,7 @@ qreal Dataset::statisticsMax() const
 qreal Dataset::statisticsPooledMin() const
 {
     Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
-    // returning q0 of the distribution
-    // alternatively we could do
+    // returning q0, alternatively could return
     // max ( q1 - 1.5 * (q3-q1), q0 )
     return m_genePooledHitsQuartiles.at(0);
 }

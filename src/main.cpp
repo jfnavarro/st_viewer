@@ -16,10 +16,8 @@
 #endif
 
 #include <iostream>
-
 #include "utils/Utils.h"
 #include "stVi.h"
-
 #include "options_cmake.h"
 
 namespace {

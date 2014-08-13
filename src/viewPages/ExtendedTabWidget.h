@@ -123,7 +123,7 @@ private:
     QPointer<CellViewPage> m_cellview;
     QPointer<ExperimentPage> m_experiments;
 
-    //components
+    //UI components
     QPointer<QStackedWidget> m_stackWidget;
     QPointer<QButtonGroup> m_buttonGroup;
     QPointer<QHBoxLayout> m_layout;

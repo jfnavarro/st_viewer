@@ -43,7 +43,7 @@ void Page::setWaiting(bool waiting, const QString &label)
     Q_UNUSED(label);
 
     //TODO currently showing the QPogressDialog causes
-    //to have some GUI elements not responding in MAC
+    //to have the actions in the main menu bar disabled
 
     if (waiting) {
         QGuiApplication::setOverrideCursor(Qt::WaitCursor);

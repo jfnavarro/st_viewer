@@ -92,7 +92,8 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
     // be as big as possible. Unfortunately the value std::numeric_limits<int>::max() is not
     // big enough because sometimes the scroll gets to be a pixel to short.
     const int val = (qFuzzyCompare(value_range,0.0)) ? std::numeric_limits<int>::max() :
-                                                       static_cast<int>(scrollBarSteps * viewPortInSceneCoordinatesRange / value_range);
+                                                       static_cast<int>(scrollBarSteps
+                                                                        * viewPortInSceneCoordinatesRange / value_range);
     scrollBar->setPageStep(val);
     //TODO 300 magic number?
     scrollBar->setSingleStep(300);

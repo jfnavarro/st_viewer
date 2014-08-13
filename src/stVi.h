@@ -80,11 +80,6 @@ private:
     QPointer<QAction> m_actionAbout;
     QPointer<QAction> m_actionClear_Cache;
 
-    QPointer<QMenu> m_menuLoad;
-    QPointer<QMenu> m_menuHelp;
-
-    QPointer<QWidget> m_centralwidget;
-    QPointer<QVBoxLayout> m_mainlayout;
     QPointer<ExtendedTabWidget> m_mainTab;
 
     //stVi owns dataProxy
