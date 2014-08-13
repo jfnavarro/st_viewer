@@ -88,8 +88,10 @@ public:
     int statGenes() const { return m_dataset.statGenes(); }
     int statUniqueBarcodes() const { return m_dataset.statUniqueBarcodes(); }
     int statUniqueGenes() const { return m_dataset.statUniqueGenes(); }
-    const QVariantList hitsQuartiles() const { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
-    const QVariantList hitsPooledQuartiles() const { return serializeVector<qreal>(m_dataset.hitsPooledQuartiles()); }
+    const QVariantList hitsQuartiles() const
+      { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
+    const QVariantList hitsPooledQuartiles() const
+      { return serializeVector<qreal>(m_dataset.hitsPooledQuartiles()); }
     const QString statComments() const { return m_dataset.statComments(); }
     bool enabled() const { return m_dataset.enabled(); }
     const QVariantList oboFoundryTerms() const
@@ -123,7 +125,8 @@ public:
             hitsPooledQuartiles.append(item);
         }
         jsonObj["gene_pooled_hit_quartiles"] = hitsPooledQuartiles;
-        jsonObj["comment"] = !statComments().isEmpty() ? QJsonValue(statComments()) : QJsonValue::Null;
+        jsonObj["comment"] = !statComments().isEmpty() ?
+                    QJsonValue(statComments()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
         QJsonArray oboTerms;
         foreach(const QString &item, m_dataset.oboFoundryTerms()) {
@@ -136,8 +139,8 @@ public:
         }
         jsonObj["granted_accounts"] = grantedAccounts;
         jsonObj["created_by_account_id"] = createdByAccount();
-        jsonObj["created_at"] =  QJsonValue::Null; //TODO null for now until we know what format is used in server
-        jsonObj["last_modified"] = QJsonValue::Null; //TODO null for now until we know what format is used in server
+        jsonObj["created_at"] =  QJsonValue::Null;
+        jsonObj["last_modified"] = QJsonValue::Null;
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);

@@ -15,6 +15,8 @@
 #include <QtCore/qmath.h>
 #include <QSizeF>
 
+#include <cmath>
+
 // Common provides miscellaneous functionality related to the opengl library.
 namespace STMath
 {
@@ -105,7 +107,7 @@ inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub 
 
 inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
-     //TODO should do the interpolation in HSV space
+    //TODO should do the interpolation in HSV space
     const qreal invt = 1.0 / (1.0 - t);
     return QColor4ub(
                 (c0.red() - (t * c1.red())) * invt,
@@ -114,6 +116,81 @@ inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4
                 (c0.alpha() - (t * c1.alpha())) * invt
                 );
 }
+
+
+//Euclidean distance between two vectors of type T such that T has binary +,-,*
+template<class T>
+inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
+    Q_ASSERT(v1.size() == v2.size());
+    T diff;
+    T sum;
+    diff = v1[0] - v2[0];
+    sum = diff * diff;
+    for (unsigned int i=1; i < v1.size(); i++){
+        diff = v1[i] - v2[i];
+        sum += diff * diff;
+    }
+    return std::sqrt(double(sum));
+}
+
+//Jaccard Coefficient.	Use for asymetric binary values
+template<class T>
+inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
+    Q_ASSERT(v1.size() == v2.size());
+    int f11 = 0;
+    int f00 = 0;
+    for (unsigned int i = 0; i < v1.size(); i++){
+        if(v1[i] == v2[i]){
+            if(v1[i]) {
+                f11++;
+            } else {
+                f00++;
+            }
+        }
+    }
+    return static_cast<qreal>(f11)
+            / static_cast<qreal>(v1.size() - (f11 + f00));
+}
+
+//The mean of a vector
+template<class T>
+inline qreal mean(const QVector<T> &v1){
+    T sum = v1[0];
+    for (int i = 1; i < v1.size(); i++) {
+        sum += v1[i];
+    }
+    return static_cast<qreal>(sum) / static_cast<qreal>(v1.size());
+}
+
+//The Covariance
+template<class T>
+inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2){
+    Q_ASSERT(v1.size() == v2.size());
+    qreal mean1 = mean(v1);
+    qreal mean2 = mean(v2);
+    qreal sum = (static_cast<qreal>(v1[0]) - mean1) * (static_cast<qreal>(v2[0]) - mean2);
+    for (int i = 1; i < v1.size(); i++){
+        sum += (static_cast<qreal>(v1[i]) - mean1) * (static_cast<qreal>(v2[i]) - mean2);
+    }
+    return static_cast<qreal>(sum) / static_cast<qreal>(v1.size() - 1);
+}
+
+//standard deviation the covariance where both vectors are the same.
+template<class T>
+inline qreal std_dev(const QVector<T> &v1){
+    return sqrt(covariance(v1, v1));
+}
+
+//Pearson Correlation
+template<class T>
+inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2){
+    if (std_dev(v1) * std_dev(v2) == 0){
+        //a standard deviaton was 0...
+        return -1;
+    }
+    return covariance(v1,v2) / (std_dev(v1) * std_dev(v2));
+}
+
 
 } // end name space
 

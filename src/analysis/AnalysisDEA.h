@@ -25,9 +25,8 @@ public:
     explicit AnalysisDEA(QWidget *parent = 0);
     ~AnalysisDEA();
 
-    void compute(const GeneSelection::selectedItemsList& selA,
-                 const GeneSelection::selectedItemsList& selB,
-                 const QString &selAName, const QString &selBName);
+    void compute(const GeneSelection& selObjectA,
+                 const GeneSelection& selObjectB);
     void plot();
 
 signals:

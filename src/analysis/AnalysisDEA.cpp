@@ -3,7 +3,9 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
+
 #include <cmath>
+#include "math/Common.h"
 
 AnalysisDEA::AnalysisDEA(QWidget *parent) :
     QWidget(parent),
@@ -45,16 +47,18 @@ AnalysisDEA::~AnalysisDEA()
 }
 
 //TODO split and optimize this function
-void AnalysisDEA::compute(const GeneSelection::selectedItemsList &selA,
-                          const GeneSelection::selectedItemsList &selB,
-                          const QString& selAName,
-                          const QString& selBName)
+void AnalysisDEA::compute(const GeneSelection &selObjectA,
+                          const GeneSelection &selObjectB)
 {
     typedef QHash<QString, QPair<qreal,qreal> > geneToNormalizedPairType;
 
-    //update the selection names
-    m_selectionA = selAName;
-    m_selectionB = selBName;
+    // update the selection names
+    m_selectionA = selObjectA.name();
+    m_selectionB = selObjectB.name();
+
+    // get the list of selected items
+    const auto &selA = selObjectA.selectedItems();
+    const auto &selB = selObjectB.selectedItems();
 
     // get the size of the biggest list
     const int selection1Size = selA.size();
@@ -72,44 +76,45 @@ void AnalysisDEA::compute(const GeneSelection::selectedItemsList &selA,
             if (!genesToNormalizedReads.contains(selection1.name)) {
                 genesToNormalizedReads[selection1.name] = QPair<qreal,qreal>(-1.0, -1.0);
             }
-            genesToNormalizedReads[selection1.name].first = selection1.normalizedReads;
+            genesToNormalizedReads[selection1.name].first = selection1.reads;
         }
         if (selection2Size > i) {
             const auto& selection2 = selB.at(i);
             if (!genesToNormalizedReads.contains(selection2.name)) {
                 genesToNormalizedReads[selection2.name] = QPair<qreal,qreal>(-1.0, -1.0);
             }
-            genesToNormalizedReads[selection2.name].second = selection2.normalizedReads;
+            genesToNormalizedReads[selection2.name].second = selection2.reads;
         }
     }
 
-    //initialize row size of the table
+    // initialize row size of the table
     m_ui->tableWidget->clear();
-    //initialize columns and headers of the table
+    // initialize columns and headers of the table
     m_ui->tableWidget->setColumnCount(3);
     QStringList headers;
-    headers << "Gene" << "Exp. Selection A" << "Exp. Selection B";
+    headers << "Gene" << "Reads Sel. A" << "Reads Sel. B";
     m_ui->tableWidget->setHorizontalHeaderLabels(headers);
     m_ui->tableWidget->setRowCount(biggestSize);
     int index = 0; //to keep count of the elements inserted
 
-    //some temp variables for computation of statistics
-    qreal sumSelection1 = 0.0;
-    qreal sumSelection2 = 0.0;
-    qreal sumSquaredSelection1 = 0.0;
-    qreal sumSquaredSelection2 = 0.0;
-    qreal sumSquaredSelection12 = 0.0;
+    // some temp variables for computation of statistics (not normalized values)
+    QVector<qreal> valuesA;
+    QVector<qreal> valuesB;
 
-    //reset counters for overlapping
+    // reset counters for overlapping
     m_countAB = 0;
     m_countA = 0;
     m_countB = 0;
 
-    //reset lists of values
+    // reset lists of values
     m_valuesSelectionA.clear();
     m_valuesSelectionB.clear();
     m_loggedValuesSelectionA.clear();
     m_loggedValuesSelectionB.clear();
+
+    //total reads in each selection used to normalize
+    const int totalReadsSelectionA = selObjectA.totalReads();
+    const int totalReadsSelectionB = selObjectB.totalReads();
 
     //iterate the hash table to compute the DDA values
     geneToNormalizedPairType::const_iterator end = genesToNormalizedReads.end();
@@ -145,36 +150,36 @@ void AnalysisDEA::compute(const GeneSelection::selectedItemsList &selA,
             m_countAB++;
         }
 
-        //populate lists of values (for the scatter plot)
+        //populate lists of values with normalized values (for the scatter plot)
         //TODO validate 1.0 is a good value to assign when no gene present
-        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 1.0;
-        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 1.0;
-        m_valuesSelectionA.push_back(valueSelection1);
-        m_valuesSelectionB.push_back(valueSelection2);
-        m_loggedValuesSelectionA.push_back(std::log10(valueSelection1));
-        m_loggedValuesSelectionB.push_back(std::log10(valueSelection2));
+        const qreal normalizedValueSelection1 = !geneNotInSelection1 ?
+                    ((it.value().first * 10e5) / totalReadsSelectionA) + 1 : 1.0;
+        const qreal normalizedValueSelection2 = !geneNotInSelection2 ?
+                    ((it.value().second * 10e5) / totalReadsSelectionB) + 1 : 1.0;
+        //following values are used to compute statistics so we do not use the
+        //normalization and we use 0.0 for non present
+        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 0.0;
+        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 0.0;
+
+        m_valuesSelectionA.push_back(normalizedValueSelection1);
+        m_valuesSelectionB.push_back(normalizedValueSelection2);
+        m_loggedValuesSelectionA.push_back(std::log10(normalizedValueSelection1));
+        m_loggedValuesSelectionB.push_back(std::log10(normalizedValueSelection2));
 
         //update temp variables to compute stats
-        sumSelection1 += valueSelection1;
-        sumSelection2 += valueSelection2;
-        sumSquaredSelection1 += valueSelection1 * valueSelection1;
-        sumSquaredSelection2 += valueSelection2 * valueSelection2;
-        sumSquaredSelection12 += valueSelection1 * valueSelection2;
-        //TODO consider use log values for correlation
+        valuesA.append(valueSelection1);
+        valuesB.append(valueSelection2);
     }
     //add sorting to the table (must be done after population)
     m_ui->tableWidget->setSortingEnabled(true);
 
-    //compute stats
-    m_meanSelectionA = sumSelection1 / biggestSize;
-    m_meanSelectionB = sumSelection2 / biggestSize;
-    m_stdDevSelectionA =
-            std::sqrt((sumSquaredSelection1 / biggestSize) - (m_meanSelectionA * m_meanSelectionA));
-    m_stdDevSelectionB =
-            std::sqrt((sumSquaredSelection2 / biggestSize) - (m_meanSelectionB * m_meanSelectionB));
-    m_correlation = ((biggestSize * sumSquaredSelection12) - (sumSelection1 * sumSelection2))
-            / std::sqrt(((biggestSize * sumSquaredSelection2) - (sumSelection1 * sumSelection1))
-                        * ((biggestSize * sumSquaredSelection2) - (sumSelection2 * sumSelection2)));
+    //compute stats (using non normalized values)
+    m_meanSelectionA = STMath::mean(valuesA);
+    m_meanSelectionB = STMath::mean(valuesB);
+    m_stdDevSelectionA = STMath::std_dev(valuesA);
+    m_stdDevSelectionB = STMath::std_dev(valuesB);
+    //for correlation use normalized logged values
+    m_correlation = STMath::pearson(m_loggedValuesSelectionA, m_loggedValuesSelectionB);
 }
 
 void AnalysisDEA::plot()
@@ -188,19 +193,24 @@ void AnalysisDEA::plot()
     m_customPlot->graph(0)->setData(m_valuesSelectionA, m_valuesSelectionB);
     m_customPlot->graph(0)->setAntialiasedScatters(true);
     m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
+    m_customPlot->graph(0)->setName("Correlation Scatter Plot");
+    m_customPlot->graph(0)->rescaleAxes();
     m_customPlot->graph(0)->rescaleAxes(true);
+
     // sets the legend
     m_customPlot->legend->setVisible(false);
     // give the axes some labels:
     m_customPlot->xAxis->setLabel(m_selectionA);
     m_customPlot->yAxis->setLabel(m_selectionB);
     // set axes ranges, so we see all data:
-    m_customPlot->xAxis->setRange(0, 10e4);
-    m_customPlot->yAxis->setRange(0, 10e4);
+    //m_customPlot->xAxis->setRange(0, 10e4);
+    //m_customPlot->yAxis->setRange(0, 10e4);
     m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
     m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
     m_customPlot->xAxis->setTicks(true);
     m_customPlot->yAxis->setTicks(true);
+    // make top right axes clones of bottom left axes. Looks prettier:
+    m_customPlot->axisRect()->setupFullAxesBox();
     // plot and add mouse interaction (fixed size)
     m_customPlot->setFixedSize(500, 400);
     m_customPlot->replot();

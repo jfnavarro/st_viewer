@@ -3,6 +3,8 @@
 #include <QMap>
 #include <QDate>
 
+#include <numeric>
+
 SelectionType::SelectionType() :
     name(),
     reads(0),
@@ -214,6 +216,13 @@ const QString GeneSelection::lastModified() const
 const QString GeneSelection::datasetName() const
 {
     return m_datasetName;
+}
+
+int GeneSelection::totalReads() const
+{
+    return std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
+                           [] (int total, const SelectionType &item)
+                              { return total + item.reads; });
 }
 
 void GeneSelection::id(const QString& id)

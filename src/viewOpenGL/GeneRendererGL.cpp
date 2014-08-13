@@ -510,26 +510,23 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
-    typedef QHash<QString, SelectionType> geneToSelectionMap;
-
     // get the features
     const auto& features =
             m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
 
     //aggregate all the selected features using SelectionType objects (aggregate by gene)
-    geneToSelectionMap geneSelectionsMap;
+    QHash<QString, SelectionType> geneSelectionsMap;
     int mappedX = 0;
     int mappedY = 0;
-    qreal totaReads = 0.0;
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
         if (feature->selected()) {
             const QString geneName = feature->gene();
             //TODO not filtering is the gene is selected
-            //floor reads to avoid PCR duplicates
-            const int adjustedReads = std::min(feature->hits(), m_max);
-            totaReads += adjustedReads;
+            //floor reads to avoid PCR duplicates(TODO consider this option)
+            //const int adjustedReads = std::min(feature->hits(), m_max);
+            const int adjustedReads = feature->hits();
             geneSelectionsMap[geneName].count++;
             geneSelectionsMap[geneName].reads += adjustedReads;
             //mapping points to image CS (would be faster to convert the image to the CS)
@@ -539,14 +536,6 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
                     += qGray(m_image.pixel(mappedX, mappedY));
             geneSelectionsMap[geneName].name = geneName;
         }
-    }
-
-
-    geneToSelectionMap::iterator end = geneSelectionsMap.end();
-    //compute the normalization using the total sum of reads in the selection
-    for (geneToSelectionMap::iterator it = geneSelectionsMap.begin(); it != end; ++it) {
-        // normalization as reads per million described in literature
-        it.value().normalizedReads = ((it.value().reads * 10e5) / totaReads) + 1;
     }
 
     return geneSelectionsMap.values();

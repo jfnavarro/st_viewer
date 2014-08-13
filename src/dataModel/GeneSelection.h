@@ -23,6 +23,9 @@ public:
 
     QString name;
     int reads;
+    //normalized reads not used at the moment
+    //until we decide a final approach for the DEA
+    //and the normalization
     qreal normalizedReads;
     qreal pixeIntensity;
     int count;
@@ -60,6 +63,8 @@ public:
     const QString created() const;
     const QString lastModified() const;
     const QString datasetName() const;
+    //return the total sum of reads in the Selection items
+    int totalReads() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -89,7 +94,6 @@ private:
     bool m_enabled;
     QString m_created;
     QString m_lastMofidied;
-    //added
     QString m_datasetName;
 };
 

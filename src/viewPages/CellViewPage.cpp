@@ -132,6 +132,7 @@ void CellViewPage::onEnter()
         m_ui->selectionsWidget->setEnabled(false);
         m_ui->area->setEnabled(false);
         m_toolBar->setEnableButtons(false);
+        setStatusTip(tr("No dataset loaded"));
         return;
     }
 
@@ -143,6 +144,7 @@ void CellViewPage::onEnter()
     const auto dataset =
             m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
     Q_ASSERT(!dataset.isNull());
+    setStatusTip(tr("Dataset loaded %1").arg(dataset->name()));
 
     const auto imageAlignment =
             m_dataProxy->getImageAlignment(dataset->imageAlignmentId());

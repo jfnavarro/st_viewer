@@ -273,11 +273,6 @@ void ExperimentPage::slotPerformDDA()
     auto selectionObject2 = currentSelection.at(1);
     Q_ASSERT(!selectionObject2.isNull());
 
-    // get the selection items lists
-    auto selectionItems1 = selectionObject1->selectedItems();
-    auto selectionItems2 = selectionObject2->selectedItems();
-
-    m_analysisDEA->compute(selectionItems1, selectionItems2,
-                         selectionObject1->name(), selectionObject2->name());
+    m_analysisDEA->compute(*selectionObject1, *selectionObject2);
     m_analysisDEA->plot();
 }
