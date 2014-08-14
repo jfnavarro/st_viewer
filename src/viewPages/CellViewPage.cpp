@@ -8,18 +8,24 @@
 
 #include "CellViewPage.h"
 
+#include <algorithm>
+
 #include <QDebug>
 
 #include <QMetaObject>
 #include <QMetaMethod>
 #include <QString>
+#include <QStringList>
+
 #include <QPrintDialog>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QPrinter>
 #include <QColorDialog>
 #include <QImageReader>
+#include <QImageWriter>
 #include <QPainter>
 #include <QWidgetAction>
 
@@ -44,6 +50,18 @@
 #include "viewOpenGL/GeneRendererGL.h"
 
 #include "ui_cellview.h"
+
+namespace {
+bool imageFormatHasWriteSupport(const QString &format) {
+    QStringList supportedImageFormats;
+    for (auto imageformat : QImageWriter::supportedImageFormats()) {
+        supportedImageFormats << QString(imageformat).toLower();
+    }
+    return (std::find(supportedImageFormats.begin(),
+                      supportedImageFormats.end(),
+		      format) != supportedImageFormats.end());
+}
+}
 
 CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
@@ -563,7 +581,7 @@ void CellViewPage::slotSaveImage()
 {
     QString filename =
             QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
-                                         QString("%1;%2;%3").
+                                         QString("%1;;%2;;%3").
                                          arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
                                          arg(tr("PNG Image Files (*.png)")).
                                          arg(tr("BMP Image Files (*.bmp)")));
@@ -571,13 +589,22 @@ void CellViewPage::slotSaveImage()
     if (filename.isEmpty()) {
         return;
     }
-    // append default extension
-    QRegExp regex("^.*\\.(jpg|jpeg|png|bmp)$", Qt::CaseInsensitive);
-    if (!regex.exactMatch(filename)) {
-        filename.append(".jpg");
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        showError(tr("Save image"), tr("The directory is not writable"));
+        return;
+    }
+    const QString format = fileInfo.suffix().toLower();
+    if (!imageFormatHasWriteSupport(format)) {
+        // This should never happen because getSaveFileName() automatically
+        // adds the suffix from the "Save as type" choosen.
+        // But this would be triggered if somehow there is no jpg, png or bmp support
+        // compiled in in the application
+        showError(tr("Save image"), tr("The image format is not supported"));
+        return;
     }
     const int quality = 100; //quality format (100 max, 0 min, -1 default)
-    const QString format = filename.split(".", QString::SkipEmptyParts).at(1); //get the file extension
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         showError(tr("Save Image"), tr("Error saving image."));
