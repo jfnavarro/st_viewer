@@ -436,6 +436,7 @@ void GeneRendererGL::updateVisual()
     }
 
     m_isDirty = true;
+    emit selectionUpdated();
     emit updated();
     QGuiApplication::restoreOverrideCursor();
 }

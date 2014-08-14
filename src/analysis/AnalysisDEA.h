@@ -10,6 +10,28 @@ class ddaWidget;
 
 class QTableWidget;
 
+//TODO move a separate class
+//Wrapper around QTableWidgetItem to allow
+//to add integer elements to the table
+class TableItem : public QTableWidgetItem
+{
+public:
+    TableItem(const QString & text) : QTableWidgetItem(text)
+    {}
+
+    TableItem(int num) : QTableWidgetItem(QString::number(num))
+    {}
+
+    bool operator< (const QTableWidgetItem &other) const
+    {
+        if (other.column() == 1 || other.column() == 2) {
+            // Compare cell data as integers for the second and third column.
+            return text().toInt() < other.text().toInt();
+        }
+        return other.text() < text();
+    }
+};
+
 //This class owns a widget to show the DEA info
 //it also computes the DDA using member variables
 //so the same object can be used many times

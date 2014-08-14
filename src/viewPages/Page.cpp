@@ -17,7 +17,7 @@ Page::Page(QWidget *parent) :
     m_progressDialog(nullptr),
     m_animationLoading(false)
 {
-    m_progressDialog = new QProgressDialog(this);
+    m_progressDialog = new QProgressDialog();
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
     m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags()

@@ -84,7 +84,7 @@ void setApplicationFlags()
 int main(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
-    // If this environment variable is not set we get 
+    // If this environment variable is not set we get (when having OpenGL resource leaks)
     // "Segmentation fault (core dumped)" when we exit
     // the application (running Ubuntu 14.04, Qt 5.3.1 with an nVidia graphics card)
     // The idea for this workaround came from here

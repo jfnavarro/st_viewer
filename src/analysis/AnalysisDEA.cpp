@@ -32,7 +32,6 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
     //make connections
     connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(saveToPDF()));
-
 }
 
 AnalysisDEA::~AnalysisDEA()
@@ -68,32 +67,28 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     //take into account that some genes might be present in only one selection
     //therefore, we create a hash table (key gene name - value a pairt with value in selection A
     //and value in selection B) to later know what genes are present in which set
-    //depending of the value of the hash (-1 no present)
+    //depending of the value of the hash (0.0 no present)
     geneToNormalizedPairType genesToNormalizedReads;
     for (int i = 0; i < biggestSize; ++i) {
         if (selection1Size > i) {
             const auto& selection1 = selA.at(i);
-            if (!genesToNormalizedReads.contains(selection1.name)) {
-                genesToNormalizedReads[selection1.name] = QPair<qreal,qreal>(-1.0, -1.0);
-            }
             genesToNormalizedReads[selection1.name].first = selection1.reads;
         }
         if (selection2Size > i) {
             const auto& selection2 = selB.at(i);
-            if (!genesToNormalizedReads.contains(selection2.name)) {
-                genesToNormalizedReads[selection2.name] = QPair<qreal,qreal>(-1.0, -1.0);
-            }
             genesToNormalizedReads[selection2.name].second = selection2.reads;
         }
     }
 
-    // initialize row size of the table
+    // clear the table
     m_ui->tableWidget->clear();
+    m_ui->tableWidget->clearContents();
     // initialize columns and headers of the table
-    m_ui->tableWidget->setColumnCount(3);
     QStringList headers;
     headers << "Gene" << "Reads Sel. A" << "Reads Sel. B";
     m_ui->tableWidget->setHorizontalHeaderLabels(headers);
+    m_ui->tableWidget->setColumnCount(3);
+    // initialize row size of the table
     m_ui->tableWidget->setRowCount(biggestSize);
     int index = 0; //to keep count of the elements inserted
 
@@ -121,46 +116,32 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     for (geneToNormalizedPairType::const_iterator it = genesToNormalizedReads.begin();
          it != end; ++it) {
 
-        const bool geneNotInSelection1 = it.value().first == -1;
-        const bool geneNotInSelection2 = it.value().second == -1;
+        const qreal valueSelection1 = it.value().first;
+        const qreal valueSelection2 = it.value().second;
 
-        m_ui->tableWidget->setItem(index, 0, new QTableWidgetItem(it.key()));
-        if (!geneNotInSelection1) {
-            m_ui->tableWidget->setItem(index, 1,
-                                       new QTableWidgetItem(QString::number(it.value().first)));
-        } else {
-            m_ui->tableWidget->setItem(index, 1,
-                                       new QTableWidgetItem("None"));
-        }
-        if (!geneNotInSelection2) {
-            m_ui->tableWidget->setItem(index, 2,
-                                       new QTableWidgetItem(QString::number(it.value().second)));
-        } else {
-            m_ui->tableWidget->setItem(index, 2,
-                                       new QTableWidgetItem("None"));
-        }
+        // update table
+        m_ui->tableWidget->setItem(index, 0, new TableItem(it.key()));
+        m_ui->tableWidget->setItem(index, 1, new TableItem(valueSelection1));
+        m_ui->tableWidget->setItem(index, 2, new TableItem(valueSelection2));
         index++;
 
         // compute overlapping counting values
-        if (geneNotInSelection1) {
+        if (valueSelection1 == 0.0) {
             m_countB++;
-        } else if (geneNotInSelection2) {
+        } else if (valueSelection2 == 0.0) {
             m_countA++;
         } else {
             m_countAB++;
         }
 
-        //populate lists of values with normalized values (for the scatter plot)
-        //TODO validate 1.0 is a good value to assign when no gene present
-        const qreal normalizedValueSelection1 = !geneNotInSelection1 ?
+        // populate lists of values with normalized values (for the scatter plot)
+        // TODO validate 1.0 is a good value to assign when no gene present
+        const qreal normalizedValueSelection1 = valueSelection1 != 0.0 ?
                     ((it.value().first * 10e5) / totalReadsSelectionA) + 1 : 1.0;
-        const qreal normalizedValueSelection2 = !geneNotInSelection2 ?
+        const qreal normalizedValueSelection2 = valueSelection2 != 0.0 ?
                     ((it.value().second * 10e5) / totalReadsSelectionB) + 1 : 1.0;
-        //following values are used to compute statistics so we do not use the
-        //normalization and we use 0.0 for non present
-        const qreal valueSelection1 = !geneNotInSelection1 ? it.value().first : 0.0;
-        const qreal valueSelection2 = !geneNotInSelection2 ? it.value().second : 0.0;
 
+        // update lists of values
         m_valuesSelectionA.push_back(normalizedValueSelection1);
         m_valuesSelectionB.push_back(normalizedValueSelection2);
         m_loggedValuesSelectionA.push_back(std::log10(normalizedValueSelection1));
@@ -170,8 +151,9 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
         valuesA.append(valueSelection1);
         valuesB.append(valueSelection2);
     }
-    //add sorting to the table (must be done after population)
+    //enable sorting to the table (must be done after population)
     m_ui->tableWidget->setSortingEnabled(true);
+    m_ui->tableWidget->update();
 
     //compute stats (using non normalized values)
     m_meanSelectionA = STMath::mean(valuesA);
