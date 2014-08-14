@@ -543,6 +543,7 @@ void CellViewPage::slotLoadCellFigure()
 void CellViewPage::slotPrintImage()
 {
     QPrinter printer;
+    printer.setColorMode(QPrinter::Color);
     printer.setOrientation(QPrinter::Landscape);
     QScopedPointer<QPrintDialog> dialog(new QPrintDialog(&printer, this));
     if (dialog->exec() != QDialog::Accepted) {
