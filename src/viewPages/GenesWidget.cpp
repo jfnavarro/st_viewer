@@ -45,6 +45,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
             m_selectionAllButton);
     connect(m_selectionAllButton,
             SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
+    connect(m_selectionAllButton,
+            SIGNAL(clicked(bool)), m_genes_tableview, SLOT(setFocus()));
 
     m_selectionClearAllButton = new QPushButton(this);
     m_selectionClearAllButton->setIcon(QIcon(QStringLiteral(":/images/uncheckall.png")));
