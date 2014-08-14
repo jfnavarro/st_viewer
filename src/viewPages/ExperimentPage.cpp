@@ -224,8 +224,9 @@ void ExperimentPage::slotEditSelection()
     auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
-    QScopedPointer<CreateSelectionDialog> createSelection(new CreateSelectionDialog(this,
-                                                                                    Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    QScopedPointer<CreateSelectionDialog>
+            createSelection(new CreateSelectionDialog(this,
+                                                      Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     createSelection->setName(selectionItem->name());
     createSelection->setComment(selectionItem->comment());
 

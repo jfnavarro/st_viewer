@@ -643,7 +643,6 @@ void CellViewPage::slotExportSelection()
 void CellViewPage::slotSetGeneVisualMode(QAction *action)
 {
     const QVariant variant = action->property("mode");
-    qDebug() << "Setting visual mode to " << variant;
     if (variant.canConvert(QVariant::Int)) {
         const Globals::GeneVisualMode mode = static_cast<Globals::GeneVisualMode>(variant.toInt());
         m_gene_plotter->setVisualMode(mode);

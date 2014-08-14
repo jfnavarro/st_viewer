@@ -179,11 +179,11 @@ void stVi::setupUi()
     mainlayout->addWidget(m_mainTab);
 
     //create status bar
-    QStatusBar *statusbar = new QStatusBar(this);
+    QStatusBar *statusbar = new QStatusBar();
     setStatusBar(statusbar);
 
     //create menu bar
-    QMenuBar *menubar = new QMenuBar(this);
+    QMenuBar *menubar = new QMenuBar();
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);

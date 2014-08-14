@@ -202,11 +202,10 @@ public:
 
 private:
 
+    //TODO optimize the cache using memory and HD, check for last_modified
+    //use QCache for objects
+
     bool hasCellTissue(const QString& name) const;
-
-    //TODO memory cache functions have been disabled for safetiness
-    //restore them with a more advance caching system (memmory and HD)
-
     //bool hasImageAlignment(const QString& datasetId) const;
     //bool hasGenes(const QString& datasetId) const;
     //bool hasFeatures(const QString& datasetId) const;

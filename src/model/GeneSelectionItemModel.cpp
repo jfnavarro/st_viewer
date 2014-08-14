@@ -35,7 +35,6 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         case Name: return item.name;
         case Count: return QString::number(item.count);
         case Hits: return item.reads;
-        //case NormalizedHits: return QString::number(item.normalizedReads, 'f', 2);
         //normalize pixel intensity by the max gray scale(255) multiplied by the number of
         //occurrences
         case PixelItensity: return QString::number(item.pixeIntensity / (255 * item.count), 'f', 2);
