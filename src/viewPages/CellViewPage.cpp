@@ -554,7 +554,7 @@ void CellViewPage::slotPrintImage()
     QImage image = m_view->grabPixmapGL();
     QSize size = image.size();
     size.scale(rect.size(), Qt::KeepAspectRatio);
-    painter.setViewport(rect);
+    painter.setViewport(QRect(QPoint(0, 0), size));
     painter.setWindow(image.rect());
     painter.drawImage(0, 0, image);
 }
