@@ -204,15 +204,14 @@ private:
 
     //TODO optimize the cache using memory and HD, check for last_modified
     //use QCache for objects
-
     bool hasCellTissue(const QString& name) const;
-    //bool hasImageAlignment(const QString& datasetId) const;
-    //bool hasGenes(const QString& datasetId) const;
-    //bool hasFeatures(const QString& datasetId) const;
-    //bool hasFeatures(const QString& datasetId, const QString& gene) const;
+    bool hasImageAlignment(const QString& imageAlignmentId) const;
+    bool hasGenes(const QString& datasetId) const;
+    bool hasFeatures(const QString& datasetId) const;
+    bool hasChip(const QString& chipId) const;
     //bool hasDatasets() const;
     //bool hasDataset(const QString& datasetId) const;
-    //bool hasChip(const QString& chipId) const;
+    //bool hasSelections() const;
 
     // internal functions to parse network reply
     bool parseData(NetworkReply* reply, const QVariantMap& map);

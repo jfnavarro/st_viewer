@@ -486,8 +486,8 @@ void DataProxy::setSelectedDataset(const QString &datasetId) const
 
 async::DataRequest DataProxy::loadDatasets()
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //TODO for the moment is safer to no use the cached datasets
+    //and force to download them
 
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
@@ -523,11 +523,17 @@ async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
     return createRequest(reply);
 }
 
+bool DataProxy::hasGenes(const QString& datasetId) const
+{
+    return m_geneListMap.contains(datasetId);
+}
 
 async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasGenes(datasetId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -545,10 +551,17 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasChip(const QString& chipId) const
+{
+    return m_chipMap.contains(chipId);
+}
+
 async::DataRequest DataProxy::loadChipById(const QString& chipId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasChip(chipId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -565,10 +578,17 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasFeatures(const QString& datasetId) const
+{
+    return m_featureListMap.contains(datasetId);
+}
+
 async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasFeatures(datasetId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -586,10 +606,17 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasImageAlignment(const QString& imageAlignmentId) const
+{
+    return m_imageAlignmentMap.contains(imageAlignmentId);
+}
+
 async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignmentId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasImageAlignment(imageAlignmentId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
