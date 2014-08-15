@@ -17,6 +17,10 @@ DataRequest::DataRequest() : m_return_code(CodeError)
 {
 }
 
+DataRequest::DataRequest(const DataRequest::Code &code) : m_return_code(code)
+{
+}
+
 DataRequest::~DataRequest()
 {
 

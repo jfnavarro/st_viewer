@@ -40,11 +40,9 @@ public:
     void x(double x);
     void y(double y);
 
-    //extended attributes
+    //extended attribute to store the color
     const QColor color() const;
     void color(const QColor& color);
-    bool selected() const;
-    void selected(bool selected);
 
 protected:
 
@@ -58,7 +56,6 @@ protected:
 
     //extended
     QColor m_color;
-    bool m_selected;
 };
 
 #endif // FEATURE_H

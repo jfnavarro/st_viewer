@@ -181,7 +181,7 @@ void GenesWidget::slotSetColorAllSelected(const QColor &color)
     m_genes_tableview->update();
 }
 
-void GenesWidget::slotLoadModel(DataProxy::GeneList &geneList)
+void GenesWidget::slotLoadModel(const DataProxy::GeneList &geneList)
 {
     getModel()->loadGenes(geneList);
 }

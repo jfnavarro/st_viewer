@@ -39,6 +39,7 @@ public:
     };
 
     DataRequest();
+    DataRequest(const DataRequest::Code &code);
     DataRequest(const DataRequest& other);
     ~DataRequest();
 

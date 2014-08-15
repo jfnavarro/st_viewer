@@ -112,7 +112,7 @@ public:
     //gene map hashed by dataset id
     typedef QMap<QString, GeneMap> GeneMapMap;
     //list of features
-    typedef QVector<FeaturePtr> FeatureList;
+    typedef QList<FeaturePtr> FeatureList;
     // map of features hashed by feature id
     typedef QMap<QString, FeaturePtr> FeatureMap;
     //features hashed by dataset id
@@ -204,15 +204,14 @@ private:
 
     //TODO optimize the cache using memory and HD, check for last_modified
     //use QCache for objects
-
     bool hasCellTissue(const QString& name) const;
-    //bool hasImageAlignment(const QString& datasetId) const;
-    //bool hasGenes(const QString& datasetId) const;
-    //bool hasFeatures(const QString& datasetId) const;
-    //bool hasFeatures(const QString& datasetId, const QString& gene) const;
+    bool hasImageAlignment(const QString& imageAlignmentId) const;
+    bool hasGenes(const QString& datasetId) const;
+    bool hasFeatures(const QString& datasetId) const;
+    bool hasChip(const QString& chipId) const;
     //bool hasDatasets() const;
     //bool hasDataset(const QString& datasetId) const;
-    //bool hasChip(const QString& chipId) const;
+    //bool hasSelections() const;
 
     // internal functions to parse network reply
     bool parseData(NetworkReply* reply, const QVariantMap& map);

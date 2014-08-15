@@ -53,10 +53,7 @@ void GeneRendererGL::clearData()
     m_geneData.clearData();
 
     //clear selection
-    updateFeaturesSelected(false);
-
-    //clear colors
-    updateFeaturesColor(Globals::DEFAULT_COLOR_GENE);
+    m_geneInfoSelectedFeatures.clear();
 
     // lookup data
     m_geneInfoById.clear();
@@ -380,7 +377,7 @@ void GeneRendererGL::updateVisual()
 
     // reset ref count, selection and values when updating visuals
     m_geneData.resetRefCountSelectAndValues();
-    updateFeaturesSelected(false);
+    m_geneInfoSelectedFeatures.clear();
 
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -444,28 +441,10 @@ void GeneRendererGL::updateVisual()
 void GeneRendererGL::clearSelection()
 {
     m_geneData.resetSelection(false);
-    updateFeaturesSelected(false);
+    m_geneInfoSelectedFeatures.clear();
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
-}
-
-void GeneRendererGL::updateFeaturesSelected(bool selected)
-{
-    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        Q_ASSERT(!feature.isNull());
-        feature->selected(selected);
-    }
-}
-
-void GeneRendererGL::updateFeaturesColor(QColor color)
-{
-    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
-    foreach(DataProxy::FeaturePtr feature, features) {
-        Q_ASSERT(!feature.isNull());
-        feature->color(color);
-    }
 }
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
@@ -485,7 +464,7 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 {
     // unselect previous selection
     m_geneData.resetSelection(false);
-    updateFeaturesSelected(false);
+    m_geneInfoSelectedFeatures.clear();
 
     // iterate the features
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -500,7 +479,7 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
             continue;
         }
         // update gene data and feature selected
-        feature->selected(true);
+        m_geneInfoSelectedFeatures.append(feature);
         m_geneData.updateQuadSelected(index, true);
     }
 
@@ -511,32 +490,26 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 {
-    // get the features
-    const auto& features =
-            m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
-
     //aggregate all the selected features using SelectionType objects (aggregate by gene)
     QHash<QString, SelectionType> geneSelectionsMap;
     int mappedX = 0;
     int mappedY = 0;
-    foreach(DataProxy::FeaturePtr feature, features) {
+    foreach(DataProxy::FeaturePtr feature, m_geneInfoSelectedFeatures) {
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
-        if (feature->selected()) {
-            const QString geneName = feature->gene();
-            //TODO not filtering is the gene is selected
-            //floor reads to avoid PCR duplicates(TODO consider this option)
-            //const int adjustedReads = std::min(feature->hits(), m_max);
-            const int adjustedReads = feature->hits();
-            geneSelectionsMap[geneName].count++;
-            geneSelectionsMap[geneName].reads += adjustedReads;
-            //mapping points to image CS (would be faster to convert the image to the CS)
-            transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
-            //qGray gives more weight to the green channel
-            geneSelectionsMap[geneName].pixeIntensity
-                    += qGray(m_image.pixel(mappedX, mappedY));
-            geneSelectionsMap[geneName].name = geneName;
-        }
+        const QString geneName = feature->gene();
+        //TODO not filtering is the gene is selected
+        //floor reads to avoid PCR duplicates(TODO consider this option)
+        //const int adjustedReads = std::min(feature->hits(), m_max);
+        const int adjustedReads = feature->hits();
+        geneSelectionsMap[geneName].count++;
+        geneSelectionsMap[geneName].reads += adjustedReads;
+        //mapping points to image CS (would be faster to convert the image to the CS)
+        transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
+        //qGray gives more weight to the green channel
+        geneSelectionsMap[geneName].pixeIntensity
+                += qGray(m_image.pixel(mappedX, mappedY));
+        geneSelectionsMap[geneName].name = geneName;
     }
 
     return geneSelectionsMap.values();
@@ -564,7 +537,9 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 
     // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
-        clearSelection();
+        // unselect previous selection
+        m_geneData.resetSelection(false);
+        m_geneInfoSelectedFeatures.clear();
     }
 
     // get selected points from selection shape
@@ -596,14 +571,17 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
             }
             //update gene data and feature selected
             m_geneData.updateQuadSelected(index, isSelected);
-            feature->selected(isSelected);
+            if (isSelected) {
+                m_geneInfoSelectedFeatures.append(feature);
+            } else {
+                m_geneInfoSelectedFeatures.removeOne(feature);
+            }
         }
     }
 
     m_isDirty = true;
     emit selectionUpdated();
     emit updated();
-
     QGuiApplication::restoreOverrideCursor();
 }
 

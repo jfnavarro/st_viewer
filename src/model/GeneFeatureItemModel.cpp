@@ -122,7 +122,7 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     return defaultFlags;
 }
 
-void GeneFeatureItemModel::loadGenes(DataProxy::GeneList &geneList)
+void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList &geneList)
 {
     beginResetModel();
     m_genelist_reference.clear();

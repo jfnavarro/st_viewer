@@ -6,10 +6,27 @@ v0.2.0
  	* improvements on network manager
 	* improvements in security (ssl, https)
 	* general improvements
-    * improve installers
+        * improve installers
 	* lay out improvements
 	* created encryption component (images encrypted)
 	* created new log in component (no authorization needed)
 	* bug fixes
 	* new visual features (selection, composite genes, export selection and heat map)
 
+v0.3.1
+	* Improved log in component
+	* Added new ST logo
+	* Added options to dataset page (edit, remove, open)
+	* New data model
+	* Major refactor of main components
+	* New data adquisition component
+	* New rendering component
+	* Many bug fixes
+	* Many speed optimizations
+	* New rendering options and new color modes
+	* Cell view now has the selections table
+	* Options to store and export selections
+	* New mechanism to show and change color of genes
+	* Many new graphical options in cell view
+	* New Analysis Page (edit, remove, export)
+	* First version of DDA in analysis page

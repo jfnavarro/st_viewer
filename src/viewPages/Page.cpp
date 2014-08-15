@@ -39,22 +39,27 @@ Page::~Page()
 
 void Page::setWaiting(bool waiting, const QString &label)
 {
-    //Q_UNUSED(waiting);
     Q_UNUSED(label);
 
     //TODO currently showing the QPogressDialog causes
     //to have the actions in the main menu bar disabled
 
     if (waiting) {
+#if defined Q_OS_LINUX || defined Q_OS_WIN
+        m_progressDialog->setLabelText(label);
+        m_progressDialog->show();
+#else
         QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-        //m_progressDialog->setLabelText(label);
-        //m_progressDialog->show();
         m_animationLoading = true;
+#endif
     } else {
-        //m_progressDialog->cancel();
-        //m_progressDialog->close();
+#if defined Q_OS_LINUX || defined Q_OS_WIN
+        m_progressDialog->cancel();
+        m_progressDialog->close();
+#else
         QGuiApplication::restoreOverrideCursor();
         m_animationLoading = false;
+#endif
     }
 }
 

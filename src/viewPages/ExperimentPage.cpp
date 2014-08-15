@@ -112,6 +112,13 @@ void ExperimentPage::slotLoadSelections()
         // refresh gene selections on the model
         selectionsModel()->loadSelectedGenes(m_dataProxy->getGeneSelections());
     }
+
+    m_ui->experiments_tableView->clearSelection();
+    m_ui->experiments_tableView->clearFocus();
+    m_ui->removeSelections->setEnabled(false);
+    m_ui->exportSelections->setEnabled(false);
+    m_ui->ddaAnalysis->setEnabled(false);
+    m_ui->editSelection->setEnabled(false);
 }
 
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
@@ -150,8 +157,12 @@ void ExperimentPage::slotRemoveSelection()
     auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
-    //sets enabled to false
+    const QString name = selectionItem->name();
+    //sets enabled to false and change name
+    //TODO changing the name is a temp hack so we can edit/add selections
+    //with the same name as the deleted one
     selectionItem->enabled(false);
+    selectionItem->name(name + "_REMOVED_FROM_STVI");
 
     //update the selection object
     setWaiting(true, "Removing selection....");
@@ -161,6 +172,8 @@ void ExperimentPage::slotRemoveSelection()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO get error from request
+        selectionItem->enabled(true);
+        selectionItem->name(name);
         showError(tr("Remove Gene Selection"), tr("Error removing the gene selection"));
         return;
     }
@@ -186,11 +199,6 @@ void ExperimentPage::slotExportSelection()
     // early out
     if (filename.isEmpty()) {
         return;
-    }
-    // append default extension
-    QRegExp regex("^.*\\.(txt)$", Qt::CaseInsensitive);
-    if (!regex.exactMatch(filename)) {
-        filename.append(".txt");
     }
 
     //create file
@@ -231,10 +239,12 @@ void ExperimentPage::slotEditSelection()
     createSelection->setComment(selectionItem->comment());
 
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
-        if (createSelection->getName() != selectionItem->name()
-                && createSelection->getComment() != selectionItem->comment()
+        if ((createSelection->getName() != selectionItem->name()
+                || createSelection->getComment() != selectionItem->comment())
                 && !createSelection->getName().isNull() && !createSelection->getName().isEmpty()) {
 
+            const QString name = selectionItem->name();
+            const QString comment = selectionItem->comment();
             selectionItem->name(createSelection->getName());
             selectionItem->comment(createSelection->getComment());
 
@@ -246,6 +256,8 @@ void ExperimentPage::slotEditSelection()
             if (request.return_code() == async::DataRequest::CodeError
                     || request.return_code() == async::DataRequest::CodeAbort) {
                 //TODO get error from request
+                selectionItem->name(name);
+                selectionItem->comment(comment);
                 showError(tr("Update Gene Selection"), tr("Error updating the gene selection"));
                 return;
             }

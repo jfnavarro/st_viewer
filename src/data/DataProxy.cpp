@@ -206,6 +206,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         if (doc.isNull() || doc.isEmpty()) {
             return false;
         }
+
         // intermediary parse object
         GeneSelectionDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -231,8 +232,46 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // feature
     case FeatureDataType: {
         //TODO this is a hack to deal with the problem of having a Features JSON
-        //file big enough that Qt cannot parse it. This will only happen with Features
-        //a better and faster approach will be implemented soon
+        //file big enough that Qt cannot parse it. As soon as the backend is fixed
+        //to allow to upload big files, the commented Qt-way of parsing the features
+        //must be restored and the current code with pico-json must be deleted
+        //pico-json must be removed from the source code as well.
+        //The Qt json parser should work with big JSON files as long as they
+        //are indented (new pipeline output format) in case it does not work
+        //the picon-json parsing option should be kept and the commented code should
+        //be removed
+
+        /*const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
+        // gene list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "GeneData must include dataset parameter!");
+        const QString datasetId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+        // intermediary parse object and end object map
+        FeatureDTO dto;
+        FeatureList& featureListByDatasetId = getFeatureList(datasetId);
+        FeatureMap& featureMapByDatasetId = getFeatureMap(datasetId);
+        //clear the data
+        featureListByDatasetId.clear();
+        featureMapByDatasetId.clear();
+        // ensure even single items are encapsulated in a variant list
+        const QVariant root = doc.toVariant();
+        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        //parse the data
+        foreach(QVariant var, list) {
+            data::parseObject(var, &dto);
+            FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
+            FeatureList& featureListByGeneIdAndDatasetId =
+                    getGeneFeatureList(datasetId, feature->gene());
+            //TODO clear featureListByGeneIdAndDatasetId (check if this is consistent)
+            featureMapByDatasetId.insert(feature->id(), feature);
+            featureListByGeneIdAndDatasetId.push_back(feature);
+            featureListByDatasetId.push_back(feature);
+            dirty = true;
+        }*/
 
         // feature list by dataset
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
@@ -335,6 +374,10 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
                  << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         dirty = true;
         break;
+    }
+        // None when an update is being performed
+    case None: {
+        dirty = true;
     }
     default:
         qDebug() << "[DataProxy] Error: Unknown data type!";
@@ -486,8 +529,8 @@ void DataProxy::setSelectedDataset(const QString &datasetId) const
 
 async::DataRequest DataProxy::loadDatasets()
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //TODO for the moment is safer to no use the cached datasets
+    //and force to download them
 
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
@@ -523,11 +566,17 @@ async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
     return createRequest(reply);
 }
 
+bool DataProxy::hasGenes(const QString& datasetId) const
+{
+    return m_geneListMap.contains(datasetId);
+}
 
 async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasGenes(datasetId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -545,10 +594,17 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasChip(const QString& chipId) const
+{
+    return m_chipMap.contains(chipId);
+}
+
 async::DataRequest DataProxy::loadChipById(const QString& chipId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasChip(chipId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -565,10 +621,17 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasFeatures(const QString& datasetId) const
+{
+    return m_featureListMap.contains(datasetId);
+}
+
 async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasFeatures(datasetId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -586,10 +649,17 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
     return createRequest(reply);
 }
 
+bool DataProxy::hasImageAlignment(const QString& imageAlignmentId) const
+{
+    return m_imageAlignmentMap.contains(imageAlignmentId);
+}
+
 async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignmentId)
 {
-    //NOTE not checking if there are datasets already loaded
-    //it is safer to always force to download them
+    //check if present already
+    if (hasImageAlignment(imageAlignmentId)) {
+        return async::DataRequest(async::DataRequest::CodePresent);
+    }
 
     //creates the request
     NetworkCommand *cmd =
@@ -775,6 +845,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
                 request.return_code(async::DataRequest::CodeError);
             } else if (!dataLoaded) {
                 //TODO no data has been loaded...what to do here?
+                request.return_code(async::DataRequest::CodeSuccess);
             } else {
                 request.return_code(async::DataRequest::CodeSuccess);
             }
