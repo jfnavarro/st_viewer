@@ -231,8 +231,46 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         // feature
     case FeatureDataType: {
         //TODO this is a hack to deal with the problem of having a Features JSON
-        //file big enough that Qt cannot parse it. This will only happen with Features
-        //a better and faster approach will be implemented soon
+        //file big enough that Qt cannot parse it. As soon as the backend is fixed
+        //to allow to upload big files, the commented Qt-way of parsing the features
+        //must be restored and the current code with pico-json must be deleted
+        //pico-json must be removed from the source code as well.
+        //The Qt json parser should work with big JSON files as long as they
+        //are indented (new pipeline output format) in case it does not work
+        //the picon-json parsing option should be kept and the commented code should
+        //be removed
+
+        /*const QJsonDocument doc = reply->getJSON();
+        if (doc.isNull() || doc.isEmpty()) {
+            return false;
+        }
+        // gene list by dataset
+        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
+                   "DataProxy", "GeneData must include dataset parameter!");
+        const QString datasetId =
+                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
+        // intermediary parse object and end object map
+        FeatureDTO dto;
+        FeatureList& featureListByDatasetId = getFeatureList(datasetId);
+        FeatureMap& featureMapByDatasetId = getFeatureMap(datasetId);
+        //clear the data
+        featureListByDatasetId.clear();
+        featureMapByDatasetId.clear();
+        // ensure even single items are encapsulated in a variant list
+        const QVariant root = doc.toVariant();
+        const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
+        //parse the data
+        foreach(QVariant var, list) {
+            data::parseObject(var, &dto);
+            FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
+            FeatureList& featureListByGeneIdAndDatasetId =
+                    getGeneFeatureList(datasetId, feature->gene());
+            //TODO clear featureListByGeneIdAndDatasetId (check if this is consistent)
+            featureMapByDatasetId.insert(feature->id(), feature);
+            featureListByGeneIdAndDatasetId.push_back(feature);
+            featureListByDatasetId.push_back(feature);
+            dirty = true;
+        }*/
 
         // feature list by dataset
         Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),

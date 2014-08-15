@@ -112,7 +112,7 @@ public:
     //gene map hashed by dataset id
     typedef QMap<QString, GeneMap> GeneMapMap;
     //list of features
-    typedef QVector<FeaturePtr> FeatureList;
+    typedef QList<FeaturePtr> FeatureList;
     // map of features hashed by feature id
     typedef QMap<QString, FeaturePtr> FeatureMap;
     //features hashed by dataset id

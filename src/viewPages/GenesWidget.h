@@ -47,7 +47,7 @@ public slots:
     void slotSetVisibilityForSelectedRows(bool visible);
 
     //updates the model of the table
-    void slotLoadModel(DataProxy::GeneList &geneList);
+    void slotLoadModel(const DataProxy::GeneList &geneList);
 
 private slots:
 

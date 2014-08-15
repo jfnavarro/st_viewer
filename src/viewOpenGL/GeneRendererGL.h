@@ -100,10 +100,6 @@ private:
     void updateSize();
     void updateVisual();
 
-    // helper function to update all features selected and color attributes
-    void updateFeaturesSelected(bool selected);
-    void updateFeaturesColor(QColor color);
-
     // helper function to be used when user whan to select features using
     // a list of genes
     void selectFeatures(const DataProxy::FeatureList& features);
@@ -117,7 +113,7 @@ private:
     // lookup maps
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
     typedef QHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
-    typedef QVector<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
+    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
 
     // lookup quadtree
     typedef QuadTree<int, 8> GeneInfoQuadTree;

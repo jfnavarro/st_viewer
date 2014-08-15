@@ -54,7 +54,7 @@ public:
     void setGeneColor(const QItemSelection &selection, const QColor& color);
 
     //reload the reference to the genes from DataProxy
-    void loadGenes(DataProxy::GeneList &geneList);
+    void loadGenes(const DataProxy::GeneList &geneList);
 
     //clear and reset the model
     void clearGenes();

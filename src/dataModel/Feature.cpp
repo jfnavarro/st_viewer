@@ -17,8 +17,7 @@ Feature::Feature()
       m_hits(0),
       m_x(0),
       m_y(0),
-      m_color(Globals::DEFAULT_COLOR_GENE),
-      m_selected(false)
+      m_color(Globals::DEFAULT_COLOR_GENE)
 
 {
 
@@ -34,7 +33,6 @@ Feature::Feature(const Feature& other)
     m_x = other.m_x;
     m_y = other.m_y;
     m_color = other.m_color;
-    m_selected = other.m_selected;
 }
 
 Feature::~Feature()
@@ -52,7 +50,6 @@ Feature& Feature::operator=(const Feature& other)
     m_x = other.m_x;
     m_y = other.m_y;
     m_color = other.m_color;
-    m_selected = other.m_selected;
     return (*this);
 }
 
@@ -65,8 +62,7 @@ bool Feature::operator==(const Feature& other) const
             m_hits == other.m_hits &&
             m_x == other.m_x &&
             m_y == other.m_y &&
-            m_color == other.m_color &&
-            m_selected == other.m_selected
+            m_color == other.m_color
             );
 }
 
@@ -148,16 +144,6 @@ const QColor Feature::color() const
 void Feature::color(const QColor& color)
 {
     m_color = color;
-}
-
-bool Feature::selected() const
-{
-    return m_selected;
-}
-
-void Feature::selected(bool selected)
-{
-    m_selected = selected;
 }
 
 

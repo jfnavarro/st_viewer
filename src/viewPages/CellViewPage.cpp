@@ -348,12 +348,19 @@ void CellViewPage::createConnections()
 
 void CellViewPage::resetActionStates()
 {
-    // resets genes color and visible to default (must be done first)
-    // TODO should be a function to do this in DataProxy
-    auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
+    // resets genes/features color and visible to default (must be done first)
+    // TODO should be a function to do this in DataProxy or somewhere else
+    // TODO at some point we will stop resetting everything
+    const auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
     for (auto gene : geneList) {
+        Q_ASSERT(!gene.isNull());
         gene->selected(false);
         gene->color(Globals::DEFAULT_COLOR_GENE);
+    }
+    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
+    for (auto feature : features) {
+        Q_ASSERT(!feature.isNull());
+        feature->color(Globals::DEFAULT_COLOR_GENE);
     }
 
     // load data for gene model,
