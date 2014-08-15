@@ -221,6 +221,7 @@ void CellViewPage::onEnter()
 void CellViewPage::onExit()
 {
     m_grid->clearData();
+    m_gene_plotter->clearData();
     m_image->clear();
     m_view->clearData();
     m_view->update();
@@ -627,11 +628,7 @@ void CellViewPage::slotExportSelection()
     if (filename.isEmpty()) {
         return;
     }
-    // append default extension
-    QRegExp regex("^.*\\.(txt)$", Qt::CaseInsensitive);
-    if (!regex.exactMatch(filename)) {
-        filename.append(".txt");
-    }
+
     // get selected features
     const auto& geneSelection = m_gene_plotter->getSelectedIItems();
     //create file

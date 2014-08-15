@@ -100,7 +100,8 @@ public:
             geneHit.append(item.name);
             //TODO temp hack coz they are wronly defined as strings in the server
             geneHit.append(QString::number(item.reads));
-            geneHit.append(QString::number(item.normalizedReads));
+            //TODO not storing normalized reads for now
+            geneHit.append(QString::number(item.count));
             geneHit.append(QString::number(item.pixeIntensity));
             geneHits.append(geneHit);
         }
@@ -132,7 +133,11 @@ private:
         QVariantList newList;
         foreach(const SelectionType &item, unserializedVector) {
             QVariantList itemList;
-            itemList << item.name << item.reads << item.normalizedReads << item.pixeIntensity;
+            //TODO not storing normalized reads for now
+            itemList << item.name
+                     << QString::number(item.reads)
+                     << QString::number(item.count)
+                     << QString::number(item.pixeIntensity);
             newList << QVariant::fromValue(itemList);
         }
         return newList;
@@ -153,9 +158,10 @@ private:
             Q_ASSERT(elementList.size() >= 4);
             const QString name = elementList.at(0).toString();
             const qreal reads = elementList.at(1).toDouble();
-            const qreal normalizedReads = elementList.at(2).toDouble();
+            //TODO not storing normalized reads for now
+            const int count = elementList.at(2).toInt();
             const qreal pixelIntensity = elementList.at(3).toDouble();
-            SelectionType selection(name, reads, normalizedReads, pixelIntensity);
+            SelectionType selection(name, reads, 0.0, pixelIntensity, count);
             values.push_back(selection);
         }
         return values;

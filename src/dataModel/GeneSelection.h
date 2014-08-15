@@ -14,7 +14,7 @@ public:
     SelectionType();
     SelectionType(const SelectionType& other);
     SelectionType(QString name, int reads, qreal
-                  normalizedReads = 0, qreal pixeIntensity = 0);
+                  normalizedReads = 0, qreal pixeIntensity = 0, int count = 0);
 
     SelectionType& operator= (const SelectionType& other);
     SelectionType& operator+= (const SelectionType& other);

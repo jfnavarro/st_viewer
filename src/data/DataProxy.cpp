@@ -206,6 +206,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         if (doc.isNull() || doc.isEmpty()) {
             return false;
         }
+
         // intermediary parse object
         GeneSelectionDTO dto;
         // ensure even single items are encapsulated in a variant list
@@ -373,6 +374,10 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
                  << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         dirty = true;
         break;
+    }
+        // None when an update is being performed
+    case None: {
+        dirty = true;
     }
     default:
         qDebug() << "[DataProxy] Error: Unknown data type!";
@@ -840,6 +845,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
                 request.return_code(async::DataRequest::CodeError);
             } else if (!dataLoaded) {
                 //TODO no data has been loaded...what to do here?
+                request.return_code(async::DataRequest::CodeSuccess);
             } else {
                 request.return_code(async::DataRequest::CodeSuccess);
             }

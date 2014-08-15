@@ -26,12 +26,12 @@ SelectionType::SelectionType(const SelectionType& other) :
 }
 
 SelectionType::SelectionType(QString name, int reads,
-                             qreal normalizedReads, qreal pixeIntensity)
+                             qreal normalizedReads, qreal pixeIntensity, int count)
     : name(name),
       reads(reads),
       normalizedReads(normalizedReads),
       pixeIntensity(pixeIntensity),
-      count(0)
+      count(count)
 {
 
 }
