@@ -316,11 +316,16 @@ if(WIN32)
     set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
     #set(CPACK_NSIS_MODIFY_PATH "ON")
     set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
-    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME}-${CMAKE_BUILD_TYPE})
+    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
     set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
     set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
-    #set(CPACK_NSIS_MUI_ICON ${CMAKE_SOURCE_DIR}/assets/images\\\\st.png)
-    #set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/assets/images\\\\st_icon.png)
+    # TODO: replace Z:code\\st_client with proper ${CMAKE_SOURCE_DIR}
+    # There is a problem with unix and windows style paths
+    set(CPACK_NSIS_MUI_ICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
+    set(CPACK_NSIS_MUI_UNICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
+    set(CPACK_PACKAGE_ICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
+#    set(CPACK_NSIS_MUI_ICON ${CMAKE_SOURCE_DIR}/assets/images\\\\st_icon.ico)
+#    set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/st_client/assets/images\\\\st_icon.ico)
     #set(CPACK_NSIS_INSTALLED_ICON_NAME ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.exe)
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     #set(CPACK_NSIS_MENU_LINKS "http://www.spatialtranscriptomics.com")
@@ -331,9 +336,13 @@ if(WIN32)
         !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
         !define MUI_STARTMENUPAGE_NODISABLE
     ")
-
+    # adding this 
+    #   CreateShortcut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\stVi.lnk\\\"  \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"Z:code\\\\st_client\\\\assets\\\\images\\\\st_icon.ico\\\"
+    # and
+    #   Delete \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\stVi.lnk\\\" 
+    # to the next commands gives parsing error. 
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
+        CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"Z:code\\\\st_client\\\\assets\\\\images\\\\st_icon.ico\\\"
     ")
 
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
