@@ -29,13 +29,11 @@
 
 DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     Page(parent),
-    m_ui(nullptr),
+    m_ui(new Ui::DataSets()),
     m_dataProxy(dataProxy)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    // create UI
-    m_ui = new Ui::DataSets();
     m_ui->setupUi(this);
 
     //connect signals
@@ -53,10 +51,6 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
 
 DatasetPage::~DatasetPage()
 {
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
 }
 
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()

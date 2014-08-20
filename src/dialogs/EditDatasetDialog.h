@@ -1,6 +1,7 @@
 #ifndef EDITDATASETDIALOG_H
 #define EDITDATASETDIALOG_H
 
+#include <memory>
 #include <QDialog>
 
 namespace Ui {
@@ -24,7 +25,7 @@ public:
 
 private:
 
-    Ui::editDatasetDialog *m_ui;
+    std::unique_ptr<Ui::editDatasetDialog> m_ui;
 
     Q_DISABLE_COPY(EditDatasetDialog)
 };

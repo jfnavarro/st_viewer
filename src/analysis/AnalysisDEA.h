@@ -1,6 +1,8 @@
 #ifndef ANALYSISDEA_H
 #define ANALYSISDEA_H
 
+#include <memory>
+
 #include "qcustomplot/qcustomplot.h"
 #include "dataModel/GeneSelection.h"
 
@@ -59,7 +61,7 @@ protected slots:
 
 private:
 
-    Ui::ddaWidget *m_ui;
+    std::unique_ptr< Ui::ddaWidget > m_ui;
     QCustomPlot *m_customPlot;
     QVector<qreal> m_valuesSelectionA;
     QVector<qreal> m_valuesSelectionB;

@@ -8,6 +8,7 @@
 #ifndef SELECTIONDIALOG_H
 #define SELECTIONDIALOG_H
 
+#include <memory>
 #include <QDialog>
 #include <QList>
 
@@ -51,7 +52,7 @@ public slots:
 
 private:
     
-    Ui::SelectionDialog *m_ui;
+    std::unique_ptr<Ui::SelectionDialog> m_ui;
 
     bool m_includeAmbiguous;
     bool m_caseSensitive;

@@ -17,6 +17,4 @@ AboutDialog::AboutDialog(QWidget* parent, Qt::WindowFlags f)
 
 AboutDialog::~AboutDialog()
 {
-    delete m_ui;
-    m_ui = nullptr;
 }

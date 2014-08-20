@@ -10,6 +10,8 @@
 
 #include "Page.h"
 
+#include <memory>
+
 #include <QModelIndex>
 
 #include "data/DataProxy.h"
@@ -57,7 +59,7 @@ private:
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
 
-    Ui::DataSets *m_ui;
+    std::unique_ptr<Ui::DataSets> m_ui;
     QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(DatasetPage)

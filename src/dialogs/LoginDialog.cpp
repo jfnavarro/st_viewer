@@ -23,11 +23,10 @@
 
 LoginDialog::LoginDialog(QWidget *parent):
     QDialog(parent),
-    m_ui(nullptr),
+    m_ui(new Ui::LogIn()),
     m_completer(nullptr)
 {
     //init UI
-    m_ui = new Ui::LogIn();
     m_ui->setupUi(this);
 
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
@@ -51,9 +50,6 @@ LoginDialog::~LoginDialog()
 {
     //save users
     saveUsers();
-    //delete ui objects
-    delete m_ui;
-    m_ui = nullptr;
     //delete completer
     m_completer->deleteLater();
     m_completer = nullptr;

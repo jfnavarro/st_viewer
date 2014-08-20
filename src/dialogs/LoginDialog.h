@@ -8,6 +8,7 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
+#include <memory>
 #include <QDialog>
 #include <QPointer>
 
@@ -66,7 +67,7 @@ private:
     //save users from qsettings
     void saveUsers();
 
-    Ui::LogIn *m_ui;
+    std::unique_ptr<Ui::LogIn> m_ui;
     QPointer<QCompleter> m_completer;
 
     Q_DISABLE_COPY(LoginDialog)

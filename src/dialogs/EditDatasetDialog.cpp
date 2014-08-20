@@ -17,8 +17,6 @@ EditDatasetDialog::EditDatasetDialog(QWidget* parent, Qt::WindowFlags f)
 
 EditDatasetDialog::~EditDatasetDialog()
 {
-    delete m_ui;
-    m_ui = nullptr;
 }
 
 const QString EditDatasetDialog::getName() const

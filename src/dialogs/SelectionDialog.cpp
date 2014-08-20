@@ -11,7 +11,7 @@
 SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
                                  QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
-    m_ui(nullptr),
+    m_ui(new Ui::SelectionDialog()),
     m_includeAmbiguous(false),
     m_caseSensitive(false),
     m_regExpValid(false),
@@ -19,7 +19,6 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    m_ui = new Ui::SelectionDialog();
     m_ui->setupUi(this);
 
     // set default state
@@ -31,10 +30,6 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
 
 SelectionDialog::~SelectionDialog()
 {
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
 }
 
 const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const

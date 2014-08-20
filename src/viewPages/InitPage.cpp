@@ -21,13 +21,11 @@
 
 InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     Page(parent),
-    m_ui(nullptr),
+    m_ui(new Ui::InitPage()),
     m_dataProxy(dataProxy)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    //create the start widget
-    m_ui = new Ui::InitPage();
     m_ui->setupUi(this);
 
     m_ui->user_name->clear();
@@ -52,10 +50,6 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
 
 InitPage::~InitPage()
 {
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
 }
 
 void InitPage::onEnter()

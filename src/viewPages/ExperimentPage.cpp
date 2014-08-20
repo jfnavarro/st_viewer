@@ -22,13 +22,11 @@
 
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(parent),
-      m_ui(nullptr),
+      m_ui(new Ui::Experiments()),
       m_dataProxy(dataProxy)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    // create UI
-    m_ui = new Ui::Experiments();
     m_ui->setupUi(this);
 
     //create DEA object (not parent)
@@ -48,11 +46,6 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
 ExperimentPage::~ExperimentPage()
 {
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
-
     m_analysisDEA->deleteLater();
     m_analysisDEA = nullptr;
 }

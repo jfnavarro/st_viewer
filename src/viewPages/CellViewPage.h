@@ -8,6 +8,7 @@
 #ifndef CELLVIEWPAGE_H
 #define CELLVIEWPAGE_H
 
+#include <memory>
 #include "Page.h"
 
 #include "data/DataProxy.h"
@@ -109,7 +110,7 @@ private:
     QPointer<CellViewPageToolBar> m_toolBar;
 
     // User interface
-    Ui::CellView *m_ui;
+    std::unique_ptr<Ui::CellView> m_ui;
 
     // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;

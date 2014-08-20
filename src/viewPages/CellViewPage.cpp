@@ -73,13 +73,11 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_view(nullptr),
       m_colorDialogGrid(nullptr),
       m_toolBar(nullptr),
-      m_ui(nullptr),
+      m_ui(new Ui::CellView()),
       m_dataProxy(dataProxy)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    //create UI object
-    m_ui = new Ui::CellView();
     m_ui->setupUi(this);
 
     // color dialogs
@@ -119,11 +117,6 @@ CellViewPage::~CellViewPage()
 
     m_view->deleteLater();
     m_view = nullptr;
-
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
 
     m_colorDialogGrid->deleteLater();
     m_colorDialogGrid = nullptr;

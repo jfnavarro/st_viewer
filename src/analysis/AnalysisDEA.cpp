@@ -9,7 +9,7 @@
 
 AnalysisDEA::AnalysisDEA(QWidget *parent) :
     QWidget(parent),
-    m_ui(nullptr),
+    m_ui(new Ui::ddaWidget),
     m_customPlot(nullptr),
     m_meanSelectionA(0.0),
     m_meanSelectionB(0.0),
@@ -22,8 +22,6 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
     m_countA(0),
     m_countB(0)
 {
-    // create UI
-    m_ui = new Ui::ddaWidget;
     m_ui->setupUi(this);
 
     // creating plotting object
@@ -36,11 +34,6 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
 
 AnalysisDEA::~AnalysisDEA()
 {
-    if (m_ui != nullptr) {
-        delete m_ui;
-    }
-    m_ui = nullptr;
-
     m_customPlot->deleteLater();
     m_customPlot = nullptr;
 }

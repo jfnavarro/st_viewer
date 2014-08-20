@@ -1,6 +1,7 @@
 #ifndef CREATESELECTIONDIALOG_H
 #define CREATESELECTIONDIALOG_H
 
+#include <memory>
 #include <QDialog>
 
 namespace Ui {
@@ -24,7 +25,7 @@ public:
 
 private:
 
-    Ui::createSelectionDialog *m_ui;
+    std::unique_ptr<Ui::createSelectionDialog> m_ui;
 
     Q_DISABLE_COPY(CreateSelectionDialog)
 };

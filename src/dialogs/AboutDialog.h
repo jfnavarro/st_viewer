@@ -5,6 +5,7 @@
 
 */
 
+#include <memory>
 #include <QDialog>
 
 namespace Ui
@@ -25,7 +26,7 @@ public:
 
 private:
 
-    Ui::AboutDialog *m_ui;
+    std::unique_ptr<Ui::AboutDialog> m_ui;
 
     Q_DISABLE_COPY(AboutDialog)
 };

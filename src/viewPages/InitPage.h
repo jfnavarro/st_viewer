@@ -8,6 +8,7 @@
 #ifndef STARTPAGE_H
 #define STARTPAGE_H
 
+#include <memory>
 #include "Page.h"
 
 #include "data/DataProxy.h"
@@ -48,7 +49,7 @@ private slots:
 
 private:
 
-    Ui::InitPage *m_ui;
+    std::unique_ptr<Ui::InitPage> m_ui;
     QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(InitPage)

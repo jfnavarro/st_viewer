@@ -8,6 +8,7 @@
 #ifndef EXPERIMENTPAGE_H
 #define EXPERIMENTPAGE_H
 
+#include <memory>
 #include <QWidget>
 #include <QModelIndex>
 
@@ -51,7 +52,7 @@ private:
     QSortFilterProxyModel *selectionsProxyModel();
     ExperimentsItemModel *selectionsModel();
 
-    Ui::Experiments *m_ui;
+    std::unique_ptr<Ui::Experiments> m_ui;
     QPointer<DataProxy> m_dataProxy;
     QPointer<AnalysisDEA> m_analysisDEA;
 

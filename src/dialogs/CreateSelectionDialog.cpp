@@ -16,8 +16,6 @@ CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
 
 CreateSelectionDialog::~CreateSelectionDialog()
 {
-    delete m_ui;
-    m_ui = nullptr;
 }
 
 const QString CreateSelectionDialog::getName() const
