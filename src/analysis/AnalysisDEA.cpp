@@ -77,10 +77,10 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     m_ui->tableWidget->clear();
     m_ui->tableWidget->clearContents();
     // initialize columns and headers of the table
+    m_ui->tableWidget->setColumnCount(3);
     QStringList headers;
     headers << "Gene" << "Reads Sel. A" << "Reads Sel. B";
     m_ui->tableWidget->setHorizontalHeaderLabels(headers);
-    m_ui->tableWidget->setColumnCount(3);
     // initialize row size of the table
     m_ui->tableWidget->setRowCount(biggestSize);
     int index = 0; //to keep count of the elements inserted
