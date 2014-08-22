@@ -207,7 +207,7 @@ if(UNIX AND NOT APPLE)
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
     set(CPACK_SYSTEM_NAME "Linux")
-    set(CPACK_SYSTEM_NAME "${CPACK_SYSTEM_NAME}-32")
+    set(CPACK_SYSTEM_NAME "${CPACK_SYSTEM_NAME}")
 
     foreach(QT_LIBRARY ${ST_QT_LIBS})
       # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG 
