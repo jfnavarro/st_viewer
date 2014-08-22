@@ -30,6 +30,17 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
     //make connections
     connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(saveToPDF()));
+
+    // Patrik Stahl experienced a bug:
+    // Patrik quote: The right column “Reads sel B” is completely empty for me when I run the second DEA.
+    //
+    // Erik Sjolund writing again: The bug seems to happen only in Mac. It seems you need to press the
+    // close (x) button in the window frame of the first D.E.A window to trigger the bug.
+    // Pressing "cancel" seems to not trigger the bug.
+    // Erik Sjolund saw the bug happening once at Mac. Trying the day after the bug was not being seen.
+    //
+    // This is a workaround for the bug. It just removes the x close button in the window frame.
+    this->setWindowFlags(this->windowFlags() & ~Qt::WindowCloseButtonHint);
 }
 
 AnalysisDEA::~AnalysisDEA()
