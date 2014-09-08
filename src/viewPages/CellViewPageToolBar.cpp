@@ -20,7 +20,7 @@
 
 static const int GENE_INTENSITY_MIN = 1;
 static const int GENE_INTENSITY_MAX = 10;
-static const int GENE_SIZE_MIN = 10;
+static const int GENE_SIZE_MIN = 5; //10
 static const int GENE_SIZE_MAX = 30;
 //static const int GENE_SHIMME_MIN = 10;
 //static const int GENE_SHIMME_MAX = 50;
@@ -558,13 +558,15 @@ void CellViewPageToolBar::slotGeneShape(int geneShape)
 //input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneIntensity(int geneIntensity)
 {
+    Q_ASSERT(geneIntensity >= 1 && geneIntensity <= 10);
     const qreal decimal = static_cast<qreal>(geneIntensity) / 10;
     emit intensityValueChanged(decimal);
 }
 
-//input is expected to be >= 10 and <= 30
+//input is expected to be >= 5 and <= 30
 void CellViewPageToolBar::slotGeneSize(int geneSize)
 {
+    Q_ASSERT(geneSize >= 5 && geneSize <= 30);
     const qreal decimal = static_cast<qreal>(geneSize) / 10;
     emit sizeValueChanged(decimal);
 }
@@ -572,6 +574,7 @@ void CellViewPageToolBar::slotGeneSize(int geneSize)
 //input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneShine(int geneShine)
 {
+    Q_ASSERT(geneShine >= 1 && geneShine <= 10);
     const qreal decimal = static_cast<qreal>(geneShine) / 10;
     emit shineValueChanged(decimal);
 }
@@ -579,6 +582,7 @@ void CellViewPageToolBar::slotGeneShine(int geneShine)
 //input is expected to be >= 1 and <= 10
 void CellViewPageToolBar::slotGeneBrightness(int geneBrightness)
 {
+    Q_ASSERT(geneBrightness >= 1 && geneBrightness <= 10);
     const qreal decimal = static_cast<qreal>(geneBrightness) / 10;
     emit brightnessValueChanged(decimal);
 }
