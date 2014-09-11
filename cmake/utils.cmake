@@ -4,7 +4,6 @@
 # the interchangable representations of the same directory /cygdrive/c/tmp and C:\tmp
 # Some how a ".." to much is specified in the include statements in the QMake generated files.
 # When Qt3d gets merged into the standard Qt library we could remove this hack.
-
 macro(FIX_QT3D_COMPILATION_BUG)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy)
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy)

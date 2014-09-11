@@ -91,6 +91,7 @@ int main(int argc, char** argv)
     // http://www.opengl.org/discussion_boards/archive/index.php/t-173485.html
     setenv("__GL_NO_DSO_FINALIZER", "1", 1);
 #endif
+
     setApplicationFlags();
 
     QtSingleApplication *app = new QtSingleApplication(argc, argv);
@@ -103,9 +104,9 @@ int main(int argc, char** argv)
         app->sendMessage(app->tr("Another instance of stVi is already open"));
         delete app;
         return EXIT_FAILURE;
-    } else {
-        qDebug() << "Application started successfully.";
     }
+
+    qDebug() << "Application started successfully.";
 
     setLocalPaths(app);
     if (!installTranslator(app)) {

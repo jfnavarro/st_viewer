@@ -488,7 +488,7 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
     emit updated();
 }
 
-GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
+GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
 {
     //aggregate all the selected features using SelectionType objects (aggregate by gene)
     QHash<QString, SelectionType> geneSelectionsMap;
@@ -514,6 +514,12 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedIItems() const
 
     return geneSelectionsMap.values();
 }
+
+const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const
+{
+    return m_geneInfoSelectedFeatures;
+}
+
 
 void GeneRendererGL::setImage(const QImage &image)
 {

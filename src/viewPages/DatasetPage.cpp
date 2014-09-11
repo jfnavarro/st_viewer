@@ -72,7 +72,15 @@ DatasetItemModel *DatasetPage::datasetsModel()
 void DatasetPage::onEnter()
 {
     slotLoadDatasets();
+}
 
+void DatasetPage::onExit()
+{
+
+}
+
+void DatasetPage::clearControls()
+{
     //clear selection/focus
     m_ui->datasets_tableview->clearSelection();
     m_ui->datasets_tableview->clearFocus();
@@ -89,15 +97,11 @@ void DatasetPage::onEnter()
     m_ui->openDataset->setEnabled(false);
 }
 
-void DatasetPage::onExit()
-{
-
-}
-
 void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
     const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
+
     if (currentDataset.empty() || currentDataset.first().isNull()) {
         return;
     }
@@ -122,11 +126,7 @@ void DatasetPage::slotLoadDatasets()
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 
-    m_ui->datasets_tableview->clearSelection();
-    m_ui->datasets_tableview->clearFocus();
-    m_ui->deleteDataset->setEnabled(false);
-    m_ui->editDataset->setEnabled(false);
-    m_ui->openDataset->setEnabled(false);
+    clearControls();
 }
 
 void DatasetPage::slotRefreshDatasets()
@@ -148,7 +148,8 @@ void DatasetPage::slotEditDataset()
     Q_ASSERT(!dataset.isNull());
 
     QScopedPointer<EditDatasetDialog> editdataset(new EditDatasetDialog(this,
-                                                                        Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                                                                        Qt::CustomizeWindowHint
+                                                                        | Qt::WindowTitleHint));
     editdataset->setName(dataset->name());
     editdataset->setComment(dataset->statComments());
 
@@ -159,6 +160,7 @@ void DatasetPage::slotEditDataset()
 
             const QString name = dataset->name();
             const QString comment = dataset->statComments();
+
             dataset->name(editdataset->getName());
             dataset->statComments(editdataset->getComment());
 
@@ -169,9 +171,10 @@ void DatasetPage::slotEditDataset()
 
             if (request.return_code() == async::DataRequest::CodeError
                     || request.return_code() == async::DataRequest::CodeAbort) {
-                //TODO get error from request
+                //restore original name since updating failed
                 dataset->name(name);
                 dataset->statComments(comment);
+                //TODO get error from request
                 showError(tr("Update Dataset"), tr("Error updating the dataset"));
             } else {
                 showInfo(tr("Update Dataset"), tr("Dataset updated successfully"));
@@ -225,58 +228,27 @@ void DatasetPage::slotRemoveDataset()
     auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
 
-    //sets enabled to false
-    //TODO changing the name is a temp hack so we can edit datasets
-    //with the same name as the deleted one
-    const QString datasetName = dataset->name();
-    dataset->enabled(false);
-    dataset->name(datasetName + "_REMOVED_FROM_STVI");
+    const QString datasetId = dataset->id();
 
-    //update the dataset
+    //remove the dataset
     setWaiting(true, "Removing dataset...");
-    async::DataRequest request = m_dataProxy->updateDataset(dataset);
+    async::DataRequest request = m_dataProxy->removeDataset(datasetId);
     setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO get error from request
-        dataset->enabled(true);
-        dataset->name(datasetName);
         showError(tr("Remove Dataset"), tr("Error removing the dataset"));
     } else {
-
-        //set enable to false for the selections made on the dataset
-        const auto& datasetSelections = m_dataProxy->getGeneSelections();
-        bool errorDeletingSelections = false;
-        for(auto selection : datasetSelections) {
-            if (selection->datasetId() == dataset->id()) {
-                const QString selName = selection->name();
-                selection->enabled(false);
-                selection->name(selName + "_REMOVED_FROM_STVI");
-                async::DataRequest request = m_dataProxy->updateGeneSelection(selection);
-                if (request.return_code() == async::DataRequest::CodeError
-                        || request.return_code() == async::DataRequest::CodeAbort) {
-                    selection->enabled(true);
-                    selection->name(selName);
-                    errorDeletingSelections = true;
-                }
-            }
+        //TODO temp hack to reset the current selected dataset in
+        //case we are removing the current selected dataset
+        //this logic should be handled in dataProxy
+        if (datasetId == m_dataProxy->getSelectedDataset()) {
+            m_dataProxy->setSelectedDataset(QString());
         }
-
-        if (errorDeletingSelections) {
-            showInfo(tr("Remove Dataset"),
-                     tr("Dataset removed successfully but\n there was an error removing its selections"));
-        } else {
-            showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
-        }
+        showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
     }
 
     //refresh dataset list
     slotLoadDatasets();
-    //TODO temp hack to reset the current selected dataset in
-    //case we are removing the current selected dataset
-    //this logic should be handled in dataProxy
-    if (dataset->id() == m_dataProxy->getSelectedDataset()) {
-        m_dataProxy->setSelectedDataset(QString());
-    }
 }

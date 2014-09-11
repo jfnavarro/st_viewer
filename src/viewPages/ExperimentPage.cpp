@@ -29,9 +29,6 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
     m_ui->setupUi(this);
 
-    //create DEA object (not parent)
-    m_analysisDEA = new AnalysisDEA();
-
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
             SLOT(setFilterFixedString(QString)));
@@ -46,8 +43,7 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
 ExperimentPage::~ExperimentPage()
 {
-    m_analysisDEA->deleteLater();
-    m_analysisDEA = nullptr;
+
 }
 
 QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
@@ -70,7 +66,15 @@ void ExperimentPage::onEnter()
 {
     //load selections
     slotLoadSelections();
+}
 
+void ExperimentPage::onExit()
+{
+
+}
+
+void ExperimentPage::clearControls()
+{
     //clear selection/focus
     m_ui->experiments_tableView->clearSelection();
     m_ui->experiments_tableView->clearFocus();
@@ -87,10 +91,6 @@ void ExperimentPage::onEnter()
     m_ui->editSelection->setEnabled(false);
 }
 
-void ExperimentPage::onExit()
-{
-}
-
 void ExperimentPage::slotLoadSelections()
 {
     setWaiting(true);
@@ -99,19 +99,14 @@ void ExperimentPage::slotLoadSelections()
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use the text in reques.getErrors(
+        //TODO use the text in reques.getErrors()
         showError(tr("Data Error"), tr("Error loading the selections"));
     } else {
         // refresh gene selections on the model
         selectionsModel()->loadSelectedGenes(m_dataProxy->getGeneSelections());
     }
 
-    m_ui->experiments_tableView->clearSelection();
-    m_ui->experiments_tableView->clearFocus();
-    m_ui->removeSelections->setEnabled(false);
-    m_ui->exportSelections->setEnabled(false);
-    m_ui->ddaAnalysis->setEnabled(false);
-    m_ui->editSelection->setEnabled(false);
+    clearControls();
 }
 
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
@@ -150,28 +145,19 @@ void ExperimentPage::slotRemoveSelection()
     auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
-    const QString name = selectionItem->name();
-    //sets enabled to false and change name
-    //TODO changing the name is a temp hack so we can edit/add selections
-    //with the same name as the deleted one
-    selectionItem->enabled(false);
-    selectionItem->name(name + "_REMOVED_FROM_STVI");
-
-    //update the selection object
+    //remove the selection object
     setWaiting(true, "Removing selection....");
-    async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
+    async::DataRequest request = m_dataProxy->removeSelection(selectionItem->id());
     setWaiting(false);
 
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO get error from request
-        selectionItem->enabled(true);
-        selectionItem->name(name);
-        showError(tr("Remove Gene Selection"), tr("Error removing the gene selection"));
+        showError(tr("Remove Genes Selection"), tr("Error removing the Genes selection"));
         return;
     }
 
-    showInfo(tr("Remove Gene Selection"), tr("Gene selection removed successfully"));
+    showInfo(tr("Remove Genes Selection"), tr("Genes selection removed successfully"));
 
     //refresh selection list
     slotLoadSelections();
@@ -238,6 +224,7 @@ void ExperimentPage::slotEditSelection()
 
             const QString name = selectionItem->name();
             const QString comment = selectionItem->comment();
+
             selectionItem->name(createSelection->getName());
             selectionItem->comment(createSelection->getComment());
 
@@ -248,9 +235,10 @@ void ExperimentPage::slotEditSelection()
 
             if (request.return_code() == async::DataRequest::CodeError
                     || request.return_code() == async::DataRequest::CodeAbort) {
-                //TODO get error from request
+                //restore original name
                 selectionItem->name(name);
                 selectionItem->comment(comment);
+                //TODO get error from request
                 showError(tr("Update Gene Selection"), tr("Error updating the gene selection"));
                 return;
             }
@@ -279,6 +267,8 @@ void ExperimentPage::slotPerformDDA()
     auto selectionObject2 = currentSelection.at(1);
     Q_ASSERT(!selectionObject2.isNull());
 
-    m_analysisDEA->compute(*selectionObject1, *selectionObject2);
-    m_analysisDEA->plot();
+    QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA());
+    analysisDEA->compute(*selectionObject1, *selectionObject2);
+    analysisDEA->plot();
+    analysisDEA->exec();
 }

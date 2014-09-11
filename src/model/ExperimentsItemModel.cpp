@@ -100,7 +100,7 @@ void ExperimentsItemModel::sort(int column, Qt::SortOrder order)
 
 int ExperimentsItemModel::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid()  ? 0 : m_geneselectionList.count();
+    return parent.isValid() ? 0 : m_geneselectionList.count();
 }
 
 int ExperimentsItemModel::columnCount(const QModelIndex& parent) const
@@ -119,14 +119,7 @@ void ExperimentsItemModel::loadSelectedGenes(const DataProxy::GeneSelectionList 
 {
     beginResetModel();
     m_geneselectionList.clear();
-    //std::copy_if (selectionList.begin(), selectionList.end(), m_geneselectionList.begin(),
-    //              [ ] (DataProxy::GeneSelectionPtr selection) { return selection->enabled(); } );
-    foreach(DataProxy::GeneSelectionPtr selection, selectionList) {
-        if (selection->enabled()) {
-            m_geneselectionList.push_back(selection);
-        }
-    }
-    //m_geneselectionList = selectionList;
+    m_geneselectionList = selectionList;
     endResetModel();
 }
 

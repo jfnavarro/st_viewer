@@ -54,6 +54,7 @@ HSVPalette::HSVPalette(QObject* parent)
 {
 
 }
+
 HSVPalette::~HSVPalette()
 {
 

@@ -36,6 +36,7 @@
 #include "CellViewPageToolBar.h"
 
 #include "io/GeneExporter.h"
+#include "io/FeatureExporter.h"
 
 #include "utils/Utils.h"
 
@@ -459,8 +460,12 @@ void CellViewPage::createGLConnections()
     //connect gene selection signals from selectionsWidget
     connect(m_ui->selectionsWidget, SIGNAL(signalClearSelection()),
             m_gene_plotter.data(), SLOT(clearSelection()));
-    connect(m_ui->selectionsWidget, SIGNAL(signalExportSelection()), this, SLOT(slotExportSelection()));
-    connect(m_ui->selectionsWidget, SIGNAL(signalSaveSelection()), this, SLOT(slotSaveSelection()));
+    connect(m_ui->selectionsWidget, SIGNAL(signalExportGenesSelection()),
+            this, SLOT(slotExportGenesSelection()));
+    connect(m_ui->selectionsWidget, SIGNAL(signalExportFeaturesSelection()),
+            this, SLOT(slotExportFeaturesSelection()));
+    connect(m_ui->selectionsWidget, SIGNAL(signalSaveSelection()),
+            this, SLOT(slotSaveSelection()));
 
     //connect gene plotter to gene selection model
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()),
@@ -590,12 +595,14 @@ void CellViewPage::slotSaveImage()
     if (filename.isEmpty()) {
         return;
     }
+
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
         showError(tr("Save image"), tr("The directory is not writable"));
         return;
     }
+
     const QString format = fileInfo.suffix().toLower();
     if (!imageFormatHasWriteSupport(format)) {
         // This should never happen because getSaveFileName() automatically
@@ -605,6 +612,7 @@ void CellViewPage::slotSaveImage()
         showError(tr("Save image"), tr("The image format is not supported"));
         return;
     }
+
     const int quality = 100; //quality format (100 max, 0 min, -1 default)
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
@@ -612,7 +620,34 @@ void CellViewPage::slotSaveImage()
     }
 }
 
-void CellViewPage::slotExportSelection()
+void CellViewPage::slotExportGenesSelection()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
+                                                    QString("%1").
+                                                    arg(tr("Text Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    // get selected genes
+    const auto& geneSelection = m_gene_plotter->getSelectedGenes();
+
+    //create file
+    QFile textFile(filename);
+
+    //export selection
+    if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
+        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
+                                             GeneExporter::TabDelimited);
+        exporter.exportItem(textFile, geneSelection);
+        showInfo(tr("Export Genes Selection"), tr("Genes selection was exported successfully"));
+    }
+
+    textFile.close();
+}
+
+void CellViewPage::slotExportFeaturesSelection()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
                                                     QString("%1").
@@ -623,15 +658,17 @@ void CellViewPage::slotExportSelection()
     }
 
     // get selected features
-    const auto& geneSelection = m_gene_plotter->getSelectedIItems();
+    const auto& featuresSelection = m_gene_plotter->getSelectedFeatures();
+
     //create file
     QFile textFile(filename);
+
     //export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
-                                             GeneExporter::TabDelimited);
-        exporter.exportItem(textFile, geneSelection);
-        showInfo(tr("Export Gene Selection"), tr("Gene selection was exported successfully"));
+        FeatureExporter exporter = FeatureExporter(FeatureExporter::SimpleFull,
+                                             FeatureExporter::TabDelimited);
+        exporter.exportItem(textFile, featuresSelection);
+        showInfo(tr("Export Features Selection"), tr("Features selection was exported successfully"));
     }
 
     textFile.close();
@@ -678,8 +715,8 @@ void CellViewPage::slotSelectByRegExp()
 
 void CellViewPage::slotSelectionUpdated()
 {
-    // get selected features
-    const auto& geneSelection = m_gene_plotter->getSelectedIItems();
+    // get selected genes
+    const auto& geneSelection = m_gene_plotter->getSelectedGenes();
     m_ui->selectionsWidget->slotLoadModel(geneSelection);
 }
 
@@ -693,8 +730,8 @@ void CellViewPage::slotSaveSelection()
             return;
         }
 
-        // get selected features
-        const auto& geneSelection = m_gene_plotter->getSelectedIItems();
+        // get selected genes
+        const auto& geneSelection = m_gene_plotter->getSelectedGenes();
 
         //create the selection object
         GeneSelection selection;

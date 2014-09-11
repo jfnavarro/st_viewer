@@ -57,9 +57,13 @@ private slots:
     void slotSaveImage();
     void slotPrintImage();
 
-    //shows a file dialog to save the current gene selection to a file
-    void slotExportSelection();
+    //shows a file dialog to save the current genes selection to a file
+    void slotExportGenesSelection();
     
+    //shows a file dialog to save the current features selection to a file
+    //TODO this slot will be removed in release 0.5
+    void slotExportFeaturesSelection();
+
     // selection of genes
     void slotSelectByRegExp();
     

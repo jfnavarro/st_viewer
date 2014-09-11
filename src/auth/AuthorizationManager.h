@@ -32,7 +32,8 @@ class AuthorizationManager : public QObject
 public:
 
     AuthorizationManager(QPointer<NetworkManager> networkManager,
-                                  const Configuration &configurationManager, QObject* parent = 0);
+                         const Configuration &configurationManager,
+                         QObject* parent = 0);
     virtual ~AuthorizationManager();
 
     //start the login process using the widget as parent if given

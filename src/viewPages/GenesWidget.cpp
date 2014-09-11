@@ -18,7 +18,7 @@
 
 #include "viewTables/GenesTableView.h"
 #include "model/GeneFeatureItemModel.h"
-#include "utils/setTips.h"
+#include "utils/SetTips.h"
 
 GenesWidget::GenesWidget(QWidget *parent) :
     QWidget(parent),
@@ -178,7 +178,6 @@ void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
-    qDebug() << "Setting color to " << color;
     getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
     m_genes_tableview->update();
 }

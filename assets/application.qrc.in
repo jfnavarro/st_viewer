@@ -52,6 +52,7 @@
     <file alias="images/dynamicrange.png">${PROJECT_SOURCE_DIR}/assets/images/dynamicrange.png</file>
     <file alias="images/heatmap.png">${PROJECT_SOURCE_DIR}/assets/images/heatmap.png</file>
     <file alias="images/export.png">${PROJECT_SOURCE_DIR}/assets/images/export.png</file>
+    <file alias="images/exportall.png">${PROJECT_SOURCE_DIR}/assets/images/exportall.png</file>
     <file alias="images/abort.png">${PROJECT_SOURCE_DIR}/assets/images/abort.png</file>
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
     <file alias="images/clear2.png">${PROJECT_SOURCE_DIR}/assets/images/clear2.png</file>

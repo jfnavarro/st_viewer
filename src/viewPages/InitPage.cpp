@@ -71,7 +71,7 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
     authorizationManager->cleanAccesToken();
     authorizationManager->forceAuthentication();
 
-    //TODO show error? it will show it the user types wrong credentails...
+    //TODO show error? it will show the error when the user types wrong credentails...
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 

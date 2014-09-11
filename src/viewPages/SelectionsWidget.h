@@ -43,7 +43,8 @@ signals:
 
     void signalClearSelection();
     void signalSaveSelection();
-    void signalExportSelection();
+    void signalExportGenesSelection();
+    void signalExportFeaturesSelection();
 
 private:
 
@@ -51,7 +52,8 @@ private:
     QSortFilterProxyModel *getProxyModel();
 
     QPointer<QPushButton> m_saveSelection;
-    QPointer<QPushButton> m_exportSelection;
+    QPointer<QPushButton> m_exportGenesSelection;
+    QPointer<QPushButton> m_exportFeaturesSelection;
     QPointer<QPushButton> m_clearSelection;
     QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
     QPointer<GeneSelectionTableView> m_selections_tableview;

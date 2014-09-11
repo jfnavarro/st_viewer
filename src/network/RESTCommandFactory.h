@@ -30,8 +30,10 @@ public:
     static NetworkCommand* getDatasets(const Configuration& configuration);
     static NetworkCommand* getDatasetByDatasetId(const Configuration& configuration,
                                                  const QString& datasetId);
-    static NetworkCommand* updateDatsetByDatasetId(const Configuration &configuration,
-                                                   const QString& datasetId);
+    static NetworkCommand* updateDatasetByDatasetId(const Configuration &configuration,
+                                                    const QString& datasetId);
+    static NetworkCommand* removeDatasetByDatasetId(const Configuration &configuration,
+                                                    const QString& datasetId);
 
     static NetworkCommand* getGenesByDatasetId(const Configuration& configuration,
                                                const QString& datasetId);
@@ -52,10 +54,11 @@ public:
     //static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString &userId);
 
     static NetworkCommand* getSelections(const Configuration& configuration);
-    static NetworkCommand* upateSelectionBySelectionById(const Configuration&
-                                                         configuration, const QString& selectionId);
+    static NetworkCommand* upateSelectionBySelectionId(const Configuration&
+                                                       configuration, const QString& selectionId);
     static NetworkCommand* addSelection(const Configuration& configuration);
-
+    static NetworkCommand* removeSelectionBySelectionId(const Configuration&
+                                                        configuration, const QString& selectionId);
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion(const Configuration& configuration);
 

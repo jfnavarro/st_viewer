@@ -1,10 +1,11 @@
 set(LIBRARY_ARG_INCLUDES
     Utils.h
-    setTips.h
+    SetTips.h
+    SerializationFunctions.h
 )
 
 set(LIBRARY_ARG_SOURCES
-    setTips.cpp
+    SetTips.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

@@ -41,12 +41,21 @@ RESTCommandFactory::getDatasetByDatasetId(const Configuration& configuration,
 }
 
 NetworkCommand*
-RESTCommandFactory::updateDatsetByDatasetId(const Configuration& configuration,
+RESTCommandFactory::updateDatasetByDatasetId(const Configuration& configuration,
                                             const QString& datasetId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
 }
+
+NetworkCommand*
+RESTCommandFactory::removeDatasetByDatasetId(const Configuration& configuration,
+                                             const QString& datasetId)
+{
+    QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
+}
+
 
 NetworkCommand*
 RESTCommandFactory::getGenesByDatasetId(const Configuration& configuration,
@@ -105,11 +114,18 @@ NetworkCommand* RESTCommandFactory::getSelections(const Configuration& configura
     return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
 }
 
-NetworkCommand* RESTCommandFactory::upateSelectionBySelectionById(const Configuration& configuration,
-                                                                  const QString& selectionId)
+NetworkCommand* RESTCommandFactory::upateSelectionBySelectionId(const Configuration& configuration,
+                                                                const QString& selectionId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
     return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
+}
+
+NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const Configuration& configuration,
+                                                                 const QString& selectionId)
+{
+    QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
+    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
 }
 
 NetworkCommand* RESTCommandFactory::addSelection(const Configuration& configuration)

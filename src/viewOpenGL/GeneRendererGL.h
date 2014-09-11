@@ -45,8 +45,11 @@ public:
     //makes a selection of features given a list of genes
     void selectGenes(const DataProxy::GeneList& genes);
 
-    //returns the currently selected genes
-    GeneSelection::selectedItemsList getSelectedIItems() const;
+    //returns the currently selected genes (agregated from features)
+    GeneSelection::selectedItemsList getSelectedGenes() const;
+
+    //returns the currently selected features
+    const DataProxy::FeatureList& getSelectedFeatures() const;
 
     // stores a local copy of the tissue image in genes cordinate space
     // so we can obtain pixel intensity values when storing selections

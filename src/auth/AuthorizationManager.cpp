@@ -10,7 +10,8 @@
 #include "auth/OAuth2.h"
 
 AuthorizationManager::AuthorizationManager(QPointer<NetworkManager> networkManager,
-                                           const Configuration &configurationManager, QObject* parent)
+                                           const Configuration &configurationManager,
+                                           QObject* parent)
     : QObject(parent),
       m_oAuth2(nullptr),
       m_networkManager(networkManager),

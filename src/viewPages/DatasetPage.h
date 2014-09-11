@@ -56,6 +56,8 @@ protected slots:
 
 private:
 
+    void clearControls();
+
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
 

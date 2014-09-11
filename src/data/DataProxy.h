@@ -200,6 +200,10 @@ public:
     //creation
     async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
 
+    //deletion
+    async::DataRequest removeDataset(const QString& datasetId);
+    async::DataRequest removeSelection(const QString& selectionId);
+
 private:
 
     //TODO optimize the cache using memory and HD, check for last_modified

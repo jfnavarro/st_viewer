@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/picojson)
-
 set(LIBRARY_ARG_INCLUDES
     NetworkCommand.h
     NetworkManager.h
@@ -17,6 +15,4 @@ set(LIBRARY_ARG_SOURCES
 )
 
 set(LIBRARY_ARG_UI_FILES)
-
-include_directories($<TARGET_PROPERTY:picojson,INTERFACE_INCLUDE_DIRECTORIES>)
 ST_LIBRARY()

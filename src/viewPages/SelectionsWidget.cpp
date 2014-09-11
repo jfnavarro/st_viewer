@@ -14,12 +14,13 @@
 
 #include "viewTables/GeneSelectionTableView.h"
 #include "model/GeneSelectionItemModel.h"
-#include "utils/setTips.h"
+#include "utils/SetTips.h"
 
 SelectionsWidget::SelectionsWidget(QWidget *parent) :
     QWidget(parent),
     m_saveSelection(nullptr),
-    m_exportSelection(nullptr),
+    m_exportGenesSelection(nullptr),
+    m_exportFeaturesSelection(nullptr),
     m_clearSelection(nullptr),
     m_geneSelectionFilterLineEdit(nullptr),
     m_selections_tableview(nullptr)
@@ -34,12 +35,19 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
             m_saveSelection);
     selectionBottonsLayout->addWidget(m_saveSelection);
 
-    m_exportSelection = new QPushButton(this);
-    m_exportSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
+    m_exportGenesSelection = new QPushButton(this);
+    m_exportGenesSelection->setIcon(QIcon(QStringLiteral(":/images/export.png")));
     setToolTipAndStatusTip(
-            tr("Export the current selection to a file"),
-            m_exportSelection);
-    selectionBottonsLayout->addWidget(m_exportSelection);
+            tr("Export the currently selected genes to a file"),
+            m_exportGenesSelection);
+    selectionBottonsLayout->addWidget(m_exportGenesSelection);
+
+    m_exportFeaturesSelection = new QPushButton(this);
+    m_exportFeaturesSelection->setIcon(QIcon(QStringLiteral(":/images/exportall.png")));
+    setToolTipAndStatusTip(
+            tr("Export the currently selected features to a file"),
+            m_exportFeaturesSelection);
+    selectionBottonsLayout->addWidget(m_exportFeaturesSelection);
 
     m_clearSelection = new QPushButton(this);
     m_clearSelection->setIcon(QIcon(QStringLiteral(":/images/clear2.png")));
@@ -72,7 +80,11 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     connect(m_geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), m_selections_tableview,
             SLOT(setGeneNameFilter(QString)));
     // export selection
-    connect(m_exportSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalExportSelection()));
+    connect(m_exportGenesSelection, SIGNAL(clicked(bool)),
+            this, SIGNAL(signalExportGenesSelection()));
+    connect(m_exportFeaturesSelection, SIGNAL(clicked(bool)),
+            this, SIGNAL(signalExportFeaturesSelection()));
+
     // save selection
     connect(m_saveSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalSaveSelection()));
     // selection actions
@@ -84,8 +96,11 @@ SelectionsWidget::~SelectionsWidget()
     m_saveSelection->deleteLater();
     m_saveSelection = nullptr;
 
-    m_exportSelection->deleteLater();
-    m_exportSelection = nullptr;
+    m_exportGenesSelection->deleteLater();
+    m_exportGenesSelection = nullptr;
+
+    m_exportFeaturesSelection->deleteLater();
+    m_exportFeaturesSelection = nullptr;
 
     m_clearSelection->deleteLater();
     m_clearSelection = nullptr;

@@ -14,13 +14,12 @@
 #include <QtGlobal>
 
 #include "config/Configuration.h"
-
 #include "network/NetworkManager.h"
 #include "network/NetworkCommand.h"
 #include "network/NetworkReply.h"
 #include "network/RESTCommandFactory.h"
-#include "error/NetworkError.h"
 #include "network/DownloadManager.h"
+#include "error/NetworkError.h"
 
 // parse objects
 #include "data/ObjectParser.h"
@@ -31,10 +30,6 @@
 #include "dataModel/ImageAlignmentDTO.h"
 #include "dataModel/UserDTO.h"
 #include "dataModel/GeneSelectionDTO.h"
-
-#include "picojson/picojson.h"
-#include <iostream>
-#include <sstream>
 
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
@@ -221,9 +216,9 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
             //but a more advance implementation is needed so the selections
             //are always sync to the datasets
             DatasetPtr selectionDataset = getDatasetById(selection->datasetId());
-            Q_ASSERT(!selectionDataset.isNull());
-            selection->enabled(selectionDataset->enabled() && selection->enabled());
-            selection->datasetName(selectionDataset->name());
+            selection->enabled(!selectionDataset.isNull()
+                               && selectionDataset->enabled() && selection->enabled());
+            selection->datasetName(!selectionDataset.isNull() ? selectionDataset->name() : QString());
             m_geneSelectionsMap.insert(selection->id(), selection);
             dirty = true;
         }
@@ -231,17 +226,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
     }
         // feature
     case FeatureDataType: {
-        //TODO this is a hack to deal with the problem of having a Features JSON
-        //file big enough that Qt cannot parse it. As soon as the backend is fixed
-        //to allow to upload big files, the commented Qt-way of parsing the features
-        //must be restored and the current code with pico-json must be deleted
-        //pico-json must be removed from the source code as well.
-        //The Qt json parser should work with big JSON files as long as they
-        //are indented (new pipeline output format) in case it does not work
-        //the picon-json parsing option should be kept and the commented code should
-        //be removed
-
-        /*const QJsonDocument doc = reply->getJSON();
+        const QJsonDocument doc = reply->getJSON();
         if (doc.isNull() || doc.isEmpty()) {
             return false;
         }
@@ -262,50 +247,6 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariantList list = root.canConvert(QVariant::List) ? root.toList() : (QVariantList() += root);
         //parse the data
         foreach(QVariant var, list) {
-            data::parseObject(var, &dto);
-            FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
-            FeatureList& featureListByGeneIdAndDatasetId =
-                    getGeneFeatureList(datasetId, feature->gene());
-            //TODO clear featureListByGeneIdAndDatasetId (check if this is consistent)
-            featureMapByDatasetId.insert(feature->id(), feature);
-            featureListByGeneIdAndDatasetId.push_back(feature);
-            featureListByDatasetId.push_back(feature);
-            dirty = true;
-        }*/
-
-        // feature list by dataset
-        Q_ASSERT_X(parameters.contains(Globals::PARAM_DATASET),
-                   "DataProxy", "FeatureData must be include dataset parameter!");
-        const QString datasetId =
-                qvariant_cast<QString>(parameters.value(Globals::PARAM_DATASET));
-        // intermediary parse object and end object map
-        FeatureDTO dto;
-        FeatureList& featureListByDatasetId = getFeatureList(datasetId);
-        FeatureMap& featureMapByDatasetId = getFeatureMap(datasetId);
-        //clear the data
-        featureListByDatasetId.clear();
-        featureMapByDatasetId.clear();
-        //parse the reply as raw text to stream it to the json parser
-        QByteArray rawText = reply->getRaw();
-        std::stringstream jsonStream(std::string(rawText.data(), rawText.size()));
-        picojson::value v;
-        jsonStream >> v;
-        const picojson::array& a = v.get<picojson::array>();
-        for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
-            const picojson::object& o = i->get<picojson::object>();
-            QVariantMap var;
-            for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
-                QString key = QString::fromStdString(i->first);
-                if (i->second.is<picojson::null>()) {
-                    var.insert(key, QJsonValue::Null);
-                } else if (i->second.is<bool>()) {
-                    var.insert(key, i->second.get<bool>());
-                } else if (i->second.is<double>()) {
-                    var.insert(key, i->second.get<double>());
-                } else if (i->second.is<std::string>()) {
-                    var.insert(key, QString::fromStdString(i->second.get<std::string>()));
-                }
-            }
             data::parseObject(var, &dto);
             FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
             FeatureList& featureListByGeneIdAndDatasetId =
@@ -338,6 +279,7 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         Q_ASSERT_X(parameters.contains(Globals::PARAM_FILE),
                    "DataProxy", "Tissue must include file parameter!");
         const QString fileid = qvariant_cast<QString>(parameters.value(Globals::PARAM_FILE));
+
         DataStore::resourceDeviceType device;
         Q_ASSERT(!fileid.isNull() && !fileid.isEmpty());
         device = m_dataStore.accessResource(fileid,
@@ -349,11 +291,15 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const bool dataOpen = device->open(QIODevice::WriteOnly);
         if (!dataOpen) {
             qDebug() << QString("[DataProxy] Unable to open image fileid: %1").arg(fileid);
+            return false;
         }
+
         const qint64 dataWrite = device->write(reply->getRaw());
         if (dataWrite <= 0) {
             qDebug() << QString("[DataProxy] Unable to write data to fileid: %1").arg(fileid);
+            return false;
         }
+
         device->close();
         dirty = true;
         break;
@@ -370,8 +316,6 @@ bool DataProxy::parseData(NetworkReply *reply, const QVariantMap& parameters)
         const QVariant root = doc.toVariant();
         data::parseObject(root, &dto);
         m_minVersion = dto.minVersionAsNumber();
-        qDebug() << "[stVi] Check min version min = "
-                 << dto.minSupportedVersion() << " current = " << Globals::VERSION;
         dirty = true;
         break;
     }
@@ -536,7 +480,8 @@ async::DataRequest DataProxy::loadDatasets()
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(DatasetDataType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -551,12 +496,13 @@ async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
     // intermediary dto object
     DatasetDTO dto(*dataset);
     NetworkCommand *cmd =
-            RESTCommandFactory::updateDatsetByDatasetId(m_configurationManager, dataset->id());
+            RESTCommandFactory::updateDatasetByDatasetId(m_configurationManager, dataset->id());
     //append json data
     cmd->setJsonQuery(dto.toJson());
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(None)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -564,6 +510,13 @@ async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
     cmd->deleteLater();
     //return the request
     return createRequest(reply);
+}
+
+async::DataRequest DataProxy::removeDataset(const QString& datasetId)
+{
+    //TODO under work
+    Q_UNUSED(datasetId)
+    return async::DataRequest(async::DataRequest::CodeError);
 }
 
 bool DataProxy::hasGenes(const QString& datasetId) const
@@ -583,7 +536,8 @@ async::DataRequest DataProxy::loadGenesByDatasetId(const QString& datasetId)
             RESTCommandFactory::getGenesByDatasetId(m_configurationManager, datasetId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneDataType)));
     parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));
@@ -611,7 +565,8 @@ async::DataRequest DataProxy::loadChipById(const QString& chipId)
             RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(ChipDataType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -638,7 +593,8 @@ async::DataRequest DataProxy::loadFeatureByDatasetId(const QString& datasetId)
             RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(FeatureDataType)));
     parameters.insert(Globals::PARAM_DATASET, QVariant(datasetId));
@@ -666,7 +622,8 @@ async::DataRequest DataProxy::loadImageAlignmentById(const QString& imageAlignme
             RESTCommandFactory::getImageAlignmentById(m_configurationManager, imageAlignmentId);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(ImageAlignmentDataType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -684,7 +641,8 @@ async::DataRequest DataProxy::loadUser()
     NetworkCommand *cmd = RESTCommandFactory::getUser(m_configurationManager);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(UserType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -702,7 +660,8 @@ async::DataRequest DataProxy::loadGeneSelections()
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -717,12 +676,13 @@ async::DataRequest DataProxy::updateGeneSelection(GeneSelectionPtr geneSelection
     // intermediary dto object
     GeneSelectionDTO dto(*geneSelection);
     NetworkCommand *cmd =
-            RESTCommandFactory::upateSelectionBySelectionById(m_configurationManager, geneSelection->id());
+            RESTCommandFactory::upateSelectionBySelectionId(m_configurationManager, geneSelection->id());
     //append json data
     cmd->setJsonQuery(dto.toJson());
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(None)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -741,7 +701,8 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     cmd->setJsonQuery(dto.toJson());
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(GeneSelectionDataType)));
     NetworkReply *reply = m_networkManager->httpRequest(cmd, QVariant(parameters));
@@ -749,6 +710,13 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     cmd->deleteLater();
     //return the request
     return createRequest(reply);
+}
+
+async::DataRequest DataProxy::removeSelection(const QString &selectionId)
+{
+    //TODO under work
+    Q_UNUSED(selectionId)
+    return async::DataRequest(async::DataRequest::CodeError);
 }
 
 bool DataProxy::hasCellTissue(const QString& name) const
@@ -760,16 +728,15 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
 {
     //check if present already (cell tissue file should always be the same)
     if (hasCellTissue(name)) {
-        async::DataRequest request;
-        request.return_code(async::DataRequest::CodePresent);
-        return request;
+        return async::DataRequest(async::DataRequest::CodePresent);
     }
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
     //append access token
     const QUuid accessToken = m_authorizationManager->getAccessToken();
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"
+    //QUuid encloses its uuids in "{}"
+    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     QVariantMap parameters;
     parameters.insert(Globals::PARAM_TYPE, QVariant(static_cast<int>(TissueDataType)));
     parameters.insert(Globals::PARAM_FILE, QVariant(name));
@@ -824,7 +791,8 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply)
                 static_cast<NetworkReply::ReturnCode>(reply->return_code());
 
         if (returnCode == NetworkReply::CodeError) {
-            //TODO use reply->getError() text message instead
+            //strange..the reply does not have registered errors but yet
+            //the returned code is ERROR
             QSharedPointer<Error>
                     error(new Error("Data Error", "There was an error downloading data", nullptr));
             request.addError(error);

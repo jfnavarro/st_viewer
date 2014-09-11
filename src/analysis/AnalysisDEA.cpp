@@ -7,8 +7,8 @@
 #include <cmath>
 #include "math/Common.h"
 
-AnalysisDEA::AnalysisDEA(QWidget *parent) :
-    QWidget(parent),
+AnalysisDEA::AnalysisDEA(QWidget *parent, Qt::WindowFlags f) :
+    QDialog(parent, f),
     m_ui(new Ui::ddaWidget),
     m_customPlot(nullptr),
     m_meanSelectionA(0.0),
@@ -22,6 +22,8 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
     m_countA(0),
     m_countB(0)
 {
+    setModal(true);
+
     m_ui->setupUi(this);
 
     // creating plotting object
@@ -30,17 +32,6 @@ AnalysisDEA::AnalysisDEA(QWidget *parent) :
     //make connections
     connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(saveToPDF()));
-
-    // Patrik Stahl experienced a bug:
-    // Patrik quote: The right column “Reads sel B” is completely empty for me when I run the second DEA.
-    //
-    // Erik Sjolund writing again: The bug seems to happen only in Mac. It seems you need to press the
-    // close (x) button in the window frame of the first D.E.A window to trigger the bug.
-    // Pressing "cancel" seems to not trigger the bug.
-    // Erik Sjolund saw the bug happening once at Mac. Trying the day after the bug was not being seen.
-    //
-    // This is a workaround for the bug. It just removes the x close button in the window frame.
-    this->setWindowFlags(this->windowFlags() & ~Qt::WindowCloseButtonHint);
 }
 
 AnalysisDEA::~AnalysisDEA()
@@ -86,7 +77,6 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
 
     // clear the table
     m_ui->tableWidget->clear();
-    m_ui->tableWidget->clearContents();
     // initialize columns and headers of the table
     m_ui->tableWidget->setColumnCount(3);
     QStringList headers;
@@ -148,8 +138,8 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
         // update lists of values
         m_valuesSelectionA.push_back(normalizedValueSelection1);
         m_valuesSelectionB.push_back(normalizedValueSelection2);
-        m_loggedValuesSelectionA.push_back(std::log10(normalizedValueSelection1));
-        m_loggedValuesSelectionB.push_back(std::log10(normalizedValueSelection2));
+        //m_loggedValuesSelectionA.push_back(std::log10(normalizedValueSelection1));
+        //m_loggedValuesSelectionB.push_back(std::log10(normalizedValueSelection2));
 
         //update temp variables to compute stats
         valuesA.append(valueSelection1);
@@ -165,7 +155,7 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     m_stdDevSelectionA = STMath::std_dev(valuesA);
     m_stdDevSelectionB = STMath::std_dev(valuesB);
     //for correlation use normalized logged values
-    m_correlation = STMath::pearson(m_loggedValuesSelectionA, m_loggedValuesSelectionB);
+    m_correlation = STMath::pearson(m_valuesSelectionA, m_valuesSelectionB);
 }
 
 void AnalysisDEA::plot()
@@ -216,9 +206,6 @@ void AnalysisDEA::plot()
     m_ui->genesOnlyB->setText(QString::number(m_countB));
     m_ui->selectionA->setText(m_selectionA);
     m_ui->selectionB->setText(m_selectionB);
-
-    //show the widget
-    show();
 }
 
 void AnalysisDEA::saveToPDF()
@@ -229,11 +216,6 @@ void AnalysisDEA::saveToPDF()
     // early out
     if (filename.isEmpty()) {
         return;
-    }
-    // append default extension
-    QRegExp regex("^.*\\.(png)$", Qt::CaseInsensitive);
-    if (!regex.exactMatch(filename)) {
-        filename.append(".png");
     }
 
     //TODO add most DEA genes and stats (use QPrinter)

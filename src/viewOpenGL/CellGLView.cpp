@@ -447,7 +447,6 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
             // Set the new selection area
             SelectionEvent::SelectionMode mode =
                     SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-            qDebug() << "Selection mode = " << mode;
             SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);

@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/picojson)
-
 set(LIBRARY_ARG_INCLUDES
     DataStore.h
     DataProxy.h

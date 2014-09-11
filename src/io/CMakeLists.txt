@@ -1,8 +1,10 @@
 set(LIBRARY_ARG_INCLUDES
     GeneExporter.h
+    FeatureExporter.h
 )
 set(LIBRARY_ARG_SOURCES
     GeneExporter.cpp
+    FeatureExporter.cpp
 )
 set(LIBRARY_ARG_UI_FILES)
 ST_LIBRARY()

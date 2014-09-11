@@ -49,12 +49,13 @@ private slots:
 
 private:
 
+    void clearControls();
+
     QSortFilterProxyModel *selectionsProxyModel();
     ExperimentsItemModel *selectionsModel();
 
     std::unique_ptr<Ui::Experiments> m_ui;
     QPointer<DataProxy> m_dataProxy;
-    QPointer<AnalysisDEA> m_analysisDEA;
 
     Q_DISABLE_COPY(ExperimentPage)
 };

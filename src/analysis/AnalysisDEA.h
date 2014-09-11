@@ -40,14 +40,14 @@ public:
 
 //TODO move the computation of DDA from this class
 //TODO no need to have all those member variables
-class AnalysisDEA : public QWidget
+class AnalysisDEA : public QDialog
 {
     Q_OBJECT
 
 public:
 
-    explicit AnalysisDEA(QWidget *parent = 0);
-    ~AnalysisDEA();
+    explicit AnalysisDEA(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    virtual ~AnalysisDEA();
 
     void compute(const GeneSelection& selObjectA,
                  const GeneSelection& selObjectB);
@@ -61,7 +61,7 @@ protected slots:
 
 private:
 
-    std::unique_ptr< Ui::ddaWidget > m_ui;
+    std::unique_ptr<Ui::ddaWidget> m_ui;
     QCustomPlot *m_customPlot;
     QVector<qreal> m_valuesSelectionA;
     QVector<qreal> m_valuesSelectionB;

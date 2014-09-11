@@ -50,7 +50,7 @@ enum Anchor {
 static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
 static const int GENE_THRESHOLD_MAX = 100;
 static const int GENE_THRESHOLD_MIN = 1;
-static const qreal GENE_SIZE_DEFAULT = 1.0;
+static const qreal GENE_SIZE_DEFAULT = 0.5;
 static const qreal GENE_INTENSITY_DEFAULT = 1.0;
 static const qreal GENE_SHINNE_DEFAULT = 1.0;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;

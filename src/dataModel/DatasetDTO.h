@@ -17,6 +17,7 @@
 #include <QJsonObject>
 
 #include "dataModel/Dataset.h"
+#include "utils/SerializationFunctions.h"
 
 // DTOs (Data transform objects) provides the bridge between the client
 // specific data model objects and the server data. This is accomplished by
@@ -152,32 +153,6 @@ public:
     Dataset& dataset() { return m_dataset; }
 
 private:
-
-    //TODO duplicated in other DTOs move to Utils class
-    template<typename N>
-    const QVariantList serializeVector(const QVector<N>& unserializedVector) const
-    {
-        QVariantList newList;
-        foreach(const N &item, unserializedVector.toList()) {
-            newList << QVariant::fromValue(item);
-        }
-        return newList;
-    }
-
-    //TODO duplicated in other DTOs move to Utils class
-    template<typename N>
-    const QVector<N> unserializeVector(const QVariantList& serializedVector) const
-    {
-        // unserialize data
-        QVector<N> values;
-        QVariantList::const_iterator it;
-        QVariantList::const_iterator end = serializedVector.end();
-        for (it = serializedVector.begin(); it != end; ++it) {
-            values.push_back(it->value<N>());
-        }
-        return values;
-    }
-
 
     Dataset m_dataset;
 };

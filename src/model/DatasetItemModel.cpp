@@ -130,14 +130,7 @@ void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
 {
     beginResetModel();
     m_datasets_reference.clear();
-    //std::copy_if (datasetList.begin(), datasetList.end(), m_datasets_reference.begin(),
-    //              [ ] (DataProxy::DatasetPtr dataset) { return dataset->enabled(); } );
-    foreach(DataProxy::DatasetPtr dataset, datasetList) {
-        if (dataset->enabled()) {
-            m_datasets_reference.push_back(dataset);
-        }
-    }
-    //m_datasets_reference = datasetList;
+    m_datasets_reference = datasetList;
     endResetModel();
 }
 
