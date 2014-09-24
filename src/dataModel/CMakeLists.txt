@@ -10,12 +10,13 @@ set(LIBRARY_ARG_INCLUDES
     DatasetDTO.h
     ErrorDTO.h
     FeatureDTO.h
-    GeneDTO.h
     GeneSelectionDTO.h
     ImageAlignmentDTO.h
     OAuth2TokenDTO.h
     UserDTO.h
     MinVersionDTO.h
+    LastModifiedDTO.h
+    WrappedFileDTO.h
 )
 
 set(LIBRARY_ARG_SOURCES

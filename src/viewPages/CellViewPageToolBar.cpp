@@ -96,6 +96,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_actionSelection_showSelectionDialog(nullptr),
     m_actionZoom_zoomIn(nullptr),
     m_actionZoom_zoomOut(nullptr),
+    m_actionFDH(nullptr),
     m_menu_genePlotter(nullptr),
     m_actionShow_showGrid(nullptr),
     m_actionShow_showGenes(nullptr),
@@ -142,6 +143,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addSeparator();
     addAction(m_actionZoom_zoomIn);
     addAction(m_actionZoom_zoomOut);
+    addSeparator();
+    addAction(m_actionFDH);
     addSeparator();
     addAction(m_actionActivateSelectionMode);
     addAction(m_actionSelection_showSelectionDialog);
@@ -307,6 +310,7 @@ void CellViewPageToolBar::setEnableButtons(bool enable)
     m_actionSelection_showSelectionDialog->setEnabled(enable);
     m_actionZoom_zoomIn->setEnabled(enable);
     m_actionZoom_zoomOut->setEnabled(enable);
+    m_actionFDH->setEnabled(enable);
     m_menu_genePlotter->setEnabled(enable);
     m_menu_cellTissue->setEnabled(enable);
 }
@@ -383,21 +387,32 @@ void CellViewPageToolBar::createActions()
             new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
     setToolTipAndStatusTip(tr("Decreases the zoom level in the cell tissue"), m_actionZoom_zoomOut);
 
+    // FDH Widget
+    m_actionFDH =
+            new QAction(QIcon(QStringLiteral(":/images/histogram.png")), tr("FDH"), this);
+    setToolTipAndStatusTip(tr("Shows/hides the Features Distribution Histogram"), m_actionFDH);
+    m_actionFDH->setCheckable(true);
+
     //cell tissue controls
     m_actionShow_cellTissueBlue =
-            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Load Blue Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")),
+                        tr("Load Blue Cell Tissue"), this);
     m_actionShow_cellTissueBlue->setCheckable(true);
     m_actionShow_cellTissueRed =
-            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")), tr("Load Red Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")),
+                        tr("Load Red Cell Tissue"), this);
     m_actionShow_cellTissueRed->setCheckable(true);
     m_actionShow_showCellTissue =
-            new QAction(QIcon(QStringLiteral(":/images/biology.png")), tr("Show Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/biology.png")),
+                        tr("Show Cell Tissue"), this);
     m_actionShow_showCellTissue->setCheckable(true);
 
     // navigation push buttons
-    createPushButton(tr("Back"), tr("Go back to Dataset Page"), QIcon(QStringLiteral(":/images/back.png")),
+    createPushButton(tr("Back"), tr("Go back to Dataset Page"),
+                     QIcon(QStringLiteral(":/images/back.png")),
                      this, &m_actionNavigate_goBack, &m_buttonNavigate_goBack);
-    createPushButton(tr("Next"), tr("Go to Analysis Page"), QIcon(QStringLiteral(":/images/next.png")),
+    createPushButton(tr("Next"), tr("Go to Analysis Page"),
+                     QIcon(QStringLiteral(":/images/next.png")),
                      this, &m_actionNavigate_goNext, &m_buttonNavigate_goNext);
 
     //color modes
@@ -409,7 +424,8 @@ void CellViewPageToolBar::createActions()
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
     m_actionShow_toggleDynamicRange =
-            new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")), tr("Dynamic Range Mode"), this);
+            new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")),
+                        tr("Dynamic Range Mode"), this);
     setToolTipAndStatusTip(
             tr("Color mode where the features tranparency is related to the level of expression"),
             m_actionShow_toggleDynamicRange);
@@ -485,20 +501,23 @@ void CellViewPageToolBar::createActions()
 
     //save print
     m_actionSave_save =
-            new QAction(QIcon(QStringLiteral(":/images/filesave.png")), tr("Save Cell Tissue"),  this);
+            new QAction(QIcon(QStringLiteral(":/images/filesave.png")),
+                        tr("Save Cell Tissue"),  this);
 
     setToolTipAndStatusTip(
             tr("Save the cell tissue canvas into a file"),
             m_actionSave_save);
     m_actionSave_print =
-            new QAction(QIcon(QStringLiteral(":/images/printer.png")), tr("Print Cell Tissue"), this);
+            new QAction(QIcon(QStringLiteral(":/images/printer.png")),
+                        tr("Print Cell Tissue"), this);
     setToolTipAndStatusTip(
             tr("Print the cell tissue canvas"),
             m_actionSave_print);
 
     //selection actions
     m_actionActivateSelectionMode =
-            new QAction(QIcon(QStringLiteral(":/images/selection.png")), tr("Activate Selection Mode"), this);
+            new QAction(QIcon(QStringLiteral(":/images/selection.png")),
+                        tr("Activate Selection Mode"), this);
     m_actionActivateSelectionMode->setCheckable(true);
     setToolTipAndStatusTip(
             tr("Activates/desactivates the selection mode"),
@@ -511,12 +530,15 @@ void CellViewPageToolBar::createActions()
 
     // color dialogs
     m_actionColor_selectColorGrid =
-            new QAction(QIcon(QStringLiteral(":/images/edit_color.png")), tr("Choose Color Grid"), this);
+            new QAction(QIcon(QStringLiteral(":/images/edit_color.png")),
+                        tr("Choose Color Grid"), this);
 
     m_actionRotation_rotateLeft =
-            new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")), tr("Rotate &left"), this);
+            new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")),
+                        tr("Rotate &left"), this);
     m_actionRotation_rotateRight =
-            new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")), tr("Rotate &right"), this);
+            new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")),
+                        tr("Rotate &right"), this);
 }
 
 void CellViewPageToolBar::createConnections()

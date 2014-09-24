@@ -10,12 +10,18 @@
 
 #include <QString>
 #include <QColor>
+#include <QSharedPointer>
+
+#include "Gene.h"
 
 // Data model class to store feature data.
 class Feature
 {
 
 public:
+
+    // TODO duplicated in DataProxy
+    typedef QSharedPointer<Gene> GenePtr;
 
     Feature();
     explicit Feature(const Feature &other);
@@ -44,6 +50,10 @@ public:
     const QColor color() const;
     void color(const QColor& color);
 
+    //reference to the Gene object just for convenience
+    GenePtr geneObject() const;
+    void geneObject(GenePtr gene);
+
 protected:
 
     QString m_id;
@@ -56,6 +66,7 @@ protected:
 
     //extended
     QColor m_color;
+    GenePtr m_geneObject;
 };
 
 #endif // FEATURE_H

@@ -33,10 +33,9 @@ public:
         Name = 0,
         Dataset = 1,
         Comment = 2,
-        Type = 3,
-        NGenes = 4,
-        Created = 5,
-        LastModified = 6
+        NGenes = 3,
+        Created = 4,
+        LastModified = 5
     };
 
     explicit ExperimentsItemModel(QObject* parent = 0);

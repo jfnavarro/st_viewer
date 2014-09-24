@@ -87,7 +87,7 @@ public:
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
 
-    //TODO transform this to obtain fields dynamically using the meta_properties
+    //TODO transform this to obtain fields and their types dynamically using the meta_properties
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
@@ -101,7 +101,6 @@ public:
             geneHit.append(item.name);
             //TODO temp hack coz they are wronly defined as strings in the server
             geneHit.append(QString::number(item.reads));
-            //TODO not storing normalized reads for now
             geneHit.append(QString::number(item.count));
             geneHit.append(QString::number(item.pixeIntensity));
             geneHits.append(geneHit);
@@ -144,7 +143,7 @@ private:
         return newList;
     }
 
-    //TODO this could be done automatically in serializeVector() we just need to register
+    //TODO this could be done automatically in unserializeVector() we just need to register
     //the selection metatype conversion
     const GeneSelection::selectedItemsList
     unserializeSelectionVector(const QVariantList &serializedVector) const
@@ -159,7 +158,6 @@ private:
             Q_ASSERT(elementList.size() >= 4);
             const QString name = elementList.at(0).toString();
             const qreal reads = elementList.at(1).toDouble();
-            //TODO not storing normalized reads for now
             const int count = elementList.at(2).toInt();
             const qreal pixelIntensity = elementList.at(3).toDouble();
             SelectionType selection(name, reads, 0.0, pixelIntensity, count);

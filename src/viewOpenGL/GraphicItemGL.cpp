@@ -38,8 +38,7 @@ void GraphicItemGL::setVisualOption(GraphicItemGL::VisualOption visualOption, bo
 {
     if (value) {
         m_visualOptions |= visualOption;
-    }
-    else {
+    } else {
         m_visualOptions &= ~visualOption;
     }
     emit updated();
@@ -182,6 +181,7 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter 
     const QPointF str = rect.topRight();
     const QPointF sbr = rect.bottomRight();
     const QPointF sbl = rect.bottomLeft();
+
     QVector2DArray vertices;
     vertices.append(stl.x(), stl.y());
     vertices.append(str.x(), str.y());

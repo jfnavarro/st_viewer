@@ -35,14 +35,8 @@ public:
     static NetworkCommand* removeDatasetByDatasetId(const Configuration &configuration,
                                                     const QString& datasetId);
 
-    static NetworkCommand* getGenesByDatasetId(const Configuration& configuration,
-                                               const QString& datasetId);
-
     static NetworkCommand* getFeatureByDatasetId(const Configuration &configuration,
                                                  const QString& datasetId);
-    static NetworkCommand* getFeatureByDatasetIdAndGene(const Configuration& configuration,
-                                                        const QString& datasetId,
-                                                        const QString& gene);
 
     static NetworkCommand* getImageAlignmentById(const Configuration &configuration,
                                                  const QString& imageAlignmentId);
@@ -62,6 +56,19 @@ public:
     //NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion(const Configuration& configuration);
 
+    // last modified end points
+    static NetworkCommand* getImageLastModified(const Configuration& configuration,
+                                                const QString& imageFileName);
+    static NetworkCommand* getDatasetLastModified(const Configuration& configuration,
+                                                  const QString& datasetId);
+    static NetworkCommand* getChipLastModified(const Configuration& configuration,
+                                               const QString& chipId);
+    static NetworkCommand* getFeaturesLastModified(const Configuration& configuration,
+                                                   const QString& featuresFileName);
+    static NetworkCommand* getImageAlignmentLastModified(const Configuration& configuration,
+                                                         const QString& imageAlignmentId);
+    //static NetworkCommand* getSelectionLastModified(const Configuration& configuration,
+    //                                                const QString& selectionId);
 };
 
 #endif // RESTMANAGER_H //

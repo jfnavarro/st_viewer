@@ -10,48 +10,74 @@
 #include <QImage>
 #include <QColor>
 #include <QColor4ub>
-#include "utils/Utils.h"
 
-void Heatmap::createHeatMapImage(QImage &image, const SpectrumMode mode,
-                                 int lowerbound, int upperbound)
+void Heatmap::createHeatMapImage(QImage &image,
+                                 const int lowerbound,
+                                 const int upperbound,
+                                 const ColorMode colorMode,
+                                 const SpectrumMode mode)
 {
-    const int h = image.height();
-    const int w = image.width();
-    for (int y = 0; y < h; ++y) {
-        //I want to get the color of each line of the image as the heatmap
-        //color normalized to the lower and upper bound
-        const qreal nh = STMath::norm<int,qreal>(h - y - 1, lowerbound, upperbound);
-        const qreal nw = Heatmap::generateHeatMapWavelength(nh, mode);
-        const QColor4ub color = Heatmap::createHeatMapColor(nw);
+    const int height = image.height();
+    const int width = image.width();
+
+    for (int y = 0; y < height; ++y) {
+        //get the color of each line of the image as the heatmap
+        //color normalized to the lower and upper bound of the image
+        QColor4ub color;
+        const int value = height - y - 1;
+        if (colorMode == SpectrumRaibow) {
+            const qreal normalizedValue = STMath::norm<qreal,int>(value, lowerbound, upperbound);
+            const qreal adjusted = Heatmap::normalizeValueSpectrumFunction(normalizedValue, mode);
+            color = Heatmap::createHeatMapWaveLenghtColor(adjusted);
+        } else {
+            const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
+            color = Heatmap::createHeatMapLinearColor(normalizedValue, lowerbound, upperbound);
+        }
+
         const QRgb rgb_color = color.toColor().rgb();
-        for(int x = 0; x < w; ++x) {
+        for(int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
         }
     }
 }
 
-QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
+//simple function that computes color from a min-max range
+//using linear Interpolation
+QColor4ub Heatmap::createHeatMapLinearColor(const int value,
+                                            const int min,
+                                            const int max)
 {
-    static const qreal gamma = 0.8f;
+    const qreal halfmax = (min + max) / 2;
+    const int blue = std::max(0.0, 255 * (1 - (value / halfmax)));
+    const int red = std::max(0.0, 255 * ((value / halfmax) - 1));
+    const int green = 255 - blue - red;
+    return QColor4ub::fromRgb(red, green, blue);
+}
 
-    // clamp input value
-    const qreal cwavelength = STMath::clamp(wavelength, 380.0, 780.0);
+//simple function that computes color from a value
+//using the human wave lenght spectra
+QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
+{
+    static const qreal gamma = 0.8;
+
+    // denormalize input to range (380,780)
+    const qreal cwavelength = STMath::denorm(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
-    qreal red;
-    qreal green;
-    qreal blue;
+    qreal red = 0.0;
+    qreal green = 0.0;
+    qreal blue = 0.0;
 
     if (380.0 <= cwavelength && cwavelength < 440.0) {
-        red = -(cwavelength - 440.0) / (440.0f - 380.0);
+        red = -(cwavelength - 440.0) / (440.0 - 380.0);
         green = 0.0;
         blue = 1.0;
     } else if (440.0 <= cwavelength && cwavelength < 490.0) {
         red = 0.0;
         green = (cwavelength - 440.0) / (490.0 - 440.0);
         blue = 1.0;
-    } else if (490.0f <= cwavelength && cwavelength < 510.0f) {
-        red = 0.0f;
+    } else if (490.0 <= cwavelength && cwavelength < 510.0) {
+        red = 0.0;
         green = 1.0;
         blue = -(cwavelength - 510.0) / (510.0 - 490.0);
     } else if (510.0 <= cwavelength && cwavelength < 580.0) {
@@ -66,22 +92,16 @@ QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
         red = 1.0;
         green = 0.0;
         blue = 0.0;
-    } else {
-        red = 0.0;
-        green = 0.0;
-        blue = 0.0;
     }
 
     // Let the intensity fall off near the vision limits
-    qreal factor;
+    qreal factor = 0.3;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {
         factor = 1.0;
     } else if (700.0 <= cwavelength && cwavelength <= 780.0) {
         factor = 0.3 + 0.7 * (780.0 - cwavelength) / (780.0 - 700.0);
-    } else {
-        factor = 0.3f;
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
@@ -93,22 +113,25 @@ QColor4ub Heatmap::createHeatMapColor(const qreal wavelength)
     return QColor4ub::fromRgbF(red, green, blue, 1.0);
 }
 
-qreal Heatmap::generateHeatMapWavelength(const qreal t, const SpectrumMode mode)
+//normalizes a value to wave lenghts range using different modes (to be used
+//with the function above)
+qreal Heatmap::normalizeValueSpectrumFunction(const qreal value, const SpectrumMode mode)
 {
-    // assert normalized value
-    qreal nt = STMath::clamp(t, 0.0, 1.0);
+    qreal transformedValue = value;
 
     switch (mode) {
     case Heatmap::SpectrumLog:
-        nt = qLn(nt + 1.0) * 1.442695; //NOTE [0,1] -> [0,1]
+        //value = qLn(value + 1.0) * 1.442695;
+        transformedValue = std::log(value + 1.0);
         break;
     case Heatmap::SpectrumExp:
-        nt = qSqrt(nt);
+        transformedValue = qSqrt(value);
         break;
     case Heatmap::SpectrumLinear:
     default:
         // do nothing
         break;
     }
-    return STMath::denorm(nt, 380.0, 780.0);
+
+    return value;
 }

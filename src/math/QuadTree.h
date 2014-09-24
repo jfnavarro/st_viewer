@@ -184,7 +184,7 @@ void QuadTree<T, N>::Bucket::select(const QPointF &p, PointItem &item,
     // test and add individual item
     const typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if ( STMath::qFuzzyEqual(p, data[i].first) ) {
+        if (STMath::qFuzzyEqual(p, data[i].first)) {
             item = data[i];
         }
     }
@@ -202,8 +202,9 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     // if non-leaf bucket
     if (quads[0] >= 0) {
         const QPointF middle_point = aabb.middle();
-        const QVector2D middle_vector( p.x() - middle_point.x() ,  p.y() - middle_point.y() );
-        const unsigned idx = ((middle_vector.x() < 0.0) ? 1u : 0u) + ((middle_vector.y() < 0.0) ? 2u : 0u);
+        const QVector2D middle_vector(p.x() - middle_point.x(), p.y() - middle_point.y());
+        const unsigned idx = ((middle_vector.x() < 0.0) ? 1u : 0u)
+                + ((middle_vector.y() < 0.0) ? 2u : 0u);
         const unsigned q = table[idx];
         return quads[q];
     }
@@ -211,13 +212,13 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     //DEBUG force p to be unique to avoid inf recursion!
     typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if ( STMath::qFuzzyEqual(data[i].first, p) ) {
+        if (STMath::qFuzzyEqual(data[i].first, p)) {
             return INSERT_ERROR_NONUNIQUE;
         }
     }
 
     // try to insert
-    if ( size == POINT_LIST_LIMIT ) {
+    if (size == POINT_LIST_LIMIT) {
         return INSERT_ERROR_FULL;
     }
     else {
@@ -391,11 +392,10 @@ void QuadTree<T, N>::smash(const int idx)
     m_data.push_back(Bucket(m_data[idx].aabb.split(QuadTreeAABB::Q3))); // [*]
 
     // link parent (assumes allocation is sequential)
-    const typename Bucket::QuadArrayType newIdxList = { {
-                                                            newIdxHead + 0,
-                                                            newIdxHead + 1,
-                                                            newIdxHead + 2,
-                                                            newIdxHead + 3 } };
+    const typename Bucket::QuadArrayType newIdxList = {{newIdxHead + 0,
+                                                        newIdxHead + 1,
+                                                        newIdxHead + 2,
+                                                        newIdxHead + 3}};
     std::copy(newIdxList.begin(), newIdxList.end(), m_data[idx].quads.begin());
 
     // reinsert data

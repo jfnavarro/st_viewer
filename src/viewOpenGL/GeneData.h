@@ -20,6 +20,8 @@ class QCustomDataArray;
 // OpenGL buffers are configured automatically
 // the principle is that the data points are stored
 // as triangles but they are quads
+
+//TODO selected and value arrays should be INT (next Qt3D API will allow that)
 class GeneData : public QGeometryData
 {
 
@@ -27,7 +29,7 @@ public:
 
     //ref count represents how many times a
     //certain position(feature) is being shown
-    typedef QArray<qreal> refCountType;
+    typedef QArray<int> refCountType;
 
     GeneData();
     virtual ~GeneData();
@@ -35,25 +37,31 @@ public:
     void clearData();
 
     //adds a new geometry to the arrays
-    int addQuad(qreal x, qreal y, qreal size = 1.0, QColor4ub color = Qt::white);
+    int addQuad(const float x,
+                const float y,
+                const float size = 1.0,
+                const QColor4ub color = Qt::white);
 
     //update geometry
-    void updateQuadSize(const int index, qreal x, qreal y, qreal size);
-    void updateQuadColor(const int index, QColor4ub newcolor);
-    void updateQuadSelected(const int index, bool selected);
-    void updateQuadRefCount(const int index, float refcount);
-    void updateQuadValue(const int index, float value);
+    void updateQuadSize(const int index,
+                        const qreal x,
+                        const qreal y,
+                        const qreal size);
+    void updateQuadColor(const int index, const QColor4ub newcolor);
+    void updateQuadSelected(const int index, const bool selected);
+    void updateQuadRefCount(const int index, const int refcount);
+    void updateQuadValue(const int index, const float value);
 
     //some getters
     QColor4ub quadColor(const int index) const;
     bool quadSelected(const int index) const;
-    float quadRefCount(const int index) const;
+    int quadRefCount(const int index) const;
     float quadValue(const int index) const;
 
     //reset functions for custom arrays
     void resetRefCount();
     void resetValues();
-    void resetSelection(bool selected);
+    void resetSelection(const bool selected);
     //wrapper of the three above to speed up
     void resetRefCountSelectAndValues();
 

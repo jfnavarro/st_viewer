@@ -103,7 +103,7 @@ void ExperimentPage::slotLoadSelections()
         showError(tr("Data Error"), tr("Error loading the selections"));
     } else {
         // refresh gene selections on the model
-        selectionsModel()->loadSelectedGenes(m_dataProxy->getGeneSelections());
+        selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
     }
 
     clearControls();
@@ -180,6 +180,13 @@ void ExperimentPage::slotExportSelection()
         return;
     }
 
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        showError(tr("Export Genes Selection"), tr("The directory is not writable"));
+        return;
+    }
+
     //create file
     QFile textFile(filename);
 
@@ -192,7 +199,7 @@ void ExperimentPage::slotExportSelection()
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
         exporter.exportItem(textFile, selectionItem->selectedItems());
-        showInfo(tr("Export Gene Selection"), tr("Gene selection was exported successfully"));
+        showInfo(tr("Export Genes Selection"), tr("Genes selection was exported successfully"));
     }
 
     textFile.close();
@@ -239,11 +246,11 @@ void ExperimentPage::slotEditSelection()
                 selectionItem->name(name);
                 selectionItem->comment(comment);
                 //TODO get error from request
-                showError(tr("Update Gene Selection"), tr("Error updating the gene selection"));
+                showError(tr("Update Genes Selection"), tr("Error updating the genes selection"));
                 return;
             }
 
-            showInfo(tr("Update Gene Selection"), tr("Gene Selection updated successfully"));
+            showInfo(tr("Update Genes Selection"), tr("Genes Selection updated successfully"));
 
             //refresh selection list
             slotLoadSelections();

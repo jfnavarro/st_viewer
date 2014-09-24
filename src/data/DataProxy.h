@@ -52,7 +52,6 @@ public:
         ChipDataType,
         DatasetDataType,
         FeatureDataType,
-        GeneDataType,
         ImageAlignmentDataType,
         GeneSelectionDataType,
         UserType,
@@ -79,26 +78,16 @@ public:
     //TODO some of the QMap could be replaced for QHash(std::unordered_map) which
     //is faster
 
-    //TODO at the moment that we are forcing to re-download everything to avoid
-    //race conditions, there is no point to cache in memory all the data for each dataset
-
-    //TODO replace loading everything into memory for using file system cache
+    //TODO replace loading everything into memory for using file system cache, serialization
+    //will save memmory overhead
 
     //TODO too much logic in one class :
-    // split data adquisition and data loading
-
-    //TODO add a local cache (hard drive) for every data type
-
-    //TODO a more advanced system should be implemented that would
-    //consider the meta_data (last_modified)
-    //at the moment we always re-download (genes, features, chips and image alignment) but not
-    //cell tissue images. We should cache everything in memory and/or disk and only re-download
-    //when needed
+    //split data adquisition and data loading
 
     //TODO data adquision could splitted for each entity and
-    //use the observer pattern to account for entities that are linked
+    //use the observer pattern to account for entities that are connected
 
-    //TODO find a way to update DataProxy when data is updated trough the backend ( a timed request )
+    //TODO find a way to update DataProxy when data is updated trough the backend (a timed request)
 
     //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
     //direct references or other type of smart pointer
@@ -113,7 +102,7 @@ public:
     typedef QMap<QString, GeneMap> GeneMapMap;
     //list of features
     typedef QList<FeaturePtr> FeatureList;
-    // map of features hashed by feature id
+    //map of features hashed by feature id
     typedef QMap<QString, FeaturePtr> FeatureMap;
     //features hashed by dataset id
     typedef QMap<QString, FeatureList> FeatureListMap;
@@ -151,15 +140,17 @@ public:
     //move the ownership to stVi
     QPointer<AuthorizationManager> getAuthorizationManager() const;
 
-    //data loaders
+    //DATA LOADERS
+    //data loaders are meant to be used to load data from the network.
+    //they return an object that contains the status of the operation
+    //and the errors if any (the returned object should also allow to
+    //abort the operation TODO)
     // chip
     async::DataRequest loadChipById(const QString& chipId);
     // datasets
     async::DataRequest loadDatasets();
-    // features
+    // features (it also loads the genes)
     async::DataRequest loadFeatureByDatasetId(const QString& datasetId);
-    // genes
-    async::DataRequest loadGenesByDatasetId(const QString& datasetId);
     // image alignment
     async::DataRequest loadImageAlignmentById(const QString& imageAlignmentId);
     // cell tissue figure
@@ -171,57 +162,73 @@ public:
     // min version supported
     async::DataRequest loadMinVersion();
 
-    //data getters
+    //data updaters  (same approach as data loaders)
+    async::DataRequest updateDataset(DatasetPtr dataset);
+    //async::DataRequest updateUser(const User& user);
+    async::DataRequest updateGeneSelection(GeneSelectionPtr geneSelection);
+
+    //data creation (same approach as data loaders)
+    async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
+
+    //data deletion (same approach as data loaders)
+    async::DataRequest removeDataset(const QString& datasetId);
+    async::DataRequest removeSelection(const QString& selectionId);
+
+    //data getters will return the data object/s if they are downloaded
     const DatasetList getDatasetList() const;
     GeneList& getGeneList(const QString& datasetId);
     FeatureList& getFeatureList(const QString& datasetId);
-    GenePtr getGene(const QString& datasetId, const QString& geneName);
-    FeatureList& getGeneFeatureList(const QString& datasetId,
-                                      const QString& geneName);
+    FeatureList& getGeneFeatureList(const QString& datasetId, const QString& geneName);
     DatasetPtr getDatasetById(const QString& datasetId) const;
     ImageAlignmentPtr getImageAlignment(const QString& imageAlignmentId);
     ChipPtr getChip(const QString& chipId);
     UserPtr getUser() const;
     DataStore::resourceDeviceType getFigure(const QString& figureId);
-    const GeneSelectionList getGeneSelections() const;
-    const QString getSelectedDataset() const;
+    const GeneSelectionList getGenesSelectionsList() const;
+    GeneSelectionPtr getGeneSelectionById(const QString& selectionId) const;
     const MinVersionArray getMinVersion() const;
 
     //setters (the currently opened datasets)
     //TODO this function in a way will define the status of the DataProxy
     //this logic should be changed or improved
     void setSelectedDataset(const QString &datasetId) const;
-
-    //updaters
-    async::DataRequest updateDataset(DatasetPtr dataset);
-    //async::DataRequest updateUser(const User& user);
-    async::DataRequest updateGeneSelection(GeneSelectionPtr geneSelection);
-
-    //creation
-    async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
-
-    //deletion
-    async::DataRequest removeDataset(const QString& datasetId);
-    async::DataRequest removeSelection(const QString& selectionId);
+    const QString getSelectedDataset() const;
 
 private:
 
-    //TODO optimize the cache using memory and HD, check for last_modified
-    //use QCache for objects
-    bool hasCellTissue(const QString& name) const;
+    //TODO optimize the cache system, move it to a separate class
+    bool hasCellTissue(const QString& name);
     bool hasImageAlignment(const QString& imageAlignmentId) const;
     bool hasGenes(const QString& datasetId) const;
-    bool hasFeatures(const QString& datasetId) const;
+    bool hasFeatures(const QString& datasetId);
     bool hasChip(const QString& chipId) const;
-    //bool hasDatasets() const;
-    //bool hasDataset(const QString& datasetId) const;
-    //bool hasSelections() const;
+    bool hasDatasets() const;
+    bool hasDataset(const QString& datasetId) const;
+    bool hasGenesSelections() const;
+    bool hasGenesSelection(const QString& selectionId) const;
 
-    // internal functions to parse network reply
-    bool parseData(NetworkReply* reply, const QVariantMap& map);
+    // private data getters for last modified info
+    qlonglong getFeaturesLastModified(const QString& datasetId) const;
+    qlonglong getImageFileLastModified(const QString& figureFile) const;
+    qlonglong getImageAlignmentLastModified(const QString& imageAlignmentId) const;
+    qlonglong getDatasetLastModified(const QString& datasetId) const;
+    qlonglong getChipLastModified(const QString& chipId) const;
+    //const qlonglong getGenesSelectionLastModified(const QString& selectionId) const;
 
-    //internal function to create network requests
+    //internal function to parse all the features and store them.
+    //The input is the datasetId which will be use to retrieve
+    //the raw JSON file from DataStore
+    //returns true if the parsing was correct
+    bool parseFeaturesJSONfile(const QString& datasetId);
+
+    // internal functions to parse network replies for data objects
+    bool parseData(NetworkReply *reply, const QVariantMap& map);
+
+    //internal function to create network requests for data objects (data will be parsed too)
     async::DataRequest createRequest(NetworkReply *reply);
+
+    //internal function to create and parse network request for last_modified items
+    qlonglong createAndParseRequestLastModified(NetworkReply *reply) const;
 
     //helper function to map genes/features to datasets
     GeneMap& getGeneMap(const QString &datasetId);

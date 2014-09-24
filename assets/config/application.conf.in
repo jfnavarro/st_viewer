@@ -18,12 +18,12 @@
         <endpoints>
             <chip>${ENDPOINT}/${APIPATH}/rest/chip</chip>
             <dataset>${ENDPOINT}/${APIPATH}/rest/dataset</dataset>
-            <feature>${ENDPOINT}/${APIPATH}/rest/feature</feature>
-            <gene>${ENDPOINT}/${APIPATH}/rest/gene</gene>
+            <features>${ENDPOINT}/${APIPATH}/rest/features</features>
             <selection>${ENDPOINT}/${APIPATH}/rest/selection</selection>
             <user>${ENDPOINT}/${APIPATH}/rest/account/current/user</user>
             <imagealignment>${ENDPOINT}/${APIPATH}/rest/imagealignment</imagealignment>
             <figure>${ENDPOINT}/${APIPATH}/rest/image/compressed</figure>
+            <figureLastModified>${ENDPOINT}/${APIPATH}/rest/image/lastmodified</figureLastModified>
             <version>${ENDPOINT}/${APIPATH}/rest/versionsupportinfo</version>
         </endpoints>
     </data>

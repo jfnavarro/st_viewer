@@ -52,6 +52,8 @@
 
 #include "ui_cellview.h"
 
+#include "analysis/AnalysisHistogram.h"
+
 namespace {
 bool imageFormatHasWriteSupport(const QString &format) {
     QStringList supportedImageFormats;
@@ -75,11 +77,17 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_colorDialogGrid(nullptr),
       m_toolBar(nullptr),
       m_ui(new Ui::CellView()),
-      m_dataProxy(dataProxy)
+      m_dataProxy(dataProxy),
+      m_FDH(nullptr)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
     m_ui->setupUi(this);
+    Q_ASSERT(m_ui);
+
+    // instantiante FDH
+    m_FDH = new AnalysisHistogram();
+    Q_ASSERT(m_FDH);
 
     // color dialogs
     m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID, this);
@@ -124,6 +132,9 @@ CellViewPage::~CellViewPage()
 
     m_toolBar->deleteLater();
     m_toolBar = nullptr;
+
+    m_FDH->deleteLater();
+    m_FDH = nullptr;
 }
 
 void CellViewPage::onEnter()
@@ -179,6 +190,9 @@ void CellViewPage::onEnter()
                 QPointF(currentChip->x1Border(), currentChip->y1Border()),
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
+
+    // load features into FDH
+    m_FDH->compute(m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset()), min, max);
 
     // clear view data
     m_view->clearData();
@@ -257,25 +271,16 @@ bool CellViewPage::loadData()
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(red)"));
-        return false;
-    }
-
-    //load cell tissue red
-    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
         showError(tr("Data loading Error"), tr("Error loading the cell tissue image(blue)"));
         return false;
     }
 
-    //load genes
-    request = m_dataProxy->loadGenesByDatasetId(dataset->id());
+    //load cell tissue red (no need to download for role USER)
+    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
     if (request.return_code() == async::DataRequest::CodeError
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the genes"));
+        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(red)"));
         return false;
     }
 
@@ -526,10 +531,20 @@ void CellViewPage::createGLConnections()
             m_legend.data(), SLOT(setLowerLimit(int)));
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
+
+    // Features Histogram Distribution
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
+            m_FDH.data(), SLOT(setLowerLimit(int)));
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
+            m_FDH.data(), SLOT(setUpperLimit(int)));
+    connect(m_toolBar->m_actionFDH, SIGNAL(triggered(bool)), this, SLOT(slotSetFDHVisible(bool)));
 }
 
+//TODO consider use future to make it anync
 void CellViewPage::slotLoadCellFigure()
 {
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
     const auto current_user = m_dataProxy->getUser();
     Q_ASSERT(!current_user.isNull());
     const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
@@ -541,10 +556,11 @@ void CellViewPage::slotLoadCellFigure()
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
     const bool loadRedFigure = forceRedFigure && !forceBlueFigure;
 
-    const QString figureid = (loadRedFigure) ? imageAlignment->figureRed() : imageAlignment->figureBlue();
+    const QString figureid = loadRedFigure ? imageAlignment->figureRed()
+                                           : imageAlignment->figureBlue();
     auto device = m_dataProxy->getFigure(figureid);
 
-    //read image (TODO check file is present or corrupted)
+    //read image
     QImageReader reader(device.get());
     const QImage image = reader.read();
 
@@ -562,6 +578,8 @@ void CellViewPage::slotLoadCellFigure()
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_toolBar->m_actionShow_cellTissueRed->setChecked(loadRedFigure);
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void CellViewPage::slotPrintImage()
@@ -608,7 +626,7 @@ void CellViewPage::slotSaveImage()
         // This should never happen because getSaveFileName() automatically
         // adds the suffix from the "Save as type" choosen.
         // But this would be triggered if somehow there is no jpg, png or bmp support
-        // compiled in in the application
+        // compiled in the application
         showError(tr("Save image"), tr("The image format is not supported"));
         return;
     }
@@ -627,6 +645,13 @@ void CellViewPage::slotExportGenesSelection()
                                                     arg(tr("Text Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        showError(tr("Export Genes Selection"), tr("The directory is not writable"));
         return;
     }
 
@@ -654,6 +679,13 @@ void CellViewPage::slotExportFeaturesSelection()
                                                     arg(tr("Text Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        showError(tr("Export Features Selection"), tr("The directory is not writable"));
         return;
     }
 
@@ -723,7 +755,9 @@ void CellViewPage::slotSelectionUpdated()
 void CellViewPage::slotSaveSelection()
 {
     QScopedPointer<CreateSelectionDialog>
-            createSelection(new CreateSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+            createSelection(new CreateSelectionDialog(this,
+                                                      Qt::CustomizeWindowHint
+                                                      | Qt::WindowTitleHint));
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
 
         if (createSelection->getName().isNull() || createSelection->getName().isEmpty()) {
@@ -737,13 +771,15 @@ void CellViewPage::slotSaveSelection()
         GeneSelection selection;
         selection.name(createSelection->getName());
         selection.comment(createSelection->getComment());
-        selection.type("Bounding box");
         selection.enabled(true);
 
-        //add datasets
+        //add dataset ID
         const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
         Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
+
+        //add type of selection
+        selection.type("Rubberband selection");
 
         //add account
         const auto user = m_dataProxy->getUser();
@@ -761,10 +797,17 @@ void CellViewPage::slotSaveSelection()
         if (request.return_code() == async::DataRequest::CodeError
                 || request.return_code() == async::DataRequest::CodeAbort) {
             //TODO get error from request
-            showError(tr("Create Gene Selection"), tr("Error saving the gene selection"));
+            showError(tr("Create Genes Selection"), tr("Error saving the Genes selection"));
         } else {
-            showInfo(tr("Create Gene Selection"), tr("Gene selection created successfully"));
+            showInfo(tr("Create Genes Selection"), tr("Genes selection created successfully"));
         }
 
     }
+}
+
+
+void CellViewPage::slotSetFDHVisible(bool visible)
+{
+    //TODO cancel or exit should Uncheck the button
+    m_FDH->setVisible(visible);
 }

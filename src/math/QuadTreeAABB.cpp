@@ -1,3 +1,10 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
 #include "QuadTreeAABB.h"
 
 QuadTreeAABB::QuadTreeAABB()
@@ -109,24 +116,20 @@ const QPointF QuadTreeAABB::size() const
 
 bool QuadTreeAABB::contains(const QPointF &p) const
 {
-    return ( p.x() >= x && p.x() <= (x + width) ) && (p.y() >= y && p.y() <= (y + height) );
+    return (p.x() >= x && p.x() <= (x + width)) && (p.y() >= y && p.y() <= (y + height) );
 }
 
 bool QuadTreeAABB::contains(const QuadTreeAABB &o) const
 {
-    return (
-                (x <= o.x) && ((o.x + o.width) <= (x + width)) &&
-                (y <= o.y) && ((o.y + o.height) <= (y + height))
-                );
+    return ((x <= o.x) && ((o.x + o.width) <= (x + width)) &&
+            (y <= o.y) && ((o.y + o.height) <= (y + height)));
 }
 
 bool QuadTreeAABB::intersects(const QuadTreeAABB &o) const
 {
     // simple SAT (Separating Axis Theorem) approach
-    return !(
-                (x >= (o.x + o.width)) || (y >= (o.y + o.height)) ||
-                ((x + width) <= o.x) || ((y + height) <= o.y)
-                );
+    return !((x >= (o.x + o.width)) || (y >= (o.y + o.height)) ||
+             ((x + width) <= o.x) || ((y + height) <= o.y));
 }
 
 const QuadTreeAABB QuadTreeAABB::cut(const QuadTreeAABB &o) const

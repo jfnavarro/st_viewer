@@ -62,7 +62,7 @@ void MiniMapGL::setParentSceneTransformations(const QTransform transform)
 QTransform MiniMapGL::localTransform() const
 {
     const QSizeF maxBoundingSize(minimap_height, minimap_width);
-    const QSizeF sceneScaledSize = m_scene.size().scaled(maxBoundingSize, Qt::KeepAspectRatio );
+    const QSizeF sceneScaledSize = m_scene.size().scaled(maxBoundingSize, Qt::KeepAspectRatio);
     const qreal scaleFactor = sceneScaledSize.height() / m_scene.height();
     QTransform transform = QTransform::fromScale(scaleFactor, scaleFactor);
     const QPointF top_left = transform.mapRect(m_scene).topLeft();
@@ -137,7 +137,7 @@ void MiniMapGL::mousePressEvent(QMouseEvent* event)
 void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
-    if (event->button() == Qt::LeftButton ) {
+    if (event->button() == Qt::LeftButton) {
         m_selecting = false;
     }
 }

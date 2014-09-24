@@ -89,7 +89,7 @@ void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 
 }
 
-void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
+void HeatMapLegendGL::setBoundaries(const int min, const int max)
 {
     m_min = min;
     m_max = max;
@@ -99,30 +99,36 @@ void HeatMapLegendGL::setBoundaries(qreal min, qreal max)
     emit updated();
 }
 
-void HeatMapLegendGL::setLowerLimit(int limit)
+void HeatMapLegendGL::setLowerLimit(const int limit)
 {
-    //TODO this formula might not be correct
-    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
-            - Globals::GENE_THRESHOLD_MIN;
-    const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (limit / offlimit) * range;
-    const qreal normalized_limit = adjusted_limit / range;
+    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+                                                        Globals::GENE_THRESHOLD_MIN,
+                                                        Globals::GENE_THRESHOLD_MAX,
+                                                        m_min,
+                                                        m_max);
+
+    const qreal normalized_limit = STMath::norm<qreal,int>(adjusted_limit, m_min, m_max);
+
     m_lower_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
     m_lower_text = QString::number(limit);
+
     generateBarAndTexts();
     emit updated();
 }
 
-void HeatMapLegendGL::setUpperLimit(int limit)
+void HeatMapLegendGL::setUpperLimit(const int limit)
 {
-    //TODO this formula might not be correct
-    static const qreal offlimit = Globals::GENE_THRESHOLD_MAX
-            - Globals::GENE_THRESHOLD_MIN;
-    const qreal range = m_max - m_min;
-    const qreal adjusted_limit =  (limit / offlimit) * range;
-    const qreal normalized_limit = adjusted_limit / range;
+    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+                                                        Globals::GENE_THRESHOLD_MIN,
+                                                        Globals::GENE_THRESHOLD_MAX,
+                                                        m_min,
+                                                        m_max);
+
+    const qreal normalized_limit = STMath::norm<qreal,int>(adjusted_limit, m_min, m_max);
+
     m_upper_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
     m_upper_text = QString::number(limit);
+
     generateBarAndTexts();
     emit updated();
 }
@@ -131,7 +137,9 @@ void HeatMapLegendGL::generateHeatMap()
 {
     // generate image texture
     QImage image(m_min, m_max, QImage::Format_ARGB32);
-    Heatmap::createHeatMapImage(image, Heatmap::SpectrumExp, m_min, m_max);
+    //here we can chose the type of Spectrum (linear, log or exp) and the type
+    //of color mapping (wavelenght or linear interpolation)
+    Heatmap::createHeatMapImage(image, m_min, m_max);
 
     m_texture.cleanupResources();
     m_texture.release();
@@ -149,10 +157,10 @@ void HeatMapLegendGL::generateHeatMap()
     m_texture_vertices.append(legend_x, legend_y + legend_height);
 
     m_texture_cords.clear();
-    m_texture_cords.append(0.0f, 0.0f);
-    m_texture_cords.append(1.0f, 0.0f);
-    m_texture_cords.append(1.0f, 1.0f);
-    m_texture_cords.append(0.0f, 1.0f);
+    m_texture_cords.append(0.0, 0.0);
+    m_texture_cords.append(1.0, 0.0);
+    m_texture_cords.append(1.0, 1.0);
+    m_texture_cords.append(0.0, 1.0);
 
     m_borders.clear();
     m_borders.append(legend_x, legend_y);
@@ -209,10 +217,10 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     vertices.append(x + textRect.x() + textRect.width(), y + metrics.ascent());
 
     QVector2DArray texCoord;
-    texCoord.append(0.0f, 0.0f);
-    texCoord.append(0.0f, 1.0f);
-    texCoord.append(1.0f, 1.0f);
-    texCoord.append(1.0f, 0.0f);
+    texCoord.append(0.0, 0.0);
+    texCoord.append(0.0, 1.0);
+    texCoord.append(1.0, 1.0);
+    texCoord.append(1.0, 0.0);
 
     painter->clearAttributes();
     painter->setStandardEffect(QGL::FlatReplaceTexture2D);

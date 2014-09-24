@@ -146,4 +146,14 @@ void Feature::color(const QColor& color)
     m_color = color;
 }
 
+Feature::GenePtr Feature::geneObject() const
+{
+    Q_ASSERT(!m_geneObject.isNull());
+    return m_geneObject;
+}
 
+void Feature::geneObject(GenePtr gene)
+{
+    Q_ASSERT(!gene.isNull());
+    m_geneObject = gene;
+}

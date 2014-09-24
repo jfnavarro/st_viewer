@@ -33,13 +33,15 @@ const QString Configuration::readSetting(const QString& key) const
     if (m_settings.isNull()) {
         return QString();
     }
+
     m_settings->beginGroup(Globals::SettingsPrefixConfFile);
     const QVariant value = m_settings->value(key);
     m_settings->endGroup();
     if (!value.isValid() || !value.canConvert(QVariant::String)) {
-        qWarning() << "[Configuration] Warning: Invalid configuration key:"
-                   << (Globals::SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER +  key);
+        qDebug() << "[Configuration] Warning: Invalid configuration key:"
+                 << (Globals::SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER +  key);
     }
+
     return value.toString();
 }
 
@@ -98,12 +100,7 @@ const QString Configuration::dataEndpointImageAlingment() const
 
 const QString Configuration::dataEndpointFeatures() const
 {
-   return readSetting(QStringLiteral("data/endpoints/feature"));
-}
-
-const QString Configuration::dataEndpointGenes() const
-{
-   return readSetting(QStringLiteral("data/endpoints/gene"));
+   return readSetting(QStringLiteral("data/endpoints/features"));
 }
 
 const QString Configuration::dataEndpointUsers() const
@@ -119,4 +116,9 @@ const QString Configuration::dataEndpointSelections() const
 const QString Configuration::dataEndpointFigures() const
 {
    return readSetting(QStringLiteral("data/endpoints/figure"));
+}
+
+const QString Configuration::dataEndpointFiguresLastModified() const
+{
+   return readSetting(QStringLiteral("data/endpoints/figureLastModified"));
 }

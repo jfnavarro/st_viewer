@@ -43,6 +43,7 @@ public:
 
     QAction *m_actionZoom_zoomIn;
     QAction *m_actionZoom_zoomOut;
+    QAction *m_actionFDH;
 
     QMenu *m_menu_genePlotter;
     QAction *m_actionShow_showGrid;

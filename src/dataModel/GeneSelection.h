@@ -55,7 +55,6 @@ public:
     const QString datasetId() const;
     const selectedItemsList selectedItems() const;
     selectedItemsList selectedItems();
-    const QString type() const;
     const QString status() const;
     const QVector<QString> oboFoundryTerms() const;
     const QString comment() const;
@@ -63,6 +62,7 @@ public:
     const QString created() const;
     const QString lastModified() const;
     const QString datasetName() const;
+    const QString type() const;
     //return the total sum of reads in the Selection items
     int totalReads() const;
 
@@ -71,7 +71,6 @@ public:
     void userId(const QString& userId);
     void datasetId(const QString& datasetId);
     void selectedItems(const selectedItemsList& selectedItems);
-    void type(const QString& type);
     void status(const QString& status);
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void comment(const QString& comment);
@@ -79,6 +78,7 @@ public:
     void created(const QString& created);
     void lastModified(const QString& lastModified);
     void datasetName(const QString& datasetName);
+    void type(const QString& type);
 
 private:
 

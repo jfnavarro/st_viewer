@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   setGeometry(400, 250, 542, 390);
   
-  setupDemo(0);
+  setupDemo(13);
   //setupPlayground(ui->customPlot);
   // 0:  setupQuadraticDemo(ui->customPlot);
   // 1:  setupSimpleDemo(ui->customPlot);
@@ -1141,7 +1141,7 @@ void MainWindow::setupStyledDemo(QCustomPlot *customPlot)
   bars1->setData(x3, y3);
   bars1->setPen(Qt::NoPen);
   bars1->setBrush(QColor(10, 140, 70, 160));
-  
+
   QCPBars *bars2 = new QCPBars(customPlot->xAxis, customPlot->yAxis);
   customPlot->addPlottable(bars2);
   bars2->setWidth(9/(double)x4.size());

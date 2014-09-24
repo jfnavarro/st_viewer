@@ -81,6 +81,14 @@ else(OPENGL_FOUND)
     message(FATAL_ERROR "OpenGL environment missing")
 endif(OPENGL_FOUND)
 
+find_package(ZLIB REQUIRED)
+if(ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+    mark_as_advanced(${ZLIB_LIBRARIES})
+else(ZLIB_FOUND)
+    message(FATAL_ERROR "Zlib library is missing")
+endif(ZLIB_FOUND)
+
 if(APPLE)
     find_library(AppKit_LIBRARY AppKit)
     find_library(COCOA_LIBRARY Cocoa)
@@ -144,8 +152,7 @@ endif()
 #endif()
 
 #link libraries to the main target
-
-target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${ZLIB_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 

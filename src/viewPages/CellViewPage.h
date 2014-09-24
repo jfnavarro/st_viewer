@@ -23,6 +23,7 @@ class GridRendererGL;
 class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
+class AnalysisHistogram;
 
 namespace Ui{
 class CellView;
@@ -85,6 +86,9 @@ private slots:
     // load the cell tissue figure into the stage
     void slotLoadCellFigure();
 
+    // shows/hides the Features Distribution Histogram
+    void slotSetFDHVisible(bool visible);
+
 private:
     
     // create GL graphical elements and their connections
@@ -100,6 +104,7 @@ private:
     // reset all the visual variables to default
     void resetActionStates();
 
+    // OpenGL visualization objects
     QPointer<MiniMapGL> m_minimap;
     QPointer<HeatMapLegendGL> m_legend;
     QPointer<GeneRendererGL> m_gene_plotter;
@@ -118,6 +123,9 @@ private:
 
     // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
+
+    // Features Distribution Histogram
+    QPointer<AnalysisHistogram> m_FDH;
 
     Q_DISABLE_COPY(CellViewPage)
 };

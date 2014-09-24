@@ -32,13 +32,18 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::MultiSelection);
 
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name, QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Type, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Created, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::LastModified, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Created,
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::LastModified,
+                                             QHeaderView::Stretch);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

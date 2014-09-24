@@ -1,3 +1,10 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
 #ifndef ANALYSISDEA_H
 #define ANALYSISDEA_H
 
@@ -49,8 +56,11 @@ public:
     explicit AnalysisDEA(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
+    // compute the statistics and visualization data points and stores them in local variables
     void compute(const GeneSelection& selObjectA,
                  const GeneSelection& selObjectB);
+
+    // generates the plot and shows the widget
     void plot();
 
 signals:
@@ -63,6 +73,8 @@ private:
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
     QCustomPlot *m_customPlot;
+
+    //internal variables to store computed statistics
     QVector<qreal> m_valuesSelectionA;
     QVector<qreal> m_valuesSelectionB;
     QVector<qreal> m_loggedValuesSelectionA;

@@ -47,10 +47,10 @@ public:
     const QString dataEndpointDatasets() const;
     const QString dataEndpointImageAlingment() const;
     const QString dataEndpointFeatures() const;
-    const QString dataEndpointGenes() const;
     const QString dataEndpointUsers() const;
     const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;
+    const QString dataEndpointFiguresLastModified() const;
 
 private:
 

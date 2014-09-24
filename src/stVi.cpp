@@ -40,8 +40,8 @@
 
 namespace {
 
- bool versionIsGreaterOrEqual(const std::array< qulonglong, 3> &version1,
-                                    const std::array< qulonglong, 3> &version2)
+ bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
+                              const std::array<qulonglong, 3> &version2)
 {
     int index = 0;
     for(const auto &num : version1) {
@@ -144,14 +144,16 @@ bool stVi::checkSystemRequirements() const
             || request.return_code() == async::DataRequest::CodeAbort) {
         //TODO show the error present in request.getErrors()
         QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
-                                tr("Required version could not be retrieved from the server, try again"));
+                                tr("Required version could not be retrieved from the server,"
+                                   "\nCheck the internet connection and try again"));
         return false;
     } else {
         // refresh datasets on the model
         const auto minVersion  = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
             QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
-                                     tr("This version of the software is not supported anymore, please update!"));
+                                     tr("This version of the software is not supported anymore, "
+                                        "please update!"));
             return false;
         }
     }
@@ -221,7 +223,8 @@ void stVi::handleMessage(const QString &message)
 void stVi::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(new AboutDialog(this,
-                                                      Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                                                      Qt::CustomizeWindowHint
+                                                      | Qt::WindowTitleHint));
     about->exec();
 }
 
@@ -231,7 +234,7 @@ void stVi::slotExit()
                      this, tr("Exit application"),
                      tr("Are you really sure you want to exit now?"),
                      QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                     QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
@@ -251,7 +254,7 @@ void stVi::slotClearCache()
                      this, tr("Clear the Cache"),
                      tr("Are you really sure you want to clear the cache?"),
                      QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                     QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] : Cleaning the cache...";

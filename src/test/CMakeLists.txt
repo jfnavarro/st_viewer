@@ -62,7 +62,7 @@ else()
     add_executable(${TARGET_NAME} ${ST_UNITTEST_SOURCES})
 endif()
 
-target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
+target_link_libraries(${TARGET_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${ZLIB_LIBRARIES})
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})

@@ -33,7 +33,7 @@ void GeneData::clearData()
     m_refCount.clear();
 }
 
-int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
+int GeneData::addQuad(const float x, const float y, const float size, const QColor4ub color)
 {
     static const QVector2D ta(0.0, 0.0);
     static const QVector2D tb(0.0, 1.0);
@@ -42,10 +42,10 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
 
     const int index_count = count();
 
-    appendVertex( QVector3D(x - size / 2.0 , y - size / 2.0, 0.0) );
-    appendVertex( QVector3D(x + size / 2.0, y - size / 2.0, 0.0) );
-    appendVertex( QVector3D(x + size / 2.0, y + size / 2.0, 0.0) );
-    appendVertex( QVector3D(x - size / 2.0, y + size / 2.0, 0.0) );
+    appendVertex(QVector3D(x - size / 2.0 , y - size / 2.0, 0.0));
+    appendVertex(QVector3D(x + size / 2.0, y - size / 2.0, 0.0));
+    appendVertex(QVector3D(x + size / 2.0, y + size / 2.0, 0.0));
+    appendVertex(QVector3D(x - size / 2.0, y + size / 2.0, 0.0));
 
     appendTexCoord(ta, tb, tc, td, QGL::TextureCoord0);
 
@@ -65,7 +65,7 @@ int GeneData::addQuad(qreal x, qreal y, qreal size, QColor4ub color)
     return index_count;
 }
 
-void GeneData::updateQuadSize(const int index, qreal x, qreal y, qreal size)
+void GeneData::updateQuadSize(const int index, const qreal x, const qreal y, const qreal size)
 {
     vertex(index) = QVector3D(x - size / 2.0 , y - size / 2.0, 0.0);
     vertex(index + 1) = QVector3D(x + size / 2.0, y - size / 2.0, 0.0);
@@ -88,7 +88,7 @@ void GeneData::updateQuadSelected(const int index, bool selected)
     }
 }
 
-void GeneData::updateQuadRefCount(const int index, float refcount)
+void GeneData::updateQuadRefCount(const int index, int refcount)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
         m_refCount[index + i] = refcount;
@@ -113,7 +113,7 @@ bool GeneData::quadSelected(const int index) const
     return floatAttributeAt(index, selectionVertex) == 1.0;
 }
 
-float GeneData::quadRefCount(const int index) const
+int GeneData::quadRefCount(const int index) const
 {
     // all vertices has same value
     return m_refCount.at(index);
@@ -147,7 +147,7 @@ void GeneData::resetRefCountSelectAndValues()
     }
 }
 
-void GeneData::resetSelection(bool selected)
+void GeneData::resetSelection(const bool selected)
 {
     const float value =  selected ? 1.0 : 0.0;
     for(int i = 0; i < attributes(selectionVertex).count(); ++i) {

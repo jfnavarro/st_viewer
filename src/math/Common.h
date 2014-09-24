@@ -80,6 +80,8 @@ inline T clamp(T in, T low, T high)
     return std::min(std::max(in, low), high);
 }
 
+//normalize v with min t0 and max t1 to
+//lay in between [0-1]
 template <typename T, typename R>
 inline const R norm(const T v, const T t0, const T t1)
 {
@@ -87,13 +89,25 @@ inline const R norm(const T v, const T t0, const T t1)
     return R(vh - t0) / R(t1 - t0);
 }
 
+//maps a value from a range (t0-t1) to a range (t2-t3)
+template <typename T, typename R>
+inline const R linearConversion(const T v, const T t0, const T t1, const T t2, const T t3)
+{
+    const R nv = norm<R,T>(v, t0, t1);
+    return R(nv * (t3 - t2) + t2);
+}
+
+//normalize nv with min t0 and max t1
+//assuming nv was normalized with range [0-1]
 template <typename T, typename R>
 inline const T denorm(const R nv, const T t0, const T t1)
 {
+    //should not be necessary to clamp to 0-1
     const R vh = clamp(nv, R(0.0), R(1.0));
     return T(vh * (t1 - t0)) + t0;
 }
 
+//linear interpolation between color c0 and color c1 given a value t
 inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
     //TODO should do the interpolation in HSV space
@@ -105,6 +119,7 @@ inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub 
                 );
 }
 
+//inverse linear interpolation between color c0 and color c1 given a value t
 inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
 {
     //TODO should do the interpolation in HSV space
@@ -126,7 +141,7 @@ inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
     T sum;
     diff = v1[0] - v2[0];
     sum = diff * diff;
-    for (unsigned int i=1; i < v1.size(); i++){
+    for (unsigned int i = 1; i < v1.size(); i++){
         diff = v1[i] - v2[i];
         sum += diff * diff;
     }
@@ -166,13 +181,13 @@ inline qreal mean(const QVector<T> &v1){
 template<class T>
 inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2){
     Q_ASSERT(v1.size() == v2.size());
-    qreal mean1 = mean(v1);
-    qreal mean2 = mean(v2);
-    qreal sum = (static_cast<qreal>(v1[0]) - mean1) * (static_cast<qreal>(v2[0]) - mean2);
-    for (int i = 1; i < v1.size(); i++){
+    const qreal mean1 = mean(v1);
+    const qreal mean2 = mean(v2);
+    qreal sum = 0.0;
+    for (int i = 0; i < v1.size(); i++){
         sum += (static_cast<qreal>(v1[i]) - mean1) * (static_cast<qreal>(v2[i]) - mean2);
     }
-    return static_cast<qreal>(sum) / static_cast<qreal>(v1.size() - 1);
+    return sum / static_cast<qreal>(v1.size() - 1);
 }
 
 //standard deviation the covariance where both vectors are the same.

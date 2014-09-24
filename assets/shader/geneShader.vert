@@ -17,8 +17,8 @@ varying lowp float outShape;
 
 // uniform variables
 uniform lowp int in_visualMode;
-uniform lowp int in_pooledUpper;
-uniform lowp int in_pooledLower;
+uniform lowp float in_pooledUpper;
+uniform lowp float in_pooledLower;
 uniform lowp int in_shape;
 uniform lowp float in_intensity;
 uniform lowp float in_shine;
@@ -37,16 +37,17 @@ float denorm(inout float nv, in float t0, in float t1)
     return (vh * (t1 - t0)) + t0;
 }
 
-vec4 createHeatMapColor(inout float wavelength)
+vec4 createHeatMapColor(inout float value)
 {
     float gamma = 0.8;
-    // clamp input value
-    float cwavelength = clamp(wavelength, 380.0, 780.0);
+    
+    // denorm input to 380-780
+    float cwavelength = denorm(value, 380.0, 780.0);
     
     // define colors according to wave lenght spectra
-    float red;
-    float green;
-    float blue;
+    float red = 0.0;
+    float green = 0.0;
+    float blue = 0.0;
     if (380.0 <= cwavelength && cwavelength < 440.0) {
         red = -(cwavelength - 440.0) / (440.0 - 380.0);
         green = 0.0;
@@ -71,33 +72,38 @@ vec4 createHeatMapColor(inout float wavelength)
         red = 1.0;
         green = 0.0;
         blue = 0.0;
-    } else {
-        red = 0.0;
-        green = 0.0;
-        blue = 0.0;
     }
+    
     // float the intensity fall off near the vision limits
-    float factor;
+    float factor = 0.3;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {
         factor = 1.0;
     } else if (700.0 <= cwavelength && cwavelength <= 780.0) {
         factor = 0.3 + 0.7 * (780.0 - cwavelength) / (780.0 - 700.0);
-    } else {
-        factor = 0.3;
     }
+    
     // Gamma adjustments (clamp to [0.0, 1.0])
     red = clamp(pow(red * factor, gamma), 0.0, 1.0);
     green = clamp(pow(green * factor, gamma), 0.0, 1.0);
     blue = clamp(pow(blue * factor, gamma), 0.0, 1.0);
+    
     // return color
     return vec4(red, green, blue, 1.0);
 }
 
-float computeDynamicRangeAlpha(inout float value, in float min_Value, in float max_value)
+//simple function that computes color from a min-max range
+//using linear Interpolation
+vec4 createHeatMapLinearColor(inout float value,
+                              inout float min,
+                              inout float max)
 {
-    return sqrt(norm(value, min_Value, max_value));
+    float halfmax = (min + max) / 2;
+    float blue = max(0.0, 255 * (1 - (value / halfmax)));
+    float red = max(0.0, 255 * ((value / halfmax) - 1));
+    float green = 255 - blue - red;
+    return vec4(red / 255, green / 255, blue / 255, 1.0);
 }
 
 void main(void)
@@ -107,29 +113,31 @@ void main(void)
     textCoord = qt_MultiTexCoord0;
     outShape = float(in_shape);
     
-    int geneMode = int(in_visualMode);
-    float value = float(qt_Custom1);
-    float upper_limit = float(in_pooledUpper);
-    float lower_limit = float(in_pooledLower);
+    int visualMode = int(in_visualMode);
+    float value = log(float(qt_Custom1) + 1.0);
+    float upper_limit = log(float(in_pooledUpper) + 1.0);
+    float lower_limit = log(float(in_pooledLower) + 1.0);
     float shine = float(in_shine);
     
-    // is visible?
+    //the color computation functions and helpers
+    //are the same as the class HeatMap
+    
+    // if value is 0 the feature is not visible
     if (value == 0.0) {
         outColor.a = 0.0;
-    }
-    else if (geneMode == 1) {
+    } else if (visualMode == 1) { //dynamic range mode
         //add 0.2 to alpha to be able to show very lowly expressed genes
-        outColor.a =
-            computeDynamicRangeAlpha(value, lower_limit, upper_limit) + (1.2 - in_intensity);
-    }
-    else if (geneMode == 2) {
-        float nv = norm(value, lower_limit, upper_limit);
-        float wavel = sqrt(clamp(nv, 0.0, 1.0));
-        float nt = denorm(wavel, 380.0, 780.0);
-        outColor = createHeatMapColor(nt);
+        float normalizedValue = norm(value, lower_limit, upper_limit);
+        //float adjustedValue = sqrt(normalizedValue); //not needed if we log?
+        outColor.a = normalizedValue + (1.0 - in_intensity);
+    } else if (visualMode == 2) {
+        float normalizedValue = norm(value, lower_limit, upper_limit);
+        //float adjustedValue = sqrt(normalizedValue); //not needed if we log?
+        
+        //outColor = createHeatMapLinearColor(value, lower_limit, upper_limit);
+        outColor = createHeatMapColor(normalizedValue);
         outColor.a = in_intensity;
-    }
-    else {
+    } else {
         outColor.a = in_intensity;
     }
     

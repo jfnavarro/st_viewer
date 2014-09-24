@@ -31,7 +31,7 @@ void GLHeatMapTest::testHeatMap()
     QFETCH(qreal, wavelength);
     QFETCH(QColor4ub, color);
     QFETCH(bool, expected);
-    const QColor4ub approximation = Heatmap::createHeatMapColor(wavelength);
+    const QColor4ub approximation = Heatmap::createHeatMapWaveLenghtColor(wavelength);
     QCOMPARE((approximation == color), expected);
 }
 void GLHeatMapTest::testHeatMap_data()

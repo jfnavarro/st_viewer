@@ -178,11 +178,6 @@ const GeneSelection::selectedItemsList GeneSelection::selectedItems() const
     return m_selectedItems;
 }
 
-const QString GeneSelection::type() const
-{
-    return m_type;
-}
-
 const QString GeneSelection::status() const
 {
     return m_status;
@@ -218,6 +213,11 @@ const QString GeneSelection::datasetName() const
     return m_datasetName;
 }
 
+const QString GeneSelection::type() const
+{
+    return m_type;
+}
+
 int GeneSelection::totalReads() const
 {
     return std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
@@ -248,11 +248,6 @@ void GeneSelection::datasetId(const QString& datasetId)
 void GeneSelection::selectedItems(const GeneSelection::selectedItemsList& selectedItems)
 {
     m_selectedItems = selectedItems;
-}
-
-void GeneSelection::type(const QString& type)
-{
-    m_type = type;
 }
 
 void GeneSelection::status(const QString& status)
@@ -288,4 +283,9 @@ void GeneSelection::lastModified(const QString& lastModified)
 void GeneSelection::datasetName(const QString& datasetName)
 {
     m_datasetName = datasetName;
+}
+
+void GeneSelection::type(const QString& type)
+{
+    m_type = type;
 }

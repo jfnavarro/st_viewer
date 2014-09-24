@@ -31,9 +31,13 @@ public slots:
     
     //TODO slots should have the prefix "slot"
 
-    void setBoundaries(qreal min, qreal max);
-    void setLowerLimit(int limit);
-    void setUpperLimit(int limit);
+    // set the boundaries for the computation of the colors
+    // of the image from the min-max values of the distribution
+    void setBoundaries(const int min, const int max);
+
+    // slots to adjust the boundaries when the threshold is changed
+    void setLowerLimit(const int limit);
+    void setUpperLimit(const int limit);
 
 protected:
 

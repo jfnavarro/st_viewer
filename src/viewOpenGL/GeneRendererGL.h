@@ -31,11 +31,12 @@ class GeneRendererGL : public GraphicItemGL
 
 public:
 
-    explicit GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
+    GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
     // data builder (create data arrays from the features)
     void generateData();
+
     // clears data and reset variables
     void clearData();
 
@@ -56,12 +57,16 @@ public:
     void setImage(const QImage& image);
 
     // threshold limits pooled and not pooled for feature hits
-    void setHitCount(int min, int max, int pooledMin, int pooledMax);
+    void setHitCount(const int min,
+                     const int max,
+                     const int pooledMin,
+                     const int pooledMax);
 
 public slots:
 
     //TODO slots should have the prefix "slot"
-    //slot to configure atttributes
+
+    //slot to change visual atttributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShine(qreal shine);
@@ -97,7 +102,7 @@ private:
 
     //helper function to test whether a feature is outside the threshold
     //area or not
-    bool isFeatureOutsideRange(const int hits, const int totalValue);
+    bool isFeatureOutsideRange(const int hits, const float totalValue);
 
     // internal rendering functions that alters the rendering data
     void updateSize();
@@ -113,12 +118,11 @@ private:
     // compiles and loads the shaders
     void setupShaders();
 
-    // lookup maps
+    // lookup maps for features
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
     typedef QHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
     typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
-
-    // lookup quadtree
+    // lookup quadtree type
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
     // gene visual data
@@ -131,9 +135,8 @@ private:
     //TODO can probably be removed
     GeneInfoReverseMap m_geneInfoReverse;
     // vector of selected features
-    //TODO implement this to replace the selected field
-    //in the feature class, this should be faster
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
+    // quad tree container
     GeneInfoQuadTree m_geneInfoQuadTree;
 
     // visual attributes
@@ -157,6 +160,10 @@ private:
     int m_pooledMin;
     int m_pooledMax;
 
+    // local statistics (Adjusted according to what is being rendered)
+    float m_localPooledMin;
+    float m_localPooledMax;
+
     // bounding rect area
     QRectF m_border;
 
@@ -166,7 +173,7 @@ private:
     // shader program (TODO use smart pointer)
     QGLShaderProgramEffect *m_shaderProgram;
 
-    // tells if something has changed
+    // to know if visual data has changed
     bool m_isDirty;
 
     //reference to dataProxy

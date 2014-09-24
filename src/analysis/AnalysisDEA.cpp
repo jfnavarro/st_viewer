@@ -1,5 +1,14 @@
+/*
+    Copyright (C) 2012  Spatial Transcriptomics AB,
+    read LICENSE for licensing terms.
+    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
+*/
+
 #include "AnalysisDEA.h"
+
 #include "ui_ddaWidget.h"
+
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -129,17 +138,16 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
         }
 
         // populate lists of values with normalized values (for the scatter plot)
-        // TODO validate 1.0 is a good value to assign when no gene present
-        const qreal normalizedValueSelection1 = valueSelection1 != 0.0 ?
-                    ((it.value().first * 10e5) / totalReadsSelectionA) + 1 : 1.0;
-        const qreal normalizedValueSelection2 = valueSelection2 != 0.0 ?
-                    ((it.value().second * 10e5) / totalReadsSelectionB) + 1 : 1.0;
+        const qreal normalizedValueSelection1 =
+                ((it.value().first * 10e5) / totalReadsSelectionA) + 1;
+        const qreal normalizedValueSelection2 =
+                ((it.value().second * 10e5) / totalReadsSelectionB) + 1;
 
         // update lists of values
         m_valuesSelectionA.push_back(normalizedValueSelection1);
         m_valuesSelectionB.push_back(normalizedValueSelection2);
-        //m_loggedValuesSelectionA.push_back(std::log10(normalizedValueSelection1));
-        //m_loggedValuesSelectionB.push_back(std::log10(normalizedValueSelection2));
+        m_loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
+        m_loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
 
         //update temp variables to compute stats
         valuesA.append(valueSelection1);
@@ -155,7 +163,7 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     m_stdDevSelectionA = STMath::std_dev(valuesA);
     m_stdDevSelectionB = STMath::std_dev(valuesB);
     //for correlation use normalized logged values
-    m_correlation = STMath::pearson(m_valuesSelectionA, m_valuesSelectionB);
+    m_correlation = STMath::pearson(m_loggedValuesSelectionA, m_loggedValuesSelectionB);
 }
 
 void AnalysisDEA::plot()
