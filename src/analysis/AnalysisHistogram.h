@@ -31,14 +31,20 @@ public:
 
 signals:
 
-protected slots:
-
-    // saves the plot to a PDF file
-    void saveToPDF();
+public slots:
 
     // slots to adjust the boundaries when the threshold is changed
     void setLowerLimit(const int limit);
     void setUpperLimit(const int limit);
+
+private slots:
+
+    // to control plot interaction
+    void mousePress();
+    void mouseWheel();
+
+    // saves the plot to a PDF file
+    void saveToPDF();
 
 private:
 

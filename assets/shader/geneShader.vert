@@ -114,9 +114,9 @@ void main(void)
     outShape = float(in_shape);
     
     int visualMode = int(in_visualMode);
-    float value = log(float(qt_Custom1) + 1.0);
-    float upper_limit = log(float(in_pooledUpper) + 1.0);
-    float lower_limit = log(float(in_pooledLower) + 1.0);
+    float value = float(qt_Custom1);
+    float upper_limit = float(in_pooledUpper);
+    float lower_limit = float(in_pooledLower);
     float shine = float(in_shine);
     
     //the color computation functions and helpers
@@ -128,11 +128,11 @@ void main(void)
     } else if (visualMode == 1) { //dynamic range mode
         //add 0.2 to alpha to be able to show very lowly expressed genes
         float normalizedValue = norm(value, lower_limit, upper_limit);
-        //float adjustedValue = sqrt(normalizedValue); //not needed if we log?
-        outColor.a = normalizedValue + (1.0 - in_intensity);
+        float adjustedValue = sqrt(normalizedValue); //not needed if we log?
+        outColor.a = adjustedValue + (1.1 - in_intensity);
     } else if (visualMode == 2) {
         float normalizedValue = norm(value, lower_limit, upper_limit);
-        //float adjustedValue = sqrt(normalizedValue); //not needed if we log?
+        float adjustedValue = sqrt(normalizedValue); //not needed if we log?
         
         //outColor = createHeatMapLinearColor(value, lower_limit, upper_limit);
         outColor = createHeatMapColor(normalizedValue);

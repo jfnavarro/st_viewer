@@ -89,12 +89,12 @@ inline const R norm(const T v, const T t0, const T t1)
     return R(vh - t0) / R(t1 - t0);
 }
 
+//assumes t1 - t0 is bigger than 0 and that t3 - t2 is bigger than 0 and that t0 <= v <= t1
 //maps a value from a range (t0-t1) to a range (t2-t3)
 template <typename T, typename R>
 inline const R linearConversion(const T v, const T t0, const T t1, const T t2, const T t3)
 {
-    const R nv = norm<R,T>(v, t0, t1);
-    return R(nv * (t3 - t2) + t2);
+    return  R(( (v - t0) / (t1 - t0) ) * (t3 - t2) + t2);
 }
 
 //normalize nv with min t0 and max t1

@@ -57,8 +57,8 @@ private:
     // limits and boundaries
     qreal m_lower_threshold;
     qreal m_upper_threshold;
-    qreal m_max;
-    qreal m_min;
+    int m_max;
+    int m_min;
 
     // texture color data
     QGLTexture2D m_texture;

@@ -86,9 +86,6 @@ private slots:
     // load the cell tissue figure into the stage
     void slotLoadCellFigure();
 
-    // shows/hides the Features Distribution Histogram
-    void slotSetFDHVisible(bool visible);
-
 private:
     
     // create GL graphical elements and their connections

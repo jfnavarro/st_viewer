@@ -101,24 +101,57 @@ void AnalysisHistogram::compute(const DataProxy::FeatureList& features,
     connect(m_customPlotNormal->yAxis, SIGNAL(rangeChanged(QCPRange)),
             m_customPlotNormal->yAxis2, SLOT(setRange(QCPRange)));
 
+    // connect slots that takes care that when an axis is selected,
+    // only that direction can be dragged and zoomed:
+    connect(m_customPlotNormal, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
+    connect(m_customPlotNormal, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+
     m_customPlotNormal->graph(0)->setData(x, y);
     m_customPlotNormal->graph(0)->rescaleAxes();
-
     m_customPlotNormal->setFixedSize(1200, 800);
-    m_customPlotNormal->replot();
     m_customPlotNormal->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    m_customPlotNormal->replot();
     m_customPlotNormal->show();
+}
+
+void AnalysisHistogram::mousePress()
+{
+  // if an axis is selected, only allow the direction of that axis to be dragged
+  // if no axis is selected, both directions may be dragged
+
+  if (m_customPlotNormal->xAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
+    m_customPlotNormal->axisRect()->setRangeDrag(m_customPlotNormal->xAxis->orientation());
+  } else if (m_customPlotNormal->yAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
+    m_customPlotNormal->axisRect()->setRangeDrag(m_customPlotNormal->yAxis->orientation());
+  } else {
+    m_customPlotNormal->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+  }
+}
+
+void AnalysisHistogram::mouseWheel()
+{
+  // if an axis is selected, only allow the direction of that axis to be zoomed
+  // if no axis is selected, both directions may be zoomed
+
+  if (m_customPlotNormal->xAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
+    m_customPlotNormal->axisRect()->setRangeZoom(m_customPlotNormal->xAxis->orientation());
+  } else if (m_customPlotNormal->yAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
+    m_customPlotNormal->axisRect()->setRangeZoom(m_customPlotNormal->yAxis->orientation());
+  } else {
+    m_customPlotNormal->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+  }
 }
 
 void AnalysisHistogram::setUpperLimit(int limit)
 {
     //limit will be in a range 0...100, we adjust the threshold
     //to the scale min - max of the data
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_minX,
                                                         m_maxX);
+
     //adjust the threshold bar
     m_upperThresholdBar->start->setCoords(adjusted_limit, m_minY);
     m_upperThresholdBar->end->setCoords(adjusted_limit, m_maxY);
@@ -130,7 +163,7 @@ void AnalysisHistogram::setLowerLimit(int limit)
 {
     //limit will be in a range 0...100, we adjust the threshold
     //to the scale min - max of the data
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_minX,

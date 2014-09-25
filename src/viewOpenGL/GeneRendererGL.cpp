@@ -141,13 +141,13 @@ void GeneRendererGL::setUpperLimit(int limit)
 {   
     //limit will be in a range 0...100, we adjust the threshold
     //to the scale min - max of the data
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_min,
                                                         m_max);
 
-    const int adjusted_limit_pooled = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit_pooled = STMath::linearConversion<qreal,int>(limit,
                                                                Globals::GENE_THRESHOLD_MIN,
                                                                Globals::GENE_THRESHOLD_MAX,
                                                                m_pooledMin,
@@ -155,9 +155,7 @@ void GeneRendererGL::setUpperLimit(int limit)
 
     if (m_thresholdUpper != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdUpper = adjusted_limit;
-        qDebug() << "Setting upper limit to " << adjusted_limit;
         m_thresholdUpperPooled = adjusted_limit_pooled;
-        qDebug() << "Setting pooled upper limit to " << adjusted_limit_pooled;
         updateVisual();
     }
 }
@@ -166,13 +164,13 @@ void GeneRendererGL::setLowerLimit(int limit)
 {
     //limit will be in a range 0...100, we adjust the threshold
     //to the scale min - max of the data
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_min,
                                                         m_max);
 
-    const int adjusted_limit_pooled = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit_pooled = STMath::linearConversion<qreal,int>(limit,
                                                                Globals::GENE_THRESHOLD_MIN,
                                                                Globals::GENE_THRESHOLD_MAX,
                                                                m_pooledMin,
@@ -180,9 +178,7 @@ void GeneRendererGL::setLowerLimit(int limit)
 
     if (m_thresholdLower != adjusted_limit || m_thresholdLowerPooled != adjusted_limit_pooled) {
         m_thresholdLower = adjusted_limit;
-        qDebug() << "Setting lower limit to " << adjusted_limit;
         m_thresholdLowerPooled = adjusted_limit_pooled;
-        qDebug() << "Setting pooled lower limit to " << adjusted_limit_pooled;
         updateVisual();
     }
 }

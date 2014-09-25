@@ -391,7 +391,6 @@ void CellViewPageToolBar::createActions()
     m_actionFDH =
             new QAction(QIcon(QStringLiteral(":/images/histogram.png")), tr("FDH"), this);
     setToolTipAndStatusTip(tr("Shows/hides the Features Distribution Histogram"), m_actionFDH);
-    m_actionFDH->setCheckable(true);
 
     //cell tissue controls
     m_actionShow_cellTissueBlue =

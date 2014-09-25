@@ -538,6 +538,8 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_FDH.data(), SLOT(setUpperLimit(int)));
     connect(m_toolBar->m_actionFDH, SIGNAL(triggered(bool)), this, SLOT(slotSetFDHVisible(bool)));
+
+    connect(m_toolBar->m_actionFDH, &QAction::triggered, [=]{ m_FDH->show(); });
 }
 
 //TODO consider use future to make it anync
@@ -805,9 +807,3 @@ void CellViewPage::slotSaveSelection()
     }
 }
 
-
-void CellViewPage::slotSetFDHVisible(bool visible)
-{
-    //TODO cancel or exit should Uncheck the button
-    m_FDH->setVisible(visible);
-}

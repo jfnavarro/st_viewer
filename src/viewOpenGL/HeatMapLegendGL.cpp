@@ -101,16 +101,16 @@ void HeatMapLegendGL::setBoundaries(const int min, const int max)
 
 void HeatMapLegendGL::setLowerLimit(const int limit)
 {
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_min,
                                                         m_max);
 
-    const qreal normalized_limit = STMath::norm<qreal,int>(adjusted_limit, m_min, m_max);
+    const qreal normalized_limit = STMath::norm<int, qreal>(adjusted_limit, m_min, m_max);
 
-    m_lower_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
-    m_lower_text = QString::number(limit);
+    m_lower_threshold = normalized_limit;
+    m_lower_text = QString::number(adjusted_limit);
 
     generateBarAndTexts();
     emit updated();
@@ -118,16 +118,16 @@ void HeatMapLegendGL::setLowerLimit(const int limit)
 
 void HeatMapLegendGL::setUpperLimit(const int limit)
 {
-    const int adjusted_limit = STMath::linearConversion<int,int>(limit,
+    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
                                                         Globals::GENE_THRESHOLD_MIN,
                                                         Globals::GENE_THRESHOLD_MAX,
                                                         m_min,
                                                         m_max);
 
-    const qreal normalized_limit = STMath::norm<qreal,int>(adjusted_limit, m_min, m_max);
+    const qreal normalized_limit = STMath::norm<int, qreal>(adjusted_limit, m_min, m_max);
 
-    m_upper_threshold = STMath::clamp(normalized_limit, 0.0, 1.0);
-    m_upper_text = QString::number(limit);
+    m_upper_threshold = normalized_limit;
+    m_upper_text = QString::number(adjusted_limit);
 
     generateBarAndTexts();
     emit updated();
