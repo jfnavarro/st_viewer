@@ -10,7 +10,7 @@ ImageAlignment::ImageAlignment() :
     m_figureBlue(),
     m_alignment(),
     m_created(QDate::currentDate().toString()),
-    m_lastMofidied(QDate::currentDate().toString())
+    m_lastModified(QDate::currentDate().toString())
 {
 
 }
@@ -23,7 +23,7 @@ ImageAlignment::ImageAlignment(const ImageAlignment& other)
       m_figureBlue(other.m_figureBlue),
       m_alignment(other.m_alignment),
       m_created(other.m_created),
-      m_lastMofidied(other.m_lastMofidied)
+      m_lastModified(other.m_lastModified)
 {
 
 }
@@ -42,9 +42,7 @@ ImageAlignment& ImageAlignment::operator=(const ImageAlignment& other)
     m_figureBlue = other.m_figureBlue;
     m_alignment = other.m_alignment;
     m_created = other.m_created;
-    m_lastMofidied = other.m_lastMofidied;
-    m_created = other.m_created;
-    m_lastMofidied = other.m_lastMofidied;
+    m_lastModified = other.m_lastModified;
     return (*this);
 }
 
@@ -58,7 +56,7 @@ bool ImageAlignment::operator==(const ImageAlignment& other) const
             m_figureRed == other.m_figureRed &&
             m_alignment == other.m_alignment &&
             m_created == other.m_created &&
-            m_lastMofidied == other.m_lastMofidied
+            m_lastModified == other.m_lastModified
         );
 }
 
@@ -99,7 +97,7 @@ const QString ImageAlignment::created() const
 
 const QString ImageAlignment::lastModified() const
 {
-    return m_lastMofidied;
+    return m_lastModified;
 }
 
 void ImageAlignment::id(const QString& id)
@@ -139,5 +137,5 @@ void ImageAlignment::created(const QString& created)
 
 void ImageAlignment::lastModified(const QString& lastModified)
 {
-    m_lastMofidied = lastModified;
+    m_lastModified = lastModified;
 }

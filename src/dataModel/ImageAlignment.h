@@ -42,7 +42,7 @@ private:
     QString m_figureBlue;
     QTransform m_alignment;
     QString m_created;
-    QString m_lastMofidied;
+    QString m_lastModified;
 };
 
 #endif // IMAGEALIGNMENT_H
