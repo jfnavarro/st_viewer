@@ -19,16 +19,16 @@ DataStoreTest::DataStoreTest(QObject *parent) : QObject(parent) { }
 void DataStoreTest::initTestCase()
 {
     DataStore *dataStore = new DataStore;
-    QVERIFY(dataStore != 0);
+    QVERIFY(dataStore != nullptr);
 }
 
 void DataStoreTest::cleanupTestCase()
 {
     DataStore *dataStore = new DataStore;
     delete dataStore;
-    dataStore = 0;
+    dataStore = nullptr;
     //TODO this is a dumb test
-    QVERIFY(dataStore == 0);
+    QVERIFY(dataStore == nullptr);
 }
 
 void DataStoreTest::testCreateFile()
@@ -40,9 +40,9 @@ void DataStoreTest::testCreateFile()
     DataStore dataStore;
 
     // create and verify
-    auto file = dataStore.accessResource(name,
-                                                static_cast<DataStore::Option>(options));
-    QVERIFY(file != 0);
+    dataStore.createResource(name, static_cast<DataStore::Option>(options));
+    auto file = dataStore.accessResource(name, static_cast<DataStore::Option>(options));
+    QVERIFY(file != nullptr);
 
     // test that file is registered in data store correctly
     QCOMPARE(dataStore.hasResource(name), expected);

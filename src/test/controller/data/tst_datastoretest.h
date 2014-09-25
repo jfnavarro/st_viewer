@@ -18,14 +18,21 @@ class DataStoreTest : public QObject
     Q_OBJECT
 
 public:
+
     explicit DataStoreTest(QObject *parent = 0);
 
 private Q_SLOTS:
+
     void initTestCase();
     void cleanupTestCase();
 
+    //these tests do more than create
     void testCreateFile();
     void testCreateFile_data();
+
+    //TODO add test for the clear functions
+
+    //TODO add test for the last_modified functions
 };
 
 } // namespace unit //

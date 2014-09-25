@@ -28,7 +28,8 @@ void Heatmap::createHeatMapImage(QImage &image,
         if (colorMode == SpectrumRaibow) {
             const qreal normalizedValue = STMath::norm<qreal,int>(value, lowerbound, upperbound);
             const qreal adjusted = Heatmap::normalizeValueSpectrumFunction(normalizedValue, mode);
-            color = Heatmap::createHeatMapWaveLenghtColor(adjusted);
+            const qreal wavelength = STMath::denorm(adjusted, 380.0, 780.0);
+            color = Heatmap::createHeatMapWaveLenghtColor(wavelength);
         } else {
             const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
             color = Heatmap::createHeatMapLinearColor(normalizedValue, lowerbound, upperbound);
@@ -60,8 +61,8 @@ QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 {
     static const qreal gamma = 0.8;
 
-    // denormalize input to range (380,780)
-    const qreal cwavelength = STMath::denorm(value, 380.0, 780.0);
+    // assert value is in range (380-780)
+    const qreal cwavelength = STMath::clamp(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
     qreal red = 0.0;
