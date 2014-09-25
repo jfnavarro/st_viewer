@@ -134,5 +134,5 @@ qreal Heatmap::normalizeValueSpectrumFunction(const qreal value, const SpectrumM
         break;
     }
 
-    return value;
+    return transformedValue;
 }
