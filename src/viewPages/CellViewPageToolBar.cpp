@@ -73,6 +73,7 @@ void createPushButton(const QString &text, const QString &tip,
 {
     Q_ASSERT(*widgetAction == nullptr);
     Q_ASSERT(*pushButton == nullptr);
+
     QWidgetAction *action = new QWidgetAction(parent);
     QPushButton *button = new QPushButton(icon, text, parent);
     button->setMinimumSize(QSize(100,50));
@@ -116,6 +117,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_action_toggleMinimapDownRight(nullptr),
     m_action_toggleMinimapDownLeft(nullptr),
     m_geneHitsThreshold(nullptr),
+    m_geneHitsThresholdPooled(nullptr),
     m_geneIntensitySlider(nullptr),
     m_geneSizeSlider(nullptr),
     m_geneShineSlider(nullptr),
@@ -176,10 +178,17 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     Q_ASSERT(m_geneHitsThreshold == nullptr);
     m_geneHitsThreshold = new SpinBoxSlider(this);
     setToolTipAndStatusTip(
-            tr("Limit of the number of transcripts "
-               "(numbers represent percentage not real read counts)."),
+            tr("Limit of the number of reads per feature."),
             m_geneHitsThreshold);
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
+
+    //threshold slider pooled
+    Q_ASSERT(m_geneHitsThresholdPooled == nullptr);
+    m_geneHitsThresholdPooled = new SpinBoxSlider(this);
+    setToolTipAndStatusTip(
+            tr("Limit of the number of pooled features (accumulated reads per feature)."),
+            m_geneHitsThresholdPooled);
+    addWidgetToMenu(tr("Pooled Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThresholdPooled);
 
     // transcripts intensity
     addSliderToMenu(this,
@@ -289,8 +298,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     addWidget(toolButtonCell);
     addSeparator();
 
-    //TODO add some space between the button and the rest
-
     //next button
     addAction(m_actionNavigate_goNext);
 
@@ -315,15 +322,24 @@ void CellViewPageToolBar::setEnableButtons(bool enable)
     m_menu_cellTissue->setEnabled(enable);
 }
 
-void CellViewPageToolBar::resetTresholdActions(int min, int max)
+void CellViewPageToolBar::resetTresholdActions(int min, int max, int pooledMin, int pooledMax)
 {
     Q_ASSERT(m_geneHitsThreshold != nullptr);
+    Q_ASSERT(m_geneHitsThresholdPooled != nullptr);
+
     //threshold slider
     m_geneHitsThreshold->setMinimumValue(min);
     m_geneHitsThreshold->setMaximumValue(max);
     m_geneHitsThreshold->setLowerValue(min);
     m_geneHitsThreshold->setUpperValue(max);
     m_geneHitsThreshold->setTickInterval(1);
+
+    //pooled threshold slider
+    m_geneHitsThresholdPooled->setMinimumValue(pooledMin);
+    m_geneHitsThresholdPooled->setMaximumValue(pooledMax);
+    m_geneHitsThresholdPooled->setLowerValue(pooledMin);
+    m_geneHitsThresholdPooled->setUpperValue(pooledMax);
+    m_geneHitsThresholdPooled->setTickInterval(1);
 }
 
 void CellViewPageToolBar::resetActions()
@@ -361,12 +377,9 @@ void CellViewPageToolBar::resetActions()
     m_action_toggleMinimapDownRight->setChecked(true);
     m_action_toggleMinimapDownLeft->setChecked(false);
 
-    //show legend and minimap
+    // show legend and minimap
     m_actionShow_showLegend->setChecked(false);
     m_actionShow_showMiniMap->setChecked(true);
-
-    // gene threshold
-    resetTresholdActions(Globals::GENE_THRESHOLD_MIN, Globals::GENE_THRESHOLD_MAX);
 }
 
 void CellViewPageToolBar::createActions()
@@ -547,26 +560,24 @@ void CellViewPageToolBar::createConnections()
     connect(m_buttonNavigate_goNext, SIGNAL(clicked(bool)), m_actionNavigate_goNext, SLOT(trigger()));
 
     //threshold slider signal
-    Q_ASSERT(m_geneHitsThreshold);
     connect(m_geneHitsThreshold, SIGNAL(lowerValueChanged(int)),
             this, SIGNAL(thresholdLowerValueChanged(int)));
     connect(m_geneHitsThreshold, SIGNAL(upperValueChanged(int)),
             this, SIGNAL(thresholdUpperValueChanged(int)));
+    //pooled threshold slider signal
+    connect(m_geneHitsThresholdPooled, SIGNAL(lowerValueChanged(int)),
+            this, SIGNAL(thresholdLowerPooledValueChanged(int)));
+    connect(m_geneHitsThresholdPooled, SIGNAL(upperValueChanged(int)),
+            this, SIGNAL(thresholdUpperPooledValueChanged(int)));
 
     //gene attributes signals
-    Q_ASSERT(m_geneIntensitySlider);
     connect(m_geneIntensitySlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneIntensity(int)));
-    Q_ASSERT(m_geneSizeSlider);
     connect(m_geneSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneSize(int)));
     //    Q_ASSERT(m_geneShineSlider);
     //    connect(m_geneShineSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneShine(int)));
-    Q_ASSERT(m_geneBrightnessSlider);
     connect(m_geneBrightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneBrightness(int)));
-    Q_ASSERT(m_geneShapeComboBox);
     connect(m_geneShapeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGeneShape(int)));
-    Q_ASSERT(m_actionRotation_rotateLeft);
     connect(m_actionRotation_rotateLeft, SIGNAL(triggered(bool)), this, SLOT(slotRotateLeft()));
-    Q_ASSERT(m_actionRotation_rotateRight);
     connect(m_actionRotation_rotateRight, SIGNAL(triggered(bool)), this, SLOT(slotRotateRight()));
 }
 

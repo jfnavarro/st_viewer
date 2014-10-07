@@ -4,6 +4,7 @@ set(LIBRARY_ARG_INCLUDES
     NetworkReply.h
     RESTCommandFactory.h
     DownloadManager.h
+    NetworkDiskCache.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -12,6 +13,7 @@ set(LIBRARY_ARG_SOURCES
     NetworkReply.cpp
     RESTCommandFactory.cpp
     DownloadManager.cpp
+    NetworkDiskCache.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES)

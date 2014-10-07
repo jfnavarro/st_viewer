@@ -22,9 +22,11 @@
 #include <QNetworkDiskCache>
 #include <QDesktopServices>
 #include <QHostInfo>
+#include <QDir>
 
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
+#include "NetworkDiskCache.h"
 
 #include "error/Error.h"
 
@@ -35,14 +37,6 @@ NetworkManager::NetworkManager(const Configuration &configurationManager, QObjec
 {
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
-
-#if defined Q_OS_MAC
-    //workaround for this : https://bugreports.qt-project.org/browse/QTBUG-22033
-    //it is not working for HTTPS sites even though they say it is fixed... :(
-    QNetworkProxy proxy = m_nam->proxy();
-    proxy.setHostName(" ");
-    m_nam->setProxy(proxy);
-#endif
 
     // make DND look up ahead of time
     QHostInfo::lookupHost(m_configurationManager.EndPointUrl(), 0, 0);
@@ -57,14 +51,24 @@ NetworkManager::NetworkManager(const Configuration &configurationManager, QObjec
     //QSslCertificate cert(&cafile);
     //QSslSocket::addDefaultCaCertificate(cert);
 
-    // add cache support (not really useful for downloading data)
-    QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
+    //TODO add TLS session storing
+    // when request is finished, stores it session (in disk) as
+    // QByteArray usedSession = reply->sslConfiguration().session();
+    // next time a request is created the session can be restored (from disk)
+    // and added to the request.
+    // sslConfiguration.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
+    // sslConfiguration.setSession(usedSession);
+    // request.setSslConfiguration(sslConfiguration);
+
+    // add cache support
+    NetworkDiskCache *diskCache = new NetworkDiskCache(this);
     QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-    diskCache->setCacheDirectory(location);
+    qDebug() << "Network disk cache location " << location;
+    diskCache->setCacheDirectory(location + QDir::separator() + "data");
     diskCache->setMaximumCacheSize(1000 * 1024 * 1024); // 1GB
     m_nam->setCache(diskCache);
 
-    //we want to provide Authentication to our oAuth based servers
+    //we want to provide Authentication to our OAuth based servers
     connect(m_nam, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
             SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
 }
@@ -83,12 +87,17 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply,
     authenticator->setPassword(m_configurationManager.oauthSecret());
 }
 
-NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
-                                          QVariant data, NetworkFlags flags)
+NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flags)
 {
     // early out
     if (cmd == nullptr) {
         qDebug() << "[NetworkManager] Error: Unable to create Network Command";
+        return nullptr;
+    }
+
+    // do a connection check here
+    if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
+        qDebug() << "[NetworkManager] Error: Unable to connect to the network";
         return nullptr;
     }
 
@@ -105,10 +114,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
     if (flags.testFlag(UseCache)) {
         request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                              QNetworkRequest::PreferCache);
+        request.setAttribute(QNetworkRequest::CacheSaveControlAttribute, true);
     }
-    // add pipeline to the request
+
+    // add pipeline option to the request
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute,
                          flags.testFlag(UsePipelineMode));
+
     // add high priority
     if (flags.testFlag(UseHighPriority)) {
         request.setPriority(QNetworkRequest::HighPriority);
@@ -117,71 +129,63 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd,
     // keep track of reply to match command later on (async callback)
     QNetworkReply *networkReply = nullptr;
 
+    // encode query as part of the url in the request
+    QUrl queryUrl(cmd->url());
+    queryUrl.setQuery(cmd->query());
+    request.setUrl(queryUrl);
+
     switch (cmd->type()) {
     case Globals::HttpRequestTypeGet: {
-        // encode query as part of the url
-        QUrl queryUrl(cmd->url());
-        queryUrl.setQuery(cmd->query());
-        request.setUrl(queryUrl);
         qDebug() << "[NetworkManager] GET:" << request.url();
-        // send request
         networkReply = m_nam->get(request);
         break;
     } case Globals::HttpRequestTypePost: {
-        // encode query as part of the url
-        QUrl queryUrl(cmd->url());
-        queryUrl.setQuery(cmd->query());
-        request.setUrl(queryUrl);
-        // get json data
-        QByteArray jsonData = cmd->jsonQuery();
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-        request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
         qDebug() << "[NetworkManager] POST:" << request.url();
-        // send request
+        //POST methods need a special request header
+        QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->post(request, jsonData);
         break;
     } case Globals::HttpRequestTypePut: {
-        // encode query as part of the url
-        QUrl queryUrl(cmd->url());
-        queryUrl.setQuery(cmd->query());
-        request.setUrl(queryUrl);
-        // get json data
-        QByteArray jsonData = cmd->jsonQuery();
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-        request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
         qDebug() << "[NetworkManager] PUT:" << request.url();
-        // send request
+        //PUT methods need a special request header
+        QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->put(request, jsonData);
         break;
     } case Globals::HttpRequestTypeDelete: {
-        // encode query as part of the url
-        QUrl queryUrl(cmd->url());
-        queryUrl.setQuery(cmd->query());
-        request.setUrl(queryUrl);
         qDebug() << "[NetworkManager] DELETE: " << request.url();
-        // send request
         networkReply = m_nam->deleteResource(request);
         break;
-    }// if not set or unknown error
-    case Globals::HttpRequestTypeNone: {
+    } case Globals::HttpRequestTypeNone: {
         qDebug() << "[NetworkManager] Error: Unkown request type";
         break;
     } default:
-        qDebug() << "[NetworkManager] Error: Unkown network command!";
+        qDebug() << "[NetworkManager] Error: Unkown network command type";
     }
 
     if (networkReply == nullptr) {
-        qDebug() << "[NetworkManager] Error: NetWork reply is null!!";
+        qDebug() << "[NetworkManager] Error: NetWork reply is null";
         return nullptr;
     }
 
     NetworkReply *replyWrapper = new NetworkReply(networkReply);
     if (replyWrapper == nullptr) {
-        // something didn't work out :/
-        qDebug() << "[NetworkManager] Error: Unable to create network request!";
+        qDebug() << "[NetworkManager] Error: Unable to create network request";
         return nullptr;
     }
 
-    replyWrapper->setCustomData(data);
+    // set timeout ON if requested
+    if (flags.testFlag(UseTimeOutAbort)) {
+        replyWrapper->startTimeOutTimer();
+    }
+
     return replyWrapper;
+}
+
+QByteArray NetworkManager::addJSONDatatoRequest(NetworkCommand *cmd,
+                                                QNetworkRequest &request) const
+{
+    QByteArray jsonData = cmd->jsonQuery();
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
+    return jsonData;
 }

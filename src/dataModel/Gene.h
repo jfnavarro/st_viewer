@@ -21,19 +21,17 @@ public:
 
     Gene();
     explicit Gene(const Gene& other);
-    explicit Gene(const QString& id, const QString& name, bool selected = false,
+    explicit Gene(const QString& name, bool selected = false,
                   QColor m_color = Globals::DEFAULT_COLOR_GENE);
     ~Gene();
 
     Gene& operator= (const Gene& other);
     bool operator== (const Gene& other) const;
 
-    const QString id() const;
     const QString name() const;
     bool selected() const;
     const QColor color() const;
 
-    void id(const QString& id);
     void name(const QString& name);
     void selected(bool selected);
     void color(const QColor& color);
@@ -43,7 +41,6 @@ public:
 
 private:
 
-    QString m_id;
     QString m_name;
     QColor m_color;
     bool m_selected;

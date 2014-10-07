@@ -20,13 +20,20 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+// DTO used to parse the endpoint S3Resource that is meant to encapsulate
+// file resources. The file is encoded with 64 bits as a byte array and compressed
+// with zlib
+
 //TODO move declarations to CPP and/or consider removing DTOs
 class WrappedFileDTO : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString datasetId READ fileName WRITE fileName) //TODO soon to be renamed to file_name
+    Q_PROPERTY(QString contentType READ contentType WRITE contentType)
+    Q_PROPERTY(QString contentEncoding READ contentEncoding WRITE contentEncoding)
+    Q_PROPERTY(QString filename READ fileName WRITE fileName)
     Q_PROPERTY(QByteArray file READ compressedFile WRITE compressedFile)
+    Q_PROPERTY(qlonglong size READ size WRITE size)
 
 public:
 
@@ -34,12 +41,22 @@ public:
     ~WrappedFileDTO() { }
 
     // binding
-    const QString& fileName() const { return m_fileName; }
-    const QByteArray& compressedFile() const { return m_rawCompressedFile; }
+    const QString contentType() const { return m_contentType; }
+    const QString contentEncoding() const { return m_contentEncoding; }
+    const QString fileName() const { return m_fileName; }
+    const QByteArray compressedFile() const { return m_rawCompressedFile; }
+    qlonglong size() const { return m_size; }
+
+    // getters
+    void contentType(const QString& contentType) { m_contentType = contentType; }
+    void contentEncoding(const QString& contentEncoding) { m_contentEncoding = contentEncoding; }
+    void fileName(const QString& fileName) { m_fileName = fileName; }
+    void compressedFile(const QByteArray& file) { m_rawCompressedFile = file; }
+    void size(const qlonglong size) { m_size = size; }
 
     // uncompress a GZIP byte array encoded base 64
     // and returns uncompress byte array or empty if something went wrong
-    const QByteArray decompressedFile()
+    const QByteArray decompressedFile() const
     {
         // input array from the server is encoded base 64
         QByteArray input = QByteArray::fromBase64(m_rawCompressedFile);
@@ -137,14 +154,13 @@ public:
         return output;
     }
 
-    // getters
-    void fileName(const QString& fileName) { m_fileName = fileName; }
-    void compressedFile(const QByteArray& file) { m_rawCompressedFile = file; }
-
 private:
 
+    QString m_contentType;
+    QString m_contentEncoding;
     QString m_fileName;
     QByteArray m_rawCompressedFile;
+    qlonglong m_size;
 };
 
 #endif // WRAPPEDFILEDTO_H

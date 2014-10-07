@@ -8,8 +8,7 @@
 #include "Gene.h"
 
 Gene::Gene()
-    : m_id(),
-      m_name(),
+    : m_name(),
       m_color(Globals::DEFAULT_COLOR_GENE),
       m_selected(false)
 {
@@ -17,17 +16,15 @@ Gene::Gene()
 }
 
 Gene::Gene(const Gene& other)
-    : m_id(other.m_id),
-      m_name(other.m_name),
+    : m_name(other.m_name),
       m_color(other.m_color),
       m_selected(other.m_selected)
 {
 
 }
 
-Gene::Gene(const QString& id, const QString& name, bool selected, QColor color)
-    : m_id(id),
-      m_name(name),
+Gene::Gene(const QString& name, bool selected, QColor color)
+    : m_name(name),
       m_color(color),
       m_selected(selected)
 {
@@ -40,7 +37,6 @@ Gene::~Gene()
 
 Gene& Gene::operator=(const Gene& other)
 {
-    m_id = other.m_id;
     m_name = other.m_name;
     m_selected = other.m_selected;
     m_color = other.m_color;
@@ -49,16 +45,10 @@ Gene& Gene::operator=(const Gene& other)
 
 bool Gene::operator==(const Gene& other) const
 {
-    return( m_id == other.m_id &&
-            m_selected == other.m_selected &&
+    return( m_selected == other.m_selected &&
             m_name == other.m_name &&
             m_color == other.m_color
         );
-}
-
-const QString Gene::id() const
-{
-    return m_id;
 }
 
 const QString Gene::name() const
@@ -74,11 +64,6 @@ bool Gene::selected() const
 const QColor Gene::color() const
 {
     return m_color;
-}
-
-void Gene::id(const QString& id)
-{
-    m_id = id;
 }
 
 void Gene::name(const QString& name)

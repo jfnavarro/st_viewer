@@ -44,9 +44,6 @@ public:
 //This class owns a widget to show the DEA info
 //it also computes the DDA using member variables
 //so the same object can be used many times
-
-//TODO move the computation of DDA from this class
-//TODO no need to have all those member variables
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
@@ -56,16 +53,14 @@ public:
     explicit AnalysisDEA(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
-    // compute the statistics and visualization data points and stores them in local variables
-    void compute(const GeneSelection& selObjectA,
+    // compute the statistics and visualization data points and updates
+    // the visual components
+    void computeData(const GeneSelection& selObjectA,
                  const GeneSelection& selObjectB);
-
-    // generates the plot and shows the widget
-    void plot();
 
 signals:
 
-protected slots:
+private slots:
 
     void saveToPDF();
 
@@ -74,21 +69,6 @@ private:
     std::unique_ptr<Ui::ddaWidget> m_ui;
     QCustomPlot *m_customPlot;
 
-    //internal variables to store computed statistics
-    QVector<qreal> m_valuesSelectionA;
-    QVector<qreal> m_valuesSelectionB;
-    QVector<qreal> m_loggedValuesSelectionA;
-    QVector<qreal> m_loggedValuesSelectionB;
-    qreal m_meanSelectionA;
-    qreal m_meanSelectionB;
-    qreal m_stdDevSelectionA;
-    qreal m_stdDevSelectionB;
-    qreal m_correlation;
-    QString m_selectionA;
-    QString m_selectionB;
-    int m_countAB;
-    int m_countA;
-    int m_countB;
 };
 
 #endif // ANALYSISDEA_H

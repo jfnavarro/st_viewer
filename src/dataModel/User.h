@@ -56,6 +56,9 @@ public:
     void created(const QString& created);
     void lastModified(const QString& lastModified);
 
+    //property to indicate if the user has a special role (CM or ADMIN)
+    bool hasSpecialRole() const;
+
 private:
 
     QString m_id;

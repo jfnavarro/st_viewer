@@ -29,21 +29,22 @@ public:
     NetworkCommand(const QUrl& url,
                    Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
                    QObject *parent = 0);
-    ~NetworkCommand();
+    virtual ~NetworkCommand();
 
     // member access
     const QUrl& url() const;
     Globals::HttpRequestType type() const;
     const QUrlQuery& query() const;
 
-    // convenience wrapper functions
+    // convenience wrapper functions to add parameters to the network command
     void addQueryItem(const QString &param, const QString &value = QString());
     void addQueryItem(const QString &param, const int value);
     void addQueryItem(const QString &param, const qreal value);
+
     // adds query items from qobject meta data if its element are possible to parse to QVariant
     void addQueryItems(QObject *object);
 
-    //returns the current query item for the param given
+    // returns the current query item for the param given
     const QString getQueryItem(const QString& param) const;
 
     // returns the query part fully encoded.

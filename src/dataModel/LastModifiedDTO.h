@@ -15,6 +15,8 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+// This DTO parses the last_modified endpoints
+
 //TODO move declarations to CPP and/or consider removing DTOs
 class LastModifiedDTO : public QObject
 {

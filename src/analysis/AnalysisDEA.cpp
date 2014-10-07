@@ -19,17 +19,7 @@
 AnalysisDEA::AnalysisDEA(QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(new Ui::ddaWidget),
-    m_customPlot(nullptr),
-    m_meanSelectionA(0.0),
-    m_meanSelectionB(0.0),
-    m_stdDevSelectionA(0.0),
-    m_stdDevSelectionB(0.0),
-    m_correlation(0.0),
-    m_selectionA(),
-    m_selectionB(),
-    m_countAB(0),
-    m_countA(0),
-    m_countB(0)
+    m_customPlot(nullptr)
 {
     setModal(true);
 
@@ -37,6 +27,28 @@ AnalysisDEA::AnalysisDEA(QWidget *parent, Qt::WindowFlags f) :
 
     // creating plotting object
     m_customPlot = new QCustomPlot(m_ui->plotWidget);
+    Q_ASSERT(m_customPlot != nullptr);
+
+    // add a scatter plot graph
+    m_customPlot->addGraph();
+    m_customPlot->graph(0)->setScatterStyle(
+                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::blue), Qt::white, 5));
+    m_customPlot->graph(0)->setAntialiasedScatters(true);
+    m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
+    m_customPlot->graph(0)->setName("Correlation Scatter Plot");
+    m_customPlot->graph(0)->rescaleAxes(true);
+
+    // sets the legend and attributes
+    m_customPlot->legend->setVisible(false);
+    m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
+    m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
+    m_customPlot->xAxis->setTicks(true);
+    m_customPlot->yAxis->setTicks(true);
+    // make top right axes clones of bottom left axes. Looks prettier:
+    m_customPlot->axisRect()->setupFullAxesBox();
+    // plot and add mouse interaction (fixed size)
+    m_customPlot->setFixedSize(500, 400);
+    m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
     //make connections
     connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
@@ -50,14 +62,10 @@ AnalysisDEA::~AnalysisDEA()
 }
 
 //TODO split and optimize this function
-void AnalysisDEA::compute(const GeneSelection &selObjectA,
+void AnalysisDEA::computeData(const GeneSelection &selObjectA,
                           const GeneSelection &selObjectB)
 {
     typedef QHash<QString, QPair<qreal,qreal> > geneToNormalizedPairType;
-
-    // update the selection names
-    m_selectionA = selObjectA.name();
-    m_selectionB = selObjectB.name();
 
     // get the list of selected items
     const auto &selA = selObjectA.selectedItems();
@@ -95,26 +103,22 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
     m_ui->tableWidget->setRowCount(biggestSize);
     int index = 0; //to keep count of the elements inserted
 
-    // some temp variables for computation of statistics (not normalized values)
-    QVector<qreal> valuesA;
-    QVector<qreal> valuesB;
-
-    // reset counters for overlapping
-    m_countAB = 0;
-    m_countA = 0;
-    m_countB = 0;
-
-    // reset lists of values
-    m_valuesSelectionA.clear();
-    m_valuesSelectionB.clear();
-    m_loggedValuesSelectionA.clear();
-    m_loggedValuesSelectionB.clear();
+    // create vector containers for plot data points and temp variables for computing stats
+    QVector<double> valuesSelectionA;
+    QVector<double> valuesSelectionB;
+    QVector<double> loggedValuesSelectionA;
+    QVector<double> loggedValuesSelectionB;
+    QVector<double> nonNormalizedvaluesA;
+    QVector<double> nonNormalizedvaluesB;
+    unsigned countAB = 0;
+    unsigned countA = 0;
+    unsigned countB = 0;
 
     //total reads in each selection used to normalize
     const int totalReadsSelectionA = selObjectA.totalReads();
     const int totalReadsSelectionB = selObjectB.totalReads();
 
-    //iterate the hash table to compute the DDA values
+    //iterate the hash table to compute the DDA stats and populate the table
     geneToNormalizedPairType::const_iterator end = genesToNormalizedReads.end();
     for (geneToNormalizedPairType::const_iterator it = genesToNormalizedReads.begin();
          it != end; ++it) {
@@ -130,90 +134,54 @@ void AnalysisDEA::compute(const GeneSelection &selObjectA,
 
         // compute overlapping counting values
         if (valueSelection1 == 0.0) {
-            m_countB++;
+            countB++;
         } else if (valueSelection2 == 0.0) {
-            m_countA++;
+            countA++;
         } else {
-            m_countAB++;
+            countAB++;
         }
 
         // populate lists of values with normalized values (for the scatter plot)
         const qreal normalizedValueSelection1 =
-                ((it.value().first * 10e5) / totalReadsSelectionA) + 1;
+                ((valueSelection1 * 10e5) / totalReadsSelectionA) + 1;
         const qreal normalizedValueSelection2 =
-                ((it.value().second * 10e5) / totalReadsSelectionB) + 1;
+                ((valueSelection2 * 10e5) / totalReadsSelectionB) + 1;
 
         // update lists of values
-        m_valuesSelectionA.push_back(normalizedValueSelection1);
-        m_valuesSelectionB.push_back(normalizedValueSelection2);
-        m_loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
-        m_loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
+        valuesSelectionA.push_back(normalizedValueSelection1);
+        valuesSelectionB.push_back(normalizedValueSelection2);
+        loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
+        loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
 
-        //update temp variables to compute stats
-        valuesA.append(valueSelection1);
-        valuesB.append(valueSelection2);
+        //update temp variables to compute stats (non normalized values)
+        nonNormalizedvaluesA.append(valueSelection1);
+        nonNormalizedvaluesB.append(valueSelection2);
     }
     //enable sorting to the table (must be done after population)
     m_ui->tableWidget->setSortingEnabled(true);
     m_ui->tableWidget->update();
 
-    //compute stats (using non normalized values)
-    m_meanSelectionA = STMath::mean(valuesA);
-    m_meanSelectionB = STMath::mean(valuesB);
-    m_stdDevSelectionA = STMath::std_dev(valuesA);
-    m_stdDevSelectionB = STMath::std_dev(valuesB);
-    //for correlation use normalized logged values
-    m_correlation = STMath::pearson(m_loggedValuesSelectionA, m_loggedValuesSelectionB);
-}
-
-void AnalysisDEA::plot()
-{
-    Q_ASSERT(m_customPlot != nullptr);
-
-    m_customPlot->clearGraphs();
-    m_customPlot->addGraph();
-    m_customPlot->graph(0)->setScatterStyle(
-                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::blue), Qt::white, 5));
-    m_customPlot->graph(0)->setData(m_valuesSelectionA, m_valuesSelectionB);
-    m_customPlot->graph(0)->setAntialiasedScatters(true);
-    m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
-    m_customPlot->graph(0)->setName("Correlation Scatter Plot");
+    //update plot data
+    m_customPlot->graph(0)->setData(valuesSelectionA, valuesSelectionB);
     m_customPlot->graph(0)->rescaleAxes();
-    m_customPlot->graph(0)->rescaleAxes(true);
-
-    // sets the legend
-    m_customPlot->legend->setVisible(false);
-    // give the axes some labels:
-    m_customPlot->xAxis->setLabel(m_selectionA);
-    m_customPlot->yAxis->setLabel(m_selectionB);
-    // set axes ranges, so we see all data:
-    //m_customPlot->xAxis->setRange(0, 10e4);
-    //m_customPlot->yAxis->setRange(0, 10e4);
-    m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
-    m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
-    m_customPlot->xAxis->setTicks(true);
-    m_customPlot->yAxis->setTicks(true);
-    // make top right axes clones of bottom left axes. Looks prettier:
-    m_customPlot->axisRect()->setupFullAxesBox();
-    // plot and add mouse interaction (fixed size)
-    m_customPlot->setFixedSize(500, 400);
+    m_customPlot->xAxis->setLabel(selObjectA.name());
+    m_customPlot->yAxis->setLabel(selObjectB.name());
     m_customPlot->replot();
-    m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    m_customPlot->show();
 
-    //update UI fields
-    m_ui->numGenesSelectionA->setText(QString::number(m_countA + m_countAB));
-    m_ui->numGenesSelectionB->setText(QString::number(m_countB + m_countAB));
-    m_ui->meanSelectionA->setText(QString::number(m_meanSelectionA));
-    m_ui->meanSelectionB->setText(QString::number(m_meanSelectionB));
-    m_ui->stdDevSelectionA->setText(QString::number(m_stdDevSelectionA));
-    m_ui->stdDevSelectionB->setText(QString::number(m_stdDevSelectionB));
-    m_ui->correlation->setText(QString::number(fabs(m_correlation)));
-    m_ui->overlappingGenes->setText(QString::number(m_countAB));
-    m_ui->genesOnlyA->setText(QString::number(m_countA));
-    m_ui->genesOnlyB->setText(QString::number(m_countB));
-    m_ui->selectionA->setText(m_selectionA);
-    m_ui->selectionB->setText(m_selectionB);
+    //update UI fields for stats
+    m_ui->numGenesSelectionA->setText(QString::number(countA + countAB));
+    m_ui->numGenesSelectionB->setText(QString::number(countB + countAB));
+    m_ui->meanSelectionA->setText(QString::number(STMath::mean(nonNormalizedvaluesA)));
+    m_ui->meanSelectionB->setText(QString::number(STMath::mean(nonNormalizedvaluesB)));
+    m_ui->stdDevSelectionA->setText(QString::number(STMath::std_dev(nonNormalizedvaluesA)));
+    m_ui->stdDevSelectionB->setText(QString::number(STMath::std_dev(nonNormalizedvaluesB)));
+    m_ui->correlation->setText(QString::number(STMath::pearson(loggedValuesSelectionA,
+                                                               loggedValuesSelectionB)));
+    m_ui->overlappingGenes->setText(QString::number(countAB));
+    m_ui->genesOnlyA->setText(QString::number(countA));
+    m_ui->genesOnlyB->setText(QString::number(countB));
+    m_ui->selectionA->setText(selObjectA.name());
+    m_ui->selectionB->setText(selObjectB.name());
 }
 
 void AnalysisDEA::saveToPDF()

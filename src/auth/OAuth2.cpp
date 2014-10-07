@@ -11,6 +11,7 @@
 #include <QJsonDocument>
 #include <QString>
 #include <QUuid>
+#include <QApplication>
 
 #include "dialogs/LoginDialog.h"
 
@@ -50,12 +51,12 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
     requestToken(requestType, requestData);
 }
 
-void OAuth2::startInteractiveLogin(QWidget *parent)
+void OAuth2::startInteractiveLogin()
 {
     // lazy init
     if (m_loginDialog.isNull()) {
-        m_loginDialog = new LoginDialog(parent);
-        connect(m_loginDialog, SIGNAL(exitLogin()), this, SIGNAL(signalLoginAborted()));
+        //TODO get MainWindow central widget and give it as parent
+        m_loginDialog = new LoginDialog();
         connect(m_loginDialog, SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
@@ -80,59 +81,47 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     cmd->addQueryItem(requestPassword.first, requestPassword.second);
 
     // send empty flags to ensure access token is not appended to request
-    //TODO make this syncrhonous
-    NetworkReply *request =
-            m_networkManager->httpRequest(cmd, QVariant(QVariant::Invalid), NetworkManager::Empty);
+    NetworkReply *request = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
 
-    //check reply is correct
+    // check if reply is null due to internet connection
     if (request == nullptr) {
         QSharedPointer<OAuth2Error>
-                error(new OAuth2Error("Log in Error", "Connection Problem", this));
+                error(new OAuth2Error(tr("Log in Error"), tr("Connection Problem"), this));
         emit signalError(error);
     } else {
-        connect(request, SIGNAL(signalFinished(QVariant, QVariant)),
-                this, SLOT(slotNetworkReply(QVariant, QVariant)));
+        connect(request, SIGNAL(signalFinished(QVariant)), this, SLOT(slotNetworkReply(QVariant)));
     }
 
     //clean up
     cmd->deleteLater();
 }
 
-void OAuth2::slotNetworkReply(QVariant code, QVariant data)
+void OAuth2::slotNetworkReply(QVariant code)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(code);
-
     // get reference to network reply from sender object
     NetworkReply *reply = dynamic_cast<NetworkReply*>(sender());
 
     // null reply, prob no connection
     if (reply == nullptr) {
         QSharedPointer<OAuth2Error>
-                error(new OAuth2Error("Log in Error", "Connection Problem", this));
+                error(new OAuth2Error(tr("Log in Error"), tr("Connection Problem"), this));
         emit signalError(error);
         return;
     }
 
-    //check the return code
-    const NetworkReply::ReturnCode returnCode =
-            static_cast<NetworkReply::ReturnCode>(reply->return_code());
-
-    if (returnCode == NetworkReply::CodeError) {
-        //TODO use the test from reply->getError()
-        QSharedPointer<OAuth2Error>
-                error(new OAuth2Error("Log in Error", "Authorization Failed", this));
-        emit signalError(error);
+    // check the return code
+    if (code != NetworkReply::CodeSuccess) {
+        emit signalError(reply->parseErrors());
         reply->deleteLater();
         return;
     }
 
-    //parse the reply
+    // parse the reply to JSON (errors could happen when parsing)
     const QJsonDocument document = reply->getJSON();
-    const QVariant result = document.toVariant();
 
-    //no errors, good
+    // if no errors parse the OAuth2 token
     if (!reply->hasErrors()) {
+        const QVariant result = document.toVariant();
         OAuth2TokenDTO dto;
         data::parseObject(result, &dto);
         const QUuid accessToken(dto.accessToken());
@@ -149,6 +138,6 @@ void OAuth2::slotNetworkReply(QVariant code, QVariant data)
         emit signalError(reply->parseErrors());
     }
 
-    //clean up
+    // clean up
     reply->deleteLater();
 }

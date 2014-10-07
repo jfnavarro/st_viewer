@@ -14,7 +14,7 @@
 #include <cmath>
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    GraphicItemGL(parent), m_intensity(1.0f)
+    GraphicItemGL(parent), m_intensity(1.0)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -26,10 +26,10 @@ ImageTextureGL::ImageTextureGL(QObject *parent) :
 
 ImageTextureGL::~ImageTextureGL()
 {
-    clear();
+    clearData();
 }
 
-void ImageTextureGL::clear()
+void ImageTextureGL::clearData()
 {
     clearTextures();
     clearNodes();
@@ -86,7 +86,7 @@ void ImageTextureGL::setSelectionArea(const SelectionEvent *)
 void ImageTextureGL::createTexture(const QImage& image)
 {
     //clear memory
-    clear();
+    clearData();
     // we always tile, it is not secure to create one texture from the whole image
     createTiles(image);
     m_bounds = image.rect();
@@ -130,10 +130,10 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     QVector2D b(x + width, y);
     QVector2D c(x + width, y + height);
     QVector2D d(x, y + height);
-    QVector2D ta(0.0f, 0.0f);
-    QVector2D tb(1.0f, 0.0f);
-    QVector2D tc(1.0f, 1.0f);
-    QVector2D td(0.0f, 1.0f);
+    QVector2D ta(0.0, 0.0);
+    QVector2D tb(1.0, 0.0);
+    QVector2D tc(1.0, 1.0);
+    QVector2D td(0.0, 1.0);
 
     data.appendVertex(a, b, c, d);
     data.appendTexCoord(ta, tb, tc, td);

@@ -117,8 +117,7 @@ void DatasetPage::slotLoadDatasets()
     async::DataRequest request = m_dataProxy->loadDatasets();
     setWaiting(false);
 
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
+    if (!request.isSuccessFul()) {
         //TODO show the error present in request.getErrors()
         showError(tr("Data Error"), tr("Error loading the datasets"));
     } else {
@@ -169,8 +168,7 @@ void DatasetPage::slotEditDataset()
             async::DataRequest request = m_dataProxy->updateDataset(dataset);
             setWaiting(false);
 
-            if (request.return_code() == async::DataRequest::CodeError
-                    || request.return_code() == async::DataRequest::CodeAbort) {
+            if (!request.isSuccessFul()) {
                 //restore original name since updating failed
                 dataset->name(name);
                 dataset->statComments(comment);
@@ -201,7 +199,7 @@ void DatasetPage::slotOpenDataset()
     Q_ASSERT(!dataset->id().isEmpty());
 
     //updates state of DataProxy and move to next page
-    m_dataProxy->setSelectedDataset(dataset->id());
+    m_dataProxy->setSelectedDataset(dataset);
     emit moveToNextPage();
 }
 
@@ -235,16 +233,16 @@ void DatasetPage::slotRemoveDataset()
     async::DataRequest request = m_dataProxy->removeDataset(datasetId);
     setWaiting(false);
 
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
+    if (!request.isSuccessFul()) {
         //TODO get error from request
         showError(tr("Remove Dataset"), tr("Error removing the dataset"));
     } else {
         //TODO temp hack to reset the current selected dataset in
-        //case we are removing the current selected dataset
+        //case we are removing the current selected dataset (opened)
         //this logic should be handled in dataProxy
-        if (datasetId == m_dataProxy->getSelectedDataset()) {
-            m_dataProxy->setSelectedDataset(QString());
+        if (!m_dataProxy->getSelectedDataset().isNull() &&
+                datasetId == m_dataProxy->getSelectedDataset()->id()) {
+            m_dataProxy->resetSelectedDataset();
         }
         showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
     }

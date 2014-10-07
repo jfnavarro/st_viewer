@@ -62,14 +62,17 @@ public:
     void resetRefCount();
     void resetValues();
     void resetSelection(const bool selected);
-    //wrapper of the three above to speed up
+    //wrapper of the three above to speed up and do it in one loop
     void resetRefCountSelectAndValues();
+
+    //is this gene data valid to be rendered?
+    bool isValid() const;
 
 private:
 
     GeneData::refCountType m_refCount;
 
-    Q_DISABLE_COPY(GeneData)
+    Q_DISABLE_COPY(GeneData);
 };
 
 #endif // GENEDATA_H

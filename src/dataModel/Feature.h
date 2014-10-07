@@ -30,7 +30,6 @@ public:
     Feature& operator=(const Feature& other);
     bool operator==(const Feature& other) const;
 
-    const QString id() const;
     const QString barcode() const;
     const QString gene() const;
     const QString annotation() const;
@@ -38,7 +37,6 @@ public:
     double x() const;
     double y() const;
 
-    void id(const QString& id);
     void barcode(const QString& barcode);
     void gene(const QString& gene);
     void annotation(const QString& annotation);
@@ -56,7 +54,6 @@ public:
 
 protected:
 
-    QString m_id;
     QString m_barcode;
     QString m_gene;
     QString m_annotation;

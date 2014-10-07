@@ -48,7 +48,7 @@ public:
                                               const int min,
                                               const int max);
 
-    // convenience function to adjust the input value using a Liner - Exponential or Logaritmic
+    // convenience function to adjust the input value using a Linear - Exponential or Logaritmic
     // function
     static qreal normalizeValueSpectrumFunction(const qreal value,
                                                 const SpectrumMode mode = SpectrumLinear);

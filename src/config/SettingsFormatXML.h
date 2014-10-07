@@ -13,13 +13,13 @@
 #include <QSettings>
 
 // Import/Export plug-in for saving settings data in an XML format.
+
 //TODO replace for namespace and remove the class
 class SettingsFormatXML
 {
 
 public:
-    // static char defining the delimiting characters when parsing to settings
-    // format, default '/'
+
     static const QChar GROUP_DELIMITER;
 
     static bool writeXMLFile(QIODevice &device, const QSettings::SettingsMap &map);

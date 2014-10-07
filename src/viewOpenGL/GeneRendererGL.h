@@ -71,16 +71,22 @@ public slots:
     void setSize(qreal size);
     void setShine(qreal shine);
     void setShape(Globals::GeneShape shape);
+
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
+    void setPooledLowerLimit(int limit);
+    void setPooledUpperLimit(int limit);
+
     void setVisualMode(const Globals::GeneVisualMode &mode);
 
     //for the given gene list updates the color
     //according to the color of the selected genes
+    // gene data must be initialized
     void updateColor(DataProxy::GeneList geneList);
 
     //for the given gene list see all its features to visible
     //according if the gene is selected or not
+    // gene data must be initialized
     void updateVisible(DataProxy::GeneList geneList);
 
     //clear all the selected features and notify observers
@@ -105,11 +111,13 @@ private:
     bool isFeatureOutsideRange(const int hits, const float totalValue);
 
     // internal rendering functions that alters the rendering data
+    // gene data must be initialized
     void updateSize();
     void updateVisual();
 
     // helper function to be used when user whan to select features using
     // a list of genes
+    // gene data must be initialized
     void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
@@ -153,12 +161,6 @@ private:
     int m_thresholdUpper;
     int m_thresholdLowerPooled;
     int m_thresholdUpperPooled;
-
-    // dataset Statistics
-    int m_min;
-    int m_max;
-    int m_pooledMin;
-    int m_pooledMax;
 
     // local statistics (Adjusted according to what is being rendered)
     float m_localPooledMin;

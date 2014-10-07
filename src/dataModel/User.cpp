@@ -6,7 +6,12 @@
 */
 
 #include "User.h"
+
 #include <QDate>
+
+static const QString ROLE_USER = QStringLiteral("ROLE_USER");
+static const QString ROLE_CM = QStringLiteral("ROLE_CM");
+static const QString ROLE_ADMIN = QStringLiteral("ROLE_ADMIN");
 
 User::User()
     : m_id(),
@@ -239,4 +244,9 @@ void User::created(const QString& created)
 void User::lastModified(const QString& lastModified)
 {
     m_lastMofidied = lastModified;
+}
+
+bool User::hasSpecialRole() const
+{
+    return m_role == ROLE_CM || m_role == ROLE_ADMIN;
 }

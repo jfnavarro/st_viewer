@@ -15,14 +15,19 @@ class QIODevice;
 
 // Simple stream based encryption class. Uses standard XOR approach to encrypt
 // stream data with a unique key. Encodes data in variable length segments.
+
 //TODO add crc32-based checksum to segment header for data validation.
+//TODO add better comments
 class SimpleCrypt
 {
     
 public:
     
     typedef std::unique_ptr<QIODevice> resourceDeviceType;
+
     static const quint64 EMPTY_KEY = Q_UINT64_C(0x00);
+    // internal version control
+    static const quint8 VERSION = 0x01;
 
     enum ErrorCode {
         StreamOK = 0x00,
@@ -59,9 +64,6 @@ private:
     void decodeByteArray(QByteArray &data) const;
 
     static quint8 randomSeed();
-    
-    // internal version control
-    static const quint8 VERSION = 0x01;
 
     struct StreamHeader {
         quint8 version;

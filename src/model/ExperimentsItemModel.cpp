@@ -9,6 +9,7 @@
 
 #include <QDebug>
 #include <QItemSelection>
+#include <QDateTime>
 
 #include <set>
 

@@ -22,9 +22,11 @@ public:
     explicit ImageTextureGL(QObject *parent = 0);
     virtual ~ImageTextureGL();
 
+    //will split the image into small textures of fixed size
     void createTexture(const QImage& image);
 
-    void clear();
+    //will remove and destroy all textures
+    void clearData();
 
 public slots:
 
@@ -38,6 +40,7 @@ protected:
 
 private:
 
+    //internal functions to create textures from images
     void createTiles(const QImage &image);
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
 

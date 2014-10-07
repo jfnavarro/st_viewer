@@ -117,8 +117,3 @@ const QString Configuration::dataEndpointFigures() const
 {
    return readSetting(QStringLiteral("data/endpoints/figure"));
 }
-
-const QString Configuration::dataEndpointFiguresLastModified() const
-{
-   return readSetting(QStringLiteral("data/endpoints/figureLastModified"));
-}

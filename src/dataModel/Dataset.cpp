@@ -297,11 +297,9 @@ qreal Dataset::statisticsMin() const
 qreal Dataset::statisticsMax() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
+    // returning q4 an alternative would be
     // min ( q3 + 1.5 * (q3-q1), q4 )
-    const qreal q4 = m_geneHitsQuartiles.at(4);
-    const qreal q1 = m_geneHitsQuartiles.at(1);
-    const qreal q3 = m_geneHitsQuartiles.at(3);
-    return std::min(q3 + 1.5 * (q3 - q1), q4);
+    return m_geneHitsQuartiles.at(4);
 }
 
 qreal Dataset::statisticsPooledMin() const
@@ -315,10 +313,8 @@ qreal Dataset::statisticsPooledMin() const
 qreal Dataset::statisticsPooledMax() const
 {
     Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
+    // returning q4 an alternative would be
     // min ( q3 + 1.5 * (q3-q1), q4 )
-    const qreal q4 = m_genePooledHitsQuartiles.at(4);
-    const qreal q1 = m_genePooledHitsQuartiles.at(1);
-    const qreal q3 = m_genePooledHitsQuartiles.at(3);
-    return std::min(q3 + 1.5 * (q3 - q1), q4);
+    return m_genePooledHitsQuartiles.at(4);
 }
 

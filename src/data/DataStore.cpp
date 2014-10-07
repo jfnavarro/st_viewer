@@ -17,50 +17,23 @@
 
 static const QString TEMP_PREFIX = QStringLiteral("stvi_temp_XXXXXX_");
 static const QString RESTORE_FILE = QStringLiteral("stvi_filemap");
-static const QString LAST_MODIFIED_FILE = QStringLiteral("stvi_lastmodifiedmap");
 static const quint64 ENCRYPT_KEY = 0xDEADC0DEBAADC0DE;
 
 DataStore::DataStore(QObject *parent) :
     QObject(parent)
 {
     loadResourceMap();
-    loadLastModifiedMap();
 }
 
 DataStore::~DataStore()
 {
     saveResourceMap();
-    saveLastModifiedMap();
 }
 
 bool DataStore::hasResource(const QString& resourceid) const
 {
     const bool ok = m_fileMap.contains(resourceid);
     qDebug() << QString("DataStore::hasResource(%1) = %2 ").arg(resourceid).arg(ok);
-    return ok;
-}
-
-bool DataStore::resourceIsModified(const QString &resourceid, qlonglong newLastModified)
-{
-    if (!m_lastModifiedMap.contains(resourceid)) {
-        qDebug() << QString("DataStore::resourceIsModified() Resource is not present %1").
-                    arg(resourceid);
-        return false;
-    }
-
-    const qlonglong storedLastModified = m_lastModifiedMap[resourceid];
-    //-1 is the default value for the last modified which means
-    //that it was not given when the file was created
-    //thus, we add it now
-    if (storedLastModified == -1) {
-        m_lastModifiedMap[resourceid] = newLastModified;
-        qDebug() << QString("DataStore::resourceIsModified() Adding last modified for %1 = %2").
-                    arg(resourceid).arg(newLastModified);
-        return false;
-    }
-
-    const bool ok = m_lastModifiedMap[resourceid] != newLastModified;
-    qDebug() << QString("DataStore::resourceIsModified() for %1 = %2").arg(resourceid).arg(ok);
     return ok;
 }
 
@@ -85,7 +58,7 @@ DataStore::accessResource(const QString& name, Options options)
 }
 
 DataStore::resourceDeviceType
-DataStore::createResource(const QString &name, Options options, qlonglong lastModified)
+DataStore::createResource(const QString &name, Options options)
 {
     Q_ASSERT(!name.isNull() && !name.isEmpty());
     qDebug() << QString("DataStore::createResource(%1, %2)").arg(name).arg(options);
@@ -102,9 +75,6 @@ DataStore::createResource(const QString &name, Options options, qlonglong lastMo
         device.reset(simpleCryptDevice);
     }
 
-    // update the last modified map
-    m_lastModifiedMap[name] = lastModified;
-
     return device;
 }
 
@@ -112,6 +82,7 @@ void DataStore::clearResources()
 {
     const QString restoreFile = QDir::temp().filePath(RESTORE_FILE);
     QSettings restore(restoreFile, QSettings::IniFormat);
+
     //remove files
     foreach(const QString &resourceid, restore.allKeys()) {
         const QString possibleFile = qvariant_cast<QString>(restore.value(resourceid, QString()));
@@ -124,9 +95,9 @@ void DataStore::clearResources()
         //remove it from qsettigns as well
         restore.remove(resourceid);
     }
+
     //clear resource map and last modified map
     m_fileMap.clear();
-    m_lastModifiedMap.clear();
 }
 
 void DataStore::loadResourceMap()
@@ -155,32 +126,6 @@ void DataStore::saveResourceMap()
         qDebug() << QString("[DataStore] Save File: (%1 -> %2)").
                     arg(resourceid).arg(m_fileMap[resourceid]);
         restore.setValue(resourceid, m_fileMap[resourceid]);
-    }
-}
-
-void DataStore::loadLastModifiedMap()
-{
-    const QString lastModifiedFile = QDir::temp().filePath(LAST_MODIFIED_FILE);
-    QSettings restore(lastModifiedFile, QSettings::IniFormat);
-    //load files into resource map
-    foreach(const QString &resourceid, restore.allKeys()) {
-        const qlonglong storedLastModified = restore.value(resourceid, -1).toLongLong();
-        m_lastModifiedMap[resourceid] = storedLastModified;
-        qDebug() << QString("[DataStore] Load Last Modified: (%1 -> %2)").
-                    arg(resourceid).arg(storedLastModified);
-    }
-
-}
-
-void DataStore::saveLastModifiedMap()
-{
-    const QString lastModifiedFile = QDir::temp().filePath(LAST_MODIFIED_FILE);
-    QSettings restore(lastModifiedFile, QSettings::IniFormat);
-    //save content of the resource map
-    foreach(const QString &resourceid, m_lastModifiedMap.keys()) {
-        qDebug() << QString("[DataStore] Save Last Modified: (%1 -> %2)")
-                    .arg(resourceid).arg(m_lastModifiedMap[resourceid]);
-        restore.setValue(resourceid, m_lastModifiedMap[resourceid]);
     }
 }
 

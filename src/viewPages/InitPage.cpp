@@ -45,7 +45,7 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
 
     //start authorization
-    authorizationManager->start(this);
+    authorizationManager->startAuthorization();
 }
 
 InitPage::~InitPage()
@@ -64,14 +64,13 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    QPointer<AuthorizationManager> authorizationManager =
-            m_dataProxy->getAuthorizationManager();
+    QPointer<AuthorizationManager> authorizationManager = m_dataProxy->getAuthorizationManager();
 
     //force clean access token and authorize again
     authorizationManager->cleanAccesToken();
-    authorizationManager->forceAuthentication();
+    authorizationManager->startAuthorization();
 
-    //TODO show error? it will show the error when the user types wrong credentails...
+    //not sure whether we want to show the error to the user or not when login failed
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 
@@ -85,8 +84,7 @@ void InitPage::slotAuthorized()
     async::DataRequest request = m_dataProxy->loadUser();
     setWaiting(false);
 
-    if (request.return_code() == async::DataRequest::CodePresent
-            || request.return_code() == async::DataRequest::CodeSuccess) {
+    if (request.isSuccessFul()) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         if (!user->enabled()) {
@@ -107,10 +105,9 @@ void InitPage::slotLogOutButton()
     m_ui->newExpButt->setEnabled(false);
     m_ui->user_name->clear();
     
-    QPointer<AuthorizationManager> authorizationManager =
-            m_dataProxy->getAuthorizationManager();
+    QPointer<AuthorizationManager> authorizationManager = m_dataProxy->getAuthorizationManager();
 
     //force clean access token and authorize again
     authorizationManager->cleanAccesToken();
-    authorizationManager->forceAuthentication();
+    authorizationManager->startAuthorization();
 }

@@ -5,9 +5,10 @@
 
 */
 
-#include <QCoreApplication>
-
 #include "GeneExporter.h"
+
+#include <QCoreApplication>
+#include <QDateTime>
 
 static const QString PROPERTY_LIST_DELIMITER = QStringLiteral(";;");
 
@@ -119,16 +120,20 @@ void GeneExporter::exportItem(QIODevice &device,
         if (m_detailLevel.testFlag(GeneExporter::Comments)) {
             otxt << QString("# %1").arg("stVi export: feature list") << endl;
         }
+
         // prepend data with application version
         const QString version = QCoreApplication::applicationVersion();
         if (m_detailLevel.testFlag(GeneExporter::Comments)) {
             otxt << QString("# %1").arg("version") << endl;
         }
+
         otxt << (version.isEmpty() ? QString("0.0.0") : version) << endl;
+
         // prepend ISO 8601 compliant timestamp
         if (m_detailLevel.testFlag(GeneExporter::Comments)) {
             otxt << QString("# %1 (UTC)").arg("date") << endl;
         }
+
         otxt << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << endl;
     }
 

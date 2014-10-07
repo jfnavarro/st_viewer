@@ -8,7 +8,6 @@
 #ifndef OAUTH2_H
 #define OAUTH2_H
 
-#include <memory>
 #include <QObject>
 #include <QPointer>
 
@@ -35,7 +34,7 @@ public:
     virtual ~OAuth2();
 
     // shows login dialog
-    void startInteractiveLogin(QWidget *parent = 0);
+    void startInteractiveLogin();
 
     // try to log in with stored access token
     void startQuietLogin(const QUuid& refreshToken);
@@ -44,13 +43,12 @@ signals:
 
     void signalLoginDone(const QUuid& accessToken,
                          int expiresIn, const QUuid& refreshToken);
-    void signalLoginAborted();
     void signalError(QSharedPointer<Error> error);
 
 private slots:
 
     //handles the authorization network reply
-    void slotNetworkReply(QVariant code, QVariant data);
+    void slotNetworkReply(QVariant code);
 
     //user enters log in (called from log in component) can be used to
     //try log in with hardcoded credentials

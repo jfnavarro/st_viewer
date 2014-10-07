@@ -87,6 +87,8 @@ public:
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
 
+    //toJson is needed to send PUT/POST requests as the JSON content of the object
+    //is appended to the request
     //TODO transform this to obtain fields and their types dynamically using the meta_properties
     QByteArray toJson() const
     {
@@ -115,8 +117,8 @@ public:
         jsonObj["obo_foundry_terms"] = oboTerms;
         jsonObj["comment"] = !comment().isEmpty() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
-        jsonObj["created_at"] =  QJsonValue::Null;
-        jsonObj["last_modified"] = QJsonValue::Null;
+        jsonObj["created_at"] =  QJsonValue::Null; //leave this empty the API will take care of it
+        jsonObj["last_modified"] = QJsonValue::Null; //leave this empty the API will take care of it
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);
@@ -133,13 +135,13 @@ private:
         QVariantList newList;
         foreach(const SelectionType &item, unserializedVector) {
             QVariantList itemList;
-            //TODO not storing normalized reads for now
             itemList << item.name
                      << QString::number(item.reads)
                      << QString::number(item.count)
                      << QString::number(item.pixeIntensity);
             newList << QVariant::fromValue(itemList);
         }
+
         return newList;
     }
 
@@ -163,6 +165,7 @@ private:
             SelectionType selection(name, reads, 0.0, pixelIntensity, count);
             values.push_back(selection);
         }
+
         return values;
     }
 

@@ -60,8 +60,7 @@ QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 {
     static const qreal gamma = 0.8;
 
-    // assert value is in range (380-780)
-    //const qreal cwavelength = STMath::clamp(value, 380.0, 780.0);
+    // denorm value to range (380-780)
     const qreal cwavelength = STMath::denorm(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra

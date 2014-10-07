@@ -206,6 +206,15 @@ inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2){
     return covariance(v1,v2) / (std_dev(v1) * std_dev(v2));
 }
 
+template<typename T>
+inline QVector<T> logVectorValues(const QVector<T>& input)
+{
+    QVector<T> output;
+    foreach(T value, input) {
+        output.push_back(std::log(value + 1));
+    }
+    return output;
+}
 
 } // end name space
 

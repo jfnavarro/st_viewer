@@ -103,6 +103,8 @@ public:
     const QString created() const { return m_dataset.created(); }
     const QString lastModified() const { return m_dataset.lastModified(); }
 
+    //toJson is needed to send PUT/POST requests as the JSON content of the object
+    //is appended to the request
     //TODO transform this to obtain fields dynamically using the meta_properties
     QByteArray toJson() const
     {
@@ -140,8 +142,8 @@ public:
         }
         jsonObj["granted_accounts"] = grantedAccounts;
         jsonObj["created_by_account_id"] = createdByAccount();
-        jsonObj["created_at"] =  QJsonValue::Null;
-        jsonObj["last_modified"] = QJsonValue::Null;
+        jsonObj["created_at"] =  QJsonValue::Null; //leave this empty the API will take care of it
+        jsonObj["last_modified"] = QJsonValue::Null; //leave this empty the API will take care of it
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);

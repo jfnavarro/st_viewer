@@ -26,7 +26,6 @@ public:
 
     SimpleCryptDevice(resourceDeviceType device, QObject *parent = 0);
     SimpleCryptDevice(resourceDeviceType device, quint64 key, QObject *parent = 0);
-
     virtual ~SimpleCryptDevice();
     
     // clear the buffer

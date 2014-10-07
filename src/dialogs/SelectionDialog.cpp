@@ -56,7 +56,7 @@ void SelectionDialog::accept()
     }
 
     // get the current list of genes
-    const auto& geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
+    const auto& geneList = m_dataProxy->getGeneList();
     
     // find all genes that match the regular expression
     m_selectedGeneList.clear();
@@ -65,6 +65,7 @@ void SelectionDialog::accept()
         if (!m_includeAmbiguous && gene->isAmbiguous()) {
             continue;
         }
+
         if (name.contains(m_regExp)) {
             m_selectedGeneList.append(gene);
         }

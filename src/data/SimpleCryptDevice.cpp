@@ -86,6 +86,7 @@ qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
     if (maxSize == 0) {
         return 0;
     }
+
     // define data pointers
     char *it = data;
     char *end = (data + maxSize);
@@ -98,6 +99,7 @@ qint64 SimpleCryptDevice::readData(char *data, qint64 maxSize)
         }
         it += readBuffer(it, (end - it));
     }
+
     // return read byte count
     return (it - data);
 }
@@ -108,6 +110,7 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
     if (maxSize == 0) {
         return 0;
     }
+
     // define data pointers
     const char *it = data;
     const char *end = (data + maxSize);
@@ -120,6 +123,7 @@ qint64 SimpleCryptDevice::writeData(const char *data, qint64 maxSize)
         }
         m_buffer.clear();
     }
+
     // return written byte count
     return (it - data);
 }
@@ -130,6 +134,7 @@ qint64 SimpleCryptDevice::readBuffer(char *out, qint64 maxSize)
     if (maxSize == 0) {
         return 0;
     }
+
     QBuffer inDevice(&m_buffer);
     inDevice.open(QIODevice::ReadOnly);
     // read buffer to output, retain unread in buffer
@@ -145,6 +150,7 @@ qint64 SimpleCryptDevice::writeBuffer(const char *in, qint64 maxSize)
     if (maxSize == 0) {
         return 0;
     }
+
     QBuffer outDevice(&m_buffer);
     outDevice.open(QIODevice::WriteOnly);
     // read input to buffer, biting off a preset sized chunk
@@ -172,6 +178,6 @@ qint64 SimpleCryptDevice::pos() const
 
 bool SimpleCryptDevice::isSequential() const
 {
-    //TODO finish this
+    //TODO implement
     return true;
 }

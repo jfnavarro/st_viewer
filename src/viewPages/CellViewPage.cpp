@@ -52,7 +52,7 @@
 
 #include "ui_cellview.h"
 
-#include "analysis/AnalysisHistogram.h"
+#include "analysis/AnalysisFRD.h"
 
 namespace {
 bool imageFormatHasWriteSupport(const QString &format) {
@@ -62,7 +62,7 @@ bool imageFormatHasWriteSupport(const QString &format) {
     }
     return (std::find(supportedImageFormats.begin(),
                       supportedImageFormats.end(),
-		      format) != supportedImageFormats.end());
+                      format) != supportedImageFormats.end());
 }
 }
 
@@ -86,7 +86,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     Q_ASSERT(m_ui);
 
     // instantiante FDH
-    m_FDH = new AnalysisHistogram();
+    m_FDH = new AnalysisFRD();
     Q_ASSERT(m_FDH);
 
     // color dialogs
@@ -145,7 +145,8 @@ void CellViewPage::onEnter()
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();
 
-    if (!loadData()) {
+    async::DataRequest request = m_dataProxy->loadDatasetContent();
+    if (!request.isSuccessFul()) {
         setWaiting(false);
         //there was a problem loading data
         //most likely user entered the view
@@ -164,16 +165,15 @@ void CellViewPage::onEnter()
     m_ui->area->setEnabled(true);
     m_toolBar->setEnableButtons(true);
 
-    const auto dataset =
-            m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
+    // Update Status tip with the name of the currently selected dataset
+    const auto dataset = m_dataProxy->getSelectedDataset();
     Q_ASSERT(!dataset.isNull());
     setStatusTip(tr("Dataset loaded %1").arg(dataset->name()));
 
-    const auto imageAlignment =
-            m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
+    const auto imageAlignment = m_dataProxy->getImageAlignment();
     Q_ASSERT(!imageAlignment.isNull());
 
-    const auto currentChip = m_dataProxy->getChip(imageAlignment->chipId());
+    const auto currentChip = m_dataProxy->getChip();
     Q_ASSERT(!currentChip.isNull());
 
     const QTransform alignment = imageAlignment->alignment();
@@ -191,8 +191,8 @@ void CellViewPage::onEnter()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
-    // load features into FDH
-    m_FDH->compute(m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset()), min, max);
+    // load features and threshold boundaries into FDH
+    m_FDH->computeData(m_dataProxy->getFeatureList(), min, max, pooledMin, pooledMax);
 
     // clear view data
     m_view->clearData();
@@ -203,18 +203,22 @@ void CellViewPage::onEnter()
     m_grid->generateData();
     m_grid->setTransform(alignment);
 
-    // update gene size an data
+    // update gene size and data
     m_gene_plotter->clearData();
     m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
     m_gene_plotter->setTransform(alignment);
     m_gene_plotter->setHitCount(min, max, pooledMin, pooledMax);
 
-    // updated legend size and data
-    m_legend->setBoundaries(min, max);
+    // updated legend size and data (only pooled limits affect the legend)
+    m_legend->setBoundaries(pooledMin, pooledMax);
 
     // load cell tissue
     slotLoadCellFigure();
+
+    // load min,max and pooled min,max to the threshold sliders in tool bar
+    // do this the last as it will trigger some slots in the gene_plotter and FDH
+    m_toolBar->resetTresholdActions(min, max, pooledMin, pooledMax);
 
     // reset main variabless
     resetActionStates();
@@ -229,81 +233,10 @@ void CellViewPage::onEnter()
 void CellViewPage::onExit()
 {
     m_grid->clearData();
+    m_image->clearData();
     m_gene_plotter->clearData();
-    m_image->clear();
     m_view->clearData();
     m_view->update();
-}
-
-bool CellViewPage::loadData()
-{
-    if (m_dataProxy->getSelectedDataset().isNull()
-            || m_dataProxy->getSelectedDataset().isEmpty()) {
-        return false;
-    }
-
-    const auto dataset =
-            m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
-
-    if (dataset.isNull()) {
-        showError(tr("Cell View"), tr("The current selected dataset is not valid"));
-        return false;
-    }
-
-    async::DataRequest request;
-
-    //load the image alignment first
-    request = m_dataProxy->loadImageAlignmentById(dataset->imageAlignmentId());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the image alignment"));
-        return false;
-    }
-
-    //get image alignmet object
-    const auto ImageAlignment =
-            m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
-    Q_ASSERT(!ImageAlignment.isNull());
-
-    //load cell tissue blue
-    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureBlue());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(blue)"));
-        return false;
-    }
-
-    //load cell tissue red (no need to download for role USER)
-    request = m_dataProxy->loadCellTissueByName(ImageAlignment->figureRed());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the cell tissue image(red)"));
-        return false;
-    }
-
-    //load chip
-    request = m_dataProxy->loadChipById(ImageAlignment->chipId());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the chip"));
-        return false;
-    }
-
-    //load features
-    request =  m_dataProxy->loadFeatureByDatasetId(dataset->id());
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
-        //TODO use text in request.getErrors()
-        showError(tr("Data loading Error"), tr("Error loading the features"));
-        return false;
-    }
-
-    //succes downloading the data
-    return true;
 }
 
 void CellViewPage::createConnections()
@@ -345,19 +278,18 @@ void CellViewPage::createConnections()
             [=]{ m_colorDialogGrid->show(); });
 }
 
-
 void CellViewPage::resetActionStates()
 {
     // resets genes/features color and visible to default (must be done first)
     // TODO should be a function to do this in DataProxy or somewhere else
     // TODO at some point we will stop resetting everything
-    const auto &geneList = m_dataProxy->getGeneList(m_dataProxy->getSelectedDataset());
+    const auto &geneList = m_dataProxy->getGeneList();
     for (auto gene : geneList) {
         Q_ASSERT(!gene.isNull());
         gene->selected(false);
         gene->color(Globals::DEFAULT_COLOR_GENE);
     }
-    const auto& features = m_dataProxy->getFeatureList(m_dataProxy->getSelectedDataset());
+    const auto& features = m_dataProxy->getFeatureList();
     for (auto feature : features) {
         Q_ASSERT(!feature.isNull());
         feature->color(Globals::DEFAULT_COLOR_GENE);
@@ -393,10 +325,9 @@ void CellViewPage::resetActionStates()
     m_toolBar->resetActions();
 
     // restrict interface
-    DataProxy::UserPtr current_user = m_dataProxy->getUser();
-    Q_ASSERT(!current_user.isNull());
-    m_toolBar->m_actionGroup_cellTissue->setVisible(current_user->role() == Globals::ROLE_CM
-                                                    || current_user->role() == Globals::ROLE_ADMIN);
+    const auto user = m_dataProxy->getUser();
+    Q_ASSERT(!user.isNull());
+    m_toolBar->m_actionGroup_cellTissue->setVisible(user->hasSpecialRole());
 }
 
 void CellViewPage::createToolBar()
@@ -481,7 +412,11 @@ void CellViewPage::createGLConnections()
             m_gene_plotter.data(), SLOT(setLowerLimit(int)));
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setUpperLimit(int)));
-    
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setPooledLowerLimit(int)));
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setPooledUpperLimit(int)));
+
     //gene attributes signals
     connect(m_toolBar.data(), SIGNAL(intensityValueChanged(qreal)),
             m_gene_plotter.data(), SLOT(setIntensity(qreal)));
@@ -526,10 +461,10 @@ void CellViewPage::createGLConnections()
             SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
-    // connect threshold slider to the heatmap
-    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
+    // connect threshold slider to the heatmap (only concerns for the pooled ones)
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
             m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
 
     // Features Histogram Distribution
@@ -537,44 +472,31 @@ void CellViewPage::createGLConnections()
             m_FDH.data(), SLOT(setLowerLimit(int)));
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_FDH.data(), SLOT(setUpperLimit(int)));
-    connect(m_toolBar->m_actionFDH, SIGNAL(triggered(bool)), this, SLOT(slotSetFDHVisible(bool)));
-
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
+            m_FDH.data(), SLOT(setPooledLowerLimit(int)));
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
+            m_FDH.data(), SLOT(setPooledUpperLimit(int)));
     connect(m_toolBar->m_actionFDH, &QAction::triggered, [=]{ m_FDH->show(); });
 }
 
-//TODO consider use future to make it anync
+//TODO make this concurrent
 void CellViewPage::slotLoadCellFigure()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
-    const auto current_user = m_dataProxy->getUser();
-    Q_ASSERT(!current_user.isNull());
-    const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
-    Q_ASSERT(!dataset.isNull());
-    const auto imageAlignment = m_dataProxy->getImageAlignment(dataset->imageAlignmentId());
-    Q_ASSERT(!imageAlignment.isNull());
 
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
     const bool loadRedFigure = forceRedFigure && !forceBlueFigure;
 
-    const QString figureid = loadRedFigure ? imageAlignment->figureRed()
-                                           : imageAlignment->figureBlue();
-    auto device = m_dataProxy->getFigure(figureid);
-
-    //read image
-    QImageReader reader(device.get());
-    const QImage image = reader.read();
-
-    //deallocate device
-    device->close();
-    device->deleteLater();
+    // retrieve the image (red or blue)
+    const QImage image = loadRedFigure ? m_dataProxy->getFigureRed()
+                                       : m_dataProxy->getFigureBlue();
 
     // add image to the texture image holder
     m_image->createTexture(image);
     // set the scene size in the view to the image bounding box
     m_view->setScene(image.rect());
-    // set the image in the gene plotter
+    // set the image in the gene plotter (used to retrieve the pixel intensities)
     m_gene_plotter->setImage(image);
 
     //update checkboxes
@@ -589,10 +511,12 @@ void CellViewPage::slotPrintImage()
     QPrinter printer;
     printer.setColorMode(QPrinter::Color);
     printer.setOrientation(QPrinter::Landscape);
+
     QScopedPointer<QPrintDialog> dialog(new QPrintDialog(&printer, this));
     if (dialog->exec() != QDialog::Accepted) {
         return;
     }
+
     QPainter painter(&printer);
     QRect rect = painter.viewport();
     QImage image = m_view->grabPixmapGL();
@@ -700,7 +624,7 @@ void CellViewPage::slotExportFeaturesSelection()
     //export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         FeatureExporter exporter = FeatureExporter(FeatureExporter::SimpleFull,
-                                             FeatureExporter::TabDelimited);
+                                                   FeatureExporter::TabDelimited);
         exporter.exportItem(textFile, featuresSelection);
         showInfo(tr("Export Features Selection"), tr("Features selection was exported successfully"));
     }
@@ -776,7 +700,7 @@ void CellViewPage::slotSaveSelection()
         selection.enabled(true);
 
         //add dataset ID
-        const auto dataset = m_dataProxy->getDatasetById(m_dataProxy->getSelectedDataset());
+        const auto dataset = m_dataProxy->getSelectedDataset();
         Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
 
@@ -796,8 +720,7 @@ void CellViewPage::slotSaveSelection()
         async::DataRequest request = m_dataProxy->addGeneSelection(selection);
         setWaiting(false);
 
-        if (request.return_code() == async::DataRequest::CodeError
-                || request.return_code() == async::DataRequest::CodeAbort) {
+        if (!request.isSuccessFul()) {
             //TODO get error from request
             showError(tr("Create Genes Selection"), tr("Error saving the Genes selection"));
         } else {

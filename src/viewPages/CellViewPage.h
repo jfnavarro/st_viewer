@@ -23,7 +23,7 @@ class GridRendererGL;
 class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
-class AnalysisHistogram;
+class AnalysisFRD;
 
 namespace Ui{
 class CellView;
@@ -43,9 +43,6 @@ public:
     
     explicit CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~CellViewPage();
-
-    // load the content of the currently selected dataset
-    bool loadData();
 
 public slots:
     
@@ -121,10 +118,10 @@ private:
     // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
-    // Features Distribution Histogram
-    QPointer<AnalysisHistogram> m_FDH;
+    // Features Reads Distribution
+    QPointer<AnalysisFRD> m_FDH;
 
-    Q_DISABLE_COPY(CellViewPage)
+    Q_DISABLE_COPY(CellViewPage);
 };
 
 #endif // CELLVIEWPAGE_H

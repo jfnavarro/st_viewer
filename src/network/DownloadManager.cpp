@@ -13,11 +13,13 @@
 namespace async
 {
 
-DataRequest::DataRequest() : m_return_code(CodeError)
+DataRequest::DataRequest()
+    : m_return_code(CodeError)
 {
 }
 
-DataRequest::DataRequest(const DataRequest::Code &code) : m_return_code(code)
+DataRequest::DataRequest(const DataRequest::Code &code)
+    : m_return_code(code)
 {
 }
 
@@ -41,8 +43,8 @@ DataRequest& DataRequest::operator=(const DataRequest& other)
 
 bool DataRequest::operator==(const DataRequest& other) const
 {
-    return(m_return_code == other.m_return_code
-           && m_error_list == other.m_error_list);
+    return m_return_code == other.m_return_code
+           && m_error_list == other.m_error_list;
 }
 
 DataRequest::Code DataRequest::return_code() const
@@ -63,6 +65,12 @@ void DataRequest::addError(QSharedPointer<Error> error)
 QList<QSharedPointer<Error>> DataRequest::getErrors() const
 {
     return m_error_list;
+}
+
+bool DataRequest::isSuccessFul() const
+{
+    return m_return_code == async::DataRequest::CodePresent
+            || m_return_code == async::DataRequest::CodeSuccess;
 }
 
 } // namespace async //

@@ -97,8 +97,7 @@ void ExperimentPage::slotLoadSelections()
     async::DataRequest request = m_dataProxy->loadGeneSelections();
     setWaiting(false);
 
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
+    if (!request.isSuccessFul()) {
         //TODO use the text in reques.getErrors()
         showError(tr("Data Error"), tr("Error loading the selections"));
     } else {
@@ -142,7 +141,7 @@ void ExperimentPage::slotRemoveSelection()
     }
 
     //currentSelection should only have one element
-    auto selectionItem = currentSelection.first();
+    const auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
     //remove the selection object
@@ -150,8 +149,7 @@ void ExperimentPage::slotRemoveSelection()
     async::DataRequest request = m_dataProxy->removeSelection(selectionItem->id());
     setWaiting(false);
 
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
+    if (!request.isSuccessFul()) {
         //TODO get error from request
         showError(tr("Remove Genes Selection"), tr("Error removing the Genes selection"));
         return;
@@ -240,8 +238,7 @@ void ExperimentPage::slotEditSelection()
             async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
             setWaiting(false);
 
-            if (request.return_code() == async::DataRequest::CodeError
-                    || request.return_code() == async::DataRequest::CodeAbort) {
+            if (!request.isSuccessFul()) {
                 //restore original name
                 selectionItem->name(name);
                 selectionItem->comment(comment);
@@ -258,7 +255,6 @@ void ExperimentPage::slotEditSelection()
     }
 }
 
-//TODO add waiting cursor if takes time to compute
 void ExperimentPage::slotPerformDDA()
 {
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
@@ -275,7 +271,6 @@ void ExperimentPage::slotPerformDDA()
     Q_ASSERT(!selectionObject2.isNull());
 
     QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA());
-    analysisDEA->compute(*selectionObject1, *selectionObject2);
-    analysisDEA->plot();
+    analysisDEA->computeData(*selectionObject1, *selectionObject2);
     analysisDEA->exec();
 }

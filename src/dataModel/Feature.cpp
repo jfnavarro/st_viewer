@@ -10,8 +10,7 @@
 #include "utils/Utils.h"
 
 Feature::Feature()
-    : m_id(),
-      m_barcode(),
+    : m_barcode(),
       m_gene(),
       m_annotation(),
       m_hits(0),
@@ -25,7 +24,6 @@ Feature::Feature()
 
 Feature::Feature(const Feature& other)
 {
-    m_id = other.m_id;
     m_barcode = other.m_barcode;
     m_gene = other.m_gene;
     m_annotation = other.m_annotation;
@@ -42,7 +40,6 @@ Feature::~Feature()
 
 Feature& Feature::operator=(const Feature& other)
 {
-    m_id = other.m_id;
     m_barcode = other.m_barcode;
     m_gene = other.m_gene;
     m_annotation = other.m_annotation;
@@ -55,7 +52,7 @@ Feature& Feature::operator=(const Feature& other)
 
 bool Feature::operator==(const Feature& other) const
 {
-    return (m_id == other.m_id &&
+    return (
             m_barcode == other.m_barcode &&
             m_gene == other.m_gene &&
             m_annotation == other.m_annotation &&
@@ -64,11 +61,6 @@ bool Feature::operator==(const Feature& other) const
             m_y == other.m_y &&
             m_color == other.m_color
             );
-}
-
-const QString Feature::id() const
-{
-    return m_id;
 }
 
 const QString Feature::barcode() const
@@ -99,11 +91,6 @@ double Feature::x() const
 double Feature::y() const
 {
     return m_y;
-}
-
-void Feature::id(const QString& id)
-{
-    m_id = id;
 }
 
 void Feature::barcode(const QString& barcode)

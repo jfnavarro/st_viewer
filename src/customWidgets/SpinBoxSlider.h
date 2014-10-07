@@ -16,6 +16,8 @@
 
 //Wrapper around QxtSpanSlider
 //to add two spin boxes one on each side
+
+// double bar slider is DISABLED at the moment
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT
@@ -47,7 +49,7 @@ private:
     void setLowerValuePrivate(const int min);
     void setUpperValuePrivate(const int max);
 
-    QPointer<QxtSpanSlider> m_spanslider;
+    //QPointer<QxtSpanSlider> m_spanslider;
     QPointer<QSpinBox> m_left_spinbox;
     QPointer<QSpinBox> m_right_spinbox;
     QPointer<QHBoxLayout> m_layout;

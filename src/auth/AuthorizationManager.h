@@ -36,17 +36,14 @@ public:
                          QObject* parent = 0);
     virtual ~AuthorizationManager();
 
-    //start the login process using the widget as parent if given
-    void start(QWidget *parent = 0);
+    //start the login process
+    void startAuthorization();
 
     //clean access token
     void cleanAccesToken();
 
     //true if the user is already authenticated
     bool isAuthenticated() const;
-
-    //force to log out, shows the login dialog and clean cache
-    void forceAuthentication(QWidget *parent = 0);
 
     //user acces token methods to check
     //if the user is already logged in
@@ -55,9 +52,7 @@ public:
 
 signals:
 
-    //the login was canceled
-    void signalLoginAborted();
-    //the login is succesful
+    //the login is successful
     void signalAuthorize();
     //there was an error trying to log in
     void signalError(QSharedPointer<Error> error);

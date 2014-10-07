@@ -68,6 +68,7 @@ public:
     QAction *m_action_toggleMinimapDownLeft;
 
     SpinBoxSlider *m_geneHitsThreshold;
+    SpinBoxSlider *m_geneHitsThresholdPooled;
     QSlider *m_geneIntensitySlider;
     QSlider *m_geneSizeSlider;
     QSlider *m_geneShineSlider;
@@ -92,8 +93,12 @@ public:
 
 signals:
 
+    //TODO signals should have prefix signal
     void thresholdLowerValueChanged(int);
     void thresholdUpperValueChanged(int);
+    void thresholdLowerPooledValueChanged(int);
+    void thresholdUpperPooledValueChanged(int);
+
     void intensityValueChanged(qreal);
     void sizeValueChanged(qreal);
     void shineValueChanged(qreal);
@@ -103,7 +108,7 @@ signals:
 
 public slots:
 
-    void resetTresholdActions(int min = 0, int max = 1);
+    void resetTresholdActions(int min, int max, int pooledMin, int pooledMax);
     void resetActions();
 
 private slots:

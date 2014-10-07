@@ -36,6 +36,7 @@ SimpleCrypt::ErrorCode SimpleCrypt::encodeStream(QIODevice *out) const
         m_lastError = StreamWriteError;
         return StreamWriteError;
     }
+
     return StreamOK;
 }
 

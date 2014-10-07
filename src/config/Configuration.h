@@ -50,7 +50,6 @@ public:
     const QString dataEndpointUsers() const;
     const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;
-    const QString dataEndpointFiguresLastModified() const;
 
 private:
 

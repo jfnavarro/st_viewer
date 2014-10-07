@@ -52,6 +52,8 @@ public:
     void addError(QSharedPointer<Error> error);
     QList<QSharedPointer<Error>> getErrors() const;
 
+    bool isSuccessFul() const;
+
 private:
 
     QList<QSharedPointer<Error>> m_error_list;

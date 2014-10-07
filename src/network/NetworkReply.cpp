@@ -14,6 +14,8 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QJsonArray>
+#include <QTimer>
+#include <QNetworkRequest>
 
 #include "network/NetworkCommand.h"
 #include "error/Error.h"
@@ -25,37 +27,40 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
+static const int TIMEOUT_INTERVAL = 1000; // miliseconds
+
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
 {
     Q_ASSERT_X(networkReply != nullptr, "NetworkReply", "Null-pointer assertion error!");
 
-    //try to download as fast as possible
+    // set read buffer to 0 to try to download as fast as possible
     networkReply->setReadBufferSize(0);
 
+    // set up timer to account for time-out events
+    m_timeoutEvent = new QTimer();
+    m_timeoutEvent->setSingleShot(true);
+    m_timeoutEvent->setInterval(TIMEOUT_INTERVAL);
+
     // connect signals
-    connect(networkReply, SIGNAL(finished()), this, SLOT(slotFinished()));
-    connect(networkReply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
-    connect(networkReply, SIGNAL(error(QNetworkReply::NetworkError)), this,
+    connect(m_reply, SIGNAL(finished()), this, SLOT(slotFinished()));
+    connect(m_reply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
+    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)), this,
             SLOT(slotError(QNetworkReply::NetworkError)));
-    connect(networkReply, SIGNAL(sslErrors(QList<QSslError>)), this,
+    connect(m_reply, SIGNAL(sslErrors(QList<QSslError>)), this,
             SLOT(slotSslErrors(QList<QSslError>)));
+    connect(m_timeoutEvent, SIGNAL(timeout()), this, SLOT(slotAbort()));
 }
 
 NetworkReply::~NetworkReply()
 {
+    m_timeoutEvent->disconnect();
+    m_timeoutEvent->stop();
+    m_timeoutEvent->deleteLater();
+    m_timeoutEvent = nullptr;
+
     m_reply->deleteLater();
     m_reply = nullptr;
-}
-
-const QVariant NetworkReply::customData() const
-{
-    return m_data;
-}
-
-void NetworkReply::setCustomData(QVariant data)
-{
-    m_data = data;
 }
 
 QJsonDocument NetworkReply::getJSON()
@@ -101,6 +106,9 @@ const NetworkReply::ErrorList& NetworkReply::errors() const
 
 void NetworkReply::slotAbort()
 {
+    // stop timmer
+    m_timeoutEvent->stop();
+
     // abort network operation
     m_reply->abort();
 }
@@ -108,20 +116,19 @@ void NetworkReply::slotAbort()
 void NetworkReply::slotFinished()
 {
     // determine return code
-    ReturnCode ret = CodeSuccess;
     switch (m_reply->error()) {
     case QNetworkReply::NoError:
-        ret = CodeSuccess;
+        m_code = CodeSuccess;
         break;
     case QNetworkReply::OperationCanceledError:
-        ret = CodeAbort;
+        m_code = CodeAbort;
         break;
     default:
-        ret = CodeError;
+        m_code = CodeError;
     }
 
-    m_code = ret;
-    emit signalFinished(QVariant::fromValue<int>(ret), m_data);
+    // send a signal with the return code and the meta data
+    emit signalFinished(QVariant::fromValue<int>(m_code));
 }
 
 void NetworkReply::slotMetaDataChanged()
@@ -135,7 +142,7 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 {
     // create and register error only if the error was not an abort
     if (networkError != QNetworkReply::OperationCanceledError
-        && networkError != QNetworkReply::NoError) {
+            && networkError != QNetworkReply::NoError) {
         QSharedPointer<Error> error(new NetworkError(networkError, this));
         registerError(error);
     }
@@ -157,22 +164,47 @@ void NetworkReply::registerError(QSharedPointer<Error> error)
 QSharedPointer<Error> NetworkReply::parseErrors()
 {
     QSharedPointer<Error> error;
+
     if (m_errors.count() > 1) {
+        // if we have more than one error we aggregate them
         QString errortext;
-        foreach(QSharedPointer<Error> e, m_errors) {
-            errortext += QString("%1 : %2 \n").arg(e->name()).arg(e->description());
+        foreach(QSharedPointer<Error> error, m_errors) {
+            errortext += QString("%1 : %2 \n").arg(error->name()).arg(error->description());
         }
-        // need to emit a standard Error that packs all the errors descriptions
-        error = QSharedPointer<Error>(new Error("Multiple Data Error", errortext, nullptr));
-    } else {
+
+        error = QSharedPointer<Error>(new Error(tr("Multiple Network Error"), errortext, this));
+    } else if (m_errors.count() == 1) {
         const QJsonDocument doc = getJSON();
-        QVariant var = doc.toVariant();
-        ErrorDTO dto;
-        data::parseObject(var, &dto);
-        error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
+        //error could happen parsing the JSON content
+        if (doc.isEmpty() || doc.isNull()) {
+            //this means it was a Network error so we return the network error (must be the 1st)
+            error = m_errors.first();
+        } else {
+            //if error was wrapped in JSON must be a server error
+            QVariant var = doc.toVariant();
+            ErrorDTO dto;
+            data::parseObject(var, &dto);
+            error = QSharedPointer<Error>(new ServerError(dto.errorName(),
+                                                          dto.errorDescription()));
+        }
     }
 
     return error;
+}
+
+void NetworkReply::startTimeOutTimer()
+{
+    // stop timeout timer, if running
+    if (m_timeoutEvent->isActive()) {
+        m_timeoutEvent->stop();
+    }
+
+    m_timeoutEvent->start();
+}
+
+bool NetworkReply::wasCached() const
+{
+    return m_reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
 }
 
 NetworkReply::ReturnCode NetworkReply::return_code() const

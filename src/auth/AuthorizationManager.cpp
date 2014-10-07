@@ -26,14 +26,13 @@ AuthorizationManager::~AuthorizationManager()
     m_oAuth2 = nullptr;
 }
 
-void AuthorizationManager::start(QWidget *parent)
+void AuthorizationManager::startAuthorization()
 {
     //lazy init
     if (m_oAuth2.isNull()) {
         m_oAuth2 = new OAuth2(m_networkManager, m_configurationManager, this);
         connect(m_oAuth2, SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
-        connect(m_oAuth2, SIGNAL(signalLoginAborted()), this, SIGNAL(signalLoginAborted()));
         connect(m_oAuth2, SIGNAL(signalError(QSharedPointer<Error>)),
                 this, SIGNAL(signalError(QSharedPointer<Error>)));
     }
@@ -41,8 +40,10 @@ void AuthorizationManager::start(QWidget *parent)
     // initialize authentication on valid token storage
     if (isAuthenticated()) {
         emit signalAuthorize();
+    } else if (m_tokenStorage.hasRefreshToken()) {
+        m_oAuth2->startQuietLogin(m_tokenStorage.getRefreshToken());
     } else {
-        forceAuthentication(parent);
+        m_oAuth2->startInteractiveLogin();
     }
 }
 
@@ -51,17 +52,8 @@ void AuthorizationManager::cleanAccesToken()
     m_tokenStorage.cleanAll();
 }
 
-void AuthorizationManager::forceAuthentication(QWidget *parent)
-{
-    if (m_tokenStorage.hasRefreshToken()) {
-        m_oAuth2->startQuietLogin(m_tokenStorage.getRefreshToken());
-    } else {
-        m_oAuth2->startInteractiveLogin(parent);
-    }
-}
-
 void AuthorizationManager::slotLoginDone(const QUuid& accessToken, int expiresIn,
-        const QUuid& refreshToken)
+                                         const QUuid& refreshToken)
 {
     m_tokenStorage.setAccessToken(accessToken, expiresIn);
     m_tokenStorage.setRefreshToken(refreshToken);
@@ -70,8 +62,7 @@ void AuthorizationManager::slotLoginDone(const QUuid& accessToken, int expiresIn
 
 bool AuthorizationManager::isAuthenticated() const
 {
-   return m_tokenStorage.hasAccessToken()
-          && !m_tokenStorage.isExpired();
+    return m_tokenStorage.hasAccessToken() && !m_tokenStorage.isExpired();
 }
 
 bool AuthorizationManager::hasAccessToken() const

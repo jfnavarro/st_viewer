@@ -37,16 +37,16 @@ NetworkCommand::~NetworkCommand()
 
 }
 
-void NetworkCommand::addQueryItems(QObject* object)
+void NetworkCommand::addQueryItems(QObject *object)
 {
-    Q_ASSERT_X(object != nullptr, "NetworkCommand", "null-pointer assertion error!");
+    Q_ASSERT(object != nullptr);
 
     // extract the objects meta data
     const QMetaObject* metaObject = object->metaObject();
     const int size = metaObject->propertyCount();
+
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
         const QMetaProperty metaproperty = metaObject->property(i);
-
         // ignore if not readable
         const QString  param = metaproperty.name();
         qDebug() << "Parsing query object name " << param;

@@ -154,3 +154,8 @@ void GeneData::resetSelection(const bool selected)
         floatAttribute(i, selectionVertex) = value;
     }
 }
+
+bool GeneData::isValid() const
+{
+    return !isEmpty() && !isNull();
+}

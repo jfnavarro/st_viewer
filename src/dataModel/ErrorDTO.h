@@ -15,6 +15,8 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+// This DTO is used to parse network errors
+
 //TODO move declarations to CPP and/or consider removing DTOs
 class ErrorDTO : public QObject
 {

@@ -23,7 +23,7 @@ SET(SERVER "development" CACHE STRING "The server providing the experimental dat
 
 if(SERVER STREQUAL development)
   #DEV configuration
-  set(ENDPOINT "https://54.77.114.106")
+  set(ENDPOINT "https://54.171.51.182")
   set(APIPATH  "api-0.6")
   set(CLIENTID "st-viewer-client")
   set(SECRETID "secret")

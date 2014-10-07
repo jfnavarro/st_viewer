@@ -15,6 +15,8 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
+// this DTO parses the OAuth2 authorization token
+
 //TODO move declarations to CPP and/or consider removing DTOs
 class OAuth2TokenDTO : public QObject
 {

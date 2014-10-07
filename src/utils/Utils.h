@@ -48,8 +48,6 @@ enum Anchor {
 };
 
 static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
-static const int GENE_THRESHOLD_MAX = 100;
-static const int GENE_THRESHOLD_MIN = 1;
 static const qreal GENE_SIZE_DEFAULT = 0.5;
 static const qreal GENE_INTENSITY_DEFAULT = 1.0;
 static const qreal GENE_SHINNE_DEFAULT = 1.0;
@@ -110,10 +108,6 @@ static const QString PARAM_DATASET = QStringLiteral("dataset");
 static const QString PARAM_GENE = QStringLiteral("gene");
 static const QString PARAM_FILE = QStringLiteral("file");
 static const QString PARAM_SELECTION = QStringLiteral("selection");
-
-static const QString ROLE_USER = QStringLiteral("ROLE_USER");
-static const QString ROLE_CM = QStringLiteral("ROLE_CM");
-static const QString ROLE_ADMIN = QStringLiteral("ROLE_ADMIN");
 
 enum HttpRequestType {
     HttpRequestTypeNone = 0,

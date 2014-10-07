@@ -24,11 +24,7 @@ static const qreal legend_height = 150.0;
 static const qreal bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : GraphicItemGL(parent),
-      m_lower_threshold(Globals::GENE_THRESHOLD_MIN),
-      m_upper_threshold(Globals::GENE_THRESHOLD_MAX),
-      m_max(Globals::GENE_THRESHOLD_MAX),
-      m_min(Globals::GENE_THRESHOLD_MIN)
+    : GraphicItemGL(parent)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -93,42 +89,27 @@ void HeatMapLegendGL::setBoundaries(const int min, const int max)
 {
     m_min = min;
     m_max = max;
-    setLowerLimit(Globals::GENE_THRESHOLD_MIN);
-    setUpperLimit(Globals::GENE_THRESHOLD_MAX);
+    setLowerLimit(m_min);
+    setUpperLimit(m_max);
     generateHeatMap();
     emit updated();
 }
 
 void HeatMapLegendGL::setLowerLimit(const int limit)
 {
-    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
-                                                        Globals::GENE_THRESHOLD_MIN,
-                                                        Globals::GENE_THRESHOLD_MAX,
-                                                        m_min,
-                                                        m_max);
-
-    const qreal normalized_limit = STMath::norm<int, qreal>(adjusted_limit, m_min, m_max);
-
+    const qreal normalized_limit = STMath::norm<int, qreal>(limit, m_min, m_max);
     m_lower_threshold = normalized_limit;
-    m_lower_text = QString::number(adjusted_limit);
-
+    m_lower_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
 }
 
 void HeatMapLegendGL::setUpperLimit(const int limit)
 {
-    const int adjusted_limit = STMath::linearConversion<qreal,int>(limit,
-                                                        Globals::GENE_THRESHOLD_MIN,
-                                                        Globals::GENE_THRESHOLD_MAX,
-                                                        m_min,
-                                                        m_max);
 
-    const qreal normalized_limit = STMath::norm<int, qreal>(adjusted_limit, m_min, m_max);
-
+    const qreal normalized_limit = STMath::norm<int, qreal>(limit, m_min, m_max);
     m_upper_threshold = normalized_limit;
-    m_upper_text = QString::number(adjusted_limit);
-
+    m_upper_text = QString::number(limit);
     generateBarAndTexts();
     emit updated();
 }

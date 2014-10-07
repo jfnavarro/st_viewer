@@ -16,6 +16,7 @@
 class Error;
 class QSslError;
 class QJsonDocument;
+class QTimer;
 
 // NetworkReply represents a handle to the asynchronous network request
 // managed by the NetworkManager. This handle provides a means of parsing
@@ -39,10 +40,6 @@ public:
     explicit NetworkReply(QNetworkReply *networkReply = 0);
     ~NetworkReply();
 
-    // user data
-    const QVariant customData() const;
-    void setCustomData(QVariant data);
-
     // parse body (once parsed data cannot be parsed again)
     QJsonDocument getJSON();
     QString getText() const;
@@ -53,10 +50,18 @@ public:
     bool hasErrors() const;
     ReturnCode return_code() const;
 
-    //reply errors
+    //return reply errors if any
     const NetworkReply::ErrorList& errors() const;
+
     //parseErrors will create a single error with all the error messages
+    //if no errors are present it returns nullptr
     QSharedPointer<Error> parseErrors();
+
+    //start the timer that will abort the request if it times out
+    void startTimeOutTimer();
+
+    //true if the reply request was obtained from the disk cache
+    bool wasCached() const;
 
 public slots:
 
@@ -67,10 +72,12 @@ public slots:
     void slotSslErrors(QList<QSslError> sslErrorList);
 
 signals:
+
     // signal operation Finished (code = abort, error, ok)
-    void signalFinished(QVariant code, QVariant data);
+    void signalFinished(QVariant code);
 
 private:
+
     //adds an error to the list
     void registerError(QSharedPointer<Error> error);
 
@@ -78,12 +85,12 @@ private:
     QPointer<QNetworkReply> m_reply;
     // errors
     ErrorList m_errors;
-    // custom data
-    QVariant m_data;
     // return status code
     ReturnCode m_code;
     // header content type
     QString m_mime;
+    // timer to control time-outs
+    QPointer<QTimer> m_timeoutEvent;
 
     Q_DISABLE_COPY(NetworkReply)
 };
