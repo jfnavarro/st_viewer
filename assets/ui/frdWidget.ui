@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>865</height>
+    <width>1181</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -30,47 +30,11 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1174</width>
-        <height>839</height>
+        <width>1155</width>
+        <height>603</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout2">
-         <item>
-          <widget class="QWidget" name="plotPooledLogWidget" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>550</width>
-             <height>400</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>550</width>
-             <height>400</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWidget" name="plotPooledNormalWidget" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>550</width>
-             <height>400</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>550</width>
-             <height>400</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -78,13 +42,13 @@
            <property name="minimumSize">
             <size>
              <width>550</width>
-             <height>400</height>
+             <height>550</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>550</width>
-             <height>400</height>
+             <height>550</height>
             </size>
            </property>
           </widget>
@@ -94,7 +58,7 @@
            <property name="minimumSize">
             <size>
              <width>500</width>
-             <height>400</height>
+             <height>550</height>
             </size>
            </property>
            <property name="maximumSize">

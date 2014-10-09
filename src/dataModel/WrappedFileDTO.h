@@ -54,12 +54,18 @@ public:
     void compressedFile(const QByteArray& file) { m_rawCompressedFile = file; }
     void size(const qlonglong size) { m_size = size; }
 
+    //byte array coming from server is encoded base 64
+    const QByteArray decodedFile() const
+    {
+        return QByteArray::fromBase64(m_rawCompressedFile);
+    }
+
     // uncompress a GZIP byte array encoded base 64
     // and returns uncompress byte array or empty if something went wrong
     const QByteArray decompressedFile() const
     {
         // input array from the server is encoded base 64
-        QByteArray input = QByteArray::fromBase64(m_rawCompressedFile);
+        QByteArray input = decodedFile();
 
         // Prepare output
         QByteArray output;

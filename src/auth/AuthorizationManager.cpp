@@ -8,14 +8,13 @@
 #include "AuthorizationManager.h"
 
 #include "auth/OAuth2.h"
+#include "data/DataProxy.h"
 
-AuthorizationManager::AuthorizationManager(QPointer<NetworkManager> networkManager,
-                                           const Configuration &configurationManager,
+AuthorizationManager::AuthorizationManager(QPointer<DataProxy> dataProxy,
                                            QObject* parent)
     : QObject(parent),
       m_oAuth2(nullptr),
-      m_networkManager(networkManager),
-      m_configurationManager(configurationManager)
+      m_dataProxy(dataProxy)
 {
 
 }
@@ -30,7 +29,7 @@ void AuthorizationManager::startAuthorization()
 {
     //lazy init
     if (m_oAuth2.isNull()) {
-        m_oAuth2 = new OAuth2(m_networkManager, m_configurationManager, this);
+        m_oAuth2 = new OAuth2(m_dataProxy, this);
         connect(m_oAuth2, SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),
                 this, SLOT(slotLoginDone(const QUuid&, int, const QUuid&)));
         connect(m_oAuth2, SIGNAL(signalError(QSharedPointer<Error>)),

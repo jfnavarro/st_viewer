@@ -16,7 +16,8 @@
 NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
     m_url(),
     m_type(Globals::HttpRequestTypeNone),
-    m_query()
+    m_query(),
+    m_body()
 {
 
 }
@@ -27,7 +28,8 @@ NetworkCommand::NetworkCommand(const QUrl& url,
     QObject(parent),
     m_url(url),
     m_type(type),
-    m_query()
+    m_query(),
+    m_body()
 {
 
 }
@@ -49,7 +51,6 @@ void NetworkCommand::addQueryItems(QObject *object)
         const QMetaProperty metaproperty = metaObject->property(i);
         // ignore if not readable
         const QString  param = metaproperty.name();
-        qDebug() << "Parsing query object name " << param;
         if (!metaproperty.isReadable()) {
             qDebug() << "[NetworkCommand] Warning: The property "
                      << metaproperty.typeName()
@@ -59,7 +60,6 @@ void NetworkCommand::addQueryItems(QObject *object)
 
         // ignore if not convertable
         const QVariant value = metaproperty.read(object);
-        qDebug() << "Parsing query object value " << value;
         if (!value.canConvert(QVariant::String)) {
             qDebug() << "[NetworkCommand] Warning: The property "
                      << metaproperty.typeName() << param
@@ -94,14 +94,14 @@ const QString NetworkCommand::getEncodedUrl() const
     return url.toString(QUrl::FullyEncoded);
 }
 
-void NetworkCommand::setJsonQuery(const QByteArray &query)
+void NetworkCommand::setBody(const QByteArray &body)
 {
-    m_jsonQuery = query;
+    m_body = body;
 }
 
-const QByteArray NetworkCommand::jsonQuery() const
+const QByteArray NetworkCommand::body() const
 {
-    return m_jsonQuery;
+    return m_body;
 }
 
 void NetworkCommand::addQueryItem(const QString& param, const QString& value)

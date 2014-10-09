@@ -13,12 +13,12 @@
 #include <QUuid>
 
 #include "auth/TokenStorage.h"
-#include "config/Configuration.h"
 
 class NetworkManager;
 class OAuth2;
 class QWidget;
 class Error;
+class DataProxy;
 
 //  This class gives an interface for oAuth2 authorization
 //  trough the objects OAuth2 and TokenStorage.
@@ -31,9 +31,7 @@ class AuthorizationManager : public QObject
 
 public:
 
-    AuthorizationManager(QPointer<NetworkManager> networkManager,
-                         const Configuration &configurationManager,
-                         QObject* parent = 0);
+    AuthorizationManager(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~AuthorizationManager();
 
     //start the login process
@@ -68,11 +66,10 @@ private:
     QPointer<OAuth2> m_oAuth2;
     TokenStorage m_tokenStorage;
 
-    //reference to network manager and configuration manager
-    QPointer<NetworkManager> m_networkManager;
-    const Configuration &m_configurationManager;
+    //reference to dataProxy (to be passed along to OAuth2
+    QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(AuthorizationManager)
+    Q_DISABLE_COPY(AuthorizationManager);
 };
 
 #endif  /* AUTHORIZATIONMANAGER_H */

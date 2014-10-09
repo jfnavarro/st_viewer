@@ -114,6 +114,7 @@ void CellGLView::resizeFromGeometry()
         if (!m_initialized) {
             initializeGL();
         }
+
         resizeGL(rect.width(), rect.height());
     }
 }
@@ -140,6 +141,7 @@ void CellGLView::exposeEvent(QExposeEvent *event)
     if (!m_initialized) {
         initializeGL();
     }
+
     paintGL();
 }
 
@@ -157,6 +159,7 @@ void CellGLView::ensureContext()
         const bool success = m_context->create();
         qDebug() << "CellGLView, OpenGL context create = " << success;
     }
+
     m_context->makeCurrent(this);
 }
 
@@ -179,6 +182,7 @@ void CellGLView::initializeGL()
     if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendColor)) {
         painter.glBlendColor(0, 0, 0, 0);
     }
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquation)) {
@@ -619,6 +623,9 @@ const QTransform CellGLView::sceneTransformations() const
 
 const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 {
+    //this functions combines the node internal transformations with respect
+    //to the view size and anchor positions
+
     const QSizeF viewSize = m_viewport.size();
     QTransform transform(Qt::Uninitialized);
     const Globals::Anchor anchor = node->anchor();

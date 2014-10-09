@@ -21,18 +21,12 @@
 #include "dataModel/User.h"
 #include "dataModel/GeneSelection.h"
 #include "dataModel/MinVersionDTO.h"
-
+#include "dataModel/OAuth2TokenDTO.h"
 #include "config/Configuration.h"
 
 namespace async {
 class DataRequest;
 }
-class WrappedFileDTO;
-class DatasetDTO;
-class GeneSelectionDTO;
-class UserDTO;
-class ChipDTO;
-class ImangeAlignmentDTO;
 class QImage;
 class NetworkManager;
 class AuthorizationManager;
@@ -58,30 +52,15 @@ public:
     typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    //TODO number of containers can be decreased for Genes and Features
-    //what is really needed is a super fast lookup for :
-    //   - get features from dataset ID and Gene Name
-    //   - get gene/s from feature ID or Gene Name (replace feature-gene text field for gene ptr)
-    //   - get features from dataset ID
-    //   - get genes from dataset ID
-    //   - get gene from dataset ID and gene Name
-
-    //TODO some of the QMap could be replaced for QHash(std::unordered_map) which
-    //is faster
-
-    //TODO replace loading everything into memory for using file system cache, serialization
-    //will save memmory overhead
-
-    //TODO too much logic in one class :
-    //split data adquisition and data loading
-
-    //TODO data adquision could splitted for each entity and
-    //use the observer pattern to account for entities that are connected
-
     //TODO find a way to update DataProxy when data is updated trough the backend (a timed request)
 
     //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
     //direct references or other type of smart pointer
+
+    //TODO The synchronous downloading of data is a temporary solution.
+    //The final solution will wrapped all the request and perform
+    //them asynchronously. Caller will be notified when requests are finished
+    //with a proper error message if any and with the option to abort if needed
 
     //list of unique genes
     typedef QList<GenePtr> GeneList;
@@ -103,6 +82,9 @@ public:
     //array of three elements containing the min version supported
     typedef std::array<qulonglong, 3> MinVersionArray;
 
+    //to pass key-value parameters to loadAccessToken()
+    typedef QPair<QString, QString> StringPair;
+
     DataProxy(QObject *parent = 0);
     ~DataProxy();
 
@@ -110,11 +92,6 @@ public:
     void clean();
     //clean up memory cache and local cache (hard drive)
     void cleanAll();
-
-    //returns the authorization manager which is owned by dataProxy
-    //TODO DataProxy should not own AuthorizationManager, perhaps
-    //move the ownership to stVi
-    QPointer<AuthorizationManager> getAuthorizationManager() const;
 
     //DATA LOADERS
     //data loaders are meant to be used to load data from the network.
@@ -132,6 +109,8 @@ public:
     async::DataRequest loadGeneSelections();
     // min version supported
     async::DataRequest loadMinVersion();
+    // OAuth2 access token
+    async::DataRequest loadAccessToken(const StringPair& username, const StringPair& password);
 
     //DATA UPDATERS
 
@@ -195,6 +174,9 @@ public:
     // returns the minimum supported version of the software in the backend
     const MinVersionArray getMinVersion() const;
 
+    // returns the current access token if any
+    const OAuth2TokenDTO getAccessToken() const;
+
     // CURRENT DATASET (state selector)
 
     // set the currently opened dataset
@@ -246,7 +228,9 @@ private:
     //returns true if the parsing was correct
     bool parseMinVersion(const QJsonDocument &doc);
 
-    //bool parseOAuth2(const QJsonDocument &doc);
+    //internal function to parse the OAuth2 access token
+    //returns true if the parsing was correct
+    bool parseOAuth2(const QJsonDocument &doc);
 
     //internal function to create network requests for data objects
     //data will be parsed with the function given as argument if given
@@ -273,15 +257,15 @@ private:
     CellFigureMap m_cellTissueImages;
     // the application min supported version
     MinVersionArray m_minVersion;
+    // the Access token object
+    OAuth2TokenDTO m_accessToken;
     // the current selected dataset
     mutable DatasetPtr m_selectedDataset;
 
-    //configuration manager (dataproxy owns it)
+    //configuration manager instance
     Configuration m_configurationManager;
     //network manager to make network requests (dataproxy owns it)
     QPointer<NetworkManager> m_networkManager;
-    //authorization manager to handle access token (own by DataProxy but altered by InitPage)
-    QPointer<AuthorizationManager> m_authorizationManager;
 
     Q_DISABLE_COPY(DataProxy);
 };

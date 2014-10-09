@@ -12,19 +12,21 @@
 
 #include "error/Error.h"
 #include "auth/AuthorizationManager.h"
-
-#include "network/DownloadManager.h"
-
 #include "data/DataProxy.h"
+#include "network/DownloadManager.h"
 
 #include "ui_initpage.h"
 
-InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
+InitPage::InitPage(QPointer<DataProxy> dataProxy,
+                   QPointer<AuthorizationManager> authManager,
+                   QWidget *parent) :
     Page(parent),
     m_ui(new Ui::InitPage()),
-    m_dataProxy(dataProxy)
+    m_dataProxy(dataProxy),
+    m_authManager(authManager)
 {
     Q_ASSERT(!m_dataProxy.isNull());
+    Q_ASSERT(!m_authManager.isNull());
 
     m_ui->setupUi(this);
 
@@ -35,17 +37,11 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     connect(m_ui->newExpButt, SIGNAL(released()), this, SIGNAL(moveToNextPage()));
     connect(m_ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
 
-    QPointer<AuthorizationManager> authorizationManager =
-            m_dataProxy->getAuthorizationManager();
-
     //connect authorization signals
-    connect(authorizationManager, SIGNAL(signalAuthorize()),
+    connect(m_authManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
-    connect(authorizationManager, SIGNAL(signalError(QSharedPointer<Error>)),
+    connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
-
-    //start authorization
-    authorizationManager->startAuthorization();
 }
 
 InitPage::~InitPage()
@@ -64,11 +60,9 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    QPointer<AuthorizationManager> authorizationManager = m_dataProxy->getAuthorizationManager();
-
     //force clean access token and authorize again
-    authorizationManager->cleanAccesToken();
-    authorizationManager->startAuthorization();
+    m_authManager->cleanAccesToken();
+    m_authManager->startAuthorization();
 
     //not sure whether we want to show the error to the user or not when login failed
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
@@ -104,10 +98,8 @@ void InitPage::slotLogOutButton()
     //go to log in mode and force authorization
     m_ui->newExpButt->setEnabled(false);
     m_ui->user_name->clear();
-    
-    QPointer<AuthorizationManager> authorizationManager = m_dataProxy->getAuthorizationManager();
 
     //force clean access token and authorize again
-    authorizationManager->cleanAccesToken();
-    authorizationManager->startAuthorization();
+    m_authManager->cleanAccesToken();
+    m_authManager->startAuthorization();
 }

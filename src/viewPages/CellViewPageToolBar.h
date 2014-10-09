@@ -21,6 +21,8 @@ class SpinBoxSlider;
 class QSlider;
 class QComboBox;
 class QPushButton;
+class QGroupBox;
+class QRadioButton;
 
 //TODO add comments
 class CellViewPageToolBar : public QToolBar
@@ -55,6 +57,15 @@ public:
     QAction *m_actionShow_toggleDynamicRange;
     QAction *m_actionShow_toggleHeatMap;
 
+    QGroupBox *m_colorComputationMode;
+    QRadioButton *m_colorLinear;
+    QRadioButton *m_colorLog;
+    QRadioButton *m_colorExp;
+
+    QGroupBox *m_poolingMode;
+    QRadioButton *m_poolingGenes;
+    QRadioButton *m_poolingReads;
+
     QActionGroup *m_actionGroup_toggleLegendPosition;
     QAction *m_action_toggleLegendTopRight;
     QAction *m_action_toggleLegendTopLeft;
@@ -68,7 +79,7 @@ public:
     QAction *m_action_toggleMinimapDownLeft;
 
     SpinBoxSlider *m_geneHitsThreshold;
-    SpinBoxSlider *m_geneHitsThresholdPooled;
+
     QSlider *m_geneIntensitySlider;
     QSlider *m_geneSizeSlider;
     QSlider *m_geneShineSlider;
@@ -94,10 +105,9 @@ public:
 signals:
 
     //TODO signals should have prefix signal
+
     void thresholdLowerValueChanged(int);
     void thresholdUpperValueChanged(int);
-    void thresholdLowerPooledValueChanged(int);
-    void thresholdUpperPooledValueChanged(int);
 
     void intensityValueChanged(qreal);
     void sizeValueChanged(qreal);
@@ -106,9 +116,12 @@ signals:
     void shapeIndexChanged(Globals::GeneShape);
     void rotateView(qreal);
 
+    void colorComputationChanged(Globals::GeneColorMode);
+    void poolingModeChanged(Globals::GenePooledMode);
+
 public slots:
 
-    void resetTresholdActions(int min, int max, int pooledMin, int pooledMax);
+    void resetTresholdActions(int min, int max);
     void resetActions();
 
 private slots:
@@ -120,6 +133,12 @@ private slots:
     void slotGeneBrightness(int geneBrightness);
     void slotRotateRight();
     void slotRotateLeft();
+
+    void slotColorLinear();
+    void slotColorExp();
+    void slotColorLog();
+    void slotPoolingGenes();
+    void slotPoolingReads();
 
 private:
 

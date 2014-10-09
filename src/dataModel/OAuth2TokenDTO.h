@@ -31,7 +31,22 @@ class OAuth2TokenDTO : public QObject
 public:
 
     explicit OAuth2TokenDTO(QObject* parent = 0)
-        : QObject(parent), m_accessToken(), m_refreshToken(), m_expiresIn(0) { }
+        : QObject(parent), m_accessToken(), m_refreshToken(), m_scopeType(), m_expiresIn(0) { }
+    OAuth2TokenDTO(const OAuth2TokenDTO& other)
+        : m_accessToken(other.accessToken()),
+          m_refreshToken(other.refreshToken()),
+          m_scopeType(other.scope()),
+          m_expiresIn(other.expiresIn()) { }
+
+    OAuth2TokenDTO& operator= (const OAuth2TokenDTO& other)
+    {
+        m_accessToken = other.accessToken();
+        m_refreshToken = other.refreshToken();
+        m_scopeType = other.scope();
+        m_expiresIn = other.expiresIn();
+        return (*this);
+    }
+
     ~OAuth2TokenDTO() { }
 
     // binding

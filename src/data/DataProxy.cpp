@@ -36,27 +36,19 @@
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
     m_user(nullptr),
-    m_networkManager(nullptr),
-    m_authorizationManager(nullptr)
+    m_networkManager(nullptr)
 {
     //initialize data containers
     m_user = UserPtr(new User());
 
-    m_networkManager = new NetworkManager(m_configurationManager);
+    m_networkManager = new NetworkManager(this);
     Q_ASSERT(!m_networkManager.isNull());
-
-    m_authorizationManager =
-            new AuthorizationManager(m_networkManager, m_configurationManager);
-    Q_ASSERT(!m_authorizationManager.isNull());
 }
 
 DataProxy::~DataProxy()
 {
     m_networkManager->deleteLater();
     m_networkManager = nullptr;
-
-    m_authorizationManager->deleteLater();
-    m_authorizationManager = nullptr;
 
     m_user.clear();
 
@@ -77,21 +69,15 @@ void DataProxy::clean()
     m_geneFeaturesMap.clear();
     m_cellTissueImages.clear();
     //m_minVersion.clear();
+    //m_accessToken.clear();
     m_selectedDataset.clear();
 }
 
 void DataProxy::cleanAll()
 {
     qDebug() << "Cleaning memory cache and disk cache in Dataproxy";
-    //TODO make a call to clean NetworkCache
     clean();
-}
-
-QPointer<AuthorizationManager> DataProxy::getAuthorizationManager() const
-{
-    //DataProxy owns Authorization Manager
-    //TODO it should be owned by the main class instead
-    return m_authorizationManager;
+    m_networkManager->cleanCache();
 }
 
 const DataProxy::DatasetList& DataProxy::getDatasetList() const
@@ -187,14 +173,15 @@ const DataProxy::MinVersionArray DataProxy::getMinVersion() const
     return m_minVersion;
 }
 
+const OAuth2TokenDTO DataProxy::getAccessToken() const
+{
+    return m_accessToken;
+}
+
 async::DataRequest DataProxy::loadDatasets()
 {
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -209,11 +196,7 @@ async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
     NetworkCommand *cmd =
             RESTCommandFactory::updateDatasetByDatasetId(m_configurationManager, dataset->id());
     //append json data
-    cmd->setJsonQuery(dto.toJson());
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
+    cmd->setBody(dto.toJson());
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -225,10 +208,6 @@ async::DataRequest DataProxy::removeDataset(const QString& datasetId)
 {
     NetworkCommand *cmd =
             RESTCommandFactory::removeDatasetByDatasetId(m_configurationManager, datasetId);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -259,10 +238,12 @@ async::DataRequest DataProxy::loadDatasetContent()
     if (m_user->hasSpecialRole()) {
         //load cell tissue red (no need to download for role USER)
         request = loadCellTissueByName(m_imageAlignment->figureRed());
-        if (!request.isSuccessFul()) {
-            qDebug() << "[DataProxy] Error loading the red cell tissue";
-            return request;
-        }
+
+        //TODO ignore for now, enable again when endpoint is fixed in the server
+        //if (!request.isSuccessFul()) {
+        //    qDebug() << "[DataProxy] Error loading the red cell tissue";
+        //    return request;
+        //}
     }
 
     //load chip
@@ -292,10 +273,6 @@ async::DataRequest DataProxy::loadChip()
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -312,10 +289,6 @@ async::DataRequest DataProxy::loadFeatures()
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -332,10 +305,6 @@ async::DataRequest DataProxy::loadImageAlignment()
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getImageAlignmentById(m_configurationManager, imageAlignmentId);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -347,10 +316,6 @@ async::DataRequest DataProxy::loadUser()
 {
     //creates the requet
     NetworkCommand *cmd = RESTCommandFactory::getUser(m_configurationManager);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -362,10 +327,6 @@ async::DataRequest DataProxy::loadGeneSelections()
 {
     //creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -381,11 +342,7 @@ async::DataRequest DataProxy::updateGeneSelection(GeneSelectionPtr geneSelection
             RESTCommandFactory::upateSelectionBySelectionId(m_configurationManager,
                                                             geneSelection->id());
     //append json data
-    cmd->setJsonQuery(dto.toJson());
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
+    cmd->setBody(dto.toJson());
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -399,11 +356,7 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection(m_configurationManager);
     //append json data
-    cmd->setJsonQuery(dto.toJson());
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
+    cmd->setBody(dto.toJson());
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -415,10 +368,6 @@ async::DataRequest DataProxy::removeSelection(const QString &selectionId)
 {
     NetworkCommand *cmd =
             RESTCommandFactory::removeSelectionBySelectionId(m_configurationManager, selectionId);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -431,10 +380,6 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
-    //append access token
-    const QUuid accessToken = m_authorizationManager->getAccessToken();
-    //QUuid encloses its uuids in "{}"
-    cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
@@ -443,13 +388,27 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
 
 async::DataRequest DataProxy::loadMinVersion()
 {
-    // check if the version is supported in the server and check for updates
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion(m_configurationManager);
     // send empty flags to ensure access token is not appended to request
     NetworkReply *reply = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
     //delete the command
     cmd->deleteLater();
     return createRequest(reply, &DataProxy::parseMinVersion);
+}
+
+async::DataRequest DataProxy::loadAccessToken(const StringPair &username,
+                                              const StringPair &password)
+{
+    NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken(m_configurationManager);
+    //add username and password to the request
+    cmd->addQueryItem(username.first, username.second);
+    cmd->addQueryItem(password.first, password.second);
+
+    // send empty flags to ensure access token is not appended to request
+    NetworkReply *reply = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
+    //delete the command
+    cmd->deleteLater();
+    return createRequest(reply, &DataProxy::parseOAuth2);
 }
 
 async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
@@ -470,12 +429,6 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
     loop.exec(QEventLoop::ExcludeUserInputEvents
               | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents);
 
-    if (reply->wasCached()) {
-      qDebug() << "Data was CACHED";
-    }
-
-    //TODO add slot Abort to DataRequest and connect it to the reply
-    //to allow to abort requests trough the progress bar dialog
 
     async::DataRequest request(async::DataRequest::CodeSuccess);
 
@@ -597,19 +550,26 @@ bool DataProxy::parseCellTissueImage(const QJsonDocument &doc)
     const QVariant root = doc.toVariant();
     data::parseObject(root, &wrappedImageFile);
 
-    // get filename and file raw data
-    // images are not GZ compressed
-    //TODO check this in the DTO object
-    const QByteArray &rawImage = wrappedImageFile.compressedFile();
+    // get filename and file raw data (check if it was encoded or not)
+    const QByteArray &rawImage = wrappedImageFile.contentEncoding().isEmpty() ?
+                wrappedImageFile.decodedFile() : wrappedImageFile.decompressedFile();
     const QString &imageName = wrappedImageFile.fileName();
 
     Q_ASSERT(!rawImage.isEmpty() && !rawImage.isNull()
              && !imageName.isEmpty() && !imageName.isNull());
 
-    //TODO this should be done concurrently
-    //TODO get the format from the DTO object
-    QImage image = QImage::fromData(rawImage, "jpeg");
-    //TODO a clean up of the hash should be performed
+    //get the format from the content type
+    const QStringList formatTokens = wrappedImageFile.contentType().split("/");
+    Q_ASSERT(formatTokens.size() == 2);
+    const QString format = formatTokens.at(1);
+
+    //create the image from raw data
+    QImage image = QImage::fromData(rawImage, format.toStdString().c_str());
+
+    //remove image if already exists and add the newly created one
+    if (m_cellTissueImages.contains(imageName)) {
+        m_cellTissueImages.remove(imageName);
+    }
     m_cellTissueImages.insert(imageName, image);
 
     return !image.isNull();
@@ -737,5 +697,21 @@ bool DataProxy::parseMinVersion(const QJsonDocument &doc)
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
     m_minVersion = dto.minVersionAsNumber();
+    return true;
+}
+
+bool DataProxy::parseOAuth2(const QJsonDocument &doc)
+{
+    if (doc.isNull() || doc.isEmpty()) {
+        return false;
+    }
+
+    // intermediary parse object
+    OAuth2TokenDTO dto;
+
+    // should only be one item
+    const QVariant root = doc.toVariant();
+    data::parseObject(root, &dto);
+    m_accessToken = dto;
     return true;
 }

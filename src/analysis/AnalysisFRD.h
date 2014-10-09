@@ -34,9 +34,7 @@ public:
     // computes the FRD values from the features and min max values given as input
     void computeData(const DataProxy::FeatureList& features,
                      const int min,
-                     const int max,
-                     const int pooledMin,
-                     const int pooledMax);
+                     const int max);
 
 signals:
 
@@ -45,8 +43,6 @@ public slots:
     // slots to adjust the boundaries when the thresholds are changed
     void setLowerLimit(const int limit);
     void setUpperLimit(const int limit);
-    void setPooledLowerLimit(const int limit);
-    void setPooledUpperLimit(const int limit);
 
 private slots:
 
@@ -59,8 +55,6 @@ private:
     // helper functions to create and configure the plotting objects
     void initializePlotNormal();
     void initializePlotLog();
-    void initializePlotPooledNormal();
-    void initializePlotPooledLog();
 
     std::unique_ptr<Ui::frdWidget> m_ui;
 
@@ -74,21 +68,9 @@ private:
     QCPItemLine *m_upperThresholdBarLog;
     QCPItemLine *m_lowerThresholdBarLog;
 
-    //plotting object for pooled reads
-    QCustomPlot *m_customPlotPooledNormal;
-    QCPItemLine *m_upperThresholdBarPooledNormal;
-    QCPItemLine *m_lowerThresholdBarPooledNormal;
-
-    //plotting object for pooled reads in log space
-    QCustomPlot *m_customPlotPooledLog;
-    QCPItemLine *m_upperThresholdBarPooledLog;
-    QCPItemLine *m_lowerThresholdBarPooledLog;
-
     //keep track of the min-max of the Y axes to adjust the threshold bars
     int m_minY;
     int m_maxY;
-    int m_minYPooled;
-    int m_maxYPooled;
 
 };
 #endif // ANALYSISHISTOGRAM_H

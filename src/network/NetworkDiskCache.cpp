@@ -38,15 +38,11 @@ void NetworkDiskCache::insert(QIODevice* device)
 
 QNetworkCacheMetaData NetworkDiskCache::metaData(const QUrl &url)
 {
-    QNetworkCacheMetaData metaData = QNetworkDiskCache::metaData(url);
-    qDebug() << "Meta data for url " << url << " is " << metaData.rawHeaders();
-    return metaData;
+    return QNetworkDiskCache::metaData(url);
 }
 
 QIODevice* NetworkDiskCache::prepare(const QNetworkCacheMetaData &metaData)
 {
-    qDebug() << "Prepared data for meta data " << metaData.rawHeaders();
-
     QString mime;
     foreach (QNetworkCacheMetaData::RawHeader header, metaData.rawHeaders()) {
         if (header.first == "Content-Type") {
@@ -55,6 +51,7 @@ QIODevice* NetworkDiskCache::prepare(const QNetworkCacheMetaData &metaData)
         }
     }
 
+    //only cache jpeg/xml and json content
     if (mime.startsWith("application/xml")
             || mime.startsWith("application/json")
             || mime.startsWith("image/jpeg")) {
@@ -66,13 +63,10 @@ QIODevice* NetworkDiskCache::prepare(const QNetworkCacheMetaData &metaData)
 
 bool NetworkDiskCache::remove(const QUrl & url)
 {
-    const bool removed = QNetworkDiskCache::remove(url);
-    qDebug() << "Removing data for url " << url << " yields " << removed;
-    return removed;
+    return QNetworkDiskCache::remove(url);
 }
 
 void NetworkDiskCache::updateMetaData(const QNetworkCacheMetaData &metaData)
 {
-    qDebug() << "Updating meta data " << metaData.rawHeaders();
     return QNetworkDiskCache::updateMetaData(metaData);
 }

@@ -9,6 +9,7 @@
 #define HEATMAP_H
 
 #include "math/Common.h"
+#include "utils/Utils.h"
 
 class QColor4ub;
 class QImage;
@@ -26,7 +27,7 @@ public:
         SpectrumExp
     };
 
-    enum ColorMode {
+    enum InterpolationColorMode {
         SpectrumRaibow,
         SpectrumLinearInterpolation
     };
@@ -37,8 +38,7 @@ public:
     static void createHeatMapImage(QImage &image,
                                    const int lowerbound,
                                    const int upperbound,
-                                   const ColorMode colorMode = SpectrumRaibow,
-                                   const SpectrumMode mode = SpectrumLinear);
+                                   const Globals::GeneColorMode& colorMode);
 
     // convenience function to generate a QColor4ub color from a real value
     static QColor4ub createHeatMapWaveLenghtColor(const qreal value);
@@ -51,7 +51,7 @@ public:
     // convenience function to adjust the input value using a Linear - Exponential or Logaritmic
     // function
     static qreal normalizeValueSpectrumFunction(const qreal value,
-                                                const SpectrumMode mode = SpectrumLinear);
+                                                const Globals::GeneColorMode& colorMode);
 };
 
 #endif // HEATMAP_H //

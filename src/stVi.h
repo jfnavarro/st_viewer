@@ -21,6 +21,7 @@ class QVBoxLayout;
 class ExtendedTabWidget;
 class QWidget;
 class DataProxy;
+class AuthorizationManager;
 
 class stVi : public QMainWindow
 {
@@ -80,10 +81,12 @@ private:
     QPointer<QAction> m_actionAbout;
     QPointer<QAction> m_actionClear_Cache;
 
+    //main tab is a tab manager sort of widget that contains all the pages view
     QPointer<ExtendedTabWidget> m_mainTab;
 
-    //stVi owns dataProxy
+    //stVi owns dataProxy and AuthorizationManager
     QPointer<DataProxy> m_dataProxy;
+    QPointer<AuthorizationManager> m_authManager;
 };
 
 #endif // stVi_H

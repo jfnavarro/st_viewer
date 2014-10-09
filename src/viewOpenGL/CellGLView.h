@@ -60,6 +60,7 @@ public:
     QRectF allowedCenterPoints() const;
     QPointF sceneFocusCenterPoint() const;
 
+    //clear all local variables and data
     void clearData();
 
 public slots:
@@ -76,6 +77,8 @@ public slots:
     //update the view
     void update();
 
+    //functions to set the viewport and scene size and the set the focus in a point
+    //Very handy to make possible the interaction with the minimap
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
     void setSceneFocusCenterPointWithClamping(const QPointF center_point);
@@ -99,6 +102,7 @@ protected:
     void exposeEvent(QExposeEvent *eevent) override;
     void resizeEvent(QResizeEvent * event) override;
 
+    //helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const qreal zoom);
 
     //returns the node local transformations in the view CS adjusted for anchor
@@ -106,6 +110,8 @@ protected:
 
 signals:
 
+    //signals not notify when the scene/view are changed/transformed
+    //very handy for the minimap
     void signalViewPortUpdated(const QRectF);
     void signalSceneUpdated(const QRectF);
     void signalSceneTransformationsUpdated(const QTransform transform);
@@ -153,8 +159,6 @@ private:
     QPointer<RubberbandGL> m_rubberband;
     qreal m_rotate;
     QPointF m_scene_focus_center_point;
-    // Just to avoid undefined behaviour if we would miss setting m_zoom_factor later
-    // we set the value here. This value should never be used though.
     qreal m_zoom_factor;
 
     // scene viewport projection

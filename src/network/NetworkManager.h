@@ -14,13 +14,14 @@
 #include <QFlags>
 #include <QPointer>
 
-#include "auth/AuthorizationManager.h"
 #include "config/Configuration.h"
+#include "auth/TokenStorage.h"
 
 class NetworkCommand;
 class NetworkReply;
 class QNetworkReply;
 class Error;
+class NetworkDiskCache;
 
 // class used to manage all network related functionality. Creates
 // an abstract layer to easily send network requests.
@@ -43,12 +44,15 @@ public:
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
-    NetworkManager(const Configuration &configurationManager, QObject *parent = 0);
+    NetworkManager(QObject *parent = 0);
     virtual ~NetworkManager();
 
     //default use Authentication
     NetworkReply* httpRequest(NetworkCommand* cmd,
                               NetworkFlags flags = NetworkFlag::Default);
+
+    // clear network disk cache
+    void cleanCache();
 
 private slots:
     //if remote server requires authentication
@@ -62,10 +66,14 @@ private:
 
     //qt network manager object
     QPointer<QNetworkAccessManager> m_nam;
-    //reference to configuration manager
-    const Configuration &m_configurationManager;
+    //configuration manager instance
+    Configuration m_configurationManager;
+    //instance of token manager to do authorization when requested
+    TokenStorage m_tokenStorage;
+    //network disk cache
+    QPointer<NetworkDiskCache> m_diskCache;
 
-    Q_DISABLE_COPY(NetworkManager)
+    Q_DISABLE_COPY(NetworkManager);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)

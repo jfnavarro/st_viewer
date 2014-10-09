@@ -31,6 +31,11 @@ public slots:
     
     //TODO slots should have the prefix "slot"
 
+    //TODO at the moment the color shown in the heatmap is not realistic
+    //as the boundaries and limits are set from the threshold values
+    //but in reality the boundaries and limits to compute the rendered colors
+    //are set from the pooled values
+
     // set the boundaries for the computation of the colors
     // of the image from the min-max values of the distribution
     void setBoundaries(const int min, const int max);
@@ -38,6 +43,9 @@ public slots:
     // slots to adjust the boundaries when the threshold is changed
     void setLowerLimit(const int limit);
     void setUpperLimit(const int limit);
+
+    // slot to change the function to compute color values
+    void setColorComputingMode(const Globals::GeneColorMode &mode);
 
 protected:
 
@@ -60,6 +68,9 @@ private:
     int m_max;
     int m_min;
 
+    // color computing mode (exp - log - linear)
+    Globals::GeneColorMode m_colorComputingMode;
+
     // texture color data
     QGLTexture2D m_texture;
     QVector2DArray m_texture_vertices;
@@ -76,7 +87,7 @@ private:
     QPointF m_upper_text_position;
     QGLTexture2D m_textureText;
 
-    Q_DISABLE_COPY(HeatMapLegendGL)
+    Q_DISABLE_COPY(HeatMapLegendGL);
 };
 
 #endif // HEATMAPLEGEND_H //

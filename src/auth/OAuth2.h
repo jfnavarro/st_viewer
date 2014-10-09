@@ -11,12 +11,11 @@
 #include <QObject>
 #include <QPointer>
 
-#include "network/NetworkManager.h"
-
 class LoginDialog;
 class Error;
 class QUuid;
 class QString;
+class DataProxy;
 
 // simple class that handles OAuth2 authorization requests
 // it contains a Login widget to let the user input the credentials
@@ -27,10 +26,10 @@ class OAuth2 : public QObject
 
 public:
 
+    //TODO duplicated in DataProxy
     typedef QPair<QString, QString> StringPair;
 
-    OAuth2(QPointer<NetworkManager> networkManager,
-           const Configuration &configurationManager, QObject* parent = 0);
+    OAuth2(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~OAuth2();
 
     // shows login dialog
@@ -47,9 +46,6 @@ signals:
 
 private slots:
 
-    //handles the authorization network reply
-    void slotNetworkReply(QVariant code);
-
     //user enters log in (called from log in component) can be used to
     //try log in with hardcoded credentials
     void slotEnterDialog(const QString&, const QString&);
@@ -62,11 +58,10 @@ private:
     // login dialog component
     QPointer<LoginDialog> m_loginDialog;
 
-    //reference to network manager and configuration manager
-    QPointer<NetworkManager> m_networkManager;
-    const Configuration &m_configurationManager;
+    //reference to dataProxy;
+    QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(OAuth2)
+    Q_DISABLE_COPY(OAuth2);
 };
 
 #endif // OAUTH2_H

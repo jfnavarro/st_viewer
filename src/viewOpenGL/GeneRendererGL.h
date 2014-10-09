@@ -9,12 +9,13 @@
 
 #include "GraphicItemGL.h"
 
+#include <QImage>
+
 #include "math/QuadTree.h"
 #include "SelectionEvent.h"
-#include "data/DataProxy.h"
 #include "utils/Utils.h"
 #include "GeneData.h"
-#include <QImage>
+#include "data/DataProxy.h"
 
 class QGLPainter;
 class QGLTexture2D;
@@ -57,10 +58,7 @@ public:
     void setImage(const QImage& image);
 
     // threshold limits pooled and not pooled for feature hits
-    void setHitCount(const int min,
-                     const int max,
-                     const int pooledMin,
-                     const int pooledMax);
+    void setHitCount(const int min, const int max);
 
 public slots:
 
@@ -74,10 +72,10 @@ public slots:
 
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
-    void setPooledLowerLimit(int limit);
-    void setPooledUpperLimit(int limit);
 
     void setVisualMode(const Globals::GeneVisualMode &mode);
+    void setPoolingMode(const Globals::GenePooledMode &mode);
+    void setColorComputingMode(const Globals::GeneColorMode &mode);
 
     //for the given gene list updates the color
     //according to the color of the selected genes
@@ -108,7 +106,7 @@ private:
 
     //helper function to test whether a feature is outside the threshold
     //area or not
-    bool isFeatureOutsideRange(const int hits, const float totalValue);
+    bool isFeatureOutsideRange(const int hits);
 
     // internal rendering functions that alters the rendering data
     // gene data must be initialized
@@ -159,10 +157,8 @@ private:
     // threshold limits for gene hits
     int m_thresholdLower;
     int m_thresholdUpper;
-    int m_thresholdLowerPooled;
-    int m_thresholdUpperPooled;
 
-    // local statistics (Adjusted according to what is being rendered)
+    // local pooled min-max for rendering (Adjusted according to what is being rendered)
     float m_localPooledMin;
     float m_localPooledMax;
 
@@ -171,6 +167,12 @@ private:
 
     // visual mode
     Globals::GeneVisualMode m_visualMode;
+
+    // pooling mode (by gene count or reads counts)
+    Globals::GenePooledMode m_poolingMode;
+
+    // color computing mode (exp - log - linear)
+    Globals::GeneColorMode m_colorComputingMode;
 
     // shader program (TODO use smart pointer)
     QGLShaderProgramEffect *m_shaderProgram;
@@ -181,7 +183,7 @@ private:
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(GeneRendererGL)
+    Q_DISABLE_COPY(GeneRendererGL);
 };
 
 

@@ -14,8 +14,6 @@
 #include <QMouseEvent>
 #include <QPointer>
 
-#include "data/DataProxy.h"
-
 class InitPage;
 class DatasetPage;
 class CellViewPage;
@@ -26,6 +24,8 @@ class QStackedWidget;
 class QVBoxLayout;
 class QHBoxLayout;
 class Error;
+class AuthorizationManager;
+class DataProxy;
 
 //this class extends QButtonGroup to unable the mouse events
 //TODO move to a separate class
@@ -73,7 +73,9 @@ class ExtendedTabWidget : public QWidget
 
 public:
 
-    explicit ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    explicit ExtendedTabWidget(QPointer<DataProxy> dataProxy,
+                               QPointer<AuthorizationManager> authManager,
+                               QWidget *parent = 0);
     virtual ~ExtendedTabWidget();
 
     QSize sizeHint() const;
@@ -129,9 +131,10 @@ private:
     QPointer<QHBoxLayout> m_layout;
     QPointer<QVBoxLayout> m_buttonLayout;
 
-    //refence to datProxy
+    //refence to dataProxy and auth manager
     QPointer<DataProxy> m_dataProxy;
+    QPointer<AuthorizationManager> m_authManager;
 
-    Q_DISABLE_COPY(ExtendedTabWidget)
+    Q_DISABLE_COPY(ExtendedTabWidget);
 };
 #endif  /* // EXTENDEDTABWIDGET_H */

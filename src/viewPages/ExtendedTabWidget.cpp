@@ -21,6 +21,8 @@
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/ExperimentPage.h"
+#include "data/DataProxy.h"
+#include "auth/AuthorizationManager.h"
 
 ExtendedButtonGroup::ExtendedButtonGroup(QWidget *parent) :
     QButtonGroup(parent)
@@ -91,7 +93,9 @@ bool ExtendedButton::event(QEvent *event)
     return QPushButton::event(event);
 }
 
-ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *parent) :
+ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
+                                     QPointer<AuthorizationManager> authManager,
+                                     QWidget *parent) :
     QWidget(parent),
     m_startpage(nullptr),
     m_datasets(nullptr),
@@ -101,7 +105,8 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy, QWidget *par
     m_buttonGroup(nullptr),
     m_layout(nullptr),
     m_buttonLayout(nullptr),
-    m_dataProxy(dataProxy)
+    m_dataProxy(dataProxy),
+    m_authManager(authManager)
 {
     m_buttonGroup = new ExtendedButtonGroup(this);
 
@@ -269,7 +274,7 @@ void ExtendedTabWidget::createPages()
 {
     Q_ASSERT(!m_stackWidget.isNull());
 
-    m_startpage = new InitPage(m_dataProxy, m_stackWidget);
+    m_startpage = new InitPage(m_dataProxy, m_authManager, m_stackWidget);
     insertPage(m_startpage, QIcon(QStringLiteral(":/images/startpage-icon.png")), "Start");
 
     m_datasets = new DatasetPage(m_dataProxy, m_stackWidget);

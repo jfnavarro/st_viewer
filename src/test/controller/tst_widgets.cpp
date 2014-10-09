@@ -41,7 +41,7 @@ void WidgetsTest::initTestCase()
     QVERIFY(configuration != 0);
 
     // init network manager
-    NetworkManager* networkManager = new NetworkManager(*configuration);
+    NetworkManager* networkManager = new NetworkManager();
     QVERIFY(networkManager != 0);
 
     // init data proxy
@@ -49,7 +49,7 @@ void WidgetsTest::initTestCase()
     QVERIFY(dataProxy != 0);
 
     // auth manager
-    AuthorizationManager *authManager = new AuthorizationManager(networkManager, *configuration);
+    AuthorizationManager *authManager = new AuthorizationManager(dataProxy);
     QVERIFY(authManager != 0);
 }
 

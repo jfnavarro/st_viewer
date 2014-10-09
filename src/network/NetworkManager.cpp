@@ -23,26 +23,28 @@
 #include <QDesktopServices>
 #include <QHostInfo>
 #include <QDir>
+#include <QUuid>
 
 #include "NetworkCommand.h"
 #include "NetworkReply.h"
 #include "NetworkDiskCache.h"
-
 #include "error/Error.h"
 
-NetworkManager::NetworkManager(const Configuration &configurationManager, QObject *parent):
+NetworkManager::NetworkManager(QObject *parent):
     QObject(parent),
     m_nam(nullptr),
-    m_configurationManager(configurationManager)
+    m_diskCache(nullptr)
 {
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
 
+    const QString serverURL = m_configurationManager.EndPointUrl();
+
     // make DND look up ahead of time
-    QHostInfo::lookupHost(m_configurationManager.EndPointUrl(), 0, 0);
+    QHostInfo::lookupHost(serverURL, 0, 0);
 
     // connect to the HTTPS TCP port ahead of time
-    m_nam->connectToHostEncrypted(m_configurationManager.EndPointUrl());
+    m_nam->connectToHostEncrypted(serverURL);
 
     // add ssl support  (we need the public key)
     //TODO finish and try this (me dont like ignoring ssl errors)
@@ -61,12 +63,13 @@ NetworkManager::NetworkManager(const Configuration &configurationManager, QObjec
     // request.setSslConfiguration(sslConfiguration);
 
     // add cache support
-    NetworkDiskCache *diskCache = new NetworkDiskCache(this);
+    m_diskCache = new NetworkDiskCache(this);
+    Q_ASSERT(!m_diskCache.isNull());
     QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     qDebug() << "Network disk cache location " << location;
-    diskCache->setCacheDirectory(location + QDir::separator() + "data");
-    diskCache->setMaximumCacheSize(1000 * 1024 * 1024); // 1GB
-    m_nam->setCache(diskCache);
+    m_diskCache->setCacheDirectory(location + QDir::separator() + "data");
+    m_diskCache->setMaximumCacheSize(1000 * 1024 * 1024); // 1GB
+    m_nam->setCache(m_diskCache);
 
     //we want to provide Authentication to our OAuth based servers
     connect(m_nam, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
@@ -101,10 +104,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
         return nullptr;
     }
 
-    // check if accces_token is appended
-    if (flags.testFlag(UseAuthentication) && cmd->getQueryItem("access_token").isEmpty()) {
-        qDebug() << "[NetworkManager] Error: Access token is empty";
-        return nullptr;
+    // check if authentication is needed
+    if (flags.testFlag(UseAuthentication)) {
+        //append access token
+        const QUuid accessToken = m_tokenStorage.getAccessToken();
+        Q_ASSERT(!accessToken.isNull());
+        //QUuid encloses its uuids in "{}"
+        cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     }
 
     // create the qt network request
@@ -163,7 +169,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
     }
 
     if (networkReply == nullptr) {
-        qDebug() << "[NetworkManager] Error: NetWork reply is null";
+        qDebug() << "[NetworkManager] Error: network reply is null";
         return nullptr;
     }
 
@@ -184,8 +190,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
 QByteArray NetworkManager::addJSONDatatoRequest(NetworkCommand *cmd,
                                                 QNetworkRequest &request) const
 {
-    QByteArray jsonData = cmd->jsonQuery();
+    QByteArray jsonData = cmd->body();
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setHeader(QNetworkRequest::ContentLengthHeader, jsonData.size());
     return jsonData;
+}
+
+void NetworkManager::cleanCache()
+{
+    m_diskCache->clear();
 }

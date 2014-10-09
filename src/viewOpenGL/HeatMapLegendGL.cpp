@@ -24,7 +24,13 @@ static const qreal legend_height = 150.0;
 static const qreal bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
-    : GraphicItemGL(parent)
+    : GraphicItemGL(parent),
+      m_lower_threshold(0),
+      m_upper_threshold(1),
+      m_max(1),
+      m_min(1),
+      m_colorComputingMode(Globals::LinearColor)
+
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -98,20 +104,35 @@ void HeatMapLegendGL::setBoundaries(const int min, const int max)
 void HeatMapLegendGL::setLowerLimit(const int limit)
 {
     const qreal normalized_limit = STMath::norm<int, qreal>(limit, m_min, m_max);
-    m_lower_threshold = normalized_limit;
-    m_lower_text = QString::number(limit);
-    generateBarAndTexts();
-    emit updated();
+
+    if (m_lower_threshold != normalized_limit) {
+        m_lower_threshold = normalized_limit;
+        m_lower_text = QString::number(limit);
+        generateBarAndTexts();
+        emit updated();
+    }
 }
 
 void HeatMapLegendGL::setUpperLimit(const int limit)
 {
-
     const qreal normalized_limit = STMath::norm<int, qreal>(limit, m_min, m_max);
-    m_upper_threshold = normalized_limit;
-    m_upper_text = QString::number(limit);
-    generateBarAndTexts();
-    emit updated();
+
+    if (m_upper_threshold != normalized_limit) {
+        m_upper_threshold = normalized_limit;
+        m_upper_text = QString::number(limit);
+        generateBarAndTexts();
+        emit updated();
+    }
+}
+
+void HeatMapLegendGL::setColorComputingMode(const Globals::GeneColorMode &mode)
+{
+    // update color computing mode
+    if (m_colorComputingMode != mode) {
+        m_colorComputingMode = mode;
+        generateHeatMap();
+        emit updated();
+    }
 }
 
 void HeatMapLegendGL::generateHeatMap()
@@ -120,7 +141,7 @@ void HeatMapLegendGL::generateHeatMap()
     QImage image(m_min, m_max, QImage::Format_ARGB32);
     //here we can chose the type of Spectrum (linear, log or exp) and the type
     //of color mapping (wavelenght or linear interpolation)
-    Heatmap::createHeatMapImage(image, m_min, m_max);
+    Heatmap::createHeatMapImage(image, m_min, m_max, m_colorComputingMode);
 
     m_texture.cleanupResources();
     m_texture.release();

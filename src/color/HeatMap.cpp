@@ -14,8 +14,7 @@
 void Heatmap::createHeatMapImage(QImage &image,
                                  const int lowerbound,
                                  const int upperbound,
-                                 const ColorMode colorMode,
-                                 const SpectrumMode mode)
+                                 const Globals::GeneColorMode &colorMode)
 {
     const int height = image.height();
     const int width = image.width();
@@ -25,14 +24,14 @@ void Heatmap::createHeatMapImage(QImage &image,
         //color normalized to the lower and upper bound of the image
         QColor4ub color;
         const int value = height - y - 1;
-        if (colorMode == SpectrumRaibow) {
-            const qreal normalizedValue = STMath::norm<int, qreal>(value, lowerbound, upperbound);
-            const qreal adjusted = Heatmap::normalizeValueSpectrumFunction(normalizedValue, mode);
-            color = Heatmap::createHeatMapWaveLenghtColor(adjusted);
-        } else {
-            const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
-            color = Heatmap::createHeatMapLinearColor(normalizedValue, lowerbound, upperbound);
-        }
+        //TODO might need to transform the bounds too
+        const qreal normalizedValue = STMath::norm<int, qreal>(value, lowerbound, upperbound);
+        const qreal adjusted = Heatmap::normalizeValueSpectrumFunction(normalizedValue, colorMode);
+        color = Heatmap::createHeatMapWaveLenghtColor(adjusted);
+
+        //alternative way of computing color by linear interpolation
+        //const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
+        //color = Heatmap::createHeatMapLinearColor(normalizedValue, lowerbound, upperbound);
 
         const QRgb rgb_color = color.toColor().rgb();
         for(int x = 0; x < width; ++x) {
@@ -115,19 +114,20 @@ QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 
 //normalizes a value to wave lenghts range using different modes (to be used
 //with the function above)
-qreal Heatmap::normalizeValueSpectrumFunction(const qreal value, const SpectrumMode mode)
+qreal Heatmap::normalizeValueSpectrumFunction(const qreal value,
+                                              const Globals::GeneColorMode &colorMode)
 {
     qreal transformedValue = value;
 
-    switch (mode) {
-    case Heatmap::SpectrumLog:
+    switch (colorMode) {
+    case Globals::LogColor:
         //value = qLn(value + 1.0) * 1.442695;
         transformedValue = std::log(value + 1.0);
         break;
-    case Heatmap::SpectrumExp:
+    case Globals::ExpColor:
         transformedValue = qSqrt(value);
         break;
-    case Heatmap::SpectrumLinear:
+    case Globals::LinearColor:
     default:
         // do nothing
         break;

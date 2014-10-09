@@ -13,7 +13,6 @@
 #include <QImageReader>
 #include <QApplication>
 
-#include "data/DataProxy.h"
 #include "dataModel/GeneSelection.h"
 
 static const int INVALID_INDEX = -1;
@@ -64,13 +63,15 @@ void GeneRendererGL::clearData()
     m_size = Globals::GENE_SIZE_DEFAULT;
     m_shine = Globals::GENE_SHINNE_DEFAULT;
     m_thresholdLower = 0;
-    m_thresholdLowerPooled = 0;
     m_thresholdUpper = 1;
-    m_thresholdUpperPooled = 1;
     m_shape = Globals::DEFAULT_SHAPE_GENE;
 
-    // update visual mode
+    // visual mode
     m_visualMode = Globals::NormalMode;
+    // pooling mode
+    m_poolingMode = Globals::PoolReadsCount;
+    // color mode
+    m_colorComputingMode = Globals::LinearColor;
 
     //reset scene node
     if (!m_geneNode.isNull()) {
@@ -93,12 +94,8 @@ void GeneRendererGL::resetQuadTree(const QRectF &rect)
 }
 
 void GeneRendererGL::setHitCount(const int min,
-                                 const int max,
-                                 const int pooledMin,
-                                 const int pooledMax)
+                                 const int max)
 {
-    m_thresholdLowerPooled = pooledMin;
-    m_thresholdUpperPooled = pooledMax;
     m_thresholdLower = min;
     m_thresholdUpper = max;
 }
@@ -139,22 +136,6 @@ void GeneRendererGL::setLowerLimit(int limit)
 {
     if (m_thresholdLower != limit) {
         m_thresholdLower = limit;
-        updateVisual();
-    }
-}
-
-void GeneRendererGL::setPooledUpperLimit(int limit)
-{
-    if (m_thresholdUpperPooled != limit) {
-        m_thresholdUpperPooled = limit;
-        updateVisual();
-    }
-}
-
-void GeneRendererGL::setPooledLowerLimit(int limit)
-{
-    if (m_thresholdLowerPooled != limit) {
-        m_thresholdLowerPooled = limit;
         updateVisual();
     }
 }
@@ -251,7 +232,7 @@ void GeneRendererGL::updateVisual()
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    m_localPooledMin = 10e5; //just a random high value
+    m_localPooledMin = 10e6; //just a random high value
     m_localPooledMax = 0;
 
     const auto& features =
@@ -274,29 +255,29 @@ void GeneRendererGL::updateVisual()
         const int index = m_geneInfoById.value(feature);
         const int currentHits = feature->hits();
 
-        // compute values
-        const float oldValue = m_geneData.quadValue(index);
-        const float newValue = oldValue + (selected ? static_cast<float>(currentHits) : 0.0);
-
         // compute ref count
         const int oldRefCount = m_geneData.quadRefCount(index);
         const int newRefCount = oldRefCount + (selected ? 1 : 0);
 
-        // we do not want to show features outside the threshold
-        if (isFeatureOutsideRange(currentHits, newValue)
-                && newRefCount != 0 && newValue != 0) {
+        // we do not want to show features outside the threshold or not visible
+        if (isFeatureOutsideRange(currentHits) && newRefCount != 0) {
             continue;
         }
+
+        // update ref count data
+        m_geneData.updateQuadRefCount(index, newRefCount);
+
+        // compute and update values data
+        const float oldValue = m_geneData.quadValue(index);
+        const float newValue = m_poolingMode == Globals::PoolNumberGenes
+                ? static_cast<float>(newRefCount)
+                : (oldValue + (selected ? static_cast<float>(currentHits) : 0.0));
+        m_geneData.updateQuadValue(index, newValue);
 
         // update feature color
         if (feature->color() != gene->color()) {
             feature->color(gene->color());
         }
-
-        // update ref count data
-        m_geneData.updateQuadRefCount(index, newRefCount);
-        // update values data
-        m_geneData.updateQuadValue(index, newValue);
 
         // update color data for visible features
         if (selected && newRefCount > 0) {
@@ -354,7 +335,7 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 
 void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 {
-    Q_ASSERT(!m_geneNode.isNull() && m_geneData.isValid());
+    Q_ASSERT(m_geneData.isValid());
 
     // unselect previous selection
     m_geneData.resetSelection(false);
@@ -366,9 +347,8 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
         const int index = m_geneInfoById.value(feature);
         const int refCount = m_geneData.quadRefCount(index);
         const int hits = feature->hits();
-        const float value = m_geneData.quadValue(index);
         // not filtering if the feature's gene is selected for now
-        if (refCount <= 0 || isFeatureOutsideRange(hits, value)) {
+        if (refCount <= 0 || isFeatureOutsideRange(hits)) {
             continue;
         }
         // update gene data and feature selected
@@ -422,7 +402,7 @@ void GeneRendererGL::setImage(const QImage &image)
 
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
-    Q_ASSERT(!m_geneNode.isNull() && m_geneData.isValid());
+    Q_ASSERT(m_geneData.isValid());
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -450,14 +430,13 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 
         const int index = point.second;
         const int refCount = m_geneData.quadRefCount(index);
-        const float value = m_geneData.quadValue(index);
 
         // do not select non-visible features
         if (refCount <= 0) {
             continue;
         }
 
-        const bool isSelected = !(mode == SelectionEvent::ExcludeSelection);
+        const bool isSelected = mode != SelectionEvent::ExcludeSelection;
 
         // iterate all the features in the position to select when possible
         const auto &featureList = m_geneInfoReverse.values(index);
@@ -465,7 +444,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
             // not checking if gene is selected or not for now
             const int hits = feature->hits();
             // do not select features outside threshold
-            if (isFeatureOutsideRange(hits, value)) {
+            if (isFeatureOutsideRange(hits)) {
                 continue;
             }
 
@@ -494,6 +473,28 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
     }
 }
 
+void GeneRendererGL::setPoolingMode(const Globals::GenePooledMode &mode)
+{
+    // update pooling mode
+    if (m_poolingMode != mode) {
+        m_poolingMode = mode;
+        if (m_visualMode != Globals::NormalMode) {
+            updateVisual();
+        }
+    }
+}
+
+void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode &mode)
+{
+    // update color computing mode
+    if (m_colorComputingMode != mode) {
+        m_colorComputingMode = mode;
+        if (m_visualMode != Globals::NormalMode) {
+            updateVisual();
+        }
+    }
+}
+
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
     Q_ASSERT(!m_geneNode.isNull());
@@ -509,17 +510,20 @@ void GeneRendererGL::draw(QGLPainter *painter)
     m_shaderProgram->setActive(painter, true);
 
     // add UNIFORM values to shader program
-    int mode = m_shaderProgram->program()->uniformLocation("in_visualMode");
-    m_shaderProgram->program()->setUniformValue(mode, static_cast<GLint>(m_visualMode));
+    int visualMode = m_shaderProgram->program()->uniformLocation("in_visualMode");
+    m_shaderProgram->program()->setUniformValue(visualMode, static_cast<GLint>(m_visualMode));
+
+    int colorMode = m_shaderProgram->program()->uniformLocation("in_colorMode");
+    m_shaderProgram->program()->setUniformValue(colorMode, static_cast<GLint>(m_colorComputingMode));
 
     int shine = m_shaderProgram->program()->uniformLocation("in_shine");
     m_shaderProgram->program()->setUniformValue(shine, static_cast<GLfloat>(m_shine));
 
     int upperLimit = m_shaderProgram->program()->uniformLocation("in_pooledUpper");
-    m_shaderProgram->program()->setUniformValue(upperLimit, static_cast<GLfloat>(m_localPooledMin));
+    m_shaderProgram->program()->setUniformValue(upperLimit, static_cast<GLfloat>(m_localPooledMax));
 
     int lowerLimit = m_shaderProgram->program()->uniformLocation("in_pooledLower");
-    m_shaderProgram->program()->setUniformValue(lowerLimit, static_cast<GLfloat>(m_localPooledMax));
+    m_shaderProgram->program()->setUniformValue(lowerLimit, static_cast<GLfloat>(m_localPooledMin));
 
     int intensity = m_shaderProgram->program()->uniformLocation("in_intensity");
     m_shaderProgram->program()->setUniformValue(intensity, static_cast<GLfloat>(m_intensity));
@@ -573,13 +577,8 @@ void GeneRendererGL::setShape(Globals::GeneShape shape)
     }
 }
 
-bool GeneRendererGL::isFeatureOutsideRange(const int hits, const float totalValue)
+bool GeneRendererGL::isFeatureOutsideRange(const int hits)
 {
-    //TODO implicit casting is happening with totalValue
-
     // check if the feature is outside the threshold range
-    return ((m_visualMode == Globals::NormalMode
-             && (hits < m_thresholdLower || hits > m_thresholdUpper))
-            || (m_visualMode != Globals::NormalMode
-            && (totalValue < m_thresholdLowerPooled || totalValue > m_thresholdUpperPooled)));
+    return (hits < m_thresholdLower || hits > m_thresholdUpper);
 }

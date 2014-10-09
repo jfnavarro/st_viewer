@@ -179,8 +179,6 @@ void CellViewPage::onEnter()
     const QTransform alignment = imageAlignment->alignment();
     const qreal min = dataset->statisticsMin();
     const qreal max = dataset->statisticsMax();
-    const qreal pooledMin = dataset->statisticsPooledMin();
-    const qreal pooledMax = dataset->statisticsPooledMax();
 
     const QRectF chip_rect = QRectF(
                 QPointF(currentChip->x1(), currentChip->y1()),
@@ -192,7 +190,7 @@ void CellViewPage::onEnter()
                 );
 
     // load features and threshold boundaries into FDH
-    m_FDH->computeData(m_dataProxy->getFeatureList(), min, max, pooledMin, pooledMax);
+    m_FDH->computeData(m_dataProxy->getFeatureList(), min, max);
 
     // clear view data
     m_view->clearData();
@@ -208,17 +206,17 @@ void CellViewPage::onEnter()
     m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
     m_gene_plotter->setTransform(alignment);
-    m_gene_plotter->setHitCount(min, max, pooledMin, pooledMax);
+    m_gene_plotter->setHitCount(min, max);
 
-    // updated legend size and data (only pooled limits affect the legend)
-    m_legend->setBoundaries(pooledMin, pooledMax);
+    // updated legend size and data
+    m_legend->setBoundaries(min, max);
 
     // load cell tissue
     slotLoadCellFigure();
 
-    // load min,max and pooled min,max to the threshold sliders in tool bar
+    // load min-max to the threshold sliders in tool bar
     // do this the last as it will trigger some slots in the gene_plotter and FDH
-    m_toolBar->resetTresholdActions(min, max, pooledMin, pooledMax);
+    m_toolBar->resetTresholdActions(min, max);
 
     // reset main variabless
     resetActionStates();
@@ -412,10 +410,6 @@ void CellViewPage::createGLConnections()
             m_gene_plotter.data(), SLOT(setLowerLimit(int)));
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setUpperLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
-            m_gene_plotter.data(), SLOT(setPooledLowerLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
-            m_gene_plotter.data(), SLOT(setPooledUpperLimit(int)));
 
     //gene attributes signals
     connect(m_toolBar.data(), SIGNAL(intensityValueChanged(qreal)),
@@ -426,6 +420,10 @@ void CellViewPage::createGLConnections()
             m_gene_plotter.data(), SLOT(setShape(Globals::GeneShape)));
     connect(m_toolBar.data(), SIGNAL(shineValueChanged(qreal)),
             m_gene_plotter.data(), SLOT(setShine(qreal)));
+    connect(m_toolBar.data(), SIGNAL(colorComputationChanged(Globals::GeneColorMode)),
+            m_gene_plotter.data(), SLOT(setColorComputingMode(Globals::GeneColorMode)));
+    connect(m_toolBar.data(), SIGNAL(poolingModeChanged(Globals::GenePooledMode)),
+            m_gene_plotter.data(), SLOT(setPoolingMode(Globals::GenePooledMode)));
 
     //show/not genes signal
     connect(m_toolBar->m_actionShow_showGenes,
@@ -453,6 +451,8 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar->m_actionGroup_toggleLegendPosition,
             SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetLegendAnchor(QAction*)));
+    connect(m_toolBar.data(), SIGNAL(colorComputationChanged(Globals::GeneColorMode)),
+            m_legend.data(), SLOT(setColorComputingMode(Globals::GeneColorMode)));
 
     // minimap signals
     connect(m_toolBar->m_actionShow_showMiniMap, SIGNAL(toggled(bool)),
@@ -462,9 +462,9 @@ void CellViewPage::createGLConnections()
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
     // connect threshold slider to the heatmap (only concerns for the pooled ones)
-    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
             m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
+    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
 
     // Features Histogram Distribution
@@ -472,10 +472,6 @@ void CellViewPage::createGLConnections()
             m_FDH.data(), SLOT(setLowerLimit(int)));
     connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
             m_FDH.data(), SLOT(setUpperLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdLowerPooledValueChanged(int)),
-            m_FDH.data(), SLOT(setPooledLowerLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdUpperPooledValueChanged(int)),
-            m_FDH.data(), SLOT(setPooledUpperLimit(int)));
     connect(m_toolBar->m_actionFDH, &QAction::triggered, [=]{ m_FDH->show(); });
 }
 

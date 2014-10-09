@@ -14,6 +14,8 @@
 #include <QToolButton>
 #include <QCoreApplication>
 #include <QPushButton>
+#include <QGroupBox>
+#include <QRadioButton>
 
 #include "utils/SetTips.h"
 #include "customWidgets/SpinBoxSlider.h"
@@ -106,6 +108,13 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_actionShow_toggleNormal(nullptr),
     m_actionShow_toggleDynamicRange(nullptr),
     m_actionShow_toggleHeatMap(nullptr),
+    m_colorComputationMode(nullptr),
+    m_colorLinear(nullptr),
+    m_colorLog(nullptr),
+    m_colorExp(nullptr),
+    m_poolingMode(nullptr),
+    m_poolingGenes(nullptr),
+    m_poolingReads(nullptr),
     m_actionGroup_toggleLegendPosition(nullptr),
     m_action_toggleLegendTopRight(nullptr),
     m_action_toggleLegendTopLeft(nullptr),
@@ -117,7 +126,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_action_toggleMinimapDownRight(nullptr),
     m_action_toggleMinimapDownLeft(nullptr),
     m_geneHitsThreshold(nullptr),
-    m_geneHitsThresholdPooled(nullptr),
     m_geneIntensitySlider(nullptr),
     m_geneSizeSlider(nullptr),
     m_geneShineSlider(nullptr),
@@ -174,6 +182,38 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_menu_genePlotter->addActions(m_actionGroup_toggleVisualMode->actions());
     m_menu_genePlotter->addSeparator();
 
+    //color
+    m_colorComputationMode = new QGroupBox(this);
+    setToolTipAndStatusTip(
+            tr("Choses the type of color computation."),
+            m_colorComputationMode);
+    m_colorLinear = new QRadioButton(tr("Linear"));
+    m_colorLog = new QRadioButton(tr("Log"));
+    m_colorExp = new QRadioButton(tr("Exp"));
+    m_colorLinear->setChecked(true);
+    QHBoxLayout *hboxColor = new QHBoxLayout();
+    hboxColor->addWidget(m_colorLinear);
+    hboxColor->addWidget(m_colorLog);
+    hboxColor->addWidget(m_colorExp);
+    hboxColor->addStretch(1);
+    m_colorComputationMode->setLayout(hboxColor);
+    addWidgetToMenu(tr("Color computation:"), m_menu_genePlotter, m_colorComputationMode);
+
+    //color
+    m_poolingMode = new QGroupBox(this);
+    setToolTipAndStatusTip(
+            tr("Choses the type of pooling mode for dynamic range and heatmap."),
+            m_poolingMode);
+    m_poolingGenes = new QRadioButton(tr("Genes"));
+    m_poolingReads = new QRadioButton(tr("Reads"));
+    m_poolingReads->setChecked(true);
+    QHBoxLayout *hboxPooling = new QHBoxLayout();
+    hboxPooling->addWidget(m_poolingReads);
+    hboxPooling->addWidget(m_poolingGenes);
+    hboxPooling->addStretch(1);
+    m_poolingMode->setLayout(hboxPooling);
+    addWidgetToMenu(tr("Pooling modes:"), m_menu_genePlotter, m_poolingMode);
+
     //threshold slider
     Q_ASSERT(m_geneHitsThreshold == nullptr);
     m_geneHitsThreshold = new SpinBoxSlider(this);
@@ -181,14 +221,6 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
             tr("Limit of the number of reads per feature."),
             m_geneHitsThreshold);
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
-
-    //threshold slider pooled
-    Q_ASSERT(m_geneHitsThresholdPooled == nullptr);
-    m_geneHitsThresholdPooled = new SpinBoxSlider(this);
-    setToolTipAndStatusTip(
-            tr("Limit of the number of pooled features (accumulated reads per feature)."),
-            m_geneHitsThresholdPooled);
-    addWidgetToMenu(tr("Pooled Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThresholdPooled);
 
     // transcripts intensity
     addSliderToMenu(this,
@@ -322,10 +354,9 @@ void CellViewPageToolBar::setEnableButtons(bool enable)
     m_menu_cellTissue->setEnabled(enable);
 }
 
-void CellViewPageToolBar::resetTresholdActions(int min, int max, int pooledMin, int pooledMax)
+void CellViewPageToolBar::resetTresholdActions(int min, int max)
 {
     Q_ASSERT(m_geneHitsThreshold != nullptr);
-    Q_ASSERT(m_geneHitsThresholdPooled != nullptr);
 
     //threshold slider
     m_geneHitsThreshold->setMinimumValue(min);
@@ -333,13 +364,6 @@ void CellViewPageToolBar::resetTresholdActions(int min, int max, int pooledMin, 
     m_geneHitsThreshold->setLowerValue(min);
     m_geneHitsThreshold->setUpperValue(max);
     m_geneHitsThreshold->setTickInterval(1);
-
-    //pooled threshold slider
-    m_geneHitsThresholdPooled->setMinimumValue(pooledMin);
-    m_geneHitsThresholdPooled->setMaximumValue(pooledMax);
-    m_geneHitsThresholdPooled->setLowerValue(pooledMin);
-    m_geneHitsThresholdPooled->setUpperValue(pooledMax);
-    m_geneHitsThresholdPooled->setTickInterval(1);
 }
 
 void CellViewPageToolBar::resetActions()
@@ -564,11 +588,6 @@ void CellViewPageToolBar::createConnections()
             this, SIGNAL(thresholdLowerValueChanged(int)));
     connect(m_geneHitsThreshold, SIGNAL(upperValueChanged(int)),
             this, SIGNAL(thresholdUpperValueChanged(int)));
-    //pooled threshold slider signal
-    connect(m_geneHitsThresholdPooled, SIGNAL(lowerValueChanged(int)),
-            this, SIGNAL(thresholdLowerPooledValueChanged(int)));
-    connect(m_geneHitsThresholdPooled, SIGNAL(upperValueChanged(int)),
-            this, SIGNAL(thresholdUpperPooledValueChanged(int)));
 
     //gene attributes signals
     connect(m_geneIntensitySlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneIntensity(int)));
@@ -579,6 +598,13 @@ void CellViewPageToolBar::createConnections()
     connect(m_geneShapeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGeneShape(int)));
     connect(m_actionRotation_rotateLeft, SIGNAL(triggered(bool)), this, SLOT(slotRotateLeft()));
     connect(m_actionRotation_rotateRight, SIGNAL(triggered(bool)), this, SLOT(slotRotateRight()));
+
+    //color and pooling signals
+    connect(m_colorExp, SIGNAL(clicked()), this, SLOT(slotColorExp()));
+    connect(m_colorLinear, SIGNAL(clicked()), this, SLOT(slotColorLinear()));
+    connect(m_colorLog, SIGNAL(clicked()), this, SLOT(slotColorLog()));
+    connect(m_poolingGenes, SIGNAL(clicked()), this, SLOT(slotPoolingGenes()));
+    connect(m_poolingReads, SIGNAL(clicked()), this, SLOT(slotPoolingReads()));
 }
 
 void CellViewPageToolBar::slotGeneShape(int geneShape)
@@ -627,4 +653,29 @@ void CellViewPageToolBar::slotRotateLeft()
 void CellViewPageToolBar::slotRotateRight()
 {
     emit rotateView(45.0f);
+}
+
+void CellViewPageToolBar::slotColorExp()
+{
+    emit colorComputationChanged(Globals::ExpColor);
+}
+
+void CellViewPageToolBar::slotColorLog()
+{
+    emit colorComputationChanged(Globals::LogColor);
+}
+
+void CellViewPageToolBar::slotColorLinear()
+{
+    emit colorComputationChanged(Globals::LinearColor);
+}
+
+void CellViewPageToolBar::slotPoolingGenes()
+{
+    emit poolingModeChanged(Globals::PoolNumberGenes);
+}
+
+void CellViewPageToolBar::slotPoolingReads()
+{
+    emit poolingModeChanged(Globals::PoolReadsCount);
 }

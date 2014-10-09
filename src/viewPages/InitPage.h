@@ -11,29 +11,30 @@
 #include <memory>
 #include "Page.h"
 
-#include "data/DataProxy.h"
-
 class QVBoxLayout;
 class Error;
+class AuthorizationManager;
+class DataProxy;
 
 namespace Ui {
 class InitPage;
 }
 
 // this is the definition of the start page which contains logos,
-//a login component and a start button
+// a login component and a start button
 // the page as a stackwidget which will switch between login widget and logged widget
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 
-//TODO authorizationManager should be passed as a reference here (currently obtaining it from DataProxy)
 class InitPage : public Page
 {
     Q_OBJECT
 
 public:
 
-    InitPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    InitPage(QPointer<DataProxy> dataProxy,
+             QPointer<AuthorizationManager> authManager,
+             QWidget *parent = 0);
     virtual ~InitPage();
 
 public slots:
@@ -50,9 +51,12 @@ private slots:
 private:
 
     std::unique_ptr<Ui::InitPage> m_ui;
-    QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(InitPage)
+    //references to dataProxy and authManager
+    QPointer<DataProxy> m_dataProxy;
+    QPointer<AuthorizationManager> m_authManager;
+
+    Q_DISABLE_COPY(InitPage);
 };
 
 #endif  // STARTPAGE_H //

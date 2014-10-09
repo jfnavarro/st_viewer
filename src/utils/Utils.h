@@ -28,6 +28,17 @@ enum GeneVisualMode {
     HeatMapMode = 2
 };
 
+enum GeneColorMode {
+    ExpColor = 0,
+    LogColor = 1,
+    LinearColor = 2
+};
+
+enum GenePooledMode {
+    PoolNumberGenes = 0,
+    PoolReadsCount = 1
+};
+
 enum GeneShape  {
     Circle = 0,
     Cross = 1,

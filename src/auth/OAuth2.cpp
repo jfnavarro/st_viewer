@@ -14,24 +14,18 @@
 #include <QApplication>
 
 #include "dialogs/LoginDialog.h"
-
-#include "network/RESTCommandFactory.h"
-#include "network/NetworkReply.h"
-
 #include "error/OAuth2Error.h"
-
 #include "dataModel/ErrorDTO.h"
 #include "dataModel/OAuth2TokenDTO.h"
 #include "data/ObjectParser.h"
-
+#include "data/DataProxy.h"
 #include "utils/Utils.h"
+#include "network/DownloadManager.h"
 
-OAuth2::OAuth2(QPointer<NetworkManager> networkManager,
-               const Configuration &configurationManager, QObject* parent)
+OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject* parent)
     : QObject(parent),
       m_loginDialog(nullptr),
-      m_networkManager(networkManager),
-      m_configurationManager(configurationManager)
+      m_dataProxy(dataProxy)
 {
 
 }
@@ -44,11 +38,9 @@ OAuth2::~OAuth2()
 
 void OAuth2::startQuietLogin(const QUuid& refreshToken)
 {
-    // request token based on valid refresh token
-    const StringPair requestType(Globals::LBL_GRANT_TYPE, Globals::SettingsRefreshToken);
-    const StringPair requestData(Globals::SettingsRefreshToken,
-                                 refreshToken.toString().mid(1, 36)); // QUuid encloses its uuids in "{}"...
-    requestToken(requestType, requestData);
+    // QUuid encloses its uuids in "{}"...
+    requestToken(StringPair(Globals::LBL_GRANT_TYPE, Globals::SettingsRefreshToken),
+                 StringPair(Globals::SettingsRefreshToken, refreshToken.toString().mid(1, 36)));
 }
 
 void OAuth2::startInteractiveLogin()
@@ -76,68 +68,26 @@ void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
 {
-    NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken(m_configurationManager);
-    cmd->addQueryItem(requestUser.first, requestUser.second);
-    cmd->addQueryItem(requestPassword.first, requestPassword.second);
+    async::DataRequest request = m_dataProxy->loadAccessToken(requestUser, requestPassword);
 
-    // send empty flags to ensure access token is not appended to request
-    NetworkReply *request = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
-
-    // check if reply is null due to internet connection
-    if (request == nullptr) {
+    if (!request.isSuccessFul()) {
+        //TODO get error from the request
         QSharedPointer<OAuth2Error>
-                error(new OAuth2Error(tr("Log in Error"), tr("Connection Problem"), this));
-        emit signalError(error);
-    } else {
-        connect(request, SIGNAL(signalFinished(QVariant)), this, SLOT(slotNetworkReply(QVariant)));
-    }
-
-    //clean up
-    cmd->deleteLater();
-}
-
-void OAuth2::slotNetworkReply(QVariant code)
-{
-    // get reference to network reply from sender object
-    NetworkReply *reply = dynamic_cast<NetworkReply*>(sender());
-
-    // null reply, prob no connection
-    if (reply == nullptr) {
-        QSharedPointer<OAuth2Error>
-                error(new OAuth2Error(tr("Log in Error"), tr("Connection Problem"), this));
+               error(new OAuth2Error("Log in Error", "Error retrieving access token", this));
         emit signalError(error);
         return;
     }
 
-    // check the return code
-    if (code != NetworkReply::CodeSuccess) {
-        emit signalError(reply->parseErrors());
-        reply->deleteLater();
-        return;
-    }
+    OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
+    const QUuid accessToken(dto.accessToken());
+    const int expiresIn = dto.expiresIn();
+    const QUuid refreshToken(dto.refreshToken());
 
-    // parse the reply to JSON (errors could happen when parsing)
-    const QJsonDocument document = reply->getJSON();
-
-    // if no errors parse the OAuth2 token
-    if (!reply->hasErrors()) {
-        const QVariant result = document.toVariant();
-        OAuth2TokenDTO dto;
-        data::parseObject(result, &dto);
-        const QUuid accessToken(dto.accessToken());
-        const int expiresIn = dto.expiresIn();
-        const QUuid refreshToken(dto.refreshToken());
-        if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
-            emit signalLoginDone(accessToken, expiresIn, refreshToken);
-        } else {
-             QSharedPointer<OAuth2Error>
-                    error(new OAuth2Error("Log in Error", "Access token is expired", this));
-            emit signalError(error);
-        }
+    if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
+        emit signalLoginDone(accessToken, expiresIn, refreshToken);
     } else {
-        emit signalError(reply->parseErrors());
+         QSharedPointer<OAuth2Error>
+                error(new OAuth2Error("Log in Error", "Access token is expired", this));
+        emit signalError(error);
     }
-
-    // clean up
-    reply->deleteLater();
 }

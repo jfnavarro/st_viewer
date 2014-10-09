@@ -17,6 +17,7 @@ varying lowp float outShape;
 
 // uniform variables
 uniform lowp int in_visualMode;
+uniform lowp int in_colorMode;
 uniform lowp float in_pooledUpper;
 uniform lowp float in_pooledLower;
 uniform lowp int in_shape;
@@ -114,10 +115,22 @@ void main(void)
     outShape = float(in_shape);
     
     int visualMode = int(in_visualMode);
+    int colorMode = int(in_colorMode);
     float value = float(qt_Custom1);
     float upper_limit = float(in_pooledUpper);
     float lower_limit = float(in_pooledLower);
     float shine = float(in_shine);
+    
+    //adjust for color mode (0 exp - 1 log - 2 linear)
+    if (colorMode == 1) {
+        value = log(value + 1);
+        upper_limit = log(upper_limit + 1);
+        lower_limit = log(lower_limit + 1);
+    } else if (colorMode == 0) {
+        value = sqrt(value);
+        upper_limit = sqrt(upper_limit);
+        lower_limit = sqrt(lower_limit);
+    }
     
     //the color computation functions and helpers
     //are the same as the class HeatMap
@@ -126,15 +139,10 @@ void main(void)
     if (value == 0.0) {
         outColor.a = 0.0;
     } else if (visualMode == 1) { //dynamic range mode
-        //add 0.2 to alpha to be able to show very lowly expressed genes
         float normalizedValue = norm(value, lower_limit, upper_limit);
-        float adjustedValue = sqrt(normalizedValue); //not needed if we log?
-        outColor.a = adjustedValue + (1.1 - in_intensity);
-    } else if (visualMode == 2) {
+        outColor.a = normalizedValue + (1.0 - in_intensity);
+    } else if (visualMode == 2) { //heat map mode
         float normalizedValue = norm(value, lower_limit, upper_limit);
-        float adjustedValue = sqrt(normalizedValue); //not needed if we log?
-        
-        //outColor = createHeatMapLinearColor(value, lower_limit, upper_limit);
         outColor = createHeatMapColor(normalizedValue);
         outColor.a = in_intensity;
     } else {

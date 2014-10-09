@@ -37,6 +37,7 @@
 #include "data/DataProxy.h"
 #include "dialogs/AboutDialog.h"
 #include "viewPages/ExtendedTabWidget.h"
+#include "auth/AuthorizationManager.h"
 
 namespace {
 
@@ -65,10 +66,16 @@ stVi::stVi(QWidget* parent): QMainWindow(parent),
     m_actionAbout(nullptr),
     m_actionClear_Cache(nullptr),
     m_mainTab(nullptr),
-    m_dataProxy(nullptr)
+    m_dataProxy(nullptr),
+    m_authManager(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
+
     m_dataProxy = new DataProxy();
+    Q_ASSERT(!m_dataProxy.isNull());
+
+    m_authManager = new AuthorizationManager(m_dataProxy);
+    Q_ASSERT(!m_authManager.isNull());
 }
 
 stVi::~stVi()
@@ -77,6 +84,12 @@ stVi::~stVi()
         delete m_dataProxy;
     }
     m_dataProxy = nullptr;
+
+    if (!m_authManager.isNull()) {
+        delete m_authManager;
+    }
+    m_authManager = nullptr;
+
 
     m_actionExit->deleteLater();
     m_actionExit = nullptr;
@@ -113,6 +126,10 @@ void stVi::init()
     
     // restore settings
     loadSettings();
+
+    // start the authorization once all the pages have been instanciated
+    // this call be done in InitPage
+    m_authManager->startAuthorization();
 }
 
 bool stVi::checkSystemRequirements() const
@@ -140,8 +157,7 @@ bool stVi::checkSystemRequirements() const
 
     // Fail if min version is not supported
     async::DataRequest request = m_dataProxy->loadMinVersion();
-    if (request.return_code() == async::DataRequest::CodeError
-            || request.return_code() == async::DataRequest::CodeAbort) {
+    if (!request.isSuccessFul()) {
         //TODO show the error present in request.getErrors()
         QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
                                 tr("Required version could not be retrieved from the server,"
@@ -176,8 +192,8 @@ void stVi::setupUi()
     QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
 
     //create tab manager
-    //pass reference to dataProxy to tab manager
-    m_mainTab = new ExtendedTabWidget(m_dataProxy, centralwidget);
+    //pass reference to dataProxy and authManager to tab manager
+    m_mainTab = new ExtendedTabWidget(m_dataProxy, m_authManager, centralwidget);
     mainlayout->addWidget(m_mainTab);
 
     //create status bar
