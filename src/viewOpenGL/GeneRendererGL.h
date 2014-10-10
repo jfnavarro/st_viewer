@@ -96,6 +96,10 @@ signals:
     //has been made
     void selectionUpdated();
 
+    //to notify when the local pooled mix-max have changed
+    void localPooledMinChanged(const qreal value);
+    void localPooledMaxChanged(const qreal value);
+
 protected:
 
     void setSelectionArea(const SelectionEvent *event) override;

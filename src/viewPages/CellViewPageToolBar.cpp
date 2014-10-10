@@ -184,6 +184,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     //color
     m_colorComputationMode = new QGroupBox(this);
+    m_colorComputationMode->setFlat(true);
     setToolTipAndStatusTip(
             tr("Choses the type of color computation."),
             m_colorComputationMode);
@@ -201,6 +202,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 
     //color
     m_poolingMode = new QGroupBox(this);
+    m_poolingMode->setFlat(true);
     setToolTipAndStatusTip(
             tr("Choses the type of pooling mode for dynamic range and heatmap."),
             m_poolingMode);

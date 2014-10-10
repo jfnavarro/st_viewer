@@ -54,7 +54,8 @@ QIODevice* NetworkDiskCache::prepare(const QNetworkCacheMetaData &metaData)
     //only cache jpeg/xml and json content
     if (mime.startsWith("application/xml")
             || mime.startsWith("application/json")
-            || mime.startsWith("image/jpeg")) {
+            || mime.startsWith("image/jpeg")
+            || mime.startsWith("application/x-gzip")) {
         return QNetworkDiskCache::prepare(metaData);
     }
 

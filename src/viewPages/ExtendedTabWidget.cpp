@@ -24,75 +24,6 @@
 #include "data/DataProxy.h"
 #include "auth/AuthorizationManager.h"
 
-ExtendedButtonGroup::ExtendedButtonGroup(QWidget *parent) :
-    QButtonGroup(parent)
-{
-
-}
-
-void ExtendedButtonGroup::mousePressEvent(QMouseEvent *event)
-{
-    event->ignore();
-}
-
-void ExtendedButtonGroup::KeyPressEvent(QKeyEvent *event)
-{
-    event->ignore();
-}
-
-void ExtendedButtonGroup::wheelEvent(QWheelEvent *event)
-{
-    event->ignore();
-}
-
-bool ExtendedButtonGroup::event(QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
-        return true;
-    }
-    return QButtonGroup::event(event);
-}
-
-ExtendedButton::ExtendedButton(QWidget* parent) : QPushButton(parent)
-{
-
-}
-
-ExtendedButton::ExtendedButton(const QString &text, QWidget *parent)
-    : QPushButton(text, parent)
-{
-
-}
-
-ExtendedButton::ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent)
-    : QPushButton(icon, text, parent)
-{
-
-}
-
-void ExtendedButton::mousePressEvent(QMouseEvent *event)
-{
-    event->ignore();
-}
-
-void ExtendedButton::KeyPressEvent(QKeyEvent *event)
-{
-    event->ignore();
-}
-
-void ExtendedButton::wheelEvent(QWheelEvent *event)
-{
-    event->ignore();
-}
-
-bool ExtendedButton::event(QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
-        return true;
-    }
-    return QPushButton::event(event);
-}
-
 ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
                                      QPointer<AuthorizationManager> authManager,
                                      QWidget *parent) :
@@ -108,7 +39,8 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     m_dataProxy(dataProxy),
     m_authManager(authManager)
 {
-    m_buttonGroup = new ExtendedButtonGroup(this);
+    m_buttonGroup = new QButtonGroup(this);
+    m_buttonGroup->setExclusive(true);
 
     m_stackWidget = new QStackedWidget(this);
     m_stackWidget->setFrameShape(QFrame::StyledPanel);
@@ -133,6 +65,9 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
 
     // enter first pages
     tabChanged(0, -1);
+
+    // connect signal signal to button group to navigate tabs
+    connect(m_buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotTabPressed(int)));
 }
 
 ExtendedTabWidget::~ExtendedTabWidget()
@@ -195,30 +130,30 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     Q_ASSERT(!m_stackWidget.isNull());
 
     const int index = count();
+    //insert the page
     m_stackWidget->insertWidget(index, page);
 
-    // Set label
+    // set the label for the page
     QString label = title;
     if (label.isEmpty()) {
         label = tr("Page %1").arg(index);
     }
     page->setWindowTitle(label);
 
-    // Set icon
+    // set and icon for the page
     QIcon pix = icon;
     if (pix.isNull()) {
         pix = QApplication::style()->standardIcon(QStyle::SP_ArrowUp);
     }
     page->setWindowIcon(pix);
 
-    // Add QPushButton
-    ExtendedButton *button = new ExtendedButton(pix, label);
+    // Add a button for the page
+    QPushButton *button = new QPushButton(pix, label);
     button->setCheckable(true);
-    button->setMouseTracking(false);
-    button->setFocusPolicy(Qt::NoFocus);
+    button->setMouseTracking(true);
+    button->setFocusPolicy(Qt::ClickFocus);
     button->setChecked(count() == 1);
     button->setStyleSheet("QPushButton {width: 100px; height: 100px; icon-size: 50px; }");
-
     m_buttonGroup->addButton(button, index);
     m_buttonLayout->addWidget(button);
 }
@@ -308,26 +243,10 @@ void ExtendedTabWidget::resetStatus()
     }
 }
 
-void ExtendedTabWidget::mousePressEvent(QMouseEvent *event)
+void ExtendedTabWidget::slotTabPressed(const int index)
 {
-    event->ignore();
-}
-
-void ExtendedTabWidget::KeyPressEvent(QKeyEvent *event)
-{
-    event->ignore();
-}
-
-void ExtendedTabWidget::wheelEvent(QWheelEvent *event)
-{
-    event->ignore();
-}
-
-bool ExtendedTabWidget::event(QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
-        event->ignore();
-        return true;
+    const int current_index = currentIndex();
+    if (current_index != index) {
+        tabChanged(index, current_index);
     }
-    return QWidget::event(event);
 }

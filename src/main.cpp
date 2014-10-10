@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QTranslator>
+#include <QPixmap>
+#include <QSplashScreen>
 
 #if defined Q_OS_LINUX
     #include <QStyleFactory>
@@ -100,6 +102,7 @@ int main(int argc, char** argv)
     app->setOrganizationDomain("spatialtranscriptomics.com");
     app->setApplicationVersion(Globals::VERSION);
 
+    //check if app is running
     if (app->isRunning()) {
         app->sendMessage(app->tr("Another instance of stVi is already open"));
         delete app;
@@ -108,6 +111,13 @@ int main(int argc, char** argv)
 
     qDebug() << "Application started successfully.";
 
+    // create and show a splash sreen
+    //TODO replace image for a bigger one with text and info about the group
+    QPixmap pixmap(QStringLiteral(":/images/st.png"));
+    QSplashScreen splash(pixmap, Qt::WindowStaysOnTopHint);
+    splash.show();
+
+    //set library paths and translators
     setLocalPaths(app);
     if (!installTranslator(app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
@@ -118,26 +128,26 @@ int main(int argc, char** argv)
     }
 
     //create mainWindow
-    stVi *mainWindow = new stVi();
-    app->setActivationWindow(mainWindow);
+    stVi mainWindow;
+    app->setActivationWindow(&mainWindow);
 
     // connect message queue to the main window.
     QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)),
-                     mainWindow, SLOT(handleMessage(QString)));
+                     &mainWindow, SLOT(handleMessage(QString)));
 
     //check for min requirements
-    if (!mainWindow->checkSystemRequirements()) {
-        delete mainWindow;
+    if (!mainWindow.checkSystemRequirements()) {
         return EXIT_FAILURE;
     }
 
     //init graphic components
-    mainWindow->init();
+    mainWindow.init();
     // show mainwindow.
-    mainWindow->show();
+    mainWindow.show();
+    // close splash screen
+    splash.finish(&mainWindow);
     // launch the app
     int res = app->exec();
-    delete mainWindow;
     qDebug() << "Application closed successfully.";
     return res;
 }

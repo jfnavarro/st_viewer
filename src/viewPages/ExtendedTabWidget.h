@@ -27,43 +27,6 @@ class Error;
 class AuthorizationManager;
 class DataProxy;
 
-//this class extends QButtonGroup to unable the mouse events
-//TODO move to a separate class
-class ExtendedButtonGroup : public QButtonGroup
-{
-
-public:
-
-    explicit ExtendedButtonGroup(QWidget* parent = 0);
-
-protected:
-    //we do not want the user to interact with the buttons
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void KeyPressEvent(QKeyEvent *event);
-    virtual void wheelEvent(QWheelEvent *event);
-    bool event(QEvent *event) override;
-};
-
- //this class extends QPushButton to unable the mouse events
-//TODO move to a separate class
-class ExtendedButton : public QPushButton
-{
-
-public:
-
-    explicit ExtendedButton(QWidget* parent = 0);
-    ExtendedButton(const QString &text, QWidget *parent = 0);
-    ExtendedButton(const QIcon& icon, const QString &text, QWidget *parent = 0);
-
-protected:
-    //we do not want the user to interact with the buttons
-    void mousePressEvent(QMouseEvent *event) override;
-    virtual void KeyPressEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event) override;
-    bool event(QEvent *event) override;
-
-};
-
 //customized tab manager based on a QStackedWidget and a QButtonGroup.
 //it has the same functionality as the QTabWidget.
 //Pages are member variables
@@ -93,12 +56,9 @@ public slots:
     //the previuos pages (needed when we clean cache)
     void resetStatus();
 
-protected:
-    //we do not want the user to interact with the buttons
-    void mousePressEvent(QMouseEvent *event) override;
-    virtual void KeyPressEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event) override;
-    bool event(QEvent *event) override;
+private slots:
+
+    void slotTabPressed(const int index);
 
 private:
 

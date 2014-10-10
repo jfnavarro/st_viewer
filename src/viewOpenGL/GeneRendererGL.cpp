@@ -301,6 +301,8 @@ void GeneRendererGL::updateVisual()
     }
 
     m_isDirty = true;
+    emit localPooledMinChanged(m_localPooledMin);
+    emit localPooledMaxChanged(m_localPooledMax);
     emit selectionUpdated();
     emit updated();
 

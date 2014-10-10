@@ -36,17 +36,17 @@ public:
     // using the wave lenght spectra or a linear interpolation spectra between two colors
     // the input image will be transformed with the new colors 
     static void createHeatMapImage(QImage &image,
-                                   const int lowerbound,
-                                   const int upperbound,
+                                   const qreal lowerbound,
+                                   const qreal upperbound,
                                    const Globals::GeneColorMode& colorMode);
 
     // convenience function to generate a QColor4ub color from a real value
     static QColor4ub createHeatMapWaveLenghtColor(const qreal value);
 
     // convenience function to generate a QColor4ub color from a real value given a range
-    static QColor4ub createHeatMapLinearColor(const int value,
-                                              const int min,
-                                              const int max);
+    static QColor4ub createHeatMapLinearColor(const qreal value,
+                                              const qreal min,
+                                              const qreal max);
 
     // convenience function to adjust the input value using a Linear - Exponential or Logaritmic
     // function

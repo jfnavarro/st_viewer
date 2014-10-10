@@ -27,7 +27,7 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
-static const int TIMEOUT_INTERVAL = 1000; // miliseconds
+static const int TIMEOUT_INTERVAL = 10000; // 10 seconds
 
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)

@@ -217,7 +217,11 @@ async::DataRequest DataProxy::removeDataset(const QString& datasetId)
 
 async::DataRequest DataProxy::loadDatasetContent()
 {
-    async::DataRequest request;
+    async::DataRequest request(async::DataRequest::CodeError);
+
+    if (m_selectedDataset.isNull()){
+        return request;
+    }
 
     //load the image alignment first
     request = loadImageAlignment();
@@ -240,10 +244,10 @@ async::DataRequest DataProxy::loadDatasetContent()
         request = loadCellTissueByName(m_imageAlignment->figureRed());
 
         //TODO ignore for now, enable again when endpoint is fixed in the server
-        //if (!request.isSuccessFul()) {
-        //    qDebug() << "[DataProxy] Error loading the red cell tissue";
-        //    return request;
-        //}
+        if (!request.isSuccessFul()) {
+            qDebug() << "[DataProxy] Error loading the red cell tissue";
+            return request;
+        }
     }
 
     //load chip
@@ -482,12 +486,9 @@ bool DataProxy::parseFeatures(const QJsonDocument &doc)
     const QVariant root = doc.toVariant();
     data::parseObject(root, &wrappedFeaturesDTO);
 
-    // get filename and file raw data
+    // get filename and file raw data (JSON features are always compressed)
     const QByteArray &rawJson = wrappedFeaturesDTO.decompressedFile();
-    const QString &datasetId = wrappedFeaturesDTO.fileName();
-
-    Q_ASSERT(!rawJson.isEmpty() && !rawJson.isNull()
-             && !datasetId.isEmpty() && !datasetId.isNull());
+    Q_ASSERT(!rawJson.isEmpty() && !rawJson.isNull());
 
     // parse file raw data to JSON format
     QJsonDocument jsonDoc = QJsonDocument::fromJson(rawJson);
@@ -624,7 +625,9 @@ bool DataProxy::parseGeneSelections(const QJsonDocument &doc)
         //the Datasets View this will fail. In that case, the dataset has to be retrieved
         //from the network by its ID
         const DatasetPtr dataset = getDatasetById(selection->datasetId());
-        Q_ASSERT(!dataset.isNull());
+        if (dataset.isNull()) {
+            return false;
+        }
         selection->datasetName(dataset->name());
         m_geneSelectionsList.push_back(selection);
         dirty = true;

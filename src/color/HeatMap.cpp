@@ -12,8 +12,8 @@
 #include <QColor4ub>
 
 void Heatmap::createHeatMapImage(QImage &image,
-                                 const int lowerbound,
-                                 const int upperbound,
+                                 const qreal lowerbound,
+                                 const qreal upperbound,
                                  const Globals::GeneColorMode &colorMode)
 {
     const int height = image.height();
@@ -22,12 +22,17 @@ void Heatmap::createHeatMapImage(QImage &image,
     for (int y = 0; y < height; ++y) {
         //get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound of the image
-        QColor4ub color;
         const int value = height - y - 1;
-        //TODO might need to transform the bounds too
-        const qreal normalizedValue = STMath::norm<int, qreal>(value, lowerbound, upperbound);
-        const qreal adjusted = Heatmap::normalizeValueSpectrumFunction(normalizedValue, colorMode);
-        color = Heatmap::createHeatMapWaveLenghtColor(adjusted);
+        //TODO refactor this
+        const qreal adjusted_value =
+                Heatmap::normalizeValueSpectrumFunction(static_cast<qreal>(value), colorMode);
+        const qreal adjusted_lowerBound =
+                Heatmap::normalizeValueSpectrumFunction(lowerbound, colorMode);
+        const qreal adjusted_upperBound =
+                Heatmap::normalizeValueSpectrumFunction(upperbound, colorMode);
+        const qreal normalizedValue =
+                STMath::norm<qreal, qreal>(adjusted_value, adjusted_lowerBound, adjusted_upperBound);
+        QColor4ub color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
 
         //alternative way of computing color by linear interpolation
         //const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
@@ -42,9 +47,9 @@ void Heatmap::createHeatMapImage(QImage &image,
 
 //simple function that computes color from a min-max range
 //using linear Interpolation
-QColor4ub Heatmap::createHeatMapLinearColor(const int value,
-                                            const int min,
-                                            const int max)
+QColor4ub Heatmap::createHeatMapLinearColor(const qreal value,
+                                            const qreal min,
+                                            const qreal max)
 {
     const qreal halfmax = (min + max) / 2;
     const int blue = std::max(0.0, 255 * (1 - (value / halfmax)));

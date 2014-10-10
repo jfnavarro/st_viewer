@@ -208,9 +208,6 @@ void CellViewPage::onEnter()
     m_gene_plotter->setTransform(alignment);
     m_gene_plotter->setHitCount(min, max);
 
-    // updated legend size and data
-    m_legend->setBoundaries(min, max);
-
     // load cell tissue
     slotLoadCellFigure();
 
@@ -461,11 +458,11 @@ void CellViewPage::createGLConnections()
             SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
-    // connect threshold slider to the heatmap (only concerns for the pooled ones)
-    connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
-            m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_toolBar.data(), SIGNAL(thresholdUpperValueChanged(int)),
-            m_legend.data(), SLOT(setUpperLimit(int)));
+    // connect gene plotter pooled values (min-max) to legend to rebuild it
+    connect(m_gene_plotter.data(), SIGNAL(localPooledMinChanged(qreal)),
+            m_legend.data(), SLOT(setLowerLimit(qreal)));
+    connect(m_gene_plotter.data(), SIGNAL(localPooledMaxChanged(qreal)),
+            m_legend.data(), SLOT(setUpperLimit(qreal)));
 
     // Features Histogram Distribution
     connect(m_toolBar.data(), SIGNAL(thresholdLowerValueChanged(int)),
