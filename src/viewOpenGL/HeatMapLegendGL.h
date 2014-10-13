@@ -67,7 +67,7 @@ private:
     // data vertex arrays
     QVector2DArray m_borders;
 
-    Q_DISABLE_COPY(HeatMapLegendGL);
+    Q_DISABLE_COPY(HeatMapLegendGL)
 };
 
 #endif // HEATMAPLEGEND_H //

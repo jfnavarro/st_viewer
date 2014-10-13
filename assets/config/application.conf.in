@@ -22,7 +22,7 @@
             <selection>${ENDPOINT}/${APIPATH}/rest/selection</selection>
             <user>${ENDPOINT}/${APIPATH}/rest/account/current/user</user>
             <imagealignment>${ENDPOINT}/${APIPATH}/rest/imagealignment</imagealignment>
-            <figure>${ENDPOINT}/${APIPATH}/rest/image/compressedjson</figure>
+            <figure>${ENDPOINT}/${APIPATH}/rest/image/compressed</figure>
             <version>${ENDPOINT}/${APIPATH}/rest/versionsupportinfo</version>
         </endpoints>
     </data>

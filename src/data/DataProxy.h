@@ -198,44 +198,44 @@ private:
 
     //internal function to parse all the features and genes.
     //returns true if the parsing was correct
-    bool parseFeatures(const QJsonDocument &doc);
+    bool parseFeatures(NetworkReply *reply);
 
     //internal function to parse a cell tissue image
     //returns true if the parsing was correct
-    bool parseCellTissueImage(const QJsonDocument &doc);
+    bool parseCellTissueImage(NetworkReply *reply);
 
     //internal function to parse the datasets
     //returns true if the parsing was correct
-    bool parseDatasets(const QJsonDocument &doc);
+    bool parseDatasets(NetworkReply *reply);
 
     //internal function to parse the genes selections
     //returns true if the parsing was correct
-    bool parseGeneSelections(const QJsonDocument &doc);
+    bool parseGeneSelections(NetworkReply *reply);
 
     //internal function to parse the User
     //returns true if the parsing was correct
-    bool parseUser(const QJsonDocument &doc);
+    bool parseUser(NetworkReply *reply);
 
     //internal function to parse the image alignment object
     //returns true if the parsing was correct
-    bool parseImageAlignment(const QJsonDocument &doc);
+    bool parseImageAlignment(NetworkReply *reply);
 
     //internal function to parse the chip
     //returns true if the parsing was correct
-    bool parseChip(const QJsonDocument &doc);
+    bool parseChip(NetworkReply *reply);
 
     //internal function to parse the min version supported
     //returns true if the parsing was correct
-    bool parseMinVersion(const QJsonDocument &doc);
+    bool parseMinVersion(NetworkReply *reply);
 
     //internal function to parse the OAuth2 access token
     //returns true if the parsing was correct
-    bool parseOAuth2(const QJsonDocument &doc);
+    bool parseOAuth2(NetworkReply *reply);
 
     //internal function to create network requests for data objects
     //data will be parsed with the function given as argument if given
     async::DataRequest createRequest(NetworkReply *reply,
-                                     bool (DataProxy::*parseFunc)(const QJsonDocument &doc) = nullptr);
+                                     bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
 
     // currently available datasets
     DatasetList m_datasetList;
@@ -267,7 +267,7 @@ private:
     //network manager to make network requests (dataproxy owns it)
     QPointer<NetworkManager> m_networkManager;
 
-    Q_DISABLE_COPY(DataProxy);
+    Q_DISABLE_COPY(DataProxy)
 };
 
 #endif  /* DATAPROXY_H */

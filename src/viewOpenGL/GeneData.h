@@ -72,7 +72,7 @@ private:
 
     GeneData::refCountType m_refCount;
 
-    Q_DISABLE_COPY(GeneData);
+    Q_DISABLE_COPY(GeneData)
 };
 
 #endif // GENEDATA_H

@@ -69,7 +69,7 @@ private:
     //reference to dataProxy (to be passed along to OAuth2
     QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(AuthorizationManager);
+    Q_DISABLE_COPY(AuthorizationManager)
 };
 
 #endif  /* AUTHORIZATIONMANAGER_H */

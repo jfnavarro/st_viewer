@@ -16,7 +16,6 @@ set(LIBRARY_ARG_INCLUDES
     UserDTO.h
     MinVersionDTO.h
     LastModifiedDTO.h
-    WrappedFileDTO.h
 )
 
 set(LIBRARY_ARG_SOURCES

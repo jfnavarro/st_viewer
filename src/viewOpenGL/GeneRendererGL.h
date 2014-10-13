@@ -187,7 +187,7 @@ private:
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(GeneRendererGL);
+    Q_DISABLE_COPY(GeneRendererGL)
 };
 
 

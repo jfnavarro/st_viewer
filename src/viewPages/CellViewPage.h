@@ -121,7 +121,7 @@ private:
     // Features Reads Distribution
     QPointer<AnalysisFRD> m_FDH;
 
-    Q_DISABLE_COPY(CellViewPage);
+    Q_DISABLE_COPY(CellViewPage)
 };
 
 #endif // CELLVIEWPAGE_H

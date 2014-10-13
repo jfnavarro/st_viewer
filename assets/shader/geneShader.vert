@@ -94,19 +94,6 @@ vec4 createHeatMapColor(inout float value)
     return vec4(red, green, blue, 1.0);
 }
 
-//simple function that computes color from a min-max range
-//using linear Interpolation
-vec4 createHeatMapLinearColor(inout float value,
-                              inout float min,
-                              inout float max)
-{
-    float halfmax = (min + max) / 2;
-    float blue = max(0.0, 255 * (1 - (value / halfmax)));
-    float red = max(0.0, 255 * ((value / halfmax) - 1));
-    float green = 255 - blue - red;
-    return vec4(red / 255, green / 255, blue / 255, 1.0);
-}
-
 void main(void)
 {
     outColor = qt_Color;

@@ -92,7 +92,7 @@ private:
     // timer to control time-outs
     QPointer<QTimer> m_timeoutEvent;
 
-    Q_DISABLE_COPY(NetworkReply);
+    Q_DISABLE_COPY(NetworkReply)
 };
 
 #endif // NETWORKREPLY_H //

@@ -69,8 +69,8 @@ protected:
     QStringList m_propertyList;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::DetailLevels);
-Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::SeparationModes);
+Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::DetailLevels)
+Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::SeparationModes)
 
 
 #endif // FEATUREEXPORTER_H

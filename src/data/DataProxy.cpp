@@ -31,7 +31,6 @@
 #include "dataModel/UserDTO.h"
 #include "dataModel/GeneSelectionDTO.h"
 #include "dataModel/LastModifiedDTO.h"
-#include "dataModel/WrappedFileDTO.h"
 
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
@@ -385,6 +384,7 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
     NetworkCommand *cmd =
             RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
+    reply->setProperty("figure_name", QVariant::fromValue<QString>(name));
     //delete the command
     cmd->deleteLater();
     return createRequest(reply, &DataProxy::parseCellTissueImage);
@@ -416,7 +416,7 @@ async::DataRequest DataProxy::loadAccessToken(const StringPair &username,
 }
 
 async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
-                                            (DataProxy::*parseFunc)(const QJsonDocument &))
+                                            (DataProxy::*parseFunc)(NetworkReply *reply))
 {
     if (reply == nullptr) {
         qDebug() << "[DataProxy] : Error, the NetworkReply is null,"
@@ -457,7 +457,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
         } else {
             bool parsedOk = true;
             if (parseFunc != nullptr) {
-                parsedOk = (this->*parseFunc)(reply->getJSON());
+                parsedOk = (this->*parseFunc)(reply);
             }
 
             //errors could happen parsing the data
@@ -475,25 +475,10 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
     return request;
 }
 
-bool DataProxy::parseFeatures(const QJsonDocument &doc)
+bool DataProxy::parseFeatures(NetworkReply *reply)
 {
-    // first parse the WrappeFileDTO object to obtain the filename and the un-compressed bytearray
+    const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
-        return false;
-    }
-
-    WrappedFileDTO wrappedFeaturesDTO;
-    const QVariant root = doc.toVariant();
-    data::parseObject(root, &wrappedFeaturesDTO);
-
-    // get filename and file raw data (JSON features are always compressed)
-    const QByteArray &rawJson = wrappedFeaturesDTO.decompressedFile();
-    Q_ASSERT(!rawJson.isEmpty() && !rawJson.isNull());
-
-    // parse file raw data to JSON format
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(rawJson);
-    // validate JSON document
-    if (jsonDoc.isNull() || jsonDoc.isEmpty()) {
         return false;
     }
 
@@ -511,7 +496,7 @@ bool DataProxy::parseFeatures(const QJsonDocument &doc)
     FeatureDTO dto;
 
     // iterate the features from the JSON object
-    foreach(QVariant var, jsonDoc.toVariant().toList()) {
+    foreach(QVariant var, doc.toVariant().toList()) {
         // convert from QVariant to FeatureDTO and create Feature object
         data::parseObject(var, &dto);
         FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
@@ -540,27 +525,17 @@ bool DataProxy::parseFeatures(const QJsonDocument &doc)
     return dirty;
 }
 
-bool DataProxy::parseCellTissueImage(const QJsonDocument &doc)
+bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 {
-    // first parse the WrappeFileDTO object to obtain the filename and the un-compressed bytearray
-    if (doc.isNull() || doc.isEmpty()) {
-        return false;
-    }
-
-    WrappedFileDTO wrappedImageFile;
-    const QVariant root = doc.toVariant();
-    data::parseObject(root, &wrappedImageFile);
-
     // get filename and file raw data (check if it was encoded or not)
-    const QByteArray &rawImage = wrappedImageFile.contentEncoding().isEmpty() ?
-                wrappedImageFile.decodedFile() : wrappedImageFile.decompressedFile();
-    const QString &imageName = wrappedImageFile.fileName();
+    const QByteArray &rawImage = reply->getRaw();
+    Q_ASSERT(!rawImage.isEmpty() && !rawImage.isNull());
 
-    Q_ASSERT(!rawImage.isEmpty() && !rawImage.isNull()
-             && !imageName.isEmpty() && !imageName.isNull());
+    const QString &imageName = reply->property("figure_name").toString();
+    Q_ASSERT(!imageName.isEmpty() && !imageName.isNull());
 
     //get the format from the content type
-    const QStringList formatTokens = wrappedImageFile.contentType().split("/");
+    const QStringList formatTokens = imageName.split(".");
     Q_ASSERT(formatTokens.size() == 2);
     const QString format = formatTokens.at(1);
 
@@ -576,8 +551,10 @@ bool DataProxy::parseCellTissueImage(const QJsonDocument &doc)
     return !image.isNull();
 }
 
-bool DataProxy::parseDatasets(const QJsonDocument &doc)
+bool DataProxy::parseDatasets(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -602,8 +579,10 @@ bool DataProxy::parseDatasets(const QJsonDocument &doc)
 
 }
 
-bool DataProxy::parseGeneSelections(const QJsonDocument &doc)
+bool DataProxy::parseGeneSelections(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -636,8 +615,10 @@ bool DataProxy::parseGeneSelections(const QJsonDocument &doc)
     return dirty;
 }
 
-bool DataProxy::parseUser(const QJsonDocument &doc)
+bool DataProxy::parseUser(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -652,8 +633,10 @@ bool DataProxy::parseUser(const QJsonDocument &doc)
     return true;
 }
 
-bool DataProxy::parseImageAlignment(const QJsonDocument &doc)
+bool DataProxy::parseImageAlignment(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -670,8 +653,10 @@ bool DataProxy::parseImageAlignment(const QJsonDocument &doc)
     return true;
 }
 
-bool DataProxy::parseChip(const QJsonDocument &doc)
+bool DataProxy::parseChip(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -687,8 +672,10 @@ bool DataProxy::parseChip(const QJsonDocument &doc)
     return true;
 }
 
-bool DataProxy::parseMinVersion(const QJsonDocument &doc)
+bool DataProxy::parseMinVersion(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -703,8 +690,10 @@ bool DataProxy::parseMinVersion(const QJsonDocument &doc)
     return true;
 }
 
-bool DataProxy::parseOAuth2(const QJsonDocument &doc)
+bool DataProxy::parseOAuth2(NetworkReply *reply)
 {
+    const QJsonDocument &doc = reply->getJSON();
+
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }

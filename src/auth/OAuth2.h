@@ -61,7 +61,7 @@ private:
     //reference to dataProxy;
     QPointer<DataProxy> m_dataProxy;
 
-    Q_DISABLE_COPY(OAuth2);
+    Q_DISABLE_COPY(OAuth2)
 };
 
 #endif // OAUTH2_H

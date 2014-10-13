@@ -68,7 +68,7 @@ protected:
     QStringList m_propertyList;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::DetailLevels);
-Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::SeparationModes);
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::DetailLevels)
+Q_DECLARE_OPERATORS_FOR_FLAGS(GeneExporter::SeparationModes)
 
 #endif // GENEEXPORTER_H //

@@ -73,7 +73,7 @@ private:
     //network disk cache
     QPointer<NetworkDiskCache> m_diskCache;
 
-    Q_DISABLE_COPY(NetworkManager);
+    Q_DISABLE_COPY(NetworkManager)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(NetworkManager::NetworkFlags)

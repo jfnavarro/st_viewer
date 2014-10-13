@@ -57,10 +57,6 @@ bool installTranslator(QtSingleApplication *app)
 void setApplicationFlags()
 {
 
-#if defined Q_OS_LINUX
-    QApplication::setStyle("Windows");
-#endif
-
 #ifdef Q_OS_MAC
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
     QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);

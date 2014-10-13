@@ -95,6 +95,6 @@ private:
     QPointer<DataProxy> m_dataProxy;
     QPointer<AuthorizationManager> m_authManager;
 
-    Q_DISABLE_COPY(ExtendedTabWidget);
+    Q_DISABLE_COPY(ExtendedTabWidget)
 };
 #endif  /* // EXTENDEDTABWIDGET_H */
