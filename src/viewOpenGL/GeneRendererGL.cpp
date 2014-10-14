@@ -140,6 +140,7 @@ void GeneRendererGL::setLowerLimit(int limit)
     }
 }
 
+//TODO this can be optimized and run concurrently
 void GeneRendererGL::generateData()
 {
     const auto& features = m_dataProxy->getFeatureList();
@@ -173,6 +174,7 @@ void GeneRendererGL::generateData()
     m_isDirty = true;
 }
 
+//TODO this can be optimized and run concurrently
 void GeneRendererGL::updateSize()
 {
     Q_ASSERT(!m_geneNode.isNull() && m_geneData.isValid());
@@ -226,6 +228,7 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
     updateVisual();
 }
 
+//TODO this can be optimized and run concurrently
 void GeneRendererGL::updateVisual()
 {
     Q_ASSERT(m_geneData.isValid());
@@ -318,6 +321,7 @@ void GeneRendererGL::clearSelection()
     emit updated();
 }
 
+//TODO this can be optimized and run concurrently
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -326,7 +330,12 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
     foreach(DataProxy::GenePtr gene, genes) {
         Q_ASSERT(!gene.isNull());
         if (gene->selected()) {
-            aggregateFeatureList << m_dataProxy->getGeneFeatureList(gene->name());
+            //The idea is to get the features that contain the gene
+            //and then get all other features with other genes for the same position
+            foreach(DataProxy::FeaturePtr feature, m_dataProxy->getGeneFeatureList(gene->name())) {
+                const int featureIndex = m_geneInfoById.value(feature);
+                aggregateFeatureList << m_geneInfoReverse.values(featureIndex);
+            }
         }
     }
 
@@ -402,6 +411,7 @@ void GeneRendererGL::setImage(const QImage &image)
     m_image = image;
 }
 
+//TODO this can be optimized and run concurrently
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
     Q_ASSERT(m_geneData.isValid());

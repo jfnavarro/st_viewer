@@ -11,6 +11,9 @@
 #include <QGLMaterial>
 #include <QImage>
 #include <QGLPainter>
+#include <QtConcurrent>
+#include <QFuture>
+
 #include <cmath>
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
@@ -87,9 +90,11 @@ void ImageTextureGL::createTexture(const QImage& image)
 {
     //clear memory
     clearData();
-    // we always tile, it is not secure to create one texture from the whole image
-    createTiles(image);
+
     m_bounds = image.rect();
+
+    // we always tile, it is not secure to create one texture from the whole image
+    QFuture<void> future = QtConcurrent::run(this, &ImageTextureGL::createTiles, image);
 }
 
 void ImageTextureGL::createTiles(const QImage &image)
@@ -98,8 +103,8 @@ void ImageTextureGL::createTiles(const QImage &image)
     static const int tile_height = 512;
     const int width = image.width();
     const int height = image.height();
-    const int xCount = std::ceil( qreal(width) / qreal(tile_width) );
-    const int yCount = std::ceil( qreal(height) / qreal(tile_height) );
+    const int xCount = std::ceil(qreal(width) / qreal(tile_width));
+    const int yCount = std::ceil(qreal(height) / qreal(tile_height));
     const int count = xCount * yCount;
 
     for (int i = 0; i < count; ++i) {

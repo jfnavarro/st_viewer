@@ -91,7 +91,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
     // color dialogs
     m_colorDialogGrid = new QColorDialog(Globals::DEFAULT_COLOR_GRID, this);
-    //OSX native color dialog gives problems
+    // OSX native color dialog gives problems
     m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
 
     //create tool bar and add it
@@ -145,18 +145,24 @@ void CellViewPage::onEnter()
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();
 
+    //TODO this logic will be refactored
     async::DataRequest request = m_dataProxy->loadDatasetContent();
     if (!request.isSuccessFul()) {
         setWaiting(false);
-        //there was a problem loading data
-        //most likely user entered the view
-        //without loading a dataset so we allow
-        //to go back and forth
         m_ui->genesWidget->setEnabled(false);
         m_ui->selectionsWidget->setEnabled(false);
         m_ui->area->setEnabled(false);
         m_toolBar->setEnableButtons(false);
-        setStatusTip(tr("No dataset loaded"));
+        //check if error came for no selected dataset or real downloading error
+        const auto &errors = request.getErrors();
+        if (errors.empty()) {
+            setStatusTip(tr("No dataset loaded"));
+        } else {
+            //TODO there should be only one error
+            const auto error = errors.first();
+            showError(error->name(), error->description());
+            setStatusTip(tr("Error downloading dataset"));
+        }
         return;
     }
 
@@ -475,8 +481,6 @@ void CellViewPage::createGLConnections()
 //TODO make this concurrent
 void CellViewPage::slotLoadCellFigure()
 {
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
     const bool forceBlueFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueBlue;
     const bool loadRedFigure = forceRedFigure && !forceBlueFigure;
@@ -495,8 +499,6 @@ void CellViewPage::slotLoadCellFigure()
     //update checkboxes
     m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_toolBar->m_actionShow_cellTissueRed->setChecked(loadRedFigure);
-
-    QGuiApplication::restoreOverrideCursor();
 }
 
 void CellViewPage::slotPrintImage()

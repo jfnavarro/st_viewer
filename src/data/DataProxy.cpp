@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QtGlobal>
 #include <QImage>
+#include <QMessageBox>
 
 #include "config/Configuration.h"
 #include "network/NetworkManager.h"
@@ -225,7 +226,9 @@ async::DataRequest DataProxy::loadDatasetContent()
     //load the image alignment first
     request = loadImageAlignment();
     if (!request.isSuccessFul()) {
-        qDebug() << "[DataProxy] Error loading the image alignment";
+        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
+                                                         tr("Error loading the image alignment."),
+                                                         this)));
         return request;
     }
 
@@ -233,7 +236,9 @@ async::DataRequest DataProxy::loadDatasetContent()
     //load cell tissue blue
     request = loadCellTissueByName(m_imageAlignment->figureBlue());
     if (!request.isSuccessFul()) {
-        qDebug() << "[DataProxy] Error loading the blue cell tissue";
+        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
+                                                         tr("Error loading the blue cell tissue image."),
+                                                         this)));
         return request;
     }
 
@@ -241,10 +246,10 @@ async::DataRequest DataProxy::loadDatasetContent()
     if (m_user->hasSpecialRole()) {
         //load cell tissue red (no need to download for role USER)
         request = loadCellTissueByName(m_imageAlignment->figureRed());
-
-        //TODO ignore for now, enable again when endpoint is fixed in the server
         if (!request.isSuccessFul()) {
-            qDebug() << "[DataProxy] Error loading the red cell tissue";
+            request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
+                                                             tr("Error loading the red cell tissue image."),
+                                                             this)));
             return request;
         }
     }
@@ -252,14 +257,18 @@ async::DataRequest DataProxy::loadDatasetContent()
     //load chip
     request = loadChip();
     if (!request.isSuccessFul()) {
-        qDebug() << "[DataProxy] Error loading the chip";
+        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
+                                                         tr("Error loading the chip."),
+                                                         this)));
         return request;
     }
 
     //load features
     request = loadFeatures();
     if (!request.isSuccessFul()) {
-        qDebug() << "[DataProxy] Error loading the features";
+        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
+                                                         tr("Error loading the features."),
+                                                         this)));
         return request;
     }
 
@@ -475,6 +484,7 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
     return request;
 }
 
+//TODO this can be optimized and run concurrently
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
@@ -525,6 +535,7 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
     return dirty;
 }
 
+//TODO this can be optimized and run concurrently
 bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 {
     // get filename and file raw data (check if it was encoded or not)
@@ -534,13 +545,8 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
     const QString &imageName = reply->property("figure_name").toString();
     Q_ASSERT(!imageName.isEmpty() && !imageName.isNull());
 
-    //get the format from the content type
-    const QStringList formatTokens = imageName.split(".");
-    Q_ASSERT(formatTokens.size() == 2);
-    const QString format = formatTokens.at(1);
-
     //create the image from raw data
-    QImage image = QImage::fromData(rawImage, format.toStdString().c_str());
+    QImage image = QImage::fromData(rawImage);
 
     //remove image if already exists and add the newly created one
     if (m_cellTissueImages.contains(imageName)) {
@@ -554,7 +560,6 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 bool DataProxy::parseDatasets(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -582,7 +587,6 @@ bool DataProxy::parseDatasets(NetworkReply *reply)
 bool DataProxy::parseGeneSelections(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -618,7 +622,6 @@ bool DataProxy::parseGeneSelections(NetworkReply *reply)
 bool DataProxy::parseUser(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -636,7 +639,6 @@ bool DataProxy::parseUser(NetworkReply *reply)
 bool DataProxy::parseImageAlignment(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -656,7 +658,6 @@ bool DataProxy::parseImageAlignment(NetworkReply *reply)
 bool DataProxy::parseChip(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -675,7 +676,6 @@ bool DataProxy::parseChip(NetworkReply *reply)
 bool DataProxy::parseMinVersion(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
@@ -693,7 +693,6 @@ bool DataProxy::parseMinVersion(NetworkReply *reply)
 bool DataProxy::parseOAuth2(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
-
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }

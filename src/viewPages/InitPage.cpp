@@ -85,6 +85,7 @@ void InitPage::slotAuthorized()
             showError(tr("Authorization Error"), tr("The current user is disabled"));
             return;
         }
+
         m_ui->user_name->setText(user->username());
         m_ui->newExpButt->setEnabled(true);
     } else {
