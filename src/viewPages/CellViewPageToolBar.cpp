@@ -16,6 +16,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QRadioButton>
+#include <QHBoxLayout>
 
 #include "utils/SetTips.h"
 #include "customWidgets/SpinBoxSlider.h"
@@ -216,9 +217,11 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     m_poolingMode->setLayout(hboxPooling);
     addWidgetToMenu(tr("Pooling modes:"), m_menu_genePlotter, m_poolingMode);
 
+    m_menu_genePlotter->addSeparator();
+
     //threshold slider
     Q_ASSERT(m_geneHitsThreshold == nullptr);
-    m_geneHitsThreshold = new SpinBoxSlider(this);
+    m_geneHitsThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
     setToolTipAndStatusTip(
             tr("Limit of the number of reads per feature."),
             m_geneHitsThreshold);

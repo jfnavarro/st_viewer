@@ -8,23 +8,30 @@
 #define SPINBOXSLIDER_H
 
 #include <QWidget>
-#include <QHBoxLayout>
-#include <QSpinBox>
 #include <QPointer>
 
-#include "qxtspanslider.h"
+class QSpinBox;
+class QxtSpanSlider;
+class QHBoxLayout;
 
 //Wrapper around QxtSpanSlider
 //to add two spin boxes one on each side
 
-// double bar slider is DISABLED at the moment
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS(Controls)
 
 public:
     
-    explicit SpinBoxSlider(QWidget *parent = 0);
+    enum Controls {
+        onlySpinBoxes,
+        onlySlider,
+        sliderAndSpinBoxes
+    };
+    Q_DECLARE_FLAGS(ControlsFlags, Controls)
+
+    explicit SpinBoxSlider(QWidget *parent = 0, ControlsFlags controlFlags = sliderAndSpinBoxes);
     virtual ~SpinBoxSlider();
 
     void setToolTip(const QString &str);
@@ -49,7 +56,7 @@ private:
     void setLowerValuePrivate(const int min);
     void setUpperValuePrivate(const int max);
 
-    //QPointer<QxtSpanSlider> m_spanslider;
+    QPointer<QxtSpanSlider> m_spanslider;
     QPointer<QSpinBox> m_left_spinbox;
     QPointer<QSpinBox> m_right_spinbox;
     QPointer<QHBoxLayout> m_layout;
@@ -59,6 +66,7 @@ private:
 
     Q_DISABLE_COPY(SpinBoxSlider)
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(SpinBoxSlider::ControlsFlags)
 
 #endif
 

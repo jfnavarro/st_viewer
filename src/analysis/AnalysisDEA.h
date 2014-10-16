@@ -56,7 +56,7 @@ public:
     // compute the statistics and visualization data points and updates
     // the visual components
     void computeData(const GeneSelection& selObjectA,
-                 const GeneSelection& selObjectB);
+                     const GeneSelection& selObjectB);
 
 signals:
 

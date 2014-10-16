@@ -27,8 +27,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1084</width>
-        <height>904</height>
+        <width>1069</width>
+        <height>922</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -53,11 +53,28 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>TPM (Transcripts Per Million Reads) Threshold :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="SpinBoxSlider" name="tpmThreshold" native="true"/>
+           </item>
+           <item>
             <layout class="QGridLayout" name="gridLayout">
              <item row="1" column="0">
               <widget class="QLabel" name="label_5">
                <property name="text">
                 <string>Selection B</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Number of Genes in Selection B</string>
                </property>
               </widget>
              </item>
@@ -68,17 +85,17 @@
                </property>
               </widget>
              </item>
-             <item row="11" column="0" colspan="2">
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>Number of Genes only present in Selection A</string>
-               </property>
-              </widget>
-             </item>
              <item row="9" column="0">
               <widget class="QLabel" name="label_14">
                <property name="text">
                 <string>Correlation between distributions</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="0" colspan="2">
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string>Number of Genes only present in Selection B</string>
                </property>
               </widget>
              </item>
@@ -98,22 +115,15 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_3">
+             <item row="11" column="0" colspan="2">
+              <widget class="QLabel" name="label_18">
                <property name="text">
-                <string>Number of Genes in Selection B</string>
+                <string>Number of Genes only present in Selection A</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
-              <widget class="QLabel" name="label_12">
-               <property name="text">
-                <string>Standard Dev of distribution in Selection A</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="2">
-              <widget class="QLineEdit" name="genesOnlyA">
+             <item row="5" column="2">
+              <widget class="QLineEdit" name="meanSelectionA">
                <property name="maximumSize">
                 <size>
                  <width>100</width>
@@ -144,6 +154,29 @@
                </property>
               </widget>
              </item>
+             <item row="11" column="2">
+              <widget class="QLineEdit" name="genesOnlyA">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="2">
+              <widget class="QLabel" name="label_12">
+               <property name="text">
+                <string>Standard Dev of distribution in Selection A</string>
+               </property>
+              </widget>
+             </item>
              <item row="4" column="2">
               <widget class="QLineEdit" name="numGenesSelectionB">
                <property name="maximumSize">
@@ -160,15 +193,22 @@
                </property>
               </widget>
              </item>
-             <item row="12" column="0" colspan="2">
-              <widget class="QLabel" name="label_21">
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_9">
                <property name="text">
-                <string>Number of Genes only present in Selection B</string>
+                <string>Mean of distribution in Selection B</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="2">
-              <widget class="QLineEdit" name="meanSelectionA">
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>Mean of distribution in Selection A</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="2">
+              <widget class="QLineEdit" name="stdDevSelectionA">
                <property name="maximumSize">
                 <size>
                  <width>100</width>
@@ -190,56 +230,6 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="2">
-              <widget class="QLineEdit" name="stdDevSelectionA">
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1" colspan="2">
-              <widget class="QLineEdit" name="selectionB">
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_9">
-               <property name="text">
-                <string>Mean of distribution in Selection B</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLineEdit" name="selectionA">
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_7">
-               <property name="text">
-                <string>Mean of distribution in Selection A</string>
-               </property>
-              </widget>
-             </item>
              <item row="12" column="2">
               <widget class="QLineEdit" name="genesOnlyB">
                <property name="maximumSize">
@@ -248,6 +238,16 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2">
+              <widget class="QLineEdit" name="selectionA">
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
@@ -272,6 +272,16 @@
                </property>
               </widget>
              </item>
+             <item row="1" column="1" colspan="2">
+              <widget class="QLineEdit" name="selectionB">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label">
                <property name="font">
@@ -285,15 +295,8 @@
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="2">
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Standard Dev of distribution in Selection B</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="2">
-              <widget class="QLineEdit" name="overlappingGenes">
+             <item row="6" column="2">
+              <widget class="QLineEdit" name="meanSelectionB">
                <property name="maximumSize">
                 <size>
                  <width>100</width>
@@ -308,8 +311,15 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="2">
-              <widget class="QLineEdit" name="meanSelectionB">
+             <item row="8" column="0" colspan="2">
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string>Standard Dev of distribution in Selection B</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="2">
+              <widget class="QLineEdit" name="overlappingGenes">
                <property name="maximumSize">
                 <size>
                  <width>100</width>
@@ -440,6 +450,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SpinBoxSlider</class>
+   <extends>QWidget</extends>
+   <header>customWidgets/SpinBoxSlider.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../st_client-build/application.qrc"/>
  </resources>

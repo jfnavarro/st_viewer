@@ -19,22 +19,22 @@ set(PROJECT_DOMAIN_FIRST "spatialtranscriptomics")
 set(PROJECT_DOMAIN_SECOND "com")
 set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
-SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production)")
+SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production/local)")
+
+set(CLIENTID "st-viewer-client")
+set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+set(SECRETID "ayfBaF5UAKR2")
+set(APIPATH  "api")
 
 if(SERVER STREQUAL development)
   #DEV configuration
-  set(ENDPOINT "https://54.171.51.182")
-  set(APIPATH  "api-0.6")
-  set(CLIENTID "st-viewer-client")
-  set(SECRETID "secret")
-  set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+  set(ENDPOINT "https://st-app-dev.spatialtranscriptomics.com")
 elseif(SERVER STREQUAL production)
   #Production configuration
   set(ENDPOINT "https://api.spatialtranscriptomics.com")
-  set(APIPATH  "api-0.6")
-  set(CLIENTID "st-viewer-client")
-  set(SECRETID "ayfBaF5UAKR2")
-  set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+elseif(SERVER STREQUAL local)
+  #Local configuration
+  set(ENDPOINT "http://localhost:8080")
 else()
   message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
 endif()
