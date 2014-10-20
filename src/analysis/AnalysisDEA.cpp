@@ -65,7 +65,7 @@ AnalysisDEA::~AnalysisDEA()
 void AnalysisDEA::computeData(const GeneSelection &selObjectA,
                           const GeneSelection &selObjectB)
 {
-    typedef QHash<QString, QPair<qreal,qreal> > geneToNormalizedPairType;
+    typedef QMap<QString, QPair<qreal,qreal> > geneToNormalizedPairType;
 
     // get the list of selected items
     const auto &selA = selObjectA.selectedItems();

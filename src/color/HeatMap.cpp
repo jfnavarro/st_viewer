@@ -23,16 +23,19 @@ void Heatmap::createHeatMapImage(QImage &image,
         //get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
-        //TODO refactor this
-        const qreal adjusted_value =
-                Heatmap::normalizeValueSpectrumFunction(static_cast<qreal>(value), colorMode);
-        const qreal adjusted_lowerBound =
-                Heatmap::normalizeValueSpectrumFunction(lowerbound, colorMode);
-        const qreal adjusted_upperBound =
-                Heatmap::normalizeValueSpectrumFunction(upperbound, colorMode);
+        const qreal adjusted_value = STMath::linearConversion<qreal, qreal>(static_cast<qreal>(value),
+                                                                           0.0,
+                                                                           static_cast<qreal>(height),
+                                                                           lowerbound,
+                                                                           upperbound);
         const qreal normalizedValue =
-                STMath::norm<qreal, qreal>(adjusted_value, adjusted_lowerBound, adjusted_upperBound);
+                STMath::norm<qreal, qreal>(adjusted_value, lowerbound, upperbound);
         QColor4ub color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
+
+        //TODO it appears from now that the color mode must be disregarded as the color
+        //spectra for the legend using a linear function should be correct for other color modes
+        //Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
+        Q_UNUSED(colorMode);
 
         //alternative way of computing color by linear interpolation
         //const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
@@ -126,7 +129,6 @@ qreal Heatmap::normalizeValueSpectrumFunction(const qreal value,
 
     switch (colorMode) {
     case Globals::LogColor:
-        //value = qLn(value + 1.0) * 1.442695;
         transformedValue = std::log(value + 1.0);
         break;
     case Globals::ExpColor:
