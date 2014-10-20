@@ -126,10 +126,6 @@ void stVi::init()
     
     // restore settings
     loadSettings();
-
-    // start the authorization once all the pages have been instanciated
-    // this call be done in InitPage
-    m_authManager->startAuthorization();
 }
 
 bool stVi::checkSystemRequirements() const

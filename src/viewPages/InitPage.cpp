@@ -42,6 +42,9 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy,
             this, SLOT(slotAuthorized()));
     connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
+
+    //start the authorization (quiet is access token exists or interactive otherwise)
+    m_authManager->startAuthorization();
 }
 
 InitPage::~InitPage()
