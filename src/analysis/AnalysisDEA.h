@@ -74,7 +74,7 @@ class AnalysisDEA : public QDialog
 
 public:
 
-    typedef QMap<QString, QPair<qreal,qreal> > geneToReadsPairType;
+    typedef QMap<QString, QPair<int,int> > geneToReadsPairType;
 
     AnalysisDEA(const GeneSelection& selObjectA,
                 const GeneSelection& selObjectB,

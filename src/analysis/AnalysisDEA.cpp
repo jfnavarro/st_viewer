@@ -125,14 +125,16 @@ int AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
         if (selection1Size > i) {
             const auto& selection1 = selA.at(i);
             m_geneToReadsMap[selection1.name].first = selection1.reads;
-            const int tpmReads = selection1.reads * 10e5;
+            //to use TPM values in threshold multiply by 10e5
+            const int tpmReads = selection1.reads;
             m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
             m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
         if (selection2Size > i) {
             const auto& selection2 = selB.at(i);
             m_geneToReadsMap[selection2.name].second = selection2.reads;
-            const int tpmReads = selection2.reads * 10e5;
+            //to use TPM values in threshold multiply by 10e5
+            const int tpmReads = selection2.reads;
             m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
             m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
@@ -160,8 +162,8 @@ void AnalysisDEA::populateTable(const int size)
     for (geneToReadsPairType::const_iterator it = m_geneToReadsMap.begin();
          it != end; ++it) {
 
-        const qreal valueSelection1 = it.value().first;
-        const qreal valueSelection2 = it.value().second;
+        const int valueSelection1 = it.value().first;
+        const int valueSelection2 = it.value().second;
 
         // update table
         m_ui->tableWidget->setItem(index, 0, new TableItem(it.key()));
@@ -194,18 +196,21 @@ const deaStats AnalysisDEA::computeStatistics()
     for (geneToReadsPairType::const_iterator it = m_geneToReadsMap.begin();
          it != end; ++it) {
 
-        const qreal valueSelection1 = it.value().first * 10e5;
-        const qreal valueSelection2 = it.value().second * 10e5;
+        const qreal readsSelA = static_cast<qreal>(it.value().first);
+        const qreal readsSelB = static_cast<qreal>(it.value().second);
+        const qreal valueSelection1 = readsSelA * 10e5;
+        const qreal valueSelection2 = readsSelB * 10e5;
 
-        if (valueSelection1 < m_lowerThreshold || valueSelection1 > m_upperThreshold
-            || valueSelection2 < m_lowerThreshold || valueSelection2 > m_upperThreshold) {
+        //to use TPM values in threshold use valuesSection1 and valuesSection2
+        if (readsSelA < m_lowerThreshold || readsSelA > m_upperThreshold
+            || readsSelB < m_lowerThreshold || readsSelB > m_upperThreshold) {
             continue;
         }
 
         // compute overlapping counting values
-        if (valueSelection1 == 0.0) {
+        if (readsSelA == 0.0) {
             stats.countB++;
-        } else if (valueSelection2 == 0.0) {
+        } else if (readsSelB == 0.0) {
             stats.countA++;
         } else {
             stats.countAB++;
@@ -222,8 +227,8 @@ const deaStats AnalysisDEA::computeStatistics()
         stats.valuesSelectionB.push_back(normalizedValueSelection2);
 
         //update temp variables to compute stats (non normalized values and log values)
-        nonNormalizedvaluesA.append(valueSelection1);
-        nonNormalizedvaluesB.append(valueSelection2);
+        nonNormalizedvaluesA.append(readsSelA);
+        nonNormalizedvaluesB.append(readsSelB);
         loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
         loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
     }
@@ -261,6 +266,8 @@ void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
     m_ui->overlappingGenes->setText(QString::number(stats.countAB));
     m_ui->genesOnlyA->setText(QString::number(stats.countA));
     m_ui->genesOnlyB->setText(QString::number(stats.countB));
+
+    update();
 }
 
 void AnalysisDEA::slotSetLowerThreshold(const int value)

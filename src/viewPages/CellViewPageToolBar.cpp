@@ -409,6 +409,12 @@ void CellViewPageToolBar::resetActions()
     // show legend and minimap
     m_actionShow_showLegend->setChecked(false);
     m_actionShow_showMiniMap->setChecked(true);
+
+    // reset pooling mode
+    m_poolingReads->setChecked(true);
+
+    // reset color mode
+    m_colorLinear->setChecked(true);
 }
 
 void CellViewPageToolBar::createActions()
