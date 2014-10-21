@@ -87,7 +87,6 @@ void LoginDialog::loadUsers()
 
 void LoginDialog::saveUsers()
 {
-    //TODO check if the user is present already
     QSettings settings;
     QStringList users = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     const QString username = m_ui->username->text();
@@ -103,9 +102,9 @@ void LoginDialog::setPassword(const QString &password)
 
 void LoginDialog::slotAcceptLogin()
 {
-    emit acceptLogin(m_ui->username->text(), m_ui->password->text());
-    // close this dialog
+    // important to close the dialog before the accept signal es emitted
     close();
+    emit acceptLogin(m_ui->username->text(), m_ui->password->text());
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *e)

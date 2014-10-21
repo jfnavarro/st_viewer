@@ -70,24 +70,23 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
 {
     async::DataRequest request = m_dataProxy->loadAccessToken(requestUser, requestPassword);
 
-    if (!request.isSuccessFul()) {
+    if (request.isSuccessFul()) {
+        OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
+        const QUuid accessToken(dto.accessToken());
+        const int expiresIn = dto.expiresIn();
+        const QUuid refreshToken(dto.refreshToken());
+
+        if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
+            emit signalLoginDone(accessToken, expiresIn, refreshToken);
+        } else {
+            QSharedPointer<OAuth2Error>
+                    error(new OAuth2Error("Log in Error", "Access token is expired", this));
+            emit signalError(error);
+        }
+    } else {
         //TODO get error from the request
         QSharedPointer<OAuth2Error>
-               error(new OAuth2Error("Log in Error", "Error retrieving access token", this));
-        emit signalError(error);
-        return;
-    }
-
-    OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
-    const QUuid accessToken(dto.accessToken());
-    const int expiresIn = dto.expiresIn();
-    const QUuid refreshToken(dto.refreshToken());
-
-    if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
-        emit signalLoginDone(accessToken, expiresIn, refreshToken);
-    } else {
-         QSharedPointer<OAuth2Error>
-                error(new OAuth2Error("Log in Error", "Access token is expired", this));
+               error(new OAuth2Error("Log in Error", "Bad credentials", this));
         emit signalError(error);
     }
 }

@@ -43,7 +43,7 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy,
     connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
 
-    //start the authorization (quiet is access token exists or interactive otherwise)
+    //start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
 }
 
@@ -69,7 +69,7 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 
     //not sure whether we want to show the error to the user or not when login failed
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
-}
+ }
 
 void InitPage::slotAuthorized()
 {

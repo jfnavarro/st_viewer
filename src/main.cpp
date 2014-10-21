@@ -124,26 +124,28 @@ int main(int argc, char** argv)
     }
 
     //create mainWindow
-    stVi mainWindow;
-    app->setActivationWindow(&mainWindow);
+    stVi *mainWindow = new stVi();
+    app->setActivationWindow(mainWindow);
 
     // connect message queue to the main window.
     QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)),
-                     &mainWindow, SLOT(handleMessage(QString)));
+                     mainWindow, SLOT(handleMessage(QString)));
 
     //check for min requirements
-    if (!mainWindow.checkSystemRequirements()) {
+    if (!mainWindow->checkSystemRequirements()) {
+        //TODO app object cannot be deleted here (fix it)
         return EXIT_FAILURE;
     }
 
     //init graphic components
-    mainWindow.init();
+    mainWindow->init();
     // show mainwindow.
-    mainWindow.show();
+    mainWindow->show();
     // close splash screen
-    splash.finish(&mainWindow);
+    splash.finish(mainWindow);
     // launch the app
     int res = app->exec();
     qDebug() << "Application closed successfully.";
+    delete mainWindow;
     return res;
 }
