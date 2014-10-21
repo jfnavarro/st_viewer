@@ -270,7 +270,6 @@ void ExperimentPage::slotPerformDDA()
     auto selectionObject2 = currentSelection.at(1);
     Q_ASSERT(!selectionObject2.isNull());
 
-    QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA());
-    analysisDEA->computeData(*selectionObject1, *selectionObject2);
+    QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
     analysisDEA->exec();
 }

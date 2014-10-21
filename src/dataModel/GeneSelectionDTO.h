@@ -93,7 +93,7 @@ public:
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
-        jsonObj["id"] = !id().isEmpty() ? QJsonValue(id()) : QJsonValue::Null;
+        jsonObj["id"] = !id().isNull() ? QJsonValue(id()) : QJsonValue::Null;
         jsonObj["name"] = name();
         jsonObj["account_id"] = userId();
         jsonObj["dataset_id"] = datasetId();
@@ -108,14 +108,14 @@ public:
             geneHits.append(geneHit);
         }
         jsonObj["gene_hits"] = geneHits;
-        jsonObj["type"] = !type().isEmpty() ? QJsonValue(type()) : QJsonValue::Null;
-        jsonObj["status"] = !status().isEmpty() ? QJsonValue(status()) : QJsonValue::Null;
+        jsonObj["type"] = !type().isNull() ? QJsonValue(type()) : QJsonValue::Null;
+        jsonObj["status"] = !status().isNull() ? QJsonValue(status()) : QJsonValue::Null;
         QJsonArray oboTerms;
         foreach(const QString &item, m_geneSelection.oboFoundryTerms()) {
             oboTerms.append(item);
         }
         jsonObj["obo_foundry_terms"] = oboTerms;
-        jsonObj["comment"] = !comment().isEmpty() ? QJsonValue(comment()) : QJsonValue::Null;
+        jsonObj["comment"] = !comment().isNull() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
         jsonObj["created_at"] =  QJsonValue::Null; //leave this empty the API will take care of it
         jsonObj["last_modified"] = QJsonValue::Null; //leave this empty the API will take care of it

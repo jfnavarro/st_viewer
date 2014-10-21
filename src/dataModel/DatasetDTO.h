@@ -109,7 +109,7 @@ public:
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
-        jsonObj["id"] = !id().isEmpty() ? QJsonValue(id()) : QJsonValue::Null;
+        jsonObj["id"] = !id().isNull() ? QJsonValue(id()) : QJsonValue::Null;
         jsonObj["name"] = name();
         jsonObj["image_alignment_id"] = imageAlignmentId();
         jsonObj["tissue"] = statTissue();
@@ -128,7 +128,7 @@ public:
             hitsPooledQuartiles.append(item);
         }
         jsonObj["gene_pooled_hit_quartiles"] = hitsPooledQuartiles;
-        jsonObj["comment"] = !statComments().isEmpty() ?
+        jsonObj["comment"] = !statComments().isNull() ?
                     QJsonValue(statComments()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
         QJsonArray oboTerms;

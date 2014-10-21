@@ -16,10 +16,16 @@
 #include <cmath>
 #include "math/Common.h"
 
-AnalysisDEA::AnalysisDEA(QWidget *parent, Qt::WindowFlags f) :
+AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
+                         const GeneSelection& selObjectB,
+                         QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(new Ui::ddaWidget),
-    m_customPlot(nullptr)
+    m_customPlot(nullptr),
+    m_totalReadsSelectionA(0),
+    m_totalReadsSelectionB(0),
+    m_lowerThreshold(0),
+    m_upperThreshold(1)
 {
     setModal(true);
 
@@ -50,9 +56,42 @@ AnalysisDEA::AnalysisDEA(QWidget *parent, Qt::WindowFlags f) :
     m_customPlot->setFixedSize(500, 400);
     m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
-    //make connections
+    // total reads in each selection used to normalize
+    m_totalReadsSelectionA = selObjectA.totalReads();
+    m_totalReadsSelectionB = selObjectB.totalReads();
+
+    // populate the gene to read pairs containers
+    const int biggestSize = computeGeneToReads(selObjectA, selObjectB);
+    // computeGeneToReads will update the min and max thresholds (to initialize slider)
+
+    m_ui->tpmThreshold->setMinimumValue(m_lowerThreshold);
+    m_ui->tpmThreshold->setMaximumValue(m_upperThreshold);
+    m_ui->tpmThreshold->setLowerValue(m_lowerThreshold);
+    m_ui->tpmThreshold->setUpperValue(m_upperThreshold);
+    m_ui->tpmThreshold->setTickInterval(1);
+
+    // populate table
+    populateTable(biggestSize);
+
+    // update name fields
+    m_ui->selectionA->setText(selObjectA.name());
+    m_ui->selectionB->setText(selObjectB.name());
+    m_customPlot->xAxis->setLabel(selObjectA.name());
+    m_customPlot->yAxis->setLabel(selObjectB.name());
+
+    // compute statistics
+    const deaStats &stats = computeStatistics();
+
+    // visualize statistics
+    updateStatisticsUI(stats);
+
+    // make connections
     connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
-    connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(saveToPDF()));
+    connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(slotSaveToPDF()));
+    connect(m_ui->tpmThreshold, SIGNAL(lowerValueChanged(int)),
+            this, SLOT(slotSetLowerThreshold(int)));
+    connect(m_ui->tpmThreshold, SIGNAL(upperValueChanged(int)),
+            this, SLOT(slotSetUpperThreshold(int)));
 }
 
 AnalysisDEA::~AnalysisDEA()
@@ -61,11 +100,12 @@ AnalysisDEA::~AnalysisDEA()
     m_customPlot = nullptr;
 }
 
-//TODO split and optimize this function
-void AnalysisDEA::computeData(const GeneSelection &selObjectA,
-                          const GeneSelection &selObjectB)
+int AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
+                                     const GeneSelection& selObjectB)
 {
-    typedef QMap<QString, QPair<qreal,qreal> > geneToNormalizedPairType;
+    // reset threshold
+    m_lowerThreshold = 10e5;
+    m_upperThreshold = -1;
 
     // get the list of selected items
     const auto &selA = selObjectA.selectedItems();
@@ -80,18 +120,30 @@ void AnalysisDEA::computeData(const GeneSelection &selObjectA,
     //therefore, we create a hash table (key gene name - value a pairt with value in selection A
     //and value in selection B) to later know what genes are present in which set
     //depending of the value of the hash (0.0 no present)
-    geneToNormalizedPairType genesToNormalizedReads;
+    m_geneToReadsMap.clear();
     for (int i = 0; i < biggestSize; ++i) {
         if (selection1Size > i) {
             const auto& selection1 = selA.at(i);
-            genesToNormalizedReads[selection1.name].first = selection1.reads;
+            m_geneToReadsMap[selection1.name].first = selection1.reads;
+            const int tpmReads = selection1.reads * 10e5;
+            m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
+            m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
         if (selection2Size > i) {
             const auto& selection2 = selB.at(i);
-            genesToNormalizedReads[selection2.name].second = selection2.reads;
+            m_geneToReadsMap[selection2.name].second = selection2.reads;
+            const int tpmReads = selection2.reads * 10e5;
+            m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
+            m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
     }
 
+    //just for convenience
+    return biggestSize;
+}
+
+void AnalysisDEA::populateTable(const int size)
+{
     // clear the table
     m_ui->tableWidget->clear();
     // initialize columns and headers of the table
@@ -100,27 +152,12 @@ void AnalysisDEA::computeData(const GeneSelection &selObjectA,
     headers << "Gene" << "Reads Sel. A" << "Reads Sel. B";
     m_ui->tableWidget->setHorizontalHeaderLabels(headers);
     // initialize row size of the table
-    m_ui->tableWidget->setRowCount(biggestSize);
+    m_ui->tableWidget->setRowCount(size);
+
+    // iterate container to populate table
     int index = 0; //to keep count of the elements inserted
-
-    // create vector containers for plot data points and temp variables for computing stats
-    QVector<double> valuesSelectionA;
-    QVector<double> valuesSelectionB;
-    QVector<double> loggedValuesSelectionA;
-    QVector<double> loggedValuesSelectionB;
-    QVector<double> nonNormalizedvaluesA;
-    QVector<double> nonNormalizedvaluesB;
-    unsigned countAB = 0;
-    unsigned countA = 0;
-    unsigned countB = 0;
-
-    //total reads in each selection used to normalize
-    const int totalReadsSelectionA = selObjectA.totalReads();
-    const int totalReadsSelectionB = selObjectB.totalReads();
-
-    //iterate the hash table to compute the DDA stats and populate the table
-    geneToNormalizedPairType::const_iterator end = genesToNormalizedReads.end();
-    for (geneToNormalizedPairType::const_iterator it = genesToNormalizedReads.begin();
+    geneToReadsPairType::const_iterator end = m_geneToReadsMap.end();
+    for (geneToReadsPairType::const_iterator it = m_geneToReadsMap.begin();
          it != end; ++it) {
 
         const qreal valueSelection1 = it.value().first;
@@ -131,60 +168,118 @@ void AnalysisDEA::computeData(const GeneSelection &selObjectA,
         m_ui->tableWidget->setItem(index, 1, new TableItem(valueSelection1));
         m_ui->tableWidget->setItem(index, 2, new TableItem(valueSelection2));
         index++;
+    }
+
+    //enable sorting to the table (must be done after population)
+    m_ui->tableWidget->setSortingEnabled(true);
+    m_ui->tableWidget->update();
+}
+
+const deaStats AnalysisDEA::computeStatistics()
+{
+    deaStats stats;
+
+    if (m_geneToReadsMap.empty()) {
+        return stats;
+    }
+
+    // some temp containers
+    QVector<qreal> nonNormalizedvaluesA;
+    QVector<qreal> nonNormalizedvaluesB;
+    QVector<qreal> loggedValuesSelectionA;
+    QVector<qreal> loggedValuesSelectionB;
+
+    //iterate the hash table to compute the DDA stats and populate the table
+    geneToReadsPairType::const_iterator end = m_geneToReadsMap.end();
+    for (geneToReadsPairType::const_iterator it = m_geneToReadsMap.begin();
+         it != end; ++it) {
+
+        const qreal valueSelection1 = it.value().first * 10e5;
+        const qreal valueSelection2 = it.value().second * 10e5;
+
+        if (valueSelection1 < m_lowerThreshold || valueSelection1 > m_upperThreshold
+            || valueSelection2 < m_lowerThreshold || valueSelection2 > m_upperThreshold) {
+            continue;
+        }
 
         // compute overlapping counting values
         if (valueSelection1 == 0.0) {
-            countB++;
+            stats.countB++;
         } else if (valueSelection2 == 0.0) {
-            countA++;
+            stats.countA++;
         } else {
-            countAB++;
+            stats.countAB++;
         }
 
         // populate lists of values with normalized values (for the scatter plot)
         const qreal normalizedValueSelection1 =
-                ((valueSelection1 * 10e5) / totalReadsSelectionA) + 1;
+                (valueSelection1 / m_totalReadsSelectionA) + 1;
         const qreal normalizedValueSelection2 =
-                ((valueSelection2 * 10e5) / totalReadsSelectionB) + 1;
+                (valueSelection2 / m_totalReadsSelectionB) + 1;
 
         // update lists of values
-        valuesSelectionA.push_back(normalizedValueSelection1);
-        valuesSelectionB.push_back(normalizedValueSelection2);
-        loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
-        loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
+        stats.valuesSelectionA.push_back(normalizedValueSelection1);
+        stats.valuesSelectionB.push_back(normalizedValueSelection2);
 
-        //update temp variables to compute stats (non normalized values)
+        //update temp variables to compute stats (non normalized values and log values)
         nonNormalizedvaluesA.append(valueSelection1);
         nonNormalizedvaluesB.append(valueSelection2);
+        loggedValuesSelectionA.push_back(std::log(normalizedValueSelection1));
+        loggedValuesSelectionB.push_back(std::log(normalizedValueSelection2));
     }
-    //enable sorting to the table (must be done after population)
-    m_ui->tableWidget->setSortingEnabled(true);
-    m_ui->tableWidget->update();
 
+    if (!nonNormalizedvaluesA.empty() && !nonNormalizedvaluesB.empty()) {
+        stats.meanA = STMath::mean(nonNormalizedvaluesA);
+        stats.meanB = STMath::mean(nonNormalizedvaluesB);
+        stats.stdDevA = STMath::std_dev(nonNormalizedvaluesA);
+        stats.stdDevB = STMath::std_dev(nonNormalizedvaluesB);
+    }
+
+    if (!loggedValuesSelectionA.empty() && !loggedValuesSelectionB.empty()) {
+        stats.pearsonCorrelation = STMath::pearson(loggedValuesSelectionA,
+                                                   loggedValuesSelectionB);
+    }
+
+    return stats;
+}
+
+void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
+{
     //update plot data
-    m_customPlot->graph(0)->setData(valuesSelectionA, valuesSelectionB);
+    m_customPlot->graph(0)->setData(stats.valuesSelectionA, stats.valuesSelectionB);
     m_customPlot->graph(0)->rescaleAxes();
-    m_customPlot->xAxis->setLabel(selObjectA.name());
-    m_customPlot->yAxis->setLabel(selObjectB.name());
     m_customPlot->replot();
 
     //update UI fields for stats
-    m_ui->numGenesSelectionA->setText(QString::number(countA + countAB));
-    m_ui->numGenesSelectionB->setText(QString::number(countB + countAB));
-    m_ui->meanSelectionA->setText(QString::number(STMath::mean(nonNormalizedvaluesA)));
-    m_ui->meanSelectionB->setText(QString::number(STMath::mean(nonNormalizedvaluesB)));
-    m_ui->stdDevSelectionA->setText(QString::number(STMath::std_dev(nonNormalizedvaluesA)));
-    m_ui->stdDevSelectionB->setText(QString::number(STMath::std_dev(nonNormalizedvaluesB)));
-    m_ui->correlation->setText(QString::number(STMath::pearson(loggedValuesSelectionA,
-                                                               loggedValuesSelectionB)));
-    m_ui->overlappingGenes->setText(QString::number(countAB));
-    m_ui->genesOnlyA->setText(QString::number(countA));
-    m_ui->genesOnlyB->setText(QString::number(countB));
-    m_ui->selectionA->setText(selObjectA.name());
-    m_ui->selectionB->setText(selObjectB.name());
+    m_ui->numGenesSelectionA->setText(QString::number(stats.countA + stats.countAB));
+    m_ui->numGenesSelectionB->setText(QString::number(stats.countB + stats.countAB));
+    m_ui->meanSelectionA->setText(QString::number(stats.meanA));
+    m_ui->meanSelectionB->setText(QString::number(stats.meanB));
+    m_ui->stdDevSelectionA->setText(QString::number(stats.stdDevA));
+    m_ui->stdDevSelectionB->setText(QString::number(stats.stdDevB));
+    m_ui->correlation->setText(QString::number(stats.pearsonCorrelation));
+    m_ui->overlappingGenes->setText(QString::number(stats.countAB));
+    m_ui->genesOnlyA->setText(QString::number(stats.countA));
+    m_ui->genesOnlyB->setText(QString::number(stats.countB));
 }
 
-void AnalysisDEA::saveToPDF()
+void AnalysisDEA::slotSetLowerThreshold(const int value)
+{
+    if (value != m_lowerThreshold) {
+        m_lowerThreshold = value;
+        updateStatisticsUI(computeStatistics());
+    }
+}
+
+void AnalysisDEA::slotSetUpperThreshold(const int value)
+{
+    if (value != m_upperThreshold) {
+        m_upperThreshold = value;
+        updateStatisticsUI(computeStatistics());
+    }
+}
+
+void AnalysisDEA::slotSaveToPDF()
 {
     QString filename =
             QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),

@@ -41,6 +41,30 @@ public:
     }
 };
 
+struct deaStats {
+
+   deaStats()
+       : countA(0),
+         countB(0),
+         countAB(0),
+         meanA(0.0),
+         meanB(0.0),
+         stdDevA(0.0),
+         stdDevB(0.0),
+         pearsonCorrelation(0.0) {}
+
+   QVector<qreal> valuesSelectionA;
+   QVector<qreal> valuesSelectionB;
+   int countA;
+   int countB;
+   int countAB;
+   qreal meanA;
+   qreal meanB;
+   qreal stdDevA;
+   qreal stdDevB;
+   qreal pearsonCorrelation;
+};
+
 //This class owns a widget to show the DEA info
 //it also computes the DDA using member variables
 //so the same object can be used many times
@@ -50,25 +74,45 @@ class AnalysisDEA : public QDialog
 
 public:
 
-    explicit AnalysisDEA(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    typedef QMap<QString, QPair<qreal,qreal> > geneToReadsPairType;
+
+    AnalysisDEA(const GeneSelection& selObjectA,
+                const GeneSelection& selObjectB,
+                QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
     // compute the statistics and visualization data points and updates
-    // the visual components
-    void computeData(const GeneSelection& selObjectA,
-                     const GeneSelection& selObjectB);
+    const deaStats computeStatistics();
+
+    // update UI elements for the statistics and correlation plots
+    void updateStatisticsUI(const deaStats& stats);
 
 signals:
 
 private slots:
 
-    void saveToPDF();
+    // threshold slider slots
+    void slotSetLowerThreshold(const int value);
+    void slotSetUpperThreshold(const int value);
+
+    // save correlation plot to a file
+    void slotSaveToPDF();
 
 private:
 
+    int computeGeneToReads(const GeneSelection& selObjectA,
+                            const GeneSelection& selObjectB);
+
+    // populate the genes expression table and update the UI
+    void populateTable(const int size);
+
     std::unique_ptr<Ui::ddaWidget> m_ui;
     QCustomPlot *m_customPlot;
-
+    geneToReadsPairType m_geneToReadsMap;
+    int m_totalReadsSelectionA;
+    int m_totalReadsSelectionB;
+    int m_lowerThreshold;
+    int m_upperThreshold;
 };
 
 #endif // ANALYSISDEA_H
