@@ -74,7 +74,7 @@ class AnalysisDEA : public QDialog
 
 public:
 
-    typedef QMap<QString, QPair<int,int> > geneToReadsPairType;
+    typedef QHash<QString, QPair<int,int> > geneToReadsPairType;
 
     AnalysisDEA(const GeneSelection& selObjectA,
                 const GeneSelection& selObjectB,
@@ -91,7 +91,7 @@ signals:
 
 private slots:
 
-    // threshold slider slots
+    // threshold slider slots (update the UI too)
     void slotSetLowerThreshold(const int value);
     void slotSetUpperThreshold(const int value);
 
@@ -100,10 +100,12 @@ private slots:
 
 private:
 
-    int computeGeneToReads(const GeneSelection& selObjectA,
+    // compute the map of genes to read pairs used to
+    // compute the statistics
+    void computeGeneToReads(const GeneSelection& selObjectA,
                             const GeneSelection& selObjectB);
 
-    // populate the genes expression table and update the UI
+    // populate the genes expression table and update the UI (size is size of the table)
     void populateTable(const int size);
 
     std::unique_ptr<Ui::ddaWidget> m_ui;

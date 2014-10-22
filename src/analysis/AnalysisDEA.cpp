@@ -61,14 +61,21 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_totalReadsSelectionB = selObjectB.totalReads();
 
     // populate the gene to read pairs containers
-    const int biggestSize = computeGeneToReads(selObjectA, selObjectB);
-    // computeGeneToReads will update the min and max thresholds (to initialize slider)
+    // computeGeneToReads will update the max thresholds (to initialize slider)
+    // min threshold must be initialized to 0
+    computeGeneToReads(selObjectA, selObjectB);
+    m_lowerThreshold = 0;
 
+    //initialize slide values
     m_ui->tpmThreshold->setMinimumValue(m_lowerThreshold);
     m_ui->tpmThreshold->setMaximumValue(m_upperThreshold);
     m_ui->tpmThreshold->setLowerValue(m_lowerThreshold);
     m_ui->tpmThreshold->setUpperValue(m_upperThreshold);
     m_ui->tpmThreshold->setTickInterval(1);
+
+    // get the biggest size from the selections
+    const int biggestSize = qMax(selObjectA.selectedItems().size(),
+                                 selObjectB.selectedItems().size());
 
     // populate table
     populateTable(biggestSize);
@@ -100,7 +107,7 @@ AnalysisDEA::~AnalysisDEA()
     m_customPlot = nullptr;
 }
 
-int AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
+void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
                                      const GeneSelection& selObjectB)
 {
     // reset threshold
@@ -127,7 +134,6 @@ int AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
             m_geneToReadsMap[selection1.name].first = selection1.reads;
             //to use TPM values in threshold multiply by 10e5
             const int tpmReads = selection1.reads;
-            m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
             m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
         if (selection2Size > i) {
@@ -135,13 +141,9 @@ int AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
             m_geneToReadsMap[selection2.name].second = selection2.reads;
             //to use TPM values in threshold multiply by 10e5
             const int tpmReads = selection2.reads;
-            m_lowerThreshold = std::min(tpmReads, m_lowerThreshold);
             m_upperThreshold = std::max(tpmReads, m_upperThreshold);
         }
     }
-
-    //just for convenience
-    return biggestSize;
 }
 
 void AnalysisDEA::populateTable(const int size)
@@ -196,10 +198,8 @@ const deaStats AnalysisDEA::computeStatistics()
     for (geneToReadsPairType::const_iterator it = m_geneToReadsMap.begin();
          it != end; ++it) {
 
-        const qreal readsSelA = static_cast<qreal>(it.value().first);
-        const qreal readsSelB = static_cast<qreal>(it.value().second);
-        const qreal valueSelection1 = readsSelA * 10e5;
-        const qreal valueSelection2 = readsSelB * 10e5;
+        const int readsSelA = it.value().first;
+        const int readsSelB = it.value().second;
 
         //to use TPM values in threshold use valuesSection1 and valuesSection2
         if (readsSelA < m_lowerThreshold || readsSelA > m_upperThreshold
@@ -208,9 +208,9 @@ const deaStats AnalysisDEA::computeStatistics()
         }
 
         // compute overlapping counting values
-        if (readsSelA == 0.0) {
+        if (readsSelA == 0) {
             stats.countB++;
-        } else if (readsSelB == 0.0) {
+        } else if (readsSelB == 0) {
             stats.countA++;
         } else {
             stats.countAB++;
@@ -218,9 +218,9 @@ const deaStats AnalysisDEA::computeStatistics()
 
         // populate lists of values with normalized values (for the scatter plot)
         const qreal normalizedValueSelection1 =
-                (valueSelection1 / m_totalReadsSelectionA) + 1;
+                ((static_cast<qreal>(readsSelA) * 10e5) / m_totalReadsSelectionA) + 1;
         const qreal normalizedValueSelection2 =
-                (valueSelection2 / m_totalReadsSelectionB) + 1;
+                ((static_cast<qreal>(readsSelB) * 10e5) / m_totalReadsSelectionB) + 1;
 
         // update lists of values
         stats.valuesSelectionA.push_back(normalizedValueSelection1);

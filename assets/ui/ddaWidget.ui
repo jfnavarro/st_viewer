@@ -55,7 +55,7 @@
            <item>
             <widget class="QLabel" name="label_6">
              <property name="text">
-              <string>TPM (Transcripts Per Million Reads) Threshold :</string>
+              <string>Reads Threshold :</string>
              </property>
             </widget>
            </item>
