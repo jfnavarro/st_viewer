@@ -6,16 +6,12 @@
 */
 
 #include <QDebug>
-#include <QtSingleApplication>
+#include <QApplication>
 #include <QMessageBox>
 #include <QDir>
 #include <QTranslator>
 #include <QPixmap>
 #include <QSplashScreen>
-
-#if defined Q_OS_LINUX
-    #include <QStyleFactory>
-#endif
 
 #include <iostream>
 #include "utils/Utils.h"
@@ -24,7 +20,7 @@
 
 namespace {
 
-void setLocalPaths(QtSingleApplication *app)
+void setLocalPaths(QApplication *app)
 {
     // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
@@ -43,7 +39,7 @@ void setLocalPaths(QtSingleApplication *app)
 #endif
 }
 
-bool installTranslator(QtSingleApplication *app)
+bool installTranslator(QApplication *app)
 {
     //install translation file
     bool initialized = true;
@@ -92,18 +88,11 @@ int main(int argc, char** argv)
 
     setApplicationFlags();
 
-    QtSingleApplication *app = new QtSingleApplication(argc, argv);
-    app->setApplicationName(app->translate("main", "stVi"));
-    app->setOrganizationName("Spatial Transcriptomics AB");
-    app->setOrganizationDomain("spatialtranscriptomics.com");
-    app->setApplicationVersion(Globals::VERSION);
-
-    //check if app is running
-    if (app->isRunning()) {
-        app->sendMessage(app->tr("Another instance of stVi is already open"));
-        delete app;
-        return EXIT_FAILURE;
-    }
+    QApplication app(argc, argv);
+    app.setApplicationName(app.translate("main", "stVi"));
+    app.setOrganizationName("Spatial Transcriptomics AB");
+    app.setOrganizationDomain("spatialtranscriptomics.com");
+    app.setApplicationVersion(Globals::VERSION);
 
     qDebug() << "Application started successfully.";
 
@@ -114,38 +103,31 @@ int main(int argc, char** argv)
     splash.show();
 
     //set library paths and translators
-    setLocalPaths(app);
-    if (!installTranslator(app)) {
+    setLocalPaths(&app);
+    if (!installTranslator(&app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
         QMessageBox::critical(nullptr, "Error",
-                              app->tr("Unable to install the translations"));
-        delete app;
+                              app.tr("Unable to install the translations"));
         return EXIT_FAILURE;
     }
 
     //create mainWindow
-    stVi *mainWindow = new stVi();
-    app->setActivationWindow(mainWindow);
-
-    // connect message queue to the main window.
-    QObject::connect(app, SIGNAL(messageReceived(QString, QObject *)),
-                     mainWindow, SLOT(handleMessage(QString)));
+    stVi mainWindow;
+    app.setActiveWindow(&mainWindow);
 
     //check for min requirements
-    if (!mainWindow->checkSystemRequirements()) {
-        //TODO app object cannot be deleted here (fix it)
+    if (!mainWindow.checkSystemRequirements()) {
         return EXIT_FAILURE;
     }
 
     //init graphic components
-    mainWindow->init();
-    // show mainwindow.
-    mainWindow->show();
+    mainWindow.init();
     // close splash screen
-    splash.finish(mainWindow);
+    splash.finish(&mainWindow);
+    // show mainwindow.
+    mainWindow.show();
     // launch the app
-    int res = app->exec();
+    int res = app.exec();
     qDebug() << "Application closed successfully.";
-    delete mainWindow;
     return res;
 }

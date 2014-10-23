@@ -104,7 +104,6 @@ set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 ###STATIC LIBRARIES#####################################
 
 #link static libraries and third party libraries
-set(LIB_COMPONENTS QtSingleApplication)
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
@@ -122,8 +121,6 @@ set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::3D)
 
 #create main target (resources needs to be part of the target)
-include_directories(${PROJECT_SOURCE_DIR}/ext/QtSingleApplication/src)
-
 set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 if(WIN32)

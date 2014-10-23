@@ -487,17 +487,17 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
 //TODO this can be optimized and run concurrently
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
-    const QJsonDocument &doc = reply->getJSON();
-    if (doc.isNull() || doc.isEmpty()) {
-        return false;
-    }
-
     bool dirty = false;
 
     // clear the containers
     m_genesList.clear();
     m_featuresList.clear();
     m_geneFeaturesMap.clear();
+
+    const QJsonDocument &doc = reply->getJSON();
+    if (doc.isNull() || doc.isEmpty()) {
+        return false;
+    }
 
     //temp container to assure the uniqueness of the Gene objects
     QHash<QString, GenePtr> geneNameToGene;
@@ -552,20 +552,24 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
     if (m_cellTissueImages.contains(imageName)) {
         m_cellTissueImages.remove(imageName);
     }
-    m_cellTissueImages.insert(imageName, image);
 
-    return !image.isNull();
+    const bool imageOk = !image.isNull();
+    if (imageOk) {
+        m_cellTissueImages.insert(imageName, image);
+    }
+
+    return imageOk;
 }
 
 bool DataProxy::parseDatasets(NetworkReply *reply)
 {
+    //clean up container
+    m_datasetList.clear();
+
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
-
-    //clean up container
-    m_datasetList.clear();
 
     // intermediary parse object
     DatasetDTO dto;
@@ -586,13 +590,13 @@ bool DataProxy::parseDatasets(NetworkReply *reply)
 
 bool DataProxy::parseGeneSelections(NetworkReply *reply)
 {
+    //clean up the containers
+    m_geneSelectionsList.clear();
+
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
         return false;
     }
-
-    //clean up the containers
-    m_geneSelectionsList.clear();
 
     // intermediary parse object
     GeneSelectionDTO dto;
