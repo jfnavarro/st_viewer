@@ -28,10 +28,10 @@ set(APIPATH  "api")
 
 if(SERVER STREQUAL development)
   #DEV configuration
-  set(ENDPOINT "https://st-app-dev.spatialtranscriptomics.com")
+  set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")
 elseif(SERVER STREQUAL production)
   #Production configuration
-  set(ENDPOINT "https://api.spatialtranscriptomics.com")
+  set(ENDPOINT "https://admin.spatialtranscriptomics.com")
 elseif(SERVER STREQUAL local)
   #Local configuration
   set(ENDPOINT "http://localhost:8080")

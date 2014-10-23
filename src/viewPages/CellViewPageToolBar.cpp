@@ -227,6 +227,8 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
             m_geneHitsThreshold);
     addWidgetToMenu(tr("Transcripts Threshold:"), m_menu_genePlotter, m_geneHitsThreshold);
 
+    m_menu_genePlotter->addSeparator();
+
     // transcripts intensity
     addSliderToMenu(this,
                     tr("Opacity:"),
