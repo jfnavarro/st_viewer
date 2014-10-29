@@ -405,9 +405,6 @@ const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const
 void GeneRendererGL::setImage(const QImage &image)
 {
     Q_ASSERT(!image.isNull());
-
-    //TODO seems like doing the inverse transformation is not accurate
-    //m_image = image.transformed(transform().inverted().toAffine());
     m_image = image;
 }
 

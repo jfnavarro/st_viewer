@@ -141,51 +141,42 @@ void CellViewPage::onEnter()
 {
     setWaiting(true);
 
-    //reset genes and selections model
-    m_ui->genesWidget->clear();
-    m_ui->selectionsWidget->clear();
-
-    //TODO this logic will be refactored
-    async::DataRequest request = m_dataProxy->loadDatasetContent();
-    if (!request.isSuccessFul()) {
+    if (m_dataProxy->getSelectedDataset().isNull()) {
+        //no dataset selected, nothing to do here
         setWaiting(false);
-        m_ui->genesWidget->setEnabled(false);
-        m_ui->selectionsWidget->setEnabled(false);
-        m_ui->area->setEnabled(false);
-        m_toolBar->setEnableButtons(false);
-        //check if error came for no selected dataset or real downloading error
-        const auto &errors = request.getErrors();
-        if (errors.empty()) {
-            setStatusTip(tr("No dataset loaded"));
-        } else {
-            //TODO there should be only one error
-            const auto error = errors.first();
-            showError(error->name(), error->description());
-            setStatusTip(tr("Error downloading dataset"));
-        }
+        setStatusTip(tr("No dataset loaded"));
         return;
     }
 
+    async::DataRequest request = m_dataProxy->loadDatasetContent();
+    if (!request.isSuccessFul()) {
+        setWaiting(false);
+        const auto &errors = request.getErrors();
+        //TODO there should be only one error (make DataRequest parse all errors as one)
+        const auto error = errors.first();
+        showError(error->name(), error->description());
+        setStatusTip(tr("Error downloading dataset"));
+    }
+
+    // enable toolbar controls
     m_ui->genesWidget->setEnabled(true);
     m_ui->selectionsWidget->setEnabled(true);
     m_ui->area->setEnabled(true);
     m_toolBar->setEnableButtons(true);
 
-    // Update Status tip with the name of the currently selected dataset
+    // update Status tip with the name of the currently selected dataset
     const auto dataset = m_dataProxy->getSelectedDataset();
     Q_ASSERT(!dataset.isNull());
     setStatusTip(tr("Dataset loaded %1").arg(dataset->name()));
 
+    // get image alignment and chip
     const auto imageAlignment = m_dataProxy->getImageAlignment();
     Q_ASSERT(!imageAlignment.isNull());
-
     const auto currentChip = m_dataProxy->getChip();
     Q_ASSERT(!currentChip.isNull());
-
     const QTransform alignment = imageAlignment->alignment();
     const qreal min = dataset->statisticsMin();
     const qreal max = dataset->statisticsMax();
-
     const QRectF chip_rect = QRectF(
                 QPointF(currentChip->x1(), currentChip->y1()),
                 QPointF(currentChip->x2(), currentChip->y2())
@@ -198,17 +189,12 @@ void CellViewPage::onEnter()
     // load features and threshold boundaries into FDH
     m_FDH->computeData(m_dataProxy->getFeatureList(), min, max);
 
-    // clear view data
-    m_view->clearData();
-
     // updade grid size and data
-    m_grid->clearData();
     m_grid->setDimensions(chip_border, chip_rect);
     m_grid->generateData();
     m_grid->setTransform(alignment);
 
     // update gene size and data
-    m_gene_plotter->clearData();
     m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
     m_gene_plotter->setTransform(alignment);
@@ -233,6 +219,17 @@ void CellViewPage::onEnter()
 
 void CellViewPage::onExit()
 {
+    //reset tool buttons
+    m_ui->genesWidget->setEnabled(false);
+    m_ui->selectionsWidget->setEnabled(false);
+    m_ui->area->setEnabled(false);
+    m_toolBar->setEnableButtons(false);
+
+    //reset genes and selections model
+    m_ui->genesWidget->clear();
+    m_ui->selectionsWidget->clear();
+
+    //reset visualization objects
     m_grid->clearData();
     m_image->clearData();
     m_gene_plotter->clearData();

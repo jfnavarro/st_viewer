@@ -13,16 +13,10 @@
 #include <QMessageBox>
 
 #include "data/DataProxy.h"
-#include "data/DataStore.h"
-
 #include "network/DownloadManager.h"
-
 #include "error/Error.h"
-
 #include "model/DatasetItemModel.h"
-
 #include "utils/Utils.h"
-
 #include "dialogs/EditDatasetDialog.h"
 
 #include "ui_datasets.h"

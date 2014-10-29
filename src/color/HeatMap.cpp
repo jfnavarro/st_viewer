@@ -16,6 +16,11 @@ void Heatmap::createHeatMapImage(QImage &image,
                                  const qreal upperbound,
                                  const Globals::GeneColorMode &colorMode)
 {
+    //TODO it appears from now that the color mode must be disregarded as the color
+    //spectra for the legend using a linear function should be correct for other color modes
+    //Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
+    Q_UNUSED(colorMode);
+
     const int height = image.height();
     const int width = image.width();
 
@@ -23,24 +28,13 @@ void Heatmap::createHeatMapImage(QImage &image,
         //get the color of each line of the image as the heatmap
         //color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
-        const qreal adjusted_value = STMath::linearConversion<qreal, qreal>(static_cast<qreal>(value),
-                                                                           0.0,
-                                                                           static_cast<qreal>(height),
-                                                                           lowerbound,
-                                                                           upperbound);
+        const qreal adjusted_value =
+                STMath::linearConversion<qreal, qreal>(static_cast<qreal>(value),
+                                                       0.0, static_cast<qreal>(height),
+                                                       lowerbound, upperbound);
         const qreal normalizedValue =
                 STMath::norm<qreal, qreal>(adjusted_value, lowerbound, upperbound);
         QColor4ub color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
-
-        //TODO it appears from now that the color mode must be disregarded as the color
-        //spectra for the legend using a linear function should be correct for other color modes
-        //Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
-        Q_UNUSED(colorMode);
-
-        //alternative way of computing color by linear interpolation
-        //const qreal normalizedValue = Heatmap::normalizeValueSpectrumFunction(value, mode);
-        //color = Heatmap::createHeatMapLinearColor(normalizedValue, lowerbound, upperbound);
-
         const QRgb rgb_color = color.toColor().rgb();
         for(int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);

@@ -6,26 +6,18 @@ FIX_QT3D_COMPILATION_BUG()
 
 use_qt5lib(Qt5Test)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/testTools ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/testTools
+${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
 
 set(TARGET_NAME stVi_test)
 
 set(ST_MAIN
-    controller/data/tst_datastoretest.cpp
-    controller/data/tst_datastoretest.h
     controller/tst_widgets.cpp
     controller/tst_widgets.h
     model/tst_objectparsertest.cpp
     model/tst_objectparsertest.h
     utils/tst_mathextendedtest.cpp
     utils/tst_mathextendedtest.h
-)
-
-set(LIB_ST_SIMPLECRYPT
-    simpleCrypt/tst_simplecryptdevicetest.cpp
-    simpleCrypt/tst_simplecryptdevicetest.h
-    simpleCrypt/tst_simplecrypttest.cpp
-    simpleCrypt/tst_simplecrypttest.h
 )
 
 set(LIB_ST_NETWORK
