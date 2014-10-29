@@ -117,13 +117,16 @@ int main(int argc, char** argv)
 
     //check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
+        qDebug() << "[Main] Error: Minimum requirements test failed!";
+        // close splash screen
+        splash.finish(&mainWindow);
         return EXIT_FAILURE;
     }
 
-    //init graphic components
-    mainWindow.init();
     // close splash screen
     splash.finish(&mainWindow);
+    //init graphic components
+    mainWindow.init();
     // show mainwindow.
     mainWindow.show();
     // launch the app

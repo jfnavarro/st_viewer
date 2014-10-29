@@ -212,7 +212,7 @@ void CellGLView::paintGL()
     painter.projectionMatrix() = m_projm;
 
     // clear color buffer
-    painter.setClearColor(Qt::black);
+    painter.setClearColor(Qt::white);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes

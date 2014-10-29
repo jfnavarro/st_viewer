@@ -100,11 +100,10 @@ void ExperimentPage::slotLoadSelections()
     if (!request.isSuccessFul()) {
         //TODO use the text in reques.getErrors()
         showError(tr("Data Error"), tr("Error loading the selections"));
-    } else {
-        // refresh gene selections on the model
-        selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
     }
 
+    // refresh gene selections on the model
+    selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
     clearControls();
 }
 

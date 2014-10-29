@@ -180,6 +180,8 @@ const OAuth2TokenDTO DataProxy::getAccessToken() const
 
 async::DataRequest DataProxy::loadDatasets()
 {
+    //clean up container
+    m_datasetList.clear();
     //creates the request
     NetworkCommand *cmd = RESTCommandFactory::getDatasets(m_configurationManager);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
@@ -282,6 +284,8 @@ async::DataRequest DataProxy::loadChip()
              && !m_imageAlignment->chipId().isNull()
              && !m_imageAlignment->chipId().isEmpty());
     const QString chipId = m_imageAlignment->chipId();
+    //clear container
+    m_chip.clear();
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getChipByChipId(m_configurationManager, chipId);
@@ -297,6 +301,10 @@ async::DataRequest DataProxy::loadFeatures()
     Q_ASSERT(!m_selectedDataset.isNull()
              && !m_selectedDataset->id().isNull()
              && !m_selectedDataset->id().isEmpty());
+    // clear the containers
+    m_genesList.clear();
+    m_featuresList.clear();
+    m_geneFeaturesMap.clear();
     const QString datasetId = m_selectedDataset->id();
     //creates the request
     NetworkCommand *cmd =
@@ -314,6 +322,8 @@ async::DataRequest DataProxy::loadImageAlignment()
              && !m_selectedDataset->imageAlignmentId().isNull()
              && !m_selectedDataset->imageAlignmentId().isEmpty());
     const QString imageAlignmentId = m_selectedDataset->imageAlignmentId();
+    //clear container
+    m_imageAlignment.clear();
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getImageAlignmentById(m_configurationManager, imageAlignmentId);
@@ -326,6 +336,8 @@ async::DataRequest DataProxy::loadImageAlignment()
 
 async::DataRequest DataProxy::loadUser()
 {
+    //clear container
+    m_user.clear();
     //creates the requet
     NetworkCommand *cmd = RESTCommandFactory::getUser(m_configurationManager);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
@@ -337,6 +349,8 @@ async::DataRequest DataProxy::loadUser()
 
 async::DataRequest DataProxy::loadGeneSelections()
 {
+    //clean up the containers
+    m_geneSelectionsList.clear();
     //creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
@@ -389,6 +403,10 @@ async::DataRequest DataProxy::removeSelection(const QString &selectionId)
 
 async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
 {
+    //remove image if already exists and add the newly created one
+    if (m_cellTissueImages.contains(name)) {
+        m_cellTissueImages.remove(name);
+    }
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
@@ -489,11 +507,6 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
 {
     bool dirty = false;
 
-    // clear the containers
-    m_genesList.clear();
-    m_featuresList.clear();
-    m_geneFeaturesMap.clear();
-
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
         return false;
@@ -548,11 +561,6 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
     //create the image from raw data
     QImage image = QImage::fromData(rawImage);
 
-    //remove image if already exists and add the newly created one
-    if (m_cellTissueImages.contains(imageName)) {
-        m_cellTissueImages.remove(imageName);
-    }
-
     const bool imageOk = !image.isNull();
     if (imageOk) {
         m_cellTissueImages.insert(imageName, image);
@@ -563,9 +571,6 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 
 bool DataProxy::parseDatasets(NetworkReply *reply)
 {
-    //clean up container
-    m_datasetList.clear();
-
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
         return false;
@@ -590,9 +595,6 @@ bool DataProxy::parseDatasets(NetworkReply *reply)
 
 bool DataProxy::parseGeneSelections(NetworkReply *reply)
 {
-    //clean up the containers
-    m_geneSelectionsList.clear();
-
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
         return false;

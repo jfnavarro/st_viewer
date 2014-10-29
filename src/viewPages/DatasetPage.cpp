@@ -120,11 +120,10 @@ void DatasetPage::slotLoadDatasets()
     if (!request.isSuccessFul()) {
         //TODO show the error present in request.getErrors()
         showError(tr("Data Error"), tr("Error loading the datasets"));
-    } else {
-        // refresh datasets on the model
-        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+        m_dataProxy->resetSelectedDataset();
     }
 
+    datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     clearControls();
 }
 
