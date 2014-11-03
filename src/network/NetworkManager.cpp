@@ -99,10 +99,12 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
     }
 
     // do a connection check here
+#ifndef Q_OS_LINUX
     if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
         qDebug() << "[NetworkManager] Error: Unable to connect to the network";
         return nullptr;
     }
+#endif
 
     // check if authentication is needed
     if (flags.testFlag(UseAuthentication)) {
