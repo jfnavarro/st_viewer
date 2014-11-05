@@ -110,6 +110,7 @@ endforeach()
 
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
+list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:picojson>")
 
 set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::Network

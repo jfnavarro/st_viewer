@@ -8,14 +8,14 @@
 #ifndef STARTPAGE_H
 #define STARTPAGE_H
 
-#include <memory>
 #include "Page.h"
+
+#include <memory>
+#include <data/DataProxy.h>
 
 class QVBoxLayout;
 class Error;
 class AuthorizationManager;
-class DataProxy;
-
 namespace Ui {
 class InitPage;
 }
@@ -44,9 +44,16 @@ public slots:
 
 private slots:
 
-    void slotAuthorizationError(QSharedPointer<Error> error);
+    //when user clicks logs out (access token is cleared and controls are cleared as well)
     void slotLogOutButton();
+
+    //slot to handle signals from the authorization manager
+    void slotAuthorizationError(QSharedPointer<Error> error);
     void slotAuthorized();
+
+    //used to be notified when the user has been downloaded from network
+    //status contains the status of the operation (ok, abort, error)
+    void slotUserDownloaded(DataProxy::DownloadStatus status);
 
 private:
 

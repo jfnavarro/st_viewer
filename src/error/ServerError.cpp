@@ -43,19 +43,9 @@ void ServerError::init(uint error, const QString& serverErrorName,
         description = QApplication::translate(LOC_CONTEXT, "NoError:Description");
         break;
     case ServerError::_BadRequest:
-        name = QApplication::translate(LOC_CONTEXT,
-                                       "BadRequest:Name").arg(serverErrorName);
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "BadRequest:Description").arg(serverErrorDescription);
-        break;
     case ServerError::_ResourceNotFound:
-        name = QApplication::translate(LOC_CONTEXT,
-                                       "ResourceNotFound:Name").arg(serverErrorName);
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "ResourceNotFound:Description").arg(serverErrorDescription);
-        break;
     default:
-        //show the original error message when it is a unknown error
+        //show the original error message
         name = serverErrorName;
         description = serverErrorDescription;
     }

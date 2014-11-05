@@ -41,8 +41,16 @@ class NetworkReply;
 class DataProxy : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(DownloadStatus)
 
 public:
+
+    enum DownloadStatus {
+        Success,
+        Aborted,
+        Failed
+    };
+
     // MAIN CONTAINERS (MVC)
     typedef QSharedPointer<Chip> ChipPtr;
     typedef QSharedPointer<Dataset> DatasetPtr;
@@ -56,11 +64,6 @@ public:
 
     //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
     //direct references or other type of smart pointer
-
-    //TODO The synchronous downloading of data is a temporary solution.
-    //The final solution will wrapped all the request and perform
-    //them asynchronously. Caller will be notified when requests are finished
-    //with a proper error message if any and with the option to abort if needed
 
     //list of unique genes
     typedef QList<GenePtr> GeneList;
@@ -95,45 +98,64 @@ public:
 
     //DATA LOADERS
     //data loaders are meant to be used to load data from the network.
-    //they return an object that contains the status of the operation
-    //and the errors if any.
-    //DataRequest can be connected to signals and it has ABORT functionality
+    //callers are expected to wait for a signal to notify when the data is downloaded
+    //and the status
 
     // datasets
-    async::DataRequest loadDatasets();
-    // dataset content (chip, image alignment, cell images and features)
-    async::DataRequest loadDatasetContent();
+    void loadDatasets();
+    // dataset content (chip, cell images and features)
+    // this function assumes the dataset and its image alignment objects are downloaded
+    void loadDatasetContent();
     // current logged user
-    async::DataRequest loadUser();
+    void loadUser();
     // selection objects
-    async::DataRequest loadGeneSelections();
+    void loadGeneSelections();
     // min version supported
-    async::DataRequest loadMinVersion();
+    void loadMinVersion();
     // OAuth2 access token
-    async::DataRequest loadAccessToken(const StringPair& username, const StringPair& password);
+    void loadAccessToken(const StringPair& username, const StringPair& password);
+    // chip (image alignment must has been downloaded first)
+    void loadChip();
+    // features (dataset must has been downloaded first)
+    void loadFeatures();
+    // image alignment (dataset must has been downloaded first)
+    void loadImageAlignment();
+    // cell tissue figure (image alignment must have been downloaded first)
+    void loadCellTissueByName(const QString& name);
 
     //DATA UPDATERS
+    //data loaders are meant to be used to update an object in the database
+    //callers are expected to wait for a signal to notify when the data is downloaded
+    //and the status
 
     // dataset
-    async::DataRequest updateDataset(DatasetPtr dataset);
+    void updateDataset(const Dataset &dataset);
     // user
-    async::DataRequest updateUser(const User& user);
+    void updateUser(const User& user);
     // gene selection
-    async::DataRequest updateGeneSelection(GeneSelectionPtr geneSelection);
+    void updateGeneSelection(const GeneSelection &geneSelection);
 
     //DATA CREATION
+    //data loaders are meant to create a new object in the database
+    //callers are expected to wait for a signal to notify when the data is downloaded
+    //and the status
 
-    // gene selection
-    async::DataRequest addGeneSelection(const GeneSelection& geneSelection);
+    //gene selection
+    void addGeneSelection(const GeneSelection& geneSelection);
 
     // DATA DELETION
+    //data loaders are meant to remove an object from the database
+    //callers are expected to wait for a signal to notify when the data is downloaded
+    //and the status
 
     // dataset
-    async::DataRequest removeDataset(const QString& datasetId);
+    void removeDataset(const QString& datasetId);
     // gene selection
-    async::DataRequest removeSelection(const QString& selectionId);
+    void removeSelection(const QString& selectionId);
 
     // API DATA GETTERS
+    // to retrieve the download objects (caller must have downloaded the object previously)
+    // DataProxy assumes only one dataset can be open at the time
 
     // returns the list of currently loaded datasets
     const DatasetList& getDatasetList() const;
@@ -178,23 +200,36 @@ public:
     const OAuth2TokenDTO getAccessToken() const;
 
     // CURRENT DATASET (state selector)
-
     // set the currently opened dataset
     // this will define the status of the DataProxy
     void setSelectedDataset(const DatasetPtr dataset) const;
     const DatasetPtr getSelectedDataset() const;
     void resetSelectedDataset();
 
-private:
+    // CURRENTLY ACTIVE DOWNLOADS
+    unsigned getActiveDownloads() const;
 
-    // chip (image alignment must has been downloaded first)
-    async::DataRequest loadChip();
-    // features (dataset must has been downloaded first)
-    async::DataRequest loadFeatures();
-    // image alignment (dataset must has been downloaded first)
-    async::DataRequest loadImageAlignment();
-    // cell tissue figure (image alignment must has been downloaded first)
-    async::DataRequest loadCellTissueByName(const QString& name);
+public slots:
+
+    void slotAbortActiveDownloads();
+
+private slots:
+
+    void slotProcessDownload();
+
+signals:
+
+    void signalMinVersionDownloaded(DataProxy::DownloadStatus status);
+    void signalAccessTokenDownloaded(DataProxy::DownloadStatus status);
+    void signalUserDownloaded(DataProxy::DownloadStatus status);
+    void signalDatasetsDownloaded(DataProxy::DownloadStatus status);
+    void signalDatasetsModified(DataProxy::DownloadStatus status);
+    void signalImageAlignmentDownloaded(DataProxy::DownloadStatus status);
+    void signalDatasetContentDownloaded(DataProxy::DownloadStatus status);
+    void signalGenesSelectionsDownloaded(DataProxy::DownloadStatus status);
+    void signalGenesSelectionModified(DataProxy::DownloadStatus status);
+
+private:
 
     //internal function to parse all the features and genes.
     //returns true if the parsing was correct
@@ -207,6 +242,10 @@ private:
     //internal function to parse the datasets
     //returns true if the parsing was correct
     bool parseDatasets(NetworkReply *reply);
+
+    //internal function to make sure to clear the selected dataset
+    //in case we remove the dataset that is selected
+    bool parseRemoveDataset(NetworkReply *reply);
 
     //internal function to parse the genes selections
     //returns true if the parsing was correct
@@ -234,8 +273,8 @@ private:
 
     //internal function to create network requests for data objects
     //data will be parsed with the function given as argument if given
-    async::DataRequest createRequest(NetworkReply *reply,
-                                     bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
+    void createRequest(NetworkReply *reply, void (DataProxy::*signal)(DataProxy::DownloadStatus) = nullptr,
+                       bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
 
     // currently available datasets
     DatasetList m_datasetList;
@@ -266,6 +305,11 @@ private:
     Configuration m_configurationManager;
     //network manager to make network requests (dataproxy owns it)
     QPointer<NetworkManager> m_networkManager;
+
+    //to keep track of the current downloads (async)
+    unsigned m_activeDownloads;
+    QHash<NetworkReply*, QPair<void (DataProxy::*)(DataProxy::DownloadStatus),
+    bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
 
     Q_DISABLE_COPY(DataProxy)
 };

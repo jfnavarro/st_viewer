@@ -16,7 +16,8 @@
 #include <QMetaMethod>
 #include <QString>
 #include <QStringList>
-
+#include <QtConcurrent>
+#include <QFuture>
 #include <QPrintDialog>
 #include <QDir>
 #include <QFileDialog>
@@ -30,29 +31,21 @@
 #include <QWidgetAction>
 
 #include "error/Error.h"
-
-#include "network/DownloadManager.h"
-
 #include "CellViewPageToolBar.h"
-
 #include "io/GeneExporter.h"
 #include "io/FeatureExporter.h"
-
 #include "utils/Utils.h"
-
 #include "dialogs/SelectionDialog.h"
 #include "dialogs/CreateSelectionDialog.h"
-
 #include "viewOpenGL/CellGLView.h"
 #include "viewOpenGL/ImageTextureGL.h"
 #include "viewOpenGL/GridRendererGL.h"
 #include "viewOpenGL/HeatMapLegendGL.h"
 #include "viewOpenGL/MiniMapGL.h"
 #include "viewOpenGL/GeneRendererGL.h"
+#include "analysis/AnalysisFRD.h"
 
 #include "ui_cellview.h"
-
-#include "analysis/AnalysisFRD.h"
 
 namespace {
 bool imageFormatHasWriteSupport(const QString &format) {
@@ -105,6 +98,18 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
     //create OpenGL connections
     createGLConnections();
+
+    //connect abort signal
+    connect(this, SIGNAL(signalDownloadCancelled()),
+            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
+
+    //connect data proxy signals
+    connect(m_dataProxy.data(),
+            SIGNAL(signalImageAlignmentDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotImageAlignmentDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDatasetContentDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotDatasetContentDownloaded(DataProxy::DownloadStatus)));
 }
 
 CellViewPage::~CellViewPage()
@@ -139,23 +144,40 @@ CellViewPage::~CellViewPage()
 
 void CellViewPage::onEnter()
 {
-    setWaiting(true);
-
     if (m_dataProxy->getSelectedDataset().isNull()) {
         //no dataset selected, nothing to do here
-        setWaiting(false);
         setStatusTip(tr("No dataset loaded"));
         return;
     }
 
-    async::DataRequest request = m_dataProxy->loadDatasetContent();
-    if (!request.isSuccessFul()) {
+    setWaiting(true);
+    //first we need to download the image alignment
+    //TODO add new end-points to the API that will allow
+    //the clients to not need to download the image_alingment object
+    //to get the dataset content
+    m_dataProxy->loadImageAlignment();
+
+}
+
+void CellViewPage::slotImageAlignmentDownloaded(DataProxy::DownloadStatus status)
+{
+    // if status == OK
+    if (status == DataProxy::Success) {
+        // download the rest of the content
+        m_dataProxy->loadDatasetContent();
+    } else {
         setWaiting(false);
-        const auto &errors = request.getErrors();
-        //TODO there should be only one error (make DataRequest parse all errors as one)
-        const auto error = errors.first();
-        showError(error->name(), error->description());
-        setStatusTip(tr("Error downloading dataset"));
+    }
+
+
+}
+
+void CellViewPage::slotDatasetContentDownloaded(DataProxy::DownloadStatus status)
+{
+    //if error or abort
+    if (status != DataProxy::Success) {
+        setWaiting(false);
+        return;
     }
 
     // enable toolbar controls
@@ -213,7 +235,6 @@ void CellViewPage::onEnter()
     // refresh view
     m_view->update();
 
-    //loading finished
     setWaiting(false);
 }
 
@@ -475,7 +496,6 @@ void CellViewPage::createGLConnections()
     connect(m_toolBar->m_actionFDH, &QAction::triggered, [=]{ m_FDH->show(); });
 }
 
-//TODO make this concurrent
 void CellViewPage::slotLoadCellFigure()
 {
     const bool forceRedFigure = QObject::sender() == m_toolBar->m_actionShow_cellTissueRed;
@@ -486,16 +506,17 @@ void CellViewPage::slotLoadCellFigure()
     const QImage image = loadRedFigure ? m_dataProxy->getFigureRed()
                                        : m_dataProxy->getFigureBlue();
 
+    //update checkboxes
+    m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
+    m_toolBar->m_actionShow_cellTissueRed->setChecked(loadRedFigure);
+
     // add image to the texture image holder
+    // run it concurrently as it takes time
     m_image->createTexture(image);
     // set the scene size in the view to the image bounding box
     m_view->setScene(image.rect());
     // set the image in the gene plotter (used to retrieve the pixel intensities)
     m_gene_plotter->setImage(image);
-
-    //update checkboxes
-    m_toolBar->m_actionShow_cellTissueBlue->setChecked(!loadRedFigure);
-    m_toolBar->m_actionShow_cellTissueRed->setChecked(loadRedFigure);
 }
 
 void CellViewPage::slotPrintImage()
@@ -708,17 +729,6 @@ void CellViewPage::slotSaveSelection()
         selection.selectedItems(geneSelection);
 
         //save the selection object
-        setWaiting(true, "Saving selection...");
-        async::DataRequest request = m_dataProxy->addGeneSelection(selection);
-        setWaiting(false);
-
-        if (!request.isSuccessFul()) {
-            //TODO get error from request
-            showError(tr("Create Genes Selection"), tr("Error saving the Genes selection"));
-        } else {
-            showInfo(tr("Create Genes Selection"), tr("Genes selection created successfully"));
-        }
-
+        m_dataProxy->addGeneSelection(selection);
     }
 }
-

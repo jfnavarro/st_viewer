@@ -292,7 +292,7 @@ void GeneRendererGL::updateVisual()
                 //const qreal adjustment = currentHits / m_max;
                 //In order to adjust by the currentHits, we would need to
                 //know the local max value of the selected genes in this feature...
-                const qreal adjustment = 1 / newRefCount;
+                const qreal adjustment = 1.0 / static_cast<qreal>(newRefCount);
                 dataColor = STMath::lerp(adjustment, dataColor, featureColor);
                 m_geneData.updateQuadColor(index, dataColor);
             }

@@ -33,16 +33,14 @@
 #include "error/Error.h"
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
-#include "network/DownloadManager.h"
-#include "data/DataProxy.h"
 #include "dialogs/AboutDialog.h"
 #include "viewPages/ExtendedTabWidget.h"
 #include "auth/AuthorizationManager.h"
 
 namespace {
 
- bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
-                              const std::array<qulonglong, 3> &version2)
+bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
+                             const std::array<qulonglong, 3> &version2)
 {
     int index = 0;
     for(const auto &num : version1) {
@@ -133,44 +131,44 @@ bool stVi::checkSystemRequirements() const
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
         QMessageBox::critical(this->centralWidget(), tr("OpenGL Support"),
-                                 tr("This system does not support OpenGL"));
+                              tr("This system does not support OpenGL"));
         return false;
     }
 
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
         QMessageBox::critical(this->centralWidget(), tr("OpenGL 2.x Context"),
-                                 tr("This system does not support OpenGL 2.x Contexts"));
+                              tr("This system does not support OpenGL 2.x Contexts"));
         return false;
     }
 
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
         QMessageBox::critical(this->centralWidget(), tr("Secure connection"),
-                                 tr("This system does not secure SSL connections"));
+                              tr("This system does not secure SSL connections"));
         return false;
     }
 
     // Fail if min version is not supported
-    async::DataRequest request = m_dataProxy->loadMinVersion();
-    if (!request.isSuccessFul()) {
-        //TODO show the error present in request.getErrors()
-        QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
-                                tr("Required version could not be retrieved from the server,"
-                                   "\nCheck the internet connection and try again"));
-        return false;
-    } else {
-        // refresh datasets on the model
+    m_dataProxy->loadMinVersion();
+    connect(m_dataProxy.data(),
+            SIGNAL(signalMinVersionDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotMinVersionDownloaded(DataProxy::DownloadStatus)));
+    return true;
+}
+
+void stVi::slotMinVersionDownloaded(DataProxy::DownloadStatus status)
+{
+    //TODO do something if it failed or aborted?
+    if (status == DataProxy::Success) {
         const auto minVersion  = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
             QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
-                                     tr("This version of the software is not supported anymore, "
-                                        "please update!"));
-            return false;
+                                  tr("This version of the software is not supported anymore,"
+                                     "please update!"));
+            QApplication::exit(EXIT_FAILURE);
         }
     }
-
-    return true;
 }
 
 void stVi::setupUi()
@@ -227,11 +225,6 @@ void stVi::setupUi()
     menubar->addAction(menuHelp->menuAction());
 }
 
-void stVi::handleMessage(const QString &message)
-{
-    QMessageBox::critical(this->centralWidget(), "stVi", message);
-}
-
 void stVi::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(new AboutDialog(this,
@@ -243,30 +236,25 @@ void stVi::slotShowAbout()
 void stVi::slotExit()
 {
     const int answer = QMessageBox::warning(
-                     this, tr("Exit application"),
-                     tr("Are you really sure you want to exit now?"),
-                     QMessageBox::No | QMessageBox::Escape,
-                     QMessageBox::Yes | QMessageBox::Escape);
+                this, tr("Exit application"),
+                tr("Are you really sure you want to exit now?"),
+                QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
         saveSettings();
-        QApplication::exit();
-#if defined Q_OS_LINUX || defined Q_OS_WIN
-        // this hides the mainwindow on MAC platforms
-        // TODO : this bug is fixed in qt 5.3.1 (test and validate)
-        QApplication::processEvents();
-#endif
+        QApplication::exit(EXIT_SUCCESS);
     }
 }
 
 void stVi::slotClearCache()
 {
     const int answer = QMessageBox::warning(
-                     this, tr("Clear the Cache"),
-                     tr("Are you really sure you want to clear the cache?"),
-                     QMessageBox::No | QMessageBox::Escape,
-                     QMessageBox::Yes | QMessageBox::Escape);
+                this, tr("Clear the Cache"),
+                tr("Are you really sure you want to clear the cache?"),
+                QMessageBox::No | QMessageBox::Escape,
+                QMessageBox::Yes | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] : Cleaning the cache...";
@@ -277,8 +265,7 @@ void stVi::slotClearCache()
 
 void stVi::createLayouts()
 {
-    statusBar()->showMessage("Spatial Transcriptomics Viewer");
-    //TODO make several status bar updates in different parts of the application
+    statusBar()->showMessage(tr("Spatial Transcriptomics Viewer"));
 }
 
 // apply stylesheet and configurations
@@ -305,8 +292,8 @@ void stVi::createShorcuts()
 {
 #if defined(Q_OS_WIN)
     m_actionExit->setShortcuts(QList<QKeySequence>()
-                             << QKeySequence(Qt::ALT | Qt::Key_F4)
-                             << QKeySequence(Qt::CTRL | Qt::Key_Q));
+                               << QKeySequence(Qt::ALT | Qt::Key_F4)
+                               << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif

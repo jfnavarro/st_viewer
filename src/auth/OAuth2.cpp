@@ -18,16 +18,17 @@
 #include "dataModel/ErrorDTO.h"
 #include "dataModel/OAuth2TokenDTO.h"
 #include "data/ObjectParser.h"
-#include "data/DataProxy.h"
 #include "utils/Utils.h"
-#include "network/DownloadManager.h"
 
 OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject* parent)
     : QObject(parent),
       m_loginDialog(nullptr),
       m_dataProxy(dataProxy)
 {
-
+    //connect data proxy signals
+    connect(m_dataProxy.data(),
+            SIGNAL(signalAccessTokenDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotAccessTokenDownloaded(DataProxy::DownloadStatus)));
 }
 
 OAuth2::~OAuth2()
@@ -68,9 +69,13 @@ void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 
 void OAuth2::requestToken(const StringPair& requestUser, const StringPair& requestPassword)
 {
-    async::DataRequest request = m_dataProxy->loadAccessToken(requestUser, requestPassword);
+    //TODO maybe should block and wait for this?
+    m_dataProxy->loadAccessToken(requestUser, requestPassword);
+}
 
-    if (request.isSuccessFul()) {
+void OAuth2::slotAccessTokenDownloaded(DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
         OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
@@ -83,10 +88,5 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
                     error(new OAuth2Error("Log in Error", "Access token is expired", this));
             emit signalError(error);
         }
-    } else {
-        //TODO get error from the request
-        QSharedPointer<OAuth2Error>
-               error(new OAuth2Error("Log in Error", "Bad credentials", this));
-        emit signalError(error);
     }
 }

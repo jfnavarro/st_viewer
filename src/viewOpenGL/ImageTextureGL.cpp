@@ -94,8 +94,10 @@ void ImageTextureGL::createTexture(const QImage& image)
     m_bounds = image.rect();
 
     // we always tile, it is not secure to create one texture from the whole image
+    createTiles(image);
+
     //TODO finish the future implementation
-    QFuture<void> future = QtConcurrent::run(this, &ImageTextureGL::createTiles, image);
+    //QFuture<void> future = QtConcurrent::run(this, &ImageTextureGL::createTiles, image);
 }
 
 void ImageTextureGL::createTiles(const QImage &image)

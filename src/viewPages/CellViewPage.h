@@ -83,6 +83,11 @@ private slots:
     // load the cell tissue figure into the stage
     void slotLoadCellFigure();
 
+    //used to be notified when the dataset content has been downloaded or a selection created
+    //status contains the status of the operation (ok, abort, error)
+    void slotImageAlignmentDownloaded(DataProxy::DownloadStatus status);
+    void slotDatasetContentDownloaded(DataProxy::DownloadStatus status);
+
 private:
     
     // create GL graphical elements and their connections

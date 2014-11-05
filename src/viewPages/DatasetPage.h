@@ -45,19 +45,29 @@ public slots:
     void onEnter() override;
     void onExit() override;
 
-protected slots:
+private slots:
 
+    //to handle when the user selects a dataset
     void slotDatasetSelected(QModelIndex index);
-    void slotRefreshDatasets();
+
+    //some slots for the actions buttons of the view
     void slotLoadDatasets();
     void slotOpenDataset();
     void slotRemoveDataset();
     void slotEditDataset();
 
+    //slot used to be notified when the datasets have been downloaded,
+    //updated or removed from network
+    //status contains the status of the operation (ok, abort, error)
+    void slotDatasetsDownloaded(DataProxy::DownloadStatus status);
+    void slotDatasetsModified(DataProxy::DownloadStatus status);
+
 private:
 
+    //clear focus and resets to default
     void clearControls();
 
+    //to get the model from the table
     QSortFilterProxyModel *datasetsProxyModel();
     DatasetItemModel *datasetsModel();
 

@@ -128,11 +128,6 @@ void CellGLView::showEvent(QShowEvent *event)
     }
 }
 
-void CellGLView::hideEvent(QHideEvent *event)
-{
-    Q_UNUSED(event);
-}
-
 void CellGLView::exposeEvent(QExposeEvent *event)
 {
     Q_UNUSED(event);
@@ -212,7 +207,7 @@ void CellGLView::paintGL()
     painter.projectionMatrix() = m_projm;
 
     // clear color buffer
-    painter.setClearColor(Qt::white);
+    painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes

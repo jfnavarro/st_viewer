@@ -181,11 +181,6 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
         return nullptr;
     }
 
-    // set timeout ON if requested
-    if (flags.testFlag(UseTimeOutAbort)) {
-        replyWrapper->startTimeOutTimer();
-    }
-
     return replyWrapper;
 }
 

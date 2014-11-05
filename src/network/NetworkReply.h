@@ -57,9 +57,6 @@ public:
     //if no errors are present it returns nullptr
     QSharedPointer<Error> parseErrors();
 
-    //start the timer that will abort the request if it times out
-    void startTimeOutTimer();
-
     //true if the reply request was obtained from the disk cache
     bool wasCached() const;
 
@@ -89,8 +86,6 @@ private:
     ReturnCode m_code;
     // header content type
     QString m_mime;
-    // timer to control time-outs
-    QPointer<QTimer> m_timeoutEvent;
 
     Q_DISABLE_COPY(NetworkReply)
 };

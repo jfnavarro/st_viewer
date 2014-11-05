@@ -16,7 +16,6 @@
 
 #include "io/GeneExporter.h"
 #include "model/ExperimentsItemModel.h"
-#include "network/DownloadManager.h"
 #include "dialogs/CreateSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
 
@@ -39,6 +38,18 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
+
+    //connect abort signal
+    connect(this, SIGNAL(signalDownloadCancelled()),
+            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
+
+    //connect data proxy signals
+    connect(m_dataProxy.data(),
+            SIGNAL(signalGenesSelectionsDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotGenesSelectionsDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalGenesSelectionModified(DataProxy::DownloadStatus)),
+            this, SLOT(slotGenesSelectionsModified(DataProxy::DownloadStatus)));
 }
 
 ExperimentPage::~ExperimentPage()
@@ -94,17 +105,19 @@ void ExperimentPage::clearControls()
 void ExperimentPage::slotLoadSelections()
 {
     setWaiting(true);
-    async::DataRequest request = m_dataProxy->loadGeneSelections();
+    m_dataProxy->loadGeneSelections();
+}
+
+void ExperimentPage::slotGenesSelectionsDownloaded(DataProxy::DownloadStatus status)
+{
     setWaiting(false);
 
-    if (!request.isSuccessFul()) {
-        //TODO use the text in reques.getErrors()
-        showError(tr("Data Error"), tr("Error loading the selections"));
+    //if ok
+    if (status == DataProxy::Success) {
+        // refresh gene selections on the model
+        selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
+        clearControls();
     }
-
-    // refresh gene selections on the model
-    selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
-    clearControls();
 }
 
 void ExperimentPage::slotSelectionSelected(QModelIndex index)
@@ -144,20 +157,7 @@ void ExperimentPage::slotRemoveSelection()
     Q_ASSERT(!selectionItem.isNull());
 
     //remove the selection object
-    setWaiting(true, "Removing selection....");
-    async::DataRequest request = m_dataProxy->removeSelection(selectionItem->id());
-    setWaiting(false);
-
-    if (!request.isSuccessFul()) {
-        //TODO get error from request
-        showError(tr("Remove Genes Selection"), tr("Error removing the Genes selection"));
-        return;
-    }
-
-    showInfo(tr("Remove Genes Selection"), tr("Genes selection removed successfully"));
-
-    //refresh selection list
-    slotLoadSelections();
+    m_dataProxy->removeSelection(selectionItem->id());
 }
 
 void ExperimentPage::slotExportSelection()
@@ -212,45 +212,33 @@ void ExperimentPage::slotEditSelection()
     }
 
     //currentSelection should only have one element
-    auto selectionItem = currentSelection.first();
-    Q_ASSERT(!selectionItem.isNull());
+    Q_ASSERT(!currentSelection.first().isNull());
+    GeneSelection selectionItem(*currentSelection.first());
 
     QScopedPointer<CreateSelectionDialog>
             createSelection(new CreateSelectionDialog(this,
-                                                      Qt::CustomizeWindowHint | Qt::WindowTitleHint));
-    createSelection->setName(selectionItem->name());
-    createSelection->setComment(selectionItem->comment());
+                                                      Qt::CustomizeWindowHint
+                                                      | Qt::WindowTitleHint));
+    createSelection->setName(selectionItem.name());
+    createSelection->setComment(selectionItem.comment());
 
-    if (createSelection->exec() == CreateSelectionDialog::Accepted) {
-        if ((createSelection->getName() != selectionItem->name()
-                || createSelection->getComment() != selectionItem->comment())
-                && !createSelection->getName().isNull() && !createSelection->getName().isEmpty()) {
+    if (createSelection->exec() == CreateSelectionDialog::Accepted
+            && (createSelection->getName() != selectionItem.name()
+                || createSelection->getComment() != selectionItem.comment())
+            && !createSelection->getName().isNull() && !createSelection->getName().isEmpty()) {
 
-            const QString name = selectionItem->name();
-            const QString comment = selectionItem->comment();
+        selectionItem.name(createSelection->getName());
+        selectionItem.comment(createSelection->getComment());
 
-            selectionItem->name(createSelection->getName());
-            selectionItem->comment(createSelection->getComment());
+        //update the dataset
+        m_dataProxy->updateGeneSelection(selectionItem);
+    }
+}
 
-            //update the dataset
-            setWaiting(true, "Updating selection...");
-            async::DataRequest request = m_dataProxy->updateGeneSelection(selectionItem);
-            setWaiting(false);
-
-            if (!request.isSuccessFul()) {
-                //restore original name
-                selectionItem->name(name);
-                selectionItem->comment(comment);
-                //TODO get error from request
-                showError(tr("Update Genes Selection"), tr("Error updating the genes selection"));
-                return;
-            }
-
-            showInfo(tr("Update Genes Selection"), tr("Genes Selection updated successfully"));
-
-            //refresh selection list
-            slotLoadSelections();
-        }
+void ExperimentPage::slotGenesSelectionsModified(DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
+        slotLoadSelections();
     }
 }
 

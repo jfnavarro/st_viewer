@@ -11,11 +11,12 @@
 #include <QObject>
 #include <QPointer>
 
+#include "data/DataProxy.h"
+
 class LoginDialog;
 class Error;
 class QUuid;
 class QString;
-class DataProxy;
 
 // simple class that handles OAuth2 authorization requests
 // it contains a Login widget to let the user input the credentials
@@ -49,6 +50,10 @@ private slots:
     //user enters log in (called from log in component) can be used to
     //try log in with hardcoded credentials
     void slotEnterDialog(const QString&, const QString&);
+
+    //used to be notified when access token has been downloaded from network
+    //status contains the status of the operation (ok, abort, error)
+    void slotAccessTokenDownloaded(DataProxy::DownloadStatus status);
 
 private:
 

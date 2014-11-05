@@ -12,8 +12,6 @@
 
 #include "error/Error.h"
 #include "auth/AuthorizationManager.h"
-#include "data/DataProxy.h"
-#include "network/DownloadManager.h"
 
 #include "ui_initpage.h"
 
@@ -42,6 +40,11 @@ InitPage::InitPage(QPointer<DataProxy> dataProxy,
             this, SLOT(slotAuthorized()));
     connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
+
+    //connect the data proxy signal
+    connect(m_dataProxy.data(),
+            SIGNAL(signalUserDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotUserDownloaded(DataProxy::DownloadStatus)));
 
     //start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
@@ -78,23 +81,27 @@ void InitPage::slotAuthorized()
 
     //load user from network
     setWaiting(true);
-    async::DataRequest request = m_dataProxy->loadUser();
+    m_dataProxy->loadUser();
+}
+
+void InitPage::slotUserDownloaded(DataProxy::DownloadStatus status)
+{
     setWaiting(false);
 
-    if (request.isSuccessFul()) {
+    //if OK
+    if (status == DataProxy::Success) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         if (!user->enabled()) {
             showError(tr("Authorization Error"), tr("The current user is disabled"));
             return;
         }
-
+        //update UI user info
         m_ui->user_name->setText(user->username());
         m_ui->newExpButt->setEnabled(true);
-    } else {
-        //TODO use the text present in request.getErrors()
-        showError(tr("Authorization Error"), tr("Error loading the current user"));
     }
+
+    //TODO if status is abort or error do nothing?
 }
 
 void InitPage::slotLogOutButton()

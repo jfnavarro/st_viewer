@@ -14,13 +14,13 @@
 #include <QtGlobal>
 #include <QImage>
 #include <QMessageBox>
+#include <QImageReader>
 
 #include "config/Configuration.h"
 #include "network/NetworkManager.h"
 #include "network/NetworkCommand.h"
 #include "network/NetworkReply.h"
 #include "network/RESTCommandFactory.h"
-#include "network/DownloadManager.h"
 #include "error/NetworkError.h"
 
 // parse objects
@@ -33,10 +33,15 @@
 #include "dataModel/GeneSelectionDTO.h"
 #include "dataModel/LastModifiedDTO.h"
 
+#include "picojson/picojson.h"
+#include <iostream>
+#include <sstream>
+
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
     m_user(nullptr),
-    m_networkManager(nullptr)
+    m_networkManager(nullptr),
+    m_activeDownloads(0)
 {
     //initialize data containers
     m_user = UserPtr(new User());
@@ -58,8 +63,10 @@ DataProxy::~DataProxy()
 void DataProxy::clean()
 {
     qDebug() << "Cleaning memory cache in Dataproxy";
+
     //every data member is a smart pointer
     //TODO make totally sure data is being de-allocated
+
     m_datasetList.clear();
     m_geneSelectionsList.clear();
     m_imageAlignment.clear();
@@ -71,6 +78,8 @@ void DataProxy::clean()
     //m_minVersion.clear();
     //m_accessToken.clear();
     m_selectedDataset.clear();
+    m_activeDownloads = 0;
+    m_activeNetworkReplies.clear();
 }
 
 void DataProxy::cleanAll()
@@ -178,7 +187,7 @@ const OAuth2TokenDTO DataProxy::getAccessToken() const
     return m_accessToken;
 }
 
-async::DataRequest DataProxy::loadDatasets()
+void DataProxy::loadDatasets()
 {
     //clean up container
     m_datasetList.clear();
@@ -187,98 +196,62 @@ async::DataRequest DataProxy::loadDatasets()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply, &DataProxy::parseDatasets);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetsDownloaded, &DataProxy::parseDatasets);
 }
 
-async::DataRequest DataProxy::updateDataset(DatasetPtr dataset)
+void DataProxy::updateDataset(const Dataset &dataset)
 {
     // intermediary dto object
-    DatasetDTO dto(*dataset);
+    DatasetDTO dto(dataset);
     NetworkCommand *cmd =
-            RESTCommandFactory::updateDatasetByDatasetId(m_configurationManager, dataset->id());
+            RESTCommandFactory::updateDatasetByDatasetId(m_configurationManager, dataset.id());
     //append json data
     cmd->setBody(dto.toJson());
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetsModified);
 }
 
-async::DataRequest DataProxy::removeDataset(const QString& datasetId)
+void DataProxy::removeDataset(const QString& datasetId)
 {
     NetworkCommand *cmd =
             RESTCommandFactory::removeDatasetByDatasetId(m_configurationManager, datasetId);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
+    //add dataset ID to the reply metaproperty
+    reply->setProperty("dataset_id", QVariant::fromValue<QString>(datasetId));
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetsModified, &DataProxy::parseRemoveDataset);
 }
 
-async::DataRequest DataProxy::loadDatasetContent()
+void DataProxy::loadDatasetContent()
 {
-    async::DataRequest request(async::DataRequest::CodeError);
-
-    if (m_selectedDataset.isNull()){
-        return request;
-    }
-
-    //load the image alignment first
-    request = loadImageAlignment();
-    if (!request.isSuccessFul()) {
-        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
-                                                         tr("Error loading the image alignment."),
-                                                         this)));
-        return request;
-    }
-
+    Q_ASSERT(!m_selectedDataset.isNull());
     Q_ASSERT(!m_imageAlignment.isNull());
-    //load cell tissue blue
-    request = loadCellTissueByName(m_imageAlignment->figureBlue());
-    if (!request.isSuccessFul()) {
-        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
-                                                         tr("Error loading the blue cell tissue image."),
-                                                         this)));
-        return request;
-    }
 
+    //TODO this can cause a race condition if any of the downloads
+    //is completed before creating the next one
+
+    //load cell tissue blue
+    loadCellTissueByName(m_imageAlignment->figureBlue());
     Q_ASSERT(!m_user.isNull());
     if (m_user->hasSpecialRole()) {
         //load cell tissue red (no need to download for role USER)
-        request = loadCellTissueByName(m_imageAlignment->figureRed());
-        if (!request.isSuccessFul()) {
-            request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
-                                                             tr("Error loading the red cell tissue image."),
-                                                             this)));
-            return request;
-        }
-    }
-
-    //load chip
-    request = loadChip();
-    if (!request.isSuccessFul()) {
-        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
-                                                         tr("Error loading the chip."),
-                                                         this)));
-        return request;
+        loadCellTissueByName(m_imageAlignment->figureRed());
     }
 
     //load features
-    request = loadFeatures();
-    if (!request.isSuccessFul()) {
-        request.addError(QSharedPointer<Error>(new Error(tr("Data Loading Error"),
-                                                         tr("Error loading the features."),
-                                                         this)));
-        return request;
-    }
+    loadFeatures();
 
-    request.return_code(async::DataRequest::CodeSuccess);
-    return request;
+    //load chip
+    loadChip();
 }
 
-async::DataRequest DataProxy::loadChip()
+void DataProxy::loadChip()
 {
     Q_ASSERT(!m_imageAlignment.isNull()
              && !m_imageAlignment->chipId().isNull()
@@ -292,11 +265,11 @@ async::DataRequest DataProxy::loadChip()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //returns the request
-    return createRequest(reply, &DataProxy::parseChip);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetContentDownloaded, &DataProxy::parseChip);
 }
 
-async::DataRequest DataProxy::loadFeatures()
+void DataProxy::loadFeatures()
 {
     Q_ASSERT(!m_selectedDataset.isNull()
              && !m_selectedDataset->id().isNull()
@@ -312,11 +285,11 @@ async::DataRequest DataProxy::loadFeatures()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //returns the request
-    return createRequest(reply, &DataProxy::parseFeatures);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetContentDownloaded, &DataProxy::parseFeatures);
 }
 
-async::DataRequest DataProxy::loadImageAlignment()
+void DataProxy::loadImageAlignment()
 {
     Q_ASSERT(!m_selectedDataset.isNull()
              && !m_selectedDataset->imageAlignmentId().isNull()
@@ -330,11 +303,12 @@ async::DataRequest DataProxy::loadImageAlignment()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //returns the request
-    return createRequest(reply, &DataProxy::parseImageAlignment);
+    //activate the download
+    createRequest(reply, &DataProxy::signalImageAlignmentDownloaded,
+                  &DataProxy::parseImageAlignment);
 }
 
-async::DataRequest DataProxy::loadUser()
+void DataProxy::loadUser()
 {
     //clear container
     m_user.clear();
@@ -343,11 +317,11 @@ async::DataRequest DataProxy::loadUser()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //returns the request
-    return createRequest(reply, &DataProxy::parseUser);
+    //activate the download
+    createRequest(reply, &DataProxy::signalUserDownloaded, &DataProxy::parseUser);
 }
 
-async::DataRequest DataProxy::loadGeneSelections()
+void DataProxy::loadGeneSelections()
 {
     //clean up the containers
     m_geneSelectionsList.clear();
@@ -356,27 +330,28 @@ async::DataRequest DataProxy::loadGeneSelections()
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //returns the request
-    return createRequest(reply, &DataProxy::parseGeneSelections);
+    //activate the download
+    createRequest(reply, &DataProxy::signalGenesSelectionsDownloaded,
+                  &DataProxy::parseGeneSelections);
 }
 
-async::DataRequest DataProxy::updateGeneSelection(GeneSelectionPtr geneSelection)
+void DataProxy::updateGeneSelection(const GeneSelection &geneSelection)
 {
     // intermediary dto object
-    GeneSelectionDTO dto(*geneSelection);
+    GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd =
             RESTCommandFactory::upateSelectionBySelectionId(m_configurationManager,
-                                                            geneSelection->id());
+                                                            geneSelection.id());
     //append json data
     cmd->setBody(dto.toJson());
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
+    //activate the download
+    createRequest(reply, &DataProxy::signalGenesSelectionModified);
 }
 
-async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelection)
+void DataProxy::addGeneSelection(const GeneSelection &geneSelection)
 {
     // intermediary dto object
     GeneSelectionDTO dto(geneSelection);
@@ -386,22 +361,22 @@ async::DataRequest DataProxy::addGeneSelection(const GeneSelection &geneSelectio
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
+    //activate the download
+    createRequest(reply);
 }
 
-async::DataRequest DataProxy::removeSelection(const QString &selectionId)
+void DataProxy::removeSelection(const QString &selectionId)
 {
     NetworkCommand *cmd =
             RESTCommandFactory::removeSelectionBySelectionId(m_configurationManager, selectionId);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();
-    //return the request
-    return createRequest(reply);
+    //activate the download
+    createRequest(reply, &DataProxy::signalGenesSelectionModified);
 }
 
-async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
+void DataProxy::loadCellTissueByName(const QString& name)
 {
     //remove image if already exists and add the newly created one
     if (m_cellTissueImages.contains(name)) {
@@ -411,24 +386,28 @@ async::DataRequest DataProxy::loadCellTissueByName(const QString& name)
     NetworkCommand *cmd =
             RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
+    //add figure name to reply metaproperty
     reply->setProperty("figure_name", QVariant::fromValue<QString>(name));
     //delete the command
     cmd->deleteLater();
-    return createRequest(reply, &DataProxy::parseCellTissueImage);
+    //activate the download
+    createRequest(reply, &DataProxy::signalDatasetContentDownloaded,
+                  &DataProxy::parseCellTissueImage);
 }
 
-async::DataRequest DataProxy::loadMinVersion()
+void DataProxy::loadMinVersion()
 {
     NetworkCommand *cmd = RESTCommandFactory::getMinVersion(m_configurationManager);
     // send empty flags to ensure access token is not appended to request
     NetworkReply *reply = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
     //delete the command
     cmd->deleteLater();
-    return createRequest(reply, &DataProxy::parseMinVersion);
+    //activate the download
+    createRequest(reply, &DataProxy::signalMinVersionDownloaded, &DataProxy::parseMinVersion);
 }
 
-async::DataRequest DataProxy::loadAccessToken(const StringPair &username,
-                                              const StringPair &password)
+void DataProxy::loadAccessToken(const StringPair &username,
+                                const StringPair &password)
 {
     NetworkCommand *cmd = RESTCommandFactory::getAuthorizationToken(m_configurationManager);
     //add username and password to the request
@@ -439,48 +418,57 @@ async::DataRequest DataProxy::loadAccessToken(const StringPair &username,
     NetworkReply *reply = m_networkManager->httpRequest(cmd, NetworkManager::Empty);
     //delete the command
     cmd->deleteLater();
-    return createRequest(reply, &DataProxy::parseOAuth2);
+    //activate the download
+    createRequest(reply, &DataProxy::signalAccessTokenDownloaded, &DataProxy::parseOAuth2);
 }
 
-async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
-                                            (DataProxy::*parseFunc)(NetworkReply *reply))
+void DataProxy::createRequest(NetworkReply *reply,void (DataProxy::*signal)(DownloadStatus), bool
+                              (DataProxy::*parseFunc)(NetworkReply *reply))
 {
     if (reply == nullptr) {
         qDebug() << "[DataProxy] : Error, the NetworkReply is null,"
                     "there must have been a network error";
-        return async::DataRequest(async::DataRequest::CodeError);
+        QMessageBox::critical(nullptr, tr("Error downloading data"),
+                              tr("There was probably a network problem."));
+        if (signal != nullptr) {
+            emit (this->*signal)(DataProxy::Failed);
+        }
     }
 
-    //Well, the reason to use an eventloop here is to make the network request, synchronous.
-    //A better solution would be to use threads and parse the reply in a different slot.
-    //In order to avoid possible problems in the main UI event loop some
-    //flags are sent in the exec()
-    QEventLoop loop;
-    connect(reply, SIGNAL(signalFinished(QVariant)), &loop, SLOT(quit()));
-    loop.exec(QEventLoop::ExcludeUserInputEvents
-              | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents);
+    // increase active downloads counter
+    m_activeDownloads++;
+    // add reply to the active download replies
+    m_activeNetworkReplies.insert(reply, QPair<void (DataProxy::*)(DataProxy::DownloadStatus),
+                                  bool (DataProxy::*)(NetworkReply *reply)>(signal, parseFunc));
+    // connect parsing function to reply
+    connect(reply, SIGNAL(signalFinished(QVariant)), this, SLOT(slotProcessDownload()));
+}
 
+void DataProxy::slotProcessDownload()
+{
+    //get reply object from the caller
+    NetworkReply *reply = qobject_cast<NetworkReply*>(sender());
+    Q_ASSERT(reply != nullptr);
 
-    async::DataRequest request(async::DataRequest::CodeSuccess);
+    //get the parse function from the container (can be nullptr)
+    const auto parseFuncSignalPair = m_activeNetworkReplies.value(reply);
+    const auto parseFunc = parseFuncSignalPair.second;
+    const auto parseSignal = parseFuncSignalPair.first;
 
-    if (reply->hasErrors()) {
-        request.addError(reply->parseErrors());
-        request.return_code(async::DataRequest::CodeError);
-    } else {
+    DataProxy::DownloadStatus status = DataProxy::Failed;
+
+    if (!reply->hasErrors()) {
         const NetworkReply::ReturnCode returnCode =
                 static_cast<NetworkReply::ReturnCode>(reply->return_code());
 
         if (returnCode == NetworkReply::CodeError) {
             //strange..the reply does not have registered errors but yet
             //the returned code is ERROR
-            QSharedPointer<Error>
-                    error(new Error(tr("Data Error"),
-                                    tr("There was an error downloading data"), this));
-            request.addError(error);
-            request.return_code(async::DataRequest::CodeError);
+            QMessageBox::critical(nullptr, tr("Error downloading data"),
+                                  tr("There was probably a network problem."));
+            status = DataProxy::Failed;
         } else if (returnCode == NetworkReply::CodeAbort) {
-            //nothing for now
-            request.return_code(async::DataRequest::CodeAbort);
+            status = DataProxy::Aborted;
         } else {
             bool parsedOk = true;
             if (parseFunc != nullptr) {
@@ -489,34 +477,56 @@ async::DataRequest DataProxy::createRequest(NetworkReply *reply,bool
 
             //errors could happen parsing the data
             if (reply->hasErrors() || !parsedOk) {
-                request.addError(reply->parseErrors());
-                request.return_code(async::DataRequest::CodeError);
+                const auto error = reply->parseErrors();
+                QMessageBox::critical(nullptr, error->name(), error->description());
+                status = DataProxy::Failed;
             }
+
+            status = DataProxy::Success;
         }
+    } else {
+        const auto error = reply->parseErrors();
+        QMessageBox::critical(nullptr, error->name(), error->description());
     }
 
-    //reply has been processed, lets delete it
+    //reply has been processed, lets delete it and decrease counters
+    m_activeDownloads--;
+    const bool removedOK = m_activeNetworkReplies.remove(reply);
+    Q_ASSERT(removedOK);
+    Q_UNUSED(removedOK);
     reply->deleteLater();
 
-    //return request
-    return request;
+    //check if last download
+    if (m_activeDownloads == 0 && parseSignal != nullptr) {
+        emit (this->*parseSignal)(status);
+    }
 }
 
-//TODO this can be optimized and run concurrently
+void DataProxy::slotAbortActiveDownloads()
+{
+    foreach(NetworkReply *reply, m_activeNetworkReplies.keys()){
+        //abort will trigger the process signal which will to the function above
+        //being called, perhaps change that logic
+        reply->slotAbort();
+    }
+
+}
+
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
     bool dirty = false;
-
-    const QJsonDocument &doc = reply->getJSON();
-    if (doc.isNull() || doc.isEmpty()) {
-        return false;
-    }
 
     //temp container to assure the uniqueness of the Gene objects
     QHash<QString, GenePtr> geneNameToGene;
 
     // aux variable to parse feature objects
     FeatureDTO dto;
+
+    /*
+    const QJsonDocument &doc = reply->getJSON();
+    if (doc.isNull() || doc.isEmpty()) {
+        return false;
+    }
 
     // iterate the features from the JSON object
     foreach(QVariant var, doc.toVariant().toList()) {
@@ -544,11 +554,56 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
 
         dirty = true;
     }
+    */
+
+    QByteArray rawText = reply->getRaw();
+    std::stringstream jsonStream(std::string(rawText.data(), rawText.size()));
+    picojson::value v;
+    jsonStream >> v;
+    const picojson::array& a = v.get<picojson::array>();
+    for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
+        const picojson::object& o = i->get<picojson::object>();
+        QVariantMap var;
+        for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
+            QString key = QString::fromStdString(i->first);
+            if (i->second.is<picojson::null>()) {
+                var.insert(key, QJsonValue::Null);
+            } else if (i->second.is<bool>()) {
+                var.insert(key, i->second.get<bool>());
+            } else if (i->second.is<double>()) {
+                var.insert(key, i->second.get<double>());
+            } else if (i->second.is<std::string>()) {
+                var.insert(key, QString::fromStdString(i->second.get<std::string>()));
+            }
+        }
+
+        data::parseObject(var, &dto);
+        FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
+
+        const QString geneName = feature->gene();
+
+        //create unique gene object
+        GenePtr gene;
+        if (geneNameToGene.contains(geneName)) {
+            gene = geneNameToGene.value(geneName);
+        } else {
+            gene = GenePtr(new Gene(geneName));
+            geneNameToGene.insert(geneName, gene);
+            m_genesList.push_back(gene);
+        }
+
+        //update feature with the unique gene object
+        feature->geneObject(gene);
+        //update containers
+        m_featuresList.push_back(feature);
+        m_geneFeaturesMap.insert(gene->name(), feature);
+
+        dirty = true;
+    }
 
     return dirty;
 }
 
-//TODO this can be optimized and run concurrently
 bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 {
     // get filename and file raw data (check if it was encoded or not)
@@ -564,6 +619,8 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
     const bool imageOk = !image.isNull();
     if (imageOk) {
         m_cellTissueImages.insert(imageName, image);
+    } else {
+        qDebug() << "[DataProxy] Error parsing image " << imageName;
     }
 
     return imageOk;
@@ -590,7 +647,18 @@ bool DataProxy::parseDatasets(NetworkReply *reply)
     }
 
     return dirty;
+}
 
+bool DataProxy::parseRemoveDataset(NetworkReply *reply)
+{
+    const QString &datasetId = reply->property("dataset_id").toString();
+    //just to make sure to reset the currently selected dataset variable if we
+    //are removing the selected dataset
+    if (!m_selectedDataset.isNull() && datasetId == m_selectedDataset->id()) {
+        resetSelectedDataset();
+    }
+
+    return true;
 }
 
 bool DataProxy::parseGeneSelections(NetworkReply *reply)

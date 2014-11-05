@@ -9,13 +9,14 @@
 #include <QMessageBox>
 #include <QStyle>
 #include <QDesktopWidget>
+#include <QDebug>
+#include <QPushButton>
 
 #include "Page.h"
 
 Page::Page(QWidget *parent) :
     QWidget(parent),
-    m_progressDialog(nullptr),
-    m_animationLoading(false)
+    m_progressDialog(nullptr)
 {
     m_progressDialog = new QProgressDialog();
     m_progressDialog->setWindowModality(Qt::WindowModal);
@@ -23,12 +24,11 @@ Page::Page(QWidget *parent) :
     m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags()
                                        | Qt::CustomizeWindowHint)
                                       & (~Qt::WindowCloseButtonHint | ~Qt::WindowMinMaxButtonsHint)));
-    m_progressDialog->setCancelButton(nullptr);
+    m_progressDialog->setCancelButtonText(tr("Abort"));
     m_progressDialog->setAutoClose(false);
-    m_progressDialog->setRange(0,0);
-
-    //TODO implement abort logic
-    //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelProgressBar()));
+    m_progressDialog->setRange(0, 0);
+    //connect the aborting of the progress bar to a slot that will emit a signal
+    //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotCancelProgressBar()));
 }
 
 Page::~Page()
@@ -39,38 +39,18 @@ Page::~Page()
 
 void Page::setWaiting(bool waiting, const QString &label)
 {
-    Q_UNUSED(label);
-
-    //TODO currently showing the QPogressDialog causes
-    //to have the actions in the main menu bar disabled
-
     if (waiting) {
-#if defined Q_OS_LINUX || defined Q_OS_WIN
         m_progressDialog->setLabelText(label);
         m_progressDialog->show();
-#else
-        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-        m_animationLoading = true;
-#endif
     } else {
-#if defined Q_OS_LINUX || defined Q_OS_WIN
         m_progressDialog->cancel();
-        m_progressDialog->close();
-#else
-        QGuiApplication::restoreOverrideCursor();
-        m_animationLoading = false;
-#endif
     }
 }
 
-bool Page::event(QEvent *event)
+void Page::slotCancelProgressBar()
 {
-    if (m_animationLoading) {
-        event->ignore();
-        return true;
-    }
-
-    return QWidget::event(event);
+    m_progressDialog->cancel();
+    emit signalDownloadCancelled();
 }
 
 void Page::showInfo(const QString &header, const QString &body)

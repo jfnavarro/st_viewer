@@ -3,7 +3,6 @@ set(LIBRARY_ARG_INCLUDES
     NetworkManager.h
     NetworkReply.h
     RESTCommandFactory.h
-    DownloadManager.h
     NetworkDiskCache.h
 )
 
@@ -12,7 +11,6 @@ set(LIBRARY_ARG_SOURCES
     NetworkManager.cpp
     NetworkReply.cpp
     RESTCommandFactory.cpp
-    DownloadManager.cpp
     NetworkDiskCache.cpp
 )
 

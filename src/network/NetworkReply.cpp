@@ -27,8 +27,6 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
-static const int TIMEOUT_INTERVAL = 15000; // 10 seconds
-
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
     :  m_reply(networkReply)
 {
@@ -37,11 +35,6 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
     // set read buffer to 0 to try to download as fast as possible
     networkReply->setReadBufferSize(0);
 
-    // set up timer to account for time-out events
-    m_timeoutEvent = new QTimer();
-    m_timeoutEvent->setSingleShot(true);
-    m_timeoutEvent->setInterval(TIMEOUT_INTERVAL);
-
     // connect signals
     connect(m_reply, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(m_reply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
@@ -49,16 +42,10 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
             SLOT(slotError(QNetworkReply::NetworkError)));
     connect(m_reply, SIGNAL(sslErrors(QList<QSslError>)), this,
             SLOT(slotSslErrors(QList<QSslError>)));
-    connect(m_timeoutEvent, SIGNAL(timeout()), this, SLOT(slotAbort()));
 }
 
 NetworkReply::~NetworkReply()
 {
-    m_timeoutEvent->disconnect();
-    m_timeoutEvent->stop();
-    m_timeoutEvent->deleteLater();
-    m_timeoutEvent = nullptr;
-
     m_reply->deleteLater();
     m_reply = nullptr;
 }
@@ -106,9 +93,6 @@ const NetworkReply::ErrorList& NetworkReply::errors() const
 
 void NetworkReply::slotAbort()
 {
-    // stop timmer
-    m_timeoutEvent->stop();
-
     // abort network operation
     m_reply->abort();
 }
@@ -190,16 +174,6 @@ QSharedPointer<Error> NetworkReply::parseErrors()
     }
 
     return error;
-}
-
-void NetworkReply::startTimeOutTimer()
-{
-    // stop timeout timer, if running
-    if (m_timeoutEvent->isActive()) {
-        m_timeoutEvent->stop();
-    }
-
-    m_timeoutEvent->start();
 }
 
 bool NetworkReply::wasCached() const

@@ -22,18 +22,24 @@ public:
     explicit Page(QWidget *parent = 0);
     virtual ~Page();
 
-    virtual bool event(QEvent *event);
-
 signals:
 
     //navigation signals
     void moveToNextPage();
     void moveToPreviousPage();
 
+    //download aborted by user signal
+    void signalDownloadCancelled();
+
 public slots:
 
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
+
+private slots:
+
+    //closes the progress bar and emits signalDownloadCancelled
+    void slotCancelProgressBar();
 
 protected:
 
@@ -48,7 +54,6 @@ protected:
 private:
 
     QPointer<QProgressDialog> m_progressDialog;
-    bool m_animationLoading;
 };
 
 #endif // PAGE_H

@@ -13,7 +13,6 @@
 #include <QMessageBox>
 
 #include "data/DataProxy.h"
-#include "network/DownloadManager.h"
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
@@ -37,10 +36,22 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
             this, SLOT(slotDatasetSelected(QModelIndex)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
-    connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotRefreshDatasets()));
+    connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotLoadDatasets()));
     connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
+
+    //connect abort signal
+    connect(this, SIGNAL(signalDownloadCancelled()),
+            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
+
+    //connect data proxy signals
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDatasetsDownloaded(DataProxy::DownloadStatus)),
+            this, SLOT(slotDatasetsDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDatasetsModified(DataProxy::DownloadStatus)),
+            this, SLOT(slotDatasetsModified(DataProxy::DownloadStatus)));
 }
 
 DatasetPage::~DatasetPage()
@@ -108,22 +119,25 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 void DatasetPage::slotLoadDatasets()
 {
     setWaiting(true);
-    async::DataRequest request = m_dataProxy->loadDatasets();
+    m_dataProxy->loadDatasets();
+}
+
+void DatasetPage::slotDatasetsDownloaded(DataProxy::DownloadStatus status)
+{
     setWaiting(false);
 
-    if (!request.isSuccessFul()) {
-        //TODO show the error present in request.getErrors()
-        showError(tr("Data Error"), tr("Error loading the datasets"));
+    //if error we reset the selected dataset...this is why we allow free navigation
+    //among pages
+    if (status == DataProxy::Failed) {
         m_dataProxy->resetSelectedDataset();
     }
 
-    datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
-    clearControls();
-}
+    //if download was not aborted we reset the datasets model
+    if (status != DataProxy::Aborted) {
+        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+    }
 
-void DatasetPage::slotRefreshDatasets()
-{
-    slotLoadDatasets();
+    clearControls();
 }
 
 void DatasetPage::slotEditDataset()
@@ -136,44 +150,26 @@ void DatasetPage::slotEditDataset()
     }
 
     //currentDataset should only have one element
-    auto dataset = currentDataset.first();
-    Q_ASSERT(!dataset.isNull());
+    Q_ASSERT(!currentDataset.first().isNull());
+    Dataset dataset(*currentDataset.first());
 
     QScopedPointer<EditDatasetDialog> editdataset(new EditDatasetDialog(this,
                                                                         Qt::CustomizeWindowHint
                                                                         | Qt::WindowTitleHint));
-    editdataset->setName(dataset->name());
-    editdataset->setComment(dataset->statComments());
+    editdataset->setName(dataset.name());
+    editdataset->setComment(dataset.statComments());
 
-    if (editdataset->exec() == EditDatasetDialog::Accepted) {
-        if ((editdataset->getName() != dataset->name()
-                || editdataset->getComment() != dataset->statComments())
-                && !editdataset->getName().isEmpty() && !editdataset->getName().isNull()) {
+    if (editdataset->exec() == EditDatasetDialog::Accepted
+            && (editdataset->getName() != dataset.name()
+                || editdataset->getComment() != dataset.statComments())
+            && !editdataset->getName().isEmpty()
+            && !editdataset->getName().isNull()) {
 
-            const QString name = dataset->name();
-            const QString comment = dataset->statComments();
+        dataset.name(editdataset->getName());
+        dataset.statComments(editdataset->getComment());
 
-            dataset->name(editdataset->getName());
-            dataset->statComments(editdataset->getComment());
-
-            //update the dataset
-            setWaiting(true, "Updating dataset...");
-            async::DataRequest request = m_dataProxy->updateDataset(dataset);
-            setWaiting(false);
-
-            if (!request.isSuccessFul()) {
-                //restore original name since updating failed
-                dataset->name(name);
-                dataset->statComments(comment);
-                //TODO get error from request
-                showError(tr("Update Dataset"), tr("Error updating the dataset"));
-            } else {
-                showInfo(tr("Update Dataset"), tr("Dataset updated successfully"));
-            }
-
-            //refresh dataset list
-            slotLoadDatasets();
-        }
+        //update the dataset
+        m_dataProxy->updateDataset(dataset);
     }
 }
 
@@ -216,30 +212,16 @@ void DatasetPage::slotRemoveDataset()
     }
 
     //currentDataset should only have one element
-    auto dataset = currentDataset.first();
+    const auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
 
-    const QString datasetId = dataset->id();
-
     //remove the dataset
-    setWaiting(true, "Removing dataset...");
-    async::DataRequest request = m_dataProxy->removeDataset(datasetId);
-    setWaiting(false);
+    m_dataProxy->removeDataset(dataset->id());
+}
 
-    if (!request.isSuccessFul()) {
-        //TODO get error from request
-        showError(tr("Remove Dataset"), tr("Error removing the dataset"));
-    } else {
-        //TODO temp hack to reset the current selected dataset in
-        //case we are removing the current selected dataset (opened)
-        //this logic should be handled in dataProxy
-        if (!m_dataProxy->getSelectedDataset().isNull() &&
-                datasetId == m_dataProxy->getSelectedDataset()->id()) {
-            m_dataProxy->resetSelectedDataset();
-        }
-        showInfo(tr("Remove Dataset"), tr("Dataset removed successfully"));
+void DatasetPage::slotDatasetsModified(DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
+        slotLoadDatasets();
     }
-
-    //refresh dataset list
-    slotLoadDatasets();
 }

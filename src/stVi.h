@@ -11,6 +11,8 @@
 #include <QMainWindow>
 #include <QPointer>
 
+#include "data/DataProxy.h"
+
 class QSettings;
 class QCloseEvent;
 class QAction;
@@ -20,7 +22,6 @@ class Error;
 class QVBoxLayout;
 class ExtendedTabWidget;
 class QWidget;
-class DataProxy;
 class AuthorizationManager;
 
 class stVi : public QMainWindow
@@ -42,12 +43,6 @@ public:
     void loadSettings();
     void saveSettings() const;
 
-public slots:
-
-    // handlemessage is intented to be called from another
-    // instance trying to run at the same time
-    void handleMessage(const QString& message);
-
 private slots:
 
     // exit the application
@@ -58,6 +53,9 @@ private slots:
 
     // opens pop up static widget to show info about the application
     void slotShowAbout();
+
+    // to handle when the min version is downloaded (if not supported app will close)
+    void slotMinVersionDownloaded(DataProxy::DownloadStatus status);
 
 private:
 
