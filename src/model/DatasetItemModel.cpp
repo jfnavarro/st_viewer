@@ -46,7 +46,6 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
         Q_ASSERT(!item.isNull());
-
         switch (index.column()) {
         case Name: return item->name();
         case Tissue: return item->statTissue();
@@ -55,10 +54,17 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         case Genes: return item->statGenes();
         case UBarcodes: return item->statUniqueBarcodes();
         case UGenes: return item->statUniqueGenes();
-        case Created: return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
-        case LastModified: return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
+        case Created:
+            return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
+        case LastModified:
+            return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
+    } else if (role == Qt::ForegroundRole && index.column() == Name) {
+        return QColor(0, 155, 60);
+    } else if (index.column() >= Barcodes
+               && index.column() <= LastModified && role == Qt::TextAlignmentRole) {
+        return Qt::AlignRight;
     }
 
     return QVariant(QVariant::Invalid);

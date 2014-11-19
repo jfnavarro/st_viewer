@@ -17,6 +17,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include "utils/SetTips.h"
 #include "customWidgets/SpinBoxSlider.h"
@@ -29,7 +30,8 @@ static const int GENE_SIZE_MAX = 30;
 //static const int GENE_SHIMME_MAX = 50;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
-
+//static const int button_weigth = 50;
+//static const int button_heigth = 50;
 namespace
 {
 
@@ -79,11 +81,12 @@ void createPushButton(const QString &text, const QString &tip,
 
     QWidgetAction *action = new QWidgetAction(parent);
     QPushButton *button = new QPushButton(icon, text, parent);
-    button->setMinimumSize(QSize(100,50));
-    button->setMaximumSize(QSize(100,50));
+    //button->setMinimumSize(QSize(100,50));
+    //button->setMaximumSize(QSize(100,50));
     action->setDefaultWidget(button);
     button->setToolTip(tip);
     button->setStatusTip(tip);
+    button->setFlat(true);
     *widgetAction = action;
     *pushButton = button;
 }
@@ -146,7 +149,7 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
 {
     createActions();
 
-    setIconSize(QSize(35, 35));
+    //setIconSize(QSize(35, 35));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     //tool bar actions
@@ -340,6 +343,13 @@ CellViewPageToolBar::CellViewPageToolBar(QWidget *parent) :
     //next button
     addAction(m_actionNavigate_goNext);
 
+    //ST icon
+    QLabel *sticon = new QLabel();
+    sticon->setPixmap(QPixmap(QStringLiteral(":/images/st-icon.png")));
+    sticon->setScaledContents(true);
+    sticon->setFixedSize(50, 50);
+    addWidget(sticon);
+
     createConnections();
 }
 
@@ -423,18 +433,18 @@ void CellViewPageToolBar::createActions()
 {
     //show grid/genes
     m_actionShow_showGrid =
-            new QAction(QIcon(QStringLiteral(":/images/grid-icon-md.png")), tr("Show Grid"), this);
+            new QAction(tr("Show Grid"), this);
     m_actionShow_showGrid->setCheckable(true);
     m_actionShow_showGenes =
-            new QAction(QIcon(QStringLiteral(":/images/genes.png")), tr("Show Genes"), this);
+            new QAction(tr("Show Genes"), this);
     m_actionShow_showGenes->setCheckable(true);
 
     //zomming
     m_actionZoom_zoomIn =
-            new QAction(QIcon(QStringLiteral(":/images/Zoom-In-icon.png")), tr("Zoom &In"), this);
+            new QAction(QIcon(QStringLiteral(":/images/zoom_in.png")), tr("Zoom &In"), this);
     setToolTipAndStatusTip(tr("Increases the zoom level in the cell tissue"), m_actionZoom_zoomIn);
     m_actionZoom_zoomOut =
-            new QAction(QIcon(QStringLiteral(":/images/Zoom-Out-icon.png")), tr("Zoom &Out"), this);
+            new QAction(QIcon(QStringLiteral(":/images/zoom_out.png")), tr("Zoom &Out"), this);
     setToolTipAndStatusTip(tr("Decreases the zoom level in the cell tissue"), m_actionZoom_zoomOut);
 
     // FDH Widget
@@ -444,44 +454,40 @@ void CellViewPageToolBar::createActions()
 
     //cell tissue controls
     m_actionShow_cellTissueBlue =
-            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")),
-                        tr("Load Blue Cell Tissue"), this);
+            new QAction(tr("Load Blue Cell Tissue"), this);
     m_actionShow_cellTissueBlue->setCheckable(true);
     m_actionShow_cellTissueRed =
-            new QAction(QIcon(QStringLiteral(":/images/red-icon.png")),
-                        tr("Load Red Cell Tissue"), this);
+            new QAction(tr("Load Red Cell Tissue"), this);
     m_actionShow_cellTissueRed->setCheckable(true);
     m_actionShow_showCellTissue =
-            new QAction(QIcon(QStringLiteral(":/images/biology.png")),
-                        tr("Show Cell Tissue"), this);
+            new QAction(tr("Show Cell Tissue"), this);
     m_actionShow_showCellTissue->setCheckable(true);
 
     // navigation push buttons
-    createPushButton(tr("Back"), tr("Go back to Dataset Page"),
+    createPushButton(QString(), tr("Go back to Dataset Page"),
                      QIcon(QStringLiteral(":/images/back.png")),
                      this, &m_actionNavigate_goBack, &m_buttonNavigate_goBack);
-    createPushButton(tr("Next"), tr("Go to Analysis Page"),
+    createPushButton(QString(), tr("Go to Analysis Page"),
                      QIcon(QStringLiteral(":/images/next.png")),
                      this, &m_actionNavigate_goNext, &m_buttonNavigate_goNext);
 
     //color modes
     m_actionShow_toggleNormal =
-            new QAction(QIcon(QStringLiteral(":/images/blue-icon.png")), tr("Normal Mode"), this);
+            new QAction(tr("Normal Mode"), this);
     setToolTipAndStatusTip(
             tr("Color mode where the genes are treated individually per feature."),
             m_actionShow_toggleNormal);
     m_actionShow_toggleNormal->setCheckable(true);
     m_actionShow_toggleNormal->setProperty("mode", Globals::GeneVisualMode::NormalMode);
     m_actionShow_toggleDynamicRange =
-            new QAction(QIcon(QStringLiteral(":/images/dynamicrange.png")),
-                        tr("Dynamic Range Mode"), this);
+            new QAction(tr("Dynamic Range Mode"), this);
     setToolTipAndStatusTip(
             tr("Color mode where the features tranparency is related to the level of expression"),
             m_actionShow_toggleDynamicRange);
     m_actionShow_toggleDynamicRange->setCheckable(true);
     m_actionShow_toggleDynamicRange->setProperty("mode", Globals::GeneVisualMode::DynamicRangeMode);
     m_actionShow_toggleHeatMap =
-            new QAction(QIcon(QStringLiteral(":/images/heatmap.png")), tr("Heat Map Mode"), this);
+            new QAction(tr("Heat Map Mode"), this);
     setToolTipAndStatusTip(
             tr("Color mode where the color is computed according to the level of expression"),
             m_actionShow_toggleHeatMap);
@@ -557,7 +563,7 @@ void CellViewPageToolBar::createActions()
             tr("Save the cell tissue canvas into a file"),
             m_actionSave_save);
     m_actionSave_print =
-            new QAction(QIcon(QStringLiteral(":/images/printer.png")),
+            new QAction(QIcon(QStringLiteral(":/images/print.png")),
                         tr("Print Cell Tissue"), this);
     setToolTipAndStatusTip(
             tr("Print the cell tissue canvas"),
@@ -579,15 +585,12 @@ void CellViewPageToolBar::createActions()
 
     // color dialogs
     m_actionColor_selectColorGrid =
-            new QAction(QIcon(QStringLiteral(":/images/edit_color.png")),
-                        tr("Choose Color Grid"), this);
+            new QAction(tr("Choose Color Grid"), this);
 
     m_actionRotation_rotateLeft =
-            new QAction(QIcon(QStringLiteral(":/images/rotate_left.png")),
-                        tr("Rotate &left"), this);
+            new QAction(tr("Rotate &left"), this);
     m_actionRotation_rotateRight =
-            new QAction(QIcon(QStringLiteral(":/images/rotate_right.png")),
-                        tr("Rotate &right"), this);
+            new QAction(tr("Rotate &right"), this);
 }
 
 void CellViewPageToolBar::createConnections()

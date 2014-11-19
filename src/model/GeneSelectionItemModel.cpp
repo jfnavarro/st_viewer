@@ -34,12 +34,17 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         switch (index.column()) {
         case Name: return item.name;
         case Count: return QString::number(item.count);
-        case Hits: return item.reads;
+        case Hits: return QString::number(item.reads);
         //normalize pixel intensity by the max gray scale(255) multiplied by the number of
         //occurrences
-        case PixelItensity: return QString::number(item.pixeIntensity / (255 * item.count), 'f', 2);
+        case PixelItensity: return QString::number(item.pixeIntensity
+                                                   / (255 * item.count), 'f', 2);
         default: return QVariant(QVariant::Invalid);
         }
+    }
+
+    if (role == Qt::ForegroundRole && index.column() == Name) {
+        return QColor(0, 155, 60);
     }
 
     if (role == Qt::TextAlignmentRole) {
@@ -47,6 +52,7 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         case Count: return Qt::AlignRight;
         case Hits: return Qt::AlignRight;
         case PixelItensity: return Qt::AlignRight;
+        case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }
     }

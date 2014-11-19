@@ -181,9 +181,13 @@ void stVi::setupUi()
 
     //create main widget
     QWidget *centralwidget = new QWidget(this);
+    centralwidget->setWindowFlags(Qt::FramelessWindowHint);
     setCentralWidget(centralwidget);
+
     //create main layout
     QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
+    mainlayout->setSpacing(0);
+    mainlayout->setContentsMargins(0, 0, 0, 0);
 
     //create tab manager
     //pass reference to dataProxy and authManager to tab manager
@@ -274,12 +278,19 @@ void stVi::initStyle()
     //TODO move to styleshee.css file
     setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}"
                   "QToolButton:checked {background-color: rgb(175,175,175);}"
-                  "QToolButton{background-color: transparent;}"
+                  "QToolButton {background-color: transparent;}"
                   "QToolButton:hover {background-color: rgb(175,175,175);}"
-                  "QLineEdit {border: 1px solid gray;background: white;selection-background-color: darkgray;}"
-                  "QTableView {background-color: transparent;}"
-                  "QHeaderView::section {background-color: rgb(176,196,222);}"
-                  "QHeaderView {background-color: rgb(176,196,222);}"
+                  "QLineEdit {border: 1px solid gray; background: white; "
+                             "background-color: white; selection-background-color: darkgray;}"
+                  "QTableView {alternate-background-color: rgb(245,245,245); "
+                              "background-color: rgb(240,240,240); "
+                              "selection-background-color: rgb(210,210,210); "
+                              "selection-color: white; "
+                              "border: 1px none rgb(200,200,200);}"
+                  "QHeaderView::section:horizontal {height: 35px; "
+                                                   "text-align: left; "
+                                                   "background-color: rgb(210,210,210); "
+                                                   "border: 0.5px none rgb(200,200,200);}"
                   "QTableCornerButton::section{background-color: transparent;}");
 
     // apply font

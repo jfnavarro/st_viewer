@@ -27,8 +27,8 @@ class GeneFeatureItemModel : public QAbstractTableModel
 public:
 
     enum Column {
-        Name = 0,
-        Show = 1,
+        Show = 0,
+        Name = 1,
         Color = 2
     };
 

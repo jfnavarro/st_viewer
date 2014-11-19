@@ -39,20 +39,30 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     m_dataProxy(dataProxy),
     m_authManager(authManager)
 {
+    //main widgets container
+    m_stackWidget = new QStackedWidget(this);
+    m_stackWidget->setWindowFlags(Qt::FramelessWindowHint);
+    //m_stackWidget->setFrameShape(QFrame::StyledPanel);
+
+    //button group to group the buttons together
     m_buttonGroup = new QButtonGroup(this);
     m_buttonGroup->setExclusive(true);
 
-    m_stackWidget = new QStackedWidget(this);
-    m_stackWidget->setFrameShape(QFrame::StyledPanel);
-
+    //layout for the buttons
     m_buttonLayout = new QVBoxLayout();
     m_buttonLayout->setSpacing(0);
 
+    //strech layout to make buttons to always be on top
     QVBoxLayout  *buttonStretchLayout = new QVBoxLayout();
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();
+    //TODO make widget stretch to the bottom
+    QWidget *fakeWidget = new QWidget();
+    fakeWidget->setStyleSheet("background-color:rgb(60,60,60);");
+    buttonStretchLayout->addWidget(fakeWidget);
 
+    //main layout
     m_layout = new QHBoxLayout();
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0, 0, 0, 0);
@@ -109,6 +119,7 @@ QSize ExtendedTabWidget::sizeHint() const
         xMax = qMax(xMax, button->sizeHint().width());
         yMax = qMax(yMax, button->sizeHint().height());
     }
+
     return QSize(xMax, yMax);
 }
 
@@ -148,12 +159,14 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     page->setWindowIcon(pix);
 
     // Add a button for the page
-    QPushButton *button = new QPushButton(pix, label);
+    QPushButton *button = new QPushButton(pix, QString());
     button->setCheckable(true);
     button->setMouseTracking(true);
     button->setFocusPolicy(Qt::ClickFocus);
     button->setChecked(count() == 1);
-    button->setStyleSheet("QPushButton {width: 100px; height: 100px; icon-size: 50px; }");
+    //TODO add border and background color when checked
+    button->setStyleSheet("QPushButton {background-color: rgb(60,60,60); "
+                          "width: 100px; height: 100px; icon-size: 60px; }");
     m_buttonGroup->addButton(button, index);
     m_buttonLayout->addWidget(button);
 }
@@ -210,16 +223,16 @@ void ExtendedTabWidget::createPages()
     Q_ASSERT(!m_stackWidget.isNull());
 
     m_startpage = new InitPage(m_dataProxy, m_authManager, m_stackWidget);
-    insertPage(m_startpage, QIcon(QStringLiteral(":/images/startpage-icon.png")), "Start");
+    insertPage(m_startpage, QIcon(QStringLiteral(":/images/start-page.png")), tr("Start"));
 
     m_datasets = new DatasetPage(m_dataProxy, m_stackWidget);
-    insertPage(m_datasets, QIcon(QStringLiteral(":/images/datasetpage-icon.png")), "Datasets");
+    insertPage(m_datasets, QIcon(QStringLiteral(":/images/datasets-page.png")), tr("Datasets"));
 
     m_cellview = new CellViewPage(m_dataProxy, m_stackWidget);
-    insertPage(m_cellview, QIcon(QStringLiteral(":/images/gene.png")), "Cell View");
+    insertPage(m_cellview, QIcon(QStringLiteral(":/images/cell-page.png")), tr("Cell View"));
 
     m_experiments = new ExperimentPage(m_dataProxy, m_stackWidget);
-    insertPage(m_experiments, QIcon(QStringLiteral(":/images/experimentpage-icon.png")), "Analysis");
+    insertPage(m_experiments, QIcon(QStringLiteral(":/images/analysis-page.png")), tr("Analysis"));
 }
 
 void ExtendedTabWidget::createConnections()

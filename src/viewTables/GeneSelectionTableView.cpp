@@ -29,23 +29,25 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     setSortingEnabled(true);
     setShowGrid(true);
+    setWordWrap(true);
+    setAlternatingRowColors(true);
     sortByColumn(GeneSelectionItemModel::Name, Qt::AscendingOrder);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);
 
-    resizeColumnsToContents();
-    resizeRowsToContents();
-
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name,
                                              QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Count,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneSelectionItemModel::Count, 50);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneSelectionItemModel::Hits, 75);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::PixelItensity,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneSelectionItemModel::PixelItensity, 75);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

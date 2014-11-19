@@ -25,9 +25,6 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     setAlternatingRowColors(true);
     sortByColumn(ExperimentsItemModel::Name, Qt::AscendingOrder);
 
-    resizeColumnsToContents();
-    resizeRowsToContents();
-
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::MultiSelection);
@@ -35,7 +32,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Name,
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset,
-                                             QHeaderView::Stretch);
+                                             QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment,
                                              QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes,

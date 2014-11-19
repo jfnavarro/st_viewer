@@ -28,21 +28,23 @@ GenesTableView::GenesTableView(QWidget *parent)
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);
+    setShowGrid(true);
+    setWordWrap(true);
+    setAlternatingRowColors(true);
     sortByColumn(GeneFeatureItemModel::Name, Qt::AscendingOrder);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    resizeColumnsToContents();
-    resizeRowsToContents();
-
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name,
                                              QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneFeatureItemModel::Color, 50);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneFeatureItemModel::Show, 50);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

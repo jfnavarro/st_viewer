@@ -10,6 +10,7 @@
 #include <QModelIndex>
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
+#include <QPalette>
 
 #include "model/DatasetItemModel.h"
 

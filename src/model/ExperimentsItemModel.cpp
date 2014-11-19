@@ -49,6 +49,15 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         }
     }
 
+    if (role == Qt::ForegroundRole && index.column() == Name) {
+        return QColor(0, 155, 60);
+    }
+
+    if (index.column() >= NGenes
+                   && index.column() <= LastModified && role == Qt::TextAlignmentRole) {
+        return Qt::AlignRight;
+    }
+
     return QVariant(QVariant::Invalid);
 }
 

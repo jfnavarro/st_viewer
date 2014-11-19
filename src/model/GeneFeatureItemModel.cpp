@@ -36,31 +36,27 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     DataProxy::GenePtr item = m_genelist_reference.at(index.row());
     Q_ASSERT(!item.isNull());
 
-    if (role == Qt::DisplayRole ) {
-        switch (index.column()) {
-        case Name: return item->name();
-        default: return QVariant(QVariant::Invalid);
-        }
+    if (role == Qt::DisplayRole && index.column() == Name) {
+        return item->name();
     }
 
-    if (role == Qt::CheckStateRole) {
-        switch (index.column()) {
-        case Show: return item->selected() ? Qt::Checked : Qt::Unchecked;
-        default: return QVariant(QVariant::Invalid);
-        }
+    if (role == Qt::ForegroundRole && index.column() == Name) {
+        return QColor(0, 155, 60);
     }
 
-    if (role == Qt::DecorationRole) {
-        switch (index.column()) {
-        case Color: return item->color();
-        default: return QVariant(QVariant::Invalid);
-        }
+    if (role == Qt::CheckStateRole && index.column() == Show) {
+        return item->selected() ? Qt::Checked : Qt::Unchecked;
+    }
+
+    if (role == Qt::DecorationRole && index.column() == Color) {
+        return item->color();
     }
 
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Show: return Qt::AlignCenter;
         case Color: return Qt::AlignCenter;
+        case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }
     }
