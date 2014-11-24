@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="mouseTracking">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="focusPolicy">
    <enum>Qt::ClickFocus</enum>
@@ -25,7 +25,10 @@
   <property name="statusTip">
    <string>Visualize Genes</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -39,19 +42,611 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>75</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>75</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:rgb(230,230,230);
+border-color: rgb(206,202,202)</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="back">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::TabFocus</enum>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Go back to Dataset Page</string>
+        </property>
+        <property name="statusTip">
+         <string>Go back to Dataset Page</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/back2.png</normaloff>:/images/back2.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <property name="waitPolicy" stdset="0">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="zoomin">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Increases the zoom level in the cell tissue&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Increases the zoom level in the cell tissue</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/zoom_in.png</normaloff>:/images/zoom_in.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="zoomout">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Decreases the zoom level in the cell tissue&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Decreases the zoom level in the cell tissue</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/zoom_out.png</normaloff>:/images/zoom_out.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="histogram">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000300;&quot;&gt;Shows the Features Distribution Histogram&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Shows the Features Distribution Histogram</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/histogram.png</normaloff>:/images/histogram.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="selection">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Activates/desactivates the selection mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Activates/desactivates the selection mode</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/selection.png</normaloff>:/images/selection.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="regexpselection">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Shows a dialog to select genes by Reg. Exp.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Shows a dialog to select genes by Reg. Exp.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/reg_search.png</normaloff>:/images/reg_search.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Save the cell tissue canvas into a file&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Save the cell tissue canvas into a file</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="print">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000300;&quot;&gt;Print the cell tissue canvas&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="statusTip">
+         <string>Print the cell tissue canvas</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="genemenu">
+        <property name="minimumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>Configuration of genes</string>
+        </property>
+        <property name="statusTip">
+         <string>Configuration of genes</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>50</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::NoArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="cellmenu">
+        <property name="minimumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="statusTip">
+         <string>Configuration of cell tissue</string>
+        </property>
+        <property name="accessibleName">
+         <string>Configuration of cell tissue</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/settings2.png</normaloff>:/images/settings2.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>50</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="next">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Move to the Analysis Page</string>
+        </property>
+        <property name="statusTip">
+         <string>Move to the Analysis Page</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../build-st_client-gcc64-Default/application.qrc">
+          <normaloff>:/images/next2.png</normaloff>:/images/next2.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="minimumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../../../build-st_client-gcc64-Default/application.qrc">:/images/st_icon.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="pageLayout">
      <item>
       <widget class="QSplitter" name="horizontalSplitter">
+       <property name="cursor">
+        <cursorShape>SplitHCursor</cursorShape>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <widget class="QSplitter" name="verticalSplitter">
+        <property name="cursor">
+         <cursorShape>SplitVCursor</cursorShape>
+        </property>
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
         <widget class="GenesWidget" name="genesWidget" native="true">
          <property name="mouseTracking">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
@@ -59,7 +654,7 @@
         </widget>
         <widget class="SelectionsWidget" name="selectionsWidget" native="true">
          <property name="mouseTracking">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
@@ -68,7 +663,7 @@
        </widget>
        <widget class="ScrollArea" name="area" native="true">
         <property name="mouseTracking">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
@@ -79,6 +674,212 @@
     </layout>
    </item>
   </layout>
+  <action name="actionShow_showGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the grid of the chips</string>
+   </property>
+  </action>
+  <action name="actionShow_showGenes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Genes</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide geness</string>
+   </property>
+  </action>
+  <action name="actionShow_cellTissueBlue">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Load Blue Cell Tissue</string>
+   </property>
+   <property name="toolTip">
+    <string>Load blue cell tissue</string>
+   </property>
+  </action>
+  <action name="actionShow_cellTissueRed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Load Red Cell Tissue</string>
+   </property>
+   <property name="toolTip">
+    <string>Load red cell tissue</string>
+   </property>
+  </action>
+  <action name="actionShow_showCellTissue">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Cell Tissue</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide the cell tissue image</string>
+   </property>
+  </action>
+  <action name="actionShow_toggleNormal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Normal Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Color mode where the genes are treated individually per feature</string>
+   </property>
+  </action>
+  <action name="actionShow_toggleDynamicRange">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dynamic Range Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Color mode where the features transparency is related to the level of expression</string>
+   </property>
+  </action>
+  <action name="actionShow_toggleHeatMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Heat Map Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Color mode where the color is computed according to the level of expression</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendTopRight">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Top Right Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the legend on the top right part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendTopLeft">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Top Left Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the legend on the top left part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendDownRight">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Bottom Right Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the legend on the bottom right part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendDownLeft">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Bottom Right Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the legend on the bottom left part of the canvas</string>
+   </property>
+  </action>
+  <action name="actionShow_showLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Legend</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide the heatmap legend</string>
+   </property>
+  </action>
+  <action name="action_toggleMinimapTopRight">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimap Top Right Corner&quot;</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the minimap on the top right part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleMinimapTopLeft">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimap Top Left Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the minimap on the top left part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleMinimapDownRight">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Bottom Right Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the minimap on the bottom right part of the canvas</string>
+   </property>
+  </action>
+  <action name="action_toggleMinimapDownLeft">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Bottom Right Corner</string>
+   </property>
+   <property name="toolTip">
+    <string>Places the minimap on the bottom left part of the canvas</string>
+   </property>
+  </action>
+  <action name="actionShow_showMiniMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show MiniMap</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hides the minimap</string>
+   </property>
+  </action>
+  <action name="actionColor_selectColorGrid">
+   <property name="text">
+    <string>Choose Color Grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Shows a color selector to change color of the grid</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -100,6 +901,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../build-st_client-gcc64-Default/application.qrc"/>
+ </resources>
  <connections/>
 </ui>

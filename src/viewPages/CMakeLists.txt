@@ -8,7 +8,6 @@ set(LIBRARY_ARG_INCLUDES
     ExperimentPage.h
     InitPage.h
     Page.h
-    CellViewPageToolBar.h
     ExtendedTabWidget.cpp
     ScrollArea.h
     GenesWidget.h
@@ -21,7 +20,6 @@ set(LIBRARY_ARG_SOURCES
     ExperimentPage.cpp
     InitPage.cpp
     Page.cpp
-    CellViewPageToolBar.cpp
     ExtendedTabWidget.cpp
     ScrollArea.cpp
     GenesWidget.cpp

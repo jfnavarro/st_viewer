@@ -16,6 +16,18 @@
 #include "model/GeneSelectionItemModel.h"
 #include "utils/SetTips.h"
 
+static const QSize BUTTON_SIZE = QSize(40, 30);
+static const QSize LINE_EDIT_SIZE = QSize(150, 25);
+static const QString BUTTON_STYLE = "border: 1px solid rgb(209, 209, 209); "
+                                    "border-radius: 5px; background-color: rgb(255, 255, 255);";
+static const QString LINE_EDIT_STYLE = "border: 1px solid rgb(209, 209, 209); "
+                                       "border-radius: 5px; "
+                                       "background-color: rgb(255, 255, 255); "
+                                       "selection-background-color: darkgray;";
+static const int BUTTON_SPACE = 15;
+
+//TODO we should have a Factory for buttons and GUI elements
+
 SelectionsWidget::SelectionsWidget(QWidget *parent) :
     QWidget(parent),
     m_saveSelection(nullptr),
@@ -27,54 +39,70 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
 {
     QVBoxLayout *selectionLayout = new QVBoxLayout();
     selectionLayout->setSpacing(0);
-    selectionLayout->setContentsMargins(0, 5, 0, 0);
+    selectionLayout->setContentsMargins(10, 10, 10, 10);
     QHBoxLayout *selectionBottonsLayout = new QHBoxLayout();
     selectionBottonsLayout->setSpacing(0);
-    selectionBottonsLayout->setContentsMargins(0, 0, 0, 0);
+    selectionBottonsLayout->setContentsMargins(0, 5, 0, 5);
+
+    //add separation between buttons
+    selectionBottonsLayout->addSpacing(10);
 
     m_saveSelection = new QPushButton(this);
     m_saveSelection->setIcon(QIcon(QStringLiteral(":/images/save-selection.png")));
+    m_saveSelection->setIconSize(BUTTON_SIZE);
+    m_saveSelection->setFixedSize(BUTTON_SIZE);
+    m_saveSelection->setStyleSheet(BUTTON_STYLE);
+    m_saveSelection->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Save the current selection in the cloud"),
             m_saveSelection);
     selectionBottonsLayout->addWidget(m_saveSelection);
-    //add separation and stretch
-    selectionBottonsLayout->addSpacing(1);
-    selectionBottonsLayout->addStretch(1);
+    //add separation between buttons
+    selectionBottonsLayout->addSpacing(BUTTON_SPACE);
 
     m_exportGenesSelection = new QPushButton(this);
     m_exportGenesSelection->setIcon(QIcon(QStringLiteral(":/images/export-genes.png")));
+    m_exportGenesSelection->setIconSize(BUTTON_SIZE);
+    m_exportGenesSelection->setFixedSize(BUTTON_SIZE);
+    m_exportGenesSelection->setStyleSheet(BUTTON_STYLE);
+    m_exportGenesSelection->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Export the currently selected genes to a file"),
             m_exportGenesSelection);
     selectionBottonsLayout->addWidget(m_exportGenesSelection);
-    //add separation and stretch
-    selectionBottonsLayout->addSpacing(1);
-    selectionBottonsLayout->addStretch(1);
+    //add separation between buttons
+    selectionBottonsLayout->addSpacing(BUTTON_SPACE);
 
     m_exportFeaturesSelection = new QPushButton(this);
     m_exportFeaturesSelection->setIcon(QIcon(QStringLiteral(":/images/export-features.png")));
+    m_exportFeaturesSelection->setIconSize(BUTTON_SIZE);
+    m_exportFeaturesSelection->setFixedSize(BUTTON_SIZE);
+    m_exportFeaturesSelection->setStyleSheet(BUTTON_STYLE);
+    m_exportFeaturesSelection->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Export the currently selected features to a file"),
             m_exportFeaturesSelection);
     selectionBottonsLayout->addWidget(m_exportFeaturesSelection);
-    //add separation and stretch
-    selectionBottonsLayout->addSpacing(1);
-    selectionBottonsLayout->addStretch(1);
+    //add separation between buttons
+    selectionBottonsLayout->addSpacing(BUTTON_SPACE);
 
     m_clearSelection = new QPushButton(this);
     m_clearSelection->setIcon(QIcon(QStringLiteral(":/images/remove-selection.png")));
+    m_clearSelection->setIconSize(BUTTON_SIZE);
+    m_clearSelection->setFixedSize(BUTTON_SIZE);
+    m_clearSelection->setStyleSheet(BUTTON_STYLE);
+    m_clearSelection->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Remove the current selection"),
             m_clearSelection);
     selectionBottonsLayout->addWidget(m_clearSelection);
     //add separation and stretch
-    selectionBottonsLayout->addSpacing(1);
-    selectionBottonsLayout->addStretch(1);
+    selectionBottonsLayout->addSpacing(BUTTON_SPACE);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
-    m_geneSelectionFilterLineEdit->setFixedSize(150, 20);
+    m_geneSelectionFilterLineEdit->setFixedSize(LINE_EDIT_SIZE);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
+    m_geneSelectionFilterLineEdit->setStyleSheet(LINE_EDIT_STYLE);
     setToolTipAndStatusTip(
             tr("Search by gene name"),
             m_geneSelectionFilterLineEdit);
@@ -88,6 +116,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_selections_tableview = new GeneSelectionTableView(this);
     selectionLayout->addWidget(m_selections_tableview);
 
+    //set the main layout
     setLayout(selectionLayout);
 
     //connections

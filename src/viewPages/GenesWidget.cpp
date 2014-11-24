@@ -20,6 +20,19 @@
 #include "model/GeneFeatureItemModel.h"
 #include "utils/SetTips.h"
 
+static const QSize BUTTON_SIZE = QSize(40, 30);
+static const QSize LINE_EDIT_SIZE = QSize(150, 25);
+static const QString BUTTON_STYLE = "border: 1px solid rgb(209, 209, 209); "
+                                    "border-radius: 5px; background-color: rgb(255, 255, 255);";
+static const QString LINE_EDIT_STYLE = "border: 1px solid rgb(209, 209, 209); "
+                                       "border-radius: 5px; "
+                                       "background-color: rgb(255, 255, 255); "
+                                       "selection-background-color: darkgray;";
+
+static const int BUTTON_SPACE = 15;
+
+//TODO we should have a factory for buttons and GUI elements
+
 GenesWidget::GenesWidget(QWidget *parent) :
     QWidget(parent),
     m_selectionAllButton(nullptr),
@@ -33,52 +46,75 @@ GenesWidget::GenesWidget(QWidget *parent) :
 {
     QVBoxLayout *genesLayout = new QVBoxLayout();
     genesLayout->setSpacing(0);
-    genesLayout->setContentsMargins(0, 0, 0, 0);
+    genesLayout->setContentsMargins(10, 10, 10, 10);
     QHBoxLayout *geneListLayout = new QHBoxLayout();
     geneListLayout->setSpacing(0);
-    geneListLayout->setContentsMargins(0, 0, 0, 0);
+    geneListLayout->setContentsMargins(0, 5, 0, 5);
+
+    //add separation between buttons
+    geneListLayout->addSpacing(10);
 
     //create actions buttons
     m_showSelectedButton = new QPushButton(this);
     m_showSelectedButton->setIcon(QIcon(QStringLiteral(":/images/visible.png")));
+    m_showSelectedButton->setIconSize(BUTTON_SIZE);
+    m_showSelectedButton->setFixedSize(BUTTON_SIZE);
+    m_showSelectedButton->setStyleSheet(BUTTON_STYLE);
+    m_showSelectedButton->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Show selected genes"),
             m_showSelectedButton);
     geneListLayout->addWidget(m_showSelectedButton);
-    geneListLayout->addSpacing(1);
-    geneListLayout->addStretch(1);
+    //add separation between buttons
+    geneListLayout->addSpacing(BUTTON_SPACE);
 
     m_hideSelectedButton = new QPushButton(this);
     m_hideSelectedButton->setIcon(QIcon(QStringLiteral(":/images/nonvisible.png")));
+    m_hideSelectedButton->setIconSize(BUTTON_SIZE);
+    m_hideSelectedButton->setFixedSize(BUTTON_SIZE);
+    m_hideSelectedButton->setStyleSheet(BUTTON_STYLE);
+    m_hideSelectedButton->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Hide selected genes"),
             m_hideSelectedButton);
     geneListLayout->addWidget(m_hideSelectedButton);
-    geneListLayout->addSpacing(1);
-    geneListLayout->addStretch(1);
+    //add separation between buttons
+    geneListLayout->addSpacing(BUTTON_SPACE);
 
     //create selections buttons
     m_selectionAllButton = new QPushButton(this);
     m_selectionAllButton->setIcon(QIcon(QStringLiteral(":/images/select-all.png")));
+    m_selectionAllButton->setIconSize(BUTTON_SIZE);
+    m_selectionAllButton->setFixedSize(BUTTON_SIZE);
+    m_selectionAllButton->setStyleSheet(BUTTON_STYLE);
+    m_selectionAllButton->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Select all genes"),
             m_selectionAllButton);
     geneListLayout->addWidget(m_selectionAllButton);
-    geneListLayout->addSpacing(1);
-    geneListLayout->addStretch(1);
+    //add separation between buttons
+    geneListLayout->addSpacing(BUTTON_SPACE);
 
     m_selectionClearAllButton = new QPushButton(this);
     m_selectionClearAllButton->setIcon(QIcon(QStringLiteral(":/images/unselect-all.png")));
+    m_selectionClearAllButton->setIconSize(BUTTON_SIZE);
+    m_selectionClearAllButton->setFixedSize(BUTTON_SIZE);
+    m_selectionClearAllButton->setStyleSheet(BUTTON_STYLE);
+    m_selectionClearAllButton->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Deselect all genes"),
             m_selectionClearAllButton);
     geneListLayout->addWidget(m_selectionClearAllButton);
-    geneListLayout->addSpacing(1);
-    geneListLayout->addStretch(1);
+    //add separation between buttons
+    geneListLayout->addSpacing(BUTTON_SPACE);
 
     //create color selection button
     m_showColorButton = new QPushButton(this);
     m_showColorButton->setIcon(QIcon(QStringLiteral(":/images/select-color.png")));
+    m_showColorButton->setIconSize(BUTTON_SIZE);
+    m_showColorButton->setFixedSize(BUTTON_SIZE);
+    m_showColorButton->setStyleSheet(BUTTON_STYLE);
+    m_showColorButton->setCursor(Qt::PointingHandCursor);
     setToolTipAndStatusTip(
             tr("Set color of selected genes"),
             m_showColorButton);
@@ -86,13 +122,14 @@ GenesWidget::GenesWidget(QWidget *parent) :
     //OSX native color dialog gives problems
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     geneListLayout->addWidget(m_showColorButton);
-    geneListLayout->addSpacing(1);
-    geneListLayout->addStretch(1);
+    //add separation between buttons
+    geneListLayout->addSpacing(BUTTON_SPACE);
 
     //create line edit search
     m_lineEdit = new QLineEdit(this);
     m_lineEdit->setClearButtonEnabled(true);
-    m_lineEdit->setFixedSize(150, 20);
+    m_lineEdit->setFixedSize(LINE_EDIT_SIZE);
+    m_lineEdit->setStyleSheet(LINE_EDIT_STYLE);
     m_lineEdit->setToolTip(tr("Search by gene name..."));
     geneListLayout->addWidget(m_lineEdit);
     geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);

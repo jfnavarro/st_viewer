@@ -13,8 +13,9 @@
 #include <QGLPainter>
 #include <QVector2DArray>
 
-static const qreal GRID_LINE_SIZE = 1.0f;
+static const qreal GRID_LINE_SIZE = 1.0;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
+const QColor GridRendererGL::DEFAULT_COLOR_GRID = Qt::darkGreen;
 
 GridRendererGL::GridRendererGL(QObject *parent)
     : GraphicItemGL(parent)
@@ -66,8 +67,8 @@ void GridRendererGL::clearData()
     // chip grid stuff
     m_border = QRectF();
     m_rect = QRectF();
-    m_gridColor = Globals::DEFAULT_COLOR_GRID;
-    m_gridBorderColor = Globals::DEFAULT_COLOR_GRID_BORDER;
+    m_gridColor = DEFAULT_COLOR_GRID;
+    m_gridBorderColor = DEFAULT_COLOR_GRID_BORDER;
 }
 
 void GridRendererGL::generateData()

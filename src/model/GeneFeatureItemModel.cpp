@@ -74,14 +74,22 @@ QVariant GeneFeatureItemModel::headerData(int section,
         case Color: return tr("Color");
         default: return QVariant(QVariant::Invalid);
         }
-    } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        return (section + 1);
     }
-    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+
+    if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
         case Name: return tr("The name of the gene");
         case Show: return tr("Indicates if the genes is visible on the screen");
         case Color: return tr("Indicates the color of the gene on the screen");
+        default: return QVariant(QVariant::Invalid);
+        }
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        switch (section) {
+        case Show: return Qt::AlignCenter;
+        case Color: return Qt::AlignCenter;
+        case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }
     }

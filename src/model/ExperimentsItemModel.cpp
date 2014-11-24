@@ -75,10 +75,8 @@ QVariant ExperimentsItemModel::headerData(int section,
         default: return QVariant(QVariant::Invalid);
         }
     }
-    else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        return (section + 1);
-    }
-    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+
+    if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
         case Name: return tr("The name of the selection");
         case Dataset: return tr("The dataset name where the selection was made");
@@ -88,6 +86,10 @@ QVariant ExperimentsItemModel::headerData(int section,
         case LastModified: return tr("Last Modified at this date");
         default: return QVariant(QVariant::Invalid);
         }
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        return Qt::AlignLeft;
     }
 
     // return invalid value

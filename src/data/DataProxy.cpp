@@ -490,10 +490,20 @@ void DataProxy::slotProcessDownload()
     }
 
     //reply has been processed, lets delete it and decrease counters
-    m_activeDownloads--;
+    if (m_activeDownloads > 0) {
+        m_activeDownloads--;
+    } else {
+        qDebug() << "[DataProxy] A network reply call back has been invoked with no active "
+            "downloads.";
+    }
     const bool removedOK = m_activeNetworkReplies.remove(reply);
-    Q_ASSERT(removedOK);
-    Q_UNUSED(removedOK);
+    //TODO there is a race condition triggering this assertion,
+    //the call back is called twice so the second time there is nothing to remove
+    //a trello ticket is created for this and will be solved soon
+    if (!removedOK) {
+        qDebug() << "[DataProxy] A network reply call back has been invoked but it has been "
+                    "processed earlier already.";
+    }
     reply->deleteLater();
 
     //check if last download

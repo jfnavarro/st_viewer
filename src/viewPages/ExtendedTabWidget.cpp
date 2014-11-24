@@ -42,7 +42,6 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     //main widgets container
     m_stackWidget = new QStackedWidget(this);
     m_stackWidget->setWindowFlags(Qt::FramelessWindowHint);
-    //m_stackWidget->setFrameShape(QFrame::StyledPanel);
 
     //button group to group the buttons together
     m_buttonGroup = new QButtonGroup(this);
@@ -57,10 +56,6 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();
-    //TODO make widget stretch to the bottom
-    QWidget *fakeWidget = new QWidget();
-    fakeWidget->setStyleSheet("background-color:rgb(60,60,60);");
-    buttonStretchLayout->addWidget(fakeWidget);
 
     //main layout
     m_layout = new QHBoxLayout();
@@ -164,9 +159,11 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     button->setMouseTracking(true);
     button->setFocusPolicy(Qt::ClickFocus);
     button->setChecked(count() == 1);
-    //TODO add border and background color when checked
-    button->setStyleSheet("QPushButton {background-color: rgb(60,60,60); "
-                          "width: 100px; height: 100px; icon-size: 60px; }");
+    button->setCursor(Qt::PointingHandCursor);
+    button->setStyleSheet("QPushButton {background-color: rgb(45, 45, 45); "
+                          "width: 125px; height: 125px; icon-size: 50px; "
+                          "border: 1px solid rgb(150, 150, 150) }"
+                          "QPushButton:checked {background-color: rgb(60, 60, 60);}");
     m_buttonGroup->addButton(button, index);
     m_buttonLayout->addWidget(button);
 }

@@ -19,8 +19,7 @@ Page::Page(QWidget *parent) :
     m_progressDialog(nullptr)
 {
     setWindowFlags(Qt::FramelessWindowHint);
-
-    //setStyleSheet("background-color:rgb(240,240,240);");
+    setStyleSheet("QWidget {background-color:rgb(240,240,240);}");
 
     m_progressDialog = new QProgressDialog();
     m_progressDialog->setWindowModality(Qt::WindowModal);

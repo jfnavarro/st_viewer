@@ -33,6 +33,12 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     setAlternatingRowColors(true);
     sortByColumn(GeneSelectionItemModel::Name, Qt::AscendingOrder);
 
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Sunken);
+    setGridStyle(Qt::NoPen);
+    setCornerButtonEnabled(false);
+    setLineWidth(1);
+
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);

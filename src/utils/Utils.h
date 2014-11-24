@@ -22,27 +22,11 @@ namespace Globals
 //TODO move elements to where they are used as much as possible
 
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
-enum GeneVisualMode {
-    NormalMode = 0,
-    DynamicRangeMode = 1,
-    HeatMapMode = 2
-};
 
 enum GeneColorMode {
     ExpColor = 0,
     LogColor = 1,
     LinearColor = 2
-};
-
-enum GenePooledMode {
-    PoolNumberGenes = 0,
-    PoolReadsCount = 1
-};
-
-enum GeneShape  {
-    Circle = 0,
-    Cross = 1,
-    Square = 2
 };
 
 enum Anchor {
@@ -58,13 +42,9 @@ enum Anchor {
     None = 10
 };
 
+//default color of gene is used in many places
 static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
-static const qreal GENE_SIZE_DEFAULT = 0.5;
-static const qreal GENE_INTENSITY_DEFAULT = 1.0;
-static const qreal GENE_SHINNE_DEFAULT = 1.0;
-static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
-static const QColor DEFAULT_COLOR_GRID = Qt::darkGreen;
-static const GeneShape DEFAULT_SHAPE_GENE = GeneShape::Circle;
+
 
 /** GRAPHICAL ITEMS ANCHOR POSITIONS **/
 static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;

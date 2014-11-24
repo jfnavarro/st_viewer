@@ -71,15 +71,24 @@ QVariant GeneSelectionItemModel::headerData(int section,
         case PixelItensity: return tr("P. Intensity");
         default: return QVariant(QVariant::Invalid);
         }
-    } else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
-        return (section + 1);
     }
-    else if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
+
+    if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
         case Name: return tr("The name of the gene");
         case Count: return tr("The number of occurences of the gene");
         case Hits: return tr("The aggregated number of reads");
         case PixelItensity: return tr("The normalized pixel intensity");
+        default: return QVariant(QVariant::Invalid);
+        }
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        switch (section) {
+        case Count: return Qt::AlignRight;
+        case Hits: return Qt::AlignRight;
+        case PixelItensity: return Qt::AlignRight;
+        case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }
     }

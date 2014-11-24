@@ -24,6 +24,10 @@ class HeatMapLegendGL;
 class MiniMapGL;
 class GeneRendererGL;
 class AnalysisFRD;
+class QSlider;
+class SpinBoxSlider;
+class QComboBox;
+class QRadioButton;
 
 namespace Ui{
 class CellView;
@@ -51,6 +55,12 @@ public slots:
 
 private slots:
     
+    //some slots for gene actions that need adjustment of the value
+    void slotGeneShape(int geneShape);
+    void slotGeneIntensity(int geneIntensity);
+    void slotGeneSize(int geneSize);
+    void slotGeneBrightness(int geneBrightness);
+
     // save current scene
     void slotSaveImage();
     void slotPrintImage();
@@ -90,18 +100,17 @@ private slots:
 
 private:
     
-    // create GL graphical elements and their connections
+    // create OpenGL graphical elements and view
     void initGLView();
-    void createGLConnections();
-    
-    // create tool bar
-    void createToolBar();
 
-    // create connections
-    void createConnections();
+    // create menus, add them to the main bar and create the connections
+    void createMenusAndConnections();
 
     // reset all the visual variables to default
     void resetActionStates();
+
+    // to enable/disable main controls
+    void setEnableButtons(bool enable);
 
     // OpenGL visualization objects
     QPointer<MiniMapGL> m_minimap;
@@ -114,9 +123,6 @@ private:
     // color dialog for the grid
     QPointer<QColorDialog> m_colorDialogGrid;
 
-    // tool bar
-    QPointer<CellViewPageToolBar> m_toolBar;
-
     // User interface
     std::unique_ptr<Ui::CellView> m_ui;
 
@@ -125,6 +131,22 @@ private:
 
     // Features Reads Distribution
     QPointer<AnalysisFRD> m_FDH;
+
+    // elements of the gene/cell view settings menu
+    QPointer<QRadioButton> m_colorLinear;
+    QPointer<QRadioButton> m_colorLog;
+    QPointer<QRadioButton> m_colorExp;
+    QPointer<QRadioButton> m_poolingGenes;
+    QPointer<QRadioButton> m_poolingReads;
+    QPointer<QRadioButton> m_poolingTPMs;
+    QPointer<SpinBoxSlider> m_geneHitsThreshold;
+    //TODO temp not smart pointer to make the add addSliderToMenu work
+    //solution is just use smart pointers but transfer ownership when invoking the function
+    QSlider *m_geneIntensitySlider;
+    QSlider *m_geneSizeSlider;
+    QSlider *m_geneShineSlider;
+    QSlider *m_geneBrightnessSlider;
+    QPointer<QComboBox> m_geneShapeComboBox;
 
     Q_DISABLE_COPY(CellViewPage)
 };

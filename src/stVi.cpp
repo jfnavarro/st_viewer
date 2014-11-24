@@ -28,6 +28,7 @@
 #include <QSslSocket>
 #include <QMenuBar>
 #include <QStatusBar>
+#include <QFont>
 
 #include "utils/Utils.h"
 #include "error/Error.h"
@@ -181,6 +182,7 @@ void stVi::setupUi()
 
     //create main widget
     QWidget *centralwidget = new QWidget(this);
+    centralwidget->setStyleSheet("QWidget {background-color: rgb(45, 45, 45);}");
     centralwidget->setWindowFlags(Qt::FramelessWindowHint);
     setCentralWidget(centralwidget);
 
@@ -276,27 +278,23 @@ void stVi::createLayouts()
 void stVi::initStyle()
 {
     //TODO move to styleshee.css file
-    setStyleSheet("QToolBar {border-bottom: 1px white; border-top: 1px white;}"
-                  "QToolButton:checked {background-color: rgb(175,175,175);}"
-                  "QToolButton {background-color: transparent;}"
-                  "QToolButton:hover {background-color: rgb(175,175,175);}"
-                  "QLineEdit {border: 1px solid gray; background: white; "
-                             "background-color: white; selection-background-color: darkgray;}"
-                  "QTableView {alternate-background-color: rgb(245,245,245); "
-                              "background-color: rgb(240,240,240); "
-                              "selection-background-color: rgb(210,210,210); "
-                              "selection-color: white; "
-                              "border: 1px none rgb(200,200,200);}"
-                  "QHeaderView::section:horizontal {height: 35px; "
-                                                   "text-align: left; "
-                                                   "background-color: rgb(210,210,210); "
-                                                   "border: 0.5px none rgb(200,200,200);}"
-                  "QTableCornerButton::section{background-color: transparent;}");
+    setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
+                              "background-color: rgb(255,255,255); "
+                              "selection-background-color: rgb(215,215,215); "
+                              "selection-color: darkgrey; "
+                              "border: 1px solid rgb(240,240,240);}"
+                  "QPushButton:focus:pressed { background-color: transparent; border: none; } "
+                  "QPushButton:pressed { background-color: transparent; border: none } "
+                  "QPushButton:flat { background-color: transparent; border: none } "
+                  "QHeaderView::section {height: 35px; padding-left: 4px;"
+                                        "background-color: rgb(230,230,230); "
+                                        "border: 1px solid rgb(240,240,240);} "
+                  "QHeaderView {border: 1px solid rgb(240,240,240);} "
+                  "QTableCornerButton::section {background-color: transparent;} ");
 
     // apply font
-    QFont font;
-    font.setFamily(font.defaultFamily());
-    setFont(font);
+    QFont font("Open Sans", 12);
+    QApplication::setFont(font);
 }
 
 void stVi::createShorcuts()

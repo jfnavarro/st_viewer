@@ -36,6 +36,8 @@ public:
     const QRectF border() const;
     const QRectF rectangle() const;
 
+    static const QColor DEFAULT_COLOR_GRID;
+
 public slots:
 
     //TODO slots should have the prefix "slot"

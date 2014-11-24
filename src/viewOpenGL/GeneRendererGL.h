@@ -32,6 +32,24 @@ class GeneRendererGL : public GraphicItemGL
 
 public:
 
+    enum GenePooledMode {
+        PoolNumberGenes = 0,
+        PoolReadsCount = 1,
+        PoolTPMs = 2
+    };
+
+    enum GeneShape  {
+        Circle = 0,
+        Cross = 1,
+        Square = 2
+    };
+
+    enum GeneVisualMode {
+        NormalMode = 0,
+        DynamicRangeMode = 1,
+        HeatMapMode = 2
+    };
+
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
@@ -67,14 +85,15 @@ public slots:
     //slot to change visual atttributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-    void setShine(qreal shine);
-    void setShape(Globals::GeneShape shape);
+    void setShape(const GeneShape &shape);
 
+    //slots for the thresholds
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
 
-    void setVisualMode(const Globals::GeneVisualMode &mode);
-    void setPoolingMode(const Globals::GenePooledMode &mode);
+    //slots to set visual modes and color computations modes
+    void setVisualMode(const GeneVisualMode &mode);
+    void setPoolingMode(const GenePooledMode &mode);
     void setColorComputingMode(const Globals::GeneColorMode &mode);
 
     //for the given gene list updates the color
@@ -152,8 +171,7 @@ private:
     // visual attributes
     qreal m_intensity;
     qreal m_size;
-    qreal m_shine;
-    Globals::GeneShape m_shape;
+    GeneShape m_shape;
 
     // cell tissue image (in genes coordinate system)
     QImage m_image;
@@ -170,10 +188,10 @@ private:
     QRectF m_border;
 
     // visual mode
-    Globals::GeneVisualMode m_visualMode;
+    GeneVisualMode m_visualMode;
 
     // pooling mode (by gene count or reads counts)
-    Globals::GenePooledMode m_poolingMode;
+    GenePooledMode m_poolingMode;
 
     // color computing mode (exp - log - linear)
     Globals::GeneColorMode m_colorComputingMode;
@@ -189,6 +207,5 @@ private:
 
     Q_DISABLE_COPY(GeneRendererGL)
 };
-
 
 #endif // GENERENDERERGL_H

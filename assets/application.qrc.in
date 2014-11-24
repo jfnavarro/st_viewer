@@ -4,6 +4,8 @@
     <file alias="images/ki.png">${PROJECT_SOURCE_DIR}/assets/images/ki.png</file>
     <file alias="images/back.png">${PROJECT_SOURCE_DIR}/assets/images/back.png</file>
     <file alias="images/next.png">${PROJECT_SOURCE_DIR}/assets/images/next.png</file>
+    <file alias="images/back2.png">${PROJECT_SOURCE_DIR}/assets/images/back2.png</file>
+    <file alias="images/next2.png">${PROJECT_SOURCE_DIR}/assets/images/next2.png</file>
     <file alias="images/st.png">${PROJECT_SOURCE_DIR}/assets/images/st.png</file>
     <file alias="images/plot-scatter.png">${PROJECT_SOURCE_DIR}/assets/images/plot-scatter.png</file>
     <file alias="images/scilifelab.png">${PROJECT_SOURCE_DIR}/assets/images/scilifelab.png</file>

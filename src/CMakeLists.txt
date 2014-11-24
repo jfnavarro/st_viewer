@@ -112,6 +112,8 @@ list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:picojson>")
 
+include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
+
 set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::Network
                              Qt5::Gui
@@ -143,7 +145,7 @@ endif()
 #endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${ZLIB_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
 ### UNIT TESTS ################################################################
 

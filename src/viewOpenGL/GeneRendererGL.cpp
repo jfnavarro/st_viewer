@@ -16,6 +16,9 @@
 #include "dataModel/GeneSelection.h"
 
 static const int INVALID_INDEX = -1;
+static const qreal GENE_SIZE_DEFAULT = 0.5;
+static const qreal GENE_INTENSITY_DEFAULT = 1.0;
+static const GeneRendererGL::GeneShape DEFAULT_SHAPE_GENE = GeneRendererGL::GeneShape::Circle;
 
 GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent),
@@ -59,17 +62,16 @@ void GeneRendererGL::clearData()
     m_geneInfoReverse.clear();
 
     // variables
-    m_intensity = Globals::GENE_INTENSITY_DEFAULT;
-    m_size = Globals::GENE_SIZE_DEFAULT;
-    m_shine = Globals::GENE_SHINNE_DEFAULT;
+    m_intensity = GENE_INTENSITY_DEFAULT;
+    m_size = GENE_SIZE_DEFAULT;
     m_thresholdLower = 0;
     m_thresholdUpper = 1;
-    m_shape = Globals::DEFAULT_SHAPE_GENE;
+    m_shape = DEFAULT_SHAPE_GENE;
 
     // visual mode
-    m_visualMode = Globals::NormalMode;
+    m_visualMode = NormalMode;
     // pooling mode
-    m_poolingMode = Globals::PoolReadsCount;
+    m_poolingMode = PoolReadsCount;
     // color mode
     m_colorComputingMode = Globals::LinearColor;
 
@@ -113,14 +115,6 @@ void GeneRendererGL::setSize(qreal size)
     if (m_size != size) {
         m_size = size;
         updateSize();
-    }
-}
-
-void GeneRendererGL::setShine(qreal shine)
-{
-    if (m_shine != shine) {
-        m_shine = shine;
-        emit updated();
     }
 }
 
@@ -272,7 +266,7 @@ void GeneRendererGL::updateVisual()
 
         // compute and update values data
         const float oldValue = m_geneData.quadValue(index);
-        const float newValue = m_poolingMode == Globals::PoolNumberGenes
+        const float newValue = m_poolingMode == PoolNumberGenes
                 ? static_cast<float>(newRefCount)
                 : (oldValue + (selected ? static_cast<float>(currentHits) : 0.0));
         m_geneData.updateQuadValue(index, newValue);
@@ -473,7 +467,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
     QGuiApplication::restoreOverrideCursor();
 }
 
-void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
+void GeneRendererGL::setVisualMode(const GeneVisualMode &mode)
 {
     // update visual mode
     if (m_visualMode != mode) {
@@ -482,12 +476,12 @@ void GeneRendererGL::setVisualMode(const Globals::GeneVisualMode &mode)
     }
 }
 
-void GeneRendererGL::setPoolingMode(const Globals::GenePooledMode &mode)
+void GeneRendererGL::setPoolingMode(const GenePooledMode &mode)
 {
     // update pooling mode
     if (m_poolingMode != mode) {
         m_poolingMode = mode;
-        if (m_visualMode != Globals::NormalMode) {
+        if (m_visualMode != NormalMode) {
             updateVisual();
         }
     }
@@ -498,7 +492,7 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode &mode)
     // update color computing mode
     if (m_colorComputingMode != mode) {
         m_colorComputingMode = mode;
-        if (m_visualMode != Globals::NormalMode) {
+        if (m_visualMode != NormalMode) {
             updateVisual();
         }
     }
@@ -524,9 +518,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
     int colorMode = m_shaderProgram->program()->uniformLocation("in_colorMode");
     m_shaderProgram->program()->setUniformValue(colorMode, static_cast<GLint>(m_colorComputingMode));
-
-    int shine = m_shaderProgram->program()->uniformLocation("in_shine");
-    m_shaderProgram->program()->setUniformValue(shine, static_cast<GLfloat>(m_shine));
 
     int upperLimit = m_shaderProgram->program()->uniformLocation("in_pooledUpper");
     m_shaderProgram->program()->setUniformValue(upperLimit, static_cast<GLfloat>(m_localPooledMax));
@@ -577,7 +568,7 @@ const QRectF GeneRendererGL::boundingRect() const
     return m_border;
 }
 
-void GeneRendererGL::setShape(Globals::GeneShape shape)
+void GeneRendererGL::setShape(const GeneShape &shape)
 {
     if (m_shape != shape) {
         m_shape = shape;

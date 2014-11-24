@@ -87,6 +87,7 @@ QVariant DatasetItemModel::headerData(int section,
         default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
         }
     }
+
     if (role == Qt::DisplayRole) {
         if (orientation == Qt::Horizontal) {
             switch (section) {
@@ -105,6 +106,11 @@ QVariant DatasetItemModel::headerData(int section,
             return (section + 1);
         }
     }
+
+    if (role == Qt::TextAlignmentRole) {
+        return Qt::AlignLeft;
+    }
+
     return QVariant(QVariant::Invalid);
 }
 
