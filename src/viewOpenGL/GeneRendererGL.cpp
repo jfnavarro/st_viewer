@@ -7,6 +7,9 @@
 
 #include "GeneRendererGL.h"
 
+#include <QFutureWatcher>
+#include <QFuture>
+#include <QtConcurrent>
 #include <QGLShaderProgramEffect>
 #include <QOpenGLShaderProgram>
 #include <QGLAttributeValue>
@@ -67,6 +70,9 @@ void GeneRendererGL::clearData()
     m_thresholdLower = 0;
     m_thresholdUpper = 1;
     m_shape = DEFAULT_SHAPE_GENE;
+    m_totalReads = 0;
+    m_localPooledMax = 0;
+    m_localPooledMin = 0;
 
     // visual mode
     m_visualMode = NormalMode;
@@ -87,6 +93,7 @@ void GeneRendererGL::clearData()
 
     // set dirty to true when the geometry changes
     m_isDirty = true;
+    m_isInitialized = false;
 }
 
 void GeneRendererGL::resetQuadTree(const QRectF &rect)
@@ -134,13 +141,27 @@ void GeneRendererGL::setLowerLimit(int limit)
     }
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::generateData()
+{
+    m_isDirty = false;
+    m_isInitialized = false;
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::generateDataAsync);
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{ m_isDirty = true;
+        m_isInitialized = true; });
+}
+
+void GeneRendererGL::generateDataAsync()
 {
     const auto& features = m_dataProxy->getFeatureList();
 
     foreach(DataProxy::FeaturePtr feature, features) {
         Q_ASSERT(!feature.isNull());
+
+        // reset to default values
+        feature->color(Globals::DEFAULT_COLOR_GENE);
+        feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -159,16 +180,17 @@ void GeneRendererGL::generateData()
             // update look up container for the quad tree
             m_geneInfoQuadTree.insert(point, index);
         }
+
         // update look up container for the features and indexes
         m_geneInfoById.insert(feature, index); // same position = same feature = same index
         m_geneInfoReverse.insertMulti(index, feature); //multiple features per index
 
-    } //endforeach
+        // update total reads
+        m_totalReads += feature->hits();
 
-    m_isDirty = true;
+    } //endforeach
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::updateSize()
 {
     Q_ASSERT(!m_geneNode.isNull() && m_geneData.isValid());
@@ -222,10 +244,12 @@ void GeneRendererGL::updateVisible(DataProxy::GeneList geneList)
     updateVisual();
 }
 
-//TODO this can be optimized and run concurrently
+
 void GeneRendererGL::updateVisual()
 {
-    Q_ASSERT(m_geneData.isValid());
+    if (!m_isInitialized) {
+        return;
+    }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -298,8 +322,8 @@ void GeneRendererGL::updateVisual()
     }
 
     m_isDirty = true;
-    emit localPooledMinChanged(m_localPooledMin);
-    emit localPooledMaxChanged(m_localPooledMax);
+    //emit localPooledMinChanged(m_localPooledMin);
+    //emit localPooledMaxChanged(m_localPooledMax);
     emit selectionUpdated();
     emit updated();
 
@@ -370,8 +394,6 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
 {
     //aggregate all the selected features using SelectionType objects (aggregate by gene)
     QHash<QString, SelectionType> geneSelectionsMap;
-    int mappedX = 0;
-    int mappedY = 0;
     foreach(DataProxy::FeaturePtr feature, m_geneInfoSelectedFeatures) {
         Q_ASSERT(!feature.isNull());
         //assumes if a feature is selected, its gene is selected as well
@@ -380,10 +402,6 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
         const int adjustedReads = feature->hits();
         geneSelectionsMap[geneName].count++;
         geneSelectionsMap[geneName].reads += adjustedReads;
-        //mapping points to image CS (would be faster to convert the image to the CS)
-        transform().map(feature->x(), feature->y(), &mappedX, &mappedY);
-        //qGray gives more weight to the green channel
-        geneSelectionsMap[geneName].pixeIntensity += qGray(m_image.pixel(mappedX, mappedY));
         geneSelectionsMap[geneName].name = geneName;
     }
 
@@ -395,12 +413,6 @@ const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const
     return m_geneInfoSelectedFeatures;
 }
 
-
-void GeneRendererGL::setImage(const QImage &image)
-{
-    Q_ASSERT(!image.isNull());
-    m_image = image;
-}
 
 //TODO this can be optimized and run concurrently
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
@@ -500,6 +512,10 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode &mode)
 
 void GeneRendererGL::draw(QGLPainter *painter)
 {   
+    if (!m_isInitialized) {
+        return;
+    }
+
     Q_ASSERT(!m_geneNode.isNull());
 
     if (m_isDirty) {
@@ -519,6 +535,9 @@ void GeneRendererGL::draw(QGLPainter *painter)
     int colorMode = m_shaderProgram->program()->uniformLocation("in_colorMode");
     m_shaderProgram->program()->setUniformValue(colorMode, static_cast<GLint>(m_colorComputingMode));
 
+    int poolingMode = m_shaderProgram->program()->uniformLocation("in_poolingMode");
+    m_shaderProgram->program()->setUniformValue(poolingMode, static_cast<GLint>(m_poolingMode));
+
     int upperLimit = m_shaderProgram->program()->uniformLocation("in_pooledUpper");
     m_shaderProgram->program()->setUniformValue(upperLimit, static_cast<GLfloat>(m_localPooledMax));
 
@@ -530,6 +549,9 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
     int shape = m_shaderProgram->program()->uniformLocation("in_shape");
     m_shaderProgram->program()->setUniformValue(shape, static_cast<GLint>(m_shape));
+
+    int totalReads = m_shaderProgram->program()->uniformLocation("in_totalReads");
+    m_shaderProgram->program()->setUniformValue(totalReads, static_cast<GLint>(m_totalReads));
 
     // draw the data
     m_geneNode->draw(painter);

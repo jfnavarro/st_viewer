@@ -30,6 +30,7 @@
 #include <QSlider>
 #include <QRadioButton>
 #include <QGroupBox>
+#include <QFutureWatcher>
 
 #include "error/Error.h"
 #include "io/GeneExporter.h"
@@ -269,7 +270,7 @@ void CellViewPage::slotDatasetContentDownloaded(DataProxy::DownloadStatus status
     m_gene_plotter->setTransform(alignment);
     m_gene_plotter->setHitCount(min, max);
 
-    // load cell tissue
+    // load cell tissue (async)
     slotLoadCellFigure();
 
     // load min-max to the threshold sliders in tool bar
@@ -611,23 +612,8 @@ void CellViewPage::createMenusAndConnections()
 
 void CellViewPage::resetActionStates()
 {
-    // resets genes/features color and visible to default (must be done first)
-    // TODO should be a function to do this in DataProxy or somewhere else
-    // TODO at some point we will stop resetting everything
-    const auto &geneList = m_dataProxy->getGeneList();
-    for (auto gene : geneList) {
-        Q_ASSERT(!gene.isNull());
-        gene->selected(false);
-        gene->color(Globals::DEFAULT_COLOR_GENE);
-    }
-    const auto& features = m_dataProxy->getFeatureList();
-    for (auto feature : features) {
-        Q_ASSERT(!feature.isNull());
-        feature->color(Globals::DEFAULT_COLOR_GENE);
-    }
-
-    // load data for gene model,
-    m_ui->genesWidget->slotLoadModel(geneList);
+    // load data for gene model
+    m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
 
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(GridRendererGL::DEFAULT_COLOR_GRID);
@@ -728,6 +714,7 @@ void CellViewPage::initGLView()
     m_minimap = new MiniMapGL();
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap.data());
+
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
     connect(m_minimap.data(), SIGNAL(signalCenterOn(QPointF)),
@@ -747,8 +734,8 @@ void CellViewPage::slotLoadCellFigure()
     const bool loadRedFigure = forceRedFigure && !forceBlueFigure;
 
     // retrieve the image (red or blue)
-    const QImage image = loadRedFigure ? m_dataProxy->getFigureRed()
-                                       : m_dataProxy->getFigureBlue();
+    const QByteArray image = loadRedFigure ? m_dataProxy->getFigureRed()
+                                           : m_dataProxy->getFigureBlue();
 
     //update checkboxes
     m_ui->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
@@ -756,11 +743,12 @@ void CellViewPage::slotLoadCellFigure()
 
     // add image to the texture image holder
     // run it concurrently as it takes time
-    m_image->createTexture(image);
-    // set the scene size in the view to the image bounding box
-    m_view->setScene(image.rect());
-    // set the image in the gene plotter (used to retrieve the pixel intensities)
-    m_gene_plotter->setImage(image);
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    futureWatcher->setFuture(m_image->createTexture(image));
+    // set the scene size in the view to the image bounding box (image must have been tiled and
+    // textured before)
+    connect(futureWatcher, &QFutureWatcher<void>::finished,
+            [=]{ m_view->setScene(m_image->boundingRect()); });
 }
 
 void CellViewPage::slotPrintImage()

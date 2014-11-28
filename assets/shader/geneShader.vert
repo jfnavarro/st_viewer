@@ -18,11 +18,12 @@ varying lowp float outShape;
 // uniform variables
 uniform lowp int in_visualMode;
 uniform lowp int in_colorMode;
+uniform lowp int in_poolingMode;
 uniform lowp float in_pooledUpper;
 uniform lowp float in_pooledLower;
 uniform lowp int in_shape;
 uniform lowp float in_intensity;
-uniform lowp float in_shine;
+uniform lowp int in_totalReads;
 
 //Some in-house functions
 
@@ -103,10 +104,18 @@ void main(void)
     
     int visualMode = int(in_visualMode);
     int colorMode = int(in_colorMode);
+    int poolingMode = int(in_poolingMode);
     float value = float(qt_Custom1);
     float upper_limit = float(in_pooledUpper);
     float lower_limit = float(in_pooledLower);
-    float shine = float(in_shine);
+    float totalReads = float(in_totalReads);
+
+    //if mode is TPM
+    if (poolingMode == 2) {
+        value = (value * 10e5) / totalReads;
+        upper_limit = (upper_limit * 10e5) / totalReads;
+        upper_limit = (upper_limit * 10e5) / totalReads;
+    }
     
     //adjust for color mode (0 exp - 1 log - 2 linear)
     if (colorMode == 1) {

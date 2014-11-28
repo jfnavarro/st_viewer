@@ -104,7 +104,7 @@ public:
             //TODO temp hack coz they are wronly defined as strings in the server
             geneHit.append(QString::number(item.reads));
             geneHit.append(QString::number(item.count));
-            geneHit.append(QString::number(item.pixeIntensity));
+            geneHit.append(QString::number(item.normalizedReads));
             geneHits.append(geneHit);
         }
         jsonObj["gene_hits"] = geneHits;
@@ -138,7 +138,7 @@ private:
             itemList << item.name
                      << QString::number(item.reads)
                      << QString::number(item.count)
-                     << QString::number(item.pixeIntensity);
+                     << QString::number(item.normalizedReads);
             newList << QVariant::fromValue(itemList);
         }
 
@@ -161,8 +161,8 @@ private:
             const QString name = elementList.at(0).toString();
             const qreal reads = elementList.at(1).toDouble();
             const int count = elementList.at(2).toInt();
-            const qreal pixelIntensity = elementList.at(3).toDouble();
-            SelectionType selection(name, reads, 0.0, pixelIntensity, count);
+            const qreal normalizedReads = elementList.at(3).toDouble();
+            SelectionType selection(name, reads, normalizedReads, count);
             values.push_back(selection);
         }
 

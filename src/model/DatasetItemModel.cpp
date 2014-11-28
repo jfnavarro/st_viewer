@@ -58,13 +58,24 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
             return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
-        default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
+        default: return QVariant(QVariant::Invalid);
         }
-    } else if (role == Qt::ForegroundRole && index.column() == Name) {
+    }
+
+    if (role == Qt::ForegroundRole && index.column() == Name) {
         return QColor(0, 155, 60);
-    } else if (index.column() >= Barcodes
-               && index.column() <= LastModified && role == Qt::TextAlignmentRole) {
-        return Qt::AlignRight;
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        switch (index.column()) {
+        case Barcodes:
+        case Genes:
+        case UBarcodes:
+        case UGenes:
+        case Created:
+        case LastModified: return Qt::AlignRight;
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     return QVariant(QVariant::Invalid);
@@ -73,7 +84,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
 QVariant DatasetItemModel::headerData(int section,
                                       Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::ToolTipRole) {
+    if (role == Qt::ToolTipRole && orientation == Qt::Horizontal) {
         switch (section) {
         case Name : return tr("Dataset name");
         case Tissue : return tr("Tissue name");
@@ -84,31 +95,38 @@ QVariant DatasetItemModel::headerData(int section,
         case UGenes : return tr("Number of uniquely detected genes");
         case Created: return tr("Created at this date");
         case LastModified: return tr("Last Modified at this date");
-        default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
+        default: return QVariant(QVariant::Invalid);
         }
     }
 
-    if (role == Qt::DisplayRole) {
-        if (orientation == Qt::Horizontal) {
-            switch (section) {
-            case Name : return tr("Name");
-            case Tissue : return tr("Tissue");
-            case Specie : return tr("Species");
-            case Barcodes : return tr("Unique events");
-            case Genes : return tr("Transcript reads");
-            case UBarcodes : return tr("Detected Barcodes");
-            case UGenes : return tr("Detected Genes");
-            case Created: return tr("Created");
-            case LastModified: return tr("Last Modified");
-            default: Q_ASSERT_X(false, "DatasetItemModel", "Unknown column!");
-            }
-        } else if (orientation == Qt::Vertical) {
-            return (section + 1);
+    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+        switch (section) {
+        case Name : return tr("Name");
+        case Tissue : return tr("Tissue");
+        case Specie : return tr("Species");
+        case Barcodes : return tr("Unique events");
+        case Genes : return tr("Transcript reads");
+        case UBarcodes : return tr("Detected Barcodes");
+        case UGenes : return tr("Detected Genes");
+        case Created: return tr("Created");
+        case LastModified: return tr("Last Modified");
+        default: return QVariant(QVariant::Invalid);
         }
     }
 
     if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignLeft;
+        switch (section) {
+        case Name:
+        case Tissue:
+        case Specie:
+        case Barcodes:
+        case Genes:
+        case UBarcodes:
+        case UGenes:
+        case Created:
+        case LastModified: return Qt::AlignLeft;
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     return QVariant(QVariant::Invalid);

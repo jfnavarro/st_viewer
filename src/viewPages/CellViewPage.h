@@ -90,7 +90,7 @@ private slots:
     // slot to save the currently selected genes
     void slotSaveSelection();
 
-    // load the cell tissue figure into the stage
+    // load the cell tissue figure (tile it into textures) async
     void slotLoadCellFigure();
 
     //used to be notified when the dataset content has been downloaded or a selection created

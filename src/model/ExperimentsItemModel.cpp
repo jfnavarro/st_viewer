@@ -37,14 +37,15 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(!item.isNull());
-
         switch (index.column()) {
         case Name: return item->name();
         case Dataset: return item->datasetName();
         case Comment: return item->comment();
         case NGenes: return QString::number(item->selectedItems().size());
-        case Created: return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
-        case LastModified: return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
+        case Created:
+            return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
+        case LastModified:
+            return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -53,9 +54,13 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         return QColor(0, 155, 60);
     }
 
-    if (index.column() >= NGenes
-                   && index.column() <= LastModified && role == Qt::TextAlignmentRole) {
-        return Qt::AlignRight;
+    if (role == Qt::TextAlignmentRole) {
+        switch (index.column()) {
+        case NGenes:
+        case Created:
+        case LastModified: return Qt::AlignRight;
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     return QVariant(QVariant::Invalid);
@@ -89,7 +94,15 @@ QVariant ExperimentsItemModel::headerData(int section,
     }
 
     if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignLeft;
+        switch (section) {
+        case Name:
+        case Dataset:
+        case Comment:
+        case NGenes:
+        case Created:
+        case LastModified: return Qt::AlignLeft;
+        default: return QVariant(QVariant::Invalid);
+        }
     }
 
     // return invalid value

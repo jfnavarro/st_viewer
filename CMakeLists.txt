@@ -73,6 +73,7 @@ configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT
 configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
 configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
 
+# include the project binary dir
 include_directories(${PROJECT_BINARY_DIR})
 
 # find qt libraries
@@ -84,6 +85,9 @@ endif()
 foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
 endforeach()
+
+# add cutom find.cmake
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #initialize project stuff (important first)
 initialise_project()

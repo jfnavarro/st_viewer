@@ -22,6 +22,20 @@ Feature::Feature()
 
 }
 
+Feature::Feature(QString barcode, QString gene, int x, int y, int hits)
+    : m_barcode(barcode),
+      m_gene(gene),
+      m_annotation(),
+      m_hits(hits),
+      m_x(x),
+      m_y(y),
+      m_color(Globals::DEFAULT_COLOR_GENE)
+
+{
+
+}
+
+
 Feature::Feature(const Feature& other)
 {
     m_barcode = other.m_barcode;

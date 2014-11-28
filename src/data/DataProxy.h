@@ -27,7 +27,7 @@
 namespace async {
 class DataRequest;
 }
-class QImage;
+class QByteArray;
 class NetworkManager;
 class AuthorizationManager;
 class NetworkReply;
@@ -80,7 +80,7 @@ public:
     typedef QList<GeneSelectionPtr> GeneSelectionList;
 
     //cell figure hashed by figure name (figure names are unique)
-    typedef QHash<QString, QImage> CellFigureMap;
+    typedef QHash<QString, QByteArray> CellFigureMap;
 
     //array of three elements containing the min version supported
     typedef std::array<qulonglong, 3> MinVersionArray;
@@ -185,10 +185,10 @@ public:
     // a current dataset object must be selected otherwise it returns a null object
     UserPtr getUser() const;
 
-    // returns the currently loaded image blue or red
+    // returns the currently loaded image blue or red as a byte array
     // a current dataset object must be selected otherwise it returns an empty image
-    const QImage getFigureRed() const;
-    const QImage getFigureBlue() const;
+    const QByteArray getFigureRed() const;
+    const QByteArray getFigureBlue() const;
 
     // returns the currently loaded list of genes selections
     const GeneSelectionList getGenesSelectionsList() const;

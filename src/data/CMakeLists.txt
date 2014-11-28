@@ -1,4 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/picojson)
+include_directories(${PROJECT_SOURCE_DIR}/ext)
 
 set(LIBRARY_ARG_INCLUDES
     DataProxy.h

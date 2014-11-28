@@ -33,9 +33,130 @@
 #include "dataModel/GeneSelectionDTO.h"
 #include "dataModel/LastModifiedDTO.h"
 
-#include "picojson/picojson.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/error/en.h"
+
 #include <iostream>
 #include <sstream>
+
+using namespace rapidjson;
+
+//Handler with call backs for rapidjson
+//explicitly made to parse the Features JSON type object
+//references to the containers are passed and will be filled up
+//with the parsed objects
+//TODO move to a separate file
+struct FeaturesHanlder {
+
+public:
+
+    FeaturesHanlder(DataProxy::FeatureList &m_featuresList,
+                    DataProxy::GeneList &m_genesList,
+                    DataProxy::GeneFeatureMap &m_geneFeaturesMap)
+        : featuresList(m_featuresList),
+          genesList(m_genesList),
+          geneFeaturesMap(m_geneFeaturesMap)
+    {
+    }
+
+    bool Null() { return false; }
+    bool Bool(bool) { return false; }
+
+    bool Int(int i)
+    {
+        varMap.insert(currentKey, i);
+        return true;
+    }
+
+    bool Uint(unsigned u)
+    {
+        varMap.insert(currentKey, u);
+        return true;
+    }
+
+
+    bool Int64(int64_t i)
+    {
+        varMap.insert(currentKey, static_cast<qlonglong>(i));
+        return true;
+    }
+
+    bool Uint64(uint64_t u)
+    {
+        varMap.insert(currentKey, static_cast<qulonglong>(u));
+        return true;
+    }
+
+    bool Double(double d)
+    {
+        varMap.insert(currentKey, d);
+        return true;
+    }
+
+    bool String(const char* str, SizeType length, bool)
+    {
+        std::string std_str(str, length);
+        varMap.insert(currentKey, QString::fromStdString(std_str));
+        return true;
+    }
+
+    bool StartObject()
+    {
+        varMap.clear();
+        currentKey.clear();
+        return true;
+    }
+
+    bool Key(const char* str, SizeType length, bool)
+    {
+        std::string std_str(str, length);
+        currentKey = QString::fromStdString(std_str);
+        return true;
+    }
+
+    bool EndObject(SizeType)
+    {
+        //create feature object from variant map
+        FeatureDTO dto;
+        data::parseObject(varMap, &dto);
+        DataProxy::FeaturePtr feature = DataProxy::FeaturePtr(new Feature(dto.feature()));
+
+        //get the gene name
+        const QString gene = feature->gene();
+
+        //create unique gene object
+        DataProxy::GenePtr genePtr;
+        if (geneNameToGene.contains(gene)) {
+            genePtr = geneNameToGene.value(gene);
+        } else {
+            genePtr =  DataProxy::GenePtr(new Gene(gene));
+            geneNameToGene.insert(gene, genePtr);
+            genesList.push_back(genePtr);
+        }
+
+        //update feature with the unique gene object
+        feature->geneObject(genePtr);
+
+        //update containers
+        featuresList.push_back(feature);
+        geneFeaturesMap.insert(gene, feature);
+
+        return true;
+    }
+
+    bool StartArray() { return true; }
+    bool EndArray(SizeType) { return true; }
+
+private:
+
+    DataProxy::FeatureList &featuresList;
+    DataProxy::GeneList &genesList;
+    DataProxy::GeneFeatureMap &geneFeaturesMap;
+    QHash<QString, DataProxy::GenePtr> geneNameToGene;
+    QString currentKey;
+    QVariantMap varMap;
+};
 
 DataProxy::DataProxy(QObject *parent) :
     QObject(parent),
@@ -139,7 +260,7 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment() const
     return m_imageAlignment;
 }
 
-const QImage DataProxy::getFigureRed() const
+const QByteArray DataProxy::getFigureRed() const
 {
     Q_ASSERT(!m_imageAlignment.isNull()
              && !m_imageAlignment->figureRed().isNull()
@@ -147,7 +268,7 @@ const QImage DataProxy::getFigureRed() const
     return m_cellTissueImages.value(m_imageAlignment->figureRed());
 }
 
-const QImage DataProxy::getFigureBlue() const
+const QByteArray DataProxy::getFigureBlue() const
 {
     Q_ASSERT(!m_imageAlignment.isNull()
              && !m_imageAlignment->figureBlue().isNull()
@@ -524,93 +645,17 @@ void DataProxy::slotAbortActiveDownloads()
 
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
-    bool dirty = false;
-
-    //temp container to assure the uniqueness of the Gene objects
-    QHash<QString, GenePtr> geneNameToGene;
-
-    // aux variable to parse feature objects
-    FeatureDTO dto;
-
-    /*
-    const QJsonDocument &doc = reply->getJSON();
-    if (doc.isNull() || doc.isEmpty()) {
-        return false;
-    }
-
-    // iterate the features from the JSON object
-    foreach(QVariant var, doc.toVariant().toList()) {
-        // convert from QVariant to FeatureDTO and create Feature object
-        data::parseObject(var, &dto);
-        FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
-
-        const QString geneName = feature->gene();
-
-        //create unique gene object
-        GenePtr gene;
-        if (geneNameToGene.contains(geneName)) {
-            gene = geneNameToGene.value(geneName);
-        } else {
-            gene = GenePtr(new Gene(geneName));
-            geneNameToGene.insert(geneName, gene);
-            m_genesList.push_back(gene);
-        }
-
-        //update feature with the unique gene object
-        feature->geneObject(gene);
-        //update containers
-        m_featuresList.push_back(feature);
-        m_geneFeaturesMap.insert(gene->name(), feature);
-
-        dirty = true;
-    }
-    */
-
+    bool dirty = true;
+    FeaturesHanlder handler(m_featuresList, m_genesList, m_geneFeaturesMap);
+    Reader reader;
     QByteArray rawText = reply->getRaw();
-    std::stringstream jsonStream(std::string(rawText.data(), rawText.size()));
-    picojson::value v;
-    jsonStream >> v;
-    const picojson::array& a = v.get<picojson::array>();
-    for (picojson::array::const_iterator i = a.begin(); i != a.end(); ++i) {
-        const picojson::object& o = i->get<picojson::object>();
-        QVariantMap var;
-        for (picojson::object::const_iterator i = o.begin(); i != o.end(); ++i) {
-            QString key = QString::fromStdString(i->first);
-            if (i->second.is<picojson::null>()) {
-                var.insert(key, QJsonValue::Null);
-            } else if (i->second.is<bool>()) {
-                var.insert(key, i->second.get<bool>());
-            } else if (i->second.is<double>()) {
-                var.insert(key, i->second.get<double>());
-            } else if (i->second.is<std::string>()) {
-                var.insert(key, QString::fromStdString(i->second.get<std::string>()));
-            }
-        }
-
-        data::parseObject(var, &dto);
-        FeaturePtr feature = FeaturePtr(new Feature(dto.feature()));
-
-        const QString geneName = feature->gene();
-
-        //create unique gene object
-        GenePtr gene;
-        if (geneNameToGene.contains(geneName)) {
-            gene = geneNameToGene.value(geneName);
-        } else {
-            gene = GenePtr(new Gene(geneName));
-            geneNameToGene.insert(geneName, gene);
-            m_genesList.push_back(gene);
-        }
-
-        //update feature with the unique gene object
-        feature->geneObject(gene);
-        //update containers
-        m_featuresList.push_back(feature);
-        m_geneFeaturesMap.insert(gene->name(), feature);
-
-        dirty = true;
+    StringStream is(rawText.data());
+    const bool ok = reader.Parse(is, handler);
+    if (!ok) {
+        ParseErrorCode e = reader.GetParseErrorCode();
+        qDebug() << "[DataProxy] Error parsing features JSON : " << GetParseError_En(e) << endl;
+        dirty = false;
     }
-
     return dirty;
 }
 
@@ -618,22 +663,15 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
 {
     // get filename and file raw data (check if it was encoded or not)
     const QByteArray &rawImage = reply->getRaw();
-    Q_ASSERT(!rawImage.isEmpty() && !rawImage.isNull());
+    const bool imageOk = !rawImage.isEmpty() && !rawImage.isNull();
 
     const QString &imageName = reply->property("figure_name").toString();
-    Q_ASSERT(!imageName.isEmpty() && !imageName.isNull());
+    const bool nameOk = !imageName.isEmpty() && !imageName.isNull();
 
-    //create the image from raw data
-    QImage image = QImage::fromData(rawImage);
+    //store the image as raw data
+    m_cellTissueImages.insert(imageName, rawImage);
 
-    const bool imageOk = !image.isNull();
-    if (imageOk) {
-        m_cellTissueImages.insert(imageName, image);
-    } else {
-        qDebug() << "[DataProxy] Error parsing image " << imageName;
-    }
-
-    return imageOk;
+    return imageOk && nameOk;
 }
 
 bool DataProxy::parseDatasets(NetworkReply *reply)

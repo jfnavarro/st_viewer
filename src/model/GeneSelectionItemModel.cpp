@@ -9,7 +9,7 @@
 #include <QDebug>
 #include "dataModel/GeneSelection.h"
 
-static const int COLUMN_NUMBER = 4;
+static const int COLUMN_NUMBER = 3;
 
 GeneSelectionItemModel::GeneSelectionItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -35,10 +35,6 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         case Name: return item.name;
         case Count: return QString::number(item.count);
         case Hits: return QString::number(item.reads);
-        //normalize pixel intensity by the max gray scale(255) multiplied by the number of
-        //occurrences
-        case PixelItensity: return QString::number(item.pixeIntensity
-                                                   / (255 * item.count), 'f', 2);
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -51,7 +47,6 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         switch (index.column()) {
         case Count: return Qt::AlignRight;
         case Hits: return Qt::AlignRight;
-        case PixelItensity: return Qt::AlignRight;
         case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }
@@ -68,7 +63,6 @@ QVariant GeneSelectionItemModel::headerData(int section,
         case Name: return tr("Gene");
         case Count: return tr("Count");
         case Hits: return tr("Reads");
-        case PixelItensity: return tr("P. Intensity");
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -78,7 +72,6 @@ QVariant GeneSelectionItemModel::headerData(int section,
         case Name: return tr("The name of the gene");
         case Count: return tr("The number of occurences of the gene");
         case Hits: return tr("The aggregated number of reads");
-        case PixelItensity: return tr("The normalized pixel intensity");
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -87,7 +80,6 @@ QVariant GeneSelectionItemModel::headerData(int section,
         switch (section) {
         case Count: return Qt::AlignRight;
         case Hits: return Qt::AlignRight;
-        case PixelItensity: return Qt::AlignRight;
         case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }

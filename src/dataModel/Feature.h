@@ -25,6 +25,7 @@ public:
 
     Feature();
     explicit Feature(const Feature &other);
+    Feature(QString barcode, QString gene, int x, int y, int hits);
     ~Feature();
 
     Feature& operator=(const Feature& other);

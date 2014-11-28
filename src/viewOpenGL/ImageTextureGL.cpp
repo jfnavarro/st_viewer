@@ -13,6 +13,10 @@
 #include <QGLPainter>
 #include <QtConcurrent>
 #include <QFuture>
+#include <QByteArray>
+#include <QBuffer>
+
+#include "utils/QJpegImageReader.h"
 
 #include <cmath>
 
@@ -49,6 +53,7 @@ void ImageTextureGL::clearTextures()
         }
         texture = nullptr;
     }
+
     m_textures.clear();
 }
 
@@ -60,6 +65,7 @@ void ImageTextureGL::clearNodes()
         }
         node = nullptr;
     }
+
     m_nodes.clear();
 }
 
@@ -86,30 +92,49 @@ void ImageTextureGL::setSelectionArea(const SelectionEvent *)
 
 }
 
-void ImageTextureGL::createTexture(const QImage& image)
+QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
 {
     //clear memory
     clearData();
-
-    m_bounds = image.rect();
-
-    // we always tile, it is not secure to create one texture from the whole image
-    createTiles(image);
-
-    //TODO finish the future implementation
-    //QFuture<void> future = QtConcurrent::run(this, &ImageTextureGL::createTiles, image);
+    return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
 }
 
-void ImageTextureGL::createTiles(const QImage &image)
+void ImageTextureGL::createTiles(QByteArray imageByteArray)
 {
-    static const int tile_width = 512;
-    static const int tile_height = 512;
-    const int width = image.width();
-    const int height = image.height();
+    static const int tile_width = 1024;
+    static const int tile_height = 1024;
+
+    //extract image from byte array
+    QBuffer imageBuffer(&imageByteArray);
+    if (!imageBuffer.open(QIODevice::ReadOnly)) {
+        qDebug() << "[ImageTextureGL] Image decoding buffer error:" << imageBuffer.errorString();
+        return;
+    }
+
+    //create image from byte array
+    QJpegImageReader imageReader;
+    imageReader.setDevice(&imageBuffer);
+    QImage image;
+    const bool readOk = imageReader.read(&image);
+    if (!readOk || image.isNull()) {
+        qDebug() << "[ImageTextureGL] Created image failed ";
+        return;
+    }
+    imageBuffer.close();
+
+    //get size and bounds
+    const QSize imageSize = image.size();
+    m_bounds = image.rect();
+
+    //compute tiles size and numbers
+    const int width = imageSize.width();
+    const int height = imageSize.height();
     const int xCount = std::ceil(qreal(width) / qreal(tile_width));
     const int yCount = std::ceil(qreal(height) / qreal(tile_height));
     const int count = xCount * yCount;
 
+    QImage sub_image;
+    QRect clip_rect;
     for (int i = 0; i < count; ++i) {
 
         // texture sizes
@@ -119,7 +144,12 @@ void ImageTextureGL::createTiles(const QImage &image)
         const int texture_height = std::min(height -  y, tile_height);
 
         // create sub image
-        QImage sub_image = image.copy(QRect(x, y, texture_width, texture_height));
+        clip_rect.setRect(x, y, texture_width, texture_height);
+        //TODO an ideal solution would  be to extract the clip rect part of the image
+        //from the imageReader to avoid loading the whole image into memory
+        //but the setClipRect option would only work one time, after calling read()
+        //the buffer is cleaned
+        sub_image = image.copy(clip_rect);
 
         // add texture
         addTexture(sub_image, x, y);

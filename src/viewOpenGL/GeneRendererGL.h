@@ -53,8 +53,9 @@ public:
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
-    // data builder (create data arrays from the features)
+    // data builder (create data arrays from the features in async ways)
     void generateData();
+    void generateDataAsync();
 
     // clears data and reset variables
     void clearData();
@@ -70,10 +71,6 @@ public:
 
     //returns the currently selected features
     const DataProxy::FeatureList& getSelectedFeatures() const;
-
-    // stores a local copy of the tissue image in genes cordinate space
-    // so we can obtain pixel intensity values when storing selections
-    void setImage(const QImage& image);
 
     // threshold limits pooled and not pooled for feature hits
     void setHitCount(const int min, const int max);
@@ -173,9 +170,6 @@ private:
     qreal m_size;
     GeneShape m_shape;
 
-    // cell tissue image (in genes coordinate system)
-    QImage m_image;
-
     // threshold limits for gene hits
     int m_thresholdLower;
     int m_thresholdUpper;
@@ -183,6 +177,9 @@ private:
     // local pooled min-max for rendering (Adjusted according to what is being rendered)
     float m_localPooledMin;
     float m_localPooledMax;
+
+    // total sum of reads for the TPM mode (normalized)
+    int m_totalReads;
 
     // bounding rect area
     QRectF m_border;
@@ -199,8 +196,9 @@ private:
     // shader program (TODO use smart pointer)
     QGLShaderProgramEffect *m_shaderProgram;
 
-    // to know if visual data has changed
+    // to know if visual data has changed or initialized
     bool m_isDirty;
+    bool m_isInitialized;
 
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;

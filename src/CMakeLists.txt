@@ -39,7 +39,7 @@ set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
-#define what  sub  folders will be compiled
+#define what sub folders will be compiled
 set(subdir_list
                    dialogs
                    color
@@ -58,6 +58,12 @@ set(subdir_list
                    config
                    math
                    analysis)
+
+# we need to find this package here cos it is used
+# in one of the sub modules. If we move this to the CMake file of
+# the module the linking will fail
+find_package(JpegTurbo REQUIRED)
+include_directories(${LIBJPEG_INCLUDE_DIRS})
 
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
@@ -85,8 +91,8 @@ if(APPLE)
     find_library(AppKit_LIBRARY AppKit)
     find_library(COCOA_LIBRARY Cocoa)
     find_library(APP_SERVICES_LIBRARY ApplicationServices)
-    mark_as_advanced(APP_SERVICES_LIBRARY COCOA_LIBRARY AppKit_LIBRARY) 
-    set(MAC_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY} ${AppKit_LIBRARY}) 
+    mark_as_advanced(APP_SERVICES_LIBRARY COCOA_LIBRARY AppKit_LIBRARY)
+    set(MAC_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${COCOA_LIBRARY} ${AppKit_LIBRARY})
 endif()
 
 ##FLAGS AND DEFINITIONS###
@@ -110,8 +116,7 @@ endforeach()
 
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
-list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:picojson>")
-
+#rapidjson does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
 set(QT_TARGET_LINK_LIBS Qt5::Core
@@ -139,13 +144,12 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
 endif()
 
-##no need to link to these libraries unless we find problems
-#if(APPLE)
-#   target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS})
-#endif()
+if(APPLE)
+   target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS})
+endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${LIB_COMPONENTS} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES}) #${LIB_COMPONENTS}
 
 ### UNIT TESTS ################################################################
 
@@ -336,11 +340,6 @@ if(WIN32)
         !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
         !define MUI_STARTMENUPAGE_NODISABLE
     ")
-    # adding this 
-    #   CreateShortcut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\stVi.lnk\\\"  \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"Z:code\\\\st_client\\\\assets\\\\images\\\\st_icon.ico\\\"
-    # and
-    #   Delete \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\stVi.lnk\\\" 
-    # to the next commands gives parsing error. 
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
         CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"Z:code\\\\st_client\\\\assets\\\\images\\\\st_icon.ico\\\"
     ")

@@ -14,10 +14,10 @@ public:
     SelectionType();
     SelectionType(const SelectionType& other);
     SelectionType(QString name, int reads, qreal
-                  normalizedReads = 0, qreal pixeIntensity = 0, int count = 0);
+                  normalizedReads = 0, int count = 0);
 
     SelectionType& operator= (const SelectionType& other);
-    SelectionType& operator+= (const SelectionType& other);
+    //SelectionType& operator+= (const SelectionType& other);
     bool operator< (const SelectionType& other) const;
     bool operator== (const SelectionType& other) const;
 
@@ -25,9 +25,8 @@ public:
     int reads;
     //normalized reads not used at the moment
     //until we decide a final approach for the DEA
-    //and the normalization
+    //and the normalization (specially for aggregated features by gene)
     qreal normalizedReads;
-    qreal pixeIntensity;
     int count;
 };
 
@@ -64,6 +63,7 @@ public:
     const QString datasetName() const;
     const QString type() const;
     //return the total sum of reads in the Selection items
+    //TODO add a simple cache for the total reads
     int totalReads() const;
 
     void id(const QString& id);
