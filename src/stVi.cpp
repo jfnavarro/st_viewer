@@ -286,6 +286,7 @@ void stVi::initStyle()
                   "QPushButton:focus:pressed { background-color: transparent; border: none; } "
                   "QPushButton:pressed { background-color: transparent; border: none } "
                   "QPushButton:flat { background-color: transparent; border: none } "
+                  "QPushButton:checked { background-color: rgb(80,80,80); border: none; } "
                   "QHeaderView::section {height: 35px; padding-left: 4px;"
                                         "background-color: rgb(230,230,230); "
                                         "border: 1px solid rgb(240,240,240);} "

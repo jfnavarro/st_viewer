@@ -30,6 +30,8 @@ AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
     m_minY(0.0),
     m_maxY(1.0)
 {
+    setWindowFlags(Qt::WindowStaysOnTopHint);
+
     setModal(false);
     m_ui->setupUi(this);
 

@@ -13,13 +13,15 @@
 #include <QCustomDataArray>
 #include <QGLIndexBuffer>
 
+#include "utils/Utils.h"
+
 static const QGL::VertexAttribute selectionVertex = QGL::CustomVertex0;
 static const QGL::VertexAttribute valuesVertex = QGL::CustomVertex1;
-
 static const int QUAD_SIZE = 4;
 
 GeneData::GeneData()
 {
+
 }
 
 GeneData::~GeneData()
@@ -30,7 +32,6 @@ GeneData::~GeneData()
 void GeneData::clearData()
 {
     clear();
-    m_refCount.clear();
 }
 
 int GeneData::addQuad(const float x, const float y, const float size, const QColor4ub color)
@@ -58,7 +59,6 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
     for(int i = 0; i < QUAD_SIZE; i++) {
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
-        m_refCount.append(0.0);
     }
 
     // return first index of the quad created
@@ -88,13 +88,6 @@ void GeneData::updateQuadSelected(const int index, bool selected)
     }
 }
 
-void GeneData::updateQuadRefCount(const int index, int refcount)
-{
-    for(int i = 0; i < QUAD_SIZE; i++) {
-        m_refCount[index + i] = refcount;
-    }
-}
-
 void GeneData::updateQuadValue(const int index, float value)
 {
     for(int i = 0; i < QUAD_SIZE; i++) {
@@ -113,37 +106,17 @@ bool GeneData::quadSelected(const int index) const
     return floatAttributeAt(index, selectionVertex) == 1.0;
 }
 
-int GeneData::quadRefCount(const int index) const
-{
-    // all vertices has same value
-    return m_refCount.at(index);
-}
-
 float GeneData::quadValue(const int index) const
 {
     // all vertices has same value
     return floatAttributeAt(index, valuesVertex);
 }
 
-void GeneData::resetRefCount()
-{
-    std::fill(m_refCount.begin(), m_refCount.end(), 0.0);
-}
 
 void GeneData::resetValues()
 {
     for(int i = 0; i < attributes(valuesVertex).count(); ++i) {
         floatAttribute(i, valuesVertex) = 0.0;
-    }
-}
-
-void GeneData::resetRefCountSelectAndValues()
-{
-    //both list have the same size
-    for(int i = 0; i < attributes(valuesVertex).count(); ++i) {
-        floatAttribute(i, valuesVertex) = 0.0;
-        m_refCount[i] = 0.0;
-        floatAttribute(i, selectionVertex) = 0.0;
     }
 }
 

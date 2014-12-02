@@ -24,9 +24,9 @@ namespace Globals
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
 
 enum GeneColorMode {
-    ExpColor = 0,
-    LogColor = 1,
-    LinearColor = 2
+    LinearColor = 1,
+    LogColor = 2,
+    ExpColor = 3,
 };
 
 enum Anchor {

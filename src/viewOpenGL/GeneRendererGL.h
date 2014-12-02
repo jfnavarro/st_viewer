@@ -33,21 +33,21 @@ class GeneRendererGL : public GraphicItemGL
 public:
 
     enum GenePooledMode {
-        PoolNumberGenes = 0,
         PoolReadsCount = 1,
-        PoolTPMs = 2
+        PoolNumberGenes = 2,
+        PoolTPMs = 3
     };
 
     enum GeneShape  {
-        Circle = 0,
-        Cross = 1,
-        Square = 2
+        Circle = 1,
+        Cross = 2,
+        Square = 3
     };
 
     enum GeneVisualMode {
-        NormalMode = 0,
-        DynamicRangeMode = 1,
-        HeatMapMode = 2
+        NormalMode = 1,
+        DynamicRangeMode = 2,
+        HeatMapMode = 3
     };
 
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
@@ -82,26 +82,26 @@ public slots:
     //slot to change visual atttributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
-    void setShape(const GeneShape &shape);
+    void setShape(const GeneShape shape);
 
     //slots for the thresholds
     void setLowerLimit(int limit);
     void setUpperLimit(int limit);
 
     //slots to set visual modes and color computations modes
-    void setVisualMode(const GeneVisualMode &mode);
-    void setPoolingMode(const GenePooledMode &mode);
-    void setColorComputingMode(const Globals::GeneColorMode &mode);
+    void setVisualMode(const GeneVisualMode mode);
+    void setPoolingMode(const GenePooledMode mode);
+    void setColorComputingMode(const Globals::GeneColorMode mode);
 
     //for the given gene list updates the color
     //according to the color of the selected genes
     // gene data must be initialized
-    void updateColor(DataProxy::GeneList geneList);
+    void updateColor(const DataProxy::GeneList &geneList);
 
     //for the given gene list see all its features to visible
     //according if the gene is selected or not
     // gene data must be initialized
-    void updateVisible(DataProxy::GeneList geneList);
+    void updateVisible(const DataProxy::GeneList &geneList);
 
     //clear all the selected features and notify observers
     void clearSelection();
@@ -139,14 +139,14 @@ private:
     void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
-    void resetQuadTree(const QRectF &rect);
+    void resetQuadTree(const QRectF rect);
 
     // compiles and loads the shaders
     void setupShaders();
 
     // lookup maps for features
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
-    typedef QHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
     typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
     // lookup quadtree type
     typedef QuadTree<int, 8> GeneInfoQuadTree;
@@ -158,7 +158,6 @@ private:
     // gene lookup data (feature -> index)
     GeneInfoByIdMap m_geneInfoById;
     // gene lookup data (index -> features)
-    //TODO can probably be removed
     GeneInfoReverseMap m_geneInfoReverse;
     // vector of selected features
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;

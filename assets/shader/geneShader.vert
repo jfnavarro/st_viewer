@@ -110,41 +110,35 @@ void main(void)
     float lower_limit = float(in_pooledLower);
     float totalReads = float(in_totalReads);
 
-    //if mode is TPM
-    if (poolingMode == 2) {
+    //if mode is TPM adjust reads by total reads
+    if (poolingMode == 3) {
         value = (value * 10e5) / totalReads;
         upper_limit = (upper_limit * 10e5) / totalReads;
         upper_limit = (upper_limit * 10e5) / totalReads;
     }
     
-    //adjust for color mode (0 exp - 1 log - 2 linear)
-    if (colorMode == 1) {
+    //adjust for color mode (1 linear - 2 log - 3 exp)
+    if (colorMode == 2) {
         value = log(value + 1);
         upper_limit = log(upper_limit + 1);
         lower_limit = log(lower_limit + 1);
-    } else if (colorMode == 0) {
+    } else if (colorMode == 3) {
         value = sqrt(value);
         upper_limit = sqrt(upper_limit);
         lower_limit = sqrt(lower_limit);
     }
     
-    //the color computation functions and helpers
-    //are the same as the class HeatMap
-    
-    // if value is 0 the feature is not visible
-    if (value == 0.0) {
+    //visual modes (1 normal - 2 dynamic range - 3 heatmap)
+    outColor.a = in_intensity;
+    if (value == 0.0) { // if value is 0 the feature is not visible
         outColor.a = 0.0;
-    } else if (visualMode == 1) { //dynamic range mode
+    } else if (visualMode == 2) { //dynamic range mode
         float normalizedValue = norm(value, lower_limit, upper_limit);
         outColor.a = normalizedValue + (1.0 - in_intensity);
-    } else if (visualMode == 2) { //heat map mode
+    } else if (visualMode == 3) { //heat map mode
         float normalizedValue = norm(value, lower_limit, upper_limit);
         outColor = createHeatMapColor(normalizedValue);
-        outColor.a = in_intensity;
-    } else {
-        outColor.a = in_intensity;
     }
-    
     
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
 }

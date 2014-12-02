@@ -524,11 +524,11 @@ void CellViewPage::createMenusAndConnections()
             [=]{ m_legend->setColorComputingMode(Globals::ExpColor);
                  m_gene_plotter->setColorComputingMode(Globals::ExpColor);});
     connect(m_colorLinear.data(), &QRadioButton::clicked,
-            [=]{ m_legend->setColorComputingMode(Globals::LogColor);
-                 m_gene_plotter->setColorComputingMode(Globals::LogColor);});
-    connect(m_colorLog.data(), &QRadioButton::clicked,
             [=]{ m_legend->setColorComputingMode(Globals::LinearColor);
                  m_gene_plotter->setColorComputingMode(Globals::LinearColor);});
+    connect(m_colorLog.data(), &QRadioButton::clicked,
+            [=]{ m_legend->setColorComputingMode(Globals::LogColor);
+                 m_gene_plotter->setColorComputingMode(Globals::LogColor);});
     connect(m_poolingGenes.data(), &QRadioButton::clicked,
             [=]{ m_gene_plotter->setPoolingMode(GeneRendererGL::PoolNumberGenes); });
     connect(m_poolingReads.data(), &QRadioButton::clicked,

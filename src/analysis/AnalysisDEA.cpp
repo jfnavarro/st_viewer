@@ -27,6 +27,8 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_lowerThreshold(0),
     m_upperThreshold(1)
 {
+    setWindowFlags(Qt::WindowStaysOnTopHint);
+
     setModal(true);
 
     m_ui->setupUi(this);

@@ -37,7 +37,6 @@ void ScrollArea::initializeView(QPointer<CellGLView> view)
     m_view = view;
     m_container = QWidget::createWindowContainer(m_view);
     m_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
     setViewport(m_container.data());
 
     verticalScrollBar()->setTracking(true);

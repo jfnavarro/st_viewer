@@ -24,7 +24,7 @@ void main(void)
     bool selected = bool(outSelected);
     int shape = int(outShape);
     
-    if (shape == 0) { //circle
+    if (shape == 1) { //circle
         // calculate distance from center
         vec2 pos = mod(textCoord.xy, vec2(1.0)) - vec2(0.5);
         float dist = length(pos);
@@ -36,7 +36,7 @@ void main(void)
         if (selected) {
             fragColor = mix(fragColor, cWhite, smoothband(radii + 0.02, 0.49, 0.01, dist));
         }
-    } else if (shape == 1) { //cross
+    } else if (shape == 2) { //cross
         // calculate distance from center
         vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
         float mindist = min(pos.x, pos.y);
