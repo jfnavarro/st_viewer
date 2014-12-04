@@ -5,6 +5,8 @@
 
 */
 
+#include "Page.h"
+
 #include <QApplication>
 #include <QMessageBox>
 #include <QStyle>
@@ -12,26 +14,26 @@
 #include <QDebug>
 #include <QPushButton>
 
-#include "Page.h"
+#include "data/DataProxy.h"
 
-Page::Page(QWidget *parent) :
+Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     QWidget(parent),
-    m_progressDialog(nullptr)
+    m_progressDialog(nullptr),
+    m_dataProxy(dataProxy)
 {
-    setWindowFlags(Qt::FramelessWindowHint);
-    setStyleSheet("QWidget {background-color:rgb(240,240,240);}");
+    Q_ASSERT(!m_dataProxy.isNull());
 
-    m_progressDialog = new QProgressDialog();
+    m_progressDialog = new QProgressDialog(nullptr, Qt::WindowStaysOnTopHint);
+    m_progressDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint
+                                     | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
-    m_progressDialog->setWindowFlags(((m_progressDialog->windowFlags()
-                                       | Qt::CustomizeWindowHint)
-                                      & (~Qt::WindowCloseButtonHint | ~Qt::WindowMinMaxButtonsHint)));
     m_progressDialog->setCancelButtonText(tr("Abort"));
     m_progressDialog->setAutoClose(false);
     m_progressDialog->setRange(0, 0);
+
     //connect the aborting of the progress bar to a slot that will emit a signal
-    //connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotCancelProgressBar()));
+    connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotCancelProgressBar()));
 }
 
 Page::~Page()
@@ -43,17 +45,22 @@ Page::~Page()
 void Page::setWaiting(bool waiting, const QString &label)
 {
     if (waiting) {
+        m_progressDialog->move(
+           window()->frameGeometry().topLeft() +
+           window()->rect().center() - m_progressDialog->rect().center()
+        );
         m_progressDialog->setLabelText(label);
         m_progressDialog->show();
     } else {
         m_progressDialog->cancel();
+        m_progressDialog->close();
     }
 }
 
 void Page::slotCancelProgressBar()
 {
     m_progressDialog->cancel();
-    emit signalDownloadCancelled();
+    m_dataProxy->slotAbortActiveDownloads();
 }
 
 void Page::showInfo(const QString &header, const QString &body)

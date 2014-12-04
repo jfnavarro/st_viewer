@@ -16,6 +16,7 @@
 #include "model/GeneSelectionItemModel.h"
 #include "utils/SetTips.h"
 
+//TODO duplicated in GenesWidget
 static const QSize BUTTON_SIZE = QSize(40, 30);
 static const QSize LINE_EDIT_SIZE = QSize(150, 25);
 static const QString BUTTON_STYLE = "border: 1px solid rgb(209, 209, 209); "

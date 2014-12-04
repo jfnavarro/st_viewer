@@ -16,6 +16,8 @@ class CellGLView;
 //Scroll Area is a wrapper around CellGLView
 //as part of the CellView, ScrollArea adds
 //horizonal and vertical scroll bars
+
+//TODO comment this class and its functions
 class ScrollArea : public QAbstractScrollArea
 {
     Q_OBJECT
@@ -25,9 +27,9 @@ public:
     explicit ScrollArea(QWidget *parent = 0);
     virtual ~ScrollArea();
 
+    // we pass to this function the CellGLView object
+    // that we want to wrap into scroll  bars
     void initializeView(QPointer<CellGLView> view);
-
-    void setupViewport(QWidget *viewport) override;
 
 public slots:
 
@@ -37,6 +39,7 @@ public slots:
 
 protected:
 
+    void setupViewport(QWidget *viewport) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
@@ -58,10 +61,10 @@ private:
     static const int m_scrollBarSteps = 100000;
 
     QPointer<CellGLView> m_view;
-    QPointer<QWidget> m_container;
+    //QPointer<QWidget> m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
-    QTransform  m_cellglview_sceneTransformations;
+    QTransform m_cellglview_sceneTransformations;
 
     Q_DISABLE_COPY(ScrollArea)
 };

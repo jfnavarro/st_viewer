@@ -144,16 +144,8 @@ int DatasetItemModel::rowCount(const QModelIndex& parent) const
 
 Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
 {
-    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
-    if (index.isValid()) {
-        flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    }
-    return flags;
-}
-
-bool DatasetItemModel::setHeaderData(int, Qt::Orientation, const QVariant &, int)
-{
-    return false;
+    Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+    return defaultFlags;
 }
 
 void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)

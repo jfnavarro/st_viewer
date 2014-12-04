@@ -20,6 +20,7 @@
 #include "model/GeneFeatureItemModel.h"
 #include "utils/SetTips.h"
 
+//TODO duplicated in SelectionsWidget
 static const QSize BUTTON_SIZE = QSize(40, 30);
 static const QSize LINE_EDIT_SIZE = QSize(150, 25);
 static const QString BUTTON_STYLE = "border: 1px solid rgb(209, 209, 209); "
@@ -130,7 +131,9 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(LINE_EDIT_SIZE);
     m_lineEdit->setStyleSheet(LINE_EDIT_STYLE);
-    m_lineEdit->setToolTip(tr("Search by gene name..."));
+    setToolTipAndStatusTip(
+            tr("Search by gene name"),
+            m_lineEdit);
     geneListLayout->addWidget(m_lineEdit);
     geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);
 
@@ -150,8 +153,8 @@ GenesWidget::GenesWidget(QWidget *parent) :
     connect(m_hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
     connect(m_selectionAllButton,
             SIGNAL(clicked(bool)), m_genes_tableview, SLOT(selectAll()));
-    connect(m_selectionAllButton,
-            SIGNAL(clicked(bool)), m_genes_tableview, SLOT(setFocus()));
+    //connect(m_selectionAllButton,
+    //        SIGNAL(clicked(bool)), m_genes_tableview, SLOT(setFocus()));
     connect(m_selectionClearAllButton,
             SIGNAL(clicked(bool)), m_genes_tableview, SLOT(clearSelection()));
     connect(m_showColorButton.data(), &QPushButton::clicked, [=]{ m_colorList->show();

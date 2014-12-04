@@ -12,6 +12,7 @@
 #include <QString>
 #include <QUuid>
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include "dialogs/LoginDialog.h"
 #include "error/OAuth2Error.h"
@@ -20,7 +21,7 @@
 #include "data/ObjectParser.h"
 #include "utils/Utils.h"
 
-OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject* parent)
+OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject *parent)
     : QObject(parent),
       m_loginDialog(nullptr),
       m_dataProxy(dataProxy)
@@ -48,21 +49,21 @@ void OAuth2::startInteractiveLogin()
 {
     // lazy init
     if (m_loginDialog.isNull()) {
-        //TODO get MainWindow central widget and give it as parent
-        m_loginDialog = new LoginDialog();
+        QWidget *mainWidget = QApplication::desktop()->screen();
+        m_loginDialog = new LoginDialog(mainWidget, Qt::WindowStaysOnTopHint);
+        m_loginDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint
+                                      | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
         connect(m_loginDialog, SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
     //launch login dialog
     m_loginDialog->clear();
     m_loginDialog->show();
-    m_loginDialog->raise();
-    m_loginDialog->activateWindow();
 }
 
 void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 {
-    //request token based on password//username
+    //request token based on password/username
     requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME, username),
                  StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD, password));
 }
@@ -80,12 +81,12 @@ void OAuth2::slotAccessTokenDownloaded(DataProxy::DownloadStatus status)
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid refreshToken(dto.refreshToken());
-
+        //check if access token is valid and not expired
         if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         } else {
             QSharedPointer<OAuth2Error>
-                    error(new OAuth2Error("Log in Error", "Access token is expired", this));
+                    error(new OAuth2Error(tr("Log in Error"), tr("Access token is expired"), this));
             emit signalError(error);
         }
     }

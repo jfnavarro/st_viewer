@@ -19,9 +19,11 @@ SortGenesProxyModel::SortCategory sortCategory(const QString &name)
     if (name.size() == 0) {
         return SortGenesProxyModel::numericGene;
     }
+
     if (!name[0].isLetter()) {
         return SortGenesProxyModel::numericGene;
     }
+
     if (name.startsWith("ambiguous")) {
         return SortGenesProxyModel::ambiguousGene;
     }
@@ -64,18 +66,18 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
 
     QString leftName;
     QString rightName;
-    bool leftNameFound =  false;
-    bool righNameFound = false;
+    bool leftNameFound = false;
+    bool rightNameFound = false;
     QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
                               Q_RETURN_ARG(bool, leftNameFound),
                               Q_ARG(const QModelIndex &, left),
                               Q_ARG(QString*, &leftName));
     QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
-                              Q_RETURN_ARG(bool, righNameFound),
+                              Q_RETURN_ARG(bool, rightNameFound),
                               Q_ARG(const QModelIndex &, right),
                               Q_ARG(QString*, &rightName));
 
-    if (leftNameFound && righNameFound){
+    if (leftNameFound && rightNameFound) {
         return geneNameLessThan(leftName, rightName, sortCaseSensitivity(), isSortLocaleAware());
     }
 

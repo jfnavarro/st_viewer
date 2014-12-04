@@ -15,6 +15,8 @@
 #include <QImage>
 #include <QMessageBox>
 #include <QImageReader>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include "config/Configuration.h"
 #include "network/NetworkManager.h"
@@ -549,7 +551,8 @@ void DataProxy::createRequest(NetworkReply *reply,void (DataProxy::*signal)(Down
     if (reply == nullptr) {
         qDebug() << "[DataProxy] : Error, the NetworkReply is null,"
                     "there must have been a network error";
-        QMessageBox::critical(nullptr, tr("Error downloading data"),
+        QWidget *mainWidget = QApplication::desktop()->screen();
+        QMessageBox::critical(mainWidget, tr("Error downloading data"),
                               tr("There was probably a network problem."));
         if (signal != nullptr) {
             emit (this->*signal)(DataProxy::Failed);
@@ -585,7 +588,8 @@ void DataProxy::slotProcessDownload()
         if (returnCode == NetworkReply::CodeError) {
             //strange..the reply does not have registered errors but yet
             //the returned code is ERROR
-            QMessageBox::critical(nullptr, tr("Error downloading data"),
+            QWidget *mainWidget = QApplication::desktop()->screen();
+            QMessageBox::critical(mainWidget, tr("Error downloading data"),
                                   tr("There was probably a network problem."));
             status = DataProxy::Failed;
         } else if (returnCode == NetworkReply::CodeAbort) {
@@ -599,7 +603,9 @@ void DataProxy::slotProcessDownload()
             //errors could happen parsing the data
             if (reply->hasErrors() || !parsedOk) {
                 const auto error = reply->parseErrors();
-                QMessageBox::critical(nullptr, error->name(), error->description());
+                Q_ASSERT(!error.isNull());
+                QWidget *mainWidget = QApplication::desktop()->screen();
+                QMessageBox::critical(mainWidget, error->name(), error->description());
                 status = DataProxy::Failed;
             }
 
@@ -607,7 +613,8 @@ void DataProxy::slotProcessDownload()
         }
     } else {
         const auto error = reply->parseErrors();
-        QMessageBox::critical(nullptr, error->name(), error->description());
+        QWidget *mainWidget = QApplication::desktop()->screen();
+        QMessageBox::critical(mainWidget, error->name(), error->description());
     }
 
     //reply has been processed, lets delete it and decrease counters
@@ -617,6 +624,7 @@ void DataProxy::slotProcessDownload()
         qDebug() << "[DataProxy] A network reply call back has been invoked with no active "
             "downloads.";
     }
+
     const bool removedOK = m_activeNetworkReplies.remove(reply);
     //TODO there is a race condition triggering this assertion,
     //the call back is called twice so the second time there is nothing to remove
@@ -625,6 +633,7 @@ void DataProxy::slotProcessDownload()
         qDebug() << "[DataProxy] A network reply call back has been invoked but it has been "
                     "processed earlier already.";
     }
+
     reply->deleteLater();
 
     //check if last download
@@ -645,18 +654,22 @@ void DataProxy::slotAbortActiveDownloads()
 
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
-    bool dirty = true;
+    bool parsedOk = true;
     FeaturesHanlder handler(m_featuresList, m_genesList, m_geneFeaturesMap);
     Reader reader;
     QByteArray rawText = reply->getRaw();
     StringStream is(rawText.data());
+
     const bool ok = reader.Parse(is, handler);
     if (!ok) {
         ParseErrorCode e = reader.GetParseErrorCode();
-        qDebug() << "[DataProxy] Error parsing features JSON : " << GetParseError_En(e) << endl;
-        dirty = false;
+        QSharedPointer<Error> error(new Error(tr("Error downloading JSON features"),
+                                              GetParseError_En(e), this));
+        reply->registerError(error);
+        parsedOk = false;
     }
-    return dirty;
+
+    return parsedOk;
 }
 
 bool DataProxy::parseCellTissueImage(NetworkReply *reply)
@@ -668,33 +681,39 @@ bool DataProxy::parseCellTissueImage(NetworkReply *reply)
     const QString &imageName = reply->property("figure_name").toString();
     const bool nameOk = !imageName.isEmpty() && !imageName.isNull();
 
-    //store the image as raw data
-    m_cellTissueImages.insert(imageName, rawImage);
+    bool parsedOk = imageOk && nameOk;
 
-    return imageOk && nameOk;
+    if (!parsedOk) {
+        QSharedPointer<Error> error(new Error(tr("Error downloading image"),
+                    tr("There was an error downloading the cell tissue image"), this));
+        reply->registerError(error);
+    } else {
+        //store the image as raw data
+        m_cellTissueImages.insert(imageName, rawImage);
+    }
+
+    return parsedOk;
 }
 
 bool DataProxy::parseDatasets(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is added to the reply when this happens
         return false;
     }
 
     // intermediary parse object
     DatasetDTO dto;
 
-    bool dirty = false;
-
     // parse the objects
     foreach(QVariant var, doc.toVariant().toList()) {
         data::parseObject(var, &dto);
         DatasetPtr dataset = DatasetPtr(new Dataset(dto.dataset()));
         m_datasetList.push_back(dataset);
-        dirty = true;
     }
 
-    return dirty;
+    return true;
 }
 
 bool DataProxy::parseRemoveDataset(NetworkReply *reply)
@@ -705,7 +724,6 @@ bool DataProxy::parseRemoveDataset(NetworkReply *reply)
     if (!m_selectedDataset.isNull() && datasetId == m_selectedDataset->id()) {
         resetSelectedDataset();
     }
-
     return true;
 }
 
@@ -713,13 +731,12 @@ bool DataProxy::parseGeneSelections(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happens
         return false;
     }
 
     // intermediary parse object
     GeneSelectionDTO dto;
-
-    bool dirty = false;
 
     //parse the data
     foreach(QVariant var, doc.toVariant().toList()) {
@@ -731,20 +748,24 @@ bool DataProxy::parseGeneSelections(NetworkReply *reply)
         //from the network by its ID
         const DatasetPtr dataset = getDatasetById(selection->datasetId());
         if (dataset.isNull()) {
+            QSharedPointer<Error> error(new Error(tr("Error Downloading selections"),
+                        tr("The dataset of the selection has not been downloaded"), this));
+            reply->registerError(error);
             return false;
         }
+
         selection->datasetName(dataset->name());
         m_geneSelectionsList.push_back(selection);
-        dirty = true;
     }
 
-    return dirty;
+    return true;
 }
 
 bool DataProxy::parseUser(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happens
         return false;
     }
 
@@ -762,6 +783,7 @@ bool DataProxy::parseImageAlignment(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happen
         return false;
     }
 
@@ -781,6 +803,7 @@ bool DataProxy::parseChip(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happens
         return false;
     }
 
@@ -799,6 +822,7 @@ bool DataProxy::parseMinVersion(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happens
         return false;
     }
 
@@ -816,6 +840,7 @@ bool DataProxy::parseOAuth2(NetworkReply *reply)
 {
     const QJsonDocument &doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
+        //an error is present in reply when this happens
         return false;
     }
 

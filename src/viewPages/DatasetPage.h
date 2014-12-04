@@ -11,10 +11,8 @@
 #include "Page.h"
 
 #include <memory>
-
-#include <QModelIndex>
-
 #include "data/DataProxy.h"
+#include <QModelIndex>
 
 class QItemSelectionModel;
 class QItemSelection;
@@ -59,8 +57,8 @@ private slots:
     //slot used to be notified when the datasets have been downloaded,
     //updated or removed from network
     //status contains the status of the operation (ok, abort, error)
-    void slotDatasetsDownloaded(DataProxy::DownloadStatus status);
-    void slotDatasetsModified(DataProxy::DownloadStatus status);
+    void slotDatasetsDownloaded(const DataProxy::DownloadStatus status);
+    void slotDatasetsModified(const DataProxy::DownloadStatus status);
 
 private:
 
@@ -72,7 +70,6 @@ private:
     DatasetItemModel *datasetsModel();
 
     std::unique_ptr<Ui::DataSets> m_ui;
-    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(DatasetPage)
 };

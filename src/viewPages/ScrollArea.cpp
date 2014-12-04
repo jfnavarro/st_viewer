@@ -15,19 +15,14 @@
 
 ScrollArea::ScrollArea(QWidget *parent)
     : QAbstractScrollArea(parent),
-      m_view(nullptr),
-      m_container(nullptr)
+      m_view(nullptr)
 {
 
 }
 
 ScrollArea::~ScrollArea()
 {
-    m_view->deleteLater();
-    m_view = nullptr;
 
-    m_container->deleteLater();
-    m_container = nullptr;
 }
 
 void ScrollArea::initializeView(QPointer<CellGLView> view)
@@ -35,9 +30,9 @@ void ScrollArea::initializeView(QPointer<CellGLView> view)
     Q_ASSERT(!view.isNull());
 
     m_view = view;
-    m_container = QWidget::createWindowContainer(m_view);
-    m_container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setViewport(m_container.data());
+    QWidget *container = QWidget::createWindowContainer(m_view);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setViewport(container);
 
     verticalScrollBar()->setTracking(true);
     horizontalScrollBar()->setTracking(true);

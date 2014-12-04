@@ -8,10 +8,10 @@
 #ifndef CELLVIEWPAGE_H
 #define CELLVIEWPAGE_H
 
-#include <memory>
 #include "Page.h"
 
 #include "data/DataProxy.h"
+#include <memory>
 
 class QColorDialog;
 class SelectionDialog;
@@ -45,7 +45,7 @@ class CellViewPage : public Page
 
 public:
     
-    explicit CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~CellViewPage();
 
 public slots:
@@ -95,8 +95,8 @@ private slots:
 
     //used to be notified when the dataset content has been downloaded or a selection created
     //status contains the status of the operation (ok, abort, error)
-    void slotImageAlignmentDownloaded(DataProxy::DownloadStatus status);
-    void slotDatasetContentDownloaded(DataProxy::DownloadStatus status);
+    void slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status);
+    void slotDatasetContentDownloaded(const DataProxy::DownloadStatus status);
 
 private:
     
@@ -125,9 +125,6 @@ private:
 
     // User interface
     std::unique_ptr<Ui::CellView> m_ui;
-
-    // reference to dataProxy
-    QPointer<DataProxy> m_dataProxy;
 
     // Features Reads Distribution
     QPointer<AnalysisFRD> m_FDH;

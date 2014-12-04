@@ -21,16 +21,13 @@
 #include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QWidget *parent):
-    QDialog(parent),
+LoginDialog::LoginDialog(QWidget *parent, Qt::WindowFlags f):
+    QDialog(parent, f),
     m_ui(new Ui::LogIn()),
     m_completer(nullptr)
 {
     //init UI
     m_ui->setupUi(this);
-
-    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
-                                    QApplication::desktop()->availableGeometry()));
 
     //load users and create completer
     loadUsers();
@@ -90,7 +87,6 @@ void LoginDialog::saveUsers()
     QSettings settings;
     QStringList users = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     const QString username = m_ui->username->text();
-    qDebug() << "[LoginDialog] Saving User = " << username;
     users.append(username);
     settings.setValue(Globals::SettingsUsers, users);
 }

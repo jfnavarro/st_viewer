@@ -60,6 +60,9 @@ public:
     //true if the reply request was obtained from the disk cache
     bool wasCached() const;
 
+    //adds an error to the list
+    void registerError(QSharedPointer<Error> error);
+
 public slots:
 
     void slotAbort();
@@ -74,9 +77,6 @@ signals:
     void signalFinished(QVariant code);
 
 private:
-
-    //adds an error to the list
-    void registerError(QSharedPointer<Error> error);
 
     // Qt network reply
     QPointer<QNetworkReply> m_reply;

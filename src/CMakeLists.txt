@@ -80,12 +80,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ###PACKAGES######################################
 
 find_package(OpenGL REQUIRED)
-if(OPENGL_FOUND)
-    include_directories(${OPENGL_INCLUDE_DIR})
-    mark_as_advanced(${OPENGL_LIBRARY})
-else(OPENGL_FOUND)
-    message(FATAL_ERROR "OpenGL environment missing")
-endif(OPENGL_FOUND)
+include_directories(${OPENGL_INCLUDE_DIR})
+mark_as_advanced(${OPENGL_LIBRARY})
+
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+#mark_as_advanced(${OPENSSL_LIBRARY})
 
 if(APPLE)
     find_library(AppKit_LIBRARY AppKit)
@@ -149,7 +149,7 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES}) #${LIB_COMPONENTS}
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES} ${OPENSSL_LIBRARY})
 
 ### UNIT TESTS ################################################################
 
@@ -388,6 +388,8 @@ if(WIN32)
     endforeach()
 
     #install resources
+    #TODO probably not needed the libeay32.dll and ssleay32.dll now that we are finding and linking
+    #openSSL
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/

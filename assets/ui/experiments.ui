@@ -33,9 +33,9 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="experimentsPageWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(240, 240, 240)</string>
+      <string notr="true"/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="leftMargin">
@@ -71,8 +71,7 @@
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color:rgb(230,230,230);
-border-color: rgb(206,202,202);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -135,7 +134,7 @@ border-color: rgb(206,202,202);</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
            </property>
            <property name="iconSize">
@@ -244,7 +243,7 @@ selection-background-color: darkgray;</string>
             <string>Perform a Differential Expression analysis</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/plot-scatter.png</normaloff>:/images/plot-scatter.png</iconset>
            </property>
            <property name="iconSize">
@@ -288,7 +287,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
            </property>
            <property name="iconSize">
@@ -332,7 +331,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/edit-small.png</normaloff>:/images/edit-small.png</iconset>
            </property>
            <property name="iconSize">
@@ -376,7 +375,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -408,7 +407,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="../../../st_client-build/application.qrc">:/images/st_icon.png</pixmap>
+            <pixmap resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">:/images/st_icon.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -533,7 +532,7 @@ selection-background-color: darkgray;</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../st_client-build/application.qrc"/>
+  <include location="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc"/>
  </resources>
  <connections/>
 </ui>

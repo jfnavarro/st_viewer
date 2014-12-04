@@ -49,10 +49,6 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    //we do not want the user to edit columns name
-    bool setHeaderData(int, Qt::Orientation,
-                       const QVariant&, int = Qt::EditRole) override;
-
     //loads the data of the model from DatProxy
     void loadDatasets(const DataProxy::DatasetList &datasetList);
 

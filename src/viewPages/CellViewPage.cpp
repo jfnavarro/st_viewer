@@ -111,7 +111,7 @@ bool imageFormatHasWriteSupport(const QString &format) {
 
 
 CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
-    : Page(parent),
+    : Page(dataProxy, parent),
       m_minimap(nullptr),
       m_legend(nullptr),
       m_gene_plotter(nullptr),
@@ -120,7 +120,6 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_view(nullptr),
       m_colorDialogGrid(nullptr),
       m_ui(new Ui::CellView()),
-      m_dataProxy(dataProxy),
       m_FDH(nullptr),
       m_colorLinear(nullptr),
       m_colorLog(nullptr),
@@ -135,10 +134,13 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_geneBrightnessSlider(nullptr),
       m_geneShapeComboBox(nullptr)
 {
-    Q_ASSERT(!m_dataProxy.isNull());
-
     m_ui->setupUi(this);
-    Q_ASSERT(m_ui);
+    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    setWindowFlags(Qt::FramelessWindowHint);
+    m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget "
+                                            "{background-color: rgb(240,240,240);}");
+    m_ui->frame->setStyleSheet("QFrame#frame {background-color: rgb(230,230,230); "
+                                             "border-color: rgb(206,202,202);}");
 
     // instantiante FDH
     m_FDH = new AnalysisFRD();
@@ -154,10 +156,6 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 
     //create menus and connections
     createMenusAndConnections();
-
-    //connect abort signal
-    connect(this, SIGNAL(signalDownloadCancelled()),
-            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
 
     //connect data proxy signals
     connect(m_dataProxy.data(),
@@ -197,6 +195,9 @@ CellViewPage::~CellViewPage()
 
 void CellViewPage::onEnter()
 {
+    //reset tool buttons
+    setEnableButtons(false);
+
     if (m_dataProxy->getSelectedDataset().isNull()) {
         //no dataset selected, nothing to do here
         setStatusTip(tr("No dataset loaded"));
@@ -212,7 +213,7 @@ void CellViewPage::onEnter()
 
 }
 
-void CellViewPage::slotImageAlignmentDownloaded(DataProxy::DownloadStatus status)
+void CellViewPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status)
 {
     // if status == OK
     if (status == DataProxy::Success) {
@@ -223,7 +224,7 @@ void CellViewPage::slotImageAlignmentDownloaded(DataProxy::DownloadStatus status
     }
 }
 
-void CellViewPage::slotDatasetContentDownloaded(DataProxy::DownloadStatus status)
+void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus status)
 {
     //if error or abort
     if (status != DataProxy::Success) {
@@ -308,9 +309,6 @@ void CellViewPage::setEnableButtons(bool enable)
 
 void CellViewPage::onExit()
 {
-    //reset tool buttons
-    setEnableButtons(false);
-
     //reset genes and selections model
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();

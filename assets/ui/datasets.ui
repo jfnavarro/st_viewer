@@ -26,7 +26,7 @@
    <string>Datasets</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color : rgb(240, 240, 240)</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -42,9 +42,9 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="DatasetPageWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(240, 240, 240)</string>
+      <string notr="true"/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="leftMargin">
@@ -80,8 +80,7 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color:rgb(230,230,230);
-border-color: rgb(206,202,202);</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -150,7 +149,7 @@ border-color: rgb(206,202,202);</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
            </property>
            <property name="iconSize">
@@ -225,10 +224,7 @@ border-color: rgb(206,202,202);</string>
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">border: 1px solid rgb(209, 209, 209); 
-border-radius: 5px; 
-background-color: rgb(255, 255, 255); 
-selection-background-color: darkgray;</string>
+            <string notr="true"/>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -271,7 +267,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -321,7 +317,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/edit-small.png</normaloff>:/images/edit-small.png</iconset>
            </property>
            <property name="iconSize">
@@ -371,7 +367,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -427,7 +423,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
            </property>
            <property name="iconSize">
@@ -483,7 +479,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
              <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
            </property>
            <property name="iconSize">
@@ -515,7 +511,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="../../../st_client-build/application.qrc">:/images/st_icon.png</pixmap>
+            <pixmap resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">:/images/st_icon.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -560,7 +556,7 @@ selection-background-color: darkgray;</string>
          </spacer>
         </item>
         <item>
-         <widget class="DatasetsTableView" name="datasets_tableview">
+         <widget class="DatasetsTableView" name="datasetsTableView">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -697,7 +693,7 @@ selection-background-color: darkgray;</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../st_client-build/application.qrc"/>
+  <include location="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc"/>
  </resources>
  <connections/>
 </ui>

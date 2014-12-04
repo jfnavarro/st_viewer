@@ -12,7 +12,6 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 
-#include "data/DataProxy.h"
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
@@ -21,18 +20,21 @@
 #include "ui_datasets.h"
 
 DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
-    Page(parent),
-    m_ui(new Ui::DataSets()),
-    m_dataProxy(dataProxy)
+    Page(dataProxy, parent),
+    m_ui(new Ui::DataSets())
 {
-    Q_ASSERT(!m_dataProxy.isNull());
-
     m_ui->setupUi(this);
+
+    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    setWindowFlags(Qt::FramelessWindowHint);
+    m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget {background-color:rgb(240,240,240);}");
+    m_ui->frame->setStyleSheet("QFrame#frame {background-color:rgb(230,230,230); "
+                                             "border-color: rgb(206,202,202);}");
 
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
             SLOT(setFilterFixedString(QString)));
-    connect(m_ui->datasets_tableview, SIGNAL(clicked(QModelIndex)),
+    connect(m_ui->datasetsTableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotDatasetSelected(QModelIndex)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
@@ -40,10 +42,6 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
-
-    //connect abort signal
-    connect(this, SIGNAL(signalDownloadCancelled()),
-            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
 
     //connect data proxy signals
     connect(m_dataProxy.data(),
@@ -61,7 +59,7 @@ DatasetPage::~DatasetPage()
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel =
-            qobject_cast<QSortFilterProxyModel*>(m_ui->datasets_tableview->model());
+            qobject_cast<QSortFilterProxyModel*>(m_ui->datasetsTableView->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
@@ -87,8 +85,8 @@ void DatasetPage::onExit()
 void DatasetPage::clearControls()
 {
     //clear selection/focus
-    m_ui->datasets_tableview->clearSelection();
-    m_ui->datasets_tableview->clearFocus();
+    m_ui->datasetsTableView->clearSelection();
+    m_ui->datasetsTableView->clearFocus();
     m_ui->back->clearFocus();
     m_ui->refresh->clearFocus();
     m_ui->next->clearFocus();
@@ -104,7 +102,7 @@ void DatasetPage::clearControls()
 
 void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
-    const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
+    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
     if (currentDataset.empty() || currentDataset.first().isNull()) {
@@ -122,7 +120,7 @@ void DatasetPage::slotLoadDatasets()
     m_dataProxy->loadDatasets();
 }
 
-void DatasetPage::slotDatasetsDownloaded(DataProxy::DownloadStatus status)
+void DatasetPage::slotDatasetsDownloaded(const DataProxy::DownloadStatus status)
 {
     setWaiting(false);
 
@@ -142,7 +140,7 @@ void DatasetPage::slotDatasetsDownloaded(DataProxy::DownloadStatus status)
 
 void DatasetPage::slotEditDataset()
 {
-    const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
+    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
     if (currentDataset.empty() || currentDataset.size() > 1) {
@@ -175,7 +173,7 @@ void DatasetPage::slotEditDataset()
 
 void DatasetPage::slotOpenDataset()
 {
-    const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
+    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
     if (currentDataset.empty() || currentDataset.size() > 1) {
@@ -194,7 +192,7 @@ void DatasetPage::slotOpenDataset()
 
 void DatasetPage::slotRemoveDataset()
 {
-    const auto selected = m_ui->datasets_tableview->datasetsTableItemSelection();
+    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
 
     if (currentDataset.empty() || currentDataset.size() > 1) {
@@ -219,7 +217,7 @@ void DatasetPage::slotRemoveDataset()
     m_dataProxy->removeDataset(dataset->id());
 }
 
-void DatasetPage::slotDatasetsModified(DataProxy::DownloadStatus status)
+void DatasetPage::slotDatasetsModified(const DataProxy::DownloadStatus status)
 {
     if (status == DataProxy::Success) {
         slotLoadDatasets();

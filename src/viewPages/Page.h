@@ -11,6 +11,8 @@
 #include <QProgressDialog>
 #include <QPointer>
 
+class DataProxy;
+
 // this an abstract class to represent the different pages
 // for the tab manager
 class Page : public QWidget
@@ -19,7 +21,7 @@ class Page : public QWidget
 
 public:
 
-    explicit Page(QWidget *parent = 0);
+    Page(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~Page();
 
 signals:
@@ -28,18 +30,19 @@ signals:
     void moveToNextPage();
     void moveToPreviousPage();
 
-    //download aborted by user signal
-    void signalDownloadCancelled();
-
-public slots:
+protected slots:
 
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
 
 private slots:
 
-    //closes the progress bar and emits signalDownloadCancelled
+    //closes the progress bar and cancel current active downloads
     void slotCancelProgressBar();
+
+private:
+
+    QPointer<QProgressDialog> m_progressDialog;
 
 protected:
 
@@ -51,9 +54,7 @@ protected:
     void showWarning(const QString &header, const QString &body);
     void showError(const QString &header, const QString &body);
 
-private:
-
-    QPointer<QProgressDialog> m_progressDialog;
+    QPointer<DataProxy> m_dataProxy;
 };
 
 #endif // PAGE_H

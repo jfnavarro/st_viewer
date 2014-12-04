@@ -102,6 +102,7 @@ bool GeneSelectionItemModel::geneName(const QModelIndex &index, QString *genenam
     }
 
     const SelectionType& item = m_geneselection.at(index.row());
+
     if (index.column() == Name) {
         *genename = item.name;
         return true;

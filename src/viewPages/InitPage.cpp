@@ -15,19 +15,30 @@
 
 #include "ui_initpage.h"
 
-InitPage::InitPage(QPointer<DataProxy> dataProxy,
-                   QPointer<AuthorizationManager> authManager,
+InitPage::InitPage(QPointer<AuthorizationManager> authManager,
+                   QPointer<DataProxy> dataProxy,
                    QWidget *parent) :
-    Page(parent),
+    Page(dataProxy, parent),
     m_ui(new Ui::InitPage()),
-    m_dataProxy(dataProxy),
     m_authManager(authManager)
 {
-    Q_ASSERT(!m_dataProxy.isNull());
     Q_ASSERT(!m_authManager.isNull());
 
     m_ui->setupUi(this);
 
+    //setting style to main UI Widget
+    setWindowFlags(Qt::FramelessWindowHint);
+    m_ui->InitPageWidget->setStyleSheet("QWidget#InitPageWidget {background-color:rgb(240,240,240);}");
+    m_ui->newExpButt->setStyleSheet("QPushButton#newExpButt "
+                                    "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
+                                    "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255));"
+                                    "border: 1px solid rgb(209, 209, 209);"
+                                    "border-radius: 5px;}");
+    m_ui->logoutButt->setStyleSheet("QPushButton#logoutButt "
+                                    "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
+                                    "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255)); "
+                                    "border: 1px solid rgb(209, 209, 209);"
+                                    "border-radius: 5px;}");
     m_ui->user_name->clear();
     m_ui->newExpButt->setEnabled(false);
 
@@ -84,7 +95,7 @@ void InitPage::slotAuthorized()
     m_dataProxy->loadUser();
 }
 
-void InitPage::slotUserDownloaded(DataProxy::DownloadStatus status)
+void InitPage::slotUserDownloaded(const DataProxy::DownloadStatus status)
 {
     setWaiting(false);
 

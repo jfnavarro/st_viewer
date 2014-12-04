@@ -9,12 +9,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>371</width>
+    <width>379</width>
     <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Log In</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -172,13 +175,6 @@
     </layout>
    </item>
   </layout>
-  <zorder>label</zorder>
-  <zorder>user_label</zorder>
-  <zorder>username</zorder>
-  <zorder>password_label</zorder>
-  <zorder>password</zorder>
-  <zorder>buttons</zorder>
-  <zorder>buttons</zorder>
  </widget>
  <resources/>
  <connections>

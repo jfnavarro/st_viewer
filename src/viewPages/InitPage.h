@@ -11,7 +11,7 @@
 #include "Page.h"
 
 #include <memory>
-#include <data/DataProxy.h>
+#include "data/DataProxy.h"
 
 class QVBoxLayout;
 class Error;
@@ -32,8 +32,8 @@ class InitPage : public Page
 
 public:
 
-    InitPage(QPointer<DataProxy> dataProxy,
-             QPointer<AuthorizationManager> authManager,
+    InitPage(QPointer<AuthorizationManager> authManager,
+             QPointer<DataProxy> dataProxy,
              QWidget *parent = 0);
     virtual ~InitPage();
 
@@ -53,14 +53,11 @@ private slots:
 
     //used to be notified when the user has been downloaded from network
     //status contains the status of the operation (ok, abort, error)
-    void slotUserDownloaded(DataProxy::DownloadStatus status);
+    void slotUserDownloaded(const DataProxy::DownloadStatus status);
 
 private:
 
     std::unique_ptr<Ui::InitPage> m_ui;
-
-    //references to dataProxy and authManager
-    QPointer<DataProxy> m_dataProxy;
     QPointer<AuthorizationManager> m_authManager;
 
     Q_DISABLE_COPY(InitPage)

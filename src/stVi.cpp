@@ -182,7 +182,9 @@ void stVi::setupUi()
 
     //create main widget
     QWidget *centralwidget = new QWidget(this);
-    centralwidget->setStyleSheet("QWidget {background-color: rgb(45, 45, 45);}");
+    //important to set the style to this widget only to avoid propagation
+    centralwidget->setObjectName("centralWidget");
+    centralwidget->setStyleSheet("QWidget#centralWidget {background-color: rgb(45, 45, 45);}");
     centralwidget->setWindowFlags(Qt::FramelessWindowHint);
     setCentralWidget(centralwidget);
 
@@ -279,19 +281,24 @@ void stVi::initStyle()
 {
     //TODO move to styleshee.css file
     setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
-                              "background-color: rgb(255,255,255); "
+                              "background-color: transparent; "
                               "selection-background-color: rgb(215,215,215); "
                               "selection-color: darkgrey; "
                               "border: 1px solid rgb(240,240,240);}"
-                  "QPushButton:focus:pressed { background-color: transparent; border: none; } "
-                  "QPushButton:pressed { background-color: transparent; border: none } "
-                  "QPushButton:flat { background-color: transparent; border: none } "
-                  "QPushButton:checked { background-color: rgb(80,80,80); border: none; } "
+                  "QPushButton:focus:pressed {background-color: transparent; border: none;} "
+                  "QPushButton:pressed {background-color: transparent; border: none;} "
+                  "QPushButton:flat {background-color: transparent; border: none;} "
+                  "QPushButton:checked {border: 5px solid;} "
                   "QHeaderView::section {height: 35px; padding-left: 4px;"
                                         "background-color: rgb(230,230,230); "
                                         "border: 1px solid rgb(240,240,240);} "
                   "QHeaderView {border: 1px solid rgb(240,240,240);} "
-                  "QTableCornerButton::section {background-color: transparent;} ");
+                  "QTableCornerButton::section {background-color: transparent;} "
+                  "QLineEdit {border: 1px solid rgb(209, 209, 209); "
+                             "border-radius: 5px; "
+                             "background-color: rgb(255, 255, 255); "
+                             "selection-background-color: darkgray;}"
+                  "QToolButton {border: none;}");
 
     // apply font
     QFont font("Open Sans", 12);

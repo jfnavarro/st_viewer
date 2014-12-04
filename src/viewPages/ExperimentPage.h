@@ -9,12 +9,9 @@
 #define EXPERIMENTPAGE_H
 
 #include <memory>
-#include <QWidget>
 #include <QModelIndex>
-
-#include "Page.h"
-
 #include "data/DataProxy.h"
+#include "Page.h"
 
 class ExperimentsItemModel;
 class QSortFilterProxyModel;
@@ -30,7 +27,7 @@ class ExperimentPage : public Page
 
 public:
 
-    explicit ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~ExperimentPage();
 
 public slots:
@@ -54,8 +51,8 @@ private slots:
 
     //used to be notified when the genes selections has been downloaded, updated or removed from network
     //status contains the status of the operation (ok, abort, error)
-    void slotGenesSelectionsDownloaded(DataProxy::DownloadStatus status);
-    void slotGenesSelectionsModified(DataProxy::DownloadStatus status);
+    void slotGenesSelectionsDownloaded(const DataProxy::DownloadStatus status);
+    void slotGenesSelectionsModified(const DataProxy::DownloadStatus status);
 
 private:
 
@@ -67,7 +64,6 @@ private:
     ExperimentsItemModel *selectionsModel();
 
     std::unique_ptr<Ui::Experiments> m_ui;
-    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(ExperimentPage)
 };

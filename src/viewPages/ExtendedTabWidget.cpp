@@ -219,7 +219,7 @@ void ExtendedTabWidget::createPages()
 {
     Q_ASSERT(!m_stackWidget.isNull());
 
-    m_startpage = new InitPage(m_dataProxy, m_authManager, m_stackWidget);
+    m_startpage = new InitPage(m_authManager, m_dataProxy, m_stackWidget);
     insertPage(m_startpage, QIcon(QStringLiteral(":/images/start-page.png")), tr("Start"));
 
     m_datasets = new DatasetPage(m_dataProxy, m_stackWidget);

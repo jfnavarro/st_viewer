@@ -25,6 +25,8 @@ GenesTableView::GenesTableView(QWidget *parent)
     m_sortGenesProxyModel->setSourceModel(m_geneModel);
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    //this is important because sort proxy will use the column 0 by default
+    m_sortGenesProxyModel->setFilterKeyColumn(GeneFeatureItemModel::Name);
     setModel(m_sortGenesProxyModel);
 
     setSortingEnabled(true);

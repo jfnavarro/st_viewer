@@ -115,11 +115,6 @@ Qt::ItemFlags ExperimentsItemModel::flags(const QModelIndex& index) const
     return defaultFlags;
 }
 
-void ExperimentsItemModel::sort(int column, Qt::SortOrder order)
-{
-    QAbstractItemModel::sort(column, order);
-}
-
 int ExperimentsItemModel::rowCount(const QModelIndex& parent) const
 {
     return parent.isValid() ? 0 : m_geneselectionList.count();

@@ -39,9 +39,9 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="InitPageWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(240, 240, 240)</string>
+      <string notr="true"/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="leftMargin">
@@ -105,7 +105,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../../../st_client-build/application.qrc">:/images/st.png</pixmap>
+           <pixmap resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">:/images/st.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
@@ -148,15 +148,13 @@
            <string>Start Selection of Datasets</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(245, 245, 25, 255), stop:1 rgba(255, 255, 255, 255)s);
-border: 1px solid rgb(209, 209, 209);
-border-radius: 5px;</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../../st_client-build/application.qrc">
+           <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
             <normaloff>:/images/start-button.png</normaloff>:/images/start-button.png</iconset>
           </property>
           <property name="iconSize">
@@ -260,15 +258,13 @@ border-radius: 5px;</string>
            <enum>Qt::LeftToRight</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(245, 245, 25, 255), stop:1 rgba(255, 255, 255, 255)s);
-border: 1px solid rgb(209, 209, 209);
-border-radius: 5px;</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../../st_client-build/application.qrc">
+           <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
           </property>
           <property name="iconSize">
@@ -319,7 +315,7 @@ border-radius: 5px;</string>
   </layout>
  </widget>
  <resources>
-  <include location="../../../st_client-build/application.qrc"/>
+  <include location="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc"/>
  </resources>
  <connections/>
 </ui>

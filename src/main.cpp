@@ -12,6 +12,7 @@
 #include <QTranslator>
 #include <QPixmap>
 #include <QSplashScreen>
+#include <QDesktopWidget>
 
 #include <iostream>
 #include "utils/Utils.h"
@@ -99,14 +100,14 @@ int main(int argc, char** argv)
     // create and show a splash sreen
     //TODO replace image for a bigger one with text and info about the group
     QPixmap pixmap(QStringLiteral(":/images/st.png"));
-    QSplashScreen splash(pixmap, Qt::WindowStaysOnTopHint);
+    QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
     splash.show();
 
     //set library paths and translators
     setLocalPaths(&app);
     if (!installTranslator(&app)) {
         qDebug() << "[Main] Error: Unable to install the translations!";
-        QMessageBox::critical(nullptr, "Error",
+        QMessageBox::critical(app.desktop()->screen(), "Error",
                               app.tr("Unable to install the translations"));
         return EXIT_FAILURE;
     }

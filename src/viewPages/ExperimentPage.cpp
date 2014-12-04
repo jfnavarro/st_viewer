@@ -20,13 +20,16 @@
 #include "analysis/AnalysisDEA.h"
 
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
-    : Page(parent),
-      m_ui(new Ui::Experiments()),
-      m_dataProxy(dataProxy)
+    : Page(dataProxy, parent),
+      m_ui(new Ui::Experiments())
 {
-    Q_ASSERT(!m_dataProxy.isNull());
-
     m_ui->setupUi(this);
+    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    setWindowFlags(Qt::FramelessWindowHint);
+    m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget "
+                                               "{background-color: rgb(240,240,240);}");
+    m_ui->frame->setStyleSheet("QFrame#frame {background-color: rgb(230,230,230); "
+                                             "border-color: rgb(206,202,202);}");
 
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
@@ -38,10 +41,6 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
-
-    //connect abort signal
-    connect(this, SIGNAL(signalDownloadCancelled()),
-            m_dataProxy.data(), SLOT(slotAbortActiveDownloads()));
 
     //connect data proxy signals
     connect(m_dataProxy.data(),
@@ -108,7 +107,7 @@ void ExperimentPage::slotLoadSelections()
     m_dataProxy->loadGeneSelections();
 }
 
-void ExperimentPage::slotGenesSelectionsDownloaded(DataProxy::DownloadStatus status)
+void ExperimentPage::slotGenesSelectionsDownloaded(const DataProxy::DownloadStatus status)
 {
     setWaiting(false);
 
@@ -235,7 +234,7 @@ void ExperimentPage::slotEditSelection()
     }
 }
 
-void ExperimentPage::slotGenesSelectionsModified(DataProxy::DownloadStatus status)
+void ExperimentPage::slotGenesSelectionsModified(const DataProxy::DownloadStatus status)
 {
     if (status == DataProxy::Success) {
         slotLoadSelections();

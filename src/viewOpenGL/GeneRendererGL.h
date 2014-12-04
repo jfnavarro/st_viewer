@@ -38,10 +38,12 @@ public:
         PoolTPMs = 3
     };
 
+    //must start by 0 as
+    //they are used to populate a combobox
     enum GeneShape  {
-        Circle = 1,
-        Cross = 2,
-        Square = 3
+        Circle = 0,
+        Cross = 1,
+        Square = 2
     };
 
     enum GeneVisualMode {

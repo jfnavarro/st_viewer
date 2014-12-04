@@ -120,7 +120,6 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     case Name: return  defaultFlags;
     case Show: return Qt::ItemIsUserCheckable | defaultFlags;
     case Color: return  defaultFlags;
-    default: Q_ASSERT("[GeneFeatureItemModel] Invalid column index!");
     }
 
     return defaultFlags;

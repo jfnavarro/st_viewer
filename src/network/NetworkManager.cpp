@@ -68,7 +68,8 @@ NetworkManager::NetworkManager(QObject *parent):
     QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     qDebug() << "Network disk cache location " << location;
     m_diskCache->setCacheDirectory(location + QDir::separator() + "data");
-    m_diskCache->setMaximumCacheSize(1000 * 1024 * 1024); // 1GB
+    const quint64 cacheSizeinGB = 5368709120; // 1024*1024*1024*5 5GB
+    m_diskCache->setMaximumCacheSize(cacheSizeinGB);
     m_nam->setCache(m_diskCache);
 
     //we want to provide Authentication to our OAuth based servers
