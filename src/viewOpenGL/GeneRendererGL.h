@@ -114,10 +114,6 @@ signals:
     //has been made
     void selectionUpdated();
 
-    //to notify when the local pooled mix-max have changed
-    void localPooledMinChanged(const qreal value);
-    void localPooledMaxChanged(const qreal value);
-
 protected:
 
     void setSelectionArea(const SelectionEvent *event) override;
@@ -147,9 +143,10 @@ private:
     void setupShaders();
 
     // lookup maps for features
-    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap;
-    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap;
-    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
+    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap; //feature to OpenGL index
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap; //OpenGL index to features
+    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
+    typedef QHash<int, int> GeneInfoTotalReadsIndex; //index to total reads
     // lookup quadtree type
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
@@ -163,6 +160,8 @@ private:
     GeneInfoReverseMap m_geneInfoReverse;
     // vector of selected features
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
+    // gene look up (index -> total reads)
+    GeneInfoTotalReadsIndex m_geneInfoTotalReadsIndex;
     // quad tree container
     GeneInfoQuadTree m_geneInfoQuadTree;
 
@@ -178,9 +177,6 @@ private:
     // local pooled min-max for rendering (Adjusted according to what is being rendered)
     float m_localPooledMin;
     float m_localPooledMax;
-
-    // total sum of reads for the TPM mode (normalized)
-    int m_totalReads;
 
     // bounding rect area
     QRectF m_border;

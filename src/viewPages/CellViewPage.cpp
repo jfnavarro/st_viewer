@@ -282,6 +282,10 @@ void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus 
     m_geneHitsThreshold->setUpperValue(max);
     m_geneHitsThreshold->setTickInterval(1);
 
+    //load min max values to legend
+    m_legend->setLowerLimit(min);
+    m_legend->setUpperLimit(max);
+
     // reset main variabless
     resetActionStates();
 
@@ -593,12 +597,6 @@ void CellViewPage::createMenusAndConnections()
     connect(actionGroup_toggleMinimapPosition,
             SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetMiniMapAnchor(QAction*)));
-
-    // connect gene plotter pooled values (min-max) to legend to rebuild it
-    connect(m_gene_plotter.data(), SIGNAL(localPooledMinChanged(qreal)),
-            m_legend.data(), SLOT(setLowerLimit(qreal)));
-    connect(m_gene_plotter.data(), SIGNAL(localPooledMaxChanged(qreal)),
-            m_legend.data(), SLOT(setUpperLimit(qreal)));
 
     // Features Histogram Distribution
     connect(m_geneHitsThreshold.data(), SIGNAL(lowerValueChanged(int)),

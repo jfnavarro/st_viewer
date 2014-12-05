@@ -63,6 +63,7 @@ void GeneRendererGL::clearData()
     // lookup data
     m_geneInfoById.clear();
     m_geneInfoReverse.clear();
+    m_geneInfoTotalReadsIndex.clear();
 
     // variables
     m_intensity = GENE_INTENSITY_DEFAULT;
@@ -70,7 +71,6 @@ void GeneRendererGL::clearData()
     m_thresholdLower = 0;
     m_thresholdUpper = 1;
     m_shape = DEFAULT_SHAPE_GENE;
-    m_totalReads = 0;
     m_localPooledMin = std::numeric_limits<float>::max();
     m_localPooledMax = std::numeric_limits<float>::min();
 
@@ -183,9 +183,8 @@ void GeneRendererGL::generateDataAsync()
         // update look up container for the features and indexes
         m_geneInfoById.insert(feature, index); // same position = same feature = same index
         m_geneInfoReverse.insert(index, feature); //multiple features per index
-
-        // update total reads
-        m_totalReads += feature->hits();
+        // updated total reads per feature position
+        m_geneInfoTotalReadsIndex[index] += feature->hits();
 
     } //endforeach
 }
@@ -289,8 +288,14 @@ void GeneRendererGL::updateVisual()
 
             //update ref count and total value
             indexRefCount++;
-            indexValue += m_poolingMode == PoolNumberGenes ?
-                        static_cast<float>(indexRefCount) : static_cast<float>(currentHits);
+            if (m_poolingMode == PoolNumberGenes) {
+                indexValue += static_cast<float>(indexRefCount);
+            } else if (m_poolingMode == PoolReadsCount) {
+                indexValue += static_cast<float>(currentHits);
+            } else { //TPM value
+                const int totalReads = m_geneInfoTotalReadsIndex.value(index);
+                indexValue += (static_cast<float>(currentHits) / totalReads) * 10e5;
+            }
 
             //when the color of the new feature is different than the color
             //in the feature's position we do linear interpolation adjusted
@@ -556,9 +561,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
     int shape = m_shaderProgram->program()->uniformLocation("in_shape");
     m_shaderProgram->program()->setUniformValue(shape, static_cast<GLint>(m_shape));
-
-    int totalReads = m_shaderProgram->program()->uniformLocation("in_totalReads");
-    m_shaderProgram->program()->setUniformValue(totalReads, static_cast<GLint>(m_totalReads));
 
     // draw the data
     m_geneNode->draw(painter);
