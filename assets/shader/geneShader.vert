@@ -23,7 +23,6 @@ uniform lowp float in_pooledUpper;
 uniform lowp float in_pooledLower;
 uniform lowp int in_shape;
 uniform lowp float in_intensity;
-uniform lowp int in_totalReads;
 
 //Some in-house functions
 
@@ -108,14 +107,6 @@ void main(void)
     float value = float(qt_Custom1);
     float upper_limit = float(in_pooledUpper);
     float lower_limit = float(in_pooledLower);
-    float totalReads = float(in_totalReads);
-
-    //if mode is TPM adjust reads by total reads
-    if (poolingMode == 3) {
-        value = (value * 10e5) / totalReads;
-        upper_limit = (upper_limit * 10e5) / totalReads;
-        upper_limit = (upper_limit * 10e5) / totalReads;
-    }
     
     //adjust for color mode (1 linear - 2 log - 3 exp)
     if (colorMode == 2) {
