@@ -162,7 +162,7 @@ void CellGLView::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    QGLPainter painter;
+    //QGLPainter painter;
     painter.begin();
 
     glDisable(GL_TEXTURE_2D);
@@ -195,13 +195,13 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
-    if (!isExposed()) {
+    if (!isExposed() || !m_initialized) {
         return;
     }
 
     //create OpenGL painter
-    QGLPainter painter;
-    painter.begin();
+    //QGLPainter painter;
+    //painter.begin();
 
     // set the projection matrix
     painter.projectionMatrix() = m_projm;

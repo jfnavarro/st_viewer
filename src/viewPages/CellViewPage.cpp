@@ -58,6 +58,8 @@ static const int GENE_SIZE_MAX = 30;
 static const int BRIGHTNESS_MIN = 1;
 static const int BRIGHTNESS_MAX = 10;
 
+using namespace Globals;
+
 namespace
 {
 
@@ -137,10 +139,8 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->setupUi(this);
     //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
-    m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget "
-                                            "{background-color: rgb(240,240,240);}");
-    m_ui->frame->setStyleSheet("QFrame#frame {background-color: rgb(230,230,230); "
-                                             "border-color: rgb(206,202,202);}");
+    m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget " + PAGE_WIDGETS_STYLE);
+    m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     // instantiante FDH
     m_FDH = new AnalysisFRD();
@@ -206,10 +206,8 @@ void CellViewPage::onEnter()
 
     setWaiting(true);
     //first we need to download the image alignment
-    //TODO add new end-points to the API that will allow
-    //the clients to not need to download the image_alingment object
-    //to get the dataset content
     m_dataProxy->loadImageAlignment();
+    m_dataProxy->activateCurrentDownloads();
 
 }
 
@@ -219,6 +217,7 @@ void CellViewPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus 
     if (status == DataProxy::Success) {
         // download the rest of the content
         m_dataProxy->loadDatasetContent();
+        m_dataProxy->activateCurrentDownloads();
     } else {
         setWaiting(false);
     }
@@ -959,6 +958,7 @@ void CellViewPage::slotSaveSelection()
 
         //save the selection object
         m_dataProxy->addGeneSelection(selection);
+        m_dataProxy->activateCurrentDownloads();
     }
 }
 

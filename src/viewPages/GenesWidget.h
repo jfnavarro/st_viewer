@@ -9,6 +9,7 @@
 #define GENESWIDGET_H
 
 #include <QWidget>
+#include <QIcon>
 
 #include "data/DataProxy.h"
 
@@ -54,19 +55,21 @@ private slots:
     void slotHideAllSelected();
     void slotShowAllSelected();
 
- private:
+private:
+
+    //internal function to configure created buttons
+    //to avoid code duplication
+    //TODO better approach would be to have factories somewhere else
+    void configureButton(QPushButton *button,
+                         const QIcon icon = QIcon(), const QString tooltip = QString());
 
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 
-    QPointer<QPushButton> m_selectionAllButton;
-    QPointer<QPushButton> m_selectionClearAllButton;
+    //some references needed to UI elements
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
     QPointer<QColorDialog> m_colorList;
-    QPointer<QPushButton> m_showColorButton;
-    QPointer<QPushButton> m_showSelectedButton;
-    QPointer<QPushButton> m_hideSelectedButton;
 
     Q_DISABLE_COPY(GenesWidget)
 };

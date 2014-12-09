@@ -19,6 +19,8 @@
 #include "dialogs/CreateSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
 
+using namespace Globals;
+
 ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     : Page(dataProxy, parent),
       m_ui(new Ui::Experiments())
@@ -26,10 +28,8 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->setupUi(this);
     //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
-    m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget "
-                                               "{background-color: rgb(240,240,240);}");
-    m_ui->frame->setStyleSheet("QFrame#frame {background-color: rgb(230,230,230); "
-                                             "border-color: rgb(206,202,202);}");
+    m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget " + PAGE_WIDGETS_STYLE);
+    m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
@@ -105,6 +105,7 @@ void ExperimentPage::slotLoadSelections()
 {
     setWaiting(true);
     m_dataProxy->loadGeneSelections();
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void ExperimentPage::slotGenesSelectionsDownloaded(const DataProxy::DownloadStatus status)
@@ -157,6 +158,7 @@ void ExperimentPage::slotRemoveSelection()
 
     //remove the selection object
     m_dataProxy->removeSelection(selectionItem->id());
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void ExperimentPage::slotExportSelection()
@@ -231,6 +233,7 @@ void ExperimentPage::slotEditSelection()
 
         //update the dataset
         m_dataProxy->updateGeneSelection(selectionItem);
+        m_dataProxy->activateCurrentDownloads();
     }
 }
 

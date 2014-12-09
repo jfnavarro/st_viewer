@@ -12,8 +12,9 @@
 
 #include "error/Error.h"
 #include "auth/AuthorizationManager.h"
-
 #include "ui_initpage.h"
+
+using namespace Globals;
 
 InitPage::InitPage(QPointer<AuthorizationManager> authManager,
                    QPointer<DataProxy> dataProxy,
@@ -28,17 +29,9 @@ InitPage::InitPage(QPointer<AuthorizationManager> authManager,
 
     //setting style to main UI Widget
     setWindowFlags(Qt::FramelessWindowHint);
-    m_ui->InitPageWidget->setStyleSheet("QWidget#InitPageWidget {background-color:rgb(240,240,240);}");
-    m_ui->newExpButt->setStyleSheet("QPushButton#newExpButt "
-                                    "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
-                                    "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255));"
-                                    "border: 1px solid rgb(209, 209, 209);"
-                                    "border-radius: 5px;}");
-    m_ui->logoutButt->setStyleSheet("QPushButton#logoutButt "
-                                    "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
-                                    "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255)); "
-                                    "border: 1px solid rgb(209, 209, 209);"
-                                    "border-radius: 5px;}");
+    m_ui->InitPageWidget->setStyleSheet("QWidget#InitPageWidget " + PAGE_WIDGETS_STYLE);
+    m_ui->newExpButt->setStyleSheet("QPushButton#newExpButt " + BUTTON_STYLE_INIT_PAGE);
+    m_ui->logoutButt->setStyleSheet("QPushButton#logoutButt " + BUTTON_STYLE_INIT_PAGE);
     m_ui->user_name->clear();
     m_ui->newExpButt->setEnabled(false);
 
@@ -93,6 +86,7 @@ void InitPage::slotAuthorized()
     //load user from network
     setWaiting(true);
     m_dataProxy->loadUser();
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void InitPage::slotUserDownloaded(const DataProxy::DownloadStatus status)
@@ -111,8 +105,6 @@ void InitPage::slotUserDownloaded(const DataProxy::DownloadStatus status)
         m_ui->user_name->setText(user->username());
         m_ui->newExpButt->setEnabled(true);
     }
-
-    //TODO if status is abort or error do nothing?
 }
 
 void InitPage::slotLogOutButton()

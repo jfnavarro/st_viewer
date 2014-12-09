@@ -11,6 +11,7 @@
 #include <QGLFramebufferObjectSurface>
 #include <QPointer>
 #include <QOpenGLFunctions>
+#include <QGLPainter>
 
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
@@ -162,6 +163,8 @@ private:
 
     // scene viewport projection
     QMatrix4x4 m_projm;
+
+    QGLPainter painter;
 
     Q_DISABLE_COPY(CellGLView)
 };
