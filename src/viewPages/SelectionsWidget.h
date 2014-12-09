@@ -10,6 +10,7 @@
 
 #include <QWidget>
 #include <QPointer>
+#include <QIcon>
 
 #include "dataModel/GeneSelection.h"
 
@@ -48,13 +49,16 @@ signals:
 
 private:
 
+    //internal function to configure created buttons
+    //to avoid code duplication
+    //TODO better approach would be to have factories somewhere else
+    void configureButton(QPushButton *button,
+                         const QIcon icon = QIcon(), const QString tooltip = QString());
+
     GeneSelectionItemModel *getModel();
     QSortFilterProxyModel *getProxyModel();
 
-    QPointer<QPushButton> m_saveSelection;
-    QPointer<QPushButton> m_exportGenesSelection;
-    QPointer<QPushButton> m_exportFeaturesSelection;
-    QPointer<QPushButton> m_clearSelection;
+    //some references needed to UI elements
     QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
     QPointer<GeneSelectionTableView> m_selections_tableview;
 

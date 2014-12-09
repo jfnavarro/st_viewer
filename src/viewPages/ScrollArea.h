@@ -61,7 +61,6 @@ private:
     static const int m_scrollBarSteps = 100000;
 
     QPointer<CellGLView> m_view;
-    //QPointer<QWidget> m_container;
     QRectF m_cellglview_scene;
     QRectF m_cellglview_viewPort;
     QTransform m_cellglview_sceneTransformations;

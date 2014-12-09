@@ -152,6 +152,7 @@ bool stVi::checkSystemRequirements() const
 
     // Fail if min version is not supported
     m_dataProxy->loadMinVersion();
+    m_dataProxy->activateCurrentDownloads();
     connect(m_dataProxy.data(),
             SIGNAL(signalMinVersionDownloaded(DataProxy::DownloadStatus)),
             this, SLOT(slotMinVersionDownloaded(DataProxy::DownloadStatus)));

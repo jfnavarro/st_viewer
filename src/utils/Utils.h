@@ -19,7 +19,30 @@
 namespace Globals
 {
 
-//TODO move elements to where they are used as much as possible
+/** STYLE VARIABLES **/
+
+static const QString BUTTON_STYLE_INIT_PAGE =
+        "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
+        "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255)); "
+        "border: 1px solid rgb(209, 209, 209); "
+        "border-radius: 5px;}";
+
+static const QString PAGE_WIDGETS_STYLE = "{background-color:rgb(240,240,240);}";
+
+static const QString PAGE_FRAME_STYLE = "{background-color:rgb(230,230,230); "
+                                        "border-color: rgb(206,202,202);}";
+
+static const int CELL_PAGE_SUB_MENU_BUTTON_SPACE = 15;
+static const QSize CELL_PAGE_SUB_MENU_BUTTON_SIZE = QSize(40, 30);
+static const QSize CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE = QSize(150, 25);
+static const QString CELL_PAGE_SUB_MENU_BUTTON_STYLE =
+        "QPushButton {border: 1px solid rgb(209, 209, 209); "
+        "border-radius: 5px; background-color: rgb(255, 255, 255);}";
+static const QString CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE =
+        "QLineEdit {border: 1px solid rgb(209, 209, 209); "
+        "border-radius: 5px; "
+        "background-color: rgb(255, 255, 255); "
+        "selection-background-color: darkgray;}";
 
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
 

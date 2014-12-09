@@ -16,8 +16,9 @@
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
 #include "dialogs/EditDatasetDialog.h"
-
 #include "ui_datasets.h"
+
+using namespace Globals;
 
 DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     Page(dataProxy, parent),
@@ -27,9 +28,8 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
 
     //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
-    m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget {background-color:rgb(240,240,240);}");
-    m_ui->frame->setStyleSheet("QFrame#frame {background-color:rgb(230,230,230); "
-                                             "border-color: rgb(206,202,202);}");
+    m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
+    m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     //connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
@@ -116,15 +116,17 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 
 void DatasetPage::slotLoadDatasets()
 {
+    //download datasets
     setWaiting(true);
     m_dataProxy->loadDatasets();
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void DatasetPage::slotDatasetsDownloaded(const DataProxy::DownloadStatus status)
 {
     setWaiting(false);
 
-    //if error we reset the selected dataset...this is why we allow free navigation
+    //if error we reset the selected dataset...this is because we allow free navigation
     //among pages
     if (status == DataProxy::Failed) {
         m_dataProxy->resetSelectedDataset();
@@ -168,6 +170,7 @@ void DatasetPage::slotEditDataset()
 
         //update the dataset
         m_dataProxy->updateDataset(dataset);
+        m_dataProxy->activateCurrentDownloads();
     }
 }
 
@@ -215,6 +218,7 @@ void DatasetPage::slotRemoveDataset()
 
     //remove the dataset
     m_dataProxy->removeDataset(dataset->id());
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void DatasetPage::slotDatasetsModified(const DataProxy::DownloadStatus status)

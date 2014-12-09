@@ -24,9 +24,6 @@
 #include "dataModel/OAuth2TokenDTO.h"
 #include "config/Configuration.h"
 
-namespace async {
-class DataRequest;
-}
 class QByteArray;
 class NetworkManager;
 class AuthorizationManager;
@@ -60,7 +57,8 @@ public:
     typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    //TODO find a way to update DataProxy when data is updated trough the backend (a timed request)
+    //TODO find a way to update DataProxy when data is updated trough the backend
+    //(a timed request or a listener thread)
 
     //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
     //direct references or other type of smart pointer
@@ -96,7 +94,7 @@ public:
     //clean up memory cache and local cache (hard drive)
     void cleanAll();
 
-    //DATA LOADERS
+    //DATA LOADERS (the method activateCurrentDownloads must be called after invoking any loading)
     //data loaders are meant to be used to load data from the network.
     //callers are expected to wait for a signal to notify when the data is downloaded
     //and the status
@@ -209,16 +207,28 @@ public:
     // CURRENTLY ACTIVE DOWNLOADS
     unsigned getActiveDownloads() const;
 
+    //Function to connect the active network replies
+    //to the slotProcessDownload. This will enable to process the downloads
+    //otherwise the downloads will never be processed
+    void activateCurrentDownloads() const;
+
 public slots:
 
+    //Abort all the current active downloads if any
     void slotAbortActiveDownloads();
 
 private slots:
 
+    //Internal slot to process the call back of a network request
+    //which will invoke the callback function linked to the network reply
+    //the call back function will load the data and some sanity check
+    //will be performed
     void slotProcessDownload();
 
 signals:
 
+    //signals to notify guys using dataProxy about download finished
+    //TODO an alternative is to have one signal and return the type in the signal
     void signalMinVersionDownloaded(DataProxy::DownloadStatus status);
     void signalAccessTokenDownloaded(DataProxy::DownloadStatus status);
     void signalUserDownloaded(DataProxy::DownloadStatus status);
@@ -273,7 +283,9 @@ private:
 
     //internal function to create network requests for data objects
     //data will be parsed with the function given as argument if given
-    void createRequest(NetworkReply *reply, void (DataProxy::*signal)(DataProxy::DownloadStatus) = nullptr,
+    //a signal to emit when something goes wrong is also optionally given
+    void createRequest(NetworkReply *reply,
+                       void (DataProxy::*signal)(DataProxy::DownloadStatus) = nullptr,
                        bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
 
     // currently available datasets
@@ -308,6 +320,8 @@ private:
 
     //to keep track of the current downloads (async)
     unsigned m_activeDownloads;
+    //this map represents a reply -> pair(call back function to process, signal to emit when
+    //something goes wrong)
     QHash<NetworkReply*, QPair<void (DataProxy::*)(DataProxy::DownloadStatus),
     bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
 

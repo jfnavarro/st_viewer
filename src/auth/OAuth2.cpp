@@ -72,6 +72,7 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
 {
     //TODO maybe should block and wait for this?
     m_dataProxy->loadAccessToken(requestUser, requestPassword);
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void OAuth2::slotAccessTokenDownloaded(DataProxy::DownloadStatus status)

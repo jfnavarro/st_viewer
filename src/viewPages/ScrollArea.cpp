@@ -37,11 +37,11 @@ void ScrollArea::initializeView(QPointer<CellGLView> view)
     verticalScrollBar()->setTracking(true);
     horizontalScrollBar()->setTracking(true);
 
-    connect(m_view, SIGNAL(signalViewPortUpdated(const QRectF)),
+    connect(m_view.data(), SIGNAL(signalViewPortUpdated(const QRectF)),
             this, SLOT(setCellGLViewViewPort(const QRectF)));
-    connect(m_view, SIGNAL(signalSceneUpdated(const QRectF)),
+    connect(m_view.data(), SIGNAL(signalSceneUpdated(const QRectF)),
             this, SLOT(setCellGLViewScene(const QRectF)));
-    connect(m_view, SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
+    connect(m_view.data(), SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
             this, SLOT(setCellGLViewSceneTransformations(const QTransform)));
 
     connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
@@ -85,9 +85,10 @@ void ScrollArea::adjustScrollBar(const int scrollBarSteps,
     // scrollbars. For the case that we need to divide by zero, we set the PageStep value to
     // be as big as possible. Unfortunately the value std::numeric_limits<int>::max() is not
     // big enough because sometimes the scroll gets to be a pixel to short.
-    const int val = (qFuzzyCompare(value_range,0.0)) ? std::numeric_limits<int>::max() :
-                                                       static_cast<int>(scrollBarSteps
-                                                                        * viewPortInSceneCoordinatesRange / value_range);
+    const int val = qFuzzyCompare(value_range,0.0) ? std::numeric_limits<int>::max() :
+                                                     static_cast<int>(scrollBarSteps
+                                                                      * viewPortInSceneCoordinatesRange
+                                                                      / value_range);
     scrollBar->setPageStep(val);
     //TODO 300 magic number?
     scrollBar->setSingleStep(300);
