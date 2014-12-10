@@ -95,8 +95,9 @@ private slots:
 
     //used to be notified when the dataset content has been downloaded or a selection created
     //status contains the status of the operation (ok, abort, error)
-    void slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status);
-    void slotDatasetContentDownloaded(const DataProxy::DownloadStatus status);
+    //type contains the downloaad type
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
     
@@ -111,6 +112,9 @@ private:
 
     // to enable/disable main controls
     void setEnableButtons(bool enable);
+
+    // internal function to initialize UI components once the whole dataset has been downloaded
+    void datasetContentDownloaded();
 
     // OpenGL visualization objects
     QPointer<MiniMapGL> m_minimap;

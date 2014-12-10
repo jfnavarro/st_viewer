@@ -1,5 +1,7 @@
 FIX_QT3D_COMPILATION_BUG()
 
+include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/qjpeg-turbo)
+
 set(LIBRARY_ARG_INCLUDES
     GeneRendererGL.h
     GeneData.h

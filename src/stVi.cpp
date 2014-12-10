@@ -150,19 +150,21 @@ bool stVi::checkSystemRequirements() const
         return false;
     }
 
-    // Fail if min version is not supported
+    // check for min version if supported
     m_dataProxy->loadMinVersion();
     m_dataProxy->activateCurrentDownloads();
+    //connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalMinVersionDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotMinVersionDownloaded(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
     return true;
 }
 
-void stVi::slotMinVersionDownloaded(DataProxy::DownloadStatus status)
+void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                const DataProxy::DownloadType type)
 {
     //TODO do something if it failed or aborted?
-    if (status == DataProxy::Success) {
+    if (type == DataProxy::MinVersionDownloaded && status == DataProxy::Success) {
         const auto minVersion  = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
             QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),

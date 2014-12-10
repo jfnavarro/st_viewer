@@ -39,6 +39,7 @@ class DataProxy : public QObject
 {
     Q_OBJECT
     Q_ENUMS(DownloadStatus)
+    Q_ENUMS(DownloadType)
 
 public:
 
@@ -46,6 +47,21 @@ public:
         Success,
         Aborted,
         Failed
+    };
+
+    enum DownloadType {
+        None, //do nothing, useful for remove requests
+        MinVersionDownloaded,
+        AccessTokenDownloaded,
+        UserDownloaded,
+        DatasetDownloaded,
+        DatasetModified,
+        ImageAlignmentDownloaded,
+        ChipDownloaded,
+        TissueImageDownloaded,
+        FeaturesDownloaded,
+        GenesSelectionsDownloaded,
+        GenesSelectionsModified
     };
 
     // MAIN CONTAINERS (MVC)
@@ -57,7 +73,7 @@ public:
     typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    //TODO find a way to update DataProxy when data is updated trough the backend
+    //TODO find a way to update DataProxy when data is updated through the backend
     //(a timed request or a listener thread)
 
     //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
@@ -227,17 +243,9 @@ private slots:
 
 signals:
 
-    //signals to notify guys using dataProxy about download finished
-    //TODO an alternative is to have one signal and return the type in the signal
-    void signalMinVersionDownloaded(DataProxy::DownloadStatus status);
-    void signalAccessTokenDownloaded(DataProxy::DownloadStatus status);
-    void signalUserDownloaded(DataProxy::DownloadStatus status);
-    void signalDatasetsDownloaded(DataProxy::DownloadStatus status);
-    void signalDatasetsModified(DataProxy::DownloadStatus status);
-    void signalImageAlignmentDownloaded(DataProxy::DownloadStatus status);
-    void signalDatasetContentDownloaded(DataProxy::DownloadStatus status);
-    void signalGenesSelectionsDownloaded(DataProxy::DownloadStatus status);
-    void signalGenesSelectionModified(DataProxy::DownloadStatus status);
+    //signal to notify guys using dataProxy about download finished
+    void signalDownloadFinished(DataProxy::DownloadStatus status,
+                                DataProxy::DownloadType type);
 
 private:
 
@@ -285,7 +293,7 @@ private:
     //data will be parsed with the function given as argument if given
     //a signal to emit when something goes wrong is also optionally given
     void createRequest(NetworkReply *reply,
-                       void (DataProxy::*signal)(DataProxy::DownloadStatus) = nullptr,
+                       DataProxy::DownloadType type = None,
                        bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
 
     // currently available datasets
@@ -320,9 +328,8 @@ private:
 
     //to keep track of the current downloads (async)
     unsigned m_activeDownloads;
-    //this map represents a reply -> pair(call back function to process, signal to emit when
-    //something goes wrong)
-    QHash<NetworkReply*, QPair<void (DataProxy::*)(DataProxy::DownloadStatus),
+    //this map represents a reply -> pair(download type, call back function to process the download)
+    QHash<NetworkReply*, QPair<DataProxy::DownloadType,
     bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
 
     Q_DISABLE_COPY(DataProxy)

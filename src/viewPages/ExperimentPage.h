@@ -37,9 +37,6 @@ public slots:
 
 private slots:
 
-    //slot that will download the selections
-    void slotLoadSelections();
-
     //slot that handles when the user selects a selection
     void slotSelectionSelected(QModelIndex index);
 
@@ -49,14 +46,18 @@ private slots:
     void slotEditSelection();
     void slotPerformDDA();
 
-    //used to be notified when the genes selections has been downloaded, updated or removed from network
+    //used to be notified when the genes selections has been downloaded or updated from network
     //status contains the status of the operation (ok, abort, error)
-    void slotGenesSelectionsDownloaded(const DataProxy::DownloadStatus status);
-    void slotGenesSelectionsModified(const DataProxy::DownloadStatus status);
+    //type contains the type of download request
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
 
-    //clear focus and default status for the buttons
+    //internal function to invoke the download of genes selections
+    void loadSelections();
+
+    //internal clear focus and default status for the buttons
     void clearControls();
 
     //to retrieve the table's model

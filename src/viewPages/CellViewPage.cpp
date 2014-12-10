@@ -137,6 +137,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_geneShapeComboBox(nullptr)
 {
     m_ui->setupUi(this);
+
     //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
     m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget " + PAGE_WIDGETS_STYLE);
@@ -146,9 +147,8 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     m_FDH = new AnalysisFRD();
     Q_ASSERT(m_FDH);
 
-    // color dialogs
+    // color dialog for the grid color
     m_colorDialogGrid = new QColorDialog(GridRendererGL::DEFAULT_COLOR_GRID, this);
-    // OSX native color dialog gives problems
     m_colorDialogGrid->setOption(QColorDialog::DontUseNativeDialog, true);
 
     // init OpenGL graphical objects
@@ -157,13 +157,10 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     //create menus and connections
     createMenusAndConnections();
 
-    //connect data proxy signals
+    //connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalImageAlignmentDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotImageAlignmentDownloaded(DataProxy::DownloadStatus)));
-    connect(m_dataProxy.data(),
-            SIGNAL(signalDatasetContentDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotDatasetContentDownloaded(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 }
 
 CellViewPage::~CellViewPage()
@@ -204,33 +201,46 @@ void CellViewPage::onEnter()
         return;
     }
 
+    //first we need to download the image alignment (enable blocking loading bar)
     setWaiting(true);
-    //first we need to download the image alignment
     m_dataProxy->loadImageAlignment();
     m_dataProxy->activateCurrentDownloads();
 
 }
 
-void CellViewPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status)
+void CellViewPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                        const DataProxy::DownloadType type)
 {
-    // if status == OK
-    if (status == DataProxy::Success) {
-        // download the rest of the content
-        m_dataProxy->loadDatasetContent();
-        m_dataProxy->activateCurrentDownloads();
-    } else {
-        setWaiting(false);
+    const bool isSuccess = status == DataProxy::Success;
+    const bool isLastDownload = m_dataProxy->getActiveDownloads() == 0;
+
+    if (type == DataProxy::ImageAlignmentDownloaded) {
+        if (isSuccess) {
+            //download the rest of the content (blocking loading bar still on)
+            m_dataProxy->loadDatasetContent();
+            m_dataProxy->activateCurrentDownloads();
+        } else {
+            //something happened downloading the image alignment
+            //so we disable blocking loading bar
+            setWaiting(false);
+        }
+    } else if (type == DataProxy::ChipDownloaded
+               || type == DataProxy::TissueImageDownloaded
+               || type == DataProxy::FeaturesDownloaded) {
+        if (!isSuccess && isLastDownload) {
+            //so this was the last download processed
+            //of the dataset content but it failed or aborted
+            //we disable blocking loading bar
+            setWaiting(false);
+        } else if (isSuccess && isLastDownload) {
+            //so this was the last download of dataset content and it was OK
+            datasetContentDownloaded();
+        }
     }
 }
 
-void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus status)
+void CellViewPage::datasetContentDownloaded()
 {
-    //if error or abort
-    if (status != DataProxy::Success) {
-        setWaiting(false);
-        return;
-    }
-
     // enable toolbar controls
     setEnableButtons(true);
 
@@ -256,6 +266,13 @@ void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus 
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
+    // load min-max to the threshold sliders in tool bar
+    m_geneHitsThreshold->setMinimumValue(min);
+    m_geneHitsThreshold->setMaximumValue(max);
+    m_geneHitsThreshold->setLowerValue(min);
+    m_geneHitsThreshold->setUpperValue(max);
+    m_geneHitsThreshold->setTickInterval(1);
+
     // load features and threshold boundaries into FDH
     m_FDH->computeData(m_dataProxy->getFeatureList(), min, max);
 
@@ -273,14 +290,6 @@ void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus 
     // load cell tissue (async)
     slotLoadCellFigure();
 
-    // load min-max to the threshold sliders in tool bar
-    // do this the last as it will trigger some slots in the gene_plotter and FDH
-    m_geneHitsThreshold->setMinimumValue(min);
-    m_geneHitsThreshold->setMaximumValue(max);
-    m_geneHitsThreshold->setLowerValue(min);
-    m_geneHitsThreshold->setUpperValue(max);
-    m_geneHitsThreshold->setTickInterval(1);
-
     //load min max values to legend
     m_legend->setLowerLimit(min);
     m_legend->setUpperLimit(max);
@@ -291,6 +300,7 @@ void CellViewPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus 
     // refresh view
     m_view->update();
 
+    // disable blocking loading bar
     setWaiting(false);
 }
 
