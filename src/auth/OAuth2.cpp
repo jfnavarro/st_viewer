@@ -26,10 +26,10 @@ OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject *parent)
       m_loginDialog(nullptr),
       m_dataProxy(dataProxy)
 {
-    //connect data proxy signals
+    //connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalAccessTokenDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotAccessTokenDownloaded(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 }
 
 OAuth2::~OAuth2()
@@ -75,9 +75,10 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     m_dataProxy->activateCurrentDownloads();
 }
 
-void OAuth2::slotAccessTokenDownloaded(DataProxy::DownloadStatus status)
+void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                  const DataProxy::DownloadType type)
 {
-    if (status == DataProxy::Success) {
+    if (type == DataProxy::AccessTokenDownloaded && status == DataProxy::Success) {
         OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
         const QUuid accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();

@@ -53,7 +53,9 @@ private slots:
 
     //used to be notified when the user has been downloaded from network
     //status contains the status of the operation (ok, abort, error)
-    void slotUserDownloaded(const DataProxy::DownloadStatus status);
+    //type contain the type of download
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
 

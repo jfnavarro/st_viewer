@@ -47,8 +47,8 @@ InitPage::InitPage(QPointer<AuthorizationManager> authManager,
 
     //connect the data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalUserDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotUserDownloaded(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 
     //start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
@@ -73,37 +73,38 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
     //force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
-
     //not sure whether we want to show the error to the user or not when login failed
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
- }
+}
 
 void InitPage::slotAuthorized()
 {
     //clean the cache in the dataproxy
     m_dataProxy->clean();
 
-    //load user from network
+    //load user from network (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadUser();
     m_dataProxy->activateCurrentDownloads();
 }
 
-void InitPage::slotUserDownloaded(const DataProxy::DownloadStatus status)
+void InitPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                    const DataProxy::DownloadType type)
 {
-    setWaiting(false);
-
-    //if OK
-    if (status == DataProxy::Success) {
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(!user.isNull());
-        if (!user->enabled()) {
-            showError(tr("Authorization Error"), tr("The current user is disabled"));
-            return;
+    if (type == DataProxy::UserDownloaded) {
+        //disable blocking loading bar
+        setWaiting(false);
+        if (status == DataProxy::Success) {
+            const auto user = m_dataProxy->getUser();
+            Q_ASSERT(!user.isNull());
+            if (!user->enabled()) {
+                showError(tr("Authorization Error"), tr("The current user is disabled"));
+                return;
+            }
+            //update UI user info
+            m_ui->user_name->setText(user->username());
+            m_ui->newExpButt->setEnabled(true);
         }
-        //update UI user info
-        m_ui->user_name->setText(user->username());
-        m_ui->newExpButt->setEnabled(true);
     }
 }
 

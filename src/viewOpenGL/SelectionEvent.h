@@ -33,7 +33,7 @@ public:
     }
 
     SelectionEvent(const QRectF &rect,
-                            const SelectionMode mode = NewSelection)
+                   const SelectionMode mode = NewSelection)
         : QEvent(TYPE),
           m_path(rect),
           m_mode(mode)

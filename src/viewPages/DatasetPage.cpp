@@ -43,13 +43,10 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
 
-    //connect data proxy signals
+    //connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDatasetsDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotDatasetsDownloaded(DataProxy::DownloadStatus)));
-    connect(m_dataProxy.data(),
-            SIGNAL(signalDatasetsModified(DataProxy::DownloadStatus)),
-            this, SLOT(slotDatasetsModified(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 }
 
 DatasetPage::~DatasetPage()
@@ -116,14 +113,15 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 
 void DatasetPage::slotLoadDatasets()
 {
-    //download datasets
+    //download datasets (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadDatasets();
     m_dataProxy->activateCurrentDownloads();
 }
 
-void DatasetPage::slotDatasetsDownloaded(const DataProxy::DownloadStatus status)
+void DatasetPage::datasetsDownloaded(const DataProxy::DownloadStatus status)
 {
+    //disable blocking loading bar
     setWaiting(false);
 
     //if error we reset the selected dataset...this is because we allow free navigation
@@ -221,9 +219,12 @@ void DatasetPage::slotRemoveDataset()
     m_dataProxy->activateCurrentDownloads();
 }
 
-void DatasetPage::slotDatasetsModified(const DataProxy::DownloadStatus status)
+void DatasetPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                       const DataProxy::DownloadType type)
 {
-    if (status == DataProxy::Success) {
+    if (type == DataProxy::DatasetDownloaded) {
+        datasetsDownloaded(status);
+    } else if (type == DataProxy::DatasetModified && status == DataProxy::Success) {
         slotLoadDatasets();
     }
 }

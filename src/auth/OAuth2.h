@@ -53,7 +53,9 @@ private slots:
 
     //used to be notified when access token has been downloaded from network
     //status contains the status of the operation (ok, abort, error)
-    void slotAccessTokenDownloaded(DataProxy::DownloadStatus status);
+    //type contains the type of download
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
 

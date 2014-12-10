@@ -30,7 +30,7 @@ inline const QSizeF clamp(const QSizeF& size,
 {
     QSizeF clampSize = size;
 
-    if ((clampSize.width() < min.width()) || (clampSize.height() < min.height())) {
+    if (clampSize.width() < min.width() || clampSize.height() < min.height()) {
         if (mode == Qt::IgnoreAspectRatio) {
             clampSize = clampSize.expandedTo(min);
         } else {
@@ -38,7 +38,7 @@ inline const QSizeF clamp(const QSizeF& size,
         }
     }
 
-    if ((clampSize.width() > max.width()) || (clampSize.height() > max.height())) {
+    if (clampSize.width() > max.width() || clampSize.height() > max.height()) {
         if (mode == Qt::IgnoreAspectRatio) {
             clampSize = clampSize.boundedTo(max);
         } else {
@@ -145,7 +145,8 @@ inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
         diff = v1[i] - v2[i];
         sum += diff * diff;
     }
-    return std::sqrt(double(sum));
+
+    return std::sqrt(static_cast<double>(sum));
 }
 
 //Jaccard Coefficient.	Use for asymetric binary values
@@ -163,6 +164,7 @@ inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
             }
         }
     }
+
     return static_cast<qreal>(f11)
             / static_cast<qreal>(v1.size() - (f11 + f00));
 }
@@ -174,6 +176,7 @@ inline qreal mean(const QVector<T> &v1){
     for (int i = 1; i < v1.size(); i++) {
         sum += v1[i];
     }
+
     return static_cast<qreal>(sum) / static_cast<qreal>(v1.size());
 }
 
@@ -187,6 +190,7 @@ inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2){
     for (int i = 0; i < v1.size(); i++){
         sum += (static_cast<qreal>(v1[i]) - mean1) * (static_cast<qreal>(v2[i]) - mean2);
     }
+
     return sum / static_cast<qreal>(v1.size() - 1);
 }
 
@@ -203,6 +207,7 @@ inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2){
         //a standard deviaton was 0...
         return -1;
     }
+
     return covariance(v1,v2) / (std_dev(v1) * std_dev(v2));
 }
 
@@ -213,6 +218,7 @@ inline QVector<T> logVectorValues(const QVector<T>& input)
     foreach(T value, input) {
         output.push_back(std::log(value + 1));
     }
+
     return output;
 }
 

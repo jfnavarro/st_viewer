@@ -55,7 +55,10 @@ private slots:
     void slotShowAbout();
 
     // to handle when the min version is downloaded (if not supported app will close)
-    void slotMinVersionDownloaded(DataProxy::DownloadStatus status);
+    // status the status of the network request
+    // type is the type of request
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
 

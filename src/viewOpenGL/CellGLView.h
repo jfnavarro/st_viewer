@@ -164,7 +164,8 @@ private:
     // scene viewport projection
     QMatrix4x4 m_projm;
 
-    QGLPainter painter;
+    // openGL painter object
+    QGLPainter m_painter;
 
     Q_DISABLE_COPY(CellGLView)
 };

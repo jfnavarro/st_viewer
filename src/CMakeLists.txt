@@ -59,12 +59,6 @@ set(subdir_list
                    math
                    analysis)
 
-# we need to find this package here cos it is used
-# in one of the sub modules. If we move this to the CMake file of
-# the module the linking will fail
-find_package(JpegTurbo REQUIRED)
-include_directories(${LIBJPEG_INCLUDE_DIRS})
-
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
@@ -116,6 +110,7 @@ endforeach()
 
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
+list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qjpeg-turbo>")
 #rapidjson does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
@@ -149,7 +144,8 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES} ${OPENSSL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY}
+                      ${OPENSSL_LIBRARY} ${LIBJPEG_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 
@@ -173,7 +169,7 @@ set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
 
 set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
-set(PLUGINS_IN_CATEGORY_accessible qtaccessiblequick qtaccessiblewidgets)
+set(PLUGINS_IN_CATEGORY_accessible)
 set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
 set(PLUGINS_IN_CATEGORY_printsupport)
 set(PLUGINS_IN_CATEGORY_platforms)
@@ -220,8 +216,8 @@ if(UNIX AND NOT APPLE)
       INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
     endforeach()
 
-    #qt needs ICU libaries in Linux
-    set(ICU_VERSION "52.1")
+    #qt 5.4 needs ICU libaries in Linux 53
+    set(ICU_VERSION "53.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
@@ -374,8 +370,8 @@ if(WIN32)
 
     deploy_qt_plugins()
     
-    #qt5.1.1 icu is 51 for lower versions is 49
-    windows_deploy_qt_libraries(icudt52 icuin52 icuuc52)
+    #qt 5.4 ICU is 53
+    windows_deploy_qt_libraries(icudt53 icuin53 icuuc53)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)

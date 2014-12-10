@@ -57,10 +57,14 @@ private slots:
     //slot used to be notified when the datasets have been downloaded,
     //updated or removed from network
     //status contains the status of the operation (ok, abort, error)
-    void slotDatasetsDownloaded(const DataProxy::DownloadStatus status);
-    void slotDatasetsModified(const DataProxy::DownloadStatus status);
+    //type contain the type of download request
+    void slotDownloadFinished(const DataProxy::DownloadStatus status,
+                              const DataProxy::DownloadType type);
 
 private:
+
+    //internal function to process when the datasets have been downloaded
+    void datasetsDownloaded(const DataProxy::DownloadStatus status);
 
     //clear focus and resets to default
     void clearControls();

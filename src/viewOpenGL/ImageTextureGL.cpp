@@ -16,7 +16,7 @@
 #include <QByteArray>
 #include <QBuffer>
 
-#include "utils/QJpegImageReader.h"
+#include "qjpeg-turbo/qjpeghandler_p.h"
 
 #include <cmath>
 
@@ -112,7 +112,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     }
 
     //create image from byte array
-    QJpegImageReader imageReader;
+    QJpegHandler imageReader;
     imageReader.setDevice(&imageBuffer);
     QImage image;
     const bool readOk = imageReader.read(&image);

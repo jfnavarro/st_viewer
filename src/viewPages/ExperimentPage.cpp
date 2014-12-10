@@ -42,13 +42,10 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
 
-    //connect data proxy signals
+    //connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalGenesSelectionsDownloaded(DataProxy::DownloadStatus)),
-            this, SLOT(slotGenesSelectionsDownloaded(DataProxy::DownloadStatus)));
-    connect(m_dataProxy.data(),
-            SIGNAL(signalGenesSelectionModified(DataProxy::DownloadStatus)),
-            this, SLOT(slotGenesSelectionsModified(DataProxy::DownloadStatus)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 }
 
 ExperimentPage::~ExperimentPage()
@@ -75,7 +72,7 @@ ExperimentsItemModel *ExperimentPage::selectionsModel()
 void ExperimentPage::onEnter()
 {
     //load selections
-    slotLoadSelections();
+    loadSelections();
 }
 
 void ExperimentPage::onExit()
@@ -101,22 +98,28 @@ void ExperimentPage::clearControls()
     m_ui->editSelection->setEnabled(false);
 }
 
-void ExperimentPage::slotLoadSelections()
+void ExperimentPage::loadSelections()
 {
+    //load selections and enable the blocking loading bar
     setWaiting(true);
     m_dataProxy->loadGeneSelections();
     m_dataProxy->activateCurrentDownloads();
 }
 
-void ExperimentPage::slotGenesSelectionsDownloaded(const DataProxy::DownloadStatus status)
+void ExperimentPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
+                                          const DataProxy::DownloadType type)
 {
-    setWaiting(false);
-
-    //if ok
-    if (status == DataProxy::Success) {
-        // refresh gene selections on the model
-        selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
-        clearControls();
+    if (type == DataProxy::GenesSelectionsDownloaded) {
+        //disable blocking loading bar
+        setWaiting(false);
+        if (status == DataProxy::Success) {
+            // refresh gene selections on the model and controls
+            selectionsModel()->loadSelectedGenes(m_dataProxy->getGenesSelectionsList());
+            clearControls();
+        }
+    } else if (type == DataProxy::GenesSelectionsModified && status == DataProxy::Success) {
+        //re-upload genes selections after an update
+        loadSelections();
     }
 }
 
@@ -126,7 +129,7 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     const auto currentSelection = selectionsModel()->getSelections(selected);
     const bool enableDDA = index.isValid() && currentSelection.size() == 2;
     const bool enableRest = index.isValid() && currentSelection.size() == 1;
-
+    //configure UI controls if we select 1 or 2 selections
     m_ui->removeSelections->setEnabled(enableRest);
     m_ui->exportSelections->setEnabled(enableRest);
     m_ui->ddaAnalysis->setEnabled(enableDDA);
@@ -234,13 +237,6 @@ void ExperimentPage::slotEditSelection()
         //update the dataset
         m_dataProxy->updateGeneSelection(selectionItem);
         m_dataProxy->activateCurrentDownloads();
-    }
-}
-
-void ExperimentPage::slotGenesSelectionsModified(const DataProxy::DownloadStatus status)
-{
-    if (status == DataProxy::Success) {
-        slotLoadSelections();
     }
 }
 

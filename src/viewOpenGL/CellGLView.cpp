@@ -162,8 +162,8 @@ void CellGLView::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    //QGLPainter painter;
-    painter.begin();
+    //initialize painter
+    m_painter.begin();
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
@@ -174,17 +174,18 @@ void CellGLView::initializeGL()
     glEnable(GL_BLEND);
 
     // Set the default blend options.
-    if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendColor)) {
-        painter.glBlendColor(0, 0, 0, 0);
+    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendColor)) {
+        m_painter.glBlendColor(0, 0, 0, 0);
     }
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquation)) {
-        painter.glBlendEquation(GL_FUNC_ADD);
+    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquation)) {
+        m_painter.glBlendEquation(GL_FUNC_ADD);
     }
-    else if (painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquationSeparate)) {
-        painter.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+
+    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquationSeparate)) {
+        m_painter.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     }
 
     QRect rect = geometry();
@@ -199,15 +200,11 @@ void CellGLView::paintGL()
         return;
     }
 
-    //create OpenGL painter
-    //QGLPainter painter;
-    //painter.begin();
-
-    // set the projection matrix
-    painter.projectionMatrix() = m_projm;
+    // sets the projection matrix of the OpenGL painter
+    m_painter.projectionMatrix() = m_projm;
 
     // clear color buffer
-    painter.setClearColor(Qt::black);
+    m_painter.setClearColor(Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes
@@ -217,18 +214,16 @@ void CellGLView::paintGL()
             if (node->transformable()) {
                 local_transform *= sceneTransformations();
             }
-            painter.modelViewMatrix().push();
-            painter.modelViewMatrix() *= local_transform;
-            node->draw(&painter);
-            painter.modelViewMatrix().pop();
+            m_painter.modelViewMatrix().push();
+            m_painter.modelViewMatrix() *= local_transform;
+            node->draw(&m_painter);
+            m_painter.modelViewMatrix().pop();
         }
     }
 
-    //glFlush(); // forces to send the data to the GPU saving time (no need for this when only 1 context)
-
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
-        m_rubberband->draw(&painter);
+        m_rubberband->draw(&m_painter);
     }
 
     m_context->swapBuffers(this); // this is important

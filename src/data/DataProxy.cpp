@@ -186,10 +186,7 @@ DataProxy::~DataProxy()
 void DataProxy::clean()
 {
     qDebug() << "Cleaning memory cache in Dataproxy";
-
     //every data member is a smart pointer
-    //TODO make totally sure data is being de-allocated
-
     m_datasetList.clear();
     m_geneSelectionsList.clear();
     m_imageAlignment.clear();
@@ -198,8 +195,8 @@ void DataProxy::clean()
     m_genesList.clear();
     m_geneFeaturesMap.clear();
     m_cellTissueImages.clear();
-    //m_minVersion.clear();
-    //m_accessToken.clear();
+    m_minVersion = MinVersionArray();
+    m_accessToken = OAuth2TokenDTO();
     m_selectedDataset.clear();
     m_activeDownloads = 0;
     m_activeNetworkReplies.clear();
@@ -320,7 +317,7 @@ void DataProxy::loadDatasets()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetsDownloaded, &DataProxy::parseDatasets);
+    createRequest(reply, DataProxy::DatasetDownloaded, &DataProxy::parseDatasets);
 }
 
 void DataProxy::updateDataset(const Dataset &dataset)
@@ -335,7 +332,7 @@ void DataProxy::updateDataset(const Dataset &dataset)
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetsModified);
+    createRequest(reply, DataProxy::DatasetModified);
 }
 
 void DataProxy::removeDataset(const QString& datasetId)
@@ -348,7 +345,7 @@ void DataProxy::removeDataset(const QString& datasetId)
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetsModified, &DataProxy::parseRemoveDataset);
+    createRequest(reply, DataProxy::DatasetModified, &DataProxy::parseRemoveDataset);
 }
 
 void DataProxy::loadDatasetContent()
@@ -385,7 +382,7 @@ void DataProxy::loadChip()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetContentDownloaded, &DataProxy::parseChip);
+    createRequest(reply, DataProxy::ChipDownloaded, &DataProxy::parseChip);
 }
 
 void DataProxy::loadFeatures()
@@ -404,7 +401,7 @@ void DataProxy::loadFeatures()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetContentDownloaded, &DataProxy::parseFeatures);
+    createRequest(reply, DataProxy::FeaturesDownloaded, &DataProxy::parseFeatures);
 }
 
 void DataProxy::loadImageAlignment()
@@ -422,8 +419,7 @@ void DataProxy::loadImageAlignment()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalImageAlignmentDownloaded,
-                  &DataProxy::parseImageAlignment);
+    createRequest(reply, DataProxy::ImageAlignmentDownloaded, &DataProxy::parseImageAlignment);
 }
 
 void DataProxy::loadUser()
@@ -436,7 +432,7 @@ void DataProxy::loadUser()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalUserDownloaded, &DataProxy::parseUser);
+    createRequest(reply, DataProxy::UserDownloaded, &DataProxy::parseUser);
 }
 
 void DataProxy::loadGeneSelections()
@@ -449,8 +445,7 @@ void DataProxy::loadGeneSelections()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalGenesSelectionsDownloaded,
-                  &DataProxy::parseGeneSelections);
+    createRequest(reply, DataProxy::GenesSelectionsDownloaded, &DataProxy::parseGeneSelections);
 }
 
 void DataProxy::updateGeneSelection(const GeneSelection &geneSelection)
@@ -466,7 +461,7 @@ void DataProxy::updateGeneSelection(const GeneSelection &geneSelection)
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalGenesSelectionModified);
+    createRequest(reply, DataProxy::GenesSelectionsModified);
 }
 
 void DataProxy::addGeneSelection(const GeneSelection &geneSelection)
@@ -491,7 +486,7 @@ void DataProxy::removeSelection(const QString &selectionId)
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalGenesSelectionModified);
+    createRequest(reply, DataProxy::GenesSelectionsModified);
 }
 
 void DataProxy::loadCellTissueByName(const QString& name)
@@ -509,8 +504,7 @@ void DataProxy::loadCellTissueByName(const QString& name)
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalDatasetContentDownloaded,
-                  &DataProxy::parseCellTissueImage);
+    createRequest(reply, DataProxy::TissueImageDownloaded, &DataProxy::parseCellTissueImage);
 }
 
 void DataProxy::loadMinVersion()
@@ -521,7 +515,7 @@ void DataProxy::loadMinVersion()
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalMinVersionDownloaded, &DataProxy::parseMinVersion);
+    createRequest(reply, DataProxy::MinVersionDownloaded, &DataProxy::parseMinVersion);
 }
 
 void DataProxy::loadAccessToken(const StringPair &username,
@@ -536,11 +530,11 @@ void DataProxy::loadAccessToken(const StringPair &username,
     //delete the command
     cmd->deleteLater();
     //create the download request
-    createRequest(reply, &DataProxy::signalAccessTokenDownloaded, &DataProxy::parseOAuth2);
+    createRequest(reply, DataProxy::AccessTokenDownloaded, &DataProxy::parseOAuth2);
 }
 
 void DataProxy::createRequest(NetworkReply *reply,
-                              void (DataProxy::*signal)(DownloadStatus),
+                              DataProxy::DownloadType type,
                               bool (DataProxy::*parseFunc)(NetworkReply *reply))
 {
     if (reply == nullptr) {
@@ -549,16 +543,16 @@ void DataProxy::createRequest(NetworkReply *reply,
         QWidget *mainWidget = QApplication::desktop()->screen();
         QMessageBox::critical(mainWidget, tr("Error downloading data"),
                               tr("There was probably a network problem."));
-        if (signal != nullptr) {
-            emit (this->*signal)(DataProxy::Failed);
+        if (type != DataProxy::None) {
+            emit signalDownloadFinished(DataProxy::Failed, type);
         }
     }
 
     // increase active downloads counter
     m_activeDownloads++;
     // add reply to the active download replies
-    m_activeNetworkReplies.insert(reply, QPair<void (DataProxy::*)(DataProxy::DownloadStatus),
-                                  bool (DataProxy::*)(NetworkReply *reply)>(signal, parseFunc));
+    m_activeNetworkReplies.insert(reply, QPair<DataProxy::DownloadType,
+                                  bool (DataProxy::*)(NetworkReply *reply)>(type, parseFunc));
 }
 
 void DataProxy::activateCurrentDownloads() const
@@ -569,6 +563,11 @@ void DataProxy::activateCurrentDownloads() const
     }
 }
 
+unsigned DataProxy::getActiveDownloads() const
+{
+    return m_activeDownloads;
+}
+
 void DataProxy::slotProcessDownload()
 {
     //get reply object from the caller
@@ -576,9 +575,9 @@ void DataProxy::slotProcessDownload()
     Q_ASSERT(reply != nullptr);
 
     //get the parse function from the container (can be nullptr)
-    const auto parseFuncSignalPair = m_activeNetworkReplies.value(reply);
-    const auto parseFunc = parseFuncSignalPair.second;
-    const auto parseSignal = parseFuncSignalPair.first;
+    const auto parseFuncTypePair = m_activeNetworkReplies.value(reply);
+    const auto parseFunc = parseFuncTypePair.second;
+    const DataProxy::DownloadType type = parseFuncTypePair.first;
 
     DataProxy::DownloadStatus status = DataProxy::Failed;
 
@@ -621,24 +620,18 @@ void DataProxy::slotProcessDownload()
     if (m_activeDownloads > 0) {
         m_activeDownloads--;
     } else {
-        qDebug() << "[DataProxy] A network reply call back has been invoked with no active "
-            "downloads.";
+        qDebug() << "A network reply call back has been invoked with no active downloads";
     }
-
     const bool removedOK = m_activeNetworkReplies.remove(reply);
-    //TODO there is a race condition triggering this assertion,
-    //the call back is called twice so the second time there is nothing to remove
-    //a trello ticket is created for this and will be solved soon
     if (!removedOK) {
-        qDebug() << "[DataProxy] A network reply call back has been invoked but it has been "
-                    "processed earlier already.";
+        qDebug() << "A network reply call back has been invoked but it has been processed earlier already";
     }
-
+    //delete reply
     reply->deleteLater();
 
     //check if last download
-    if (m_activeDownloads == 0 && parseSignal != nullptr) {
-        emit (this->*parseSignal)(status);
+    if (m_activeDownloads == 0 && type != DataProxy::None) {
+        emit signalDownloadFinished(status, type);
     }
 }
 

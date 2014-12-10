@@ -90,6 +90,9 @@ macro(INITIALISE_PROJECT)
         add_definitions(-D_UNICODE)
     endif()
 
+    # Qt 5.X does not include private headers by default
+    add_definitions(-DNO_QT_PRIVATE_HEADERS)
+
     # Set the RPATH information on Linux
     # Note: this prevent us from having to use the uncool LD_LIBRARY_PATH...
     if(NOT WIN32 AND NOT APPLE)
