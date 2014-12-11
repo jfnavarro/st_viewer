@@ -38,29 +38,17 @@ NetworkManager::NetworkManager(QObject *parent):
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
 
-    const QString serverURL = m_configurationManager.EndPointUrl();
+    //add ssl support
+    QFile cafile(":public_key.pem");
+    cafile.open(QIODevice::ReadOnly);
+    QSslCertificate cert(&cafile);
+    QSslSocket::addDefaultCaCertificate(cert);
 
+    const QString serverURL = m_configurationManager.EndPointUrl();
     // make DND look up ahead of time
     QHostInfo::lookupHost(serverURL, 0, 0);
-
     // connect to the HTTPS TCP port ahead of time
     m_nam->connectToHostEncrypted(serverURL);
-
-    // add ssl support  (we need the public key)
-    //TODO finish and try this (me dont like ignoring ssl errors)
-    //QFile cafile(":public_key.pem");
-    //cafile.open(QIODevice::ReadOnly);
-    //QSslCertificate cert(&cafile);
-    //QSslSocket::addDefaultCaCertificate(cert);
-
-    //TODO add TLS session storing
-    // when request is finished, stores it session (in disk) as
-    // QByteArray usedSession = reply->sslConfiguration().session();
-    // next time a request is created the session can be restored (from disk)
-    // and added to the request.
-    // sslConfiguration.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
-    // sslConfiguration.setSession(usedSession);
-    // request.setSslConfiguration(sslConfiguration);
 
     // add cache support
     m_diskCache = new NetworkDiskCache(this);

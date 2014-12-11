@@ -16,6 +16,9 @@ class QImage;
 class QGLTexture2D;
 class QByteArray;
 
+//Image texture represents a tiled image to be rendered
+//The tiling and creation of the textures is performed concurrently
+//For each texture(tile) created a Qt3D node is created aswell
 class ImageTextureGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -34,12 +37,8 @@ public:
     //return the total size of the image as a QRectF
     const QRectF boundingRect() const override;
 
-signals:
-
-    void imageTexturesCreated();
-
 public slots:
-
+    //to adjust intensity of the textures
     void setIntensity(qreal intensity);
 
 protected:
@@ -53,6 +52,7 @@ private:
     void createTiles(QByteArray imageByteArray);
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
 
+    //internal function to remove and clean textures
     void clearTextures();
     void clearNodes();
 

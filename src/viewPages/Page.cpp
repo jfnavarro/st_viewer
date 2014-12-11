@@ -18,8 +18,8 @@
 
 Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     QWidget(parent),
-    m_progressDialog(nullptr),
-    m_dataProxy(dataProxy)
+    m_dataProxy(dataProxy),
+    m_progressDialog(nullptr)
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
@@ -60,6 +60,7 @@ void Page::setWaiting(bool waiting, const QString &label)
 void Page::slotCancelProgressBar()
 {
     m_progressDialog->cancel();
+    m_progressDialog->close();
     m_dataProxy->slotAbortActiveDownloads();
 }
 

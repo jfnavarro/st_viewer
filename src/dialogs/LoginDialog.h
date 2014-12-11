@@ -19,6 +19,8 @@ namespace Ui {
 class LogIn;
 } // namespace Ui //
 
+//Used to ask the user to input login name and password
+//Names are stored in cache
 class LoginDialog : public QDialog
 {
     Q_OBJECT

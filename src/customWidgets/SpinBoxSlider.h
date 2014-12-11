@@ -16,6 +16,7 @@ class QHBoxLayout;
 
 //Wrapper around QxtSpanSlider
 //to add two spin boxes one on each side
+//whether to show only the slider, the spin boxes or both can be configured
 
 class SpinBoxSlider : public QWidget
 {

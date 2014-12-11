@@ -16,7 +16,7 @@
 
 class QIODevice;
 
-// Interface defining gene export functionality
+// Interface defining gene export (to text files) functionality
 class GeneExporter
 {
     Q_FLAGS(DetailLevel)

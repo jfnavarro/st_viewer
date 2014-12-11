@@ -40,10 +40,6 @@ private slots:
     //closes the progress bar and cancel current active downloads
     void slotCancelProgressBar();
 
-private:
-
-    QPointer<QProgressDialog> m_progressDialog;
-
 protected:
 
     //launches a progress bar dialog (true = show, false = hide)
@@ -54,7 +50,12 @@ protected:
     void showWarning(const QString &header, const QString &body);
     void showError(const QString &header, const QString &body);
 
+    //reference to data proxy used in all the pages
     QPointer<DataProxy> m_dataProxy;
+
+private:
+
+    QPointer<QProgressDialog> m_progressDialog;
 };
 
 #endif // PAGE_H

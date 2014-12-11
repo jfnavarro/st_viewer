@@ -134,10 +134,10 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 
 void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
 {
-    //TODO ignoring ssl errors for now to make it the request works with https
-    //but we should add a flag for this or add the certificate public key to the client
-    //alternatively we could ask the user to accept the certificate
-    m_reply->ignoreSslErrors(sslErrorList);
+    foreach(QSslError error, sslErrorList) {
+        QSharedPointer<Error> sslerror(new SSLNetworkError(error, this));
+        registerError(sslerror);
+    }
 }
 
 void NetworkReply::registerError(QSharedPointer<Error> error)

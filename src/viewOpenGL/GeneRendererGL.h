@@ -57,7 +57,6 @@ public:
 
     // data builder (create data arrays from the features in async ways)
     void generateData();
-    void generateDataAsync();
 
     // clears data and reset variables
     void clearData();
@@ -122,11 +121,17 @@ protected:
 
 private:
 
+    //async methods to run intense functions concurrently
+    void generateDataAsync();
+    void setSelectionAreaAsync(const SelectionEvent &event);
+    void updateVisualAsync();
+    void selectFeaturesAsync(const DataProxy::FeatureList &features);
+
     //helper function to test whether a feature is outside the threshold
     //area or not
     bool isFeatureOutsideRange(const int hits);
 
-    // internal rendering functions that alters the rendering data
+    // internal rendering functions that computes the rendering data
     // gene data must be initialized
     void updateSize();
     void updateVisual();

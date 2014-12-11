@@ -33,6 +33,7 @@ public:
     const QColor sceneColor() const;
     const QColor viewColor() const;
 
+    //need to handle the user mouse events for moving the minimap
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
@@ -41,12 +42,15 @@ public slots:
 
     //TODO slots should have the prefix "slot"
 
+    //to change minimap's colors
     void setViewColor(const QColor viewColor);
     void setSceneColor(const QColor sceneColor);
 
+    //to adjust minimap with the view's size
     void setScene(const QRectF scene);
     void setViewPort(const QRectF view);
 
+    //to adjust minimap with the view's transformations
     void setParentSceneTransformations(const QTransform transform);
 
 signals:
@@ -62,7 +66,7 @@ protected:
 
 private:
 
-    // internal functions
+    // internal functions to adjust minimap's size and position
     QTransform localTransform() const;
     void centerOnLocalPos(const QPointF &localPoint);
 

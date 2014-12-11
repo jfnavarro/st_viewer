@@ -61,9 +61,13 @@ void MiniMapGL::setParentSceneTransformations(const QTransform transform)
 
 QTransform MiniMapGL::localTransform() const
 {
+    //computes minimap's local transformation from the minimap's size
+    //and the view's size and transformation
+
     const QSizeF maxBoundingSize(minimap_height, minimap_width);
     const QSizeF sceneScaledSize = m_scene.size().scaled(maxBoundingSize, Qt::KeepAspectRatio);
     const qreal scaleFactor = sceneScaledSize.height() / m_scene.height();
+
     QTransform transform = QTransform::fromScale(scaleFactor, scaleFactor);
     const QPointF top_left = transform.mapRect(m_scene).topLeft();
     transform.translate(top_left.x(), top_left.y());
@@ -75,6 +79,7 @@ void MiniMapGL::draw(QGLPainter *painter)
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
     }
+
     const QRectF viewPortInSceneCoordinates =
             m_parentSceneTransformations.inverted().mapRect(m_viewPort);
     drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, painter);

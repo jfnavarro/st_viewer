@@ -15,6 +15,8 @@ class QRectF;
 class QColor;
 class QVector2DArray;
 
+//This class represents a virtual chip or array corresponding
+//to the chip or array where the eperiment was performed
 class GridRendererGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -36,6 +38,7 @@ public:
     const QRectF border() const;
     const QRectF rectangle() const;
 
+    //needs to be accesible from other classes
     static const QColor DEFAULT_COLOR_GRID;
 
 public slots:

@@ -22,9 +22,9 @@ set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production/local)")
 
 set(CLIENTID "st-viewer-client")
-set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 set(SECRETID "ayfBaF5UAKR2")
 set(APIPATH  "api")
+set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
 if(SERVER STREQUAL development)
   #DEV configuration
@@ -38,6 +38,25 @@ elseif(SERVER STREQUAL local)
 else()
   message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
 endif()
+
+# print main variables
+message( STATUS )
+message( STATUS
+"-------------------------------------------------------------------------------"
+)
+message( STATUS "Building ${APPLICATION_NAME} ....." )
+message( STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>" )
+message( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
+message( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
+message( STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}" )
+message( STATUS "TARGET_ARCH = ${TARGET_ARCH}" )
+message( STATUS "VERSION = ${PROJECT_VERSION}")
+message( STATUS "ENDPOINT = ${ENDPOINT}")
+message( STATUS "SERVER = ${SERVER}")
+message( STATUS
+"-------------------------------------------------------------------------------"
+)
+message( STATUS )
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
