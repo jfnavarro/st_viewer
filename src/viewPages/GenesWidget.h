@@ -38,20 +38,18 @@ public:
     void clear();
 
 signals:
-
+    //signals emitted when the user selects or change colors of genes in the table
     void signalSelectionChanged(DataProxy::GeneList);
     void signalColorChanged(DataProxy::GeneList);
 
 public slots:
-
-    void slotSetColorAllSelected(const QColor &color);
-    void slotSetVisibilityForSelectedRows(bool visible);
-
-    //updates the model of the table
+    //updates the model of the table with the given objects
     void slotLoadModel(const DataProxy::GeneList &geneList);
 
 private slots:
-
+    //slots triggered by the show/color controls in the gene table
+    void slotSetColorAllSelected(const QColor &color);
+    void slotSetVisibilityForSelectedRows(bool visible);
     void slotHideAllSelected();
     void slotShowAllSelected();
 
@@ -63,6 +61,7 @@ private:
     void configureButton(QPushButton *button,
                          const QIcon icon = QIcon(), const QString tooltip = QString());
 
+    //internal function to retrieve the model and the proxy model of the gene table
     QSortFilterProxyModel *getProxyModel();
     GeneFeatureItemModel *getModel();
 

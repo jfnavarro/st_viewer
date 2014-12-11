@@ -49,6 +49,7 @@ public slots:
 
     //TODO slots should have the previx "slot"
 
+    //navigation signals
     void moveToNextPage();
     void moveToPreviousPage();
 
@@ -57,7 +58,7 @@ public slots:
     void resetStatus();
 
 private slots:
-
+    //to hangle when the user clicks on a tab's button
     void slotTabPressed(const int index);
 
 private:

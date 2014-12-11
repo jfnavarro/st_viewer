@@ -205,7 +205,6 @@ void CellViewPage::onEnter()
     setWaiting(true);
     m_dataProxy->loadImageAlignment();
     m_dataProxy->activateCurrentDownloads();
-
 }
 
 void CellViewPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
@@ -574,6 +573,10 @@ void CellViewPage::createMenusAndConnections()
             m_gene_plotter.data(), SLOT(setLowerLimit(int)));
     connect(m_geneHitsThreshold.data(), SIGNAL(upperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setUpperLimit(int)));
+    connect(m_geneHitsThreshold.data(), SIGNAL(lowerValueChanged(int)),
+            m_legend.data(), SLOT(setLowerLimit(int)));
+    connect(m_geneHitsThreshold.data(), SIGNAL(upperValueChanged(int)),
+            m_legend.data(), SLOT(setUpperLimit(int)));
 
     //show/not genes signal
     connect(m_ui->actionShow_showGenes,

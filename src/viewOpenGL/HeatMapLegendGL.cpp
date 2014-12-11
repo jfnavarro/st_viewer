@@ -66,6 +66,9 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
         painter->setVertexAttribute(QGL::Position, m_borders);
         painter->draw(QGL::LineLoop, m_borders.size());
 
+        // draw text (add 5 pixels offset to the right)
+        drawText(painter, QPointF(legend_x + legend_width + 5, 0), QString::number(m_max));
+        drawText(painter, QPointF(legend_x + legend_width + 5, legend_height), QString::number(m_min));
     }
     glDisable(GL_TEXTURE_2D);
 }
@@ -75,7 +78,7 @@ void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 
 }
 
-void HeatMapLegendGL::setLowerLimit(const qreal limit)
+void HeatMapLegendGL::setLowerLimit(const int limit)
 {
     if (m_min != limit) {
         m_min = limit;
@@ -83,7 +86,7 @@ void HeatMapLegendGL::setLowerLimit(const qreal limit)
     }
 }
 
-void HeatMapLegendGL::setUpperLimit(const qreal limit)
+void HeatMapLegendGL::setUpperLimit(const int limit)
 {
     if (m_max != limit) {
         m_max = limit;
@@ -136,6 +139,50 @@ void HeatMapLegendGL::generateHeatMap()
     m_borders.append(legend_x, legend_y + legend_height);
 
     emit updated();
+}
+
+void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
+                               const QString& str)
+{
+    QFont monoFont("Courier", 12, QFont::Normal);
+    QFontMetrics metrics(monoFont);
+    QRect textRect = metrics.boundingRect(str);
+
+    QImage image(textRect.size(), QImage::Format_ARGB32);
+    image.fill(0);
+    QPainter qpainter(&image);
+    qpainter.setFont(monoFont);
+    qpainter.setPen(Qt::white);
+    qpainter.setRenderHint(QPainter::Antialiasing, true);
+    qpainter.drawText(textRect.x(), metrics.ascent(), str);
+    qpainter.end();
+
+    m_textureText.cleanupResources();
+    m_textureText.release();
+    m_textureText.clearImage();
+    m_textureText.setImage(image);
+    const int x = posn.x();
+    const int y = posn.y();
+
+    QVector2DArray vertices;
+    vertices.append(x + textRect.x(), y + metrics.ascent());
+    vertices.append(x + textRect.x(), y - metrics.descent());
+    vertices.append(x + textRect.x() + textRect.width(), y - metrics.descent());
+    vertices.append(x + textRect.x() + textRect.width(), y + metrics.ascent());
+
+    QVector2DArray texCoord;
+    texCoord.append(0.0, 0.0);
+    texCoord.append(0.0, 1.0);
+    texCoord.append(1.0, 1.0);
+    texCoord.append(1.0, 0.0);
+
+    painter->clearAttributes();
+    painter->setStandardEffect(QGL::FlatReplaceTexture2D);
+    painter->setVertexAttribute(QGL::Position, vertices);
+    painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
+    m_textureText.bind();
+    painter->draw(QGL::TriangleFan, vertices.size());
+    m_textureText.release();
 }
 
 const QRectF HeatMapLegendGL::boundingRect() const

@@ -61,8 +61,6 @@ private:
 
     const QRectF m_path;
     const SelectionMode m_mode;
-
-    Q_DISABLE_COPY(SelectionEvent)
 };
 
 #endif // SELECTIONEVENT_H //

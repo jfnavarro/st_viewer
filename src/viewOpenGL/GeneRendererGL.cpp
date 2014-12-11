@@ -153,6 +153,8 @@ void GeneRendererGL::generateData()
 
 void GeneRendererGL::generateDataAsync()
 {
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
     const auto& features = m_dataProxy->getFeatureList();
 
     foreach(DataProxy::FeaturePtr feature, features) {
@@ -187,6 +189,8 @@ void GeneRendererGL::generateDataAsync()
         m_geneInfoTotalReadsIndex[index] += feature->hits();
 
     } //endforeach
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 //TODO this can be optimized and run concurrently
@@ -245,13 +249,23 @@ void GeneRendererGL::updateVisible(const DataProxy::GeneList &geneList)
     updateVisual();
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::updateVisual()
 {
     if (!m_isInitialized) {
         return;
     }
 
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::updateVisualAsync);
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
+        m_isDirty = true;
+        emit selectionUpdated();
+        emit updated(); });
+}
+
+void GeneRendererGL::updateVisualAsync()
+{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     //we want to get the max and min value of the reads that are going
@@ -318,10 +332,6 @@ void GeneRendererGL::updateVisual()
     }
 
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirty = true;
-    emit selectionUpdated();
-    emit updated();
 }
 
 void GeneRendererGL::clearSelection()
@@ -364,13 +374,23 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
     selectFeatures(aggregateFeatureList);
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
 {
     if (!m_isInitialized) {
         return;
     }
 
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::selectFeaturesAsync, features);
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
+        m_isDirty = true;
+        emit selectionUpdated();
+        emit updated(); });
+}
+
+void GeneRendererGL::selectFeaturesAsync(const DataProxy::FeatureList &features)
+{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     // unselect previous selection
@@ -394,10 +414,6 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
     }
 
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirty = true;
-    emit selectionUpdated();
-    emit updated();
 }
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
@@ -423,21 +439,30 @@ const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const
     return m_geneInfoSelectedFeatures;
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 {
     if (!m_isInitialized) {
         return;
     }
 
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::setSelectionAreaAsync, *event);
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
+        m_isDirty = true;
+        emit selectionUpdated();
+        emit updated(); });
+}
+
+void GeneRendererGL::setSelectionAreaAsync(const SelectionEvent &event)
+{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     // get selection area
-    QRectF rect = event->path();
-    QuadTreeAABB aabb(rect);
+    QuadTreeAABB aabb(event.path());
 
     // get selection mode
-    const SelectionEvent::SelectionMode mode = event->mode();
+    const SelectionEvent::SelectionMode mode = event.mode();
 
     // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
@@ -485,10 +510,6 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
     }
 
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirty = true;
-    emit selectionUpdated();
-    emit updated();
 }
 
 void GeneRendererGL::setVisualMode(const GeneVisualMode mode)

@@ -41,6 +41,7 @@ void GraphicItemGL::setVisualOption(GraphicItemGL::VisualOption visualOption, bo
     } else {
         m_visualOptions &= ~visualOption;
     }
+
     emit updated();
 }
 

@@ -37,11 +37,11 @@ public:
     void clear();
 
 public slots:
-
+    //reload the model with the objects given as input
     void slotLoadModel(const GeneSelection::selectedItemsList &geneList);
 
 signals:
-
+    //signals emitted by the main controls
     void signalClearSelection();
     void signalSaveSelection();
     void signalExportGenesSelection();
@@ -55,6 +55,7 @@ private:
     void configureButton(QPushButton *button,
                          const QIcon icon = QIcon(), const QString tooltip = QString());
 
+    //internal functions to obtain the model and the proxy model of the table
     GeneSelectionItemModel *getModel();
     QSortFilterProxyModel *getProxyModel();
 

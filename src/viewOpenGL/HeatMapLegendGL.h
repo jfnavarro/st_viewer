@@ -32,8 +32,8 @@ public slots:
     //TODO slots should have the prefix "slot"
 
     // slots to adjust the boundaries when the threshold is changed
-    void setLowerLimit(const qreal limit);
-    void setUpperLimit(const qreal limit);
+    void setLowerLimit(const int limit);
+    void setUpperLimit(const int limit);
 
     // slot to change the function to compute color values
     void setColorComputingMode(const Globals::GeneColorMode &mode);
@@ -46,21 +46,22 @@ protected:
 
 private:
 
-    // rendering functions
+    // rendering functions (heatmap is created as a texture)
     void generateHeatMap();
 
-    // draw text centered on the bottom of the "posn" rectangle.
-    void drawText(QGLPainter *painter, const QPointF& posn, const QString& str);
+    // internal function to render text as a texture
+    void drawText(QGLPainter *painter, const QPointF &posn, const QString& str);
 
     // min and max boundaries values to compute colors from
-    qreal m_max;
-    qreal m_min;
+    int m_max;
+    int m_min;
 
     // color computing mode (exp - log - linear)
     Globals::GeneColorMode m_colorComputingMode;
 
     // texture color data
     QGLTexture2D m_texture;
+    QGLTexture2D m_textureText;
     QVector2DArray m_texture_vertices;
     QVector2DArray m_texture_cords;
 

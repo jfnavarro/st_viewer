@@ -131,7 +131,5 @@ int main(int argc, char** argv)
     // show mainwindow.
     mainWindow.show();
     // launch the app
-    int res = app.exec();
-    qDebug() << "Application closed successfully.";
-    return res;
+    return app.exec();
 }

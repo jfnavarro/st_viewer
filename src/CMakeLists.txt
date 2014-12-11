@@ -4,25 +4,6 @@
 #    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #
 #
-
-# print main variables
-message( STATUS )
-message( STATUS
-"-------------------------------------------------------------------------------"
-)
-message( STATUS "Building ${APPLICATION_NAME} ....." )
-message( STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>" )
-message( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
-message( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
-message( STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}" )
-message( STATUS "TARGET_ARCH = ${TARGET_ARCH}" )
-message( STATUS "VERSION = ${PROJECT_VERSION}")
-message( STATUS "ENDPOINT = ${ENDPOINT}")
-message( STATUS
-"-------------------------------------------------------------------------------"
-)
-message( STATUS )
-
 ### PROJECT AND GLOBAL VARIABLES ##############################################
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -319,14 +300,10 @@ if(WIN32)
     set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
     set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
     set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
-    # TODO: replace Z:code\\st_client with proper ${CMAKE_SOURCE_DIR}
-    # There is a problem with unix and windows style paths
-    set(CPACK_NSIS_MUI_ICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
-    set(CPACK_NSIS_MUI_UNICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
-    set(CPACK_PACKAGE_ICON "Z:code\\st_client\\assets\\images\\st_icon.ico")
-#    set(CPACK_NSIS_MUI_ICON ${CMAKE_SOURCE_DIR}/assets/images\\\\st_icon.ico)
-#    set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/st_client/assets/images\\\\st_icon.ico)
-    #set(CPACK_NSIS_INSTALLED_ICON_NAME ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.exe)
+    set(CPACK_NSIS_MUI_UNICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.exe)
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     #set(CPACK_NSIS_MENU_LINKS "http://www.spatialtranscriptomics.com")
     set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
@@ -337,7 +314,8 @@ if(WIN32)
         !define MUI_STARTMENUPAGE_NODISABLE
     ")
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"Z:code\\\\st_client\\\\assets\\\\images\\\\st_icon.ico\\\"
+        CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
+        \\\"\\\" \\\"${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico\\\"
     ")
 
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "

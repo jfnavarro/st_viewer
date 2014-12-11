@@ -645,6 +645,9 @@ void DataProxy::slotAbortActiveDownloads()
 
 }
 
+//TODO this function is causing the CPU to freeze with big datasets
+//solution is to run it concurrently but that implies changes
+//in the main logic of this class
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
     bool parsedOk = true;

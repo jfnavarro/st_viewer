@@ -17,6 +17,7 @@
 class QModelIndex;
 class QStringList;
 
+//Model class for the genes table
 class GeneSelectionItemModel : public QAbstractTableModel
 {
     Q_OBJECT

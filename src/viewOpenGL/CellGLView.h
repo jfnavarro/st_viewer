@@ -7,8 +7,7 @@
 #ifndef CELLGLVIEW_H
 #define CELLGLVIEW_H
 
-#include <QWindow>
-#include <QGLFramebufferObjectSurface>
+#include <QOpenGLWindow>
 #include <QPointer>
 #include <QOpenGLFunctions>
 #include <QGLPainter>
@@ -20,22 +19,16 @@
 
 class QGLPainter;
 class GraphicItemGL;
-class QSurfaceFormat;
-class QVector3D;
-class QOpenGLContext;
 class QRubberBand;
 class RubberbandGL;
-class QGLFramebufferObject;
 
 // CellGLView is a container
 // to render OpenGL GraphicItemGL type objects
-// QGLWidget is deprecated so Qt3D is the way to go
-// however, QGLView adds camera and things that we do not
-// need so since QGLView is a wraper around QWindow
-// we built our own customized wrapper
+// in combination with Qt3D QGLPainter.
+// QOpenGLWindow is a wrapper around QWindow to
+// allow OpenGL rendering.
 
-//TODO add better comments to class and functions
-class CellGLView : public QWindow, protected QOpenGLFunctions
+class CellGLView : public QOpenGLWindow//, protected QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -47,7 +40,7 @@ public:
         releaseType
     };
 
-    explicit CellGLView(QScreen *parent = 0);
+    CellGLView(UpdateBehavior updateBehavior = NoPartialUpdate, QWindow *parent = 0);
     virtual ~CellGLView();
 
     //add/remove nodes from the rendering queue
@@ -75,11 +68,8 @@ public slots:
     void centerOn(const QPointF& point);
     void rotate(qreal angle);
 
-    //update the view
-    void update();
-
     //functions to set the viewport and scene size and the set the focus in a point
-    //Very handy to make possible the interaction with the minimap
+    //very handy to make possible the interaction with the minimap
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
     void setSceneFocusCenterPointWithClamping(const QPointF center_point);
@@ -90,17 +80,13 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
-    void ensureContext();
 
-    //overloaded key and mouse events for zooming/panning/selection/rendering
+    //overloaded key and mouse events for zooming/panning/selection
     void wheelEvent(QWheelEvent* event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
-    void showEvent(QShowEvent *event) override;
-    void exposeEvent(QExposeEvent *eevent) override;
-    void resizeEvent(QResizeEvent * event) override;
 
     //helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const qreal zoom);
@@ -110,8 +96,8 @@ protected:
 
 signals:
 
-    //signals not notify when the scene/view are changed/transformed
-    //very handy for the minimap
+    //signals to notify when the scene/view are changed/transformed
+    //very handy for the minimap and the scrollarea
     void signalViewPortUpdated(const QRectF);
     void signalSceneUpdated(const QRectF);
     void signalSceneTransformationsUpdated(const QTransform transform);
@@ -123,7 +109,6 @@ private:
 
     //helper functions used to compute center position/zoom/padding
     const QTransform sceneTransformations() const;
-    void resizeFromGeometry();
     qreal clampZoomFactorToAllowedRange(qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
@@ -136,12 +121,6 @@ private:
     // returns true if the event was sent to at least one of the nodes
     bool sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
 				       const MouseEventType type, const FilterFunc filterFunc);
-
-    // openGL context variables
-    QPointer<QOpenGLContext> m_context;
-    QSurfaceFormat m_format;
-    bool m_initialized;
-    bool m_updateQueued;
 
     // scene and viewport aux variables
     QRectF m_viewport;
@@ -164,7 +143,7 @@ private:
     // scene viewport projection
     QMatrix4x4 m_projm;
 
-    // openGL painter object
+    // OpenGL Qt3D painter object
     QGLPainter m_painter;
 
     Q_DISABLE_COPY(CellGLView)

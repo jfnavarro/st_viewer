@@ -282,7 +282,7 @@ void stVi::createLayouts()
 // apply stylesheet and configurations
 void stVi::initStyle()
 {
-    //TODO move to styleshee.css file
+    //TODO move to stylesheet.css file
     setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
                               "background-color: transparent; "
                               "selection-background-color: rgb(215,215,215); "

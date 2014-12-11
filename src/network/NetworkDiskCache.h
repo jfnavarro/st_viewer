@@ -10,6 +10,8 @@
 
 #include <QNetworkDiskCache>
 
+//wrapper around QNetworkDiskCache to control
+//what type of content can be cached
 class NetworkDiskCache : public QNetworkDiskCache
 {
 

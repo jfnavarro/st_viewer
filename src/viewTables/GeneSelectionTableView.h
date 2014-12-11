@@ -22,14 +22,15 @@ public:
     explicit GeneSelectionTableView(QWidget *parent = 0);
     virtual ~GeneSelectionTableView();
 
+    // returns the current selection mapped to the sorting model
     QItemSelection geneTableItemSelection() const;
 
 public slots:
-
+    //slot used to set a search filter for the table
     void setGeneNameFilter(QString);
 
 private:
-
+    //references to model and proxy model
     QPointer<GeneSelectionItemModel> m_geneSelectionModel;
     QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 

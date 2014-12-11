@@ -73,7 +73,6 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
     //force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
-    //not sure whether we want to show the error to the user or not when login failed
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 

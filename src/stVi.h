@@ -76,13 +76,14 @@ private:
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event) override;
 
+    //reference to some UI elements
     QPointer<QAction> m_actionExit;
     QPointer<QAction> m_actionHelp;
     QPointer<QAction> m_actionVersion;
     QPointer<QAction> m_actionAbout;
     QPointer<QAction> m_actionClear_Cache;
 
-    //main tab is a tab manager sort of widget that contains all the pages view
+    //main tab is a tab manager type of widget that contains all the pages view
     QPointer<ExtendedTabWidget> m_mainTab;
 
     //stVi owns dataProxy and AuthorizationManager

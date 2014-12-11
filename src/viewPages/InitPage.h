@@ -25,7 +25,6 @@ class InitPage;
 // the page as a stackwidget which will switch between login widget and logged widget
 // as every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
-
 class InitPage : public Page
 {
     Q_OBJECT

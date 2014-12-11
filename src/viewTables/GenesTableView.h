@@ -26,12 +26,11 @@ public:
     QItemSelection geneTableItemSelection() const;
 
 public slots:
-
-
+    //slot used to set a search filter for the table
     void setGeneNameFilter(QString);
 
 private:
-
+    //references to model and proxy model
     QPointer<GeneFeatureItemModel> m_geneModel;
     QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 

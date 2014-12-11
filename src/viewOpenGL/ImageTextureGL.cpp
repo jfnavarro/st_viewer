@@ -15,13 +15,17 @@
 #include <QFuture>
 #include <QByteArray>
 #include <QBuffer>
+#include <QApplication>
 
 #include "qjpeg-turbo/qjpeghandler_p.h"
-
 #include <cmath>
 
+static const int tile_width = 1024;
+static const int tile_height = 1024;
+
 ImageTextureGL::ImageTextureGL(QObject *parent) :
-    GraphicItemGL(parent), m_intensity(1.0)
+    GraphicItemGL(parent),
+    m_intensity(1.0)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -101,8 +105,7 @@ QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
 
 void ImageTextureGL::createTiles(QByteArray imageByteArray)
 {
-    static const int tile_width = 1024;
-    static const int tile_height = 1024;
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     //extract image from byte array
     QBuffer imageBuffer(&imageByteArray);
@@ -135,6 +138,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
 
     QImage sub_image;
     QRect clip_rect;
+    //create tiles and their textures
     for (int i = 0; i < count; ++i) {
 
         // texture sizes
@@ -154,12 +158,14 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
         // add texture
         addTexture(sub_image, x, y);
     }
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
 {
-    const qreal width = qreal(image.width());
-    const qreal height = qreal(image.height());
+    const qreal width = static_cast<qreal>(image.width());
+    const qreal height = static_cast<qreal>(image.height());
 
     QGLBuilder builder;
     QGeometryData data;

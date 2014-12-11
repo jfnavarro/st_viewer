@@ -21,6 +21,9 @@ namespace Ui{
 class Experiments;
 } // namespace Ui //
 
+//Experiments page contains a table with the genes selection made by the user
+//Users can interact here to edit/remove selections and to perform analysis on them
+//like the DEA
 class ExperimentPage : public Page
 {
     Q_OBJECT

@@ -81,7 +81,6 @@ void SelectionDialog::slotValidateRegExp(const QString &pattern)
     const bool regExpValid = m_regExp.isValid();
     if (regExpValid != m_regExpValid) {
         m_regExpValid = regExpValid;
-        emit signalValidRegExp(m_regExpValid);
     }
 }
 
@@ -105,7 +104,6 @@ void SelectionDialog::slotCaseSensitive(bool caseSensitive)
 
 void SelectionDialog::slotEnableAcceptAction(bool enableAcceptAction)
 {
-    // disable any "accept/yes/apply" type buttons when regexp is invalid
     foreach(QAbstractButton *button, m_ui->buttonBox->buttons()) {
         const QDialogButtonBox::ButtonRole role = m_ui->buttonBox->buttonRole(button);
         if (role == QDialogButtonBox::AcceptRole ||

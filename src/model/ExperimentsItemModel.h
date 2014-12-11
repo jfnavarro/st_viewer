@@ -22,6 +22,7 @@ class QModelIndex;
 class QStringList;
 class QItemSelection;
 
+//Model for the genes selections table
 class ExperimentsItemModel : public QAbstractTableModel
 {
     Q_OBJECT
