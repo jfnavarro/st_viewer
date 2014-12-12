@@ -26,7 +26,7 @@
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation>An unknown application error has occurred (internal error code: %1)</translation>
+        <translation>An unknown application error has occurred</translation>
     </message>
 </context>
 <context>
@@ -41,19 +41,19 @@
     </message>
     <message>
         <source>BadRequest:Name</source>
-        <translation>%1</translation>
+        <translation>Invalid network request</translation>
     </message>
     <message>
         <source>BadRequest:Description</source>
-        <translation>%1</translation>
+        <translation>The network request was invalid</translation>
     </message>
     <message>
         <source>ResourceNotFound:Name</source>
-        <translation>%1</translation>
+        <translation>Resource not found</translation>
     </message>
     <message>
         <source>ResourceNotFound:Description</source>
-        <translation>%1</translation>
+        <translation>The requested resource was not found</translation>
     </message>
     <message>
         <source>UnknownError:Name</source>
@@ -61,18 +61,7 @@
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation>An unknown server error has occurred (internal error code: %1)</translation>
-    </message>
-</context>
-<context>
-    <name>OAuth2Error</name>
-    <message>
-        <source>NoError:Name</source>
-        <translation>Unknown OAuth2 Error</translation>
-    </message>
-    <message>
-        <source>NoError:Description</source>
-        <translation>Unknown error occurred</translation>
+        <translation>An unknown server error has occurred</translation>
     </message>
     <message>
         <source>InvalidRequest:Name</source>
@@ -112,7 +101,7 @@
     </message>
     <message>
         <source>AccessDenied:Description</source>
-        <translation>The end-user or authorization server denied the request.</translation>
+        <translation>The end-user or authorization server denied the request</translation>
     </message>
     <message>
         <source>UnsupportedResponseType:Name</source>
@@ -153,14 +142,6 @@
     <message>
         <source>EmptyToken:Description</source>
         <translation>The access token is empty</translation>
-    </message>
-    <message>
-        <source>UnknownError:Name</source>
-        <translation>Unknown Authorization Error</translation>
-    </message>
-    <message>
-        <source>UnknownError:Description</source>
-        <translation>An unknown authentication error has occurred (internal error code: %1).</translation>
     </message>
 </context>
 <context>
@@ -379,7 +360,7 @@
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation>An unknown network error has occurred (internal error code: %1).</translation>
+        <translation>An unknown network error has occurred</translation>
     </message>
 </context>
 <context>
@@ -390,7 +371,7 @@
     </message>
     <message>
         <source>NoError:Description</source>
-        <translation>Unknown SSL error occurred.</translation>
+        <translation>Unknown SSL error occurred</translation>
     </message>
     <message>
         <source>UnableToGetIssuerCertificate:Name</source>
@@ -590,7 +571,8 @@
     </message>
     <message>
         <source>UnspecifiedError:Description</source>
-        <translation>No description.</translation>
+        <translation>An unspecified SSL error has occurr
+ed</translation>
     </message>
     <message>
         <source>UnknownError:Name</source>
@@ -598,7 +580,7 @@
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation>An unknown SSL network error has occurred (internal error code: %1).</translation>
+        <translation>An unknown SSL network error has occurred</translation>
     </message>
 </context>
 <context>
@@ -721,7 +703,7 @@
     </message>
     <message>
         <source>UnknownError:Description</source>
-        <translation>An unknown JSON error has occurred (internal error code: %1).</translation>
+        <translation>An unknown JSON error has occurred</translation>
     </message>
 </context>
 </TS>

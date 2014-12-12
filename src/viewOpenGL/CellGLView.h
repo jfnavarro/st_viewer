@@ -62,13 +62,15 @@ public slots:
     //TODO slots should have the prefix "slot"
 
     //some public slots to configure properties of the view
-    void setSelectionMode(const bool selectionMode);
     void zoomOut();
     void zoomIn();
     void centerOn(const QPointF& point);
     void rotate(qreal angle);
 
-    //functions to set the viewport and scene size and the set the focus in a point
+    //slot to enable the rubberband selection mode
+    void setSelectionMode(const bool selectionMode);
+
+    //slots to set the viewport and scene size and the set the focus in a point
     //very handy to make possible the interaction with the minimap
     void setViewPort(const QRectF viewport);
     void setScene(const QRectF scene);
@@ -88,9 +90,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
 
-    //helper function to adjust the zoom level
-    void setZoomFactorAndUpdate(const qreal zoom);
-
     //returns the node local transformations in the view CS adjusted for anchor
     const QTransform nodeTransformations(GraphicItemGL *node) const;
 
@@ -107,9 +106,12 @@ private:
     //used to filter nodes for mouse events
     typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
 
+    //helper function to adjust the zoom level
+    void setZoomFactorAndUpdate(const qreal zoom);
+
     //helper functions used to compute center position/zoom/padding
     const QTransform sceneTransformations() const;
-    qreal clampZoomFactorToAllowedRange(qreal zoom) const;
+    qreal clampZoomFactorToAllowedRange(const qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
     void setDefaultPanningAndZooming();

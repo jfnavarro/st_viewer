@@ -21,35 +21,6 @@
 
 namespace {
 
-void setLocalPaths(QApplication *app)
-{
-    // we need to tell the application where to look for plugins and resources
-#if defined Q_OS_WIN
-    app->addLibraryPath(QDir(app->applicationDirPath()).canonicalPath()
-                        + QDir::separator() + "plugins");
-#elif defined Q_OS_MAC
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("PlugIns");
-    app->addLibraryPath(dir.path());
-#else
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("plugins");
-    app->addLibraryPath(dir.path());
-#endif
-}
-
-bool installTranslator(QApplication *app)
-{
-    //install translation file
-    bool initialized = true;
-    QTranslator trans;
-    initialized &= trans.load(TRANSLATION_FILE, ":/translations");
-    initialized &= app->installTranslator(&trans);
-    return initialized;
-}
-
 //application flags must be set before instantiating QApplication
 void setApplicationFlags()
 {
@@ -103,9 +74,29 @@ int main(int argc, char** argv)
     QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
     splash.show();
 
-    //set library paths and translators
-    setLocalPaths(&app);
-    if (!installTranslator(&app)) {
+    //set library and plugins paths
+    // we need to tell the application where to look for plugins and resources
+#if defined Q_OS_WIN
+    app.addLibraryPath(QDir(app->applicationDirPath()).canonicalPath()
+                        + QDir::separator() + "plugins");
+#elif defined Q_OS_MAC
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("PlugIns");
+    app.addLibraryPath(dir.path());
+#else
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("plugins");
+    app.addLibraryPath(dir.path());
+#endif
+
+    //install translation file
+    bool initialized = true;
+    QTranslator trans;
+    initialized &= trans.load(":translations/locale_en_us.qm");
+    initialized &= app.installTranslator(&trans);
+    if (!initialized) {
         qDebug() << "[Main] Error: Unable to install the translations!";
         QMessageBox::critical(app.desktop()->screen(), "Error",
                               app.tr("Unable to install the translations"));
