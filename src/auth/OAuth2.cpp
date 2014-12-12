@@ -15,7 +15,7 @@
 #include <QDesktopWidget>
 
 #include "dialogs/LoginDialog.h"
-#include "error/OAuth2Error.h"
+#include "error/ServerError.h"
 #include "dataModel/ErrorDTO.h"
 #include "dataModel/OAuth2TokenDTO.h"
 #include "data/ObjectParser.h"
@@ -87,8 +87,8 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
         if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         } else {
-            QSharedPointer<OAuth2Error>
-                    error(new OAuth2Error(tr("Log in Error"), tr("Access token is expired"), this));
+            QSharedPointer<ServerError>
+                    error(new ServerError(tr("Log in Error"), tr("Access token is expired"), this));
             emit signalError(error);
         }
     }

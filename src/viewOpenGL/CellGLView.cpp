@@ -202,7 +202,7 @@ void CellGLView::removeRenderingNode(GraphicItemGL *node)
     disconnect(node, SIGNAL(updated()), this, SLOT(update()));
 }
 
-qreal CellGLView::clampZoomFactorToAllowedRange(qreal zoom) const
+qreal CellGLView::clampZoomFactorToAllowedRange(const qreal zoom) const
 {
     Q_ASSERT(minZoom() < maxZoom());
     return qMin(qMax(minZoom(), zoom), maxZoom());
@@ -289,8 +289,10 @@ const QImage CellGLView::grabPixmapGL()
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);
+
     glReadBuffer(GL_FRONT_LEFT);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
+
     res = res.rgbSwapped();
     const QVector<QColor> pal = QColormap::instance().colormap();
     if (pal.size()) {
@@ -299,6 +301,7 @@ const QImage CellGLView::grabPixmapGL()
             res.setColor(i, pal.at(i).rgb());
         }
     }
+
     return res.mirrored();
 }
 
