@@ -42,11 +42,15 @@
     <file alias="images/edit-small.png">${PROJECT_SOURCE_DIR}/assets/images/edit-small.png</file>
     <file alias="images/edit.png">${PROJECT_SOURCE_DIR}/assets/images/edit.png</file>
     <file alias="images/start-button.png">${PROJECT_SOURCE_DIR}/assets/images/start-button.png</file>
+    <file alias="images/warning.png">${PROJECT_SOURCE_DIR}/assets/images/warning.png</file>
+    <file alias="images/login.png">${PROJECT_SOURCE_DIR}/assets/images/login.png</file>
+    <file alias="images/selection2.png">${PROJECT_SOURCE_DIR}/assets/images/selection2.png</file>
     <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
     <file alias="config/application.conf">application.conf</file>
     <file alias="public_key.pem">${PUBLICKEY}</file>
     <file alias="translations/locale_en_us.qm">${PROJECT_BINARY_DIR}/src/locale_en_us.qm</file>
+    <file alias="fonts/OpenSans-Light.ttf">${PROJECT_SOURCE_DIR}/assets/fonts/OpenSans-Light.ttf</file>
   </qresource>
 </RCC>

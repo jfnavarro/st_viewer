@@ -113,7 +113,7 @@ void GeneExporter::exportItem(QIODevice &device,
     if (m_detailLevel.testFlag(GeneExporter::Extended)) {
         // identifying comment
         if (m_detailLevel.testFlag(GeneExporter::Comments)) {
-            otxt << QString("# %1").arg("stVi export: feature list") << endl;
+            otxt << QString("# %1").arg("ST Viewer export: feature list") << endl;
         }
 
         // prepend data with application version

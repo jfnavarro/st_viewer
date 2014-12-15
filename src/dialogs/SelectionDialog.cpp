@@ -41,6 +41,7 @@ const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy>
                                                              QWidget *parent)
 {
     SelectionDialog dialog(dataProxy, parent);
+    dialog.setWindowIcon(QIcon());
     if (dialog.exec() == QDialog::Accepted) {
         return dialog.selectedGenes();
     }

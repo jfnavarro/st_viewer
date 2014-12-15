@@ -88,7 +88,7 @@ QVariant GeneFeatureItemModel::headerData(int section,
     if (role == Qt::TextAlignmentRole) {
         switch (section) {
         case Show: return Qt::AlignCenter;
-        case Color: return Qt::AlignCenter;
+        case Color: return Qt::AlignLeft;
         case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }

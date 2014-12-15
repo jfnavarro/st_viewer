@@ -102,7 +102,7 @@
           <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>5</number>
+          <number>20</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>
@@ -117,14 +117,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -149,13 +149,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -241,14 +241,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -267,13 +267,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -291,14 +291,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -317,13 +317,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/edit-small.png</normaloff>:/images/edit-small.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -341,14 +341,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -367,13 +367,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -391,14 +391,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -423,13 +423,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -450,14 +450,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -479,13 +479,13 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../st_client-build/application.qrc">
              <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -497,21 +497,21 @@
           <widget class="QLabel" name="label">
            <property name="minimumSize">
             <size>
-             <width>35</width>
-             <height>35</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>35</width>
-             <height>35</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">:/images/st_icon.png</pixmap>
+            <pixmap resource="../../../st_client-build/application.qrc">:/images/st_icon.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -531,7 +531,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
@@ -549,7 +549,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>40</width>
             <height>20</height>
            </size>
           </property>
@@ -618,7 +618,7 @@
            <enum>QAbstractItemView::ScrollPerPixel</enum>
           </property>
           <property name="gridStyle">
-           <enum>Qt::NoPen</enum>
+           <enum>Qt::SolidLine</enum>
           </property>
           <property name="sortingEnabled">
            <bool>true</bool>
@@ -656,7 +656,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>20</width>
+            <width>40</width>
             <height>20</height>
            </size>
           </property>
@@ -674,7 +674,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
@@ -693,7 +693,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc"/>
+  <include location="../../../st_client-build/application.qrc"/>
  </resources>
  <connections/>
 </ui>

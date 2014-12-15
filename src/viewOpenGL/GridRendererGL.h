@@ -16,7 +16,7 @@ class QColor;
 class QVector2DArray;
 
 //This class represents a virtual chip or array corresponding
-//to the chip or array where the eperiment was performed
+//to the chip or array where the experiment was performed
 class GridRendererGL : public GraphicItemGL
 {
     Q_OBJECT

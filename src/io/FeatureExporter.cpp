@@ -115,7 +115,7 @@ void FeatureExporter::exportItem(QIODevice &device,
     if (m_detailLevel.testFlag(FeatureExporter::Extended)) {
         // identifying comment
         if (m_detailLevel.testFlag(FeatureExporter::Comments)) {
-            otxt << QString("# %1").arg("stVi export: feature list") << endl;
+            otxt << QString("# %1").arg("ST Viewer export: feature list") << endl;
         }
 
         // prepend data with application version

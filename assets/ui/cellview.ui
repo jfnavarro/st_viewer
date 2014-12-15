@@ -93,13 +93,13 @@
           <number>20</number>
          </property>
          <property name="leftMargin">
-          <number>5</number>
+          <number>20</number>
          </property>
          <property name="topMargin">
           <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>5</number>
+          <number>20</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>
@@ -114,14 +114,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -151,8 +151,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -167,14 +167,14 @@
           <widget class="QPushButton" name="zoomin">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -195,8 +195,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -208,14 +208,14 @@
           <widget class="QPushButton" name="zoomout">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -236,8 +236,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -249,14 +249,14 @@
           <widget class="QPushButton" name="histogram">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -277,8 +277,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -290,14 +290,14 @@
           <widget class="QPushButton" name="selection">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -318,8 +318,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="checkable">
@@ -334,14 +334,14 @@
           <widget class="QPushButton" name="regexpselection">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -362,8 +362,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -375,14 +375,14 @@
           <widget class="QPushButton" name="save">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -403,8 +403,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -416,14 +416,14 @@
           <widget class="QPushButton" name="print">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -444,8 +444,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -485,8 +485,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>50</width>
-             <height>50</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="popupMode">
@@ -535,8 +535,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>50</width>
-             <height>50</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="popupMode">
@@ -560,14 +560,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -591,8 +591,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -617,14 +617,14 @@
           <widget class="QLabel" name="label">
            <property name="minimumSize">
             <size>
-             <width>35</width>
-             <height>35</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>35</width>
-             <height>35</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="text">
