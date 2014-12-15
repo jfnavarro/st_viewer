@@ -35,7 +35,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
 
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
-    setGridStyle(Qt::NoPen);
+    setGridStyle(Qt::SolidLine);
     setCornerButtonEnabled(false);
     setLineWidth(1);
 

@@ -143,6 +143,10 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
+    //make selection button use different icon when selected
+    m_ui->selection->setStyleSheet("QPushButton {border-image: url(:/images/selection.png); } "
+                          "QPushButton:checked {border-image: url(:/images/selection2.png); }");
+
     // instantiante FDH
     m_FDH = new AnalysisFRD();
     Q_ASSERT(m_FDH);
@@ -938,6 +942,7 @@ void CellViewPage::slotSaveSelection()
             createSelection(new CreateSelectionDialog(this,
                                                       Qt::CustomizeWindowHint
                                                       | Qt::WindowTitleHint));
+    createSelection->setWindowIcon(QIcon());
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
 
         if (createSelection->getName().isNull() || createSelection->getName().isEmpty()) {

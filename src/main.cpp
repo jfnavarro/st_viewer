@@ -13,6 +13,7 @@
 #include <QPixmap>
 #include <QSplashScreen>
 #include <QDesktopWidget>
+#include <QFontDatabase>
 
 #include <iostream>
 #include "utils/Utils.h"
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
     setApplicationFlags();
 
     QApplication app(argc, argv);
-    app.setApplicationName(app.translate("main", "stVi"));
+    app.setApplicationName(app.translate("main", "ST Viewer"));
     app.setOrganizationName("Spatial Transcriptomics AB");
     app.setOrganizationDomain("spatialtranscriptomics.com");
     app.setApplicationVersion(Globals::VERSION);
@@ -102,6 +103,9 @@ int main(int argc, char** argv)
                               app.tr("Unable to install the translations"));
         return EXIT_FAILURE;
     }
+
+    //install open-sans-light font
+    QFontDatabase::addApplicationFont(QStringLiteral(":fonts/OpenSans-Light.ttf"));
 
     //create mainWindow
     stVi mainWindow;

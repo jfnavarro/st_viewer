@@ -78,8 +78,8 @@ QVariant GeneSelectionItemModel::headerData(int section,
 
     if (role == Qt::TextAlignmentRole) {
         switch (section) {
-        case Count: return Qt::AlignRight;
-        case Hits: return Qt::AlignRight;
+        case Count: return Qt::AlignLeft;
+        case Hits: return Qt::AlignLeft;
         case Name: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);
         }

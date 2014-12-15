@@ -161,8 +161,8 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     button->setChecked(count() == 1);
     button->setCursor(Qt::PointingHandCursor);
     button->setStyleSheet("QPushButton {background-color: rgb(45, 45, 45); "
-                          "width: 125px; height: 125px; icon-size: 50px; "
-                          "border: 1px solid rgb(150, 150, 150) }"
+                          "width: 125px; height: 125px; icon-size: 60px; "
+                          "border: 1px solid rgb(240,240,240); }"
                           "QPushButton:checked {background-color: rgb(60, 60, 60);}");
     m_buttonGroup->addButton(button, index);
     m_buttonLayout->addWidget(button);

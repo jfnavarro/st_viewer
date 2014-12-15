@@ -44,7 +44,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="text">
-        <string>Enter credentials to log in to stVi</string>
+        <string>Enter credentials to log in to ST Viewer</string>
        </property>
        <property name="textInteractionFlags">
         <set>Qt::NoTextInteraction</set>

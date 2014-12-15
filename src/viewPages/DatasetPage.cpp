@@ -152,8 +152,10 @@ void DatasetPage::slotEditDataset()
     Dataset dataset(*currentDataset.first());
 
     QScopedPointer<EditDatasetDialog> editdataset(new EditDatasetDialog(this,
-                                                                        Qt::CustomizeWindowHint
+                                                                        Qt::Dialog
+                                                                        | Qt::CustomizeWindowHint
                                                                         | Qt::WindowTitleHint));
+    editdataset->setWindowIcon(QIcon());
     editdataset->setName(dataset.name());
     editdataset->setComment(dataset.statComments());
 
@@ -203,8 +205,8 @@ void DatasetPage::slotRemoveDataset()
     const int answer = QMessageBox::warning(
                 this, tr("Remove Dataset"),
                 tr("Are you really sure you want to remove the dataset?"),
-                QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;

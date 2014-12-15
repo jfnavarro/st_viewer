@@ -148,8 +148,8 @@ void ExperimentPage::slotRemoveSelection()
     const int answer = QMessageBox::warning(
                 this, tr("Remove Selection"),
                 tr("Are you really sure you want to remove the selection?"),
-                QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
@@ -223,6 +223,7 @@ void ExperimentPage::slotEditSelection()
             createSelection(new CreateSelectionDialog(this,
                                                       Qt::CustomizeWindowHint
                                                       | Qt::WindowTitleHint));
+    createSelection->setWindowIcon(QIcon());
     createSelection->setName(selectionItem.name());
     createSelection->setComment(selectionItem.comment());
 

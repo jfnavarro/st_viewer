@@ -264,8 +264,8 @@ void stVi::slotClearCache()
     const int answer = QMessageBox::warning(
                 this, tr("Clear the Cache"),
                 tr("Are you really sure you want to clear the cache?"),
-                QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] : Cleaning the cache...";
@@ -286,22 +286,25 @@ void stVi::initStyle()
     setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
                               "background-color: transparent; "
                               "selection-background-color: rgb(215,215,215); "
-                              "selection-color: darkgrey; "
+                              "selection-color: rgb(0,155,60); "
+                              "gridline-color: rgb(240,240,240);"
                               "border: 1px solid rgb(240,240,240);}"
                   "QPushButton:focus:pressed {background-color: transparent; border: none;} "
                   "QPushButton:pressed {background-color: transparent; border: none;} "
                   "QPushButton:flat {background-color: transparent; border: none;} "
-                  "QPushButton:checked {border: 5px solid;} "
-                  "QHeaderView::section {height: 35px; padding-left: 4px;"
+                  "QHeaderView::section {height: 35px; "
+                                        "padding-left: 4px; "
+                                        "padding-right: 2px; "
                                         "background-color: rgb(230,230,230); "
                                         "border: 1px solid rgb(240,240,240);} "
-                  "QHeaderView {border: 1px solid rgb(240,240,240);} "
                   "QTableCornerButton::section {background-color: transparent;} "
-                  "QLineEdit {border: 1px solid rgb(209, 209, 209); "
+                  "QLineEdit {border: 1px solid rgb(209,209,209); "
                              "border-radius: 5px; "
-                             "background-color: rgb(255, 255, 255); "
-                             "selection-background-color: darkgray;}"
-                  "QToolButton {border: none;}");
+                             "background-color: rgb(255,255,255); "
+                             "selection-background-color: darkgray;} "
+                  "QLineEdit:focus {border: 1px solid rgb(0,155,60); border-radius: 5px;} "
+                  "QLineEdit:edit-focus {border: 1px solid rgb(0,155,60); border-radius: 5px;} "
+                  "QToolButton {border: none;} ");
 
     // apply font
     QFont font("Open Sans", 12);

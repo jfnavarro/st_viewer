@@ -26,6 +26,7 @@ Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     m_progressDialog = new QProgressDialog(nullptr, Qt::WindowStaysOnTopHint);
     m_progressDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint
                                      | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+    m_progressDialog->setStyleSheet("QProgressBar::chunk {background-color: rgb(0,155,60);}");
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
     m_progressDialog->setCancelButtonText(tr("Abort"));

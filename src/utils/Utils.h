@@ -33,7 +33,7 @@ static const QString PAGE_FRAME_STYLE = "{background-color:rgb(230,230,230); "
                                         "border-color: rgb(206,202,202);}";
 
 static const int CELL_PAGE_SUB_MENU_BUTTON_SPACE = 15;
-static const QSize CELL_PAGE_SUB_MENU_BUTTON_SIZE = QSize(40, 30);
+static const QSize CELL_PAGE_SUB_MENU_BUTTON_SIZE = QSize(50, 30);
 static const QSize CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE = QSize(150, 25);
 static const QString CELL_PAGE_SUB_MENU_BUTTON_STYLE =
         "QPushButton {border: 1px solid rgb(209, 209, 209); "
