@@ -19,7 +19,7 @@
 #include "math/Common.h"
 
 static const QColor BORDER = QColor(0, 155, 60);
-static const QColor BORDER_LIGHTER = QColor(0, 195, 100);
+static const QColor BORDER_LIGHTER = QColor(0, 155, 60, 100);
 
 AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),

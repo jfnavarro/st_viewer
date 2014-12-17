@@ -129,6 +129,7 @@ void main(void)
     } else if (visualMode == 3) { //heat map mode
         float normalizedValue = norm(value, lower_limit, upper_limit);
         outColor = createHeatMapColor(normalizedValue);
+        outColor.a = in_intensity;
     }
     
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;

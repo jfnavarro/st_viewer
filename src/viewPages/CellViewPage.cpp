@@ -335,6 +335,9 @@ void CellViewPage::onExit()
     m_gene_plotter->clearData();
     m_view->clearData();
     m_view->update();
+
+    //close FDH widget
+    m_FDH->close();
 }
 
 //TODO split into two
@@ -760,7 +763,8 @@ void CellViewPage::slotLoadCellFigure()
     // set the scene size in the view to the image bounding box (image must have been tiled and
     // textured before)
     connect(futureWatcher, &QFutureWatcher<void>::finished,
-            [=]{ m_view->setScene(m_image->boundingRect()); });
+            [=]{ m_view->setScene(m_image->boundingRect());
+                 m_view->update(); });
 }
 
 void CellViewPage::slotPrintImage()

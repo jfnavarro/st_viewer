@@ -58,10 +58,6 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 mark_as_advanced(${OPENGL_LIBRARY})
 
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-#mark_as_advanced(${OPENSSL_LIBRARY})
-
 if(APPLE)
     find_library(AppKit_LIBRARY AppKit)
     find_library(COCOA_LIBRARY Cocoa)
@@ -125,8 +121,7 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY}
-                      ${OPENSSL_LIBRARY} ${LIBJPEG_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 
