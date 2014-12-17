@@ -105,7 +105,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">:/images/st.png</pixmap>
+           <pixmap resource="../../../st_client-build/application.qrc">:/images/st.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
@@ -154,7 +154,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+           <iconset resource="../../../st_client-build/application.qrc">
             <normaloff>:/images/start-button.png</normaloff>:/images/start-button.png</iconset>
           </property>
           <property name="iconSize">
@@ -264,7 +264,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc">
+           <iconset resource="../../../st_client-build/application.qrc">
             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
           </property>
           <property name="iconSize">
@@ -315,7 +315,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../build-st_client-Desktop_Qt_5_3_2_clang_64bit-Default/application.qrc"/>
+  <include location="../../../st_client-build/application.qrc"/>
  </resources>
  <connections/>
 </ui>

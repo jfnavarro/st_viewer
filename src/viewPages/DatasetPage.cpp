@@ -47,6 +47,8 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+
+    clearControls();
 }
 
 DatasetPage::~DatasetPage()
@@ -76,7 +78,7 @@ void DatasetPage::onEnter()
 
 void DatasetPage::onExit()
 {
-
+    clearControls();
 }
 
 void DatasetPage::clearControls()
@@ -113,6 +115,10 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 
 void DatasetPage::slotLoadDatasets()
 {
+    if (!m_dataProxy->userLogIn()) {
+        return;
+    }
+
     //download datasets (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadDatasets();
@@ -205,7 +211,7 @@ void DatasetPage::slotRemoveDataset()
     const int answer = QMessageBox::warning(
                 this, tr("Remove Dataset"),
                 tr("Are you really sure you want to remove the dataset?"),
-                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::Yes,
                 QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {

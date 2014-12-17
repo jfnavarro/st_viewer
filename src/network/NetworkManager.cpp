@@ -87,8 +87,8 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
         return nullptr;
     }
 
-    // do a connection check here
-#ifndef Q_OS_LINUX
+    // do a connection check here (TODO seems to only work in MAC)
+#ifdef Q_OS_MAC
     if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
         qDebug() << "[NetworkManager] Error: Unable to connect to the network";
         return nullptr;

@@ -4,7 +4,7 @@
 #    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #
 #
-project(ST_Viewer CXX C)
+project(stVi CXX C)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 

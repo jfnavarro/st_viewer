@@ -16,6 +16,8 @@
 
 #include "data/DataProxy.h"
 
+using namespace Globals;
+
 Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     QWidget(parent),
     m_dataProxy(dataProxy),
@@ -23,10 +25,12 @@ Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
-    m_progressDialog = new QProgressDialog(nullptr, Qt::WindowStaysOnTopHint);
-    m_progressDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint
+    m_progressDialog = new QProgressDialog(nullptr);
+    m_progressDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowStaysOnTopHint
                                      | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
-    m_progressDialog->setStyleSheet("QProgressBar::chunk {background-color: rgb(0,155,60);}");
+    m_progressDialog->setStyleSheet("QProgressBar::chunk {background-color: rgb(0,155,60);} "
+                                    + CELL_PAGE_SUB_MENU_BUTTON_STYLE +
+                                    "QPushButton {width: 45px; height: 20px;} ");
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
     m_progressDialog->setCancelButtonText(tr("Abort"));

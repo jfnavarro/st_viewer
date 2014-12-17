@@ -45,6 +45,8 @@
     <file alias="images/warning.png">${PROJECT_SOURCE_DIR}/assets/images/warning.png</file>
     <file alias="images/login.png">${PROJECT_SOURCE_DIR}/assets/images/login.png</file>
     <file alias="images/selection2.png">${PROJECT_SOURCE_DIR}/assets/images/selection2.png</file>
+    <file alias="images/checked-box.png">${PROJECT_SOURCE_DIR}/assets/images/checked-box.png</file>
+    <file alias="images/unchecked-box.png">${PROJECT_SOURCE_DIR}/assets/images/unchecked-box.png</file>
     <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>

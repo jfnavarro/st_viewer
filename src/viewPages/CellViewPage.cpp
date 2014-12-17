@@ -938,11 +938,18 @@ void CellViewPage::slotSelectionUpdated()
 
 void CellViewPage::slotSaveSelection()
 {
+    const auto dataset = m_dataProxy->getSelectedDataset();
+    Q_ASSERT(!dataset.isNull());
+
     QScopedPointer<CreateSelectionDialog>
             createSelection(new CreateSelectionDialog(this,
                                                       Qt::CustomizeWindowHint
                                                       | Qt::WindowTitleHint));
     createSelection->setWindowIcon(QIcon());
+    //proposes as selection name the dataset name + SELECTION + a timestamp
+    createSelection->setName(dataset->name()
+                             + "_SELECTION_" + QDateTime::currentDateTimeUtc().toString());
+
     if (createSelection->exec() == CreateSelectionDialog::Accepted) {
 
         if (createSelection->getName().isNull() || createSelection->getName().isEmpty()) {
@@ -959,8 +966,6 @@ void CellViewPage::slotSaveSelection()
         selection.enabled(true);
 
         //add dataset ID
-        const auto dataset = m_dataProxy->getSelectedDataset();
-        Q_ASSERT(!dataset.isNull());
         selection.datasetId(dataset->id());
 
         //add type of selection

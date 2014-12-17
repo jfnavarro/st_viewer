@@ -113,6 +113,9 @@ void InitPage::slotLogOutButton()
     m_ui->newExpButt->setEnabled(false);
     m_ui->user_name->clear();
 
+    //clean user and downloaded data logging out
+    m_dataProxy->clean();
+
     //force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();

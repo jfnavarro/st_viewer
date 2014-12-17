@@ -6,6 +6,8 @@ CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f),
       m_ui(new Ui::createSelectionDialog)
 {
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));

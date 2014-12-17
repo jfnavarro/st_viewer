@@ -249,8 +249,8 @@ void stVi::slotExit()
     const int answer = QMessageBox::warning(
                 this, tr("Exit application"),
                 tr("Are you really sure you want to exit now?"),
-                QMessageBox::No | QMessageBox::Escape,
-                QMessageBox::Yes | QMessageBox::Escape);
+                QMessageBox::Yes,
+                QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
@@ -264,7 +264,7 @@ void stVi::slotClearCache()
     const int answer = QMessageBox::warning(
                 this, tr("Clear the Cache"),
                 tr("Are you really sure you want to clear the cache?"),
-                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::Yes,
                 QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
@@ -288,13 +288,23 @@ void stVi::initStyle()
                               "selection-background-color: rgb(215,215,215); "
                               "selection-color: rgb(0,155,60); "
                               "gridline-color: rgb(240,240,240);"
-                              "border: 1px solid rgb(240,240,240);}"
-                  "QPushButton:focus:pressed {background-color: transparent; border: none;} "
-                  "QPushButton:pressed {background-color: transparent; border: none;} "
-                  "QPushButton:flat {background-color: transparent; border: none;} "
+                              "border: 1px solid rgb(240,240,240);} "
+                  "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
+                  "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
+                  "QTableView::indicator {padding-left: 10px; "
+                                         "width: 15px; "
+                                         "height: 15px; "
+                                         "background-color: transparent;} "
+                  "QPushButton:focus:pressed {background-color: transparent; "
+                                             "border: none;} "
+                  "QPushButton:pressed {background-color: transparent; "
+                                       "border: none;} "
+                  "QPushButton:flat {background-color: transparent; "
+                                    "border: none;} "
                   "QHeaderView::section {height: 35px; "
                                         "padding-left: 4px; "
                                         "padding-right: 2px; "
+                                        "spacing: 5px;"
                                         "background-color: rgb(230,230,230); "
                                         "border: 1px solid rgb(240,240,240);} "
                   "QTableCornerButton::section {background-color: transparent;} "
@@ -302,9 +312,21 @@ void stVi::initStyle()
                              "border-radius: 5px; "
                              "background-color: rgb(255,255,255); "
                              "selection-background-color: darkgray;} "
-                  "QLineEdit:focus {border: 1px solid rgb(0,155,60); border-radius: 5px;} "
-                  "QLineEdit:edit-focus {border: 1px solid rgb(0,155,60); border-radius: 5px;} "
-                  "QToolButton {border: none;} ");
+                  "QToolButton {border: none;} "
+                  "QRadioButton::indicator::unchecked {border: 1px solid darkgray; "
+                                                      "border-radius: 6px; "
+                                                      "background-color: white; "
+                                                      "width: 10px; "
+                                                      "height: 10px; "
+                                                      "margin-left: 5px;}"
+                  "QRadioButton::indicator::checked {border: 1px solid darkgray; "
+                                                    "border-radius: 6px; "
+                                                    "background-color: rgb(0,155,60); "
+                                                    "width: 10px; "
+                                                    "height: 10px; "
+                                                    "margin-left: 5px;} "
+                  "QComboBox::item::selected {background: rgb(0,155,60);} "
+                  "QMenu::item:selected {background-color: rgb(0,155,60); }");
 
     // apply font
     QFont font("Open Sans", 12);
@@ -313,11 +335,11 @@ void stVi::initStyle()
 
 void stVi::createShorcuts()
 {
-#if defined(Q_OS_WIN)
+#if defined Q_OS_WIN
     m_actionExit->setShortcuts(QList<QKeySequence>()
                                << QKeySequence(Qt::ALT | Qt::Key_F4)
                                << QKeySequence(Qt::CTRL | Qt::Key_Q));
-#elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#elif defined Q_OS_LINUX || defined Q_OS_MAC
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
 

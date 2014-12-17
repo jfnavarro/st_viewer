@@ -46,6 +46,8 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+
+    clearControls();
 }
 
 ExperimentPage::~ExperimentPage()
@@ -77,7 +79,7 @@ void ExperimentPage::onEnter()
 
 void ExperimentPage::onExit()
 {
-
+    clearControls();
 }
 
 void ExperimentPage::clearControls()
@@ -100,6 +102,10 @@ void ExperimentPage::clearControls()
 
 void ExperimentPage::loadSelections()
 {
+    if (!m_dataProxy->userLogIn()) {
+        return;
+    }
+
     //load selections and enable the blocking loading bar
     setWaiting(true);
     m_dataProxy->loadGeneSelections();
@@ -148,7 +154,7 @@ void ExperimentPage::slotRemoveSelection()
     const int answer = QMessageBox::warning(
                 this, tr("Remove Selection"),
                 tr("Are you really sure you want to remove the selection?"),
-                QMessageBox::Yes | QMessageBox::Escape,
+                QMessageBox::Yes,
                 QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {

@@ -102,14 +102,14 @@
           <widget class="QPushButton" name="back">
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -139,8 +139,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -226,8 +226,8 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -248,8 +248,8 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -261,14 +261,14 @@ selection-background-color: darkgray;</string>
           <widget class="QPushButton" name="exportSelections">
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -292,8 +292,8 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -305,14 +305,14 @@ selection-background-color: darkgray;</string>
           <widget class="QPushButton" name="editSelection">
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -336,8 +336,8 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -349,14 +349,14 @@ selection-background-color: darkgray;</string>
           <widget class="QPushButton" name="removeSelections">
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="cursor">
@@ -380,8 +380,8 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="iconSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="flat">
@@ -394,9 +394,12 @@ selection-background-color: darkgray;</string>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>

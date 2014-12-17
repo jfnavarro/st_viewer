@@ -16,6 +16,8 @@
 #include <cmath>
 #include "math/Common.h"
 
+static const QColor BORDER = QColor(0, 155, 60);
+
 AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
                          const GeneSelection& selObjectB,
                          QWidget *parent, Qt::WindowFlags f) :
@@ -27,12 +29,24 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_lowerThreshold(0),
     m_upperThreshold(1)
 {
-    setWindowFlags(Qt::WindowStaysOnTopHint);
-
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     setModal(true);
 
     m_ui->setupUi(this);
 
+    m_ui->tableWidget->setStyleSheet("QTableWidget {alternate-background-color: rgb(245,245,245); "
+                                                   "background-color: transparent; "
+                                                   "selection-background-color: rgb(215,215,215); "
+                                                   "selection-color: rgb(0,155,60); "
+                                                   "gridline-color: rgb(240,240,240);"
+                                                   "border: 1px solid rgb(240,240,240);} "
+                                     "QHeaderView::section {height: 35px; "
+                                                           "padding-left: 4px; "
+                                                           "padding-right: 2px; "
+                                                           "spacing: 5px; "
+                                                           "background-color: rgb(230,230,230); "
+                                                           "border: 1px solid rgb(240,240,240);} "
+                                     "QTableCornerButton::section {background-color: transparent;} ");
     // creating plotting object
     m_customPlot = new QCustomPlot(m_ui->plotWidget);
     Q_ASSERT(m_customPlot != nullptr);
@@ -40,7 +54,7 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     // add a scatter plot graph
     m_customPlot->addGraph();
     m_customPlot->graph(0)->setScatterStyle(
-                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::blue), Qt::white, 5));
+                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
     m_customPlot->graph(0)->setAntialiasedScatters(true);
     m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
     m_customPlot->graph(0)->setName("Correlation Scatter Plot");
@@ -54,8 +68,8 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_customPlot->yAxis->setTicks(true);
     // make top right axes clones of bottom left axes. Looks prettier:
     m_customPlot->axisRect()->setupFullAxesBox();
-    // plot and add mouse interaction (fixed size)
-    m_customPlot->setFixedSize(500, 400);
+    // plot and add mouse interaction (fixed min size)
+    m_customPlot->setMinimumSize(500, 400);
     m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
     // total reads in each selection used to normalize
@@ -95,8 +109,9 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     updateStatisticsUI(stats);
 
     // make connections
-    connect(m_ui->cancelButton, SIGNAL(clicked(bool)), this, SLOT(close()));
-    connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(slotSaveToPDF()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(close()));
+    connect(m_ui->buttonBox->button(QDialogButtonBox::Save),
+            SIGNAL(clicked()), this, SLOT(slotSaveToPDF()));
     connect(m_ui->tpmThreshold, SIGNAL(lowerValueChanged(int)),
             this, SLOT(slotSetLowerThreshold(int)));
     connect(m_ui->tpmThreshold, SIGNAL(upperValueChanged(int)),
@@ -157,6 +172,9 @@ void AnalysisDEA::populateTable(const int size)
     QStringList headers;
     headers << "Gene" << "Reads Sel. A" << "Reads Sel. B";
     m_ui->tableWidget->setHorizontalHeaderLabels(headers);
+    m_ui->tableWidget->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft);
+    m_ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+
     // initialize row size of the table
     m_ui->tableWidget->setRowCount(size);
 
@@ -170,9 +188,18 @@ void AnalysisDEA::populateTable(const int size)
         const int valueSelection2 = it.value().second;
 
         // update table
-        m_ui->tableWidget->setItem(index, 0, new TableItem(it.key()));
-        m_ui->tableWidget->setItem(index, 1, new TableItem(valueSelection1));
-        m_ui->tableWidget->setItem(index, 2, new TableItem(valueSelection2));
+        TableItem *gene = new TableItem(it.key());
+        gene->setTextAlignment(Qt::AlignLeft);
+        gene->setTextColor(BORDER);
+        TableItem *reads1 = new TableItem(valueSelection1);
+        reads1->setTextAlignment(Qt::AlignRight);
+        TableItem *reads2 = new TableItem(valueSelection2);
+        reads2->setTextAlignment(Qt::AlignRight);
+
+        m_ui->tableWidget->setItem(index, 0, gene);
+        m_ui->tableWidget->setItem(index, 1, reads1);
+        m_ui->tableWidget->setItem(index, 2, reads2);
+
         index++;
     }
 

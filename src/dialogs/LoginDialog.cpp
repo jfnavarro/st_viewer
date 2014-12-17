@@ -26,6 +26,8 @@ LoginDialog::LoginDialog(QWidget *parent, Qt::WindowFlags f):
     m_ui(new Ui::LogIn()),
     m_completer(nullptr)
 {
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
     //init UI
     m_ui->setupUi(this);
 

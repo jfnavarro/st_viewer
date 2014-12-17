@@ -19,6 +19,8 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
 {
     Q_ASSERT(!m_dataProxy.isNull());
 
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
     m_ui->setupUi(this);
 
     // set default state

@@ -228,6 +228,9 @@ public:
     //otherwise the downloads will never be processed
     void activateCurrentDownloads() const;
 
+    //true if the user is currently logged in
+    bool userLogIn() const;
+
 public slots:
 
     //Abort all the current active downloads if any

@@ -18,6 +18,9 @@
 #include <cmath>
 #include "math/Common.h"
 
+static const QColor BORDER = QColor(0, 155, 60);
+static const QColor BORDER_LIGHTER = QColor(0, 195, 100);
+
 AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(new Ui::frdWidget),
@@ -30,7 +33,7 @@ AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
     m_minY(0.0),
     m_maxY(1.0)
 {
-    setWindowFlags(Qt::WindowStaysOnTopHint);
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
     setModal(false);
     m_ui->setupUi(this);
@@ -80,8 +83,8 @@ void AnalysisFRD::initializePlotNormal()
 
     // add plot of data
     m_customPlotNormal->addGraph();
-    m_customPlotNormal->graph(0)->setPen(QPen(Qt::blue));
-    m_customPlotNormal->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 20)));
+    m_customPlotNormal->graph(0)->setPen(QPen(BORDER));
+    m_customPlotNormal->graph(0)->setBrush(QBrush(BORDER_LIGHTER));
 
     // configure right and top axis to show ticks but no labels:
     m_customPlotNormal->xAxis2->setVisible(true);
@@ -125,8 +128,8 @@ void AnalysisFRD::initializePlotLog()
 
     // add plot of data
     m_customPlotLog->addGraph();
-    m_customPlotLog->graph(0)->setPen(QPen(Qt::blue));
-    m_customPlotLog->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 20)));
+    m_customPlotLog->graph(0)->setPen(QPen(BORDER));
+    m_customPlotLog->graph(0)->setBrush(QBrush(BORDER_LIGHTER));
 
     // configure right and top axis to show ticks but no labels:
     m_customPlotLog->xAxis2->setVisible(true);

@@ -48,7 +48,7 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
         return item->selected() ? Qt::Checked : Qt::Unchecked;
     }
 
-    if (role == Qt::DecorationRole && index.column() == Color) {
+    if (role == Qt::BackgroundColorRole && index.column() == Color) {
         return item->color();
     }
 

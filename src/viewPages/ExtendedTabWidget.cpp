@@ -49,10 +49,11 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
 
     //layout for the buttons
     m_buttonLayout = new QVBoxLayout();
+    m_buttonLayout->setContentsMargins(0, 0, 0, 0);
     m_buttonLayout->setSpacing(0);
 
     //strech layout to make buttons to always be on top
-    QVBoxLayout  *buttonStretchLayout = new QVBoxLayout();
+    QVBoxLayout *buttonStretchLayout = new QVBoxLayout();
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();

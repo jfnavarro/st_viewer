@@ -125,7 +125,7 @@ void SelectionsWidget::configureButton(QPushButton *button, const QIcon icon, co
 {
     Q_ASSERT(button != nullptr);
     button->setIcon(icon);
-    button->setIconSize(CELL_PAGE_SUB_MENU_BUTTON_SIZE);
+    button->setIconSize(CELL_PAGE_SUB_MENU_ICON_SIZE);
     button->setFixedSize(CELL_PAGE_SUB_MENU_BUTTON_SIZE);
     button->setStyleSheet(CELL_PAGE_SUB_MENU_BUTTON_STYLE);
     button->setCursor(Qt::PointingHandCursor);

@@ -563,6 +563,11 @@ void DataProxy::activateCurrentDownloads() const
     }
 }
 
+bool DataProxy::userLogIn() const
+{
+    return !m_user.isNull() && m_user->enabled();
+}
+
 unsigned DataProxy::getActiveDownloads() const
 {
     return m_activeDownloads;
