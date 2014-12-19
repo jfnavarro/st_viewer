@@ -121,7 +121,16 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
+
+# TODO: maybe we should use LIBJPEG_STATIC_detected_with_find_library for all platforms?
+# It works for Windows and Linux right now. It has not yet been tested for OSX.
+if(WIN32 OR (UNIX AND NOT APPLE))
+    target_link_libraries(${PROJECT_NAME} ${LIBJPEG_STATIC_detected_with_find_library})
+else()
+   target_link_libraries(${PROJECT_NAME} ${LIBJPEG_LIBRARIES})
+endif()
+
 
 ### UNIT TESTS ################################################################
 
@@ -276,6 +285,7 @@ if(WIN32)
     
     #install system libs
     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION . )
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION . )
 
     #add systems libs to build directory
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -295,10 +305,15 @@ if(WIN32)
     set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
     set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
     set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
-    set(CPACK_NSIS_MUI_UNICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_INSTALLED_ICON_NAME ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.exe)
+
+
+    # Right now we are invoking Windows CMake from inside Cygwin.
+    # Maybe that is why we need to replace the "/" with "\\\\"?
+    string(REPLACE "/" "\\\\" source_dir_windows "${CMAKE_SOURCE_DIR}")
+    set(CPACK_NSIS_MUI_UNICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_MUI_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_PACKAGE_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     #set(CPACK_NSIS_MENU_LINKS "http://www.spatialtranscriptomics.com")
     set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
@@ -309,12 +324,13 @@ if(WIN32)
         !define MUI_STARTMENUPAGE_NODISABLE
     ")
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
-        \\\"\\\" \\\"${CMAKE_SOURCE_DIR}\\\\assets\\\\images\\\\st_icon.ico\\\"
+        CreateShortCut \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"        \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"     \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
+        CreateShortCut \\\"\\\$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"        \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
     ")
 
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
         Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
+        Delete \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\" 
     ")
 
     # Qt libraries required by stVi

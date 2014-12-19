@@ -41,9 +41,9 @@ if (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
 else (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
   find_path(LIBJPEG_INCLUDE_DIR
     NAMES
-	jpeglib.h
+      jpeglib.h
     PATHS
-	  /opt/libjpeg-turbo/include
+      /opt/libjpeg-turbo/include
       /usr/include/libjpeg-turbo
       /usr/include/libjpeg
       /usr/local/include/libjpeg-turbo
@@ -52,7 +52,6 @@ else (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
     PATH_SUFFIXES
 	  libjpeg-turbo
 	  libjpeg
-	NO_DEFAULT_PATH
   )
 
   find_library(LIBJPEG_LIBRARY
@@ -60,7 +59,7 @@ else (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
       jpeg
       jpeg62
     PATHS
-	  /opt/libjpeg-turbo/lib
+      /opt/libjpeg-turbo/lib
       /usr/local/lib64
       /usr/lib/x86_64-linux-gnu
       /usr/lib/i386-linux-gnu
@@ -68,14 +67,34 @@ else (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
       /usr/local/lib
       /opt/local/lib
       /sw/lib
-    NO_DEFAULT_PATH
   )
+
+# I think static libraries are detected with the find_library() command.
+# In this way the LIBJPEG_STATIC_detected_with_find_library variable is set.
+# We should probably remove the other way that is using find_path(),
+# i.e. LIBJPEG_STATIC_DIR and LIBJPEG_STATIC
+# /Erik
+  find_library(LIBJPEG_STATIC_detected_with_find_library
+       jpeg-static.lib
+       libjpeg.a
+       libjpeg62.a
+    PATHS
+      /opt/libjpeg-turbo/lib
+      /usr/local/lib64
+      /usr/lib/x86_64-linux-gnu
+      /usr/lib/i386-linux-gnu
+      /usr/lib
+      /usr/local/lib
+      /opt/local/lib
+      /sw/lib
+  )
+
   find_path(LIBJPEG_STATIC_DIR
     NAMES
-	libjpeg.a
-	libjpeg62.a
+       libjpeg.a
+       libjpeg62.a
     PATHS
-	  /opt/libjpeg-turbo/lib
+      /opt/libjpeg-turbo/lib
       /usr/local/lib64
       /usr/lib/x86_64-linux-gnu
       /usr/lib/i386-linux-gnu
@@ -83,8 +102,8 @@ else (LIBJPEG_LIBRARIES AND LIBJPEG_INCLUDE_DIRS)
       /usr/local/lib
       /opt/local/lib
       /sw/lib
-    NO_DEFAULT_PATH
   )
+
   set(LIBJPEG_INCLUDE_DIRS
     ${LIBJPEG_INCLUDE_DIR}
   )

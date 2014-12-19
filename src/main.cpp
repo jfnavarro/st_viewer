@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     //set library and plugins paths
     // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
-    app.addLibraryPath(QDir(app->applicationDirPath()).canonicalPath()
+    app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath()
                         + QDir::separator() + "plugins");
 #elif defined Q_OS_MAC
     QDir dir(QApplication::applicationDirPath());

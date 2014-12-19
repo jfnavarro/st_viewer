@@ -14,6 +14,8 @@ qt3d_commit=bdb98baf8253c69949a8c259369203da9ffb269c
 
 set -e
 
+libjpeg_turbo=`cygpath -w /cygdrive/c/libjpeg-turbo64`
+
 function print_usage_and_exit {
     echo "Usage: build_cygwin.sh path_to_st_client_source [ build_qt3d | use_last_built_qt3d ] [ stclient_production_build | stclient_development_build | stclient_build_only_run_make ]" >&2
     exit 1
@@ -47,7 +49,7 @@ fi
 # what is described here: http://stackoverflow.com/a/15335686
 
 filepath1=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'`
-filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.3.1/5.3/msvc2013_64_opengl/bin/qtenv2.bat'`
+filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.4/5.4/msvc2013_64_opengl/bin/qtenv2.bat'`
 
 if [ $2 = "build_qt3d" ]; then
   qt3d_dir=`mktemp -d /tmp/qt3d.XXX`
@@ -61,7 +63,7 @@ if [ $2 = "build_qt3d" ]; then
   if /bin/true; then
     git clone git://gitorious.org/qt/qt3d.git $qt3d_srcdir
     cd $qt3d_srcdir
-    git checkout $qt3d_commit -b tmpbranch
+#    git checkout $qt3d_commit -b tmpbranch
     echo "INCLUDEPATH += \$\$PWD/dummy" >> src/imports/threed/threed.pro
     mkdir src/imports/threed/dummy
   else
@@ -115,7 +117,7 @@ fi
 cmd /Q /C call "$filepath1" x86_amd64 "&&" \
   "$filepath2" "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$cmake_path_windows" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=$qt3d_builddir_windows" "$stclient_srcdir_windows" "&&" \
+   $cmd "$cmake_path_windows" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=$qt3d_builddir_windows;$libjpeg_turbo" "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
    nmake package
 
