@@ -126,14 +126,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
 
 GenesWidget::~GenesWidget()
 {
-    m_lineEdit->deleteLater();
-    m_lineEdit = nullptr;
 
-    m_genes_tableview->deleteLater();
-    m_genes_tableview = nullptr;
-
-    m_colorList->deleteLater();
-    m_colorList = nullptr;
 }
 
 void GenesWidget::clear()

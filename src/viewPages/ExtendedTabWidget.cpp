@@ -81,30 +81,6 @@ ExtendedTabWidget::~ExtendedTabWidget()
     // exit last page
     const int index = currentIndex();
     tabChanged(-1, index);
-
-    m_startpage->deleteLater();
-    m_startpage = nullptr;
-
-    m_datasets->deleteLater();
-    m_datasets = nullptr;
-
-    m_cellview->deleteLater();
-    m_cellview = nullptr;
-
-    m_experiments->deleteLater();
-    m_experiments = nullptr;
-
-    m_stackWidget->deleteLater();
-    m_stackWidget = nullptr;
-
-    m_buttonGroup->deleteLater();
-    m_buttonGroup = nullptr;
-
-    m_layout->deleteLater();
-    m_layout = nullptr;
-
-    m_buttonLayout->deleteLater();
-    m_buttonLayout = nullptr;
 }
 
 QSize ExtendedTabWidget::sizeHint() const
@@ -164,7 +140,7 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     button->setStyleSheet("QPushButton {background-color: rgb(45, 45, 45); "
                           "width: 125px; height: 125px; icon-size: 60px; "
                           "border: 1px solid rgb(240,240,240); }"
-                          "QPushButton:checked {background-color: rgb(60, 60, 60);}");
+                          "QPushButton:checked {background-color: rgb(80, 80, 80);}");
     m_buttonGroup->addButton(button, index);
     m_buttonLayout->addWidget(button);
 }

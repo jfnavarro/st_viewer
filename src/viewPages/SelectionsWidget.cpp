@@ -98,11 +98,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
 
 SelectionsWidget::~SelectionsWidget()
 {
-    m_geneSelectionFilterLineEdit->deleteLater();
-    m_geneSelectionFilterLineEdit = nullptr;
 
-    m_selections_tableview->deleteLater();
-    m_selections_tableview = nullptr;
 }
 
 void SelectionsWidget::clear()

@@ -58,8 +58,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
 
 DatasetsTableView::~DatasetsTableView()
 {
-    m_datasetModel->deleteLater();
-    m_datasetModel = nullptr;
+
 }
 
 QItemSelection DatasetsTableView::datasetsTableItemSelection() const

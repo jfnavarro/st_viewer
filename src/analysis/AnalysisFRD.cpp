@@ -45,23 +45,7 @@ AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
 
 AnalysisFRD::~AnalysisFRD()
 {
-    m_customPlotNormal->deleteLater();
-    m_customPlotNormal = nullptr;
 
-    m_upperThresholdBarNormal->deleteLater();
-    m_upperThresholdBarNormal = nullptr;
-
-    m_lowerThresholdBarNormal->deleteLater();
-    m_lowerThresholdBarNormal = nullptr;
-
-    m_customPlotLog->deleteLater();
-    m_customPlotLog = nullptr;
-
-    m_upperThresholdBarLog->deleteLater();
-    m_upperThresholdBarLog = nullptr;
-
-    m_lowerThresholdBarLog->deleteLater();
-    m_lowerThresholdBarLog = nullptr;
 }
 
 void AnalysisFRD::initializePlotNormal()

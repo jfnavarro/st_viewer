@@ -80,8 +80,7 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
 
 CellGLView::~CellGLView()
 {
-    m_rubberband->deleteLater();
-    m_rubberband = nullptr;
+
 }
 
 void CellGLView::setDefaultPanningAndZooming()
@@ -360,6 +359,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
     // notify nodes for rubberband
     foreach(GraphicItemGL *node, m_nodes) {
         if (node->rubberBandable()) {
+            //apply scene transformations to node
             QTransform node_trans = nodeTransformations(node);
             if (node->transformable()) {
                 node_trans *= sceneTransformations();
@@ -369,13 +369,14 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
             QRectF transformed = node_trans.inverted().mapRect(rubberBand);
             // if selection area is not inside the bounding rect select empty rect
             if (!node->boundingRect().contains(transformed)) {
+                qDebug() << "Discarding selections";
                 transformed = QRectF();
             }
 
             // Set the new selection area
-            SelectionEvent::SelectionMode mode =
+            const SelectionEvent::SelectionMode mode =
                     SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
-            SelectionEvent selectionEvent(transformed, mode);
+            const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);
         }
@@ -428,14 +429,13 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
                                             qMin(origin.y(), destiny.y()),
                                             qAbs(origin.x() - destiny.x()) + 1,
                                             qAbs(origin.y() - destiny.y()) + 1);
-
         sendRubberBandEventToNodes(rubberBandRect, event);
-
         // reset rubberband variables
         m_rubberBanding = false;
         m_rubberband->setRubberbandRect(QRect());
-        update();
-
+        //well, there is no need to trigger an update here since
+        //sendRubberBandEventToNodes will make the GeneRenderer node trigger an update
+        //update();
     } else if (event->button() == Qt::LeftButton && m_panning && !m_selecting) {
         unsetCursor();
         m_panning = false;
@@ -460,8 +460,8 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
                                             qAbs(origin.y() - destiny.y()) + 1);
         m_rubberband->setRubberbandRect(rubberBandRect);
         update();
-    } else if ( event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting ) {
-        QPoint point = event->globalPos(); //panning needs global pos
+    } else if (event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting) {
+        const QPoint point = event->globalPos(); //panning needs global pos
         const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
         m_originPanning = point;
@@ -541,6 +541,7 @@ const QTransform CellGLView::sceneTransformations() const
         //TODO should rotate around its center, complete rotation
         transform.rotate(m_rotate, Qt::ZAxis);
     }
+
     return transform.inverted();
 }
 

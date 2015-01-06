@@ -120,8 +120,7 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
 
 AnalysisDEA::~AnalysisDEA()
 {
-    m_customPlot->deleteLater();
-    m_customPlot = nullptr;
+
 }
 
 void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,

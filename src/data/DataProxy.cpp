@@ -175,11 +175,7 @@ DataProxy::DataProxy(QObject *parent) :
 
 DataProxy::~DataProxy()
 {
-    m_networkManager->deleteLater();
-    m_networkManager = nullptr;
-
     m_user.clear();
-
     clean();
 }
 

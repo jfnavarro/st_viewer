@@ -34,7 +34,7 @@ OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject *parent)
 
 OAuth2::~OAuth2()
 {
-    m_loginDialog->deleteLater();
+    delete m_loginDialog;
     m_loginDialog = nullptr;
 }
 
@@ -51,8 +51,8 @@ void OAuth2::startInteractiveLogin()
     if (m_loginDialog.isNull()) {
         QWidget *mainWidget = QApplication::desktop()->screen();
         m_loginDialog = new LoginDialog(mainWidget, Qt::WindowStaysOnTopHint);
-        m_loginDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint
-                                      | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+        m_loginDialog->setWindowFlags(m_loginDialog->windowFlags() & (Qt::Tool | Qt::WindowTitleHint
+                                      | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint));
         connect(m_loginDialog, SIGNAL(acceptLogin(const QString&, const QString&)), this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }

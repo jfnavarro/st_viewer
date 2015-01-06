@@ -88,22 +88,6 @@ stVi::~stVi()
         delete m_authManager;
     }
     m_authManager = nullptr;
-
-
-    m_actionExit->deleteLater();
-    m_actionExit = nullptr;
-
-    m_actionHelp->deleteLater();
-    m_actionHelp = nullptr;
-
-    m_actionVersion->deleteLater();
-    m_actionVersion = nullptr;
-
-    m_actionAbout->deleteLater();
-    m_actionAbout = nullptr;
-
-    m_mainTab->deleteLater();
-    m_mainTab = nullptr;
 }
 
 void stVi::init()

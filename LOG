@@ -49,3 +49,22 @@ v0.3.6
 	* Fixed a bug that would case the DEA Dialog to be un-stable sometimes
 	* Ensure the dot size is 0.5 by default
 
+v0.4.0
+        * New UI design
+        * Improved speed and performance
+        * Improve memmory loading
+        * New color computation options (log, exp and normal)
+        * New pooled modes (reads, genes and TPMs)
+        * Improved windows and mac installers
+        * Many bug fixes
+        * Secuencial JSON parsing
+        * Async Network downloads
+        * Improved error managment
+        * Improved error messages
+
+v0.4.1 
+        * Fixed a bug with the selection rubberband
+        * Fixed a bug with the log in dialog in windows
+        * Fixed a bug causing a segmentation fault when exitting
+        * Fixed a bug with the caching of usernames
+

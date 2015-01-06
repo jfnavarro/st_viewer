@@ -61,11 +61,7 @@ GenesTableView::GenesTableView(QWidget *parent)
 
 GenesTableView::~GenesTableView()
 {
-    m_geneModel->deleteLater();
-    m_geneModel = nullptr;
 
-    m_sortGenesProxyModel->deleteLater();
-    m_sortGenesProxyModel = nullptr;
 }
 
 QItemSelection GenesTableView::geneTableItemSelection() const

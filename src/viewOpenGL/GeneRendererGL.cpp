@@ -458,8 +458,10 @@ void GeneRendererGL::setSelectionAreaAsync(const SelectionEvent &event)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
+    qDebug() << "Selecting " << event.path();
+
     // get selection area
-    QuadTreeAABB aabb(event.path());
+    const QuadTreeAABB aabb(event.path());
 
     // get selection mode
     const SelectionEvent::SelectionMode mode = event.mode();
@@ -557,6 +559,8 @@ void GeneRendererGL::draw(QGLPainter *painter)
         m_geneNode->setGeometry(m_geneData);
         m_geneNode->setCount(m_geneData.indices().size());
     }
+
+    qDebug() << "Drawing genes";
 
     // enable shader
     m_shaderProgram->setActive(painter, true);

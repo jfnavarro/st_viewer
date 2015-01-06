@@ -21,8 +21,7 @@ AuthorizationManager::AuthorizationManager(QPointer<DataProxy> dataProxy,
 
 AuthorizationManager::~AuthorizationManager()
 {
-    m_oAuth2->deleteLater();
-    m_oAuth2 = nullptr;
+
 }
 
 void AuthorizationManager::startAuthorization()

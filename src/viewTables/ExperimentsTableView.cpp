@@ -49,11 +49,7 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
 
 ExperimentsTableView::~ExperimentsTableView()
 {
-    m_experimentModel->deleteLater();
-    m_experimentModel = nullptr;
 
-    m_sortSelectionsProxyModel->deleteLater();
-    m_sortSelectionsProxyModel = nullptr;
 }
 
 QItemSelection ExperimentsTableView::experimentTableItemSelection() const
