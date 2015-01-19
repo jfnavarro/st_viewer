@@ -304,7 +304,7 @@ if(WIN32)
     set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
     set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
     set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
-    set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
+    set(CPACK_NSIS_URL_INFO_ABOUT "https://www.spatialtranscriptomics.com")
 
 
     # Right now we are invoking Windows CMake from inside Cygwin.
@@ -316,8 +316,8 @@ if(WIN32)
     set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     #set(CPACK_NSIS_MENU_LINKS "http://www.spatialtranscriptomics.com")
-    set(CPACK_NSIS_URL_INFO_ABOUT "http://www.spatialtranscriptomics.com")
-    set(CPACK_NSIS_HELP_LINK "http://www.spatialtranscriptomics.com")
+    set(CPACK_NSIS_URL_INFO_ABOUT "https://www.spatialtranscriptomics.com")
+    set(CPACK_NSIS_HELP_LINK "https://www.spatialtranscriptomics.com")
     set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
     set(CPACK_NSIS_PAGE_COMPONENTS "
         !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
