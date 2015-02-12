@@ -9,61 +9,18 @@
 #define ANALYSISDEA_H
 
 #include <memory>
-
-#include "qcustomplot/qcustomplot.h"
+#include <QDialog>
+#include <QModelIndex>
 #include "dataModel/GeneSelection.h"
 
 namespace Ui {
 class ddaWidget;
 }
 
+class QCustomPlot;
 class QTableWidget;
-
-//TODO move a separate class
-//Wrapper around QTableWidgetItem to allow
-//to add integer elements to the table
-class TableItem : public QTableWidgetItem
-{
-public:
-    TableItem(const QString & text) : QTableWidgetItem(text)
-    {}
-
-    TableItem(int num) : QTableWidgetItem(QString::number(num))
-    {}
-
-    bool operator< (const QTableWidgetItem &other) const
-    {
-        if (other.column() == 1 || other.column() == 2) {
-            // Compare cell data as integers for the second and third column.
-            return text().toInt() < other.text().toInt();
-        }
-        return other.text() < text();
-    }
-};
-
-struct deaStats {
-
-   deaStats()
-       : countA(0),
-         countB(0),
-         countAB(0),
-         meanA(0.0),
-         meanB(0.0),
-         stdDevA(0.0),
-         stdDevB(0.0),
-         pearsonCorrelation(0.0) {}
-
-   QVector<qreal> valuesSelectionA;
-   QVector<qreal> valuesSelectionB;
-   int countA;
-   int countB;
-   int countAB;
-   qreal meanA;
-   qreal meanB;
-   qreal stdDevA;
-   qreal stdDevB;
-   qreal pearsonCorrelation;
-};
+class GeneSelectionDEAItemModel;
+class QSortFilterProxyModel;
 
 //This class owns a widget to show the DEA info
 //it also computes the DDA using member variables
@@ -74,7 +31,42 @@ class AnalysisDEA : public QDialog
 
 public:
 
-    typedef QHash<QString, QPair<int,int> > geneToReadsPairType;
+    //data container for the computed statistics
+    struct deaStats {
+
+       deaStats()
+           : countA(0),
+             countB(0),
+             countAB(0),
+             pearsonCorrelation(0.0) {}
+
+       QVector<qreal> valuesSelectionA;
+       QVector<qreal> valuesSelectionB;
+       int countA;
+       int countB;
+       int countAB;
+       qreal pearsonCorrelation;
+    };
+
+    //data container for normalized and unnormalized reads
+    struct deaReads {
+
+        deaReads()
+            : gene(),
+              readsA(0),
+              readsB(0),
+              normalizedReadsA(1.0),
+              normalizedReadsB(1.0) {}
+
+        QString gene;
+        int readsA;
+        int readsB;
+        qreal normalizedReadsA;
+        qreal normalizedReadsB;
+    };
+
+    //typedef QHash<QString, deaReads> geneToReadsPairType;
+    typedef QList<deaReads> combinedSelectionsType;
 
     AnalysisDEA(const GeneSelection& selObjectA,
                 const GeneSelection& selObjectB,
@@ -94,11 +86,18 @@ private slots:
     // threshold slider slots (update the UI too)
     void slotSetLowerThreshold(const int value);
     void slotSetUpperThreshold(const int value);
+    void slotSetLowerTPMsThreshold(const int value);
+    void slotSetUpperTPMsThreshold(const int value);
 
     // save correlation plot to a file
     void slotSaveToPDF();
 
+    void slotSelectionSelected(QModelIndex index);
+
 private:
+
+    GeneSelectionDEAItemModel *selectionsModel();
+    QSortFilterProxyModel *selectionsProxyModel();
 
     // compute the map of genes to read pairs used to
     // compute the statistics
@@ -110,11 +109,13 @@ private:
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
     QCustomPlot *m_customPlot;
-    geneToReadsPairType m_geneToReadsMap;
-    int m_totalReadsSelectionA;
-    int m_totalReadsSelectionB;
+    combinedSelectionsType m_combinedSelections;
     int m_lowerThreshold;
     int m_upperThreshold;
+    int m_lowerTPMsThreshold;
+    int m_upperTPMsThreshold;
+
+    Q_DISABLE_COPY(AnalysisDEA)
 };
 
 #endif // ANALYSISDEA_H

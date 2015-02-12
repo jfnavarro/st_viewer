@@ -49,12 +49,13 @@ void ImageTextureGL::clearData()
 void ImageTextureGL::clearTextures()
 {
     foreach(QGLTexture2D *texture, m_textures) {
-        if (texture) {
+        if (texture != nullptr) {
             texture->cleanupResources();
             texture->release();
             texture->clearImage();
             texture->deleteLater();
         }
+
         texture = nullptr;
     }
 
@@ -64,9 +65,10 @@ void ImageTextureGL::clearTextures()
 void ImageTextureGL::clearNodes()
 {
     foreach(QGLSceneNode *node, m_nodes) {
-        if (node) {
+        if (node != nullptr) {
             node->deleteLater();
         }
+
         node = nullptr;
     }
 
@@ -77,8 +79,9 @@ void ImageTextureGL::draw(QGLPainter *painter)
 {
     glEnable(GL_TEXTURE_2D);
     {
-        foreach(QGLSceneNode *node, m_nodes ) {
-            if (node && node->material() && node->material()->texture()) {
+        foreach(QGLSceneNode *node, m_nodes) {
+            if (node != nullptr && node->material() != nullptr
+                    && node->material()->texture() != nullptr) {
                 node->material()->texture()->bind();
                 QColor texture_color = Qt::black;
                 texture_color.setAlphaF(m_intensity);

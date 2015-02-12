@@ -141,7 +141,7 @@ inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
     T sum;
     diff = v1[0] - v2[0];
     sum = diff * diff;
-    for (unsigned int i = 1; i < v1.size(); i++){
+    for (unsigned int i = 1; i < v1.size(); ++i){
         diff = v1[i] - v2[i];
         sum += diff * diff;
     }
@@ -155,12 +155,12 @@ inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
     Q_ASSERT(v1.size() == v2.size());
     int f11 = 0;
     int f00 = 0;
-    for (unsigned int i = 0; i < v1.size(); i++){
+    for (unsigned int i = 0; i < v1.size(); ++i){
         if(v1[i] == v2[i]){
             if(v1[i]) {
-                f11++;
+                ++f11;
             } else {
-                f00++;
+                ++f00;
             }
         }
     }
@@ -173,7 +173,7 @@ inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
 template<class T>
 inline qreal mean(const QVector<T> &v1){
     T sum = v1[0];
-    for (int i = 1; i < v1.size(); i++) {
+    for (int i = 1; i < v1.size(); ++i) {
         sum += v1[i];
     }
 
@@ -187,7 +187,7 @@ inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2){
     const qreal mean1 = mean(v1);
     const qreal mean2 = mean(v2);
     qreal sum = 0.0;
-    for (int i = 0; i < v1.size(); i++){
+    for (int i = 0; i < v1.size(); ++i){
         sum += (static_cast<qreal>(v1[i]) - mean1) * (static_cast<qreal>(v2[i]) - mean2);
     }
 
@@ -220,6 +220,11 @@ inline QVector<T> logVectorValues(const QVector<T>& input)
     }
 
     return output;
+}
+
+template<typename T>
+inline T tpmNormalization(const int reads, const int totalReads) {
+    return static_cast<T>(((reads * 10e5) / totalReads) + 1);
 }
 
 } // end name space

@@ -76,7 +76,7 @@ void AnalysisFRD::initializePlotNormal()
     m_customPlotNormal->yAxis2->setVisible(true);
     m_customPlotNormal->yAxis2->setTickLabels(false);
     m_customPlotNormal->xAxis->setLabel("Reads counts");
-    m_customPlotNormal->yAxis->setLabel("# Features");
+    m_customPlotNormal->yAxis->setLabel("# Unique genes per barcode");
 
     // make left and bottom axes always transfer their ranges to right and top axes:
     connect(m_customPlotNormal->xAxis, SIGNAL(rangeChanged(QCPRange)),
@@ -121,7 +121,7 @@ void AnalysisFRD::initializePlotLog()
     m_customPlotLog->yAxis2->setVisible(true);
     m_customPlotLog->yAxis2->setTickLabels(false);
     m_customPlotLog->xAxis->setLabel("Reads counts (log)");
-    m_customPlotLog->yAxis->setLabel("# Features (log)");
+    m_customPlotLog->yAxis->setLabel("# Unique genes per barcode (log)");
     //TODO set log scale for axes
 
     // make left and bottom axes always transfer their ranges to right and top axes:
@@ -148,7 +148,7 @@ void AnalysisFRD::computeData(const DataProxy::FeatureList& features,
 
     //iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
     foreach(DataProxy::FeaturePtr feature, features) {
-        featureCounter[feature->hits()]++;
+        ++featureCounter[feature->hits()];
     };
 
     //x,y corresponds to normal reads

@@ -651,6 +651,8 @@ void DataProxy::slotAbortActiveDownloads()
 //in the main logic of this class
 bool DataProxy::parseFeatures(NetworkReply *reply)
 {
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
     bool parsedOk = true;
     FeaturesHanlder handler(m_featuresList, m_genesList, m_geneFeaturesMap);
     Reader reader;
@@ -665,6 +667,8 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
         reply->registerError(error);
         parsedOk = false;
     }
+
+    QGuiApplication::restoreOverrideCursor();
 
     return parsedOk;
 }

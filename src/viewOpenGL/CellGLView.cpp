@@ -53,25 +53,11 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
     m_selecting(false),
     m_rubberband(nullptr),
     m_rotate(0.0),
-    m_zoom_factor(1.0)
+    m_zoom_factor(1.0),
+    m_initialized(false)
 {
     //init projection matrix to id
     m_projm.setToIdentity();
-
-    //creates and sets the OpenGL format and surface type
-    QSurfaceFormat format;
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setStereo(false);
-    format.setStencilBufferSize(0);
-    format.setDepthBufferSize(0);
-    setSurfaceType(QWindow::OpenGLSurface);
-    setFormat(format);
-
-    // creates OpenGL context and make it current
-    create();
-    makeCurrent();
 
     //TODO consider decoupling rubberband object and view
     m_rubberband = new RubberbandGL(this);
@@ -103,7 +89,26 @@ void CellGLView::clearData()
 
 void CellGLView::initializeGL()
 {
-    //initializeOpenGLFunctions();
+    if (!m_initialized) {
+        m_initialized = true;
+        // creates OpenGL context and make it current
+        QSurfaceFormat format;
+        format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
+        format.setProfile(QSurfaceFormat::CompatibilityProfile);
+        format.setRenderableType(QSurfaceFormat::OpenGL);
+        format.setStereo(false);
+        format.setStencilBufferSize(0);
+        format.setDepthBufferSize(0);
+        format.setSwapInterval(0);
+        setSurfaceType(QWindow::OpenGLSurface);
+        setFormat(format);
+        create();
+        QOpenGLContext *opengl_context = context();
+        opengl_context->setFormat(format);
+        opengl_context->create();
+        makeCurrent();
+        initializeOpenGLFunctions();
+    }
 
     // initialize painter
     m_painter.begin();
@@ -133,8 +138,14 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
+    if (!m_initialized) {
+        return;
+    }
+
     // sets the projection matrix of the OpenGL painter
     m_painter.projectionMatrix() = m_projm;
+
+    glViewport(0.0, 0.0, width(), height());
 
     // clear color buffer
     m_painter.setClearColor(Qt::black);
@@ -169,10 +180,9 @@ void CellGLView::resizeGL(int width, int height)
     m_projm.ortho(newViewport);
 
     //create viewport
-    glViewport(0.0, 0.0, width, height);
     setViewPort(newViewport);
 
-    //update local variables
+    //update local variables for zooming and scene resolution
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
@@ -393,6 +403,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         m_rubberBanding = true;
         m_originRubberBand = event->pos();
         m_rubberband->setRubberbandRect(QRect());
+        //draw rubberband
         update();
     } else {
         // first send the event to any non-transformable nodes under the mouse click
@@ -459,14 +470,17 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
                                             qAbs(origin.x() - destiny.x()) + 1,
                                             qAbs(origin.y() - destiny.y()) + 1);
         m_rubberband->setRubberbandRect(rubberBandRect);
+        //draw rubberband
         update();
-    } else if (event->buttons() & Qt::LeftButton &&  m_panning && !m_selecting) {
+    } else if (event->buttons() & Qt::LeftButton && m_panning && !m_selecting) {
+        //user is moving the view
         const QPoint point = event->globalPos(); //panning needs global pos
         const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
         m_originPanning = point;
     } else {
         const QPoint point = event->pos();
+        // user is selecting
         // notify nodes of the mouse event
         sendMouseEventToNodes(point, event, moveType, nodeIsSelectable);
     }
@@ -497,7 +511,7 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     default:
         break;
     }
-
+    // move the view
     setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
     event->ignore();
 }

@@ -5,6 +5,7 @@ set(LIBRARY_ARG_INCLUDES
     ExperimentsItemModel.h
     GeneFeatureItemModel.h
     GeneSelectionItemModel.h
+    GeneSelectionDEAItemModel.h
     SortGenesProxyModel.h
 )
 
@@ -13,6 +14,7 @@ set(LIBRARY_ARG_SOURCES
     ExperimentsItemModel.cpp
     GeneFeatureItemModel.cpp
     GeneSelectionItemModel.cpp
+    GeneSelectionDEAItemModel.cpp
     SortGenesProxyModel.cpp
 )
 

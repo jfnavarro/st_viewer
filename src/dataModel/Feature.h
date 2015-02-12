@@ -25,7 +25,7 @@ public:
 
     Feature();
     explicit Feature(const Feature &other);
-    Feature(QString barcode, QString gene, int x, int y, int hits);
+    Feature(QString barcode, QString gene, double x, double y, int hits);
     ~Feature();
 
     Feature& operator=(const Feature& other);
@@ -59,8 +59,8 @@ protected:
     QString m_gene;
     QString m_annotation;
     int m_hits;
-    qreal m_x;
-    qreal m_y;
+    double m_x;
+    double m_y;
 
     //extended
     QColor m_color;

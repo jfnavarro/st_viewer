@@ -14,10 +14,9 @@ class QSpinBox;
 class QxtSpanSlider;
 class QHBoxLayout;
 
-//Wrapper around QxtSpanSlider
-//to add two spin boxes one on each side
-//whether to show only the slider, the spin boxes or both can be configured
-
+// Wrapper around QxtSpanSlider
+// to add two spin boxes one on each side
+// whether to show only the slider, the spin boxes or both can be configured
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT
@@ -32,7 +31,8 @@ public:
     };
     Q_DECLARE_FLAGS(ControlsFlags, Controls)
 
-    explicit SpinBoxSlider(QWidget *parent = 0, ControlsFlags controlFlags = sliderAndSpinBoxes);
+    explicit SpinBoxSlider(QWidget *parent = 0,
+                           ControlsFlags controlFlags = sliderAndSpinBoxes);
     virtual ~SpinBoxSlider();
 
     void setToolTip(const QString &str);
@@ -42,20 +42,15 @@ public:
 
 signals:
 
-    //TODO signals should have prefix "signal"
-    void lowerValueChanged(int);
-    void upperValueChanged(int);
+    void signalLowerValueChanged(int);
+    void signalUpperValueChanged(int);
 
 public slots:
-    
-    //TODO slots should have prefix "slot"
-    void setLowerValue(const int min);
-    void setUpperValue(const int max);
+
+    void slotSetLowerValue(const int min);
+    void slotSetUpperValue(const int max);
 
 private:
-
-    void setLowerValuePrivate(const int min);
-    void setUpperValuePrivate(const int max);
 
     QPointer<QxtSpanSlider> m_spanslider;
     QPointer<QSpinBox> m_left_spinbox;

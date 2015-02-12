@@ -72,5 +72,6 @@ private:
     int m_minY;
     int m_maxY;
 
+    Q_DISABLE_COPY(AnalysisFRD)
 };
 #endif // ANALYSISHISTOGRAM_H

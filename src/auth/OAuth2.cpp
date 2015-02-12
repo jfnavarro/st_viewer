@@ -88,7 +88,8 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         } else {
             QSharedPointer<ServerError>
-                    error(new ServerError(tr("Log in Error"), tr("Access token is expired"), this));
+                    error(new ServerError(tr("Log in Error"),
+                                          tr("Access token is expired"), this));
             emit signalError(error);
         }
     } else if (type == DataProxy::AccessTokenDownloaded) {

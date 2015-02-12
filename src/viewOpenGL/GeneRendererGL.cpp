@@ -19,8 +19,8 @@
 #include "dataModel/GeneSelection.h"
 
 static const int INVALID_INDEX = -1;
-static const qreal GENE_SIZE_DEFAULT = 0.5;
-static const qreal GENE_INTENSITY_DEFAULT = 1.0;
+static const float GENE_SIZE_DEFAULT = 0.5;
+static const float GENE_INTENSITY_DEFAULT = 1.0;
 static const GeneRendererGL::GeneShape DEFAULT_SHAPE_GENE = GeneRendererGL::GeneShape::Circle;
 
 GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
@@ -68,11 +68,15 @@ void GeneRendererGL::clearData()
     // variables
     m_intensity = GENE_INTENSITY_DEFAULT;
     m_size = GENE_SIZE_DEFAULT;
-    m_thresholdLower = 0;
-    m_thresholdUpper = 1;
+    m_thresholdReadsLower = std::numeric_limits<int>::min();
+    m_thresholdReadsUpper = std::numeric_limits<int>::max();
+    m_thresholdGenesLower = std::numeric_limits<int>::min();
+    m_thresholdGenesUpper = std::numeric_limits<int>::max();
+    m_thresholdTPMLower = std::numeric_limits<int>::min();
+    m_thresholdTPMUpper = std::numeric_limits<int>::max();
     m_shape = DEFAULT_SHAPE_GENE;
-    m_localPooledMin = std::numeric_limits<float>::max();
-    m_localPooledMax = std::numeric_limits<float>::min();
+    m_localPooledMin = std::numeric_limits<int>::max();
+    m_localPooledMax = std::numeric_limits<int>::min();
 
     // visual mode
     m_visualMode = NormalMode;
@@ -102,12 +106,6 @@ void GeneRendererGL::resetQuadTree(const QRectF rect)
     m_geneInfoQuadTree = GeneInfoQuadTree(rect);
 }
 
-void GeneRendererGL::setHitCount(const int min, const int max)
-{
-    m_thresholdLower = min;
-    m_thresholdUpper = max;
-}
-
 void GeneRendererGL::setIntensity(qreal intensity)
 {
     if (m_intensity != intensity) {
@@ -124,18 +122,50 @@ void GeneRendererGL::setSize(qreal size)
     }
 }
 
-void GeneRendererGL::setUpperLimit(int limit)
+void GeneRendererGL::setReadsUpperLimit(const int limit)
 {   
-    if (m_thresholdUpper != limit) {
-        m_thresholdUpper = limit;
+    if (m_thresholdReadsUpper != limit) {
+        m_thresholdReadsUpper = limit;
         updateVisual();
     }
 }
 
-void GeneRendererGL::setLowerLimit(int limit)
+void GeneRendererGL::setReadsLowerLimit(const int limit)
 {
-    if (m_thresholdLower != limit) {
-        m_thresholdLower = limit;
+    if (m_thresholdReadsLower != limit) {
+        m_thresholdReadsLower = limit;
+        updateVisual();
+    }
+}
+
+void GeneRendererGL::setGenesUpperLimit(const int limit)
+{
+    if (m_thresholdGenesUpper != limit) {
+        m_thresholdGenesUpper = limit;
+        updateVisual();
+    }
+}
+
+void GeneRendererGL::setGenesLowerLimit(const int limit)
+{
+    if (m_thresholdGenesLower != limit) {
+        m_thresholdGenesLower = limit;
+        updateVisual();
+    }
+}
+
+void GeneRendererGL::setTPMUpperLimit(const int limit)
+{
+    if (m_thresholdTPMUpper != limit) {
+        m_thresholdTPMUpper = limit;
+        updateVisual();
+    }
+}
+
+void GeneRendererGL::setTPMLowerLimit(const int limit)
+{
+    if (m_thresholdTPMLower != limit) {
+        m_thresholdTPMLower = limit;
         updateVisual();
     }
 }
@@ -144,15 +174,16 @@ void GeneRendererGL::generateData()
 {
     m_isDirty = false;
     m_isInitialized = false;
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::generateDataAsync);
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{ m_isDirty = true;
-        m_isInitialized = true; });
-}
 
-void GeneRendererGL::generateDataAsync()
-{
+    //QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    //QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::generateDataAsync);
+    //futureWatcher->setFuture(future);
+    //connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{ m_isDirty = true;
+    //    m_isInitialized = true; });
+
+    //TODO due to the HACK to get the genes min-max for threshold we cannot
+    //do this operation async but as soon as the new API is released we can reenable this
+
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     const auto& features = m_dataProxy->getFeatureList();
@@ -191,9 +222,26 @@ void GeneRendererGL::generateDataAsync()
     } //endforeach
 
     QGuiApplication::restoreOverrideCursor();
+    m_isInitialized = true;
+    m_isDirty = true;
 }
 
-//TODO this can be optimized and run concurrently
+QPair<int,int> GeneRendererGL::getMinMaxFeatureGeneCount()
+{
+    int min = std::numeric_limits<int>::max();
+    int max = std::numeric_limits<int>::min();
+
+    foreach(const int index, m_geneInfoReverse.uniqueKeys()) {
+        const int num_genes_feature = m_geneInfoReverse.values(index).size();
+        min = std::min(min, num_genes_feature);
+        max = std::max(max, num_genes_feature);
+    }
+
+    m_thresholdGenesLower = min;
+    m_thresholdGenesUpper = max;
+    return QPair<int,int>(min,max);
+}
+
 void GeneRendererGL::updateSize()
 {
     if (!m_isInitialized) {
@@ -255,72 +303,78 @@ void GeneRendererGL::updateVisual()
         return;
     }
 
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::updateVisualAsync);
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
-        m_isDirty = true;
-        emit selectionUpdated();
-        emit updated(); });
-}
-
-void GeneRendererGL::updateVisualAsync()
-{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     //we want to get the max and min value of the reads that are going
     //to be rendered to pass these values to the shaders to compute normalized colors
-    m_localPooledMin = std::numeric_limits<float>::max();
-    m_localPooledMax = std::numeric_limits<float>::min();
+    m_localPooledMin = std::numeric_limits<int>::max();
+    m_localPooledMax = std::numeric_limits<int>::min();
 
     // reset selection array that contains the selected features
     m_geneInfoSelectedFeatures.clear();
 
+    // by default all features are unselected
+    const bool indexSelected = false;
+
     // iterate the index -> features container to compute the rendering data
     foreach(const int index, m_geneInfoReverse.uniqueKeys()) {
-        float indexValue = 0.0;
-        const bool indexSelected = false;
+        //temp local variables to store the genes/reads/tpm/color of each feature
+        int indexValueReads = 0;
+        int indexValueGenes = 0;
+        int indexValueTPM = 0;
         QColor4ub indexColor = Globals::DEFAULT_COLOR_GENE;
-        int indexRefCount = 0;
 
         // iterate the features to compute rendering data for an specific index (position)
         // QMultiHash iterator does not return the values only value (single)
         foreach(DataProxy::FeaturePtr feature, m_geneInfoReverse.values(index)) {
+
             // get feature's gene
             const auto gene = feature->geneObject();
 
-            // update feature color
-            if (feature->color() != gene->color()) {
-                feature->color(gene->color());
-            }
-
-            // check if feature's gene is not selected or if feature is outside threshold
-            const int currentHits = feature->hits();
-            if (!gene->selected() || isFeatureOutsideRange(currentHits)) {
+            //check if gene is selected to visualize
+            if (!gene->selected()) {
                 continue;
             }
 
-            //update ref count and total value
-            indexRefCount++;
-            if (m_poolingMode == PoolNumberGenes) {
-                indexValue += static_cast<float>(indexRefCount);
-            } else if (m_poolingMode == PoolReadsCount) {
-                indexValue += static_cast<float>(currentHits);
-            } else { //TPM value
-                const int totalReads = m_geneInfoTotalReadsIndex.value(index);
-                indexValue += (static_cast<float>(currentHits) / totalReads) * 10e5;
+            const int currentHits = feature->hits();
+            //check if the reads are outside the threshold
+            if (featureReadsOutsideRange(currentHits)) {
+                continue;
             }
+
+            //update local variables for number of gene, number of reads and TPM
+            ++indexValueGenes;
+            indexValueReads += currentHits;
+            //TODO for now we don't use TPM threshold so we don't need to always store the TPM
+            if (m_poolingMode == PoolTPMs) {
+                indexValueTPM = ((currentHits / m_geneInfoTotalReadsIndex.value(index)) * 10e5);
+            }
+
 
             //when the color of the new feature is different than the color
             //in the feature's position we do linear interpolation adjusted
             //by the number of genes in the feature to obtain the new color
-            const QColor4ub &featureColor = feature->color();
+            const QColor4ub &featureColor = gene->color();//feature->color();
             if (indexColor != featureColor) {
-                const qreal adjustment = 1.0 / static_cast<qreal>(indexRefCount);
+                const qreal adjustment = 1.0 / indexValueGenes;
                 indexColor = STMath::lerp(adjustment, indexColor, featureColor);
             }
+        }
 
-            //update local max min variables to be used as boundaries for color computing in the shaders
+        //by default the rendering value will be the reads count
+        int indexValue = indexValueReads;
+        if (featureGenesOutsideRange(indexValueGenes)) {
+            //if genes outside threshold set value to 0 (non visible)
+            //TODO not checking for TPM atm featureTPMOutsideRange(indexValueTPM)
+            indexValue = 0;
+        } else {
+            //otherwise use genes or TPM if selected or keep reads as default
+            if (m_poolingMode == PoolNumberGenes) {
+                indexValue = indexValueGenes;
+            } else if (m_poolingMode == PoolTPMs) {
+                indexValue = indexValueTPM;
+            }
+            //update pooled min-max to compute colors
             m_localPooledMin = std::min(indexValue, m_localPooledMin);
             m_localPooledMax = std::max(indexValue, m_localPooledMax);
         }
@@ -332,6 +386,9 @@ void GeneRendererGL::updateVisualAsync()
     }
 
     QGuiApplication::restoreOverrideCursor();
+    m_isDirty = true;
+    emit selectionUpdated();
+    emit updated();
 }
 
 void GeneRendererGL::clearSelection()
@@ -343,7 +400,6 @@ void GeneRendererGL::clearSelection()
     emit updated();
 }
 
-//TODO this can be optimized and run concurrently
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
     if (!m_isInitialized) {
@@ -380,17 +436,6 @@ void GeneRendererGL::selectFeatures(const DataProxy::FeatureList &features)
         return;
     }
 
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::selectFeaturesAsync, features);
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
-        m_isDirty = true;
-        emit selectionUpdated();
-        emit updated(); });
-}
-
-void GeneRendererGL::selectFeaturesAsync(const DataProxy::FeatureList &features)
-{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     // unselect previous selection
@@ -405,7 +450,8 @@ void GeneRendererGL::selectFeaturesAsync(const DataProxy::FeatureList &features)
         // as we want to include in the selection all the genes
         // of the feature regardless if they are selected or not
         // we only filter for visible (value == 0) or outside threshold
-        if (m_geneData.quadValue(index) == 0.0 || isFeatureOutsideRange(feature->hits())) {
+        if (m_geneData.quadValue(index) == 0.0 || featureReadsOutsideRange(feature->hits())) {
+            //TODO no point to filter by genes/TPM for selection
             continue;
         }
         // update gene data and feature selected
@@ -414,6 +460,9 @@ void GeneRendererGL::selectFeaturesAsync(const DataProxy::FeatureList &features)
     }
 
     QGuiApplication::restoreOverrideCursor();
+    m_isDirty = true;
+    emit selectionUpdated();
+    emit updated();
 }
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
@@ -426,7 +475,7 @@ GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
         //regardless if the feature was selected manually or by genes reg exp.
         //the reads are aggregated and a counter increased
         const QString geneName = feature->gene();
-        geneSelectionsMap[geneName].count++;
+        ++geneSelectionsMap[geneName].count;
         geneSelectionsMap[geneName].reads += feature->hits();
         geneSelectionsMap[geneName].name = geneName;
     }
@@ -445,26 +494,13 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
         return;
     }
 
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::setSelectionAreaAsync, *event);
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
-        m_isDirty = true;
-        emit selectionUpdated();
-        emit updated(); });
-}
-
-void GeneRendererGL::setSelectionAreaAsync(const SelectionEvent &event)
-{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    qDebug() << "Selecting " << event.path();
-
     // get selection area
-    const QuadTreeAABB aabb(event.path());
+    const QuadTreeAABB aabb(event->path());
 
     // get selection mode
-    const SelectionEvent::SelectionMode mode = event.mode();
+    const SelectionEvent::SelectionMode mode = event->mode();
 
     // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
@@ -497,7 +533,10 @@ void GeneRendererGL::setSelectionAreaAsync(const SelectionEvent &event)
             // as we want to include in the selection all the genes
             // of the feature regardless if they are selected or not
             // we filter features outside the threshold
-            if (isFeatureOutsideRange(feature->hits())) {
+            const int hits = feature->hits();
+            if (featureReadsOutsideRange(hits)) {
+                //TODO no point to filter by genes/TPM for selection as discarged features by genes/TPM
+                //will not be visible
                 continue;
             }
 
@@ -512,6 +551,9 @@ void GeneRendererGL::setSelectionAreaAsync(const SelectionEvent &event)
     }
 
     QGuiApplication::restoreOverrideCursor();
+    m_isDirty = true;
+    emit selectionUpdated();
+    emit updated();
 }
 
 void GeneRendererGL::setVisualMode(const GeneVisualMode mode)
@@ -559,8 +601,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
         m_geneNode->setGeometry(m_geneData);
         m_geneNode->setCount(m_geneData.indices().size());
     }
-
-    qDebug() << "Drawing genes";
 
     // enable shader
     m_shaderProgram->setActive(painter, true);
@@ -629,10 +669,4 @@ void GeneRendererGL::setShape(const GeneShape shape)
         m_shape = shape;
         emit updated();
     }
-}
-
-bool GeneRendererGL::isFeatureOutsideRange(const int hits)
-{
-    // check if the feature is outside the threshold range
-    return (hits < m_thresholdLower || hits > m_thresholdUpper);
 }

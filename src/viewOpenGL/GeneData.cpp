@@ -56,7 +56,7 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
     appendIndices(index_count, index_count + 2, index_count + 3);
 
     // update custom vertex arrays
-    for(int i = 0; i < QUAD_SIZE; i++) {
+    for(int i = 0; i < QUAD_SIZE; ++i) {
         appendAttribute(0.0, valuesVertex);
         appendAttribute(0.0, selectionVertex);
     }
@@ -75,7 +75,7 @@ void GeneData::updateQuadSize(const int index, const qreal x, const qreal y, con
 
 void GeneData::updateQuadColor(const int index, QColor4ub newcolor)
 {
-    for(int i = 0; i < QUAD_SIZE; i++) {
+    for(int i = 0; i < QUAD_SIZE; ++i) {
         color(index + i) = newcolor;
     }
 }
@@ -83,14 +83,14 @@ void GeneData::updateQuadColor(const int index, QColor4ub newcolor)
 void GeneData::updateQuadSelected(const int index, bool selected)
 {
     const float value =  selected ? 1.0 : 0.0;
-    for(int i = 0; i < QUAD_SIZE; i++) {
+    for(int i = 0; i < QUAD_SIZE; ++i) {
         floatAttribute(index  + i, selectionVertex) = value;
     }
 }
 
 void GeneData::updateQuadValue(const int index, float value)
 {
-    for(int i = 0; i < QUAD_SIZE; i++) {
+    for(int i = 0; i < QUAD_SIZE; ++i) {
         floatAttribute(index + i , valuesVertex) = value;
     }
 }

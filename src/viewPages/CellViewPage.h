@@ -141,6 +141,8 @@ private:
     QPointer<QRadioButton> m_poolingReads;
     QPointer<QRadioButton> m_poolingTPMs;
     QPointer<SpinBoxSlider> m_geneHitsThreshold;
+    QPointer<SpinBoxSlider> m_geneGenesThreshold;
+    //QPointer<SpinBoxSlider> m_geneTPMThreshold;
     //TODO temp not smart pointer to make the add addSliderToMenu work
     //solution is just use smart pointers but transfer ownership when invoking the function
     QSlider *m_geneIntensitySlider;

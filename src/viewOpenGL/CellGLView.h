@@ -28,7 +28,7 @@ class RubberbandGL;
 // QOpenGLWindow is a wrapper around QWindow to
 // allow OpenGL rendering.
 
-class CellGLView : public QOpenGLWindow//, protected QOpenGLFunctions
+class CellGLView : public QOpenGLWindow, protected QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -40,7 +40,7 @@ public:
         releaseType
     };
 
-    CellGLView(UpdateBehavior updateBehavior = NoPartialUpdate, QWindow *parent = 0);
+    explicit CellGLView(UpdateBehavior updateBehavior = NoPartialUpdate, QWindow *parent = 0);
     virtual ~CellGLView();
 
     //add/remove nodes from the rendering queue
@@ -147,6 +147,9 @@ private:
 
     // OpenGL Qt3D painter object
     QGLPainter m_painter;
+
+    // true when OpenGL context is initialized
+    bool m_initialized;
 
     Q_DISABLE_COPY(CellGLView)
 };

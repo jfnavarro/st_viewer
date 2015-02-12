@@ -13,20 +13,16 @@ public:
 
     SelectionType();
     SelectionType(const SelectionType& other);
-    SelectionType(QString name, int reads, qreal
-                  normalizedReads = 0, int count = 0);
+    SelectionType(QString name, int reads, int
+                  normalizedReads, int count = 0);
 
     SelectionType& operator= (const SelectionType& other);
-    //SelectionType& operator+= (const SelectionType& other);
     bool operator< (const SelectionType& other) const;
     bool operator== (const SelectionType& other) const;
 
     QString name;
     int reads;
-    //normalized reads not used at the moment
-    //until we decide a final approach for the DEA
-    //and the normalization (specially for aggregated features by gene)
-    qreal normalizedReads;
+    int normalizedReads;
     int count;
 };
 
@@ -62,9 +58,10 @@ public:
     const QString lastModified() const;
     const QString datasetName() const;
     const QString type() const;
-    //return the total sum of reads in the Selection items
-    //TODO add a simple cache for the total reads
+    //returns the total sum of reads in the Selection items
     int totalReads() const;
+    //returns the total number of features in this selection
+    int totalFeatures() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -95,6 +92,9 @@ private:
     QString m_created;
     QString m_lastMofidied;
     QString m_datasetName;
+    //for caching purposes
+    int m_totalReads;
+    int m_totalFeatures;
 };
 
 #endif // GENESELECTION_H

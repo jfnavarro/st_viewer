@@ -73,8 +73,8 @@ public:
     //returns the currently selected features
     const DataProxy::FeatureList& getSelectedFeatures() const;
 
-    // threshold limits pooled and not pooled for feature hits
-    void setHitCount(const int min, const int max);
+    //THIS IS JUST TEMPORARY UNTIL THIS INFORMATION IS SENT FROM API
+    QPair<int,int> getMinMaxFeatureGeneCount();
 
 public slots:
 
@@ -86,8 +86,12 @@ public slots:
     void setShape(const GeneShape shape);
 
     //slots for the thresholds
-    void setLowerLimit(int limit);
-    void setUpperLimit(int limit);
+    void setReadsLowerLimit(const int limit);
+    void setReadsUpperLimit(const int limit);
+    void setGenesLowerLimit(const int limit);
+    void setGenesUpperLimit(const int limit);
+    void setTPMLowerLimit(const int limit);
+    void setTPMUpperLimit(const int limit);
 
     //slots to set visual modes and color computations modes
     void setVisualMode(const GeneVisualMode mode);
@@ -121,15 +125,20 @@ protected:
 
 private:
 
-    //async methods to run intense functions concurrently
-    void generateDataAsync();
-    void setSelectionAreaAsync(const SelectionEvent &event);
-    void updateVisualAsync();
-    void selectFeaturesAsync(const DataProxy::FeatureList &features);
+    //helper functions to test whether a feature is outside the threshold
+    //area or not by reads/genes or TPM
+    inline bool featureReadsOutsideRange(const int value)
+    {
+        return (value < m_thresholdReadsLower || value > m_thresholdReadsUpper);
+    }
 
-    //helper function to test whether a feature is outside the threshold
-    //area or not
-    bool isFeatureOutsideRange(const int hits);
+    inline bool featureGenesOutsideRange(const int value) {
+        return (value < m_thresholdGenesLower || value > m_thresholdGenesUpper);
+    }
+
+    inline bool featureTPMOutsideRange(const int value) {
+        return (value < m_thresholdTPMLower || value > m_thresholdTPMUpper);
+    }
 
     // internal rendering functions that computes the rendering data
     // gene data must be initialized
@@ -171,17 +180,21 @@ private:
     GeneInfoQuadTree m_geneInfoQuadTree;
 
     // visual attributes
-    qreal m_intensity;
-    qreal m_size;
+    float m_intensity;
+    float m_size;
     GeneShape m_shape;
 
     // threshold limits for gene hits
-    int m_thresholdLower;
-    int m_thresholdUpper;
+    int m_thresholdReadsLower;
+    int m_thresholdReadsUpper;
+    int m_thresholdGenesLower;
+    int m_thresholdGenesUpper;
+    int m_thresholdTPMLower;
+    int m_thresholdTPMUpper;
 
     // local pooled min-max for rendering (Adjusted according to what is being rendered)
-    float m_localPooledMin;
-    float m_localPooledMax;
+    int m_localPooledMin;
+    int m_localPooledMax;
 
     // bounding rect area
     QRectF m_border;

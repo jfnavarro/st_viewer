@@ -130,6 +130,8 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_poolingReads(nullptr),
       m_poolingTPMs(nullptr),
       m_geneHitsThreshold(nullptr),
+      m_geneGenesThreshold(nullptr),
+      //m_geneTPMThreshold(nullptr),
       m_geneIntensitySlider(nullptr),
       m_geneSizeSlider(nullptr),
       m_geneShineSlider(nullptr),
@@ -269,12 +271,25 @@ void CellViewPage::datasetContentDownloaded()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
-    // load min-max to the threshold sliders in tool bar
-    m_geneHitsThreshold->setMinimumValue(min);
+    // load min-max to the reads count threshold slider
+    // min number of genes in threshold must be always 1
+    m_geneHitsThreshold->setMinimumValue(1);
     m_geneHitsThreshold->setMaximumValue(max);
-    m_geneHitsThreshold->setLowerValue(min);
-    m_geneHitsThreshold->setUpperValue(max);
+    m_geneHitsThreshold->slotSetLowerValue(1);
+    m_geneHitsThreshold->slotSetUpperValue(max);
     m_geneHitsThreshold->setTickInterval(1);
+    m_gene_plotter->setReadsLowerLimit(1);
+    m_gene_plotter->setReadsUpperLimit(max);
+
+    //load mix max for the tpm  threshold sliders
+    //const int maxTotalReads = dataset->statisticsPooledMax();
+    //const int tpmMin = STMath::tpmNormalization<int>(min, maxTotalReads);
+    //const int tpmMax = STMath::tpmNormalization<int>(max, maxTotalReads);
+    //m_geneTPMThreshold->setMinimumValue(tpmMin);
+    //m_geneTPMThreshold->setMaximumValue(tpmMax);
+    //m_geneTPMThreshold->slotSetLowerValue(tpmMin);
+    //m_geneTPMThreshold->slotSetUpperValue(tpmMax);
+    //m_geneTPMThreshold->setTickInterval(1);
 
     // load features and threshold boundaries into FDH
     m_FDH->computeData(m_dataProxy->getFeatureList(), min, max);
@@ -288,7 +303,17 @@ void CellViewPage::datasetContentDownloaded()
     m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->generateData();
     m_gene_plotter->setTransform(alignment);
-    m_gene_plotter->setHitCount(min, max);
+
+    //HACK doing this here to get the gene max count from gene plotter
+    //The gene max count will be given from the API
+    const auto &geneMinMax = m_gene_plotter->getMinMaxFeatureGeneCount();
+    const int genesMin = geneMinMax.first;
+    const int genesMax = geneMinMax.second;
+    m_geneGenesThreshold->setMinimumValue(genesMin);
+    m_geneGenesThreshold->setMaximumValue(genesMax);
+    m_geneGenesThreshold->slotSetLowerValue(genesMin);
+    m_geneGenesThreshold->slotSetUpperValue(genesMax);
+    m_geneGenesThreshold->setTickInterval(1);
 
     // load cell tissue (async)
     slotLoadCellFigure();
@@ -401,7 +426,7 @@ void CellViewPage::createMenusAndConnections()
             poolingMode);
     m_poolingGenes = new QRadioButton(tr("Genes"));
     m_poolingReads = new QRadioButton(tr("Reads"));
-    m_poolingTPMs = new QRadioButton(tr("TPMs"));
+    m_poolingTPMs = new QRadioButton(tr("TPM"));
     m_poolingReads->setChecked(true);
     QHBoxLayout *hboxPooling = new QHBoxLayout();
     hboxPooling->addWidget(m_poolingReads);
@@ -412,13 +437,30 @@ void CellViewPage::createMenusAndConnections()
     addWidgetToMenu(tr("Pooling modes:"), menu_genePlotter, poolingMode);
     menu_genePlotter->addSeparator();
 
-    //threshold slider
+    //threshold reads slider
     m_geneHitsThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
     setToolTipAndStatusTip(
             tr("Limit of the number of reads per feature."),
             m_geneHitsThreshold);
-    addWidgetToMenu(tr("Transcripts Threshold:"), menu_genePlotter, m_geneHitsThreshold);
+    addWidgetToMenu(tr("Reads Threshold:"), menu_genePlotter, m_geneHitsThreshold);
     menu_genePlotter->addSeparator();
+
+    //threshold genes slider
+    m_geneGenesThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
+    setToolTipAndStatusTip(
+            tr("Limit of the number of genes per feature."),
+            m_geneHitsThreshold);
+    addWidgetToMenu(tr("Genes Threshold:"), menu_genePlotter, m_geneGenesThreshold);
+    menu_genePlotter->addSeparator();
+
+    //threshold TPM slider
+    //m_geneTPMThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
+    //setToolTipAndStatusTip(
+    //        tr("Limit of the number of TPM per feature."),
+    //        m_geneHitsThreshold);
+    //TODO disable for now
+    //addWidgetToMenu(tr("TPM Threshold:"), menu_genePlotter, m_geneTPMThreshold);
+    //menu_genePlotter->addSeparator();
 
     // transcripts intensity and size sliders
     addSliderToMenu(this,
@@ -575,15 +617,33 @@ void CellViewPage::createMenusAndConnections()
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()),
             this, SLOT(slotSelectionUpdated()));
 
-    //threshold slider signal
-    connect(m_geneHitsThreshold.data(), SIGNAL(lowerValueChanged(int)),
-            m_gene_plotter.data(), SLOT(setLowerLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(upperValueChanged(int)),
-            m_gene_plotter.data(), SLOT(setUpperLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(lowerValueChanged(int)),
+    //threshold slider signals
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setReadsLowerLimit(int)));
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setReadsUpperLimit(int)));
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(upperValueChanged(int)),
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
+
+    connect(m_geneGenesThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setGenesLowerLimit(int)));
+    connect(m_geneGenesThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setGenesUpperLimit(int)));
+    connect(m_geneGenesThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+            m_legend.data(), SLOT(setLowerLimit(int)));
+    connect(m_geneGenesThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
+            m_legend.data(), SLOT(setUpperLimit(int)));
+
+    //connect(m_geneTPMThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+    //        m_gene_plotter.data(), SLOT(setTPMLowerLimit(int)));
+    //connect(m_geneTPMThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
+    //        m_gene_plotter.data(), SLOT(setTPMUpperLimit(int)));
+    //connect(m_geneTPMThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+    //        m_legend.data(), SLOT(setLowerLimit(int)));
+    //connect(m_geneTPMThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
+    //        m_legend.data(), SLOT(setUpperLimit(int)));
 
     //show/not genes signal
     connect(m_ui->actionShow_showGenes,
@@ -618,9 +678,9 @@ void CellViewPage::createMenusAndConnections()
             SLOT(slotSetMiniMapAnchor(QAction*)));
 
     // Features Histogram Distribution
-    connect(m_geneHitsThreshold.data(), SIGNAL(lowerValueChanged(int)),
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_FDH.data(), SLOT(setLowerLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(upperValueChanged(int)),
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_FDH.data(), SLOT(setUpperLimit(int)));
     connect(m_ui->histogram, &QPushButton::clicked, [=]{ m_FDH->show(); });
 }
