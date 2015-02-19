@@ -57,14 +57,31 @@ v0.4.0
         * New pooled modes (reads, genes and TPMs)
         * Improved windows and mac installers
         * Many bug fixes
-        * Secuencial JSON parsing
+        * Streaming JSON parsing
         * Async Network downloads
-        * Improved error managment
+        * Improved error management
         * Improved error messages
 
 v0.4.1 
         * Fixed a bug with the selection rubberband
         * Fixed a bug with the log in dialog in windows
-        * Fixed a bug causing a segmentation fault when exitting
+        * Fixed a bug causing a segmentation fault when exiting
         * Fixed a bug with the caching of usernames
 
+v0.4.2
+	* Added a threshold for genes
+	* Improved rendering code
+	* Adjust legend so it changes numbers with gene/reads threshold
+	* Some improvemends in the DEA
+
+v0.4.3
+	* Fixed some bugs with the thresholds
+	* Removed async rendering data computation
+	* Restored OpenGLFunctions for compatibility reasons
+
+v0.4.4 
+	* Replaced table in DEA to fix some bugs
+	* Fixed a bug in selections table in the sorting of columns
+	* Added search box for DEA table
+	* Fixed a bug in the DEA threholds
+	* Fixed a bug in the minimum value for genes threshold

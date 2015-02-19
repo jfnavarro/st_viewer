@@ -24,7 +24,6 @@ class DataProxy;
 //  trough the objects OAuth2 and TokenStorage.
 //  It emits signals for error, authorized and abortion.
 //  It allows for local storage of access token.
-
 class AuthorizationManager : public QObject
 {
     Q_OBJECT

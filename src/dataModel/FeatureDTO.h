@@ -27,8 +27,8 @@ class FeatureDTO : public QObject
     Q_PROPERTY(QString gene READ gene WRITE gene)
     Q_PROPERTY(QString annotation READ annotation WRITE annotation)
     Q_PROPERTY(int hits READ hits WRITE hits)
-    Q_PROPERTY(int x READ x WRITE x)
-    Q_PROPERTY(int y READ y WRITE y)
+    Q_PROPERTY(double x READ x WRITE x)
+    Q_PROPERTY(double y READ y WRITE y)
 
 public:
 
@@ -40,16 +40,16 @@ public:
     void gene(const QString& gene) { m_feature.gene(gene); }
     void annotation(const QString& annotation) { m_feature.annotation(annotation); }
     void hits(int hits) { m_feature.hits(hits); }
-    void x(int x) { m_feature.x(x); }
-    void y(int y) { m_feature.y(y); }
+    void x(double x) { m_feature.x(x); }
+    void y(double y) { m_feature.y(y); }
 
     //read
     const QString barcode() { return m_feature.barcode(); }
     const QString gene() { return m_feature.gene(); }
     const QString annotation() { return m_feature.annotation(); }
     int hits() { return m_feature.hits(); }
-    int x() { return m_feature.x(); }
-    int y() { return m_feature.y(); }
+    double x() { return m_feature.x(); }
+    double y() { return m_feature.y(); }
 
     // get parsed data model
     const Feature& feature() const { return m_feature; }

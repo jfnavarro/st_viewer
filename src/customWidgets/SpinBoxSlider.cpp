@@ -44,18 +44,18 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent, ControlsFlags controlFlags)
     if (controlFlags.testFlag(Controls::onlySlider)
             || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
         connect(m_spanslider.data(), &QxtSpanSlider::lowerValueChanged,
-                this, &SpinBoxSlider::setLowerValue);
+                this, &SpinBoxSlider::slotSetLowerValue);
         connect(m_spanslider.data(), &QxtSpanSlider::upperValueChanged,
-                this, &SpinBoxSlider::setUpperValue);
+                this, &SpinBoxSlider::slotSetUpperValue);
         m_spanslider->setVisible(true);
     }
 
     if (controlFlags.testFlag(Controls::onlySpinBoxes)
             || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
         connect(m_right_spinbox, SIGNAL(valueChanged(int)),
-                this, SLOT(setUpperValue(int)));
+                this, SLOT(slotSetUpperValue(int)));
         connect(m_left_spinbox, SIGNAL(valueChanged(int)),
-                this, SLOT(setLowerValue(int)));
+                this, SLOT(slotSetLowerValue(int)));
         m_left_spinbox->setVisible(true);
         m_right_spinbox->setVisible(true);
     }
@@ -87,35 +87,25 @@ void SpinBoxSlider::setMinimumValue(const int value)
     m_right_spinbox->setMinimum(value);
 }
 
-void SpinBoxSlider::setLowerValuePrivate(const int value)
-{
-    m_lower_value = value;
-    m_spanslider->setLowerPosition(value);
-    m_spanslider->setLowerValue(value);
-    m_left_spinbox->setValue(value);
-    emit lowerValueChanged(value);
-}
-
-void SpinBoxSlider::setUpperValuePrivate(const int value)
-{
-    m_upper_value = value;
-    m_spanslider->setUpperPosition(value);
-    m_spanslider->setUpperValue(value);
-    m_right_spinbox->setValue(value);
-    emit upperValueChanged(value);
-}
-
-void SpinBoxSlider::setLowerValue(const int value)
+void SpinBoxSlider::slotSetLowerValue(const int value)
 {
     if (value != m_lower_value) {
-        setLowerValuePrivate(value);
+        m_lower_value = value;
+        m_spanslider->setLowerPosition(value);
+        m_spanslider->setLowerValue(value);
+        m_left_spinbox->setValue(value);
+        emit signalLowerValueChanged(value);
     }
 }
 
-void SpinBoxSlider::setUpperValue(const int value)
+void SpinBoxSlider::slotSetUpperValue(const int value)
 {
     if (value != m_upper_value) {
-        setUpperValuePrivate(value);
+        m_upper_value = value;
+        m_spanslider->setUpperPosition(value);
+        m_spanslider->setUpperValue(value);
+        m_right_spinbox->setValue(value);
+        emit signalUpperValueChanged(value);
     }
 }
 

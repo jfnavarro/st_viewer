@@ -3,6 +3,8 @@
 #include <QMap>
 #include <QDate>
 
+#include "math/Common.h"
+
 #include <numeric>
 
 SelectionType::SelectionType() :
@@ -24,7 +26,7 @@ SelectionType::SelectionType(const SelectionType& other) :
 }
 
 SelectionType::SelectionType(QString name, int reads,
-                             qreal normalizedReads, int count)
+                             int normalizedReads, int count)
     : name(name),
       reads(reads),
       normalizedReads(normalizedReads),
@@ -41,14 +43,6 @@ SelectionType& SelectionType::operator= (const SelectionType& other)
     count = other.count;
     return (*this);
 }
-
-/*SelectionType& SelectionType::operator+= (const SelectionType& other)
-{
-    count++;
-    reads += other.reads;
-    normalizedReads = (reads * 10e5 / static_cast<qreal>(count)) + 1;
-    return (*this);
-}*/
 
 bool SelectionType::operator< (const SelectionType& other) const
 {
@@ -77,7 +71,9 @@ GeneSelection::GeneSelection()
       m_enabled(false),
       m_created(QDate::currentDate().toString()),
       m_lastMofidied(QDate::currentDate().toString()),
-      m_datasetName()
+      m_datasetName(),
+      m_totalReads(-1),
+      m_totalFeatures(-1)
 {
 
 }
@@ -95,7 +91,9 @@ GeneSelection::GeneSelection(const GeneSelection& other)
       m_enabled(other.m_enabled),
       m_created(other.m_created),
       m_lastMofidied(other.m_lastMofidied),
-      m_datasetName(other.m_datasetName)
+      m_datasetName(other.m_datasetName),
+      m_totalReads(other.m_totalReads),
+      m_totalFeatures(other.m_totalFeatures)
 {
 
 }
@@ -120,6 +118,8 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
     m_created = other.m_created;
     m_lastMofidied = other.m_lastMofidied;
     m_datasetName = other.m_datasetName;
+    m_totalReads = other.m_totalReads;
+    m_totalFeatures = other.m_totalFeatures;
     return (*this);
 }
 
@@ -138,7 +138,9 @@ bool GeneSelection::operator==(const GeneSelection& other) const
                 m_enabled == other.m_enabled &&
                 m_created == other.m_created &&
                 m_lastMofidied == other.m_lastMofidied &&
-                m_datasetName == other.m_datasetName
+                m_datasetName == other.m_datasetName &&
+                m_totalReads == other.m_totalReads &&
+                m_totalFeatures == other.m_totalFeatures
         );
 }
 
@@ -214,9 +216,12 @@ const QString GeneSelection::type() const
 
 int GeneSelection::totalReads() const
 {
-    return std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
-                           [] (int total, const SelectionType &item)
-                              { return total + item.reads; });
+    return m_totalReads;
+}
+
+int GeneSelection::totalFeatures() const
+{
+    return m_totalFeatures;
 }
 
 void GeneSelection::id(const QString& id)
@@ -242,6 +247,22 @@ void GeneSelection::datasetId(const QString& datasetId)
 void GeneSelection::selectedItems(const GeneSelection::selectedItemsList& selectedItems)
 {
     m_selectedItems = selectedItems;
+
+    //TODO this is being done twice, when saving and when loading
+
+    //compute total reads and features here for convenience
+    m_totalFeatures = std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
+                                      [] (int total, const SelectionType &item)
+                                         { return total + item.count; });
+    m_totalReads = std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
+                                   [] (int total, const SelectionType &item)
+                                      { return total + item.reads; });
+    //compute TPM values
+    selectedItemsList::iterator it;
+    for (it = m_selectedItems.begin(); it != m_selectedItems.end(); ++it) {
+        it->normalizedReads = STMath::tpmNormalization<int>(it->reads, m_totalReads);
+    }
+
 }
 
 void GeneSelection::status(const QString& status)

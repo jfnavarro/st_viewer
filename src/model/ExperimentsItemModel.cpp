@@ -15,7 +15,7 @@
 
 #include "dataModel/GeneSelection.h"
 
-static const int COLUMN_NUMBER = 6;
+static const int COLUMN_NUMBER = 8;
 
 ExperimentsItemModel::ExperimentsItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -42,6 +42,8 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         case Dataset: return item->datasetName();
         case Comment: return item->comment();
         case NGenes: return QString::number(item->selectedItems().size());
+        case NReads: return QString::number(item->totalReads());
+        case NFeatures: return QString::number(item->totalFeatures());
         case Created:
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
@@ -57,6 +59,8 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case NGenes:
+        case NReads:
+        case NFeatures:
         case Created:
         case LastModified: return Qt::AlignRight;
         default: return QVariant(QVariant::Invalid);
@@ -74,7 +78,9 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Name: return tr("Name");
         case Dataset: return tr("Dataset");
         case Comment: return tr("Comment");
-        case NGenes: return tr("Number Genes");
+        case NGenes: return tr("#Genes");
+        case NReads: return tr("#Reads");
+        case NFeatures: return tr("#Features");
         case Created: return tr("Created");
         case LastModified: return tr("Last Modified");
         default: return QVariant(QVariant::Invalid);
@@ -87,6 +93,8 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Dataset: return tr("The dataset name where the selection was made");
         case Comment: return tr("The comments made on the selection");
         case NGenes: return tr("The number of unique genes present in the selection");
+        case NReads: return tr("The total number of reads in the selection");
+        case NFeatures: return tr("The total number of features present in the selection");
         case Created: return tr("Created at this date");
         case LastModified: return tr("Last Modified at this date");
         default: return QVariant(QVariant::Invalid);
@@ -99,6 +107,8 @@ QVariant ExperimentsItemModel::headerData(int section,
         case Dataset:
         case Comment:
         case NGenes:
+        case NReads:
+        case NFeatures:
         case Created:
         case LastModified: return Qt::AlignLeft;
         default: return QVariant(QVariant::Invalid);

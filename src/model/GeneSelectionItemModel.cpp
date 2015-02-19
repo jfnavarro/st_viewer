@@ -33,8 +33,8 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name: return item.name;
-        case Count: return QString::number(item.count);
-        case Hits: return QString::number(item.reads);
+        case Count: return item.count;
+        case Hits: return item.reads;
         default: return QVariant(QVariant::Invalid);
         }
     }
@@ -61,7 +61,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Name: return tr("Gene");
-        case Count: return tr("Count");
+        case Count: return tr("Features");
         case Hits: return tr("Reads");
         default: return QVariant(QVariant::Invalid);
         }
@@ -70,7 +70,7 @@ QVariant GeneSelectionItemModel::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
         case Name: return tr("The name of the gene");
-        case Count: return tr("The number of occurences of the gene");
+        case Count: return tr("The number of different features where the gene is present");
         case Hits: return tr("The aggregated number of reads");
         default: return QVariant(QVariant::Invalid);
         }

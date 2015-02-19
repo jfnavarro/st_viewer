@@ -159,9 +159,9 @@ private:
             //TODO there seems to be some buggy selection items in the DB with 5 elements
             Q_ASSERT(elementList.size() >= 4);
             const QString name = elementList.at(0).toString();
-            const qreal reads = elementList.at(1).toDouble();
+            const int reads = elementList.at(1).toInt();
             const int count = elementList.at(2).toInt();
-            const qreal normalizedReads = elementList.at(3).toDouble();
+            const int normalizedReads = elementList.at(3).toInt();
             SelectionType selection(name, reads, normalizedReads, count);
             values.push_back(selection);
         }

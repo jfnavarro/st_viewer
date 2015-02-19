@@ -36,7 +36,7 @@ bool TokenStorage::isExpired() const
     const QDateTime currentDate = QDateTime::currentDateTimeUtc();
     const QDateTime expirationDate =
             m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
-    return (currentDate > expirationDate);
+    return currentDate > expirationDate;
 }
 
 void TokenStorage::setAccessToken(const QUuid& accessToken, int expiresIn)
