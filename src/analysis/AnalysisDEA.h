@@ -17,7 +17,6 @@ namespace Ui {
 class ddaWidget;
 }
 
-class QCustomPlot;
 class QTableWidget;
 class GeneSelectionDEAItemModel;
 class QSortFilterProxyModel;
@@ -108,7 +107,7 @@ private:
     void populateTable(const int size);
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
-    QCustomPlot *m_customPlot;
+
     combinedSelectionsType m_combinedSelections;
     int m_lowerThreshold;
     int m_upperThreshold;

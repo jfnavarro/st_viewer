@@ -54,11 +54,9 @@ struct FeaturesHanlder {
 public:
 
     FeaturesHanlder(DataProxy::FeatureList &m_featuresList,
-                    DataProxy::GeneList &m_genesList,
-                    DataProxy::GeneFeatureMap &m_geneFeaturesMap)
+                    DataProxy::GeneList &m_genesList)
         : featuresList(m_featuresList),
-          genesList(m_genesList),
-          geneFeaturesMap(m_geneFeaturesMap)
+          genesList(m_genesList)
     {
     }
 
@@ -142,7 +140,6 @@ public:
 
         //update containers
         featuresList.push_back(feature);
-        geneFeaturesMap.insert(gene, feature);
 
         return true;
     }
@@ -154,7 +151,6 @@ private:
 
     DataProxy::FeatureList &featuresList;
     DataProxy::GeneList &genesList;
-    DataProxy::GeneFeatureMap &geneFeaturesMap;
     QHash<QString, DataProxy::GenePtr> geneNameToGene;
     QString currentKey;
     QVariantMap varMap;
@@ -189,7 +185,6 @@ void DataProxy::clean()
     m_chip.clear();
     m_featuresList.clear();
     m_genesList.clear();
-    m_geneFeaturesMap.clear();
     m_cellTissueImages.clear();
     m_minVersion = MinVersionArray();
     m_accessToken = OAuth2TokenDTO();
@@ -232,12 +227,6 @@ const DataProxy::GeneList& DataProxy::getGeneList() const
 const DataProxy::FeatureList& DataProxy::getFeatureList() const
 {
     return m_featuresList;
-}
-
-const DataProxy::FeatureList DataProxy::getGeneFeatureList(const QString &geneName) const
-{
-    return m_geneFeaturesMap.contains(geneName) ?
-                m_geneFeaturesMap.values(geneName) : FeatureList();
 }
 
 DataProxy::UserPtr DataProxy::getUser() const
@@ -389,7 +378,6 @@ void DataProxy::loadFeatures()
     // clear the containers
     m_genesList.clear();
     m_featuresList.clear();
-    m_geneFeaturesMap.clear();
     //creates the request
     NetworkCommand *cmd =
             RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, m_selectedDataset->id());
@@ -654,7 +642,7 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     bool parsedOk = true;
-    FeaturesHanlder handler(m_featuresList, m_genesList, m_geneFeaturesMap);
+    FeaturesHanlder handler(m_featuresList, m_genesList);
     Reader reader;
     QByteArray rawText = reply->getRaw();
     StringStream is(rawText.data());

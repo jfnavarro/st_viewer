@@ -15,6 +15,7 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
     m_includeAmbiguous(false),
     m_caseSensitive(false),
     m_regExpValid(false),
+    m_selectNonVisible(false),
     m_dataProxy(dataProxy)
 {
     Q_ASSERT(!m_dataProxy.isNull());
@@ -26,8 +27,11 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
     // set default state
     slotCaseSensitive(false);
     slotIncludeAmbiguous(false);
+    slotSelectNonVisible(false);
     move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
         mapToGlobal(rect().center()));
+
+    //Connections are made in the UI file
 }
 
 SelectionDialog::~SelectionDialog()
@@ -44,9 +48,11 @@ const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy>
 {
     SelectionDialog dialog(dataProxy, parent);
     dialog.setWindowIcon(QIcon());
+
     if (dialog.exec() == QDialog::Accepted) {
         return dialog.selectedGenes();
     }
+
     return SelectionDialog::GeneList();
 }
 
@@ -65,11 +71,16 @@ void SelectionDialog::accept()
     m_selectedGeneList.clear();
     foreach(DataProxy::GenePtr gene, geneList) {
         const QString name = gene->name();
-        if (!m_includeAmbiguous && gene->isAmbiguous()) {
+        //filter for ambiguos genes and unselected
+        //if the options are correct
+        if ( (!m_includeAmbiguous && gene->isAmbiguous())
+             || (!m_selectNonVisible && !gene->selected()) ) {
             continue;
         }
 
         if (name.contains(m_regExp)) {
+            //at this point all included genes must be selected
+            gene->selected(true);
             m_selectedGeneList.append(gene);
         }
     }
@@ -92,6 +103,14 @@ void SelectionDialog::slotIncludeAmbiguous(bool includeAmbiguous)
     m_includeAmbiguous = includeAmbiguous;
     if (m_includeAmbiguous != m_ui->checkAmbiguous->isChecked()) {
         m_ui->checkAmbiguous->setChecked(m_includeAmbiguous);
+    }
+}
+
+void SelectionDialog::slotSelectNonVisible(bool selectNonVisible)
+{
+    m_selectNonVisible = selectNonVisible;
+    if (m_selectNonVisible != m_ui->checkSelectNonVisible->isChecked()) {
+        m_ui->checkSelectNonVisible->setChecked(m_selectNonVisible);
     }
 }
 

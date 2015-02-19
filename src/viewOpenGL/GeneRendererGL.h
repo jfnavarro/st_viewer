@@ -9,7 +9,9 @@
 
 #include "GraphicItemGL.h"
 
-#include <QImage>
+#include <QFuture>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLShaderProgram>
 
 #include "math/QuadTree.h"
 #include "SelectionEvent.h"
@@ -18,9 +20,9 @@
 #include "data/DataProxy.h"
 
 class QGLPainter;
-class QGLTexture2D;
-class QVector2DArray;
 class QGLShaderProgramEffect;
+class QOpenGLVertexArrayObject;
+class QOpenGLShader;
 
 //Gene renderer is what renders the genes/features on the canvas.
 //It uses data arrays (GeneData) to render trough shaders.
@@ -56,7 +58,8 @@ public:
     virtual ~GeneRendererGL();
 
     // data builder (create data arrays from the features in async ways)
-    void generateData();
+    QFuture<void> generateData();
+    void generateDataAsync();
 
     // clears data and reset variables
     void clearData();
@@ -73,8 +76,13 @@ public:
     //returns the currently selected features
     const DataProxy::FeatureList& getSelectedFeatures() const;
 
-    //THIS IS JUST TEMPORARY UNTIL THIS INFORMATION IS SENT FROM API
-    QPair<int,int> getMinMaxFeatureGeneCount();
+    //some getters for the thresholds
+    int getMinReadsThreshold() const;
+    int getMaxReadsThreshold() const;
+    int getMinGenesThreshold() const;
+    int getMaxGenesThreshold() const;
+    int getMinTPMThreshold() const;
+    int getMaxTPMThreshold() const;
 
 public slots:
 
@@ -100,12 +108,12 @@ public slots:
 
     //for the given gene list updates the color
     //according to the color of the selected genes
-    // gene data must be initialized
+    //gene data must be initialized
     void updateColor(const DataProxy::GeneList &geneList);
 
     //for the given gene list see all its features to visible
     //according if the gene is selected or not
-    // gene data must be initialized
+    //gene data must be initialized
     void updateVisible(const DataProxy::GeneList &geneList);
 
     //clear all the selected features and notify observers
@@ -125,25 +133,26 @@ protected:
 
 private:
 
-    //helper functions to test whether a feature is outside the threshold
+    //helper functions to init OpenGL buffers
+    void initBasicBuffers();
+    void initDynamicBuffers();
+
+    //helper functions to test whether a feature/index is outside the threshold
     //area or not by reads/genes or TPM
-    inline bool featureReadsOutsideRange(const int value)
-    {
-        return (value < m_thresholdReadsLower || value > m_thresholdReadsUpper);
-    }
+    bool featureReadsOutsideRange(const int value);
+    bool featureGenesOutsideRange(const int value);
+    bool featureTPMOutsideRange(const int value);
 
-    inline bool featureGenesOutsideRange(const int value) {
-        return (value < m_thresholdGenesLower || value > m_thresholdGenesUpper);
-    }
-
-    inline bool featureTPMOutsideRange(const int value) {
-        return (value < m_thresholdTPMLower || value > m_thresholdTPMUpper);
-    }
-
-    // internal rendering functions that computes the rendering data
-    // gene data must be initialized
+    // will iterate all the features to change size
     void updateSize();
+    //will call update visual with all the indexes
     void updateVisual();
+    //will call updateVisual with the indexes that contain genes present in the input
+    void updateVisual(const DataProxy::GeneList &geneList, const bool forceSelection = false);
+    // update visual goes trough each index and computes its rendering values by
+    // iterating over all its features. Thresholds are applied too.
+    // forceSelection will make visible features to turn selected
+    void updateVisual(const QList<int> &indexes, const bool forceSelection = false);
 
     // helper function to be used when user whan to select features using
     // a list of genes
@@ -157,22 +166,17 @@ private:
     void setupShaders();
 
     // lookup maps for features
-    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByIdMap; //feature to OpenGL index
-    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoReverseMap; //OpenGL index to features
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
+    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
     typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
-    typedef QHash<int, int> GeneInfoTotalReadsIndex; //index to total reads
-    // lookup quadtree type
-    typedef QuadTree<int, 8> GeneInfoQuadTree;
+    typedef QHash<int, int> GeneInfoTotalReadsIndex; //index to total reads (to compute TPM)
+    typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
 
-    // gene visual data
-    GeneData m_geneData;
-    QPointer<QGLSceneNode> m_geneNode;
-
-    // gene lookup data (feature -> index)
-    GeneInfoByIdMap m_geneInfoById;
     // gene lookup data (index -> features)
-    GeneInfoReverseMap m_geneInfoReverse;
-    // vector of selected features
+    GeneInfoByIndexMap m_geneInfoByIndex;
+    // gene lookup data (gene -> indexes)
+    GeneInfoByGeneMap m_geneIntoByGene;
+    // list of selected features
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
     // gene look up (index -> total reads)
     GeneInfoTotalReadsIndex m_geneInfoTotalReadsIndex;
@@ -208,15 +212,25 @@ private:
     // color computing mode (exp - log - linear)
     Globals::GeneColorMode m_colorComputingMode;
 
-    // shader program (TODO use smart pointer)
-    QGLShaderProgramEffect *m_shaderProgram;
-
     // to know if visual data has changed or initialized
-    bool m_isDirty;
+    bool m_isDirtyStaticData;
+    bool m_isDirtyDynamicData;
     bool m_isInitialized;
 
     //reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
+
+    //OpenGL rendering variables
+    GeneData m_geneData;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_vertexsBuffer;
+    QOpenGLBuffer m_indexesBuffer;
+    QOpenGLBuffer m_texturesBuffer;
+    QOpenGLBuffer m_colorsBuffer;
+    QOpenGLBuffer m_selectedBuffer;
+    QOpenGLBuffer m_visibleBuffer;
+    QOpenGLBuffer m_readsBuffer;
+    QOpenGLShaderProgram m_shader_program;
 
     Q_DISABLE_COPY(GeneRendererGL)
 };

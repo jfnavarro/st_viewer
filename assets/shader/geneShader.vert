@@ -1,16 +1,17 @@
 #version 120
 
-// vertexs
-attribute lowp vec4 qt_MultiTexCoord0;
-attribute lowp vec4 qt_Color;
-attribute highp vec4 qt_Vertex;
-attribute lowp vec4 qt_Custom0;
-attribute lowp float qt_Custom1;
-uniform mediump mat4 qt_ModelViewMatrix;
-uniform mediump mat4 qt_ModelViewProjectionMatrix;
+// graphic data
+attribute lowp vec4 colorAttr;
+attribute lowp vec2 textureAttr;
+attribute highp vec4 vertexAttr;
+attribute lowp float visibleAttr;
+attribute lowp float selectedAttr;
+attribute lowp float readsAttr;
+uniform mediump mat4 in_ModelViewMatrix;
+uniform mediump mat4 in_ModelViewProjectionMatrix;
 
 // passed along to fragment shader
-varying highp vec4 textCoord;
+varying highp vec2 outTextCoord;
 varying lowp vec4 outColor;
 varying lowp float outSelected;
 varying lowp float outShape;
@@ -19,8 +20,8 @@ varying lowp float outShape;
 uniform lowp int in_visualMode;
 uniform lowp int in_colorMode;
 uniform lowp int in_poolingMode;
-uniform lowp float in_pooledUpper;
-uniform lowp float in_pooledLower;
+uniform lowp int in_pooledUpper;
+uniform lowp int in_pooledLower;
 uniform lowp int in_shape;
 uniform lowp float in_intensity;
 
@@ -96,41 +97,41 @@ vec4 createHeatMapColor(inout float value)
 
 void main(void)
 {
-    outColor = qt_Color;
-    outSelected = float(qt_Custom0);
-    textCoord = qt_MultiTexCoord0;
+    outColor = colorAttr;
+    outSelected = selectedAttr;
+    outTextCoord = textureAttr;
     outShape = float(in_shape);
     
-    int visualMode = int(in_visualMode);
-    int colorMode = int(in_colorMode);
-    int poolingMode = int(in_poolingMode);
-    float value = float(qt_Custom1);
+    //get the value attribute and limits (Reads, genes or TPM)
+    float value = readsAttr;
     float upper_limit = float(in_pooledUpper);
     float lower_limit = float(in_pooledLower);
     
     //adjust for color mode (1 linear - 2 log - 3 exp)
-    if (colorMode == 2) {
+    if (in_colorMode == 2) {
         value = log(value + 1);
         upper_limit = log(upper_limit + 1);
         lower_limit = log(lower_limit + 1);
-    } else if (colorMode == 3) {
+    } else if (in_colorMode == 3) {
         value = sqrt(value);
         upper_limit = sqrt(upper_limit);
         lower_limit = sqrt(lower_limit);
     }
     
-    //visual modes (1 normal - 2 dynamic range - 3 heatmap)
-    outColor.a = in_intensity;
-    if (value == 0.0) { // if value is 0 the feature is not visible
-        outColor.a = 0.0;
-    } else if (visualMode == 2) { //dynamic range mode
-        float normalizedValue = norm(value, lower_limit, upper_limit);
-        outColor.a = normalizedValue + (1.0 - in_intensity);
-    } else if (visualMode == 3) { //heat map mode
-        float normalizedValue = norm(value, lower_limit, upper_limit);
-        outColor = createHeatMapColor(normalizedValue);
+    if (bool(visibleAttr)) {
+        //visual modes (1 normal - 2 dynamic range - 3 heatmap)
         outColor.a = in_intensity;
+        if (in_visualMode == 2) { //dynamic range mode
+            float normalizedValue = norm(value, lower_limit, upper_limit);
+            outColor.a = normalizedValue + (1.0 - in_intensity);
+        } else if (in_visualMode == 3) { //heat map mode
+            float normalizedValue = norm(value, lower_limit, upper_limit);
+            outColor = createHeatMapColor(normalizedValue);
+            outColor.a = in_intensity;
+        }
+    } else {
+        outColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
     
-    gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
+    gl_Position = in_ModelViewProjectionMatrix * vertexAttr;
 }

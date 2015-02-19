@@ -39,6 +39,10 @@ public:
     static const GeneList selectGenes(QPointer<DataProxy> dataProxy,
                                       QWidget *parent = 0);
 
+signals:
+
+    void signalValidRegExp(bool);
+
 public slots:
     //to get the list of selected genes from the reg-exp
     void accept() override;
@@ -49,6 +53,8 @@ public slots:
     void slotIncludeAmbiguous(bool includeAmbiguous);
     // to enable/disable case sensitivigy in the reg-exp
     void slotCaseSensitive(bool caseSensitive);
+    // to enable/disable the inclusion of non visible in the selection
+    void slotSelectNonVisible(bool selectNonVisible);
     // disable any "accept/yes/apply" type buttons when regexp is invalid
     void slotEnableAcceptAction(bool enableAcceptAction);
 
@@ -60,6 +66,7 @@ private:
     bool m_includeAmbiguous;
     bool m_caseSensitive;
     bool m_regExpValid;
+    bool m_selectNonVisible;
     QRegExp m_regExp;
 
     //local temp cache

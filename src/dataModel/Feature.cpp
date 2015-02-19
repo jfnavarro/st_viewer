@@ -16,7 +16,7 @@ Feature::Feature()
       m_hits(0),
       m_x(0),
       m_y(0),
-      m_color(Globals::DEFAULT_COLOR_GENE)
+      m_geneObject(nullptr)
 
 {
 
@@ -29,8 +29,7 @@ Feature::Feature(QString barcode, QString gene, double x, double y, int hits)
       m_hits(hits),
       m_x(x),
       m_y(y),
-      m_color(Globals::DEFAULT_COLOR_GENE)
-
+      m_geneObject(nullptr)
 {
 
 }
@@ -44,7 +43,8 @@ Feature::Feature(const Feature& other)
     m_hits = other.m_hits;
     m_x = other.m_x;
     m_y = other.m_y;
-    m_color = other.m_color;
+    //TODO this is dangerous
+    m_geneObject = other.m_geneObject;
 }
 
 Feature::~Feature()
@@ -60,7 +60,8 @@ Feature& Feature::operator=(const Feature& other)
     m_hits = other.m_hits;
     m_x = other.m_x;
     m_y = other.m_y;
-    m_color = other.m_color;
+    //TODO this is dangerous
+    m_geneObject = other.m_geneObject;
     return (*this);
 }
 
@@ -73,7 +74,7 @@ bool Feature::operator==(const Feature& other) const
             m_hits == other.m_hits &&
             m_x == other.m_x &&
             m_y == other.m_y &&
-            m_color == other.m_color
+            m_geneObject == other.m_geneObject
             );
 }
 
@@ -135,16 +136,6 @@ void Feature::x(double x)
 void Feature::y(double y)
 {
     m_y = y;
-}
-
-const QColor Feature::color() const
-{
-    return m_color;
-}
-
-void Feature::color(const QColor& color)
-{
-    m_color = color;
 }
 
 Feature::GenePtr Feature::geneObject() const

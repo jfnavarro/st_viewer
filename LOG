@@ -85,3 +85,12 @@ v0.4.4
 	* Added search box for DEA table
 	* Fixed a bug in the DEA threholds
 	* Fixed a bug in the minimum value for genes threshold
+
+v0.4.5 
+	* Some updates in DEA layout
+	* Scatter plot in DEA now scales
+	* Scatter plot will highlight the selected gene in the table
+	* Reg Exp now allows to turn visible genes that are not
+	* Partially removed use of Qt3D (GeneRendereGL uses Qt OpenGL)
+	* Faster rendering
+	* Fixed bug that would cause the app to crash when turning cell tissue off

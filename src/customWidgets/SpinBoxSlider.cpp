@@ -75,16 +75,32 @@ void SpinBoxSlider::setToolTip(const QString &str)
 
 void SpinBoxSlider::setMaximumValue(const int value)
 {
+    blockSignals(true);
+    m_upper_value = value;
+
     m_spanslider->setMaximum(value);
+    m_spanslider->setUpperPosition(value);
+    m_spanslider->setUpperValue(value);
+
     m_left_spinbox->setMaximum(value);
     m_right_spinbox->setMaximum(value);
+    m_right_spinbox->setValue(value);
+    blockSignals(false);
 }
 
 void SpinBoxSlider::setMinimumValue(const int value)
 {
+    blockSignals(true);
+    m_lower_value = value;
+
     m_spanslider->setMinimum(value);
+    m_spanslider->setLowerPosition(value);
+    m_spanslider->setLowerValue(value);
+
     m_left_spinbox->setMinimum(value);
     m_right_spinbox->setMinimum(value);
+    m_left_spinbox->setValue(value);
+    blockSignals(false);
 }
 
 void SpinBoxSlider::slotSetLowerValue(const int value)

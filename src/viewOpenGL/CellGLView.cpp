@@ -93,6 +93,7 @@ void CellGLView::initializeGL()
         m_initialized = true;
         // creates OpenGL context and make it current
         QSurfaceFormat format;
+        format.setVersion(3,3);
         format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
         format.setProfile(QSurfaceFormat::CompatibilityProfile);
         format.setRenderableType(QSurfaceFormat::OpenGL);
