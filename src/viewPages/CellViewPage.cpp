@@ -260,8 +260,6 @@ void CellViewPage::datasetContentDownloaded()
     const auto currentChip = m_dataProxy->getChip();
     Q_ASSERT(!currentChip.isNull());
     const QTransform alignment = imageAlignment->alignment();
-    const qreal min = dataset->statisticsMin();
-    const qreal max = dataset->statisticsMax();
     const QRectF chip_rect = QRectF(
                 QPointF(currentChip->x1(), currentChip->y1()),
                 QPointF(currentChip->x2(), currentChip->y2())
@@ -271,59 +269,47 @@ void CellViewPage::datasetContentDownloaded()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
-    // load min-max to the reads count threshold slider
-    // min number of genes in threshold must be always 1
-    m_geneHitsThreshold->setMinimumValue(1);
-    m_geneHitsThreshold->setMaximumValue(max);
-    m_geneHitsThreshold->slotSetLowerValue(1);
-    m_geneHitsThreshold->slotSetUpperValue(max);
-    m_geneHitsThreshold->setTickInterval(1);
-    m_gene_plotter->setReadsLowerLimit(1);
-    m_gene_plotter->setReadsUpperLimit(max);
-
-    //load mix max for the tpm  threshold sliders
-    //const int maxTotalReads = dataset->statisticsPooledMax();
-    //const int tpmMin = STMath::tpmNormalization<int>(min, maxTotalReads);
-    //const int tpmMax = STMath::tpmNormalization<int>(max, maxTotalReads);
-    //m_geneTPMThreshold->setMinimumValue(tpmMin);
-    //m_geneTPMThreshold->setMaximumValue(tpmMax);
-    //m_geneTPMThreshold->slotSetLowerValue(tpmMin);
-    //m_geneTPMThreshold->slotSetUpperValue(tpmMax);
-    //m_geneTPMThreshold->setTickInterval(1);
-
-    // load features and threshold boundaries into FDH
-    m_FDH->computeData(m_dataProxy->getFeatureList(), min, max);
-
     // updade grid size and data
     m_grid->setDimensions(chip_border, chip_rect);
     m_grid->generateData();
     m_grid->setTransform(alignment);
 
+    // reset main variabless
+    resetActionStates();
+
     // update gene size and data
     m_gene_plotter->setDimensions(chip_border);
-    m_gene_plotter->generateData();
     m_gene_plotter->setTransform(alignment);
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
+    futureWatcher->setFuture(m_gene_plotter->generateData());
+    connect(futureWatcher, &QFutureWatcher<void>::finished,
+            [=]{
+        // load min-max to the genes thresholds
+        // min number of genes in threshold must be always 1
+        const int max_genes = m_gene_plotter->getMaxGenesThreshold();
+        m_geneGenesThreshold->setMinimumValue(1);
+        m_geneGenesThreshold->setMaximumValue(max_genes);
+        m_geneGenesThreshold->setTickInterval(1);
 
-    //HACK doing this here to get the gene max count from gene plotter
-    //The gene max count will be given from the API
-    const auto &geneMinMax = m_gene_plotter->getMinMaxFeatureGeneCount();
-    const int genesMin = geneMinMax.first;
-    const int genesMax = geneMinMax.second;
-    m_geneGenesThreshold->setMinimumValue(genesMin);
-    m_geneGenesThreshold->setMaximumValue(genesMax);
-    m_geneGenesThreshold->slotSetLowerValue(genesMin);
-    m_geneGenesThreshold->slotSetUpperValue(genesMax);
-    m_geneGenesThreshold->setTickInterval(1);
+        const int reads_min = m_gene_plotter->getMinReadsThreshold();
+        const int reads_max = m_gene_plotter->getMaxReadsThreshold();
+
+        // load min-max to the reads count threshold slider
+        m_geneHitsThreshold->setMinimumValue(reads_min);
+        m_geneHitsThreshold->setMaximumValue(reads_max);
+        m_geneHitsThreshold->setTickInterval(1);
+
+        // load features and threshold boundaries into FDH
+        m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
+
+        //load min max values to legend
+        m_legend->setLowerLimit(reads_min);
+        m_legend->setUpperLimit(reads_max);
+       });
+
 
     // load cell tissue (async)
     slotLoadCellFigure();
-
-    //load min max values to legend
-    m_legend->setLowerLimit(min);
-    m_legend->setUpperLimit(max);
-
-    // reset main variabless
-    resetActionStates();
 
     // refresh view
     m_view->update();
@@ -620,11 +606,11 @@ void CellViewPage::createMenusAndConnections()
     //threshold slider signals
     connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(), SLOT(setReadsLowerLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setReadsUpperLimit(int)));
     connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(), SLOT(setLowerLimit(int)));
-    connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+    connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimit(int)));
 
     connect(m_geneGenesThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
@@ -990,6 +976,8 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(m_dataProxy, this);
+    // load data for gene model (TODO might be enough with an update)
+    m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
     m_gene_plotter->selectGenes(geneList);
 }
 

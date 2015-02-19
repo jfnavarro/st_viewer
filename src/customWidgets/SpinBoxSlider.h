@@ -32,7 +32,7 @@ public:
     Q_DECLARE_FLAGS(ControlsFlags, Controls)
 
     explicit SpinBoxSlider(QWidget *parent = 0,
-                           ControlsFlags controlFlags = sliderAndSpinBoxes);
+                           ControlsFlags controlFlags = onlySpinBoxes);
     virtual ~SpinBoxSlider();
 
     void setToolTip(const QString &str);

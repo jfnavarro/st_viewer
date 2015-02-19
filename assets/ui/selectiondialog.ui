@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>122</height>
+    <width>501</width>
+    <height>124</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,6 +104,13 @@
           <widget class="QCheckBox" name="checkAmbiguous">
            <property name="text">
             <string>Include Ambiguous Genes</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkSelectNonVisible">
+           <property name="text">
+            <string>Selec Non visibleGenes</string>
            </property>
           </widget>
          </item>
@@ -259,6 +266,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkSelectNonVisible</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SelectionDialog</receiver>
+   <slot>slotSelectNonVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>285</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>250</x>
+     <y>61</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signalValidRegExp(bool)</signal>
@@ -266,5 +289,6 @@
   <slot>slotIncludeAmbiguous(bool)</slot>
   <slot>slotValidateRegExp(QString)</slot>
   <slot>slotEnableAcceptAction(bool)</slot>
+  <slot>slotSelectNonVisible(bool)</slot>
  </slots>
 </ui>

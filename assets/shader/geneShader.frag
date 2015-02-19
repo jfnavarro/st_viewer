@@ -1,4 +1,4 @@
-varying highp vec4 textCoord;
+varying highp vec2 outTextCoord;
 varying lowp vec4 outColor;
 varying lowp float outSelected;
 varying lowp float outShape;
@@ -26,7 +26,7 @@ void main(void)
     
     if (shape == 0) { //circle
         // calculate distance from center
-        vec2 pos = mod(textCoord.xy, vec2(1.0)) - vec2(0.5);
+        vec2 pos = mod(outTextCoord.xy, vec2(1.0)) - vec2(0.5);
         float dist = length(pos);
     
         // radii of circle
@@ -38,7 +38,7 @@ void main(void)
         }
     } else if (shape == 1) { //cross
         // calculate distance from center
-        vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
+        vec2 pos = abs(mod(outTextCoord.xy, vec2(1.0)) - vec2(0.5));
         float mindist = min(pos.x, pos.y);
         float maxdist = max(pos.x, pos.y);
         
@@ -52,7 +52,7 @@ void main(void)
         fragColor = mix(fragColor, cNone, smoothstep(0.5 - 0.02, 0.5, maxdist));
     } else { //rectangle
         // calculate distance from center
-        vec2 pos = abs(mod(textCoord.xy, vec2(1.0)) - vec2(0.5));
+        vec2 pos = abs(mod(outTextCoord.xy, vec2(1.0)) - vec2(0.5));
         float dist = max(pos.x, pos.y);
         
         // radii of circle

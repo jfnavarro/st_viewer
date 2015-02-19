@@ -313,8 +313,6 @@ private:
     FeatureList m_featuresList;
     // the current unique genes from the features of the selected dataset
     GeneList m_genesList;
-    // the current features mapped by gene name
-    GeneFeatureMap m_geneFeaturesMap;
     // the current images (blue and red) for the selected dataset
     CellFigureMap m_cellTissueImages;
     // the application min supported version

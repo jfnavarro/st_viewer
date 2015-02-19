@@ -45,10 +45,6 @@ public:
     void x(double x);
     void y(double y);
 
-    //extended attribute to store the color
-    const QColor color() const;
-    void color(const QColor& color);
-
     //reference to the Gene object just for convenience
     GenePtr geneObject() const;
     void geneObject(GenePtr gene);
@@ -62,8 +58,7 @@ protected:
     double m_x;
     double m_y;
 
-    //extended
-    QColor m_color;
+    //extended attribute
     GenePtr m_geneObject;
 };
 

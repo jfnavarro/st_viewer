@@ -26,7 +26,6 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
                          QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(new Ui::ddaWidget),
-    m_customPlot(nullptr),
     m_lowerThreshold(0),
     m_upperThreshold(1),
     m_lowerTPMsThreshold(0),
@@ -56,30 +55,33 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
                                                           "background-color: rgb(230,230,230); "
                                                           "border: 1px solid rgb(240,240,240);} "
                                     "QTableCornerButton::section {background-color: transparent;} ");
-    // creating plotting object
-    m_customPlot = new QCustomPlot(m_ui->plotWidget);
-    Q_ASSERT(m_customPlot != nullptr);
 
     // add a scatter plot graph
-    m_customPlot->addGraph();
-    m_customPlot->graph(0)->setScatterStyle(
+    m_ui->customPlot->addGraph();
+    m_ui->customPlot->graph(0)->setScatterStyle(
                 QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
-    m_customPlot->graph(0)->setAntialiasedScatters(true);
-    m_customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
-    m_customPlot->graph(0)->setName(tr("Correlation Scatter Plot"));
-    m_customPlot->graph(0)->rescaleAxes(true);
+    m_ui->customPlot->graph(0)->setAntialiasedScatters(true);
+    m_ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
+    m_ui->customPlot->graph(0)->setName(tr("Correlation Scatter Plot"));
+    m_ui->customPlot->graph(0)->rescaleAxes(true);
+    // add another scatter plot graph to mark selected genes
+    m_ui->customPlot->addGraph();
+    m_ui->customPlot->graph(1)->setScatterStyle(
+                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::red), Qt::white, 5));
+    m_ui->customPlot->graph(1)->setAntialiasedScatters(true);
+    m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
+    m_ui->customPlot->graph(1)->rescaleAxes(true);
 
     // sets the legend and attributes
-    m_customPlot->legend->setVisible(false);
-    m_customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
-    m_customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
-    m_customPlot->xAxis->setTicks(true);
-    m_customPlot->yAxis->setTicks(true);
+    m_ui->customPlot->legend->setVisible(false);
+    m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
+    m_ui->customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
+    m_ui->customPlot->xAxis->setTicks(true);
+    m_ui->customPlot->yAxis->setTicks(true);
     // make top right axes clones of bottom left axes. Looks prettier:
-    m_customPlot->axisRect()->setupFullAxesBox();
-    // plot and add mouse interaction (fixed min size)
-    m_customPlot->setMinimumSize(500, 400);
-    m_customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    m_ui->customPlot->axisRect()->setupFullAxesBox();
+    // plot and add mouse interaction
+    m_ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
     // populate the gene to read pairs containers
     // computeGeneToReads will update the max thresholds (to initialize slider)
@@ -103,8 +105,8 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     // update name fields in the UI
     m_ui->selectionA->setText(selObjectA.name());
     m_ui->selectionB->setText(selObjectB.name());
-    m_customPlot->xAxis->setLabel(tr("Selection A (TPM + 1)"));
-    m_customPlot->yAxis->setLabel(tr("Selection B (TPM + 1)"));
+    m_ui->customPlot->xAxis->setLabel(tr("Selection A (TPM + 1)"));
+    m_ui->customPlot->yAxis->setLabel(tr("Selection B (TPM + 1)"));
 
     // compute statistics
     const deaStats &stats = computeStatistics();
@@ -154,40 +156,29 @@ GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
 
 void AnalysisDEA::slotSelectionSelected(QModelIndex index)
 {
-    Q_UNUSED(index);
-    /*const auto selected = m_ui->tableView->geneTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
+    m_ui->customPlot->graph(1)->clearData();
 
-    //TODO do some validation here
+    if (index.isValid()) {
 
-    //TODO validate coords are into threshold
+        const auto selected = m_ui->tableView->geneTableItemSelection();
+        const auto currentSelection = selectionsModel()->getSelections(selected);
 
-    const qreal x = m_customPlot->xAxis->coordToPixel(currentSelection.first().normalizedReadsA);
-    const qreal y = m_customPlot->xAxis->coordToPixel(currentSelection.first().normalizedReadsB);
+        QVector<double> x;
+        QVector<double> y;
+        foreach(deaReads deaRead, currentSelection) {
+            if (((deaRead.normalizedReadsA < m_lowerTPMsThreshold || deaRead.normalizedReadsA > m_upperTPMsThreshold)
+                 && (deaRead.normalizedReadsB < m_lowerTPMsThreshold || deaRead.normalizedReadsB > m_upperTPMsThreshold)
+                 && deaRead.normalizedReadsA > 1 && deaRead.normalizedReadsB > 1) ) {
+                continue;
+            }
+            x.append(deaRead.normalizedReadsA);
+            y.append(deaRead.normalizedReadsB);
+        }
 
-    // get the plotting data
-    //const QCPDataMap *dataMap = m_customPlot->selectedGraphs().first()->data();
+        m_ui->customPlot->graph(1)->setData(x,y);
+    }
 
-    // add the phase tracer (red circle) which sticks to the graph data (and gets updated in bracketDataSlot by timer event):
-    QCPItemTracer *phaseTracer = new QCPItemTracer(m_customPlot);
-    m_customPlot->addItem(phaseTracer);
-    phaseTracer->setGraph(m_customPlot->graph(0));
-    phaseTracer->setGraphKey(currentSelection.first().normalizedReadsA);
-    phaseTracer->setInterpolating(true);
-    phaseTracer->setStyle(QCPItemTracer::tsCircle);
-    phaseTracer->setPen(QPen(Qt::red));
-    phaseTracer->setBrush(Qt::red);
-    phaseTracer->setSize(7);
-
-    // mark selected position
-    QCPItemLine *arrow = new QCPItemLine(m_customPlot);
-    m_customPlot->addItem(arrow);
-    arrow->start->setCoords(x - 1, y);
-    arrow->end->setCoords(x, y);
-    //qDebug() << "Adding item with cordinates " << x << " " << y << " to the graph";
-    arrow->setHead(QCPLineEnding::esSpikeArrow);
-
-    update();*/
+    m_ui->customPlot->replot();
 }
 
 void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
@@ -297,9 +288,8 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
 {
     //update plot data
-    m_customPlot->graph(0)->setData(stats.valuesSelectionA, stats.valuesSelectionB);
-    m_customPlot->graph(0)->rescaleAxes();
-    m_customPlot->replot();
+    m_ui->customPlot->graph(0)->setData(stats.valuesSelectionA, stats.valuesSelectionB);
+    m_ui->customPlot->graph(0)->rescaleAxes();
 
     //update UI fields for stats
     m_ui->numGenesSelectionA->setText(QString::number(stats.countA + stats.countAB));
@@ -308,6 +298,13 @@ void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
     m_ui->overlappingGenes->setText(QString::number(stats.countAB));
     m_ui->genesOnlyA->setText(QString::number(stats.countA));
     m_ui->genesOnlyB->setText(QString::number(stats.countB));
+
+    //clear selection
+    m_ui->tableView->clearSelection();
+    m_ui->customPlot->graph(1)->clearData();
+
+    //update plot
+    m_ui->customPlot->replot();
 
     //update view
     update();
@@ -357,7 +354,7 @@ void AnalysisDEA::slotSaveToPDF()
 
     //TODO add most DEA genes and stats (use QPrinter)
     //TODO use PDF as output
-    const bool saveOk = m_customPlot->savePng(filename, 800, 800, 1.0, 100);
+    const bool saveOk = m_ui->customPlot->savePng(filename, 800, 800, 1.0, 100);
 
     if (!saveOk) {
         QMessageBox::critical(this, tr("Save DEA"), tr("Error saving DEA to a file"));
