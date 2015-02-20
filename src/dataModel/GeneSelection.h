@@ -58,6 +58,8 @@ public:
     const QString lastModified() const;
     const QString datasetName() const;
     const QString type() const;
+    const QByteArray tissueSnapShot() const;
+
     //returns the total sum of reads in the Selection items
     int totalReads() const;
     //returns the total number of features in this selection
@@ -76,6 +78,7 @@ public:
     void lastModified(const QString& lastModified);
     void datasetName(const QString& datasetName);
     void type(const QString& type);
+    void tissueSnapShot(const QByteArray &tissueSnapShot);
 
 private:
 
@@ -92,6 +95,8 @@ private:
     QString m_created;
     QString m_lastMofidied;
     QString m_datasetName;
+    QByteArray m_tissueSnapShot;
+
     //for caching purposes
     int m_totalReads;
     int m_totalFeatures;

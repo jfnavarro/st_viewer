@@ -94,3 +94,11 @@ v0.4.5
 	* Partially removed use of Qt3D (GeneRendereGL uses Qt OpenGL)
 	* Faster rendering
 	* Fixed bug that would cause the app to crash when turning cell tissue off
+
+v0.4.6
+	* Fixed a small bug in the genes threshold
+
+v0.4.7 
+	* Added support to store and view a snapshot of the tissue when saving selections
+	* Fixed a bug in the reg-exp with the string matching
+	* Fixed a bug with the reg-ex not selecting all genes in feature

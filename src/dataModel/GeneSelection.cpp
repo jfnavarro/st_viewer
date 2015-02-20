@@ -92,6 +92,7 @@ GeneSelection::GeneSelection(const GeneSelection& other)
       m_created(other.m_created),
       m_lastMofidied(other.m_lastMofidied),
       m_datasetName(other.m_datasetName),
+      m_tissueSnapShot(other.m_tissueSnapShot),
       m_totalReads(other.m_totalReads),
       m_totalFeatures(other.m_totalFeatures)
 {
@@ -120,6 +121,7 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
     m_datasetName = other.m_datasetName;
     m_totalReads = other.m_totalReads;
     m_totalFeatures = other.m_totalFeatures;
+    m_tissueSnapShot = other.m_tissueSnapShot;
     return (*this);
 }
 
@@ -140,7 +142,8 @@ bool GeneSelection::operator==(const GeneSelection& other) const
                 m_lastMofidied == other.m_lastMofidied &&
                 m_datasetName == other.m_datasetName &&
                 m_totalReads == other.m_totalReads &&
-                m_totalFeatures == other.m_totalFeatures
+                m_totalFeatures == other.m_totalFeatures &&
+                m_tissueSnapShot == other.m_tissueSnapShot
         );
 }
 
@@ -212,6 +215,11 @@ const QString GeneSelection::datasetName() const
 const QString GeneSelection::type() const
 {
     return m_type;
+}
+
+const QByteArray GeneSelection::tissueSnapShot() const
+{
+    return m_tissueSnapShot;
 }
 
 int GeneSelection::totalReads() const
@@ -303,4 +311,9 @@ void GeneSelection::datasetName(const QString& datasetName)
 void GeneSelection::type(const QString& type)
 {
     m_type = type;
+}
+
+void GeneSelection::tissueSnapShot(const QByteArray& tissueSnapShot)
+{
+    m_tissueSnapShot = tissueSnapShot;
 }

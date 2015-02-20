@@ -447,6 +447,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
     // declare temp variables for storing the index's value and color
     int indexValueReads = 0;
     int indexValueGenes = 0;
+    int indexValueTotalGenes = 0;
     int indexValue = 0;
     QColor indexColor = Globals::DEFAULT_COLOR_GENE;
     const bool pooling_genes = m_poolingMode == PoolNumberGenes;
@@ -459,6 +460,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
         //temp local variables to store the genes/reads/tpm/color of each feature
         indexValueReads = 0;
         indexValueGenes = 0;
+        indexValueTotalGenes = 0;
         indexColor = Globals::DEFAULT_COLOR_GENE;
 
         // iterate the features to compute rendering data for an specific index (position)
@@ -468,17 +470,24 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             DataProxy::FeaturePtr feature = it.value();
             Q_ASSERT(feature);
 
-            // get feature's gene
-            const auto gene = feature->geneObject();
-
-            //check if gene is selected to visualize
-            if (!gene->selected()) {
-                continue;
-            }
+            //increase the gene counter always
+            ++indexValueTotalGenes;
 
             const int currentHits = feature->hits();
             //check if the reads are outside the threshold
             if (featureReadsOutsideRange(currentHits)) {
+                continue;
+            }
+
+            //if we want to enforce the selection we add the feature to the container
+            if (forceSelection) {
+                m_geneInfoSelectedFeatures.append(feature);
+            }
+
+            // get feature's gene
+            const auto gene = feature->geneObject();
+            //check if gene is selected to visualize
+            if (!gene->selected()) {
                 continue;
             }
 
@@ -494,14 +503,10 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
                 const qreal adjustment = 1.0 / indexValueGenes;
                 indexColor = STMath::lerp(adjustment, indexColor, featureColor).toColor();
             }
-
-            //if we want to enforce the selection we add the feature to the container
-            if (forceSelection) {
-                m_geneInfoSelectedFeatures.append(feature);
-            }
         }
 
-        const bool visible = !featureGenesOutsideRange(indexValueGenes);
+        //we filter out features by its gene count regardles if genes are visible or not
+        const bool visible = indexValueGenes != 0 && !featureGenesOutsideRange(indexValueTotalGenes);
 
         //update pooled min-max to compute colors
         indexValue = indexValueReads;

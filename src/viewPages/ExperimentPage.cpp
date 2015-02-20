@@ -41,6 +41,7 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
+    connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
 
     //connect data proxy signal
     connect(m_dataProxy.data(),
@@ -98,6 +99,7 @@ void ExperimentPage::clearControls()
     m_ui->exportSelections->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
+    m_ui->showTissue->setEnabled(false);
 }
 
 void ExperimentPage::loadSelections()
@@ -140,6 +142,7 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     m_ui->exportSelections->setEnabled(enableRest);
     m_ui->ddaAnalysis->setEnabled(enableDDA);
     m_ui->editSelection->setEnabled(enableRest);
+    m_ui->showTissue->setEnabled(enableRest);
 }
 
 void ExperimentPage::slotRemoveSelection()
@@ -264,4 +267,47 @@ void ExperimentPage::slotPerformDDA()
 
     QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
     analysisDEA->exec();
+}
+
+void ExperimentPage::slotShowTissue()
+{
+    const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+
+    if (currentSelection.empty() || currentSelection.size() > 1) {
+        return;
+    }
+
+    auto selectionObject = currentSelection.at(0);
+    QByteArray tissue_snapshot = selectionObject->tissueSnapShot();
+    if (tissue_snapshot.isNull() || tissue_snapshot.isEmpty()){
+        return;
+    }
+
+    QString filename =
+            QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
+                                         QString("%1;;%2;;%3").
+                                         arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
+                                         arg(tr("PNG Image Files (*.png)")).
+                                         arg(tr("BMP Image Files (*.bmp)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        showError(tr("Save image"), tr("The directory is not writable"));
+        return;
+    }
+
+    const QString format = fileInfo.suffix().toLower();
+    const int quality = 100; //quality format (100 max, 0 min, -1 default)
+    QByteArray image_ba = QByteArray::fromBase64(tissue_snapshot);
+    QImage image;
+    image.loadFromData(image_ba);
+    if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        showError(tr("Save Image"), tr("Error saving image."));
+    }
 }

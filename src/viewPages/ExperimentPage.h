@@ -48,6 +48,7 @@ private slots:
     void slotRemoveSelection();
     void slotEditSelection();
     void slotPerformDDA();
+    void slotShowTissue();
 
     //used to be notified when the genes selections has been downloaded or updated from network
     //status contains the status of the operation (ok, abort, error)
