@@ -81,6 +81,9 @@ private slots:
     // select legend anchor
     void slotSetLegendAnchor(QAction *action);
 
+    // select legend computation of values (reads of genes)
+    void slotSetLegendType(QAction *action);
+
     // select minimap anchor
     void slotSetMiniMapAnchor(QAction *action);
 

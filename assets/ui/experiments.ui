@@ -158,7 +158,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>358</width>
+             <width>300</width>
              <height>20</height>
             </size>
            </property>
@@ -230,8 +230,17 @@ selection-background-color: darkgray;</string>
              <height>70</height>
             </size>
            </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Show tissue snapshot</string>
+           </property>
+           <property name="statusTip">
+            <string>Show tissue snapshot</string>
+           </property>
            <property name="text">
-            <string>Shot Tissue</string>
+            <string/>
            </property>
            <property name="icon">
             <iconset resource="../../../st_client-build/application.qrc">

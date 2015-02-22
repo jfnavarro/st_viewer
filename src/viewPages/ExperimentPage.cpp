@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTableWidgetItem>
+#include <QScrollArea>
 
 #include "io/GeneExporter.h"
 #include "model/ExperimentsItemModel.h"
@@ -284,30 +285,24 @@ void ExperimentPage::slotShowTissue()
         return;
     }
 
-    QString filename =
-            QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(),
-                                         QString("%1;;%2;;%3").
-                                         arg(tr("JPEG Image Files (*.jpg *.jpeg)")).
-                                         arg(tr("PNG Image Files (*.png)")).
-                                         arg(tr("BMP Image Files (*.bmp)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    const QFileInfo fileInfo(filename);
-    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
-    if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        showError(tr("Save image"), tr("The directory is not writable"));
-        return;
-    }
-
-    const QString format = fileInfo.suffix().toLower();
-    const int quality = 100; //quality format (100 max, 0 min, -1 default)
     QByteArray image_ba = QByteArray::fromBase64(tissue_snapshot);
     QImage image;
     image.loadFromData(image_ba);
-    if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        showError(tr("Save Image"), tr("Error saving image."));
+
+    if (image.isNull()) {
+        return;
     }
+
+    QWidget *image_widget = new QWidget();
+    image_widget->setAttribute(Qt::WA_DeleteOnClose);
+    image_widget->setMinimumSize(600, 600);
+    QVBoxLayout *layout1 = new QVBoxLayout(image_widget);
+    QScrollArea *image_scroll = new QScrollArea();
+    layout1->addWidget(image_scroll);
+    QVBoxLayout *layout = new QVBoxLayout(image_scroll);
+    QLabel *image_label = new QLabel();
+    image_label->setPixmap(QPixmap::fromImage(image));
+    image_label->setScaledContents(true);
+    layout->addWidget(image_label);
+    image_widget->show();
 }

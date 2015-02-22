@@ -269,10 +269,12 @@ void CellViewPage::datasetContentDownloaded()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
+
     // updade grid size and data
+    m_grid->clearData();
     m_grid->setDimensions(chip_border, chip_rect);
-    m_grid->generateData();
     m_grid->setTransform(alignment);
+    m_grid->generateData();
 
     // reset main variabless
     resetActionStates();
@@ -303,16 +305,16 @@ void CellViewPage::datasetContentDownloaded()
         m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
 
         //load min max values to legend
-        m_legend->setLowerLimit(reads_min);
-        m_legend->setUpperLimit(reads_max);
+        m_legend->setLowerLimitReads(reads_min);
+        m_legend->setUpperLimitReads(reads_max);
+        m_legend->setLowerLimitGenes(1);
+        m_legend->setUpperLimitGenes(max_genes);
        });
 
+    m_legend->setValueComputation(HeatMapLegendGL::Reads);
 
     // load cell tissue (async)
     slotLoadCellFigure();
-
-    // refresh view
-    m_view->update();
 
     // disable blocking loading bar
     setWaiting(false);
@@ -344,6 +346,8 @@ void CellViewPage::onExit()
     m_grid->clearData();
     m_image->clearData();
     m_gene_plotter->clearData();
+    //m_legend->clearData();
+    //m_minimap->clearData();
     m_view->clearData();
     m_view->update();
 
@@ -366,6 +370,8 @@ void CellViewPage::createMenusAndConnections()
     m_ui->action_toggleMinimapTopLeft->setProperty("mode", Globals::Anchor::NorthWest);
     m_ui->action_toggleMinimapDownRight->setProperty("mode", Globals::Anchor::SouthEast);
     m_ui->action_toggleMinimapDownLeft->setProperty("mode", Globals::Anchor::SouthWest);
+    m_ui->action_toggleLegendReads->setProperty("mode", HeatMapLegendGL::Reads);
+    m_ui->action_toggleLegendGenes->setProperty("mode", HeatMapLegendGL::Genes);
 
     // menu gene plotter actions
     QMenu *menu_genePlotter = new QMenu(this);
@@ -485,6 +491,12 @@ void CellViewPage::createMenusAndConnections()
     setToolTipAndStatusTip(tr("Tools for visualization of the cell tissue"), menu_cellTissue);
     menu_cellTissue->addAction(m_ui->actionShow_showMiniMap);
     menu_cellTissue->addAction(m_ui->actionShow_showLegend);
+    menu_cellTissue->addSeparator()->setText(tr("Legend Values"));
+    QActionGroup *actionGroup_toggleLegendType = new QActionGroup(menu_cellTissue);
+    actionGroup_toggleLegendType->setExclusive(true);
+    actionGroup_toggleLegendType->addAction(m_ui->action_toggleLegendReads);
+    actionGroup_toggleLegendType->addAction(m_ui->action_toggleLegendGenes);
+    menu_cellTissue->addActions(actionGroup_toggleLegendType->actions());
 
     //group legend positions actions into one
     menu_cellTissue->addSeparator()->setText(tr("Legend Position"));
@@ -609,18 +621,18 @@ void CellViewPage::createMenusAndConnections()
     connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setReadsUpperLimit(int)));
     connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
-            m_legend.data(), SLOT(setLowerLimit(int)));
+            m_legend.data(), SLOT(setLowerLimitReads(int)));
     connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
-            m_legend.data(), SLOT(setUpperLimit(int)));
+            m_legend.data(), SLOT(setUpperLimitReads(int)));
 
     connect(m_geneGenesThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(), SLOT(setGenesLowerLimit(int)));
     connect(m_geneGenesThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(), SLOT(setGenesUpperLimit(int)));
     connect(m_geneGenesThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
-            m_legend.data(), SLOT(setLowerLimit(int)));
+            m_legend.data(), SLOT(setLowerLimitGenes(int)));
     connect(m_geneGenesThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
-            m_legend.data(), SLOT(setUpperLimit(int)));
+            m_legend.data(), SLOT(setUpperLimitGenes(int)));
 
     //connect(m_geneTPMThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
     //        m_gene_plotter.data(), SLOT(setTPMLowerLimit(int)));
@@ -655,6 +667,9 @@ void CellViewPage::createMenusAndConnections()
     connect(actionGroup_toggleLegendPosition,
             SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetLegendAnchor(QAction*)));
+    connect(actionGroup_toggleLegendType,
+            SIGNAL(triggered(QAction*)), this,
+            SLOT(slotSetLegendType(QAction*)));
 
     // minimap signals
     connect(m_ui->actionShow_showMiniMap, SIGNAL(toggled(bool)),
@@ -721,9 +736,11 @@ void CellViewPage::resetActionStates()
 
     // anchor signals
     m_ui->action_toggleLegendTopRight->setChecked(true);
-
-    // minimap signals
     m_ui->action_toggleMinimapDownRight->setChecked(true);
+
+    // legend computation values signals
+    m_ui->action_toggleLegendReads->setChecked(true);
+    m_ui->action_toggleLegendGenes->setChecked(false);
 
     // show legend and minimap
     m_ui->actionShow_showLegend->setChecked(false);
@@ -761,11 +778,6 @@ void CellViewPage::initGLView()
     m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
     m_view->addRenderingNode(m_grid.data());
 
-    // gene plotter component
-    m_gene_plotter = new GeneRendererGL(m_dataProxy);
-    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
-    m_view->addRenderingNode(m_gene_plotter.data());
-
     // heatmap component
     m_legend = new HeatMapLegendGL();
     m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
@@ -775,6 +787,11 @@ void CellViewPage::initGLView()
     m_minimap = new MiniMapGL();
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap.data());
+
+    // gene plotter component
+    m_gene_plotter = new GeneRendererGL(m_dataProxy);
+    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
+    m_view->addRenderingNode(m_gene_plotter.data());
 
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
@@ -806,6 +823,7 @@ void CellViewPage::slotLoadCellFigure()
     // run it concurrently as it takes time
     QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
     futureWatcher->setFuture(m_image->createTexture(image));
+
     // set the scene size in the view to the image bounding box (image must have been tiled and
     // textured before)
     connect(futureWatcher, &QFutureWatcher<void>::finished,
@@ -972,6 +990,19 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
         Q_ASSERT("[CellViewPage] Undefined legend anchor!");
     }
 }
+
+void CellViewPage::slotSetLegendType(QAction *action)
+{
+    const QVariant variant = action->property("mode");
+    if (variant.canConvert(QVariant::Int)) {
+        const HeatMapLegendGL::ValueComputation mode =
+                static_cast<HeatMapLegendGL::ValueComputation>(variant.toInt());
+        m_legend->setValueComputation(mode);
+    } else {
+        Q_ASSERT("[CellViewPage] Undefined legend computation value!");
+    }
+}
+
 
 void CellViewPage::slotSelectByRegExp()
 {

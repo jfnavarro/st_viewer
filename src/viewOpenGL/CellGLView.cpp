@@ -122,19 +122,10 @@ void CellGLView::initializeGL()
     glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
 
-    // Set the default blend options.
-    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendColor)) {
-        m_painter.glBlendColor(0, 0, 0, 0);
-    }
+    // configure OpenGL blending
+    glBlendColor(0, 0, 0, 0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquation)) {
-        m_painter.glBlendEquation(GL_FUNC_ADD);
-    }
-
-    if (m_painter.hasOpenGLFeature(QOpenGLFunctions::BlendEquationSeparate)) {
-        m_painter.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    }
+    glBlendEquation(GL_FUNC_ADD);
 }
 
 void CellGLView::paintGL()
@@ -145,11 +136,10 @@ void CellGLView::paintGL()
 
     // sets the projection matrix of the OpenGL painter
     m_painter.projectionMatrix() = m_projm;
-
     glViewport(0.0, 0.0, width(), height());
 
     // clear color buffer
-    m_painter.setClearColor(Qt::black);
+    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes

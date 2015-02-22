@@ -38,6 +38,8 @@ public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
+    void clearData();
+
 public slots:
 
     //TODO slots should have the prefix "slot"

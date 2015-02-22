@@ -163,9 +163,7 @@ void GeneRendererGL::setTPMLowerLimit(const int limit)
 
 QFuture<void> GeneRendererGL::generateData()
 {
-    m_isDirtyDynamicData = false;
-    m_isDirtyStaticData = false;
-    m_isInitialized = false;
+    clearData();
 
     //update shader
     setupShaders();
@@ -193,6 +191,7 @@ void GeneRendererGL::generateDataAsync()
 
         // reset to default value the gene color
         feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
+        feature->geneObject()->selected(false);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -386,7 +385,7 @@ void GeneRendererGL::updateSize()
     }
 
     QGuiApplication::restoreOverrideCursor();
-
+    m_isDirtyStaticData = true;
     m_isDirtyDynamicData = true;
     emit updated();
 }
@@ -682,7 +681,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
 
     if (m_isDirtyStaticData) {
         initBasicBuffers();
-
     }
 
     if (m_isDirtyDynamicData) {

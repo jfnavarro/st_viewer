@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Genes by using regular expressions</string>
+   <string>Select Features by using regular expressions</string>
   </property>
   <property name="toolTip">
    <string>Use a regular expression to make a selection of genes</string>

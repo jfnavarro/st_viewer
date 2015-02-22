@@ -60,6 +60,7 @@ private:
     QList<QGLSceneNode *> m_nodes;
     qreal m_intensity;
     QRectF m_bounds;
+    bool m_isInitialized;
 
     Q_DISABLE_COPY(ImageTextureGL)
 };

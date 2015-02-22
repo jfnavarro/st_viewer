@@ -25,7 +25,8 @@ static const int tile_height = 1024;
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
     GraphicItemGL(parent),
-    m_intensity(1.0)
+    m_intensity(1.0),
+    m_isInitialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -44,6 +45,7 @@ void ImageTextureGL::clearData()
 {
     clearTextures();
     clearNodes();
+    m_isInitialized = false;
 }
 
 void ImageTextureGL::clearTextures()
@@ -77,6 +79,10 @@ void ImageTextureGL::clearNodes()
 
 void ImageTextureGL::draw(QGLPainter *painter)
 {
+    if (!m_isInitialized) {
+        return;
+    }
+
     glEnable(GL_TEXTURE_2D);
     {
         foreach(QGLSceneNode *node, m_nodes) {
@@ -162,6 +168,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
         addTexture(sub_image, x, y);
     }
 
+    m_isInitialized = true;
     QGuiApplication::restoreOverrideCursor();
 }
 

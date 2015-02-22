@@ -193,7 +193,7 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter 
     painter->clearAttributes();
     painter->setStandardEffect(QGL::FlatColor);
     painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
+    painter->setVertexAttribute(QGL::Position, vertices);
     painter->draw(QGL::TriangleFan, vertices.size());
 
     color.setAlphaF(0.8);

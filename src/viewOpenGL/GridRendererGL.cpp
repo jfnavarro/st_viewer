@@ -69,6 +69,8 @@ void GridRendererGL::clearData()
     m_rect = QRectF();
     m_gridColor = DEFAULT_COLOR_GRID;
     m_gridBorderColor = DEFAULT_COLOR_GRID_BORDER;
+    m_grid_vertex.clear();
+    m_border_vertex.clear();
 }
 
 void GridRendererGL::generateData()

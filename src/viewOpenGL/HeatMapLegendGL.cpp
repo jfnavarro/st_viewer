@@ -26,10 +26,12 @@ static const qreal bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     : GraphicItemGL(parent),
-      m_max(1),
-      m_min(1),
-      m_colorComputingMode(Globals::LinearColor)
-
+      m_maxReads(1),
+      m_minReads(1),
+      m_minGenes(1),
+      m_maxGenes(1),
+      m_colorComputingMode(Globals::LinearColor),
+      m_valueComputation(Reads)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -41,13 +43,27 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
 
 HeatMapLegendGL::~HeatMapLegendGL()
 {
+    clearData();
+}
+
+void HeatMapLegendGL::clearData()
+{
     m_texture.cleanupResources();
     m_texture.release();
     m_texture.clearImage();
+    m_texture_vertices.clear();
+    m_texture_cords.clear();
+    m_texture_cords.clear();
+    m_textureText.cleanupResources();
+    m_textureText.release();
+    m_textureText.clearImage();
+    m_borders.clear();
+    //m_valueComputation = Reads;
 }
 
 void HeatMapLegendGL::draw(QGLPainter *painter)
 {
+
     glEnable(GL_TEXTURE_2D);
     {
         // draw image texture
@@ -67,8 +83,10 @@ void HeatMapLegendGL::draw(QGLPainter *painter)
         painter->draw(QGL::LineLoop, m_borders.size());
 
         // draw text (add 5 pixels offset to the right)
-        drawText(painter, QPointF(legend_x + legend_width + 5, 0), QString::number(m_max));
-        drawText(painter, QPointF(legend_x + legend_width + 5, legend_height), QString::number(m_min));
+        const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
+        const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
+        drawText(painter, QPointF(legend_x + legend_width + 5, 0), QString::number(max));
+        drawText(painter, QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
     }
     glDisable(GL_TEXTURE_2D);
 }
@@ -78,18 +96,26 @@ void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 
 }
 
-void HeatMapLegendGL::setLowerLimit(const int limit)
+void HeatMapLegendGL::setLowerLimitReads(const int limit)
 {
-    if (m_min != limit) {
-        m_min = limit;
+    if (m_minReads != limit) {
+        m_minReads = limit;
         generateHeatMap();
     }
 }
 
-void HeatMapLegendGL::setUpperLimit(const int limit)
+void HeatMapLegendGL::setUpperLimitReads(const int limit)
 {
-    if (m_max != limit) {
-        m_max = limit;
+    if (m_maxReads != limit) {
+        m_maxReads = limit;
+        generateHeatMap();
+    }
+}
+
+void HeatMapLegendGL::setValueComputation(ValueComputation mode)
+{
+    if (m_valueComputation != mode) {
+        m_valueComputation = mode;
         generateHeatMap();
     }
 }
@@ -103,36 +129,51 @@ void HeatMapLegendGL::setColorComputingMode(const Globals::GeneColorMode &mode)
     }
 }
 
+void HeatMapLegendGL::setLowerLimitGenes(const int limit)
+{
+    if (m_minGenes != limit) {
+        m_minGenes = limit;
+        generateHeatMap();
+    }
+}
+
+void HeatMapLegendGL::setUpperLimitGenes(const int limit)
+{
+    if (m_maxGenes != limit) {
+        m_maxGenes = limit;
+        generateHeatMap();
+    }
+}
+
 void HeatMapLegendGL::generateHeatMap()
 {
+    clearData();
+
+    const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
+    const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
+
     // generate image texture
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
     //here we can chose the type of Spectrum (linear, log or exp) and the type
     //of color mapping (wavelenght or linear interpolation)
-    Heatmap::createHeatMapImage(image, m_min, m_max, m_colorComputingMode);
+    Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
 
-    m_texture.cleanupResources();
-    m_texture.release();
-    m_texture.clearImage();
     m_texture.setImage(image);
     m_texture.setVerticalWrap(QGL::ClampToEdge);
     m_texture.setHorizontalWrap(QGL::ClampToEdge);
     m_texture.setBindOptions(QGLTexture2D::LinearFilteringBindOption
                              | QGLTexture2D::MipmapBindOption);
 
-    m_texture_vertices.clear();
     m_texture_vertices.append(legend_x, legend_y);
     m_texture_vertices.append(legend_x + legend_width, legend_y);
     m_texture_vertices.append(legend_x + legend_width, legend_y + legend_height);
     m_texture_vertices.append(legend_x, legend_y + legend_height);
 
-    m_texture_cords.clear();
     m_texture_cords.append(0.0, 0.0);
     m_texture_cords.append(1.0, 0.0);
     m_texture_cords.append(1.0, 1.0);
     m_texture_cords.append(0.0, 1.0);
 
-    m_borders.clear();
     m_borders.append(legend_x, legend_y);
     m_borders.append(legend_x + legend_width, legend_y);
     m_borders.append(legend_x + legend_width, legend_y + legend_height);

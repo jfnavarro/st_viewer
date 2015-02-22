@@ -348,10 +348,10 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Shows a dialog to select genes by Reg. Exp.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Shows a dialog to select features by Reg. Exp.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="statusTip">
-            <string>Shows a dialog to select genes by Reg. Exp.</string>
+            <string>Shows a dialog to select features by Reg. Exp.</string>
            </property>
            <property name="text">
             <string/>
@@ -901,6 +901,28 @@
    </property>
    <property name="toolTip">
     <string>Shows a color selector to change color of the grid</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendReads">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Values Reads</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute values using reads</string>
+   </property>
+  </action>
+  <action name="action_toggleLegendGenes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend Values Genes</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute values using genes</string>
    </property>
   </action>
  </widget>
