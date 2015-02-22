@@ -43,6 +43,7 @@ class GeneSelectionDTO : public QObject
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
     Q_PROPERTY(QString created_at READ created WRITE created)
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
+    Q_PROPERTY(QByteArray tissue_snapshot READ tissueSnapShot WRITE tissueSnapShot)
 
 public:
 
@@ -66,6 +67,7 @@ public:
     bool enabled() const { return m_geneSelection.enabled(); }
     const QString created() const { return m_geneSelection.created(); }
     const QString lastModified() const { return m_geneSelection.lastModified(); }
+    const QByteArray tissueSnapShot() const { return m_geneSelection.tissueSnapShot(); }
 
     // binding
     void id(const QString& id) { m_geneSelection.id(id); }
@@ -82,7 +84,8 @@ public:
     void enabled(const bool enabled) { m_geneSelection.enabled(enabled); }
     void created(const QString& created) { m_geneSelection.created(created); }
     void lastModified(const QString& lastModified) { m_geneSelection.lastModified(lastModified); }
-
+    void tissueSnapShot(const QByteArray& tissueSnapshot) {
+        m_geneSelection.tissueSnapShot(tissueSnapshot); }
     // get parsed data model
     const GeneSelection& geneSelection() const { return m_geneSelection; }
     GeneSelection& geneSelection() { return m_geneSelection; }
@@ -119,6 +122,8 @@ public:
         jsonObj["enabled"] = enabled();
         jsonObj["created_at"] =  QJsonValue::Null; //leave this empty the API will take care of it
         jsonObj["last_modified"] = QJsonValue::Null; //leave this empty the API will take care of it
+        QByteArray tissue_base64 = tissueSnapShot().toBase64();
+        jsonObj["tissue_snapshot"] = QString::fromUtf8(tissue_base64);
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);

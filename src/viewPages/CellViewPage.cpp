@@ -1023,6 +1023,14 @@ void CellViewPage::slotSaveSelection()
         //add type of selection
         selection.type("Rubberband selection");
 
+        //add image snapshot
+        QImage tissue_snapshot = m_view->grabPixmapGL();
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        tissue_snapshot.save(&buffer, "JPG");
+        selection.tissueSnapShot(ba);
+
         //add account
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());

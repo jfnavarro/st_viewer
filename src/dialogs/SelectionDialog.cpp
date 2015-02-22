@@ -32,6 +32,8 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
         mapToGlobal(rect().center()));
 
     //Connections are made in the UI file
+
+    m_regExp.setPatternSyntax(QRegExp::WildcardUnix);
 }
 
 SelectionDialog::~SelectionDialog()
@@ -78,7 +80,8 @@ void SelectionDialog::accept()
             continue;
         }
 
-        if (name.contains(m_regExp)) {
+
+        if (m_regExp.exactMatch(name)) {
             //at this point all included genes must be selected
             gene->selected(true);
             m_selectedGeneList.append(gene);

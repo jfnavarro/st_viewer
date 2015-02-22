@@ -454,7 +454,9 @@ void DataProxy::addGeneSelection(const GeneSelection &geneSelection)
     GeneSelectionDTO dto(geneSelection);
     NetworkCommand *cmd = RESTCommandFactory::addSelection(m_configurationManager);
     //append json data
-    cmd->setBody(dto.toJson());
+    const QByteArray &body = dto.toJson();
+    qDebug() << "Storing selection " << body;
+    cmd->setBody(body);
     NetworkReply *reply = m_networkManager->httpRequest(cmd);
     //delete the command
     cmd->deleteLater();

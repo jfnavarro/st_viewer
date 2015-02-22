@@ -217,11 +217,43 @@ selection-background-color: darkgray;</string>
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="showTissue">
+           <property name="minimumSize">
+            <size>
+             <width>85</width>
+             <height>70</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>85</width>
+             <height>70</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Shot Tissue</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/tissue_snapshot.png</normaloff>:/images/tissue_snapshot.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>85</width>
+             <height>70</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="ddaAnalysis">
            <property name="minimumSize">
             <size>
-             <width>75</width>
-             <height>50</height>
+             <width>85</width>
+             <height>70</height>
             </size>
            </property>
            <property name="maximumSize">
