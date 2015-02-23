@@ -7,11 +7,10 @@
 
 #include "GridRendererGL.h"
 
+#include <QVector2D>
+#include "qopengl.h"
 #include "math/Common.h"
 #include "utils/Utils.h"
-
-#include <QGLPainter>
-#include <QVector2DArray>
 
 static const qreal GRID_LINE_SIZE = 1.0;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
@@ -33,26 +32,32 @@ GridRendererGL::~GridRendererGL()
 
 }
 
-void GridRendererGL::draw(QGLPainter *painter)
+void GridRendererGL::draw()
 {
     glEnable(GL_LINE_SMOOTH);
     {
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         glLineWidth(GRID_LINE_SIZE);
 
-        m_gridBorderColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridBorderColor);
-        painter->setVertexAttribute(QGL::Position, m_border_vertex);
-        painter->draw(QGL::Lines, m_border_vertex.size());
+        glBegin(GL_LINES);
+        {
+            glColor4f(m_gridBorderColor.redF(),
+                  m_gridBorderColor.greenF(),
+                  m_gridBorderColor.blueF(),
+                  m_gridBorderColor.alphaF());
+            foreach (QVector2D indice, m_border_vertex) {
+                glVertex2f(indice.x(), indice.y());
+            }
 
-        m_gridColor.setAlphaF(0.5);
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(m_gridColor);
-        painter->setVertexAttribute(QGL::Position, m_grid_vertex);
-        painter->draw(QGL::Lines, m_grid_vertex.size());
+            glColor4f(m_gridColor.redF(),
+                  m_gridColor.greenF(),
+                  m_gridColor.blueF(),
+                  m_gridColor.alphaF());
+            foreach (QVector2D indice, m_grid_vertex) {
+                glVertex2f(indice.x(), indice.y());
+            }
+        }
+        glEnd();
     }
     glDisable(GL_LINE_SMOOTH);
 }
@@ -81,46 +86,46 @@ void GridRendererGL::generateData()
     // generate borders
     for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
         if (m_rect.top() <= y && y <= m_rect.bottom()) {
-            m_border_vertex.append(m_border.left(), y);
-            m_border_vertex.append(m_rect.left(), y);
-            m_border_vertex.append(m_rect.right(), y);
-            m_border_vertex.append(m_border.right(), y);
+            m_border_vertex.append(QVector2D(m_border.left(), y));
+            m_border_vertex.append(QVector2D(m_rect.left(), y));
+            m_border_vertex.append(QVector2D(m_rect.right(), y));
+            m_border_vertex.append(QVector2D(m_border.right(), y));
         } else {
-            m_border_vertex.append(m_border.left(), y);
-            m_border_vertex.append(m_border.right(), y);
+            m_border_vertex.append(QVector2D(m_border.left(), y));
+            m_border_vertex.append(QVector2D(m_border.right(), y));
         }
     }
     for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0) {
         if (m_rect.left() <= x && x <= m_rect.right()) {
-            m_border_vertex.append(x, m_border.top());
-            m_border_vertex.append(x, m_rect.top());
-            m_border_vertex.append(x, m_rect.bottom());
-            m_border_vertex.append(x, m_border.bottom());
+            m_border_vertex.append(QVector2D(x, m_border.top()));
+            m_border_vertex.append(QVector2D(x, m_rect.top()));
+            m_border_vertex.append(QVector2D(x, m_rect.bottom()));
+            m_border_vertex.append(QVector2D(x, m_border.bottom()));
         } else {
-            m_border_vertex.append(x, m_border.top());
-            m_border_vertex.append(x, m_border.bottom());
+            m_border_vertex.append(QVector2D(x, m_border.top()));
+            m_border_vertex.append(QVector2D(x, m_border.bottom()));
         }
     }
 
     // generate grid
     for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += GRID_LINE_SIZE) {
-        m_grid_vertex.append(m_rect.left(),  y);
-        m_grid_vertex.append(m_rect.right(),  y);
+        m_grid_vertex.append(QVector2D(m_rect.left(), y));
+        m_grid_vertex.append(QVector2D(m_rect.right(), y));
     }
     for (qreal x = m_rect.left(); x <= m_rect.right(); x += GRID_LINE_SIZE) {
-        m_grid_vertex.append(x, m_rect.top());
-        m_grid_vertex.append(x, m_rect.bottom());
+        m_grid_vertex.append(QVector2D(x, m_rect.top()));
+        m_grid_vertex.append(QVector2D(x, m_rect.bottom()));
     }
 
     // check boundaries
     if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), GRID_LINE_SIZE), 0.0)) {
-        m_grid_vertex.append(m_rect.left(), m_rect.bottom());
-        m_grid_vertex.append(m_rect.right(), m_rect.bottom());
+        m_grid_vertex.append(QVector2D(m_rect.left(), m_rect.bottom()));
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.bottom()));
     }
 
     if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), GRID_LINE_SIZE), 0.0)) {
-        m_grid_vertex.append(m_rect.right(), m_rect.top());
-        m_grid_vertex.append(m_rect.right(), m_rect.bottom());
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.top()));
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.bottom()));
     }
 }
 

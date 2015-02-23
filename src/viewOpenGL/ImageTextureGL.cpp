@@ -6,11 +6,8 @@
 */
 #include "ImageTextureGL.h"
 
-#include <QGLBuilder>
-#include <QGeometryData>
-#include <QGLMaterial>
+#include <QOpenGLTexture>
 #include <QImage>
-#include <QGLPainter>
 #include <QtConcurrent>
 #include <QFuture>
 #include <QByteArray>
@@ -20,8 +17,8 @@
 #include "qjpeg-turbo/qjpeghandler_p.h"
 #include <cmath>
 
-static const int tile_width = 1024;
-static const int tile_height = 1024;
+static const int tile_width = 512;
+static const int tile_height = 512;
 
 ImageTextureGL::ImageTextureGL(QObject *parent) :
     GraphicItemGL(parent),
@@ -44,18 +41,17 @@ ImageTextureGL::~ImageTextureGL()
 void ImageTextureGL::clearData()
 {
     clearTextures();
-    clearNodes();
+    m_textures_indices.clear();
+    m_texture_coords.clear();
     m_isInitialized = false;
 }
 
 void ImageTextureGL::clearTextures()
 {
-    foreach(QGLTexture2D *texture, m_textures) {
+    foreach(QOpenGLTexture *texture, m_textures) {
         if (texture != nullptr) {
-            texture->cleanupResources();
             texture->release();
-            texture->clearImage();
-            texture->deleteLater();
+            texture->destroy();
         }
 
         texture = nullptr;
@@ -64,20 +60,7 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::clearNodes()
-{
-    foreach(QGLSceneNode *node, m_nodes) {
-        if (node != nullptr) {
-            node->deleteLater();
-        }
-
-        node = nullptr;
-    }
-
-    m_nodes.clear();
-}
-
-void ImageTextureGL::draw(QGLPainter *painter)
+void ImageTextureGL::draw()
 {
     if (!m_isInitialized) {
         return;
@@ -85,17 +68,21 @@ void ImageTextureGL::draw(QGLPainter *painter)
 
     glEnable(GL_TEXTURE_2D);
     {
-        foreach(QGLSceneNode *node, m_nodes) {
-            if (node != nullptr && node->material() != nullptr
-                    && node->material()->texture() != nullptr) {
-                node->material()->texture()->bind();
-                QColor texture_color = Qt::black;
-                texture_color.setAlphaF(m_intensity);
-                node->material()->setColor(texture_color);
-                node->draw(painter);
-                node->material()->texture()->release();
-            }
+        glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
+        glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        for (int i = 0; i < m_textures.size(); ++i) {
+            QOpenGLTexture *texture = m_textures[i];
+            Q_ASSERT(texture != nullptr);
+            texture->bind();
+            glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+            texture->release();
         }
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
     glDisable(GL_TEXTURE_2D);
 }
@@ -177,37 +164,23 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     const qreal width = static_cast<qreal>(image.width());
     const qreal height = static_cast<qreal>(image.height());
 
-    QGLBuilder builder;
-    QGeometryData data;
+    m_textures_indices.append(QVector2D(x, y));
+    m_textures_indices.append(QVector2D(x + width, y));
+    m_textures_indices.append(QVector2D(x + width, y + height));
+    m_textures_indices.append(QVector2D(x, y + height));
 
-    QVector2D a(x, y);
-    QVector2D b(x + width, y);
-    QVector2D c(x + width, y + height);
-    QVector2D d(x, y + height);
-    QVector2D ta(0.0, 0.0);
-    QVector2D tb(1.0, 0.0);
-    QVector2D tc(1.0, 1.0);
-    QVector2D td(0.0, 1.0);
+    m_texture_coords.append(QVector2D(0.0, 0.0));
+    m_texture_coords.append(QVector2D(1.0, 0.0));
+    m_texture_coords.append(QVector2D(1.0, 1.0));
+    m_texture_coords.append(QVector2D(0.0, 1.0));
 
-    data.appendVertex(a, b, c, d);
-    data.appendTexCoord(ta, tb, tc, td);
-
-    builder.addQuads(data);
-    QGLSceneNode *node  = builder.finalizedSceneNode();
-
-    QGLTexture2D *m_texture = new QGLTexture2D();
-    m_texture->setImage(image);
-    m_texture->setVerticalWrap(QGL::ClampToEdge);
-    m_texture->setHorizontalWrap(QGL::ClampToEdge);
-    m_texture->setBindOptions(QGLTexture2D::NoBindOption);
-    m_texture->setSize(QSize(width, height));
-
-    QGLMaterial *mat = new QGLMaterial();
-    mat->setColor(Qt::black);
-    mat->setTexture(m_texture);
-    node->setMaterial(mat);
-    node->setEffect(QGL::LitDecalTexture2D);
-    m_nodes.append(node);
+    QOpenGLTexture *texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    texture->setData(image);
+    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+    texture->setMagnificationFilter(QOpenGLTexture::Linear);
+    texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    m_textures.append(texture);
 }
 
 const QRectF ImageTextureGL::boundingRect() const

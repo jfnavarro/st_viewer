@@ -7,7 +7,6 @@ attribute highp vec4 vertexAttr;
 attribute lowp float visibleAttr;
 attribute lowp float selectedAttr;
 attribute lowp float readsAttr;
-uniform mediump mat4 in_ModelViewMatrix;
 uniform mediump mat4 in_ModelViewProjectionMatrix;
 
 // passed along to fragment shader

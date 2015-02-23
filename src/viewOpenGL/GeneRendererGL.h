@@ -12,6 +12,7 @@
 #include <QFuture>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLBuffer>
 
 #include "math/QuadTree.h"
 #include "SelectionEvent.h"
@@ -19,10 +20,7 @@
 #include "GeneData.h"
 #include "data/DataProxy.h"
 
-class QGLPainter;
-class QGLShaderProgramEffect;
 class QOpenGLVertexArrayObject;
-class QOpenGLShader;
 
 //Gene renderer is what renders the genes/features on the canvas.
 //It uses data arrays (GeneData) to render trough shaders.
@@ -128,7 +126,7 @@ signals:
 protected:
 
     void setSelectionArea(const SelectionEvent *event) override;
-    void draw(QGLPainter *painter) override;
+    void draw() override;
     const QRectF boundingRect() const override;
 
 private:

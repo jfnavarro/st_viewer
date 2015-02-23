@@ -108,4 +108,4 @@ v0.4.8
 	* Fixed some artifacts bugs in the rendering
 	* Improved init-reset of graphical elements
 	* Changed text in reg-exp widget
-
+	* Removed dependency with Qt3D

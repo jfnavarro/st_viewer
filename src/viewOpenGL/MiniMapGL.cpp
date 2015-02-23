@@ -7,8 +7,6 @@
 
 #include "MiniMapGL.h"
 
-#include <QVector2DArray>
-#include <QGLPainter>
 #include <QEvent>
 #include <QMouseEvent>
 
@@ -81,7 +79,7 @@ QTransform MiniMapGL::localTransform() const
     return transform;
 }
 
-void MiniMapGL::draw(QGLPainter *painter)
+void MiniMapGL::draw()
 {
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
@@ -89,8 +87,8 @@ void MiniMapGL::draw(QGLPainter *painter)
 
     const QRectF viewPortInSceneCoordinates =
             m_parentSceneTransformations.inverted().mapRect(m_viewPort);
-    drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, painter);
-    drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates), m_viewColor, painter);
+    drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor);
+    drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates), m_viewColor);
 }
 
 void MiniMapGL::setSceneColor(const QColor sceneColor)

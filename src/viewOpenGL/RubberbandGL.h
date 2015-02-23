@@ -33,7 +33,7 @@ public:
     void setRubberbandRect(const QRectF rect);
 
     //made public for convenience
-    void draw(QGLPainter *painter) override;
+    void draw() override;
 
 protected:
 

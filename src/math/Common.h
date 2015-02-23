@@ -10,10 +10,10 @@
 #define COMMON_H
 
 #include <QPointF>
-#include <QColor4ub>
 #include <algorithm>
 #include <QtCore/qmath.h>
 #include <QSizeF>
+#include <QColor>
 
 #include <cmath>
 
@@ -47,11 +47,6 @@ inline const QSizeF clamp(const QSizeF& size,
     }
 
     return clampSize;
-}
-
-inline int toGreyAverage(QRgb rgb)
-{
-    return (qRed(rgb) + qGreen(rgb) + qBlue(rgb)) / 3;
 }
 
 inline qreal qMod(qreal x, qreal y)
@@ -108,10 +103,10 @@ inline const T denorm(const R nv, const T t0, const T t1)
 }
 
 //linear interpolation between color c0 and color c1 given a value t
-inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
+inline const QColor lerp(const qreal t, const QColor &c0, const QColor &c1)
 {
     //TODO should do the interpolation in HSV space
-    return QColor4ub(
+    return QColor(
                 (c0.red() + ((c1.red() - c0.red()) * t)),
                 (c0.green() + ((c1.green() - c0.green()) * t)),
                 (c0.blue() + ((c1.blue() - c0.blue()) * t)),
@@ -120,11 +115,11 @@ inline const QColor4ub lerp(const qreal t, const QColor4ub &c0, const QColor4ub 
 }
 
 //inverse linear interpolation between color c0 and color c1 given a value t
-inline const QColor4ub invlerp(const qreal t, const QColor4ub &c0, const QColor4ub &c1)
+inline const QColor invlerp(const qreal t, const QColor &c0, const QColor &c1)
 {
     //TODO should do the interpolation in HSV space
     const qreal invt = 1.0 / (1.0 - t);
-    return QColor4ub(
+    return QColor(
                 (c0.red() - (t * c1.red())) * invt,
                 (c0.green() - (t * c1.green())) * invt,
                 (c0.blue() - (t * c1.blue())) * invt,

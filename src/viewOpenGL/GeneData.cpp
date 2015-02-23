@@ -4,14 +4,8 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 */
-#include "GeneData.h"
 
-#include <QVector3D>
-#include <qglnamespace.h>
-#include <QColor4ub>
-#include <QGLAttributeValue>
-#include <QCustomDataArray>
-#include <QGLIndexBuffer>
+#include "GeneData.h"
 
 #include "utils/Utils.h"
 

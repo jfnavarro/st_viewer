@@ -10,15 +10,12 @@
 #include "math/Common.h"
 #include "utils/Utils.h"
 
-#include <QGLPainter>
-#include <QArray>
 #include <QWheelEvent>
 #include <QtOpenGL>
 #include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
 #include <QGuiApplication>
-#include <QVector2DArray>
 #include <QRubberBand>
 #include <QOpenGLFramebufferObject>
 #include <QTransform>
@@ -53,8 +50,7 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
     m_selecting(false),
     m_rubberband(nullptr),
     m_rotate(0.0),
-    m_zoom_factor(1.0),
-    m_initialized(false)
+    m_zoom_factor(1.0)
 {
     //init projection matrix to id
     m_projm.setToIdentity();
@@ -62,6 +58,19 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
     //TODO consider decoupling rubberband object and view
     m_rubberband = new RubberbandGL(this);
     m_rubberband->setAnchor(Globals::Anchor::None);
+
+    QSurfaceFormat format;
+    format.setVersion(3,3);
+    format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setStereo(false);
+    format.setStencilBufferSize(0);
+    format.setDepthBufferSize(0);
+    format.setSwapInterval(0);
+    setFormat(format);
+    create();
+    makeCurrent();
 }
 
 CellGLView::~CellGLView()
@@ -89,30 +98,7 @@ void CellGLView::clearData()
 
 void CellGLView::initializeGL()
 {
-    if (!m_initialized) {
-        m_initialized = true;
-        // creates OpenGL context and make it current
-        QSurfaceFormat format;
-        format.setVersion(3,3);
-        format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
-        format.setProfile(QSurfaceFormat::CompatibilityProfile);
-        format.setRenderableType(QSurfaceFormat::OpenGL);
-        format.setStereo(false);
-        format.setStencilBufferSize(0);
-        format.setDepthBufferSize(0);
-        format.setSwapInterval(0);
-        setSurfaceType(QWindow::OpenGLSurface);
-        setFormat(format);
-        create();
-        QOpenGLContext *opengl_context = context();
-        opengl_context->setFormat(format);
-        opengl_context->create();
-        makeCurrent();
-        initializeOpenGLFunctions();
-    }
-
-    // initialize painter
-    m_painter.begin();
+    glClearColor(0.0, 0.0, 0.0, 1.0);
 
     // configure OpenGL variables
     glDisable(GL_TEXTURE_2D);
@@ -122,24 +108,16 @@ void CellGLView::initializeGL()
     glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
 
-    // configure OpenGL blending
+    // Set the default blend options.
     glBlendColor(0, 0, 0, 0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
+    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 }
 
 void CellGLView::paintGL()
 {
-    if (!m_initialized) {
-        return;
-    }
-
-    // sets the projection matrix of the OpenGL painter
-    m_painter.projectionMatrix() = m_projm;
-    glViewport(0.0, 0.0, width(), height());
-
     // clear color buffer
-    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes
@@ -149,16 +127,18 @@ void CellGLView::paintGL()
             if (node->transformable()) {
                 local_transform *= sceneTransformations();
             }
-            m_painter.modelViewMatrix().push();
-            m_painter.modelViewMatrix() *= local_transform;
-            node->draw(&m_painter);
-            m_painter.modelViewMatrix().pop();
+
+            QMatrix4x4 matrix(local_transform);
+            node->setProjection(m_projm);
+            node->setModelView(matrix);
+            glLoadMatrixf(reinterpret_cast<const GLfloat *>(matrix.constData()));
+            node->draw();
         }
     }
 
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
-        m_rubberband->draw(&m_painter);
+        m_rubberband->draw();
     }
 }
 
@@ -169,6 +149,17 @@ void CellGLView::resizeGL(int width, int height)
     //update projection matrix
     m_projm.setToIdentity();
     m_projm.ortho(newViewport);
+
+    // sets the projection matrix of the OpenGL painter
+    glViewport(0.0, 0.0, width, height);
+
+    // reset the coordinate system
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
+
+    // model view mode
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     //create viewport
     setViewPort(newViewport);

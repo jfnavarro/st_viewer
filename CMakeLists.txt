@@ -97,7 +97,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 # find qt libraries
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL Concurrent 3D Xml)
+set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL Concurrent Xml)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()

@@ -11,10 +11,9 @@
 #include "GraphicItemGL.h"
 #include "utils/Utils.h"
 
-class QGLPainter;
+#include <QOpenGLTexture>
+
 class QImage;
-class QGLTexture2D;
-class QVector2DArray;
 
 // HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
 // in order to give a reference point in determining each features hit count.
@@ -52,7 +51,7 @@ public slots:
 
 protected:
 
-    void draw(QGLPainter *painter) override;
+    void draw() override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
 
@@ -62,7 +61,7 @@ private:
     void generateHeatMap();
 
     // internal function to render text as a texture
-    void drawText(QGLPainter *painter, const QPointF &posn, const QString& str);
+    void drawText(const QPointF &posn, const QString& str);
 
     // min and max boundaries values to compute colors from
     int m_maxReads;
@@ -74,14 +73,12 @@ private:
     Globals::GeneColorMode m_colorComputingMode;
 
     // texture color data
-    QGLTexture2D m_texture;
-    QGLTexture2D m_textureText;
-    QVector2DArray m_texture_vertices;
-    QVector2DArray m_texture_cords;
+    QOpenGLTexture m_texture;
+    QOpenGLTexture m_textureText;
+    QVector<QVector2D> m_texture_vertices;
+    QVector<QVector2D> m_texture_cords;
 
-    // data vertex arrays
-    QVector2DArray m_borders;
-
+    // use genes or reads to compute min-max
     ValueComputation m_valueComputation;
 
     Q_DISABLE_COPY(HeatMapLegendGL)

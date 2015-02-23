@@ -97,8 +97,7 @@ set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::Widgets
                              Qt5::PrintSupport
                              Qt5::OpenGL
-                             Qt5::Concurrent
-                             Qt5::3D)
+                             Qt5::Concurrent)
 
 #create main target (resources needs to be part of the target)
 set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})

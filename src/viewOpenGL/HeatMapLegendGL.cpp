@@ -10,12 +10,10 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
+#include <QPainter>
 #include <QImage>
-#include <QGLTexture2D>
 #include <QApplication>
 #include <QVector2D>
-#include <QGLPainter>
-#include <QVector2DArray>
 #include <QLabel>
 
 static const qreal legend_x = 0.0;
@@ -31,6 +29,8 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
       m_minGenes(1),
       m_maxGenes(1),
       m_colorComputingMode(Globals::LinearColor),
+      m_texture(QOpenGLTexture::Target2D),
+      m_textureText(QOpenGLTexture::Target2D),
       m_valueComputation(Reads)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
@@ -48,45 +48,52 @@ HeatMapLegendGL::~HeatMapLegendGL()
 
 void HeatMapLegendGL::clearData()
 {
-    m_texture.cleanupResources();
-    m_texture.release();
-    m_texture.clearImage();
+    if (m_texture.isCreated()) {
+        m_texture.release();
+        m_texture.destroy();
+    }
+
     m_texture_vertices.clear();
     m_texture_cords.clear();
     m_texture_cords.clear();
-    m_textureText.cleanupResources();
-    m_textureText.release();
-    m_textureText.clearImage();
-    m_borders.clear();
+
+    if (m_textureText.isCreated()) {
+        m_textureText.release();
+        m_textureText.destroy();
+    }
+
     //m_valueComputation = Reads;
 }
 
-void HeatMapLegendGL::draw(QGLPainter *painter)
+void HeatMapLegendGL::draw()
 {
-
     glEnable(GL_TEXTURE_2D);
     {
-        // draw image texture
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatReplaceTexture2D);
         m_texture.bind();
-        painter->setVertexAttribute(QGL::Position, m_texture_vertices);
-        painter->setVertexAttribute(QGL::TextureCoord0, m_texture_cords);
-        painter->draw(QGL::TriangleFan, m_texture_vertices.size());
+        glBegin(GL_QUADS);
+        {
+            for (int i = 0; i < m_texture_vertices.size(); ++i) {
+                glTexCoord2f(m_texture_cords.at(i).x(), m_texture_cords.at(i).y());
+                glVertex2f(m_texture_vertices.at(i).x(), m_texture_vertices.at(i).y());
+            }
+        }
+        glEnd();
         m_texture.release();
 
-        // draw borders
-        painter->clearAttributes();
-        painter->setStandardEffect(QGL::FlatColor);
-        painter->setColor(Qt::white);
-        painter->setVertexAttribute(QGL::Position, m_borders);
-        painter->draw(QGL::LineLoop, m_borders.size());
+        glBegin(GL_LINE_LOOP);
+        {
+            glColor4f(1.0, 1.0, 1.0, 1);
+            foreach(QVector2D indice, m_texture_vertices) {
+                glVertex2f(indice.x(), indice.y());
+            }
+            glEnd();
+        }
 
         // draw text (add 5 pixels offset to the right)
         const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
         const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
-        drawText(painter, QPointF(legend_x + legend_width + 5, 0), QString::number(max));
-        drawText(painter, QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
+        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
+        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
     }
     glDisable(GL_TEXTURE_2D);
 }
@@ -158,32 +165,26 @@ void HeatMapLegendGL::generateHeatMap()
     //of color mapping (wavelenght or linear interpolation)
     Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
 
-    m_texture.setImage(image);
-    m_texture.setVerticalWrap(QGL::ClampToEdge);
-    m_texture.setHorizontalWrap(QGL::ClampToEdge);
-    m_texture.setBindOptions(QGLTexture2D::LinearFilteringBindOption
-                             | QGLTexture2D::MipmapBindOption);
+    m_texture.create();
+    m_texture.setData(image);
+    m_texture.setMinificationFilter(QOpenGLTexture::Linear);
+    m_texture.setMagnificationFilter(QOpenGLTexture::Linear);
+    m_texture.setWrapMode(QOpenGLTexture::ClampToEdge);
 
-    m_texture_vertices.append(legend_x, legend_y);
-    m_texture_vertices.append(legend_x + legend_width, legend_y);
-    m_texture_vertices.append(legend_x + legend_width, legend_y + legend_height);
-    m_texture_vertices.append(legend_x, legend_y + legend_height);
+    m_texture_vertices.append(QVector2D(legend_x, legend_y));
+    m_texture_vertices.append(QVector2D(legend_x + legend_width, legend_y));
+    m_texture_vertices.append(QVector2D(legend_x + legend_width, legend_y + legend_height));
+    m_texture_vertices.append(QVector2D(legend_x, legend_y + legend_height));
 
-    m_texture_cords.append(0.0, 0.0);
-    m_texture_cords.append(1.0, 0.0);
-    m_texture_cords.append(1.0, 1.0);
-    m_texture_cords.append(0.0, 1.0);
-
-    m_borders.append(legend_x, legend_y);
-    m_borders.append(legend_x + legend_width, legend_y);
-    m_borders.append(legend_x + legend_width, legend_y + legend_height);
-    m_borders.append(legend_x, legend_y + legend_height);
+    m_texture_cords.append(QVector2D(0.0, 0.0));
+    m_texture_cords.append(QVector2D(1.0, 0.0));
+    m_texture_cords.append(QVector2D(1.0, 1.0));
+    m_texture_cords.append(QVector2D(0.0, 1.0));
 
     emit updated();
 }
 
-void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
-                               const QString& str)
+void HeatMapLegendGL::drawText(const QPointF &posn, const QString& str)
 {
     QFont monoFont("Courier", 12, QFont::Normal);
     QFontMetrics metrics(monoFont);
@@ -198,31 +199,33 @@ void HeatMapLegendGL::drawText(QGLPainter *painter, const QPointF &posn,
     qpainter.drawText(textRect.x(), metrics.ascent(), str);
     qpainter.end();
 
-    m_textureText.cleanupResources();
-    m_textureText.release();
-    m_textureText.clearImage();
-    m_textureText.setImage(image);
+    m_textureText.destroy();
+    m_textureText.create();
+    m_textureText.setData(image.mirrored());
     const int x = posn.x();
     const int y = posn.y();
 
-    QVector2DArray vertices;
-    vertices.append(x + textRect.x(), y + metrics.ascent());
-    vertices.append(x + textRect.x(), y - metrics.descent());
-    vertices.append(x + textRect.x() + textRect.width(), y - metrics.descent());
-    vertices.append(x + textRect.x() + textRect.width(), y + metrics.ascent());
+    QVector<QVector2D> vertices;
+    vertices.append(QVector2D(x + textRect.x(), y + metrics.ascent()));
+    vertices.append(QVector2D(x + textRect.x(), y - metrics.descent()));
+    vertices.append(QVector2D(x + textRect.x() + textRect.width(), y - metrics.descent()));
+    vertices.append(QVector2D(x + textRect.x() + textRect.width(), y + metrics.ascent()));
 
-    QVector2DArray texCoord;
-    texCoord.append(0.0, 0.0);
-    texCoord.append(0.0, 1.0);
-    texCoord.append(1.0, 1.0);
-    texCoord.append(1.0, 0.0);
+    QVector<QVector2D> texCoord;
+    texCoord.append(QVector2D(0.0, 0.0));
+    texCoord.append(QVector2D(0.0, 1.0));
+    texCoord.append(QVector2D(1.0, 1.0));
+    texCoord.append(QVector2D(1.0, 0.0));
 
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatReplaceTexture2D);
-    painter->setVertexAttribute(QGL::Position, vertices);
-    painter->setVertexAttribute(QGL::TextureCoord0, texCoord);
     m_textureText.bind();
-    painter->draw(QGL::TriangleFan, vertices.size());
+    glBegin(GL_QUADS);
+    {
+        for (int i = 0; i < vertices.size(); ++i) {
+            glTexCoord2f(texCoord.at(i).x(), texCoord.at(i).y());
+            glVertex2f(vertices.at(i).x(), vertices.at(i).y());
+        }
+    }
+    glEnd();
     m_textureText.release();
 }
 

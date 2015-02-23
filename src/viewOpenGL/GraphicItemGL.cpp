@@ -6,8 +6,9 @@
 */
 
 #include "GraphicItemGL.h"
+
 #include <QVector3D>
-#include <QGLPainter>
+#include <QtOpenGL>
 
 GraphicItemGL::GraphicItemGL(QObject *parent) :
     QObject(parent),
@@ -176,30 +177,54 @@ void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
     Q_UNUSED(event);
 }
 
-void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter)
+void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
     const QPointF sbr = rect.bottomRight();
     const QPointF sbl = rect.bottomLeft();
 
-    QVector2DArray vertices;
-    vertices.append(stl.x(), stl.y());
-    vertices.append(str.x(), str.y());
-    vertices.append(sbr.x(), sbr.y());
-    vertices.append(sbl.x(), sbl.y());
+    glBegin(GL_QUADS);
+    {
+        glColor4f(color.redF(), color.greenF(), color.blueF(), 0.2);
+        glVertex2f(stl.x(), stl.y());
+        glVertex2f(str.x(), str.y());
+        glVertex2f(sbr.x(), sbr.y());
+        glVertex2f(sbl.x(), sbl.y());
+    }
+    glEnd();
 
-    color.setAlphaF(0.2);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices);
-    painter->draw(QGL::TriangleFan, vertices.size());
+    glBegin(GL_LINES);
+    {
+        glColor4f(color.redF(), color.greenF(), color.blueF(), 0.8);
+        glVertex2f(stl.x(), stl.y());
+        glVertex2f(str.x(), str.y());
+        glVertex2f(str.x(), str.y());
+        glVertex2f(sbr.x(), sbr.y());
+        glVertex2f(sbr.x(), sbr.y());
+        glVertex2f(sbl.x(), sbl.y());
+        glVertex2f(sbl.x(), sbl.y());
+        glVertex2f(stl.x(), stl.y());
+    }
+    glEnd();
+}
 
-    color.setAlphaF(0.8);
-    painter->clearAttributes();
-    painter->setStandardEffect(QGL::FlatColor);
-    painter->setColor(color);
-    painter->setVertexAttribute(QGL::Position, vertices );
-    painter->draw(QGL::LineLoop, vertices.size());
+void GraphicItemGL::setProjection(const QMatrix4x4 &projection)
+{
+    m_projection = projection;
+}
+
+void GraphicItemGL::setModelView(const QMatrix4x4 &modelview)
+{
+    m_modelView = modelview;
+}
+
+const QMatrix4x4 GraphicItemGL::getProjection() const
+{
+    return m_projection;
+}
+
+const QMatrix4x4 GraphicItemGL::getModelView() const
+{
+    return m_modelView;
 }

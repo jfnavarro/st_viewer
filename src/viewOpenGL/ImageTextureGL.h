@@ -8,12 +8,11 @@
 #define IMAGETEXTUREGL_H
 
 #include "GraphicItemGL.h"
-
+#include <QVector2D>
 #include <QFuture>
 
-class QGLPainter;
 class QImage;
-class QGLTexture2D;
+class QOpenGLTexture;
 class QByteArray;
 
 //Image texture represents a tiled image to be rendered
@@ -37,27 +36,30 @@ public:
     //return the total size of the image as a QRectF
     const QRectF boundingRect() const override;
 
+    //internal functions to create textures from images
+    void createTiles(QByteArray imageByteArray);
+
 public slots:
     //to adjust intensity of the textures
     void setIntensity(qreal intensity);
 
 protected:
 
-    void draw(QGLPainter *painter) override;
+    void draw() override;
     void setSelectionArea(const SelectionEvent *) override;
 
 private:
 
-    //internal functions to create textures from images
-    void createTiles(QByteArray imageByteArray);
+
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
 
     //internal function to remove and clean textures
     void clearTextures();
     void clearNodes();
 
-    QList<QGLTexture2D *> m_textures;
-    QList<QGLSceneNode *> m_nodes;
+    QVector<QOpenGLTexture *> m_textures;
+    QVector<QVector2D> m_textures_indices;
+    QVector<QVector2D> m_texture_coords;
     qreal m_intensity;
     QRectF m_bounds;
     bool m_isInitialized;

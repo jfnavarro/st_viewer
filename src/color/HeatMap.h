@@ -41,10 +41,10 @@ public:
                                    const Globals::GeneColorMode& colorMode);
 
     // convenience function to generate a QColor4ub color from a real value
-    static QColor4ub createHeatMapWaveLenghtColor(const qreal value);
+    static QColor createHeatMapWaveLenghtColor(const qreal value);
 
     // convenience function to generate a QColor4ub color from a real value given a range
-    static QColor4ub createHeatMapLinearColor(const qreal value,
+    static QColor createHeatMapLinearColor(const qreal value,
                                               const qreal min,
                                               const qreal max);
 

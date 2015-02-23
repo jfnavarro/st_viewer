@@ -49,15 +49,15 @@ public slots:
 
 protected:
 
-    void draw(QGLPainter *painter) override;
+    void draw() override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
 
 private:
 
     // data vertex arrays
-    QVector2DArray m_grid_vertex;
-    QVector2DArray m_border_vertex;
+    QVector<QVector2D> m_grid_vertex;
+    QVector<QVector2D> m_border_vertex;
 
     // the internal gene (x,y) area
     QRectF m_rect;

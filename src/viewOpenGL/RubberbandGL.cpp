@@ -7,8 +7,6 @@
 
 #include "RubberbandGL.h"
 
-#include <QVector2DArray>
-#include <QGLPainter>
 #include <QEvent>
 
 RubberbandGL::RubberbandGL(QObject *parent)
@@ -39,10 +37,10 @@ void RubberbandGL::setRubberbandRect(const QRectF rect)
     }
 }
 
-void RubberbandGL::draw(QGLPainter *painter)
+void RubberbandGL::draw()
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
-        drawBorderRect(m_rubberbandRect, Qt::blue, painter);
+        drawBorderRect(m_rubberbandRect, Qt::blue);
     }
 }
 

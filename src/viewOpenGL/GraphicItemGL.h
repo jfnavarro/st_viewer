@@ -7,11 +7,10 @@
 #ifndef GRAPHICITEMGL_H
 #define GRAPHICITEMGL_H
 
-#include <QGLSceneNode>
 #include <QTransform>
+#include <QMatrix4x4>
 #include "utils/Utils.h"
 
-class QGLPainter;
 class QRectF;
 class QMouseEvent;
 class SelectionEvent;
@@ -59,7 +58,7 @@ public:
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
     // drawing method, must be implemented when sub-classing
-    virtual void draw(QGLPainter *painter) = 0;
+    virtual void draw() = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
@@ -77,7 +76,13 @@ public:
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
     // drawing functions
-    void drawBorderRect(const QRectF &rect, QColor color, QGLPainter *painter);
+    void drawBorderRect(const QRectF &rect, QColor color);
+
+    void setProjection(const QMatrix4x4 &projection);
+    void setModelView(const QMatrix4x4 &modelview);
+
+    const QMatrix4x4 getProjection() const;
+    const QMatrix4x4 getModelView() const;
 
 public slots:
 
@@ -98,6 +103,8 @@ protected:
     QTransform m_transform;
     Globals::Anchor m_anchor;
     GraphicItemGL::VisualOptions m_visualOptions;
+    QMatrix4x4 m_projection;
+    QMatrix4x4 m_modelView;
 
     Q_DISABLE_COPY(GraphicItemGL)
 };

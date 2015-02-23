@@ -7,12 +7,11 @@
 #ifndef GENEDATA_H
 #define GENEDATA_H
 
-#include <QGeometryData>
-#include <QArray>
-
-class QColor4ub;
-class QGLAttributeValue;
-class QCustomDataArray;
+#include <QVector>
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
+#include <QColor>
 
 // this class contains the gene plotter visual
 // data containers and it gives and an easy interface

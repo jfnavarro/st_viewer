@@ -10,14 +10,12 @@
 #include <QOpenGLWindow>
 #include <QPointer>
 #include <QOpenGLFunctions>
-#include <QGLPainter>
 
 #include "GraphicItemGL.h"
 #include "SelectionEvent.h"
 
 #include <functional>
 
-class QGLPainter;
 class GraphicItemGL;
 class QRubberBand;
 class RubberbandGL;
@@ -28,7 +26,7 @@ class RubberbandGL;
 // QOpenGLWindow is a wrapper around QWindow to
 // allow OpenGL rendering.
 
-class CellGLView : public QOpenGLWindow, protected QOpenGLFunctions
+class CellGLView : public QOpenGLWindow
 {
     Q_OBJECT
 
@@ -40,7 +38,8 @@ public:
         releaseType
     };
 
-    explicit CellGLView(UpdateBehavior updateBehavior = NoPartialUpdate, QWindow *parent = 0);
+    explicit CellGLView(UpdateBehavior updateBehavior = NoPartialUpdate,
+                        QWindow *parent = 0);
     virtual ~CellGLView();
 
     //add/remove nodes from the rendering queue
@@ -144,12 +143,6 @@ private:
 
     // scene viewport projection
     QMatrix4x4 m_projm;
-
-    // OpenGL Qt3D painter object
-    QGLPainter m_painter;
-
-    // true when OpenGL context is initialized
-    bool m_initialized;
 
     Q_DISABLE_COPY(CellGLView)
 };

@@ -778,6 +778,11 @@ void CellViewPage::initGLView()
     m_grid->setAnchor(Globals::DEFAULT_ANCHOR_GRID);
     m_view->addRenderingNode(m_grid.data());
 
+    // gene plotter component
+    m_gene_plotter = new GeneRendererGL(m_dataProxy);
+    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
+    m_view->addRenderingNode(m_gene_plotter.data());
+
     // heatmap component
     m_legend = new HeatMapLegendGL();
     m_legend->setAnchor(Globals::DEFAULT_ANCHOR_LEGEND);
@@ -787,11 +792,6 @@ void CellViewPage::initGLView()
     m_minimap = new MiniMapGL();
     m_minimap->setAnchor(Globals::DEFAULT_ANCHOR_MINIMAP);
     m_view->addRenderingNode(m_minimap.data());
-
-    // gene plotter component
-    m_gene_plotter = new GeneRendererGL(m_dataProxy);
-    m_gene_plotter->setAnchor(Globals::DEFAULT_ANCHOR_GENE);
-    m_view->addRenderingNode(m_gene_plotter.data());
 
     // minimap needs to be notified when the canvas is resized and when the image
     // is zoomed or moved
@@ -819,6 +819,12 @@ void CellViewPage::slotLoadCellFigure()
     m_ui->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_ui->actionShow_cellTissueRed->setChecked(loadRedFigure);
 
+    m_image->clearData();
+    m_image->createTiles(image);
+    m_view->setScene(m_image->boundingRect());
+    m_view->update();
+
+    /*
     // add image to the texture image holder
     // run it concurrently as it takes time
     QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
@@ -828,7 +834,7 @@ void CellViewPage::slotLoadCellFigure()
     // textured before)
     connect(futureWatcher, &QFutureWatcher<void>::finished,
             [=]{ m_view->setScene(m_image->boundingRect());
-                 m_view->update(); });
+                 m_view->update(); });*/
 }
 
 void CellViewPage::slotPrintImage()

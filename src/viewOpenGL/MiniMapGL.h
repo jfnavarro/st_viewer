@@ -62,7 +62,7 @@ signals:
 
 protected:
 
-    void draw(QGLPainter *painter) override;
+    void draw() override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
 

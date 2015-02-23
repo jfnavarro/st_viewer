@@ -9,9 +9,7 @@
 
 #include <QFutureWatcher>
 #include <QtConcurrent>
-#include <QGLShaderProgramEffect>
 #include <QOpenGLShaderProgram>
-#include <QGLAttributeValue>
 #include <QImageReader>
 #include <QApplication>
 
@@ -246,33 +244,36 @@ void GeneRendererGL::initBasicBuffers()
     //Vertices buffer
     if (!m_vertexsBuffer.isCreated()) {
         m_vertexsBuffer.create();
-        m_vertexsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_vertexsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_vertexsBuffer.bind();
     m_vertexsBuffer.allocate(m_geneData.m_vertices.constData(),
                              m_geneData.m_vertices.size() * 3 * sizeof(float));
     m_shader_program.enableAttributeArray("vertexAttr");
     m_shader_program.setAttributeBuffer("vertexAttr", GL_FLOAT, 0, 3);
+    m_vertexsBuffer.release();
 
     //Indexes buffer
     if (!m_indexesBuffer.isCreated()) {
         m_indexesBuffer.create();
-        m_indexesBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_indexesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_indexesBuffer.bind();
     m_indexesBuffer.allocate(m_geneData.m_indexes.constData(),
                              m_geneData.m_indexes.size() * 1 * sizeof(int));
+    m_indexesBuffer.release();
 
     //Textures buffer
     if (!m_texturesBuffer.isCreated()) {
         m_texturesBuffer.create();
-        m_texturesBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_texturesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_texturesBuffer.bind();
     m_texturesBuffer.allocate(m_geneData.m_textures.constData(),
                               m_geneData.m_textures.size() * 2 * sizeof(float));
     m_shader_program.enableAttributeArray("textureAttr");
     m_shader_program.setAttributeBuffer("textureAttr", GL_FLOAT, 0, 2);
+    m_texturesBuffer.release();
 
     m_vao.release();
     m_shader_program.release();
@@ -292,46 +293,50 @@ void GeneRendererGL::initDynamicBuffers()
     //Color buffer
     if (!m_colorsBuffer.isCreated()) {
         m_colorsBuffer.create();
-        m_colorsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_colorsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_colorsBuffer.bind();
     m_colorsBuffer.allocate(m_geneData.m_colors.constData(),
                             m_geneData.m_colors.size() * 4 * sizeof(float));
     m_shader_program.enableAttributeArray("colorAttr");
     m_shader_program.setAttributeBuffer("colorAttr", GL_FLOAT, 0, 4);
+    m_colorsBuffer.release();
 
     //Selected buffer
     if (!m_selectedBuffer.isCreated()) {
         m_selectedBuffer.create();
-        m_selectedBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_selectedBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_selectedBuffer.bind();
     m_selectedBuffer.allocate(m_geneData.m_selected.constData(),
                               m_geneData.m_selected.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("selectedAttr");
     m_shader_program.setAttributeBuffer("selectedAttr", GL_FLOAT, 0, 1);
+    m_selectedBuffer.release();
 
     //Visible buffer
     if (!m_visibleBuffer.isCreated()) {
         m_visibleBuffer.create();
-        m_visibleBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_visibleBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_visibleBuffer.bind();
     m_visibleBuffer.allocate(m_geneData.m_visible.constData(),
                              m_geneData.m_visible.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("visibleAttr");
     m_shader_program.setAttributeBuffer("visibleAttr", GL_FLOAT, 0, 1);
+    m_visibleBuffer.release();
 
     //Reads buffer
     if (!m_readsBuffer.isCreated()) {
         m_readsBuffer.create();
-        m_readsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+        m_readsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     }
     m_readsBuffer.bind();
     m_readsBuffer.allocate(m_geneData.m_reads.constData(),
                            m_geneData.m_reads.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("readsAttr");
     m_shader_program.setAttributeBuffer("readsAttr", GL_FLOAT, 0, 1);
+    m_readsBuffer.release();
 
     m_vao.release();
     m_shader_program.release();
@@ -500,7 +505,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             const QColor &featureColor = gene->color();
             if (indexColor != featureColor) {
                 const qreal adjustment = 1.0 / indexValueGenes;
-                indexColor = STMath::lerp(adjustment, indexColor, featureColor).toColor();
+                indexColor = STMath::lerp(adjustment, indexColor, featureColor);
             }
         }
 
@@ -673,7 +678,7 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
     }
 }
 
-void GeneRendererGL::draw(QGLPainter *painter)
+void GeneRendererGL::draw()
 {
     if (!m_isInitialized) {
         return;
@@ -687,7 +692,7 @@ void GeneRendererGL::draw(QGLPainter *painter)
         initDynamicBuffers();
     }
 
-    QMatrix4x4 projectionMatrix = painter->combinedMatrix(); //movel_view * projection
+    QMatrix4x4 projectionModelViewMatrix = getProjection() * getModelView();
 
     int visualMode = m_shader_program.uniformLocation("in_visualMode");
     int colorMode = m_shader_program.uniformLocation("in_colorMode");
@@ -696,7 +701,6 @@ void GeneRendererGL::draw(QGLPainter *painter)
     int lowerLimit = m_shader_program.uniformLocation("in_pooledLower");
     int intensity = m_shader_program.uniformLocation("in_intensity");
     int shape = m_shader_program.uniformLocation("in_shape");
-    int mvMatrix = m_shader_program.uniformLocation("in_ModelViewMatrix");
     int projMatrix = m_shader_program.uniformLocation("in_ModelViewProjectionMatrix");
 
     m_shader_program.bind();
@@ -709,12 +713,24 @@ void GeneRendererGL::draw(QGLPainter *painter)
     m_shader_program.setUniformValue(lowerLimit, static_cast<GLint>(m_localPooledMin));
     m_shader_program.setUniformValue(intensity, static_cast<GLfloat>(m_intensity));
     m_shader_program.setUniformValue(shape, static_cast<GLint>(m_shape));
-    m_shader_program.setUniformValue(mvMatrix, projectionMatrix);
-    m_shader_program.setUniformValue(projMatrix, projectionMatrix);
+    m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
 
     m_vao.bind();
-    glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(),
-                   GL_UNSIGNED_INT, 0);
+    m_vertexsBuffer.bind();
+    m_indexesBuffer.bind();
+    m_texturesBuffer.bind();
+    m_colorsBuffer.bind();
+    m_selectedBuffer.bind();
+    m_visibleBuffer.bind();
+    m_readsBuffer.bind();
+    glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
+    m_vertexsBuffer.release();
+    m_indexesBuffer.release();
+    m_texturesBuffer.release();
+    m_colorsBuffer.release();
+    m_selectedBuffer.release();
+    m_visibleBuffer.release();
+    m_readsBuffer.release();
     m_vao.release();
 
     m_shader_program.release();

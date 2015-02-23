@@ -9,7 +9,6 @@
 
 #include <QImage>
 #include <QColor>
-#include <QColor4ub>
 
 void Heatmap::createHeatMapImage(QImage &image,
                                  const qreal lowerbound,
@@ -34,8 +33,8 @@ void Heatmap::createHeatMapImage(QImage &image,
                                                        lowerbound, upperbound);
         const qreal normalizedValue =
                 STMath::norm<qreal, qreal>(adjusted_value, lowerbound, upperbound);
-        QColor4ub color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
-        const QRgb rgb_color = color.toColor().rgb();
+        QColor color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
+        const QRgb rgb_color = color.rgb();
         for(int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
         }
@@ -44,7 +43,7 @@ void Heatmap::createHeatMapImage(QImage &image,
 
 //simple function that computes color from a min-max range
 //using linear Interpolation
-QColor4ub Heatmap::createHeatMapLinearColor(const qreal value,
+QColor Heatmap::createHeatMapLinearColor(const qreal value,
                                             const qreal min,
                                             const qreal max)
 {
@@ -52,12 +51,12 @@ QColor4ub Heatmap::createHeatMapLinearColor(const qreal value,
     const int blue = std::max(0.0, 255 * (1 - (value / halfmax)));
     const int red = std::max(0.0, 255 * ((value / halfmax) - 1));
     const int green = 255 - blue - red;
-    return QColor4ub::fromRgb(red, green, blue);
+    return QColor::fromRgb(red, green, blue);
 }
 
 //simple function that computes color from a value
 //using the human wave lenght spectra
-QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
+QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 {
     static const qreal gamma = 0.8;
 
@@ -111,7 +110,7 @@ QColor4ub Heatmap::createHeatMapWaveLenghtColor(const qreal value)
     blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
-    return QColor4ub::fromRgbF(red, green, blue, 1.0);
+    return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
 //normalizes a value to wave lenghts range using different modes (to be used
