@@ -109,3 +109,7 @@ v0.4.8
 	* Improved init-reset of graphical elements
 	* Changed text in reg-exp widget
 	* Removed dependency with Qt3D
+
+v0.4.9 
+	* Made some general clean up and optimization
+	* Fixed a bug in the computation of TPM correlation values in DEA

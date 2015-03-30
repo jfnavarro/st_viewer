@@ -1,7 +1,5 @@
 include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt)
 
-FIX_QT3D_COMPILATION_BUG()
-
 set(LIBRARY_ARG_INCLUDES
     CellViewPage.h
     DatasetPage.h

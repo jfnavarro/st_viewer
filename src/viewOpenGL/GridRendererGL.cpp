@@ -42,17 +42,17 @@ void GridRendererGL::draw()
         glBegin(GL_LINES);
         {
             glColor4f(m_gridBorderColor.redF(),
-                  m_gridBorderColor.greenF(),
-                  m_gridBorderColor.blueF(),
-                  m_gridBorderColor.alphaF());
+                      m_gridBorderColor.greenF(),
+                      m_gridBorderColor.blueF(),
+                      m_gridBorderColor.alphaF());
             foreach (QVector2D indice, m_border_vertex) {
                 glVertex2f(indice.x(), indice.y());
             }
 
             glColor4f(m_gridColor.redF(),
-                  m_gridColor.greenF(),
-                  m_gridColor.blueF(),
-                  m_gridColor.alphaF());
+                      m_gridColor.greenF(),
+                      m_gridColor.blueF(),
+                      m_gridColor.alphaF());
             foreach (QVector2D indice, m_grid_vertex) {
                 glVertex2f(indice.x(), indice.y());
             }
@@ -131,11 +131,8 @@ void GridRendererGL::generateData()
 
 void GridRendererGL::setDimensions(const QRectF border, const QRectF rect)
 {
-    if (m_border != border || m_rect != rect) {
-        m_border = border;
-        m_rect = rect;
-        emit updated();
-    }
+    m_border = border;
+    m_rect = rect;
 }
 
 const QRectF GridRendererGL::border() const

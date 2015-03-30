@@ -269,6 +269,8 @@ void CellViewPage::datasetContentDownloaded()
                 QPointF(currentChip->x2Border(), currentChip->y2Border())
                 );
 
+    // reset main variabless
+    resetActionStates();
 
     // updade grid size and data
     m_grid->clearData();
@@ -276,42 +278,35 @@ void CellViewPage::datasetContentDownloaded()
     m_grid->setTransform(alignment);
     m_grid->generateData();
 
-    // reset main variabless
-    resetActionStates();
-
     // update gene size and data
     m_gene_plotter->setDimensions(chip_border);
     m_gene_plotter->setTransform(alignment);
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    futureWatcher->setFuture(m_gene_plotter->generateData());
-    connect(futureWatcher, &QFutureWatcher<void>::finished,
-            [=]{
-        // load min-max to the genes thresholds
-        // min number of genes in threshold must be always 1
-        const int max_genes = m_gene_plotter->getMaxGenesThreshold();
-        m_geneGenesThreshold->setMinimumValue(1);
-        m_geneGenesThreshold->setMaximumValue(max_genes);
-        m_geneGenesThreshold->setTickInterval(1);
+    m_gene_plotter->generateData();
 
-        const int reads_min = m_gene_plotter->getMinReadsThreshold();
-        const int reads_max = m_gene_plotter->getMaxReadsThreshold();
+    const int min_genes = m_gene_plotter->getMinGenesThreshold();
+    const int max_genes = m_gene_plotter->getMaxGenesThreshold();
+    const int reads_min = m_gene_plotter->getMinReadsThreshold();
+    const int reads_max = m_gene_plotter->getMaxReadsThreshold();
 
-        // load min-max to the reads count threshold slider
-        m_geneHitsThreshold->setMinimumValue(reads_min);
-        m_geneHitsThreshold->setMaximumValue(reads_max);
-        m_geneHitsThreshold->setTickInterval(1);
+    // load min-max values to genes thresholds
+    m_geneGenesThreshold->setMinimumValue(min_genes);
+    m_geneGenesThreshold->setMaximumValue(max_genes);
+    m_geneGenesThreshold->setTickInterval(1);
 
-        // load features and threshold boundaries into FDH
-        m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
+    // load min-max to the reads count threshold slider
+    m_geneHitsThreshold->setMinimumValue(reads_min);
+    m_geneHitsThreshold->setMaximumValue(reads_max);
+    m_geneHitsThreshold->setTickInterval(1);
 
-        //load min max values to legend
-        m_legend->setLowerLimitReads(reads_min);
-        m_legend->setUpperLimitReads(reads_max);
-        m_legend->setLowerLimitGenes(1);
-        m_legend->setUpperLimitGenes(max_genes);
-       });
+    // load min-max values to tmp threshold (TODO)
 
-    m_legend->setValueComputation(HeatMapLegendGL::Reads);
+    // load features and threshold boundaries into FDH
+    m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
+
+    //load min max values to legend
+    m_legend->clearData();
+    m_legend->setMinMaxValues(reads_min, reads_max, min_genes, max_genes);
+    m_legend->generateHeatMap();
 
     // load cell tissue (async)
     slotLoadCellFigure();
@@ -819,22 +814,11 @@ void CellViewPage::slotLoadCellFigure()
     m_ui->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_ui->actionShow_cellTissueRed->setChecked(loadRedFigure);
 
+    //TODO QOpenGLTexture has problems creating the textures concurrently
     m_image->clearData();
     m_image->createTiles(image);
     m_view->setScene(m_image->boundingRect());
     m_view->update();
-
-    /*
-    // add image to the texture image holder
-    // run it concurrently as it takes time
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    futureWatcher->setFuture(m_image->createTexture(image));
-
-    // set the scene size in the view to the image bounding box (image must have been tiled and
-    // textured before)
-    connect(futureWatcher, &QFutureWatcher<void>::finished,
-            [=]{ m_view->setScene(m_image->boundingRect());
-                 m_view->update(); });*/
 }
 
 void CellViewPage::slotPrintImage()
@@ -1013,8 +997,9 @@ void CellViewPage::slotSetLegendType(QAction *action)
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(m_dataProxy, this);
-    // load data for gene model (TODO might be enough with an update)
-    m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
+    // load data for gene model
+    m_ui->genesWidget->updateModelTable();
+    //m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
     m_gene_plotter->selectGenes(geneList);
 }
 

@@ -75,6 +75,9 @@ void SpinBoxSlider::setToolTip(const QString &str)
 
 void SpinBoxSlider::setMaximumValue(const int value)
 {
+    //We block signals here as we only want
+    //the signals to be emitted when the user
+    //interacts with the component
     blockSignals(true);
     m_upper_value = value;
 
@@ -90,6 +93,9 @@ void SpinBoxSlider::setMaximumValue(const int value)
 
 void SpinBoxSlider::setMinimumValue(const int value)
 {
+    //We block signals here as we only want
+    //the signals to be emitted when the user
+    //interacts with the component
     blockSignals(true);
     m_lower_value = value;
 

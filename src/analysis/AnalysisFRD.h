@@ -21,7 +21,10 @@ class frdWidget;
 // the reads distributions of the features of a dataset
 // and also the threshold bars, threshold bars are
 // interactive so the will get updated if the user
-// modifies the threshold controls
+// modifies the threshold control
+
+//TODO add option to compute the plots and threshold bars
+//using genes as the function of features and genes threshold
 class AnalysisFRD: public QDialog
 {
     Q_OBJECT

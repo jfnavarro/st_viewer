@@ -15,7 +15,6 @@
 
 #include <cmath>
 #include "math/Common.h"
-
 #include "qcustomplot/qcustomplot.h"
 #include "model/GeneSelectionDEAItemModel.h"
 
@@ -35,7 +34,8 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     setModal(true);
 
     m_ui->setupUi(this);
-
+    // We must set the style here again as this dialog does not inherit
+    // style from his fater (TODO might be possible to fix this)
     m_ui->tableView->setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
                                    "background-color: transparent; "
                                    "selection-background-color: rgb(215,215,215); "
@@ -72,16 +72,20 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
     m_ui->customPlot->graph(1)->rescaleAxes(true);
 
-    // sets the legend and attributes
+    // sets the legend and attributes in the plots
     m_ui->customPlot->legend->setVisible(false);
-    m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLogarithmic);
-    m_ui->customPlot->yAxis->setScaleType(QCPAxis::stLogarithmic);
+    m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLinear);
+    m_ui->customPlot->yAxis->setScaleType(QCPAxis::stLinear);
     m_ui->customPlot->xAxis->setTicks(true);
     m_ui->customPlot->yAxis->setTicks(true);
     // make top right axes clones of bottom left axes. Looks prettier:
     m_ui->customPlot->axisRect()->setupFullAxesBox();
     // plot and add mouse interaction
     m_ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    // store total reads to recompute TPM later on
+    m_totalReadsSelA = selObjectA.totalReads();
+    m_totalReadsSelB = selObjectB.totalReads();
 
     // populate the gene to read pairs containers
     // computeGeneToReads will update the max thresholds (to initialize slider)
@@ -105,8 +109,8 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     // update name fields in the UI
     m_ui->selectionA->setText(selObjectA.name());
     m_ui->selectionB->setText(selObjectB.name());
-    m_ui->customPlot->xAxis->setLabel(tr("Selection A (TPM + 1)"));
-    m_ui->customPlot->yAxis->setLabel(tr("Selection B (TPM + 1)"));
+    m_ui->customPlot->xAxis->setLabel(tr("Selection A log(TPM + 1)"));
+    m_ui->customPlot->yAxis->setLabel(tr("Selection B log(TPM + 1)"));
 
     // compute statistics
     const deaStats &stats = computeStatistics();
@@ -137,7 +141,6 @@ AnalysisDEA::~AnalysisDEA()
 
 }
 
-
 QSortFilterProxyModel *AnalysisDEA::selectionsProxyModel()
 {
     QSortFilterProxyModel* selectionsProxyModel =
@@ -156,6 +159,7 @@ GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
 
 void AnalysisDEA::slotSelectionSelected(QModelIndex index)
 {
+    //we always clean the selected plot
     m_ui->customPlot->graph(1)->clearData();
 
     if (index.isValid()) {
@@ -165,16 +169,14 @@ void AnalysisDEA::slotSelectionSelected(QModelIndex index)
 
         QVector<double> x;
         QVector<double> y;
-        foreach(deaReads deaRead, currentSelection) {
-            if (((deaRead.normalizedReadsA < m_lowerTPMsThreshold || deaRead.normalizedReadsA > m_upperTPMsThreshold)
-                 && (deaRead.normalizedReadsB < m_lowerTPMsThreshold || deaRead.normalizedReadsB > m_upperTPMsThreshold)
-                 && deaRead.normalizedReadsA > 1 && deaRead.normalizedReadsB > 1) ) {
+        foreach(const deaReads &deaRead, currentSelection) {
+            if (combinedSelectionThreholsd(deaRead) ) {
                 continue;
             }
             x.append(deaRead.normalizedReadsA);
             y.append(deaRead.normalizedReadsB);
         }
-
+        //the plot needs a vector
         m_ui->customPlot->graph(1)->setData(x,y);
     }
 
@@ -229,6 +231,7 @@ void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
         }
     }
 
+    //store it here for later computations
     m_combinedSelections = geneToReadsMap.values();
 }
 
@@ -236,29 +239,17 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 {
     deaStats stats;
 
-    // some temp containers
-    QVector<qreal> loggedValuesSelectionA;
-    QVector<qreal> loggedValuesSelectionB;
-
     //iterate the list of combined reads to compute the DDA stats and populate the table
-    foreach (deaReads readsValues, m_combinedSelections) {
+    foreach (const deaReads &readsValues, m_combinedSelections) {
+
+        //check if values are outside threshold
+        if (combinedSelectionThreholsd(readsValues)) {
+            continue;
+        }
 
         // get read values
         const int readsSelA = readsValues.readsA;
         const int readsSelB = readsValues.readsB;
-        const qreal normReadsSelA = readsValues.normalizedReadsA;
-        const qreal normReadsSelB = readsValues.normalizedReadsB;
-
-        //check if values are outside threshold
-        if ( ((readsSelA < m_lowerThreshold || readsSelA > m_upperThreshold)
-             && (readsSelB < m_lowerThreshold || readsSelB > m_upperThreshold)
-             && readsSelA > 0 && readsSelB > 0)
-            ||
-            ((normReadsSelA < m_lowerTPMsThreshold || normReadsSelA > m_upperTPMsThreshold)
-             && (normReadsSelB < m_lowerTPMsThreshold || normReadsSelB > m_upperTPMsThreshold)
-             && normReadsSelA > 1 && normReadsSelB > 1) ) {
-            continue;
-        }
 
         // compute overlapping counting values
         if (readsSelA == 0) {
@@ -269,17 +260,21 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
             ++stats.countAB;
         }
 
-        // update lists of values that will be used in the scatter plot
-        stats.valuesSelectionA.push_back(normReadsSelA);
-        stats.valuesSelectionB.push_back(normReadsSelB);
+        // We need to recompute TPM here so we can account for when a gene is only present in one
+        // selection
+        const qreal normReadsSelA =
+                STMath::tpmNormalization<qreal>(readsSelA + 1, m_totalReadsSelA);
+        const qreal normReadsSelB =
+                STMath::tpmNormalization<qreal>(readsSelB + 1, m_totalReadsSelB);
 
-        // update temp variables to compute stats
-        loggedValuesSelectionA.push_back(std::log(normReadsSelA));
-        loggedValuesSelectionB.push_back(std::log(normReadsSelB));
+        // update lists of values that will be used in the scatter plot
+        stats.valuesSelectionA.push_back(std::log(normReadsSelA));
+        stats.valuesSelectionB.push_back(std::log(normReadsSelB));
     }
 
     if (!m_combinedSelections.empty()) {
-        stats.pearsonCorrelation = STMath::pearson(loggedValuesSelectionA, loggedValuesSelectionB);
+        stats.pearsonCorrelation =
+                STMath::pearson(stats.valuesSelectionA, stats.valuesSelectionB);
     }
 
     return stats;
@@ -361,4 +356,16 @@ void AnalysisDEA::slotSaveToPDF()
     } else {
         QMessageBox::information(this, tr("Save DEA"), tr("DEA was saved successfully"));
     }
+}
+
+bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaReads) const
+{
+    //check if values are outside threshold
+    return ( ((deaReads.readsA < m_lowerThreshold || deaReads.readsA > m_upperThreshold)
+         && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
+         && deaReads.readsA > 0 && deaReads.readsB > 0)
+        ||
+        ((deaReads.normalizedReadsA < m_lowerTPMsThreshold || deaReads.normalizedReadsA > m_upperTPMsThreshold)
+         && (deaReads.normalizedReadsB < m_lowerTPMsThreshold || deaReads.normalizedReadsB > m_upperTPMsThreshold)
+         && deaReads.normalizedReadsA > 1 && deaReads.normalizedReadsB > 1) );
 }

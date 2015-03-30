@@ -34,6 +34,15 @@ public:
 
     void clearData();
 
+    // set the min-values of thresholds without invoking generateData
+    void setMinMaxValues(const int readsMin,
+                         const int readsMax,
+                         const int genesMin,
+                         const int genesMax);
+
+    // rendering functions (heatmap is created as a texture)
+    void generateHeatMap();
+
 public slots:
     
     //TODO slots should have the prefix "slot"
@@ -44,6 +53,7 @@ public slots:
     void setLowerLimitGenes(const int limit);
     void setUpperLimitGenes(const int limit);
 
+    // slow to change the value computation type (genes or reads)
     void setValueComputation(ValueComputation mode);
 
     // slot to change the function to compute color values
@@ -56,9 +66,6 @@ protected:
     void setSelectionArea(const SelectionEvent *) override;
 
 private:
-
-    // rendering functions (heatmap is created as a texture)
-    void generateHeatMap();
 
     // internal function to render text as a texture
     void drawText(const QPointF &posn, const QString& str);
@@ -80,6 +87,9 @@ private:
 
     // use genes or reads to compute min-max
     ValueComputation m_valueComputation;
+
+    // to know when the rendering data is initialized
+    bool m_isInitialized;
 
     Q_DISABLE_COPY(HeatMapLegendGL)
 };

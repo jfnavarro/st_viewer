@@ -331,7 +331,7 @@ private:
     unsigned m_activeDownloads;
     //this map represents a reply -> pair(download type, call back function to process the download)
     QHash<NetworkReply*, QPair<DataProxy::DownloadType,
-    bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
+                               bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
 
     Q_DISABLE_COPY(DataProxy)
 };

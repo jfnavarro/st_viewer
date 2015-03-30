@@ -1,20 +1,3 @@
-# The macro FIX_QT3D_COMPILATION_BUG, is a hack fix to get rid of compile errors in Cygwin 
-# when including some of the Qt3d headers.
-# The compile error is probably caused by the confusion of having
-# the interchangable representations of the same directory /cygdrive/c/tmp and C:\tmp
-# Some how a ".." to much is specified in the include statements in the QMake generated files.
-# When Qt3d gets merged into the standard Qt library we could remove this hack.
-macro(FIX_QT3D_COMPILATION_BUG)
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy)
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy)
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy)
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy/dummy)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/dummy/dummy/dummy/dummy)
-endmacro()
-
 macro(COPY_FILE_TO_BUILD_DIR ORIG_DIRNAME DEST_DIRNAME FILENAME)
     if(EXISTS ${CMAKE_BINARY_DIR}/../cmake)
         set(REAL_DEST_DIRNAME ${CMAKE_BINARY_DIR}/${DEST_DIRNAME})

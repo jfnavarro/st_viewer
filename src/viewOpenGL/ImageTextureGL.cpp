@@ -50,10 +50,8 @@ void ImageTextureGL::clearTextures()
 {
     foreach(QOpenGLTexture *texture, m_textures) {
         if (texture != nullptr) {
-            texture->release();
             texture->destroy();
         }
-
         texture = nullptr;
     }
 

@@ -31,7 +31,8 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
       m_colorComputingMode(Globals::LinearColor),
       m_texture(QOpenGLTexture::Target2D),
       m_textureText(QOpenGLTexture::Target2D),
-      m_valueComputation(Reads)
+      m_valueComputation(Reads),
+      m_isInitialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -49,7 +50,6 @@ HeatMapLegendGL::~HeatMapLegendGL()
 void HeatMapLegendGL::clearData()
 {
     if (m_texture.isCreated()) {
-        m_texture.release();
         m_texture.destroy();
     }
 
@@ -58,17 +58,26 @@ void HeatMapLegendGL::clearData()
     m_texture_cords.clear();
 
     if (m_textureText.isCreated()) {
-        m_textureText.release();
         m_textureText.destroy();
     }
 
-    //m_valueComputation = Reads;
+    m_valueComputation = Reads;
+    m_maxReads = 1;
+    m_minReads = 1;
+    m_minGenes = 1;
+    m_maxGenes = 1;
+    m_isInitialized = false;
 }
 
 void HeatMapLegendGL::draw()
 {
+    if (!m_isInitialized) {
+        return;
+    }
+
     glEnable(GL_TEXTURE_2D);
     {
+        //draw heatmap texture
         m_texture.bind();
         glBegin(GL_QUADS);
         {
@@ -80,9 +89,10 @@ void HeatMapLegendGL::draw()
         glEnd();
         m_texture.release();
 
+        //draw borders
         glBegin(GL_LINE_LOOP);
         {
-            glColor4f(1.0, 1.0, 1.0, 1);
+            glColor4f(1.0, 1.0, 1.0, 1.0);
             foreach(QVector2D indice, m_texture_vertices) {
                 glVertex2f(indice.x(), indice.y());
             }
@@ -101,6 +111,17 @@ void HeatMapLegendGL::draw()
 void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 {
 
+}
+
+void HeatMapLegendGL::setMinMaxValues(const int readsMin,
+                                      const int readsMax,
+                                      const int genesMin,
+                                      const int genesMax)
+{
+   m_minReads = readsMin;
+   m_maxReads = readsMax;
+   m_minGenes = genesMin;
+   m_maxGenes = genesMax;
 }
 
 void HeatMapLegendGL::setLowerLimitReads(const int limit)
@@ -154,8 +175,6 @@ void HeatMapLegendGL::setUpperLimitGenes(const int limit)
 
 void HeatMapLegendGL::generateHeatMap()
 {
-    clearData();
-
     const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
     const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
 
@@ -165,11 +184,12 @@ void HeatMapLegendGL::generateHeatMap()
     //of color mapping (wavelenght or linear interpolation)
     Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
 
+    m_texture.destroy();
     m_texture.create();
-    m_texture.setData(image);
     m_texture.setMinificationFilter(QOpenGLTexture::Linear);
     m_texture.setMagnificationFilter(QOpenGLTexture::Linear);
     m_texture.setWrapMode(QOpenGLTexture::ClampToEdge);
+    m_texture.setData(image);
 
     m_texture_vertices.append(QVector2D(legend_x, legend_y));
     m_texture_vertices.append(QVector2D(legend_x + legend_width, legend_y));
@@ -180,6 +200,8 @@ void HeatMapLegendGL::generateHeatMap()
     m_texture_cords.append(QVector2D(1.0, 0.0));
     m_texture_cords.append(QVector2D(1.0, 1.0));
     m_texture_cords.append(QVector2D(0.0, 1.0));
+
+    m_isInitialized = true;
 
     emit updated();
 }

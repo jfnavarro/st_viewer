@@ -142,6 +142,12 @@ void GenesWidget::clear()
     m_colorList->setCurrentColor(Globals::DEFAULT_COLOR_GENE);
 }
 
+void GenesWidget::updateModelTable()
+{
+    //getModel()->update();
+    m_genes_tableview->update();
+}
+
 void GenesWidget::configureButton(QPushButton *button, const QIcon icon, const QString tooltip)
 {
     Q_ASSERT(button != nullptr);

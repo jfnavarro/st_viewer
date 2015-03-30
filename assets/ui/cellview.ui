@@ -845,7 +845,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Minimap Top Right Corner&quot;</string>
+    <string>Minimap Top Right Corner</string>
    </property>
    <property name="toolTip">
     <string>Places the minimap on the top right part of the canvas</string>

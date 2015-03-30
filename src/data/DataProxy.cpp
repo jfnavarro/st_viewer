@@ -563,7 +563,12 @@ void DataProxy::slotProcessDownload()
 {
     //get reply object from the caller
     NetworkReply *reply = qobject_cast<NetworkReply*>(sender());
-    Q_ASSERT(reply != nullptr);
+    if (reply == nullptr) {
+        QWidget *mainWidget = QApplication::desktop()->screen();
+        QMessageBox::critical(mainWidget, tr("Error downloading data"),
+                              tr("There was probably a network problem."));
+        return;
+    }
 
     //get the parse function from the container (can be nullptr)
     const auto parseFuncTypePair = m_activeNetworkReplies.value(reply);
@@ -633,7 +638,6 @@ void DataProxy::slotAbortActiveDownloads()
         //being called, perhaps change that logic
         reply->slotAbort();
     }
-
 }
 
 //TODO this function is causing the CPU to freeze with big datasets

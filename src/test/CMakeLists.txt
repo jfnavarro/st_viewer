@@ -2,8 +2,6 @@
 # Unit Test CMake                                                             #
 ###############################################################################
 
-FIX_QT3D_COMPILATION_BUG()
-
 use_qt5lib(Qt5Test)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/testTools

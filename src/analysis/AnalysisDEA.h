@@ -48,8 +48,9 @@ public:
     };
 
     //data container for normalized and unnormalized reads
+    //the idea is that each record contains the information of
+    //one gene and its expression levels in two selections
     struct deaReads {
-
         deaReads()
             : gene(),
               readsA(0),
@@ -64,7 +65,6 @@ public:
         qreal normalizedReadsB;
     };
 
-    //typedef QHash<QString, deaReads> geneToReadsPairType;
     typedef QList<deaReads> combinedSelectionsType;
 
     AnalysisDEA(const GeneSelection& selObjectA,
@@ -91,12 +91,19 @@ private slots:
     // save correlation plot to a file
     void slotSaveToPDF();
 
+    // to be invoked if the user selects a gene in the table
+    // this will trigger a highlight of the gene in the scatter plot
     void slotSelectionSelected(QModelIndex index);
 
 private:
 
+    // helper functions to get the model from the table
     GeneSelectionDEAItemModel *selectionsModel();
     QSortFilterProxyModel *selectionsProxyModel();
+
+    // helper function to test whether two selections are outside threshold
+    // returns true if they are outside
+    bool combinedSelectionThreholsd(const deaReads &deaReads) const;
 
     // compute the map of genes to read pairs used to
     // compute the statistics
@@ -107,12 +114,14 @@ private:
     void populateTable(const int size);
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
-
+    //we keep this stored for convenience
     combinedSelectionsType m_combinedSelections;
     int m_lowerThreshold;
     int m_upperThreshold;
     int m_lowerTPMsThreshold;
     int m_upperTPMsThreshold;
+    int m_totalReadsSelA;
+    int m_totalReadsSelB;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

@@ -177,7 +177,7 @@ inline qreal mean(const QVector<T> &v1){
 
 //The Covariance
 template<class T>
-inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2){
+inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2) {
     Q_ASSERT(v1.size() == v2.size());
     const qreal mean1 = mean(v1);
     const qreal mean2 = mean(v2);
@@ -197,7 +197,7 @@ inline qreal std_dev(const QVector<T> &v1){
 
 //Pearson Correlation
 template<class T>
-inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2){
+inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2) {
     if (std_dev(v1) * std_dev(v2) == 0){
         //a standard deviaton was 0...
         return -1;
@@ -219,7 +219,7 @@ inline QVector<T> logVectorValues(const QVector<T>& input)
 
 template<typename T>
 inline T tpmNormalization(const int reads, const int totalReads) {
-    return static_cast<T>(((reads * 10e5) / totalReads) + 1);
+    return static_cast<T>((reads * 10e6) / totalReads);
 }
 
 } // end name space

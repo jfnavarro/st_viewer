@@ -56,7 +56,7 @@ public:
     virtual ~GeneRendererGL();
 
     // data builder (create data arrays from the features in async ways)
-    QFuture<void> generateData();
+    void generateData();
     void generateDataAsync();
 
     // clears data and reset variables

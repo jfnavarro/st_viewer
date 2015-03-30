@@ -159,22 +159,19 @@ void GeneRendererGL::setTPMLowerLimit(const int limit)
     }
 }
 
-QFuture<void> GeneRendererGL::generateData()
+void GeneRendererGL::generateData()
 {
     clearData();
 
     //update shader
     setupShaders();
 
-    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>(this);
-    QFuture<void> future = QtConcurrent::run(this, &GeneRendererGL::generateDataAsync);
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, &QFutureWatcher<void>::finished, [=]{
-        m_isDirtyStaticData = true;
-        m_isDirtyDynamicData = true;
-        m_isInitialized = true; });
+    //generate data
+    generateDataAsync();
 
-    return future;
+    m_isDirtyStaticData = true;
+    m_isDirtyDynamicData = true;
+    m_isInitialized = true;
 }
 
 void GeneRendererGL::generateDataAsync()
