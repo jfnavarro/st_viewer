@@ -136,6 +136,7 @@ void CellGLView::paintGL()
         }
     }
 
+    glLoadIdentity();
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
         m_rubberband->draw();
