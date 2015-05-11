@@ -49,11 +49,11 @@ using namespace rapidjson;
 //references to the containers are passed and will be filled up
 //with the parsed objects
 //TODO move to a separate file
-struct FeaturesHanlder {
+struct FeaturesHandler {
 
 public:
 
-    FeaturesHanlder(DataProxy::FeatureList &m_featuresList,
+    FeaturesHandler(DataProxy::FeatureList &m_featuresList,
                     DataProxy::GeneList &m_genesList)
         : featuresList(m_featuresList),
           genesList(m_genesList)
@@ -648,7 +648,7 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     bool parsedOk = true;
-    FeaturesHanlder handler(m_featuresList, m_genesList);
+    FeaturesHandler handler(m_featuresList, m_genesList);
     Reader reader;
     QByteArray rawText = reply->getRaw();
     StringStream is(rawText.data());
