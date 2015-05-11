@@ -44,7 +44,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     horizontalHeader()->setSortIndicatorShown(true);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Tissue, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Specie, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Species, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Barcodes, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Genes, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::UBarcodes, QHeaderView::Stretch);

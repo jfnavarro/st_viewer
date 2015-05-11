@@ -21,7 +21,7 @@ Dataset::Dataset()
       m_statUniqueBarcodes(0),
       m_statUniqueGenes(0),
       m_statTissue(),
-      m_statSpecie(),
+      m_statSpecies(),
       m_statComments(),
       m_enabled(false),
       m_grantedAccounts(),
@@ -42,7 +42,7 @@ Dataset::Dataset(const Dataset& other)
     m_statUniqueBarcodes = other.m_statUniqueBarcodes;
     m_statUniqueGenes = other.m_statUniqueGenes;
     m_statTissue = other.m_statTissue;
-    m_statSpecie = other.m_statSpecie;
+    m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_geneHitsQuartiles = other.m_geneHitsQuartiles;
@@ -69,7 +69,7 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_statUniqueBarcodes = other.m_statUniqueBarcodes;
     m_statUniqueGenes = other.m_statUniqueGenes;
     m_statTissue = other.m_statTissue;
-    m_statSpecie = other.m_statSpecie;
+    m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
     m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_geneHitsQuartiles = other.m_geneHitsQuartiles;
@@ -93,7 +93,7 @@ bool Dataset::operator==(const Dataset& other) const
                m_statUniqueBarcodes == other.m_statUniqueBarcodes &&
                m_statUniqueGenes == other.m_statUniqueGenes &&
                m_statTissue == other.m_statTissue &&
-               m_statSpecie == other.m_statSpecie &&
+               m_statSpecies == other.m_statSpecies &&
                m_statComments == other.m_statComments &&
                m_oboFroundryTerms == other.m_oboFroundryTerms &&
                 m_geneHitsQuartiles == other.m_geneHitsQuartiles &&
@@ -146,9 +146,9 @@ const QString Dataset::statTissue() const
     return m_statTissue;
 }
 
-const QString Dataset::statSpecie() const
+const QString Dataset::statSpecies() const
 {
-    return m_statSpecie;
+    return m_statSpecies;
 }
 
 const QString Dataset::statComments() const
@@ -236,9 +236,9 @@ void Dataset::statTissue(const QString& statTissue)
     m_statTissue = statTissue;
 }
 
-void Dataset::statSpecie(const QString& statSpecie)
+void Dataset::statSpecies(const QString& statSpecies)
 {
-    m_statSpecie = statSpecie;
+    m_statSpecies = statSpecies;
 }
 
 void Dataset::statComments(const QString& statComments)

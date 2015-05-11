@@ -49,7 +49,7 @@ QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
         switch (index.column()) {
         case Name: return item->name();
         case Tissue: return item->statTissue();
-        case Specie: return item->statSpecie();
+        case Species: return item->statSpecies();
         case Barcodes: return item->statBarcodes();
         case Genes: return item->statGenes();
         case UBarcodes: return item->statUniqueBarcodes();
@@ -88,7 +88,7 @@ QVariant DatasetItemModel::headerData(int section,
         switch (section) {
         case Name : return tr("Dataset name");
         case Tissue : return tr("Tissue name");
-        case Specie : return tr("Species name");
+        case Species : return tr("Species name");
         case Barcodes : return tr("Number of reads");
         case Genes : return tr("Number of gene detection events");
         case UBarcodes : return tr("Number of uniquely detected barcodes");
@@ -103,7 +103,7 @@ QVariant DatasetItemModel::headerData(int section,
         switch (section) {
         case Name : return tr("Name");
         case Tissue : return tr("Tissue");
-        case Specie : return tr("Species");
+        case Species : return tr("Species");
         case Barcodes : return tr("Unique events");
         case Genes : return tr("Transcript reads");
         case UBarcodes : return tr("Detected Barcodes");
@@ -118,7 +118,7 @@ QVariant DatasetItemModel::headerData(int section,
         switch (section) {
         case Name:
         case Tissue:
-        case Specie:
+        case Species:
         case Barcodes:
         case Genes:
         case UBarcodes:
