@@ -33,7 +33,7 @@ class DatasetDTO : public QObject
     Q_PROPERTY(QString name READ name WRITE name)
     Q_PROPERTY(QString image_alignment_id READ imageAlignmentId WRITE imageAlignmentId)
     Q_PROPERTY(QString tissue READ statTissue WRITE statTissue)
-    Q_PROPERTY(QString species READ statSpecie WRITE statSpecie)
+    Q_PROPERTY(QString species READ statSpecies WRITE statSpecies)
     Q_PROPERTY(int overall_feature_count READ statBarcodes WRITE statBarcodes)
     Q_PROPERTY(int overall_hit_count READ statGenes WRITE statGenes)
     Q_PROPERTY(int unique_barcode_count READ statUniqueBarcodes WRITE statUniqueBarcodes)
@@ -60,7 +60,7 @@ public:
     void name(const QString& name) { m_dataset.name(name); }
     void imageAlignmentId(const QString& alignmentId) { m_dataset.imageAlignmentId(alignmentId); }
     void statTissue(const QString& tissue) { m_dataset.statTissue(tissue); }
-    void statSpecie(const QString& specie) { m_dataset.statSpecie(specie); }
+    void statSpecies(const QString& species) { m_dataset.statSpecies(species); }
     void statBarcodes(int barcodes) { m_dataset.statBarcodes(barcodes); }
     void statGenes(int genes) { m_dataset.statGenes(genes); }
     void statUniqueBarcodes(int unique_barcodes) { m_dataset.statUniqueBarcodes(unique_barcodes); }
@@ -84,7 +84,7 @@ public:
     const QString name() const { return m_dataset.name(); }
     const QString imageAlignmentId() const { return m_dataset.imageAlignmentId(); }
     const QString statTissue() const { return m_dataset.statTissue(); }
-    const QString statSpecie() const { return m_dataset.statSpecie(); }
+    const QString statSpecies() const { return m_dataset.statSpecies(); }
     int statBarcodes() const { return m_dataset.statBarcodes(); }
     int statGenes() const { return m_dataset.statGenes(); }
     int statUniqueBarcodes() const { return m_dataset.statUniqueBarcodes(); }
@@ -113,7 +113,7 @@ public:
         jsonObj["name"] = name();
         jsonObj["image_alignment_id"] = imageAlignmentId();
         jsonObj["tissue"] = statTissue();
-        jsonObj["species"] = statSpecie();
+        jsonObj["species"] = statSpecies();
         jsonObj["overall_feature_count"] = statBarcodes();
         jsonObj["overall_hit_count"] = statGenes();
         jsonObj["unique_barcode_count"] = statUniqueBarcodes();

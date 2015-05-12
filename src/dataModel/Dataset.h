@@ -34,7 +34,7 @@ public:
     int statUniqueBarcodes() const;
     int statUniqueGenes() const;
     const QString statTissue() const;
-    const QString statSpecie() const;
+    const QString statSpecies() const;
     const QString statComments() const;
     const QVector<QString> oboFoundryTerms() const;
     const QVector<qreal> hitsQuartiles() const;
@@ -53,7 +53,7 @@ public:
     void statUniqueBarcodes(int uniqueBarcodes);
     void statUniqueGenes(int uniqueGenes);
     void statTissue(const QString& statTissue);
-    void statSpecie(const QString& statSpecie);
+    void statSpecies(const QString& statSpecies);
     void statComments(const QString& statComments);
     void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
@@ -84,7 +84,7 @@ private:
     int m_statUniqueBarcodes;
     int m_statUniqueGenes;
     QString m_statTissue;
-    QString m_statSpecie;
+    QString m_statSpecies;
     QString m_statComments;
     QVector<QString> m_oboFroundryTerms;
     QVector<qreal> m_geneHitsQuartiles;

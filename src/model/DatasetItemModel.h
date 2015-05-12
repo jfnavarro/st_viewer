@@ -27,7 +27,7 @@ public:
     enum Column {
         Name = 0,
         Tissue = 1,
-        Specie = 2,
+        Species = 2,
         Barcodes = 3,
         Genes = 4,
         UBarcodes = 5,
