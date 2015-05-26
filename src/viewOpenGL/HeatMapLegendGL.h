@@ -61,7 +61,7 @@ public slots:
 
 protected:
 
-    void draw() override;
+    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
 

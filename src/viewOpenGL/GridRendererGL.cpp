@@ -32,12 +32,12 @@ GridRendererGL::~GridRendererGL()
 
 }
 
-void GridRendererGL::draw()
+void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
-    glEnable(GL_LINE_SMOOTH);
+    m_qopengl_functions->glEnable(GL_LINE_SMOOTH);
     {
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        glLineWidth(GRID_LINE_SIZE);
+        m_qopengl_functions->glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        m_qopengl_functions->glLineWidth(GRID_LINE_SIZE);
 
         glBegin(GL_LINES);
         {
@@ -60,6 +60,9 @@ void GridRendererGL::draw()
         glEnd();
     }
     glDisable(GL_LINE_SMOOTH);
+
+    // set the color back to white to not over-draw the textures
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GridRendererGL::setSelectionArea(const SelectionEvent *)

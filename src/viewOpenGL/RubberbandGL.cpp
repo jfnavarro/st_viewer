@@ -37,10 +37,10 @@ void RubberbandGL::setRubberbandRect(const QRectF rect)
     }
 }
 
-void RubberbandGL::draw()
+void RubberbandGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
-        drawBorderRect(m_rubberbandRect, Qt::blue);
+        drawBorderRect(m_rubberbandRect, Qt::blue, m_qopengl_functions);
     }
 }
 

@@ -9,6 +9,8 @@
 
 #include <QTransform>
 #include <QMatrix4x4>
+#include <QOpenGLFunctions_2_0>
+
 #include "utils/Utils.h"
 
 class QRectF;
@@ -24,6 +26,8 @@ class GraphicItemGL : public QObject
     Q_FLAGS(VisualOptions)
 
 public:
+
+    using QOpenGLFunctionsVersion = QOpenGLFunctions_2_0;
 
     enum VisualOption {
         Visible = 1,
@@ -58,7 +62,8 @@ public:
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
     // drawing method, must be implemented when sub-classing
-    virtual void draw() = 0;
+    // we pass the QOpenGLFunctions_2_0 functions
+    virtual void draw(QOpenGLFunctionsVersion *m_qpengl_functions) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
@@ -70,13 +75,15 @@ public:
     bool contains(const QPointF& point) const;
     bool contains(const QRectF& point) const;
 
-    // graphic elements can be sent mouse events
+    // Mouse events can be sent to the node
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
     // drawing functions
-    void drawBorderRect(const QRectF &rect, QColor color);
+    // we pass the QOpenGLFunctions_2_0 functions
+    void drawBorderRect(const QRectF &rect, QColor color,
+                        QOpenGLFunctionsVersion *m_qopengl_functions);
 
     void setProjection(const QMatrix4x4 &projection);
     void setModelView(const QMatrix4x4 &modelview);
@@ -100,6 +107,7 @@ protected:
     //returns local transform adjusted for the anchor position
     const QTransform adjustForAnchor(const QTransform& transform) const;
 
+    // some local variables to store rendering properties
     QTransform m_transform;
     Globals::Anchor m_anchor;
     GraphicItemGL::VisualOptions m_visualOptions;

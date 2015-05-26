@@ -29,10 +29,9 @@ void ScrollArea::initializeView(QPointer<CellGLView> view)
 {
     Q_ASSERT(!view.isNull());
 
+    // set the viewport and keep a reference to it
     m_view = view;
-    QWidget *container = QWidget::createWindowContainer(m_view);
-    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setViewport(container);
+    setViewport(m_view);
 
     verticalScrollBar()->setTracking(true);
     horizontalScrollBar()->setTracking(true);
@@ -121,8 +120,37 @@ void ScrollArea::adjustScrollBars()
 
 void ScrollArea::resizeEvent(QResizeEvent *e)
 {
-    viewport()->resize(e->size());
-    viewport()->update();
+    m_view->resizeEvent(e);
+}
+
+void ScrollArea::paintEvent(QPaintEvent *e)
+{
+    m_view->paintEvent(e);
+}
+
+void ScrollArea::mousePressEvent(QMouseEvent *e)
+{
+    m_view->mousePressEvent(e);
+}
+
+void ScrollArea::mouseReleaseEvent(QMouseEvent *e)
+{
+    m_view->mouseReleaseEvent(e);
+}
+
+void ScrollArea::mouseMoveEvent(QMouseEvent *e)
+{
+    m_view->mouseMoveEvent(e);
+}
+
+void ScrollArea::wheelEvent(QWheelEvent *e)
+{
+    m_view->wheelEvent(e);
+}
+
+void ScrollArea::keyPressEvent(QKeyEvent *e)
+{
+    m_view->keyPressEvent(e);
 }
 
 void ScrollArea::setCellGLViewScene(const QRectF scene)

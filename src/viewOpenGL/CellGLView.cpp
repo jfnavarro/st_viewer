@@ -26,6 +26,8 @@ static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 static const int DEFAULT_MIN_ZOOM = 1;
 static const int DEFAULT_MAX_ZOOM = 100;
+static const int OPENGL_VERSION_MAJOR = 2;
+static const int OPENGL_VERSION_MINOR = 0;
 
 namespace   {
 
@@ -41,8 +43,7 @@ bool nodeIsSelectable(const GraphicItemGL &node)
 
 }
 
-CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
-    QOpenGLWindow(updateBehavior, parent),
+CellGLView::CellGLView(QWidget *parent) : QOpenGLWidget(parent),
     m_originPanning(-1, -1),
     m_originRubberBand(-1, -1),
     m_panning(false),
@@ -60,7 +61,7 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
     m_rubberband->setAnchor(Globals::Anchor::None);
 
     QSurfaceFormat format;
-    format.setVersion(3,3);
+    format.setVersion(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
     format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
@@ -69,13 +70,26 @@ CellGLView::CellGLView(UpdateBehavior updateBehavior, QWindow *parent) :
     format.setDepthBufferSize(0);
     format.setSwapInterval(0);
     setFormat(format);
-    create();
-    makeCurrent();
 }
 
 CellGLView::~CellGLView()
 {
 
+}
+
+void CellGLView::paintEvent(QPaintEvent *e)
+{
+    QOpenGLWidget::paintEvent(e);
+}
+
+void CellGLView::resizeEvent(QResizeEvent *e)
+{
+    QOpenGLWidget::resizeEvent(e);
+}
+
+bool CellGLView::event(QEvent *e)
+{
+    return QOpenGLWidget::event(e);
 }
 
 void CellGLView::setDefaultPanningAndZooming()
@@ -98,27 +112,37 @@ void CellGLView::clearData()
 
 void CellGLView::initializeGL()
 {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    if (!m_qopengl_functions.initializeOpenGLFunctions()) {
+        QMessageBox::critical(this, tr("stVi"),
+                              tr("Required OpenGL version not supported.\n"
+                                 "Please update your system to at least OpenGL ")
+                              + QString("%1.%2").arg(OPENGL_VERSION_MAJOR).arg(OPENGL_VERSION_MINOR)
+                              + ".");
+        QApplication::exit();
+        return;
+    }
+
+    m_qopengl_functions.glClearColor(0.0, 0.0, 0.0, 1.0);
 
     // configure OpenGL variables
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_COLOR_MATERIAL);
-    glDisable(GL_CULL_FACE);
-    glShadeModel(GL_SMOOTH);
-    glEnable(GL_BLEND);
+    m_qopengl_functions.glDisable(GL_TEXTURE_2D);
+    m_qopengl_functions.glDisable(GL_DEPTH_TEST);
+    m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
+    m_qopengl_functions.glDisable(GL_CULL_FACE);
+    m_qopengl_functions.glShadeModel(GL_SMOOTH);
+    m_qopengl_functions.glEnable(GL_BLEND);
 
     // Set the default blend options.
-    glBlendColor(0, 0, 0, 0);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    m_qopengl_functions.glBlendColor(0, 0, 0, 0);
+    m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
+    m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 }
 
 void CellGLView::paintGL()
 {
     // clear color buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
     //render nodes
     foreach(GraphicItemGL *node, m_nodes) {
@@ -131,15 +155,15 @@ void CellGLView::paintGL()
             QMatrix4x4 matrix(local_transform);
             node->setProjection(m_projm);
             node->setModelView(matrix);
-            glLoadMatrixf(reinterpret_cast<const GLfloat *>(matrix.constData()));
-            node->draw();
+            m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(matrix.constData()));
+            node->draw(&m_qopengl_functions);
         }
     }
 
-    glLoadIdentity();
+    m_qopengl_functions.glLoadIdentity();
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
-        m_rubberband->draw();
+        m_rubberband->draw(&m_qopengl_functions);
     }
 }
 
@@ -152,15 +176,15 @@ void CellGLView::resizeGL(int width, int height)
     m_projm.ortho(newViewport);
 
     // sets the projection matrix of the OpenGL painter
-    glViewport(0.0, 0.0, width, height);
+    m_qopengl_functions.glViewport(0.0, 0.0, width, height);
 
     // reset the coordinate system
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
+    m_qopengl_functions.glMatrixMode(GL_PROJECTION);
+    m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
 
     // model view mode
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
+    m_qopengl_functions.glLoadIdentity();
 
     //create viewport
     setViewPort(newViewport);
@@ -282,8 +306,8 @@ const QImage CellGLView::grabPixmapGL()
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);
 
-    glReadBuffer(GL_FRONT_LEFT);
-    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
+    m_qopengl_functions.glReadBuffer(GL_FRONT_LEFT);
+    m_qopengl_functions.glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
 
     res = res.rgbSwapped();
     const QVector<QColor> pal = QColormap::instance().colormap();
@@ -362,7 +386,6 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
             QRectF transformed = node_trans.inverted().mapRect(rubberBand);
             // if selection area is not inside the bounding rect select empty rect
             if (!node->boundingRect().contains(transformed)) {
-                qDebug() << "Discarding selections";
                 transformed = QRectF();
             }
 

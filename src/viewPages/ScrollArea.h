@@ -39,8 +39,16 @@ public slots:
 
 protected:
 
+    // We must override these functions to pase the events
+    // along to the OpenGL widget
     void setupViewport(QWidget *viewport) override;
     void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
+    void keyPressEvent(QKeyEvent *) override;
 
 private slots:
 

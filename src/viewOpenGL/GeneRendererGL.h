@@ -126,7 +126,7 @@ signals:
 protected:
 
     void setSelectionArea(const SelectionEvent *event) override;
-    void draw() override;
+    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
     const QRectF boundingRect() const override;
 
 private:
@@ -166,6 +166,8 @@ private:
     // lookup maps for features
     typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
     typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
+    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
+    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; //feature to OpenGL index
     typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
     typedef QHash<int, int> GeneInfoTotalReadsIndex; //index to total reads (to compute TPM)
     typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
@@ -174,6 +176,10 @@ private:
     GeneInfoByIndexMap m_geneInfoByIndex;
     // gene lookup data (gene -> indexes)
     GeneInfoByGeneMap m_geneIntoByGene;
+    // gene lookup data (gene -> features)
+    GeneInfoByFeatureMap m_geneInfoByFeature;
+    // gene look up data (feature -> index)
+    GeneInfoByFeatureIndexMap m_geneInfoByFeatureIndex;
     // list of selected features
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
     // gene look up (index -> total reads)

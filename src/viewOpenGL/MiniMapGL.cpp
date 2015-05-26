@@ -79,7 +79,7 @@ QTransform MiniMapGL::localTransform() const
     return transform;
 }
 
-void MiniMapGL::draw()
+void MiniMapGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
@@ -87,8 +87,9 @@ void MiniMapGL::draw()
 
     const QRectF viewPortInSceneCoordinates =
             m_parentSceneTransformations.inverted().mapRect(m_viewPort);
-    drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor);
-    drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates), m_viewColor);
+    drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, m_qopengl_functions);
+    drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates),
+                   m_viewColor, m_qopengl_functions);
 }
 
 void MiniMapGL::setSceneColor(const QColor sceneColor)

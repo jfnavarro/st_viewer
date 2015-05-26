@@ -58,31 +58,31 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::draw()
+void ImageTextureGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
     }
 
-    glEnable(GL_TEXTURE_2D);
+    m_qopengl_functions->glEnable(GL_TEXTURE_2D);
     {
-        glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
-        glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        m_qopengl_functions->glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
+        m_qopengl_functions->glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
+        m_qopengl_functions->glEnableClientState(GL_VERTEX_ARRAY);
+        m_qopengl_functions->glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         for (int i = 0; i < m_textures.size(); ++i) {
             QOpenGLTexture *texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
             texture->bind();
-            glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+            m_qopengl_functions->glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
             texture->release();
         }
 
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        m_qopengl_functions->glDisableClientState(GL_VERTEX_ARRAY);
+        m_qopengl_functions->glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
-    glDisable(GL_TEXTURE_2D);
+    m_qopengl_functions->glDisable(GL_TEXTURE_2D);
 }
 
 void ImageTextureGL::setSelectionArea(const SelectionEvent *)
@@ -177,7 +177,6 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     texture->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
     texture->setMagnificationFilter(QOpenGLTexture::Linear);
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     m_textures.append(texture);
 }
 

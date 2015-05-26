@@ -69,34 +69,36 @@ void HeatMapLegendGL::clearData()
     m_isInitialized = false;
 }
 
-void HeatMapLegendGL::draw()
+void HeatMapLegendGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
     }
 
-    glEnable(GL_TEXTURE_2D);
+    m_qopengl_functions->glEnable(GL_TEXTURE_2D);
     {
         //draw heatmap texture
         m_texture.bind();
-        glBegin(GL_QUADS);
+        m_qopengl_functions->glBegin(GL_QUADS);
         {
             for (int i = 0; i < m_texture_vertices.size(); ++i) {
-                glTexCoord2f(m_texture_cords.at(i).x(), m_texture_cords.at(i).y());
-                glVertex2f(m_texture_vertices.at(i).x(), m_texture_vertices.at(i).y());
+                m_qopengl_functions->glTexCoord2f(m_texture_cords.at(i).x(),
+                                                  m_texture_cords.at(i).y());
+                m_qopengl_functions->glVertex2f(m_texture_vertices.at(i).x(),
+                                                m_texture_vertices.at(i).y());
             }
         }
-        glEnd();
+        m_qopengl_functions->glEnd();
         m_texture.release();
 
         //draw borders
-        glBegin(GL_LINE_LOOP);
+        m_qopengl_functions->glBegin(GL_LINE_LOOP);
         {
-            glColor4f(1.0, 1.0, 1.0, 1.0);
+            m_qopengl_functions->glColor4f(1.0, 1.0, 1.0, 1.0);
             foreach(QVector2D indice, m_texture_vertices) {
-                glVertex2f(indice.x(), indice.y());
+                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
-            glEnd();
+            m_qopengl_functions->glEnd();
         }
 
         // draw text (add 5 pixels offset to the right)
@@ -105,7 +107,7 @@ void HeatMapLegendGL::draw()
         drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
         drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
     }
-    glDisable(GL_TEXTURE_2D);
+    m_qopengl_functions->glDisable(GL_TEXTURE_2D);
 }
 
 void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)

@@ -62,6 +62,8 @@ void GeneRendererGL::clearData()
     m_geneInfoByIndex.clear();
     m_geneInfoTotalReadsIndex.clear();
     m_geneIntoByGene.clear();
+    m_geneInfoByFeature.clear();
+    m_geneInfoByFeatureIndex.clear();
 
     // variables
     m_intensity = GENE_INTENSITY_DEFAULT;
@@ -209,6 +211,10 @@ void GeneRendererGL::generateDataAsync()
         // update look up container for the features and indexes
         m_geneInfoByIndex.insert(index, feature); // multiple features per index
         m_geneIntoByGene.insert(feature->geneObject(), index); // multiple indexes per gene
+        //TODO not used at the moment but they might be part of a new approach
+        //to compute rendering data
+        //m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
+        //m_geneInfoByFeatureIndex.insert(feature, index); // one index per feature
 
         // updated total reads per feature position
         m_geneInfoTotalReadsIndex[index] += feature->hits();
@@ -675,7 +681,7 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
     }
 }
 
-void GeneRendererGL::draw()
+void GeneRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -720,7 +726,9 @@ void GeneRendererGL::draw()
     m_selectedBuffer.bind();
     m_visibleBuffer.bind();
     m_readsBuffer.bind();
-    glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
+
+    m_qopengl_functions->glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
+
     m_vertexsBuffer.release();
     m_indexesBuffer.release();
     m_texturesBuffer.release();

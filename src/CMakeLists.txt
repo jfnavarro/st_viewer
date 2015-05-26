@@ -124,7 +124,7 @@ target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
 # TODO: maybe we should use LIBJPEG_STATIC_detected_with_find_library for all platforms?
 # It works for Windows and Linux right now. It has not yet been tested for OSX.
-if(WIN32 OR (UNIX AND NOT APPLE))
+if(WIN32)
     target_link_libraries(${PROJECT_NAME} ${LIBJPEG_STATIC_detected_with_find_library})
 else()
    target_link_libraries(${PROJECT_NAME} ${LIBJPEG_LIBRARIES})

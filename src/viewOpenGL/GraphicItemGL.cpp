@@ -177,36 +177,41 @@ void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
     Q_UNUSED(event);
 }
 
-void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color)
+//TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
+void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
+                                   QOpenGLFunctionsVersion *m_qopengl_functions)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
     const QPointF sbr = rect.bottomRight();
     const QPointF sbl = rect.bottomLeft();
 
-    glBegin(GL_QUADS);
+    m_qopengl_functions->glBegin(GL_QUADS);
     {
-        glColor4f(color.redF(), color.greenF(), color.blueF(), 0.2);
-        glVertex2f(stl.x(), stl.y());
-        glVertex2f(str.x(), str.y());
-        glVertex2f(sbr.x(), sbr.y());
-        glVertex2f(sbl.x(), sbl.y());
+        m_qopengl_functions->glColor4f(color.redF(), color.greenF(), color.blueF(), 0.2);
+        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
+        m_qopengl_functions->glVertex2f(str.x(), str.y());
+        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
+        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
     }
-    glEnd();
+    m_qopengl_functions->glEnd();
 
-    glBegin(GL_LINES);
+    m_qopengl_functions->glBegin(GL_LINES);
     {
-        glColor4f(color.redF(), color.greenF(), color.blueF(), 0.8);
-        glVertex2f(stl.x(), stl.y());
-        glVertex2f(str.x(), str.y());
-        glVertex2f(str.x(), str.y());
-        glVertex2f(sbr.x(), sbr.y());
-        glVertex2f(sbr.x(), sbr.y());
-        glVertex2f(sbl.x(), sbl.y());
-        glVertex2f(sbl.x(), sbl.y());
-        glVertex2f(stl.x(), stl.y());
+        m_qopengl_functions->glColor4f(color.redF(), color.greenF(), color.blueF(), 0.8);
+        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
+        m_qopengl_functions->glVertex2f(str.x(), str.y());
+        m_qopengl_functions->glVertex2f(str.x(), str.y());
+        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
+        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
+        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
+        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
+        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
     }
-    glEnd();
+    m_qopengl_functions->glEnd();
+
+    // set the color back to white to not over-draw the textures
+    m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GraphicItemGL::setProjection(const QMatrix4x4 &projection)
