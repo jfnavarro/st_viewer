@@ -94,7 +94,7 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
         //draw borders
         m_qopengl_functions->glBegin(GL_LINE_LOOP);
         {
-            m_qopengl_functions->glColor4f(1.0, 1.0, 1.0, 1.0);
+            m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             foreach(QVector2D indice, m_texture_vertices) {
                 m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }

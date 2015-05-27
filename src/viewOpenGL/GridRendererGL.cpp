@@ -39,30 +39,32 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
         m_qopengl_functions->glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         m_qopengl_functions->glLineWidth(GRID_LINE_SIZE);
 
-        glBegin(GL_LINES);
+        m_qopengl_functions->glBegin(GL_LINES);
         {
-            glColor4f(m_gridBorderColor.redF(),
-                      m_gridBorderColor.greenF(),
-                      m_gridBorderColor.blueF(),
-                      m_gridBorderColor.alphaF());
+            m_qopengl_functions->glColor4f(
+                        static_cast<GLfloat>(m_gridBorderColor.redF()),
+                        static_cast<GLfloat>(m_gridBorderColor.greenF()),
+                        static_cast<GLfloat>(m_gridBorderColor.blueF()),
+                        static_cast<GLfloat>(m_gridBorderColor.alphaF()));
             foreach (QVector2D indice, m_border_vertex) {
-                glVertex2f(indice.x(), indice.y());
+                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
 
-            glColor4f(m_gridColor.redF(),
-                      m_gridColor.greenF(),
-                      m_gridColor.blueF(),
-                      m_gridColor.alphaF());
+            m_qopengl_functions->glColor4f(
+                        static_cast<GLfloat>(m_gridColor.redF()),
+                        static_cast<GLfloat>(m_gridColor.greenF()),
+                        static_cast<GLfloat>(m_gridColor.blueF()),
+                        static_cast<GLfloat>(m_gridColor.alphaF()));
             foreach (QVector2D indice, m_grid_vertex) {
-                glVertex2f(indice.x(), indice.y());
+                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
         }
-        glEnd();
+        m_qopengl_functions->glEnd();
     }
-    glDisable(GL_LINE_SMOOTH);
+    m_qopengl_functions->glDisable(GL_LINE_SMOOTH);
 
     // set the color back to white to not over-draw the textures
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GridRendererGL::setSelectionArea(const SelectionEvent *)

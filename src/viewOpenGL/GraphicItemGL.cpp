@@ -188,7 +188,9 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
 
     m_qopengl_functions->glBegin(GL_QUADS);
     {
-        m_qopengl_functions->glColor4f(color.redF(), color.greenF(), color.blueF(), 0.2);
+        m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
+                                       static_cast<GLfloat>(color.greenF()),
+                                       static_cast<GLfloat>(color.blueF()), 0.2);
         m_qopengl_functions->glVertex2f(stl.x(), stl.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());
         m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
@@ -198,7 +200,9 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
 
     m_qopengl_functions->glBegin(GL_LINES);
     {
-        m_qopengl_functions->glColor4f(color.redF(), color.greenF(), color.blueF(), 0.8);
+        m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
+                                       static_cast<GLfloat>(color.greenF()),
+                                       static_cast<GLfloat>(color.blueF()), 0.8);
         m_qopengl_functions->glVertex2f(stl.x(), stl.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());

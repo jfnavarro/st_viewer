@@ -39,7 +39,7 @@ public slots:
 
 protected:
 
-    // We must override these functions to pase the events
+    // We must override these functions to pass the events
     // along to the OpenGL widget
     void setupViewport(QWidget *viewport) override;
     void resizeEvent(QResizeEvent *event) override;
