@@ -122,7 +122,7 @@ void CellGLView::initializeGL()
         return;
     }
 
-    m_qopengl_functions.glClearColor(0.0, 0.0, 0.0, 1.0);
+    m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // configure OpenGL variables
     m_qopengl_functions.glDisable(GL_TEXTURE_2D);
@@ -133,7 +133,7 @@ void CellGLView::initializeGL()
     m_qopengl_functions.glEnable(GL_BLEND);
 
     // Set the default blend options.
-    m_qopengl_functions.glBlendColor(0, 0, 0, 0);
+    m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
     m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
     m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -176,7 +176,7 @@ void CellGLView::resizeGL(int width, int height)
     m_projm.ortho(newViewport);
 
     // sets the projection matrix of the OpenGL painter
-    m_qopengl_functions.glViewport(0.0, 0.0, width, height);
+    m_qopengl_functions.glViewport(0.0f, 0.0f, width, height);
 
     // reset the coordinate system
     m_qopengl_functions.glMatrixMode(GL_PROJECTION);
