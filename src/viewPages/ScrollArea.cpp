@@ -153,17 +153,17 @@ void ScrollArea::keyPressEvent(QKeyEvent *e)
     m_view->keyPressEvent(e);
 }
 
-void ScrollArea::setCellGLViewScene(const QRectF scene)
+void ScrollArea::setCellGLViewScene(const QRectF &scene)
 {
     m_cellglview_scene = scene;
 }
 
-void ScrollArea::setCellGLViewViewPort(const QRectF view)
+void ScrollArea::setCellGLViewViewPort(const QRectF &view)
 {
     m_cellglview_viewPort = view;
 }
 
-void ScrollArea::setCellGLViewSceneTransformations(const QTransform transform)
+void ScrollArea::setCellGLViewSceneTransformations(const QTransform &transform)
 {
     if (m_cellglview_sceneTransformations != transform.inverted()) {
         m_cellglview_sceneTransformations = transform.inverted();

@@ -33,9 +33,9 @@ public:
 
 public slots:
 
-    void setCellGLViewScene(const QRectF scene);
-    void setCellGLViewViewPort(const QRectF view);
-    void setCellGLViewSceneTransformations(const QTransform transform);
+    void setCellGLViewScene(const QRectF &scene);
+    void setCellGLViewViewPort(const QRectF &view);
+    void setCellGLViewSceneTransformations(const QTransform &transform);
 
 protected:
 

@@ -57,7 +57,7 @@ void MiniMapGL::setViewPort(const QRectF &view)
 }
 
 void MiniMapGL::setParentSceneTransformations(const QTransform &transform)
-{ 
+{
     if (m_parentSceneTransformations != transform) {
         m_parentSceneTransformations = transform;
         emit updated();

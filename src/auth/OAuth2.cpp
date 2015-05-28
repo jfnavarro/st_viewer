@@ -80,9 +80,9 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
 {
     if (type == DataProxy::AccessTokenDownloaded && status == DataProxy::Success) {
         OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
-        const QUuid accessToken(dto.accessToken());
+        const QUuid &accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
-        const QUuid refreshToken(dto.refreshToken());
+        const QUuid &refreshToken(dto.refreshToken());
         //check if access token is valid and not expired
         if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
