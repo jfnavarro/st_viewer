@@ -250,7 +250,7 @@ void CellGLView::rotate(qreal angle)
     }
 }
 
-void CellGLView::setViewPort(const QRectF viewport)
+void CellGLView::setViewPort(const QRectF &viewport)
 {
     if (!viewport.isValid() || viewport.isEmpty() || viewport.isNull()) {
         return;
@@ -263,7 +263,7 @@ void CellGLView::setViewPort(const QRectF viewport)
     }
 }
 
-void CellGLView::setScene(const QRectF scene)
+void CellGLView::setScene(const QRectF &scene)
 {
     if (!scene.isValid() || scene.isEmpty() || scene.isNull()) {
         return;
@@ -338,8 +338,8 @@ void CellGLView::zoomOut()
                            (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
-bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
-                                       const MouseEventType type, const FilterFunc filterFunc)
+bool CellGLView::sendMouseEventToNodes(const QPoint &point, const QMouseEvent *event,
+                                       const MouseEventType type, const FilterFunc &filterFunc)
 
 {
     bool mouseEventWasSentToAtleastOneNode = false;
@@ -371,7 +371,7 @@ bool CellGLView::sendMouseEventToNodes(const QPoint point, const QMouseEvent *ev
     return mouseEventWasSentToAtleastOneNode;
 }
 
-void CellGLView::sendRubberBandEventToNodes(const QRectF rubberBand,
+void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand,
                                             const QMouseEvent *event) {
     // notify nodes for rubberband
     foreach(GraphicItemGL *node, m_nodes) {
@@ -535,7 +535,7 @@ QPointF CellGLView::sceneFocusCenterPoint() const
     return m_scene_focus_center_point;
 }
 
-void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF center_point)
+void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
 {
     const QRectF allowed_center_points_rect = allowedCenterPoints();
     QPointF clamped_point = center_point;

@@ -91,7 +91,7 @@ void GeneRendererGL::clearData()
     m_isInitialized = false;
 }
 
-void GeneRendererGL::resetQuadTree(const QRectF rect)
+void GeneRendererGL::resetQuadTree(const QRectF &rect)
 {
     m_geneInfoQuadTree.clear();
     m_geneInfoQuadTree = GeneInfoQuadTree(rect);
@@ -452,9 +452,6 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
     m_geneInfoSelectedFeatures.clear();
 
     // declare temp variables for storing the index's value and color
-    int indexValueReads = 0;
-    int indexValueGenes = 0;
-    int indexValueTotalGenes = 0;
     int indexValue = 0;
     QColor indexColor = Globals::DEFAULT_COLOR_GENE;
     const bool pooling_genes = m_poolingMode == PoolNumberGenes;
@@ -464,10 +461,10 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
     // iterate the index -> features container to compute the rendering data
     foreach(const int index, indexes) {
 
-        //temp local variables to store the genes/reads/tpm/color of each feature
-        indexValueReads = 0;
-        indexValueGenes = 0;
-        indexValueTotalGenes = 0;
+        // temp local variables to store the genes/reads/tpm/color of each feature
+        int indexValueReads = 0;
+        int indexValueGenes = 0;
+        int indexValueTotalGenes = 0;
         indexColor = Globals::DEFAULT_COLOR_GENE;
 
         // iterate the features to compute rendering data for an specific index (position)
@@ -762,7 +759,7 @@ void GeneRendererGL::setupShaders()
     }
 }
 
-void GeneRendererGL::setDimensions(const QRectF border)
+void GeneRendererGL::setDimensions(const QRectF &border)
 {
     m_border = border;
     m_geneInfoQuadTree.clear();

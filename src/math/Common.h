@@ -211,7 +211,7 @@ inline QVector<T> logVectorValues(const QVector<T>& input)
 {
     QVector<T> output;
     foreach(T value, input) {
-        output.push_back(std::log(value + 1));
+        output.push_back(std::log1p(value));
     }
 
     return output;

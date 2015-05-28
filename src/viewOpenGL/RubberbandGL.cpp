@@ -30,7 +30,7 @@ const QRectF RubberbandGL::boundingRect() const
     return QRectF();
 }
 
-void RubberbandGL::setRubberbandRect(const QRectF rect)
+void RubberbandGL::setRubberbandRect(const QRectF &rect)
 {
     if (m_rubberbandRect != rect) {
         m_rubberbandRect = rect;

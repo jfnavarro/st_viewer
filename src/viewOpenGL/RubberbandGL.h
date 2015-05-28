@@ -30,7 +30,7 @@ public:
     explicit RubberbandGL(QObject* parent = 0);
     virtual ~RubberbandGL();
 
-    void setRubberbandRect(const QRectF rect);
+    void setRubberbandRect(const QRectF &rect);
 
     //made public for convenience
     void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;

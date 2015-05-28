@@ -206,8 +206,8 @@ void AnalysisFRD::setUpperLimit(int limit)
 {
     m_upperThresholdBarNormal->start->setCoords(limit, m_minY);
     m_upperThresholdBarNormal->end->setCoords(limit, m_maxY);
-    m_upperThresholdBarLog->start->setCoords(std::log(limit + 1), std::log(m_minY + 1));
-    m_upperThresholdBarLog->end->setCoords(std::log(limit + 1), std::log(m_maxY + 1));
+    m_upperThresholdBarLog->start->setCoords(std::log1p(limit), std::log1p(m_minY));
+    m_upperThresholdBarLog->end->setCoords(std::log1p(limit), std::log1p(m_maxY));
     m_customPlotNormal->replot();
     m_customPlotLog->replot();
 }
@@ -216,8 +216,8 @@ void AnalysisFRD::setLowerLimit(int limit)
 {
     m_lowerThresholdBarNormal->start->setCoords(limit, m_minY);
     m_lowerThresholdBarNormal->end->setCoords(limit, m_maxY);
-    m_lowerThresholdBarLog->start->setCoords(std::log(limit + 1), std::log(m_minY + 1));
-    m_lowerThresholdBarLog->end->setCoords(std::log(limit + 1), std::log(m_maxY + 1));
+    m_lowerThresholdBarLog->start->setCoords(std::log1p(limit), std::log1p(m_minY));
+    m_lowerThresholdBarLog->end->setCoords(std::log1p(limit), std::log1p(m_maxY));
     m_customPlotNormal->replot();
     m_customPlotLog->replot();
 }

@@ -63,7 +63,7 @@ public:
     void clearData();
 
     //set the dimensions of the bounding rect, also for the QuadTree
-    void setDimensions(const QRectF border);
+    void setDimensions(const QRectF &border);
 
     //makes a selection of features given a list of genes
     void selectGenes(const DataProxy::GeneList& genes);
@@ -158,7 +158,7 @@ private:
     void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
-    void resetQuadTree(const QRectF rect);
+    void resetQuadTree(const QRectF &rect);
 
     // compiles and loads the shaders
     void setupShaders();

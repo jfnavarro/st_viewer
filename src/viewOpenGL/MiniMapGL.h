@@ -45,20 +45,20 @@ public slots:
     //TODO slots should have the prefix "slot"
 
     //to change minimap's colors
-    void setViewColor(const QColor viewColor);
-    void setSceneColor(const QColor sceneColor);
+    void setViewColor(const QColor &viewColor);
+    void setSceneColor(const QColor &sceneColor);
 
     //to adjust minimap with the view's size
-    void setScene(const QRectF scene);
-    void setViewPort(const QRectF view);
+    void setScene(const QRectF &scene);
+    void setViewPort(const QRectF &view);
 
     //to adjust minimap with the view's transformations
-    void setParentSceneTransformations(const QTransform transform);
+    void setParentSceneTransformations(const QTransform &transform);
 
 signals:
 
     //to notify the view
-    void signalCenterOn(const QPointF& point);
+    void signalCenterOn(const QPointF &point);
 
 protected:
 

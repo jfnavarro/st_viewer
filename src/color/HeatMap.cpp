@@ -122,7 +122,7 @@ qreal Heatmap::normalizeValueSpectrumFunction(const qreal value,
 
     switch (colorMode) {
     case Globals::LogColor:
-        transformedValue = std::log(value + 1.0);
+        transformedValue = std::log1p(value);
         break;
     case Globals::ExpColor:
         transformedValue = qSqrt(value);

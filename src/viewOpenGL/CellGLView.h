@@ -83,9 +83,9 @@ public slots:
 
     // slots to set the viewport and scene size and the set the focus in a point
     // very handy to make possible the interaction with the minimap
-    void setViewPort(const QRectF viewport);
-    void setScene(const QRectF scene);
-    void setSceneFocusCenterPointWithClamping(const QPointF center_point);
+    void setViewPort(const QRectF &viewport);
+    void setScene(const QRectF &scene);
+    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
 
 protected:
 
@@ -121,12 +121,12 @@ private:
     void setDefaultPanningAndZooming();
 
     // notify rubberbandable nodes with a rubberband event
-    void sendRubberBandEventToNodes(const QRectF rubberBand,
+    void sendRubberBandEventToNodes(const QRectF &rubberBand,
                                     const QMouseEvent *event);
 
     // returns true if the event was sent to at least one of the nodes
-    bool sendMouseEventToNodes(const QPoint point, const QMouseEvent *event,
-				       const MouseEventType type, const FilterFunc filterFunc);
+    bool sendMouseEventToNodes(const QPoint &point, const QMouseEvent *event,
+                       const MouseEventType type, const FilterFunc &filterFunc);
 
     // scene and viewport aux variables
     QRectF m_viewport;

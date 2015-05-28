@@ -102,7 +102,7 @@ public:
     //to pass key-value parameters to loadAccessToken()
     typedef QPair<QString, QString> StringPair;
 
-    DataProxy(QObject *parent = 0);
+    explicit DataProxy(QObject *parent = 0);
     ~DataProxy();
 
     //clean up memory cache

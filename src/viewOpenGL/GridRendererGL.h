@@ -31,7 +31,7 @@ public:
     void clearData();
 
     //setters
-    void setDimensions(const QRectF border, const QRectF rect);
+    void setDimensions(const QRectF &border, const QRectF &rect);
 
     //gettters
     const QColor color() const;
@@ -45,7 +45,7 @@ public slots:
 
     //TODO slots should have the prefix "slot"
 
-    void setColor(const QColor color);
+    void setColor(const QColor &color);
 
 protected:
 

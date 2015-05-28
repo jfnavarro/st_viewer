@@ -76,11 +76,6 @@ void ServerError::init(const QString& errorName,
         name = QApplication::translate("ServerError", "BadRequest:Name");
         description = QApplication::translate(LOC_CONTEXT,
                                               "UnsupportedGrantType:Description");
-    } else if (errorName == "unsupported_response_type") {
-        name = QApplication::translate(LOC_CONTEXT,
-                                       "UnsupportedResponseType:Name");
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "UnsupportedResponseType:Description");
     } else if (errorName == "invalid_grant") {
         name = QApplication::translate(LOC_CONTEXT,
                                        "InvalidGrant:Name");
