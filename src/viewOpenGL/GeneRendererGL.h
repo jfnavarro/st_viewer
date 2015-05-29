@@ -62,25 +62,25 @@ public:
     // clears data and reset variables
     void clearData();
 
-    //set the dimensions of the bounding rect, also for the QuadTree
+    // set the dimensions of the bounding rect, also for the QuadTree
     void setDimensions(const QRectF &border);
 
-    //makes a selection of features given a list of genes
+    // makes a selection of features given a list of genes
     void selectGenes(const DataProxy::GeneList& genes);
 
-    //returns the currently selected genes (agregated from features)
+    // returns the currently selected genes (agregated from features)
     GeneSelection::selectedItemsList getSelectedGenes() const;
 
-    //returns the currently selected features
+    // returns the currently selected features
     const DataProxy::FeatureList& getSelectedFeatures() const;
 
-    //some getters for the thresholds
+    // some getters for the thresholds
     int getMinReadsThreshold() const;
     int getMaxReadsThreshold() const;
     int getMinGenesThreshold() const;
     int getMaxGenesThreshold() const;
-    int getMinTPMThreshold() const;
-    int getMaxTPMThreshold() const;
+    int getMinTotalReadsThreshold() const;
+    int getMaxTotalReadsThreshold() const;
 
 public slots:
 
@@ -96,8 +96,8 @@ public slots:
     void setReadsUpperLimit(const int limit);
     void setGenesLowerLimit(const int limit);
     void setGenesUpperLimit(const int limit);
-    void setTPMLowerLimit(const int limit);
-    void setTPMUpperLimit(const int limit);
+    void setTotalReadsLowerLimit(const int limit);
+    void setTotalReadsUpperLimit(const int limit);
 
     //slots to set visual modes and color computations modes
     void setVisualMode(const GeneVisualMode mode);
@@ -139,7 +139,7 @@ private:
     //area or not by reads/genes or TPM
     bool featureReadsOutsideRange(const int value);
     bool featureGenesOutsideRange(const int value);
-    bool featureTPMOutsideRange(const int value);
+    bool featureTotalReadsOutsideRange(const int value);
 
     // will iterate all the features to change size
     void updateSize();
@@ -197,8 +197,8 @@ private:
     int m_thresholdReadsUpper;
     int m_thresholdGenesLower;
     int m_thresholdGenesUpper;
-    int m_thresholdTPMLower;
-    int m_thresholdTPMUpper;
+    int m_thresholdTotalReadsLower;
+    int m_thresholdTotalReadsUpper;
 
     // local pooled min-max for rendering (Adjusted according to what is being rendered)
     int m_localPooledMin;

@@ -131,7 +131,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_poolingTPMs(nullptr),
       m_geneHitsThreshold(nullptr),
       m_geneGenesThreshold(nullptr),
-      //m_geneTPMThreshold(nullptr),
+      m_geneTotalReadsThreshold(nullptr),
       m_geneIntensitySlider(nullptr),
       m_geneSizeSlider(nullptr),
       m_geneShineSlider(nullptr),
@@ -140,12 +140,12 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
     m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
-    //make selection button use different icon when selected
+    // make selection button use different icon when selected
     m_ui->selection->setStyleSheet("QPushButton {border-image: url(:/images/selection.png); } "
                           "QPushButton:checked {border-image: url(:/images/selection2.png); }");
 
@@ -160,10 +160,10 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent)
     // init OpenGL graphical objects
     initGLView();
 
-    //create menus and connections
+    // create menus and connections
     createMenusAndConnections();
 
-    //connect data proxy signal
+    // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
@@ -198,16 +198,16 @@ CellViewPage::~CellViewPage()
 
 void CellViewPage::onEnter()
 {
-    //reset tool buttons
+    // reset tool buttons
     setEnableButtons(false);
 
     if (m_dataProxy->getSelectedDataset().isNull()) {
-        //no dataset selected, nothing to do here
+        // no dataset selected, nothing to do here
         setStatusTip(tr("No dataset loaded"));
         return;
     }
 
-    //first we need to download the image alignment (enable blocking loading bar)
+    // first we need to download the image alignment (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadImageAlignment();
     m_dataProxy->activateCurrentDownloads();
@@ -221,24 +221,24 @@ void CellViewPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
 
     if (type == DataProxy::ImageAlignmentDownloaded) {
         if (isSuccess) {
-            //download the rest of the content (blocking loading bar still on)
+            // download the rest of the content (blocking loading bar still on)
             m_dataProxy->loadDatasetContent();
             m_dataProxy->activateCurrentDownloads();
         } else {
-            //something happened downloading the image alignment
-            //so we disable blocking loading bar
+            // something happened downloading the image alignment
+            // so we disable blocking loading bar
             setWaiting(false);
         }
     } else if (type == DataProxy::ChipDownloaded
                || type == DataProxy::TissueImageDownloaded
                || type == DataProxy::FeaturesDownloaded) {
         if (!isSuccess && isLastDownload) {
-            //so this was the last download processed
-            //of the dataset content but it failed or aborted
-            //we disable blocking loading bar
+            // so this was the last download processed
+            // of the dataset content but it failed or aborted
+            // we disable blocking loading bar
             setWaiting(false);
         } else if (isSuccess && isLastDownload) {
-            //so this was the last download of dataset content and it was OK
+            // so this was the last download of dataset content and it was OK
             datasetContentDownloaded();
         }
     }
@@ -287,6 +287,8 @@ void CellViewPage::datasetContentDownloaded()
     const int max_genes = m_gene_plotter->getMaxGenesThreshold();
     const int reads_min = m_gene_plotter->getMinReadsThreshold();
     const int reads_max = m_gene_plotter->getMaxReadsThreshold();
+    const int total_reads_min = m_gene_plotter->getMinTotalReadsThreshold();
+    const int total_reads_max = m_gene_plotter->getMaxTotalReadsThreshold();
 
     // load min-max values to genes thresholds
     m_geneGenesThreshold->setMinimumValue(min_genes);
@@ -298,12 +300,15 @@ void CellViewPage::datasetContentDownloaded()
     m_geneHitsThreshold->setMaximumValue(reads_max);
     m_geneHitsThreshold->setTickInterval(1);
 
-    // load min-max values to tmp threshold (TODO)
+    // load min-max values to total reads threshold
+    m_geneTotalReadsThreshold->setMinimumValue(total_reads_min);
+    m_geneTotalReadsThreshold->setMaximumValue(total_reads_max);
+    m_geneTotalReadsThreshold->setTickInterval(1);
 
     // load features and threshold boundaries into FDH
     m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
 
-    //load min max values to legend
+    // load min max values to legend
     m_legend->clearData();
     m_legend->setMinMaxValues(reads_min, reads_max, min_genes, max_genes);
     m_legend->generateHeatMap();
@@ -333,11 +338,11 @@ void CellViewPage::setEnableButtons(bool enable)
 
 void CellViewPage::onExit()
 {
-    //reset genes and selections model
+    // reset genes and selections model
     m_ui->genesWidget->clear();
     m_ui->selectionsWidget->clear();
 
-    //reset visualization objects
+    // reset visualization objects
     m_grid->clearData();
     m_image->clearData();
     m_gene_plotter->clearData();
@@ -353,7 +358,7 @@ void CellViewPage::onExit()
 //TODO split into two
 void CellViewPage::createMenusAndConnections()
 {
-    //set some default properties for some actions
+    // set some default properties for some actions
     m_ui->actionShow_toggleNormal->setProperty("mode", GeneRendererGL::NormalMode);
     m_ui->actionShow_toggleDynamicRange->setProperty("mode", GeneRendererGL::DynamicRangeMode);
     m_ui->actionShow_toggleHeatMap->setProperty("mode", GeneRendererGL::HeatMapMode);
@@ -378,7 +383,7 @@ void CellViewPage::createMenusAndConnections()
     menu_genePlotter->addAction(m_ui->actionColor_selectColorGrid);
     menu_genePlotter->addSeparator();
 
-    //color modes
+    // color modes
     QActionGroup *actionGroup_toggleVisualMode = new QActionGroup(menu_genePlotter);
     actionGroup_toggleVisualMode->setExclusive(true);
     actionGroup_toggleVisualMode->addAction(m_ui->actionShow_toggleNormal);
@@ -387,7 +392,7 @@ void CellViewPage::createMenusAndConnections()
     menu_genePlotter->addActions(actionGroup_toggleVisualMode->actions());
     menu_genePlotter->addSeparator();
 
-    //color computation modes
+    // color computation modes
     QGroupBox *colorComputationMode = new QGroupBox(this);
     colorComputationMode->setFlat(true);
     setToolTipAndStatusTip(
@@ -405,7 +410,7 @@ void CellViewPage::createMenusAndConnections()
     colorComputationMode->setLayout(hboxColor);
     addWidgetToMenu(tr("Color computation:"), menu_genePlotter, colorComputationMode);
 
-    //color modes
+    // color modes
     QGroupBox *poolingMode = new QGroupBox(this);
     poolingMode->setFlat(true);
     setToolTipAndStatusTip(
@@ -424,15 +429,15 @@ void CellViewPage::createMenusAndConnections()
     addWidgetToMenu(tr("Pooling modes:"), menu_genePlotter, poolingMode);
     menu_genePlotter->addSeparator();
 
-    //threshold reads slider
+    // threshold reads slider
     m_geneHitsThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
     setToolTipAndStatusTip(
-            tr("Limit of the number of reads per feature."),
+            tr("Limit of the number of reads per genes."),
             m_geneHitsThreshold);
     addWidgetToMenu(tr("Reads Threshold:"), menu_genePlotter, m_geneHitsThreshold);
     menu_genePlotter->addSeparator();
 
-    //threshold genes slider
+    // threshold genes slider
     m_geneGenesThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
     setToolTipAndStatusTip(
             tr("Limit of the number of genes per feature."),
@@ -440,14 +445,13 @@ void CellViewPage::createMenusAndConnections()
     addWidgetToMenu(tr("Genes Threshold:"), menu_genePlotter, m_geneGenesThreshold);
     menu_genePlotter->addSeparator();
 
-    //threshold TPM slider
-    //m_geneTPMThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
-    //setToolTipAndStatusTip(
-    //        tr("Limit of the number of TPM per feature."),
-    //        m_geneHitsThreshold);
-    //TODO disable for now
-    //addWidgetToMenu(tr("TPM Threshold:"), menu_genePlotter, m_geneTPMThreshold);
-    //menu_genePlotter->addSeparator();
+    // threshold total reads slider
+    m_geneTotalReadsThreshold = new SpinBoxSlider(this, SpinBoxSlider::onlySpinBoxes);
+    setToolTipAndStatusTip(
+            tr("Limit of the number of total reads per feature."),
+            m_geneHitsThreshold);
+    addWidgetToMenu(tr("Total Reads Threshold:"), menu_genePlotter, m_geneTotalReadsThreshold);
+    menu_genePlotter->addSeparator();
 
     // transcripts intensity and size sliders
     addSliderToMenu(this,
@@ -477,7 +481,7 @@ void CellViewPage::createMenusAndConnections()
     setToolTipAndStatusTip(tr("Set the shape of the genes"), m_geneShapeComboBox);
     addWidgetToMenu(tr("Shape:"), menu_genePlotter, m_geneShapeComboBox);
 
-    //add menu to toolbutton in top bar
+    // add menu to toolbutton in top bar
     m_ui->genemenu->setMenu(menu_genePlotter);
 
     // cell tissue menu
@@ -493,7 +497,7 @@ void CellViewPage::createMenusAndConnections()
     actionGroup_toggleLegendType->addAction(m_ui->action_toggleLegendGenes);
     menu_cellTissue->addActions(actionGroup_toggleLegendType->actions());
 
-    //group legend positions actions into one
+    // group legend positions actions into one
     menu_cellTissue->addSeparator()->setText(tr("Legend Position"));
     QActionGroup *actionGroup_toggleLegendPosition = new QActionGroup(menu_cellTissue);
     actionGroup_toggleLegendPosition->setExclusive(true);
@@ -504,7 +508,7 @@ void CellViewPage::createMenusAndConnections()
     menu_cellTissue->addActions(actionGroup_toggleLegendPosition->actions());
     menu_cellTissue->addSeparator();
 
-    //group minimap positions actions into one
+    // group minimap positions actions into one
     menu_cellTissue->addSeparator()->setText(tr("Minimap Position"));
     QActionGroup *actionGroup_toggleMinimapPosition = new QActionGroup(menu_cellTissue);
     actionGroup_toggleMinimapPosition->setExclusive(true);
@@ -515,7 +519,7 @@ void CellViewPage::createMenusAndConnections()
     menu_cellTissue->addActions(actionGroup_toggleMinimapPosition->actions());
     menu_cellTissue->addSeparator();
 
-    //load red/blue actions and show/hide action for cell tissue
+    // load red/blue actions and show/hide action for cell tissue
     QActionGroup *actionGroup_cellTissue = new QActionGroup(menu_cellTissue);
     actionGroup_cellTissue->setExclusive(true);
     actionGroup_cellTissue->addAction(m_ui->actionShow_cellTissueBlue);
@@ -524,7 +528,7 @@ void CellViewPage::createMenusAndConnections()
     menu_cellTissue->addAction(m_ui->actionShow_showCellTissue);
     menu_cellTissue->addSeparator();
 
-    //brightness of the cell tissue image
+    // brightness of the cell tissue image
     addSliderToMenu(this,
                     tr("Brightness:"),
                     tr("Brightness level of the Cell Tissue"),
@@ -534,7 +538,7 @@ void CellViewPage::createMenusAndConnections()
                     BRIGHTNESS_MIN,
                     BRIGHTNESS_MAX);
 
-    //add menu to tool button in top bar
+    // add menu to tool button in top bar
     m_ui->cellmenu->setMenu(menu_cellTissue);
 
     // go back signal
@@ -561,17 +565,17 @@ void CellViewPage::createMenusAndConnections()
             [=]{ m_view->setSelectionMode(m_ui->selection->isChecked()); });
     connect(m_ui->regexpselection, SIGNAL(clicked()), this, SLOT(slotSelectByRegExp()));
 
-    //color selectors
+    // color selectors
     connect(m_ui->actionColor_selectColorGrid, &QAction::triggered,
             [=]{ m_colorDialogGrid->show(); });
 
-    //gene attributes signals
+    // gene attributes signals
     connect(m_geneIntensitySlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneIntensity(int)));
     connect(m_geneSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneSize(int)));
     connect(m_geneBrightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(slotGeneBrightness(int)));
     connect(m_geneShapeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGeneShape(int)));
 
-    //color and pooling signals
+    // color and pooling signals
     connect(m_colorExp.data(), &QRadioButton::clicked,
             [=]{ m_legend->setColorComputingMode(Globals::ExpColor);
                  m_gene_plotter->setColorComputingMode(Globals::ExpColor);});
@@ -588,7 +592,7 @@ void CellViewPage::createMenusAndConnections()
     connect(m_poolingTPMs.data(), &QRadioButton::clicked,
             [=]{ m_gene_plotter->setPoolingMode(GeneRendererGL::PoolTPMs); });
 
-    //connect gene list model to gene plotter
+    // connect gene list model to gene plotter
     connect(m_ui->genesWidget, SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
             m_gene_plotter.data(),
             SLOT(updateVisible(DataProxy::GeneList)));
@@ -596,7 +600,7 @@ void CellViewPage::createMenusAndConnections()
             m_gene_plotter.data(),
             SLOT(updateColor(DataProxy::GeneList)));
 
-    //connect gene selection signals from selectionsWidget
+    // connect gene selection signals from selectionsWidget
     connect(m_ui->selectionsWidget, SIGNAL(signalClearSelection()),
             m_gene_plotter.data(), SLOT(clearSelection()));
     connect(m_ui->selectionsWidget, SIGNAL(signalExportGenesSelection()),
@@ -606,11 +610,11 @@ void CellViewPage::createMenusAndConnections()
     connect(m_ui->selectionsWidget, SIGNAL(signalSaveSelection()),
             this, SLOT(slotSaveSelection()));
 
-    //connect gene plotter to gene selection model
+    // connect gene plotter to gene selection model
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()),
             this, SLOT(slotSelectionUpdated()));
 
-    //threshold slider signals
+    // threshold slider signals
     connect(m_geneHitsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(), SLOT(setReadsLowerLimit(int)));
     connect(m_geneHitsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
@@ -629,20 +633,16 @@ void CellViewPage::createMenusAndConnections()
     connect(m_geneGenesThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(), SLOT(setUpperLimitGenes(int)));
 
-    //connect(m_geneTPMThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
-    //        m_gene_plotter.data(), SLOT(setTPMLowerLimit(int)));
-    //connect(m_geneTPMThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
-    //        m_gene_plotter.data(), SLOT(setTPMUpperLimit(int)));
-    //connect(m_geneTPMThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
-    //        m_legend.data(), SLOT(setLowerLimit(int)));
-    //connect(m_geneTPMThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
-    //        m_legend.data(), SLOT(setUpperLimit(int)));
+    connect(m_geneTotalReadsThreshold.data(), SIGNAL(signalLowerValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setTotalReadsLowerLimit(int)));
+    connect(m_geneTotalReadsThreshold.data(), SIGNAL(signalUpperValueChanged(int)),
+            m_gene_plotter.data(), SLOT(setTotalReadsUpperLimit(int)));
 
-    //show/not genes signal
+    // show/not genes signal
     connect(m_ui->actionShow_showGenes,
             SIGNAL(triggered(bool)), m_gene_plotter.data(), SLOT(setVisible(bool)));
 
-    //visual mode signal
+    // visual mode signal
     connect(actionGroup_toggleVisualMode, SIGNAL(triggered(QAction*)), this,
             SLOT(slotSetGeneVisualMode(QAction*)));
 

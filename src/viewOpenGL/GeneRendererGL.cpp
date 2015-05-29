@@ -72,8 +72,8 @@ void GeneRendererGL::clearData()
     m_thresholdReadsUpper = std::numeric_limits<int>::min();
     m_thresholdGenesLower = std::numeric_limits<int>::max();
     m_thresholdGenesUpper = std::numeric_limits<int>::min();
-    m_thresholdTPMLower = std::numeric_limits<int>::max();
-    m_thresholdTPMUpper = std::numeric_limits<int>::min();
+    m_thresholdTotalReadsLower = std::numeric_limits<int>::max();
+    m_thresholdTotalReadsUpper = std::numeric_limits<int>::min();
     m_shape = DEFAULT_SHAPE_GENE;
     m_localPooledMin = std::numeric_limits<int>::max();
     m_localPooledMax = std::numeric_limits<int>::min();
@@ -145,18 +145,18 @@ void GeneRendererGL::setGenesLowerLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setTPMUpperLimit(const int limit)
+void GeneRendererGL::setTotalReadsUpperLimit(const int limit)
 {
-    if (m_thresholdTPMUpper != limit) {
-        m_thresholdTPMUpper = limit;
+    if (m_thresholdTotalReadsUpper != limit) {
+        m_thresholdTotalReadsUpper = limit;
         updateVisual();
     }
 }
 
-void GeneRendererGL::setTPMLowerLimit(const int limit)
+void GeneRendererGL::setTotalReadsLowerLimit(const int limit)
 {
-    if (m_thresholdTPMLower != limit) {
-        m_thresholdTPMLower = limit;
+    if (m_thresholdTotalReadsLower != limit) {
+        m_thresholdTotalReadsLower = limit;
         updateVisual();
     }
 }
@@ -211,8 +211,9 @@ void GeneRendererGL::generateDataAsync()
         // update look up container for the features and indexes
         m_geneInfoByIndex.insert(index, feature); // multiple features per index
         m_geneIntoByGene.insert(feature->geneObject(), index); // multiple indexes per gene
-        //TODO not used at the moment but they might be part of a new approach
-        //to compute rendering data
+
+        // TODO not used at the moment but they might be part of a new approach
+        // to compute rendering data
         //m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
         //m_geneInfoByFeatureIndex.insert(feature, index); // one index per feature
 
@@ -223,10 +224,16 @@ void GeneRendererGL::generateDataAsync()
         ++indexGenesCount[index];
         const int num_genes_feature = indexGenesCount.value(index);
         const int feature_reads = feature->hits();
-        //m_thresholdGenesLower = std::min(num_genes_feature, m_thresholdGenesLower);
+        const int feature_total_reads = m_geneInfoTotalReadsIndex.value(index);
+
+        // updating the min-max values of the thresholds here
+        // TODO in the future these values will come with the dataset info
+        m_thresholdGenesLower = std::min(num_genes_feature, m_thresholdGenesLower);
         m_thresholdGenesUpper = std::max(num_genes_feature, m_thresholdGenesUpper);
         m_thresholdReadsLower = std::min(feature_reads, m_thresholdReadsLower);
         m_thresholdReadsUpper = std::max(feature_reads, m_thresholdReadsUpper);
+        m_thresholdTotalReadsLower = std::min(feature_total_reads, m_thresholdTotalReadsLower);
+        m_thresholdTotalReadsUpper = std::max(feature_total_reads, m_thresholdTotalReadsUpper);
 
     } //endforeach
 
@@ -244,7 +251,7 @@ void GeneRendererGL::initBasicBuffers()
 
     m_shader_program.bind();
 
-    //Vertices buffer
+    // vertices buffer
     if (!m_vertexsBuffer.isCreated()) {
         m_vertexsBuffer.create();
         m_vertexsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -256,7 +263,7 @@ void GeneRendererGL::initBasicBuffers()
     m_shader_program.setAttributeBuffer("vertexAttr", GL_FLOAT, 0, 3);
     m_vertexsBuffer.release();
 
-    //Indexes buffer
+    // indexes buffer
     if (!m_indexesBuffer.isCreated()) {
         m_indexesBuffer.create();
         m_indexesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -266,7 +273,7 @@ void GeneRendererGL::initBasicBuffers()
                              m_geneData.m_indexes.size() * 1 * sizeof(int));
     m_indexesBuffer.release();
 
-    //Textures buffer
+    // textures buffer
     if (!m_texturesBuffer.isCreated()) {
         m_texturesBuffer.create();
         m_texturesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -293,7 +300,7 @@ void GeneRendererGL::initDynamicBuffers()
 
     m_shader_program.bind();
 
-    //Color buffer
+    // color buffer
     if (!m_colorsBuffer.isCreated()) {
         m_colorsBuffer.create();
         m_colorsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -305,7 +312,7 @@ void GeneRendererGL::initDynamicBuffers()
     m_shader_program.setAttributeBuffer("colorAttr", GL_FLOAT, 0, 4);
     m_colorsBuffer.release();
 
-    //Selected buffer
+    // selected buffer
     if (!m_selectedBuffer.isCreated()) {
         m_selectedBuffer.create();
         m_selectedBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -317,7 +324,7 @@ void GeneRendererGL::initDynamicBuffers()
     m_shader_program.setAttributeBuffer("selectedAttr", GL_FLOAT, 0, 1);
     m_selectedBuffer.release();
 
-    //Visible buffer
+    // visible buffer
     if (!m_visibleBuffer.isCreated()) {
         m_visibleBuffer.create();
         m_visibleBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -329,7 +336,7 @@ void GeneRendererGL::initDynamicBuffers()
     m_shader_program.setAttributeBuffer("visibleAttr", GL_FLOAT, 0, 1);
     m_visibleBuffer.release();
 
-    //Reads buffer
+    // reads buffer
     if (!m_readsBuffer.isCreated()) {
         m_readsBuffer.create();
         m_readsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -367,14 +374,14 @@ int GeneRendererGL::getMaxGenesThreshold() const
     return m_thresholdGenesUpper;
 }
 
-int GeneRendererGL::getMinTPMThreshold() const
+int GeneRendererGL::getMinTotalReadsThreshold() const
 {
-    return m_thresholdTPMLower;
+    return m_thresholdTotalReadsLower;
 }
 
-int GeneRendererGL::getMaxTPMThreshold() const
+int GeneRendererGL::getMaxTotalReadsThreshold() const
 {
-    return m_thresholdTPMUpper;
+    return m_thresholdTotalReadsUpper;
 }
 
 void GeneRendererGL::updateSize()
@@ -443,8 +450,8 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    //we want to get the max and min value of the reads that are going
-    //to be rendered to pass these values to the shaders to compute normalized colors
+    // we want to get the max and min value of the reads that are going
+    // to be rendered to pass these values to the shaders to compute normalized colors
     m_localPooledMin = std::numeric_limits<int>::max();
     m_localPooledMax = std::numeric_limits<int>::min();
 
@@ -474,34 +481,34 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             DataProxy::FeaturePtr feature = it.value();
             Q_ASSERT(feature);
 
-            //increase the gene counter always
+            // increase the gene counter always
             ++indexValueTotalGenes;
 
             const int currentHits = feature->hits();
-            //check if the reads are outside the threshold
+            // check if the reads are outside the threshold
             if (featureReadsOutsideRange(currentHits)) {
                 continue;
             }
 
-            //if we want to enforce the selection we add the feature to the container
+            // if we want to enforce the selection we add the feature to the container
             if (forceSelection) {
                 m_geneInfoSelectedFeatures.append(feature);
             }
 
             // get feature's gene
             const auto gene = feature->geneObject();
-            //check if gene is selected to visualize
+            // check if gene is selected to visualize
             if (!gene->selected()) {
                 continue;
             }
 
-            //update local variables for number of reads and genes
+            // update local variables for number of reads and genes
             indexValueReads += currentHits;
             ++indexValueGenes;
 
-            //when the color of the new feature is different than the color
-            //in the feature's index we do linear interpolation adjusted
-            //by the number of genes in the feature to obtain the new color
+            // when the color of the new feature is different than the color
+            // in the feature's index we do linear interpolation adjusted
+            // by the number of genes in the feature to obtain the new color
             const QColor &featureColor = gene->color();
             if (indexColor != featureColor) {
                 const qreal adjustment = 1.0 / indexValueGenes;
@@ -509,23 +516,28 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             }
         }
 
-        //we filter out features by its gene count regardles if genes are visible or not
-        const bool visible = indexValueGenes != 0 && !featureGenesOutsideRange(indexValueTotalGenes);
+        // the total sum of the reads in the feature
+        const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
 
-        //update pooled min-max to compute colors
+        // we filter out features by its gene/total reads count regardles if genes are visible or not
+        const bool visible = indexValueGenes != 0
+                && !featureGenesOutsideRange(indexValueTotalGenes)
+                && !featureTotalReadsOutsideRange(total_reads_feature);
+
+        // update pooled min-max to compute colors
         indexValue = indexValueReads;
         if (isPooled && visible) {
             if (pooling_genes) {
                 indexValue = indexValueGenes;
             } else if (pooling_tpm) {
-                indexValue = STMath::tpmNormalization<int>(indexValueReads,
-                                                      m_geneInfoTotalReadsIndex.value(index));
+                indexValue = STMath::tpmNormalization<int>(indexValueReads, total_reads_feature);
             }
+            // only update the boundaries for color computation in pooled mode
             m_localPooledMin = std::min(indexValue, m_localPooledMin);
             m_localPooledMax = std::max(indexValue, m_localPooledMax);
         }
 
-        //update rendering data arrays
+        // update rendering data arrays
         m_geneData.updateQuadReads(index, indexValue);
         m_geneData.updateQuadSelected(index, visible && forceSelection);
         m_geneData.updateQuadVisible(index, visible);
@@ -789,7 +801,7 @@ bool GeneRendererGL::featureGenesOutsideRange(const int value)
     return (value < m_thresholdGenesLower || value > m_thresholdGenesUpper);
 }
 
-bool GeneRendererGL::featureTPMOutsideRange(const int value)
+bool GeneRendererGL::featureTotalReadsOutsideRange(const int value)
 {
-    return (value < m_thresholdTPMLower || value > m_thresholdTPMUpper);
+    return (value < m_thresholdTotalReadsLower || value > m_thresholdTotalReadsUpper);
 }

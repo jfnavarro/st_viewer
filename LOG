@@ -113,3 +113,10 @@ v0.4.8
 v0.4.9 
 	* Made some general clean up and optimization
 	* Fixed a bug in the computation of TPM correlation values in DEA
+
+v0.5.0
+	* Replaced QOpenGLWindows for QOpenGLWidgets
+	* Introduced QOpenGLFunctions for compatibility
+	* Fix some cppcheck warnings
+	* Added total reads per feature threshold
+	* Fixed some errors in the computation of correlation in DEA
