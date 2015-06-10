@@ -61,6 +61,7 @@ void GeneRendererGL::clearData()
     // lookup data
     m_geneInfoByIndex.clear();
     m_geneInfoTotalReadsIndex.clear();
+    m_geneInfoTotalGenesIndex.clear();
     m_geneIntoByGene.clear();
     m_geneInfoByFeature.clear();
     m_geneInfoByFeatureIndex.clear();
@@ -180,9 +181,6 @@ void GeneRendererGL::generateDataAsync()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    //temp hack to get the max,min number of genes per feature, next API release this info
-    //will come in the dataset
-    QHash<int,unsigned> indexGenesCount;
     foreach(DataProxy::FeaturePtr feature, m_dataProxy->getFeatureList()) {
         Q_ASSERT(!feature.isNull());
 
@@ -211,18 +209,15 @@ void GeneRendererGL::generateDataAsync()
         // update look up container for the features and indexes
         m_geneInfoByIndex.insert(index, feature); // multiple features per index
         m_geneIntoByGene.insert(feature->geneObject(), index); // multiple indexes per gene
-
-        // TODO not used at the moment but they might be part of a new approach
-        // to compute rendering data
-        //m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
-        //m_geneInfoByFeatureIndex.insert(feature, index); // one index per feature
+        m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
+        m_geneInfoByFeatureIndex.insert(feature, index); // one index per feature
 
         // updated total reads per feature position
         m_geneInfoTotalReadsIndex[index] += feature->hits();
 
         // update thresholds (next API will contain this information)
-        ++indexGenesCount[index];
-        const int num_genes_feature = indexGenesCount.value(index);
+        ++m_geneInfoTotalGenesIndex[index];
+        const int num_genes_feature = m_geneInfoTotalGenesIndex.value(index);
         const int feature_reads = feature->hits();
         const int feature_total_reads = m_geneInfoTotalReadsIndex.value(index);
 
@@ -434,7 +429,7 @@ void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList, const boo
     foreach(DataProxy::GenePtr gene, geneList) {
         GeneInfoByGeneMap::const_iterator it = m_geneIntoByGene.find(gene);
         GeneInfoByGeneMap::const_iterator end = m_geneIntoByGene.end();
-        for (; it != end && it.key() == gene; ++it){
+        for (; it != end && it.key() == gene; ++it) {
             indexes.insert(it.value());
         }
     }
@@ -468,10 +463,20 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
     // iterate the index -> features container to compute the rendering data
     foreach(const int index, indexes) {
 
+        // check if feature's total reads/genes are inside the threshold
+        const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
+        const int total_genes_feature = m_geneInfoTotalGenesIndex.value(index);
+
+        if (featureGenesOutsideRange(total_genes_feature)
+                || featureTotalReadsOutsideRange(total_reads_feature)) {
+            // set feature to not visible
+            m_geneData.updateQuadVisible(index, false);
+            continue;
+        }
+
         // temp local variables to store the genes/reads/tpm/color of each feature
         int indexValueReads = 0;
         int indexValueGenes = 0;
-        int indexValueTotalGenes = 0;
         indexColor = Globals::DEFAULT_COLOR_GENE;
 
         // iterate the features to compute rendering data for an specific index (position)
@@ -481,11 +486,9 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             DataProxy::FeaturePtr feature = it.value();
             Q_ASSERT(feature);
 
-            // increase the gene counter always
-            ++indexValueTotalGenes;
-
             const int currentHits = feature->hits();
             // check if the reads are outside the threshold
+            // check if gene is selected to visualize
             if (featureReadsOutsideRange(currentHits)) {
                 continue;
             }
@@ -495,9 +498,9 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
                 m_geneInfoSelectedFeatures.append(feature);
             }
 
-            // get feature's gene
+            // we check if gene is selected here because we want to select all the genes
+            // in the feature when we are forcing selection
             const auto gene = feature->geneObject();
-            // check if gene is selected to visualize
             if (!gene->selected()) {
                 continue;
             }
@@ -516,13 +519,8 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             }
         }
 
-        // the total sum of the reads in the feature
-        const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
-
-        // we filter out features by its gene/total reads count regardles if genes are visible or not
-        const bool visible = indexValueGenes != 0
-                && !featureGenesOutsideRange(indexValueTotalGenes)
-                && !featureTotalReadsOutsideRange(total_reads_feature);
+        // we only show features where there is at least one gene activated
+        const bool visible = indexValueGenes != 0;
 
         // update pooled min-max to compute colors
         indexValue = indexValueReads;
@@ -530,6 +528,8 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             if (pooling_genes) {
                 indexValue = indexValueGenes;
             } else if (pooling_tpm) {
+                // the total sum of the reads in the feature
+                const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
                 indexValue = STMath::tpmNormalization<int>(indexValueReads, total_reads_feature);
             }
             // only update the boundaries for color computation in pooled mode
@@ -562,7 +562,25 @@ void GeneRendererGL::clearSelection()
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
-    updateVisual(genes, true);
+    // Well, we have some duplicated code here but the problem
+    // is that this function is invoked from the reg-exp selection tool.
+    // We want to filter out gene-features that are outside threshold
+    // so they are not included in the selection, that is why we do a little
+    // check here before creating the list of indexes
+    QSet<int> indexes;
+    foreach(DataProxy::GenePtr gene, genes) {
+        GeneInfoByFeatureMap::const_iterator it = m_geneInfoByFeature.find(gene);
+        GeneInfoByFeatureMap::const_iterator end = m_geneInfoByFeature.end();
+        for (; it != end && it.key() == gene; ++it) {
+            const auto feature = it.value();
+            if (!featureReadsOutsideRange(feature->hits())) {
+                const int index = m_geneInfoByFeatureIndex.value(feature);
+                indexes.insert(index);
+            }
+        }
+    }
+
+    updateVisual(indexes.toList(), true);
 }
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const

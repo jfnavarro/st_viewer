@@ -169,7 +169,7 @@ private:
     typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
     typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; //feature to OpenGL index
     typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
-    typedef QHash<int, int> GeneInfoTotalReadsIndex; //index to total reads (to compute TPM)
+    typedef QHash<int, int> GeneInfoFeatureCount; //index to total reads/genes
     typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
 
     // gene lookup data (index -> features)
@@ -183,7 +183,9 @@ private:
     // list of selected features
     GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
     // gene look up (index -> total reads)
-    GeneInfoTotalReadsIndex m_geneInfoTotalReadsIndex;
+    GeneInfoFeatureCount m_geneInfoTotalReadsIndex;
+    // gene look up (index -> total genes)
+    GeneInfoFeatureCount m_geneInfoTotalGenesIndex;
     // quad tree container
     GeneInfoQuadTree m_geneInfoQuadTree;
 
