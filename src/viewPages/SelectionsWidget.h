@@ -62,6 +62,8 @@ private:
     //some references needed to UI elements
     QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
     QPointer<GeneSelectionTableView> m_selections_tableview;
+    QPointer<QLineEdit> m_total_reads_edit;
+    QPointer<QLineEdit> m_total_genes_edit;
 
     Q_DISABLE_COPY(SelectionsWidget)
 };
