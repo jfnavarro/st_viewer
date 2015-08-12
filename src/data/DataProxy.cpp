@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QtGlobal>
 #include <QImage>
+#include <QFile>
 #include <QMessageBox>
 #include <QImageReader>
 #include <QApplication>
@@ -39,6 +40,10 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/error/en.h"
 
+#include "binaryFormat/feature/datamodel.h"
+#include "binaryFormat/feature/fillFeatureListAndGeneListFromDataModel.h"
+#include "binaryFormat/feature/protobuf_genes/protobuf_genes_parse.h"
+#include "binaryFormat/feature/capnproto_genes/capnproto_genes_parse.h"
 #include <iostream>
 #include <sstream>
 
@@ -651,9 +656,32 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
     FeaturesHandler handler(m_featuresList, m_genesList);
     Reader reader;
     QByteArray rawText = reply->getRaw();
-    StringStream is(rawText.data());
 
-    const bool ok = reader.Parse(is, handler);
+    QFile file("/tmp/downloaded_feature_file");
+    file.open(QIODevice::WriteOnly);
+    file.write(rawText);
+    file.close();
+
+    if (true) {
+      data_model::Everything data_model_everything;
+      try {
+        QFile file2("/tmp/aa.binary");
+        file2.open(QIODevice::ReadOnly);
+        QByteArray rawText2;
+        rawText2 = file2.readAll();
+        file2.close();
+        protobuf_genes_parse(rawText2.data(), rawText2.size(), &data_model_everything);
+        fillFeaturelistAndGenelistFromDatamodel(data_model_everything, &m_featuresList, &m_genesList);
+      }
+      catch (const std::exception &e) {
+        QSharedPointer<Error> error(new Error(tr("Error downloading features in binary format"),
+					      QString::fromStdString(e.what()), this));
+        reply->registerError(error);
+        parsedOk = false;
+      }
+    } else {
+      StringStream is(rawText.data());
+      const bool ok = reader.Parse(is, handler);
     if (!ok) {
         ParseErrorCode e = reader.GetParseErrorCode();
         QSharedPointer<Error> error(new Error(tr("Error downloading JSON features"),
@@ -661,7 +689,7 @@ bool DataProxy::parseFeatures(NetworkReply *reply)
         reply->registerError(error);
         parsedOk = false;
     }
-
+    }
     QGuiApplication::restoreOverrideCursor();
 
     return parsedOk;

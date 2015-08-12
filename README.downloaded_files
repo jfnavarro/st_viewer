@@ -3,3 +3,10 @@ URL: http://www.juridicum.su.se/iri/png/sulogo_ny_en.png
 md5sum: 05254e0749bd6dd08d47944748bdd8f4
 local file path: assets/images/sulogo_ny_en.png 
 
+
+URL: https://capnproto.org/capnproto-c++-0.5.3.tar.gz
+file: capnproto-c++-0.5.3/cmake/FindCapnProto.cmake
+sha1sum: 5877ac879705a6c821695a7d22ef717301eba2e0
+license: MIT License
+local file path: st_client/cmake/FindCapnProto.cmake
+

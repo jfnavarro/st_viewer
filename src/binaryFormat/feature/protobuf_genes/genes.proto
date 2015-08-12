@@ -1,0 +1,25 @@
+package tutorial;
+
+// implements: List of lists (LIL)
+// http://en.wikipedia.org/wiki/Sparse_matrix
+
+message Yline {
+  repeated uint32 xcoord = 1;
+  repeated uint32 hits = 2;
+}
+
+message Gene {
+  repeated Yline ylines = 1;
+}
+
+message Position {
+  required string barcode = 1;
+  required uint32 xcoord = 2;
+  required uint32 ycoord = 3;
+}
+
+message Everything {
+  repeated string geneNames = 1;
+  repeated Position positions = 2;
+  repeated Gene genes = 3;
+}

@@ -53,7 +53,7 @@ else()
 endif()
 
 #this guy here must link the same as the main target (perhaps create a variable or link all in the same place)
-target_link_libraries(${TARGET_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES})
+target_link_libraries(${TARGET_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} ${LIBJPEG_LIBRARIES} feature_parse_and_serialize)
 qt5_use_modules(${TARGET_NAME} Test)
 
 add_test(general ${TARGET_NAME})

@@ -46,6 +46,9 @@ endforeach()
 
 add_subdirectory(testTools)
 
+add_subdirectory(binaryFormat/feature)
+
+
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
 #NOTE this is very useful for Visual Studio
@@ -120,7 +123,7 @@ if(APPLE)
 endif()
 
 #link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY} feature_parse_and_serialize)
 
 # TODO: maybe we should use LIBJPEG_STATIC_detected_with_find_library for all platforms?
 # It works for Windows and Linux right now. It has not yet been tested for OSX.
