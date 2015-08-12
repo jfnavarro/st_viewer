@@ -2,8 +2,9 @@
 set -e
 
 tmpdir=`mktemp -d /tmp/orig.XXXX`
+chmod 700 $tmpdir
 sortedfile=$tmpdir/sorted
-jsonfile=/home/esjolund/features_fewer_lines.json
+jsonfile="@CMAKE_CURRENT_SOURCE_DIR@/example_data_features.json"
 
 sed 's/,$//' $jsonfile | sort  > $sortedfile
 
