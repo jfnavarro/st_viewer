@@ -1,5 +1,7 @@
-set(YAJL_LIBRARIES /home/esjolund/tmp/yajl-2.1.0/inst/lib/libyajl.so)
-set(YAJL_INCLUDE_DIRS /home/esjolund/tmp/yajl-2.1.0/inst/include/)
+find_package(Yajl REQUIRED)
+
+#set(YAJL_LIBRARIES /home/esjolund/tmp/yajl-2.1.0/inst/lib/libyajl.so)
+#set(YAJL_INCLUDE_DIRS /home/esjolund/tmp/yajl-2.1.0/inst/include/)
 
 add_library(json
   STATIC
