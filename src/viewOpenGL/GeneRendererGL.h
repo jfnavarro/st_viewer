@@ -52,6 +52,15 @@ public:
         HeatMapMode = 3
     };
 
+    // lookup maps for features
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
+    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
+    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
+    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; //feature to OpenGL index
+    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
+    typedef QHash<int, int> GeneInfoFeatureCount; //index to total reads/genes
+    typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
+
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
@@ -162,15 +171,6 @@ private:
 
     // compiles and loads the shaders
     void setupShaders();
-
-    // lookup maps for features
-    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
-    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
-    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
-    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; //feature to OpenGL index
-    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
-    typedef QHash<int, int> GeneInfoFeatureCount; //index to total reads/genes
-    typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
 
     // gene lookup data (index -> features)
     GeneInfoByIndexMap m_geneInfoByIndex;

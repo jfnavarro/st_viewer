@@ -166,10 +166,10 @@ void GeneRendererGL::generateData()
 {
     clearData();
 
-    //update shader
+    // update shader
     setupShaders();
 
-    //generate data
+    // generate data
     generateDataAsync();
 
     m_isDirtyStaticData = true;
@@ -232,7 +232,7 @@ void GeneRendererGL::generateDataAsync()
 
     } //endforeach
 
-    m_thresholdGenesLower = 1;
+    //m_thresholdGenesLower = 1;
 
     QGuiApplication::restoreOverrideCursor();
 }
@@ -395,6 +395,7 @@ void GeneRendererGL::updateSize()
     }
 
     QGuiApplication::restoreOverrideCursor();
+
     m_isDirtyStaticData = true;
     m_isDirtyDynamicData = true;
     emit updated();
@@ -420,21 +421,25 @@ void GeneRendererGL::updateVisible(const DataProxy::GeneList &geneList)
 
 void GeneRendererGL::updateVisual()
 {
+    // call updateVisual with all the genes
     updateVisual(m_geneInfoByIndex.uniqueKeys());
 }
 
 void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList, const bool forceSelection)
 {
-    QSet<int> indexes;
+    // get indexes (features) from the list of genes
+    QList<int> unique_indexes;
     foreach(DataProxy::GenePtr gene, geneList) {
-        GeneInfoByGeneMap::const_iterator it = m_geneIntoByGene.find(gene);
-        GeneInfoByGeneMap::const_iterator end = m_geneIntoByGene.end();
-        for (; it != end && it.key() == gene; ++it) {
-            indexes.insert(it.value());
-        }
+        unique_indexes.append(m_geneIntoByGene.values(gene));
     }
 
-    updateVisual(indexes.toList(), forceSelection);
+    // make the indexes unique
+    qSort(unique_indexes.begin(), unique_indexes.end());
+    QList<int>::iterator it = std::unique(unique_indexes.begin(), unique_indexes.end());
+    unique_indexes.erase(it, unique_indexes.end());
+
+    // compute the rendering information for the selected genes
+    updateVisual(unique_indexes, forceSelection);
 }
 
 void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSelection)
@@ -453,9 +458,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
     // reset selection array that contains the selected features
     m_geneInfoSelectedFeatures.clear();
 
-    // declare temp variables for storing the index's value and color
-    int indexValue = 0;
-    QColor indexColor = Globals::DEFAULT_COLOR_GENE;
+    // some visualization options
     const bool pooling_genes = m_poolingMode == PoolNumberGenes;
     const bool pooling_tpm = m_poolingMode == PoolTPMs;
     const bool isPooled = m_visualMode == DynamicRangeMode || m_visualMode == HeatMapMode;
@@ -475,9 +478,9 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
         }
 
         // temp local variables to store the genes/reads/tpm/color of each feature
-        int indexValueReads = 0;
+        QColor indexColor = Globals::DEFAULT_COLOR_GENE;
+        int indexValue = 0;
         int indexValueGenes = 0;
-        indexColor = Globals::DEFAULT_COLOR_GENE;
 
         // iterate the features to compute rendering data for an specific index (position)
         GeneInfoByIndexMap::const_iterator it = m_geneInfoByIndex.constFind(index);
@@ -488,7 +491,6 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
 
             const int currentHits = feature->hits();
             // check if the reads are outside the threshold
-            // check if gene is selected to visualize
             if (featureReadsOutsideRange(currentHits)) {
                 continue;
             }
@@ -506,7 +508,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             }
 
             // update local variables for number of reads and genes
-            indexValueReads += currentHits;
+            indexValue += currentHits;
             ++indexValueGenes;
 
             // when the color of the new feature is different than the color
@@ -522,15 +524,12 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
         // we only show features where there is at least one gene activated
         const bool visible = indexValueGenes != 0;
 
-        // update pooled min-max to compute colors
-        indexValue = indexValueReads;
+        // update pooled min-max to compute colors if applies
         if (isPooled && visible) {
             if (pooling_genes) {
                 indexValue = indexValueGenes;
             } else if (pooling_tpm) {
-                // the total sum of the reads in the feature
-                const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
-                indexValue = STMath::tpmNormalization<int>(indexValueReads, total_reads_feature);
+                indexValue = STMath::tpmNormalization<int>(indexValue, total_reads_feature);
             }
             // only update the boundaries for color computation in pooled mode
             m_localPooledMin = std::min(indexValue, m_localPooledMin);
@@ -574,12 +573,11 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
         for (; it != end && it.key() == gene; ++it) {
             const auto feature = it.value();
             if (!featureReadsOutsideRange(feature->hits())) {
-                const int index = m_geneInfoByFeatureIndex.value(feature);
-                indexes.insert(index);
+                indexes.insert(m_geneInfoByFeatureIndex.value(feature));
             }
         }
     }
-
+    // we update the rendering data enforcing the selection to true
     updateVisual(indexes.toList(), true);
 }
 
@@ -672,6 +670,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
     }
 
     QGuiApplication::restoreOverrideCursor();
+
     m_isDirtyDynamicData = true;
     emit selectionUpdated();
     emit updated();

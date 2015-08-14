@@ -126,3 +126,6 @@ v0.5.1
       regardless of how many genes are selected
     * Fix a bug when doing reg-exp selection on genes that should not appear
       in some features due to threshold restraints
+
+v0.5.2
+    * Show total reads and total genes in selection widget

@@ -24,6 +24,7 @@ qt5_add_translation(QT_LOCALES ${LOCALES})
 set(subdir_list
                    dialogs
                    color
+                   concurrent
                    dataModel
                    network
                    auth
