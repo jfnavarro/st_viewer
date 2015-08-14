@@ -201,8 +201,8 @@ if(UNIX AND NOT APPLE)
       INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
     endforeach()
 
-    #qt 5.4 needs ICU libaries in Linux 53
-    set(ICU_VERSION "53.1")
+    #qt 5.5 needs ICU libaries in Linux 54
+    set(ICU_VERSION "54.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
@@ -359,8 +359,8 @@ if(WIN32)
 
     deploy_qt_plugins()
     
-    #qt 5.4 ICU is 53
-    windows_deploy_qt_libraries(icudt53 icuin53 icuuc53)
+    #qt 5.5 ICU is 54
+    windows_deploy_qt_libraries(icudt54 icuin54 icuuc54)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)

@@ -63,7 +63,7 @@ fi
 # what is described here: http://stackoverflow.com/a/15335686
 
 filepath1=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'`
-filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.4.0/5.4/msvc2013_64_opengl/bin/qtenv2.bat'`
+filepath2=`cygpath -w '/cygdrive/c/Qt/Qt5.5.0/5.5/msvc2013_64/bin/qtenv2.bat'`
 
 qt3d_dir=/home/Administrator/qt3d
 qt3d_srcdir=$qt3d_dir/src

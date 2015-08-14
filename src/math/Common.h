@@ -14,6 +14,7 @@
 #include <QtCore/qmath.h>
 #include <QSizeF>
 #include <QColor>
+#include <vector>
 
 #include <cmath>
 
