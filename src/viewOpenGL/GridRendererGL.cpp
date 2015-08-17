@@ -41,6 +41,7 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 
         m_qopengl_functions->glBegin(GL_LINES);
         {
+            // draw borders of the array
             m_qopengl_functions->glColor4f(
                         static_cast<GLfloat>(m_gridBorderColor.redF()),
                         static_cast<GLfloat>(m_gridBorderColor.greenF()),
@@ -50,6 +51,7 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
                 m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
 
+            // draw the array (grid)
             m_qopengl_functions->glColor4f(
                         static_cast<GLfloat>(m_gridColor.redF()),
                         static_cast<GLfloat>(m_gridColor.greenF()),

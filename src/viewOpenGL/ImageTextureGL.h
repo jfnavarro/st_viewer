@@ -15,9 +15,9 @@ class QImage;
 class QOpenGLTexture;
 class QByteArray;
 
-//Image texture represents a tiled image to be rendered
-//The tiling and creation of the textures is performed concurrently
-//For each texture(tile) created a Qt3D node is created aswell
+// This class represents a tiled image to be rendered using textures. This class
+// is used to render the cell tissue image which has a high resolution
+// The tiling and creation of the textures is performed concurrently
 class ImageTextureGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -27,20 +27,22 @@ public:
     explicit ImageTextureGL(QObject *parent = 0);
     virtual ~ImageTextureGL();
 
-    //will split the image into small textures of fixed size
+    // will split the image into small textures of fixed size in an asynchronous way
+    // using createTiles and returning the future object
     QFuture<void> createTexture(const QByteArray& imageByteArray);
 
-    //will remove and destroy all textures
+    // will remove and destroy all textures
     void clearData();
 
-    //return the total size of the image as a QRectF
+    // return the total size of the image as a QRectF
     const QRectF boundingRect() const override;
 
-    //internal functions to create textures from images
+    // will split the images into small textures of fixed size
     void createTiles(QByteArray imageByteArray);
 
 public slots:
-    //to adjust intensity of the textures
+
+    // to adjust intensity of the textures
     void setIntensity(qreal intensity);
 
 protected:
@@ -50,10 +52,10 @@ protected:
 
 private:
 
-
+    // internal functions to create a texture from an image and add it to the rendering list
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
 
-    //internal function to remove and clean textures
+    // internal function to remove and clean textures
     void clearTextures();
     void clearNodes();
 

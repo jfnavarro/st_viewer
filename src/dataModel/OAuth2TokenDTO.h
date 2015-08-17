@@ -17,7 +17,7 @@
 
 // this DTO parses the OAuth2 authorization token
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class OAuth2TokenDTO : public QObject
 {
     Q_OBJECT

@@ -33,11 +33,13 @@ namespace Ui{
 class CellView;
 } // namespace Ui
 
-// this is the definition of the cell view page which contains a list of genes and an OpenGL based
+// This is the definition of the cell view page visualization widget
+// which contains a table of genes, a table of selected genes and an OpenGL based
 // rendering canvas to visualize the cell tissue and the genes.
-// as every page it implements the moveToNextPage and moveToPreviousPage
+// It also contains a toobar like every page. Functionalities in the toolbar are handled by slots.
+// As every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
-// we do lazy inizialization of the visual stuff, specially openGL based stuff
+// We do lazy inizialization of the visual stuff, specially openGL based stuff
 
 class CellViewPage : public Page
 {
@@ -55,7 +57,7 @@ public slots:
 
 private slots:
     
-    //some slots for gene actions that need adjustment of the value
+    // some slots for gene actions that need adjustment of the value
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);
@@ -65,10 +67,10 @@ private slots:
     void slotSaveImage();
     void slotPrintImage();
 
-    //shows a file dialog to save the current genes selection to a file
+    // shows a file dialog to save the current genes selection to a file
     void slotExportGenesSelection();
     
-    //shows a file dialog to save the current features selection to a file
+    // shows a file dialog to save the current features selection to a file
     //TODO this slot will be removed in release 0.5
     void slotExportFeaturesSelection();
 
@@ -87,18 +89,18 @@ private slots:
     // select minimap anchor
     void slotSetMiniMapAnchor(QAction *action);
 
-    // genes were selected
+    // to nofity gene selections table when genes were selected
     void slotSelectionUpdated();
 
     // slot to save the currently selected genes
     void slotSaveSelection();
 
-    // load the cell tissue figure (tile it into textures) async
+    // to load the cell tissue figure (tile it into textures) asynchronously
     void slotLoadCellFigure();
 
-    //used to be notified when the dataset content has been downloaded or a selection created
-    //status contains the status of the operation (ok, abort, error)
-    //type contains the downloaad type
+    // used to be notified when the dataset content has been downloaded or a selection created
+    // status contains the status of the operation (ok, abort, error)
+    // type contains the downloaad type
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
 

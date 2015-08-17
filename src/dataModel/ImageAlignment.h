@@ -4,6 +4,9 @@
 #include <QString>
 #include <QTransform>
 
+// Image alignment represents the mapping of the features data
+// to the images of the tissue.
+
 class ImageAlignment
 {
 public:

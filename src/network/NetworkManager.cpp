@@ -38,7 +38,7 @@ NetworkManager::NetworkManager(QObject *parent):
     // setup network access manager
     m_nam = new QNetworkAccessManager(this);
 
-    //add ssl support
+    // add ssl support
     QFile cafile(":public_key.pem");
     cafile.open(QIODevice::ReadOnly);
     QSslCertificate cert(&cafile);
@@ -57,10 +57,11 @@ NetworkManager::NetworkManager(QObject *parent):
     qDebug() << "Network disk cache location " << location;
     m_diskCache->setCacheDirectory(location + QDir::separator() + "data");
     const quint64 cacheSizeinGB = 5368709120; // 1024*1024*1024*5 5GB
+    //TODO some HD space check should be added here
     m_diskCache->setMaximumCacheSize(cacheSizeinGB);
     m_nam->setCache(m_diskCache);
 
-    //we want to provide Authentication to our OAuth based servers
+    // we want to provide Authentication to our OAuth based servers
     connect(m_nam, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
             SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
 }
@@ -96,10 +97,10 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
 
     // check if authentication is needed
     if (flags.testFlag(UseAuthentication)) {
-        //append access token
+        // append access token
         const QUuid accessToken = m_tokenStorage.getAccessToken();
         Q_ASSERT(!accessToken.isNull());
-        //QUuid encloses its uuids in "{}"
+        // QUuid encloses its uuids in "{}"
         cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     }
 
@@ -137,13 +138,13 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand *cmd, NetworkFlags flag
         break;
     } case Globals::HttpRequestTypePost: {
         qDebug() << "[NetworkManager] POST:" << request.url();
-        //POST methods need a special request header
+        // POST methods need a special request header
         QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->post(request, jsonData);
         break;
     } case Globals::HttpRequestTypePut: {
         qDebug() << "[NetworkManager] PUT:" << request.url();
-        //PUT methods need a special request header
+        // PUT methods need a special request header
         QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->put(request, jsonData);
         break;

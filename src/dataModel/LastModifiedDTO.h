@@ -17,7 +17,7 @@
 
 // This DTO parses the last_modified endpoints
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class LastModifiedDTO : public QObject
 {
     Q_OBJECT

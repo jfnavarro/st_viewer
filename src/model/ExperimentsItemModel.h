@@ -22,7 +22,8 @@ class QModelIndex;
 class QStringList;
 class QItemSelection;
 
-//Model for the genes selections table
+// Wrapper model for the genes selections table
+//TODO this should not be called experiment
 class ExperimentsItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -53,13 +54,13 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    //reset current model
+    // reset current model
     void reset();
 
-    //loads the data of the model from DataProxys
+    // loads the data of the model from DataProxys
     void loadSelectedGenes(const DataProxy::GeneSelectionList selectionList);
 
-    //returns a list of selections items from the indexes given as input
+    // returns a list of selections items from the indexes given as input
     DataProxy::GeneSelectionList getSelections(const QItemSelection &selection);
 
 private:

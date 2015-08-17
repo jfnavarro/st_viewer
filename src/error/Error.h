@@ -11,8 +11,8 @@
 #include <QObject>
 #include <QString>
 
-//this abstract class is the base class for errors,
-//it contains different information (name and description)
+// this abstract class is the base class for errors,
+// it contains different information (name and description)
 class Error : public QObject
 {
     Q_OBJECT

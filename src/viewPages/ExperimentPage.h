@@ -21,9 +21,10 @@ namespace Ui{
 class Experiments;
 } // namespace Ui //
 
-//Experiments page contains a table with the genes selection made by the user
-//Users can interact here to edit/remove selections and to perform analysis on them
-//like the DEA
+//TODO rename this to Selections of GeneSelections o FeaturesSelections
+// Experiments page contains a table with the genes selection made by the user.
+// Users can interact here to edit/remove selections and to perform analysis on them
+// like the DEA
 class ExperimentPage : public Page
 {
     Q_OBJECT
@@ -40,31 +41,33 @@ public slots:
 
 private slots:
 
-    //slot that handles when the user selects a selection
+    // slot that handles when the user selects a selection
     void slotSelectionSelected(QModelIndex index);
 
-    //slots to handle actions from buttons
+    // slots to handle actions from buttons
     void slotExportSelection();
     void slotRemoveSelection();
     void slotEditSelection();
-    void slotPerformDDA();
+    // this slot will init and show the DEA dialog
+    void slotPerformDEA();
+    // this slot will get the selection's image and create dialog to show it
     void slotShowTissue();
 
-    //used to be notified when the genes selections has been downloaded or updated from network
-    //status contains the status of the operation (ok, abort, error)
-    //type contains the type of download request
+    // used to be notified when the genes selections has been downloaded or updated from network
+    // status contains the status of the operation (ok, abort, error)
+    // type contains the type of download request
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
 
 private:
 
-    //internal function to invoke the download of genes selections
+    // internal function to invoke the download of genes selections
     void loadSelections();
 
-    //internal clear focus and default status for the buttons
+    // internal clear focus and default status for the buttons
     void clearControls();
 
-    //to retrieve the table's model
+    // to retrieve the table's model
     QSortFilterProxyModel *selectionsProxyModel();
     ExperimentsItemModel *selectionsModel();
 

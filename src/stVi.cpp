@@ -137,7 +137,7 @@ bool stVi::checkSystemRequirements() const
     // check for min version if supported
     m_dataProxy->loadMinVersion();
     m_dataProxy->activateCurrentDownloads();
-    //connect data proxy signal
+    // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
@@ -167,35 +167,35 @@ void stVi::setupUi()
     setMinimumSize(QSize(1024, 768));
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
-    //create main widget
+    // create main widget
     QWidget *centralwidget = new QWidget(this);
-    //important to set the style to this widget only to avoid propagation
+    // important to set the style to this widget only to avoid propagation
     centralwidget->setObjectName("centralWidget");
     centralwidget->setStyleSheet("QWidget#centralWidget {background-color: rgb(45, 45, 45);}");
     centralwidget->setWindowFlags(Qt::FramelessWindowHint);
     setCentralWidget(centralwidget);
 
-    //create main layout
+    // create main layout
     QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
     mainlayout->setSpacing(0);
     mainlayout->setContentsMargins(0, 0, 0, 0);
 
-    //create tab manager
-    //pass reference to dataProxy and authManager to tab manager
+    // create tab manager
+    // pass reference to dataProxy and authManager to tab manager
     m_mainTab = new ExtendedTabWidget(m_dataProxy, m_authManager, centralwidget);
     mainlayout->addWidget(m_mainTab);
 
-    //create status bar
+    // create status bar
     QStatusBar *statusbar = new QStatusBar();
     setStatusBar(statusbar);
 
-    //create menu bar
+    // create menu bar
     QMenuBar *menubar = new QMenuBar();
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);
 
-    //create actions
+    // create actions
     m_actionExit = new QAction(this);
     m_actionHelp = new QAction(this);
     m_actionVersion = new QAction(this);
@@ -207,7 +207,7 @@ void stVi::setupUi()
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
 
-    //create menus
+    // create menus
     QMenu *menuLoad = new QMenu(menubar);
     QMenu *menuHelp = new QMenu(menubar);
     menuLoad->setTitle(tr("File"));
@@ -336,11 +336,11 @@ void stVi::createShorcuts()
 
 void stVi::createConnections()
 {
-    //exit and print action
+    // exit and print action
     connect(m_actionExit, SIGNAL(triggered(bool)), this, SLOT(slotExit()));
-    //clear cache action
+    // clear cache action
     connect(m_actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
-    //signal that shows the about dialog
+    // signal that shows the about dialog
     connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(slotShowAbout()));
 }
 

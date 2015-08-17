@@ -41,7 +41,7 @@ public:
     void addQueryItem(const QString &param, const int value);
     void addQueryItem(const QString &param, const qreal value);
 
-    // adds query items from qobject meta data if its element are possible to parse to QVariant
+    // adds query items from qobject meta data if its elements are possible to parse to QVariant
     void addQueryItems(QObject *object);
 
     // returns the current query item for the param given

@@ -28,6 +28,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     m_genes_tableview(nullptr),
     m_colorList(nullptr)
 {
+    // one layout for the controls and another for the table
     QVBoxLayout *genesLayout = new QVBoxLayout();
     genesLayout->setSpacing(0);
     genesLayout->setContentsMargins(10, 10, 10, 10);
@@ -35,7 +36,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
     geneListLayout->setSpacing(0);
     geneListLayout->setContentsMargins(0, 5, 0, 5);
 
-    //add separation between buttons
+    // add separation between buttons
     geneListLayout->addSpacing(10);
 
     QPushButton *showSelectedButton = new QPushButton(this);
@@ -43,7 +44,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/visible.png")),
                     tr("Show selected genes"));
     geneListLayout->addWidget(showSelectedButton);
-    //add separation
+    // add separation
     geneListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *hideSelectedButton = new QPushButton(this);
@@ -51,7 +52,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/nonvisible.png")),
                     tr("Hide selected genes"));
     geneListLayout->addWidget(hideSelectedButton);
-    //add separation
+    // add separation
     geneListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *selectionAllButton = new QPushButton(this);
@@ -59,7 +60,7 @@ GenesWidget::GenesWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/select-all.png")),
                     tr("Select all genes"));
     geneListLayout->addWidget(selectionAllButton);
-    //add separation
+    // add separation
     geneListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *selectionClearAllButton = new QPushButton(this);
@@ -67,18 +68,18 @@ GenesWidget::GenesWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/unselect-all.png")),
                     tr("Deselect all genes"));
     geneListLayout->addWidget(selectionClearAllButton);
-    //add separation
+    // add separation
     geneListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *showColorButton = new QPushButton(this);
     configureButton(showColorButton,
                     QIcon(QStringLiteral(":/images/select-color.png")),
                     tr("Set color of selected genes"));
-    //show color button will open up a color selector
+    // show color button will open up a color selector
     m_colorList = new QColorDialog(Globals::DEFAULT_COLOR_GENE, this);
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     geneListLayout->addWidget(showColorButton);
-    //add separation
+    // add separation
     geneListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     m_lineEdit = new QLineEdit(this);
@@ -91,18 +92,18 @@ GenesWidget::GenesWidget(QWidget *parent) :
     geneListLayout->addWidget(m_lineEdit);
     geneListLayout->setAlignment(m_lineEdit, Qt::AlignRight);
 
-    //add actions menu to main layout
+    // add actions menu to main layout
     genesLayout->addLayout(geneListLayout);
 
-    //create genes table
+    // create genes table
     m_genes_tableview = new GenesTableView(this);
-    //add table to main layout
+    // add table to main layout
     genesLayout->addWidget(m_genes_tableview);
 
-    //set main layout
+    // set main layout
     setLayout(genesLayout);
 
-    //connections
+    // connections
     connect(showSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotShowAllSelected()));
     connect(hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
     connect(selectionAllButton,

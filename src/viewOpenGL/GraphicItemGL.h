@@ -17,8 +17,8 @@ class QRectF;
 class QMouseEvent;
 class SelectionEvent;
 
-//base class for rendering nodes used in CellGLView
-//it contains some basic functionalities
+// Base class for rendering nodes used in CellGLView
+// it contains some basic functionalities and options
 class GraphicItemGL : public QObject
 {
 
@@ -49,7 +49,7 @@ public:
     const QTransform transform() const;
     void setTransform(const QTransform& transform);
 
-    //properties stored in the flags
+    // properties stored in the flags
     bool visible() const;
     bool selectable() const;
     bool transformable() const;
@@ -75,7 +75,7 @@ public:
     bool contains(const QPointF& point) const;
     bool contains(const QRectF& point) const;
 
-    // Mouse events can be sent to the node
+    // mouse events can be sent to the node
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
@@ -104,7 +104,8 @@ signals:
 
 protected:
 
-    //returns local transform adjusted for the anchor position
+    // This is used to adjust the position of the element according to an anchor option
+    // returns local transform adjusted for the anchor position
     const QTransform adjustForAnchor(const QTransform& transform) const;
 
     // some local variables to store rendering properties

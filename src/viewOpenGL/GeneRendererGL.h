@@ -22,30 +22,34 @@
 
 class QOpenGLVertexArrayObject;
 
-//Gene renderer is what renders the genes/features on the canvas.
-//It uses data arrays (GeneData) to render trough shaders.
-//It has some attributes and variables changeable by slots
-//It also allows to select features trough areas or gene names
+// Gene renderer is what renders the genes/features on the CellGLView canvas.
+// It uses data arrays (GeneData) to render trough shaders.
+// It has some attributes and variables changeable by slots.
+// It also allows to select indexes(spots) trough areas or gene names
+
+// To clarify, by index(spot) we mean the physical spot in the array
+// and by feature we mean the gene-index combination
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
 
 public:
 
+    // if user want to visualize read counts or number of genes or TPM read counts
     enum GenePooledMode {
         PoolReadsCount = 1,
         PoolNumberGenes = 2,
         PoolTPMs = 3
     };
 
-    //must start by 0 as
-    //they are used to populate a combobox
+    // must start by 0 as they are used to populate a combobox
     enum GeneShape  {
         Circle = 0,
         Cross = 1,
         Square = 2
     };
 
+    // different visualization modes
     enum GeneVisualMode {
         NormalMode = 1,
         DynamicRangeMode = 2,
@@ -53,6 +57,8 @@ public:
     };
 
     // lookup maps for features
+    //TODO the current schema to store the visual data does not seem the most
+    //convenient, we should get deeper and optimize this
     typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
     typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
     typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
@@ -64,7 +70,8 @@ public:
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
-    // data builder (create data arrays from the features in async ways)
+    // data builder (create data arrays from the features data in async ways)
+    //TODO the data is being parsed before in DataProxy, perhaps we could avoid parsing it twice
     void generateData();
     void generateDataAsync();
 
@@ -95,12 +102,12 @@ public slots:
 
     //TODO slots should have the prefix "slot"
 
-    //slot to change visual atttributes
+    // slots to change visual atttributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShape(const GeneShape shape);
 
-    //slots for the thresholds
+    // slots for the thresholds
     void setReadsLowerLimit(const int limit);
     void setReadsUpperLimit(const int limit);
     void setGenesLowerLimit(const int limit);
@@ -108,19 +115,19 @@ public slots:
     void setTotalReadsLowerLimit(const int limit);
     void setTotalReadsUpperLimit(const int limit);
 
-    //slots to set visual modes and color computations modes
+    // slots to set visual modes and color computations modes
     void setVisualMode(const GeneVisualMode mode);
     void setPoolingMode(const GenePooledMode mode);
     void setColorComputingMode(const Globals::GeneColorMode mode);
 
-    //for the given gene list updates the color
-    //according to the color of the selected genes
-    //gene data must be initialized
+    // for the given genes list updates the color
+    // of all the featuers whose genes are in the list and visible
+    // gene data must be initialized
     void updateColor(const DataProxy::GeneList &geneList);
 
-    //for the given gene list see all its features to visible
-    //according if the gene is selected or not
-    //gene data must be initialized
+    // for the given gene list see all its features to visible
+    // according if the gene is selected or not
+    // gene data must be initialized
     void updateVisible(const DataProxy::GeneList &geneList);
 
     //clear all the selected features and notify observers
@@ -128,8 +135,8 @@ public slots:
 
 signals:
 
-    //to notify the gene selections model controller that a selection
-    //has been made
+    // to notify the gene selections model controller that a selection
+    // has been made
     void selectionUpdated();
 
 protected:
@@ -140,28 +147,28 @@ protected:
 
 private:
 
-    //helper functions to init OpenGL buffers
+    // helper functions to init OpenGL buffers
     void initBasicBuffers();
     void initDynamicBuffers();
 
-    //helper functions to test whether a feature/index is outside the threshold
-    //area or not by reads/genes or TPM
+    // helper functions to test whether a feature is outside the threshold
+    // area or not by reads/genes or TPM
     bool featureReadsOutsideRange(const int value);
     bool featureGenesOutsideRange(const int value);
     bool featureTotalReadsOutsideRange(const int value);
 
     // will iterate all the features to change size
     void updateSize();
-    //will call update visual with all the indexes
+    // will call updateVisual over all the unique genes present in all the features
     void updateVisual();
-    //will call updateVisual with the indexes that contain genes present in the input
+    // will call updateVisual with the indexes that contain genes present in the input
     void updateVisual(const DataProxy::GeneList &geneList, const bool forceSelection = false);
-    // update visual goes trough each index and computes its rendering values by
+    // goes trough each index(spot) and computes its rendering values by
     // iterating over all its features. Thresholds are applied too.
     // forceSelection will make visible features to turn selected
     void updateVisual(const QList<int> &indexes, const bool forceSelection = false);
 
-    // helper function to be used when user whan to select features using
+    // helper function to be used when the user wants to select features using
     // a list of genes
     // gene data must be initialized
     void selectFeatures(const DataProxy::FeatureList& features);
@@ -186,7 +193,7 @@ private:
     GeneInfoFeatureCount m_geneInfoTotalReadsIndex;
     // gene look up (index -> total genes)
     GeneInfoFeatureCount m_geneInfoTotalGenesIndex;
-    // quad tree container
+    // quad tree container (used to find by coordinates)
     GeneInfoQuadTree m_geneInfoQuadTree;
 
     // visual attributes
@@ -223,10 +230,10 @@ private:
     bool m_isDirtyDynamicData;
     bool m_isInitialized;
 
-    //reference to dataProxy
+    // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
-    //OpenGL rendering variables
+    // OpenGL rendering variables
     GeneData m_geneData;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_vertexsBuffer;

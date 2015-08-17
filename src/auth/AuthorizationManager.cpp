@@ -26,7 +26,7 @@ AuthorizationManager::~AuthorizationManager()
 
 void AuthorizationManager::startAuthorization()
 {
-    //lazy init
+    // lazy init
     if (m_oAuth2.isNull()) {
         m_oAuth2 = new OAuth2(m_dataProxy, this);
         connect(m_oAuth2, SIGNAL(signalLoginDone(const QUuid&, int, const QUuid&)),

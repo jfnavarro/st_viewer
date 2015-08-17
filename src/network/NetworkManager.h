@@ -23,7 +23,7 @@ class QNetworkReply;
 class Error;
 class NetworkDiskCache;
 
-// class used to manage all network related functionality. Creates
+// Class used to manage all network related functionalities. Creates
 // an abstract layer to easily send network requests.
 class NetworkManager : public QObject
 {
@@ -47,7 +47,7 @@ public:
     NetworkManager(QObject *parent = 0);
     virtual ~NetworkManager();
 
-    //default use Authentication
+    // default use Authentication
     NetworkReply* httpRequest(NetworkCommand* cmd,
                               NetworkFlags flags = NetworkFlag::Default);
 
@@ -55,7 +55,7 @@ public:
     void cleanCache();
 
 private slots:
-    //if remote server requires authentication
+    // if remote server requires authentication
     void provideAuthentication(QNetworkReply*, QAuthenticator*);
 
 private:
@@ -64,13 +64,13 @@ private:
     // and returns the JSON data as a QbyteArray. JSON data is present in NetworkCommand
     QByteArray addJSONDatatoRequest(NetworkCommand *cmd, QNetworkRequest &request) const;
 
-    //qt network manager object
+    // qt network manager object
     QPointer<QNetworkAccessManager> m_nam;
-    //configuration manager instance
+    // configuration manager instance
     Configuration m_configurationManager;
-    //instance of token manager to do authorization when requested
+    // instance of token manager to do authorization when requested
     TokenStorage m_tokenStorage;
-    //network disk cache
+    // network disk cache
     QPointer<NetworkDiskCache> m_diskCache;
 
     Q_DISABLE_COPY(NetworkManager)

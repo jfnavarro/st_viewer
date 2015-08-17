@@ -26,12 +26,12 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
 {
     m_ui->setupUi(this);
 
-    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
     m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
-    //connect signals
+    // connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(m_ui->datasetsTableView, SIGNAL(clicked(QModelIndex)),
@@ -43,7 +43,7 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
 
-    //connect data proxy signal
+    // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
@@ -83,7 +83,7 @@ void DatasetPage::onExit()
 
 void DatasetPage::clearControls()
 {
-    //clear selection/focus
+    // clear selection/focus
     m_ui->datasetsTableView->clearSelection();
     m_ui->datasetsTableView->clearFocus();
     m_ui->back->clearFocus();
@@ -93,7 +93,7 @@ void DatasetPage::clearControls()
     m_ui->editDataset->clearFocus();
     m_ui->openDataset->clearFocus();
 
-    //controls disable by default
+    // controls disable by default
     m_ui->deleteDataset->setEnabled(false);
     m_ui->editDataset->setEnabled(false);
     m_ui->openDataset->setEnabled(false);
@@ -119,7 +119,7 @@ void DatasetPage::slotLoadDatasets()
         return;
     }
 
-    //download datasets (enable blocking loading bar)
+    // download datasets (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadDatasets();
     m_dataProxy->activateCurrentDownloads();
@@ -127,16 +127,16 @@ void DatasetPage::slotLoadDatasets()
 
 void DatasetPage::datasetsDownloaded(const DataProxy::DownloadStatus status)
 {
-    //disable blocking loading bar
+    // disable blocking loading bar
     setWaiting(false);
 
-    //if error we reset the selected dataset...this is because we allow free navigation
-    //among pages
+    // if error we reset the selected dataset...this is because we allow free navigation
+    // among pages
     if (status == DataProxy::Failed) {
         m_dataProxy->resetSelectedDataset();
     }
 
-    //if download was not aborted we reset the datasets model
+    // if download was not aborted we reset the datasets model
     if (status != DataProxy::Aborted) {
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
@@ -153,7 +153,7 @@ void DatasetPage::slotEditDataset()
         return;
     }
 
-    //currentDataset should only have one element
+    // currentDataset should only have one element
     Q_ASSERT(!currentDataset.first().isNull());
     Dataset dataset(*currentDataset.first());
 
@@ -174,7 +174,7 @@ void DatasetPage::slotEditDataset()
         dataset.name(editdataset->getName());
         dataset.statComments(editdataset->getComment());
 
-        //update the dataset
+        // update the dataset
         m_dataProxy->updateDataset(dataset);
         m_dataProxy->activateCurrentDownloads();
     }
@@ -189,12 +189,12 @@ void DatasetPage::slotOpenDataset()
         return;
     }
 
-    //currentDataset should only have one element
+    // currentDataset should only have one element
     auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
     Q_ASSERT(!dataset->id().isEmpty());
 
-    //updates state of DataProxy and move to next page
+    // updates state of DataProxy and move to next page
     m_dataProxy->setSelectedDataset(dataset);
     emit moveToNextPage();
 }
@@ -218,11 +218,11 @@ void DatasetPage::slotRemoveDataset()
         return;
     }
 
-    //currentDataset should only have one element
+    // currentDataset should only have one element
     const auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
 
-    //remove the dataset
+    // remove the dataset
     m_dataProxy->removeDataset(dataset->id());
     m_dataProxy->activateCurrentDownloads();
 }

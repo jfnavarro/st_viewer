@@ -159,14 +159,14 @@ GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
 
 void AnalysisDEA::slotSelectionSelected(QModelIndex index)
 {
-    //we always clean the selected plot
+    // we always clean the selected plot
     m_ui->customPlot->graph(1)->clearData();
 
     if (index.isValid()) {
-
         const auto selected = m_ui->tableView->geneTableItemSelection();
         const auto currentSelection = selectionsModel()->getSelections(selected);
-
+        // we obtain the coordinates of the elements of the table selected
+        // so we can then highlight them in the scatter plot
         QVector<double> x;
         QVector<double> y;
         foreach(const deaReads &deaRead, currentSelection) {
@@ -176,7 +176,7 @@ void AnalysisDEA::slotSelectionSelected(QModelIndex index)
             x.append(deaRead.normalizedReadsA);
             y.append(deaRead.normalizedReadsB);
         }
-        //the plot needs a vector
+        // the scatter plot needs a vector
         m_ui->customPlot->graph(1)->setData(x,y);
     }
 
@@ -201,10 +201,10 @@ void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
     const int selectionBsize = selB.size();
     const int biggestSize = qMax(selectionAsize, selectionBsize);
 
-    //take into account that some genes might be present in only one selection
-    //therefore, we create a hash table (key gene name - value a pairt with value in selection A
-    //and value in selection B) to later know what genes are present in which set
-    //depending of the value of the hash (0.0 no present)
+    // take into account that some genes might be present in only one selection
+    // therefore, we create a hash table (key gene name - value a pair with value in selection A
+    // and value in selection B) to later know what genes are present in which set
+    // depending of the value of the hash (0.0 no present)
     QHash<QString, deaReads> geneToReadsMap;
     for (int i = 0; i < biggestSize; ++i) {
 
@@ -239,10 +239,10 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 {
     deaStats stats;
 
-    //iterate the list of combined reads to compute the DDA stats and populate the table
+    // iterate the list of combined reads to compute the DDA stats and populate the table
     foreach (const deaReads &readsValues, m_combinedSelections) {
 
-        //check if values are outside threshold
+        // check if values are outside threshold
         if (combinedSelectionThreholsd(readsValues)) {
             continue;
         }
@@ -260,7 +260,7 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
             ++stats.countAB;
         }
 
-        // We need to recompute TPM here so we can account for when a gene is only present in one
+        // we need to recompute TPM here so we can account for when a gene is only present in one
         // selection
         const qreal normReadsSelA =
                 STMath::tpmNormalization<qreal>(readsSelA + 1, m_totalReadsSelA);
@@ -282,11 +282,11 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 
 void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
 {
-    //update plot data
+    // update scatter plot data
     m_ui->customPlot->graph(0)->setData(stats.valuesSelectionA, stats.valuesSelectionB);
     m_ui->customPlot->graph(0)->rescaleAxes();
 
-    //update UI fields for stats
+    // update UI fields for stats
     m_ui->numGenesSelectionA->setText(QString::number(stats.countA + stats.countAB));
     m_ui->numGenesSelectionB->setText(QString::number(stats.countB + stats.countAB));
     m_ui->correlation->setText(QString::number(stats.pearsonCorrelation));
@@ -294,14 +294,14 @@ void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
     m_ui->genesOnlyA->setText(QString::number(stats.countA));
     m_ui->genesOnlyB->setText(QString::number(stats.countB));
 
-    //clear selection
+    // clear selection
     m_ui->tableView->clearSelection();
     m_ui->customPlot->graph(1)->clearData();
 
-    //update plot
+    // update plot
     m_ui->customPlot->replot();
 
-    //update view
+    // update view
     update();
 }
 
@@ -360,7 +360,8 @@ void AnalysisDEA::slotSaveToPDF()
 
 bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaReads) const
 {
-    //check if values are outside threshold
+    // check if values are outside threshold
+    //TODO make this more readable
     return ( ((deaReads.readsA < m_lowerThreshold || deaReads.readsA > m_upperThreshold)
          && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
          && deaReads.readsA > 0 && deaReads.readsB > 0)

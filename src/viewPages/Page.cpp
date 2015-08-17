@@ -37,7 +37,7 @@ Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     m_progressDialog->setAutoClose(false);
     m_progressDialog->setRange(0, 0);
 
-    //connect the aborting of the progress bar to a slot that will emit a signal
+    // connect the aborting of the progress bar to a slot that will emit a signal
     connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotCancelProgressBar()));
 }
 

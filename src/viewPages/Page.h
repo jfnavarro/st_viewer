@@ -14,7 +14,7 @@
 class DataProxy;
 
 // this an abstract class to represent the different pages
-// for the tab manager
+// used in the tab manager (ExtendedTabWidget)s
 class Page : public QWidget
 {
     Q_OBJECT
@@ -26,7 +26,7 @@ public:
 
 signals:
 
-    //navigation signals
+    // navigation signals
     void moveToNextPage();
     void moveToPreviousPage();
 
@@ -37,20 +37,21 @@ protected slots:
 
 private slots:
 
-    //closes the progress bar and cancel current active downloads
+    // closes the progress bar and cancel current active downloads
     void slotCancelProgressBar();
 
 protected:
 
-    //launches a progress bar dialog (true = show, false = hide)
+    // launches a progress bar dialog (true = show, false = hide)
+    //TODO there must a nicer/cleaner way to achieve this
     void setWaiting(bool waiting = true, const QString &label = "Downloading data...");
 
-    //helper functions to show messages
+    // helper functions to show messages
     void showInfo(const QString &header, const QString &body);
     void showWarning(const QString &header, const QString &body);
     void showError(const QString &header, const QString &body);
 
-    //reference to data proxy used in all the pages
+    // reference to data proxy used in all the pages
     QPointer<DataProxy> m_dataProxy;
 
 private:

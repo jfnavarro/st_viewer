@@ -11,6 +11,9 @@
 #include <QVector>
 #include <QVariantList>
 
+// Utility templated functions to convert from QVariantList of any type
+// to QVector and viceversa
+//TODO maybe separate definition and declaration
 template<typename N>
 const QVariantList serializeVector(const QVector<N>& unserializedVector)
 {

@@ -39,10 +39,10 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     selectionInfoLayoutReads->setSpacing(0);
     selectionInfoLayoutReads->setContentsMargins(0, 5, 0, 5);
 
-    //add separation between buttons
+    // add separation between buttons
     selectionInfoLayoutReads->addSpacing(5);
 
-    //add selection tags component
+    // add selection tags component
     QLabel *total_reads = new QLabel(this);
     total_reads->setText(tr("Total reads :"));
     selectionInfoLayoutReads->addWidget(total_reads);
@@ -54,10 +54,10 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_total_reads_edit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
     selectionInfoLayoutReads->addWidget(m_total_reads_edit);
 
-    //add gene info layout to main layout
+    // add gene info layout to main layout
     selectionLayout->addLayout(selectionInfoLayoutReads);
 
-    //add separation between buttons
+    // add separation between buttons
     selectionInfoLayoutGenes->addSpacing(5);
 
     QLabel *total_genes = new QLabel(this);
@@ -71,10 +71,10 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_total_genes_edit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
     selectionInfoLayoutGenes->addWidget(m_total_genes_edit);
 
-    //add info layout to main layout
+    // add info layout to main layout
     selectionLayout->addLayout(selectionInfoLayoutGenes);
 
-    //add separation between buttons
+    // add separation between buttons
     selectionBottonsLayout->addSpacing(10);
 
     QPushButton *saveSelection = new QPushButton(this);
@@ -82,7 +82,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/save-selection.png")),
                     tr("Save the current selection in the cloud"));
     selectionBottonsLayout->addWidget(saveSelection);
-    //add separation
+    // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *exportGenesSelection = new QPushButton(this);
@@ -90,7 +90,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/export-genes.png")),
                     tr("Export the currently selected genes to a file"));
     selectionBottonsLayout->addWidget(exportGenesSelection);
-    //add separation
+    // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *exportFeaturesSelection = new QPushButton(this);
@@ -98,7 +98,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/export-features.png")),
                     tr("Export the currently selected features to a file"));
     selectionBottonsLayout->addWidget(exportFeaturesSelection);
-    //add separation
+    // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *clearSelection = new QPushButton(this);
@@ -106,7 +106,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
                     QIcon(QStringLiteral(":/images/remove-selection.png")),
                     tr("Remove the current selection"));
     selectionBottonsLayout->addWidget(clearSelection);
-    //add separation
+    // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
@@ -119,17 +119,17 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
     selectionBottonsLayout->setAlignment(m_geneSelectionFilterLineEdit, Qt::AlignRight);
 
-    //add buttons layout to main layout
+    // add buttons layout to main layout
     selectionLayout->addLayout(selectionBottonsLayout);
 
-    //add table to main layout
+    // add table to main layout
     m_selections_tableview = new GeneSelectionTableView(this);
     selectionLayout->addWidget(m_selections_tableview);
 
-    //set the main layout
+    // set the main layout
     setLayout(selectionLayout);
 
-    //connections
+    // connections
     connect(m_geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), m_selections_tableview,
             SLOT(setGeneNameFilter(QString)));
     connect(exportGenesSelection, SIGNAL(clicked(bool)),

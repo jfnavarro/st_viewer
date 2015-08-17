@@ -14,6 +14,7 @@
 class SortGenesProxyModel;
 class GeneSelectionDEAItemModel;
 
+// An abstraction of QTableView for the gene selections DEA table
 class GeneSelectionDEATableView : public QTableView
 {
     Q_OBJECT
@@ -27,11 +28,13 @@ public:
     QItemSelection geneTableItemSelection() const;
 
 public slots:
-    //slot used to set a search filter for the table
+
+    // slot used to set a search filter for the table
     void setGeneNameFilter(QString);
 
 private:
-    //references to model and proxy model
+
+    // references to model and proxy model
     QPointer<GeneSelectionDEAItemModel> m_geneSelectionDEAModel;
     QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 

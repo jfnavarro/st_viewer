@@ -85,6 +85,14 @@ extern "C" {
 #endif
 }
 
+#if defined(__clang__)
+# pragma clang diagnostic push
+#endif
+
+#if defined(__clang__)
+# pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 void QT_FASTCALL convert_rgb888_to_rgb32_C(quint32 *dst, const uchar *src, int len)
 {
     // Expand 24->32 bpp.
@@ -940,3 +948,7 @@ QByteArray QJpegHandler::name() const
 {
     return "jpeg-turbo";
 }
+
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif

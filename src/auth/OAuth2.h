@@ -47,13 +47,13 @@ signals:
 
 private slots:
 
-    //user enters log in (called from log in component) can be used to
-    //try log in with hardcoded credentials
+    // user has entereded log in credentials (called from log in component) can be used to
+    // try log in with hardcoded credentials
     void slotEnterDialog(const QString&, const QString&);
 
-    //used to be notified when access token has been downloaded from network
-    //status contains the status of the operation (ok, abort, error)
-    //type contains the type of download
+    // used to be notified when access token has been downloaded from network
+    // status contains the status of the operation (ok, abort, error)
+    // type contains the type of download
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
 
@@ -65,7 +65,7 @@ private:
     // login dialog component
     QPointer<LoginDialog> m_loginDialog;
 
-    //reference to dataProxy;
+    // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(OAuth2)

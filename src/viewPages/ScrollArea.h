@@ -13,11 +13,13 @@
 
 class CellGLView;
 
-//Scroll Area is a wrapper around CellGLView
-//as part of the CellView, ScrollArea adds
-//horizonal and vertical scroll bars
+// Scroll Area is a wrapper around CellGLView
+// as part of the CellView, ScrollArea adds
+// horizonal and vertical scroll bars and interacts
+// with CellGLView to control its zoom/panning according to the scroll-bars
 
-//TODO comment this class and its functions
+//TODO this class will probably be removed as it adds
+//extra complexity and the scroll bars are not so necessary
 class ScrollArea : public QAbstractScrollArea
 {
     Q_OBJECT
@@ -28,11 +30,13 @@ public:
     virtual ~ScrollArea();
 
     // we pass to this function the CellGLView object
-    // that we want to wrap into scroll  bars
+    // that we want to wrap into scroll bars
     void initializeView(QPointer<CellGLView> view);
 
 public slots:
 
+    // slots used to update when somethings changes in the CellGLView
+    // so the scroll bars can get updated
     void setCellGLViewScene(const QRectF &scene);
     void setCellGLViewViewPort(const QRectF &view);
     void setCellGLViewSceneTransformations(const QTransform &transform);
@@ -52,10 +56,12 @@ protected:
 
 private slots:
 
-  void someScrollBarChangedValue(int);
+    // internal slot to handle changes in the scroll bars to notifiy the CellGLView object
+    void someScrollBarChangedValue(int);
 
 private:
 
+    // to configure the QScrollBar object given among with the given parameters
     static void adjustScrollBar(const int scrollBarSteps,
                                 const qreal value,
                                 const qreal value_minimum,
@@ -63,6 +69,7 @@ private:
                                 const qreal viewPortInSceneCoordinatesRange,
                                 QScrollBar *scrollBar);
 
+    // to configure the scroll bars based on the CellGLView object
     void adjustScrollBars();
 
     //TODO magic number?

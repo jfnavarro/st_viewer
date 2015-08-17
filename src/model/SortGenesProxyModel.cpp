@@ -68,6 +68,8 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
     QString rightName;
     bool leftNameFound = false;
     bool rightNameFound = false;
+    // As this proxy sorter is used in wrapper for models, the models
+    // must have a method called geneName in order for the sorting to work
     QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
                               Q_RETURN_ARG(bool, leftNameFound),
                               Q_ARG(const QModelIndex &, left),

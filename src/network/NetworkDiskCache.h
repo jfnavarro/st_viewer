@@ -10,8 +10,9 @@
 
 #include <QNetworkDiskCache>
 
-//wrapper around QNetworkDiskCache to control
-//what type of content can be cached
+// Wrapper around QNetworkDiskCache to control
+// what type of content can be cached to avoid to always have
+// to download content from the internet
 class NetworkDiskCache : public QNetworkDiskCache
 {
 

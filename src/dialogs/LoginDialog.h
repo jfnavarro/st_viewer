@@ -19,8 +19,8 @@ namespace Ui {
 class LogIn;
 } // namespace Ui //
 
-//Used to ask the user to input login name and password
-//Names are stored in cache
+// Login type widget to ask the user to input login name and password
+// Usernames are stored in cache
 class LoginDialog : public QDialog
 {
     Q_OBJECT
@@ -37,16 +37,16 @@ public:
     void setUsername(const QString& username);
     const QString getCurrentUser() const;
 
-    //Sets the current password to propose to the user for the login.
+    // Sets the current password to propose to the user for the login.
     void setPassword(const QString& password);
     const QString getCurrentPassword() const;
 
 signals:
 
-    //A signal emitted when the login is performed.
+    // A signal emitted when the login is performed.
     void acceptLogin(const QString&, const QString&);
 
-    //A signal emitted when the login is closed
+    // A signal emitted when the login is closed
     void exitLogin();
 
 public slots:
@@ -60,13 +60,13 @@ protected:
 
 private:
 
-    //init graphic stuff
+    // init graphic stuff
     void setUpGUI();
 
-    //load users from qsettings
+    // load users from qsettings
     void loadUsers();
 
-    //save users from qsettings
+    // save users from qsettings
     void saveUsers();
 
     std::unique_ptr<Ui::LogIn> m_ui;

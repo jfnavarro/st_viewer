@@ -20,10 +20,9 @@ namespace Ui {
 class InitPage;
 }
 
-// this is the definition of the start page which contains logos,
-// a login component and a start button
-// the page as a stackwidget which will switch between login widget and logged widget
-// as every page it implements the moveToNextPage and moveToPreviousPage
+// This class corresponds to the start page which contains logos,
+// a login widget(pop-up) and a start button.
+// As every page it implements the moveToNextPage and moveToPreviousPage
 // the methods onEnter and onExit are called dynamically from the page manager.
 class InitPage : public Page
 {
@@ -43,16 +42,16 @@ public slots:
 
 private slots:
 
-    //when user clicks logs out (access token is cleared and controls are cleared as well)
+    // when user clicks logs out (access token is cleared and controls are cleared as well)
     void slotLogOutButton();
 
-    //slot to handle signals from the authorization manager
+    // slot to handle signals from the authorization manager
     void slotAuthorizationError(QSharedPointer<Error> error);
     void slotAuthorized();
 
-    //used to be notified when the user has been downloaded from network
-    //status contains the status of the operation (ok, abort, error)
-    //type contain the type of download
+    // used to be notified when the user has been downloaded from network
+    // status contains the status of the operation (ok, abort, error)
+    // type contain the type of download
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
 

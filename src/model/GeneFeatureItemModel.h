@@ -45,22 +45,23 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    //this function will set to visible the genes included in the selection
-    //and emit a signal with the modified genes
+    // this function will set to visible the genes included in the selection
+    // and emit a signal with the modified genes
     void setGeneVisibility(const QItemSelection &selection, bool visible);
 
-    //this function will modify the color of the genes included in the selection
-    //and emit a signal with the modified genes
+    // this function will modify the color of the genes included in the selection
+    // and emit a signal with the modified genes
     void setGeneColor(const QItemSelection &selection, const QColor& color);
 
-    //reload the reference to the genes from DataProxy
+    // reload the reference to the genes from DataProxy
     void loadGenes(const DataProxy::GeneList &geneList);
 
-    //clear and reset the model
+    // clear and reset the model
     void clearGenes();
 
 public slots:
     //TODO pass reference instead for genename
+    // Used to sort the genes in the table
     bool geneName(const QModelIndex &index, QString *genename) const;
 
 signals:

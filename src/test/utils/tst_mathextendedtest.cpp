@@ -41,10 +41,14 @@ void MathExtendedTest::testFloatMod_data()
     QTest::addColumn<qreal>("result");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("mod_one") << (qreal)(42.70) << (qreal)(1.00) << (qreal)(0.70) << true;
-    QTest::newRow("mod_half") << (qreal)(1.23) << (qreal)(0.50) << (qreal)(0.23) << true;
-    QTest::newRow("-mod_half") << (qreal)(-4.20) << (qreal)(0.50) << (qreal)(0.30) << true;
-    QTest::newRow("mod_-half") << (qreal)(1.23) << (qreal)(-0.50) << (qreal)(-0.27) << true;
+    QTest::newRow("mod_one") << static_cast<qreal>(42.70)
+                             << static_cast<qreal>(1.00) << static_cast<qreal>(0.70) << true;
+    QTest::newRow("mod_half") << static_cast<qreal>(1.23)
+                              << static_cast<qreal>(0.50) << static_cast<qreal>(0.23) << true;
+    QTest::newRow("-mod_half") << static_cast<qreal>(-4.20)
+                               << static_cast<qreal>(0.50) << static_cast<qreal>(0.30) << true;
+    QTest::newRow("mod_-half") << static_cast<qreal>(1.23)
+                               << static_cast<qreal>(-0.50) << static_cast<qreal>(-0.27) << true;
 }
 
 // helper function
@@ -62,7 +66,8 @@ void MathExtendedTest::testClamp()
     QFETCH(uint, mode);
     QFETCH(bool, expected);
 
-    QCOMPARE(fuzzyCompare(STMath::clamp(size, min, max, (Qt::AspectRatioMode) mode), result), expected);
+    QCOMPARE(fuzzyCompare(STMath::clamp(size, min, max,
+                                        static_cast<Qt::AspectRatioMode>(mode)), result), expected);
 }
 void MathExtendedTest::testClamp_data()
 {
@@ -73,10 +78,18 @@ void MathExtendedTest::testClamp_data()
     QTest::addColumn<uint>("mode");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("shrink_ignore_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(4.0, 4.0) << (uint)(Qt::IgnoreAspectRatio) << true;
-    QTest::newRow("shrink_keep_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF((8.0 / 3.0), 4.0) << (uint)(Qt::KeepAspectRatio)   << true;
-    QTest::newRow("expand_ignore_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.0) << (uint)(Qt::IgnoreAspectRatio) << true;
-    QTest::newRow("expand_keep_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0) << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.5) << (uint)(Qt::KeepAspectRatio)   << true;
+    QTest::newRow("shrink_ignore_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0)
+                                         << QSizeF(4.0, 4.0) << QSizeF(4.0, 4.0)
+                                         << static_cast<uint>(Qt::IgnoreAspectRatio) << true;
+    QTest::newRow("shrink_keep_ratio") << QSizeF(4.0, 6.0) << QSizeF(1.0, 1.0)
+                                       << QSizeF(4.0, 4.0) << QSizeF((8.0 / 3.0), 4.0)
+                                       << static_cast<uint>(Qt::KeepAspectRatio) << true;
+    QTest::newRow("expand_ignore_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0)
+                                         << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.0)
+                                         << static_cast<uint>(Qt::IgnoreAspectRatio) << true;
+    QTest::newRow("expand_keep_ratio") << QSizeF(0.4, 0.6) << QSizeF(1.0, 1.0)
+                                       << QSizeF(4.0, 4.0) << QSizeF(1.0, 1.5)
+                                       << static_cast<uint>(Qt::KeepAspectRatio) << true;
 }
 
 } // namespace unit //

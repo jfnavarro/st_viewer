@@ -9,7 +9,7 @@ class editDatasetDialog;
 } // namespace Ui //
 
 
-//Used to show the user the dataset's name and comments fields
+// Widget that shows the user the dataset's name and comments fields
 class EditDatasetDialog : public QDialog
 {
     Q_OBJECT

@@ -10,8 +10,8 @@
 
 #include <QSortFilterProxyModel>
 
-//sort proxy class used to sort genes in the table
-//by some specific criteria
+// Sort proxy class used to sort genes in the table
+// by some specific criteria
 class SortGenesProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT

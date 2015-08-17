@@ -66,8 +66,8 @@ void MiniMapGL::setParentSceneTransformations(const QTransform &transform)
 
 QTransform MiniMapGL::localTransform() const
 {
-    //computes minimap's local transformation from the minimap's size
-    //and the view's size and transformation
+    // computes minimap's local transformation from the minimap's size
+    // and the view's size and transformation
 
     const QSizeF maxBoundingSize(minimap_height, minimap_width);
     const QSizeF sceneScaledSize = m_scene.size().scaled(maxBoundingSize, Qt::KeepAspectRatio);
@@ -155,7 +155,7 @@ void MiniMapGL::mouseReleaseEvent(QMouseEvent *event)
 
 void MiniMapGL::centerOnLocalPos(const QPointF &localPoint)
 {
-    //localPoint
+    // localPoint
     const QPointF scenePoint =
             localTransform().inverted().map(boundingRect().bottomRight()-localPoint);
     emit signalCenterOn(scenePoint);

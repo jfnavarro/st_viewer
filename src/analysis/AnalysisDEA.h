@@ -21,9 +21,9 @@ class QTableWidget;
 class GeneSelectionDEAItemModel;
 class QSortFilterProxyModel;
 
-//This class owns a widget to show the DEA info
-//it also computes the DDA using member variables
-//so the same object can be used many times
+// AnalysisDEA is a widget that contains methods to compute
+// the DEA statistics from two gene selections and show them to the users
+//TODO perhaps we should separate the visualization and the computation
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
@@ -72,7 +72,7 @@ public:
                 QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
-    // compute the statistics and visualization data points and updates
+    // computes the statistics and visualization data points
     const deaStats computeStatistics();
 
     // update UI elements for the statistics and correlation plots
@@ -97,7 +97,7 @@ private slots:
 
 private:
 
-    // helper functions to get the model from the table
+    // helper functions to get the model from the gene selections table
     GeneSelectionDEAItemModel *selectionsModel();
     QSortFilterProxyModel *selectionsProxyModel();
 
@@ -114,7 +114,7 @@ private:
     void populateTable(const int size);
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
-    //we keep this stored for convenience
+    // we use these variables to keep the statistics for convenience
     combinedSelectionsType m_combinedSelections;
     int m_lowerThreshold;
     int m_upperThreshold;

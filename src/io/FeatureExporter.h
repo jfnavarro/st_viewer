@@ -17,7 +17,7 @@ class QIODevice;
 class Feature;
 
 // This class is just temporary for development purposes.
-// It is a clone of GeneExporter and it will be removed in release 0.5
+// It is a clone of GeneExporter and it will be removed in further releases
 class FeatureExporter
 {
     Q_FLAGS(DetailLevel)

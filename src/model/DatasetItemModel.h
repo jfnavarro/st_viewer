@@ -49,10 +49,10 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    //loads the data of the model from DatProxy
+    // loads the data of the model from DatProxy
     void loadDatasets(const DataProxy::DatasetList &datasetList);
 
-    //returns a list of datasets for the given item selection
+    // returns a list of datasets for the given items selection
     DataProxy::DatasetList getDatasets(const QItemSelection &selection);
 
 private:

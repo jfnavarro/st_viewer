@@ -24,8 +24,8 @@ void Heatmap::createHeatMapImage(QImage &image,
     const int width = image.width();
 
     for (int y = 0; y < height; ++y) {
-        //get the color of each line of the image as the heatmap
-        //color normalized to the lower and upper bound of the image
+        // get the color of each line of the image as the heatmap
+        // color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
         const qreal adjusted_value =
                 STMath::linearConversion<qreal, qreal>(static_cast<qreal>(value),
@@ -41,8 +41,8 @@ void Heatmap::createHeatMapImage(QImage &image,
     }
 }
 
-//simple function that computes color from a min-max range
-//using linear Interpolation
+// simple function that computes color from a min-max range
+// using linear Interpolation
 QColor Heatmap::createHeatMapLinearColor(const qreal value,
                                             const qreal min,
                                             const qreal max)
@@ -54,8 +54,8 @@ QColor Heatmap::createHeatMapLinearColor(const qreal value,
     return QColor::fromRgb(red, green, blue);
 }
 
-//simple function that computes color from a value
-//using the human wave lenght spectra
+// simple function that computes color from a value
+// using the human wave lenght spectra
 QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 {
     static const qreal gamma = 0.8;
@@ -113,8 +113,8 @@ QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
     return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
-//normalizes a value to wave lenghts range using different modes (to be used
-//with the function above)
+// normalizes a value to wave lenghts range using different modes (to be used
+// with the function above)
 qreal Heatmap::normalizeValueSpectrumFunction(const qreal value,
                                               const Globals::GeneColorMode &colorMode)
 {

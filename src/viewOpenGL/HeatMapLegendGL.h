@@ -15,8 +15,8 @@
 
 class QImage;
 
-// HeatMapLegend is an view port GUI item that visualizes the heat map spectrum
-// in order to give a reference point in determining each features hit count.
+// HeatMapLegend is an visual item that is used to represent the heat map spectrum
+// in order to give a reference point about the color-value relationship for the gene data
 class HeatMapLegendGL : public GraphicItemGL
 {
     Q_OBJECT

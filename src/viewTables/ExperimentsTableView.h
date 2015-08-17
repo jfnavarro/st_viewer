@@ -7,6 +7,8 @@
 class ExperimentsItemModel;
 class QSortFilterProxyModel;
 
+// An abstraction of QTableView for the gene selections table
+//TODO rename this to genesSelection o featuresSelection
 class ExperimentsTableView : public QTableView
 {
 
@@ -19,7 +21,8 @@ public:
     QItemSelection experimentTableItemSelection() const;
 
 private:
-    //references to model and proxy model
+
+    // references to model and proxy model
     QPointer<ExperimentsItemModel> m_experimentModel;
     QPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
 

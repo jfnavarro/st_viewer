@@ -23,6 +23,14 @@
 
 /*! \file reader.h */
 
+#if defined(__clang__)
+# pragma clang diagnostic push
+#endif
+
+#if defined(__clang__)
+# pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 #include "rapidjson.h"
 #include "encodings.h"
 #include "internal/meta.h"
@@ -1361,6 +1369,10 @@ private:
 typedef GenericReader<UTF8<>, UTF8<> > Reader;
 
 RAPIDJSON_NAMESPACE_END
+
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
 
 #ifdef _MSC_VER
 RAPIDJSON_DIAG_POP

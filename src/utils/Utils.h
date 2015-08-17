@@ -16,6 +16,9 @@
 #include "options_cmake.h"
 
 // Global defines
+//TODO it would be nice to have a Settings Manager object that
+// will read/write settings to disk
+//TODO The style configuration could be loaded from a QSS file
 namespace Globals
 {
 

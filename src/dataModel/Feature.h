@@ -14,7 +14,9 @@
 
 #include "Gene.h"
 
-// Data model class to store feature data.
+// Data model class to store feature data
+// A feature correspond to a tuple (barcode or spot in the array)
+// and gene. In each barcode/spot there can be up to 20k genes.
 class Feature
 {
 
@@ -45,7 +47,7 @@ public:
     void x(double x);
     void y(double y);
 
-    //reference to the Gene object just for convenience
+    // reference to the Gene object just for convenience
     GenePtr geneObject() const;
     void geneObject(GenePtr gene);
 
@@ -58,7 +60,7 @@ protected:
     double m_x;
     double m_y;
 
-    //extended attribute
+    // extended attribute
     GenePtr m_geneObject;
 };
 

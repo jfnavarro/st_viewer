@@ -4,8 +4,8 @@
 #include <QString>
 #include <QVector>
 
-//Selection Type is a container meant to be used
-//to store aggregated selections
+// Selection Type is a container meant to be used
+// to store aggregated selections
 //TODO move to a separate file
 class SelectionType {
 
@@ -26,10 +26,11 @@ public:
     int count;
 };
 
-//Gene selection represents a selection of genes
-//made by the user trough the UI.
-//Gene selections are meant to be stored and shown
-//in the experiments view
+// Gene selection represents a selection of genes
+// made by the user trough the UI, user selects barcodes/spots and then the information
+// is aggregated by genes.
+// Gene selections are meant to be stored and shown
+// in the experiments view
 class GeneSelection
 {
 
@@ -60,9 +61,9 @@ public:
     const QString type() const;
     const QByteArray tissueSnapShot() const;
 
-    //returns the total sum of reads in the Selection items
+    // returns the total sum of reads in the Selection items
     int totalReads() const;
-    //returns the total number of features in this selection
+    // returns the total number of features in this selection
     int totalFeatures() const;
 
     void id(const QString& id);
@@ -97,7 +98,7 @@ private:
     QString m_datasetName;
     QByteArray m_tissueSnapShot;
 
-    //for caching purposes
+    // for caching purposes
     int m_totalReads;
     int m_totalFeatures;
 };

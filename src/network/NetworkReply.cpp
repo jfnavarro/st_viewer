@@ -159,12 +159,12 @@ QSharedPointer<Error> NetworkReply::parseErrors()
         error = QSharedPointer<Error>(new Error(tr("Multiple Network Error"), errortext, this));
     } else if (m_errors.count() == 1) {
         const QJsonDocument doc = getJSON();
-        //error could happen parsing the JSON content
+        // error could happen parsing the JSON content
         if (doc.isEmpty() || doc.isNull()) {
-            //this means it was a Network error so we return the network error (must be the 1st)
+            // this means it was a Network error so we return the network error (must be the 1st)
             error = m_errors.first();
         } else {
-            //if error was wrapped in JSON must be a server error
+            // if error was wrapped in JSON must be a server error
             QVariant var = doc.toVariant();
             ErrorDTO dto;
             data::parseObject(var, &dto);

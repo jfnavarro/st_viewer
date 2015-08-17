@@ -22,7 +22,7 @@
 
 namespace {
 
-//application flags must be set before instantiating QApplication
+// application flags must be set before instantiating QApplication
 void setApplicationFlags()
 {
 
@@ -31,18 +31,18 @@ void setApplicationFlags()
     QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
     //NOTE this is actually pretty important (be false)
     QApplication::setAttribute(Qt::AA_NativeWindows, false);
-    //osx does not show icons on menus
+    // osx does not show icons on menus
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
 #endif
 
-    //unhandled mouse events will not be translated
+    // unhandled mouse events will not be translated
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
-    //allows to create high-dpi pixmaps
+    // allows to create high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, false);
-    //consistent font rendering
+    // consistent font rendering
     QApplication::setAttribute(Qt::AA_Use96Dpi, false);
-    //force usages of desktop opengl
+    // force usages of desktop opengl
     QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
 }
 
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
     splash.show();
 
-    //set library and plugins paths
+    // set library and plugins paths
     // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
     app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath()
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     app.addLibraryPath(dir.path());
 #endif
 
-    //install translation file
+    // install translation file
     bool initialized = true;
     QTranslator trans;
     initialized &= trans.load(":translations/locale_en_us.qm");
@@ -104,14 +104,14 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    //install open-sans-light font
+    // install open-sans-light font
     QFontDatabase::addApplicationFont(QStringLiteral(":fonts/OpenSans-Light.ttf"));
 
-    //create mainWindow
+    // create mainWindow
     stVi mainWindow;
     app.setActiveWindow(&mainWindow);
 
-    //check for min requirements
+    // check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
         // close splash screen
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 
     // close splash screen
     splash.finish(&mainWindow);
-    //init graphic components
+    // init graphic components
     mainWindow.init();
     // show mainwindow.
     mainWindow.show();

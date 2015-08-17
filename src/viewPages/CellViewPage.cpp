@@ -63,6 +63,8 @@ using namespace Globals;
 namespace
 {
 
+// Some helper functions
+
 void addWidgetToMenu(const QString &str, QMenu *menu, QWidget *widget)
 {
     Q_ASSERT(menu != nullptr);
@@ -810,7 +812,7 @@ void CellViewPage::slotLoadCellFigure()
     const QByteArray image = loadRedFigure ? m_dataProxy->getFigureRed()
                                            : m_dataProxy->getFigureBlue();
 
-    //update checkboxes
+    // update checkboxes
     m_ui->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_ui->actionShow_cellTissueRed->setChecked(loadRedFigure);
 
@@ -899,10 +901,10 @@ void CellViewPage::slotExportGenesSelection()
     // get selected genes
     const auto& geneSelection = m_gene_plotter->getSelectedGenes();
 
-    //create file
+    // create file
     QFile textFile(filename);
 
-    //export selection
+    // export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
@@ -933,10 +935,10 @@ void CellViewPage::slotExportFeaturesSelection()
     // get selected features
     const auto& featuresSelection = m_gene_plotter->getSelectedFeatures();
 
-    //create file
+    // create file
     QFile textFile(filename);
 
-    //export selection
+    // export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         FeatureExporter exporter = FeatureExporter(FeatureExporter::SimpleFull,
                                                    FeatureExporter::TabDelimited);
@@ -1020,7 +1022,7 @@ void CellViewPage::slotSaveSelection()
                                                       Qt::CustomizeWindowHint
                                                       | Qt::WindowTitleHint));
     createSelection->setWindowIcon(QIcon());
-    //proposes as selection name the dataset name + SELECTION + a timestamp
+    // proposes as selection name the dataset name + SELECTION + a timestamp
     createSelection->setName(dataset->name()
                              + "_SELECTION_" + QDateTime::currentDateTimeUtc().toString());
 
@@ -1033,19 +1035,19 @@ void CellViewPage::slotSaveSelection()
         // get selected genes
         const auto& geneSelection = m_gene_plotter->getSelectedGenes();
 
-        //create the selection object
+        // create the selection object
         GeneSelection selection;
         selection.name(createSelection->getName());
         selection.comment(createSelection->getComment());
         selection.enabled(true);
 
-        //add dataset ID
+        // add dataset ID
         selection.datasetId(dataset->id());
 
-        //add type of selection
+        // add type of selection
         selection.type("Rubberband selection");
 
-        //add image snapshot
+        // add image snapshot
         QImage tissue_snapshot = m_view->grabPixmapGL();
         QByteArray ba;
         QBuffer buffer(&ba);
@@ -1053,15 +1055,15 @@ void CellViewPage::slotSaveSelection()
         tissue_snapshot.save(&buffer, "JPG");
         selection.tissueSnapShot(ba);
 
-        //add account
+        // add account
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         selection.userId(user->id());
 
-        //add selected genes
+        // add selected genes
         selection.selectedItems(geneSelection);
 
-        //save the selection object
+        // save the selection object
         m_dataProxy->addGeneSelection(selection);
         m_dataProxy->activateCurrentDownloads();
     }

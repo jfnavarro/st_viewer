@@ -39,26 +39,26 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     m_dataProxy(dataProxy),
     m_authManager(authManager)
 {
-    //main widgets container
+    // main widgets container
     m_stackWidget = new QStackedWidget(this);
     m_stackWidget->setWindowFlags(Qt::FramelessWindowHint);
 
-    //button group to group the buttons together
+    // button group to group the buttons together
     m_buttonGroup = new QButtonGroup(this);
     m_buttonGroup->setExclusive(true);
 
-    //layout for the buttons
+    // layout for the buttons
     m_buttonLayout = new QVBoxLayout();
     m_buttonLayout->setContentsMargins(0, 0, 0, 0);
     m_buttonLayout->setSpacing(0);
 
-    //strech layout to make buttons to always be on top
+    // strech layout to make buttons to always be on top
     QVBoxLayout *buttonStretchLayout = new QVBoxLayout();
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();
 
-    //main layout
+    // main layout
     m_layout = new QHBoxLayout();
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0, 0, 0, 0);

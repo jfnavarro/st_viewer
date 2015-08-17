@@ -18,7 +18,7 @@
 
 #include <cmath>
 
-// Common provides miscellaneous functionality related to the opengl library.
+// Common provides miscellaneous functionality for maths and statistics
 namespace STMath
 {
 // clamp size to
@@ -76,8 +76,7 @@ inline T clamp(T in, T low, T high)
     return std::min(std::max(in, low), high);
 }
 
-//normalize v with min t0 and max t1 to
-//lay in between [0-1]
+// normalize v with min t0 and max t1 to lay in between [0-1]
 template <typename T, typename R>
 inline const R norm(const T v, const T t0, const T t1)
 {
@@ -85,16 +84,16 @@ inline const R norm(const T v, const T t0, const T t1)
     return R(vh - t0) / R(t1 - t0);
 }
 
-//assumes t1 - t0 is bigger than 0 and that t3 - t2 is bigger than 0 and that t0 <= v <= t1
-//maps a value from a range (t0-t1) to a range (t2-t3)
+// assumes t1 - t0 is bigger than 0 and that t3 - t2 is bigger than 0 and that t0 <= v <= t1
+// maps a value from a range (t0-t1) to a range (t2-t3)
 template <typename T, typename R>
 inline const R linearConversion(const T v, const T t0, const T t1, const T t2, const T t3)
 {
     return  R(( (v - t0) / (t1 - t0) ) * (t3 - t2) + t2);
 }
 
-//normalize nv with min t0 and max t1
-//assuming nv was normalized with range [0-1]
+// normalize nv with min t0 and max t1
+// assuming nv was normalized with range [0-1]
 template <typename T, typename R>
 inline const T denorm(const R nv, const T t0, const T t1)
 {
@@ -103,7 +102,7 @@ inline const T denorm(const R nv, const T t0, const T t1)
     return T(vh * (t1 - t0)) + t0;
 }
 
-//linear interpolation between color c0 and color c1 given a value t
+// linear interpolation between color c0 and color c1 given a value t
 inline const QColor lerp(const qreal t, const QColor &c0, const QColor &c1)
 {
     //TODO should do the interpolation in HSV space
@@ -115,7 +114,7 @@ inline const QColor lerp(const qreal t, const QColor &c0, const QColor &c1)
                 );
 }
 
-//inverse linear interpolation between color c0 and color c1 given a value t
+// inverse linear interpolation between color c0 and color c1 given a value t
 inline const QColor invlerp(const qreal t, const QColor &c0, const QColor &c1)
 {
     //TODO should do the interpolation in HSV space
@@ -129,7 +128,7 @@ inline const QColor invlerp(const qreal t, const QColor &c0, const QColor &c1)
 }
 
 
-//Euclidean distance between two vectors of type T such that T has binary +,-,*
+// Euclidean distance between two vectors of type T such that T has binary +,-,*
 template<class T>
 inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
     Q_ASSERT(v1.size() == v2.size());
@@ -145,7 +144,7 @@ inline qreal euclidean(std::vector<T> v1, std::vector<T> v2){
     return std::sqrt(static_cast<double>(sum));
 }
 
-//Jaccard Coefficient.	Use for asymetric binary values
+// Jaccard Coefficient.	Use for asymetric binary values
 template<class T>
 inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
     Q_ASSERT(v1.size() == v2.size());
@@ -165,7 +164,7 @@ inline qreal jaccard(const QVector<T> &v1,const QVector<T> &v2){
             / static_cast<qreal>(v1.size() - (f11 + f00));
 }
 
-//The mean of a vector
+// The mean of a vector
 template<class T>
 inline qreal mean(const QVector<T> &v1){
     T sum = v1[0];
@@ -176,7 +175,7 @@ inline qreal mean(const QVector<T> &v1){
     return static_cast<qreal>(sum) / static_cast<qreal>(v1.size());
 }
 
-//The Covariance
+// The Covariance
 template<class T>
 inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2) {
     Q_ASSERT(v1.size() == v2.size());
@@ -190,13 +189,13 @@ inline qreal covariance(const QVector<T> &v1, const QVector<T> &v2) {
     return sum / static_cast<qreal>(v1.size() - 1);
 }
 
-//standard deviation the covariance where both vectors are the same.
+// Standard deviation the covariance where both vectors are the same.
 template<class T>
 inline qreal std_dev(const QVector<T> &v1){
     return sqrt(covariance(v1, v1));
 }
 
-//Pearson Correlation
+// Pearson Correlation
 template<class T>
 inline qreal pearson(const QVector<T> &v1, const QVector<T> &v2) {
     if (std_dev(v1) * std_dev(v2) == 0){
@@ -218,6 +217,7 @@ inline QVector<T> logVectorValues(const QVector<T>& input)
     return output;
 }
 
+// A TPM normalization is a standard normalization method used to normalize gene reads count
 template<typename T>
 inline T tpmNormalization(const int reads, const int totalReads) {
     return static_cast<T>((reads * 10e6) / totalReads);

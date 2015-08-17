@@ -8,7 +8,7 @@ namespace Ui {
 class createSelectionDialog;
 } // namespace Ui //
 
-//Used to ask the user for the newly created selection name and comments
+// Widget that asks the user for the newly created selection name and comments
 class CreateSelectionDialog : public QDialog
 {
     Q_OBJECT

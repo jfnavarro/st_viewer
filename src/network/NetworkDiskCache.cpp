@@ -51,7 +51,8 @@ QIODevice* NetworkDiskCache::prepare(const QNetworkCacheMetaData &metaData)
         }
     }
 
-    //only cache jpeg/xml and json content
+    // only cache jpeg/xml and json content
+    //TODO this will have to be updated when we add binnary format
     if (mime.startsWith("application/xml")
             || mime.startsWith("application/json")
             || mime.startsWith("image/jpeg")

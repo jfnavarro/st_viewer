@@ -77,7 +77,7 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
 
     m_qopengl_functions->glEnable(GL_TEXTURE_2D);
     {
-        //draw heatmap texture
+        // draw heatmap texture
         m_texture.bind();
         m_qopengl_functions->glBegin(GL_QUADS);
         {
@@ -91,7 +91,7 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
         m_qopengl_functions->glEnd();
         m_texture.release();
 
-        //draw borders
+        // draw borders
         m_qopengl_functions->glBegin(GL_LINE_LOOP);
         {
             m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -182,8 +182,8 @@ void HeatMapLegendGL::generateHeatMap()
 
     // generate image texture
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
-    //here we can chose the type of Spectrum (linear, log or exp) and the type
-    //of color mapping (wavelenght or linear interpolation)
+    // here we can chose the type of Spectrum (linear, log or exp) and the type
+    // of color mapping (wavelenght or linear interpolation)
     Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
 
     m_texture.destroy();

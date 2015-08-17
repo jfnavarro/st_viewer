@@ -31,7 +31,7 @@ SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy,
     move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
         mapToGlobal(rect().center()));
 
-    //Connections are made in the UI file
+    //NOTE the connections are made in the UI file
 
     m_regExp.setPatternSyntax(QRegExp::WildcardUnix);
 }
@@ -73,8 +73,8 @@ void SelectionDialog::accept()
     m_selectedGeneList.clear();
     foreach(DataProxy::GenePtr gene, geneList) {
         const QString name = gene->name();
-        //filter for ambiguos genes and unselected
-        //if the options are correct
+        // filter for ambiguos genes and unselected
+        // if the options are correct
         if ( (!m_includeAmbiguous && gene->isAmbiguous())
              || (!m_selectNonVisible && !gene->selected()) ) {
             continue;
@@ -82,7 +82,7 @@ void SelectionDialog::accept()
 
 
         if (m_regExp.exactMatch(name)) {
-            //at this point all included genes must be selected
+            // at this point all included genes must be selected
             gene->selected(true);
             m_selectedGeneList.append(gene);
         }

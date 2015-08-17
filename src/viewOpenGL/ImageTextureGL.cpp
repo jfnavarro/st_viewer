@@ -92,7 +92,7 @@ void ImageTextureGL::setSelectionArea(const SelectionEvent *)
 
 QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
 {
-    //clear memory
+    // clear memory
     clearData();
     return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
 }
@@ -101,14 +101,15 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    //extract image from byte array
+    // extract image from byte array
     QBuffer imageBuffer(&imageByteArray);
     if (!imageBuffer.open(QIODevice::ReadOnly)) {
         qDebug() << "[ImageTextureGL] Image decoding buffer error:" << imageBuffer.errorString();
         return;
     }
 
-    //create image from byte array
+    // create image from byte array
+    // QJpegHandler is a faster version of QImageReader that uses jpeg-turbo
     QJpegHandler imageReader;
     imageReader.setDevice(&imageBuffer);
     QImage image;
@@ -119,11 +120,11 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     }
     imageBuffer.close();
 
-    //get size and bounds
+    // get size and bounds
     const QSize imageSize = image.size();
     m_bounds = image.rect();
 
-    //compute tiles size and numbers
+    // compute tiles size and numbers
     const int width = imageSize.width();
     const int height = imageSize.height();
     const int xCount = std::ceil(qreal(width) / qreal(tile_width));
@@ -132,7 +133,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
 
     QImage sub_image;
     QRect clip_rect;
-    //create tiles and their textures
+    // create tiles and their textures
     for (int i = 0; i < count; ++i) {
 
         // texture sizes

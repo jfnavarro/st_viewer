@@ -461,8 +461,21 @@ RAPIDJSON_NAMESPACE_END
 ///////////////////////////////////////////////////////////////////////////////
 // Allocators and Encodings
 
+#if defined(__clang__)
+# pragma clang diagnostic push
+#endif
+
+#if defined(__clang__)
+# pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 #include "allocators.h"
 #include "encodings.h"
+
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
+
 
 /*! \namespace rapidjson
     \brief main RapidJSON namespace

@@ -19,7 +19,7 @@
 // deserialization of server data.
 // ChipDTO defines the parsing object for the underlying Chip data object.
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class ChipDTO : public QObject
 {
 

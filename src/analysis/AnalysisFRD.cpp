@@ -146,17 +146,17 @@ void AnalysisFRD::computeData(const DataProxy::FeatureList& features,
 
     QHash<double, double> featureCounter;
 
-    //iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
+    // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
     foreach(DataProxy::FeaturePtr feature, features) {
         ++featureCounter[feature->hits()];
     };
 
-    //x,y corresponds to normal reads
+    // x,y corresponds to normal reads
     QVector<double> x = QVector<double>::fromList(featureCounter.keys());
     QVector<double> y = QVector<double>::fromList(featureCounter.values());
 
-    //TODO probably no need to keep max values of Y as it can be obtained form
-    //the plotting object
+    // TODO probably no need to keep max values of Y as it can be obtained form
+    // the plotting object
     m_maxY = *std::max_element(y.begin(), y.end());
     m_minY = *std::min_element(y.begin(), y.end());
 

@@ -14,9 +14,8 @@ class QSpinBox;
 class QxtSpanSlider;
 class QHBoxLayout;
 
-// Wrapper around QxtSpanSlider
-// to add two spin boxes one on each side
-// whether to show only the slider, the spin boxes or both can be configured
+// Wrapper around QxtSpanSlider to add two spin boxes one on each side
+// We can control whether to show only the slider, the spin boxes or both
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT
@@ -35,6 +34,7 @@ public:
                            ControlsFlags controlFlags = onlySpinBoxes);
     virtual ~SpinBoxSlider();
 
+    // Some setters for the ticks
     void setToolTip(const QString &str);
     void setMaximumValue(const int max);
     void setMinimumValue(const int min);

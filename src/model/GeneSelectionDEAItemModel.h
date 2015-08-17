@@ -16,7 +16,7 @@ class QModelIndex;
 class QStringList;
 class QItemSelection;
 
-//Model class for the genes table
+// Wrapper model class for the genes selection table in the DEA widget
 class GeneSelectionDEAItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -45,14 +45,15 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    //load the selected items given as parameters into the model
+    // load the selected items given as parameters into the model
     void loadCombinedSelectedGenes(const AnalysisDEA::combinedSelectionsType& combinedSelections);
 
-    //returns a list of selections items from the indexes given as input
+    // returns a list of selections items from the indexes given as input
     AnalysisDEA::combinedSelectionsType getSelections(const QItemSelection &selection);
 
 public slots:
     //TODO pass reference instead for genename
+    // Used to sort the genes in the table
     bool geneName(const QModelIndex &index, QString *genename) const;
 
 private:

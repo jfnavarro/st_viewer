@@ -17,7 +17,7 @@ namespace Ui {
 class frdWidget;
 }
 
-// analysis FDR is a Widget that is meant to show
+// analysis FDR is a Widget that is meant to show to the users
 // the reads distributions of the features of a dataset
 // and also the threshold bars, threshold bars are
 // interactive so the will get updated if the user
@@ -25,6 +25,7 @@ class frdWidget;
 
 //TODO add option to compute the plots and threshold bars
 //using genes as the function of features and genes threshold
+//TODO perhaps separate computation and visualization
 class AnalysisFRD: public QDialog
 {
     Q_OBJECT
@@ -61,17 +62,17 @@ private:
 
     std::unique_ptr<Ui::frdWidget> m_ui;
 
-    //plotting object for normal reads
+    // plotting object for normal reads
     QCustomPlot *m_customPlotNormal;
     QCPItemLine *m_upperThresholdBarNormal;
     QCPItemLine *m_lowerThresholdBarNormal;
 
-    //plotting object for normal reads in log space
+    // plotting object for normal reads in log space
     QCustomPlot *m_customPlotLog;
     QCPItemLine *m_upperThresholdBarLog;
     QCPItemLine *m_lowerThresholdBarLog;
 
-    //keep track of the min-max of the Y axes to adjust the threshold bars
+    // to keep track of the min-max of the Y axes to adjust the threshold bars
     int m_minY;
     int m_maxY;
 

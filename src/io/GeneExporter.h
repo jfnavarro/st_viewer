@@ -34,7 +34,7 @@ public:
     };
     Q_DECLARE_FLAGS(DetailLevels, DetailLevel)
 
-    //separation mode for items in the file
+    // separation mode for items in the file
     enum SeparationMode {
         TabDelimited,
         CommaDelimited
@@ -45,12 +45,15 @@ public:
     GeneExporter(DetailLevels detailLevel, SeparationModes separationMode);
     ~GeneExporter();
 
+    // writes to the file given as input the selection items given as input
     void exportItem(QIODevice &device,
                     const GeneSelection::selectedItemsList& selectionList) const;
 
+    // to configure writing properties
     void addExportProperty(const QString& property);
     void addExportProperty(const QStringList& properties);
 
+    // encode concatenated properties lists
     static const QString encodePropertyList(const QStringList& properties);
     static const QStringList decodePropertyList(const QString& properties);
 
@@ -58,6 +61,8 @@ protected:
 
     const QStringList exportPropertyList() const;
     const QString delimiterCharacter() const;
+
+    // internal functions to process the individual selections
     void exportStrings(QTextStream &otxt, const QStringList &strings) const;
     void exportItem(QTextStream &otxt, const SelectionType &selection) const;
     void exportItem(QTextStream &otxt,

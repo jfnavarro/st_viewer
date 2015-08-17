@@ -41,7 +41,7 @@ GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent)
     setVisualOption(GraphicItemGL::Xinverted, false);
     setVisualOption(GraphicItemGL::RubberBandable, true);
 
-    //initialize variables
+    // initialize variables
     clearData();
 }
 
@@ -55,7 +55,7 @@ void GeneRendererGL::clearData()
     // clear gene plot data
     m_geneData.clearData();
 
-    //clear selection
+    // clear selection
     m_geneInfoSelectedFeatures.clear();
 
     // lookup data
@@ -177,6 +177,7 @@ void GeneRendererGL::generateData()
     m_isInitialized = true;
 }
 
+//TODO not asynchronous for now
 void GeneRendererGL::generateDataAsync()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -223,6 +224,7 @@ void GeneRendererGL::generateDataAsync()
 
         // updating the min-max values of the thresholds here
         // TODO in the future these values will come with the dataset info
+        // so these expensive steps will not be needed
         m_thresholdGenesLower = std::min(num_genes_feature, m_thresholdGenesLower);
         m_thresholdGenesUpper = std::max(num_genes_feature, m_thresholdGenesUpper);
         m_thresholdReadsLower = std::min(feature_reads, m_thresholdReadsLower);
@@ -231,8 +233,6 @@ void GeneRendererGL::generateDataAsync()
         m_thresholdTotalReadsUpper = std::max(feature_total_reads, m_thresholdTotalReadsUpper);
 
     } //endforeach
-
-    //m_thresholdGenesLower = 1;
 
     QGuiApplication::restoreOverrideCursor();
 }
@@ -427,7 +427,7 @@ void GeneRendererGL::updateVisual()
 
 void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList, const bool forceSelection)
 {
-    // get indexes (features) from the list of genes
+    // get indexes from the list of genes
     QList<int> unique_indexes;
     foreach(DataProxy::GenePtr gene, geneList) {
         unique_indexes.append(m_geneIntoByGene.values(gene));
@@ -521,7 +521,7 @@ void GeneRendererGL::updateVisual(const QList<int> &indexes, const bool forceSel
             }
         }
 
-        // we only show features where there is at least one gene activated
+        // we only show indexes where there is at least one gene-feature activated
         const bool visible = indexValueGenes != 0;
 
         // update pooled min-max to compute colors if applies
@@ -583,13 +583,13 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 
 GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
 {
-    //aggregate all the selected features using SelectionType objects (aggregate by gene)
+    // aggregate all the selected features using SelectionType objects (aggregate by gene)
     QHash<QString, SelectionType> geneSelectionsMap;
     foreach(DataProxy::FeaturePtr feature, m_geneInfoSelectedFeatures) {
         Q_ASSERT(!feature.isNull());
-        //we include in the selection of the genes present in the selected feature
-        //regardless if the feature was selected manually or by genes reg exp.
-        //the reads are aggregated and a counter increased
+        // we include in the selection of the genes present in the selected feature
+        // regardless if the feature was selected manually or by genes reg exp.
+        // the reads are aggregated and a counter increased
         const QString geneName = feature->gene();
         ++geneSelectionsMap[geneName].count;
         geneSelectionsMap[geneName].reads += feature->hits();

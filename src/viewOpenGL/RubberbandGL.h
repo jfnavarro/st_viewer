@@ -18,9 +18,8 @@ class QColor;
 class QEvent;
 class QMouseEvent;
 
-// RubberbandGL is an view port GUI item that visualizes a rubberband that is 
+// RubberbandGL is a graphical item that visualizes a rubberband that is
 // shown while the user is selecting genes.
-
 class RubberbandGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -32,7 +31,7 @@ public:
 
     void setRubberbandRect(const QRectF &rect);
 
-    //made public for convenience
+    // made public for convenience
     void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
 
 protected:

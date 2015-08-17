@@ -22,10 +22,16 @@ class RubberbandGL;
 // CellGLView is a container
 // to render OpenGL GraphicItemGL type objects
 // It allows for zooming, panning and selection.
-// It is based on QOpenGLWidget which is a OpenGL
-// based Qt widget.
+// It is based on a QOpenGLWidget which is a OpenGL
+// renderable qt widget.
 // It also makes use of QOpenGLfunctions to
 // assure cross-platform compatibility
+
+// The main concept in this class is that the rendering
+// canvas is based on the size of the cell tissue image
+// and that is what is called "scene" here, the "viewport"
+// would be the size of the widget so these two concepts
+// are used to compute zooming, scroll-bars and so
 
 class CellGLView : public QOpenGLWidget
 {
@@ -49,7 +55,7 @@ public:
     // return a QImage representation of the canvas
     const QImage grabPixmapGL();
 
-    // used for the Scroll Area container to adjust the scroll bars
+    // used for the ScrollArea container to adjust the scroll bars
     QRectF allowedCenterPoints() const;
     QPointF sceneFocusCenterPoint() const;
 
@@ -58,7 +64,7 @@ public:
 
     // we must keep these overrided functions public so they can
     // be accessed from the ScrollArea class which wraps around
-    // this widget to implement scroll bars
+    // this object to implement scroll bars
     void paintEvent(QPaintEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
     bool event(QEvent *e) override;
@@ -118,6 +124,7 @@ private:
     qreal clampZoomFactorToAllowedRange(const qreal zoom) const;
     qreal minZoom() const;
     qreal maxZoom() const;
+    // this function ensures that the whole image fits to the canvas
     void setDefaultPanningAndZooming();
 
     // notify rubberbandable nodes with a rubberband event

@@ -27,7 +27,7 @@ InitPage::InitPage(QPointer<AuthorizationManager> authManager,
 
     m_ui->setupUi(this);
 
-    //setting style to main UI Widget
+    // setting style to main UI Widget
     setWindowFlags(Qt::FramelessWindowHint);
     m_ui->InitPageWidget->setStyleSheet("QWidget#InitPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->newExpButt->setStyleSheet("QPushButton#newExpButt " + BUTTON_STYLE_INIT_PAGE);
@@ -35,22 +35,22 @@ InitPage::InitPage(QPointer<AuthorizationManager> authManager,
     m_ui->user_name->clear();
     m_ui->newExpButt->setEnabled(false);
 
-    //connect signals for navigation
+    // connect signals for navigation
     connect(m_ui->newExpButt, SIGNAL(released()), this, SIGNAL(moveToNextPage()));
     connect(m_ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
 
-    //connect authorization signals
+    // connect authorization signals
     connect(m_authManager, SIGNAL(signalAuthorize()),
             this, SLOT(slotAuthorized()));
     connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
             this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
 
-    //connect the data proxy signal
+    // connect the data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 
-    //start the authorization (quiet if access token exists or interactive otherwise)
+    // start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
 }
 
@@ -70,7 +70,7 @@ void InitPage::onExit()
 
 void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    //force clean access token and authorize again
+    // force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
@@ -78,10 +78,10 @@ void InitPage::slotAuthorizationError(QSharedPointer<Error> error)
 
 void InitPage::slotAuthorized()
 {
-    //clean the cache in the dataproxy
+    // clean the cache in the dataproxy
     m_dataProxy->clean();
 
-    //load user from network (enable blocking loading bar)
+    // load user from network (enable blocking loading bar)
     setWaiting(true);
     m_dataProxy->loadUser();
     m_dataProxy->activateCurrentDownloads();
@@ -91,7 +91,7 @@ void InitPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                     const DataProxy::DownloadType type)
 {
     if (type == DataProxy::UserDownloaded) {
-        //disable blocking loading bar
+        // disable blocking loading bar
         setWaiting(false);
         if (status == DataProxy::Success) {
             const auto user = m_dataProxy->getUser();
@@ -100,7 +100,7 @@ void InitPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
                 showError(tr("Authorization Error"), tr("The current user is disabled"));
                 return;
             }
-            //update UI user info
+            // update UI user info
             m_ui->user_name->setText(user->username());
             m_ui->newExpButt->setEnabled(true);
         }
@@ -109,14 +109,14 @@ void InitPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
 
 void InitPage::slotLogOutButton()
 {
-    //go to log in mode and force authorization
+    // go to log in mode and force authorization
     m_ui->newExpButt->setEnabled(false);
     m_ui->user_name->clear();
 
-    //clean user and downloaded data logging out
+    // clean user and downloaded data logging out
     m_dataProxy->clean();
 
-    //force clean access token and authorize again
+    // force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
 }

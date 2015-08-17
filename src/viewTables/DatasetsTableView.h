@@ -14,6 +14,7 @@
 class DatasetItemModel;
 class QSortFilterProxyModel;
 
+// An abstraction of QTableView for the datasets table
 class DatasetsTableView : public QTableView
 {
     Q_OBJECT
@@ -27,7 +28,8 @@ public:
     QItemSelection datasetsTableItemSelection() const;
 
 private:
-    //references to model and proxy model
+
+    // references to model and proxy model
     QPointer<DatasetItemModel> m_datasetModel;
     QPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 

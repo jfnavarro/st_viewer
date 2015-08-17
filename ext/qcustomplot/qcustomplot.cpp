@@ -2893,7 +2893,7 @@ void QCPLayoutGrid::insertRow(int newIndex)
   mRowStretchFactors.insert(newIndex, 1);
   QList<QCPLayoutElement*> newRow;
   for (int col=0; col<columnCount(); ++col)
-    newRow.append((QCPLayoutElement*)0);
+    newRow.append(nullptr/*(QCPLayoutElement*)0*/);
   mElements.insert(newIndex, newRow);
 }
 
@@ -2918,7 +2918,7 @@ void QCPLayoutGrid::insertColumn(int newIndex)
   
   mColumnStretchFactors.insert(newIndex, 1);
   for (int row=0; row<rowCount(); ++row)
-    mElements[row].insert(newIndex, (QCPLayoutElement*)0);
+    mElements[row].insert(newIndex, nullptr/*(QCPLayoutElement*)0*/);
 }
 
 /* inherits documentation from base class */
@@ -3655,8 +3655,8 @@ void QCPLineEnding::draw(QCPPainter *painter, const QVector2D &pos, const QVecto
   if (lengthVec.isNull())
     lengthVec = QVector2D(1, 0);
   QVector2D widthVec(-lengthVec.y(), lengthVec.x());
-  lengthVec *= (float)(mLength*(mInverted ? -1 : 1));
-  widthVec *= (float)(mWidth*0.5*(mInverted ? -1 : 1));
+  lengthVec *= static_cast<float>(mLength*(mInverted ? -1 : 1));
+  widthVec *= static_cast<float>(mWidth*0.5*(mInverted ? -1 : 1));
   
   QPen penBackup = painter->pen();
   QBrush brushBackup = painter->brush();
@@ -3761,8 +3761,8 @@ void QCPLineEnding::draw(QCPPainter *painter, const QVector2D &pos, const QVecto
       } else
       {
         // if drawing with thick (non-cosmetic) pen, shift bar a little in line direction to prevent line from sticking through bar slightly
-        painter->drawLine((pos+widthVec+lengthVec*0.2f*(mInverted?-1:1)+dir.normalized()*qMax(1.0f, (float)painter->pen().widthF())*0.5f).toPointF(),
-                          (pos-widthVec-lengthVec*0.2f*(mInverted?-1:1)+dir.normalized()*qMax(1.0f, (float)painter->pen().widthF())*0.5f).toPointF());
+        painter->drawLine((pos+widthVec+lengthVec*0.2f*(mInverted?-1:1)+dir.normalized()*qMax(1.0f, static_cast<float>(painter->pen().widthF()))*0.5f).toPointF(),
+                          (pos-widthVec-lengthVec*0.2f*(mInverted?-1:1)+dir.normalized()*qMax(1.0f, static_cast<float>(painter->pen().widthF()))*0.5f).toPointF());
       }
       break;
     }
@@ -5323,7 +5323,7 @@ void QCPAxis::setScaleRatio(const QCPAxis *otherAxis, double ratio)
   else
     ownPixelSize = axisRect()->height();
   
-  double newRangeSize = ratio*otherAxis->range().size()*ownPixelSize/(double)otherPixelSize;
+  double newRangeSize = ratio*otherAxis->range().size()*ownPixelSize/static_cast<double>(otherPixelSize);
   setRange(range().center(), newRangeSize, Qt::AlignCenter);
 }
 
@@ -5389,30 +5389,30 @@ double QCPAxis::pixelToCoord(double value) const
     if (mScaleType == stLinear)
     {
       if (!mRangeReversed)
-        return (value-mAxisRect->left())/(double)mAxisRect->width()*mRange.size()+mRange.lower;
+        return (value-mAxisRect->left())/static_cast<double>(mAxisRect->width())*mRange.size()+mRange.lower;
       else
-        return -(value-mAxisRect->left())/(double)mAxisRect->width()*mRange.size()+mRange.upper;
+        return -(value-mAxisRect->left())/static_cast<double>(mAxisRect->width())*mRange.size()+mRange.upper;
     } else // mScaleType == stLogarithmic
     {
       if (!mRangeReversed)
-        return pow(mRange.upper/mRange.lower, (value-mAxisRect->left())/(double)mAxisRect->width())*mRange.lower;
+        return pow(mRange.upper/mRange.lower, (value-mAxisRect->left())/static_cast<double>(mAxisRect->width()))*mRange.lower;
       else
-        return pow(mRange.upper/mRange.lower, (mAxisRect->left()-value)/(double)mAxisRect->width())*mRange.upper;
+        return pow(mRange.upper/mRange.lower, (mAxisRect->left()-value)/static_cast<double>(mAxisRect->width()))*mRange.upper;
     }
   } else // orientation() == Qt::Vertical
   {
     if (mScaleType == stLinear)
     {
       if (!mRangeReversed)
-        return (mAxisRect->bottom()-value)/(double)mAxisRect->height()*mRange.size()+mRange.lower;
+        return (mAxisRect->bottom()-value)/static_cast<double>(mAxisRect->height())*mRange.size()+mRange.lower;
       else
-        return -(mAxisRect->bottom()-value)/(double)mAxisRect->height()*mRange.size()+mRange.upper;
+        return -(mAxisRect->bottom()-value)/static_cast<double>(mAxisRect->height())*mRange.size()+mRange.upper;
     } else // mScaleType == stLogarithmic
     {
       if (!mRangeReversed)
-        return pow(mRange.upper/mRange.lower, (mAxisRect->bottom()-value)/(double)mAxisRect->height())*mRange.lower;
+        return pow(mRange.upper/mRange.lower, (mAxisRect->bottom()-value)/static_cast<double>(mAxisRect->height()))*mRange.lower;
       else
-        return pow(mRange.upper/mRange.lower, (value-mAxisRect->bottom())/(double)mAxisRect->height())*mRange.upper;
+        return pow(mRange.upper/mRange.lower, (value-mAxisRect->bottom())/static_cast<double>(mAxisRect->height()))*mRange.upper;
     }
   }
 }
@@ -5584,7 +5584,7 @@ QCPAxis::AxisType QCPAxis::marginSideToAxisType(QCP::MarginSide side)
     case QCP::msBottom: return atBottom;
     default: break;
   }
-  qDebug() << Q_FUNC_INFO << "Invalid margin side passed:" << (int)side;
+  qDebug() << Q_FUNC_INFO << "Invalid margin side passed:" << side;
   return atLeft;
 }
 
@@ -5643,7 +5643,7 @@ void QCPAxis::setupTickVectors()
     int highTick = mHighestVisibleTick < mTickVector.size()-1 ? mHighestVisibleTick+1 : mHighestVisibleTick;
     for (int i=lowTick+1; i<=highTick; ++i)
     {
-      subTickStep = (mTickVector.at(i)-mTickVector.at(i-1))/(double)(mSubTickCount+1);
+      subTickStep = (mTickVector.at(i)-mTickVector.at(i-1))/static_cast<double>(mSubTickCount+1);
       for (int k=1; k<=mSubTickCount; ++k)
       {
         subTickPosition = mTickVector.at(i-1) + k*subTickStep;
@@ -5710,17 +5710,17 @@ void QCPAxis::generateAutoTicks()
     if (mAutoTickStep)
     {
       // Generate tick positions according to linear scaling:
-      mTickStep = mRange.size()/(double)(mAutoTickCount+1e-10); // mAutoTickCount ticks on average, the small addition is to prevent jitter on exact integers
+      mTickStep = mRange.size()/static_cast<double>(mAutoTickCount+1e-10); // mAutoTickCount ticks on average, the small addition is to prevent jitter on exact integers
       double magnitudeFactor = qPow(10.0, qFloor(qLn(mTickStep)/qLn(10.0))); // get magnitude factor e.g. 0.01, 1, 10, 1000 etc.
       double tickStepMantissa = mTickStep/magnitudeFactor;
       if (tickStepMantissa < 5)
       {
         // round digit after decimal point to 0.5
-        mTickStep = (int)(tickStepMantissa*2)/2.0*magnitudeFactor;
+        mTickStep = static_cast<int>(tickStepMantissa*2)/2.0*magnitudeFactor;
       } else
       {
         // round to first digit in multiples of 2
-        mTickStep = (int)(tickStepMantissa/2.0)*2.0*magnitudeFactor;
+        mTickStep = static_cast<int>(tickStepMantissa/2.0)*2.0*magnitudeFactor;
       }
     }
     if (mAutoSubTicks)
@@ -5738,7 +5738,7 @@ void QCPAxis::generateAutoTicks()
     // Generate tick positions according to logbase scaling:
     if (mRange.lower > 0 && mRange.upper > 0) // positive range
     {
-      double lowerMag = basePow((int)floor(baseLog(mRange.lower)));
+      double lowerMag = basePow(static_cast<int>(floor(baseLog(mRange.lower))));
       double currentMag = lowerMag;
       mTickVector.clear();
       mTickVector.append(currentMag);
@@ -5749,7 +5749,7 @@ void QCPAxis::generateAutoTicks()
       }
     } else if (mRange.lower < 0 && mRange.upper < 0) // negative range
     {
-      double lowerMag = -basePow((int)ceil(baseLog(-mRange.lower)));
+      double lowerMag = -basePow(static_cast<int>(ceil(baseLog(-mRange.lower))));
       double currentMag = lowerMag;
       mTickVector.clear();
       mTickVector.append(currentMag);
@@ -6417,8 +6417,8 @@ QByteArray QCPAxisPainterPrivate::generateLabelParameterHash() const
 {
   QByteArray result;
   result.append(QByteArray::number(tickLabelRotation));
-  result.append(QByteArray::number((int)substituteExponent));
-  result.append(QByteArray::number((int)numberMultiplyCross));
+  result.append(QByteArray::number(static_cast<int>(substituteExponent)));
+  result.append(QByteArray::number(static_cast<int>(numberMultiplyCross)));
   result.append(tickLabelColor.name()+QByteArray::number(tickLabelColor.alpha(), 16));
   result.append(tickLabelFont.toString());
   return result;
@@ -7941,14 +7941,14 @@ void QCPItemPosition::setPixelPoint(const QPointF &pixelPoint)
       if (mParentAnchor)
       {
         QPointF p(pixelPoint-mParentAnchor->pixelPoint());
-        p.rx() /= (double)mParentPlot->viewport().width();
-        p.ry() /= (double)mParentPlot->viewport().height();
+        p.rx() /= static_cast<double>(mParentPlot->viewport().width());
+        p.ry() /= static_cast<double>(mParentPlot->viewport().height());
         setCoords(p);
       } else
       {
         QPointF p(pixelPoint-mParentPlot->viewport().topLeft());
-        p.rx() /= (double)mParentPlot->viewport().width();
-        p.ry() /= (double)mParentPlot->viewport().height();
+        p.rx() /= static_cast<double>(mParentPlot->viewport().width());
+        p.ry() /= static_cast<double>(mParentPlot->viewport().height());
         setCoords(p);
       }
       break;
@@ -7961,14 +7961,14 @@ void QCPItemPosition::setPixelPoint(const QPointF &pixelPoint)
         if (mParentAnchor)
         {
           QPointF p(pixelPoint-mParentAnchor->pixelPoint());
-          p.rx() /= (double)mAxisRect.data()->width();
-          p.ry() /= (double)mAxisRect.data()->height();
+          p.rx() /= static_cast<double>(mAxisRect.data()->width());
+          p.ry() /= static_cast<double>(mAxisRect.data()->height());
           setCoords(p);
         } else
         {
           QPointF p(pixelPoint-mAxisRect.data()->topLeft());
-          p.rx() /= (double)mAxisRect.data()->width();
-          p.ry() /= (double)mAxisRect.data()->height();
+          p.rx() /= static_cast<double>(mAxisRect.data()->width());
+          p.ry() /= static_cast<double>(mAxisRect.data()->height());
           setCoords(p);
         }
       } else
@@ -11355,7 +11355,7 @@ void QCPColorGradient::colorize(const double *data, const QCPRange &range, QRgb 
     {
       for (int i=0; i<n; ++i)
       {
-        int index = (int)((data[dataIndexFactor*i]-range.lower)*posToIndexFactor) % mLevelCount;
+        int index = static_cast<int>((data[dataIndexFactor*i]-range.lower)*posToIndexFactor) % mLevelCount;
         if (index < 0)
           index += mLevelCount;
         scanLine[i] = mColorBuffer.at(index);
@@ -11378,7 +11378,7 @@ void QCPColorGradient::colorize(const double *data, const QCPRange &range, QRgb 
     {
       for (int i=0; i<n; ++i)
       {
-        int index = (int)(qLn(data[dataIndexFactor*i]/range.lower)/qLn(range.upper/range.lower)*mLevelCount) % mLevelCount;
+        int index = static_cast<int>(qLn(data[dataIndexFactor*i]/range.lower)/qLn(range.upper/range.lower)*mLevelCount) % mLevelCount;
         if (index < 0)
           index += mLevelCount;
         scanLine[i] = mColorBuffer.at(index);
@@ -11580,7 +11580,7 @@ void QCPColorGradient::updateColorBuffer()
     mColorBuffer.resize(mLevelCount);
   if (mColorStops.size() > 1)
   {
-    double indexToPosFactor = 1.0/(double)(mLevelCount-1);
+    double indexToPosFactor = 1.0/static_cast<double>(mLevelCount-1);
     for (int i=0; i<mLevelCount; ++i)
     {
       double position = i*indexToPosFactor;
@@ -15669,7 +15669,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
       QCPDataMap::const_iterator currentIntervalFirstPoint = it;
       int reversedFactor = keyAxis->rangeReversed() ? -1 : 1; // is used to calculate keyEpsilon pixel into the correct direction
       int reversedRound = keyAxis->rangeReversed() ? 1 : 0; // is used to switch between floor (normal) and ceil (reversed) rounding of currentIntervalStartKey
-      double currentIntervalStartKey = keyAxis->pixelToCoord((int)(keyAxis->coordToPixel(lower.key())+reversedRound));
+      double currentIntervalStartKey = keyAxis->pixelToCoord(static_cast<int>(keyAxis->coordToPixel(lower.key())+reversedRound));
       double lastIntervalEndKey = currentIntervalStartKey;
       double keyEpsilon = qAbs(currentIntervalStartKey-keyAxis->pixelToCoord(keyAxis->coordToPixel(currentIntervalStartKey)+1.0*reversedFactor)); // interval of one pixel on screen when mapped to plot key coordinates
       bool keyEpsilonVariable = keyAxis->scaleType() == QCPAxis::stLogarithmic; // indicates whether keyEpsilon needs to be updated after every interval (for log axes)
@@ -15700,7 +15700,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
           minValue = it.value().value;
           maxValue = it.value().value;
           currentIntervalFirstPoint = it;
-          currentIntervalStartKey = keyAxis->pixelToCoord((int)(keyAxis->coordToPixel(it.key())+reversedRound));
+          currentIntervalStartKey = keyAxis->pixelToCoord(static_cast<int>(keyAxis->coordToPixel(it.key())+reversedRound));
           if (keyEpsilonVariable)
             keyEpsilon = qAbs(currentIntervalStartKey-keyAxis->pixelToCoord(keyAxis->coordToPixel(currentIntervalStartKey)+1.0*reversedFactor));
           intervalDataCount = 1;
@@ -15731,7 +15731,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
       QCPDataMap::const_iterator currentIntervalStart = it;
       int reversedFactor = keyAxis->rangeReversed() ? -1 : 1; // is used to calculate keyEpsilon pixel into the correct direction
       int reversedRound = keyAxis->rangeReversed() ? 1 : 0; // is used to switch between floor (normal) and ceil (reversed) rounding of currentIntervalStartKey
-      double currentIntervalStartKey = keyAxis->pixelToCoord((int)(keyAxis->coordToPixel(lower.key())+reversedRound));
+      double currentIntervalStartKey = keyAxis->pixelToCoord(static_cast<int>(keyAxis->coordToPixel(lower.key())+reversedRound));
       double keyEpsilon = qAbs(currentIntervalStartKey-keyAxis->pixelToCoord(keyAxis->coordToPixel(currentIntervalStartKey)+1.0*reversedFactor)); // interval of one pixel on screen when mapped to plot key coordinates
       bool keyEpsilonVariable = keyAxis->scaleType() == QCPAxis::stLogarithmic; // indicates whether keyEpsilon needs to be updated after every interval (for log axes)
       int intervalDataCount = 1;
@@ -15771,7 +15771,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
           minValue = it.value().value;
           maxValue = it.value().value;
           currentIntervalStart = it;
-          currentIntervalStartKey = keyAxis->pixelToCoord((int)(keyAxis->coordToPixel(it.key())+reversedRound));
+          currentIntervalStartKey = keyAxis->pixelToCoord(static_cast<int>(keyAxis->coordToPixel(it.key())+reversedRound));
           if (keyEpsilonVariable)
             keyEpsilon = qAbs(currentIntervalStartKey-keyAxis->pixelToCoord(keyAxis->coordToPixel(currentIntervalStartKey)+1.0*reversedFactor));
           intervalDataCount = 1;
@@ -17298,7 +17298,7 @@ double QCPCurve::pointDistance(const QPointF &pixelPoint) const
 */
 QPointF QCPCurve::outsideCoordsToPixels(double key, double value, int region, QRect axisRect) const
 {
-  int margin = qCeil(qMax(mScatterStyle.size(), (double)mPen.widthF())) + 2;
+  int margin = qCeil(qMax(mScatterStyle.size(), static_cast<double>(mPen.widthF()))) + 2;
   QPointF result = coordsToPixels(key, value);
   switch (region)
   {
@@ -18777,9 +18777,9 @@ void QCPColorMapData::coordToCell(double key, double value, int *keyIndex, int *
 void QCPColorMapData::cellToCoord(int keyIndex, int valueIndex, double *key, double *value) const
 {
   if (key)
-    *key = keyIndex/(double)(mKeySize-1)*(mKeyRange.upper-mKeyRange.lower)+mKeyRange.lower;
+    *key = keyIndex/static_cast<double>(mKeySize-1)*(mKeyRange.upper-mKeyRange.lower)+mKeyRange.lower;
   if (value)
-    *value = valueIndex/(double)(mValueSize-1)*(mValueRange.upper-mValueRange.lower)+mValueRange.lower;
+    *value = valueIndex/static_cast<double>(mValueSize-1)*(mValueRange.upper-mValueRange.lower)+mValueRange.lower;
 }
 
 
@@ -19206,9 +19206,9 @@ void QCPColorMap::draw(QCPPainter *painter)
   double halfSampleKey = 0;
   double halfSampleValue = 0;
   if (mMapData->keySize() > 1)
-    halfSampleKey = 0.5*mMapData->keyRange().size()/(double)(mMapData->keySize()-1);
+    halfSampleKey = 0.5*mMapData->keyRange().size()/static_cast<double>(mMapData->keySize()-1);
   if (mMapData->valueSize() > 1)
-    halfSampleValue = 0.5*mMapData->valueRange().size()/(double)(mMapData->valueSize()-1);
+    halfSampleValue = 0.5*mMapData->valueRange().size()/static_cast<double>(mMapData->valueSize()-1);
   QRectF imageRect(coordsToPixels(mMapData->keyRange().lower-halfSampleKey, mMapData->valueRange().lower-halfSampleValue),
                    coordsToPixels(mMapData->keyRange().upper+halfSampleKey, mMapData->valueRange().upper+halfSampleValue));
   imageRect = imageRect.normalized();
@@ -19582,7 +19582,7 @@ void QCPItemLine::draw(QCPPainter *painter)
     return;
   // get visible segment of straight line inside clipRect:
   double clipPad = qMax(mHead.boundingDistance(), mTail.boundingDistance());
-  clipPad = qMax(clipPad, (double)mainPen().widthF());
+  clipPad = qMax(clipPad, static_cast<double>(mainPen().widthF()));
   QLineF line = getRectClippedLine(startVec, endVec, clipRect().adjusted(-clipPad, -clipPad, clipPad, clipPad));
   // paint visible segment, if existent:
   if (!line.isNull())
@@ -21107,7 +21107,7 @@ void QCPItemTracer::updatePosition()
             {
               // interpolate between iterators around mGraphKey:
               double slope = 0;
-              if (!qFuzzyCompare((double)it.key(), (double)prevIt.key()))
+              if (!qFuzzyCompare(static_cast<double>(it.key()), static_cast<double>(prevIt.key())))
                 slope = (it.value().value-prevIt.value().value)/(it.key()-prevIt.key());
               position->setCoords(mGraphKey, (mGraphKey-prevIt.key())*slope+prevIt.value().value);
             } else

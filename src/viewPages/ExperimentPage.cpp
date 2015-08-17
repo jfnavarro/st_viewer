@@ -27,24 +27,24 @@ ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
       m_ui(new Ui::Experiments())
 {
     m_ui->setupUi(this);
-    //setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
+    // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
     m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
-    //connect signals
+    // connect signals
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
     connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
-    connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDDA()));
+    connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDEA()));
     connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
     connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
 
-    //connect data proxy signal
+    // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
@@ -75,7 +75,7 @@ ExperimentsItemModel *ExperimentPage::selectionsModel()
 
 void ExperimentPage::onEnter()
 {
-    //load selections
+    // load selections
     loadSelections();
 }
 
@@ -86,7 +86,7 @@ void ExperimentPage::onExit()
 
 void ExperimentPage::clearControls()
 {
-    //clear selection/focus
+    // clear selection/focus
     m_ui->experiments_tableView->clearSelection();
     m_ui->experiments_tableView->clearFocus();
     m_ui->removeSelections->clearFocus();
@@ -95,7 +95,7 @@ void ExperimentPage::clearControls()
     m_ui->editSelection->clearFocus();
     m_ui->back->clearFocus();
 
-    //remove, edit, dda and export not enable by default
+    // remove, edit, dda and export not enable by default
     m_ui->removeSelections->setEnabled(false);
     m_ui->exportSelections->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
@@ -109,7 +109,7 @@ void ExperimentPage::loadSelections()
         return;
     }
 
-    //load selections and enable the blocking loading bar
+    // load selections and enable the blocking loading bar
     setWaiting(true);
     m_dataProxy->loadGeneSelections();
     m_dataProxy->activateCurrentDownloads();
@@ -119,7 +119,7 @@ void ExperimentPage::slotDownloadFinished(const DataProxy::DownloadStatus status
                                           const DataProxy::DownloadType type)
 {
     if (type == DataProxy::GenesSelectionsDownloaded) {
-        //disable blocking loading bar
+        // disable blocking loading bar
         setWaiting(false);
         if (status == DataProxy::Success) {
             // refresh gene selections on the model and controls
@@ -127,7 +127,7 @@ void ExperimentPage::slotDownloadFinished(const DataProxy::DownloadStatus status
             clearControls();
         }
     } else if (type == DataProxy::GenesSelectionsModified && status == DataProxy::Success) {
-        //re-upload genes selections after an update
+        // re-upload genes selections after an update
         loadSelections();
     }
 }
@@ -138,7 +138,7 @@ void ExperimentPage::slotSelectionSelected(QModelIndex index)
     const auto currentSelection = selectionsModel()->getSelections(selected);
     const bool enableDDA = index.isValid() && currentSelection.size() == 2;
     const bool enableRest = index.isValid() && currentSelection.size() == 1;
-    //configure UI controls if we select 1 or 2 selections
+    // configure UI controls if we select 1 or 2 selections
     m_ui->removeSelections->setEnabled(enableRest);
     m_ui->exportSelections->setEnabled(enableRest);
     m_ui->ddaAnalysis->setEnabled(enableDDA);
@@ -165,11 +165,11 @@ void ExperimentPage::slotRemoveSelection()
         return;
     }
 
-    //currentSelection should only have one element
+    // currentSelection should only have one element
     const auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
-    //remove the selection object
+    // remove the selection object
     m_dataProxy->removeSelection(selectionItem->id());
     m_dataProxy->activateCurrentDownloads();
 }
@@ -198,14 +198,14 @@ void ExperimentPage::slotExportSelection()
         return;
     }
 
-    //create file
+    // create file
     QFile textFile(filename);
 
-    //currentSelection should only have one element
+    // currentSelection should only have one element
     auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
-    //export selection
+    // export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
         GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
                                              GeneExporter::TabDelimited);
@@ -225,7 +225,7 @@ void ExperimentPage::slotEditSelection()
         return;
     }
 
-    //currentSelection should only have one element
+    // currentSelection should only have one element
     Q_ASSERT(!currentSelection.first().isNull());
     GeneSelection selectionItem(*currentSelection.first());
 
@@ -245,13 +245,13 @@ void ExperimentPage::slotEditSelection()
         selectionItem.name(createSelection->getName());
         selectionItem.comment(createSelection->getComment());
 
-        //update the dataset
+        // update the dataset
         m_dataProxy->updateGeneSelection(selectionItem);
         m_dataProxy->activateCurrentDownloads();
     }
 }
 
-void ExperimentPage::slotPerformDDA()
+void ExperimentPage::slotPerformDEA()
 {
     const auto selected = m_ui->experiments_tableView->experimentTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);

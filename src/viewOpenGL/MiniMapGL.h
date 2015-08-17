@@ -18,7 +18,7 @@ class QColor;
 class QEvent;
 class QMouseEvent;
 
-// MiniMap is an view port GUI item that visualizes the view ports current
+// MiniMap is a graphical item that visualizes the view ports current
 // "image" in relation to the scene. Ie. it shows where in the scene the
 // view port currently is.
 class MiniMapGL : public GraphicItemGL
@@ -33,31 +33,32 @@ public:
     const QColor sceneColor() const;
     const QColor viewColor() const;
 
-    //need to handle the user mouse events for moving the minimap
+    // need to handle the user mouse events for moving the minimap
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
+    // clear all the data
     void clearData();
 
 public slots:
 
     //TODO slots should have the prefix "slot"
 
-    //to change minimap's colors
+    // to change minimap's colors
     void setViewColor(const QColor &viewColor);
     void setSceneColor(const QColor &sceneColor);
 
-    //to adjust minimap with the view's size
+    // to adjust minimap with the view's size
     void setScene(const QRectF &scene);
     void setViewPort(const QRectF &view);
 
-    //to adjust minimap with the view's transformations
+    // to adjust minimap with the view's transformations
     void setParentSceneTransformations(const QTransform &transform);
 
 signals:
 
-    //to notify the view
+    // to notify the CellGlView when the user has interacted with the minimap
     void signalCenterOn(const QPointF &point);
 
 protected:

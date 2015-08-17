@@ -26,7 +26,7 @@
 
 Q_DECLARE_METATYPE(SelectionType)
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class GeneSelectionDTO : public QObject
 {
     Q_OBJECT

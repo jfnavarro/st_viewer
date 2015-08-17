@@ -53,13 +53,14 @@ CellGLView::CellGLView(QWidget *parent) : QOpenGLWidget(parent),
     m_rotate(0.0),
     m_zoom_factor(1.0)
 {
-    //init projection matrix to id
+    // init projection matrix to identity
     m_projm.setToIdentity();
 
     //TODO consider decoupling rubberband object and view
     m_rubberband = new RubberbandGL(this);
     m_rubberband->setAnchor(Globals::Anchor::None);
 
+    // Configure OpenGL format for this view
     QSurfaceFormat format;
     format.setVersion(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
     format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
@@ -132,7 +133,7 @@ void CellGLView::initializeGL()
     m_qopengl_functions.glShadeModel(GL_SMOOTH);
     m_qopengl_functions.glEnable(GL_BLEND);
 
-    // Set the default blend options.
+    // set the default blending options.
     m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
     m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
@@ -144,7 +145,7 @@ void CellGLView::paintGL()
     // clear color buffer
     m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
-    //render nodes
+    // render nodes
     foreach(GraphicItemGL *node, m_nodes) {
         if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
@@ -171,25 +172,25 @@ void CellGLView::resizeGL(int width, int height)
 {
     const QRectF newViewport = QRectF(0.0, 0.0, width, height);
 
-    //update projection matrix
+    // update projection matrix
     m_projm.setToIdentity();
     m_projm.ortho(newViewport);
 
-    // sets the projection matrix of the OpenGL painter
+    // sets the projection matrix
     m_qopengl_functions.glViewport(0.0f, 0.0f, width, height);
 
     // reset the coordinate system
     m_qopengl_functions.glMatrixMode(GL_PROJECTION);
     m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
 
-    // model view mode
+    // reset the model view mode matrix
     m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
     m_qopengl_functions.glLoadIdentity();
 
-    //create viewport
+    // create viewport
     setViewPort(newViewport);
 
-    //update local variables for zooming and scene resolution
+    // update local variables for zooming and scene resolution
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
@@ -199,6 +200,7 @@ void CellGLView::resizeGL(int width, int height)
 
 void CellGLView::wheelEvent(QWheelEvent* event)
 {
+    // computes zoom factor and update zoom
     const qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactorAndUpdate(zoomFactor *m_zoom_factor);
     event->ignore();
@@ -242,6 +244,7 @@ void CellGLView::centerOn(const QPointF& point)
 
 void CellGLView::rotate(qreal angle)
 {
+    //TODO this is untested and not functional yet in the application
     if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle) {
         m_rotate += angle;
         STMath::clamp(m_rotate, -360.0, 360.0);
@@ -278,6 +281,8 @@ void CellGLView::setScene(const QRectF &scene)
 
 qreal CellGLView::minZoom() const
 {
+    // we want to the min zoom to at least covers the whole image
+
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MIN_ZOOM;
     }
@@ -409,7 +414,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
         m_rubberBanding = true;
         m_originRubberBand = event->pos();
         m_rubberband->setRubberbandRect(QRect());
-        //draw rubberband
+        // draw rubberband
         update();
     } else {
         // first send the event to any non-transformable nodes under the mouse click
@@ -450,8 +455,8 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         // reset rubberband variables
         m_rubberBanding = false;
         m_rubberband->setRubberbandRect(QRect());
-        //well, there is no need to trigger an update here since
-        //sendRubberBandEventToNodes will make the GeneRenderer node trigger an update
+        // well, there is no need to trigger an update here since
+        // sendRubberBandEventToNodes will make the GeneRenderer node trigger an update
         //update();
     } else if (event->button() == Qt::LeftButton && m_panning && !m_selecting) {
         unsetCursor();
@@ -476,10 +481,10 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
                                             qAbs(origin.x() - destiny.x()) + 1,
                                             qAbs(origin.y() - destiny.y()) + 1);
         m_rubberband->setRubberbandRect(rubberBandRect);
-        //draw rubberband
+        // draw rubberband
         update();
     } else if (event->buttons() & Qt::LeftButton && m_panning && !m_selecting) {
-        //user is moving the view
+        // user is moving the view
         const QPoint point = event->globalPos(); //panning needs global pos
         const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom_factor;
         setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
@@ -567,8 +572,8 @@ const QTransform CellGLView::sceneTransformations() const
 
 const QTransform CellGLView::nodeTransformations(GraphicItemGL *node) const
 {
-    //this functions combines the node internal transformations with respect
-    //to the view size and anchor positions
+    // these functions combines the node internal transformations with respect
+    // to the view size and anchor positions to create a new transformation matrix
 
     const QSizeF viewSize = m_viewport.size();
     QTransform transform(Qt::Uninitialized);

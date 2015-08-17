@@ -64,14 +64,14 @@ public:
     void created(const QString& created);
     void lastModified(const QString& lastModified);
 
-    //extended methods to get statistics
-    //returns the first quartile
+    // extended methods to get statistics
+    // returns the first quartile
     qreal statisticsMin() const;
-    //returns the adjusted fourth quartile (account for sparse distributions)
+    // returns the adjusted fourth quartile (account for sparse distributions)
     qreal statisticsMax() const;
-    //returns the first quartile
+    // returns the first quartile
     qreal statisticsPooledMin() const;
-    //returns the adjusted fourth quartile (account for sparse distributions)
+    // returns the adjusted fourth quartile (account for sparse distributions)
     qreal statisticsPooledMax() const;
 
 private:

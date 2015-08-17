@@ -17,7 +17,7 @@
 class QModelIndex;
 class QStringList;
 
-//Model class for the genes table
+// Wrapper model class for the genes selection table
 class GeneSelectionItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -44,14 +44,15 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    //load the selected items given as parameters into the model
+    // load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
 
-    //resets and clears the model
+    // resets and clears the model
     void clearSelectedGenes();
 
 public slots:
     //TODO pass reference instead for genename
+    // Used to sort the genes in the table
     bool geneName(const QModelIndex &index, QString *genename) const;
 
 private:

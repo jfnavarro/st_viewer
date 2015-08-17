@@ -17,7 +17,7 @@
 
 // This DTO is used to parse network errors
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class ErrorDTO : public QObject
 {
     Q_OBJECT

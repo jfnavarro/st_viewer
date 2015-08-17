@@ -33,13 +33,13 @@ public:
     explicit stVi(QWidget* parent = 0);
     ~stVi();
 
-    //initialize main visual components
+    // initialize main visual components
     void init();
 
     // check that the host has all the required hardware (true yes : false no )
     bool checkSystemRequirements() const;
 
-    //system settings
+    // system settings
     void loadSettings();
     void saveSettings() const;
 
@@ -48,7 +48,7 @@ private slots:
     // exit the application
     void slotExit();
 
-    //clear the cache and local stored files
+    // clear the cache and local stored files
     void slotClearCache();
 
     // opens pop up static widget to show info about the application
@@ -83,10 +83,10 @@ private:
     QPointer<QAction> m_actionAbout;
     QPointer<QAction> m_actionClear_Cache;
 
-    //main tab is a tab manager type of widget that contains all the pages view
+    // main tab is a tab manager type of widget that contains all the pages view
     QPointer<ExtendedTabWidget> m_mainTab;
 
-    //stVi owns dataProxy and AuthorizationManager
+    // stVi owns dataProxy and AuthorizationManager
     QPointer<DataProxy> m_dataProxy;
     QPointer<AuthorizationManager> m_authManager;
 };

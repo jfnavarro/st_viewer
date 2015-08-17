@@ -24,7 +24,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-//TODO move declarations to CPP and/or consider removing DTOs
+//TODO move definitions to CPP and/or consider removing DTOs
 class DatasetDTO : public QObject
 {
     Q_OBJECT
@@ -103,8 +103,8 @@ public:
     const QString created() const { return m_dataset.created(); }
     const QString lastModified() const { return m_dataset.lastModified(); }
 
-    //toJson is needed to send PUT/POST requests as the JSON content of the object
-    //is appended to the request
+    // toJson is needed to send PUT/POST requests as the JSON content of the object
+    // is appended to the request
     //TODO transform this to obtain fields dynamically using the meta_properties
     QByteArray toJson() const
     {

@@ -45,26 +45,27 @@ public:
     QString getText() const;
     QByteArray getRaw() const;
 
-    //reply status
+    // reply status
     bool isFinished() const;
     bool hasErrors() const;
     ReturnCode return_code() const;
 
-    //return reply errors if any
+    // return reply errors if any
     const NetworkReply::ErrorList& errors() const;
 
-    //parseErrors will create a single error with all the error messages
-    //if no errors are present it returns nullptr
+    // this function will create a single error with all the error messages
+    // if no errors are present it returns nullptr
     QSharedPointer<Error> parseErrors();
 
-    //true if the reply request was obtained from the disk cache
+    // true if the reply request was obtained from the disk cache
     bool wasCached() const;
 
-    //adds an error to the list
+    // adds an error to the list
     void registerError(QSharedPointer<Error> error);
 
 public slots:
 
+    // These slots are invoked from the Qt network reply object
     void slotAbort();
     void slotFinished();
     void slotMetaDataChanged();
