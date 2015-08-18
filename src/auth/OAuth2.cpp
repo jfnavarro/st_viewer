@@ -79,7 +79,7 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                   const DataProxy::DownloadType type)
 {
     if (type == DataProxy::AccessTokenDownloaded && status == DataProxy::Success) {
-        OAuth2TokenDTO dto = m_dataProxy->getAccessToken();
+        const OAuth2TokenDTO &dto = m_dataProxy->getAccessToken();
         const QUuid &accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid &refreshToken(dto.refreshToken());

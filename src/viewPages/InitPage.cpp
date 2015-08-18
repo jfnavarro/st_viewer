@@ -91,8 +91,10 @@ void InitPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                     const DataProxy::DownloadType type)
 {
     if (type == DataProxy::UserDownloaded) {
+
         // disable blocking loading bar
         setWaiting(false);
+
         if (status == DataProxy::Success) {
             const auto user = m_dataProxy->getUser();
             Q_ASSERT(!user.isNull());

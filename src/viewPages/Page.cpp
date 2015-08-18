@@ -34,8 +34,12 @@ Page::Page(QPointer<DataProxy> dataProxy, QWidget *parent) :
     m_progressDialog->setWindowModality(Qt::WindowModal);
     m_progressDialog->setModal(true);
     m_progressDialog->setCancelButtonText(tr("Abort"));
-    m_progressDialog->setAutoClose(false);
+    m_progressDialog->setAutoReset(false);
+    m_progressDialog->setAutoClose(true);
     m_progressDialog->setRange(0, 0);
+    // strange bug introduced in Qt 5.5 forces us to close the progess bar dialog once created
+    m_progressDialog->cancel();
+    m_progressDialog->close();
 
     // connect the aborting of the progress bar to a slot that will emit a signal
     connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotCancelProgressBar()));
