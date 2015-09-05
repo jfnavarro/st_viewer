@@ -383,9 +383,14 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     install(TARGETS ${PROJECT_NAME} DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION . )   
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll DESTINATION . )
+    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION . )
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win64/libeay32.dll DESTINATION . )
+        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win64/ssleay32.dll DESTINATION . )
+    else()
+        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll DESTINATION . )
+        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll DESTINATION . )
+    endif()
 
 endif(WIN32)
 
