@@ -341,8 +341,14 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E make_directory 
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins)
 
+    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE )
+
     foreach(QT_LIBRARY ${ST_QT_LIBS})
-        get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+        if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION_DEBUG)
+        else()
+            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+        endif()
         install(FILES ${ST_QT_LOC} DESTINATION .)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD   
                            COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC} 
@@ -353,7 +359,7 @@ if(WIN32)
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
-    if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
+	if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
     endif()
 
@@ -364,11 +370,12 @@ if(WIN32)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)
-        install(FILES ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
+		set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
                 DESTINATION platforms)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                                    COMMAND ${CMAKE_COMMAND} -E copy 
-                                   ${QT_PLUGINS_DIR}/platforms/${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                                   ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
                                    ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
     endforeach()
 

@@ -53,6 +53,8 @@ macro(INITIALISE_PROJECT)
          else()
            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
          endif()
+         # Removes Microsoft Visual Studio's well intentioned warnings about 'unsafe' calls.
+         add_definitions(-D_SCL_SECURE_NO_WARNINGS)
     else()
         # Adding -std=c++11 flag explicitly
         # It is a temporary fix to get building with CLANG working again.
