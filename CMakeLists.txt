@@ -58,6 +58,9 @@ message( STATUS
 )
 message( STATUS )
 
+# Restrict possible builds to the selected build type.
+set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
+
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
   if(WIN32)
