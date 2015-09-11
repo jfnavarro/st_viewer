@@ -111,6 +111,15 @@ else()
     add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
 
+if(MSVC)
+    # A dependency is linking to the non debug version. This causes an annoying 
+    # warning in Visual Studio debug builds.    
+    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE )
+    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt")
+    endif()
+endif()
+
 # Platform specific library includes
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
