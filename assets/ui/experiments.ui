@@ -575,8 +575,6 @@ selection-background-color: darkgray;</string>
       </item>
      </layout>
      <zorder>frame</zorder>
-     <zorder>verticalSpacer</zorder>
-     <zorder>verticalSpacer_2</zorder>
     </widget>
    </item>
   </layout>
