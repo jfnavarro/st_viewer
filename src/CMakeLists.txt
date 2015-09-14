@@ -382,12 +382,9 @@ if(WIN32)
     # Install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)
         set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
-        install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
-                DESTINATION platforms)
-                add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                                   COMMAND ${CMAKE_COMMAND} -E copy 
-                                   ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
-                                   ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
+        install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME} DESTINATION platforms)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
     endforeach()
 
     # Install resources
