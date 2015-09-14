@@ -365,9 +365,6 @@ if(WIN32)
                            COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC} 
                            ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
     endforeach()
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:stVi>
-                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
