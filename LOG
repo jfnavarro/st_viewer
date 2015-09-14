@@ -6,7 +6,7 @@ v0.2.0
  	* improvements on network manager
 	* improvements in security (ssl, https)
 	* general improvements
-        * improve installers
+    * improve installers
 	* lay out improvements
 	* created encryption component (images encrypted)
 	* created new log in component (no authorization needed)

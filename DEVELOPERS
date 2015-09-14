@@ -1,111 +1,158 @@
-******************************************************************************************************************************
-
-BUILDING (from source bundle or the repository)
+Developers
 
 Install the necessary dependencies :
 
-cmake (Version 2.8.9), Git, OpenGL, Qt5 and a C++ (gcc 4.7 or gcc 4.6 or Visual Studio) compiler are required
+CMake (Versión 3.0.0 minimum), Git, ligjpeg-turbo, OpenGL,
+Qt >=5.4 and a C++ (gcc >=4.6 or clang or Visual Studio) compiler is required.
 
-Ubuntu (10.xx , 11.xx , 12.xx) :
+Ubuntu:
 
-Download and install qt5 binaries from http://qt-project.org/downloads
+Download and install Qt binaries from http://qt-project.org/downloads
 
-Issue the following to install the necessary dependencies for stVi:
+Issue the following to install the necessary dependencies:
 
-   $ sudo apt-get install cmake git ubuntu-dev-tools 
+   $ sudo apt-get install cmake git ubuntu-dev-tools libjpeg-turbo8-dev
 
 Install OpenGL:
- 
+
    $ sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
-Mac OSX (Lion, Darwin) :
 
-Download and install qt5 binaries from : http://qt-project.org/downloads
+Mac OSX
 
-Issue the following to install the necessary dependencies for stVi:
+Download and install Qt binaries from : http://qt-project.org/downloads
+
+Issue the following to install the necessary dependencies:
 
 E.x (Assuming MacPorts is installed, otherwise http://www.macports.org/install.php)
-  
-$ sudo port install xcode cmake git 
 
-Windows 7
+$ sudo port install xcode cmake git libjpeg-turbo
 
-You need to install cmake for windows :
+NOTE : Make sure the XCode Command Line Tools are installed
+
+
+Windows (important to install 64bits version of the libraries if your windows is 64 bits)
+
+Install Cygwin, by downloading and executing
+
+http://cygwin.com/setup-x86_64.exe
+
+During the installation, select these additional packages:
+
+git (category: Devel)
+wget (category: Web)
+openssh (category: Net)
+
+The CMake included in Cygwin unfortunately doesn’t include
+the generator for Nmake (-G "NMake Makefiles" ) so you need to
+install CMake for windows :
 
     http://www.cmake.org/cmake/resources/software.html
 
-You need to install git for windows :
 
-    http://git-scm.com/downloads
+Install Microsoft Visual Studio (make sure you install the C++ compilers)
 
-You need Microsoft Visual Studio 2010 or 2012
-    
     http://www.microsoft.com/visualstudio/eng/visual-studio-2013
 
-You need to download the windows binaries for visual studio and opengl of qt5 from : 
 
-    http://qt-project.org/downloads
+Install Qt (Chose the option with MVSC and OpenGL):
+
+http://qt-project.org/downloads
+
+(Choose the default installation path C:\Qt)
 
 Install NSI installers in Windows :
 
     http://nsis.sourceforge.net/Download
 
-Install Windows SDK
+Install JPEG-Turbo :
 
-    http://www.microsoft.com/en-us/download/details.aspx?id=3138
+    http://www.libjpeg-turbo.org/Documentation/OfficialBinaries
 
-Install Visual Studio Redis package
+Clone the repository :
 
-    http://www.microsoft.com/en-us/download/details.aspx?id=29
-    
+Open a terminal. (In Windows start the Cygwin terminal)
 
-Build from the source (windows) :
+Ensure your computer has access to the Continuous Integration server.
 
-Open CMake GUI:
-add the path to the source
-add the path to a build folder
-add variable CMAKE_PREFIX_PATH to qt5/libs/cmake
-add variable CMAKE_BUILD_TYPE to Debug or Release
-add variable CMAKE_LIBRARY_PAHT to path of windows SDK libraries (e.x C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib )
+Now you can clone the repository. As username use the username you have chosen in the
+Gerrit web interface.
 
-Configure the cmake project and click generate, open Visual Studio and load the solution file generated from cmake in the build directory. Then you can build different targets and/or access the source and header files 
-Build from the source
+$ username=esjolund
+$ git clone ssh://$username@gerrit.spatialtranscriptomics.com:29418/st_client && scp -p -P 29418
+$username@gerrit.spatialtranscriptomics.com:hooks/commit-msg st_client/.git/hooks/
 
-The following instructions are for Ubuntu (versions 10.xx, 11.xx and 12.xx) and
-MAC OSX (versions Darwin and Lion).
+Build from the source (Windows) :
 
-NOTE: if you CMake installation does not contain macros to find qt5 packages, you will have to tell cmake to use the macros included in the qt5 binaries :
+(Currently Qt does not support Visual Studio 2015)
 
-  -DCMAKE_PREFIX_PATH = /path-to-qt5/path-to-cmake-folder
+It can be built in different ways.
+
+- You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
+Make sure the script is configured to the paths of your Visual Studio, Qt,
+CMake and lijpeg-turbo libraries and that the architecture is set to the one in your system (32 or 64)
+
+Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
+
+$ mkdir st_bin
+
+(When the build has completed this directory will contain the application and it’s installer).
+
+Then:
+
+In a Cygwin terminal, for a production build type:
+
+$ ~/st_client/build_cygwin.sh  ~/st_client  stclient_production_build   st_bin
+
+
+or for a development build type:
+
+$ ~/st_client/build_cygwin.sh  ~/st_client  stclient_development_build  st_bin
+
+At the end of the build script, the paths to the executable and to the package
+file are printed to the terminal.
+
+- You can can also use CMake-gui to generate a Visual Studio project file that you can load in
+your Visual Studio, then you can build the client in Visual Studio. Make sure for this that you set
+the CMake configuration variables to find the Qt libraries and jpeg-turbo using the variable CMAKE_PREFIX_PATH
+
+e.g. Set CMAKE_PREFIX_PATH to “C:\Qt\5.5\msvc2013_64\lib\cmake;C:\libjpeg-turbo64” in the CMake-gui.
+
+- You can also build it using Qt creator and the Visual Studio compiler/generator. Once again,
+make sure you pass in the configuration of the project the path to libjpeg-turbo.
+
+Build from the source (Ubuntu and MAC).
+
+NOTE: if your CMake installation does not contain macros to find qt5 packages,
+you will have to tell cmake to use the macros included in the qt5 binaries :
+
+  -DCMAKE_PREFIX_PATH = /path-to-qt5/path-to-cmake-folder (usually it is in lib/cmake)
 
 We will now proceed to build stVi in "/path/to/build", but any directory where the
 user has read/write privileges can be chosen. Issue the following:
 
   $ cd /path/to/build
   $ cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
-               [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
-               [-DCMAKE_PREFIX_PATH="/path/to/libraries"]
+             [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
+             [-DCMAKE_PREFIX_PATH="/path/to/libraries"]
                  [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”]
                  [-DCMAKE_OSX_DEPLOYMENT_TARGET=version]
-                /path/to/source
-  $ make -j8 && make install
-
-NOTE that all the params between [] are just optional
-
-/path/to/source = refers to the source of the client which should be :
-  
-    /st_viewer/src/client
+          [-DSERVER=”production | development | local”]
+             /path/to/source
 
 DCMAKE_INSTALL_PREFIX = indicates where to install stVi
 CMAKE_BUILD_TYPE = indicates the type of building (Release by default)
 CMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the binaries of Qt5.
 DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used
-eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/
+eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/
 DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
-    eg: 10.7 or 10.8
+    eg: 10.7 , 10.8 or 10.9
+
+DSERVER = Build stVi to connect to the development, local or production servers
 
 stVi will detect automatically the platform where it is building on and it will generate
 the binaries automatically as well.
+
 
 How to run a test
 
@@ -113,4 +160,15 @@ Assuming stVi has been installed as explained above, it can be
 automatically tested by issuing:
 
   $ cd /path/to/build
-  $ make test
+  $ make unittest
+
+
+
+
+
+
+
+
+
+
+
