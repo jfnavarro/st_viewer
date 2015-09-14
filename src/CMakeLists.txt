@@ -11,16 +11,17 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-#load resource and translations files
+# Load resource and translations files
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
-#define what sub folders will be compiled
+# define what sub folders will be compiled
 set(subdir_list
                    dialogs
                    color
@@ -49,7 +50,7 @@ add_subdirectory(testTools)
 
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
-#NOTE this is very useful for Visual Studio
+# NOTE this is very useful for Visual Studio
 # Organize projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -73,7 +74,7 @@ add_definitions(-DPROJECT_VERSION=\"${PROJECT_VERSION}\")
 
 ##BUILDING AND INSTALLING #############################################################
 
-# put everything that is generated into the binary dir
+# Put everything that is generated into the binary dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -81,7 +82,7 @@ set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ###STATIC LIBRARIES#####################################
 
-#link static libraries and third party libraries
+# Link static libraries and third party libraries
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
@@ -89,7 +90,8 @@ endforeach()
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qjpeg-turbo>")
-#rapidjson does not need to be compiled, we just need to include the headers
+
+# rapidjson does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
 set(QT_TARGET_LINK_LIBS Qt5::Core
@@ -100,7 +102,7 @@ set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::OpenGL
                              Qt5::Concurrent)
 
-#create main target (resources needs to be part of the target)
+# Create main target (resources needs to be part of the target)
 set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 if(WIN32)
@@ -129,7 +131,7 @@ if(APPLE)
    target_link_libraries(${PROJECT_NAME} ${MAC_EXTRA_LIBS})
 endif()
 
-#link libraries to the main target
+# Link libraries to the main target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
 # TODO: maybe we should use LIBJPEG_STATIC_detected_with_find_library for all platforms?
@@ -158,7 +160,7 @@ set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 
-#add systems libraries
+# Add systems libraries
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
 
@@ -179,20 +181,20 @@ endif()
 
 if(UNIX AND NOT APPLE)
 
-    # use, i.e. don't skip the full RPATH for the build tree
+    # Use, i.e. don't skip the full RPATH for the build tree
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
 
-    # when building, don't use the install RPATH already
+    # When building, don't use the install RPATH already
     # (but later on when installing)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
 
-    # add the automatically determined parts of the RPATH
+    # Add the automatically determined parts of the RPATH
     # which point to directories outside the build tree to the install RPATH
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-    # the RPATH to be used when installing, but only if it's not a system directory
+    # The RPATH to be used when installing, but only if it's not a system directory
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
     if("${isSystemDir}" STREQUAL "-1")
         set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -210,7 +212,7 @@ if(UNIX AND NOT APPLE)
       INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
     endforeach()
 
-    #qt 5.5 needs ICU libaries in Linux 54
+    # qt 5.5 needs ICU libaries in Linux 54
     set(ICU_VERSION "54.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
@@ -222,7 +224,7 @@ if(UNIX AND NOT APPLE)
 
     deploy_qt_plugins()
 
-    #install libraries and resources
+    # Install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
     install(TARGETS ${PROJECT_NAME} DESTINATION bin)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
@@ -230,12 +232,12 @@ endif()
 
 if(APPLE)
 
-    #set project name of binary dir for OSX
+    # Set project name of binary dir for OSX
     set(OS_X_PROJECT_BINARY_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app")
     set(CMAKE_INSTALL_PREFIX ${OS_X_PROJECT_BINARY_DIR}/Contents)
     set(DMG_DIR ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
     
-    #configure and install Info.plist file
+    # Configure and install Info.plist file
     set(InfoPlistFile ${CMAKE_BINARY_DIR}/Info.plist)
     execute_process(COMMAND date "+%Y"
                     OUTPUT_VARIABLE YEAR
@@ -256,14 +258,14 @@ if(APPLE)
                                  Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>")
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
     
-    #architecture OSX
+    # Architecture OSX
     set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
     set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
 
-    #find macdeoployqt
+    # Find macdeoployqt
     find_program(MACDEPLOYQT NAMES macdeployqt macdeployqt-mac PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
     
-    #resources
+    # Resources
     add_custom_command (TARGET ${PROJECT_NAME}
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/stVi.icns ${CMAKE_INSTALL_PREFIX}/Resources/
@@ -271,7 +273,7 @@ if(APPLE)
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
   
-    # build dmg
+    # Build dmg
     add_custom_target(dmg
         COMMAND mkdir -p ${DMG_DIR}
         COMMAND cp -R ${OS_X_PROJECT_BINARY_DIR} ${DMG_DIR}/
@@ -287,22 +289,22 @@ endif(APPLE)
 
 if(WIN32)
     
-	# By default, do not warn when built on machines using only VS Express:
+    # By default, do not warn when built on machines using only VS Express:
     if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
       set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
     endif()
     
-    #install system libs
+    # Install system libs
     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION . )
     install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION . )
 
-    #add systems libs to build directory
+    # Add systems libs to build directory
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
     foreach(LIB ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
-	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy ${LIB} 
-				${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy ${LIB} 
+                           ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
     endforeach()
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -368,7 +370,7 @@ if(WIN32)
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
 
     set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
-	if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
     endif()
 
@@ -379,7 +381,7 @@ if(WIN32)
     
     #install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)
-		set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
         install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
                 DESTINATION platforms)
                 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
