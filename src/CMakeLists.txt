@@ -21,7 +21,7 @@ set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
-# define what sub folders will be compiled
+# Define what sub folders will be compiled
 set(subdir_list
                    dialogs
                    color
@@ -91,7 +91,7 @@ list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qjpeg-turbo>")
 
-# rapidjson does not need to be compiled, we just need to include the headers
+# 'rapidjson' does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
 set(QT_TARGET_LINK_LIBS Qt5::Core
@@ -212,7 +212,7 @@ if(UNIX AND NOT APPLE)
       INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
     endforeach()
 
-    # qt 5.5 needs ICU libaries in Linux 54
+    # Qt 5.5 needs ICU libaries in Linux 54
     set(ICU_VERSION "54.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
@@ -376,10 +376,10 @@ if(WIN32)
 
     deploy_qt_plugins()
     
-    #qt 5.5 ICU is 54
+    # Qt 5.5 ICU is 54
     windows_deploy_qt_libraries(icudt54 icuin54 icuuc54)
     
-    #install platforms plugins
+    # Install platforms plugins
     foreach(QT_PLUGIN_FILE qminimal qwindows)
         set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
         install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME}
@@ -390,9 +390,9 @@ if(WIN32)
                                    ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
     endforeach()
 
-    #install resources
-    #TODO probably not needed the libeay32.dll and ssleay32.dll now that we are finding and linking
-    #openSSL
+    # Install resources
+    # TODO probably not needed the libeay32.dll and ssleay32.dll now that we are
+    # finding and linking openSSL
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
