@@ -8,7 +8,7 @@ project(stVi CXX C)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 
-#Configuration stuff
+# Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "5")
 set(PROJECT_VERSION_PATCH "2")
@@ -19,7 +19,8 @@ set(PROJECT_DOMAIN_FIRST "spatialtranscriptomics")
 set(PROJECT_DOMAIN_SECOND "com")
 set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
-SET(SERVER "development" CACHE STRING "The server providing the experimental data (development/production/local)")
+SET(SERVER "development" CACHE STRING
+"The server providing the experimental data (development/production/local)")
 
 set(CLIENTID "st-viewer-client")
 set(SECRETID "ayfBaF5UAKR2")
@@ -27,13 +28,13 @@ set(APIPATH  "api")
 set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
 if(SERVER STREQUAL development)
-  #DEV configuration
+  # DEV configuration
   set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")
 elseif(SERVER STREQUAL production)
-  #Production configuration
+  # Production configuration
   set(ENDPOINT "https://admin.spatialtranscriptomics.com")
 elseif(SERVER STREQUAL local)
-  #Local configuration
+  # Local configuration
   set(ENDPOINT "http://localhost:8080")
 else()
   message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")

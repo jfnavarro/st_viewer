@@ -3,6 +3,7 @@ Language:        Cpp
 # BasedOnStyle:  LLVM
 AccessModifierOffset: -4
 AlignAfterOpenBracket: true
+AlignConsecutiveAssignments: false
 AlignEscapedNewlinesLeft: false
 AlignOperands:   true
 AlignTrailingComments: true
@@ -10,64 +11,64 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: true
 # AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: false
 # AllowShortFunctionsOnASingleLine: All
 AlwaysBreakAfterDefinitionReturnType: false
+AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
 # AlwaysBreakTemplateDeclarations: false
-AlwaysBreakBeforeMultilineStrings: false
+BinPackParameters: true
+BinPackArguments: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Linux
+# BreakBeforeBraces: Attach
 # BreakBeforeBinaryOperators: None
 # BreakBeforeBinaryOperators: All
-BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: true
 # BreakConstructorInitializersBeforeComma: false
-BinPackParameters: true
-BinPackArguments: true
 ColumnLimit:     100
+CommentPragmas:  '^ IWYU pragma:'
 # ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
 DerivePointerAlignment: false
+DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
+ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
 IndentCaseLabels: false
+IndentWidth:     4
 IndentWrappedFunctionNames: false
-IndentFunctionDeclarationAfterType: false
-MaxEmptyLinesToKeep: 1
 KeepEmptyLinesAtTheStartOfBlocks: true
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBlockIndentWidth: 2
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakComment: 300
-PenaltyBreakString: 1000
 PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Right
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
-Cpp11BracedListStyle: true
-Standard:        Cpp11
-IndentWidth:     4
-TabWidth:        8
-UseTab:          Never
-BreakBeforeBraces: Linux
-# BreakBeforeBraces: Attach
+SpacesInAngles:  false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-SpacesInAngles:  false
-SpaceInEmptyParentheses: false
-SpacesInCStyleCastParentheses: false
-SpaceAfterCStyleCast: false
-SpacesInContainerLiterals: true
-SpaceBeforeAssignmentOperators: true
-ContinuationIndentWidth: 4
-CommentPragmas:  '^ IWYU pragma:'
-ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
-SpaceBeforeParens: ControlStatements
-DisableFormat:   false
+Standard:        Cpp11
+TabWidth:        8
+UseTab:          Never
 ...
-
