@@ -115,5 +115,5 @@ cmd /Q /C call "$msvc_vars_filepath" x86_amd64 "&&" \
    nmake "&&" \
    nmake package
 
-cp "$stclient_builddir/$build_type"/stVi.exe "$result_dir"
+cp "$stclient_builddir"/stVi.exe "$result_dir"
 cp "$stclient_builddir"/stVi-*-win64.exe "$result_dir"
