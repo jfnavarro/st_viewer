@@ -1,17 +1,18 @@
 v0.1.1
-	* first stable version
-v0.2.0 
-	* improvements on data proxy
-	* improvements on error manager
- 	* improvements on network manager
-	* improvements in security (ssl, https)
-	* general improvements
-    * improve installers
-	* lay out improvements
-	* created encryption component (images encrypted)
-	* created new log in component (no authorization needed)
-	* bug fixes
-	* new visual features (selection, composite genes, export selection and heat map)
+	* First stable version
+
+v0.2.0
+	* Improvements on data proxy
+	* Improvements on error manager
+ 	* Improvements on network manager
+	* Improvements in security (ssl, https)
+	* General improvements
+	* Improve installers
+	* Layout improvements
+	* Created encryption component (images encrypted)
+	* Created new log in component (no authorization needed)
+	* Bug fixes
+	* New visual features (selection, composite genes, export selection and heat map)
 
 v0.3.1
 	* Improved log in component
@@ -31,42 +32,44 @@ v0.3.1
 	* New Analysis Page (edit, remove, export)
 	* First version of DDA in analysis page
 
-v0.3.2 (TODO)
+v0.3.2
+	* (TODO)
 
-v0.3.3 (TODO)
+v0.3.3
+	* (TODO)
 
 v0.3.4
 	* Made dots default size smaller
 	* Force color dialog for genes to be always on top
 
-v0.3.5 
+v0.3.5
 	* Fixed a bug that caused the viewer to crash when 
 	  a user with deprecated old selections-datasets
 	  entered the datasets view.
 
-v0.3.6 
+v0.3.6
 	* Added an option to export features in the cell view for a selection
 	* Fixed a bug that would case the DEA Dialog to be un-stable sometimes
 	* Ensure the dot size is 0.5 by default
 
 v0.4.0
-        * New UI design
-        * Improved speed and performance
-        * Improve memmory loading
-        * New color computation options (log, exp and normal)
-        * New pooled modes (reads, genes and TPMs)
-        * Improved windows and mac installers
-        * Many bug fixes
-        * Streaming JSON parsing
-        * Async Network downloads
-        * Improved error management
-        * Improved error messages
+	* New UI design
+	* Improved speed and performance
+	* Improve memmory loading
+	* New color computation options (log, exp and normal)
+	* New pooled modes (reads, genes and TPMs)
+	* Improved windows and mac installers
+	* Many bug fixes
+	* Streaming JSON parsing
+	* Async Network downloads
+	* Improved error management
+	* Improved error messages
 
-v0.4.1 
-        * Fixed a bug with the selection rubberband
-        * Fixed a bug with the log in dialog in windows
-        * Fixed a bug causing a segmentation fault when exiting
-        * Fixed a bug with the caching of usernames
+v0.4.1
+	* Fixed a bug with the selection rubberband
+	* Fixed a bug with the log in dialog in windows
+	* Fixed a bug causing a segmentation fault when exiting
+	* Fixed a bug with the caching of usernames
 
 v0.4.2
 	* Added a threshold for genes
@@ -86,7 +89,7 @@ v0.4.4
 	* Fixed a bug in the DEA threholds
 	* Fixed a bug in the minimum value for genes threshold
 
-v0.4.5 
+v0.4.5
 	* Some updates in DEA layout
 	* Scatter plot in DEA now scales
 	* Scatter plot will highlight the selected gene in the table
@@ -103,14 +106,14 @@ v0.4.7
 	* Fixed a bug in the reg-exp with the string matching
 	* Fixed a bug with the reg-ex not selecting all genes in feature
 
-v0.4.8 
+v0.4.8
 	* Added option to toggle legend values by genes or reads
 	* Fixed some artifacts bugs in the rendering
 	* Improved init-reset of graphical elements
 	* Changed text in reg-exp widget
 	* Removed dependency with Qt3D
 
-v0.4.9 
+v0.4.9
 	* Made some general clean up and optimization
 	* Fixed a bug in the computation of TPM correlation values in DEA
 
@@ -122,10 +125,10 @@ v0.5.0
 	* Fixed some errors in the computation of correlation in DEA
 
 v0.5.1
-    * Perform total genes/reads filter for total genes/reads in each feature
-      regardless of how many genes are selected
-    * Fix a bug when doing reg-exp selection on genes that should not appear
-      in some features due to threshold restraints
+	* Perform total genes/reads filter for total genes/reads in each feature
+	  regardless of how many genes are selected
+	* Fix a bug when doing reg-exp selection on genes that should not appear
+	  in some features due to threshold restraints
 
 v0.5.2
-    * Show total reads and total genes in selection widget
+	* Show total reads and total genes in selection widget
