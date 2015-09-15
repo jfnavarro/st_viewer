@@ -34,7 +34,9 @@ macro(INITIALISE_PROJECT)
     set(QT_VERSION_MINOR ${Qt5Widgets_VERSION_MINOR})
     set(QT_VERSION_PATCH ${Qt5Widgets_VERSION_PATCH})
 
-    if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
+
+    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         message(STATUS "Building a debug version...")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG -DDEBUG")
         add_definitions(-DQT_DEBUG)
@@ -44,17 +46,20 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
+    # Defining compiler specific settings
     if(WIN32)
-        string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-        set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
-        if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
-           set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
-         else()
-           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
-         endif()
-         # Removes Microsoft Visual Studio's well intentioned warnings about 'unsafe' calls.
-         add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+        if(MVSC)
+           string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+           set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
+           if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+              set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+              set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
+           else()
+              set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
+           endif()
+           # Removes Microsoft Visual Studio's well intentioned warnings about 'unsafe' calls.
+           add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+        endif()
     else()
         # Adding -std=c++11 flag explicitly
         # It is a temporary fix to get building with CLANG working again.

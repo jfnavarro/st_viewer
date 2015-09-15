@@ -352,7 +352,7 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E make_directory 
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins)
 
-    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE )
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
 
     foreach(QT_LIBRARY ${ST_QT_LIBS})
         if(BUILD_TYPE_LOWERCASE STREQUAL "debug")

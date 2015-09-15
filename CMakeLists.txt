@@ -71,7 +71,7 @@ if(COMMAND cmake_policy)
   endif()
 endif(COMMAND cmake_policy)
 
-#name of locale file
+# File that contains the default language for Qt
 set(TRANSLATION_FILE "locale_en_us.qm")
 
 # Compile RC-file, only for Windows
@@ -90,15 +90,15 @@ endif (WIN32)
 # Some in-house CMake functions/macros
 include(${CMAKE_SOURCE_DIR}/cmake/utils.cmake)
 
-# compile cmake based files
+# Compile CMake generated based files
 configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT_BINARY_DIR}/application.conf )
 configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
 configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
 
-# include the project binary dir
+# Include the project binary dir
 include_directories(${PROJECT_BINARY_DIR})
 
-# find qt libraries
+# Find the path to Qt binaries and set the Qt libraries
 find_package(Qt5LinguistTools REQUIRED CONFIG)
 set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL Concurrent Xml)
 if(UNIX AND NOT APPLE)
@@ -108,10 +108,10 @@ foreach(i ${ST_QT_LIBS})
   use_qt5lib("Qt5${i}")
 endforeach()
 
-# add cutom find.cmake
+# Add cutom find.cmake files
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-#initialize project stuff (important first)
+# Initialize project settings (important to do it first as it defines compilation flags)
 initialise_project()
 
 add_subdirectory(ext) # include third party libraries

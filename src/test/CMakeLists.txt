@@ -4,8 +4,11 @@
 
 use_qt5lib(Qt5Test)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/testTools
-${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src 
+                    ${PROJECT_SOURCE_DIR}/src/testTools
+                    ${PROJECT_SOURCE_DIR} 
+                    ${CMAKE_BINARY_DIR}/src
+                    ${CMAKE_BINARY_DIR})
 
 set(TARGET_NAME stVi_test)
 
@@ -42,7 +45,7 @@ set(ST_UNITTEST_SOURCES
     $<TARGET_OBJECTS:testTools>
     ${ST_TARGET_OBJECTS}
 )
- 
+
 # add executable
 
 if(WIN32)
@@ -59,3 +62,6 @@ qt5_use_modules(${TARGET_NAME} Test)
 add_test(general ${TARGET_NAME})
 
 add_custom_target(unittest ${TARGET_NAME})
+
+add_dependencies(${TARGET_NAME} ${PROJECT_NAME} )
+add_dependencies(${TARGET_NAME} testTools )
