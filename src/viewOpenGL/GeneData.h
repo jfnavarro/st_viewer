@@ -24,7 +24,6 @@ class GeneData
 {
 
 public:
-
     GeneData();
     ~GeneData();
 
@@ -35,14 +34,11 @@ public:
     int addQuad(const float x,
                 const float y,
                 const float size = 1.0,
-                const QColor &color = Qt::white);
+                const QColor& color = Qt::white);
 
     // update geometry and rendering data
-    void updateQuadSize(const int index,
-                        const float x,
-                        const float y,
-                        const float size);
-    void updateQuadColor(const int index, const QColor &newcolor);
+    void updateQuadSize(const int index, const float x, const float y, const float size);
+    void updateQuadColor(const int index, const QColor& newcolor);
     void updateQuadSelected(const int index, const bool selected);
     void updateQuadVisible(const int index, const bool visible);
     void updateQuadReads(const int index, const int reads);

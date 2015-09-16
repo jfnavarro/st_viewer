@@ -12,7 +12,10 @@
 namespace unit
 {
 
-AuthTest::AuthTest(QObject *parent) : QObject(parent) { }
+AuthTest::AuthTest(QObject* parent)
+    : QObject(parent)
+{
+}
 
 void AuthTest::initTestCase()
 {
@@ -21,9 +24,6 @@ void AuthTest::initTestCase()
 
 void AuthTest::cleanupTestCase()
 {
-
-
 }
-
 
 } // namespace unit //

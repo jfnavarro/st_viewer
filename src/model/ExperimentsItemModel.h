@@ -23,14 +23,13 @@ class QStringList;
 class QItemSelection;
 
 // Wrapper model for the genes selections table
-//TODO this should not be called experiment
+// TODO this should not be called experiment
 class ExperimentsItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
 
 public:
-
     enum Column {
         Name = 0,
         Dataset = 1,
@@ -49,10 +48,11 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-    QVariant headerData(int section, Qt::Orientation orientation,
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // reset current model
     void reset();
@@ -61,11 +61,10 @@ public:
     void loadSelectedGenes(const DataProxy::GeneSelectionList selectionList);
 
     // returns a list of selections items from the indexes given as input
-    DataProxy::GeneSelectionList getSelections(const QItemSelection &selection);
+    DataProxy::GeneSelectionList getSelections(const QItemSelection& selection);
 
 private:
-
-    //TODO make this a pure reference
+    // TODO make this a pure reference
     DataProxy::GeneSelectionList m_geneselectionList;
 
     Q_DISABLE_COPY(ExperimentsItemModel)

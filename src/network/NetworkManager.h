@@ -31,7 +31,6 @@ class NetworkManager : public QObject
     Q_FLAGS(NetworkFlags)
 
 public:
-
     enum NetworkFlag {
         Empty,
         UseAuthentication,
@@ -39,17 +38,15 @@ public:
         UsePipelineMode,
         UseHighPriority,
         UseTimeOutAbort,
-        Default = UseAuthentication | UseCache
-        | UsePipelineMode | UseHighPriority | UseTimeOutAbort
+        Default = UseAuthentication | UseCache | UsePipelineMode | UseHighPriority | UseTimeOutAbort
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
-    NetworkManager(QObject *parent = 0);
+    NetworkManager(QObject* parent = 0);
     virtual ~NetworkManager();
 
     // default use Authentication
-    NetworkReply* httpRequest(NetworkCommand* cmd,
-                              NetworkFlags flags = NetworkFlag::Default);
+    NetworkReply* httpRequest(NetworkCommand* cmd, NetworkFlags flags = NetworkFlag::Default);
 
     // clear network disk cache
     void cleanCache();
@@ -59,10 +56,9 @@ private slots:
     void provideAuthentication(QNetworkReply*, QAuthenticator*);
 
 private:
-
     // internal function to add the JSON data info to the headers of the request
     // and returns the JSON data as a QbyteArray. JSON data is present in NetworkCommand
-    QByteArray addJSONDatatoRequest(NetworkCommand *cmd, QNetworkRequest &request) const;
+    QByteArray addJSONDatatoRequest(NetworkCommand* cmd, QNetworkRequest& request) const;
 
     // qt network manager object
     QPointer<QNetworkAccessManager> m_nam;

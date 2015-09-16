@@ -25,7 +25,6 @@ ApplicationError::ApplicationError(ApplicationError::Type errorType, QObject* pa
 
 ApplicationError::~ApplicationError()
 {
-
 }
 
 void ApplicationError::init(ApplicationError::Type errorType)
@@ -35,22 +34,17 @@ void ApplicationError::init(ApplicationError::Type errorType)
 
     switch (errorType) {
     case ApplicationError::NoError:
-        name  = QApplication::translate(LOC_CONTEXT,
-                                        "NoError:Name");
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "NoError:Description");
+        name = QApplication::translate(LOC_CONTEXT, "NoError:Name");
+        description = QApplication::translate(LOC_CONTEXT, "NoError:Description");
         break;
     case ApplicationError::LocalizationError:
-        name = QApplication::translate(LOC_CONTEXT,
-                                       "LocalizationError:Name");
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "LocalizationError:Description");
+        name = QApplication::translate(LOC_CONTEXT, "LocalizationError:Name");
+        description = QApplication::translate(LOC_CONTEXT, "LocalizationError:Description");
         break;
     default:
-        name = QApplication::translate(LOC_CONTEXT,
-                                       "UnknownError:Name");
-        description = QApplication::translate(LOC_CONTEXT,
-                                              "UnknownError:Description").arg(errorType);
+        name = QApplication::translate(LOC_CONTEXT, "UnknownError:Name");
+        description
+            = QApplication::translate(LOC_CONTEXT, "UnknownError:Description").arg(errorType);
     }
 
     // assign name and description

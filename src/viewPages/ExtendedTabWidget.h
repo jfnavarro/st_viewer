@@ -36,10 +36,9 @@ class ExtendedTabWidget : public QWidget
     Q_OBJECT
 
 public:
-
     explicit ExtendedTabWidget(QPointer<DataProxy> dataProxy,
                                QPointer<AuthorizationManager> authManager,
-                               QWidget *parent = 0);
+                               QWidget* parent = 0);
     virtual ~ExtendedTabWidget();
 
     // simple functions needed here for convenience
@@ -49,7 +48,7 @@ public:
 
 public slots:
 
-    //TODO slots should have the prefix "slot"
+    // TODO slots should have the prefix "slot"
 
     // navigation signals
     void moveToNextPage();
@@ -65,13 +64,11 @@ private slots:
     void slotTabPressed(const int index);
 
 private:
-
     // returns the widget(Page) for a given index
     QWidget* widget(int index);
 
     // adds page to the tab manager
-    void insertPage(QWidget* page, const QIcon &icon = QIcon(),
-                    const QString &title = QString());
+    void insertPage(QWidget* page, const QIcon& icon = QIcon(), const QString& title = QString());
 
     // set the current index in the tab manager
     void setCurrentIndex(int index);
@@ -101,4 +98,4 @@ private:
 
     Q_DISABLE_COPY(ExtendedTabWidget)
 };
-#endif  /* // EXTENDEDTABWIDGET_H */
+#endif /* // EXTENDEDTABWIDGET_H */

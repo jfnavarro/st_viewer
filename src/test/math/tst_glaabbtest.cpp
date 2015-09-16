@@ -18,7 +18,8 @@ Q_DECLARE_METATYPE(QuadTreeAABB)
 namespace unit
 {
 
-GLAABBTest::GLAABBTest(QObject *parent) : QObject(parent)
+GLAABBTest::GLAABBTest(QObject* parent)
+    : QObject(parent)
 {
 }
 
@@ -47,12 +48,18 @@ void GLAABBTest::testConstructFromPoints_data()
     QTest::addColumn<QuadTreeAABB>("b");
     QTest::addColumn<bool>("expected");
 
-    QTest::newRow("simple0") << QPointF(0.0f, 0.0f) << QPointF(1.0f, 1.0f) << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("simple1") << QPointF(-1.0f, -1.0f) << QPointF(1.0f, 1.0f) << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("reverse0") << QPointF(1.0f, 1.0f) << QPointF(0.0f, 0.0f) << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("reverse1") << QPointF(1.0f, 1.0f) << QPointF(-1.0f, -1.0f) << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
-    QTest::newRow("corner0") << QPointF(1.0f, 0.0f) << QPointF(0.0f, 1.0f) << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
-    QTest::newRow("corner1") << QPointF(1.0f, -1.0f) << QPointF(-1.0f, 1.0f) << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("simple0") << QPointF(0.0f, 0.0f) << QPointF(1.0f, 1.0f)
+                             << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("simple1") << QPointF(-1.0f, -1.0f) << QPointF(1.0f, 1.0f)
+                             << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("reverse0") << QPointF(1.0f, 1.0f) << QPointF(0.0f, 0.0f)
+                              << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("reverse1") << QPointF(1.0f, 1.0f) << QPointF(-1.0f, -1.0f)
+                              << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
+    QTest::newRow("corner0") << QPointF(1.0f, 0.0f) << QPointF(0.0f, 1.0f)
+                             << QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f) << true;
+    QTest::newRow("corner1") << QPointF(1.0f, -1.0f) << QPointF(-1.0f, 1.0f)
+                             << QuadTreeAABB(-1.0f, -1.0f, 2.0f, 2.0f) << true;
 }
 
 void GLAABBTest::testContainsByPoint()
@@ -70,8 +77,7 @@ void GLAABBTest::testContainsByPoint_data()
     QTest::addColumn<bool>("expected");
 
     QuadTreeAABB aabb[] = {
-        QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
-        QuadTreeAABB(1.0f, 0.0f, 1.0f, 1.0f),
+        QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f), QuadTreeAABB(1.0f, 0.0f, 1.0f, 1.0f),
     };
 
     QTest::newRow("simple0") << QPointF(0.5f, 0.5f) << aabb[0] << true;
@@ -128,13 +134,11 @@ void GLAABBTest::testIntersects_data()
     QTest::addColumn<QuadTreeAABB>("b1");
     QTest::addColumn<bool>("expected");
 
-    QuadTreeAABB aabb[] = {
-        QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
-        QuadTreeAABB(1.0f, 0.0f, 1.0f, 1.0f),
-        QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
-        QuadTreeAABB(0.0f, 1.0f, 1.0f, 1.0f),
-        QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f)
-    };
+    QuadTreeAABB aabb[] = {QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(1.0f, 0.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.0f, 1.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f)};
 
     QTest::newRow("simple0") << aabb[0] << aabb[1] << false;
     QTest::newRow("simple1") << aabb[0] << aabb[2] << false;
@@ -161,14 +165,12 @@ void GLAABBTest::testCut_data()
     QTest::addColumn<QuadTreeAABB>("b2");
     QTest::addColumn<bool>("expected");
 
-    QuadTreeAABB aabb[] = {
-        QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
-        QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
-        QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f),
-        QuadTreeAABB(0.5f, 0.5f, 0.5f, 0.5f),
-        QuadTreeAABB(1.0f, 1.0f, 0.5f, 0.5f),
-        QuadTreeAABB(0.0f, 0.0f, 0.0f, 0.0f)
-    };
+    QuadTreeAABB aabb[] = {QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.5f, 0.5f, 0.5f, 0.5f),
+                           QuadTreeAABB(1.0f, 1.0f, 0.5f, 0.5f),
+                           QuadTreeAABB(0.0f, 0.0f, 0.0f, 0.0f)};
 
     QTest::newRow("simple0") << aabb[0] << aabb[2] << aabb[3] << true;
     QTest::newRow("simple1") << aabb[1] << aabb[2] << aabb[4] << true;
@@ -193,14 +195,12 @@ void GLAABBTest::testJoin_data()
     QTest::addColumn<QuadTreeAABB>("b2");
     QTest::addColumn<bool>("expected");
 
-    QuadTreeAABB aabb[] = {
-        QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
-        QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
-        QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f),
-        QuadTreeAABB(0.0f, 0.0f, 1.5f, 1.5f),
-        QuadTreeAABB(0.5f, 0.5f, 1.5f, 1.5f),
-        QuadTreeAABB(0.0f, 0.0f, 2.0f, 2.0f)
-    };
+    QuadTreeAABB aabb[] = {QuadTreeAABB(0.0f, 0.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(1.0f, 1.0f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.5f, 0.5f, 1.0f, 1.0f),
+                           QuadTreeAABB(0.0f, 0.0f, 1.5f, 1.5f),
+                           QuadTreeAABB(0.5f, 0.5f, 1.5f, 1.5f),
+                           QuadTreeAABB(0.0f, 0.0f, 2.0f, 2.0f)};
 
     QTest::newRow("simple0") << aabb[0] << aabb[2] << aabb[3] << true;
     QTest::newRow("simple1") << aabb[1] << aabb[2] << aabb[4] << true;

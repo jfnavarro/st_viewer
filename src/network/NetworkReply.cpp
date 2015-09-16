@@ -28,7 +28,7 @@
 #include "data/ObjectParser.h"
 
 NetworkReply::NetworkReply(QNetworkReply* networkReply)
-    :  m_reply(networkReply)
+    : m_reply(networkReply)
 {
     Q_ASSERT_X(networkReply != nullptr, "NetworkReply", "Null-pointer assertion error!");
 
@@ -38,9 +38,13 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
     // connect signals
     connect(m_reply, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(m_reply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
-    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)), this,
+    connect(m_reply,
+            SIGNAL(error(QNetworkReply::NetworkError)),
+            this,
             SLOT(slotError(QNetworkReply::NetworkError)));
-    connect(m_reply, SIGNAL(sslErrors(QList<QSslError>)), this,
+    connect(m_reply,
+            SIGNAL(sslErrors(QList<QSslError>)),
+            this,
             SLOT(slotSslErrors(QList<QSslError>)));
 }
 
@@ -117,8 +121,7 @@ void NetworkReply::slotFinished()
 
 void NetworkReply::slotMetaDataChanged()
 {
-    QString contentTypeHeader =
-            m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
+    QString contentTypeHeader = m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
     m_mime = contentTypeHeader.split(';')[0];
 }
 
@@ -126,7 +129,7 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 {
     // create and register error only if the error was not an abort
     if (networkError != QNetworkReply::OperationCanceledError
-            && networkError != QNetworkReply::NoError) {
+        && networkError != QNetworkReply::NoError) {
         QSharedPointer<Error> error(new NetworkError(networkError, this));
         registerError(error);
     }
@@ -134,7 +137,7 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 
 void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
 {
-    foreach(QSslError error, sslErrorList) {
+    foreach (QSslError error, sslErrorList) {
         QSharedPointer<Error> sslerror(new SSLNetworkError(error, this));
         registerError(sslerror);
     }
@@ -152,7 +155,7 @@ QSharedPointer<Error> NetworkReply::parseErrors()
     if (m_errors.count() > 1) {
         // if we have more than one error we aggregate them
         QString errortext;
-        foreach(QSharedPointer<Error> error, m_errors) {
+        foreach (QSharedPointer<Error> error, m_errors) {
             errortext += QString("%1 : %2 \n").arg(error->name()).arg(error->description());
         }
 
@@ -168,8 +171,7 @@ QSharedPointer<Error> NetworkReply::parseErrors()
             QVariant var = doc.toVariant();
             ErrorDTO dto;
             data::parseObject(var, &dto);
-            error = QSharedPointer<Error>(new ServerError(dto.errorName(),
-                                                          dto.errorDescription()));
+            error = QSharedPointer<Error>(new ServerError(dto.errorName(), dto.errorDescription()));
         }
     }
 

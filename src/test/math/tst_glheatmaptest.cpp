@@ -15,7 +15,10 @@
 namespace unit
 {
 
-GLHeatMapTest::GLHeatMapTest(QObject *parent) : QObject(parent) { }
+GLHeatMapTest::GLHeatMapTest(QObject* parent)
+    : QObject(parent)
+{
+}
 
 void GLHeatMapTest::initTestCase()
 {

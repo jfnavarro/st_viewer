@@ -20,7 +20,8 @@
 #include "stVi.h"
 #include "options_cmake.h"
 
-namespace {
+namespace
+{
 
 // application flags must be set before instantiating QApplication
 void setApplicationFlags()
@@ -29,7 +30,7 @@ void setApplicationFlags()
 #ifdef Q_OS_MAC
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
     QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
-    //NOTE this is actually pretty important (be false)
+    // NOTE this is actually pretty important (be false)
     QApplication::setAttribute(Qt::AA_NativeWindows, false);
     // osx does not show icons on menus
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
@@ -45,7 +46,6 @@ void setApplicationFlags()
     // force usages of desktop opengl
     QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
 }
-
 }
 
 int main(int argc, char** argv)
@@ -70,16 +70,16 @@ int main(int argc, char** argv)
     qDebug() << "Application started successfully.";
 
     // create and show a splash sreen
-    //TODO replace image for a bigger one with text and info about the group
+    // TODO replace image for a bigger one with text and info about the group
     QPixmap pixmap(QStringLiteral(":/images/st.png"));
     QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
     splash.show();
 
-    // set library and plugins paths
-    // we need to tell the application where to look for plugins and resources
+// set library and plugins paths
+// we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
-    app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath()
-                        + QDir::separator() + "plugins");
+    app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath() + QDir::separator()
+                       + "plugins");
 #elif defined Q_OS_MAC
     QDir dir(QApplication::applicationDirPath());
     dir.cdUp();
@@ -99,7 +99,8 @@ int main(int argc, char** argv)
     initialized &= app.installTranslator(&trans);
     if (!initialized) {
         qDebug() << "[Main] Error: Unable to install the translations!";
-        QMessageBox::critical(app.desktop()->screen(), "Error",
+        QMessageBox::critical(app.desktop()->screen(),
+                              "Error",
                               app.tr("Unable to install the translations"));
         return EXIT_FAILURE;
     }

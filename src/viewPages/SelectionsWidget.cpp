@@ -19,23 +19,23 @@
 
 using namespace Globals;
 
-SelectionsWidget::SelectionsWidget(QWidget *parent) :
-    QWidget(parent),
-    m_geneSelectionFilterLineEdit(nullptr),
-    m_selections_tableview(nullptr),
-    m_total_reads_edit(nullptr),
-    m_total_genes_edit(nullptr)
+SelectionsWidget::SelectionsWidget(QWidget* parent)
+    : QWidget(parent)
+    , m_geneSelectionFilterLineEdit(nullptr)
+    , m_selections_tableview(nullptr)
+    , m_total_reads_edit(nullptr)
+    , m_total_genes_edit(nullptr)
 {
-    QVBoxLayout *selectionLayout = new QVBoxLayout();
+    QVBoxLayout* selectionLayout = new QVBoxLayout();
     selectionLayout->setSpacing(0);
     selectionLayout->setContentsMargins(10, 10, 10, 10);
-    QHBoxLayout *selectionBottonsLayout = new QHBoxLayout();
+    QHBoxLayout* selectionBottonsLayout = new QHBoxLayout();
     selectionBottonsLayout->setSpacing(0);
     selectionBottonsLayout->setContentsMargins(0, 5, 0, 5);
-    QHBoxLayout *selectionInfoLayoutGenes = new QHBoxLayout();
+    QHBoxLayout* selectionInfoLayoutGenes = new QHBoxLayout();
     selectionInfoLayoutGenes->setSpacing(0);
     selectionInfoLayoutGenes->setContentsMargins(0, 5, 0, 5);
-    QHBoxLayout *selectionInfoLayoutReads = new QHBoxLayout();
+    QHBoxLayout* selectionInfoLayoutReads = new QHBoxLayout();
     selectionInfoLayoutReads->setSpacing(0);
     selectionInfoLayoutReads->setContentsMargins(0, 5, 0, 5);
 
@@ -43,7 +43,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     selectionInfoLayoutReads->addSpacing(5);
 
     // add selection tags component
-    QLabel *total_reads = new QLabel(this);
+    QLabel* total_reads = new QLabel(this);
     total_reads->setText(tr("Total reads :"));
     selectionInfoLayoutReads->addWidget(total_reads);
 
@@ -60,7 +60,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     // add separation between buttons
     selectionInfoLayoutGenes->addSpacing(5);
 
-    QLabel *total_genes = new QLabel(this);
+    QLabel* total_genes = new QLabel(this);
     total_genes->setText(tr("Total genes :"));
     selectionInfoLayoutGenes->addWidget(total_genes);
 
@@ -77,7 +77,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     // add separation between buttons
     selectionBottonsLayout->addSpacing(10);
 
-    QPushButton *saveSelection = new QPushButton(this);
+    QPushButton* saveSelection = new QPushButton(this);
     configureButton(saveSelection,
                     QIcon(QStringLiteral(":/images/save-selection.png")),
                     tr("Save the current selection in the cloud"));
@@ -85,7 +85,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
-    QPushButton *exportGenesSelection = new QPushButton(this);
+    QPushButton* exportGenesSelection = new QPushButton(this);
     configureButton(exportGenesSelection,
                     QIcon(QStringLiteral(":/images/export-genes.png")),
                     tr("Export the currently selected genes to a file"));
@@ -93,7 +93,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
-    QPushButton *exportFeaturesSelection = new QPushButton(this);
+    QPushButton* exportFeaturesSelection = new QPushButton(this);
     configureButton(exportFeaturesSelection,
                     QIcon(QStringLiteral(":/images/export-features.png")),
                     tr("Export the currently selected features to a file"));
@@ -101,7 +101,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     // add separation
     selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
-    QPushButton *clearSelection = new QPushButton(this);
+    QPushButton* clearSelection = new QPushButton(this);
     configureButton(clearSelection,
                     QIcon(QStringLiteral(":/images/remove-selection.png")),
                     tr("Remove the current selection"));
@@ -113,9 +113,7 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     m_geneSelectionFilterLineEdit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
     m_geneSelectionFilterLineEdit->setClearButtonEnabled(true);
     m_geneSelectionFilterLineEdit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
-    setToolTipAndStatusTip(
-            tr("Search by gene name"),
-            m_geneSelectionFilterLineEdit);
+    setToolTipAndStatusTip(tr("Search by gene name"), m_geneSelectionFilterLineEdit);
     selectionBottonsLayout->addWidget(m_geneSelectionFilterLineEdit);
     selectionBottonsLayout->setAlignment(m_geneSelectionFilterLineEdit, Qt::AlignRight);
 
@@ -130,19 +128,24 @@ SelectionsWidget::SelectionsWidget(QWidget *parent) :
     setLayout(selectionLayout);
 
     // connections
-    connect(m_geneSelectionFilterLineEdit, SIGNAL(textChanged(QString)), m_selections_tableview,
+    connect(m_geneSelectionFilterLineEdit,
+            SIGNAL(textChanged(QString)),
+            m_selections_tableview,
             SLOT(setGeneNameFilter(QString)));
-    connect(exportGenesSelection, SIGNAL(clicked(bool)),
-            this, SIGNAL(signalExportGenesSelection()));
-    connect(exportFeaturesSelection, SIGNAL(clicked(bool)),
-            this, SIGNAL(signalExportFeaturesSelection()));
+    connect(exportGenesSelection,
+            SIGNAL(clicked(bool)),
+            this,
+            SIGNAL(signalExportGenesSelection()));
+    connect(exportFeaturesSelection,
+            SIGNAL(clicked(bool)),
+            this,
+            SIGNAL(signalExportFeaturesSelection()));
     connect(saveSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalSaveSelection()));
     connect(clearSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalClearSelection()));
 }
 
 SelectionsWidget::~SelectionsWidget()
 {
-
 }
 
 void SelectionsWidget::clear()
@@ -159,15 +162,15 @@ void SelectionsWidget::clear()
     getModel()->clearSelectedGenes();
 }
 
-void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &geneList)
+void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList& geneList)
 {
-    //TODO the ideal solution would be to pass here the GeneSelection object
-    //instanciated already. Right now, we are creating the GeneSelection
-    //object when the users saves the selection and assings a name to it but
-    //that is inefficient as we are doing this computation twice
+    // TODO the ideal solution would be to pass here the GeneSelection object
+    // instanciated already. Right now, we are creating the GeneSelection
+    // object when the users saves the selection and assings a name to it but
+    // that is inefficient as we are doing this computation twice
     int total_reads = 0;
     int total_genes = 0;
-    foreach(const SelectionType &selection, geneList) {
+    foreach (const SelectionType& selection, geneList) {
         total_reads += selection.reads;
         total_genes += selection.count;
     }
@@ -177,7 +180,7 @@ void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList &gen
     getModel()->loadSelectedGenes(geneList);
 }
 
-void SelectionsWidget::configureButton(QPushButton *button, const QIcon icon, const QString tooltip)
+void SelectionsWidget::configureButton(QPushButton* button, const QIcon icon, const QString tooltip)
 {
     Q_ASSERT(button != nullptr);
     button->setIcon(icon);
@@ -188,18 +191,18 @@ void SelectionsWidget::configureButton(QPushButton *button, const QIcon icon, co
     setToolTipAndStatusTip(tooltip, button);
 }
 
-GeneSelectionItemModel *SelectionsWidget::getModel()
+GeneSelectionItemModel* SelectionsWidget::getModel()
 {
-    GeneSelectionItemModel *selectionModel =
-            qobject_cast<GeneSelectionItemModel*>(getProxyModel()->sourceModel());
+    GeneSelectionItemModel* selectionModel
+        = qobject_cast<GeneSelectionItemModel*>(getProxyModel()->sourceModel());
     Q_ASSERT(selectionModel);
     return selectionModel;
 }
 
-QSortFilterProxyModel *SelectionsWidget::getProxyModel()
+QSortFilterProxyModel* SelectionsWidget::getProxyModel()
 {
-    QSortFilterProxyModel *selectionsProxyModel =
-            qobject_cast<QSortFilterProxyModel*>(m_selections_tableview->model());
+    QSortFilterProxyModel* selectionsProxyModel
+        = qobject_cast<QSortFilterProxyModel*>(m_selections_tableview->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }

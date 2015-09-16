@@ -12,10 +12,10 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneSelectionDEAItemModel.h"
 
-GeneSelectionDEATableView::GeneSelectionDEATableView(QWidget *parent)
-    : QTableView(parent),
-      m_geneSelectionDEAModel(nullptr),
-      m_sortGenesProxyModel(nullptr)
+GeneSelectionDEATableView::GeneSelectionDEATableView(QWidget* parent)
+    : QTableView(parent)
+    , m_geneSelectionDEAModel(nullptr)
+    , m_sortGenesProxyModel(nullptr)
 {
     // model
     m_geneSelectionDEAModel = new GeneSelectionDEAItemModel(this);
@@ -43,25 +43,19 @@ GeneSelectionDEATableView::GeneSelectionDEATableView(QWidget *parent)
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);
 
-    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::Name,
-                                             QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::HitsA,
-                                             QHeaderView::Fixed);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::TPMA,
-                                             QHeaderView::Fixed);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::HitsB,
-                                             QHeaderView::Fixed);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::TPMB,
-                                             QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::HitsA, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::TPMA, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::HitsB, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionDEAItemModel::TPMB, QHeaderView::Fixed);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
-    model()->submit(); //support for caching (speed up)
+    model()->submit(); // support for caching (speed up)
 }
 
 GeneSelectionDEATableView::~GeneSelectionDEATableView()
 {
-
 }
 
 QItemSelection GeneSelectionDEATableView::geneTableItemSelection() const
@@ -74,4 +68,3 @@ void GeneSelectionDEATableView::setGeneNameFilter(QString str)
 {
     m_sortGenesProxyModel->setFilterFixedString(str);
 }
-

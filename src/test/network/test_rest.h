@@ -10,7 +10,6 @@
 
 #include <QObject>
 
-
 namespace unit
 {
 
@@ -19,16 +18,14 @@ class RestTest : public QObject
     Q_OBJECT
 
 public:
-
-    explicit RestTest(QObject *parent = 0);
+    explicit RestTest(QObject* parent = 0);
 
 private Q_SLOTS:
 
     void initTestCase();
     void cleanupTestCase();
-
 };
 
 } // namespace unit //
 
-#endif  /* // TEST_REST_H */
+#endif /* // TEST_REST_H */

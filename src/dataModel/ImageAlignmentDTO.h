@@ -19,7 +19,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class ImageAlignmentDTO : public QObject
 {
 
@@ -35,9 +35,11 @@ class ImageAlignmentDTO : public QObject
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-
-    explicit ImageAlignmentDTO(QObject* parent = 0) : QObject(parent) { }
-    ~ImageAlignmentDTO() { }
+    explicit ImageAlignmentDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
+    ~ImageAlignmentDTO() {}
 
     // binding
     void id(const QString& id) { m_imageAlignment.id(id); }
@@ -46,18 +48,19 @@ public:
     void figureRed(const QString& figureRed) { m_imageAlignment.figureRed(figureRed); }
     void figureBlue(const QString& figureBlue) { m_imageAlignment.figureBlue(figureBlue); }
     void alignment(const QVariantList& alignment)
-      { m_imageAlignment.alignment(unserializeTransform(alignment)); }
+    {
+        m_imageAlignment.alignment(unserializeTransform(alignment));
+    }
     void created(const QString& created) { m_imageAlignment.created(created); }
     void lastModified(const QString& lastModified) { m_imageAlignment.lastModified(lastModified); }
 
-    //read
+    // read
     const QString id() { return m_imageAlignment.id(); }
     const QString name() { return m_imageAlignment.name(); }
     const QString chipId() { return m_imageAlignment.chipId(); }
     const QString figureRed() { return m_imageAlignment.figureRed(); }
     const QString figureBlue() { return m_imageAlignment.figureBlue(); }
-    const QVariantList alignment()
-      { return serializeTransform(m_imageAlignment.alignment()); }
+    const QVariantList alignment() { return serializeTransform(m_imageAlignment.alignment()); }
     const QString created() const { return m_imageAlignment.created(); }
     const QString lastModified() const { return m_imageAlignment.lastModified(); }
 
@@ -66,21 +69,19 @@ public:
     ImageAlignment& imageAlignment() { return m_imageAlignment; }
 
 private:
-
     const QVariantList serializeTransform(const QTransform& transform) const
     {
         QVariantList serializedTransform;
         // serialize data
-        serializedTransform
-                << QVariant::fromValue(transform.m11())
-                << QVariant::fromValue(transform.m12())
-                << QVariant::fromValue(transform.m13())
-                << QVariant::fromValue(transform.m21())
-                << QVariant::fromValue(transform.m22())
-                << QVariant::fromValue(transform.m23())
-                << QVariant::fromValue(transform.m31())
-                << QVariant::fromValue(transform.m32())
-                << QVariant::fromValue(transform.m33());
+        serializedTransform << QVariant::fromValue(transform.m11())
+                            << QVariant::fromValue(transform.m12())
+                            << QVariant::fromValue(transform.m13())
+                            << QVariant::fromValue(transform.m21())
+                            << QVariant::fromValue(transform.m22())
+                            << QVariant::fromValue(transform.m23())
+                            << QVariant::fromValue(transform.m31())
+                            << QVariant::fromValue(transform.m32())
+                            << QVariant::fromValue(transform.m33());
         return serializedTransform;
     }
 
@@ -96,12 +97,18 @@ private:
         }
 
         // parse transform matrix
-        Q_ASSERT_X(values.size() == 9, "ImageAlignmentDTO",
+        Q_ASSERT_X(values.size() == 9,
+                   "ImageAlignmentDTO",
                    "Unable to unserialize transform matrix!");
-        transform = QTransform(
-                    values[0], values[3], values[6],
-                    values[1], values[4], values[7],
-                    values[2], values[5], values[8]);
+        transform = QTransform(values[0],
+                               values[3],
+                               values[6],
+                               values[1],
+                               values[4],
+                               values[7],
+                               values[2],
+                               values[5],
+                               values[8]);
 
         return transform;
     }

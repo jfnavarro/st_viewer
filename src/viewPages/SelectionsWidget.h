@@ -29,8 +29,7 @@ class SelectionsWidget : public QWidget
     Q_OBJECT
 
 public:
-
-    explicit SelectionsWidget(QWidget *parent = 0);
+    explicit SelectionsWidget(QWidget* parent = 0);
     virtual ~SelectionsWidget();
 
     // clear focus/status and selections
@@ -39,7 +38,7 @@ public:
 public slots:
 
     // reload the model with the objects given as input
-    void slotLoadModel(const GeneSelection::selectedItemsList &geneList);
+    void slotLoadModel(const GeneSelection::selectedItemsList& geneList);
 
 signals:
 
@@ -50,16 +49,16 @@ signals:
     void signalExportFeaturesSelection();
 
 private:
-
     // internal function to configure created buttons
     // to avoid code duplication
     // TODO better approach would be to have factories somewhere else
-    void configureButton(QPushButton *button,
-                         const QIcon icon = QIcon(), const QString tooltip = QString());
+    void configureButton(QPushButton* button,
+                         const QIcon icon = QIcon(),
+                         const QString tooltip = QString());
 
     // internal functions to obtain the model and the proxy model of the table
-    GeneSelectionItemModel *getModel();
-    QSortFilterProxyModel *getProxyModel();
+    GeneSelectionItemModel* getModel();
+    QSortFilterProxyModel* getProxyModel();
 
     // some references needed to UI elements
     QPointer<QLineEdit> m_geneSelectionFilterLineEdit;

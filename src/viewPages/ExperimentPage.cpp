@@ -22,53 +22,58 @@
 
 using namespace Globals;
 
-ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent)
-    : Page(dataProxy, parent),
-      m_ui(new Ui::Experiments())
+ExperimentPage::ExperimentPage(QPointer<DataProxy> dataProxy, QWidget* parent)
+    : Page(dataProxy, parent)
+    , m_ui(new Ui::Experiments())
 {
     m_ui->setupUi(this);
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
-    m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget " + PAGE_WIDGETS_STYLE);
+    m_ui->experimentsPageWidget->setStyleSheet("QWidget#experimentsPageWidget "
+                                               + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     // connect signals
-    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), selectionsProxyModel(),
+    connect(m_ui->filterLineEdit,
+            SIGNAL(textChanged(QString)),
+            selectionsProxyModel(),
             SLOT(setFilterFixedString(QString)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
     connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
     connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDEA()));
-    connect(m_ui->experiments_tableView, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(slotSelectionSelected(QModelIndex)));
+    connect(m_ui->experiments_tableView,
+            SIGNAL(clicked(QModelIndex)),
+            this,
+            SLOT(slotSelectionSelected(QModelIndex)));
     connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
     connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
 
     // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
-            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            this,
+            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 
     clearControls();
 }
 
 ExperimentPage::~ExperimentPage()
 {
-
 }
 
-QSortFilterProxyModel *ExperimentPage::selectionsProxyModel()
+QSortFilterProxyModel* ExperimentPage::selectionsProxyModel()
 {
-    QSortFilterProxyModel* selectionsProxyModel =
-            qobject_cast<QSortFilterProxyModel*>(m_ui->experiments_tableView->model());
+    QSortFilterProxyModel* selectionsProxyModel
+        = qobject_cast<QSortFilterProxyModel*>(m_ui->experiments_tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
 
-ExperimentsItemModel *ExperimentPage::selectionsModel()
+ExperimentsItemModel* ExperimentPage::selectionsModel()
 {
-    ExperimentsItemModel *model =
-            qobject_cast<ExperimentsItemModel*>(selectionsProxyModel()->sourceModel());
+    ExperimentsItemModel* model
+        = qobject_cast<ExperimentsItemModel*>(selectionsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -155,11 +160,12 @@ void ExperimentPage::slotRemoveSelection()
         return;
     }
 
-    const int answer = QMessageBox::warning(
-                this, tr("Remove Selection"),
-                tr("Are you really sure you want to remove the selection?"),
-                QMessageBox::Yes,
-                QMessageBox::No | QMessageBox::Escape);
+    const int answer
+        = QMessageBox::warning(this,
+                               tr("Remove Selection"),
+                               tr("Are you really sure you want to remove the selection?"),
+                               QMessageBox::Yes,
+                               QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
@@ -183,9 +189,10 @@ void ExperimentPage::slotExportSelection()
         return;
     }
 
-    QString filename =
-            QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
-                                         QString("%1").arg(tr("Text Files (*.txt)")));
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Export File"),
+                                                    QDir::homePath(),
+                                                    QString("%1").arg(tr("Text Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -207,8 +214,7 @@ void ExperimentPage::slotExportSelection()
 
     // export selection
     if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull,
-                                             GeneExporter::TabDelimited);
+        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull, GeneExporter::TabDelimited);
         exporter.exportItem(textFile, selectionItem->selectedItems());
         showInfo(tr("Export Genes Selection"), tr("Genes selection was exported successfully"));
     }
@@ -229,18 +235,17 @@ void ExperimentPage::slotEditSelection()
     Q_ASSERT(!currentSelection.first().isNull());
     GeneSelection selectionItem(*currentSelection.first());
 
-    QScopedPointer<CreateSelectionDialog>
-            createSelection(new CreateSelectionDialog(this,
-                                                      Qt::CustomizeWindowHint
-                                                      | Qt::WindowTitleHint));
+    QScopedPointer<CreateSelectionDialog> createSelection(
+        new CreateSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     createSelection->setWindowIcon(QIcon());
     createSelection->setName(selectionItem.name());
     createSelection->setComment(selectionItem.comment());
 
     if (createSelection->exec() == CreateSelectionDialog::Accepted
-            && (createSelection->getName() != selectionItem.name()
-                || createSelection->getComment() != selectionItem.comment())
-            && !createSelection->getName().isNull() && !createSelection->getName().isEmpty()) {
+        && (createSelection->getName() != selectionItem.name()
+            || createSelection->getComment() != selectionItem.comment())
+        && !createSelection->getName().isNull()
+        && !createSelection->getName().isEmpty()) {
 
         selectionItem.name(createSelection->getName());
         selectionItem.comment(createSelection->getComment());
@@ -281,7 +286,7 @@ void ExperimentPage::slotShowTissue()
 
     auto selectionObject = currentSelection.at(0);
     QByteArray tissue_snapshot = selectionObject->tissueSnapShot();
-    if (tissue_snapshot.isNull() || tissue_snapshot.isEmpty()){
+    if (tissue_snapshot.isNull() || tissue_snapshot.isEmpty()) {
         return;
     }
 
@@ -293,14 +298,14 @@ void ExperimentPage::slotShowTissue()
         return;
     }
 
-    QWidget *image_widget = new QWidget();
+    QWidget* image_widget = new QWidget();
     image_widget->setAttribute(Qt::WA_DeleteOnClose);
     image_widget->setMinimumSize(600, 600);
-    QVBoxLayout *layout1 = new QVBoxLayout(image_widget);
-    QScrollArea *image_scroll = new QScrollArea();
+    QVBoxLayout* layout1 = new QVBoxLayout(image_widget);
+    QScrollArea* image_scroll = new QScrollArea();
     layout1->addWidget(image_scroll);
-    QVBoxLayout *layout = new QVBoxLayout(image_scroll);
-    QLabel *image_label = new QLabel();
+    QVBoxLayout* layout = new QVBoxLayout(image_scroll);
+    QLabel* image_label = new QLabel();
     image_label->setPixmap(QPixmap::fromImage(image));
     image_label->setScaledContents(true);
     layout->addWidget(image_label);

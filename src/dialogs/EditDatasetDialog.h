@@ -4,10 +4,10 @@
 #include <memory>
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class editDatasetDialog;
 } // namespace Ui //
-
 
 // Widget that shows the user the dataset's name and comments fields
 class EditDatasetDialog : public QDialog
@@ -15,8 +15,7 @@ class EditDatasetDialog : public QDialog
     Q_OBJECT
 
 public:
-
-    explicit EditDatasetDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit EditDatasetDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     virtual ~EditDatasetDialog();
 
     const QString getName() const;
@@ -26,7 +25,6 @@ public:
     void setComment(const QString name);
 
 private:
-
     std::unique_ptr<Ui::editDatasetDialog> m_ui;
 
     Q_DISABLE_COPY(EditDatasetDialog)

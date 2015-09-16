@@ -21,23 +21,26 @@
 namespace unit
 {
 
-WidgetsTest::WidgetsTest(QObject *parent) : QObject(parent) { }
+WidgetsTest::WidgetsTest(QObject* parent)
+    : QObject(parent)
+{
+}
 
 void WidgetsTest::initTestCase()
 {
     // these must not go out of scope
     static int argc = 0;
-    static char *argv = 0;
+    static char* argv = 0;
 
-    //test we can create mainwidgets and main application
-    QApplication *app = new QApplication(argc, &argv);
+    // test we can create mainwidgets and main application
+    QApplication* app = new QApplication(argc, &argv);
     QVERIFY(app != 0);
 
-    //stVi *mainWindow = new stVi();
-    //QVERIFY(mainWindow != 0);
+    // stVi *mainWindow = new stVi();
+    // QVERIFY(mainWindow != 0);
 
     // init configurations
-    Configuration *configuration = new Configuration();
+    Configuration* configuration = new Configuration();
     QVERIFY(configuration != 0);
 
     // init network manager
@@ -49,14 +52,13 @@ void WidgetsTest::initTestCase()
     QVERIFY(dataProxy != 0);
 
     // auth manager
-    AuthorizationManager *authManager = new AuthorizationManager(dataProxy);
+    AuthorizationManager* authManager = new AuthorizationManager(dataProxy);
     QVERIFY(authManager != 0);
 }
 
 void WidgetsTest::cleanupTestCase()
 {
-    //TODO
+    // TODO
 }
-
 
 } // namespace unit //

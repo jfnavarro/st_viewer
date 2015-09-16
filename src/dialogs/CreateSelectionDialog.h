@@ -4,7 +4,8 @@
 #include <memory>
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class createSelectionDialog;
 } // namespace Ui //
 
@@ -14,8 +15,7 @@ class CreateSelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-
-    explicit CreateSelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit CreateSelectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     virtual ~CreateSelectionDialog();
 
     const QString getName() const;
@@ -25,7 +25,6 @@ public:
     void setComment(const QString name);
 
 private:
-
     std::unique_ptr<Ui::createSelectionDialog> m_ui;
 
     Q_DISABLE_COPY(CreateSelectionDialog)

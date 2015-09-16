@@ -12,19 +12,17 @@
 namespace unit
 {
 
-BreadthFirstTopDown::BreadthFirstTopDown() 
+BreadthFirstTopDown::BreadthFirstTopDown()
 {
-    
 }
 
-BreadthFirstTopDown::~BreadthFirstTopDown() 
+BreadthFirstTopDown::~BreadthFirstTopDown()
 {
-    
 }
-    
-const QList<QObject *> BreadthFirstTopDown::list(QObject *object)
+
+const QList<QObject*> BreadthFirstTopDown::list(QObject* object)
 {
-    QList<QObject *> list;
+    QList<QObject*> list;
 
     // add root layer
     if (object) {

@@ -13,14 +13,14 @@
 
 #include "qxtspanslider.h"
 
-SpinBoxSlider::SpinBoxSlider(QWidget *parent, ControlsFlags controlFlags)
-    : QWidget(parent),
-      m_spanslider(nullptr),
-      m_left_spinbox(nullptr),
-      m_right_spinbox(nullptr),
-      m_layout(nullptr),
-      m_upper_value(0),
-      m_lower_value(0)
+SpinBoxSlider::SpinBoxSlider(QWidget* parent, ControlsFlags controlFlags)
+    : QWidget(parent)
+    , m_spanslider(nullptr)
+    , m_left_spinbox(nullptr)
+    , m_right_spinbox(nullptr)
+    , m_layout(nullptr)
+    , m_upper_value(0)
+    , m_lower_value(0)
 {
     m_layout = new QHBoxLayout(this);
     m_left_spinbox = new QSpinBox(this);
@@ -42,20 +42,22 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent, ControlsFlags controlFlags)
     m_right_spinbox->setVisible(false);
 
     if (controlFlags.testFlag(Controls::onlySlider)
-            || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
-        connect(m_spanslider.data(), &QxtSpanSlider::lowerValueChanged,
-                this, &SpinBoxSlider::slotSetLowerValue);
-        connect(m_spanslider.data(), &QxtSpanSlider::upperValueChanged,
-                this, &SpinBoxSlider::slotSetUpperValue);
+        || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
+        connect(m_spanslider.data(),
+                &QxtSpanSlider::lowerValueChanged,
+                this,
+                &SpinBoxSlider::slotSetLowerValue);
+        connect(m_spanslider.data(),
+                &QxtSpanSlider::upperValueChanged,
+                this,
+                &SpinBoxSlider::slotSetUpperValue);
         m_spanslider->setVisible(true);
     }
 
     if (controlFlags.testFlag(Controls::onlySpinBoxes)
-            || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
-        connect(m_right_spinbox, SIGNAL(valueChanged(int)),
-                this, SLOT(slotSetUpperValue(int)));
-        connect(m_left_spinbox, SIGNAL(valueChanged(int)),
-                this, SLOT(slotSetLowerValue(int)));
+        || controlFlags.testFlag(Controls::sliderAndSpinBoxes)) {
+        connect(m_right_spinbox, SIGNAL(valueChanged(int)), this, SLOT(slotSetUpperValue(int)));
+        connect(m_left_spinbox, SIGNAL(valueChanged(int)), this, SLOT(slotSetLowerValue(int)));
         m_left_spinbox->setVisible(true);
         m_right_spinbox->setVisible(true);
     }
@@ -65,10 +67,9 @@ SpinBoxSlider::SpinBoxSlider(QWidget *parent, ControlsFlags controlFlags)
 
 SpinBoxSlider::~SpinBoxSlider()
 {
-
 }
 
-void SpinBoxSlider::setToolTip(const QString &str)
+void SpinBoxSlider::setToolTip(const QString& str)
 {
     m_spanslider->setToolTip(str);
 }

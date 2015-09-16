@@ -3,8 +3,8 @@
 #include "ui_createSelectionDialog.h"
 
 CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
-    : QDialog(parent, f),
-      m_ui(new Ui::createSelectionDialog)
+    : QDialog(parent, f)
+    , m_ui(new Ui::createSelectionDialog)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
@@ -12,8 +12,8 @@ CreateSelectionDialog::CreateSelectionDialog(QWidget* parent, Qt::WindowFlags f)
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    move(parent->window()->mapToGlobal(parent->window()->rect().center()) -
-        mapToGlobal(rect().center()));
+    move(parent->window()->mapToGlobal(parent->window()->rect().center())
+         - mapToGlobal(rect().center()));
 }
 
 CreateSelectionDialog::~CreateSelectionDialog()

@@ -34,44 +34,32 @@ class GeneRendererGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-
     // if user want to visualize read counts or number of genes or TPM read counts
-    enum GenePooledMode {
-        PoolReadsCount = 1,
-        PoolNumberGenes = 2,
-        PoolTPMs = 3
-    };
+    enum GenePooledMode { PoolReadsCount = 1, PoolNumberGenes = 2, PoolTPMs = 3 };
 
     // must start by 0 as they are used to populate a combobox
-    enum GeneShape  {
-        Circle = 0,
-        Cross = 1,
-        Square = 2
-    };
+    enum GeneShape { Circle = 0, Cross = 1, Square = 2 };
 
     // different visualization modes
-    enum GeneVisualMode {
-        NormalMode = 1,
-        DynamicRangeMode = 2,
-        HeatMapMode = 3
-    };
+    enum GeneVisualMode { NormalMode = 1, DynamicRangeMode = 2, HeatMapMode = 3 };
 
     // lookup maps for features
-    //TODO the current schema to store the visual data does not seem the most
-    //convenient, we should get deeper and optimize this
-    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; //OpenGL index to features
-    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap; //gene to OpenGL indexes
-    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap; //gene to features
-    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; //feature to OpenGL index
-    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures; // list of features
-    typedef QHash<int, int> GeneInfoFeatureCount; //index to total reads/genes
-    typedef QuadTree<int, 8> GeneInfoQuadTree; //lookup quadtree type
+    // TODO the current schema to store the visual data does not seem the most
+    // convenient, we should get deeper and optimize this
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; // OpenGL index to features
+    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap;     // gene to OpenGL indexes
+    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr>
+        GeneInfoByFeatureMap;                                            // gene to features
+    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; // feature to OpenGL index
+    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;       // list of features
+    typedef QHash<int, int> GeneInfoFeatureCount; // index to total reads/genes
+    typedef QuadTree<int, 8> GeneInfoQuadTree;    // lookup quadtree type
 
-    GeneRendererGL(QPointer<DataProxy> dataProxy, QObject *parent = 0);
+    GeneRendererGL(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~GeneRendererGL();
 
     // data builder (create data arrays from the features data in async ways)
-    //TODO the data is being parsed before in DataProxy, perhaps we could avoid parsing it twice
+    // TODO the data is being parsed before in DataProxy, perhaps we could avoid parsing it twice
     void generateData();
     void generateDataAsync();
 
@@ -79,7 +67,7 @@ public:
     void clearData();
 
     // set the dimensions of the bounding rect, also for the QuadTree
-    void setDimensions(const QRectF &border);
+    void setDimensions(const QRectF& border);
 
     // makes a selection of features given a list of genes
     void selectGenes(const DataProxy::GeneList& genes);
@@ -100,7 +88,7 @@ public:
 
 public slots:
 
-    //TODO slots should have the prefix "slot"
+    // TODO slots should have the prefix "slot"
 
     // slots to change visual atttributes
     void setIntensity(qreal intensity);
@@ -123,14 +111,14 @@ public slots:
     // for the given genes list updates the color
     // of all the featuers whose genes are in the list and visible
     // gene data must be initialized
-    void updateColor(const DataProxy::GeneList &geneList);
+    void updateColor(const DataProxy::GeneList& geneList);
 
     // for the given gene list see all its features to visible
     // according if the gene is selected or not
     // gene data must be initialized
-    void updateVisible(const DataProxy::GeneList &geneList);
+    void updateVisible(const DataProxy::GeneList& geneList);
 
-    //clear all the selected features and notify observers
+    // clear all the selected features and notify observers
     void clearSelection();
 
 signals:
@@ -140,13 +128,11 @@ signals:
     void selectionUpdated();
 
 protected:
-
-    void setSelectionArea(const SelectionEvent *event) override;
-    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
+    void setSelectionArea(const SelectionEvent* event) override;
+    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
 
 private:
-
     // helper functions to init OpenGL buffers
     void initBasicBuffers();
     void initDynamicBuffers();
@@ -162,11 +148,11 @@ private:
     // will call updateVisual over all the unique genes present in all the features
     void updateVisual();
     // will call updateVisual with the indexes that contain genes present in the input
-    void updateVisual(const DataProxy::GeneList &geneList, const bool forceSelection = false);
+    void updateVisual(const DataProxy::GeneList& geneList, const bool forceSelection = false);
     // goes trough each index(spot) and computes its rendering values by
     // iterating over all its features. Thresholds are applied too.
     // forceSelection will make visible features to turn selected
-    void updateVisual(const QList<int> &indexes, const bool forceSelection = false);
+    void updateVisual(const QList<int>& indexes, const bool forceSelection = false);
 
     // helper function to be used when the user wants to select features using
     // a list of genes
@@ -174,7 +160,7 @@ private:
     void selectFeatures(const DataProxy::FeatureList& features);
 
     // reset quad tree to rect size
-    void resetQuadTree(const QRectF &rect);
+    void resetQuadTree(const QRectF& rect);
 
     // compiles and loads the shaders
     void setupShaders();

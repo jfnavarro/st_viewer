@@ -15,7 +15,8 @@
 
 #include "data/ObjectParser.h"
 
-namespace data {
+namespace data
+{
 
 bool parseObject(const QVariant& source, QObject* target)
 {
@@ -24,7 +25,7 @@ bool parseObject(const QVariant& source, QObject* target)
         return false;
     }
     const QVariantMap& map = source.toMap();
-    const QMetaObject *metaobject = target->metaObject();
+    const QMetaObject* metaobject = target->metaObject();
 
     QVariantMap::const_iterator it;
     QVariantMap::const_iterator end = map.constEnd();
@@ -41,12 +42,11 @@ bool parseObject(const QVariant& source, QObject* target)
         if (v.canConvert(type)) {
             v.convert(type);
             metaproperty.write(target, v);
-        }
-        else if (QString(QLatin1String("QVariant")).compare(
-                     QLatin1String(metaproperty.typeName())) == 0) {
+        } else if (QString(QLatin1String("QVariant"))
+                       .compare(QLatin1String(metaproperty.typeName()))
+                   == 0) {
             metaproperty.write(target, v);
-        }
-        else {
+        } else {
             qDebug() << "[ObjectParser] Warning: unable to map variable" << it.key() << "of type"
                      << v.type() << "to type" << metaproperty.type() << "!";
             metaproperty.write(target, QVariant());
@@ -55,5 +55,4 @@ bool parseObject(const QVariant& source, QObject* target)
 
     return true;
 }
-
 }

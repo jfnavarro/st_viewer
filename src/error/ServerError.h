@@ -16,16 +16,14 @@ class ServerError : public Error
     Q_OBJECT
 
 public:
-
     ServerError(const QString& serverErrorName,
-                const QString& serverErrorDescription, QObject *parent = 0);
+                const QString& serverErrorDescription,
+                QObject* parent = 0);
     virtual ~ServerError();
 
 private:
-
-    void init(const QString &serverErrorName = QString(),
-              const QString &serverErrorDescription = QString());
-
+    void init(const QString& serverErrorName = QString(),
+              const QString& serverErrorDescription = QString());
 };
 
 #endif // SERVERERROR_H //

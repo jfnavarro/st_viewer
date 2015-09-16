@@ -16,7 +16,8 @@
 class QVBoxLayout;
 class Error;
 class AuthorizationManager;
-namespace Ui {
+namespace Ui
+{
 class InitPage;
 }
 
@@ -29,10 +30,9 @@ class InitPage : public Page
     Q_OBJECT
 
 public:
-
     InitPage(QPointer<AuthorizationManager> authManager,
              QPointer<DataProxy> dataProxy,
-             QWidget *parent = 0);
+             QWidget* parent = 0);
     virtual ~InitPage();
 
 public slots:
@@ -56,11 +56,10 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-
     std::unique_ptr<Ui::InitPage> m_ui;
     QPointer<AuthorizationManager> m_authManager;
 
     Q_DISABLE_COPY(InitPage)
 };
 
-#endif  // STARTPAGE_H //
+#endif // STARTPAGE_H //

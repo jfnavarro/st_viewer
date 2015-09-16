@@ -48,7 +48,7 @@ macro(INITIALISE_PROJECT)
 
     # Defining compiler specific settings
     if(WIN32)
-        if(MVSC)
+        if(MSVC)
            string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
            set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
            if(BUILD_TYPE_LOWERCASE STREQUAL "debug")

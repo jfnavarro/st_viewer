@@ -18,10 +18,10 @@ using namespace Globals;
 
 InitPage::InitPage(QPointer<AuthorizationManager> authManager,
                    QPointer<DataProxy> dataProxy,
-                   QWidget *parent) :
-    Page(dataProxy, parent),
-    m_ui(new Ui::InitPage()),
-    m_authManager(authManager)
+                   QWidget* parent)
+    : Page(dataProxy, parent)
+    , m_ui(new Ui::InitPage())
+    , m_authManager(authManager)
 {
     Q_ASSERT(!m_authManager.isNull());
 
@@ -40,15 +40,17 @@ InitPage::InitPage(QPointer<AuthorizationManager> authManager,
     connect(m_ui->logoutButt, SIGNAL(released()), this, SLOT(slotLogOutButton()));
 
     // connect authorization signals
-    connect(m_authManager, SIGNAL(signalAuthorize()),
-            this, SLOT(slotAuthorized()));
-    connect(m_authManager, SIGNAL(signalError(QSharedPointer<Error>)),
-            this, SLOT(slotAuthorizationError(QSharedPointer<Error>)));
+    connect(m_authManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
+    connect(m_authManager,
+            SIGNAL(signalError(QSharedPointer<Error>)),
+            this,
+            SLOT(slotAuthorizationError(QSharedPointer<Error>)));
 
     // connect the data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
-            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this,
+            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 
     // start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();

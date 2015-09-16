@@ -20,7 +20,8 @@ class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 
-namespace Ui {
+namespace Ui
+{
 class DataSets;
 } // namespace Ui //
 
@@ -35,8 +36,7 @@ class DatasetPage : public Page
     Q_OBJECT
 
 public:
-
-    DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~DatasetPage();
 
 public slots:
@@ -63,7 +63,6 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-
     // internal function to process when the datasets have been downloaded
     void datasetsDownloaded(const DataProxy::DownloadStatus status);
 
@@ -71,13 +70,12 @@ private:
     void clearControls();
 
     // to get the model from the table
-    QSortFilterProxyModel *datasetsProxyModel();
-    DatasetItemModel *datasetsModel();
+    QSortFilterProxyModel* datasetsProxyModel();
+    DatasetItemModel* datasetsModel();
 
     std::unique_ptr<Ui::DataSets> m_ui;
 
     Q_DISABLE_COPY(DatasetPage)
 };
 
-#endif  /* DATASETPAGE_H */
-
+#endif /* DATASETPAGE_H */

@@ -16,7 +16,7 @@ static const qreal GRID_LINE_SIZE = 1.0;
 static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
 const QColor GridRendererGL::DEFAULT_COLOR_GRID = Qt::darkGreen;
 
-GridRendererGL::GridRendererGL(QObject *parent)
+GridRendererGL::GridRendererGL(QObject* parent)
     : GraphicItemGL(parent)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
@@ -29,10 +29,9 @@ GridRendererGL::GridRendererGL(QObject *parent)
 
 GridRendererGL::~GridRendererGL()
 {
-
 }
 
-void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
+void GridRendererGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
 {
     m_qopengl_functions->glEnable(GL_LINE_SMOOTH);
     {
@@ -42,21 +41,19 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
         m_qopengl_functions->glBegin(GL_LINES);
         {
             // draw borders of the array
-            m_qopengl_functions->glColor4f(
-                        static_cast<GLfloat>(m_gridBorderColor.redF()),
-                        static_cast<GLfloat>(m_gridBorderColor.greenF()),
-                        static_cast<GLfloat>(m_gridBorderColor.blueF()),
-                        static_cast<GLfloat>(m_gridBorderColor.alphaF()));
+            m_qopengl_functions->glColor4f(static_cast<GLfloat>(m_gridBorderColor.redF()),
+                                           static_cast<GLfloat>(m_gridBorderColor.greenF()),
+                                           static_cast<GLfloat>(m_gridBorderColor.blueF()),
+                                           static_cast<GLfloat>(m_gridBorderColor.alphaF()));
             foreach (QVector2D indice, m_border_vertex) {
                 m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
 
             // draw the array (grid)
-            m_qopengl_functions->glColor4f(
-                        static_cast<GLfloat>(m_gridColor.redF()),
-                        static_cast<GLfloat>(m_gridColor.greenF()),
-                        static_cast<GLfloat>(m_gridColor.blueF()),
-                        static_cast<GLfloat>(m_gridColor.alphaF()));
+            m_qopengl_functions->glColor4f(static_cast<GLfloat>(m_gridColor.redF()),
+                                           static_cast<GLfloat>(m_gridColor.greenF()),
+                                           static_cast<GLfloat>(m_gridColor.blueF()),
+                                           static_cast<GLfloat>(m_gridColor.alphaF()));
             foreach (QVector2D indice, m_grid_vertex) {
                 m_qopengl_functions->glVertex2f(indice.x(), indice.y());
             }
@@ -69,9 +66,8 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
     m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void GridRendererGL::setSelectionArea(const SelectionEvent *)
+void GridRendererGL::setSelectionArea(const SelectionEvent*)
 {
-
 }
 
 void GridRendererGL::clearData()
@@ -136,7 +132,7 @@ void GridRendererGL::generateData()
     }
 }
 
-void GridRendererGL::setDimensions(const QRectF &border, const QRectF &rect)
+void GridRendererGL::setDimensions(const QRectF& border, const QRectF& rect)
 {
     m_border = border;
     m_rect = rect;
@@ -152,7 +148,7 @@ const QRectF GridRendererGL::rectangle() const
     return m_rect;
 }
 
-void GridRendererGL::setColor(const QColor &color)
+void GridRendererGL::setColor(const QColor& color)
 {
     if (m_gridColor != color) {
         m_gridColor = color;

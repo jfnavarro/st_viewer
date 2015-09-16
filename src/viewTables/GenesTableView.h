@@ -19,8 +19,7 @@ class GenesTableView : public QTableView
     Q_OBJECT
 
 public:
-
-    explicit GenesTableView(QWidget *parent = 0);
+    explicit GenesTableView(QWidget* parent = 0);
     virtual ~GenesTableView();
 
     // returns the current selection mapped to the sorting model
@@ -32,7 +31,6 @@ public slots:
     void setGeneNameFilter(QString);
 
 private:
-
     // references to model and proxy model
     QPointer<GeneFeatureItemModel> m_geneModel;
     QPointer<SortGenesProxyModel> m_sortGenesProxyModel;

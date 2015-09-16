@@ -10,16 +10,14 @@
 #include <QVector3D>
 #include <QtOpenGL>
 
-GraphicItemGL::GraphicItemGL(QObject *parent) :
-    QObject(parent),
-    m_anchor(Globals::Anchor::NorthWest)
+GraphicItemGL::GraphicItemGL(QObject* parent)
+    : QObject(parent)
+    , m_anchor(Globals::Anchor::NorthWest)
 {
-
 }
 
 GraphicItemGL::~GraphicItemGL()
 {
-
 }
 
 GraphicItemGL::VisualOptions GraphicItemGL::visualOptions() const
@@ -121,8 +119,7 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
 
     const QRectF rect = boundingRect();
     QTransform adjustedTransform = transform;
-    switch (m_anchor)
-    {
+    switch (m_anchor) {
     case Globals::Anchor::Center:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
                                     (rect.y() + rect.height()) * -0.5);
@@ -155,7 +152,7 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
         adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
         break;
     case Globals::Anchor::None:
-        // fall trough
+    // fall trough
     default:
         break;
     }
@@ -177,9 +174,10 @@ void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
     Q_UNUSED(event);
 }
 
-//TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
-void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
-                                   QOpenGLFunctionsVersion *m_qopengl_functions)
+// TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
+void GraphicItemGL::drawBorderRect(const QRectF& rect,
+                                   QColor color,
+                                   QOpenGLFunctionsVersion* m_qopengl_functions)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
@@ -190,7 +188,8 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
     {
         m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
                                        static_cast<GLfloat>(color.greenF()),
-                                       static_cast<GLfloat>(color.blueF()), 0.2f);
+                                       static_cast<GLfloat>(color.blueF()),
+                                       0.2f);
         m_qopengl_functions->glVertex2f(stl.x(), stl.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());
         m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
@@ -202,7 +201,8 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
     {
         m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
                                        static_cast<GLfloat>(color.greenF()),
-                                       static_cast<GLfloat>(color.blueF()), 0.8f);
+                                       static_cast<GLfloat>(color.blueF()),
+                                       0.8f);
         m_qopengl_functions->glVertex2f(stl.x(), stl.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());
         m_qopengl_functions->glVertex2f(str.x(), str.y());
@@ -218,12 +218,12 @@ void GraphicItemGL::drawBorderRect(const QRectF &rect, QColor color,
     m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void GraphicItemGL::setProjection(const QMatrix4x4 &projection)
+void GraphicItemGL::setProjection(const QMatrix4x4& projection)
 {
     m_projection = projection;
 }
 
-void GraphicItemGL::setModelView(const QMatrix4x4 &modelview)
+void GraphicItemGL::setModelView(const QMatrix4x4& modelview)
 {
     m_modelView = modelview;
 }

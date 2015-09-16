@@ -5,9 +5,9 @@
 
 #include "model/ExperimentsItemModel.h"
 
-ExperimentsTableView::ExperimentsTableView(QWidget *parent)
-    : QTableView(parent),
-      m_experimentModel(nullptr)
+ExperimentsTableView::ExperimentsTableView(QWidget* parent)
+    : QTableView(parent)
+    , m_experimentModel(nullptr)
 {
     // model
     m_experimentModel = new ExperimentsItemModel(this);
@@ -33,23 +33,19 @@ ExperimentsTableView::ExperimentsTableView(QWidget *parent)
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Dataset,
                                              QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment,
-                                             QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes,
-                                             QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Created,
-                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Comment, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::NGenes, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::Created, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ExperimentsItemModel::LastModified,
                                              QHeaderView::Stretch);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
-    model()->submit(); //support for caching (speed up)
+    model()->submit(); // support for caching (speed up)
 }
 
 ExperimentsTableView::~ExperimentsTableView()
 {
-
 }
 
 QItemSelection ExperimentsTableView::experimentTableItemSelection() const

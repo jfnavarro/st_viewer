@@ -38,13 +38,14 @@
 #include "viewPages/ExtendedTabWidget.h"
 #include "auth/AuthorizationManager.h"
 
-namespace {
+namespace
+{
 
-bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
-                             const std::array<qulonglong, 3> &version2)
+bool versionIsGreaterOrEqual(const std::array<qulonglong, 3>& version1,
+                             const std::array<qulonglong, 3>& version2)
 {
     int index = 0;
-    for(const auto &num : version1) {
+    for (const auto& num : version1) {
         if (num > version2[index]) {
             return true;
         }
@@ -55,18 +56,18 @@ bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
     }
     return true;
 }
-
 }
 
-stVi::stVi(QWidget* parent): QMainWindow(parent),
-    m_actionExit(nullptr),
-    m_actionHelp(nullptr),
-    m_actionVersion(nullptr),
-    m_actionAbout(nullptr),
-    m_actionClear_Cache(nullptr),
-    m_mainTab(nullptr),
-    m_dataProxy(nullptr),
-    m_authManager(nullptr)
+stVi::stVi(QWidget* parent)
+    : QMainWindow(parent)
+    , m_actionExit(nullptr)
+    , m_actionHelp(nullptr)
+    , m_actionVersion(nullptr)
+    , m_actionAbout(nullptr)
+    , m_actionClear_Cache(nullptr)
+    , m_mainTab(nullptr)
+    , m_dataProxy(nullptr)
+    , m_authManager(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -91,22 +92,22 @@ stVi::~stVi()
 }
 
 void stVi::init()
-{ 
+{
     // init style, size and icons
     initStyle();
-    
+
     // create ui widgets
     setupUi();
-    
+
     // create keyboard shortcuts
     createShorcuts();
-    
+
     // lets create some stuff
     createLayouts();
-    
+
     // connections
     createConnections();
-    
+
     // restore settings
     loadSettings();
 }
@@ -115,21 +116,24 @@ bool stVi::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
-        QMessageBox::critical(this->centralWidget(), tr("OpenGL Support"),
+        QMessageBox::critical(this->centralWidget(),
+                              tr("OpenGL Support"),
                               tr("This system does not support OpenGL"));
         return false;
     }
 
     // Fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
-        QMessageBox::critical(this->centralWidget(), tr("OpenGL 2.x Context"),
+        QMessageBox::critical(this->centralWidget(),
+                              tr("OpenGL 2.x Context"),
                               tr("This system does not support OpenGL 2.x Contexts"));
         return false;
     }
 
     // Fail if you do not support SSL secure connection
     if (!QSslSocket::supportsSsl()) {
-        QMessageBox::critical(this->centralWidget(), tr("Secure connection"),
+        QMessageBox::critical(this->centralWidget(),
+                              tr("Secure connection"),
                               tr("This system does not secure SSL connections"));
         return false;
     }
@@ -139,19 +143,21 @@ bool stVi::checkSystemRequirements() const
     m_dataProxy->activateCurrentDownloads();
     // connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus,DataProxy::DownloadType)),
-            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this,
+            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
     return true;
 }
 
 void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                 const DataProxy::DownloadType type)
 {
-    //TODO do something if it failed or aborted?
+    // TODO do something if it failed or aborted?
     if (type == DataProxy::MinVersionDownloaded && status == DataProxy::Success) {
-        const auto minVersion  = m_dataProxy->getMinVersion();
+        const auto minVersion = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
-            QMessageBox::critical(this->centralWidget(), tr("Minimum Version"),
+            QMessageBox::critical(this->centralWidget(),
+                                  tr("Minimum Version"),
                                   tr("This version of the software is not supported anymore,"
                                      "please update!"));
             QApplication::exit(EXIT_FAILURE);
@@ -168,7 +174,7 @@ void stVi::setupUi()
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
     // create main widget
-    QWidget *centralwidget = new QWidget(this);
+    QWidget* centralwidget = new QWidget(this);
     // important to set the style to this widget only to avoid propagation
     centralwidget->setObjectName("centralWidget");
     centralwidget->setStyleSheet("QWidget#centralWidget {background-color: rgb(45, 45, 45);}");
@@ -176,7 +182,7 @@ void stVi::setupUi()
     setCentralWidget(centralwidget);
 
     // create main layout
-    QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
+    QVBoxLayout* mainlayout = new QVBoxLayout(centralwidget);
     mainlayout->setSpacing(0);
     mainlayout->setContentsMargins(0, 0, 0, 0);
 
@@ -186,11 +192,11 @@ void stVi::setupUi()
     mainlayout->addWidget(m_mainTab);
 
     // create status bar
-    QStatusBar *statusbar = new QStatusBar();
+    QStatusBar* statusbar = new QStatusBar();
     setStatusBar(statusbar);
 
     // create menu bar
-    QMenuBar *menubar = new QMenuBar();
+    QMenuBar* menubar = new QMenuBar();
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);
@@ -208,8 +214,8 @@ void stVi::setupUi()
     m_actionClear_Cache->setText(tr("Clear Cache"));
 
     // create menus
-    QMenu *menuLoad = new QMenu(menubar);
-    QMenu *menuHelp = new QMenu(menubar);
+    QMenu* menuLoad = new QMenu(menubar);
+    QMenu* menuHelp = new QMenu(menubar);
     menuLoad->setTitle(tr("File"));
     menuHelp->setTitle(tr("Help"));
     menuLoad->addAction(m_actionExit);
@@ -222,19 +228,18 @@ void stVi::setupUi()
 
 void stVi::slotShowAbout()
 {
-    QScopedPointer<AboutDialog> about(new AboutDialog(this,
-                                                      Qt::CustomizeWindowHint
-                                                      | Qt::WindowTitleHint));
+    QScopedPointer<AboutDialog> about(
+        new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     about->exec();
 }
 
 void stVi::slotExit()
 {
-    const int answer = QMessageBox::warning(
-                this, tr("Exit application"),
-                tr("Are you really sure you want to exit now?"),
-                QMessageBox::Yes,
-                QMessageBox::No | QMessageBox::Escape);
+    const int answer = QMessageBox::warning(this,
+                                            tr("Exit application"),
+                                            tr("Are you really sure you want to exit now?"),
+                                            QMessageBox::Yes,
+                                            QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] Info: Exitting the application...";
@@ -245,11 +250,11 @@ void stVi::slotExit()
 
 void stVi::slotClearCache()
 {
-    const int answer = QMessageBox::warning(
-                this, tr("Clear the Cache"),
-                tr("Are you really sure you want to clear the cache?"),
-                QMessageBox::Yes,
-                QMessageBox::No | QMessageBox::Escape);
+    const int answer = QMessageBox::warning(this,
+                                            tr("Clear the Cache"),
+                                            tr("Are you really sure you want to clear the cache?"),
+                                            QMessageBox::Yes,
+                                            QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] : Cleaning the cache...";
@@ -266,49 +271,46 @@ void stVi::createLayouts()
 // apply stylesheet and configurations
 void stVi::initStyle()
 {
-    //TODO move to stylesheet.css file
+    // TODO move to stylesheet.css file
     setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
-                              "background-color: transparent; "
-                              "selection-background-color: rgb(215,215,215); "
-                              "selection-color: rgb(0,155,60); "
-                              "gridline-color: rgb(240,240,240);"
-                              "border: 1px solid rgb(240,240,240);} "
+                  "            background-color: transparent; "
+                  "            selection-background-color: rgb(215,215,215); "
+                  "            selection-color: rgb(0,155,60); "
+                  "            gridline-color: rgb(240,240,240);"
+                  "            border: 1px solid rgb(240,240,240);} "
                   "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
                   "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
                   "QTableView::indicator {padding-left: 10px; "
-                                         "width: 15px; "
-                                         "height: 15px; "
-                                         "background-color: transparent;} "
-                  "QPushButton:focus:pressed {background-color: transparent; "
-                                             "border: none;} "
-                  "QPushButton:pressed {background-color: transparent; "
-                                       "border: none;} "
-                  "QPushButton:flat {background-color: transparent; "
-                                    "border: none;} "
+                  "                       width: 15px; "
+                  "                       height: 15px; "
+                  "                       background-color: transparent;} "
+                  "QPushButton:focus:pressed {background-color: transparent; border: none;} "
+                  "QPushButton:pressed {background-color: transparent; border: none;} "
+                  "QPushButton:flat {background-color: transparent; border: none;} "
                   "QHeaderView::section {height: 35px; "
-                                        "padding-left: 4px; "
-                                        "padding-right: 2px; "
-                                        "spacing: 5px;"
-                                        "background-color: rgb(230,230,230); "
-                                        "border: 1px solid rgb(240,240,240);} "
+                  "                      padding-left: 4px; "
+                  "                      padding-right: 2px; "
+                  "                      spacing: 5px;"
+                  "                      background-color: rgb(230,230,230); "
+                  "                      border: 1px solid rgb(240,240,240);} "
                   "QTableCornerButton::section {background-color: transparent;} "
                   "QLineEdit {border: 1px solid rgb(209,209,209); "
-                             "border-radius: 5px; "
-                             "background-color: rgb(255,255,255); "
-                             "selection-background-color: darkgray;} "
+                  "           border-radius: 5px; "
+                  "           background-color: rgb(255,255,255); "
+                  "           selection-background-color: darkgray;} "
                   "QToolButton {border: none;} "
                   "QRadioButton::indicator::unchecked {border: 1px solid darkgray; "
-                                                      "border-radius: 6px; "
-                                                      "background-color: white; "
-                                                      "width: 10px; "
-                                                      "height: 10px; "
-                                                      "margin-left: 5px;}"
+                  "                                    border-radius: 6px; "
+                  "                                    background-color: white; "
+                  "                                    width: 10px; "
+                  "                                    height: 10px; "
+                  "                                    margin-left: 5px;}"
                   "QRadioButton::indicator::checked {border: 1px solid darkgray; "
-                                                    "border-radius: 6px; "
-                                                    "background-color: rgb(0,155,60); "
-                                                    "width: 10px; "
-                                                    "height: 10px; "
-                                                    "margin-left: 5px;} "
+                  "                                  border-radius: 6px; "
+                  "                                  background-color: rgb(0,155,60); "
+                  "                                  width: 10px; "
+                  "                                  height: 10px; "
+                  "                                  margin-left: 5px;} "
                   "QComboBox::item::selected {background: rgb(0,155,60);} "
                   "QMenu::item:selected {background-color: rgb(0,155,60); }");
 
@@ -320,15 +322,14 @@ void stVi::initStyle()
 void stVi::createShorcuts()
 {
 #if defined Q_OS_WIN
-    m_actionExit->setShortcuts(QList<QKeySequence>()
-                               << QKeySequence(Qt::ALT | Qt::Key_F4)
-                               << QKeySequence(Qt::CTRL | Qt::Key_Q));
+    m_actionExit->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::ALT | Qt::Key_F4)
+                                                     << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined Q_OS_LINUX || defined Q_OS_MAC
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
 
 #if defined Q_OS_MAC
-    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
     m_actionExit->setShortcut(QKeySequence("Ctrl+W"));
 #endif
@@ -356,7 +357,7 @@ void stVi::loadSettings()
     // Retrieve the geometry and state of the main window
     restoreGeometry(settings.value(Globals::SettingsGeometry).toByteArray());
     restoreState(settings.value(Globals::SettingsState).toByteArray());
-    //TODO load global settings (menus and status)
+    // TODO load global settings (menus and status)
 }
 
 void stVi::saveSettings() const
@@ -367,5 +368,5 @@ void stVi::saveSettings() const
     settings.setValue(Globals::SettingsGeometry, geometry);
     QByteArray state = saveState();
     settings.setValue(Globals::SettingsState, state);
-    //TODO save global settings (menus and status)
+    // TODO save global settings (menus and status)
 }

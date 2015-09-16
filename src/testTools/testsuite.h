@@ -18,16 +18,15 @@ class TestHandle
 {
 
 public:
-
     TestHandle();
     virtual ~TestHandle();
 
-    TestHandle(TestSuite *suite, const QString &name);
+    TestHandle(TestSuite* suite, const QString& name);
 
-    TestHandle dependsOn(const QString &name);
+    TestHandle dependsOn(const QString& name);
 
 private:
-    TestSuite *m_suite;
+    TestSuite* m_suite;
     const QString m_name;
 };
 
@@ -35,19 +34,17 @@ class TestSuite
 {
 
 public:
-
     TestSuite();
     virtual ~TestSuite();
 
-    TestHandle addTest(QObject *test, const QString &name);
+    TestHandle addTest(QObject* test, const QString& name);
 
     int exec();
 
 private:
-
     friend class TestHandle;
 
-    void setDependencie(const QString &parent, const QString &child);
+    void setDependencie(const QString& parent, const QString& child);
 
     QObject m_root;
 };

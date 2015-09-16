@@ -18,7 +18,7 @@ class ObjectParserTest : public QObject
     Q_OBJECT
 
 public:
-    explicit ObjectParserTest(QObject *parent = 0);
+    explicit ObjectParserTest(QObject* parent = 0);
 
 private Q_SLOTS:
     void initTestCase();

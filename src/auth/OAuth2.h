@@ -26,8 +26,7 @@ class OAuth2 : public QObject
     Q_OBJECT
 
 public:
-
-    //TODO duplicated in DataProxy
+    // TODO duplicated in DataProxy
     typedef QPair<QString, QString> StringPair;
 
     OAuth2(QPointer<DataProxy> dataProxy, QObject* parent = 0);
@@ -41,8 +40,7 @@ public:
 
 signals:
 
-    void signalLoginDone(const QUuid& accessToken,
-                         int expiresIn, const QUuid& refreshToken);
+    void signalLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
     void signalError(QSharedPointer<Error> error);
 
 private slots:
@@ -58,7 +56,6 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-
     // make the authorization network request
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 

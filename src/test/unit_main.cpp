@@ -22,14 +22,14 @@
 
 using namespace unit;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     Q_UNUSED(argc);
     Q_UNUSED(argv);
 
     TestSuite suite;
 
-    //suite.addTest(new WidgetsTest, "Widgets");
+    // suite.addTest(new WidgetsTest, "Widgets");
     suite.addTest(new GLAABBTest, "GLAABB");
     suite.addTest(new GLQuadTreeTest, "GLQuadTree").dependsOn("GLAABB");
     suite.addTest(new GLHeatMapTest, "GLHeatMap");

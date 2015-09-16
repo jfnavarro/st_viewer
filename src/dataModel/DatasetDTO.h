@@ -24,7 +24,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class DatasetDTO : public QObject
 {
     Q_OBJECT
@@ -39,7 +39,8 @@ class DatasetDTO : public QObject
     Q_PROPERTY(int unique_barcode_count READ statUniqueBarcodes WRITE statUniqueBarcodes)
     Q_PROPERTY(int unique_gene_count READ statUniqueGenes WRITE statUniqueGenes)
     Q_PROPERTY(QVariantList overall_hit_quartiles READ hitsQuartiles WRITE hitsQuartiles)
-    Q_PROPERTY(QVariantList gene_pooled_hit_quartiles READ hitsPooledQuartiles WRITE hitsPooledQuartiles)
+    Q_PROPERTY(
+        QVariantList gene_pooled_hit_quartiles READ hitsPooledQuartiles WRITE hitsPooledQuartiles)
     Q_PROPERTY(QString comment READ statComments WRITE statComments)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
     Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
@@ -49,11 +50,16 @@ class DatasetDTO : public QObject
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-
-    explicit DatasetDTO(QObject* parent = 0) : QObject(parent) { }
-    DatasetDTO(const Dataset& dataset, QObject* parent = 0) :
-        QObject(parent), m_dataset(dataset) { }
-    ~DatasetDTO() { }
+    explicit DatasetDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
+    DatasetDTO(const Dataset& dataset, QObject* parent = 0)
+        : QObject(parent)
+        , m_dataset(dataset)
+    {
+    }
+    ~DatasetDTO() {}
 
     // binding
     void id(const QString& id) { m_dataset.id(id); }
@@ -66,15 +72,23 @@ public:
     void statUniqueBarcodes(int unique_barcodes) { m_dataset.statUniqueBarcodes(unique_barcodes); }
     void statUniqueGenes(int unique_genes) { m_dataset.statUniqueGenes(unique_genes); }
     void hitsQuartiles(const QVariantList& hitQuartiles)
-        { m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles)); }
+    {
+        m_dataset.hitsQuartiles(unserializeVector<qreal>(hitQuartiles));
+    }
     void hitsPooledQuartiles(const QVariantList& hitPooledQuartiles)
-        { m_dataset.hitsPooledQuartiles(unserializeVector<qreal>(hitPooledQuartiles)); }
+    {
+        m_dataset.hitsPooledQuartiles(unserializeVector<qreal>(hitPooledQuartiles));
+    }
     void statComments(const QString& comments) { m_dataset.statComments(comments); }
     void enabled(const bool enabled) { m_dataset.enabled(enabled); }
     void oboFoundryTerms(const QVariantList& oboFoundryTerms)
-      { m_dataset.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms)); }
+    {
+        m_dataset.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms));
+    }
     void grantedAccounts(QVariantList grantedAccounts)
-            { m_dataset.grantedAccounts(unserializeVector<QString>(grantedAccounts)); }
+    {
+        m_dataset.grantedAccounts(unserializeVector<QString>(grantedAccounts));
+    }
     void created(const QString& created) { m_dataset.created(created); }
     void createdByAccount(const QString& created) { m_dataset.createdByAccount(created); }
     void lastModified(const QString& lastModified) { m_dataset.lastModified(lastModified); }
@@ -90,22 +104,30 @@ public:
     int statUniqueBarcodes() const { return m_dataset.statUniqueBarcodes(); }
     int statUniqueGenes() const { return m_dataset.statUniqueGenes(); }
     const QVariantList hitsQuartiles() const
-      { return serializeVector<qreal>(m_dataset.hitsQuartiles()); }
+    {
+        return serializeVector<qreal>(m_dataset.hitsQuartiles());
+    }
     const QVariantList hitsPooledQuartiles() const
-      { return serializeVector<qreal>(m_dataset.hitsPooledQuartiles()); }
+    {
+        return serializeVector<qreal>(m_dataset.hitsPooledQuartiles());
+    }
     const QString statComments() const { return m_dataset.statComments(); }
     bool enabled() const { return m_dataset.enabled(); }
     const QVariantList oboFoundryTerms() const
-      { return serializeVector<QString>(m_dataset.oboFoundryTerms()); }
+    {
+        return serializeVector<QString>(m_dataset.oboFoundryTerms());
+    }
     const QVariantList grantedAccounts() const
-            { return serializeVector<QString>(m_dataset.grantedAccounts()); }
+    {
+        return serializeVector<QString>(m_dataset.grantedAccounts());
+    }
     const QString createdByAccount() const { return m_dataset.createdByAccount(); }
     const QString created() const { return m_dataset.created(); }
     const QString lastModified() const { return m_dataset.lastModified(); }
 
     // toJson is needed to send PUT/POST requests as the JSON content of the object
     // is appended to the request
-    //TODO transform this to obtain fields dynamically using the meta_properties
+    // TODO transform this to obtain fields dynamically using the meta_properties
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
@@ -119,31 +141,32 @@ public:
         jsonObj["unique_barcode_count"] = statUniqueBarcodes();
         jsonObj["unique_gene_count"] = statUniqueGenes();
         QJsonArray hitsQuartiles;
-        foreach(const qreal &item, m_dataset.hitsQuartiles()) {
+        foreach (const qreal& item, m_dataset.hitsQuartiles()) {
             hitsQuartiles.append(item);
         }
         jsonObj["overall_hit_quartiles"] = hitsQuartiles;
         QJsonArray hitsPooledQuartiles;
-        foreach(const qreal &item, m_dataset.hitsPooledQuartiles()) {
+        foreach (const qreal& item, m_dataset.hitsPooledQuartiles()) {
             hitsPooledQuartiles.append(item);
         }
         jsonObj["gene_pooled_hit_quartiles"] = hitsPooledQuartiles;
-        jsonObj["comment"] = !statComments().isNull() ?
-                    QJsonValue(statComments()) : QJsonValue::Null;
+        jsonObj["comment"]
+            = !statComments().isNull() ? QJsonValue(statComments()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
         QJsonArray oboTerms;
-        foreach(const QString &item, m_dataset.oboFoundryTerms()) {
+        foreach (const QString& item, m_dataset.oboFoundryTerms()) {
             oboTerms.append(item);
         }
         jsonObj["obo_foundry_terms"] = oboTerms;
         QJsonArray grantedAccounts;
-        foreach(const QString &item, m_dataset.grantedAccounts()) {
+        foreach (const QString& item, m_dataset.grantedAccounts()) {
             grantedAccounts.append(item);
         }
         jsonObj["granted_accounts"] = grantedAccounts;
         jsonObj["created_by_account_id"] = createdByAccount();
-        jsonObj["created_at"] =  QJsonValue::Null; //leave this empty the API will take care of it
-        jsonObj["last_modified"] = QJsonValue::Null; //leave this empty the API will take care of it
+        jsonObj["created_at"] = QJsonValue::Null; // leave this empty the API will take care of it
+        jsonObj["last_modified"] = QJsonValue::Null; // leave this empty the API will take care of
+                                                     // it
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);
@@ -155,7 +178,6 @@ public:
     Dataset& dataset() { return m_dataset; }
 
 private:
-
     Dataset m_dataset;
 };
 

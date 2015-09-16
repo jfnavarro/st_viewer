@@ -14,9 +14,8 @@
 // Data model class to store user data.
 class User
 {
-    
+
 public:
-    
     User();
     explicit User(const User& other);
     ~User();
@@ -52,15 +51,14 @@ public:
     void password(const QString& password);
     void role(const QString& role);
     void enabled(bool enabled);
-    void grantedDatasets(const QVector<QString> &grantedDatasets);
+    void grantedDatasets(const QVector<QString>& grantedDatasets);
     void created(const QString& created);
     void lastModified(const QString& lastModified);
 
-    //property to indicate if the user has a special role (CM or ADMIN)
+    // property to indicate if the user has a special role (CM or ADMIN)
     bool hasSpecialRole() const;
 
 private:
-
     QString m_id;
     QString m_username;
     QString m_instituion;

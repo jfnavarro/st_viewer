@@ -25,22 +25,19 @@ class RubberbandGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-
     explicit RubberbandGL(QObject* parent = 0);
     virtual ~RubberbandGL();
 
-    void setRubberbandRect(const QRectF &rect);
+    void setRubberbandRect(const QRectF& rect);
 
     // made public for convenience
-    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
+    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
 
 protected:
-
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
+    void setSelectionArea(const SelectionEvent*) override;
 
 private:
-
     QRectF m_rubberbandRect;
 
     Q_DISABLE_COPY(RubberbandGL)

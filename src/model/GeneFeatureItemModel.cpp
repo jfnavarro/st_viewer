@@ -19,12 +19,10 @@ static const int COLUMN_NUMBER = 3;
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
-
 }
 
 GeneFeatureItemModel::~GeneFeatureItemModel()
 {
-
 }
 
 QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
@@ -54,43 +52,58 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
-        case Show: return Qt::AlignCenter;
-        case Color: return Qt::AlignCenter;
-        case Name: return Qt::AlignLeft;
-        default: return QVariant(QVariant::Invalid);
+        case Show:
+            return Qt::AlignCenter;
+        case Color:
+            return Qt::AlignCenter;
+        case Name:
+            return Qt::AlignLeft;
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
     return QVariant(QVariant::Invalid);
 }
 
-QVariant GeneFeatureItemModel::headerData(int section,
-                                          Qt::Orientation orientation, int role) const
+QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case Name: return tr("Gene");
-        case Show: return tr("Show");
-        case Color: return tr("Color");
-        default: return QVariant(QVariant::Invalid);
+        case Name:
+            return tr("Gene");
+        case Show:
+            return tr("Show");
+        case Color:
+            return tr("Color");
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
     if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
-        case Name: return tr("The name of the gene");
-        case Show: return tr("Indicates if the genes is visible on the screen");
-        case Color: return tr("Indicates the color of the gene on the screen");
-        default: return QVariant(QVariant::Invalid);
+        case Name:
+            return tr("The name of the gene");
+        case Show:
+            return tr("Indicates if the genes is visible on the screen");
+        case Color:
+            return tr("Indicates the color of the gene on the screen");
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
     if (role == Qt::TextAlignmentRole) {
         switch (section) {
-        case Show: return Qt::AlignCenter;
-        case Color: return Qt::AlignLeft;
-        case Name: return Qt::AlignLeft;
-        default: return QVariant(QVariant::Invalid);
+        case Show:
+            return Qt::AlignCenter;
+        case Color:
+            return Qt::AlignLeft;
+        case Name:
+            return Qt::AlignLeft;
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
@@ -117,15 +130,18 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     }
 
     switch (index.column()) {
-    case Name: return  defaultFlags;
-    case Show: return Qt::ItemIsUserCheckable | defaultFlags;
-    case Color: return  defaultFlags;
+    case Name:
+        return defaultFlags;
+    case Show:
+        return Qt::ItemIsUserCheckable | defaultFlags;
+    case Color:
+        return defaultFlags;
     }
 
     return defaultFlags;
 }
 
-void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList &geneList)
+void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList& geneList)
 {
     beginResetModel();
     m_genelist_reference.clear();
@@ -140,7 +156,7 @@ void GeneFeatureItemModel::clearGenes()
     endResetModel();
 }
 
-bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
+bool GeneFeatureItemModel::geneName(const QModelIndex& index, QString* genename) const
 {
     if (!index.isValid() || m_genelist_reference.isEmpty()) {
         return false;
@@ -157,19 +173,19 @@ bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename)
     return false;
 }
 
-void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
+void GeneFeatureItemModel::setGeneVisibility(const QItemSelection& selection, bool visible)
 {
     if (m_genelist_reference.isEmpty()) {
         return;
     }
 
     std::set<int> rows;
-    for (const auto &index : selection.indexes()) {
+    for (const auto& index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::GeneList geneList;
-    for (const auto &row : rows) {
+    for (const auto& row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
         if (!gene.isNull() && gene->selected() != visible) {
             gene->selected(visible);
@@ -177,23 +193,22 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
         }
     }
 
-
     emit signalSelectionChanged(geneList);
 }
 
-void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const QColor& color)
+void GeneFeatureItemModel::setGeneColor(const QItemSelection& selection, const QColor& color)
 {
     if (m_genelist_reference.isEmpty()) {
         return;
     }
 
     std::set<int> rows;
-    for (const auto &index : selection.indexes()) {
+    for (const auto& index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::GeneList geneList;
-    for (const auto &row : rows) {
+    for (const auto& row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
         if (!gene.isNull() && color.isValid() && gene->color() != color) {
             gene->color(color);
@@ -203,4 +218,3 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
 
     emit signalColorChanged(geneList);
 }
-

@@ -20,8 +20,7 @@ class Page : public QWidget
     Q_OBJECT
 
 public:
-
-    Page(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    Page(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~Page();
 
 signals:
@@ -41,21 +40,19 @@ private slots:
     void slotCancelProgressBar();
 
 protected:
-
     // launches a progress bar dialog (true = show, false = hide)
-    //TODO there must a nicer/cleaner way to achieve this
-    void setWaiting(bool waiting = true, const QString &label = "Downloading data...");
+    // TODO there must a nicer/cleaner way to achieve this
+    void setWaiting(bool waiting = true, const QString& label = "Downloading data...");
 
     // helper functions to show messages
-    void showInfo(const QString &header, const QString &body);
-    void showWarning(const QString &header, const QString &body);
-    void showError(const QString &header, const QString &body);
+    void showInfo(const QString& header, const QString& body);
+    void showWarning(const QString& header, const QString& body);
+    void showError(const QString& header, const QString& body);
 
     // reference to data proxy used in all the pages
     QPointer<DataProxy> m_dataProxy;
 
 private:
-
     QPointer<QProgressDialog> m_progressDialog;
 };
 

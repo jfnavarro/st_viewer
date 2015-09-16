@@ -22,13 +22,14 @@ static const QColor BORDER = QColor(0, 155, 60);
 
 AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
                          const GeneSelection& selObjectB,
-                         QWidget *parent, Qt::WindowFlags f) :
-    QDialog(parent, f),
-    m_ui(new Ui::ddaWidget),
-    m_lowerThreshold(0),
-    m_upperThreshold(1),
-    m_lowerTPMsThreshold(0),
-    m_upperTPMsThreshold(1)
+                         QWidget* parent,
+                         Qt::WindowFlags f)
+    : QDialog(parent, f)
+    , m_ui(new Ui::ddaWidget)
+    , m_lowerThreshold(0)
+    , m_upperThreshold(1)
+    , m_lowerTPMsThreshold(0)
+    , m_upperTPMsThreshold(1)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     setModal(true);
@@ -36,38 +37,39 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_ui->setupUi(this);
     // We must set the style here again as this dialog does not inherit
     // style from his fater (TODO might be possible to fix this)
-    m_ui->tableView->setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
-                                   "background-color: transparent; "
-                                   "selection-background-color: rgb(215,215,215); "
-                                   "selection-color: rgb(0,155,60); "
-                                   "gridline-color: rgb(240,240,240);"
-                                   "border: 1px solid rgb(240,240,240);} "
-                                   "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
-                                   "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
-                                   "QTableView::indicator {padding-left: 10px; "
-                                                          "width: 15px; "
-                                                          "height: 15px; "
-                                                          "background-color: transparent;} "
-                                    "QHeaderView::section {height: 35px; "
-                                                          "padding-left: 4px; "
-                                                          "padding-right: 2px; "
-                                                          "spacing: 5px;"
-                                                          "background-color: rgb(230,230,230); "
-                                                          "border: 1px solid rgb(240,240,240);} "
-                                    "QTableCornerButton::section {background-color: transparent;} ");
+    m_ui->tableView->setStyleSheet(
+        "QTableView {alternate-background-color: rgb(245,245,245); "
+        "            background-color: transparent; "
+        "            selection-background-color: rgb(215,215,215); "
+        "            selection-color: rgb(0,155,60); "
+        "            gridline-color: rgb(240,240,240);"
+        "            border: 1px solid rgb(240,240,240);} "
+        "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
+        "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
+        "QTableView::indicator {padding-left: 10px; "
+        "                       width: 15px; "
+        "                       height: 15px; "
+        "                       background-color: transparent;} "
+        "QHeaderView::section {height: 35px; "
+        "                      padding-left: 4px; "
+        "                      padding-right: 2px; "
+        "                      spacing: 5px;"
+        "                      background-color: rgb(230,230,230); "
+        "                      border: 1px solid rgb(240,240,240);} "
+        "QTableCornerButton::section {background-color: transparent;} ");
 
     // add a scatter plot graph
     m_ui->customPlot->addGraph();
-    m_ui->customPlot->graph(0)->setScatterStyle(
-                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
+    m_ui->customPlot->graph(0)
+        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
     m_ui->customPlot->graph(0)->setAntialiasedScatters(true);
     m_ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
     m_ui->customPlot->graph(0)->setName(tr("Correlation Scatter Plot"));
     m_ui->customPlot->graph(0)->rescaleAxes(true);
     // add another scatter plot graph to mark selected genes
     m_ui->customPlot->addGraph();
-    m_ui->customPlot->graph(1)->setScatterStyle(
-                QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::red), Qt::white, 5));
+    m_ui->customPlot->graph(1)
+        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::red), Qt::white, 5));
     m_ui->customPlot->graph(1)->setAntialiasedScatters(true);
     m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
     m_ui->customPlot->graph(1)->rescaleAxes(true);
@@ -94,7 +96,7 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     // update table
     selectionsModel()->loadCombinedSelectedGenes(m_combinedSelections);
 
-    //initialize threshold sliders (minimum must be zero to allow to discard non-expressed genes)
+    // initialize threshold sliders (minimum must be zero to allow to discard non-expressed genes)
     m_ui->tpmsThreshold->setMinimumValue(0);
     m_ui->tpmsThreshold->setMaximumValue(m_upperTPMsThreshold);
     m_ui->tpmsThreshold->slotSetLowerValue(m_lowerTPMsThreshold);
@@ -113,7 +115,7 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_ui->customPlot->yAxis->setLabel(tr("Selection B log(TPM + 1)"));
 
     // compute statistics
-    const deaStats &stats = computeStatistics();
+    const deaStats& stats = computeStatistics();
 
     // visualize statistics
     updateStatisticsUI(stats);
@@ -121,38 +123,52 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     // make connections
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(close()));
     connect(m_ui->buttonBox->button(QDialogButtonBox::Save),
-            SIGNAL(clicked()), this, SLOT(slotSaveToPDF()));
-    connect(m_ui->readsThreshold, SIGNAL(signalLowerValueChanged(int)),
-            this, SLOT(slotSetLowerThreshold(int)));
-    connect(m_ui->readsThreshold, SIGNAL(signalUpperValueChanged(int)),
-            this, SLOT(slotSetUpperThreshold(int)));
-    connect(m_ui->tpmsThreshold, SIGNAL(signalLowerValueChanged(int)),
-            this, SLOT(slotSetLowerTPMsThreshold(int)));
-    connect(m_ui->tpmsThreshold, SIGNAL(signalUpperValueChanged(int)),
-            this, SLOT(slotSetUpperTPMsThreshold(int)));
-    connect(m_ui->geneSearch, SIGNAL(textChanged(QString)), selectionsProxyModel(),
-            SLOT(setFilterFixedString(QString)));;
-    connect(m_ui->tableView, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(slotSelectionSelected(QModelIndex)));
+            SIGNAL(clicked()),
+            this,
+            SLOT(slotSaveToPDF()));
+    connect(m_ui->readsThreshold,
+            SIGNAL(signalLowerValueChanged(int)),
+            this,
+            SLOT(slotSetLowerThreshold(int)));
+    connect(m_ui->readsThreshold,
+            SIGNAL(signalUpperValueChanged(int)),
+            this,
+            SLOT(slotSetUpperThreshold(int)));
+    connect(m_ui->tpmsThreshold,
+            SIGNAL(signalLowerValueChanged(int)),
+            this,
+            SLOT(slotSetLowerTPMsThreshold(int)));
+    connect(m_ui->tpmsThreshold,
+            SIGNAL(signalUpperValueChanged(int)),
+            this,
+            SLOT(slotSetUpperTPMsThreshold(int)));
+    connect(m_ui->geneSearch,
+            SIGNAL(textChanged(QString)),
+            selectionsProxyModel(),
+            SLOT(setFilterFixedString(QString)));
+    ;
+    connect(m_ui->tableView,
+            SIGNAL(clicked(QModelIndex)),
+            this,
+            SLOT(slotSelectionSelected(QModelIndex)));
 }
 
 AnalysisDEA::~AnalysisDEA()
 {
-
 }
 
-QSortFilterProxyModel *AnalysisDEA::selectionsProxyModel()
+QSortFilterProxyModel* AnalysisDEA::selectionsProxyModel()
 {
-    QSortFilterProxyModel* selectionsProxyModel =
-            qobject_cast<QSortFilterProxyModel*>(m_ui->tableView->model());
+    QSortFilterProxyModel* selectionsProxyModel
+        = qobject_cast<QSortFilterProxyModel*>(m_ui->tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
 
-GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
+GeneSelectionDEAItemModel* AnalysisDEA::selectionsModel()
 {
-    GeneSelectionDEAItemModel *model =
-            qobject_cast<GeneSelectionDEAItemModel*>(selectionsProxyModel()->sourceModel());
+    GeneSelectionDEAItemModel* model
+        = qobject_cast<GeneSelectionDEAItemModel*>(selectionsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -169,15 +185,15 @@ void AnalysisDEA::slotSelectionSelected(QModelIndex index)
         // so we can then highlight them in the scatter plot
         QVector<double> x;
         QVector<double> y;
-        foreach(const deaReads &deaRead, currentSelection) {
-            if (combinedSelectionThreholsd(deaRead) ) {
+        foreach (const deaReads& deaRead, currentSelection) {
+            if (combinedSelectionThreholsd(deaRead)) {
                 continue;
             }
             x.append(deaRead.normalizedReadsA);
             y.append(deaRead.normalizedReadsB);
         }
         // the scatter plot needs a vector
-        m_ui->customPlot->graph(1)->setData(x,y);
+        m_ui->customPlot->graph(1)->setData(x, y);
     }
 
     m_ui->customPlot->replot();
@@ -193,8 +209,8 @@ void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
     m_upperTPMsThreshold = std::numeric_limits<int>::min();
 
     // get the list of selected items
-    const auto &selA = selObjectA.selectedItems();
-    const auto &selB = selObjectB.selectedItems();
+    const auto& selA = selObjectA.selectedItems();
+    const auto& selB = selObjectB.selectedItems();
 
     // get the size of the biggest list
     const int selectionAsize = selA.size();
@@ -231,7 +247,7 @@ void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
         }
     }
 
-    //store it here for later computations
+    // store it here for later computations
     m_combinedSelections = geneToReadsMap.values();
 }
 
@@ -240,7 +256,7 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
     deaStats stats;
 
     // iterate the list of combined reads to compute the DDA stats and populate the table
-    foreach (const deaReads &readsValues, m_combinedSelections) {
+    foreach (const deaReads& readsValues, m_combinedSelections) {
 
         // check if values are outside threshold
         if (combinedSelectionThreholsd(readsValues)) {
@@ -262,10 +278,10 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 
         // we need to recompute TPM here so we can account for when a gene is only present in one
         // selection
-        const qreal normReadsSelA =
-                STMath::tpmNormalization<qreal>(readsSelA + 1, m_totalReadsSelA);
-        const qreal normReadsSelB =
-                STMath::tpmNormalization<qreal>(readsSelB + 1, m_totalReadsSelB);
+        const qreal normReadsSelA
+            = STMath::tpmNormalization<qreal>(readsSelA + 1, m_totalReadsSelA);
+        const qreal normReadsSelB
+            = STMath::tpmNormalization<qreal>(readsSelB + 1, m_totalReadsSelB);
 
         // update lists of values that will be used in the scatter plot
         stats.valuesSelectionA.push_back(std::log(normReadsSelA));
@@ -273,14 +289,13 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
     }
 
     if (!m_combinedSelections.empty()) {
-        stats.pearsonCorrelation =
-                STMath::pearson(stats.valuesSelectionA, stats.valuesSelectionB);
+        stats.pearsonCorrelation = STMath::pearson(stats.valuesSelectionA, stats.valuesSelectionB);
     }
 
     return stats;
 }
 
-void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
+void AnalysisDEA::updateStatisticsUI(const deaStats& stats)
 {
     // update scatter plot data
     m_ui->customPlot->graph(0)->setData(stats.valuesSelectionA, stats.valuesSelectionB);
@@ -339,16 +354,17 @@ void AnalysisDEA::slotSetUpperTPMsThreshold(const int value)
 
 void AnalysisDEA::slotSaveToPDF()
 {
-    QString filename =
-            QFileDialog::getSaveFileName(this, tr("Export File"), QDir::homePath(),
-                                         QString("%1").arg(tr("PNG Files (*.png)")));
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Export File"),
+                                                    QDir::homePath(),
+                                                    QString("%1").arg(tr("PNG Files (*.png)")));
     // early out
     if (filename.isEmpty()) {
         return;
     }
 
-    //TODO add most DEA genes and stats (use QPrinter)
-    //TODO use PDF as output
+    // TODO add most DEA genes and stats (use QPrinter)
+    // TODO use PDF as output
     const bool saveOk = m_ui->customPlot->savePng(filename, 800, 800, 1.0, 100);
 
     if (!saveOk) {
@@ -358,15 +374,18 @@ void AnalysisDEA::slotSaveToPDF()
     }
 }
 
-bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaReads) const
+bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads& deaReads) const
 {
     // check if values are outside threshold
-    //TODO make this more readable
-    return ( ((deaReads.readsA < m_lowerThreshold || deaReads.readsA > m_upperThreshold)
-         && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
-         && deaReads.readsA > 0 && deaReads.readsB > 0)
-        ||
-        ((deaReads.normalizedReadsA < m_lowerTPMsThreshold || deaReads.normalizedReadsA > m_upperTPMsThreshold)
-         && (deaReads.normalizedReadsB < m_lowerTPMsThreshold || deaReads.normalizedReadsB > m_upperTPMsThreshold)
-         && deaReads.normalizedReadsA > 1 && deaReads.normalizedReadsB > 1) );
+    // TODO make this more readable
+    return (((deaReads.readsA < m_lowerThreshold || deaReads.readsA > m_upperThreshold)
+             && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
+             && deaReads.readsA > 0
+             && deaReads.readsB > 0)
+            || ((deaReads.normalizedReadsA < m_lowerTPMsThreshold
+                 || deaReads.normalizedReadsA > m_upperTPMsThreshold)
+                && (deaReads.normalizedReadsB < m_lowerTPMsThreshold
+                    || deaReads.normalizedReadsB > m_upperTPMsThreshold)
+                && deaReads.normalizedReadsA > 1
+                && deaReads.normalizedReadsB > 1));
 }

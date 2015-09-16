@@ -10,13 +10,12 @@
 class ImageAlignment
 {
 public:
-
     ImageAlignment();
     explicit ImageAlignment(const ImageAlignment& other);
     ~ImageAlignment();
 
-    ImageAlignment& operator= (const ImageAlignment& other);
-    bool operator== (const ImageAlignment& other) const;
+    ImageAlignment& operator=(const ImageAlignment& other);
+    bool operator==(const ImageAlignment& other) const;
 
     const QString id();
     const QString name() const;
@@ -37,7 +36,6 @@ public:
     void lastModified(const QString& lastModified);
 
 private:
-
     QString m_id;
     QString m_name;
     QString m_chipId;

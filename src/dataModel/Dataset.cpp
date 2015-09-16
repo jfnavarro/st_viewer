@@ -13,23 +13,22 @@
 #include <QDebug>
 
 Dataset::Dataset()
-    : m_id(),
-      m_name(),
-      m_alignmentId(),
-      m_statBarcodes(0),
-      m_statGenes(0),
-      m_statUniqueBarcodes(0),
-      m_statUniqueGenes(0),
-      m_statTissue(),
-      m_statSpecies(),
-      m_statComments(),
-      m_enabled(false),
-      m_grantedAccounts(),
-      m_createdByAccount(),
-      m_created(QDate::currentDate().toString()),
-      m_lastMofidied(QDate::currentDate().toString())
+    : m_id()
+    , m_name()
+    , m_alignmentId()
+    , m_statBarcodes(0)
+    , m_statGenes(0)
+    , m_statUniqueBarcodes(0)
+    , m_statUniqueGenes(0)
+    , m_statTissue()
+    , m_statSpecies()
+    , m_statComments()
+    , m_enabled(false)
+    , m_grantedAccounts()
+    , m_createdByAccount()
+    , m_created(QDate::currentDate().toString())
+    , m_lastMofidied(QDate::currentDate().toString())
 {
-
 }
 
 Dataset::Dataset(const Dataset& other)
@@ -56,7 +55,6 @@ Dataset::Dataset(const Dataset& other)
 
 Dataset::~Dataset()
 {
-
 }
 
 Dataset& Dataset::operator=(const Dataset& other)
@@ -84,26 +82,22 @@ Dataset& Dataset::operator=(const Dataset& other)
 
 bool Dataset::operator==(const Dataset& other) const
 {
-    return (
-               m_id == other.m_id &&
-               m_name == other.m_name &&
-               m_alignmentId == other.m_alignmentId &&
-               m_statBarcodes == other.m_statBarcodes &&
-               m_statGenes == other.m_statGenes &&
-               m_statUniqueBarcodes == other.m_statUniqueBarcodes &&
-               m_statUniqueGenes == other.m_statUniqueGenes &&
-               m_statTissue == other.m_statTissue &&
-               m_statSpecies == other.m_statSpecies &&
-               m_statComments == other.m_statComments &&
-               m_oboFroundryTerms == other.m_oboFroundryTerms &&
-                m_geneHitsQuartiles == other.m_geneHitsQuartiles &&
-               m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles &&
-               m_enabled == other.m_enabled &&
-               m_grantedAccounts == other.m_grantedAccounts &&
-               m_createdByAccount == other.m_createdByAccount &&
-               m_created == other.m_created &&
-               m_lastMofidied == other.m_lastMofidied
-           );
+    return (m_id == other.m_id && m_name == other.m_name && m_alignmentId == other.m_alignmentId
+            && m_statBarcodes == other.m_statBarcodes
+            && m_statGenes == other.m_statGenes
+            && m_statUniqueBarcodes == other.m_statUniqueBarcodes
+            && m_statUniqueGenes == other.m_statUniqueGenes
+            && m_statTissue == other.m_statTissue
+            && m_statSpecies == other.m_statSpecies
+            && m_statComments == other.m_statComments
+            && m_oboFroundryTerms == other.m_oboFroundryTerms
+            && m_geneHitsQuartiles == other.m_geneHitsQuartiles
+            && m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles
+            && m_enabled == other.m_enabled
+            && m_grantedAccounts == other.m_grantedAccounts
+            && m_createdByAccount == other.m_createdByAccount
+            && m_created == other.m_created
+            && m_lastMofidied == other.m_lastMofidied);
 }
 
 const QString Dataset::id() const
@@ -266,7 +260,7 @@ void Dataset::enabled(const bool enabled)
     m_enabled = enabled;
 }
 
-void Dataset::grantedAccounts(const QVector<QString> &grantedAccounts)
+void Dataset::grantedAccounts(const QVector<QString>& grantedAccounts)
 {
     m_grantedAccounts = grantedAccounts;
 }
@@ -317,4 +311,3 @@ qreal Dataset::statisticsPooledMax() const
     // min ( q3 + 1.5 * (q3-q1), q4 )
     return m_genePooledHitsQuartiles.at(4);
 }
-

@@ -23,18 +23,17 @@ class QuadTreeAABB
 {
 
 public:
-
     QuadTreeAABB();
     QuadTreeAABB(const qreal x, const qreal y, const qreal width, const qreal height);
-    QuadTreeAABB(const QPointF &p, const QSizeF &size);
-    explicit QuadTreeAABB(const QRectF &rect);
+    QuadTreeAABB(const QPointF& p, const QSizeF& size);
+    explicit QuadTreeAABB(const QRectF& rect);
     ~QuadTreeAABB();
 
     // create an QuadTreeAABB between two given points
-    static const QuadTreeAABB fromPoints(const QPointF &p0, const QPointF &p1);
+    static const QuadTreeAABB fromPoints(const QPointF& p0, const QPointF& p1);
 
     // create a rectangle from the given QuadTreeAABB
-    static const QRectF toRectangle(const QuadTreeAABB &b);
+    static const QRectF toRectangle(const QuadTreeAABB& b);
 
     // SplitHalf: splits the QuadTreeAABB in half
     enum SplitHalf { H0, H1, V0, V1 };
@@ -50,32 +49,32 @@ public:
     const QPointF end() const;
     const QPointF size() const;
 
-    bool contains(const QPointF &p) const;
-    bool contains(const QuadTreeAABB &o) const;
-    bool intersects(const QuadTreeAABB &o) const;
+    bool contains(const QPointF& p) const;
+    bool contains(const QuadTreeAABB& o) const;
+    bool intersects(const QuadTreeAABB& o) const;
 
     // Cut: returns the AABB defined as the shared area
     // between the two given AABBs, or an empty AABB
     // if no area is shared.
     // ie. C = A & B
-    const QuadTreeAABB cut(const QuadTreeAABB &o) const;
+    const QuadTreeAABB cut(const QuadTreeAABB& o) const;
 
     // Join: returns the AABB defined as the smallest AABB that
     // contains both given AABBs (may be disjoint).
     // ie. C = A | B
-    const QuadTreeAABB join(const QuadTreeAABB &o) const;
+    const QuadTreeAABB join(const QuadTreeAABB& o) const;
 
-    //NOTE consider use a QRectF instead
+    // NOTE consider use a QRectF instead
     qreal x;
     qreal y;
     qreal width;
     qreal height;
 };
 
-bool fuzzyEqual(const QuadTreeAABB &b0, const QuadTreeAABB &b1);
-bool fuzzyNotEqual(const QuadTreeAABB &b0, const QuadTreeAABB &b1);
+bool fuzzyEqual(const QuadTreeAABB& b0, const QuadTreeAABB& b1);
+bool fuzzyNotEqual(const QuadTreeAABB& b0, const QuadTreeAABB& b1);
 
-bool operator ==(const QuadTreeAABB &b0, const QuadTreeAABB &b1);
-bool operator !=(const QuadTreeAABB &b0, const QuadTreeAABB &b1);
+bool operator==(const QuadTreeAABB& b0, const QuadTreeAABB& b1);
+bool operator!=(const QuadTreeAABB& b0, const QuadTreeAABB& b1);
 
 #endif // QUADTREEAABB_H_H //

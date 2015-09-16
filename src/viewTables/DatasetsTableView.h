@@ -20,15 +20,13 @@ class DatasetsTableView : public QTableView
     Q_OBJECT
 
 public:
-
-    explicit DatasetsTableView(QWidget *parent = 0);
+    explicit DatasetsTableView(QWidget* parent = 0);
     virtual ~DatasetsTableView();
 
     // returns the current selection mapped to the sorting model
     QItemSelection datasetsTableItemSelection() const;
 
 private:
-
     // references to model and proxy model
     QPointer<DatasetItemModel> m_datasetModel;
     QPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;

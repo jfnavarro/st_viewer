@@ -56,7 +56,7 @@ bool SettingsFormatXML::writeXMLFile(QIODevice& device, const QSettings::Setting
     Q_UNUSED(device);
     Q_UNUSED(map);
 
-    //NOTE: implement if needed
+    // NOTE: implement if needed
     // check "http://www.openshots.de/2011/03/qsettings-mit-xml-format/" for example
     return true;
 }

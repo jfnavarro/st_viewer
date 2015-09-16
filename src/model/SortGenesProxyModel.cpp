@@ -12,9 +12,10 @@
 
 #include "data/DataProxy.h"
 
-namespace {
+namespace
+{
 
-SortGenesProxyModel::SortCategory sortCategory(const QString &name)
+SortGenesProxyModel::SortCategory sortCategory(const QString& name)
 {
     if (name.size() == 0) {
         return SortGenesProxyModel::numericGene;
@@ -31,8 +32,10 @@ SortGenesProxyModel::SortCategory sortCategory(const QString &name)
     return SortGenesProxyModel::normalGene;
 }
 
-bool geneNameLessThan(const QString &geneName1, const QString &geneName2,
-                      const Qt::CaseSensitivity &caseSensitivity, bool isSortLocaleAware)
+bool geneNameLessThan(const QString& geneName1,
+                      const QString& geneName2,
+                      const Qt::CaseSensitivity& caseSensitivity,
+                      bool isSortLocaleAware)
 {
     SortGenesProxyModel::SortCategory geneName1_category = sortCategory(geneName1);
     SortGenesProxyModel::SortCategory geneName2_category = sortCategory(geneName2);
@@ -47,11 +50,10 @@ bool geneNameLessThan(const QString &geneName1, const QString &geneName2,
 
     return geneName2_category < geneName1_category;
 }
-
 }
 
-SortGenesProxyModel::SortGenesProxyModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+SortGenesProxyModel::SortGenesProxyModel(QObject* parent)
+    : QSortFilterProxyModel(parent)
 {
 }
 
@@ -59,9 +61,9 @@ SortGenesProxyModel::~SortGenesProxyModel()
 {
 }
 
-bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool SortGenesProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
-    QAbstractTableModel *model = qobject_cast<QAbstractTableModel *>(sourceModel());
+    QAbstractTableModel* model = qobject_cast<QAbstractTableModel*>(sourceModel());
     Q_ASSERT(model);
 
     QString leftName;
@@ -70,13 +72,17 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
     bool rightNameFound = false;
     // As this proxy sorter is used in wrapper for models, the models
     // must have a method called geneName in order for the sorting to work
-    QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
+    QMetaObject::invokeMethod(model,
+                              "geneName",
+                              Qt::DirectConnection,
                               Q_RETURN_ARG(bool, leftNameFound),
-                              Q_ARG(const QModelIndex &, left),
+                              Q_ARG(const QModelIndex&, left),
                               Q_ARG(QString*, &leftName));
-    QMetaObject::invokeMethod(model, "geneName", Qt::DirectConnection,
+    QMetaObject::invokeMethod(model,
+                              "geneName",
+                              Qt::DirectConnection,
                               Q_RETURN_ARG(bool, rightNameFound),
-                              Q_ARG(const QModelIndex &, right),
+                              Q_ARG(const QModelIndex&, right),
                               Q_ARG(QString*, &rightName));
 
     if (leftNameFound && rightNameFound) {

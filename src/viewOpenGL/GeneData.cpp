@@ -15,30 +15,25 @@ static const QVector2D tb(0.0, 1.0);
 static const QVector2D tc(1.0, 1.0);
 static const QVector2D td(1.0, 0.0);
 
-namespace {
+namespace
+{
 
 QColor fromOpenGLColor(const QVector4D opengl_color)
 {
-    return QColor::fromRgbF(opengl_color.x(),
-                            opengl_color.y(),
-                            opengl_color.z(),
-                            opengl_color.w());
+    return QColor::fromRgbF(opengl_color.x(), opengl_color.y(), opengl_color.z(), opengl_color.w());
 }
 
 QVector4D fromQtColor(const QColor color)
 {
     return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
-
 }
 GeneData::GeneData()
 {
-
 }
 
 GeneData::~GeneData()
 {
-
 }
 
 void GeneData::clearData()
@@ -52,7 +47,7 @@ void GeneData::clearData()
     m_selected.clear();
 }
 
-int GeneData::addQuad(const float x, const float y, const float size, const QColor &color)
+int GeneData::addQuad(const float x, const float y, const float size, const QColor& color)
 {
     const int index_count = m_vertices.size();
 
@@ -80,7 +75,7 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
     m_indexes.append(index_count + 3);
 
     // update custom vertex arrays
-    for(int i = 0; i < QUAD_SIZE; ++i) {
+    for (int i = 0; i < QUAD_SIZE; ++i) {
         m_reads.append(0);
         m_visible.append(false);
         m_selected.append(false);
@@ -92,37 +87,37 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
 
 void GeneData::updateQuadSize(const int index, const float x, const float y, const float size)
 {
-    m_vertices[index] = QVector3D(x - size / 2.0 , y - size / 2.0, 0.0);
+    m_vertices[index] = QVector3D(x - size / 2.0, y - size / 2.0, 0.0);
     m_vertices[index + 1] = QVector3D(x + size / 2.0, y - size / 2.0, 0.0);
     m_vertices[index + 2] = QVector3D(x + size / 2.0, y + size / 2.0, 0.0);
     m_vertices[index + 3] = QVector3D(x - size / 2.0, y + size / 2.0, 0.0);
 }
 
-void GeneData::updateQuadColor(const int index, const QColor &color)
+void GeneData::updateQuadColor(const int index, const QColor& color)
 {
     const QVector4D opengl_color = fromQtColor(color);
-    for(int i = 0; i < QUAD_SIZE; ++i) {
+    for (int i = 0; i < QUAD_SIZE; ++i) {
         m_colors[index + i] = opengl_color;
     }
 }
 
 void GeneData::updateQuadSelected(const int index, const bool selected)
 {
-    for(int i = 0; i < QUAD_SIZE; ++i) {
-        m_selected[index  + i] = selected;
+    for (int i = 0; i < QUAD_SIZE; ++i) {
+        m_selected[index + i] = selected;
     }
 }
 
 void GeneData::updateQuadVisible(const int index, const bool visible)
 {
-    for(int i = 0; i < QUAD_SIZE; ++i) {
-        m_visible[index  + i] = visible;
+    for (int i = 0; i < QUAD_SIZE; ++i) {
+        m_visible[index + i] = visible;
     }
 }
 
 void GeneData::updateQuadReads(const int index, const int reads)
 {
-    for(int i = 0; i < QUAD_SIZE; ++i) {
+    for (int i = 0; i < QUAD_SIZE; ++i) {
         m_reads[index + i] = reads;
     }
 }

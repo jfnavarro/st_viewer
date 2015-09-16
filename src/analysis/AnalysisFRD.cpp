@@ -21,31 +21,30 @@
 static const QColor BORDER = QColor(0, 155, 60);
 static const QColor BORDER_LIGHTER = QColor(0, 155, 60, 100);
 
-AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f) :
-    QDialog(parent, f),
-    m_ui(new Ui::frdWidget),
-    m_customPlotNormal(nullptr),
-    m_upperThresholdBarNormal(nullptr),
-    m_lowerThresholdBarNormal(nullptr),
-    m_customPlotLog(nullptr),
-    m_upperThresholdBarLog(nullptr),
-    m_lowerThresholdBarLog(nullptr),
-    m_minY(0.0),
-    m_maxY(1.0)
+AnalysisFRD::AnalysisFRD(QWidget* parent, Qt::WindowFlags f)
+    : QDialog(parent, f)
+    , m_ui(new Ui::frdWidget)
+    , m_customPlotNormal(nullptr)
+    , m_upperThresholdBarNormal(nullptr)
+    , m_lowerThresholdBarNormal(nullptr)
+    , m_customPlotLog(nullptr)
+    , m_upperThresholdBarLog(nullptr)
+    , m_lowerThresholdBarLog(nullptr)
+    , m_minY(0.0)
+    , m_maxY(1.0)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
     setModal(false);
     m_ui->setupUi(this);
 
-    //TODO these init functions have common code
+    // TODO these init functions have common code
     initializePlotNormal();
     initializePlotLog();
 }
 
 AnalysisFRD::~AnalysisFRD()
 {
-
 }
 
 void AnalysisFRD::initializePlotNormal()
@@ -79,10 +78,14 @@ void AnalysisFRD::initializePlotNormal()
     m_customPlotNormal->yAxis->setLabel("# Unique genes per barcode");
 
     // make left and bottom axes always transfer their ranges to right and top axes:
-    connect(m_customPlotNormal->xAxis, SIGNAL(rangeChanged(QCPRange)),
-            m_customPlotNormal->xAxis2, SLOT(setRange(QCPRange)));
-    connect(m_customPlotNormal->yAxis, SIGNAL(rangeChanged(QCPRange)),
-            m_customPlotNormal->yAxis2, SLOT(setRange(QCPRange)));
+    connect(m_customPlotNormal->xAxis,
+            SIGNAL(rangeChanged(QCPRange)),
+            m_customPlotNormal->xAxis2,
+            SLOT(setRange(QCPRange)));
+    connect(m_customPlotNormal->yAxis,
+            SIGNAL(rangeChanged(QCPRange)),
+            m_customPlotNormal->yAxis2,
+            SLOT(setRange(QCPRange)));
 
     // connect slots that takes care that when an axis is selected,
     // only that direction can be dragged and zoomed:
@@ -122,13 +125,17 @@ void AnalysisFRD::initializePlotLog()
     m_customPlotLog->yAxis2->setTickLabels(false);
     m_customPlotLog->xAxis->setLabel("Reads counts (log)");
     m_customPlotLog->yAxis->setLabel("# Unique genes per barcode (log)");
-    //TODO set log scale for axes
+    // TODO set log scale for axes
 
     // make left and bottom axes always transfer their ranges to right and top axes:
-    connect(m_customPlotLog->xAxis, SIGNAL(rangeChanged(QCPRange)),
-            m_customPlotLog->xAxis2, SLOT(setRange(QCPRange)));
-    connect(m_customPlotLog->yAxis, SIGNAL(rangeChanged(QCPRange)),
-            m_customPlotLog->yAxis2, SLOT(setRange(QCPRange)));
+    connect(m_customPlotLog->xAxis,
+            SIGNAL(rangeChanged(QCPRange)),
+            m_customPlotLog->xAxis2,
+            SLOT(setRange(QCPRange)));
+    connect(m_customPlotLog->yAxis,
+            SIGNAL(rangeChanged(QCPRange)),
+            m_customPlotLog->yAxis2,
+            SLOT(setRange(QCPRange)));
 
     // connect slots that takes care that when an axis is selected,
     // only that direction can be dragged and zoomed:
@@ -139,15 +146,14 @@ void AnalysisFRD::initializePlotLog()
     m_customPlotLog->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 }
 
-//TODO split and optimize this function
-void AnalysisFRD::computeData(const DataProxy::FeatureList& features,
-                              const int min, const int max)
+// TODO split and optimize this function
+void AnalysisFRD::computeData(const DataProxy::FeatureList& features, const int min, const int max)
 {
 
     QHash<double, double> featureCounter;
 
     // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
-    foreach(DataProxy::FeaturePtr feature, features) {
+    foreach (DataProxy::FeaturePtr feature, features) {
         ++featureCounter[feature->hits()];
     };
 
@@ -184,7 +190,7 @@ void AnalysisFRD::mousePress()
     } else if (m_customPlotNormal->yAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
         m_customPlotNormal->axisRect()->setRangeDrag(m_customPlotNormal->yAxis->orientation());
     } else {
-        m_customPlotNormal->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+        m_customPlotNormal->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
     }
 }
 
@@ -198,7 +204,7 @@ void AnalysisFRD::mouseWheel()
     } else if (m_customPlotNormal->yAxis->selectedParts().testFlag(QCPAxis::spAxis)) {
         m_customPlotNormal->axisRect()->setRangeZoom(m_customPlotNormal->yAxis->orientation());
     } else {
-        m_customPlotNormal->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+        m_customPlotNormal->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
     }
 }
 

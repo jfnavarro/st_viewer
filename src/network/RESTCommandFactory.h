@@ -19,41 +19,41 @@ class RESTCommandFactory
 {
 
 public:
-
     // authentication commands
-    static NetworkCommand* getAuthorizationToken(const Configuration &configuration);
+    static NetworkCommand* getAuthorizationToken(const Configuration& configuration);
 
     // data access commands
-    static NetworkCommand* getChipByChipId(const Configuration &configuration,
+    static NetworkCommand* getChipByChipId(const Configuration& configuration,
                                            const QString& chipId);
 
     static NetworkCommand* getDatasets(const Configuration& configuration);
     static NetworkCommand* getDatasetByDatasetId(const Configuration& configuration,
                                                  const QString& datasetId);
-    static NetworkCommand* updateDatasetByDatasetId(const Configuration &configuration,
+    static NetworkCommand* updateDatasetByDatasetId(const Configuration& configuration,
                                                     const QString& datasetId);
-    static NetworkCommand* removeDatasetByDatasetId(const Configuration &configuration,
+    static NetworkCommand* removeDatasetByDatasetId(const Configuration& configuration,
                                                     const QString& datasetId);
 
-    static NetworkCommand* getFeatureByDatasetId(const Configuration &configuration,
+    static NetworkCommand* getFeatureByDatasetId(const Configuration& configuration,
                                                  const QString& datasetId);
 
-    static NetworkCommand* getImageAlignmentById(const Configuration &configuration,
+    static NetworkCommand* getImageAlignmentById(const Configuration& configuration,
                                                  const QString& imageAlignmentId);
 
     static NetworkCommand* getCellTissueFigureByName(const Configuration& configuration,
                                                      const QString& name);
 
     static NetworkCommand* getUser(const Configuration& configuration);
-    //static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString &userId);
+    // static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString
+    // &userId);
 
     static NetworkCommand* getSelections(const Configuration& configuration);
-    static NetworkCommand* upateSelectionBySelectionId(const Configuration&
-                                                       configuration, const QString& selectionId);
+    static NetworkCommand* upateSelectionBySelectionId(const Configuration& configuration,
+                                                       const QString& selectionId);
     static NetworkCommand* addSelection(const Configuration& configuration);
-    static NetworkCommand* removeSelectionBySelectionId(const Configuration&
-                                                        configuration, const QString& selectionId);
-    //NOTE this end point does not need authorization
+    static NetworkCommand* removeSelectionBySelectionId(const Configuration& configuration,
+                                                        const QString& selectionId);
+    // NOTE this end point does not need authorization
     static NetworkCommand* getMinVersion(const Configuration& configuration);
 };
 

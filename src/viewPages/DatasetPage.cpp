@@ -20,9 +20,9 @@
 
 using namespace Globals;
 
-DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
-    Page(dataProxy, parent),
-    m_ui(new Ui::DataSets())
+DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
+    : Page(dataProxy, parent)
+    , m_ui(new Ui::DataSets())
 {
     m_ui->setupUi(this);
 
@@ -32,10 +32,14 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     // connect signals
-    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)), datasetsProxyModel(),
+    connect(m_ui->filterLineEdit,
+            SIGNAL(textChanged(QString)),
+            datasetsProxyModel(),
             SLOT(setFilterFixedString(QString)));
-    connect(m_ui->datasetsTableView, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(slotDatasetSelected(QModelIndex)));
+    connect(m_ui->datasetsTableView,
+            SIGNAL(clicked(QModelIndex)),
+            this,
+            SLOT(slotDatasetSelected(QModelIndex)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
     connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotLoadDatasets()));
@@ -46,7 +50,8 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget *parent) :
     // connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
-            this, SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            this,
+            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
 
     clearControls();
 }
@@ -55,18 +60,17 @@ DatasetPage::~DatasetPage()
 {
 }
 
-QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
+QSortFilterProxyModel* DatasetPage::datasetsProxyModel()
 {
-    QSortFilterProxyModel *datasetsProxyModel =
-            qobject_cast<QSortFilterProxyModel*>(m_ui->datasetsTableView->model());
+    QSortFilterProxyModel* datasetsProxyModel
+        = qobject_cast<QSortFilterProxyModel*>(m_ui->datasetsTableView->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
 
-DatasetItemModel *DatasetPage::datasetsModel()
+DatasetItemModel* DatasetPage::datasetsModel()
 {
-    DatasetItemModel *model =
-            qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
+    DatasetItemModel* model = qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -157,19 +161,17 @@ void DatasetPage::slotEditDataset()
     Q_ASSERT(!currentDataset.first().isNull());
     Dataset dataset(*currentDataset.first());
 
-    QScopedPointer<EditDatasetDialog> editdataset(new EditDatasetDialog(this,
-                                                                        Qt::Dialog
-                                                                        | Qt::CustomizeWindowHint
-                                                                        | Qt::WindowTitleHint));
+    QScopedPointer<EditDatasetDialog> editdataset(
+        new EditDatasetDialog(this, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editdataset->setWindowIcon(QIcon());
     editdataset->setName(dataset.name());
     editdataset->setComment(dataset.statComments());
 
     if (editdataset->exec() == EditDatasetDialog::Accepted
-            && (editdataset->getName() != dataset.name()
-                || editdataset->getComment() != dataset.statComments())
-            && !editdataset->getName().isEmpty()
-            && !editdataset->getName().isNull()) {
+        && (editdataset->getName() != dataset.name()
+            || editdataset->getComment() != dataset.statComments())
+        && !editdataset->getName().isEmpty()
+        && !editdataset->getName().isNull()) {
 
         dataset.name(editdataset->getName());
         dataset.statComments(editdataset->getComment());
@@ -208,11 +210,12 @@ void DatasetPage::slotRemoveDataset()
         return;
     }
 
-    const int answer = QMessageBox::warning(
-                this, tr("Remove Dataset"),
-                tr("Are you really sure you want to remove the dataset?"),
-                QMessageBox::Yes,
-                QMessageBox::No | QMessageBox::Escape);
+    const int answer
+        = QMessageBox::warning(this,
+                               tr("Remove Dataset"),
+                               tr("Are you really sure you want to remove the dataset?"),
+                               QMessageBox::Yes,
+                               QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;

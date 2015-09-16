@@ -29,7 +29,6 @@ class AuthorizationManager : public QObject
     Q_OBJECT
 
 public:
-
     AuthorizationManager(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~AuthorizationManager();
 
@@ -57,11 +56,9 @@ signals:
 private slots:
 
     // internal slot to process login object from OAuth2
-    void slotLoginDone(const QUuid& accessToken, int expiresIn,
-                       const QUuid& refreshToken);
+    void slotLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
 
 private:
-
     QPointer<OAuth2> m_oAuth2;
     TokenStorage m_tokenStorage;
 
@@ -71,5 +68,4 @@ private:
     Q_DISABLE_COPY(AuthorizationManager)
 };
 
-#endif  /* AUTHORIZATIONMANAGER_H */
-
+#endif /* AUTHORIZATIONMANAGER_H */

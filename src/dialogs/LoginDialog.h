@@ -15,7 +15,8 @@
 class QCompleter;
 class QString;
 
-namespace Ui {
+namespace Ui
+{
 class LogIn;
 } // namespace Ui //
 
@@ -26,8 +27,7 @@ class LoginDialog : public QDialog
     Q_OBJECT
 
 public:
-
-    explicit LoginDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit LoginDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     virtual ~LoginDialog();
 
     // clear off the fields
@@ -51,15 +51,13 @@ signals:
 
 public slots:
 
-    //A slot to adjust the emitting of the signal.
+    // A slot to adjust the emitting of the signal.
     void slotAcceptLogin();
 
 protected:
-
-    void keyPressEvent(QKeyEvent *e) override;
+    void keyPressEvent(QKeyEvent* e) override;
 
 private:
-
     // init graphic stuff
     void setUpGUI();
 
@@ -74,6 +72,5 @@ private:
 
     Q_DISABLE_COPY(LoginDialog)
 };
-
 
 #endif // LOGINDIALOG_H

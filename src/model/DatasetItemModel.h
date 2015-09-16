@@ -23,7 +23,6 @@ class DatasetItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
-
     enum Column {
         Name = 0,
         Tissue = 1,
@@ -41,8 +40,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    bool setData(const QModelIndex & index,
-                 const QVariant & value, int role = Qt::EditRole) override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -50,14 +48,13 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // loads the data of the model from DatProxy
-    void loadDatasets(const DataProxy::DatasetList &datasetList);
+    void loadDatasets(const DataProxy::DatasetList& datasetList);
 
     // returns a list of datasets for the given items selection
-    DataProxy::DatasetList getDatasets(const QItemSelection &selection);
+    DataProxy::DatasetList getDatasets(const QItemSelection& selection);
 
 private:
-
-    //TODO make this a pure reference
+    // TODO make this a pure reference
     DataProxy::DatasetList m_datasets_reference;
 
     Q_DISABLE_COPY(DatasetItemModel)

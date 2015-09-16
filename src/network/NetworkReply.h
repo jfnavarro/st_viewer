@@ -23,21 +23,16 @@ class QTimer;
 // the resulting data as well as listening to any errors.
 // NetworkReply extends AsyncRequest which means that it is guaranteed to
 // emit a signalFinished when it has completed.
-class NetworkReply: public QObject
+class NetworkReply : public QObject
 {
     Q_OBJECT
 
 public:
-
-    enum ReturnCode {
-        CodeSuccess = 0x01,
-        CodeAbort = 0x02,
-        CodeError = 0x04
-    };
+    enum ReturnCode { CodeSuccess = 0x01, CodeAbort = 0x02, CodeError = 0x04 };
 
     typedef QList<QSharedPointer<Error>> ErrorList;
 
-    explicit NetworkReply(QNetworkReply *networkReply = 0);
+    explicit NetworkReply(QNetworkReply* networkReply = 0);
     ~NetworkReply();
 
     // parse body (once parsed data cannot be parsed again)
@@ -78,7 +73,6 @@ signals:
     void signalFinished(QVariant code);
 
 private:
-
     // Qt network reply
     QPointer<QNetworkReply> m_reply;
     // errors

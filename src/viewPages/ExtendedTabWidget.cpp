@@ -26,18 +26,18 @@
 
 ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
                                      QPointer<AuthorizationManager> authManager,
-                                     QWidget *parent) :
-    QWidget(parent),
-    m_startpage(nullptr),
-    m_datasets(nullptr),
-    m_cellview(nullptr),
-    m_experiments(nullptr),
-    m_stackWidget(nullptr),
-    m_buttonGroup(nullptr),
-    m_layout(nullptr),
-    m_buttonLayout(nullptr),
-    m_dataProxy(dataProxy),
-    m_authManager(authManager)
+                                     QWidget* parent)
+    : QWidget(parent)
+    , m_startpage(nullptr)
+    , m_datasets(nullptr)
+    , m_cellview(nullptr)
+    , m_experiments(nullptr)
+    , m_stackWidget(nullptr)
+    , m_buttonGroup(nullptr)
+    , m_layout(nullptr)
+    , m_buttonLayout(nullptr)
+    , m_dataProxy(dataProxy)
+    , m_authManager(authManager)
 {
     // main widgets container
     m_stackWidget = new QStackedWidget(this);
@@ -53,7 +53,7 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     m_buttonLayout->setSpacing(0);
 
     // strech layout to make buttons to always be on top
-    QVBoxLayout *buttonStretchLayout = new QVBoxLayout();
+    QVBoxLayout* buttonStretchLayout = new QVBoxLayout();
     buttonStretchLayout->setSpacing(0);
     buttonStretchLayout->addLayout(m_buttonLayout);
     buttonStretchLayout->addStretch();
@@ -66,8 +66,8 @@ ExtendedTabWidget::ExtendedTabWidget(QPointer<DataProxy> dataProxy,
     m_layout->addWidget(m_stackWidget);
     setLayout(m_layout);
 
-    createPages(); //create pages and add them to the tab manager
-    createConnections(); //create signals - action connections
+    createPages();       // create pages and add them to the tab manager
+    createConnections(); // create signals - action connections
 
     // enter first pages
     tabChanged(0, -1);
@@ -87,7 +87,7 @@ QSize ExtendedTabWidget::sizeHint() const
 {
     int xMax = 0;
     int yMax = 0;
-    foreach(QAbstractButton  *button, m_buttonGroup->buttons()) {
+    foreach (QAbstractButton* button, m_buttonGroup->buttons()) {
         xMax = qMax(xMax, button->sizeHint().width());
         yMax = qMax(yMax, button->sizeHint().height());
     }
@@ -107,13 +107,12 @@ int ExtendedTabWidget::currentIndex() const
     return m_stackWidget->currentIndex();
 }
 
-void ExtendedTabWidget::insertPage(QWidget *page,
-                                   const QIcon &icon, const QString &title)
+void ExtendedTabWidget::insertPage(QWidget* page, const QIcon& icon, const QString& title)
 {
     Q_ASSERT(!m_stackWidget.isNull());
 
     const int index = count();
-    //insert the page
+    // insert the page
     m_stackWidget->insertWidget(index, page);
 
     // set the label for the page
@@ -131,7 +130,7 @@ void ExtendedTabWidget::insertPage(QWidget *page,
     page->setWindowIcon(pix);
 
     // Add a button for the page
-    QPushButton *button = new QPushButton(pix, QString());
+    QPushButton* button = new QPushButton(pix, QString());
     button->setCheckable(true);
     button->setMouseTracking(true);
     button->setFocusPolicy(Qt::ClickFocus);
@@ -166,8 +165,8 @@ void ExtendedTabWidget::tabChanged(int toIndex, int fromIndex)
 {
     qDebug() << QString("[PageContainerWidget] Page: %1 -> %2").arg(fromIndex).arg(toIndex);
 
-    QWidget *fromWidget = widget(fromIndex);
-    QWidget *toWidget = widget(toIndex);
+    QWidget* fromWidget = widget(fromIndex);
+    QWidget* toWidget = widget(toIndex);
 
     if (fromWidget != nullptr) {
         QMetaObject::invokeMethod(fromWidget, "onExit", Qt::DirectConnection);

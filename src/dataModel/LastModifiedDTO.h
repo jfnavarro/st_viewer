@@ -17,18 +17,19 @@
 
 // This DTO parses the last_modified endpoints
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class LastModifiedDTO : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString last_modified READ lastModified
-               WRITE lastModified)
+    Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-
-    explicit LastModifiedDTO(QObject* parent = 0) : QObject(parent) { }
-    ~LastModifiedDTO() { }
+    explicit LastModifiedDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
+    ~LastModifiedDTO() {}
 
     // binding
     const QString& lastModified() const { return m_lastModified; }
@@ -37,7 +38,6 @@ public:
     void lastModified(const QString& lastModified) { m_lastModified = lastModified; }
 
 private:
-
     QString m_lastModified;
 };
 

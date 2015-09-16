@@ -17,7 +17,7 @@
 
 // This DTO is used to parse network errors
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class ErrorDTO : public QObject
 {
     Q_OBJECT
@@ -26,9 +26,12 @@ class ErrorDTO : public QObject
     Q_PROPERTY(QString error_description READ errorDescription WRITE errorDescription)
 
 public:
-
-    explicit ErrorDTO(QObject* parent = 0) :
-        QObject(parent), m_errorName(), m_errorDescription() {}
+    explicit ErrorDTO(QObject* parent = 0)
+        : QObject(parent)
+        , m_errorName()
+        , m_errorDescription()
+    {
+    }
     ~ErrorDTO() {}
 
     // binding
@@ -36,10 +39,12 @@ public:
     const QString& errorDescription() const { return m_errorDescription; }
 
     void errorName(const QString& errorName) { m_errorName = errorName; }
-    void errorDescription(const QString& errorDescription) { m_errorDescription = errorDescription; }
+    void errorDescription(const QString& errorDescription)
+    {
+        m_errorDescription = errorDescription;
+    }
 
 private:
-
     QString m_errorName;
     QString m_errorDescription;
 };

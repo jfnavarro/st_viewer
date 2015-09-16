@@ -14,19 +14,16 @@ static const QString PROPERTY_LIST_DELIMITER = QStringLiteral(";;");
 
 GeneExporter::GeneExporter()
 {
-
 }
 
 GeneExporter::GeneExporter(DetailLevels detailLevel, SeparationModes separationMode)
-    :  m_detailLevel(detailLevel),
-      m_separationMode(separationMode)
+    : m_detailLevel(detailLevel)
+    , m_separationMode(separationMode)
 {
-
 }
 
 GeneExporter::~GeneExporter()
 {
-
 }
 
 void GeneExporter::addExportProperty(const QString& property)
@@ -44,7 +41,7 @@ const QString GeneExporter::encodePropertyList(const QStringList& properties)
     return properties.join(PROPERTY_LIST_DELIMITER);
 }
 
-const QStringList GeneExporter::decodePropertyList(const QString &properties)
+const QStringList GeneExporter::decodePropertyList(const QString& properties)
 {
     return properties.split(PROPERTY_LIST_DELIMITER, QString::SkipEmptyParts);
 }
@@ -60,28 +57,25 @@ const QString GeneExporter::delimiterCharacter() const
     }
 }
 
-void GeneExporter::exportStrings(QTextStream &otxt, const QStringList &strings) const
+void GeneExporter::exportStrings(QTextStream& otxt, const QStringList& strings) const
 {
     const QString delimiter = delimiterCharacter();
     otxt << strings.join(delimiter) << endl;
 }
 
-void GeneExporter::exportItem(QTextStream &otxt,
-                              const SelectionType& selection) const
+void GeneExporter::exportItem(QTextStream& otxt, const SelectionType& selection) const
 {
     const qreal reads = selection.reads;
     const int count = selection.count;
     const QString name = selection.name;
 
     QStringList list;
-    list << QString("%1").arg(name)
-         << QString("%1").arg(count)
-         << QString("%1").arg(reads);
+    list << QString("%1").arg(name) << QString("%1").arg(count) << QString("%1").arg(reads);
 
     exportStrings(otxt, list);
 }
 
-void GeneExporter::exportItem(QTextStream &otxt,
+void GeneExporter::exportItem(QTextStream& otxt,
                               const GeneSelection::selectedItemsList& selectionList) const
 {
     // prepend header
@@ -94,12 +88,12 @@ void GeneExporter::exportItem(QTextStream &otxt,
         exportStrings(otxt, list);
     }
 
-    foreach(const SelectionType &selection, selectionList) {
+    foreach (const SelectionType& selection, selectionList) {
         exportItem(otxt, selection);
     }
 }
 
-void GeneExporter::exportItem(QIODevice &device,
+void GeneExporter::exportItem(QIODevice& device,
                               const GeneSelection::selectedItemsList& selectionList) const
 {
     // early out

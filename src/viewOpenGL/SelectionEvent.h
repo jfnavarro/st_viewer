@@ -12,51 +12,40 @@
 #include <QPainterPath>
 
 // Selection event used to propagate selection data to view items.
-//TODO move definition to CPP
-//TODO extend to allow other type of selections
+// TODO move definition to CPP
+// TODO extend to allow other type of selections
 class SelectionEvent : public QEvent
 {
 
 public:
+    enum SelectionMode { NewSelection, IncludeSelection, ExcludeSelection };
 
-    enum SelectionMode {
-        NewSelection,
-        IncludeSelection,
-        ExcludeSelection
-    };
-
-    SelectionEvent() :
-        QEvent(TYPE),
-        m_path(),
-        m_mode(NewSelection)
+    SelectionEvent()
+        : QEvent(TYPE)
+        , m_path()
+        , m_mode(NewSelection)
     {
     }
 
-    SelectionEvent(const QRectF &rect,
-                   const SelectionMode mode = NewSelection)
-        : QEvent(TYPE),
-          m_path(rect),
-          m_mode(mode)
+    SelectionEvent(const QRectF& rect, const SelectionMode mode = NewSelection)
+        : QEvent(TYPE)
+        , m_path(rect)
+        , m_mode(mode)
     {
     }
 
     QRectF path() const { return m_path; }
     SelectionMode mode() const { return m_mode; }
 
-    static  SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
+    static SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
     {
-        return
-                (modifiers.testFlag(Qt::ShiftModifier) ?
-                     (modifiers.testFlag(Qt::ControlModifier) ?
-                          SelectionEvent::ExcludeSelection :
-                          SelectionEvent::IncludeSelection
-                          ) :
-                     SelectionEvent::NewSelection
-                     );
+        return (modifiers.testFlag(Qt::ShiftModifier)
+                    ? (modifiers.testFlag(Qt::ControlModifier) ? SelectionEvent::ExcludeSelection
+                                                               : SelectionEvent::IncludeSelection)
+                    : SelectionEvent::NewSelection);
     }
 
 private:
-
     static const QEvent::Type TYPE = static_cast<QEvent::Type>(QEvent::User + 42);
 
     const QRectF m_path;

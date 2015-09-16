@@ -12,7 +12,10 @@
 namespace unit
 {
 
-RestTest::RestTest(QObject *parent) : QObject(parent) { }
+RestTest::RestTest(QObject* parent)
+    : QObject(parent)
+{
+}
 
 void RestTest::initTestCase()
 {
@@ -21,9 +24,6 @@ void RestTest::initTestCase()
 
 void RestTest::cleanupTestCase()
 {
-
-
 }
-
 
 } // namespace unit //

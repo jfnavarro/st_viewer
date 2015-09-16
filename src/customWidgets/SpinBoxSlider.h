@@ -22,20 +22,14 @@ class SpinBoxSlider : public QWidget
     Q_ENUMS(Controls)
 
 public:
-    
-    enum Controls {
-        onlySpinBoxes,
-        onlySlider,
-        sliderAndSpinBoxes
-    };
+    enum Controls { onlySpinBoxes, onlySlider, sliderAndSpinBoxes };
     Q_DECLARE_FLAGS(ControlsFlags, Controls)
 
-    explicit SpinBoxSlider(QWidget *parent = 0,
-                           ControlsFlags controlFlags = onlySpinBoxes);
+    explicit SpinBoxSlider(QWidget* parent = 0, ControlsFlags controlFlags = onlySpinBoxes);
     virtual ~SpinBoxSlider();
 
     // Some setters for the ticks
-    void setToolTip(const QString &str);
+    void setToolTip(const QString& str);
     void setMaximumValue(const int max);
     void setMinimumValue(const int min);
     void setTickInterval(const int interval);
@@ -51,7 +45,6 @@ public slots:
     void slotSetUpperValue(const int max);
 
 private:
-
     QPointer<QxtSpanSlider> m_spanslider;
     QPointer<QSpinBox> m_left_spinbox;
     QPointer<QSpinBox> m_right_spinbox;
@@ -65,5 +58,3 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(SpinBoxSlider::ControlsFlags)
 
 #endif
-
-

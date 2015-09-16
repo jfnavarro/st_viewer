@@ -29,7 +29,6 @@ class stVi : public QMainWindow
     Q_OBJECT
 
 public:
-
     explicit stVi(QWidget* parent = 0);
     ~stVi();
 
@@ -61,7 +60,6 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-
     // create all the widgets
     void setupUi();
     // initialize and configure layout
@@ -76,7 +74,7 @@ private:
     // overloaded close Event function to handle the exit
     void closeEvent(QCloseEvent* event) override;
 
-    //reference to some UI elements
+    // reference to some UI elements
     QPointer<QAction> m_actionExit;
     QPointer<QAction> m_actionHelp;
     QPointer<QAction> m_actionVersion;

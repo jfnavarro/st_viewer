@@ -18,7 +18,7 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class FeatureDTO : public QObject
 {
     Q_OBJECT
@@ -31,8 +31,10 @@ class FeatureDTO : public QObject
     Q_PROPERTY(double y READ y WRITE y)
 
 public:
-
-    explicit FeatureDTO(QObject* parent = 0) : QObject(parent) {}
+    explicit FeatureDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
     ~FeatureDTO() {}
 
     // binding
@@ -56,7 +58,6 @@ public:
     Feature& feature() { return m_feature; }
 
 private:
-
     Feature m_feature;
 };
 

@@ -18,7 +18,7 @@ class GLHeatMapTest : public QObject
     Q_OBJECT
 
 public:
-    explicit GLHeatMapTest(QObject *parent = 0);
+    explicit GLHeatMapTest(QObject* parent = 0);
 
 private Q_SLOTS:
     void initTestCase();

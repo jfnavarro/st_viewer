@@ -38,7 +38,6 @@ class Chip
 {
 
 public:
-
     Chip();
     explicit Chip(const Chip& other);
     ~Chip();
@@ -83,7 +82,6 @@ public:
     void lastModified(const QString& lastModified);
 
 private:
-
     QString m_id;
     int m_barcodes;
     QString m_name;

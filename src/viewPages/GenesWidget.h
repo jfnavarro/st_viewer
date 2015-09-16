@@ -29,8 +29,7 @@ class GenesWidget : public QWidget
     Q_OBJECT
 
 public:
-
-    explicit GenesWidget(QWidget *parent = 0);
+    explicit GenesWidget(QWidget* parent = 0);
     virtual ~GenesWidget();
 
     // clear focus/status and selections
@@ -48,27 +47,27 @@ signals:
 public slots:
 
     // updates the model of the table with the given objects
-    void slotLoadModel(const DataProxy::GeneList &geneList);
+    void slotLoadModel(const DataProxy::GeneList& geneList);
 
 private slots:
 
     // slots triggered by the show/color controls in the gene table
-    void slotSetColorAllSelected(const QColor &color);
+    void slotSetColorAllSelected(const QColor& color);
     void slotSetVisibilityForSelectedRows(bool visible);
     void slotHideAllSelected();
     void slotShowAllSelected();
 
 private:
-
     // internal function to configure created buttons
     // to avoid code duplication
-    //TODO better approach would be to have factories somewhere else
-    void configureButton(QPushButton *button,
-                         const QIcon icon = QIcon(), const QString tooltip = QString());
+    // TODO better approach would be to have factories somewhere else
+    void configureButton(QPushButton* button,
+                         const QIcon icon = QIcon(),
+                         const QString tooltip = QString());
 
     // internal function to retrieve the model and the proxy model of the gene table
-    QSortFilterProxyModel *getProxyModel();
-    GeneFeatureItemModel *getModel();
+    QSortFilterProxyModel* getProxyModel();
+    GeneFeatureItemModel* getModel();
 
     // some references needed to UI elements
     QPointer<QLineEdit> m_lineEdit;

@@ -20,22 +20,14 @@ class Heatmap
 {
 
 public:
+    enum SpectrumMode { SpectrumLinear, SpectrumLog, SpectrumExp };
 
-    enum SpectrumMode {
-        SpectrumLinear,
-        SpectrumLog,
-        SpectrumExp
-    };
-
-    enum InterpolationColorMode {
-        SpectrumRaibow,
-        SpectrumLinearInterpolation
-    };
+    enum InterpolationColorMode { SpectrumRaibow, SpectrumLinearInterpolation };
 
     // convenience function to generate a heatmap spectrum image given specific mapping function
     // using the wave lenght spectra or a linear interpolation spectra between two colors
-    // the input image will be transformed with the new colors 
-    static void createHeatMapImage(QImage &image,
+    // the input image will be transformed with the new colors
+    static void createHeatMapImage(QImage& image,
                                    const qreal lowerbound,
                                    const qreal upperbound,
                                    const Globals::GeneColorMode& colorMode);
@@ -44,9 +36,7 @@ public:
     static QColor createHeatMapWaveLenghtColor(const qreal value);
 
     // convenience function to generate a QColor color from a real value given a range
-    static QColor createHeatMapLinearColor(const qreal value,
-                                           const qreal min,
-                                           const qreal max);
+    static QColor createHeatMapLinearColor(const qreal value, const qreal min, const qreal max);
 
     // convenience function to adjust the input value using a Linear - Exponential or Logaritmic
     // function

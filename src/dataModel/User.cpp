@@ -14,47 +14,43 @@ static const QString ROLE_CM = QStringLiteral("ROLE_CM");
 static const QString ROLE_ADMIN = QStringLiteral("ROLE_ADMIN");
 
 User::User()
-    : m_id(),
-      m_username(),
-      m_instituion(),
-      m_firstName(),
-      m_address(),
-      m_postcode(0),
-      m_city(),
-      m_country(),
-      m_password(),
-      m_role(),
-      m_enabled(false),
-      m_grantedDatasets(),
-      m_created(QDate::currentDate().toString()),
-      m_lastMofidied(QDate::currentDate().toString())
+    : m_id()
+    , m_username()
+    , m_instituion()
+    , m_firstName()
+    , m_address()
+    , m_postcode(0)
+    , m_city()
+    , m_country()
+    , m_password()
+    , m_role()
+    , m_enabled(false)
+    , m_grantedDatasets()
+    , m_created(QDate::currentDate().toString())
+    , m_lastMofidied(QDate::currentDate().toString())
 {
-
 }
 
-
 User::User(const User& other)
-    : m_id(other.m_id),
-      m_username(other.m_username),
-      m_instituion(other.m_instituion),
-      m_firstName(other.m_firstName),
-      m_address(other.m_address),
-      m_postcode(other.m_postcode),
-      m_city(other.m_city),
-      m_country(other.m_country),
-      m_password(other.m_password),
-      m_role(other.m_role),
-      m_enabled(other.m_enabled),
-      m_grantedDatasets(other.m_grantedDatasets),
-      m_created(other.m_created),
-      m_lastMofidied(other.m_lastMofidied)
+    : m_id(other.m_id)
+    , m_username(other.m_username)
+    , m_instituion(other.m_instituion)
+    , m_firstName(other.m_firstName)
+    , m_address(other.m_address)
+    , m_postcode(other.m_postcode)
+    , m_city(other.m_city)
+    , m_country(other.m_country)
+    , m_password(other.m_password)
+    , m_role(other.m_role)
+    , m_enabled(other.m_enabled)
+    , m_grantedDatasets(other.m_grantedDatasets)
+    , m_created(other.m_created)
+    , m_lastMofidied(other.m_lastMofidied)
 {
-
 }
 
 User::~User()
 {
-
 }
 
 User& User::operator=(const User& other)
@@ -78,22 +74,19 @@ User& User::operator=(const User& other)
 
 bool User::operator==(const User& other) const
 {
-    return (
-                m_id == other.m_id &&
-                m_username == other.m_username &&
-                m_instituion == other.m_instituion &&
-                m_firstName == other.m_firstName &&
-                m_address == other.m_address &&
-                m_postcode == other.m_postcode &&
-                m_city == other.m_city &&
-                m_country == other.m_country &&
-                m_password == other.m_password &&
-                m_role == other.m_role &&
-                m_enabled == other.m_enabled &&
-                m_grantedDatasets == other.m_grantedDatasets &&
-                m_created == other.m_created &&
-                m_lastMofidied == other.m_lastMofidied
-        );
+    return (m_id == other.m_id && m_username == other.m_username
+            && m_instituion == other.m_instituion
+            && m_firstName == other.m_firstName
+            && m_address == other.m_address
+            && m_postcode == other.m_postcode
+            && m_city == other.m_city
+            && m_country == other.m_country
+            && m_password == other.m_password
+            && m_role == other.m_role
+            && m_enabled == other.m_enabled
+            && m_grantedDatasets == other.m_grantedDatasets
+            && m_created == other.m_created
+            && m_lastMofidied == other.m_lastMofidied);
 }
 
 const QString User::id() const
@@ -231,7 +224,7 @@ void User::enabled(bool enabled)
     m_enabled = enabled;
 }
 
-void User::grantedDatasets(const QVector<QString> &grantedDatasets)
+void User::grantedDatasets(const QVector<QString>& grantedDatasets)
 {
     m_grantedDatasets = grantedDatasets;
 }

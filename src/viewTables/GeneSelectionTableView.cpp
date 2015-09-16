@@ -12,10 +12,10 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneSelectionItemModel.h"
 
-GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
-    : QTableView(parent),
-      m_geneSelectionModel(nullptr),
-      m_sortGenesProxyModel(nullptr)
+GeneSelectionTableView::GeneSelectionTableView(QWidget* parent)
+    : QTableView(parent)
+    , m_geneSelectionModel(nullptr)
+    , m_sortGenesProxyModel(nullptr)
 {
     // model
     m_geneSelectionModel = new GeneSelectionItemModel(this);
@@ -43,23 +43,19 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::NoSelection);
 
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name,
-                                             QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Count,
-                                             QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Count, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneSelectionItemModel::Count, 50);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits,
-                                             QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneSelectionItemModel::Hits, 75);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
-    model()->submit(); //support for caching (speed up)
+    model()->submit(); // support for caching (speed up)
 }
 
 GeneSelectionTableView::~GeneSelectionTableView()
 {
-
 }
 
 QItemSelection GeneSelectionTableView::geneTableItemSelection() const

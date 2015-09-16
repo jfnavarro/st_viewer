@@ -16,37 +16,39 @@
 #include "options_cmake.h"
 
 // Global defines
-//TODO it would be nice to have a Settings Manager object that
+// TODO it would be nice to have a Settings Manager object that
 // will read/write settings to disk
-//TODO The style configuration could be loaded from a QSS file
+// TODO The style configuration could be loaded from a QSS file
 namespace Globals
 {
 
 /** STYLE VARIABLES **/
 
-static const QString BUTTON_STYLE_INIT_PAGE =
-        "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
-        "stop:0 rgba(245, 245, 245, 255), stop:1 rgba(255, 255, 255, 255)); "
-        "border: 1px solid rgb(209, 209, 209); "
-        "border-radius: 5px;}";
+static const QString BUTTON_STYLE_INIT_PAGE
+    = "{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, "
+      "                                   stop:0 rgba(245, 245, 245, 255), "
+      "                                   stop:1 rgba(255, 255, 255, 255)); "
+      " border: 1px solid rgb(209, 209, 209); "
+      " border-radius: 5px;}";
 
-static const QString PAGE_WIDGETS_STYLE = "{background-color:rgb(240,240,240);}";
+static const QString PAGE_WIDGETS_STYLE = "{background-color: rgb(240,240,240);}";
 
-static const QString PAGE_FRAME_STYLE = "{background-color:rgb(230,230,230); "
-                                        "border-color: rgb(206,202,202);}";
+static const QString PAGE_FRAME_STYLE = "{background-color: rgb(230,230,230); "
+                                        " border-color: rgb(206,202,202);}";
 
 static const int CELL_PAGE_SUB_MENU_BUTTON_SPACE = 15;
 static const QSize CELL_PAGE_SUB_MENU_BUTTON_SIZE = QSize(40, 30);
 static const QSize CELL_PAGE_SUB_MENU_ICON_SIZE = QSize(40, 30);
 static const QSize CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE = QSize(150, 25);
-static const QString CELL_PAGE_SUB_MENU_BUTTON_STYLE =
-        "QPushButton {border: 1px solid rgb(209, 209, 209); "
-        "border-radius: 5px; background-color: rgb(255, 255, 255);}";
-static const QString CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE =
-        "QLineEdit {border: 1px solid rgb(209, 209, 209); "
-        "border-radius: 5px; "
-        "background-color: rgb(255, 255, 255); "
-        "selection-background-color: darkgray;}";
+static const QString CELL_PAGE_SUB_MENU_BUTTON_STYLE
+    = "QPushButton {border: 1px solid rgb(209, 209, 209); "
+      "             border-radius: 5px; "
+      "             background-color: rgb(255, 255, 255);}";
+static const QString CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE
+    = "QLineEdit {border: 1px solid rgb(209, 209, 209); "
+      "           border-radius: 5px; "
+      "           background-color: rgb(255, 255, 255); "
+      "           selection-background-color: darkgray;}";
 
 /** GRAPHIC PARAMETERS DEFAULT VALUES **/
 
@@ -69,9 +71,8 @@ enum Anchor {
     None = 10
 };
 
-//default color of gene is used in many places
+// default color of gene is used in many places
 static const QColor DEFAULT_COLOR_GENE = QColor::fromHsv(0, 255, 255, 255);
-
 
 /** GRAPHICAL ITEMS ANCHOR POSITIONS **/
 static const Anchor DEFAULT_ANCHOR_MINIMAP = SouthEast;
@@ -84,7 +85,7 @@ static const Anchor DEFAULT_ANCHOR_GENE = None;
 static const qulonglong MAJOR = VERSION_MAJOR;
 static const qulonglong MINOR = VERSION_MINOR;
 static const qulonglong PATCH = VERSION_REVISION;
-static const std::array<qulonglong, 3> VersionNumbers = { MAJOR, MINOR, PATCH };
+static const std::array<qulonglong, 3> VersionNumbers = {MAJOR, MINOR, PATCH};
 static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
 /** SETTINGS **/
@@ -134,7 +135,6 @@ enum HttpRequestType {
     HttpRequestTypePut = 3,
     HttpRequestTypeDelete = 4
 };
-
 }
 
 #endif // UTILS_H

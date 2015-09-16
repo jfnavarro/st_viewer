@@ -20,19 +20,18 @@ class Configuration
 {
 
 public:
-
     Configuration();
     ~Configuration();
 
-    //TODO if more settings are added let each object accessing the
+    // TODO if more settings are added let each object accessing the
     //     configurations store the access string literals as static values
     //     and make readSetting public instead. doesn't make sense to provide
     //     each setting as a function.
 
-    //url
+    // url
     const QString EndPointUrl() const;
 
-    //version
+    // version
     const QString dataEndpointMinVersion() const;
 
     // oauth
@@ -52,7 +51,6 @@ public:
     const QString dataEndpointFigures() const;
 
 private:
-
     const QString readSetting(const QString& key) const;
 
     QPointer<QSettings> m_settings;
@@ -60,4 +58,4 @@ private:
     Q_DISABLE_COPY(Configuration)
 };
 
-#endif  /* CONFIGURATION_H */
+#endif /* CONFIGURATION_H */

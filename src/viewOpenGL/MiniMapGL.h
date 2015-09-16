@@ -26,7 +26,6 @@ class MiniMapGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
@@ -43,35 +42,33 @@ public:
 
 public slots:
 
-    //TODO slots should have the prefix "slot"
+    // TODO slots should have the prefix "slot"
 
     // to change minimap's colors
-    void setViewColor(const QColor &viewColor);
-    void setSceneColor(const QColor &sceneColor);
+    void setViewColor(const QColor& viewColor);
+    void setSceneColor(const QColor& sceneColor);
 
     // to adjust minimap with the view's size
-    void setScene(const QRectF &scene);
-    void setViewPort(const QRectF &view);
+    void setScene(const QRectF& scene);
+    void setViewPort(const QRectF& view);
 
     // to adjust minimap with the view's transformations
-    void setParentSceneTransformations(const QTransform &transform);
+    void setParentSceneTransformations(const QTransform& transform);
 
 signals:
 
     // to notify the CellGlView when the user has interacted with the minimap
-    void signalCenterOn(const QPointF &point);
+    void signalCenterOn(const QPointF& point);
 
 protected:
-
-    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
+    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
+    void setSelectionArea(const SelectionEvent*) override;
 
 private:
-
     // internal functions to adjust minimap's size and position
     QTransform localTransform() const;
-    void centerOnLocalPos(const QPointF &localPoint);
+    void centerOnLocalPos(const QPointF& localPoint);
 
     // mini versions
     QRectF m_scene;

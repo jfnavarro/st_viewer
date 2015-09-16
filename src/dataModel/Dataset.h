@@ -18,13 +18,12 @@ class Dataset
 {
 
 public:
-
     Dataset();
     explicit Dataset(const Dataset& other);
     ~Dataset();
 
-    Dataset& operator= (const Dataset& other);
-    bool operator== (const Dataset& other) const;
+    Dataset& operator=(const Dataset& other);
+    bool operator==(const Dataset& other) const;
 
     const QString id() const;
     const QString name() const;
@@ -59,7 +58,7 @@ public:
     void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
     void hitsPooledQuartiles(const QVector<qreal>& hitsPooledQuartiles);
     void enabled(const bool enabled);
-    void grantedAccounts(const QVector<QString> &grantedAccounts);
+    void grantedAccounts(const QVector<QString>& grantedAccounts);
     void createdByAccount(const QString& created);
     void created(const QString& created);
     void lastModified(const QString& lastModified);
@@ -75,7 +74,6 @@ public:
     qreal statisticsPooledMax() const;
 
 private:
-
     QString m_id;
     QString m_name;
     QString m_alignmentId;

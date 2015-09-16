@@ -22,12 +22,7 @@ class HeatMapLegendGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-
-    enum ValueComputation {
-        Reads = 1,
-        Genes = 2,
-        TPM = 3
-    };
+    enum ValueComputation { Reads = 1, Genes = 2, TPM = 3 };
 
     explicit HeatMapLegendGL(QObject* parent = 0);
     virtual ~HeatMapLegendGL();
@@ -44,8 +39,8 @@ public:
     void generateHeatMap();
 
 public slots:
-    
-    //TODO slots should have the prefix "slot"
+
+    // TODO slots should have the prefix "slot"
 
     // slots to adjust the boundaries when the threshold is changed
     void setLowerLimitReads(const int limit);
@@ -57,18 +52,16 @@ public slots:
     void setValueComputation(ValueComputation mode);
 
     // slot to change the function to compute color values
-    void setColorComputingMode(const Globals::GeneColorMode &mode);
+    void setColorComputingMode(const Globals::GeneColorMode& mode);
 
 protected:
-
-    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
+    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
+    void setSelectionArea(const SelectionEvent*) override;
 
 private:
-
     // internal function to render text as a texture
-    void drawText(const QPointF &posn, const QString& str);
+    void drawText(const QPointF& posn, const QString& str);
 
     // min and max boundaries values to compute colors from
     int m_maxReads;

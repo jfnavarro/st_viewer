@@ -17,11 +17,11 @@ static const QColor minimap_scene_color = Qt::red;
 static const qreal minimap_height = 100.0;
 static const qreal minimap_width = 100.0;
 
-MiniMapGL::MiniMapGL(QObject *parent)
-    : GraphicItemGL(parent),
-      m_sceneColor(minimap_scene_color),
-      m_viewColor(minimap_view_color),
-      m_selecting(false)
+MiniMapGL::MiniMapGL(QObject* parent)
+    : GraphicItemGL(parent)
+    , m_sceneColor(minimap_scene_color)
+    , m_viewColor(minimap_view_color)
+    , m_selecting(false)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -33,7 +33,6 @@ MiniMapGL::MiniMapGL(QObject *parent)
 
 MiniMapGL::~MiniMapGL()
 {
-
 }
 
 void MiniMapGL::clearData()
@@ -42,21 +41,21 @@ void MiniMapGL::clearData()
     m_scene = QRectF();
 }
 
-void MiniMapGL::setScene(const QRectF &scene)
+void MiniMapGL::setScene(const QRectF& scene)
 {
     if (scene.isValid() && scene != m_scene) {
         m_scene = scene;
     }
 }
 
-void MiniMapGL::setViewPort(const QRectF &view)
+void MiniMapGL::setViewPort(const QRectF& view)
 {
     if (view.isValid() && m_viewPort != view) {
         m_viewPort = view;
     }
 }
 
-void MiniMapGL::setParentSceneTransformations(const QTransform &transform)
+void MiniMapGL::setParentSceneTransformations(const QTransform& transform)
 {
     if (m_parentSceneTransformations != transform) {
         m_parentSceneTransformations = transform;
@@ -79,22 +78,23 @@ QTransform MiniMapGL::localTransform() const
     return transform;
 }
 
-void MiniMapGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
+void MiniMapGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
 {
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
     }
 
-    const QRectF viewPortInSceneCoordinates =
-            m_parentSceneTransformations.inverted().mapRect(m_viewPort);
+    const QRectF viewPortInSceneCoordinates
+        = m_parentSceneTransformations.inverted().mapRect(m_viewPort);
     drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, m_qopengl_functions);
     drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates),
-                   m_viewColor, m_qopengl_functions);
+                   m_viewColor,
+                   m_qopengl_functions);
 }
 
-void MiniMapGL::setSceneColor(const QColor &sceneColor)
+void MiniMapGL::setSceneColor(const QColor& sceneColor)
 {
-    if (m_sceneColor != sceneColor ) {
+    if (m_sceneColor != sceneColor) {
         m_sceneColor = sceneColor;
         emit updated();
     }
@@ -105,9 +105,9 @@ const QColor MiniMapGL::sceneColor() const
     return m_sceneColor;
 }
 
-void MiniMapGL::setViewColor(const QColor &viewColor)
+void MiniMapGL::setViewColor(const QColor& viewColor)
 {
-    if (m_viewColor != viewColor ) {
+    if (m_viewColor != viewColor) {
         m_viewColor = viewColor;
         emit updated();
     }
@@ -123,12 +123,11 @@ const QRectF MiniMapGL::boundingRect() const
     return localTransform().mapRect(m_scene);
 }
 
-void MiniMapGL::setSelectionArea(const SelectionEvent *)
+void MiniMapGL::setSelectionArea(const SelectionEvent*)
 {
-
 }
 
-void MiniMapGL::mouseMoveEvent(QMouseEvent *event)
+void MiniMapGL::mouseMoveEvent(QMouseEvent* event)
 {
     // move
     if (event->buttons() & Qt::LeftButton) {
@@ -136,7 +135,7 @@ void MiniMapGL::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MiniMapGL::mousePressEvent(QMouseEvent *event)
+void MiniMapGL::mousePressEvent(QMouseEvent* event)
 {
     // center if left button is pressed down
     if (event->button() == Qt::LeftButton) {
@@ -145,7 +144,7 @@ void MiniMapGL::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void MiniMapGL::mouseReleaseEvent(QMouseEvent *event)
+void MiniMapGL::mouseReleaseEvent(QMouseEvent* event)
 {
     // set selecting to false if released
     if (event->button() == Qt::LeftButton) {
@@ -153,10 +152,10 @@ void MiniMapGL::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void MiniMapGL::centerOnLocalPos(const QPointF &localPoint)
+void MiniMapGL::centerOnLocalPos(const QPointF& localPoint)
 {
     // localPoint
-    const QPointF scenePoint =
-            localTransform().inverted().map(boundingRect().bottomRight()-localPoint);
+    const QPointF scenePoint
+        = localTransform().inverted().map(boundingRect().bottomRight() - localPoint);
     emit signalCenterOn(scenePoint);
 }

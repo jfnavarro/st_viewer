@@ -17,7 +17,7 @@
 
 // this DTO parses the OAuth2 authorization token
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class OAuth2TokenDTO : public QObject
 {
     Q_OBJECT
@@ -29,24 +29,27 @@ class OAuth2TokenDTO : public QObject
     Q_PROPERTY(int expires_in READ expiresIn WRITE expiresIn)
 
 public:
-
     explicit OAuth2TokenDTO(QObject* parent = 0)
-        : QObject(parent),
-          m_accessToken(),
-          m_tokenType(),
-          m_refreshToken(),
-          m_scopeType(),
-          m_expiresIn(0) { }
+        : QObject(parent)
+        , m_accessToken()
+        , m_tokenType()
+        , m_refreshToken()
+        , m_scopeType()
+        , m_expiresIn(0)
+    {
+    }
 
     OAuth2TokenDTO(const OAuth2TokenDTO& other)
-        : QObject(other.parent()),
-          m_accessToken(other.accessToken()),
-          m_tokenType(other.tokenType()),
-          m_refreshToken(other.refreshToken()),
-          m_scopeType(other.scope()),
-          m_expiresIn(other.expiresIn()) { }
+        : QObject(other.parent())
+        , m_accessToken(other.accessToken())
+        , m_tokenType(other.tokenType())
+        , m_refreshToken(other.refreshToken())
+        , m_scopeType(other.scope())
+        , m_expiresIn(other.expiresIn())
+    {
+    }
 
-    OAuth2TokenDTO& operator= (const OAuth2TokenDTO& other)
+    OAuth2TokenDTO& operator=(const OAuth2TokenDTO& other)
     {
         m_accessToken = other.accessToken();
         m_tokenType = other.tokenType();
@@ -56,7 +59,7 @@ public:
         return (*this);
     }
 
-    ~OAuth2TokenDTO() { }
+    ~OAuth2TokenDTO() {}
 
     // binding
     const QString& accessToken() const { return m_accessToken; }
@@ -73,7 +76,6 @@ public:
     void expiresIn(int expiresIn) { m_expiresIn = expiresIn; }
 
 private:
-
     QString m_accessToken;
     QString m_tokenType;
     QString m_refreshToken;

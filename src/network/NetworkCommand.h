@@ -24,11 +24,10 @@ class NetworkCommand : public QObject
     Q_OBJECT
 
 public:
-
-    explicit NetworkCommand(QObject *parent = 0);
+    explicit NetworkCommand(QObject* parent = 0);
     NetworkCommand(const QUrl& url,
                    Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
-                   QObject *parent = 0);
+                   QObject* parent = 0);
     virtual ~NetworkCommand();
 
     // member access
@@ -37,12 +36,12 @@ public:
     const QUrlQuery& query() const;
 
     // convenience wrapper functions to add parameters to the network command
-    void addQueryItem(const QString &param, const QString &value = QString());
-    void addQueryItem(const QString &param, const int value);
-    void addQueryItem(const QString &param, const qreal value);
+    void addQueryItem(const QString& param, const QString& value = QString());
+    void addQueryItem(const QString& param, const int value);
+    void addQueryItem(const QString& param, const qreal value);
 
     // adds query items from qobject meta data if its elements are possible to parse to QVariant
-    void addQueryItems(QObject *object);
+    void addQueryItems(QObject* object);
 
     // returns the current query item for the param given
     const QString getQueryItem(const QString& param) const;
@@ -55,11 +54,10 @@ public:
 
     // sets the body as a QByteArray
     // usually needed for sending JSON objects (used in PUT/POST)
-    void setBody(const QByteArray &body);
+    void setBody(const QByteArray& body);
     const QByteArray body() const;
 
 private:
-
     typedef Globals::HttpRequestType Type;
     QUrl m_url;
     Type m_type;

@@ -14,13 +14,13 @@
 namespace unit
 {
 
-TestHandle::TestHandle(TestSuite *suite, const QString &name)
-    : m_suite(suite), m_name(name)
+TestHandle::TestHandle(TestSuite* suite, const QString& name)
+    : m_suite(suite)
+    , m_name(name)
 {
-    
 }
 
-TestHandle TestHandle::dependsOn(const QString &name)
+TestHandle TestHandle::dependsOn(const QString& name)
 {
     // <name> must execute before <m_name>
     m_suite->setDependencie(name, m_name);
@@ -29,26 +29,21 @@ TestHandle TestHandle::dependsOn(const QString &name)
 
 TestHandle::TestHandle()
 {
-    
 }
 
 TestSuite::TestSuite()
 {
-    
 }
-
 
 TestHandle::~TestHandle()
 {
-
 }
 
-TestSuite::~TestSuite() 
-{ 
-    
+TestSuite::~TestSuite()
+{
 }
 
-TestHandle TestSuite::addTest(QObject *test, const QString &name)
+TestHandle TestSuite::addTest(QObject* test, const QString& name)
 {
     // assign name to object and add it without dependencies (to root)
     test->setObjectName(name);
@@ -61,11 +56,11 @@ int TestSuite::exec()
 {
     QScopedPointer<Linearizer> linearizer(new BreadthFirstTopDown());
 
-    QList<QObject *> list = linearizer->list(&m_root);
+    QList<QObject*> list = linearizer->list(&m_root);
     list.removeFirst(); // pop dummy root object
 
     int exitCode = 0;
-    foreach(QObject * object, list) {
+    foreach (QObject* object, list) {
         if (QTest::qExec(object)) {
             exitCode = -1;
         }
@@ -74,10 +69,10 @@ int TestSuite::exec()
     return exitCode;
 }
 
-void TestSuite::setDependencie(const QString &parent, const QString &child)
+void TestSuite::setDependencie(const QString& parent, const QString& child)
 {
-    QObject *parentObject = m_root.findChild<QObject *>(parent, Qt::FindChildrenRecursively);
-    QObject *childObject = m_root.findChild<QObject *>(child, Qt::FindChildrenRecursively);
+    QObject* parentObject = m_root.findChild<QObject*>(parent, Qt::FindChildrenRecursively);
+    QObject* childObject = m_root.findChild<QObject*>(child, Qt::FindChildrenRecursively);
 
     // abort if either is null
     if (!parentObject || !childObject) {

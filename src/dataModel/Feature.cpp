@@ -10,30 +10,27 @@
 #include "utils/Utils.h"
 
 Feature::Feature()
-    : m_barcode(),
-      m_gene(),
-      m_annotation(),
-      m_hits(0),
-      m_x(0),
-      m_y(0),
-      m_geneObject(nullptr)
+    : m_barcode()
+    , m_gene()
+    , m_annotation()
+    , m_hits(0)
+    , m_x(0)
+    , m_y(0)
+    , m_geneObject(nullptr)
 
 {
-
 }
 
 Feature::Feature(QString barcode, QString gene, double x, double y, int hits)
-    : m_barcode(barcode),
-      m_gene(gene),
-      m_annotation(),
-      m_hits(hits),
-      m_x(x),
-      m_y(y),
-      m_geneObject(nullptr)
+    : m_barcode(barcode)
+    , m_gene(gene)
+    , m_annotation()
+    , m_hits(hits)
+    , m_x(x)
+    , m_y(y)
+    , m_geneObject(nullptr)
 {
-
 }
-
 
 Feature::Feature(const Feature& other)
 {
@@ -43,13 +40,12 @@ Feature::Feature(const Feature& other)
     m_hits = other.m_hits;
     m_x = other.m_x;
     m_y = other.m_y;
-    //TODO this is dangerous
+    // TODO this is dangerous
     m_geneObject = other.m_geneObject;
 }
 
 Feature::~Feature()
 {
-
 }
 
 Feature& Feature::operator=(const Feature& other)
@@ -60,22 +56,19 @@ Feature& Feature::operator=(const Feature& other)
     m_hits = other.m_hits;
     m_x = other.m_x;
     m_y = other.m_y;
-    //TODO this is dangerous
+    // TODO this is dangerous
     m_geneObject = other.m_geneObject;
     return (*this);
 }
 
 bool Feature::operator==(const Feature& other) const
 {
-    return (
-            m_barcode == other.m_barcode &&
-            m_gene == other.m_gene &&
-            m_annotation == other.m_annotation &&
-            m_hits == other.m_hits &&
-            m_x == other.m_x &&
-            m_y == other.m_y &&
-            m_geneObject == other.m_geneObject
-            );
+    return (m_barcode == other.m_barcode && m_gene == other.m_gene
+            && m_annotation == other.m_annotation
+            && m_hits == other.m_hits
+            && m_x == other.m_x
+            && m_y == other.m_y
+            && m_geneObject == other.m_geneObject);
 }
 
 const QString Feature::barcode() const

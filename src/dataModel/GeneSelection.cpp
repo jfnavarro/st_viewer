@@ -7,35 +7,31 @@
 
 #include <numeric>
 
-SelectionType::SelectionType() :
-    name(),
-    reads(0),
-    normalizedReads(0),
-    count(0)
+SelectionType::SelectionType()
+    : name()
+    , reads(0)
+    , normalizedReads(0)
+    , count(0)
 {
-
 }
 
-SelectionType::SelectionType(const SelectionType& other) :
-    name(other.name),
-    reads(other.reads),
-    normalizedReads(other.normalizedReads),
-    count(other.count)
+SelectionType::SelectionType(const SelectionType& other)
+    : name(other.name)
+    , reads(other.reads)
+    , normalizedReads(other.normalizedReads)
+    , count(other.count)
 {
-
 }
 
-SelectionType::SelectionType(QString name, int reads,
-                             int normalizedReads, int count)
-    : name(name),
-      reads(reads),
-      normalizedReads(normalizedReads),
-      count(count)
+SelectionType::SelectionType(QString name, int reads, int normalizedReads, int count)
+    : name(name)
+    , reads(reads)
+    , normalizedReads(normalizedReads)
+    , count(count)
 {
-
 }
 
-SelectionType& SelectionType::operator= (const SelectionType& other)
+SelectionType& SelectionType::operator=(const SelectionType& other)
 {
     name = other.name;
     reads = other.reads;
@@ -44,64 +40,58 @@ SelectionType& SelectionType::operator= (const SelectionType& other)
     return (*this);
 }
 
-bool SelectionType::operator< (const SelectionType& other) const
+bool SelectionType::operator<(const SelectionType& other) const
 {
     return name < other.name;
 }
 
-bool SelectionType::operator== (const SelectionType& other) const
+bool SelectionType::operator==(const SelectionType& other) const
 {
-    return( name == other.name &&
-            reads == other.reads &&
-            normalizedReads == other.normalizedReads &&
-            count == other.count
-        );
+    return (name == other.name && reads == other.reads && normalizedReads == other.normalizedReads
+            && count == other.count);
 }
 
 GeneSelection::GeneSelection()
-    : m_id(),
-      m_name(),
-      m_userId(),
-      m_datasetId(),
-      m_selectedItems(),
-      m_type(),
-      m_status(),
-      m_oboFroundryTerms(),
-      m_comment(),
-      m_enabled(false),
-      m_created(QDate::currentDate().toString()),
-      m_lastMofidied(QDate::currentDate().toString()),
-      m_datasetName(),
-      m_totalReads(-1),
-      m_totalFeatures(-1)
+    : m_id()
+    , m_name()
+    , m_userId()
+    , m_datasetId()
+    , m_selectedItems()
+    , m_type()
+    , m_status()
+    , m_oboFroundryTerms()
+    , m_comment()
+    , m_enabled(false)
+    , m_created(QDate::currentDate().toString())
+    , m_lastMofidied(QDate::currentDate().toString())
+    , m_datasetName()
+    , m_totalReads(-1)
+    , m_totalFeatures(-1)
 {
-
 }
 
 GeneSelection::GeneSelection(const GeneSelection& other)
-    : m_id(other.m_id),
-      m_name(other.m_name),
-      m_userId(other.m_userId),
-      m_datasetId(other.m_datasetId),
-      m_selectedItems(other.m_selectedItems),
-      m_type(other.m_type),
-      m_status(other.m_status),
-      m_oboFroundryTerms(other.m_oboFroundryTerms),
-      m_comment(other.m_comment),
-      m_enabled(other.m_enabled),
-      m_created(other.m_created),
-      m_lastMofidied(other.m_lastMofidied),
-      m_datasetName(other.m_datasetName),
-      m_tissueSnapShot(other.m_tissueSnapShot),
-      m_totalReads(other.m_totalReads),
-      m_totalFeatures(other.m_totalFeatures)
+    : m_id(other.m_id)
+    , m_name(other.m_name)
+    , m_userId(other.m_userId)
+    , m_datasetId(other.m_datasetId)
+    , m_selectedItems(other.m_selectedItems)
+    , m_type(other.m_type)
+    , m_status(other.m_status)
+    , m_oboFroundryTerms(other.m_oboFroundryTerms)
+    , m_comment(other.m_comment)
+    , m_enabled(other.m_enabled)
+    , m_created(other.m_created)
+    , m_lastMofidied(other.m_lastMofidied)
+    , m_datasetName(other.m_datasetName)
+    , m_tissueSnapShot(other.m_tissueSnapShot)
+    , m_totalReads(other.m_totalReads)
+    , m_totalFeatures(other.m_totalFeatures)
 {
-
 }
 
 GeneSelection::~GeneSelection()
 {
-
 }
 
 GeneSelection& GeneSelection::operator=(const GeneSelection& other)
@@ -127,24 +117,20 @@ GeneSelection& GeneSelection::operator=(const GeneSelection& other)
 
 bool GeneSelection::operator==(const GeneSelection& other) const
 {
-    return(
-                m_id == other.m_id &&
-                m_name == other.m_name &&
-                m_userId == other.m_userId &&
-                m_datasetId == other.m_datasetId &&
-                m_selectedItems == other.m_selectedItems &&
-                m_type == other.m_type &&
-                m_status == other.m_status &&
-                m_oboFroundryTerms == other.m_oboFroundryTerms &&
-                m_comment == other.m_comment &&
-                m_enabled == other.m_enabled &&
-                m_created == other.m_created &&
-                m_lastMofidied == other.m_lastMofidied &&
-                m_datasetName == other.m_datasetName &&
-                m_totalReads == other.m_totalReads &&
-                m_totalFeatures == other.m_totalFeatures &&
-                m_tissueSnapShot == other.m_tissueSnapShot
-        );
+    return (m_id == other.m_id && m_name == other.m_name && m_userId == other.m_userId
+            && m_datasetId == other.m_datasetId
+            && m_selectedItems == other.m_selectedItems
+            && m_type == other.m_type
+            && m_status == other.m_status
+            && m_oboFroundryTerms == other.m_oboFroundryTerms
+            && m_comment == other.m_comment
+            && m_enabled == other.m_enabled
+            && m_created == other.m_created
+            && m_lastMofidied == other.m_lastMofidied
+            && m_datasetName == other.m_datasetName
+            && m_totalReads == other.m_totalReads
+            && m_totalFeatures == other.m_totalFeatures
+            && m_tissueSnapShot == other.m_tissueSnapShot);
 }
 
 const QString GeneSelection::id() const
@@ -256,21 +242,24 @@ void GeneSelection::selectedItems(const GeneSelection::selectedItemsList& select
 {
     m_selectedItems = selectedItems;
 
-    //TODO this is being done twice, when saving and when loading
+    // TODO this is being done twice, when saving and when loading
 
-    //compute total reads and features here for convenience
-    m_totalFeatures = std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
-                                      [] (int total, const SelectionType &item)
-                                         { return total + item.count; });
-    m_totalReads = std::accumulate(m_selectedItems.begin(), m_selectedItems.end(), 0,
-                                   [] (int total, const SelectionType &item)
-                                      { return total + item.reads; });
-    //compute TPM values
+    // compute total reads and features here for convenience
+    m_totalFeatures
+        = std::accumulate(m_selectedItems.begin(),
+                          m_selectedItems.end(),
+                          0,
+                          [](int total, const SelectionType& item) { return total + item.count; });
+    m_totalReads
+        = std::accumulate(m_selectedItems.begin(),
+                          m_selectedItems.end(),
+                          0,
+                          [](int total, const SelectionType& item) { return total + item.reads; });
+    // compute TPM values
     selectedItemsList::iterator it;
     for (it = m_selectedItems.begin(); it != m_selectedItems.end(); ++it) {
         it->normalizedReads = STMath::tpmNormalization<int>(it->reads, m_totalReads);
     }
-
 }
 
 void GeneSelection::status(const QString& status)
@@ -278,7 +267,7 @@ void GeneSelection::status(const QString& status)
     m_status = status;
 }
 
-void GeneSelection::oboFoundryTerms(const QVector<QString> &oboFoundryTerms)
+void GeneSelection::oboFoundryTerms(const QVector<QString>& oboFoundryTerms)
 {
     m_oboFroundryTerms = oboFoundryTerms;
 }

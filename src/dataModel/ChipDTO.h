@@ -19,7 +19,7 @@
 // deserialization of server data.
 // ChipDTO defines the parsing object for the underlying Chip data object.
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class ChipDTO : public QObject
 {
 
@@ -44,17 +44,19 @@ class ChipDTO : public QObject
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-
-    explicit ChipDTO(QObject* parent = 0) : QObject(parent) { }
-    ~ChipDTO() { }
+    explicit ChipDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
+    ~ChipDTO() {}
 
     // binding
     void id(const QString& id) { m_chip.id(id); }
     void barcodes(int barcodes) { m_chip.barcodes(barcodes); }
     void name(const QString& name) { m_chip.name(name); }
     void x1(int x1) { m_chip.x1(x1); }
-    void x2(int x2) { m_chip.x2(x2);  }
-    void x1Total(int x1Total) { m_chip.x1Total(x1Total);  }
+    void x2(int x2) { m_chip.x2(x2); }
+    void x1Total(int x1Total) { m_chip.x1Total(x1Total); }
     void x2Total(int x2Total) { m_chip.x2Total(x2Total); }
     void x1Border(int x1Border) { m_chip.x1Border(x1Border); }
     void x2Border(int x2Border) { m_chip.x2Border(x2Border); }
@@ -72,8 +74,8 @@ public:
     int barcodes() { return m_chip.barcodes(); }
     const QString name() { return m_chip.name(); }
     int x1() { return m_chip.x1(); }
-    int x2() { return m_chip.x2();  }
-    int x1Total() { return m_chip.x1Total();  }
+    int x2() { return m_chip.x2(); }
+    int x1Total() { return m_chip.x1Total(); }
     int x2Total() { return m_chip.x2Total(); }
     int x1Border() { return m_chip.x1Border(); }
     int x2Border() { return m_chip.x2Border(); }
@@ -91,7 +93,6 @@ public:
     Chip& chip() { return m_chip; }
 
 private:
-
     Chip m_chip;
 };
 

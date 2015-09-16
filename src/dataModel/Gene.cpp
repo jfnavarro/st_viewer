@@ -8,31 +8,27 @@
 #include "Gene.h"
 
 Gene::Gene()
-    : m_name(),
-      m_color(Globals::DEFAULT_COLOR_GENE),
-      m_selected(false)
+    : m_name()
+    , m_color(Globals::DEFAULT_COLOR_GENE)
+    , m_selected(false)
 {
-
 }
 
 Gene::Gene(const Gene& other)
-    : m_name(other.m_name),
-      m_color(other.m_color),
-      m_selected(other.m_selected)
+    : m_name(other.m_name)
+    , m_color(other.m_color)
+    , m_selected(other.m_selected)
 {
-
 }
 
 Gene::Gene(const QString& name, bool selected, QColor color)
-    : m_name(name),
-      m_color(color),
-      m_selected(selected)
+    : m_name(name)
+    , m_color(color)
+    , m_selected(selected)
 {
-
 }
 Gene::~Gene()
 {
-
 }
 
 Gene& Gene::operator=(const Gene& other)
@@ -45,10 +41,7 @@ Gene& Gene::operator=(const Gene& other)
 
 bool Gene::operator==(const Gene& other) const
 {
-    return( m_selected == other.m_selected &&
-            m_name == other.m_name &&
-            m_color == other.m_color
-        );
+    return (m_selected == other.m_selected && m_name == other.m_name && m_color == other.m_color);
 }
 
 const QString Gene::name() const

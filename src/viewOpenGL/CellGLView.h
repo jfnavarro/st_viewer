@@ -38,19 +38,14 @@ class CellGLView : public QOpenGLWidget
     Q_OBJECT
 
 public:
+    enum MouseEventType { moveType, pressType, releaseType };
 
-    enum MouseEventType {
-        moveType,
-        pressType,
-        releaseType
-    };
-
-    explicit CellGLView(QWidget *parent = 0);
+    explicit CellGLView(QWidget* parent = 0);
     virtual ~CellGLView();
 
     // add/remove nodes from the rendering queue
-    void addRenderingNode(GraphicItemGL *node);
-    void removeRenderingNode(GraphicItemGL *node);
+    void addRenderingNode(GraphicItemGL* node);
+    void removeRenderingNode(GraphicItemGL* node);
 
     // return a QImage representation of the canvas
     const QImage grabPixmapGL();
@@ -65,14 +60,14 @@ public:
     // we must keep these overrided functions public so they can
     // be accessed from the ScrollArea class which wraps around
     // this object to implement scroll bars
-    void paintEvent(QPaintEvent *e) override;
-    void resizeEvent(QResizeEvent *e) override;
-    bool event(QEvent *e) override;
+    void paintEvent(QPaintEvent* e) override;
+    void resizeEvent(QResizeEvent* e) override;
+    bool event(QEvent* e) override;
     void wheelEvent(QWheelEvent* event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 public slots:
 
@@ -89,19 +84,18 @@ public slots:
 
     // slots to set the viewport and scene size and the set the focus in a point
     // very handy to make possible the interaction with the minimap
-    void setViewPort(const QRectF &viewport);
-    void setScene(const QRectF &scene);
-    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
+    void setViewPort(const QRectF& viewport);
+    void setScene(const QRectF& scene);
+    void setSceneFocusCenterPointWithClamping(const QPointF& center_point);
 
 protected:
-
     // OpenGL rendering and initialization functions
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
 
     // returns the node local transformations in the view CS adjusted for anchor
-    const QTransform nodeTransformations(GraphicItemGL *node) const;
+    const QTransform nodeTransformations(GraphicItemGL* node) const;
 
 signals:
 
@@ -112,9 +106,8 @@ signals:
     void signalSceneTransformationsUpdated(const QTransform transform);
 
 private:
-
     // used to filter nodes for mouse events
-    typedef std::function<bool (const GraphicItemGL &)> FilterFunc;
+    typedef std::function<bool(const GraphicItemGL&)> FilterFunc;
 
     // helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const qreal zoom);
@@ -128,19 +121,20 @@ private:
     void setDefaultPanningAndZooming();
 
     // notify rubberbandable nodes with a rubberband event
-    void sendRubberBandEventToNodes(const QRectF &rubberBand,
-                                    const QMouseEvent *event);
+    void sendRubberBandEventToNodes(const QRectF& rubberBand, const QMouseEvent* event);
 
     // returns true if the event was sent to at least one of the nodes
-    bool sendMouseEventToNodes(const QPoint &point, const QMouseEvent *event,
-                       const MouseEventType type, const FilterFunc &filterFunc);
+    bool sendMouseEventToNodes(const QPoint& point,
+                               const QMouseEvent* event,
+                               const MouseEventType type,
+                               const FilterFunc& filterFunc);
 
     // scene and viewport aux variables
     QRectF m_viewport;
     QRectF m_scene;
 
     // list of nodes to be renderered in the view
-    QList<GraphicItemGL *> m_nodes;
+    QList<GraphicItemGL*> m_nodes;
 
     // auxiliary variables for panning, zoom and selection
     QPoint m_originPanning;

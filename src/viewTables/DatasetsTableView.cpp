@@ -14,9 +14,9 @@
 
 #include "model/DatasetItemModel.h"
 
-DatasetsTableView::DatasetsTableView(QWidget *parent)
-    : QTableView(parent),
-      m_datasetModel(nullptr)
+DatasetsTableView::DatasetsTableView(QWidget* parent)
+    : QTableView(parent)
+    , m_datasetModel(nullptr)
 {
     // the model
     m_datasetModel = new DatasetItemModel(this);
@@ -53,12 +53,11 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::LastModified, QHeaderView::Stretch);
     verticalHeader()->hide();
 
-    model()->submit(); //support for caching (speed up)
+    model()->submit(); // support for caching (speed up)
 }
 
 DatasetsTableView::~DatasetsTableView()
 {
-
 }
 
 QItemSelection DatasetsTableView::datasetsTableItemSelection() const

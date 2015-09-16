@@ -21,7 +21,6 @@ class QString;
 class TokenStorage
 {
 public:
-
     TokenStorage();
     ~TokenStorage();
 
@@ -45,11 +44,9 @@ public:
     void cleanAll();
 
 private:
-
     QPointer<QSettings> m_storage;
 
     Q_DISABLE_COPY(TokenStorage)
 };
 
-#endif  /* TOKENSTORAGE_H */
-
+#endif /* TOKENSTORAGE_H */

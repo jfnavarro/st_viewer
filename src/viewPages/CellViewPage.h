@@ -29,7 +29,8 @@ class SpinBoxSlider;
 class QComboBox;
 class QRadioButton;
 
-namespace Ui{
+namespace Ui
+{
 class CellView;
 } // namespace Ui
 
@@ -46,17 +47,16 @@ class CellViewPage : public Page
     Q_OBJECT
 
 public:
-    
-    CellViewPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~CellViewPage();
 
 public slots:
-    
+
     void onEnter() override;
     void onExit() override;
 
 private slots:
-    
+
     // some slots for gene actions that need adjustment of the value
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
@@ -69,25 +69,25 @@ private slots:
 
     // shows a file dialog to save the current genes selection to a file
     void slotExportGenesSelection();
-    
+
     // shows a file dialog to save the current features selection to a file
-    //TODO this slot will be removed in release 0.5
+    // TODO this slot will be removed in release 0.5
     void slotExportFeaturesSelection();
 
     // selection of genes
     void slotSelectByRegExp();
-    
+
     // select gene visual mode
-    void slotSetGeneVisualMode(QAction *action);
+    void slotSetGeneVisualMode(QAction* action);
 
     // select legend anchor
-    void slotSetLegendAnchor(QAction *action);
+    void slotSetLegendAnchor(QAction* action);
 
     // select legend computation of values (reads of genes)
-    void slotSetLegendType(QAction *action);
+    void slotSetLegendType(QAction* action);
 
     // select minimap anchor
-    void slotSetMiniMapAnchor(QAction *action);
+    void slotSetMiniMapAnchor(QAction* action);
 
     // to nofity gene selections table when genes were selected
     void slotSelectionUpdated();
@@ -105,7 +105,6 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-    
     // create OpenGL graphical elements and view
     void initGLView();
 
@@ -148,12 +147,12 @@ private:
     QPointer<SpinBoxSlider> m_geneHitsThreshold;
     QPointer<SpinBoxSlider> m_geneGenesThreshold;
     QPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
-    //TODO temp not smart pointer to make the add addSliderToMenu work
-    //solution is just use smart pointers but transfer ownership when invoking the function
-    QSlider *m_geneIntensitySlider;
-    QSlider *m_geneSizeSlider;
-    QSlider *m_geneShineSlider;
-    QSlider *m_geneBrightnessSlider;
+    // TODO temp not smart pointer to make the add addSliderToMenu work
+    // solution is just use smart pointers but transfer ownership when invoking the function
+    QSlider* m_geneIntensitySlider;
+    QSlider* m_geneSizeSlider;
+    QSlider* m_geneShineSlider;
+    QSlider* m_geneBrightnessSlider;
     QPointer<QComboBox> m_geneShapeComboBox;
 
     Q_DISABLE_COPY(CellViewPage)

@@ -13,7 +13,8 @@
 #include "data/DataProxy.h"
 #include "qcustomplot/qcustomplot.h"
 
-namespace Ui {
+namespace Ui
+{
 class frdWidget;
 }
 
@@ -23,22 +24,19 @@ class frdWidget;
 // interactive so the will get updated if the user
 // modifies the threshold control
 
-//TODO add option to compute the plots and threshold bars
-//using genes as the function of features and genes threshold
-//TODO perhaps separate computation and visualization
-class AnalysisFRD: public QDialog
+// TODO add option to compute the plots and threshold bars
+// using genes as the function of features and genes threshold
+// TODO perhaps separate computation and visualization
+class AnalysisFRD : public QDialog
 {
     Q_OBJECT
 
 public:
-
-    explicit AnalysisFRD(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit AnalysisFRD(QWidget* parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisFRD();
 
     // computes the FRD values from the features and min max values given as input
-    void computeData(const DataProxy::FeatureList& features,
-                     const int min,
-                     const int max);
+    void computeData(const DataProxy::FeatureList& features, const int min, const int max);
 
 signals:
 
@@ -55,7 +53,6 @@ private slots:
     void mouseWheel();
 
 private:
-
     // helper functions to create and configure the plotting objects
     void initializePlotNormal();
     void initializePlotLog();
@@ -63,14 +60,14 @@ private:
     std::unique_ptr<Ui::frdWidget> m_ui;
 
     // plotting object for normal reads
-    QCustomPlot *m_customPlotNormal;
-    QCPItemLine *m_upperThresholdBarNormal;
-    QCPItemLine *m_lowerThresholdBarNormal;
+    QCustomPlot* m_customPlotNormal;
+    QCPItemLine* m_upperThresholdBarNormal;
+    QCPItemLine* m_lowerThresholdBarNormal;
 
     // plotting object for normal reads in log space
-    QCustomPlot *m_customPlotLog;
-    QCPItemLine *m_upperThresholdBarLog;
-    QCPItemLine *m_lowerThresholdBarLog;
+    QCustomPlot* m_customPlotLog;
+    QCPItemLine* m_upperThresholdBarLog;
+    QCPItemLine* m_lowerThresholdBarLog;
 
     // to keep track of the min-max of the Y axes to adjust the threshold bars
     int m_minY;

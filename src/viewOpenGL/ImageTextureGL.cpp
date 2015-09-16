@@ -20,10 +20,10 @@
 static const int tile_width = 512;
 static const int tile_height = 512;
 
-ImageTextureGL::ImageTextureGL(QObject *parent) :
-    GraphicItemGL(parent),
-    m_intensity(1.0),
-    m_isInitialized(false)
+ImageTextureGL::ImageTextureGL(QObject* parent)
+    : GraphicItemGL(parent)
+    , m_intensity(1.0)
+    , m_isInitialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -48,7 +48,7 @@ void ImageTextureGL::clearData()
 
 void ImageTextureGL::clearTextures()
 {
-    foreach(QOpenGLTexture *texture, m_textures) {
+    foreach (QOpenGLTexture* texture, m_textures) {
         if (texture != nullptr) {
             texture->destroy();
         }
@@ -58,7 +58,7 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
+void ImageTextureGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -72,7 +72,7 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
         m_qopengl_functions->glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         for (int i = 0; i < m_textures.size(); ++i) {
-            QOpenGLTexture *texture = m_textures[i];
+            QOpenGLTexture* texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
             texture->bind();
             m_qopengl_functions->glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
@@ -85,12 +85,11 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
     m_qopengl_functions->glDisable(GL_TEXTURE_2D);
 }
 
-void ImageTextureGL::setSelectionArea(const SelectionEvent *)
+void ImageTextureGL::setSelectionArea(const SelectionEvent*)
 {
-
 }
 
-QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
+QFuture<void> ImageTextureGL::createTexture(const QByteArray& imageByteArray)
 {
     // clear memory
     clearData();
@@ -139,15 +138,15 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
         // texture sizes
         const int x = tile_width * (i % xCount);
         const int y = tile_height * (i / xCount);
-        const int texture_width = std::min(width -  x, tile_width);
-        const int texture_height = std::min(height -  y, tile_height);
+        const int texture_width = std::min(width - x, tile_width);
+        const int texture_height = std::min(height - y, tile_height);
 
         // create sub image
         clip_rect.setRect(x, y, texture_width, texture_height);
-        //TODO an ideal solution would  be to extract the clip rect part of the image
-        //from the imageReader to avoid loading the whole image into memory
-        //but the setClipRect option would only work one time, after calling read()
-        //the buffer is cleaned
+        // TODO an ideal solution would  be to extract the clip rect part of the image
+        // from the imageReader to avoid loading the whole image into memory
+        // but the setClipRect option would only work one time, after calling read()
+        // the buffer is cleaned
         sub_image = image.copy(clip_rect);
 
         // add texture
@@ -173,7 +172,7 @@ void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
     m_texture_coords.append(QVector2D(1.0, 1.0));
     m_texture_coords.append(QVector2D(0.0, 1.0));
 
-    QOpenGLTexture *texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    QOpenGLTexture* texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
     texture->setData(image);
     texture->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
     texture->setMagnificationFilter(QOpenGLTexture::Linear);

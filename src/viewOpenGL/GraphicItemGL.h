@@ -26,7 +26,6 @@ class GraphicItemGL : public QObject
     Q_FLAGS(VisualOptions)
 
 public:
-
     using QOpenGLFunctionsVersion = QOpenGLFunctions_2_0;
 
     enum VisualOption {
@@ -39,7 +38,7 @@ public:
     };
     Q_DECLARE_FLAGS(VisualOptions, VisualOption)
 
-    explicit GraphicItemGL(QObject *parent = 0);
+    explicit GraphicItemGL(QObject* parent = 0);
     virtual ~GraphicItemGL();
 
     Globals::Anchor anchor() const;
@@ -63,13 +62,13 @@ public:
 
     // drawing method, must be implemented when sub-classing
     // we pass the QOpenGLFunctions_2_0 functions
-    virtual void draw(QOpenGLFunctionsVersion *m_qpengl_functions) = 0;
+    virtual void draw(QOpenGLFunctionsVersion* m_qpengl_functions) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
 
     // must be implemented in the node supports selection events
-    virtual void setSelectionArea(const SelectionEvent *event) = 0;
+    virtual void setSelectionArea(const SelectionEvent* event) = 0;
 
     // bounding rect boundaries check
     bool contains(const QPointF& point) const;
@@ -82,28 +81,28 @@ public:
 
     // drawing functions
     // we pass the QOpenGLFunctions_2_0 functions
-    void drawBorderRect(const QRectF &rect, QColor color,
-                        QOpenGLFunctionsVersion *m_qopengl_functions);
+    void drawBorderRect(const QRectF& rect,
+                        QColor color,
+                        QOpenGLFunctionsVersion* m_qopengl_functions);
 
-    void setProjection(const QMatrix4x4 &projection);
-    void setModelView(const QMatrix4x4 &modelview);
+    void setProjection(const QMatrix4x4& projection);
+    void setModelView(const QMatrix4x4& modelview);
 
     const QMatrix4x4 getProjection() const;
     const QMatrix4x4 getModelView() const;
 
 public slots:
 
-    //TODO should prepend "slot"
+    // TODO should prepend "slot"
     void setVisible(bool);
 
 signals:
 
-    //TODO should prepend "signal"
-    //tells the view the rendering is needed
+    // TODO should prepend "signal"
+    // tells the view the rendering is needed
     void updated();
 
 protected:
-
     // This is used to adjust the position of the element according to an anchor option
     // returns local transform adjusted for the anchor position
     const QTransform adjustForAnchor(const QTransform& transform) const;

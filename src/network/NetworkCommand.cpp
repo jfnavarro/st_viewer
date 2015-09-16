@@ -13,33 +13,29 @@
 #include <QString>
 #include <QJsonArray>
 
-NetworkCommand::NetworkCommand(QObject* parent) : QObject(parent),
-    m_url(),
-    m_type(Globals::HttpRequestTypeNone),
-    m_query(),
-    m_body()
+NetworkCommand::NetworkCommand(QObject* parent)
+    : QObject(parent)
+    , m_url()
+    , m_type(Globals::HttpRequestTypeNone)
+    , m_query()
+    , m_body()
 {
-
 }
 
-NetworkCommand::NetworkCommand(const QUrl& url,
-                               Globals::HttpRequestType type,
-                               QObject* parent) :
-    QObject(parent),
-    m_url(url),
-    m_type(type),
-    m_query(),
-    m_body()
+NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent)
+    : QObject(parent)
+    , m_url(url)
+    , m_type(type)
+    , m_query()
+    , m_body()
 {
-
 }
 
 NetworkCommand::~NetworkCommand()
 {
-
 }
 
-void NetworkCommand::addQueryItems(QObject *object)
+void NetworkCommand::addQueryItems(QObject* object)
 {
     Q_ASSERT(object != nullptr);
 
@@ -50,10 +46,9 @@ void NetworkCommand::addQueryItems(QObject *object)
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
         const QMetaProperty metaproperty = metaObject->property(i);
         // ignore if not readable
-        const QString  param = metaproperty.name();
+        const QString param = metaproperty.name();
         if (!metaproperty.isReadable()) {
-            qDebug() << "[NetworkCommand] Warning: The property "
-                     << metaproperty.typeName()
+            qDebug() << "[NetworkCommand] Warning: The property " << metaproperty.typeName()
                      << param << "is not readable and will be ignored!";
             continue;
         }
@@ -61,9 +56,8 @@ void NetworkCommand::addQueryItems(QObject *object)
         // ignore if not convertable
         const QVariant value = metaproperty.read(object);
         if (!value.canConvert(QVariant::String)) {
-            qDebug() << "[NetworkCommand] Warning: The property "
-                     << metaproperty.typeName() << param
-                     << " is not convertable to QString, and will be ignored!";
+            qDebug() << "[NetworkCommand] Warning: The property " << metaproperty.typeName()
+                     << param << " is not convertable to QString, and will be ignored!";
             continue;
         }
 
@@ -94,7 +88,7 @@ const QString NetworkCommand::getEncodedUrl() const
     return url.toString(QUrl::FullyEncoded);
 }
 
-void NetworkCommand::setBody(const QByteArray &body)
+void NetworkCommand::setBody(const QByteArray& body)
 {
     m_body = body;
 }

@@ -21,7 +21,7 @@ QByteArray BinaryGenerator::generate(qint64 maxSize) const
 
     while (!bytesBuffer.atEnd()) {
         const int random = qrand();
-        bytesBuffer.write(reinterpret_cast<const char *>(&random), sizeof(random));
+        bytesBuffer.write(reinterpret_cast<const char*>(&random), sizeof(random));
     }
 
     bytesBuffer.close();

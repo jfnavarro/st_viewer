@@ -2,35 +2,32 @@
 
 #include <QDate>
 
-ImageAlignment::ImageAlignment() :
-    m_id(),
-    m_name(),
-    m_chipId(),
-    m_figureRed(),
-    m_figureBlue(),
-    m_alignment(),
-    m_created(QDate::currentDate().toString()),
-    m_lastModified(QDate::currentDate().toString())
+ImageAlignment::ImageAlignment()
+    : m_id()
+    , m_name()
+    , m_chipId()
+    , m_figureRed()
+    , m_figureBlue()
+    , m_alignment()
+    , m_created(QDate::currentDate().toString())
+    , m_lastModified(QDate::currentDate().toString())
 {
-
 }
 
 ImageAlignment::ImageAlignment(const ImageAlignment& other)
-    : m_id(other.m_id),
-      m_name(other.m_name),
-      m_chipId(other.m_chipId),
-      m_figureRed(other.m_figureRed),
-      m_figureBlue(other.m_figureBlue),
-      m_alignment(other.m_alignment),
-      m_created(other.m_created),
-      m_lastModified(other.m_lastModified)
+    : m_id(other.m_id)
+    , m_name(other.m_name)
+    , m_chipId(other.m_chipId)
+    , m_figureRed(other.m_figureRed)
+    , m_figureBlue(other.m_figureBlue)
+    , m_alignment(other.m_alignment)
+    , m_created(other.m_created)
+    , m_lastModified(other.m_lastModified)
 {
-
 }
 
 ImageAlignment::~ImageAlignment()
 {
-
 }
 
 ImageAlignment& ImageAlignment::operator=(const ImageAlignment& other)
@@ -48,16 +45,12 @@ ImageAlignment& ImageAlignment::operator=(const ImageAlignment& other)
 
 bool ImageAlignment::operator==(const ImageAlignment& other) const
 {
-    return(
-            m_id == other.m_id &&
-            m_name == other.m_name &&
-            m_chipId == other.m_chipId &&
-            m_figureBlue == other.m_figureBlue &&
-            m_figureRed == other.m_figureRed &&
-            m_alignment == other.m_alignment &&
-            m_created == other.m_created &&
-            m_lastModified == other.m_lastModified
-        );
+    return (m_id == other.m_id && m_name == other.m_name && m_chipId == other.m_chipId
+            && m_figureBlue == other.m_figureBlue
+            && m_figureRed == other.m_figureRed
+            && m_alignment == other.m_alignment
+            && m_created == other.m_created
+            && m_lastModified == other.m_lastModified);
 }
 
 const QString ImageAlignment::id()

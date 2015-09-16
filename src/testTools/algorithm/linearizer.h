@@ -18,21 +18,17 @@ namespace unit
 // child tree structure defined by QObject.
 class Linearizer
 {
-    
-public:
-    
-    Linearizer() 
-    {
-        
-    };
-    
-    virtual ~Linearizer() 
-    {
-        
-    };
-    
-    virtual const QList<QObject *> list(QObject *object) = 0;
 
+public:
+    Linearizer(){
+
+    };
+
+    virtual ~Linearizer(){
+
+    };
+
+    virtual const QList<QObject*> list(QObject* object) = 0;
 };
 
 } // namespace unit //

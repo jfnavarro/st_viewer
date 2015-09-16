@@ -19,13 +19,11 @@ class SSLNetworkError : public Error
     Q_OBJECT
 
 public:
-
-    explicit SSLNetworkError(QObject *parent = 0);
-    SSLNetworkError(const QSslError& sslError, QObject *parent = 0);
+    explicit SSLNetworkError(QObject* parent = 0);
+    SSLNetworkError(const QSslError& sslError, QObject* parent = 0);
     virtual ~SSLNetworkError();
 
 private:
-
     void init(const QSslError& sslError);
 };
 

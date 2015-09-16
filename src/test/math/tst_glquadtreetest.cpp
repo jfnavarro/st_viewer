@@ -17,7 +17,10 @@ Q_DECLARE_METATYPE(QList<QPointF>)
 namespace unit
 {
 
-GLQuadTreeTest::GLQuadTreeTest(QObject *parent) : QObject(parent) { }
+GLQuadTreeTest::GLQuadTreeTest(QObject* parent)
+    : QObject(parent)
+{
+}
 
 void GLQuadTreeTest::initTestCase()
 {
@@ -49,16 +52,27 @@ void GLQuadTreeTest::testInsert_data()
     QTest::addColumn<int>("buckets");
     QTest::addColumn<bool>("expected");
 
-    const QPointF p[] = {
-        QPointF(1.0f, 1.0f), QPointF(3.0f, 1.0f), QPointF(5.0f, 1.0f), QPointF(7.0f, 1.0f),
-        QPointF(1.0f, 3.0f), QPointF(3.0f, 3.0f), QPointF(5.0f, 3.0f), QPointF(7.0f, 3.0f),
-        QPointF(1.0f, 5.0f), QPointF(3.0f, 5.0f), QPointF(5.0f, 5.0f), QPointF(7.0f, 5.0f),
-        QPointF(1.0f, 7.0f), QPointF(3.0f, 7.0f), QPointF(5.0f, 7.0f), QPointF(7.0f, 7.0f),
-        QPointF(0.5f, 0.5f),
-        QPointF(7.5f, 0.5f)
-    };
+    const QPointF p[] = {QPointF(1.0f, 1.0f),
+                         QPointF(3.0f, 1.0f),
+                         QPointF(5.0f, 1.0f),
+                         QPointF(7.0f, 1.0f),
+                         QPointF(1.0f, 3.0f),
+                         QPointF(3.0f, 3.0f),
+                         QPointF(5.0f, 3.0f),
+                         QPointF(7.0f, 3.0f),
+                         QPointF(1.0f, 5.0f),
+                         QPointF(3.0f, 5.0f),
+                         QPointF(5.0f, 5.0f),
+                         QPointF(7.0f, 5.0f),
+                         QPointF(1.0f, 7.0f),
+                         QPointF(3.0f, 7.0f),
+                         QPointF(5.0f, 7.0f),
+                         QPointF(7.0f, 7.0f),
+                         QPointF(0.5f, 0.5f),
+                         QPointF(7.5f, 0.5f)};
 
-    //NOTE the point list is constructed incrementally and a copy is made of the point list for each row
+    // NOTE the point list is constructed incrementally and a copy is made of the point list for
+    // each row
     PointList points;
     QTest::newRow("empty") << (points) << 1 << true;
     QTest::newRow("simple0") << (points << p[0] << p[2] << p[8] << p[10]) << 1 << true;

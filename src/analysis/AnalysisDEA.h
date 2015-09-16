@@ -13,7 +13,8 @@
 #include <QModelIndex>
 #include "dataModel/GeneSelection.h"
 
-namespace Ui {
+namespace Ui
+{
 class ddaWidget;
 }
 
@@ -23,40 +24,43 @@ class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
 // the DEA statistics from two gene selections and show them to the users
-//TODO perhaps we should separate the visualization and the computation
+// TODO perhaps we should separate the visualization and the computation
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
 
 public:
-
-    //data container for the computed statistics
+    // data container for the computed statistics
     struct deaStats {
 
-       deaStats()
-           : countA(0),
-             countB(0),
-             countAB(0),
-             pearsonCorrelation(0.0) {}
+        deaStats()
+            : countA(0)
+            , countB(0)
+            , countAB(0)
+            , pearsonCorrelation(0.0)
+        {
+        }
 
-       QVector<qreal> valuesSelectionA;
-       QVector<qreal> valuesSelectionB;
-       int countA;
-       int countB;
-       int countAB;
-       qreal pearsonCorrelation;
+        QVector<qreal> valuesSelectionA;
+        QVector<qreal> valuesSelectionB;
+        int countA;
+        int countB;
+        int countAB;
+        qreal pearsonCorrelation;
     };
 
-    //data container for normalized and unnormalized reads
-    //the idea is that each record contains the information of
-    //one gene and its expression levels in two selections
+    // data container for normalized and unnormalized reads
+    // the idea is that each record contains the information of
+    // one gene and its expression levels in two selections
     struct deaReads {
         deaReads()
-            : gene(),
-              readsA(0),
-              readsB(0),
-              normalizedReadsA(1.0),
-              normalizedReadsB(1.0) {}
+            : gene()
+            , readsA(0)
+            , readsB(0)
+            , normalizedReadsA(1.0)
+            , normalizedReadsB(1.0)
+        {
+        }
 
         QString gene;
         int readsA;
@@ -69,7 +73,8 @@ public:
 
     AnalysisDEA(const GeneSelection& selObjectA,
                 const GeneSelection& selObjectB,
-                QWidget *parent = 0, Qt::WindowFlags f = 0);
+                QWidget* parent = 0,
+                Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
     // computes the statistics and visualization data points
@@ -96,19 +101,17 @@ private slots:
     void slotSelectionSelected(QModelIndex index);
 
 private:
-
     // helper functions to get the model from the gene selections table
-    GeneSelectionDEAItemModel *selectionsModel();
-    QSortFilterProxyModel *selectionsProxyModel();
+    GeneSelectionDEAItemModel* selectionsModel();
+    QSortFilterProxyModel* selectionsProxyModel();
 
     // helper function to test whether two selections are outside threshold
     // returns true if they are outside
-    bool combinedSelectionThreholsd(const deaReads &deaReads) const;
+    bool combinedSelectionThreholsd(const deaReads& deaReads) const;
 
     // compute the map of genes to read pairs used to
     // compute the statistics
-    void computeGeneToReads(const GeneSelection& selObjectA,
-                            const GeneSelection& selObjectB);
+    void computeGeneToReads(const GeneSelection& selObjectA, const GeneSelection& selObjectB);
 
     // populate the genes expression table and update the UI (size is size of the table)
     void populateTable(const int size);

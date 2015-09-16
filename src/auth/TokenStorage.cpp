@@ -14,8 +14,8 @@
 
 #include "utils/Utils.h"
 
-TokenStorage::TokenStorage() :
-      m_storage(new QSettings())
+TokenStorage::TokenStorage()
+    : m_storage(new QSettings())
 {
 }
 
@@ -34,8 +34,7 @@ void TokenStorage::setAccessToken(const QUuid& accessToken)
 bool TokenStorage::isExpired() const
 {
     const QDateTime currentDate = QDateTime::currentDateTimeUtc();
-    const QDateTime expirationDate =
-            m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
+    const QDateTime expirationDate = m_storage->value(Globals::SettingsTokenExpiresAt).toDateTime();
     return currentDate > expirationDate;
 }
 

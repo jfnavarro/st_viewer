@@ -20,12 +20,10 @@ static const int COLUMN_NUMBER = 8;
 ExperimentsItemModel::ExperimentsItemModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
-
 }
 
 ExperimentsItemModel::~ExperimentsItemModel()
 {
-
 }
 
 QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
@@ -38,17 +36,24 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         const DataProxy::GeneSelectionPtr item = m_geneselectionList.at(index.row());
         Q_ASSERT(!item.isNull());
         switch (index.column()) {
-        case Name: return item->name();
-        case Dataset: return item->datasetName();
-        case Comment: return item->comment();
-        case NGenes: return QString::number(item->selectedItems().size());
-        case NReads: return QString::number(item->totalReads());
-        case NFeatures: return QString::number(item->totalFeatures());
+        case Name:
+            return item->name();
+        case Dataset:
+            return item->datasetName();
+        case Comment:
+            return item->comment();
+        case NGenes:
+            return QString::number(item->selectedItems().size());
+        case NReads:
+            return QString::number(item->totalReads());
+        case NFeatures:
+            return QString::number(item->totalFeatures());
         case Created:
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
             return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
-        default: return QVariant(QVariant::Invalid);
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
@@ -62,42 +67,61 @@ QVariant ExperimentsItemModel::data(const QModelIndex& index, int role) const
         case NReads:
         case NFeatures:
         case Created:
-        case LastModified: return Qt::AlignRight;
-        default: return QVariant(QVariant::Invalid);
+        case LastModified:
+            return Qt::AlignRight;
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
     return QVariant(QVariant::Invalid);
 }
 
-QVariant ExperimentsItemModel::headerData(int section,
-                                            Qt::Orientation orientation, int role) const
+QVariant ExperimentsItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case Name: return tr("Name");
-        case Dataset: return tr("Dataset");
-        case Comment: return tr("Comment");
-        case NGenes: return tr("#Genes");
-        case NReads: return tr("#Reads");
-        case NFeatures: return tr("#Features");
-        case Created: return tr("Created");
-        case LastModified: return tr("Last Modified");
-        default: return QVariant(QVariant::Invalid);
+        case Name:
+            return tr("Name");
+        case Dataset:
+            return tr("Dataset");
+        case Comment:
+            return tr("Comment");
+        case NGenes:
+            return tr("#Genes");
+        case NReads:
+            return tr("#Reads");
+        case NFeatures:
+            return tr("#Features");
+        case Created:
+            return tr("Created");
+        case LastModified:
+            return tr("Last Modified");
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
     if (orientation == Qt::Horizontal && role == Qt::ToolTipRole) {
         switch (section) {
-        case Name: return tr("The name of the selection");
-        case Dataset: return tr("The dataset name where the selection was made");
-        case Comment: return tr("The comments made on the selection");
-        case NGenes: return tr("The number of unique genes present in the selection");
-        case NReads: return tr("The total number of reads in the selection");
-        case NFeatures: return tr("The total number of features present in the selection");
-        case Created: return tr("Created at this date");
-        case LastModified: return tr("Last Modified at this date");
-        default: return QVariant(QVariant::Invalid);
+        case Name:
+            return tr("The name of the selection");
+        case Dataset:
+            return tr("The dataset name where the selection was made");
+        case Comment:
+            return tr("The comments made on the selection");
+        case NGenes:
+            return tr("The number of unique genes present in the selection");
+        case NReads:
+            return tr("The total number of reads in the selection");
+        case NFeatures:
+            return tr("The total number of features present in the selection");
+        case Created:
+            return tr("Created at this date");
+        case LastModified:
+            return tr("Last Modified at this date");
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
@@ -110,8 +134,10 @@ QVariant ExperimentsItemModel::headerData(int section,
         case NReads:
         case NFeatures:
         case Created:
-        case LastModified: return Qt::AlignLeft;
-        default: return QVariant(QVariant::Invalid);
+        case LastModified:
+            return Qt::AlignLeft;
+        default:
+            return QVariant(QVariant::Invalid);
         }
     }
 
@@ -150,16 +176,15 @@ void ExperimentsItemModel::loadSelectedGenes(const DataProxy::GeneSelectionList 
     endResetModel();
 }
 
-DataProxy::GeneSelectionList
-ExperimentsItemModel::getSelections(const QItemSelection &selection)
+DataProxy::GeneSelectionList ExperimentsItemModel::getSelections(const QItemSelection& selection)
 {
     std::set<int> rows;
-    for (const auto &index : selection.indexes()) {
+    for (const auto& index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::GeneSelectionList selectionList;
-    for (const auto &row : rows) {
+    for (const auto& row : rows) {
         auto selection = m_geneselectionList.at(row);
         selectionList.push_back(selection);
     }

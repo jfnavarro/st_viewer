@@ -17,11 +17,12 @@ class ExperimentsItemModel;
 class QSortFilterProxyModel;
 class AnalysisDEA;
 
-namespace Ui{
+namespace Ui
+{
 class Experiments;
 } // namespace Ui //
 
-//TODO rename this to Selections of GeneSelections o FeaturesSelections
+// TODO rename this to Selections of GeneSelections o FeaturesSelections
 // Experiments page contains a table with the genes selection made by the user.
 // Users can interact here to edit/remove selections and to perform analysis on them
 // like the DEA
@@ -30,8 +31,7 @@ class ExperimentPage : public Page
     Q_OBJECT
 
 public:
-
-    ExperimentPage(QPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    ExperimentPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~ExperimentPage();
 
 public slots:
@@ -60,7 +60,6 @@ private slots:
                               const DataProxy::DownloadType type);
 
 private:
-
     // internal function to invoke the download of genes selections
     void loadSelections();
 
@@ -68,13 +67,12 @@ private:
     void clearControls();
 
     // to retrieve the table's model
-    QSortFilterProxyModel *selectionsProxyModel();
-    ExperimentsItemModel *selectionsModel();
+    QSortFilterProxyModel* selectionsProxyModel();
+    ExperimentsItemModel* selectionsModel();
 
     std::unique_ptr<Ui::Experiments> m_ui;
 
     Q_DISABLE_COPY(ExperimentPage)
 };
 
-#endif  /* EXPERIMENTPAGE_H */
-
+#endif /* EXPERIMENTPAGE_H */

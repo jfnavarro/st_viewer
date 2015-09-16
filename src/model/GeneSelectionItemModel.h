@@ -24,12 +24,7 @@ class GeneSelectionItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
-
-    enum Column {
-        Name = 0,
-        Count = 1,
-        Hits = 2
-    };
+    enum Column { Name = 0, Count = 1, Hits = 2 };
 
     explicit GeneSelectionItemModel(QObject* parent = 0);
     virtual ~GeneSelectionItemModel();
@@ -37,12 +32,12 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const override;
-    QVariant headerData(int section, Qt::Orientation orientation,
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // load the selected items given as parameters into the model
     void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
@@ -51,13 +46,12 @@ public:
     void clearSelectedGenes();
 
 public slots:
-    //TODO pass reference instead for genename
+    // TODO pass reference instead for genename
     // Used to sort the genes in the table
-    bool geneName(const QModelIndex &index, QString *genename) const;
+    bool geneName(const QModelIndex& index, QString* genename) const;
 
 private:
-
-    //TODO make this a pure reference
+    // TODO make this a pure reference
     GeneSelection::selectedItemsList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)

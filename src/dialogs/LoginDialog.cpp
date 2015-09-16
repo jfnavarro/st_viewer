@@ -21,35 +21,39 @@
 #include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QWidget *parent, Qt::WindowFlags f):
-    QDialog(parent, f),
-    m_ui(new Ui::LogIn()),
-    m_completer(nullptr)
+LoginDialog::LoginDialog(QWidget* parent, Qt::WindowFlags f)
+    : QDialog(parent, f)
+    , m_ui(new Ui::LogIn())
+    , m_completer(nullptr)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
-    //init UI
+    // init UI
     m_ui->setupUi(this);
 
-    //load users and create completer
+    // load users and create completer
     loadUsers();
 
-    //set the completer to the username field
+    // set the completer to the username field
     m_ui->username->setCompleter(m_completer.data());
 
     // connects slots
-    //TODO user QDialog signals instead
+    // TODO user QDialog signals instead
     connect(m_ui->buttons->button(QDialogButtonBox::Cancel),
-            SIGNAL(clicked()), this, SIGNAL(exitLogin()));
+            SIGNAL(clicked()),
+            this,
+            SIGNAL(exitLogin()));
     connect(m_ui->buttons->button(QDialogButtonBox::Ok),
-            SIGNAL(clicked()), this, SLOT(slotAcceptLogin()));
+            SIGNAL(clicked()),
+            this,
+            SLOT(slotAcceptLogin()));
 }
 
 LoginDialog::~LoginDialog()
 {
-    //save users
+    // save users
     saveUsers();
-    //delete completer
+    // delete completer
     m_completer->deleteLater();
     m_completer = nullptr;
 }
@@ -60,7 +64,7 @@ void LoginDialog::clear()
     m_ui->password->clear();
 }
 
-void LoginDialog::setUsername(const QString &username)
+void LoginDialog::setUsername(const QString& username)
 {
     m_ui->username->setText(username);
 }
@@ -78,7 +82,8 @@ const QString LoginDialog::getCurrentPassword() const
 void LoginDialog::loadUsers()
 {
     QSettings settings;
-    const QStringList userlist = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
+    const QStringList userlist
+        = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
     m_completer = new QCompleter(stringSet.toList());
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -93,7 +98,7 @@ void LoginDialog::saveUsers()
     settings.setValue(Globals::SettingsUsers, users);
 }
 
-void LoginDialog::setPassword(const QString &password)
+void LoginDialog::setPassword(const QString& password)
 {
     m_ui->password->setText(password);
 }
@@ -105,7 +110,7 @@ void LoginDialog::slotAcceptLogin()
     emit acceptLogin(m_ui->username->text(), m_ui->password->text());
 }
 
-void LoginDialog::keyPressEvent(QKeyEvent *e)
+void LoginDialog::keyPressEvent(QKeyEvent* e)
 {
     switch (e->key()) {
     case Qt::Key_Escape:

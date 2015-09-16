@@ -18,23 +18,18 @@ class Error : public QObject
     Q_OBJECT
 
 public:
-
     explicit Error(QObject* parent = 0);
-    Error(const QString& name,
-          const QString& description = QString(),
-          QObject* parent = 0);
+    Error(const QString& name, const QString& description = QString(), QObject* parent = 0);
     virtual ~Error();
 
     const QString name() const;
     const QString description() const;
 
 protected:
-
     void name(const QString& name);
     void description(const QString& description);
 
 private:
-
     QString m_name;
     QString m_description;
 };

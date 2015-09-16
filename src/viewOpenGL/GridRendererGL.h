@@ -22,8 +22,7 @@ class GridRendererGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-
-    explicit GridRendererGL(QObject *parent = 0);
+    explicit GridRendererGL(QObject* parent = 0);
     virtual ~GridRendererGL();
 
     // data generation
@@ -31,7 +30,7 @@ public:
     void clearData();
 
     // setters
-    void setDimensions(const QRectF &border, const QRectF &rect);
+    void setDimensions(const QRectF& border, const QRectF& rect);
 
     // gettters
     const QColor color() const;
@@ -43,18 +42,16 @@ public:
 
 public slots:
 
-    //TODO slots should have the prefix "slot"
+    // TODO slots should have the prefix "slot"
 
-    void setColor(const QColor &color);
+    void setColor(const QColor& color);
 
 protected:
-
-    void draw(QOpenGLFunctionsVersion *m_qopengl_functions) override;
+    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
+    void setSelectionArea(const SelectionEvent*) override;
 
 private:
-
     // data vertex arrays
     QVector<QVector2D> m_grid_vertex;
     QVector<QVector2D> m_border_vertex;

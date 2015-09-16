@@ -9,7 +9,7 @@
 
 #include <QEvent>
 
-RubberbandGL::RubberbandGL(QObject *parent)
+RubberbandGL::RubberbandGL(QObject* parent)
     : GraphicItemGL(parent)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
@@ -26,25 +26,24 @@ RubberbandGL::~RubberbandGL()
 
 const QRectF RubberbandGL::boundingRect() const
 {
-    //TODO should prob return m_rubberbandRect but it is not relevant
+    // TODO should prob return m_rubberbandRect but it is not relevant
     return QRectF();
 }
 
-void RubberbandGL::setRubberbandRect(const QRectF &rect)
+void RubberbandGL::setRubberbandRect(const QRectF& rect)
 {
     if (m_rubberbandRect != rect) {
         m_rubberbandRect = rect;
     }
 }
 
-void RubberbandGL::draw(QOpenGLFunctionsVersion *m_qopengl_functions)
+void RubberbandGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
         drawBorderRect(m_rubberbandRect, Qt::blue, m_qopengl_functions);
     }
 }
 
-void RubberbandGL::setSelectionArea(const SelectionEvent *)
+void RubberbandGL::setSelectionArea(const SelectionEvent*)
 {
-
 }

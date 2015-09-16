@@ -26,7 +26,7 @@ class FeatureExporter
 public:
     // exporter state enums
     enum DetailLevel {
-        Simple   = 0x00,
+        Simple = 0x00,
         Extended = 0x01,
         Comments = 0x10,
         // composite flags
@@ -35,19 +35,15 @@ public:
     };
     Q_DECLARE_FLAGS(DetailLevels, DetailLevel)
 
-    //separation mode for items in the file
-    enum SeparationMode {
-        TabDelimited,
-        CommaDelimited
-    };
+    // separation mode for items in the file
+    enum SeparationMode { TabDelimited, CommaDelimited };
     Q_DECLARE_FLAGS(SeparationModes, SeparationMode)
 
     FeatureExporter();
     FeatureExporter(DetailLevels detailLevel, SeparationModes separationMode);
     ~FeatureExporter();
 
-    void exportItem(QIODevice &device,
-                    const DataProxy::FeatureList& featureList) const;
+    void exportItem(QIODevice& device, const DataProxy::FeatureList& featureList) const;
 
     void addExportProperty(const QString& property);
     void addExportProperty(const QStringList& properties);
@@ -56,13 +52,11 @@ public:
     static const QStringList decodePropertyList(const QString& properties);
 
 protected:
-
     const QStringList exportPropertyList() const;
     const QString delimiterCharacter() const;
-    void exportStrings(QTextStream &otxt, const QStringList &strings) const;
-    void exportItem(QTextStream &otxt, const Feature &feature) const;
-    void exportItem(QTextStream &otxt,
-                     const DataProxy::FeatureList& selectionList) const;
+    void exportStrings(QTextStream& otxt, const QStringList& strings) const;
+    void exportItem(QTextStream& otxt, const Feature& feature) const;
+    void exportItem(QTextStream& otxt, const DataProxy::FeatureList& selectionList) const;
 
     DetailLevels m_detailLevel;
     SeparationModes m_separationMode;
@@ -71,6 +65,5 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::DetailLevels)
 Q_DECLARE_OPERATORS_FOR_FLAGS(FeatureExporter::SeparationModes)
-
 
 #endif // FEATUREEXPORTER_H

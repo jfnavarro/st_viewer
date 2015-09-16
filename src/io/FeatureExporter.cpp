@@ -16,19 +16,16 @@ static const QString PROPERTY_LIST_DELIMITER = QStringLiteral(";;");
 
 FeatureExporter::FeatureExporter()
 {
-
 }
 
 FeatureExporter::FeatureExporter(DetailLevels detailLevel, SeparationModes separationMode)
-    :  m_detailLevel(detailLevel),
-      m_separationMode(separationMode)
+    : m_detailLevel(detailLevel)
+    , m_separationMode(separationMode)
 {
-
 }
 
 FeatureExporter::~FeatureExporter()
 {
-
 }
 
 void FeatureExporter::addExportProperty(const QString& property)
@@ -46,7 +43,7 @@ const QString FeatureExporter::encodePropertyList(const QStringList& properties)
     return properties.join(PROPERTY_LIST_DELIMITER);
 }
 
-const QStringList FeatureExporter::decodePropertyList(const QString &properties)
+const QStringList FeatureExporter::decodePropertyList(const QString& properties)
 {
     return properties.split(PROPERTY_LIST_DELIMITER, QString::SkipEmptyParts);
 }
@@ -62,27 +59,23 @@ const QString FeatureExporter::delimiterCharacter() const
     }
 }
 
-void FeatureExporter::exportStrings(QTextStream &otxt, const QStringList &strings) const
+void FeatureExporter::exportStrings(QTextStream& otxt, const QStringList& strings) const
 {
     const QString delimiter = delimiterCharacter();
     otxt << strings.join(delimiter) << endl;
 }
 
-void FeatureExporter::exportItem(QTextStream &otxt,
-                              const Feature& feature) const
+void FeatureExporter::exportItem(QTextStream& otxt, const Feature& feature) const
 {
     QStringList list;
-    list << QString("%1").arg(feature.gene())
-         << QString("%1").arg(feature.barcode())
-         << QString("%1").arg(feature.x())
-         << QString("%1").arg(feature.y())
+    list << QString("%1").arg(feature.gene()) << QString("%1").arg(feature.barcode())
+         << QString("%1").arg(feature.x()) << QString("%1").arg(feature.y())
          << QString("%1").arg(feature.hits());
 
     exportStrings(otxt, list);
 }
 
-void FeatureExporter::exportItem(QTextStream &otxt,
-                              const DataProxy::FeatureList& featureList) const
+void FeatureExporter::exportItem(QTextStream& otxt, const DataProxy::FeatureList& featureList) const
 {
     // prepend header
     if (m_detailLevel.testFlag(FeatureExporter::Comments)) {
@@ -96,13 +89,12 @@ void FeatureExporter::exportItem(QTextStream &otxt,
         exportStrings(otxt, list);
     }
 
-    foreach(const DataProxy::FeaturePtr feature, featureList) {
+    foreach (const DataProxy::FeaturePtr feature, featureList) {
         exportItem(otxt, *feature);
     }
 }
 
-void FeatureExporter::exportItem(QIODevice &device,
-                              const DataProxy::FeatureList& featureList) const
+void FeatureExporter::exportItem(QIODevice& device, const DataProxy::FeatureList& featureList) const
 {
     // early out
     if (!device.isWritable()) {
@@ -136,4 +128,3 @@ void FeatureExporter::exportItem(QIODevice &device,
 
     exportItem(otxt, featureList);
 }
-

@@ -19,12 +19,11 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-//TODO move definitions to CPP and/or consider removing DTOs
+// TODO move definitions to CPP and/or consider removing DTOs
 class UserDTO : public QObject
 {
 
 public:
-
     Q_OBJECT
 
     Q_PROPERTY(QString id READ id WRITE id)
@@ -44,9 +43,11 @@ public:
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-
-    explicit UserDTO(QObject* parent = 0) : QObject(parent) { }
-    ~UserDTO() { }
+    explicit UserDTO(QObject* parent = 0)
+        : QObject(parent)
+    {
+    }
+    ~UserDTO() {}
 
     // binding
     void id(const QString& id) { m_user.id(id); }
@@ -58,15 +59,17 @@ public:
     void postcode(int postcode) { m_user.postcode(postcode); }
     void city(const QString& city) { m_user.city(city); }
     void country(const QString& country) { m_user.country(country); }
-    void role(const QString& role) { m_user.role(role);}
+    void role(const QString& role) { m_user.role(role); }
     void password(const QString& password) { m_user.password(password); }
     void enabled(bool enabled) { m_user.enabled(enabled); }
     void grantedDatasets(QVariantList grantedDatasets)
-            { m_user.grantedDatasets(unserializeVector<QString>(grantedDatasets)); }
+    {
+        m_user.grantedDatasets(unserializeVector<QString>(grantedDatasets));
+    }
     void created(const QString& created) { m_user.created(created); }
     void lastModified(const QString& lastModified) { m_user.lastModified(lastModified); }
 
-    //read
+    // read
     const QString id() { return m_user.id(); }
     const QString username() { return m_user.username(); }
     const QString institution() { return m_user.institution(); }
@@ -76,17 +79,19 @@ public:
     int postcode() { return m_user.postcode(); }
     const QString city() { return m_user.city(); }
     const QString country() { return m_user.country(); }
-    const QString role() { return m_user.role();}
+    const QString role() { return m_user.role(); }
     const QString password() { return m_user.password(); }
     bool enabled() { return m_user.enabled(); }
     const QVariantList grantedDatasets() const
-            { return serializeVector<QString>(m_user.grantedDatasets()); }
+    {
+        return serializeVector<QString>(m_user.grantedDatasets());
+    }
     const QString created() const { return m_user.created(); }
     const QString lastModified() const { return m_user.lastModified(); }
 
-    //const QByteArray toJson() const
+    // const QByteArray toJson() const
     //{
-        //TODO
+    // TODO
     //}
 
     // get parsed data model
@@ -94,7 +99,6 @@ public:
     User& user() { return m_user; }
 
 private:
-
     User m_user;
 };
 

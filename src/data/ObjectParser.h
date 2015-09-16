@@ -20,11 +20,11 @@
 // to the data type of the mapped object member variable.
 // Currently the parsing only supports flat structures.
 
-namespace data {
+namespace data
+{
 
-    // parse an object from variant map using intermediary DTO type
-    bool parseObject(const QVariant& source, QObject *target);
-
+// parse an object from variant map using intermediary DTO type
+bool parseObject(const QVariant& source, QObject* target);
 }
 
 #endif // OBJECTPARSER_H //

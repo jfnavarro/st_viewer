@@ -42,15 +42,10 @@ class DataProxy : public QObject
     Q_ENUMS(DownloadType)
 
 public:
-
-    enum DownloadStatus {
-        Success,
-        Aborted,
-        Failed
-    };
+    enum DownloadStatus { Success, Aborted, Failed };
 
     enum DownloadType {
-        None, //do nothing, useful for remove requests
+        None, // do nothing, useful for remove requests
         MinVersionDownloaded,
         AccessTokenDownloaded,
         UserDownloaded,
@@ -73,19 +68,19 @@ public:
     typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    //TODO find a way to update DataProxy when data is updated in the backend
+    // TODO find a way to update DataProxy when data is updated in the backend
     //(a timed request or a listener thread)
 
-    //TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
-    //direct references or other type of smart pointer
+    // TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
+    // direct references or other type of smart pointer
 
-    //TODO separate data API and data adquisition
+    // TODO separate data API and data adquisition
 
-    //TODO replace JSON for binary format
+    // TODO replace JSON for binary format
 
-    //TODO make the parsing of the data asynchronous
+    // TODO make the parsing of the data asynchronous
 
-    //TODO find a better make to notify guys using DataProxy when an object has been downloaded
+    // TODO find a better make to notify guys using DataProxy when an object has been downloaded
 
     // list of unique genes
     typedef QList<GenePtr> GeneList;
@@ -104,7 +99,7 @@ public:
     // to pass key-value parameters to loadAccessToken()
     typedef QPair<QString, QString> StringPair;
 
-    explicit DataProxy(QObject *parent = 0);
+    explicit DataProxy(QObject* parent = 0);
     ~DataProxy();
 
     // clean up memory cache
@@ -146,18 +141,18 @@ public:
     // the signal will contain the status of the operation
 
     // dataset
-    void updateDataset(const Dataset &dataset);
+    void updateDataset(const Dataset& dataset);
     // user
     void updateUser(const User& user);
     // gene selection
-    void updateGeneSelection(const GeneSelection &geneSelection);
+    void updateGeneSelection(const GeneSelection& geneSelection);
 
     // DATA CREATION
     // data creation methods are meant to create a new object in the database
     // Callers are expected to wait for a signal to notify when the data is downloaded,
     // the signal will contain the status of the operation
 
-    //gene selection
+    // gene selection
     void addGeneSelection(const GeneSelection& geneSelection);
 
     // DATA DELETION
@@ -178,7 +173,7 @@ public:
     // returns the list of currently loaded datasets
     const DatasetList& getDatasetList() const;
     // returns the dataset with the same id as the given one (returns null if not found)
-    const DatasetPtr getDatasetById(const QString &datasetId) const;
+    const DatasetPtr getDatasetById(const QString& datasetId) const;
 
     // returns the list of currently loaded genes
     // a current dataset object must be selected otherwise it returns an empty list
@@ -252,57 +247,55 @@ private slots:
 signals:
 
     // signal to notify guys using dataProxy about download/s finished
-    void signalDownloadFinished(DataProxy::DownloadStatus status,
-                                DataProxy::DownloadType type);
+    void signalDownloadFinished(DataProxy::DownloadStatus status, DataProxy::DownloadType type);
 
 private:
-
     // internal function to parse all the features and genes.
     // returns true if the parsing was correct
-    bool parseFeatures(NetworkReply *reply);
+    bool parseFeatures(NetworkReply* reply);
 
     // internal function to parse a cell tissue image
     // returns true if the parsing was correct
-    bool parseCellTissueImage(NetworkReply *reply);
+    bool parseCellTissueImage(NetworkReply* reply);
 
     // internal function to parse the datasets
     // returns true if the parsing was correct
-    bool parseDatasets(NetworkReply *reply);
+    bool parseDatasets(NetworkReply* reply);
 
     // internal function to make sure to clear the selected dataset
     // in case we remove the dataset that is selected
-    bool parseRemoveDataset(NetworkReply *reply);
+    bool parseRemoveDataset(NetworkReply* reply);
 
     // internal function to parse the genes selections
     // returns true if the parsing was correct
-    bool parseGeneSelections(NetworkReply *reply);
+    bool parseGeneSelections(NetworkReply* reply);
 
     // internal function to parse the User
     // returns true if the parsing was correct
-    bool parseUser(NetworkReply *reply);
+    bool parseUser(NetworkReply* reply);
 
     // internal function to parse the image alignment object
     // returns true if the parsing was correct
-    bool parseImageAlignment(NetworkReply *reply);
+    bool parseImageAlignment(NetworkReply* reply);
 
     // internal function to parse the chip
     // returns true if the parsing was correct
-    bool parseChip(NetworkReply *reply);
+    bool parseChip(NetworkReply* reply);
 
     // internal function to parse the min version supported
     // returns true if the parsing was correct
-    bool parseMinVersion(NetworkReply *reply);
+    bool parseMinVersion(NetworkReply* reply);
 
     // internal function to parse the OAuth2 access token
     // returns true if the parsing was correct
-    bool parseOAuth2(NetworkReply *reply);
+    bool parseOAuth2(NetworkReply* reply);
 
     // internal function to create network requests for data objects
     // data will be parsed with the function given as argument if given
     // a signal to emit when something goes wrong is also optionally given
-    void createRequest(NetworkReply *reply,
+    void createRequest(NetworkReply* reply,
                        DataProxy::DownloadType type = None,
-                       bool (DataProxy::*parseFunc)(NetworkReply *reply) = nullptr);
+                       bool (DataProxy::*parseFunc)(NetworkReply* reply) = nullptr);
 
     // currently available datasets
     DatasetList m_datasetList;
@@ -334,11 +327,12 @@ private:
 
     // to keep track of the current downloads (async)
     unsigned m_activeDownloads;
-    // this map represents a reply -> pair(download type, call back function to process the download)
-    QHash<NetworkReply*, QPair<DataProxy::DownloadType,
-                               bool (DataProxy::*)(NetworkReply *reply)> > m_activeNetworkReplies;
+    // this map represents a reply -> pair(download type, call back function to process the
+    // download)
+    QHash<NetworkReply*, QPair<DataProxy::DownloadType, bool (DataProxy::*)(NetworkReply* reply)>>
+        m_activeNetworkReplies;
 
     Q_DISABLE_COPY(DataProxy)
 };
 
-#endif  /* DATAPROXY_H */
+#endif /* DATAPROXY_H */

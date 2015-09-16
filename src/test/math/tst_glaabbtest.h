@@ -18,7 +18,7 @@ class GLAABBTest : public QObject
     Q_OBJECT
 
 public:
-    explicit GLAABBTest(QObject *parent = 0);
+    explicit GLAABBTest(QObject* parent = 0);
 
 private Q_SLOTS:
     void initTestCase();

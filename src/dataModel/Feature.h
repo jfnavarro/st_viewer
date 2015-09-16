@@ -21,12 +21,11 @@ class Feature
 {
 
 public:
-
     // TODO duplicated in DataProxy
     typedef QSharedPointer<Gene> GenePtr;
 
     Feature();
-    explicit Feature(const Feature &other);
+    explicit Feature(const Feature& other);
     Feature(QString barcode, QString gene, double x, double y, int hits);
     ~Feature();
 
@@ -52,7 +51,6 @@ public:
     void geneObject(GenePtr gene);
 
 protected:
-
     QString m_barcode;
     QString m_gene;
     QString m_annotation;

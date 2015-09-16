@@ -6,19 +6,18 @@
 
 // Selection Type is a container meant to be used
 // to store aggregated selections
-//TODO move to a separate file
-class SelectionType {
+// TODO move to a separate file
+class SelectionType
+{
 
 public:
-
     SelectionType();
     SelectionType(const SelectionType& other);
-    SelectionType(QString name, int reads, int
-                  normalizedReads, int count = 0);
+    SelectionType(QString name, int reads, int normalizedReads, int count = 0);
 
-    SelectionType& operator= (const SelectionType& other);
-    bool operator< (const SelectionType& other) const;
-    bool operator== (const SelectionType& other) const;
+    SelectionType& operator=(const SelectionType& other);
+    bool operator<(const SelectionType& other) const;
+    bool operator==(const SelectionType& other) const;
 
     QString name;
     int reads;
@@ -35,15 +34,14 @@ class GeneSelection
 {
 
 public:
-
     typedef QList<SelectionType> selectedItemsList;
 
     GeneSelection();
     explicit GeneSelection(const GeneSelection& other);
     ~GeneSelection();
 
-    GeneSelection& operator= (const GeneSelection& other);
-    bool operator== (const GeneSelection& other) const;
+    GeneSelection& operator=(const GeneSelection& other);
+    bool operator==(const GeneSelection& other) const;
 
     const QString id() const;
     const QString name() const;
@@ -79,10 +77,9 @@ public:
     void lastModified(const QString& lastModified);
     void datasetName(const QString& datasetName);
     void type(const QString& type);
-    void tissueSnapShot(const QByteArray &tissueSnapShot);
+    void tissueSnapShot(const QByteArray& tissueSnapShot);
 
 private:
-
     QString m_id;
     QString m_name;
     QString m_userId;
