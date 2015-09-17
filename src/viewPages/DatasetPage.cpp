@@ -40,6 +40,10 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
             SIGNAL(clicked(QModelIndex)),
             this,
             SLOT(slotDatasetSelected(QModelIndex)));
+    connect(m_ui->datasetsTableView,
+        SIGNAL(doubleClicked(QModelIndex)),
+        this,
+        SLOT(slotSelectAndOpenDataset(QModelIndex)));
     connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
     connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
     connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotLoadDatasets()));
@@ -115,6 +119,12 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
     m_ui->deleteDataset->setEnabled(index.isValid());
     m_ui->editDataset->setEnabled(index.isValid());
     m_ui->openDataset->setEnabled(index.isValid());
+}
+
+void DatasetPage::slotSelectAndOpenDataset(QModelIndex index)
+{
+    slotDatasetSelected(index);
+    slotOpenDataset();
 }
 
 void DatasetPage::slotLoadDatasets()

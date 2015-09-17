@@ -46,8 +46,11 @@ public slots:
 
 private slots:
 
-    // to handle when the user selects a dataset
+    // Changes the selected dataset to index.
     void slotDatasetSelected(QModelIndex index);
+
+    // Selects the indexed dataset and opens it.
+    void slotSelectAndOpenDataset(QModelIndex index);
 
     // some slots for the actions buttons of the view
     void slotLoadDatasets();
