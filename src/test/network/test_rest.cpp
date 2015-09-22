@@ -27,3 +27,6 @@ void RestTest::cleanupTestCase()
 }
 
 } // namespace unit //
+
+QTEST_MAIN(unit::RestTest)
+#include "test_rest.moc"

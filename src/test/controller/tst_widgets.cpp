@@ -62,3 +62,6 @@ void WidgetsTest::cleanupTestCase()
 }
 
 } // namespace unit //
+
+QTEST_MAIN(unit::WidgetsTest)
+#include "tst_widgets.moc"

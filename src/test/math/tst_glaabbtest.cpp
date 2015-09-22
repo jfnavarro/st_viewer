@@ -206,5 +206,8 @@ void GLAABBTest::testJoin_data()
     QTest::newRow("simple1") << aabb[1] << aabb[2] << aabb[4] << true;
     QTest::newRow("simple2") << aabb[0] << aabb[1] << aabb[5] << true;
 }
-
+  
 } // namespace unit //
+
+QTEST_MAIN(unit::GLAABBTest)
+#include "tst_glaabbtest.moc"

@@ -27,3 +27,6 @@ void AuthTest::cleanupTestCase()
 }
 
 } // namespace unit //
+
+QTEST_MAIN(unit::AuthTest)
+#include "test_auth.moc"

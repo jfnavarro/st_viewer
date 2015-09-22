@@ -83,3 +83,5 @@ void GLQuadTreeTest::testInsert_data()
 }
 
 } // namespace unit //
+  QTEST_MAIN(unit::GLQuadTreeTest)
+  #include "tst_glquadtreetest.moc"

@@ -38,3 +38,6 @@ void ObjectParserTest::testParseObject_data()
 }
 
 } // namespace unit //
+
+QTEST_MAIN(unit::ObjectParserTest)
+#include "tst_objectparsertest.moc"

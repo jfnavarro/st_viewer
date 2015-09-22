@@ -97,3 +97,6 @@ void MathExtendedTest::testClamp_data()
 }
 
 } // namespace unit //
+
+QTEST_MAIN(unit::MathExtendedTest)
+#include "tst_mathextendedtest.moc"

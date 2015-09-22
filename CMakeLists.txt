@@ -59,6 +59,8 @@ message( STATUS
 )
 message( STATUS )
 
+enable_testing()
+
 # Restrict possible builds to the selected build type.
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
 
