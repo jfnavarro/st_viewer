@@ -257,7 +257,6 @@ void GeneRendererGL::initBasicBuffers()
                              m_geneData.m_vertices.size() * 3 * sizeof(float));
     m_shader_program.enableAttributeArray("vertexAttr");
     m_shader_program.setAttributeBuffer("vertexAttr", GL_FLOAT, 0, 3);
-    m_vertexsBuffer.release();
 
     // indexes buffer
     if (!m_indexesBuffer.isCreated()) {
@@ -266,8 +265,7 @@ void GeneRendererGL::initBasicBuffers()
     }
     m_indexesBuffer.bind();
     m_indexesBuffer.allocate(m_geneData.m_indexes.constData(),
-                             m_geneData.m_indexes.size() * 1 * sizeof(int));
-    m_indexesBuffer.release();
+                             m_geneData.m_indexes.size() * 1 * sizeof(unsigned int));
 
     // textures buffer
     if (!m_texturesBuffer.isCreated()) {
@@ -279,10 +277,13 @@ void GeneRendererGL::initBasicBuffers()
                               m_geneData.m_textures.size() * 2 * sizeof(float));
     m_shader_program.enableAttributeArray("textureAttr");
     m_shader_program.setAttributeBuffer("textureAttr", GL_FLOAT, 0, 2);
-    m_texturesBuffer.release();
 
     m_vao.release();
     m_shader_program.release();
+
+    m_vertexsBuffer.release();
+    m_indexesBuffer.release();
+    m_texturesBuffer.release();
 
     m_isDirtyStaticData = false;
 }
@@ -306,7 +307,6 @@ void GeneRendererGL::initDynamicBuffers()
                             m_geneData.m_colors.size() * 4 * sizeof(float));
     m_shader_program.enableAttributeArray("colorAttr");
     m_shader_program.setAttributeBuffer("colorAttr", GL_FLOAT, 0, 4);
-    m_colorsBuffer.release();
 
     // selected buffer
     if (!m_selectedBuffer.isCreated()) {
@@ -318,7 +318,6 @@ void GeneRendererGL::initDynamicBuffers()
                               m_geneData.m_selected.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("selectedAttr");
     m_shader_program.setAttributeBuffer("selectedAttr", GL_FLOAT, 0, 1);
-    m_selectedBuffer.release();
 
     // visible buffer
     if (!m_visibleBuffer.isCreated()) {
@@ -330,7 +329,6 @@ void GeneRendererGL::initDynamicBuffers()
                              m_geneData.m_visible.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("visibleAttr");
     m_shader_program.setAttributeBuffer("visibleAttr", GL_FLOAT, 0, 1);
-    m_visibleBuffer.release();
 
     // reads buffer
     if (!m_readsBuffer.isCreated()) {
@@ -342,10 +340,14 @@ void GeneRendererGL::initDynamicBuffers()
                            m_geneData.m_reads.size() * 1 * sizeof(float));
     m_shader_program.enableAttributeArray("readsAttr");
     m_shader_program.setAttributeBuffer("readsAttr", GL_FLOAT, 0, 1);
-    m_readsBuffer.release();
 
     m_vao.release();
     m_shader_program.release();
+
+    m_colorsBuffer.release();
+    m_selectedBuffer.release();
+    m_visibleBuffer.release();
+    m_readsBuffer.release();
 
     m_isDirtyDynamicData = false;
 }
@@ -637,7 +639,7 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent* event)
         const int index = point.second;
 
         // do not select non-visible features
-        // NOTE no point to filter by genes/TPM as discarged indexes by genes/TPM
+        // NOTE no point to filter by genes/TPM as discarded indexes by genes/TPM
         // will not be visible
         if (!m_geneData.quadVisible(index)) {
             continue;
@@ -746,26 +748,12 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
     m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
 
     m_vao.bind();
-    m_vertexsBuffer.bind();
-    m_indexesBuffer.bind();
-    m_texturesBuffer.bind();
-    m_colorsBuffer.bind();
-    m_selectedBuffer.bind();
-    m_visibleBuffer.bind();
-    m_readsBuffer.bind();
 
     m_qopengl_functions->glDrawElements(GL_TRIANGLES,
                                         m_geneData.m_indexes.size(),
                                         GL_UNSIGNED_INT,
                                         0);
 
-    m_vertexsBuffer.release();
-    m_indexesBuffer.release();
-    m_texturesBuffer.release();
-    m_colorsBuffer.release();
-    m_selectedBuffer.release();
-    m_visibleBuffer.release();
-    m_readsBuffer.release();
     m_vao.release();
 
     m_shader_program.release();

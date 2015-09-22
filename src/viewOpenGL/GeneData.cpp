@@ -49,7 +49,7 @@ void GeneData::clearData()
 
 int GeneData::addQuad(const float x, const float y, const float size, const QColor& color)
 {
-    const int index_count = m_vertices.size();
+    const unsigned int index_count = static_cast<unsigned int>(m_vertices.size());
 
     m_vertices.append(QVector3D(x - size / 2.0, y - size / 2.0, 0.0));
     m_vertices.append(QVector3D(x + size / 2.0, y - size / 2.0, 0.0));

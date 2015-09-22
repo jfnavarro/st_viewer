@@ -58,7 +58,7 @@ public:
     QVector<QVector3D> m_vertices;
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
-    QVector<int> m_indexes;
+    QVector<unsigned int> m_indexes;
     QVector<float> m_reads;
     QVector<float> m_visible;
     QVector<float> m_selected;
