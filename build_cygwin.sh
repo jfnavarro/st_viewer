@@ -15,11 +15,18 @@ set -ex
 
 # The cmake that is found in cygwin does not contain the "NMake Makefiles" generator
 # so we need to use the version of cmake installed on Windows.
-windows_cmake_filepath=`cygpath -w '/cygdrive/C/Program Files (x86)/CMake/bin/cmake.exe'`
 
-msvc_vars_filepath=`cygpath -w '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'`
-qt_env_filepath=`cygpath -w '/cygdrive/c/Qt/5.5/msvc2013_64/bin/qtenv2.bat'`
-libjpeg_turbo_dir=`cygpath -w /cygdrive/c/libjpeg-turbo64`
+cmake_install_dir='/cygdrive/C/Program Files (x86)/CMake'
+windows_cmake_filepath=`cygpath -w "${cmake_install_dir}/bin/cmake.exe"`
+windows_ctest_filepath=`cygpath -w "${cmake_install_dir}/bin/ctest.exe"`
+
+msvc_vars_filepath='/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'
+
+qt_bin='/cygdrive/c/Qt/5.5/msvc2013_64/bin'
+qt_env_filepath="$qt_bin/qtenv2.bat"
+
+
+libjpeg_turbo_dir='/cygdrive/c/libjpeg-turbo64'
 
 # Shows the user the expected arguments.
 
@@ -39,6 +46,11 @@ fi
 
 if [ ! -f "$windows_cmake_filepath" ]; then
     echo -e "\nERROR: CMake path '${windows_cmake_filepath}' was not found.\n"
+	exit 1
+fi
+
+if [ ! -f "$windows_ctest_filepath" ]; then
+    echo -e "\nERROR: CTest path '${windows_ctest_filepath}' was not found.\n"
 	exit 1
 fi
 
@@ -87,8 +99,8 @@ fi
 
 
 cd "$stclient_builddir" 
-stclient_builddir_windows=`cygpath -w $stclient_builddir`
-stclient_srcdir_windows=`cygpath -w $stclient_srcdir`
+stclient_builddir_windows=`cygpath -w "$stclient_builddir"`
+stclient_srcdir_windows=`cygpath -w "$stclient_srcdir"`
 
 #"Visual Studio 11 Win64" 
 
@@ -108,11 +120,18 @@ else
   cmd=""
 fi
 
-cmd /Q /C call "$msvc_vars_filepath" x86_amd64 "&&" \
-  "$qt_env_filepath" "&&" \
+# When running ctest there was a problem with missing dll. The files were on the system but couldn't be found.
+# A good command to diagnose this is "cygcheck".
+# By setting the PATH environment variable, the missing dll files can be found.
+export PATH="$libjpeg_turbo_dir/bin/:$qt_bin:$PATH"
+
+windows_msvc_vars_filepath=`cygpath -w "$msvc_vars_filepath"`
+cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
+  `cygpath -w "$qt_env_filepath"` "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=$libjpeg_turbo_dir" "$stclient_srcdir_windows" "&&" \
+   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=`cygpath -w "$libjpeg_turbo_dir"`" "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
+   "$windows_ctest_filepath" "&&" \
    nmake package
 
 cp "$stclient_builddir"/stVi.exe "$result_dir"
