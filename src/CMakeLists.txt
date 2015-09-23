@@ -46,8 +46,6 @@ foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
 
-add_subdirectory(testTools)
-
 ### PROJECT AND SOURCE STRUCTURE ##############################################
 
 # NOTE this is very useful for Visual Studio
@@ -134,14 +132,8 @@ endif()
 # Link libraries to the main target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
-# TODO: maybe we should use LIBJPEG_STATIC_detected_with_find_library for all platforms?
-# It works for Windows and Linux right now. It has not yet been tested for OSX.
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} ${LIBJPEG_STATIC_detected_with_find_library})
-else()
-   target_link_libraries(${PROJECT_NAME} ${LIBJPEG_LIBRARIES})
-endif()
-
+# Seems like we need to link to the explicit static library of ligjpeg-turbo
+target_link_libraries(${PROJECT_NAME} ${LIBJPEG_STATIC_detected_with_find_library})
 
 ### UNIT TESTS ################################################################
 

@@ -7,7 +7,6 @@
 
 #include <QtTest/QTest>
 #include <QtCore/QTime>
-#include "util/random.h"
 #include "math/QuadTree.h"
 
 Q_DECLARE_METATYPE(QList<QPointF>)
