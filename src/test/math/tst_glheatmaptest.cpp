@@ -55,5 +55,5 @@ void GLHeatMapTest::testHeatMap_data()
 
 } // namespace unit //
 
-  QTEST_MAIN(unit::GLHeatMapTest)
-  #include "tst_glheatmaptest.moc"
+QTEST_MAIN(unit::GLHeatMapTest)
+#include "tst_glheatmaptest.moc"

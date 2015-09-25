@@ -60,9 +60,9 @@ public:
     void setVisualOptions(GraphicItemGL::VisualOptions visualOptions);
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
-    // drawing method, must be implemented when sub-classing
-    // we pass the QOpenGLFunctions_2_0 functions
-    virtual void draw(QOpenGLFunctionsVersion* m_qpengl_functions) = 0;
+    // Drawing method, calls the virtual method. Asserts that the OpenGL
+    // state is error free before and after calling the virtual method.
+    void draw(QOpenGLFunctionsVersion& qpengl_functions);
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
@@ -83,13 +83,17 @@ public:
     // we pass the QOpenGLFunctions_2_0 functions
     void drawBorderRect(const QRectF& rect,
                         QColor color,
-                        QOpenGLFunctionsVersion* m_qopengl_functions);
+                        QOpenGLFunctionsVersion& qopengl_functions);
 
     void setProjection(const QMatrix4x4& projection);
     void setModelView(const QMatrix4x4& modelview);
 
     const QMatrix4x4 getProjection() const;
     const QMatrix4x4 getModelView() const;
+
+private:
+    // Override this to draw the item using OpenGL.
+    virtual void doDraw(QOpenGLFunctionsVersion& qpengl_functions) = 0;
 
 public slots:
 

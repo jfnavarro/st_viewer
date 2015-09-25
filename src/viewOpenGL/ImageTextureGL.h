@@ -45,10 +45,11 @@ public slots:
     void setIntensity(qreal intensity);
 
 protected:
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     // internal functions to create a texture from an image and add it to the rendering list
     void addTexture(const QImage& image, const int x = 0, const int y = 0);
 

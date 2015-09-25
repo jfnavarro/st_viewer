@@ -30,14 +30,13 @@ public:
 
     void setRubberbandRect(const QRectF& rect);
 
-    // made public for convenience
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
-
 protected:
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     QRectF m_rubberbandRect;
 
     Q_DISABLE_COPY(RubberbandGL)

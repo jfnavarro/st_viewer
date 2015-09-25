@@ -69,36 +69,36 @@ void HeatMapLegendGL::clearData()
     m_isInitialized = false;
 }
 
-void HeatMapLegendGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
+void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
     }
 
-    m_qopengl_functions->glEnable(GL_TEXTURE_2D);
+    qopengl_functions.glEnable(GL_TEXTURE_2D);
     {
         // draw heatmap texture
         m_texture.bind();
-        m_qopengl_functions->glBegin(GL_QUADS);
+        qopengl_functions.glBegin(GL_QUADS);
         {
             for (int i = 0; i < m_texture_vertices.size(); ++i) {
-                m_qopengl_functions->glTexCoord2f(m_texture_cords.at(i).x(),
-                                                  m_texture_cords.at(i).y());
-                m_qopengl_functions->glVertex2f(m_texture_vertices.at(i).x(),
-                                                m_texture_vertices.at(i).y());
+                qopengl_functions.glTexCoord2f(m_texture_cords.at(i).x(),
+                                               m_texture_cords.at(i).y());
+                qopengl_functions.glVertex2f(m_texture_vertices.at(i).x(),
+                                             m_texture_vertices.at(i).y());
             }
         }
-        m_qopengl_functions->glEnd();
+        qopengl_functions.glEnd();
         m_texture.release();
 
         // draw borders
-        m_qopengl_functions->glBegin(GL_LINE_LOOP);
+        qopengl_functions.glBegin(GL_LINE_LOOP);
         {
-            m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             foreach (QVector2D indice, m_texture_vertices) {
-                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
+                qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
-            m_qopengl_functions->glEnd();
+            qopengl_functions.glEnd();
         }
 
         // draw text (add 5 pixels offset to the right)
@@ -107,7 +107,7 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
         drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
         drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
     }
-    m_qopengl_functions->glDisable(GL_TEXTURE_2D);
+    qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
 void HeatMapLegendGL::setSelectionArea(const SelectionEvent*)

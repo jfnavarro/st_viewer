@@ -31,39 +31,41 @@ GridRendererGL::~GridRendererGL()
 {
 }
 
-void GridRendererGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
+void GridRendererGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
-    m_qopengl_functions->glEnable(GL_LINE_SMOOTH);
+    qopengl_functions.glEnable(GL_LINE_SMOOTH);
     {
-        m_qopengl_functions->glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        m_qopengl_functions->glLineWidth(GRID_LINE_SIZE);
+        qopengl_functions.glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        qopengl_functions.glLineWidth(GRID_LINE_SIZE);
 
-        m_qopengl_functions->glBegin(GL_LINES);
+        qopengl_functions.glBegin(GL_LINES);
         {
             // draw borders of the array
-            m_qopengl_functions->glColor4f(static_cast<GLfloat>(m_gridBorderColor.redF()),
-                                           static_cast<GLfloat>(m_gridBorderColor.greenF()),
-                                           static_cast<GLfloat>(m_gridBorderColor.blueF()),
-                                           static_cast<GLfloat>(m_gridBorderColor.alphaF()));
+            qopengl_functions.glColor4f(static_cast<GLfloat>(m_gridBorderColor.redF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.greenF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.blueF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.alphaF()));
             foreach (QVector2D indice, m_border_vertex) {
-                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
+                qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
 
             // draw the array (grid)
-            m_qopengl_functions->glColor4f(static_cast<GLfloat>(m_gridColor.redF()),
-                                           static_cast<GLfloat>(m_gridColor.greenF()),
-                                           static_cast<GLfloat>(m_gridColor.blueF()),
-                                           static_cast<GLfloat>(m_gridColor.alphaF()));
+            qopengl_functions.glColor4f(static_cast<GLfloat>(m_gridColor.redF()),
+                                        static_cast<GLfloat>(m_gridColor.greenF()),
+                                        static_cast<GLfloat>(m_gridColor.blueF()),
+                                        static_cast<GLfloat>(m_gridColor.alphaF()));
             foreach (QVector2D indice, m_grid_vertex) {
-                m_qopengl_functions->glVertex2f(indice.x(), indice.y());
+                qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
         }
-        m_qopengl_functions->glEnd();
+
+        qopengl_functions.glEnd();
     }
-    m_qopengl_functions->glDisable(GL_LINE_SMOOTH);
+
+    qopengl_functions.glDisable(GL_LINE_SMOOTH);
 
     // set the color back to white to not over-draw the textures
-    m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GridRendererGL::setSelectionArea(const SelectionEvent*)

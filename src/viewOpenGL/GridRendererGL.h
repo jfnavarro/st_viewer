@@ -47,11 +47,12 @@ public slots:
     void setColor(const QColor& color);
 
 protected:
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     // data vertex arrays
     QVector<QVector2D> m_grid_vertex;
     QVector<QVector2D> m_border_vertex;

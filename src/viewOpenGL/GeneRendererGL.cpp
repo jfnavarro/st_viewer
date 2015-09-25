@@ -710,7 +710,7 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
     }
 }
 
-void GeneRendererGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
+void GeneRendererGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -749,10 +749,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
 
     m_vao.bind();
 
-    m_qopengl_functions->glDrawElements(GL_TRIANGLES,
-                                        m_geneData.m_indexes.size(),
-                                        GL_UNSIGNED_INT,
-                                        0);
+    qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
 
     m_vao.release();
 

@@ -145,6 +145,7 @@ void CellGLView::initializeGL()
 
 void CellGLView::paintGL()
 {
+
     // clear color buffer
     m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
@@ -160,14 +161,14 @@ void CellGLView::paintGL()
             node->setProjection(m_projm);
             node->setModelView(matrix);
             m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat*>(matrix.constData()));
-            node->draw(&m_qopengl_functions);
+            node->draw(m_qopengl_functions);
         }
     }
 
     m_qopengl_functions.glLoadIdentity();
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
-        m_rubberband->draw(&m_qopengl_functions);
+        m_rubberband->draw(m_qopengl_functions);
     }
 }
 

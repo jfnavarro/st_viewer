@@ -55,11 +55,12 @@ public slots:
     void setColorComputingMode(const Globals::GeneColorMode& mode);
 
 protected:
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     // internal function to render text as a texture
     void drawText(const QPointF& posn, const QString& str);
 

@@ -61,11 +61,12 @@ signals:
     void signalCenterOn(const QPointF& point);
 
 protected:
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     // internal functions to adjust minimap's size and position
     QTransform localTransform() const;
     void centerOnLocalPos(const QPointF& localPoint);

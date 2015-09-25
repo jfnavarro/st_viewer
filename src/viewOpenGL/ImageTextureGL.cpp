@@ -58,31 +58,31 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::draw(QOpenGLFunctionsVersion* m_qopengl_functions)
+void ImageTextureGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
     }
 
-    m_qopengl_functions->glEnable(GL_TEXTURE_2D);
+    qopengl_functions.glEnable(GL_TEXTURE_2D);
     {
-        m_qopengl_functions->glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
-        m_qopengl_functions->glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
-        m_qopengl_functions->glEnableClientState(GL_VERTEX_ARRAY);
-        m_qopengl_functions->glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        qopengl_functions.glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
+        qopengl_functions.glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
+        qopengl_functions.glEnableClientState(GL_VERTEX_ARRAY);
+        qopengl_functions.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         for (int i = 0; i < m_textures.size(); ++i) {
             QOpenGLTexture* texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
             texture->bind();
-            m_qopengl_functions->glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+            qopengl_functions.glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
             texture->release();
         }
 
-        m_qopengl_functions->glDisableClientState(GL_VERTEX_ARRAY);
-        m_qopengl_functions->glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        qopengl_functions.glDisableClientState(GL_VERTEX_ARRAY);
+        qopengl_functions.glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
-    m_qopengl_functions->glDisable(GL_TEXTURE_2D);
+    qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
 void ImageTextureGL::setSelectionArea(const SelectionEvent*)

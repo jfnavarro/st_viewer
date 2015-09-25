@@ -6,6 +6,7 @@
 */
 
 #include "GraphicItemGL.h"
+#include "AssertOpenGL.h"
 
 #include <QVector3D>
 #include <QtOpenGL>
@@ -177,45 +178,45 @@ void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
 // TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
 void GraphicItemGL::drawBorderRect(const QRectF& rect,
                                    QColor color,
-                                   QOpenGLFunctionsVersion* m_qopengl_functions)
+                                   QOpenGLFunctionsVersion& qopengl_functions)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
     const QPointF sbr = rect.bottomRight();
     const QPointF sbl = rect.bottomLeft();
 
-    m_qopengl_functions->glBegin(GL_QUADS);
+    qopengl_functions.glBegin(GL_QUADS);
     {
-        m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
-                                       static_cast<GLfloat>(color.greenF()),
-                                       static_cast<GLfloat>(color.blueF()),
-                                       0.2f);
-        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
-        m_qopengl_functions->glVertex2f(str.x(), str.y());
-        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
-        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
+        qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                    static_cast<GLfloat>(color.greenF()),
+                                    static_cast<GLfloat>(color.blueF()),
+                                    0.2f);
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
     }
-    m_qopengl_functions->glEnd();
+    qopengl_functions.glEnd();
 
-    m_qopengl_functions->glBegin(GL_LINES);
+    qopengl_functions.glBegin(GL_LINES);
     {
-        m_qopengl_functions->glColor4f(static_cast<GLfloat>(color.redF()),
-                                       static_cast<GLfloat>(color.greenF()),
-                                       static_cast<GLfloat>(color.blueF()),
-                                       0.8f);
-        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
-        m_qopengl_functions->glVertex2f(str.x(), str.y());
-        m_qopengl_functions->glVertex2f(str.x(), str.y());
-        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
-        m_qopengl_functions->glVertex2f(sbr.x(), sbr.y());
-        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
-        m_qopengl_functions->glVertex2f(sbl.x(), sbl.y());
-        m_qopengl_functions->glVertex2f(stl.x(), stl.y());
+        qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                    static_cast<GLfloat>(color.greenF()),
+                                    static_cast<GLfloat>(color.blueF()),
+                                    0.8f);
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
     }
-    m_qopengl_functions->glEnd();
+    qopengl_functions.glEnd();
 
     // set the color back to white to not over-draw the textures
-    m_qopengl_functions->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GraphicItemGL::setProjection(const QMatrix4x4& projection)
@@ -236,4 +237,12 @@ const QMatrix4x4 GraphicItemGL::getProjection() const
 const QMatrix4x4 GraphicItemGL::getModelView() const
 {
     return m_modelView;
+}
+
+void GraphicItemGL::draw(QOpenGLFunctionsVersion& qpengl_functions)
+{
+    ASSERT_OPENGL_OK;
+    // Call overridden method.
+    doDraw(qpengl_functions);
+    ASSERT_OPENGL_OK;
 }

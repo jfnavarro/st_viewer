@@ -129,10 +129,11 @@ signals:
 
 protected:
     void setSelectionArea(const SelectionEvent* event) override;
-    void draw(QOpenGLFunctionsVersion* m_qopengl_functions) override;
     const QRectF boundingRect() const override;
 
 private:
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+
     // helper functions to init OpenGL buffers
     void initBasicBuffers();
     void initDynamicBuffers();
