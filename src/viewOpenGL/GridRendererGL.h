@@ -9,6 +9,7 @@
 #define GRIDRENDERERGL_H
 
 #include "GraphicItemGL.h"
+#include "ColoredLines.h"
 
 class QGLPainter;
 class QRectF;
@@ -25,37 +26,33 @@ public:
     explicit GridRendererGL(QObject* parent = 0);
     virtual ~GridRendererGL();
 
-    // data generation
-    void generateData();
-    void clearData();
-
-    // setters
+    // If the border (or rect) is empty the border will not be drawn.
+    // If the rect is empty nothing will be drawn.
     void setDimensions(const QRectF& border, const QRectF& rect);
 
-    // gettters
-    const QColor color() const;
-    const QRectF border() const;
-    const QRectF rectangle() const;
+    QColor gridColor() const;
 
-    // needs to be accesible from other classes
+    QRectF border() const;
+
+    QRectF rectangle() const;
+
+    // needs to be accessible from other classes
     static const QColor DEFAULT_COLOR_GRID;
 
 public slots:
 
-    // TODO slots should have the prefix "slot"
-
-    void setColor(const QColor& color);
+    void slotSetGridColor(const QColor& color);
 
 protected:
-    const QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(Renderer& renderer) override;
 
-    // data vertex arrays
-    QVector<QVector2D> m_grid_vertex;
-    QVector<QVector2D> m_border_vertex;
+    void createGridlines();
+
+    ColoredLines m_gridLines;
 
     // the internal gene (x,y) area
     QRectF m_rect;
@@ -64,8 +61,8 @@ private:
     QRectF m_border;
 
     // grid colors
-    QColor m_gridColor;
-    QColor m_gridBorderColor;
+    QColor m_centerColor;
+    QColor m_borderColor;
 
     Q_DISABLE_COPY(GridRendererGL)
 };

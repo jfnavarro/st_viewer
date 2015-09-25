@@ -40,7 +40,6 @@ public slots:
 signals:
 
 private:
-
     // internal functions to obtain the model and the proxy model of the table
     GeneSelectionItemModel* getModel();
     QSortFilterProxyModel* getProxyModel();

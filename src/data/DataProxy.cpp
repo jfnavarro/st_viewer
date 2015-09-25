@@ -247,14 +247,14 @@ DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment() const
     return m_imageAlignment;
 }
 
-const QByteArray DataProxy::getFigureRed() const
+QByteArray DataProxy::getFigureRed() const
 {
     Q_ASSERT(!m_imageAlignment.isNull() && !m_imageAlignment->figureRed().isNull()
              && !m_imageAlignment->figureRed().isEmpty());
     return m_cellTissueImages.value(m_imageAlignment->figureRed());
 }
 
-const QByteArray DataProxy::getFigureBlue() const
+QByteArray DataProxy::getFigureBlue() const
 {
     Q_ASSERT(!m_imageAlignment.isNull() && !m_imageAlignment->figureBlue().isNull()
              && !m_imageAlignment->figureBlue().isEmpty());
@@ -420,7 +420,7 @@ void DataProxy::loadUser()
 void DataProxy::loadUserSelections()
 {
     // NOTE we do not clean up the container as we might have local selections
-    //m_userSelectionList.clear();
+    // m_userSelectionList.clear();
     // creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);

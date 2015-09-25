@@ -88,7 +88,8 @@ QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
 }
 
 QVariant UserSelectionsItemModel::headerData(int section,
-                                             Qt::Orientation orientation, int role) const
+                                             Qt::Orientation orientation,
+                                             int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {

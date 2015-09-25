@@ -56,9 +56,7 @@ bool AggregatedGene::operator<(const AggregatedGene& other) const
 
 bool AggregatedGene::operator==(const AggregatedGene& other) const
 {
-    return (name == other.name
-            && reads == other.reads
-            && normalizedReads == other.normalizedReads
+    return (name == other.name && reads == other.reads && normalizedReads == other.normalizedReads
             && count == other.count);
 }
 
@@ -146,9 +144,7 @@ UserSelection& UserSelection::operator=(const UserSelection& other)
 
 bool UserSelection::operator==(const UserSelection& other) const
 {
-    return (m_id == other.m_id
-            && m_name == other.m_name
-            && m_userId == other.m_userId
+    return (m_id == other.m_id && m_name == other.m_name && m_userId == other.m_userId
             && m_datasetId == other.m_datasetId
             && m_selectedGenes == other.m_selectedGenes
             && m_selectedFeatures == other.m_selectedFeatures
@@ -311,8 +307,9 @@ void UserSelection::selectedGenes(const selectedGenesList& selectedGenes)
     m_totalReads = std::accumulate(m_selectedGenes.begin(),
                                    m_selectedGenes.end(),
                                    0,
-                                   [](unsigned total, const AggregatedGene& item)
-    { return total + item.reads; });
+                                   [](unsigned total, const AggregatedGene& item) {
+                                       return total + item.reads;
+                                   });
 }
 
 void UserSelection::selectedFeatures(const selectedFeaturesList& features)
@@ -362,7 +359,7 @@ void UserSelection::datasetName(const QString& datasetName)
     m_datasetName = datasetName;
 }
 
-void UserSelection::type(const Type &type)
+void UserSelection::type(const Type& type)
 {
     m_type = type;
 }
@@ -382,7 +379,7 @@ void UserSelection::saved(const bool saved)
     m_saved = saved;
 }
 
-void UserSelection::loadFeatures(const selectedFeaturesList &features)
+void UserSelection::loadFeatures(const selectedFeaturesList& features)
 {
     m_selectedFeatures = features;
     m_selectedGenes.clear();
@@ -393,13 +390,13 @@ void UserSelection::loadFeatures(const selectedFeaturesList &features)
     m_totalSpots = 0;
 
     // populate the selected genes by aggregation and the spots
-    QMap<QString,AggregatedGene> temp_map;
+    QMap<QString, AggregatedGene> temp_map;
     for (auto feature : features) {
         m_selectedSpots.insert(feature->barcode());
         const QString gene_name = feature->gene();
         const unsigned reads = feature->hits();
         m_totalReads += reads;
-        if (temp_map.contains(gene_name)){
+        if (temp_map.contains(gene_name)) {
             ++temp_map[gene_name].count;
             temp_map[gene_name].reads += reads;
         } else {
@@ -421,21 +418,21 @@ void UserSelection::loadFeatures(const selectedFeaturesList &features)
 
 QString UserSelection::typeToQString(const UserSelection::Type& type)
 {
-    switch(type) {
-        case Rubberband:
-            return QString("Rubberband");
-        case Lazo:
-            return QString("Lazo");
-        case Segmented:
-            return QString("Segmented");
-        case Console:
-            return QString("Console");
-        case Cluster:
-            return QString("Cluster");
-        case Other:
-            return QString("Other");
-        default:
-            Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
+    switch (type) {
+    case Rubberband:
+        return QString("Rubberband");
+    case Lazo:
+        return QString("Lazo");
+    case Segmented:
+        return QString("Segmented");
+    case Console:
+        return QString("Console");
+    case Cluster:
+        return QString("Cluster");
+    case Other:
+        return QString("Other");
+    default:
+        Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
     }
     Q_ASSERT(false); // Should never arrive here
     return QString();

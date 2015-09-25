@@ -2,9 +2,11 @@
     Copyright (C) 2012  Spatial Transcriptomics AB,
     read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
 */
 #include "ImageTextureGL.h"
+#include "STTexturedQuads.h"
+#include "ColoredLines.h"
+#include "Renderer.h"
 
 #include <QOpenGLTexture>
 #include <QImage>
@@ -13,17 +15,23 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QApplication>
-
-#include "qjpeg-turbo/qjpeghandler_p.h"
+#include <algorithm>
 #include <cmath>
 
-static const int tile_width = 512;
-static const int tile_height = 512;
+namespace
+{
+// Returns the name to use for a tile at point p (x,y).
+inline QString getTileName(const QPoint& p)
+{
+    return QString("%1_%2t").arg(p.x(), p.y());
+}
+}
 
 ImageTextureGL::ImageTextureGL(QObject* parent)
     : GraphicItemGL(parent)
+    , m_bounds()
     , m_intensity(1.0)
-    , m_isInitialized(false)
+    , m_outlineTextureTiles(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -35,160 +43,99 @@ ImageTextureGL::ImageTextureGL(QObject* parent)
 
 ImageTextureGL::~ImageTextureGL()
 {
-    clearData();
 }
 
-void ImageTextureGL::clearData()
+void ImageTextureGL::setImage(Renderer& renderer, const QImage& image)
 {
-    clearTextures();
-    m_textures_indices.clear();
-    m_texture_coords.clear();
-    m_isInitialized = false;
+    resetToNoImage(renderer);
+    storeImageTiles(renderer, image);
 }
 
-void ImageTextureGL::clearTextures()
+void ImageTextureGL::resetToNoImage(Renderer& renderer)
 {
-    foreach (QOpenGLTexture* texture, m_textures) {
-        if (texture != nullptr) {
-            texture->destroy();
+    auto removeNamedTiles
+        = [&renderer](QRect tileRect) { renderer.removeTexture(getTileName(tileRect.topLeft())); };
+
+    forEachTile(m_bounds.size(), removeNamedTiles);
+
+    m_bounds = QRect();
+}
+
+void ImageTextureGL::doDraw(Renderer& renderer)
+{
+    const int grey = static_cast<int>(255.0 * m_intensity);
+    const QColor intensity(grey, grey, grey);
+
+    auto drawTile = [&renderer, intensity, this](QRect tileRect) {
+        STTexturedQuads quad;
+        quad.addQuad(tileRect, STTexturedQuads::defaultTextureCoords(), intensity);
+        drawTexturedQuads(renderer, quad, getTileName(tileRect.topLeft()));
+
+        // Set m_outlineTextureTiles to true to display the tiles.
+        if (m_outlineTextureTiles) {
+            ColoredLines outline;
+            outline.addRectOutline(tileRect, Qt::yellow);
+            drawLines(renderer, outline);
         }
-        texture = nullptr;
-    }
+    };
 
-    m_textures.clear();
+    forEachTile(m_bounds.size(), drawTile);
 }
 
-void ImageTextureGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
+// Subdivides the image into tiles, and stores each sub image as a named texture in the renderer.
+void ImageTextureGL::storeImageTiles(Renderer& renderer, const QImage& image)
 {
-    if (!m_isInitialized) {
-        return;
-    }
+    m_bounds = image.rect();
 
-    qopengl_functions.glEnable(GL_TEXTURE_2D);
-    {
-        qopengl_functions.glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
-        qopengl_functions.glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
-        qopengl_functions.glEnableClientState(GL_VERTEX_ARRAY);
-        qopengl_functions.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    auto makeSubImageForTile = [&renderer, &image, this](QRect tileRect) {
+        const QImage subImage = image.copy(tileRect);
+        const QString name = getTileName(tileRect.topLeft());
+        renderer.addTexture(name, subImage.mirrored(), false);
+    };
 
-        for (int i = 0; i < m_textures.size(); ++i) {
-            QOpenGLTexture* texture = m_textures[i];
-            Q_ASSERT(texture != nullptr);
-            texture->bind();
-            qopengl_functions.glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
-            texture->release();
+    forEachTile(image.size(), makeSubImageForTile);
+}
+
+void ImageTextureGL::forEachTile(const QSize& imageSize, std::function<void(QRect)> tileFn)
+{
+    const int tileMaxWidth = ImageTextureGL::TextureTileWidth;
+    const int tileMaxHeight = ImageTextureGL::TextureTileHeight;
+
+    const int imgWidth = imageSize.width();
+    const int imgHeight = imageSize.height();
+
+    const int tilesInX = std::ceil(qreal(imgWidth) / tileMaxWidth);
+    const int tilesInY = std::ceil(qreal(imgHeight) / tileMaxHeight);
+
+    for (int ty = 0; ty < tilesInY; ++ty) {
+        for (int tx = 0; tx < tilesInX; ++tx) {
+
+            const int tileX = tx * tileMaxWidth;
+            const int tileY = ty * tileMaxHeight;
+
+            const int tileWidth = std::min(imgWidth - tileX, tileMaxHeight);
+            const int tileHeight = std::min(imgHeight - tileY, tileMaxHeight);
+
+            tileFn(QRect(tileX, tileY, tileWidth, tileHeight));
         }
-
-        qopengl_functions.glDisableClientState(GL_VERTEX_ARRAY);
-        qopengl_functions.glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
-    qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
 void ImageTextureGL::setSelectionArea(const SelectionEvent*)
 {
 }
 
-QFuture<void> ImageTextureGL::createTexture(const QByteArray& imageByteArray)
-{
-    // clear memory
-    clearData();
-    return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
-}
-
-void ImageTextureGL::createTiles(QByteArray imageByteArray)
-{
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
-    // extract image from byte array
-    QBuffer imageBuffer(&imageByteArray);
-    if (!imageBuffer.open(QIODevice::ReadOnly)) {
-        qDebug() << "[ImageTextureGL] Image decoding buffer error:" << imageBuffer.errorString();
-        return;
-    }
-
-    // create image from byte array
-    // QJpegHandler is a faster version of QImageReader that uses jpeg-turbo
-    QJpegHandler imageReader;
-    imageReader.setDevice(&imageBuffer);
-    QImage image;
-    const bool readOk = imageReader.read(&image);
-    if (!readOk || image.isNull()) {
-        qDebug() << "[ImageTextureGL] Created image failed ";
-        return;
-    }
-    imageBuffer.close();
-
-    // get size and bounds
-    const QSize imageSize = image.size();
-    m_bounds = image.rect();
-
-    // compute tiles size and numbers
-    const int width = imageSize.width();
-    const int height = imageSize.height();
-    const int xCount = std::ceil(qreal(width) / qreal(tile_width));
-    const int yCount = std::ceil(qreal(height) / qreal(tile_height));
-    const int count = xCount * yCount;
-
-    QImage sub_image;
-    QRect clip_rect;
-    // create tiles and their textures
-    for (int i = 0; i < count; ++i) {
-
-        // texture sizes
-        const int x = tile_width * (i % xCount);
-        const int y = tile_height * (i / xCount);
-        const int texture_width = std::min(width - x, tile_width);
-        const int texture_height = std::min(height - y, tile_height);
-
-        // create sub image
-        clip_rect.setRect(x, y, texture_width, texture_height);
-        // TODO an ideal solution would  be to extract the clip rect part of the image
-        // from the imageReader to avoid loading the whole image into memory
-        // but the setClipRect option would only work one time, after calling read()
-        // the buffer is cleaned
-        sub_image = image.copy(clip_rect);
-
-        // add texture
-        addTexture(sub_image, x, y);
-    }
-
-    m_isInitialized = true;
-    QGuiApplication::restoreOverrideCursor();
-}
-
-void ImageTextureGL::addTexture(const QImage& image, const int x, const int y)
-{
-    const qreal width = static_cast<qreal>(image.width());
-    const qreal height = static_cast<qreal>(image.height());
-
-    m_textures_indices.append(QVector2D(x, y));
-    m_textures_indices.append(QVector2D(x + width, y));
-    m_textures_indices.append(QVector2D(x + width, y + height));
-    m_textures_indices.append(QVector2D(x, y + height));
-
-    m_texture_coords.append(QVector2D(0.0, 0.0));
-    m_texture_coords.append(QVector2D(1.0, 0.0));
-    m_texture_coords.append(QVector2D(1.0, 1.0));
-    m_texture_coords.append(QVector2D(0.0, 1.0));
-
-    QOpenGLTexture* texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    texture->setData(image);
-    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
-    texture->setMagnificationFilter(QOpenGLTexture::Linear);
-    texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-    m_textures.append(texture);
-}
-
-const QRectF ImageTextureGL::boundingRect() const
+QRectF ImageTextureGL::boundingRect() const
 {
     return m_bounds;
 }
 
-void ImageTextureGL::setIntensity(qreal intensity)
+void ImageTextureGL::setIntensity(const qreal intensity)
 {
-    if (m_intensity != intensity) {
-        m_intensity = intensity;
-        emit updated();
+    if (intensity >= 0.0 && intensity < 1.0) {
+        if (m_intensity != intensity) {
+            m_intensity = intensity;
+            emit updated();
+        }
     }
 }

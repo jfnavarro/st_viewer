@@ -21,23 +21,21 @@ class OpenGLTestWindow : public QWindow, protected QOpenGLFunctions
 public:
     // A self contained call that will create a Qt application and a OpenGLTestWindow with the
     // params passed in. This call is intended to be used to simplify testing.
-    // Returns the return code from the exec of the Qt application used to launch the window.
-    static int run(const int maxRenderCount = -1,
-                   std::function<void(void)> renderFunc = &OpenGLTestWindow::doNothing);
+    // Returns true if the window was successfully created and shown.
+    // The window will be shown for timeoutMs milliseconds only.
+    static bool createAndShowWindow(const int timeoutMs,
+                                    std::function<void(void)> renderFunc
+                                    = &OpenGLTestWindow::doNothing);
 
-    // The window will be displayed for maxRenderCount number of render calls, after which it
-    // will close itself. If maxRenderCount is less than 1 there will be no limit and the window
-    // will not close itself. renderFunc is a functor that will be called inside the render loop,
-    // after the rotating triangle has been setup and before advanceRenderCounter is called.
-    explicit OpenGLTestWindow(const int maxRenderCount,
-                              std::function<void(void)> renderFunc = &OpenGLTestWindow::doNothing,
+    // renderFunc is a functor that will be called inside the render loop, after the rotating
+    // triangle has been setup and before advanceRenderCounter is called.
+    explicit OpenGLTestWindow(std::function<void(void)> renderFunc = &OpenGLTestWindow::doNothing,
                               QWindow* parent = nullptr);
 
     virtual ~OpenGLTestWindow();
 
     virtual void render(QPainter* painter);
 
-    // Call advanceRenderCounter.
     virtual void render();
 
     virtual void initialize();
@@ -50,13 +48,7 @@ public slots:
 
 protected:
     bool event(QEvent* event) Q_DECL_OVERRIDE;
-
     void exposeEvent(QExposeEvent* event) Q_DECL_OVERRIDE;
-
-    // Call this to advance the render count: if a limit on the number of render calls has
-    // been set, this will cause the window to close itself. Called by render, and provided
-    // here to permit overriding of render.
-    void advanceRenderCounter();
 
 private:
     GLuint loadShader(GLenum type, const char* source);
@@ -75,7 +67,6 @@ private:
     GLuint m_colAttr;
     GLuint m_matrixUniform;
     int m_frame;
-    int m_renderCountdown;
 };
 
 #endif

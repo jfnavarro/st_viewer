@@ -297,7 +297,7 @@ void stVi::setupUi()
 void stVi::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(
-                new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+        new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     about->exec();
 }
 
@@ -353,7 +353,7 @@ void stVi::createShorcuts()
 {
 #if defined Q_OS_WIN
     m_actionExit->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::ALT | Qt::Key_F4)
-                               << QKeySequence(Qt::CTRL | Qt::Key_Q));
+                                                     << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined Q_OS_LINUX || defined Q_OS_MAC
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
@@ -430,10 +430,7 @@ void stVi::createConnections()
             SLOT(slotSelectionsUpdated()));
 
     // connect log out signal from cell view
-    connect(m_cellview.data(),
-            SIGNAL(signalLogOut()),
-            this,
-            SLOT(slotLogOutButton()));
+    connect(m_cellview.data(), SIGNAL(signalLogOut()), this, SLOT(slotLogOutButton()));
 }
 
 void stVi::closeEvent(QCloseEvent* event)

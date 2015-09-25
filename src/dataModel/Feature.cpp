@@ -21,7 +21,7 @@ Feature::Feature()
 {
 }
 
-Feature::Feature(QString barcode, QString gene, double x, double y, int hits)
+ Feature::Feature(QString barcode, QString gene, double x, double y, int hits)
     : m_barcode(barcode)
     , m_gene(gene)
     , m_annotation()

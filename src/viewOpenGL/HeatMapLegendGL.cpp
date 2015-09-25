@@ -6,7 +6,9 @@
 */
 
 #include "HeatMapLegendGL.h"
-
+#include "ColoredLines.h"
+#include "STTexturedQuads.h"
+#include "Renderer.h"
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
@@ -29,7 +31,6 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     , m_minGenes(1)
     , m_maxGenes(1)
     , m_colorComputingMode(Globals::LinearColor)
-    , m_texture(QOpenGLTexture::Target2D)
     , m_textureText(QOpenGLTexture::Target2D)
     , m_valueComputation(Reads)
     , m_isInitialized(false)
@@ -49,14 +50,6 @@ HeatMapLegendGL::~HeatMapLegendGL()
 
 void HeatMapLegendGL::clearData()
 {
-    if (m_texture.isCreated()) {
-        m_texture.destroy();
-    }
-
-    m_texture_vertices.clear();
-    m_texture_cords.clear();
-    m_texture_cords.clear();
-
     if (m_textureText.isCreated()) {
         m_textureText.destroy();
     }
@@ -67,47 +60,6 @@ void HeatMapLegendGL::clearData()
     m_minGenes = 1;
     m_maxGenes = 1;
     m_isInitialized = false;
-}
-
-void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
-{
-    if (!m_isInitialized) {
-        return;
-    }
-
-    qopengl_functions.glEnable(GL_TEXTURE_2D);
-    {
-        // draw heatmap texture
-        m_texture.bind();
-        qopengl_functions.glBegin(GL_QUADS);
-        {
-            for (int i = 0; i < m_texture_vertices.size(); ++i) {
-                qopengl_functions.glTexCoord2f(m_texture_cords.at(i).x(),
-                                               m_texture_cords.at(i).y());
-                qopengl_functions.glVertex2f(m_texture_vertices.at(i).x(),
-                                             m_texture_vertices.at(i).y());
-            }
-        }
-        qopengl_functions.glEnd();
-        m_texture.release();
-
-        // draw borders
-        qopengl_functions.glBegin(GL_LINE_LOOP);
-        {
-            qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            foreach (QVector2D indice, m_texture_vertices) {
-                qopengl_functions.glVertex2f(indice.x(), indice.y());
-            }
-            qopengl_functions.glEnd();
-        }
-
-        // draw text (add 5 pixels offset to the right)
-        const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
-        const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
-        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
-        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
-    }
-    qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
 void HeatMapLegendGL::setSelectionArea(const SelectionEvent*)
@@ -151,7 +103,7 @@ void HeatMapLegendGL::setValueComputation(ValueComputation mode)
 
 void HeatMapLegendGL::setColorComputingMode(const Globals::GeneColorMode& mode)
 {
-    // update color computing mode
+    // Update color computing mode
     if (m_colorComputingMode != mode) {
         m_colorComputingMode = mode;
         generateHeatMap();
@@ -174,41 +126,70 @@ void HeatMapLegendGL::setUpperLimitGenes(const int limit)
     }
 }
 
+QRectF HeatMapLegendGL::heatmapCoordinates() const
+{
+    return QRectF(QPointF(legend_x, legend_y), QSizeF(legend_width, legend_height));
+}
+
 void HeatMapLegendGL::generateHeatMap()
 {
     const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
     const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
 
-    // generate image texture
-    QImage image(legend_width, legend_height, QImage::Format_ARGB32);
-    // here we can chose the type of Spectrum (linear, log or exp) and the type
-    // of color mapping (wavelenght or linear interpolation)
-    Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
+    // Generate image texture
+    std::unique_ptr<QImage> nextHeatmap(
+        new QImage(legend_width, legend_height, QImage::Format_ARGB32));
 
-    m_texture.destroy();
-    m_texture.create();
-    m_texture.setMinificationFilter(QOpenGLTexture::Linear);
-    m_texture.setMagnificationFilter(QOpenGLTexture::Linear);
-    m_texture.setWrapMode(QOpenGLTexture::ClampToEdge);
-    m_texture.setData(image);
+    // Here we can choose the type of Spectrum (linear, log or exp) and
+    // the type of color mapping (wavelength or linear interpolation)
+    Heatmap::createHeatMapImage(*nextHeatmap, min, max, m_colorComputingMode);
 
-    m_texture_vertices.append(QVector2D(legend_x, legend_y));
-    m_texture_vertices.append(QVector2D(legend_x + legend_width, legend_y));
-    m_texture_vertices.append(QVector2D(legend_x + legend_width, legend_y + legend_height));
-    m_texture_vertices.append(QVector2D(legend_x, legend_y + legend_height));
-
-    m_texture_cords.append(QVector2D(0.0, 0.0));
-    m_texture_cords.append(QVector2D(1.0, 0.0));
-    m_texture_cords.append(QVector2D(1.0, 1.0));
-    m_texture_cords.append(QVector2D(0.0, 1.0));
+    m_pendingHeatmap.swap(nextHeatmap);
 
     m_isInitialized = true;
 
     emit updated();
 }
 
+void HeatMapLegendGL::doDraw(Renderer& renderer)
+{
+    if (m_isInitialized) {
+
+        if (m_pendingHeatmap) {
+            renderer.addTexture("heatmap", *m_pendingHeatmap, false);
+            m_pendingHeatmap.reset();
+        }
+
+        drawHeatmap(renderer);
+        drawHeatMapBorderLines(renderer);
+
+        // draw text (add 5 pixels offset to the right)
+        const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
+        const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
+        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
+        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
+    }
+}
+
+void HeatMapLegendGL::drawHeatmap(Renderer& renderer)
+{
+    STTexturedQuads quad;
+    quad.addQuad(heatmapCoordinates(), STTexturedQuads::defaultTextureCoords(), Qt::white);
+    drawTexturedQuads(renderer, quad, "heatmap");
+}
+
+void HeatMapLegendGL::drawHeatMapBorderLines(Renderer& renderer)
+{
+    ColoredLines borderLines;
+    borderLines.addRectOutline(heatmapCoordinates(), Qt::white);
+    drawLines(renderer, borderLines);
+}
+
 void HeatMapLegendGL::drawText(const QPointF& posn, const QString& str)
 {
+    // Isn't this both a very expensive AND also usefully generic function?
+    // TODO: Factor out?
+    //
     QFont monoFont("Courier", 12, QFont::Normal);
     QFontMetrics metrics(monoFont);
     QRect textRect = metrics.boundingRect(str);
@@ -252,7 +233,9 @@ void HeatMapLegendGL::drawText(const QPointF& posn, const QString& str)
     m_textureText.release();
 }
 
-const QRectF HeatMapLegendGL::boundingRect() const
+QRectF HeatMapLegendGL::boundingRect() const
 {
-    return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
+    const QRectF coords = heatmapCoordinates();
+    const QSizeF boundingSize(coords.width() + bars_width, coords.height());
+    return QRectF(coords.topLeft(), boundingSize);
 }

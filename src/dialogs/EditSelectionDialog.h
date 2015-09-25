@@ -39,7 +39,7 @@ public:
 
 private:
     std::unique_ptr<Ui::editSelectionDialog> m_ui;
-    QColorDialog *m_color;
+    QColorDialog* m_color;
 
     Q_DISABLE_COPY(EditSelectionDialog)
 };

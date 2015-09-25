@@ -1,13 +1,13 @@
 #include "OpenGLTestWindow.h"
 
-#include <QtGui/QGuiApplication>
+#include <QTest>
+#include <QCoreApplication>
+#include <QElapsedTimer>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLPaintDevice>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QMatrix4x4>
 #include <QtGui/QScreen>
-#include <QtCore/qmath.h>
-#include <QtGui/QPainter>
 
 namespace
 {
@@ -27,29 +27,39 @@ static const char* fragmentShaderSource = "varying lowp vec4 col;\n"
                                           "}\n";
 }
 
-int OpenGLTestWindow::run(const int maxRenderCount, std::function<void(void)> renderFunc)
+bool OpenGLTestWindow::createAndShowWindow(const int timeoutMs,
+                                           std::function<void(void)> renderFunc)
 {
-    int argc = 1;
-    char fakeAppName[] = "'Fake OpenGLTestWindow App Name'";
-    char* fakeAppArgs[] = {&fakeAppName[0]};
-
-    QGuiApplication app(argc, &fakeAppArgs[0]);
-
     QSurfaceFormat format;
     format.setSamples(16);
 
-    OpenGLTestWindow window(maxRenderCount, renderFunc, nullptr);
+    OpenGLTestWindow window(renderFunc, nullptr);
     window.setFormat(format);
     window.resize(640, 480);
     window.show();
     window.setAnimating(true);
 
-    return app.exec();
+    QElapsedTimer timer;
+    timer.start();
+
+    bool wasExposed = false;
+
+    int remainingMs = timeoutMs - int(timer.elapsed());
+
+    // Pump the window for the specified duration.
+    while (remainingMs > 0) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, remainingMs);
+        QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+        QTest::qSleep(10);
+
+        remainingMs = timeoutMs - int(timer.elapsed());
+        wasExposed = wasExposed || window.isExposed();
+    }
+
+    return wasExposed;
 }
 
-OpenGLTestWindow::OpenGLTestWindow(const int renderCount,
-                                   std::function<void(void)> renderFunc,
-                                   QWindow* parent)
+OpenGLTestWindow::OpenGLTestWindow(std::function<void(void)> renderFunc, QWindow* parent)
     : QWindow(parent)
     , m_update_pending(false)
     , m_animating(false)
@@ -61,7 +71,6 @@ OpenGLTestWindow::OpenGLTestWindow(const int renderCount,
     , m_colAttr()
     , m_matrixUniform()
     , m_frame()
-    , m_renderCountdown(renderCount)
 {
     setSurfaceType(QWindow::OpenGLSurface);
 }
@@ -99,14 +108,6 @@ void OpenGLTestWindow::setAnimating(bool animating)
     if (animating) {
         renderLater();
     }
-}
-
-GLuint OpenGLTestWindow::loadShader(GLenum type, const char* source)
-{
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, 0);
-    glCompileShader(shader);
-    return shader;
 }
 
 void OpenGLTestWindow::initialize()
@@ -206,19 +207,6 @@ void OpenGLTestWindow::render()
     }
 
     ++m_frame;
-
-    advanceRenderCounter();
-}
-
-void OpenGLTestWindow::advanceRenderCounter()
-{
-    if (m_renderCountdown > 0) {
-        --m_renderCountdown;
-
-        if (m_renderCountdown == 0) {
-            close();
-        }
-    }
 }
 
 void OpenGLTestWindow::doNothing()

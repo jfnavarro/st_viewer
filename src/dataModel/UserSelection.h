@@ -60,14 +60,7 @@ public:
     typedef QSet<QString> selectedSpotsList;
     typedef DataProxy::FeatureList selectedFeaturesList;
 
-    enum Type {
-        Rubberband = 1,
-        Lazo = 2,
-        Segmented = 3,
-        Console = 4,
-        Cluster = 5,
-        Other = 6
-    };
+    enum Type { Rubberband = 1, Lazo = 2, Segmented = 3, Console = 4, Cluster = 5, Other = 6 };
     Q_DECLARE_FLAGS(Types, Type)
 
     UserSelection();

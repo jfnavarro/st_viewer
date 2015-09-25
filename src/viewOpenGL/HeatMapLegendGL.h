@@ -11,6 +11,7 @@
 #include "GraphicItemGL.h"
 #include "utils/Utils.h"
 
+#include <memory>
 #include <QOpenGLTexture>
 
 class QImage;
@@ -55,14 +56,23 @@ public slots:
     void setColorComputingMode(const Globals::GeneColorMode& mode);
 
 protected:
-    const QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(Renderer& renderer) override;
+
+    // Draws the heat map.
+    void drawHeatmap(Renderer& renderer);
+
+    // Draws the border lines around the heat map.
+    void drawHeatMapBorderLines(Renderer& renderer);
 
     // internal function to render text as a texture
     void drawText(const QPointF& posn, const QString& str);
+
+    // Returns the heat map coordinates.
+    QRectF heatmapCoordinates() const;
 
     // min and max boundaries values to compute colors from
     int m_maxReads;
@@ -73,11 +83,11 @@ private:
     // color computing mode (exp - log - linear)
     Globals::GeneColorMode m_colorComputingMode;
 
-    // texture color data
-    QOpenGLTexture m_texture;
+    // If the heatmap texture is out of synch with the intended heatmap, this
+    // pointer will be non null. It will be set correctly
+    std::unique_ptr<QImage> m_pendingHeatmap;
+
     QOpenGLTexture m_textureText;
-    QVector<QVector2D> m_texture_vertices;
-    QVector<QVector2D> m_texture_cords;
 
     // use genes or reads to compute min-max
     ValueComputation m_valueComputation;

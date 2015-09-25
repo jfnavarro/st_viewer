@@ -14,6 +14,7 @@
 #include "SelectionEvent.h"
 
 #include <functional>
+#include <memory>
 
 class GraphicItemGL;
 class QRubberBand;
@@ -69,6 +70,10 @@ public:
     void mouseMoveEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
+    // Returns a shared pointer to the renderer object. Asserts that the renderer object
+    // is not null.
+    std::shared_ptr<Renderer> getRenderer();
+
 public slots:
 
     // TODO slots should have the prefix "slot"
@@ -89,10 +94,14 @@ public slots:
     void setSceneFocusCenterPointWithClamping(const QPointF& center_point);
 
 protected:
-    // OpenGL rendering and initialization functions
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int width, int height);
+    // The renderer object is constructed in this call.
+    void initializeGL() override;
+
+    void paintGL() override;
+
+    void resizeGL(int width, int height) override;
+
+    void drawNode(GraphicItemGL* node);
 
     // returns the node local transformations in the view CS adjusted for anchor
     const QTransform nodeTransformations(GraphicItemGL* node) const;
@@ -136,6 +145,10 @@ private:
     // list of nodes to be renderered in the view
     QList<GraphicItemGL*> m_nodes;
 
+    // The renderer is not available to the application until the underlying system
+    // calls initializeGL.
+    std::shared_ptr<Renderer> m_renderer;
+
     // auxiliary variables for panning, zoom and selection
     QPoint m_originPanning;
     QPoint m_originRubberBand;
@@ -151,7 +164,7 @@ private:
     QMatrix4x4 m_projm;
 
     // a cross platform wrapper around OpenGL functions
-    GraphicItemGL::QOpenGLFunctionsVersion m_qopengl_functions;
+    GraphicItemGL::OpenGLFunctionsVersion m_qopengl_functions;
 
     Q_DISABLE_COPY(CellGLView)
 };

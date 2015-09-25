@@ -35,7 +35,7 @@ void Heatmap::createHeatMapImage(QImage& image,
                                                      upperbound);
         const qreal normalizedValue
             = STMath::norm<qreal, qreal>(adjusted_value, lowerbound, upperbound);
-        QColor color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
+        QColor color = Heatmap::createHeatMapWaveLengthColor(normalizedValue);
         const QRgb rgb_color = color.rgb();
         for (int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
@@ -55,15 +55,15 @@ QColor Heatmap::createHeatMapLinearColor(const qreal value, const qreal min, con
 }
 
 // simple function that computes color from a value
-// using the human wave lenght spectra
-QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
+// using the human wave length spectra
+QColor Heatmap::createHeatMapWaveLengthColor(const qreal value)
 {
     static const qreal gamma = 0.8;
 
     // denorm value to range (380-780)
     const qreal cwavelength = STMath::denorm(value, 380.0, 780.0);
 
-    // define colors according to wave lenght spectra
+    // define colors according to wave length spectra
     qreal red = 0.0;
     qreal green = 0.0;
     qreal blue = 0.0;

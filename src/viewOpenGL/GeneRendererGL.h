@@ -23,7 +23,7 @@
 class QOpenGLVertexArrayObject;
 
 // Gene renderer is what renders the genes/features on the CellGLView canvas.
-// It uses data arrays (GeneData) to render trough shaders.
+// It uses data arrays (GeneData) to render through shaders.
 // It has some attributes and variables changeable by slots.
 // It also allows to select indexes(spots) trough areas or gene names
 
@@ -88,7 +88,7 @@ public slots:
 
     // TODO slots should have the prefix "slot"
 
-    // slots to change visual atttributes
+    // slots to change visual attributes
     void setIntensity(qreal intensity);
     void setSize(qreal size);
     void setShape(const GeneShape shape);
@@ -107,7 +107,7 @@ public slots:
     void setColorComputingMode(const Globals::GeneColorMode mode);
 
     // for the given genes list updates the color
-    // of all the featuers whose genes are in the list and visible
+    // of all the features whose genes are in the list and visible
     // gene data must be initialized
     void updateColor(const DataProxy::GeneList& geneList);
 
@@ -127,10 +127,10 @@ signals:
 
 protected:
     void setSelectionArea(const SelectionEvent* event) override;
-    const QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(Renderer& renderer) override;
 
     // helper functions to init OpenGL buffers
     void initBasicBuffers();

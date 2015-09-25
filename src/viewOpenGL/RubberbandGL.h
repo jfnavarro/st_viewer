@@ -31,11 +31,11 @@ public:
     void setRubberbandRect(const QRectF& rect);
 
 protected:
-    const QRectF boundingRect() const override;
+    QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(Renderer& renderer) override;
 
     QRectF m_rubberbandRect;
 

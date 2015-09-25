@@ -28,14 +28,6 @@ WidgetsTest::WidgetsTest(QObject* parent)
 
 void WidgetsTest::initTestCase()
 {
-    // these must not go out of scope
-    static int argc = 0;
-    static char* argv = 0;
-
-    // test we can create mainwidgets and main application
-    QApplication* app = new QApplication(argc, &argv);
-    QVERIFY(app != 0);
-
     // stVi *mainWindow = new stVi();
     // QVERIFY(mainWindow != 0);
 
@@ -59,6 +51,13 @@ void WidgetsTest::initTestCase()
 void WidgetsTest::cleanupTestCase()
 {
     // TODO
+}
+
+void WidgetsTest::testDoesNothing()
+{
+    // This test is a dummy test and always passes. Without it QTest reports use of the
+    // test-free WidgetsTest as a failure.
+    QVERIFY(true);
 }
 
 } // namespace unit //

@@ -10,7 +10,9 @@
 #include "GraphicItemGL.h"
 #include <QVector2D>
 #include <QFuture>
+#include <functional>
 
+class Renderer;
 class QImage;
 class QOpenGLTexture;
 class QByteArray;
@@ -18,6 +20,7 @@ class QByteArray;
 // This class represents a tiled image to be rendered using textures. This class
 // is used to render the cell tissue image which has a high resolution
 // The tiling and creation of the textures is performed concurrently
+// TODO: Clarify how an empty object behaves.
 class ImageTextureGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -26,43 +29,49 @@ public:
     explicit ImageTextureGL(QObject* parent = 0);
     virtual ~ImageTextureGL();
 
-    // will split the image into small textures of fixed size in an asynchronous way
-    // using createTiles and returning the future object
-    QFuture<void> createTexture(const QByteArray& imageByteArray);
+    // The object will display this image and update its bounding rect to the image's size.
+    void setImage(Renderer& renderer, const QImage& image);
 
-    // will remove and destroy all textures
-    void clearData();
+    // Resets the object to the state where it has no image. It will render nothing and have
+    // an empty bounding rect.
+    void resetToNoImage(Renderer& renderer);
 
-    // return the total size of the image as a QRectF
-    const QRectF boundingRect() const override;
-
-    // will split the images into small textures of fixed size
-    void createTiles(QByteArray imageByteArray);
+    // Returns the size of the set image, if any, else the empty rect.
+    QRectF boundingRect() const override;
 
 public slots:
 
-    // to adjust intensity of the textures
-    void setIntensity(qreal intensity);
+    // Set a multiplier to apply to the image color. Valid ranges are 0 (darkest) to 1 (brightest)
+    // inclusive. Ranges outside of this will be ignored.
+    void setIntensity(const qreal intensity);
 
 protected:
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    static const int TextureTileWidth = 512;
+    static const int TextureTileHeight = 512;
 
-    // internal functions to create a texture from an image and add it to the rendering list
-    void addTexture(const QImage& image, const int x = 0, const int y = 0);
+    void doDraw(Renderer& renderer) override;
 
-    // internal function to remove and clean textures
-    void clearTextures();
-    void clearNodes();
+    void storeImageTiles(Renderer& renderer, const QImage& image);
 
-    QVector<QOpenGLTexture*> m_textures;
-    QVector<QVector2D> m_textures_indices;
-    QVector<QVector2D> m_texture_coords;
+    void drawImageTiles();
+
+    // The number and dimensions of each tile are entirely decided by the size of the image to be
+    // partitioned and by the size of the tile. This algorithm will call the function tileFn once
+    // for every tile that an image of imageSize would need, and tileFn will be passed the
+    // tile rectangle: its location and size on the image.
+    static void forEachTile(const QSize& imageSize, std::function<void(QRect)> tileFn);
+
+    // The screen rectangle occupied by the image.
+    QRect m_bounds;
+
+    // How bright the image is, 0 being darkest, 1 being brightest.
     qreal m_intensity;
-    QRectF m_bounds;
-    bool m_isInitialized;
+
+    // Intended as a debug feature, when true the textures will be rendered with a yellow border.
+    bool m_outlineTextureTiles;
 
     Q_DISABLE_COPY(ImageTextureGL)
 };

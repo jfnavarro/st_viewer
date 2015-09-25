@@ -36,7 +36,7 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
     m_ui->setupUi(this);
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->userSelectionsPageWidget->setStyleSheet("QWidget#userSelectionsPageWidget "
-                                               + PAGE_WIDGETS_STYLE);
+                                                  + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
     // initialize waiting spinner
@@ -49,7 +49,7 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
     m_waiting_spinner->setLineWidth(10);
     m_waiting_spinner->setInnerRadius(20);
     m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0,155,60));
+    m_waiting_spinner->setColor(QColor(0, 155, 60));
 
     // connect signals
     connect(m_ui->filterLineEdit,
@@ -152,7 +152,7 @@ void UserSelectionsPage::loadSelections()
 }
 
 void UserSelectionsPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                          const DataProxy::DownloadType type)
+                                              const DataProxy::DownloadType type)
 {
     if (type == DataProxy::UserSelectionsDownloaded && status == DataProxy::Success) {
         // update model
@@ -233,9 +233,7 @@ void UserSelectionsPage::slotExportSelection()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        QMessageBox::critical(this,
-                              tr("Export Selection"),
-                              tr("The directory is not writable"));
+        QMessageBox::critical(this, tr("Export Selection"), tr("The directory is not writable"));
         return;
     }
 
@@ -452,5 +450,5 @@ void UserSelectionsPage::slotExportGenes()
 
 void UserSelectionsPage::slotImportSelection()
 {
-    //TODO
+    // TODO
 }
