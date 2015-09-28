@@ -377,8 +377,7 @@ if(WIN32)
     endforeach()
 
     # Install resources
-    # TODO probably not needed the libeay32.dll and ssleay32.dll now that we are
-    # finding and linking openSSL
+    # TODO probably not needed the libeay32.dll and ssleay32.dll if we find and link OpenSSL
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/

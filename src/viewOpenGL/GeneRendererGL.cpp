@@ -217,7 +217,7 @@ void GeneRendererGL::generateDataAsync()
         // updated total reads per feature position
         m_geneInfoTotalReadsIndex[index] += feature->hits();
 
-        // update thresholds (next API will contain this information)
+        // update thresholds (TODO next API will contain this information so no need for this)
         ++m_geneInfoTotalGenesIndex[index];
         const int num_genes_feature = m_geneInfoTotalGenesIndex.value(index);
         const int feature_reads = feature->hits();
