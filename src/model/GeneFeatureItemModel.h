@@ -17,8 +17,8 @@ class QStringList;
 class QMimeData;
 class QItemSelection;
 
-// Wrapper model class for the gene data (specific to a dataset) found in the
-// data proxy. Primarily used to enumerate the genes in the cell view.
+// Wrapper model class for the gene data (specific to a dataset) found in the features.
+// Primarily used to enumerate the genes in the cell view and allow the user to interact.
 class GeneFeatureItemModel : public QAbstractTableModel
 {
     Q_OBJECT

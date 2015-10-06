@@ -23,7 +23,7 @@ AuthorizationManager::~AuthorizationManager()
 
 void AuthorizationManager::startAuthorization()
 {
-    // lazy init
+    // Lazy init
     if (m_oAuth2.isNull()) {
         m_oAuth2 = new OAuth2(m_dataProxy, this);
         connect(m_oAuth2,
@@ -35,7 +35,7 @@ void AuthorizationManager::startAuthorization()
                 this,
                 SIGNAL(signalError(QSharedPointer<Error>)));
     }
-    // check if we already have been authorized and have access token saved
+    // Check if we already have been authorized and have access token saved
     // initialize authentication on valid token storage
     if (isAuthenticated()) {
         emit signalAuthorize();

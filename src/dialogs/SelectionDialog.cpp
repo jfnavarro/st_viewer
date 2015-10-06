@@ -6,7 +6,8 @@
 */
 
 #include "SelectionDialog.h"
-#include "ui_selectiondialog.h"
+#include "ui_selectionConsole.h"
+#include "dataModel/Gene.h"
 
 SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy, QWidget* parent, Qt::WindowFlags f)
     : QDialog(parent, f)

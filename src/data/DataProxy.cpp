@@ -32,13 +32,19 @@
 #include "dataModel/FeatureDTO.h"
 #include "dataModel/ImageAlignmentDTO.h"
 #include "dataModel/UserDTO.h"
-#include "dataModel/GeneSelectionDTO.h"
+#include "dataModel/UserSelectionDTO.h"
 #include "dataModel/LastModifiedDTO.h"
-
+#include "dataModel/MinVersionDTO.h"
+#include "dataModel/UserSelection.h"
+#include "dataModel/Chip.h"
+#include "dataModel/Dataset.h"
+#include "dataModel/Feature.h"
+#include "dataModel/Gene.h"
+#include "dataModel/ImageAlignment.h"
+#include "dataModel/User.h"
 #include "rapidjson/reader.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/error/en.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -176,7 +182,7 @@ void DataProxy::clean()
     qDebug() << "Cleaning memory cache in Dataproxy";
     // every data member is a smart pointer
     m_datasetList.clear();
-    m_geneSelectionsList.clear();
+    m_userSelectionList.clear();
     m_imageAlignment.clear();
     m_chip.clear();
     m_featuresList.clear();
@@ -187,6 +193,7 @@ void DataProxy::clean()
     m_selectedDataset.clear();
     m_activeDownloads = 0;
     m_activeNetworkReplies.clear();
+    m_user.clear();
 }
 
 void DataProxy::cleanAll()
@@ -254,9 +261,9 @@ const QByteArray DataProxy::getFigureBlue() const
     return m_cellTissueImages.value(m_imageAlignment->figureBlue());
 }
 
-const DataProxy::GeneSelectionList DataProxy::getGenesSelectionsList() const
+const DataProxy::UserSelectionList DataProxy::getUserSelectionList() const
 {
-    return m_geneSelectionsList;
+    return m_userSelectionList;
 }
 
 const DataProxy::DatasetPtr DataProxy::getSelectedDataset() const
@@ -296,7 +303,7 @@ void DataProxy::loadDatasets()
     // delete the command
     cmd->deleteLater();
     // create the download request
-    createRequest(reply, DataProxy::DatasetDownloaded, &DataProxy::parseDatasets);
+    createRequest(reply, DataProxy::DatasetsDownloaded, &DataProxy::parseDatasets);
 }
 
 void DataProxy::updateDataset(const Dataset& dataset)
@@ -410,48 +417,54 @@ void DataProxy::loadUser()
     createRequest(reply, DataProxy::UserDownloaded, &DataProxy::parseUser);
 }
 
-void DataProxy::loadGeneSelections()
+void DataProxy::loadUserSelections()
 {
-    // clean up the containers
-    m_geneSelectionsList.clear();
+    // NOTE we do not clean up the container as we might have local selections
+    //m_userSelectionList.clear();
     // creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
     // delete the command
     cmd->deleteLater();
     // create the download request
-    createRequest(reply, DataProxy::GenesSelectionsDownloaded, &DataProxy::parseGeneSelections);
+    createRequest(reply, DataProxy::UserSelectionsDownloaded, &DataProxy::parseUserSelections);
 }
 
-void DataProxy::updateGeneSelection(const GeneSelection& geneSelection)
+void DataProxy::updateUserSelection(const UserSelection& userSelection)
 {
     // intermediary dto object
-    GeneSelectionDTO dto(geneSelection);
+    UserSelectionDTO dto(userSelection);
     NetworkCommand* cmd = RESTCommandFactory::upateSelectionBySelectionId(m_configurationManager,
-                                                                          geneSelection.id());
+                                                                          userSelection.id());
     // append json data
     cmd->setBody(dto.toJson());
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
     // delete the command
     cmd->deleteLater();
     // create the download request
-    createRequest(reply, DataProxy::GenesSelectionsModified);
+    createRequest(reply, DataProxy::UserSelectionModified);
 }
 
-void DataProxy::addGeneSelection(const GeneSelection& geneSelection)
+void DataProxy::addUserSelection(const UserSelection& userSelection)
 {
     // intermediary dto object
-    GeneSelectionDTO dto(geneSelection);
+    UserSelectionDTO dto(userSelection);
     NetworkCommand* cmd = RESTCommandFactory::addSelection(m_configurationManager);
     // append json data
     const QByteArray& body = dto.toJson();
-    qDebug() << "Storing selection " << body;
     cmd->setBody(body);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
     // delete the command
     cmd->deleteLater();
     // create the download request
     createRequest(reply);
+}
+
+void DataProxy::addUserSelectionLocal(const UserSelection& userSelection)
+{
+    // TODO check if has not been added already
+    UserSelectionPtr user_selection_ptr(new UserSelection(userSelection));
+    m_userSelectionList.append(user_selection_ptr);
 }
 
 void DataProxy::removeSelection(const QString& selectionId)
@@ -462,7 +475,7 @@ void DataProxy::removeSelection(const QString& selectionId)
     // delete the command
     cmd->deleteLater();
     // create the download request
-    createRequest(reply, DataProxy::GenesSelectionsModified);
+    createRequest(reply, DataProxy::UserSelectionModified);
 }
 
 void DataProxy::loadCellTissueByName(const QString& name)
@@ -613,13 +626,12 @@ void DataProxy::slotProcessDownload()
     }
     const bool removedOK = m_activeNetworkReplies.remove(reply);
     if (!removedOK) {
-        qDebug() << "A network reply call back has been invoked but it has been processed earlier "
-                    "already";
+        qDebug() << "A network reply call back has been invoked but it has been processed already";
     }
     // delete reply
     reply->deleteLater();
 
-    // check if last download
+    // check if it is the last download
     if (m_activeDownloads == 0 && type != DataProxy::None) {
         emit signalDownloadFinished(status, type);
     }
@@ -718,7 +730,7 @@ bool DataProxy::parseRemoveDataset(NetworkReply* reply)
     return true;
 }
 
-bool DataProxy::parseGeneSelections(NetworkReply* reply)
+bool DataProxy::parseUserSelections(NetworkReply* reply)
 {
     const QJsonDocument& doc = reply->getJSON();
     if (doc.isNull() || doc.isEmpty()) {
@@ -727,12 +739,12 @@ bool DataProxy::parseGeneSelections(NetworkReply* reply)
     }
 
     // intermediary parse object
-    GeneSelectionDTO dto;
+    UserSelectionDTO dto;
 
     // parse the data
     foreach (QVariant var, doc.toVariant().toList()) {
         data::parseObject(var, &dto);
-        GeneSelectionPtr selection = GeneSelectionPtr(new GeneSelection(dto.geneSelection()));
+        UserSelectionPtr selection = UserSelectionPtr(new UserSelection(dto.geneSelection()));
         // get the dataset name from the cached datasets
         // TODO if we allow to enter the Analysis View without having entered
         // the Datasets View this will fail. In that case, the dataset has to be retrieved
@@ -746,9 +758,10 @@ bool DataProxy::parseGeneSelections(NetworkReply* reply)
             reply->registerError(error);
             return false;
         }
-
+        // update some fields
+        selection->saved(true);
         selection->datasetName(dataset->name());
-        m_geneSelectionsList.push_back(selection);
+        m_userSelectionList.push_back(selection);
     }
 
     return true;

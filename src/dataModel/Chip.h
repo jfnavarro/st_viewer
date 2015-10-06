@@ -45,6 +45,7 @@ public:
     Chip& operator=(const Chip& other);
     bool operator==(const Chip& other) const;
 
+    // ID corresponds to the database ID of the object
     const QString id() const;
     int barcodes() const;
     const QString name() const;

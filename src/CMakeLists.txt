@@ -88,6 +88,7 @@ endforeach()
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qjpeg-turbo>")
+list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 
 # 'rapidjson' does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)

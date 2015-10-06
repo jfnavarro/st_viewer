@@ -15,18 +15,19 @@
 #include <QSortFilterProxyModel>
 #include <QAction>
 #include <QColorDialog>
-
+#include "utils/Utils.h"
 #include "viewTables/GenesTableView.h"
 #include "model/GeneFeatureItemModel.h"
 #include "utils/SetTips.h"
 
 using namespace Globals;
 
-GenesWidget::GenesWidget(QWidget* parent)
+GenesWidget::GenesWidget(QPointer<DataProxy> dataProxy, QWidget* parent)
     : QWidget(parent)
     , m_lineEdit(nullptr)
     , m_genes_tableview(nullptr)
     , m_colorList(nullptr)
+    , m_dataProxy(dataProxy)
 {
     // one layout for the controls and another for the table
     QVBoxLayout* genesLayout = new QVBoxLayout();
@@ -152,7 +153,6 @@ void GenesWidget::clear()
 
 void GenesWidget::updateModelTable()
 {
-    // getModel()->update();
     m_genes_tableview->update();
 }
 
@@ -189,8 +189,10 @@ void GenesWidget::slotSetColorAllSelected(const QColor& color)
     m_genes_tableview->update();
 }
 
-void GenesWidget::slotLoadModel(const DataProxy::GeneList& geneList)
+void GenesWidget::slotLoadModel(const QString& datasetId)
 {
+    Q_UNUSED(datasetId);
+    const DataProxy::GeneList& geneList = m_dataProxy->getGeneList();
     getModel()->loadGenes(geneList);
 }
 

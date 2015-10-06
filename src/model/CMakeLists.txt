@@ -1,6 +1,6 @@
 set(LIBRARY_ARG_INCLUDES
     DatasetItemModel.h
-    ExperimentsItemModel.h
+    UserSelectionsItemModel.h
     GeneFeatureItemModel.h
     GeneSelectionItemModel.h
     GeneSelectionDEAItemModel.h
@@ -9,7 +9,7 @@ set(LIBRARY_ARG_INCLUDES
 
 set(LIBRARY_ARG_SOURCES
     DatasetItemModel.cpp
-    ExperimentsItemModel.cpp
+    UserSelectionsItemModel.cpp
     GeneFeatureItemModel.cpp
     GeneSelectionItemModel.cpp
     GeneSelectionDEAItemModel.cpp

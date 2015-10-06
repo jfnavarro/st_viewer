@@ -15,8 +15,9 @@ class QModelIndex;
 class QStandardItemModel;
 class QItemSelection;
 
-// Wrapper model class for the dataset data in the data proxy. Provides an easy
+// Wrapper model class for the datasets. Provides easy
 // means of enumerating all the data sets connected to a single user.
+// TODO highlight openned dataset
 class DatasetItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -38,20 +39,22 @@ public:
     explicit DatasetItemModel(QObject* parent = 0);
     virtual ~DatasetItemModel();
 
+    // Necessary to override
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
-
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    // loads the data of the model from DatProxy
+    // Updates the data model with the data given as input
     void loadDatasets(const DataProxy::DatasetList& datasetList);
 
-    // returns a list of datasets for the given items selection
+    // Returns a list of datasets for the given items selection
     DataProxy::DatasetList getDatasets(const QItemSelection& selection);
+
+    // Clear the current model
+    void clear();
 
 private:
     // TODO make this a pure reference

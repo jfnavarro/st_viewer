@@ -32,30 +32,30 @@ public:
     AuthorizationManager(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~AuthorizationManager();
 
-    // start the login process
+    // Start the login process
     void startAuthorization();
 
-    // clean access token
+    // Clean access token
     void cleanAccesToken();
 
-    // true if the user is already authenticated
+    // True if the user is already authenticated
     bool isAuthenticated() const;
 
-    // user acces token methods to check
+    // User acces token methods to check
     // if the user is already logged in
     bool hasAccessToken() const;
     QUuid getAccessToken() const;
 
 signals:
 
-    // the login is successful
+    // The login is successful
     void signalAuthorize();
-    // there was an error trying to log in
+    // There was an error trying to log in
     void signalError(QSharedPointer<Error> error);
 
 private slots:
 
-    // internal slot to process login object from OAuth2
+    // Internal slot to process login object from OAuth2
     void slotLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
 
 private:

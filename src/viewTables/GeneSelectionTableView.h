@@ -13,7 +13,7 @@
 class GeneSelectionItemModel;
 class SortGenesProxyModel;
 
-// An abstraction of QTableView for the gene selections of the CellView table
+// An abstraction of QTableView for the gene selections table in the user selections window
 class GeneSelectionTableView : public QTableView
 {
     Q_OBJECT

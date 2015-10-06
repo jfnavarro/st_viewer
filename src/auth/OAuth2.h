@@ -18,7 +18,7 @@ class Error;
 class QUuid;
 class QString;
 
-// simple class that handles OAuth2 authorization requests
+// Simple class that handles OAuth2 authorization requests
 // it contains a Login widget to let the user input the credentials
 // it implements basic error handling and two modes of authorization (interactive and silent)
 class OAuth2 : public QObject
@@ -32,37 +32,37 @@ public:
     OAuth2(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~OAuth2();
 
-    // shows login dialog
+    // Shows login dialog
     void startInteractiveLogin();
 
-    // try to log in with stored access token
+    // Try to log in with stored access token
     void startQuietLogin(const QUuid& refreshToken);
 
 signals:
-
+    // To communicate if the status of the log in process
     void signalLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
     void signalError(QSharedPointer<Error> error);
 
 private slots:
 
-    // user has entereded log in credentials (called from log in component) can be used to
+    // User has entereded log in credentials (called from log in component) can be used to
     // try log in with hardcoded credentials
     void slotEnterDialog(const QString&, const QString&);
 
-    // used to be notified when access token has been downloaded from network
+    // To be notified when access token has been downloaded from network
     // status contains the status of the operation (ok, abort, error)
     // type contains the type of download
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
 
 private:
-    // make the authorization network request
+    // Make the authorization network request
     void requestToken(const StringPair& accessType, const StringPair& accessCode);
 
-    // login dialog component
+    // Login dialog widget
     QPointer<LoginDialog> m_loginDialog;
 
-    // reference to dataProxy
+    // Reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(OAuth2)

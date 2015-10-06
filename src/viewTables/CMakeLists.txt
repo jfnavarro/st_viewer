@@ -4,7 +4,7 @@ set(LIBRARY_ARG_INCLUDES
     GenesTableView.h
     GeneSelectionTableView.h
     GeneSelectionDEATableView.h
-    ExperimentsTableView.h
+    UserSelectionTableView.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -12,7 +12,7 @@ set(LIBRARY_ARG_SOURCES
     GenesTableView.cpp
     GeneSelectionTableView.cpp
     GeneSelectionDEATableView.cpp
-    ExperimentsTableView.cpp
+    UserSelectionTableView.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

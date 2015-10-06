@@ -11,9 +11,7 @@
 #include <QString>
 #include <QTransform>
 
-// Data model class to store dataset data. Each dataset has a status attribute
-// containing various flags. Currently the only flag defined is the alignment
-// flag.
+// Data model class to store datasets.
 class Dataset
 {
 
@@ -24,10 +22,12 @@ public:
 
     Dataset& operator=(const Dataset& other);
     bool operator==(const Dataset& other) const;
-
+    // Id is the DB id
     const QString id() const;
     const QString name() const;
+    // reference to image alignment object
     const QString imageAlignmentId() const;
+    // some stats of the dataset
     int statBarcodes() const;
     int statGenes() const;
     int statUniqueBarcodes() const;
@@ -36,6 +36,7 @@ public:
     const QString statSpecies() const;
     const QString statComments() const;
     const QVector<QString> oboFoundryTerms() const;
+    // more stats about the reads distributions
     const QVector<qreal> hitsQuartiles() const;
     const QVector<qreal> hitsPooledQuartiles() const;
     bool enabled() const;

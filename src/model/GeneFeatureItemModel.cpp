@@ -6,7 +6,7 @@
 */
 
 #include "GeneFeatureItemModel.h"
-
+#include "dataModel/Gene.h"
 #include <set>
 #include <QDebug>
 #include <QModelIndex>

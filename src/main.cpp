@@ -124,8 +124,11 @@ int main(int argc, char** argv)
     splash.finish(&mainWindow);
     // init graphic components
     mainWindow.init();
+    // TODO we should make sure min-version and other tests pass before showing (maybe block here)
     // show mainwindow.
     mainWindow.show();
+    // authorize
+    mainWindow.startAuthorization();
     // launch the app
     return app.exec();
 }

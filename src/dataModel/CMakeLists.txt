@@ -4,13 +4,13 @@ set(LIBRARY_ARG_INCLUDES
     Feature.h
     Gene.h
     User.h
-    GeneSelection.h
+    UserSelection.h
     ImageAlignment.h
     ChipDTO.h
     DatasetDTO.h
     ErrorDTO.h
     FeatureDTO.h
-    GeneSelectionDTO.h
+    UserSelectionDTO.h
     ImageAlignmentDTO.h
     OAuth2TokenDTO.h
     UserDTO.h
@@ -24,7 +24,7 @@ set(LIBRARY_ARG_SOURCES
     Feature.cpp
     Gene.cpp
     User.cpp
-    GeneSelection.cpp
+    UserSelection.cpp
     ImageAlignment.cpp
 )
 

@@ -174,7 +174,6 @@ void AnalysisFRD::computeData(const DataProxy::FeatureList& features, const int 
     m_customPlotNormal->graph(0)->setData(x, y);
     m_customPlotNormal->graph(0)->rescaleAxes();
     m_customPlotNormal->replot();
-
     m_customPlotLog->graph(0)->setData(STMath::logVectorValues(x), STMath::logVectorValues(y));
     m_customPlotLog->graph(0)->rescaleAxes();
     m_customPlotLog->replot();

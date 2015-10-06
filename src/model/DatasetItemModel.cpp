@@ -14,7 +14,6 @@
 #include <QDateTime>
 
 #include "dataModel/Dataset.h"
-
 #include <set>
 
 static const int COLUMN_NUMBER = 9;
@@ -198,4 +197,11 @@ DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection& selec
     }
 
     return datasetList;
+}
+
+void DatasetItemModel::clear()
+{
+    beginResetModel();
+    m_datasets_reference.clear();
+    endResetModel();
 }

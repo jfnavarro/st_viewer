@@ -9,6 +9,7 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QTextStream>
 
 static const QString PROPERTY_LIST_DELIMITER = QStringLiteral(";;");
 
@@ -63,11 +64,11 @@ void GeneExporter::exportStrings(QTextStream& otxt, const QStringList& strings) 
     otxt << strings.join(delimiter) << endl;
 }
 
-void GeneExporter::exportItem(QTextStream& otxt, const SelectionType& selection) const
+void GeneExporter::exportItem(QTextStream& otxt, const AggregatedGene& gene) const
 {
-    const qreal reads = selection.reads;
-    const int count = selection.count;
-    const QString name = selection.name;
+    const qreal reads = gene.reads;
+    const unsigned count = gene.count;
+    const QString name = gene.name;
 
     QStringList list;
     list << QString("%1").arg(name) << QString("%1").arg(count) << QString("%1").arg(reads);
@@ -76,7 +77,7 @@ void GeneExporter::exportItem(QTextStream& otxt, const SelectionType& selection)
 }
 
 void GeneExporter::exportItem(QTextStream& otxt,
-                              const GeneSelection::selectedItemsList& selectionList) const
+                              const UserSelection::selectedGenesList& geneList) const
 {
     // prepend header
     if (m_detailLevel.testFlag(GeneExporter::Comments)) {
@@ -88,13 +89,13 @@ void GeneExporter::exportItem(QTextStream& otxt,
         exportStrings(otxt, list);
     }
 
-    foreach (const SelectionType& selection, selectionList) {
-        exportItem(otxt, selection);
+    foreach (const AggregatedGene& gene, geneList) {
+        exportItem(otxt, gene);
     }
 }
 
 void GeneExporter::exportItem(QIODevice& device,
-                              const GeneSelection::selectedItemsList& selectionList) const
+                              const UserSelection::selectedGenesList& geneList) const
 {
     // early out
     if (!device.isWritable()) {
@@ -126,5 +127,5 @@ void GeneExporter::exportItem(QIODevice& device,
         otxt << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << endl;
     }
 
-    exportItem(otxt, selectionList);
+    exportItem(otxt, geneList);
 }

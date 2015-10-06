@@ -8,28 +8,25 @@
 #ifndef SELECTIONSWIDGET_H
 #define SELECTIONSWIDGET_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QPointer>
-#include <QIcon>
 
-#include "dataModel/GeneSelection.h"
+#include "dataModel/UserSelection.h"
 
-class QPushButton;
 class QLineEdit;
 class GeneSelectionTableView;
 class GeneSelectionItemModel;
 class QSortFilterProxyModel;
 
 // This widgets is part of the CellView,
-// it is composed of the Genes Selection Table
-// a search field, export/save/print selection
-// buttons and a small info label
+// it is composed of the aggregated genes from an user selection in a table
+// which shows the genes and their values and a search box
 class SelectionsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SelectionsWidget(QWidget* parent = 0);
+    explicit SelectionsWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionsWidget();
 
     // clear focus/status and selections
@@ -38,23 +35,11 @@ public:
 public slots:
 
     // reload the model with the objects given as input
-    void slotLoadModel(const GeneSelection::selectedItemsList& geneList);
+    void slotLoadModel(const UserSelection::selectedGenesList& geneList);
 
 signals:
 
-    // signals emitted by the main controls
-    void signalClearSelection();
-    void signalSaveSelection();
-    void signalExportGenesSelection();
-    void signalExportFeaturesSelection();
-
 private:
-    // internal function to configure created buttons
-    // to avoid code duplication
-    // TODO better approach would be to have factories somewhere else
-    void configureButton(QPushButton* button,
-                         const QIcon icon = QIcon(),
-                         const QString tooltip = QString());
 
     // internal functions to obtain the model and the proxy model of the table
     GeneSelectionItemModel* getModel();
@@ -63,8 +48,6 @@ private:
     // some references needed to UI elements
     QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
     QPointer<GeneSelectionTableView> m_selections_tableview;
-    QPointer<QLineEdit> m_total_reads_edit;
-    QPointer<QLineEdit> m_total_genes_edit;
 
     Q_DISABLE_COPY(SelectionsWidget)
 };

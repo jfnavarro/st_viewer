@@ -11,25 +11,40 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
-
+#include "dataModel/Dataset.h"
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
 #include "dialogs/EditDatasetDialog.h"
-#include "ui_datasets.h"
+#include "QtWaitingSpinner/waitingspinnerwidget.h"
+
+#include "ui_datasetsPage.h"
 
 using namespace Globals;
 
 DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
-    : Page(dataProxy, parent)
+    : QWidget(parent)
     , m_ui(new Ui::DataSets())
+    , m_dataProxy(dataProxy)
+    , m_waiting_spinner(nullptr)
 {
     m_ui->setupUi(this);
 
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
-    setWindowFlags(Qt::FramelessWindowHint);
     m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
+
+    // initialize waiting spinner
+    m_waiting_spinner = new WaitingSpinnerWidget(this, true, true);
+    m_waiting_spinner->setRoundness(70.0);
+    m_waiting_spinner->setMinimumTrailOpacity(15.0);
+    m_waiting_spinner->setTrailFadePercentage(70.0);
+    m_waiting_spinner->setNumberOfLines(12);
+    m_waiting_spinner->setLineLength(20);
+    m_waiting_spinner->setLineWidth(10);
+    m_waiting_spinner->setInnerRadius(20);
+    m_waiting_spinner->setRevolutionsPerSecond(1);
+    m_waiting_spinner->setColor(QColor(0,155,60));
 
     // connect signals
     connect(m_ui->filterLineEdit,
@@ -44,8 +59,6 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
             SIGNAL(doubleClicked(QModelIndex)),
             this,
             SLOT(slotSelectAndOpenDataset(QModelIndex)));
-    connect(m_ui->back, SIGNAL(clicked(bool)), this, SIGNAL(moveToPreviousPage()));
-    connect(m_ui->next, SIGNAL(clicked(bool)), this, SIGNAL(moveToNextPage()));
     connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotLoadDatasets()));
     connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
@@ -64,6 +77,12 @@ DatasetPage::~DatasetPage()
 {
 }
 
+void DatasetPage::clean()
+{
+    datasetsModel()->clear();
+    clearControls();
+}
+
 QSortFilterProxyModel* DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel* datasetsProxyModel
@@ -79,14 +98,11 @@ DatasetItemModel* DatasetPage::datasetsModel()
     return model;
 }
 
-void DatasetPage::onEnter()
+void DatasetPage::showEvent(QShowEvent* event)
 {
-    slotLoadDatasets();
-}
-
-void DatasetPage::onExit()
-{
+    QWidget::showEvent(event);
     clearControls();
+    slotLoadDatasets();
 }
 
 void DatasetPage::clearControls()
@@ -94,9 +110,7 @@ void DatasetPage::clearControls()
     // clear selection/focus
     m_ui->datasetsTableView->clearSelection();
     m_ui->datasetsTableView->clearFocus();
-    m_ui->back->clearFocus();
     m_ui->refresh->clearFocus();
-    m_ui->next->clearFocus();
     m_ui->deleteDataset->clearFocus();
     m_ui->editDataset->clearFocus();
     m_ui->openDataset->clearFocus();
@@ -111,7 +125,6 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
-
     if (currentDataset.empty() || currentDataset.first().isNull()) {
         return;
     }
@@ -133,17 +146,14 @@ void DatasetPage::slotLoadDatasets()
         return;
     }
 
-    // download datasets (enable blocking loading bar)
-    setWaiting(true);
+    // download datasets
+    m_waiting_spinner->start();
     m_dataProxy->loadDatasets();
     m_dataProxy->activateCurrentDownloads();
 }
 
 void DatasetPage::datasetsDownloaded(const DataProxy::DownloadStatus status)
 {
-    // disable blocking loading bar
-    setWaiting(false);
-
     // if error we reset the selected dataset...this is because we allow free navigation
     // among pages
     if (status == DataProxy::Failed) {
@@ -155,6 +165,7 @@ void DatasetPage::datasetsDownloaded(const DataProxy::DownloadStatus status)
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 
+    m_waiting_spinner->stop();
     clearControls();
 }
 
@@ -162,32 +173,32 @@ void DatasetPage::slotEditDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
-
     if (currentDataset.empty() || currentDataset.size() > 1) {
         return;
     }
 
     // currentDataset should only have one element
-    Q_ASSERT(!currentDataset.first().isNull());
-    Dataset dataset(*currentDataset.first());
+    auto dataset = currentDataset.first();
+    Q_ASSERT(!dataset.isNull());
 
     QScopedPointer<EditDatasetDialog> editdataset(
         new EditDatasetDialog(this, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editdataset->setWindowIcon(QIcon());
-    editdataset->setName(dataset.name());
-    editdataset->setComment(dataset.statComments());
+    editdataset->setName(dataset->name());
+    editdataset->setComment(dataset->statComments());
 
     if (editdataset->exec() == EditDatasetDialog::Accepted
-        && (editdataset->getName() != dataset.name()
-            || editdataset->getComment() != dataset.statComments())
+        && (editdataset->getName() != dataset->name()
+            || editdataset->getComment() != dataset->statComments())
         && !editdataset->getName().isEmpty()
         && !editdataset->getName().isNull()) {
 
-        dataset.name(editdataset->getName());
-        dataset.statComments(editdataset->getComment());
+        dataset->name(editdataset->getName());
+        dataset->statComments(editdataset->getComment());
 
         // update the dataset
-        m_dataProxy->updateDataset(dataset);
+        m_waiting_spinner->start();
+        m_dataProxy->updateDataset(*dataset);
         m_dataProxy->activateCurrentDownloads();
     }
 }
@@ -196,7 +207,6 @@ void DatasetPage::slotOpenDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
-
     if (currentDataset.empty() || currentDataset.size() > 1) {
         return;
     }
@@ -204,21 +214,32 @@ void DatasetPage::slotOpenDataset()
     // currentDataset should only have one element
     auto dataset = currentDataset.first();
     Q_ASSERT(!dataset.isNull());
-    Q_ASSERT(!dataset->id().isEmpty());
 
-    // updates state of DataProxy and move to next page
+    // update data proxy with selected dataset
     m_dataProxy->setSelectedDataset(dataset);
-    emit moveToNextPage();
+
+    // Now we proceed to download the dataset content
+    // TODO when caching is on we should not download
+    // the dataset content if it is already downloaded
+    // and in sync with the server
+
+    // first we need to download the image alignment
+    m_waiting_spinner->start();
+    m_dataProxy->loadImageAlignment();
+    m_dataProxy->activateCurrentDownloads();
 }
 
 void DatasetPage::slotRemoveDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDataset = datasetsModel()->getDatasets(selected);
-
     if (currentDataset.empty() || currentDataset.size() > 1) {
         return;
     }
+
+    // currentDataset should only have one element
+    const auto dataset = currentDataset.first();
+    Q_ASSERT(!dataset.isNull());
 
     const int answer
         = QMessageBox::warning(this,
@@ -231,11 +252,8 @@ void DatasetPage::slotRemoveDataset()
         return;
     }
 
-    // currentDataset should only have one element
-    const auto dataset = currentDataset.first();
-    Q_ASSERT(!dataset.isNull());
-
     // remove the dataset
+    m_waiting_spinner->start();
     m_dataProxy->removeDataset(dataset->id());
     m_dataProxy->activateCurrentDownloads();
 }
@@ -243,9 +261,44 @@ void DatasetPage::slotRemoveDataset()
 void DatasetPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                        const DataProxy::DownloadType type)
 {
-    if (type == DataProxy::DatasetDownloaded) {
+    const bool isSuccess = status == DataProxy::Success;
+    const bool isLastDownload = m_dataProxy->getActiveDownloads() == 0;
+
+    if (type == DataProxy::DatasetsDownloaded) {
+        // We have downloaded datasets, update the view
         datasetsDownloaded(status);
-    } else if (type == DataProxy::DatasetModified && status == DataProxy::Success) {
+    } else if (type == DataProxy::DatasetModified && isSuccess) {
+        // We have edited a dataset, re-upload them
         slotLoadDatasets();
+    } else if (type == DataProxy::ImageAlignmentDownloaded) {
+        // We are downloading dataset content, first is to download image alignment
+        if (isSuccess) {
+            // download the rest of the content
+            m_dataProxy->loadDatasetContent();
+            m_dataProxy->activateCurrentDownloads();
+        } else {
+            // something happened downloading the image alignment
+            m_waiting_spinner->stop();
+            QMessageBox::critical(this,
+                                  tr("Image alignment"),
+                                  tr("There was an error downloading the image alignment!"));
+        }
+    } else if (type == DataProxy::ChipDownloaded
+               || type == DataProxy::TissueImageDownloaded
+               || type == DataProxy::FeaturesDownloaded) {
+        if (!isSuccess && isLastDownload) {
+            // so this was the last download processed
+            // of the dataset content but it failed or aborted
+            m_waiting_spinner->stop();
+            QMessageBox::critical(this,
+                                  tr("Dataset content"),
+                                  tr("There was an error downloading the dataset content!"));
+        } else if (isSuccess && isLastDownload) {
+            // so this was the last download of dataset content and it was OK
+            // updates state of DataProxy and notify that dataset is open
+            // TODO we should get the dataset Id in a different way
+            m_waiting_spinner->stop();
+            emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
+        }
     }
 }

@@ -8,7 +8,7 @@
 #ifndef GENESWIDGET_H
 #define GENESWIDGET_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QIcon>
 
 #include "data/DataProxy.h"
@@ -20,16 +20,19 @@ class GeneFeatureItemModel;
 class QSortFilterProxyModel;
 class QColorDialog;
 
-// This widget is part of the CellView,
-// it is componsed of the genes table
+// This widget is componsed of the genes table
 // a search field and the select and action menus
-
+// Here when a dataset is opened its unique genes will be shown
+// so the user can interact with them to visualize them in the cell view
+// TODO add an extra column with a slider (threshold) for each gene, that requires
+// a new field in the gene object and to init the slider values with the max-min relative
+// expression of that gene in the dataset
 class GenesWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GenesWidget(QWidget* parent = 0);
+    explicit GenesWidget(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~GenesWidget();
 
     // clear focus/status and selections
@@ -46,8 +49,8 @@ signals:
 
 public slots:
 
-    // updates the model of the table with the given objects
-    void slotLoadModel(const DataProxy::GeneList& geneList);
+    // updates the model of the table with the given dataset id
+    void slotLoadModel(const QString& datasetId);
 
 private slots:
 
@@ -73,6 +76,9 @@ private:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<GenesTableView> m_genes_tableview;
     QPointer<QColorDialog> m_colorList;
+
+    // reference to dataProxy
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(GenesWidget)
 };

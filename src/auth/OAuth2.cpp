@@ -26,7 +26,7 @@ OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject* parent)
     , m_loginDialog(nullptr)
     , m_dataProxy(dataProxy)
 {
-    // connect data proxy signal
+    // Connect data proxy signal
     connect(m_dataProxy.data(),
             SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
             this,
@@ -48,7 +48,7 @@ void OAuth2::startQuietLogin(const QUuid& refreshToken)
 
 void OAuth2::startInteractiveLogin()
 {
-    // lazy init
+    // Lazy init
     if (m_loginDialog.isNull()) {
         QWidget* mainWidget = QApplication::desktop()->screen();
         m_loginDialog = new LoginDialog(mainWidget, Qt::WindowStaysOnTopHint);
@@ -60,14 +60,14 @@ void OAuth2::startInteractiveLogin()
                 this,
                 SLOT(slotEnterDialog(const QString&, const QString&)));
     }
-    // launch login dialog
+    // Launch login dialog
     m_loginDialog->clear();
     m_loginDialog->show();
 }
 
 void OAuth2::slotEnterDialog(const QString& username, const QString& password)
 {
-    // request token based on password/username
+    // Request token based on password/username
     requestToken(StringPair(Globals::LBL_ACCESS_TOKEN_USERNAME, username),
                  StringPair(Globals::LBL_ACCESS_TOKEN_PASSWORD, password));
 }
@@ -87,7 +87,7 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
         const QUuid& accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
         const QUuid& refreshToken(dto.refreshToken());
-        // check if access token is valid and not expired
+        // Check if access token is valid and not expired
         if (!accessToken.isNull() && expiresIn >= 0 && !refreshToken.isNull()) {
             emit signalLoginDone(accessToken, expiresIn, refreshToken);
         } else {

@@ -9,8 +9,6 @@
 #include "CellViewPage.h"
 
 #include <QDebug>
-#include <QMetaObject>
-#include <QMetaMethod>
 #include <QString>
 #include <QStringList>
 #include <QtConcurrent>
@@ -21,7 +19,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPrinter>
-#include <QColorDialog>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QPainter>
@@ -31,25 +28,28 @@
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QFutureWatcher>
+#include <QMenu>
 
 #include "error/Error.h"
-#include "io/GeneExporter.h"
-#include "io/FeatureExporter.h"
 #include "utils/Utils.h"
 #include "dialogs/SelectionDialog.h"
-#include "dialogs/CreateSelectionDialog.h"
 #include "viewOpenGL/CellGLView.h"
 #include "viewOpenGL/ImageTextureGL.h"
 #include "viewOpenGL/GridRendererGL.h"
 #include "viewOpenGL/HeatMapLegendGL.h"
 #include "viewOpenGL/MiniMapGL.h"
 #include "viewOpenGL/GeneRendererGL.h"
+#include "dataModel/Dataset.h"
+#include "dataModel/Chip.h"
+#include "dataModel/ImageAlignment.h"
+#include "dataModel/User.h"
+#include "dataModel/UserSelection.h"
 #include "analysis/AnalysisFRD.h"
 #include "customWidgets/SpinBoxSlider.h"
 #include "utils/SetTips.h"
 #include <algorithm>
 
-#include "ui_cellview.h"
+#include "ui_cellviewPage.h"
 
 static const int GENE_INTENSITY_MIN = 1;
 static const int GENE_INTENSITY_MAX = 10;
@@ -64,7 +64,6 @@ namespace
 {
 
 // Some helper functions
-
 void addWidgetToMenu(const QString& str, QMenu* menu, QWidget* widget)
 {
     Q_ASSERT(menu != nullptr);
@@ -117,7 +116,7 @@ bool imageFormatHasWriteSupport(const QString& format)
 }
 
 CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent)
-    : Page(dataProxy, parent)
+    : QWidget(parent)
     , m_minimap(nullptr)
     , m_legend(nullptr)
     , m_gene_plotter(nullptr)
@@ -141,6 +140,7 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent)
     , m_geneShineSlider(nullptr)
     , m_geneBrightnessSlider(nullptr)
     , m_geneShapeComboBox(nullptr)
+    , m_dataProxy(dataProxy)
 {
     m_ui->setupUi(this);
 
@@ -168,11 +168,8 @@ CellViewPage::CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent)
     // create menus and connections
     createMenusAndConnections();
 
-    // connect data proxy signal
-    connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
-            this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+    // disable toolbar controls
+    setEnableButtons(false);
 }
 
 CellViewPage::~CellViewPage()
@@ -202,61 +199,37 @@ CellViewPage::~CellViewPage()
     m_FDH = nullptr;
 }
 
-void CellViewPage::onEnter()
+void CellViewPage::clean()
 {
-    // reset tool buttons
+    // reset visualization objects
+    m_grid->clearData();
+    m_image->clearData();
+    m_gene_plotter->clearData();
+    m_legend->clearData();
+    m_minimap->clearData();
+    m_view->clearData();
+    m_view->update();
+
+    // close FDH widget
+    m_FDH->close();
+
+    // disable toolbar controls
     setEnableButtons(false);
-
-    if (m_dataProxy->getSelectedDataset().isNull()) {
-        // no dataset selected, nothing to do here
-        setStatusTip(tr("No dataset loaded"));
-        return;
-    }
-
-    // first we need to download the image alignment (enable blocking loading bar)
-    setWaiting(true);
-    m_dataProxy->loadImageAlignment();
-    m_dataProxy->activateCurrentDownloads();
 }
 
-void CellViewPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                        const DataProxy::DownloadType type)
-{
-    const bool isSuccess = status == DataProxy::Success;
-    const bool isLastDownload = m_dataProxy->getActiveDownloads() == 0;
-
-    if (type == DataProxy::ImageAlignmentDownloaded) {
-        if (isSuccess) {
-            // download the rest of the content (blocking loading bar still on)
-            m_dataProxy->loadDatasetContent();
-            m_dataProxy->activateCurrentDownloads();
-        } else {
-            // something happened downloading the image alignment
-            // so we disable blocking loading bar
-            setWaiting(false);
-        }
-    } else if (type == DataProxy::ChipDownloaded || type == DataProxy::TissueImageDownloaded
-               || type == DataProxy::FeaturesDownloaded) {
-        if (!isSuccess && isLastDownload) {
-            // so this was the last download processed
-            // of the dataset content but it failed or aborted
-            // we disable blocking loading bar
-            setWaiting(false);
-        } else if (isSuccess && isLastDownload) {
-            // so this was the last download of dataset content and it was OK
-            datasetContentDownloaded();
-        }
-    }
-}
-
-void CellViewPage::datasetContentDownloaded()
+void CellViewPage::slotDatasetOpen(QString datasetId)
 {
     // enable toolbar controls
     setEnableButtons(true);
 
-    // update Status tip with the name of the currently selected dataset
     const auto dataset = m_dataProxy->getSelectedDataset();
     Q_ASSERT(!dataset.isNull());
+    if (dataset->id() == datasetId) {
+        // We are trying to open the same dataset
+        // We should check if it is the first time if not we return
+    }
+
+    // update Status tip with the name of the currently selected dataset
     setStatusTip(tr("Dataset loaded %1").arg(dataset->name()));
 
     // get image alignment and chip
@@ -271,6 +244,7 @@ void CellViewPage::datasetContentDownloaded()
                                       QPointF(currentChip->x2Border(), currentChip->y2Border()));
 
     // reset main variabless
+    // TODO when we cache user settings we will not need this
     resetActionStates();
 
     // updade grid size and data
@@ -284,6 +258,7 @@ void CellViewPage::datasetContentDownloaded()
     m_gene_plotter->setTransform(alignment);
     m_gene_plotter->generateData();
 
+    // TODO next API will contain these in the dataset
     const int min_genes = m_gene_plotter->getMinGenesThreshold();
     const int max_genes = m_gene_plotter->getMaxGenesThreshold();
     const int reads_min = m_gene_plotter->getMinReadsThreshold();
@@ -316,9 +291,26 @@ void CellViewPage::datasetContentDownloaded()
 
     // load cell tissue (async)
     slotLoadCellFigure();
+}
 
-    // disable blocking loading bar
-    setWaiting(false);
+void CellViewPage::slotClearSelections()
+{
+    m_gene_plotter->clearSelection();
+}
+
+void CellViewPage::slotShowSelection(const QVector<UserSelection>& selections)
+{
+    Q_UNUSED(selections);
+}
+
+void CellViewPage::slotGenesSelected(const DataProxy::GeneList& genes)
+{
+    m_gene_plotter->updateVisible(genes);
+}
+
+void CellViewPage::slotGenesColor(const DataProxy::GeneList& genes)
+{
+    m_gene_plotter->updateColor(genes);
 }
 
 void CellViewPage::setEnableButtons(bool enable)
@@ -332,28 +324,7 @@ void CellViewPage::setEnableButtons(bool enable)
     m_ui->histogram->setEnabled(enable);
     m_ui->genemenu->setEnabled(enable);
     m_ui->cellmenu->setEnabled(enable);
-    m_ui->genesWidget->setEnabled(enable);
-    m_ui->selectionsWidget->setEnabled(enable);
     m_ui->area->setEnabled(enable);
-}
-
-void CellViewPage::onExit()
-{
-    // reset genes and selections model
-    m_ui->genesWidget->clear();
-    m_ui->selectionsWidget->clear();
-
-    // reset visualization objects
-    m_grid->clearData();
-    m_image->clearData();
-    m_gene_plotter->clearData();
-    // m_legend->clearData();
-    // m_minimap->clearData();
-    m_view->clearData();
-    m_view->update();
-
-    // close FDH widget
-    m_FDH->close();
 }
 
 // TODO split into two
@@ -534,11 +505,6 @@ void CellViewPage::createMenusAndConnections()
     // add menu to tool button in top bar
     m_ui->cellmenu->setMenu(menu_cellTissue);
 
-    // go back signal
-    connect(m_ui->back, SIGNAL(clicked()), this, SIGNAL(moveToPreviousPage()));
-    // go next signal
-    connect(m_ui->next, SIGNAL(clicked()), this, SIGNAL(moveToNextPage()));
-
     // cell tissue
     connect(m_ui->actionShow_cellTissueBlue,
             SIGNAL(triggered(bool)),
@@ -548,6 +514,12 @@ void CellViewPage::createMenusAndConnections()
             SIGNAL(triggered(bool)),
             this,
             SLOT(slotLoadCellFigure()));
+
+    // log out signal
+    connect(m_ui->logout,
+            SIGNAL(clicked(bool)),
+            this,
+            SIGNAL(signalLogOut()));
 
     // graphic view signals
     connect(m_ui->zoomin, SIGNAL(clicked()), m_view.data(), SLOT(zoomIn()));
@@ -603,30 +575,6 @@ void CellViewPage::createMenusAndConnections()
             &QRadioButton::clicked,
             [=] { m_gene_plotter->setPoolingMode(GeneRendererGL::PoolTPMs); });
 
-    // connect gene list model to gene plotter
-    connect(m_ui->genesWidget,
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
-            m_gene_plotter.data(),
-            SLOT(updateVisible(DataProxy::GeneList)));
-    connect(m_ui->genesWidget,
-            SIGNAL(signalColorChanged(DataProxy::GeneList)),
-            m_gene_plotter.data(),
-            SLOT(updateColor(DataProxy::GeneList)));
-
-    // connect gene selection signals from selectionsWidget
-    connect(m_ui->selectionsWidget,
-            SIGNAL(signalClearSelection()),
-            m_gene_plotter.data(),
-            SLOT(clearSelection()));
-    connect(m_ui->selectionsWidget,
-            SIGNAL(signalExportGenesSelection()),
-            this,
-            SLOT(slotExportGenesSelection()));
-    connect(m_ui->selectionsWidget,
-            SIGNAL(signalExportFeaturesSelection()),
-            this,
-            SLOT(slotExportFeaturesSelection()));
-    connect(m_ui->selectionsWidget, SIGNAL(signalSaveSelection()), this, SLOT(slotSaveSelection()));
 
     // connect gene plotter to gene selection model
     connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()), this, SLOT(slotSelectionUpdated()));
@@ -741,9 +689,6 @@ void CellViewPage::createMenusAndConnections()
 
 void CellViewPage::resetActionStates()
 {
-    // load data for gene model
-    m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
-
     // reset color dialogs
     m_colorDialogGrid->setCurrentColor(GridRendererGL::DEFAULT_COLOR_GRID);
 
@@ -816,10 +761,6 @@ void CellViewPage::initGLView()
     // ui->area contains the openGL window
     m_view = new CellGLView();
     m_ui->area->initializeView(m_view);
-
-    // Setting stretch factors in the QSplitter to make the opengl window occupy more space
-    m_ui->horizontalSplitter->setStretchFactor(0, 0);
-    m_ui->horizontalSplitter->setStretchFactor(1, 8);
 
     // image texture graphical object
     m_image = new ImageTextureGL();
@@ -925,7 +866,7 @@ void CellViewPage::slotSaveImage()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        showError(tr("Save image"), tr("The directory is not writable"));
+        //showError(tr("Save image"), tr("The directory is not writable"));
         return;
     }
 
@@ -935,85 +876,15 @@ void CellViewPage::slotSaveImage()
         // adds the suffix from the "Save as type" choosen.
         // But this would be triggered if somehow there is no jpg, png or bmp support
         // compiled in the application
-        showError(tr("Save image"), tr("The image format is not supported"));
+        //showError(tr("Save image"), tr("The image format is not supported"));
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        showError(tr("Save Image"), tr("Error saving image."));
+        //showError(tr("Save Image"), tr("Error saving image."));
     }
-}
-
-void CellViewPage::slotExportGenesSelection()
-{
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
-                                                    QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.txt)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    const QFileInfo fileInfo(filename);
-    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
-    if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        showError(tr("Export Genes Selection"), tr("The directory is not writable"));
-        return;
-    }
-
-    // get selected genes
-    const auto& geneSelection = m_gene_plotter->getSelectedGenes();
-
-    // create file
-    QFile textFile(filename);
-
-    // export selection
-    if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull, GeneExporter::TabDelimited);
-        exporter.exportItem(textFile, geneSelection);
-        showInfo(tr("Export Genes Selection"), tr("Genes selection was exported successfully"));
-    }
-
-    textFile.close();
-}
-
-void CellViewPage::slotExportFeaturesSelection()
-{
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
-                                                    QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.txt)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    const QFileInfo fileInfo(filename);
-    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
-    if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        showError(tr("Export Features Selection"), tr("The directory is not writable"));
-        return;
-    }
-
-    // get selected features
-    const auto& featuresSelection = m_gene_plotter->getSelectedFeatures();
-
-    // create file
-    QFile textFile(filename);
-
-    // export selection
-    if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        FeatureExporter exporter
-            = FeatureExporter(FeatureExporter::SimpleFull, FeatureExporter::TabDelimited);
-        exporter.exportItem(textFile, featuresSelection);
-        showInfo(tr("Export Features Selection"),
-                 tr("Features selection was exported successfully"));
-    }
-
-    textFile.close();
 }
 
 void CellViewPage::slotSetGeneVisualMode(QAction* action)
@@ -1065,72 +936,49 @@ void CellViewPage::slotSetLegendType(QAction* action)
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList& geneList = SelectionDialog::selectGenes(m_dataProxy, this);
-    // load data for gene model
-    m_ui->genesWidget->updateModelTable();
-    // m_ui->genesWidget->slotLoadModel(m_dataProxy->getGeneList());
+    // TODO load data for gene model
+    // (we need this as selecting genes might change the status of genes)
+    // best way is to send a signal that will trigger slot in genes table
     m_gene_plotter->selectGenes(geneList);
 }
 
 void CellViewPage::slotSelectionUpdated()
 {
-    // get selected genes
-    const auto& geneSelection = m_gene_plotter->getSelectedGenes();
-    m_ui->selectionsWidget->slotLoadModel(geneSelection);
-}
-
-void CellViewPage::slotSaveSelection()
-{
+    // get the current dataset
     const auto dataset = m_dataProxy->getSelectedDataset();
     Q_ASSERT(!dataset.isNull());
-
-    QScopedPointer<CreateSelectionDialog> createSelection(
-        new CreateSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
-    createSelection->setWindowIcon(QIcon());
-    // proposes as selection name the dataset name + SELECTION + a timestamp
-    createSelection->setName(dataset->name() + "_SELECTION_"
-                             + QDateTime::currentDateTimeUtc().toString());
-
-    if (createSelection->exec() == CreateSelectionDialog::Accepted) {
-
-        if (createSelection->getName().isNull() || createSelection->getName().isEmpty()) {
-            return;
-        }
-
-        // get selected genes
-        const auto& geneSelection = m_gene_plotter->getSelectedGenes();
-
-        // create the selection object
-        GeneSelection selection;
-        selection.name(createSelection->getName());
-        selection.comment(createSelection->getComment());
-        selection.enabled(true);
-
-        // add dataset ID
-        selection.datasetId(dataset->id());
-
-        // add type of selection
-        selection.type("Rubberband selection");
-
-        // add image snapshot
-        QImage tissue_snapshot = m_view->grabPixmapGL();
-        QByteArray ba;
-        QBuffer buffer(&ba);
-        buffer.open(QIODevice::WriteOnly);
-        tissue_snapshot.save(&buffer, "JPG");
-        selection.tissueSnapShot(ba);
-
-        // add account
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(!user.isNull());
-        selection.userId(user->id());
-
-        // add selected genes
-        selection.selectedItems(geneSelection);
-
-        // save the selection object
-        m_dataProxy->addGeneSelection(selection);
-        m_dataProxy->activateCurrentDownloads();
+    // get selected features and create the selection object
+    const auto& selectedFeatures = m_gene_plotter->getSelectedFeatures();
+    if (selectedFeatures.empty()) {
+        // the user has probably clear the selections
+        return;
     }
+    // create selection object
+    UserSelection new_selection;
+    // loadFeatures() will populate list of aggregated genes and spots
+    new_selection.loadFeatures(selectedFeatures);
+    new_selection.enabled(true);
+    new_selection.saved(false);
+    new_selection.datasetId(dataset->id());
+    new_selection.datasetName(dataset->name());
+    new_selection.type(UserSelection::Rubberband);
+    // proposes as selection name as DATASET NAME + a timestamp
+    new_selection.name(dataset->name() + "_" + QDateTime::currentDateTimeUtc().toString());
+    // add image snapshot
+    QImage tissue_snapshot = m_view->grabPixmapGL();
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    tissue_snapshot.save(&buffer, "JPG");
+    new_selection.tissueSnapShot(ba);
+    // add account
+    const auto user = m_dataProxy->getUser();
+    Q_ASSERT(!user.isNull());
+    new_selection.userId(user->id());
+    // add the selection object to dataproxy
+    m_dataProxy->addUserSelectionLocal(new_selection);
+    // notify that the selection was created and added locally
+    emit signalUserSelection();
 }
 
 void CellViewPage::slotGeneShape(int geneShape)
@@ -1165,4 +1013,9 @@ void CellViewPage::slotGeneBrightness(int geneBrightness)
     Q_ASSERT(!m_image.isNull());
     const qreal decimal = static_cast<qreal>(geneBrightness) / 10;
     m_image->setIntensity(decimal);
+}
+
+void CellViewPage::slotSetUserName(const QString &username)
+{
+    m_ui->username->setText(username);
 }

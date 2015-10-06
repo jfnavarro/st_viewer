@@ -23,6 +23,7 @@ public:
     User& operator=(const User& other);
     bool operator==(const User& other) const;
 
+    // ID corresponds to the DB id for the object
     const QString id() const;
     const QString username() const;
     const QString institution() const;

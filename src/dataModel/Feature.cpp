@@ -86,7 +86,7 @@ const QString Feature::annotation() const
     return m_annotation;
 }
 
-int Feature::hits() const
+unsigned Feature::hits() const
 {
     return m_hits;
 }
@@ -116,7 +116,7 @@ void Feature::annotation(const QString& annotation)
     m_annotation = annotation;
 }
 
-void Feature::hits(int hits)
+void Feature::hits(unsigned hits)
 {
     m_hits = hits;
 }

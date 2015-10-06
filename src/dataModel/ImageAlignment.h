@@ -6,6 +6,12 @@
 
 // Image alignment represents the mapping of the features data
 // to the images of the tissue.
+// It contains the url of the images (read and blue)
+// a reference to the chip object and an alignment matrix
+// to convert the features to the image coordinate system.
+// blue and read refers to the image used to visualize(blue)
+// and the image used to align(red). The red image
+// will not available for normal users.
 
 class ImageAlignment
 {
@@ -17,6 +23,7 @@ public:
     ImageAlignment& operator=(const ImageAlignment& other);
     bool operator==(const ImageAlignment& other) const;
 
+    // ID corresponds to the DB Id given to the object
     const QString id();
     const QString name() const;
     const QString chipId() const;

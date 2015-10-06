@@ -24,6 +24,7 @@ namespace data
 {
 
 // parse an object from variant map using intermediary DTO type
+// the attributes name/type must match in the QVariant and the DTO
 bool parseObject(const QVariant& source, QObject* target);
 }
 

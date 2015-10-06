@@ -3,10 +3,7 @@ include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt)
 set(LIBRARY_ARG_INCLUDES
     CellViewPage.h
     DatasetPage.h
-    ExperimentPage.h
-    InitPage.h
-    Page.h
-    ExtendedTabWidget.cpp
+    UserSelectionsPage.h
     ScrollArea.h
     GenesWidget.h
     SelectionsWidget.h
@@ -15,20 +12,16 @@ set(LIBRARY_ARG_INCLUDES
 set(LIBRARY_ARG_SOURCES
     CellViewPage.cpp
     DatasetPage.cpp
-    ExperimentPage.cpp
-    InitPage.cpp
-    Page.cpp
-    ExtendedTabWidget.cpp
+    UserSelectionsPage.cpp
     ScrollArea.cpp
     GenesWidget.cpp
     SelectionsWidget.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
-    "${PROJECT_SOURCE_DIR}/assets/ui/datasets.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/experiments.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/initpage.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/cellview.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/datasetsPage.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/selectionsPage.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/cellviewPage.ui"
 )
 
 ST_LIBRARY()

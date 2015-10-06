@@ -20,8 +20,8 @@
 
 static const QColor BORDER = QColor(0, 155, 60);
 
-AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
-                         const GeneSelection& selObjectB,
+AnalysisDEA::AnalysisDEA(const UserSelection& selObjectA,
+                         const UserSelection& selObjectB,
                          QWidget* parent,
                          Qt::WindowFlags f)
     : QDialog(parent, f)
@@ -73,7 +73,6 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_ui->customPlot->graph(1)->setAntialiasedScatters(true);
     m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
     m_ui->customPlot->graph(1)->rescaleAxes(true);
-
     // sets the legend and attributes in the plots
     m_ui->customPlot->legend->setVisible(false);
     m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLinear);
@@ -84,15 +83,12 @@ AnalysisDEA::AnalysisDEA(const GeneSelection& selObjectA,
     m_ui->customPlot->axisRect()->setupFullAxesBox();
     // plot and add mouse interaction
     m_ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-
     // store total reads to recompute TPM later on
     m_totalReadsSelA = selObjectA.totalReads();
     m_totalReadsSelB = selObjectB.totalReads();
-
     // populate the gene to read pairs containers
     // computeGeneToReads will update the max thresholds (to initialize slider)
     computeGeneToReads(selObjectA, selObjectB);
-
     // update table
     selectionsModel()->loadCombinedSelectedGenes(m_combinedSelections);
 
@@ -199,18 +195,18 @@ void AnalysisDEA::slotSelectionSelected(QModelIndex index)
     m_ui->customPlot->replot();
 }
 
-void AnalysisDEA::computeGeneToReads(const GeneSelection& selObjectA,
-                                     const GeneSelection& selObjectB)
+void AnalysisDEA::computeGeneToReads(const UserSelection& selObjectA,
+                                     const UserSelection& selObjectB)
 {
     // reset thresholds
-    m_lowerThreshold = std::numeric_limits<int>::max();
-    m_upperThreshold = std::numeric_limits<int>::min();
-    m_lowerTPMsThreshold = std::numeric_limits<int>::max();
-    m_upperTPMsThreshold = std::numeric_limits<int>::min();
+    m_lowerThreshold = std::numeric_limits<unsigned>::max();
+    m_upperThreshold = std::numeric_limits<unsigned>::min();
+    m_lowerTPMsThreshold = std::numeric_limits<unsigned>::max();
+    m_upperTPMsThreshold = std::numeric_limits<unsigned>::min();
 
-    // get the list of selected items
-    const auto& selA = selObjectA.selectedItems();
-    const auto& selB = selObjectB.selectedItems();
+    // get the list of aggregated genes from both selections
+    const auto& selA = selObjectA.selectedGenes();
+    const auto& selB = selObjectB.selectedGenes();
 
     // get the size of the biggest list
     const int selectionAsize = selA.size();
@@ -320,7 +316,7 @@ void AnalysisDEA::updateStatisticsUI(const deaStats& stats)
     update();
 }
 
-void AnalysisDEA::slotSetLowerThreshold(const int value)
+void AnalysisDEA::slotSetLowerThreshold(const unsigned value)
 {
     if (value != m_lowerThreshold) {
         m_lowerThreshold = value;
@@ -328,7 +324,7 @@ void AnalysisDEA::slotSetLowerThreshold(const int value)
     }
 }
 
-void AnalysisDEA::slotSetUpperThreshold(const int value)
+void AnalysisDEA::slotSetUpperThreshold(const unsigned value)
 {
     if (value != m_upperThreshold) {
         m_upperThreshold = value;
@@ -336,7 +332,7 @@ void AnalysisDEA::slotSetUpperThreshold(const int value)
     }
 }
 
-void AnalysisDEA::slotSetLowerTPMsThreshold(const int value)
+void AnalysisDEA::slotSetLowerTPMsThreshold(const unsigned value)
 {
     if (value != m_lowerTPMsThreshold) {
         m_lowerTPMsThreshold = value;
@@ -344,7 +340,7 @@ void AnalysisDEA::slotSetLowerTPMsThreshold(const int value)
     }
 }
 
-void AnalysisDEA::slotSetUpperTPMsThreshold(const int value)
+void AnalysisDEA::slotSetUpperTPMsThreshold(const unsigned value)
 {
     if (value != m_upperTPMsThreshold) {
         m_upperTPMsThreshold = value;

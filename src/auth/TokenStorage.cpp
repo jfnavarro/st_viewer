@@ -41,7 +41,7 @@ bool TokenStorage::isExpired() const
 void TokenStorage::setAccessToken(const QUuid& accessToken, int expiresIn)
 {
     Q_ASSERT(!accessToken.isNull());
-    // use UTC time as the reference point
+    // Use UTC time as the reference point
     const QDateTime expirationDate = QDateTime::currentDateTimeUtc().addSecs(expiresIn);
     m_storage->setValue(Globals::SettingsAcessToken, accessToken);
     m_storage->setValue(Globals::SettingsTokenExpiresAt, expirationDate);
@@ -49,7 +49,7 @@ void TokenStorage::setAccessToken(const QUuid& accessToken, int expiresIn)
 
 const QUuid TokenStorage::getAccessToken() const
 {
-    // return stored QUuid or null QUuid if not found
+    // Return stored QUuid or null QUuid if not found
     return m_storage->value(Globals::SettingsAcessToken, QUuid()).toUuid();
 }
 
@@ -61,7 +61,7 @@ void TokenStorage::setRefreshToken(const QUuid& refreshToken)
 
 const QUuid TokenStorage::getRefreshToken() const
 {
-    // return stored QUuid or null QUuid if not found
+    // Return stored QUuid or null QUuid if not found
     return m_storage->value(Globals::SettingsRefreshToken, QUuid()).toUuid();
 }
 

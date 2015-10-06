@@ -40,22 +40,7 @@
    </property>
    <item>
     <widget class="QWidget" name="cellViewPageWidget" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QFrame" name="frame">
         <property name="sizePolicy">
@@ -67,13 +52,13 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>75</height>
+          <height>60</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>75</height>
+          <height>60</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -104,65 +89,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QPushButton" name="back">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Go back to Dataset Page</string>
-           </property>
-           <property name="statusTip">
-            <string>Go back to Dataset Page</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/back2.png</normaloff>:/images/back2.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-           <property name="waitPolicy" stdset="0">
-            <number>3</number>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QPushButton" name="zoomin">
            <property name="minimumSize">
@@ -551,13 +477,27 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="next">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="username">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="logout">
            <property name="minimumSize">
             <size>
              <width>35</width>
@@ -573,21 +513,18 @@
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
            <property name="toolTip">
-            <string>Move to the Analysis Page</string>
+            <string>Log out</string>
            </property>
            <property name="statusTip">
-            <string>Move to the Analysis Page</string>
+            <string>Log out</string>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/next2.png</normaloff>:/images/next2.png</iconset>
+             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -599,19 +536,6 @@
             <bool>true</bool>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item>
           <widget class="QLabel" name="label">
@@ -642,53 +566,15 @@
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="pageLayout">
+       <layout class="QHBoxLayout" name="mainLayout">
         <item>
-         <widget class="QSplitter" name="horizontalSplitter">
-          <property name="cursor">
-           <cursorShape>SplitHCursor</cursorShape>
+         <widget class="ScrollArea" name="area" native="true">
+          <property name="mouseTracking">
+           <bool>false</bool>
           </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
           </property>
-          <property name="opaqueResize">
-           <bool>true</bool>
-          </property>
-          <property name="childrenCollapsible">
-           <bool>true</bool>
-          </property>
-          <widget class="QSplitter" name="verticalSplitter">
-           <property name="cursor">
-            <cursorShape>SplitVCursor</cursorShape>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <widget class="GenesWidget" name="genesWidget" native="true">
-            <property name="mouseTracking">
-             <bool>false</bool>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-           </widget>
-           <widget class="SelectionsWidget" name="selectionsWidget" native="true">
-            <property name="mouseTracking">
-             <bool>false</bool>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-           </widget>
-          </widget>
-          <widget class="ScrollArea" name="area" native="true">
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-          </widget>
          </widget>
         </item>
        </layout>
@@ -931,18 +817,6 @@
    <class>ScrollArea</class>
    <extends>QWidget</extends>
    <header>viewPages/ScrollArea.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GenesWidget</class>
-   <extends>QWidget</extends>
-   <header>viewPages/GenesWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>SelectionsWidget</class>
-   <extends>QWidget</extends>
-   <header>viewPages/SelectionsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

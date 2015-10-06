@@ -12,22 +12,22 @@
 #include <QVector>
 #include <QMap>
 #include <QSharedPointer>
-
-#include "dataModel/Chip.h"
-#include "dataModel/Dataset.h"
-#include "dataModel/Feature.h"
-#include "dataModel/Gene.h"
-#include "dataModel/ImageAlignment.h"
-#include "dataModel/User.h"
-#include "dataModel/GeneSelection.h"
-#include "dataModel/MinVersionDTO.h"
-#include "dataModel/OAuth2TokenDTO.h"
 #include "config/Configuration.h"
+#include "dataModel/OAuth2TokenDTO.h"
+#include <array>
 
 class QByteArray;
 class NetworkManager;
 class AuthorizationManager;
 class NetworkReply;
+class UserSelection;
+class User;
+class ImageAlignment;
+class Gene;
+class Feature;
+class Dataset;
+class Chip;
+class MinVersionDTO;
 
 // DataProxy is a globally accessible all-in-all data store. It provides an
 // interface to access remotely stored data and means of storing and managing
@@ -49,14 +49,14 @@ public:
         MinVersionDownloaded,
         AccessTokenDownloaded,
         UserDownloaded,
-        DatasetDownloaded,
+        DatasetsDownloaded,
         DatasetModified,
         ImageAlignmentDownloaded,
         ChipDownloaded,
         TissueImageDownloaded,
         FeaturesDownloaded,
-        GenesSelectionsDownloaded,
-        GenesSelectionsModified
+        UserSelectionsDownloaded,
+        UserSelectionModified
     };
 
     // MAIN CONTAINERS (MVC)
@@ -65,7 +65,7 @@ public:
     typedef QSharedPointer<Feature> FeaturePtr;
     typedef QSharedPointer<Gene> GenePtr;
     typedef QSharedPointer<ImageAlignment> ImageAlignmentPtr;
-    typedef QSharedPointer<GeneSelection> GeneSelectionPtr;
+    typedef QSharedPointer<UserSelection> UserSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
     // TODO find a way to update DataProxy when data is updated in the backend
@@ -76,11 +76,19 @@ public:
 
     // TODO separate data API and data adquisition
 
-    // TODO replace JSON for binary format
+    // TODO replace JSON for binary format for the features
 
     // TODO make the parsing of the data asynchronous
 
     // TODO find a better make to notify guys using DataProxy when an object has been downloaded
+
+    // TODO study different ways of representing the features (maybe a sparse matrix)
+
+    // TODO consider to compute the features rendering data here
+
+    // TODO Currently dataProxy does not support caching. The dataset content
+    // variables are unique for the dataset currently openned. We should cache
+    // the dataset content variable by dataset ID
 
     // list of unique genes
     typedef QList<GenePtr> GeneList;
@@ -90,8 +98,8 @@ public:
     typedef QList<FeaturePtr> FeatureList;
     // list of unique datasets
     typedef QList<DatasetPtr> DatasetList;
-    // gene selection objects
-    typedef QList<GeneSelectionPtr> GeneSelectionList;
+    // list of user selections
+    typedef QList<UserSelectionPtr> UserSelectionList;
     // cell figure hashed by figure name (figure names are unique)
     typedef QHash<QString, QByteArray> CellFigureMap;
     // array of three elements containing the min version supported
@@ -120,8 +128,8 @@ public:
     void loadDatasetContent();
     // current logged user
     void loadUser();
-    // selection objects
-    void loadGeneSelections();
+    // selection objects (the new user selections will be added to the container)
+    void loadUserSelections();
     // min version supported
     void loadMinVersion();
     // OAuth2 access token
@@ -145,15 +153,17 @@ public:
     // user
     void updateUser(const User& user);
     // gene selection
-    void updateGeneSelection(const GeneSelection& geneSelection);
+    void updateUserSelection(const UserSelection& geneSelection);
 
     // DATA CREATION
     // data creation methods are meant to create a new object in the database
     // Callers are expected to wait for a signal to notify when the data is downloaded,
     // the signal will contain the status of the operation
 
-    // gene selection
-    void addGeneSelection(const GeneSelection& geneSelection);
+    // add an user selection object to the DB
+    void addUserSelection(const UserSelection& userSelection);
+    // add an user selection ot the data container of selections (locally not network)
+    void addUserSelectionLocal(const UserSelection& userSelection);
 
     // DATA DELETION
     // data deletion methods are meant to remove an object from the database
@@ -204,7 +214,7 @@ public:
     const QByteArray getFigureBlue() const;
 
     // returns the currently loaded list of genes selections
-    const GeneSelectionList getGenesSelectionsList() const;
+    const UserSelectionList getUserSelectionList() const;
 
     // returns the minimum supported version of the software in the backend
     const MinVersionArray getMinVersion() const;
@@ -266,9 +276,9 @@ private:
     // in case we remove the dataset that is selected
     bool parseRemoveDataset(NetworkReply* reply);
 
-    // internal function to parse the genes selections
+    // internal function to parse the user selections
     // returns true if the parsing was correct
-    bool parseGeneSelections(NetworkReply* reply);
+    bool parseUserSelections(NetworkReply* reply);
 
     // internal function to parse the User
     // returns true if the parsing was correct
@@ -301,8 +311,8 @@ private:
     DatasetList m_datasetList;
     // the current user logged in
     UserPtr m_user;
-    // the current gene selections for the selected dataset
-    GeneSelectionList m_geneSelectionsList;
+    // the current user selections for the selected dataset
+    UserSelectionList m_userSelectionList;
     // the current alignment object for the selected dataset
     ImageAlignmentPtr m_imageAlignment;
     // the current chip object for the selected dataset

@@ -8,17 +8,17 @@
 #ifndef DATASETPAGE_H
 #define DATASETPAGE_H
 
-#include "Page.h"
-
+#include <QWidget>
+#include <QModelIndex>
 #include <memory>
 #include "data/DataProxy.h"
-#include <QModelIndex>
 
 class QItemSelectionModel;
 class QItemSelection;
 class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
+class WaitingSpinnerWidget;
 
 namespace Ui
 {
@@ -29,9 +29,13 @@ class DataSets;
 // It gets updated everytime we enter the page and by selecting a dataset.
 // It uses the dataProxy object to load the data.
 // It has a toolbar with basic functionalities
-// As every page it implements the moveToNextPage and moveToPreviousPage
-// the methods onEnter and onExit are called dynamically from the page manager.
-class DatasetPage : public Page
+
+// TODO add option to highlight the currently opened dataset
+// TODO add right click support (copy, open, save, delete...)
+// TODO add multiple dataset remove option
+// TODO add ST icon to the widget
+// TODO add posibility to edit and save objects in the table
+class DatasetPage : public QWidget
 {
     Q_OBJECT
 
@@ -39,10 +43,10 @@ public:
     DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~DatasetPage();
 
-public slots:
+    // clear the loaded content
+    void clean();
 
-    void onEnter() override;
-    void onExit() override;
+public slots:
 
 private slots:
 
@@ -53,6 +57,7 @@ private slots:
     void slotSelectAndOpenDataset(QModelIndex index);
 
     // some slots for the actions buttons of the view
+    // TODO add support to remove multiple datasets
     void slotLoadDatasets();
     void slotOpenDataset();
     void slotRemoveDataset();
@@ -64,6 +69,14 @@ private slots:
     // type contain the type of download request
     void slotDownloadFinished(const DataProxy::DownloadStatus status,
                               const DataProxy::DownloadType type);
+
+signals:
+
+    void signalDatasetOpen(QString datasetId);
+
+protected:
+
+    void showEvent(QShowEvent* event) override;
 
 private:
     // internal function to process when the datasets have been downloaded
@@ -77,6 +90,10 @@ private:
     DatasetItemModel* datasetsModel();
 
     std::unique_ptr<Ui::DataSets> m_ui;
+    // reference to dataProxy
+    QPointer<DataProxy> m_dataProxy;
+    // waiting spinner
+    QPointer<WaitingSpinnerWidget> m_waiting_spinner;
 
     Q_DISABLE_COPY(DatasetPage)
 };

@@ -24,23 +24,23 @@ public:
     TokenStorage();
     ~TokenStorage();
 
-    // setters
+    // Setters
     void setAccessToken(const QUuid& accessToken);
     void setAccessToken(const QUuid& accessToken, int expiresIn);
     void setRefreshToken(const QUuid& refreshToken);
 
-    // if the access token has expired or not
+    // If the access token has expired or not
     bool isExpired() const;
 
-    // getters
+    // Getters
     const QUuid getAccessToken() const;
     const QUuid getRefreshToken() const;
 
-    // to check if the user has already an access token or refresh token
+    // To check if the user has already an access token or refresh token
     bool hasAccessToken() const;
     bool hasRefreshToken() const;
 
-    // cleans the content of the accesstoken
+    // Cleans the content of the accesstoken
     void cleanAll();
 
 private:

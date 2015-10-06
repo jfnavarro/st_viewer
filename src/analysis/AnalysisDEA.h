@@ -8,10 +8,10 @@
 #ifndef ANALYSISDEA_H
 #define ANALYSISDEA_H
 
+#include "dataModel/UserSelection.h"
 #include <memory>
 #include <QDialog>
 #include <QModelIndex>
-#include "dataModel/GeneSelection.h"
 
 namespace Ui
 {
@@ -23,14 +23,15 @@ class GeneSelectionDEAItemModel;
 class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
-// the DEA statistics from two gene selections and show them to the users
-// TODO perhaps we should separate the visualization and the computation
+// the DEA statistics from two user selections and show them to the user with a correlation plot
+// and a table
+// TODO perhaps we should separate the visualization and the computation logic
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
 
 public:
-    // data container for the computed statistics
+    // Data container for the computed statistics
     struct deaStats {
 
         deaStats()
@@ -43,13 +44,13 @@ public:
 
         QVector<qreal> valuesSelectionA;
         QVector<qreal> valuesSelectionB;
-        int countA;
-        int countB;
-        int countAB;
+        unsigned countA;
+        unsigned countB;
+        unsigned countAB;
         qreal pearsonCorrelation;
     };
 
-    // data container for normalized and unnormalized reads
+    // Data container for normalized and unnormalized reads
     // the idea is that each record contains the information of
     // one gene and its expression levels in two selections
     struct deaReads {
@@ -63,68 +64,68 @@ public:
         }
 
         QString gene;
-        int readsA;
-        int readsB;
+        unsigned readsA;
+        unsigned readsB;
         qreal normalizedReadsA;
         qreal normalizedReadsB;
     };
 
     typedef QList<deaReads> combinedSelectionsType;
 
-    AnalysisDEA(const GeneSelection& selObjectA,
-                const GeneSelection& selObjectB,
+    AnalysisDEA(const UserSelection& selObjectA,
+                const UserSelection& selObjectB,
                 QWidget* parent = 0,
                 Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
-    // computes the statistics and visualization data points
+    // Computes the statistics and visualization data points
     const deaStats computeStatistics();
 
-    // update UI elements for the statistics and correlation plots
+    // Update UI elements for the statistics and correlation plots
     void updateStatisticsUI(const deaStats& stats);
 
 signals:
 
 private slots:
 
-    // threshold slider slots (update the UI too)
-    void slotSetLowerThreshold(const int value);
-    void slotSetUpperThreshold(const int value);
-    void slotSetLowerTPMsThreshold(const int value);
-    void slotSetUpperTPMsThreshold(const int value);
+    // Threshold slider slots (update the UI too)
+    void slotSetLowerThreshold(const unsigned value);
+    void slotSetUpperThreshold(const unsigned value);
+    void slotSetLowerTPMsThreshold(const unsigned value);
+    void slotSetUpperTPMsThreshold(const unsigned value);
 
-    // save correlation plot to a file
+    // Save correlation plot to a file
     void slotSaveToPDF();
 
-    // to be invoked if the user selects a gene in the table
+    // To be invoked if the user selects a gene in the table
     // this will trigger a highlight of the gene in the scatter plot
     void slotSelectionSelected(QModelIndex index);
 
 private:
-    // helper functions to get the model from the gene selections table
+    // Helper functions to get the model from the gene selections table
     GeneSelectionDEAItemModel* selectionsModel();
     QSortFilterProxyModel* selectionsProxyModel();
 
-    // helper function to test whether two selections are outside threshold
+    // Helper function to test whether two selections are outside threshold
     // returns true if they are outside
     bool combinedSelectionThreholsd(const deaReads& deaReads) const;
 
-    // compute the map of genes to read pairs used to
-    // compute the statistics
-    void computeGeneToReads(const GeneSelection& selObjectA, const GeneSelection& selObjectB);
-
-    // populate the genes expression table and update the UI (size is size of the table)
-    void populateTable(const int size);
+    // Fills a list of combinedSelectionsType objects for each shared gene in
+    // both selections and also unique genes.
+    // The idea is to have a structure that has information for the intersected
+    // set of unique genes in both selections.
+    // The map is stored in the class and it is used to compute statistics
+    void computeGeneToReads(const UserSelection& selObjectA, const UserSelection& selObjectB);
 
     std::unique_ptr<Ui::ddaWidget> m_ui;
-    // we use these variables to keep the statistics for convenience
+    // We use these variables to cache the statistics for convenience
     combinedSelectionsType m_combinedSelections;
-    int m_lowerThreshold;
-    int m_upperThreshold;
-    int m_lowerTPMsThreshold;
-    int m_upperTPMsThreshold;
-    int m_totalReadsSelA;
-    int m_totalReadsSelB;
+    unsigned m_lowerThreshold;
+    unsigned m_upperThreshold;
+    unsigned m_lowerTPMsThreshold;
+    unsigned m_upperTPMsThreshold;
+    unsigned m_totalReadsSelA;
+    unsigned m_totalReadsSelB;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

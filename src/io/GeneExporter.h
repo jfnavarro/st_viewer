@@ -12,9 +12,10 @@
 #include <QStringList>
 
 #include "data/DataProxy.h"
-#include "dataModel/GeneSelection.h"
+#include "dataModel/UserSelection.h"
 
 class QIODevice;
+class QTextStream;
 
 // Interface defining gene export (to text files) functionality
 class GeneExporter
@@ -43,7 +44,7 @@ public:
     ~GeneExporter();
 
     // writes to the file given as input the selection items given as input
-    void exportItem(QIODevice& device, const GeneSelection::selectedItemsList& selectionList) const;
+    void exportItem(QIODevice& device, const UserSelection::selectedGenesList& geneList) const;
 
     // to configure writing properties
     void addExportProperty(const QString& property);
@@ -59,8 +60,8 @@ protected:
 
     // internal functions to process the individual selections
     void exportStrings(QTextStream& otxt, const QStringList& strings) const;
-    void exportItem(QTextStream& otxt, const SelectionType& selection) const;
-    void exportItem(QTextStream& otxt, const GeneSelection::selectedItemsList& selectionList) const;
+    void exportItem(QTextStream& otxt, const AggregatedGene& gene) const;
+    void exportItem(QTextStream& otxt, const UserSelection::selectedGenesList& geneList) const;
 
     DetailLevels m_detailLevel;
     SeparationModes m_separationMode;

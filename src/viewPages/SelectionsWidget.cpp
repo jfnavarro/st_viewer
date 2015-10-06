@@ -8,23 +8,19 @@
 #include "SelectionsWidget.h"
 
 #include <QVBoxLayout>
-#include <QPushButton>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
-#include <QLabel>
-
+#include "utils/SetTips.h"
 #include "viewTables/GeneSelectionTableView.h"
 #include "model/GeneSelectionItemModel.h"
-#include "utils/SetTips.h"
+#include "utils/Utils.h"
 
 using namespace Globals;
 
-SelectionsWidget::SelectionsWidget(QWidget* parent)
-    : QWidget(parent)
+SelectionsWidget::SelectionsWidget(QWidget* parent, Qt::WindowFlags f)
+    : QWidget(parent, f)
     , m_geneSelectionFilterLineEdit(nullptr)
     , m_selections_tableview(nullptr)
-    , m_total_reads_edit(nullptr)
-    , m_total_genes_edit(nullptr)
 {
     QVBoxLayout* selectionLayout = new QVBoxLayout();
     selectionLayout->setSpacing(0);
@@ -32,82 +28,6 @@ SelectionsWidget::SelectionsWidget(QWidget* parent)
     QHBoxLayout* selectionBottonsLayout = new QHBoxLayout();
     selectionBottonsLayout->setSpacing(0);
     selectionBottonsLayout->setContentsMargins(0, 5, 0, 5);
-    QHBoxLayout* selectionInfoLayoutGenes = new QHBoxLayout();
-    selectionInfoLayoutGenes->setSpacing(0);
-    selectionInfoLayoutGenes->setContentsMargins(0, 5, 0, 5);
-    QHBoxLayout* selectionInfoLayoutReads = new QHBoxLayout();
-    selectionInfoLayoutReads->setSpacing(0);
-    selectionInfoLayoutReads->setContentsMargins(0, 5, 0, 5);
-
-    // add separation between buttons
-    selectionInfoLayoutReads->addSpacing(5);
-
-    // add selection tags component
-    QLabel* total_reads = new QLabel(this);
-    total_reads->setText(tr("Total reads :"));
-    selectionInfoLayoutReads->addWidget(total_reads);
-
-    m_total_reads_edit = new QLineEdit(this);
-    m_total_reads_edit->setReadOnly(true);
-    m_total_reads_edit->setAlignment(Qt::AlignRight);
-    m_total_reads_edit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
-    m_total_reads_edit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
-    selectionInfoLayoutReads->addWidget(m_total_reads_edit);
-
-    // add gene info layout to main layout
-    selectionLayout->addLayout(selectionInfoLayoutReads);
-
-    // add separation between buttons
-    selectionInfoLayoutGenes->addSpacing(5);
-
-    QLabel* total_genes = new QLabel(this);
-    total_genes->setText(tr("Total genes :"));
-    selectionInfoLayoutGenes->addWidget(total_genes);
-
-    m_total_genes_edit = new QLineEdit(this);
-    m_total_genes_edit->setReadOnly(true);
-    m_total_genes_edit->setAlignment(Qt::AlignRight);
-    m_total_genes_edit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
-    m_total_genes_edit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
-    selectionInfoLayoutGenes->addWidget(m_total_genes_edit);
-
-    // add info layout to main layout
-    selectionLayout->addLayout(selectionInfoLayoutGenes);
-
-    // add separation between buttons
-    selectionBottonsLayout->addSpacing(10);
-
-    QPushButton* saveSelection = new QPushButton(this);
-    configureButton(saveSelection,
-                    QIcon(QStringLiteral(":/images/save-selection.png")),
-                    tr("Save the current selection in the cloud"));
-    selectionBottonsLayout->addWidget(saveSelection);
-    // add separation
-    selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
-
-    QPushButton* exportGenesSelection = new QPushButton(this);
-    configureButton(exportGenesSelection,
-                    QIcon(QStringLiteral(":/images/export-genes.png")),
-                    tr("Export the currently selected genes to a file"));
-    selectionBottonsLayout->addWidget(exportGenesSelection);
-    // add separation
-    selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
-
-    QPushButton* exportFeaturesSelection = new QPushButton(this);
-    configureButton(exportFeaturesSelection,
-                    QIcon(QStringLiteral(":/images/export-features.png")),
-                    tr("Export the currently selected features to a file"));
-    selectionBottonsLayout->addWidget(exportFeaturesSelection);
-    // add separation
-    selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
-
-    QPushButton* clearSelection = new QPushButton(this);
-    configureButton(clearSelection,
-                    QIcon(QStringLiteral(":/images/remove-selection.png")),
-                    tr("Remove the current selection"));
-    selectionBottonsLayout->addWidget(clearSelection);
-    // add separation
-    selectionBottonsLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     m_geneSelectionFilterLineEdit = new QLineEdit(this);
     m_geneSelectionFilterLineEdit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
@@ -132,16 +52,6 @@ SelectionsWidget::SelectionsWidget(QWidget* parent)
             SIGNAL(textChanged(QString)),
             m_selections_tableview,
             SLOT(setGeneNameFilter(QString)));
-    connect(exportGenesSelection,
-            SIGNAL(clicked(bool)),
-            this,
-            SIGNAL(signalExportGenesSelection()));
-    connect(exportFeaturesSelection,
-            SIGNAL(clicked(bool)),
-            this,
-            SIGNAL(signalExportFeaturesSelection()));
-    connect(saveSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalSaveSelection()));
-    connect(clearSelection, SIGNAL(clicked(bool)), this, SIGNAL(signalClearSelection()));
 }
 
 SelectionsWidget::~SelectionsWidget()
@@ -153,42 +63,19 @@ void SelectionsWidget::clear()
     m_geneSelectionFilterLineEdit->clearFocus();
     m_geneSelectionFilterLineEdit->clear();
 
-    m_total_genes_edit->clear();
-    m_total_reads_edit->clear();
-
     m_selections_tableview->clearSelection();
     m_selections_tableview->clearFocus();
 
-    getModel()->clearSelectedGenes();
+    getModel()->clear();
 }
 
-void SelectionsWidget::slotLoadModel(const GeneSelection::selectedItemsList& geneList)
+void SelectionsWidget::slotLoadModel(const UserSelection::selectedGenesList& geneList)
 {
     // TODO the ideal solution would be to pass here the GeneSelection object
     // instanciated already. Right now, we are creating the GeneSelection
     // object when the users saves the selection and assings a name to it but
-    // that is inefficient as we are doing this computation twice
-    int total_reads = 0;
-    int total_genes = 0;
-    foreach (const SelectionType& selection, geneList) {
-        total_reads += selection.reads;
-        total_genes += selection.count;
-    }
-
-    m_total_genes_edit->setText(QString::number(total_genes));
-    m_total_reads_edit->setText(QString::number(total_reads));
+    // that is inefficient
     getModel()->loadSelectedGenes(geneList);
-}
-
-void SelectionsWidget::configureButton(QPushButton* button, const QIcon icon, const QString tooltip)
-{
-    Q_ASSERT(button != nullptr);
-    button->setIcon(icon);
-    button->setIconSize(CELL_PAGE_SUB_MENU_ICON_SIZE);
-    button->setFixedSize(CELL_PAGE_SUB_MENU_BUTTON_SIZE);
-    button->setStyleSheet(CELL_PAGE_SUB_MENU_BUTTON_STYLE);
-    button->setCursor(Qt::PointingHandCursor);
-    setToolTipAndStatusTip(tooltip, button);
 }
 
 GeneSelectionItemModel* SelectionsWidget::getModel()

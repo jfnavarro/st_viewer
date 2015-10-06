@@ -12,8 +12,9 @@
 #include <QOpenGLShaderProgram>
 #include <QImageReader>
 #include <QApplication>
-
-#include "dataModel/GeneSelection.h"
+#include "dataModel/UserSelection.h"
+#include "dataModel/Feature.h"
+#include "dataModel/Gene.h"
 
 static const int INVALID_INDEX = -1;
 static const float GENE_SIZE_DEFAULT = 0.5;
@@ -582,24 +583,6 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList& genes)
     }
     // we update the rendering data enforcing the selection to true
     updateVisual(indexes.toList(), true);
-}
-
-GeneSelection::selectedItemsList GeneRendererGL::getSelectedGenes() const
-{
-    // aggregate all the selected features using SelectionType objects (aggregate by gene)
-    QHash<QString, SelectionType> geneSelectionsMap;
-    foreach (DataProxy::FeaturePtr feature, m_geneInfoSelectedFeatures) {
-        Q_ASSERT(!feature.isNull());
-        // we include in the selection of the genes present in the selected feature
-        // regardless if the feature was selected manually or by genes reg exp.
-        // the reads are aggregated and a counter increased
-        const QString geneName = feature->gene();
-        ++geneSelectionsMap[geneName].count;
-        geneSelectionsMap[geneName].reads += feature->hits();
-        geneSelectionsMap[geneName].name = geneName;
-    }
-
-    return geneSelectionsMap.values();
 }
 
 const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const

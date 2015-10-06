@@ -10,14 +10,15 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QTextStream>
 
 #include "data/DataProxy.h"
 
 class QIODevice;
 class Feature;
 
-// This class is just temporary for development purposes.
-// It is a clone of GeneExporter and it will be removed in further releases
+// TODO this class should really get merged with GeneExporter the reason
+// why we haven't done it already is
 class FeatureExporter
 {
     Q_FLAGS(DetailLevel)

@@ -29,14 +29,19 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
-
 #include "utils/Utils.h"
 #include "error/Error.h"
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
 #include "dialogs/AboutDialog.h"
-#include "viewPages/ExtendedTabWidget.h"
 #include "auth/AuthorizationManager.h"
+#include "viewPages/DatasetPage.h"
+#include "viewPages/CellViewPage.h"
+#include "viewPages/UserSelectionsPage.h"
+#include "viewPages/GenesWidget.h"
+#include "dataModel/User.h"
+
+using namespace Globals;
 
 namespace
 {
@@ -65,9 +70,15 @@ stVi::stVi(QWidget* parent)
     , m_actionVersion(nullptr)
     , m_actionAbout(nullptr)
     , m_actionClear_Cache(nullptr)
-    , m_mainTab(nullptr)
+    , m_actionDatasets(nullptr)
+    , m_actionLogOut(nullptr)
+    , m_actionSelections(nullptr)
     , m_dataProxy(nullptr)
     , m_authManager(nullptr)
+    , m_datasets(nullptr)
+    , m_cellview(nullptr)
+    , m_user_selections(nullptr)
+    , m_genes(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -76,6 +87,12 @@ stVi::stVi(QWidget* parent)
 
     m_authManager = new AuthorizationManager(m_dataProxy);
     Q_ASSERT(!m_authManager.isNull());
+
+    // We init the views here
+    m_datasets = new DatasetPage(m_dataProxy);
+    m_cellview = new CellViewPage(m_dataProxy);
+    m_user_selections = new UserSelectionsPage(m_dataProxy);
+    m_genes = new GenesWidget(m_dataProxy);
 }
 
 stVi::~stVi()
@@ -89,6 +106,26 @@ stVi::~stVi()
         delete m_authManager;
     }
     m_authManager = nullptr;
+
+    if (!m_datasets.isNull()) {
+        delete m_datasets;
+    }
+    m_datasets = nullptr;
+
+    if (!m_cellview.isNull()) {
+        delete m_cellview;
+    }
+    m_cellview = nullptr;
+
+    if (!m_user_selections.isNull()) {
+        delete m_user_selections;
+    }
+    m_user_selections = nullptr;
+
+    if (!m_genes.isNull()) {
+        delete m_genes;
+    }
+    m_genes = nullptr;
 }
 
 void stVi::init()
@@ -141,11 +178,6 @@ bool stVi::checkSystemRequirements() const
     // check for min version if supported
     m_dataProxy->loadMinVersion();
     m_dataProxy->activateCurrentDownloads();
-    // connect data proxy signal
-    connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
-            this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
     return true;
 }
 
@@ -162,11 +194,25 @@ void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                      "please update!"));
             QApplication::exit(EXIT_FAILURE);
         }
+    } else if (type == DataProxy::UserDownloaded && status == DataProxy::Success) {
+        const auto user = m_dataProxy->getUser();
+        Q_ASSERT(!user.isNull());
+        if (!user->enabled()) {
+            QMessageBox::critical(this,
+                                  tr("Authorization Error"),
+                                  tr("The current user is disabled"));
+            return;
+        }
+        // show user info in label
+        m_cellview->slotSetUserName(user->username());
     }
+
+    // TODO disable busy bar
 }
 
 void stVi::setupUi()
 {
+    // main window
     setObjectName(QStringLiteral("stVi"));
     setWindowModality(Qt::NonModal);
     resize(1024, 768);
@@ -186,10 +232,8 @@ void stVi::setupUi()
     mainlayout->setSpacing(0);
     mainlayout->setContentsMargins(0, 0, 0, 0);
 
-    // create tab manager
-    // pass reference to dataProxy and authManager to tab manager
-    m_mainTab = new ExtendedTabWidget(m_dataProxy, m_authManager, centralwidget);
-    mainlayout->addWidget(m_mainTab);
+    // main view
+    mainlayout->addWidget(m_cellview);
 
     // create status bar
     QStatusBar* statusbar = new QStatusBar();
@@ -207,29 +251,53 @@ void stVi::setupUi()
     m_actionVersion = new QAction(this);
     m_actionAbout = new QAction(this);
     m_actionClear_Cache = new QAction(this);
+    m_actionDatasets = new QAction(this);
+    m_actionDatasets->setCheckable(true);
+    m_actionLogOut = new QAction(this);
+    m_actionSelections = new QAction(this);
+    m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
     m_actionHelp->setText(tr("Help"));
     m_actionVersion->setText(tr("Version"));
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
+    m_actionDatasets->setText(tr("Datasets"));
+    m_actionLogOut->setText(tr("Log out"));
+    m_actionSelections->setText(tr("Selections"));
 
     // create menus
     QMenu* menuLoad = new QMenu(menubar);
     QMenu* menuHelp = new QMenu(menubar);
+    QMenu* menuViews = new QMenu(menubar);
     menuLoad->setTitle(tr("File"));
     menuHelp->setTitle(tr("Help"));
+    menuViews->setTitle(tr("Views"));
     menuLoad->addAction(m_actionExit);
     menuLoad->addAction(m_actionClear_Cache);
     menuHelp->addAction(m_actionAbout);
+    menuViews->addAction(m_actionDatasets);
+    menuViews->addAction(m_actionLogOut);
+    menuViews->addAction(m_actionSelections);
 
+    // add menus to menu bar
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
+    menubar->addAction(menuViews->menuAction());
+
+    // add gene table as dock widget
+    QDockWidget* dock_genes = new QDockWidget(tr("Genes"), this);
+    m_genes->setObjectName("Genes");
+    dock_genes->setWidget(m_genes);
+    dock_genes->setObjectName("GenesDock");
+    dock_genes->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menuViews->addAction(dock_genes->toggleViewAction());
+    addDockWidget(Qt::LeftDockWidgetArea, dock_genes);
 }
 
 void stVi::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(
-        new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     about->exec();
 }
 
@@ -259,7 +327,6 @@ void stVi::slotClearCache()
     if (answer == QMessageBox::Yes) {
         qDebug() << "[stVi] : Cleaning the cache...";
         m_dataProxy->cleanAll();
-        m_mainTab->resetStatus();
     }
 }
 
@@ -272,47 +339,10 @@ void stVi::createLayouts()
 void stVi::initStyle()
 {
     // TODO move to stylesheet.css file
-    setStyleSheet("QTableView {alternate-background-color: rgb(245,245,245); "
-                  "            background-color: transparent; "
-                  "            selection-background-color: rgb(215,215,215); "
-                  "            selection-color: rgb(0,155,60); "
-                  "            gridline-color: rgb(240,240,240);"
-                  "            border: 1px solid rgb(240,240,240);} "
-                  "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
-                  "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
-                  "QTableView::indicator {padding-left: 10px; "
-                  "                       width: 15px; "
-                  "                       height: 15px; "
-                  "                       background-color: transparent;} "
-                  "QPushButton:focus:pressed {background-color: transparent; border: none;} "
-                  "QPushButton:pressed {background-color: transparent; border: none;} "
-                  "QPushButton:flat {background-color: transparent; border: none;} "
-                  "QHeaderView::section {height: 35px; "
-                  "                      padding-left: 4px; "
-                  "                      padding-right: 2px; "
-                  "                      spacing: 5px;"
-                  "                      background-color: rgb(230,230,230); "
-                  "                      border: 1px solid rgb(240,240,240);} "
-                  "QTableCornerButton::section {background-color: transparent;} "
-                  "QLineEdit {border: 1px solid rgb(209,209,209); "
-                  "           border-radius: 5px; "
-                  "           background-color: rgb(255,255,255); "
-                  "           selection-background-color: darkgray;} "
-                  "QToolButton {border: none;} "
-                  "QRadioButton::indicator::unchecked {border: 1px solid darkgray; "
-                  "                                    border-radius: 6px; "
-                  "                                    background-color: white; "
-                  "                                    width: 10px; "
-                  "                                    height: 10px; "
-                  "                                    margin-left: 5px;}"
-                  "QRadioButton::indicator::checked {border: 1px solid darkgray; "
-                  "                                  border-radius: 6px; "
-                  "                                  background-color: rgb(0,155,60); "
-                  "                                  width: 10px; "
-                  "                                  height: 10px; "
-                  "                                  margin-left: 5px;} "
-                  "QComboBox::item::selected {background: rgb(0,155,60);} "
-                  "QMenu::item:selected {background-color: rgb(0,155,60); }");
+    setStyleSheet(GENERAL_STYLE);
+    m_datasets->setStyleSheet(GENERAL_STYLE);
+    m_cellview->setStyleSheet(GENERAL_STYLE);
+    m_user_selections->setStyleSheet(GENERAL_STYLE);
 
     // apply font
     QFont font("Open Sans", 12);
@@ -323,7 +353,7 @@ void stVi::createShorcuts()
 {
 #if defined Q_OS_WIN
     m_actionExit->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::ALT | Qt::Key_F4)
-                                                     << QKeySequence(Qt::CTRL | Qt::Key_Q));
+                               << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined Q_OS_LINUX || defined Q_OS_MAC
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
@@ -343,6 +373,67 @@ void stVi::createConnections()
     connect(m_actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
     // signal that shows the about dialog
     connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(slotShowAbout()));
+    // signal that shows the datasets
+    connect(m_actionDatasets, SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
+    // signal that shows the log in widget
+    connect(m_actionLogOut, SIGNAL(triggered()), this, SLOT(slotLogOutButton()));
+    // signal that shows the selections
+    connect(m_actionSelections, SIGNAL(triggered(bool)), m_user_selections.data(), SLOT(show()));
+
+    // connect authorization signals
+    connect(m_authManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
+    connect(m_authManager,
+            SIGNAL(signalError(QSharedPointer<Error>)),
+            this,
+            SLOT(slotAuthorizationError(QSharedPointer<Error>)));
+
+    // connect the data proxy signal
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            this,
+            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+
+    // connect the open dataset from datasetview -> cellview
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetOpen(QString)),
+            m_cellview.data(),
+            SLOT(slotDatasetOpen(QString)));
+
+    // connect the open dataset from datasetview -> genes table
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetOpen(QString)),
+            m_genes.data(),
+            SLOT(slotLoadModel(QString)));
+
+    // connect genes table signals to cellview
+    connect(m_genes.data(),
+            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
+            m_cellview.data(),
+            SLOT(slotGenesSelected(DataProxy::GeneList)));
+    connect(m_genes.data(),
+            SIGNAL(signalColorChanged(DataProxy::GeneList)),
+            m_cellview.data(),
+            SLOT(slotGenesColor(DataProxy::GeneList)));
+
+    // connect gene selection signals from selections view
+    connect(m_user_selections.data(),
+            SIGNAL(signalClearSelections()),
+            m_cellview.data(),
+            SLOT(slotClearSelections()));
+    connect(m_user_selections.data(),
+            SIGNAL(signalShowSelections(QVector<UserSelection>)),
+            m_cellview.data(),
+            SLOT(slotShowSelection(QVector<UserSelection>)));
+    connect(m_cellview.data(),
+            SIGNAL(signalUserSelection()),
+            m_user_selections.data(),
+            SLOT(slotSelectionsUpdated()));
+
+    // connect log out signal from cell view
+    connect(m_cellview.data(),
+            SIGNAL(signalLogOut()),
+            this,
+            SLOT(slotLogOutButton()));
 }
 
 void stVi::closeEvent(QCloseEvent* event)
@@ -369,4 +460,50 @@ void stVi::saveSettings() const
     QByteArray state = saveState();
     settings.setValue(Globals::SettingsState, state);
     // TODO save global settings (menus and status)
+}
+
+void stVi::startAuthorization()
+{
+    // start the authorization (quiet if access token exists or interactive otherwise)
+    m_authManager->startAuthorization();
+}
+
+void stVi::slotAuthorizationError(QSharedPointer<Error> error)
+{
+    // force clean access token and authorize again
+    m_authManager->cleanAccesToken();
+    m_authManager->startAuthorization();
+    qDebug() << "Error trying to log in " << error->name() << " " << error->description();
+}
+
+void stVi::slotAuthorized()
+{
+    // clean the cache in the dataproxy
+    m_dataProxy->clean();
+
+    // load user from network
+    // TODO show busy bar
+    m_dataProxy->loadUser();
+    m_dataProxy->activateCurrentDownloads();
+}
+
+void stVi::slotLogOutButton()
+{
+    qDebug() << "Log in out..";
+
+    // clear user name in label
+    m_cellview->slotSetUserName("");
+
+    // clean data proxy cache
+    m_dataProxy->clean();
+
+    // clean datasets/selections and main view
+    m_datasets->clean();
+    m_cellview->clean();
+    m_user_selections->clean();
+    m_genes->clear();
+
+    // clean access token and authorize
+    m_authManager->cleanAccesToken();
+    m_authManager->startAuthorization();
 }

@@ -9,65 +9,58 @@
 #define EXPERIMENTSITEMMODEL_H
 
 #include <QtCore/QModelIndex>
-
-#include "dataModel/GeneSelection.h"
-
 #include "data/DataProxy.h"
-
 #include <QAbstractTableModel>
 
-#include "dataModel/GeneSelection.h"
-
+class UserSelection;
 class QModelIndex;
 class QStringList;
 class QItemSelection;
 
-// Wrapper model for the genes selections table
-// TODO this should not be called experiment
-class ExperimentsItemModel : public QAbstractTableModel
+// Wrapper model for the user selections
+class UserSelectionsItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
 
 public:
     enum Column {
-        Name = 0,
-        Dataset = 1,
-        Comment = 2,
-        NGenes = 3,
-        NReads = 4,
-        NFeatures = 5,
-        Created = 6,
-        LastModified = 7
+        Saved = 0,
+        Color = 1,
+        Name = 2,
+        Dataset = 3,
+        NGenes = 4,
+        NReads = 5,
+        NFeatures = 6,
+        Comment = 7,
+        Created = 8,
+        LastModified = 9
     };
 
-    explicit ExperimentsItemModel(QObject* parent = 0);
-    virtual ~ExperimentsItemModel();
+    explicit UserSelectionsItemModel(QObject* parent = 0);
+    virtual ~UserSelectionsItemModel();
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
-
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // reset current model
-    void reset();
+    void clear();
 
-    // loads the data of the model from DataProxys
-    void loadSelectedGenes(const DataProxy::GeneSelectionList selectionList);
+    // loads the data of the model from the given input
+    void loadUserSelections(const DataProxy::UserSelectionList selectionList);
 
     // returns a list of selections items from the indexes given as input
-    DataProxy::GeneSelectionList getSelections(const QItemSelection& selection);
+    DataProxy::UserSelectionList getSelections(const QItemSelection& selection);
 
 private:
-    // TODO make this a pure reference
-    DataProxy::GeneSelectionList m_geneselectionList;
+    DataProxy::UserSelectionList m_userSelectionList;
 
-    Q_DISABLE_COPY(ExperimentsItemModel)
+    Q_DISABLE_COPY(UserSelectionsItemModel)
 };
 
 #endif // EXPERIMENTSITEMMODEL_H

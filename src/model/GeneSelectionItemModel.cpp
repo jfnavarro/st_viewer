@@ -5,9 +5,8 @@
 
 */
 #include "GeneSelectionItemModel.h"
-
 #include <QDebug>
-#include "dataModel/GeneSelection.h"
+#include <QColor>
 
 static const int COLUMN_NUMBER = 3;
 
@@ -26,7 +25,7 @@ QVariant GeneSelectionItemModel::data(const QModelIndex& index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    const SelectionType& item = m_geneselection.at(index.row());
+    const auto item = m_geneselection.at(index.row());
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
@@ -120,7 +119,7 @@ bool GeneSelectionItemModel::geneName(const QModelIndex& index, QString* genenam
         return false;
     }
 
-    const SelectionType& item = m_geneselection.at(index.row());
+    const auto item = m_geneselection.at(index.row());
 
     if (index.column() == Name) {
         *genename = item.name;
@@ -140,16 +139,16 @@ int GeneSelectionItemModel::columnCount(const QModelIndex& parent) const
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
-void GeneSelectionItemModel::loadSelectedGenes(
-    const GeneSelection::selectedItemsList& selectionList)
+void GeneSelectionItemModel::loadSelectedGenes(const UserSelection::selectedGenesList&
+                                               geneSelectionList)
 {
     beginResetModel();
     m_geneselection.clear();
-    m_geneselection = selectionList;
+    m_geneselection = geneSelectionList;
     endResetModel();
 }
 
-void GeneSelectionItemModel::clearSelectedGenes()
+void GeneSelectionItemModel::clear()
 {
     beginResetModel();
     m_geneselection.clear();

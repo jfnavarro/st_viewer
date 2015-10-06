@@ -24,7 +24,7 @@ public:
 
     enum InterpolationColorMode { SpectrumRaibow, SpectrumLinearInterpolation };
 
-    // convenience function to generate a heatmap spectrum image given specific mapping function
+    // Convenience function to generate a heatmap spectrum image given specific mapping function
     // using the wave lenght spectra or a linear interpolation spectra between two colors
     // the input image will be transformed with the new colors
     static void createHeatMapImage(QImage& image,
@@ -32,13 +32,13 @@ public:
                                    const qreal upperbound,
                                    const Globals::GeneColorMode& colorMode);
 
-    // convenience function to generate a QColor color from a real value
+    // Convenience function to generate a QColor color from a real value
     static QColor createHeatMapWaveLenghtColor(const qreal value);
 
-    // convenience function to generate a QColor color from a real value given a range
+    // Convenience function to generate a QColor color from a real value given a range
     static QColor createHeatMapLinearColor(const qreal value, const qreal min, const qreal max);
 
-    // convenience function to adjust the input value using a Linear - Exponential or Logaritmic
+    // Convenience function to adjust the input value using a Linear - Exponential or Logaritmic
     // function
     static qreal normalizeValueSpectrumFunction(const qreal value,
                                                 const Globals::GeneColorMode& colorMode);

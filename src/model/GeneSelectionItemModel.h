@@ -9,15 +9,15 @@
 #define GENESELECTIONITEMMODEL_H
 
 #include <QAbstractTableModel>
-
-#include "dataModel/GeneSelection.h"
-
+#include "dataModel/UserSelection.h"
 #include "data/DataProxy.h"
 
 class QModelIndex;
 class QStringList;
 
-// Wrapper model class for the genes selection table
+// The User Selection window has an option to allow to show the genes
+// present in the selection by aggregating them. This model
+// is used in that view based on the class UserSelection::aggregatedGene
 class GeneSelectionItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -31,19 +31,17 @@ public:
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
-
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // load the selected items given as parameters into the model
-    void loadSelectedGenes(const GeneSelection::selectedItemsList& selectionList);
+    void loadSelectedGenes(const UserSelection::selectedGenesList& geneSelectionList);
 
     // resets and clears the model
-    void clearSelectedGenes();
+    void clear();
 
 public slots:
     // TODO pass reference instead for genename
@@ -51,8 +49,7 @@ public slots:
     bool geneName(const QModelIndex& index, QString* genename) const;
 
 private:
-    // TODO make this a pure reference
-    GeneSelection::selectedItemsList m_geneselection;
+    UserSelection::selectedGenesList m_geneselection;
 
     Q_DISABLE_COPY(GeneSelectionItemModel)
 };

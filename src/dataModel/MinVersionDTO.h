@@ -9,6 +9,7 @@
 #define MINVERSIONDTO_H
 
 #include <QObject>
+#include <array>
 
 // DTOs (Data transform objects) provides the bridge between the client
 // specific data model objects and the server data. This is accomplished by

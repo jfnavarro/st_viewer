@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DataSets</class>
- <widget class="QWidget" name="DataSets">
+ <class>UserSelections</class>
+ <widget class="QWidget" name="UserSelections">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1011</width>
-    <height>715</height>
+    <width>1137</width>
+    <height>613</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
   <property name="mouseTracking">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::NoFocus</enum>
+   <enum>Qt::ClickFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>Datasets</string>
+   <string>Selections</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
+  <property name="windowIcon">
+   <iconset resource="../../../st_client-build/application.qrc">
+    <normaloff>:/images/st_icon.png</normaloff>:/images/st_icon.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -42,7 +37,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="DatasetPageWidget" native="true">
+    <widget class="QWidget" name="userSelectionsPageWidget" native="true">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -61,23 +56,23 @@
       </property>
       <item>
        <widget class="QFrame" name="frame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>75</height>
+          <height>60</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>75</height>
+          <height>60</height>
          </size>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
@@ -89,9 +84,9 @@
          <enum>QFrame::Sunken</enum>
         </property>
         <property name="lineWidth">
-         <number>1</number>
+         <number>0</number>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
           <number>20</number>
          </property>
@@ -108,72 +103,16 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="back">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Go back to Start Page</string>
-           </property>
-           <property name="statusTip">
-            <string>Go back to Start Page</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-           <property name="waitPolicy" stdset="0">
-            <number>3</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>489</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -196,7 +135,7 @@
            <property name="maximumSize">
             <size>
              <width>200</width>
-             <height>30</height>
+             <height>25</height>
             </size>
            </property>
            <property name="mouseTracking">
@@ -220,11 +159,11 @@
            <property name="whatsThis">
             <string>Search for a dataset</string>
            </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <property name="styleSheet">
-            <string notr="true"/>
+            <string notr="true">border: 1px solid rgb(209, 209, 209); 
+border-radius: 5px; 
+background-color: rgb(255, 255, 255); 
+selection-background-color: darkgray;</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -232,48 +171,52 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="openDataset">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="showTissue">
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
            <property name="toolTip">
-            <string>Open the selected dataset</string>
+            <string>Show tissue snapshot</string>
            </property>
            <property name="statusTip">
-            <string>Open the selected dataset</string>
+            <string>Show tissue snapshot</string>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+             <normaloff>:/images/tissue_snapshot.png</normaloff>:/images/tissue_snapshot.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -282,48 +225,39 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="editDataset">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QPushButton" name="saveDB">
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
            <property name="toolTip">
-            <string>Edit the selected dataset</string>
+            <string>Save selection in the cloud</string>
            </property>
            <property name="statusTip">
-            <string>Edit the selected dataset</string>
+            <string>Save selection in the cloud</string>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/edit-small.png</normaloff>:/images/edit-small.png</iconset>
+             <normaloff>:/images/save_selection.png</normaloff>:/images/save_selection.png</iconset>
            </property>
            <property name="iconSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -332,23 +266,146 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="deleteDataset">
+          <widget class="QPushButton" name="showTable">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Show genes in a table</string>
+           </property>
+           <property name="statusTip">
+            <string>Show genes in a table</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/show_genes.png</normaloff>:/images/show_genes.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="exportGenes">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Export genes to a file</string>
+           </property>
+           <property name="statusTip">
+            <string>Export genes to a file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/export_genes.png</normaloff>:/images/export_genes.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cluster">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Performs a clustering</string>
+           </property>
+           <property name="statusTip">
+            <string>Performs a clustering</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/cluster.png</normaloff>:/images/cluster.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ddaAnalysis">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="cursor">
@@ -358,10 +415,180 @@
             <bool>false</bool>
            </property>
            <property name="toolTip">
-            <string>Delete the selected dataset</string>
+            <string>Perform a Differential Expression analysis</string>
            </property>
            <property name="statusTip">
-            <string>Delete the selected dataset</string>
+            <string>Perform a Differential Expression analysis</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/selection_dea.png</normaloff>:/images/selection_dea.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="importSelection">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Import selection from file</string>
+           </property>
+           <property name="statusTip">
+            <string>Import selection from file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/import.png</normaloff>:/images/import.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="exportSelections">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Export the selected selections</string>
+           </property>
+           <property name="statusTip">
+            <string>Export the selected selections</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editSelection">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Edit the current selection</string>
+           </property>
+           <property name="statusTip">
+            <string>Edit the current selection</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../st_client-build/application.qrc">
+             <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="removeSelections">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Remove the selected selections</string>
+           </property>
+           <property name="statusTip">
+            <string>Remove the selected selections</string>
            </property>
            <property name="text">
             <string/>
@@ -372,120 +599,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="refresh">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Refresh Datasets</string>
-           </property>
-           <property name="statusTip">
-            <string>Refresh Datasets</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-           <property name="waitPolicy" stdset="0">
-            <number>3</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="next">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string>Move to the Cell View Page</string>
-           </property>
-           <property name="statusTip">
-            <string>Move to the Cell View Page</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
-             <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>85</width>
-             <height>70</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="flat">
@@ -538,7 +653,7 @@
        </spacer>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
@@ -556,48 +671,18 @@
          </spacer>
         </item>
         <item>
-         <widget class="DatasetsTableView" name="datasetsTableView">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="UserSelectionTableView" name="selections_tableView">
           <property name="mouseTracking">
            <bool>false</bool>
           </property>
           <property name="focusPolicy">
            <enum>Qt::TabFocus</enum>
           </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
-          </property>
           <property name="toolTip">
-           <string>Select a Dataset</string>
+           <string>Perform analysis</string>
           </property>
           <property name="statusTip">
-           <string>Select a Dataset</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QAbstractScrollArea::AdjustIgnored</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::DoubleClicked</set>
-          </property>
-          <property name="tabKeyNavigation">
-           <bool>true</bool>
+           <string>Perform analysis</string>
           </property>
           <property name="showDropIndicator" stdset="0">
            <bool>false</bool>
@@ -605,45 +690,15 @@
           <property name="dragDropOverwriteMode">
            <bool>false</bool>
           </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="verticalScrollMode">
-           <enum>QAbstractItemView::ScrollPerItem</enum>
-          </property>
-          <property name="horizontalScrollMode">
-           <enum>QAbstractItemView::ScrollPerPixel</enum>
-          </property>
           <property name="gridStyle">
            <enum>Qt::SolidLine</enum>
           </property>
           <property name="sortingEnabled">
            <bool>true</bool>
           </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
           <property name="cornerButtonEnabled">
            <bool>false</bool>
           </property>
-          <property name="waitPolicy" stdset="0">
-           <number>3</number>
-          </property>
-          <attribute name="horizontalHeaderHighlightSections">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-           <bool>false</bool>
-          </attribute>
          </widget>
         </item>
         <item>
@@ -687,9 +742,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DatasetsTableView</class>
+   <class>UserSelectionTableView</class>
    <extends>QTableView</extends>
-   <header>viewTables/DatasetsTableView.h</header>
+   <header>viewTables/UserSelectionTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

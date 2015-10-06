@@ -15,8 +15,11 @@
 #include "Gene.h"
 
 // Data model class to store feature data
-// A feature correspond to a tuple (barcode or spot in the array)
-// and gene. In each barcode/spot there can be up to 20k genes.
+// A feature corresponds to a tuple (barcode or spot in the array)
+// and a gene. In each barcode/spot there can be up to 20k genes.
+// The coordinates x,y refers to chip coordinates but the chip object
+// contains an affine matrix that converts chip coordinates to image pixel coordinates
+// which is what we eventually visualize in the cell view.
 class Feature
 {
 
@@ -32,21 +35,26 @@ public:
     Feature& operator=(const Feature& other);
     bool operator==(const Feature& other) const;
 
+    // barcode corresponds to the DNA ID of the spot
     const QString barcode() const;
+    // the name of the gene
     const QString gene() const;
     const QString annotation() const;
-    int hits() const;
+    // the number of reads
+    unsigned hits() const;
+    // the coordinates of the spot
     double x() const;
     double y() const;
 
     void barcode(const QString& barcode);
     void gene(const QString& gene);
     void annotation(const QString& annotation);
-    void hits(int hits);
+    void hits(unsigned hits);
     void x(double x);
     void y(double y);
 
-    // reference to the Gene object just for convenience
+    // Reference to the Gene object just for convenience
+    // this reference will be instantiated when the features are parsed
     GenePtr geneObject() const;
     void geneObject(GenePtr gene);
 
@@ -54,7 +62,7 @@ protected:
     QString m_barcode;
     QString m_gene;
     QString m_annotation;
-    int m_hits;
+    unsigned m_hits;
     double m_x;
     double m_y;
 

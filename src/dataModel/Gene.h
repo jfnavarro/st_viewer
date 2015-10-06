@@ -14,6 +14,8 @@
 #include "utils/Utils.h"
 
 // Data model class to store gene data.
+// The genes are part of the features, they are modeled in a class
+// to encapculate their status and attributes
 class Gene
 {
 
@@ -29,6 +31,7 @@ public:
     bool operator==(const Gene& other) const;
 
     const QString name() const;
+    // User changes color and selected status to visualize the genes
     bool selected() const;
     const QColor color() const;
 

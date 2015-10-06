@@ -16,7 +16,10 @@ class QModelIndex;
 class QStringList;
 class QItemSelection;
 
-// Wrapper model class for the genes selection table in the DEA widget
+// Wrapper model class for the selection table in the DEA window
+// The DEA allows to compare the genes from two user selections, for that we need
+// a new data model that merge the two selections.
+// The DEA has a table to view the data.
 class GeneSelectionDEAItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -30,12 +33,10 @@ public:
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
-
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // load the selected items given as parameters into the model
@@ -50,7 +51,6 @@ public slots:
     bool geneName(const QModelIndex& index, QString* genename) const;
 
 private:
-    // TODO make this a pure reference
     AnalysisDEA::combinedSelectionsType m_combinedSelections;
 
     Q_DISABLE_COPY(GeneSelectionDEAItemModel)

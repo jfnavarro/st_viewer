@@ -8,15 +8,13 @@
 #ifndef CELLVIEWPAGE_H
 #define CELLVIEWPAGE_H
 
-#include "Page.h"
-
+#include <QWidget>
 #include "data/DataProxy.h"
 #include <memory>
 
 class QColorDialog;
 class SelectionDialog;
 class Error;
-class CellViewPageToolBar;
 class CellGLView;
 class ImageTextureGL;
 class GridRendererGL;
@@ -38,26 +36,55 @@ class CellView;
 // which contains a table of genes, a table of selected genes and an OpenGL based
 // rendering canvas to visualize the cell tissue and the genes.
 // It also contains a toobar like every page. Functionalities in the toolbar are handled by slots.
-// As every page it implements the moveToNextPage and moveToPreviousPage
-// the methods onEnter and onExit are called dynamically from the page manager.
 // We do lazy inizialization of the visual stuff, specially openGL based stuff
 
-class CellViewPage : public Page
+// TODO add a cache for the visual settings
+// TODO move visual settings to mainwindow
+// TODO add a ruler visual object
+// TODO add a visual object to show name of dataset
+// TODO add a visual object to draw selections
+// TODO add a lazo selection option
+// TODO add hoover functionalities (specially if user hoovers a selection to show selection info)
+// TODO add a global threshold in percentage for the visual settings
+class CellViewPage : public QWidget
 {
     Q_OBJECT
 
 public:
+
     CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~CellViewPage();
 
+    // clear the loaded content
+    void clean();
+
+signals:
+
+    // notify the user has made a selection
+    void signalUserSelection();
+    // notify the user wants to log out
+    void signalLogOut();
+
 public slots:
 
-    void onEnter() override;
-    void onExit() override;
+    // the user has opened a dataset
+    // TODO check if the dataset is already opened
+    void slotDatasetOpen(QString datasetId);
+    // the user has cleared the selections
+    void slotClearSelections();
+    // the user wants to highlight a selection
+    // TODO send IDs instead
+    void slotShowSelection(const QVector<UserSelection>& selections);
+    // the user has selected/deselected genes
+    void slotGenesSelected(const DataProxy::GeneList& genes);
+    // the user has changed the color of genes
+    void slotGenesColor(const DataProxy::GeneList& genes);
+    // set the user name for the tool bar field
+    void slotSetUserName(const QString& username);
 
 private slots:
 
-    // some slots for gene actions that need adjustment of the value
+    // some slots for gene actions that need adjustment of the value (scale)
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);
@@ -67,14 +94,7 @@ private slots:
     void slotSaveImage();
     void slotPrintImage();
 
-    // shows a file dialog to save the current genes selection to a file
-    void slotExportGenesSelection();
-
-    // shows a file dialog to save the current features selection to a file
-    // TODO this slot will be removed in release 0.5
-    void slotExportFeaturesSelection();
-
-    // selection of genes
+    // selection of genes using a the reg-exp dialog
     void slotSelectByRegExp();
 
     // select gene visual mode
@@ -83,26 +103,17 @@ private slots:
     // select legend anchor
     void slotSetLegendAnchor(QAction* action);
 
-    // select legend computation of values (reads of genes)
+    // select legend computation of values (reads or number of genes)
     void slotSetLegendType(QAction* action);
 
     // select minimap anchor
     void slotSetMiniMapAnchor(QAction* action);
 
-    // to nofity gene selections table when genes were selected
+    // to handle when the user makes a selection
     void slotSelectionUpdated();
-
-    // slot to save the currently selected genes
-    void slotSaveSelection();
 
     // to load the cell tissue figure (tile it into textures) asynchronously
     void slotLoadCellFigure();
-
-    // used to be notified when the dataset content has been downloaded or a selection created
-    // status contains the status of the operation (ok, abort, error)
-    // type contains the downloaad type
-    void slotDownloadFinished(const DataProxy::DownloadStatus status,
-                              const DataProxy::DownloadType type);
 
 private:
     // create OpenGL graphical elements and view
@@ -117,7 +128,7 @@ private:
     // to enable/disable main controls
     void setEnableButtons(bool enable);
 
-    // internal function to initialize UI components once the whole dataset has been downloaded
+    // internal function to initialize UI components
     void datasetContentDownloaded();
 
     // OpenGL visualization objects
@@ -137,7 +148,7 @@ private:
     // Features Reads Distribution
     QPointer<AnalysisFRD> m_FDH;
 
-    // elements of the gene/cell view settings menu
+    // Elements of the cell view visual settings menu
     QPointer<QRadioButton> m_colorLinear;
     QPointer<QRadioButton> m_colorLog;
     QPointer<QRadioButton> m_colorExp;
@@ -154,6 +165,8 @@ private:
     QSlider* m_geneShineSlider;
     QSlider* m_geneBrightnessSlider;
     QPointer<QComboBox> m_geneShapeComboBox;
+    // reference to dataProxy
+    QPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(CellViewPage)
 };

@@ -29,6 +29,7 @@ class QOpenGLVertexArrayObject;
 
 // To clarify, by index(spot) we mean the physical spot in the array
 // and by feature we mean the gene-index combination
+// TODO add support for individual gene-threshold and global % threshold
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -71,9 +72,6 @@ public:
 
     // makes a selection of features given a list of genes
     void selectGenes(const DataProxy::GeneList& genes);
-
-    // returns the currently selected genes (agregated from features)
-    GeneSelection::selectedItemsList getSelectedGenes() const;
 
     // returns the currently selected features
     const DataProxy::FeatureList& getSelectedFeatures() const;
