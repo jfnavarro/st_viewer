@@ -156,7 +156,7 @@ void GenesWidget::updateModelTable()
     m_genes_tableview->update();
 }
 
-void GenesWidget::configureButton(QPushButton* button, const QIcon icon, const QString tooltip)
+void GenesWidget::configureButton(QPushButton* button, const QIcon& icon, const QString& tooltip)
 {
     Q_ASSERT(button != nullptr);
     button->setIcon(icon);

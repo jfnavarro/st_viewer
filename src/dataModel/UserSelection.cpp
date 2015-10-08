@@ -437,6 +437,8 @@ QString UserSelection::typeToQString(const UserSelection::Type& type)
         default:
             Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
     }
+    Q_ASSERT(false); // Should never arrive here
+    return QString();
 }
 
 UserSelection::Type UserSelection::QStringToType(const QString& type)

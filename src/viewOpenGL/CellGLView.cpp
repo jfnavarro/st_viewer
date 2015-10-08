@@ -123,8 +123,7 @@ void CellGLView::initializeGL()
                                         .arg(OPENGL_VERSION_MINOR)
                                   + ".");
         QApplication::exit();
-        return;
-    }
+    } else {
 
     m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -141,6 +140,8 @@ void CellGLView::initializeGL()
     m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
     m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    }
+    return;
 }
 
 void CellGLView::paintGL()
