@@ -7,7 +7,6 @@
 
 #include "CellGLView.h"
 #include "RubberbandGL.h"
-#include "Renderer.h"
 #include "math/Common.h"
 #include "utils/Utils.h"
 
@@ -27,6 +26,8 @@ static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 static const int DEFAULT_MIN_ZOOM = 1;
 static const int DEFAULT_MAX_ZOOM = 100;
+static const int OPENGL_VERSION_MAJOR = 2;
+static const int OPENGL_VERSION_MINOR = 0;
 
 namespace
 {
@@ -62,7 +63,7 @@ CellGLView::CellGLView(QWidget* parent)
 
     // Configure OpenGL format for this view
     QSurfaceFormat format;
-    format.setVersion(GraphicItemGL::OPENGL_VERSION_MAJOR, GraphicItemGL::OPENGL_VERSION_MINOR);
+    format.setVersion(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
     format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
@@ -70,21 +71,11 @@ CellGLView::CellGLView(QWidget* parent)
     format.setStencilBufferSize(0);
     format.setDepthBufferSize(0);
     format.setSwapInterval(0);
-
-#ifndef NDEBUG
-    format.setOption(QSurfaceFormat::DebugContext, true);
-#endif
-
     setFormat(format);
 }
 
 CellGLView::~CellGLView()
 {
-}
-
-std::shared_ptr<Renderer> CellGLView::getRenderer()
-{
-    return m_renderer;
 }
 
 void CellGLView::paintEvent(QPaintEvent* e)
@@ -128,62 +119,58 @@ void CellGLView::initializeGL()
                               tr("Required OpenGL version not supported.\n"
                                  "Please update your system to at least OpenGL ")
                                   + QString("%1.%2")
-                                        .arg(GraphicItemGL::OPENGL_VERSION_MAJOR)
-                                        .arg(GraphicItemGL::OPENGL_VERSION_MINOR)
+                                        .arg(OPENGL_VERSION_MAJOR)
+                                        .arg(OPENGL_VERSION_MINOR)
                                   + ".");
         QApplication::exit();
     } else {
 
-        m_renderer = std::make_shared<Renderer>();
+    m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // configure OpenGL variables
+    m_qopengl_functions.glDisable(GL_TEXTURE_2D);
+    m_qopengl_functions.glDisable(GL_DEPTH_TEST);
+    m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
+    m_qopengl_functions.glDisable(GL_CULL_FACE);
+    m_qopengl_functions.glShadeModel(GL_SMOOTH);
+    m_qopengl_functions.glEnable(GL_BLEND);
 
-        // configure OpenGL variables
-        m_qopengl_functions.glDisable(GL_TEXTURE_2D);
-        m_qopengl_functions.glDisable(GL_DEPTH_TEST);
-        m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
-        m_qopengl_functions.glDisable(GL_CULL_FACE);
-        m_qopengl_functions.glEnable(GL_BLEND);
-
-        // set the default blending options.
-        m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
-        m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
-        m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    // set the default blending options.
+    m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
+    m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
+    m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     }
     return;
 }
 
-void CellGLView::drawNode(GraphicItemGL* node)
-{
-    if (node->visible()) {
-        QTransform local_transform = nodeTransformations(node);
-        if (node->transformable()) {
-            local_transform *= sceneTransformations();
-        }
-
-        QMatrix4x4 matrix(local_transform);
-        node->setProjection(m_projm);
-        node->setModelView(matrix);
-        node->draw(*m_renderer);
-    }
-}
-
 void CellGLView::paintGL()
 {
-    Q_ASSERT(m_renderer);
 
     // clear color buffer
     m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
     // render nodes
     foreach (GraphicItemGL* node, m_nodes) {
-        drawNode(node);
+        if (node->visible()) {
+            QTransform local_transform = nodeTransformations(node);
+            if (node->transformable()) {
+                local_transform *= sceneTransformations();
+            }
+
+            QMatrix4x4 matrix(local_transform);
+            node->setProjection(m_projm);
+            node->setModelView(matrix);
+            m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat*>(matrix.constData()));
+            node->draw(m_qopengl_functions);
+        }
     }
 
-    // Rubber band node is drawn last, on top of the others. 
-    // TODO : Solve this "special case" code.
-    drawNode(m_rubberband);
+    m_qopengl_functions.glLoadIdentity();
+    // paint rubberband if selecting
+    if (m_rubberBanding && m_selecting) {
+        m_rubberband->draw(m_qopengl_functions);
+    }
 }
 
 void CellGLView::resizeGL(int width, int height)
@@ -196,6 +183,14 @@ void CellGLView::resizeGL(int width, int height)
 
     // sets the projection matrix
     m_qopengl_functions.glViewport(0.0f, 0.0f, width, height);
+
+    // reset the coordinate system
+    m_qopengl_functions.glMatrixMode(GL_PROJECTION);
+    m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat*>(m_projm.constData()));
+
+    // reset the model view mode matrix
+    m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
+    m_qopengl_functions.glLoadIdentity();
 
     // create viewport
     setViewPort(newViewport);
@@ -239,9 +234,6 @@ qreal CellGLView::clampZoomFactorToAllowedRange(const qreal zoom) const
 void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
 {
     const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
-
-    qDebug() << "Setting zoom to : " << new_zoom_factor;
-
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
@@ -462,7 +454,6 @@ void CellGLView::mouseReleaseEvent(QMouseEvent* event)
         // reset rubberband variables
         m_rubberBanding = false;
         m_rubberband->setRubberbandRect(QRect());
-
         // well, there is no need to trigger an update here since
         // sendRubberBandEventToNodes will make the GeneRenderer node trigger an update
         // update();
@@ -482,7 +473,6 @@ void CellGLView::mouseMoveEvent(QMouseEvent* event)
     // first check if we are in selection mode
     if (event->buttons() & Qt::LeftButton && m_selecting && m_rubberBanding) {
         // get rubberband
-
         const QPoint origin = m_originRubberBand;
         const QPoint destiny = event->pos();
         const QRectF rubberBandRect = QRect(qMin(origin.x(), destiny.x()),
@@ -492,7 +482,6 @@ void CellGLView::mouseMoveEvent(QMouseEvent* event)
         m_rubberband->setRubberbandRect(rubberBandRect);
         // draw rubberband
         update();
-
     } else if (event->buttons() & Qt::LeftButton && m_panning && !m_selecting) {
         // user is moving the view
         const QPoint point = event->globalPos(); // panning needs global pos

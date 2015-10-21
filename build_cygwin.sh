@@ -131,7 +131,7 @@ cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
    cd "$stclient_builddir_windows" "&&" \
    $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=`cygpath -w "$libjpeg_turbo_dir"`" "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
-   "$windows_ctest_filepath" -E .*_gui_.* "&&" \
+   "$windows_ctest_filepath" "&&" \
    nmake package
 
 cp "$stclient_builddir"/stVi.exe "$result_dir"

@@ -3,7 +3,7 @@ Copyright (C) 2015  Spatial Transcriptomics AB,
 read LICENSE for licensing terms.
 Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 */
-#include "test_gui_AssertOpenGL.h"
+#include "test_AssertOpenGL.h"
 #include "OpenGLTestWindow.h"
 #include "viewOpenGL/AssertOpenGL.h"
 
@@ -27,23 +27,20 @@ void OpenGLAssertTest::cleanupTestCase()
 {
 }
 
-void OpenGLAssertTest::test_checkOpenGLNoErrorWithNoErrors()
+void OpenGLAssertTest::test_checkOpenGLErrorWithNoErrors()
 {
-    const int visibleDurationMs = 200;
+    const int framesVisible = 4;
 
     // We expect that the default OpenGL app has no OpenGL errors.
     auto test_OpenGL_has_no_error
-        = [=](void) { QVERIFY2(checkOpenGLNoError(), "checkOpenGLError returned false."); };
+        = [=](void) { QVERIFY2(checkOpenGLError(), "checkOpenGLError returned false."); };
 
-    const bool shown
-        = OpenGLTestWindow::createAndShowWindow(visibleDurationMs, test_OpenGL_has_no_error);
-
-    QVERIFY2(shown, "Window was not visible.");
+    OpenGLTestWindow::run(framesVisible, test_OpenGL_has_no_error);
 }
 
-void OpenGLAssertTest::test_checkOpenGLNoErrorDetectsError()
+void OpenGLAssertTest::test_checkOpenGLErrorDetectsError()
 {
-    const int visibleDurationMs = 200;
+    const int framesVisible = 4;
 
     // Create an error and check that we detect it.
     auto test_OpenGL_error_detected = [=](void) {
@@ -52,16 +49,9 @@ void OpenGLAssertTest::test_checkOpenGLNoErrorDetectsError()
 
         // glEnable does not accept GL_LINE as an argument: causes GL_INVALID_ENUM.
         funcs->glEnable(GL_LINE);
-        QVERIFY2(false == checkOpenGLNoError(), "checkOpenGLError incorrectly returned true.");
+        QVERIFY2(false == checkOpenGLError(), "checkOpenGLError incorrectly returned true.");
     };
 
-    const bool shown
-        = OpenGLTestWindow::createAndShowWindow(visibleDurationMs, test_OpenGL_error_detected);
-
-    QVERIFY2(shown, "Window was not visible.");
+    OpenGLTestWindow::run(framesVisible, test_OpenGL_error_detected);
 }
-
-} // namespace unit
-
-QTEST_MAIN(unit::OpenGLAssertTest)
-#include "test_gui_AssertOpenGL.moc"
+}

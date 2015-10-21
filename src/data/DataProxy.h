@@ -195,7 +195,7 @@ public:
 
     // returns the list of currently loaded features whose gene name matches geneName
     // a current dataset object must be selected otherwise it returns an empty list
-    FeatureList getGeneFeatureList(const QString& geneName) const;
+    const FeatureList getGeneFeatureList(const QString& geneName) const;
 
     // returns the currently loaded image alignment object
     // a current dataset object must be selected otherwise it returns a null object
@@ -210,8 +210,8 @@ public:
 
     // returns the currently loaded image blue or red as a byte array
     // a current dataset object must be selected otherwise it returns an empty image
-    QByteArray getFigureRed() const;
-    QByteArray getFigureBlue() const;
+    const QByteArray getFigureRed() const;
+    const QByteArray getFigureBlue() const;
 
     // returns the currently loaded list of genes selections
     const UserSelectionList getUserSelectionList() const;

@@ -24,7 +24,7 @@ RubberbandGL::~RubberbandGL()
 {
 }
 
-QRectF RubberbandGL::boundingRect() const
+const QRectF RubberbandGL::boundingRect() const
 {
     // TODO should prob return m_rubberbandRect but it is not relevant
     return QRectF();
@@ -37,14 +37,10 @@ void RubberbandGL::setRubberbandRect(const QRectF& rect)
     }
 }
 
-void RubberbandGL::doDraw(Renderer& renderer)
+void RubberbandGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
-
-        const QColor borderColor(0, 0, 255, 208);
-        const QColor centreColor(0, 0, 255, 51);
-        
-        drawRectWithBorder(renderer, m_rubberbandRect, borderColor, centreColor);
+        drawBorderRect(m_rubberbandRect, Qt::blue, qopengl_functions);
     }
 }
 

@@ -7,9 +7,7 @@
 
 #include "GraphicItemGL.h"
 #include "AssertOpenGL.h"
-#include "ColoredLines.h"
-#include "ColoredQuads.h"
-#include "Renderer.h"
+
 #include <QVector3D>
 #include <QtOpenGL>
 
@@ -177,37 +175,48 @@ void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
     Q_UNUSED(event);
 }
 
-void GraphicItemGL::drawLines(Renderer& renderer, const ColoredLines& lines)
+// TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
+void GraphicItemGL::drawBorderRect(const QRectF& rect,
+                                   QColor color,
+                                   QOpenGLFunctionsVersion& qopengl_functions)
 {
-    renderer.draw(getModelViewProjection(), lines);
-}
+    const QPointF stl = rect.topLeft();
+    const QPointF str = rect.topRight();
+    const QPointF sbr = rect.bottomRight();
+    const QPointF sbl = rect.bottomLeft();
 
-void GraphicItemGL::drawQuads(Renderer& renderer, const ColoredQuads& quads)
-{
-    renderer.draw(getModelViewProjection(), quads);
-}
+    qopengl_functions.glBegin(GL_QUADS);
+    {
+        qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                    static_cast<GLfloat>(color.greenF()),
+                                    static_cast<GLfloat>(color.blueF()),
+                                    0.2f);
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+    }
+    qopengl_functions.glEnd();
 
-void GraphicItemGL::drawTexturedQuads(Renderer& renderer,
-                                      const STTexturedQuads& quads,
-                                      const QString& textureName)
-{
-    renderer.draw(getModelViewProjection(), textureName, quads);
-}
+    qopengl_functions.glBegin(GL_LINES);
+    {
+        qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                    static_cast<GLfloat>(color.greenF()),
+                                    static_cast<GLfloat>(color.blueF()),
+                                    0.8f);
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(str.x(), str.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+        qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+        qopengl_functions.glVertex2f(stl.x(), stl.y());
+    }
+    qopengl_functions.glEnd();
 
-void GraphicItemGL::drawRectWithBorder(Renderer& renderer,
-                                       const QRectF& rect,
-                                       const QColor& borderColor,
-                                       const QColor& centreColor)
-{
-    const auto mvp = getModelViewProjection();
-
-    ColoredQuads quads;
-    quads.addQuad(rect, centreColor);
-    renderer.draw(mvp, quads);
-
-    ColoredLines borderLines;
-    borderLines.addRectOutline(rect, borderColor);
-    renderer.draw(mvp, borderLines);
+    // set the color back to white to not over-draw the textures
+    qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void GraphicItemGL::setProjection(const QMatrix4x4& projection)
@@ -230,15 +239,10 @@ const QMatrix4x4 GraphicItemGL::getModelView() const
     return m_modelView;
 }
 
-QMatrix4x4 GraphicItemGL::getModelViewProjection() const
-{
-    return getProjection() * getModelView();
-}
-
-void GraphicItemGL::draw(Renderer& renderer)
+void GraphicItemGL::draw(QOpenGLFunctionsVersion& qpengl_functions)
 {
     ASSERT_OPENGL_OK;
     // Call overridden method.
-    doDraw(renderer);
+    doDraw(qpengl_functions);
     ASSERT_OPENGL_OK;
 }

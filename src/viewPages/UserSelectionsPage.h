@@ -46,6 +46,7 @@ class UserSelectionsPage : public QWidget
     Q_OBJECT
 
 public:
+
     UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~UserSelectionsPage();
 
@@ -69,7 +70,7 @@ private slots:
     void slotSelectionSelected(QModelIndex index);
     // slots to handle actions from buttons
     void slotExportSelection();
-    // void slotExportSelectionFeatures();
+    //void slotExportSelectionFeatures();
     void slotRemoveSelection();
     void slotEditSelection();
     // this slot will init and show the DEA dialog
@@ -91,6 +92,7 @@ private slots:
     void slotImportSelection();
 
 protected:
+
     void showEvent(QShowEvent* event);
 
 private:

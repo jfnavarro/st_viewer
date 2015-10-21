@@ -43,8 +43,6 @@ public:
     // the number of reads
     unsigned hits() const;
     // the coordinates of the spot
-
-    // TODO: What coordinate system is this expressed in?
     double x() const;
     double y() const;
 

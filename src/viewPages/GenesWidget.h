@@ -64,7 +64,9 @@ private:
     // internal function to configure created buttons
     // to avoid code duplication
     // TODO better approach would be to have factories somewhere else
-    void configureButton(QPushButton* button, const QIcon& icon, const QString& tooltip);
+    void configureButton(QPushButton* button,
+                         const QIcon& icon,
+                         const QString& tooltip);
 
     // internal function to retrieve the model and the proxy model of the gene table
     QSortFilterProxyModel* getProxyModel();

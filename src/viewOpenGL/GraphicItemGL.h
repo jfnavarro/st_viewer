@@ -9,22 +9,16 @@
 
 #include <QTransform>
 #include <QMatrix4x4>
-//#include <QOpenGLFunctions_3_3_Compatibility>
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions_2_0>
 
 #include "utils/Utils.h"
 
 class QRectF;
 class QMouseEvent;
 class SelectionEvent;
-class Renderer;
-class ColoredLines;
-class ColoredQuads;
-class STTexturedQuads;
 
-// Base class for rendering nodes used in CellGLView it contains some basic functionalities and
-// options. This class is (for now) also the class that determines the OpenGL version used by the
-// ST Viewer application.
+// Base class for rendering nodes used in CellGLView
+// it contains some basic functionalities and options
 class GraphicItemGL : public QObject
 {
 
@@ -32,11 +26,7 @@ class GraphicItemGL : public QObject
     Q_FLAGS(VisualOptions)
 
 public:
-    static const int OPENGL_VERSION_MAJOR = 3;
-    static const int OPENGL_VERSION_MINOR = 3;
-
-    using OpenGLFunctionsVersion = QOpenGLFunctions_3_3_Core;
-    // using OpenGLFunctionsVersion = QOpenGLFunctions_3_3_Compatibility;
+    using QOpenGLFunctionsVersion = QOpenGLFunctions_2_0;
 
     enum VisualOption {
         Visible = 1,
@@ -72,10 +62,10 @@ public:
 
     // Drawing method, calls the virtual method. Asserts that the OpenGL
     // state is error free before and after calling the virtual method.
-    void draw(Renderer& renderer);
+    void draw(QOpenGLFunctionsVersion& qpengl_functions);
 
     // geometry of the graphic element
-    virtual QRectF boundingRect() const = 0;
+    virtual const QRectF boundingRect() const = 0;
 
     // must be implemented in the node supports selection events
     virtual void setSelectionArea(const SelectionEvent* event) = 0;
@@ -89,31 +79,21 @@ public:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
 
+    // drawing functions
+    // we pass the QOpenGLFunctions_2_0 functions
+    void drawBorderRect(const QRectF& rect,
+                        QColor color,
+                        QOpenGLFunctionsVersion& qopengl_functions);
+
     void setProjection(const QMatrix4x4& projection);
     void setModelView(const QMatrix4x4& modelview);
 
     const QMatrix4x4 getProjection() const;
     const QMatrix4x4 getModelView() const;
 
-    void drawLines(Renderer& renderer, const ColoredLines& lines);
-
-    void drawQuads(Renderer& renderer, const ColoredQuads& quads);
-
-    void drawTexturedQuads(Renderer& renderer,
-                           const STTexturedQuads& quads,
-                           const QString& textureName);
-
-    void drawRectWithBorder(Renderer& renderer,
-                            const QRectF& rect,
-                            const QColor& borderColor,
-                            const QColor& centreColor);
-
 private:
     // Override this to draw the item using OpenGL.
-    virtual void doDraw(Renderer& renderer) = 0;
-
-    // Returns the model view project matrix for this item (proj x modelview).
-    QMatrix4x4 getModelViewProjection() const;
+    virtual void doDraw(QOpenGLFunctionsVersion& qpengl_functions) = 0;
 
 public slots:
 
@@ -138,7 +118,6 @@ protected:
     QMatrix4x4 m_projection;
     QMatrix4x4 m_modelView;
 
-private:
     Q_DISABLE_COPY(GraphicItemGL)
 };
 

@@ -29,9 +29,6 @@ private Q_SLOTS:
 
     void initTestCase();
     void cleanupTestCase();
-
-    // This test exists because QTest reports test objects with no tests as failures.
-    void testDoesNothing();
 };
 
 } // namespace unit //

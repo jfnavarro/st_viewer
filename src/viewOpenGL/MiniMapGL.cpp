@@ -78,29 +78,18 @@ QTransform MiniMapGL::localTransform() const
     return transform;
 }
 
-void MiniMapGL::doDraw(Renderer& renderer)
+void MiniMapGL::doDraw(QOpenGLFunctionsVersion& opengl_functions)
 {
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;
     }
 
-    // 208 = 255 * 80%, 51 = 255 * 20%.
-    const QColor borderColor(m_sceneColor.red(), m_sceneColor.green(), m_sceneColor.blue(), 208);
-    const QColor centreColor(m_sceneColor.red(), m_sceneColor.green(), m_sceneColor.blue(), 51);
-
-    drawRectWithBorder(renderer, localTransform().mapRect(m_scene), borderColor, centreColor);
-
-    // 208 = 255 * 80%, 51 = 255 * 20%.
-    const QColor mapBorderColor(m_viewColor.red(), m_viewColor.green(), m_viewColor.blue(), 208);
-    const QColor mapCentreColor(m_viewColor.red(), m_viewColor.green(), m_viewColor.blue(), 51);
-
     const QRectF viewPortInSceneCoordinates
         = m_parentSceneTransformations.inverted().mapRect(m_viewPort);
-
-    drawRectWithBorder(renderer,
-                       localTransform().mapRect(viewPortInSceneCoordinates),
-                       mapBorderColor,
-                       mapCentreColor);
+    drawBorderRect(localTransform().mapRect(m_scene), m_sceneColor, opengl_functions);
+    drawBorderRect(localTransform().mapRect(viewPortInSceneCoordinates),
+                   m_viewColor,
+                   opengl_functions);
 }
 
 void MiniMapGL::setSceneColor(const QColor& sceneColor)
@@ -111,7 +100,7 @@ void MiniMapGL::setSceneColor(const QColor& sceneColor)
     }
 }
 
-QColor MiniMapGL::sceneColor() const
+const QColor MiniMapGL::sceneColor() const
 {
     return m_sceneColor;
 }
@@ -124,12 +113,12 @@ void MiniMapGL::setViewColor(const QColor& viewColor)
     }
 }
 
-QColor MiniMapGL::viewColor() const
+const QColor MiniMapGL::viewColor() const
 {
     return m_viewColor;
 }
 
-QRectF MiniMapGL::boundingRect() const
+const QRectF MiniMapGL::boundingRect() const
 {
     return localTransform().mapRect(m_scene);
 }

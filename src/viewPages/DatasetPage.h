@@ -75,6 +75,7 @@ signals:
     void signalDatasetOpen(QString datasetId);
 
 protected:
+
     void showEvent(QShowEvent* event) override;
 
 private:

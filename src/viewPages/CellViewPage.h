@@ -51,6 +51,7 @@ class CellViewPage : public QWidget
     Q_OBJECT
 
 public:
+
     CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
     virtual ~CellViewPage();
 
@@ -129,10 +130,6 @@ private:
 
     // internal function to initialize UI components
     void datasetContentDownloaded();
-
-    // Retrieves either the red (true) or blue (false) image from the data proxy. If there was any
-    // failure to convert or read the bytes or image this will assert, and return the null image.
-    QImage getImageFromDataProxy(const bool redImage);
 
     // OpenGL visualization objects
     QPointer<MiniMapGL> m_minimap;

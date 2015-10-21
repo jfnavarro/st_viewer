@@ -7,7 +7,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #include <QOpenGLFunctions>
 #include "AssertOpenGL.h"
 
-bool checkOpenGLNoError()
+bool checkOpenGLError()
 {
     QOpenGLFunctions* openglFuncs = QOpenGLContext::currentContext()->functions();
 

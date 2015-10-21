@@ -44,7 +44,7 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
     m_waiting_spinner->setLineWidth(10);
     m_waiting_spinner->setInnerRadius(20);
     m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0, 155, 60));
+    m_waiting_spinner->setColor(QColor(0,155,60));
 
     // connect signals
     connect(m_ui->filterLineEdit,
@@ -283,7 +283,8 @@ void DatasetPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                   tr("Image alignment"),
                                   tr("There was an error downloading the image alignment!"));
         }
-    } else if (type == DataProxy::ChipDownloaded || type == DataProxy::TissueImageDownloaded
+    } else if (type == DataProxy::ChipDownloaded
+               || type == DataProxy::TissueImageDownloaded
                || type == DataProxy::FeaturesDownloaded) {
         if (!isSuccess && isLastDownload) {
             // so this was the last download processed

@@ -10,7 +10,6 @@
 #include <QFutureWatcher>
 #include <QtConcurrent>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLFunctions>
 #include <QImageReader>
 #include <QApplication>
 #include "dataModel/UserSelection.h"
@@ -190,7 +189,7 @@ void GeneRendererGL::generateDataAsync()
         feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
         feature->geneObject()->selected(false);
 
-        // feature coordinates
+        // feature cordinates
         const QPointF point(feature->x(), feature->y());
 
         // test if point already exists (quad tree)
@@ -694,7 +693,7 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
     }
 }
 
-void GeneRendererGL::doDraw(Renderer&)
+void GeneRendererGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -733,9 +732,7 @@ void GeneRendererGL::doDraw(Renderer&)
 
     m_vao.bind();
 
-    auto funcs = QOpenGLContext::currentContext()->functions();
-
-    funcs->glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
+    qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
 
     m_vao.release();
 
@@ -770,7 +767,7 @@ void GeneRendererGL::setDimensions(const QRectF& border)
     m_geneInfoQuadTree = GeneInfoQuadTree(QuadTreeAABB(border));
 }
 
-QRectF GeneRendererGL::boundingRect() const
+const QRectF GeneRendererGL::boundingRect() const
 {
     return m_border;
 }

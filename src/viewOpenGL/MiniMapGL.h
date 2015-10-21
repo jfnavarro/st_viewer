@@ -10,7 +10,6 @@
 
 #include "GraphicItemGL.h"
 
-class Renderer;
 class QGLPainter;
 class QImage;
 class QVector2DArray;
@@ -30,8 +29,8 @@ public:
     explicit MiniMapGL(QObject* parent = 0);
     virtual ~MiniMapGL();
 
-    QColor sceneColor() const;
-    QColor viewColor() const;
+    const QColor sceneColor() const;
+    const QColor viewColor() const;
 
     // need to handle the user mouse events for moving the minimap
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -62,11 +61,11 @@ signals:
     void signalCenterOn(const QPointF& point);
 
 protected:
-    QRectF boundingRect() const override;
+    const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent*) override;
 
 private:
-    void doDraw(Renderer& renderer) override;
+    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
 
     // internal functions to adjust minimap's size and position
     QTransform localTransform() const;

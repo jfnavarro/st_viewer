@@ -31,7 +31,11 @@ EditSelectionDialog::EditSelectionDialog(QWidget* parent, Qt::WindowFlags f)
     // create QColor dialog
     m_color = new QColorDialog(this);
 
-    connect(m_ui->color, &QPushButton::clicked, [=] { m_color->show(); });
+    connect(m_ui->color,
+            &QPushButton::clicked,
+            [=] {
+                m_color->show();
+            });
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     move(parent->window()->mapToGlobal(parent->window()->rect().center())

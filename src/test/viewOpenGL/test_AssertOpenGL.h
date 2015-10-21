@@ -26,8 +26,8 @@ private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
 
-    void test_checkOpenGLNoErrorWithNoErrors();
-    void test_checkOpenGLNoErrorDetectsError();
+    void test_checkOpenGLErrorWithNoErrors();
+    void test_checkOpenGLErrorDetectsError();
 };
 }
 

@@ -2,6 +2,7 @@
     Copyright (C) 2012  Spatial Transcriptomics AB,
     read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
 */
 
 #include "GridRendererGL.h"
@@ -11,13 +12,12 @@
 #include "math/Common.h"
 #include "utils/Utils.h"
 
+static const qreal GRID_LINE_SIZE = 1.0;
+static const QColor DEFAULT_COLOR_GRID_BORDER = Qt::darkRed;
+const QColor GridRendererGL::DEFAULT_COLOR_GRID = Qt::darkGreen;
+
 GridRendererGL::GridRendererGL(QObject* parent)
     : GraphicItemGL(parent)
-    , m_gridLines()
-    , m_rect()
-    , m_border()
-    , m_centerColor(Qt::darkGreen)
-    , m_borderColor(Qt::darkRed)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -31,65 +31,106 @@ GridRendererGL::~GridRendererGL()
 {
 }
 
-void GridRendererGL::doDraw(Renderer& renderer)
+void GridRendererGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
 {
-    drawLines(renderer, m_gridLines);
-}
+    qopengl_functions.glEnable(GL_LINE_SMOOTH);
+    {
+        qopengl_functions.glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        qopengl_functions.glLineWidth(GRID_LINE_SIZE);
 
-void GridRendererGL::createGridlines()
-{
-    const qreal GRID_LINE_SIZE = 1.0;
+        qopengl_functions.glBegin(GL_LINES);
+        {
+            // draw borders of the array
+            qopengl_functions.glColor4f(static_cast<GLfloat>(m_gridBorderColor.redF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.greenF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.blueF()),
+                                        static_cast<GLfloat>(m_gridBorderColor.alphaF()));
+            foreach (QVector2D indice, m_border_vertex) {
+                qopengl_functions.glVertex2f(indice.x(), indice.y());
+            }
 
-    m_gridLines.clear();
-
-    // TODO: BORDERS STEP IN 1.0 AND LINES STEP IN GRID_LINE_SIZE WHICH IS ALSO 1.0.
-    // IS THERE A REQUIREMENT THESE ARE THE SAME VALUE?
-
-    // TODO: WHAT ARE THE CONSTRAINTS ON THE BORDER AND THE "RECT"? DO THEY IMPOSE
-    // REQUIREMENTS ON ONE ANOTHER? DOES ONE NEED TO BE SMALLER THAN THE OTHER?
-
-    const bool hasBorder = !m_border.isEmpty();
-    const bool hasCentre = !m_rect.isEmpty();
-
-    // Generate borders
-    if (hasBorder && hasCentre) {
-        for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
-            if (m_rect.top() <= y && y <= m_rect.bottom()) {
-                m_gridLines.addLine(QLineF(m_border.left(), y, m_rect.left(), y), m_borderColor);
-                m_gridLines.addLine(QLineF(m_rect.right(), y, m_border.right(), y), m_borderColor);
-            } else {
-                m_gridLines.addLine(QLineF(m_border.left(), y, m_border.right(), y), m_borderColor);
+            // draw the array (grid)
+            qopengl_functions.glColor4f(static_cast<GLfloat>(m_gridColor.redF()),
+                                        static_cast<GLfloat>(m_gridColor.greenF()),
+                                        static_cast<GLfloat>(m_gridColor.blueF()),
+                                        static_cast<GLfloat>(m_gridColor.alphaF()));
+            foreach (QVector2D indice, m_grid_vertex) {
+                qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
         }
 
-        for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0) {
-            if (m_rect.left() <= x && x <= m_rect.right()) {
-                m_gridLines.addLine(QLineF(x, m_border.top(), x, m_rect.top()), m_borderColor);
-                m_gridLines.addLine(QLineF(x, m_rect.bottom(), x, m_border.bottom()),
-                                    m_borderColor);
-            } else {
-                m_gridLines.addLine(QLineF(x, m_border.top(), x, m_border.bottom()), m_borderColor);
-            }
+        qopengl_functions.glEnd();
+    }
+
+    qopengl_functions.glDisable(GL_LINE_SMOOTH);
+
+    // set the color back to white to not over-draw the textures
+    qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void GridRendererGL::setSelectionArea(const SelectionEvent*)
+{
+}
+
+void GridRendererGL::clearData()
+{
+    // chip grid stuff
+    m_border = QRectF();
+    m_rect = QRectF();
+    m_gridColor = DEFAULT_COLOR_GRID;
+    m_gridBorderColor = DEFAULT_COLOR_GRID_BORDER;
+    m_grid_vertex.clear();
+    m_border_vertex.clear();
+}
+
+void GridRendererGL::generateData()
+{
+    m_grid_vertex.clear();
+    m_border_vertex.clear();
+
+    // generate borders
+    for (qreal y = m_border.top(); y <= m_border.bottom(); y += 1.0) {
+        if (m_rect.top() <= y && y <= m_rect.bottom()) {
+            m_border_vertex.append(QVector2D(m_border.left(), y));
+            m_border_vertex.append(QVector2D(m_rect.left(), y));
+            m_border_vertex.append(QVector2D(m_rect.right(), y));
+            m_border_vertex.append(QVector2D(m_border.right(), y));
+        } else {
+            m_border_vertex.append(QVector2D(m_border.left(), y));
+            m_border_vertex.append(QVector2D(m_border.right(), y));
+        }
+    }
+    for (qreal x = m_border.left(); x <= m_border.right(); x += 1.0) {
+        if (m_rect.left() <= x && x <= m_rect.right()) {
+            m_border_vertex.append(QVector2D(x, m_border.top()));
+            m_border_vertex.append(QVector2D(x, m_rect.top()));
+            m_border_vertex.append(QVector2D(x, m_rect.bottom()));
+            m_border_vertex.append(QVector2D(x, m_border.bottom()));
+        } else {
+            m_border_vertex.append(QVector2D(x, m_border.top()));
+            m_border_vertex.append(QVector2D(x, m_border.bottom()));
         }
     }
 
-    // Generate grid
-    if (hasCentre) {
-        for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += GRID_LINE_SIZE) {
-            m_gridLines.addLine(QLineF(m_rect.left(), y, m_rect.right(), y), m_centerColor);
-        }
-        for (qreal x = m_rect.left(); x <= m_rect.right(); x += GRID_LINE_SIZE) {
-            m_gridLines.addLine(QLineF(x, m_rect.top(), x, m_rect.bottom()), m_centerColor);
-        }
+    // generate grid
+    for (qreal y = m_rect.top(); y <= m_rect.bottom(); y += GRID_LINE_SIZE) {
+        m_grid_vertex.append(QVector2D(m_rect.left(), y));
+        m_grid_vertex.append(QVector2D(m_rect.right(), y));
+    }
+    for (qreal x = m_rect.left(); x <= m_rect.right(); x += GRID_LINE_SIZE) {
+        m_grid_vertex.append(QVector2D(x, m_rect.top()));
+        m_grid_vertex.append(QVector2D(x, m_rect.bottom()));
+    }
 
-        // check boundaries
-        if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), GRID_LINE_SIZE), 0.0)) {
-            m_gridLines.addLine(QLineF(m_rect.bottomLeft(), m_rect.bottomRight()), m_centerColor);
-        }
+    // check boundaries
+    if (!qFuzzyCompare(STMath::qMod(m_rect.bottom() - m_rect.top(), GRID_LINE_SIZE), 0.0)) {
+        m_grid_vertex.append(QVector2D(m_rect.left(), m_rect.bottom()));
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.bottom()));
+    }
 
-        if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), GRID_LINE_SIZE), 0.0)) {
-            m_gridLines.addLine(QLineF(m_rect.topRight(), m_rect.bottomRight()), m_centerColor);
-        }
+    if (!qFuzzyCompare(STMath::qMod(m_rect.right() - m_rect.left(), GRID_LINE_SIZE), 0.0)) {
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.top()));
+        m_grid_vertex.append(QVector2D(m_rect.right(), m_rect.bottom()));
     }
 }
 
@@ -97,38 +138,32 @@ void GridRendererGL::setDimensions(const QRectF& border, const QRectF& rect)
 {
     m_border = border;
     m_rect = rect;
-    createGridlines();
 }
 
-void GridRendererGL::slotSetGridColor(const QColor& color)
-{
-    if (m_centerColor != color) {
-        m_centerColor = color;
-        createGridlines();
-        emit updated();
-    }
-}
-
-QRectF GridRendererGL::border() const
+const QRectF GridRendererGL::border() const
 {
     return m_border;
 }
 
-QRectF GridRendererGL::rectangle() const
+const QRectF GridRendererGL::rectangle() const
 {
     return m_rect;
 }
 
-QColor GridRendererGL::gridColor() const
+void GridRendererGL::setColor(const QColor& color)
 {
-    return m_centerColor;
+    if (m_gridColor != color) {
+        m_gridColor = color;
+        emit updated();
+    }
 }
 
-QRectF GridRendererGL::boundingRect() const
+const QColor GridRendererGL::color() const
+{
+    return m_gridColor;
+}
+
+const QRectF GridRendererGL::boundingRect() const
 {
     return m_border;
-}
-
-void GridRendererGL::setSelectionArea(const SelectionEvent*)
-{
 }
