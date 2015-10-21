@@ -9,7 +9,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #include "viewOpenGL/ColoredQuads.h"
 #include "viewOpenGL/AssertOpenGL.h"
 #include "viewOpenGL/ColoredQuads.h"
-#include "viewOpenGL/STTexturedQuads.h"
+#include "viewOpenGL/TexturedQuads.h"
 #include "viewOpenGL/Renderer.h"
 
 #include <QImage>
@@ -175,7 +175,7 @@ void ColoredQuadsTest::test_notequals()
 
 void ColoredQuadsTest::test_drawingQuad()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -193,6 +193,7 @@ void ColoredQuadsTest::test_drawingQuad()
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, quads);
 
         if (!checkOpenGLNoError()) {
@@ -208,7 +209,7 @@ void ColoredQuadsTest::test_drawingQuad()
 
 void ColoredQuadsTest::test_drawLinesOnQuad()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -231,13 +232,13 @@ void ColoredQuadsTest::test_drawLinesOnQuad()
         lines.addLine(QLineF(topRight, bottomRight), Qt::blue);
         lines.addLine(QLineF(bottomRight, bottomLeft), Qt::green);
         lines.addLine(QLineF(bottomLeft, topLeft), Qt::white);
-        lines.setLineWidth(5.0f);
-
+ 
         QMatrix4x4 matrix;
         matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, quads);
         renderer.draw(matrix, lines);
 
@@ -254,7 +255,7 @@ void ColoredQuadsTest::test_drawLinesOnQuad()
 
 void ColoredQuadsTest::test_alphaBlending()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -282,13 +283,13 @@ void ColoredQuadsTest::test_alphaBlending()
         lines.addLine(QLineF(topRight, bottomRight), Qt::white);
         lines.addLine(QLineF(bottomRight, bottomLeft), Qt::white);
         lines.addLine(QLineF(bottomLeft, topLeft), Qt::white);
-        lines.setLineWidth(5.0f);
 
         QMatrix4x4 matrix;
         matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, quads);
         renderer.draw(matrix, lines);
 

@@ -9,8 +9,7 @@
 
 #include <QTransform>
 #include <QMatrix4x4>
-//#include <QOpenGLFunctions_3_3_Compatibility>
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions_3_2_Compatibility>
 
 #include "utils/Utils.h"
 
@@ -20,7 +19,7 @@ class SelectionEvent;
 class Renderer;
 class ColoredLines;
 class ColoredQuads;
-class STTexturedQuads;
+class TexturedQuads;
 
 // Base class for rendering nodes used in CellGLView it contains some basic functionalities and
 // options. This class is (for now) also the class that determines the OpenGL version used by the
@@ -33,10 +32,9 @@ class GraphicItemGL : public QObject
 
 public:
     static const int OPENGL_VERSION_MAJOR = 3;
-    static const int OPENGL_VERSION_MINOR = 3;
+    static const int OPENGL_VERSION_MINOR = 2;
 
-    using OpenGLFunctionsVersion = QOpenGLFunctions_3_3_Core;
-    // using OpenGLFunctionsVersion = QOpenGLFunctions_3_3_Compatibility;
+    using OpenGLFunctionsVersion = QOpenGLFunctions_3_2_Compatibility;
 
     enum VisualOption {
         Visible = 1,
@@ -100,7 +98,7 @@ public:
     void drawQuads(Renderer& renderer, const ColoredQuads& quads);
 
     void drawTexturedQuads(Renderer& renderer,
-                           const STTexturedQuads& quads,
+                           const TexturedQuads& quads,
                            const QString& textureName);
 
     void drawRectWithBorder(Renderer& renderer,

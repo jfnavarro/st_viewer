@@ -29,7 +29,7 @@ void OpenGLAssertTest::cleanupTestCase()
 
 void OpenGLAssertTest::test_checkOpenGLNoErrorWithNoErrors()
 {
-    const int visibleDurationMs = 200;
+    const int visibleDurationMs = 1200;
 
     // We expect that the default OpenGL app has no OpenGL errors.
     auto test_OpenGL_has_no_error
@@ -43,7 +43,7 @@ void OpenGLAssertTest::test_checkOpenGLNoErrorWithNoErrors()
 
 void OpenGLAssertTest::test_checkOpenGLNoErrorDetectsError()
 {
-    const int visibleDurationMs = 200;
+    const int visibleDurationMs = 1200;
 
     // Create an error and check that we detect it.
     auto test_OpenGL_error_detected = [=](void) {

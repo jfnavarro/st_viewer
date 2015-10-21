@@ -14,7 +14,7 @@ class QString;
 class QMatrix4x4;
 class ColoredLines;
 class ColoredQuads;
-class STTexturedQuads;
+class TexturedQuads;
 class QOpenGLTexture;
 
 // Transforms and draws sets of Lines and Quads, using OpenGL and interacting with some Qt
@@ -29,6 +29,10 @@ class QOpenGLTexture;
 class Renderer
 {
 public:
+    
+    // The renderer will attempt to create and initialise the OpenGL functions it requires to 
+    // function. It will throw a std::runtime_error if it was unable to create the necessary
+    // resources.
     Renderer();
 
     // Applies the transform to the lines (each line is expanded to a 3D point with Z=0 and W=1).
@@ -50,7 +54,7 @@ public:
     // a 'default' texture and issues a warning to qDebug.
     void draw(const QMatrix4x4& transform,
               const QString& textureName,
-              const STTexturedQuads& quads);
+              const TexturedQuads& quads);
 
     // Creates a 2D texture from the image, and associates it with 'name'. The texture will be
     // created with mipmaps and trilinear filtering if makeMipMaps is true, else no mipmaps and

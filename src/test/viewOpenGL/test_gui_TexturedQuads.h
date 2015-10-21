@@ -31,6 +31,7 @@ private Q_SLOTS:
     void test_defaultTextureCoords();
 
     void test_drawingMissingTextureTexturedQuad();
+
     void test_drawingTexturedQuad();
 };
 }

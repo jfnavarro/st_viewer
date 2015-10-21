@@ -7,8 +7,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #include "ColoredLines.h"
 
 ColoredLines::ColoredLines()
-    : m_lineWidth(1.0f)
-    , m_lines()
+    : m_lines()
     , m_colors()
 {
 }
@@ -62,18 +61,6 @@ void ColoredLines::setLine(const unsigned int n, const QLineF& line, const QColo
     m_colors.at(colrIndex + 5u) = static_cast<std::uint8_t>(color.green());
     m_colors.at(colrIndex + 6u) = static_cast<std::uint8_t>(color.red());
     m_colors.at(colrIndex + 7u) = static_cast<std::uint8_t>(color.alpha());
-}
-
-void ColoredLines::setLineWidth(const float lineWidth)
-{
-    if (lineWidth > 0.0f) {
-        m_lineWidth = lineWidth;
-    }
-}
-
-float ColoredLines::getLineWidth() const
-{
-    return m_lineWidth;
 }
 
 QLineF ColoredLines::line(const unsigned int n) const

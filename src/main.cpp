@@ -15,6 +15,7 @@
 #include <QDesktopWidget>
 #include <QFontDatabase>
 
+#include <stdexcept>
 #include <iostream>
 #include "utils/Utils.h"
 #include "stVi.h"
@@ -48,7 +49,7 @@ void setApplicationFlags()
 }
 }
 
-int main(int argc, char** argv)
+int run_stvi_application(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
     // If this environment variable is not set we get (when having OpenGL resource leaks)
@@ -75,11 +76,11 @@ int main(int argc, char** argv)
     QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
     splash.show();
 
-// set library and plugins paths
-// we need to tell the application where to look for plugins and resources
+    // set library and plugins paths
+    // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
     app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath() + QDir::separator()
-                       + "plugins");
+        + "plugins");
 #elif defined Q_OS_MAC
     QDir dir(QApplication::applicationDirPath());
     dir.cdUp();
@@ -100,8 +101,8 @@ int main(int argc, char** argv)
     if (!initialized) {
         qDebug() << "[Main] Error: Unable to install the translations!";
         QMessageBox::critical(app.desktop()->screen(),
-                              "Error",
-                              app.tr("Unable to install the translations"));
+            "Error",
+            app.tr("Unable to install the translations"));
         return EXIT_FAILURE;
     }
 
@@ -131,4 +132,24 @@ int main(int argc, char** argv)
     mainWindow.startAuthorization();
     // launch the app
     return app.exec();
+}
+
+int main(int argc, char** argv)
+{
+    int exitcode = EXIT_FAILURE;
+
+    try
+    {
+        exitcode = run_stvi_application(argc, argv);
+    }
+    catch (const std::exception& e)
+    {
+        qDebug() << "Exception '" << e.what() << "'.";
+    }
+    catch (...)
+    {
+        qDebug() << "Exception: Unknown exception.";
+    }
+
+    return exitcode;
 }

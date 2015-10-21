@@ -151,7 +151,6 @@ void CellGLView::initializeGL()
         m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
         m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     }
-    return;
 }
 
 void CellGLView::drawNode(GraphicItemGL* node)

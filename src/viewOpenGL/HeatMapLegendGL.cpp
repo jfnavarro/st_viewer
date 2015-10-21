@@ -2,12 +2,11 @@
     Copyright (C) 2012  Spatial Transcriptomics AB,
     read LICENSE for licensing terms.
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
 */
 
 #include "HeatMapLegendGL.h"
 #include "ColoredLines.h"
-#include "STTexturedQuads.h"
+#include "TexturedQuads.h"
 #include "Renderer.h"
 #include "math/Common.h"
 #include "color/HeatMap.h"
@@ -24,6 +23,8 @@ static const qreal legend_width = 25.0;
 static const qreal legend_height = 150.0;
 static const qreal bars_width = 35.0;
 
+static const char HeatmapTextureName[] = "HEATMAP";
+
 HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     : GraphicItemGL(parent)
     , m_maxReads(1)
@@ -31,7 +32,6 @@ HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
     , m_minGenes(1)
     , m_maxGenes(1)
     , m_colorComputingMode(Globals::LinearColor)
-    , m_textureText(QOpenGLTexture::Target2D)
     , m_valueComputation(Reads)
     , m_isInitialized(false)
 {
@@ -50,10 +50,6 @@ HeatMapLegendGL::~HeatMapLegendGL()
 
 void HeatMapLegendGL::clearData()
 {
-    if (m_textureText.isCreated()) {
-        m_textureText.destroy();
-    }
-
     m_valueComputation = Reads;
     m_maxReads = 1;
     m_minReads = 1;
@@ -156,7 +152,7 @@ void HeatMapLegendGL::doDraw(Renderer& renderer)
     if (m_isInitialized) {
 
         if (m_pendingHeatmap) {
-            renderer.addTexture("heatmap", *m_pendingHeatmap, false);
+            renderer.addTexture(HeatmapTextureName, *m_pendingHeatmap, false);
             m_pendingHeatmap.reset();
         }
 
@@ -166,16 +162,18 @@ void HeatMapLegendGL::doDraw(Renderer& renderer)
         // draw text (add 5 pixels offset to the right)
         const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
         const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
-        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
-        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
+        drawText(renderer, QPointF(legend_x + legend_width + 5, 0), QString::number(max));
+        drawText(renderer,
+                 QPointF(legend_x + legend_width + 5, legend_height),
+                 QString::number(min));
     }
 }
 
 void HeatMapLegendGL::drawHeatmap(Renderer& renderer)
 {
-    STTexturedQuads quad;
-    quad.addQuad(heatmapCoordinates(), STTexturedQuads::defaultTextureCoords(), Qt::white);
-    drawTexturedQuads(renderer, quad, "heatmap");
+    TexturedQuads quad;
+    quad.addQuad(heatmapCoordinates(), TexturedQuads::defaultTextureCoords(), Qt::white);
+    drawTexturedQuads(renderer, quad, HeatmapTextureName);
 }
 
 void HeatMapLegendGL::drawHeatMapBorderLines(Renderer& renderer)
@@ -185,17 +183,18 @@ void HeatMapLegendGL::drawHeatMapBorderLines(Renderer& renderer)
     drawLines(renderer, borderLines);
 }
 
-void HeatMapLegendGL::drawText(const QPointF& posn, const QString& str)
+void HeatMapLegendGL::drawText(Renderer& renderer, const QPointF& posn, const QString& str)
 {
     // Isn't this both a very expensive AND also usefully generic function?
     // TODO: Factor out?
     //
-    QFont monoFont("Courier", 12, QFont::Normal);
-    QFontMetrics metrics(monoFont);
-    QRect textRect = metrics.boundingRect(str);
+    const QFont monoFont("Courier", 12, QFont::Normal);
+    const QFontMetrics metrics(monoFont);
+    const QRect textRect = metrics.boundingRect(str);
 
     QImage image(textRect.size(), QImage::Format_ARGB32);
     image.fill(0);
+
     QPainter qpainter(&image);
     qpainter.setFont(monoFont);
     qpainter.setPen(Qt::white);
@@ -203,34 +202,17 @@ void HeatMapLegendGL::drawText(const QPointF& posn, const QString& str)
     qpainter.drawText(textRect.x(), metrics.ascent(), str);
     qpainter.end();
 
-    m_textureText.destroy();
-    m_textureText.create();
-    m_textureText.setData(image.mirrored());
-    const int x = posn.x();
-    const int y = posn.y();
+    const QPointF topLeft(posn.x() + textRect.x(), posn.y());
+    const QPointF bottomRight(posn.x() + textRect.x() + textRect.width(),
+                              posn.y() + metrics.ascent());
 
-    QVector<QVector2D> vertices;
-    vertices.append(QVector2D(x + textRect.x(), y + metrics.ascent()));
-    vertices.append(QVector2D(x + textRect.x(), y - metrics.descent()));
-    vertices.append(QVector2D(x + textRect.x() + textRect.width(), y - metrics.descent()));
-    vertices.append(QVector2D(x + textRect.x() + textRect.width(), y + metrics.ascent()));
+    TexturedQuads quads;
+    quads.addQuad(QRectF(topLeft, bottomRight), TexturedQuads::defaultTextureCoords(), Qt::white);
 
-    QVector<QVector2D> texCoord;
-    texCoord.append(QVector2D(0.0, 0.0));
-    texCoord.append(QVector2D(0.0, 1.0));
-    texCoord.append(QVector2D(1.0, 1.0));
-    texCoord.append(QVector2D(1.0, 0.0));
-
-    m_textureText.bind();
-    glBegin(GL_QUADS);
-    {
-        for (int i = 0; i < vertices.size(); ++i) {
-            glTexCoord2f(texCoord.at(i).x(), texCoord.at(i).y());
-            glVertex2f(vertices.at(i).x(), vertices.at(i).y());
-        }
-    }
-    glEnd();
-    m_textureText.release();
+    const QString textureName = "HMTEXT";
+    renderer.addTexture(textureName, image.mirrored(), true);
+    drawTexturedQuads(renderer, quads, textureName);
+    renderer.removeTexture(textureName);
 }
 
 QRectF HeatMapLegendGL::boundingRect() const

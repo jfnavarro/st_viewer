@@ -188,7 +188,7 @@ void GraphicItemGL::drawQuads(Renderer& renderer, const ColoredQuads& quads)
 }
 
 void GraphicItemGL::drawTexturedQuads(Renderer& renderer,
-                                      const STTexturedQuads& quads,
+                                      const TexturedQuads& quads,
                                       const QString& textureName)
 {
     renderer.draw(getModelViewProjection(), textureName, quads);

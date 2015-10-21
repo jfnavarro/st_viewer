@@ -12,7 +12,7 @@ set(LIBRARY_ARG_INCLUDES
     Renderer.h
     ColoredQuads.h
     ColoredLines.h
-    STTexturedQuads.h
+    TexturedQuads.h
     GraphicItemGL.h
     SelectionEvent.h
     RubberbandGL.h
@@ -30,7 +30,7 @@ set(LIBRARY_ARG_SOURCES
     Renderer.cpp
     ColoredQuads.cpp
     ColoredLines.cpp
-    STTexturedQuads.cpp
+    TexturedQuads.cpp
     GraphicItemGL.cpp
     RubberbandGL.cpp
 )

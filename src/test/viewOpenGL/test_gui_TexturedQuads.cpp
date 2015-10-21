@@ -9,7 +9,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #include "viewOpenGL/ColoredQuads.h"
 #include "viewOpenGL/AssertOpenGL.h"
 #include "viewOpenGL/ColoredQuads.h"
-#include "viewOpenGL/STTexturedQuads.h"
+#include "viewOpenGL/TexturedQuads.h"
 #include "viewOpenGL/Renderer.h"
 
 #include <QImage>
@@ -92,10 +92,10 @@ void TexturedQuadsTest::test_equals_different_quads()
     const QRectF q1(2.0, 2.0, 1.0, 1.0);
     const QRectF q2(5.0, 5.0, 2.0, 2.0);
 
-    const STTexturedQuads::RectUVCoords uvCoords = STTexturedQuads::defaultTextureCoords();
+    const TexturedQuads::RectUVCoords uvCoords = TexturedQuads::defaultTextureCoords();
 
-    STTexturedQuads quadsA;
-    STTexturedQuads quadsB;
+    TexturedQuads quadsA;
+    TexturedQuads quadsB;
     QVERIFY(quadsA == quadsB);
     QVERIFY(!(quadsA != quadsB));
 
@@ -119,13 +119,13 @@ void TexturedQuadsTest::test_quadTextureCoords()
 {
     const QRectF point(0.0, 1.0, 2.0, 3.0);
 
-    STTexturedQuads::RectUVCoords uvCoords;
+    TexturedQuads::RectUVCoords uvCoords;
     uvCoords[0] = QPointF(0.0f, 1.0f);
     uvCoords[1] = QPointF(2.0f, 3.0f);
     uvCoords[2] = QPointF(4.0f, 5.0f);
     uvCoords[3] = QPointF(5.0f, 6.0f);
 
-    STTexturedQuads quads;
+    TexturedQuads quads;
 
     quads.addQuad(point, uvCoords, Qt::gray);
 
@@ -133,7 +133,7 @@ void TexturedQuadsTest::test_quadTextureCoords()
 
     QVERIFY(coords == uvCoords);
 
-    STTexturedQuads::RectUVCoords uvCoordsB;
+    TexturedQuads::RectUVCoords uvCoordsB;
     uvCoordsB[0] = QPointF(40.0f, 51.0f);
     uvCoordsB[1] = QPointF(42.0f, 53.0f);
     uvCoordsB[2] = QPointF(44.0f, 55.0f);
@@ -148,7 +148,7 @@ void TexturedQuadsTest::test_quadTextureCoords()
 
 void TexturedQuadsTest::test_defaultTextureCoords()
 {
-    const STTexturedQuads::RectUVCoords uvCoords = STTexturedQuads::defaultTextureCoords();
+    const TexturedQuads::RectUVCoords uvCoords = TexturedQuads::defaultTextureCoords();
 
     const QPointF topLeft(0.0f, 0.0f);
     const QPointF topRight(1.0f, 0.0f);
@@ -167,22 +167,22 @@ void TexturedQuadsTest::test_equality_uvcoords()
 
     const QRectF point(0.0, 1.0, 2.0, 3.0);
 
-    STTexturedQuads::RectUVCoords uvCoords0 = STTexturedQuads::defaultTextureCoords();
+    TexturedQuads::RectUVCoords uvCoords0 = TexturedQuads::defaultTextureCoords();
 
-    STTexturedQuads::RectUVCoords uvCoords1;
+    TexturedQuads::RectUVCoords uvCoords1;
     uvCoords1[0] = QPointF(0.0, 0.1);
     uvCoords1[1] = QPointF(0.2, 0.3);
     uvCoords1[2] = QPointF(0.4, 0.5);
     uvCoords1[3] = QPointF(0.5, 0.6);
 
-    STTexturedQuads::RectUVCoords uvCoords2;
+    TexturedQuads::RectUVCoords uvCoords2;
     uvCoords2[0] = QPointF(0.1, 0.2);
     uvCoords2[1] = QPointF(0.3, 0.4);
     uvCoords2[2] = QPointF(0.5, 0.6);
     uvCoords2[3] = QPointF(0.7, 0.8);
 
-    STTexturedQuads quadsA;
-    STTexturedQuads quadsB;
+    TexturedQuads quadsA;
+    TexturedQuads quadsB;
     QVERIFY(quadsA == quadsB);
     QVERIFY(!(quadsA != quadsB));
 
@@ -204,37 +204,42 @@ void TexturedQuadsTest::test_equality_uvcoords()
 
 void TexturedQuadsTest::test_drawingMissingTextureTexturedQuad()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 500;
 
     bool openglHadError = false;
+
+    // This test generates a lot of noise as each failed call to draw (due to missing texture)
+    // generates a debug message. So we only do the drawing once. However this can mean that
+    // the visualization is so fast this is not a good interactive test as you fail to see the
+    // fact that the draw call succeeds (it correctly renders the requested quads, but with
+    // a default yellow texture).
 
     bool runAlready = false;
 
     auto drawSomeQuads = [&runAlready, &openglHadError](void) {
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ASSERT_OPENGL_OK;
+        TexturedQuads quads;
+        TexturedQuads::RectUVCoords uvCoords = TexturedQuads::defaultTextureCoords();
+
+        quads.addQuad(QRectF(-1.0, -1.0, 2.0, 2.0), uvCoords, Qt::white);
+
+        QMatrix4x4 matrix;
+        matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+        matrix.translate(0, 0, -2);
+
+        Renderer renderer;
+
+        // Only do the draw call once due to 'noise' from qDebug.
         if (!runAlready) {
-
             runAlready = true;
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            ASSERT_OPENGL_OK;
-            STTexturedQuads quads;
-            STTexturedQuads::RectUVCoords uvCoords = STTexturedQuads::defaultTextureCoords();
-
-            quads.addQuad(QRectF(-1.0, -1.0, 2.0, 2.0), uvCoords, Qt::white);
-
-            QMatrix4x4 matrix;
-            matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-            matrix.translate(0, 0, -2);
-
-            Renderer renderer;
-
             renderer.draw(matrix, "NO TEXTURE WITH THIS NAME", quads);
+        }
 
-            if (!checkOpenGLNoError()) {
-                openglHadError = true;
-            }
+        if (!checkOpenGLNoError()) {
+            openglHadError = true;
         }
     };
 
@@ -249,7 +254,7 @@ void TexturedQuadsTest::test_drawingMissingTextureTexturedQuad()
 
 void TexturedQuadsTest::test_drawingTexturedQuad()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -260,8 +265,8 @@ void TexturedQuadsTest::test_drawingTexturedQuad()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ASSERT_OPENGL_OK;
-        STTexturedQuads quads;
-        STTexturedQuads::RectUVCoords uvCoords = STTexturedQuads::defaultTextureCoords();
+        TexturedQuads quads;
+        TexturedQuads::RectUVCoords uvCoords = TexturedQuads::defaultTextureCoords();
 
         quads.addQuad(QRectF(-1.0, -1.0, 2.0, 2.0), uvCoords, Qt::white);
 
@@ -270,6 +275,7 @@ void TexturedQuadsTest::test_drawingTexturedQuad()
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.addTexture("test", texture);
         renderer.draw(matrix, "test", quads);
 

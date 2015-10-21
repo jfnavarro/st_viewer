@@ -4,7 +4,7 @@
     Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 */
 #include "ImageTextureGL.h"
-#include "STTexturedQuads.h"
+#include "TexturedQuads.h"
 #include "ColoredLines.h"
 #include "Renderer.h"
 
@@ -67,8 +67,8 @@ void ImageTextureGL::doDraw(Renderer& renderer)
     const QColor intensity(grey, grey, grey);
 
     auto drawTile = [&renderer, intensity, this](QRect tileRect) {
-        STTexturedQuads quad;
-        quad.addQuad(tileRect, STTexturedQuads::defaultTextureCoords(), intensity);
+        TexturedQuads quad;
+        quad.addQuad(tileRect, TexturedQuads::defaultTextureCoords(), intensity);
         drawTexturedQuads(renderer, quad, getTileName(tileRect.topLeft()));
 
         // Set m_outlineTextureTiles to true to display the tiles.

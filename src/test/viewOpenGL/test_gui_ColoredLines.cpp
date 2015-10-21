@@ -64,7 +64,7 @@ void ColoredLinesTest::test_equality()
 
 void ColoredLinesTest::test_redVerticalsGreenHorizontals()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -87,6 +87,7 @@ void ColoredLinesTest::test_redVerticalsGreenHorizontals()
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, lines);
 
         if (!checkOpenGLNoError()) {
@@ -102,7 +103,7 @@ void ColoredLinesTest::test_redVerticalsGreenHorizontals()
 
 void ColoredLinesTest::test_alphaBlendedLines()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -131,6 +132,7 @@ void ColoredLinesTest::test_alphaBlendedLines()
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, lines);
 
         if (!checkOpenGLNoError()) {
@@ -146,7 +148,7 @@ void ColoredLinesTest::test_alphaBlendedLines()
 
 void ColoredLinesTest::test_thickLines()
 {
-    const int visibleDurationMs = 1500;
+    const int visibleDurationMs = 1200;
 
     bool openglHadError = false;
 
@@ -157,9 +159,6 @@ void ColoredLinesTest::test_thickLines()
         ASSERT_OPENGL_OK;
         ColoredLines lines;
 
-        // Check that the default line width is 1.0.
-        QVERIFY(lines.getLineWidth() == 1.0f);
-
         const QColor verticalColor(255, 255, 255, 255);
 
         // Vertical lines:
@@ -167,16 +166,12 @@ void ColoredLinesTest::test_thickLines()
             lines.addLine(QLineF(x, -1.0f, x, 1.0f), verticalColor);
         }
 
-        // Check returned width was the same as the one set.
-        const float width = 5.0f;
-        lines.setLineWidth(width);
-        QVERIFY(lines.getLineWidth() == width);
-
         QMatrix4x4 matrix;
         matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
         matrix.translate(0, 0, -2);
 
         Renderer renderer;
+
         renderer.draw(matrix, lines);
 
         if (!checkOpenGLNoError()) {

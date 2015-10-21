@@ -69,7 +69,7 @@ private:
     void drawHeatMapBorderLines(Renderer& renderer);
 
     // internal function to render text as a texture
-    void drawText(const QPointF& posn, const QString& str);
+    void drawText(Renderer& renderer, const QPointF& posn, const QString& str);
 
     // Returns the heat map coordinates.
     QRectF heatmapCoordinates() const;
@@ -86,8 +86,6 @@ private:
     // If the heatmap texture is out of synch with the intended heatmap, this
     // pointer will be non null. It will be set correctly
     std::unique_ptr<QImage> m_pendingHeatmap;
-
-    QOpenGLTexture m_textureText;
 
     // use genes or reads to compute min-max
     ValueComputation m_valueComputation;

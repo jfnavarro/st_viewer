@@ -3,9 +3,12 @@
 
 #include <QtGui/QWindow>
 #include <QtGui/QOpenGLFunctions>
+#include <QtGui/QOpenGLFunctions_3_2_Core>
 #include <functional>
+#include <memory>
 
 class QPainter;
+class QSurfaceFormat;
 class QOpenGLContext;
 class QOpenGLPaintDevice;
 class QOpenGLShaderProgram;
@@ -29,7 +32,8 @@ public:
 
     // renderFunc is a functor that will be called inside the render loop, after the rotating
     // triangle has been setup and before advanceRenderCounter is called.
-    explicit OpenGLTestWindow(std::function<void(void)> renderFunc = &OpenGLTestWindow::doNothing,
+    explicit OpenGLTestWindow(const QSurfaceFormat& format, 
+                              std::function<void(void)> renderFunc = &OpenGLTestWindow::doNothing,
                               QWindow* parent = nullptr);
 
     virtual ~OpenGLTestWindow();
@@ -60,12 +64,12 @@ private:
     bool m_update_pending;
     bool m_animating;
     std::function<void(void)> m_renderFunc;
-    QOpenGLContext* m_context;
-    QOpenGLPaintDevice* m_device;
-    QOpenGLShaderProgram* m_program;
-    GLuint m_posAttr;
-    GLuint m_colAttr;
-    GLuint m_matrixUniform;
+    QOpenGLFunctions_3_2_Core m_glfuncs;
+    std::unique_ptr<QOpenGLContext> m_context;
+    std::unique_ptr<QOpenGLShaderProgram> m_program;
+    GLuint m_verticesVBO;
+    GLuint m_coloursVBO;
+    GLuint m_vao;
     int m_frame;
 };
 

@@ -7,24 +7,32 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 #include "Renderer.h"
 #include "ColoredLines.h"
 #include "ColoredQuads.h"
-#include "STTexturedQuads.h"
+#include "TexturedQuads.h"
 #include "AssertOpenGL.h"
 
 #include <QOpenGLContext>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_2_Compatibility>
 #include <QOpenGLTexture>
 #include <QPointer>
 #include <QtGlobal>
 #include <stdexcept>
+#include <memory>
 #include <map>
 
 static_assert(sizeof(GLfloat) == sizeof(float), "GLfloat and float are not same size.");
 
+static const GLuint VA_POINTS = 0;
+static const GLuint VA_UVS = 1;
+static const GLuint VA_COLORS = 2;
+
+typedef QOpenGLFunctions_3_2_Compatibility  GLFuncsQt_t;
+
 class Renderer::Internals
 {
 public:
-    Internals();
+    explicit Internals(std::unique_ptr<GLFuncsQt_t>);
 
     ~Internals();
 
@@ -32,9 +40,7 @@ public:
 
     void draw(const QMatrix4x4& transform, const ColoredQuads& quads);
 
-    void draw(const QMatrix4x4& transform,
-              const QString& textureName,
-              const STTexturedQuads& quads);
+    void draw(const QMatrix4x4& transform, const QString& textureName, const TexturedQuads& quads);
 
     void addTexture(const QString& name, QSharedPointer<QOpenGLTexture> texture);
 
@@ -62,9 +68,25 @@ private:
         GLboolean smoothingEnabled;
     };
 
-    // Asserts that the current OpenGL context is available and no in an error state,
-    // and returns a valid pointer to it.
-    QOpenGLFunctions* getOpenGLFunctions() const;
+    // Makes the three vertex buffer objects (vertices/colors/texture coords).
+    // Called only by the ctor and before any VAO creation. The buffers are initially empty.
+    void makeVBOs(GLFuncsQt_t& glfuncs);
+
+    // Called only by the ctor, constructs the colored primitive drawing vertex array object.
+    void makeColoredVAO(GLFuncsQt_t& glfuncs);
+
+    // Called only by the ctor, constructs the colored and textured primitive drawing vertex
+    // array object.
+    void makeTexturedVAO(GLFuncsQt_t& glfuncs);
+
+    // Places the contents of vertices in the vertices vbo.
+    void uploadVertices(const std::vector<float>& vertices);
+
+    // Places the contents of colors in the colors vbo.
+    void uploadColors(const std::vector<std::uint8_t>& colors);
+
+    // Places the contents of texcoords in the texCoords vbo.
+    void uploadTexCoords(const std::vector<float>& texcoords);
 
     // Returns the currently set blend state variables that the renderer is interested in.
     BlendStates getBlendStates() const;
@@ -75,27 +97,37 @@ private:
     // Sets the OpenGL blend state to match states.
     void setBlendStates(const BlendStates& states);
 
-    // Sets the OpenGL blend state to match states.
+    // Sets the OpenGL line state to match states. Some line states may be impossible
+    // and this call can generate an OpenGL error.
     void setLineStates(const LineStates& states);
 
     QSharedPointer<QOpenGLTexture> getTexture(const QString& name);
 
-    QPointer<QOpenGLShaderProgram> m_colorProgram;
-    QPointer<QOpenGLShaderProgram> m_textureProgram;
+    std::unique_ptr<GLFuncsQt_t> m_glfuncs;
+    std::unique_ptr<QOpenGLShaderProgram> m_colorProgram;
+    std::unique_ptr<QOpenGLShaderProgram> m_textureProgram;
     std::map<QString, QSharedPointer<QOpenGLTexture>> m_namedTextures;
     QSharedPointer<QOpenGLTexture> m_defaultTexture;
-    int m_attrTexUv;
-    int m_attrTexPoint;
-    int m_attrTexBgra;
-    int m_uniTexTransform;
-    int m_uniTexSampler;
-    int m_attrColorPoint;
-    int m_attrColorBgra;
-    int m_uniColorTransform;
+    GLuint m_coloredVAO;
+    GLuint m_texturedVAO;
+    GLuint m_verticesVBO;
+    GLuint m_coloursVBO;
+    GLuint m_texCoordsVBO;
 };
 
 namespace
 {
+
+// Constructs and initialises the functions - throws if the functions
+// could not be safely constructed and initialised.
+std::unique_ptr<GLFuncsQt_t> makeOpenGLFunctions()
+{
+    std::unique_ptr<GLFuncsQt_t> funcs(new GLFuncsQt_t());
+    if (!funcs->initializeOpenGLFunctions()) {
+        throw std::runtime_error("initializeOpenGLFunctions failed.");
+    }
+    return std::move(funcs);
+}
 
 // Returns a shared pointer to a texture constructed from image. If makeMipMaps is true, the
 // texture will have trilinear filtered mip maps, if false no mipmaps and nearest point sampling.
@@ -128,115 +160,209 @@ QSharedPointer<QOpenGLTexture> makeDefaultTexture()
     return makeIntoTexture(*image, false);
 }
 
-// Compiled and links the vertex shader source vs and the fragment shader source fs into an OpenGL
-// program, and returns it as a pointer.
-QPointer<QOpenGLShaderProgram> makeProgram(const char* vs, const char* fs)
+// Compiles but does not link the vertex shader source vs and the fragment shader source fs into
+// an OpenGL program, and returns it as a pointer.
+std::unique_ptr<QOpenGLShaderProgram> makeProgram(const char* vs, const char* fs)
 {
-    QPointer<QOpenGLShaderProgram> program = new QOpenGLShaderProgram();
+    std::unique_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
 
     const bool vsOK = program->addShaderFromSourceCode(QOpenGLShader::Vertex, vs);
     const bool fsOK = program->addShaderFromSourceCode(QOpenGLShader::Fragment, fs);
-    const bool linkOK = program->link();
 
-    if (!(vsOK && fsOK && linkOK)) {
-        delete program;
+    if (!(vsOK && fsOK)) {
         qDebug() << "Error creating QOpenGLShaderProgram.";
         throw std::runtime_error("Error creating QOpenGLShaderProgram.");
     }
 
-    return program;
+    return std::move(program);
 }
 
-QPointer<QOpenGLShaderProgram> makeColorProgram()
+// Returns a compiled and linked program that draws colored and transformed primitives.
+std::unique_ptr<QOpenGLShaderProgram> makeColorProgram(GLFuncsQt_t& glfuncs)
 {
-    const char* vertexShader = ""
+    ASSERT_OPENGL_OK;
+
+    const char* vertexShader = "#version 330              \n"
                                "uniform mat4 transform;   \n"
-                               "attribute vec2 point;     \n"
-                               "attribute vec4 pointBGRA; \n"
-                               "varying vec4 col;         \n"
+                               "in vec2 point;            \n"
+                               "in vec4 color;            \n"
+                               "smooth out vec4 col;      \n"
                                "void main()               \n"
                                "{                         \n"
-                               "   col.bgra = pointBGRA;  \n"
+                               "   col.bgra = color;      \n"
                                "   gl_Position = transform * vec4(point, 0, 1); \n"
                                "}";
 
-    const char* fragmentShader = ""
-                                 "varying vec4 col;      \n"
+    const char* fragmentShader = "#version 330           \n"
+                                 "in vec4 col;            \n"
+                                 "out vec4 fragColor;     \n"
                                  "void main()            \n"
                                  "{                      \n"
-                                 "   gl_FragColor = col; \n"
+                                 "   fragColor = col;    \n"
                                  "}";
 
-    return makeProgram(vertexShader, fragmentShader);
+    auto program = makeProgram(vertexShader, fragmentShader);
+
+    program->bindAttributeLocation("point", VA_POINTS);
+    program->bindAttributeLocation("color", VA_COLORS);
+
+    glfuncs.glBindFragDataLocation(program->programId(), 0, "fragColor");
+
+    program->link();
+
+    ASSERT_OPENGL_OK;
+
+    return std::move(program);
 }
 
-QPointer<QOpenGLShaderProgram> makeTexProgram()
+// Returns a compiled and linked program that draws colored, textured and transformed primitives.
+std::unique_ptr<QOpenGLShaderProgram> makeTexProgram(GLFuncsQt_t& glfuncs)
 {
-    const char* vertexShader = ""
-                               "uniform mat4 transform;                         \n"
-                               "attribute vec2 point;                           \n"
-                               "attribute vec2 uv;                              \n"
-                               "attribute vec4 pointBGRA;                       \n"
-                               "varying vec4 col;                               \n"
-                               "varying vec2 texCoord;                          \n"
-                               "void main()                                     \n"
-                               "{                                               \n"
-                               "   texCoord = uv;                               \n"
-                               "   col.bgra = pointBGRA;                        \n"
-                               "   gl_Position = transform * vec4(point, 0, 1); \n"
+    ASSERT_OPENGL_OK;
+
+    const char* vertexShader = "#version 330                                      \n"
+                               "uniform mat4 transform;                           \n"
+                               "in vec2 point;                                    \n"
+                               "in vec2 uv;                                       \n"
+                               "in vec4 color;                                    \n"
+                               "smooth out vec4 col;                              \n"
+                               "smooth out vec2 texCoord;                         \n"
+                               "void main()                                       \n"
+                               "{                                                 \n"
+                               "   texCoord = uv;                                 \n"
+                               "   col.bgra = color;                              \n"
+                               "   gl_Position = transform * vec4(point, 0, 1);   \n"
                                "}";
 
-    const char* fragmentShader = ""
+    const char* fragmentShader = "#version 330                                    \n"
                                  "uniform sampler2D tex;                          \n"
-                                 "varying vec2 texCoord;                          \n"
-                                 "varying vec4 col;                               \n"
+                                 "in vec2 texCoord;                               \n"
+                                 "in vec4 col;                                    \n"
+                                 "out vec4 fragColor;                             \n"
                                  "void main()                                     \n"
                                  "{                                               \n"
                                  "   vec4 texColor = texture(tex,texCoord);       \n"
-                                 "   gl_FragColor = col * texColor;               \n"
+                                 "   fragColor = col * texColor;                  \n"
                                  "}";
 
-    return makeProgram(vertexShader, fragmentShader);
+    auto program = makeProgram(vertexShader, fragmentShader);
+
+    program->bindAttributeLocation("point", VA_POINTS);
+    program->bindAttributeLocation("color", VA_COLORS);
+    program->bindAttributeLocation("uv", VA_UVS);
+
+    glfuncs.glBindFragDataLocation(program->programId(), 0, "fragColor");
+
+    program->link();
+
+    ASSERT_OPENGL_OK;
+
+    return std::move(program);
 }
 }
 
-Renderer::Internals::Internals()
-    : m_colorProgram(makeColorProgram())
-    , m_textureProgram(makeTexProgram())
+Renderer::Internals::Internals(std::unique_ptr<GLFuncsQt_t> glfuncs)
+    : m_glfuncs()
+    , m_colorProgram(makeColorProgram(*glfuncs))
+    , m_textureProgram(makeTexProgram(*glfuncs))
     , m_namedTextures()
     , m_defaultTexture(makeDefaultTexture())
-    , m_attrTexUv(-1)
-    , m_attrTexPoint(-1)
-    , m_attrTexBgra(-1)
-    , m_uniTexTransform(-1)
-    , m_uniTexSampler(-1)
-    , m_attrColorPoint(-1)
-    , m_attrColorBgra(-1)
-    , m_uniColorTransform(-1)
+    , m_coloredVAO(0)
+    , m_texturedVAO(0)
 {
-    Q_ASSERT(QOpenGLContext::currentContext() != nullptr);
+    makeVBOs(*glfuncs);
+    makeColoredVAO(*glfuncs);
+    makeTexturedVAO(*glfuncs);
 
-    m_attrTexPoint = m_textureProgram->attributeLocation("point");
-    m_attrTexBgra = m_textureProgram->attributeLocation("pointBGRA");
-    m_uniTexTransform = m_textureProgram->uniformLocation("transform");
-    m_uniTexSampler = m_textureProgram->uniformLocation("tex");
-    m_attrTexUv = m_textureProgram->attributeLocation("uv");
+    m_glfuncs = std::move(glfuncs);
 
-    m_attrColorPoint = m_colorProgram->attributeLocation("point");
-    m_attrColorBgra = m_colorProgram->attributeLocation("pointBGRA");
-    m_uniColorTransform = m_colorProgram->uniformLocation("transform");
+    ASSERT_OPENGL_OK;
 }
 
 Renderer::Internals::~Internals()
 {
     m_namedTextures.clear();
     m_defaultTexture.clear();
+}
 
-    delete m_textureProgram;
-    m_textureProgram = nullptr;
+void Renderer::Internals::makeVBOs(GLFuncsQt_t& glfuncs)
+{
+    ASSERT_OPENGL_OK;
 
-    delete m_colorProgram;
-    m_colorProgram = nullptr;
+    Q_ASSERT(m_verticesVBO != 0);
+    Q_ASSERT(m_coloursVBO != 0);
+    Q_ASSERT(m_texCoordsVBO != 0);
+
+    glfuncs.glGenBuffers(1, &m_verticesVBO);
+    glfuncs.glGenBuffers(1, &m_coloursVBO);
+    glfuncs.glGenBuffers(1, &m_texCoordsVBO);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::Internals::makeColoredVAO(GLFuncsQt_t& glfuncs)
+{
+    ASSERT_OPENGL_OK;
+
+    Q_ASSERT(m_coloredVAO == 0);
+
+    Q_ASSERT(m_verticesVBO != 0);
+    Q_ASSERT(m_coloursVBO != 0);
+
+    if (m_verticesVBO == 0 || m_coloursVBO == 0) {
+        throw std::logic_error("makeColoredVAO called before construction of VBOs.");
+    }
+
+    glfuncs.glGenVertexArrays(1, &m_coloredVAO);
+    glfuncs.glBindVertexArray(m_coloredVAO);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, m_verticesVBO);
+    glfuncs.glEnableVertexAttribArray(VA_POINTS);
+    glfuncs.glVertexAttribPointer(VA_POINTS, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, m_coloursVBO);
+    glfuncs.glEnableVertexAttribArray(VA_COLORS);
+    glfuncs.glVertexAttribPointer(VA_COLORS, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+
+    glfuncs.glBindVertexArray(0);
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    ASSERT_OPENGL_OK;
+}
+
+void Renderer::Internals::makeTexturedVAO(GLFuncsQt_t& glfuncs)
+{
+    ASSERT_OPENGL_OK;
+
+    Q_ASSERT(m_texturedVAO == 0);
+
+    Q_ASSERT(m_verticesVBO != 0);
+    Q_ASSERT(m_coloursVBO != 0);
+    Q_ASSERT(m_texCoordsVBO != 0);
+
+    if (m_verticesVBO == 0 || m_coloursVBO == 0 || m_texCoordsVBO == 0) {
+        throw std::logic_error("makeTexturedVAO called before construction of VBOs.");
+    }
+
+    glfuncs.glGenVertexArrays(1, &m_texturedVAO);
+    glfuncs.glBindVertexArray(m_texturedVAO);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, m_verticesVBO);
+    glfuncs.glEnableVertexAttribArray(VA_POINTS);
+    glfuncs.glVertexAttribPointer(VA_POINTS, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, m_coloursVBO);
+    glfuncs.glEnableVertexAttribArray(VA_COLORS);
+    glfuncs.glVertexAttribPointer(VA_COLORS, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVBO);
+    glfuncs.glEnableVertexAttribArray(VA_UVS);
+    glfuncs.glVertexAttribPointer(VA_UVS, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glfuncs.glBindVertexArray(0);
+    glfuncs.glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    ASSERT_OPENGL_OK;
 }
 
 Renderer::Internals::BlendStates::BlendStates()
@@ -278,102 +404,125 @@ bool Renderer::Internals::LineStates::operator!=(const Renderer::Internals::Line
     return (lineWidth != rhs.lineWidth) || (smoothingEnabled != rhs.smoothingEnabled);
 }
 
-QOpenGLFunctions* Renderer::Internals::getOpenGLFunctions() const
-{
-    Q_ASSERT(QOpenGLContext::currentContext() != nullptr);
-    ASSERT_OPENGL_OK;
-
-    QOpenGLFunctions* funcs = QOpenGLContext::currentContext()->functions();
-    Q_ASSERT(funcs);
-
-    return funcs;
-}
-
 void Renderer::Internals::setBlendStates(const BlendStates& states)
 {
 
     if (states.blendingEnabled) {
-        getOpenGLFunctions()->glEnable(GL_BLEND);
+        m_glfuncs->glEnable(GL_BLEND);
     } else {
-        getOpenGLFunctions()->glDisable(GL_BLEND);
+        m_glfuncs->glDisable(GL_BLEND);
     }
 
-    getOpenGLFunctions()->glBlendFunc(states.blendSrc, states.blendDst);
+    m_glfuncs->glBlendFunc(states.blendSrc, states.blendDst);
 }
 
 Renderer::Internals::BlendStates Renderer::Internals::getBlendStates() const
 {
-    auto funcs = getOpenGLFunctions();
-
     Renderer::Internals::BlendStates states;
-    states.blendingEnabled = funcs->glIsEnabled(GL_BLEND);
-    funcs->glGetIntegerv(GL_BLEND_SRC, &states.blendSrc);
-    funcs->glGetIntegerv(GL_BLEND_DST, &states.blendDst);
+    states.blendingEnabled = m_glfuncs->glIsEnabled(GL_BLEND);
+    m_glfuncs->glGetIntegerv(GL_BLEND_SRC, &states.blendSrc);
+    m_glfuncs->glGetIntegerv(GL_BLEND_DST, &states.blendDst);
 
     return states;
 }
 
 void Renderer::Internals::setLineStates(const LineStates& states)
 {
-    auto funcs = getOpenGLFunctions();
+    // This call can generate errors when the line width requested is
+    // not available on the machine. Typically smoothed lines may only be
+    // width 1.0.
+
+    // Typical ranges of non smoothed lines are 0 to 10.
+
+    ASSERT_OPENGL_OK;
 
     if (states.smoothingEnabled) {
-        funcs->glEnable(GL_LINE_SMOOTH);
+        m_glfuncs->glEnable(GL_LINE_SMOOTH);
     } else {
-        funcs->glDisable(GL_LINE_SMOOTH);
+        m_glfuncs->glDisable(GL_LINE_SMOOTH);
     }
 
-    funcs->glLineWidth(states.lineWidth);
+    m_glfuncs->glLineWidth(states.lineWidth);
+
+    ASSERT_OPENGL_OK;
 }
 
 Renderer::Internals::LineStates Renderer::Internals::getLineStates() const
 {
-    auto funcs = getOpenGLFunctions();
-
     Renderer::Internals::LineStates states;
-    states.smoothingEnabled = funcs->glIsEnabled(GL_LINE_SMOOTH);
-    funcs->glGetFloatv(GL_LINE_WIDTH, &states.lineWidth);
+    states.smoothingEnabled = m_glfuncs->glIsEnabled(GL_LINE_SMOOTH);
+    m_glfuncs->glGetFloatv(GL_LINE_WIDTH, &states.lineWidth);
 
     return states;
 }
 
+void Renderer::Internals::uploadVertices(const std::vector<float>& vertices)
+{
+    Q_ASSERT(m_verticesVBO != 0);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, m_verticesVBO);
+    m_glfuncs->glBufferData(GL_ARRAY_BUFFER,
+                            vertices.size() * sizeof(float),
+                            vertices.data(),
+                            GL_STREAM_DRAW);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::Internals::uploadColors(const std::vector<std::uint8_t>& colors)
+{
+    Q_ASSERT(m_coloursVBO != 0);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, m_coloursVBO);
+    m_glfuncs->glBufferData(GL_ARRAY_BUFFER, colors.size(), colors.data(), GL_STREAM_DRAW);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::Internals::uploadTexCoords(const std::vector<float>& texcoords)
+{
+    Q_ASSERT(m_texCoordsVBO != 0);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVBO);
+    m_glfuncs->glBufferData(GL_ARRAY_BUFFER,
+                            texcoords.size() * sizeof(float),
+                            texcoords.data(),
+                            GL_STREAM_DRAW);
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Renderer::Internals::draw(const QMatrix4x4& transform, const ColoredLines& lines)
 {
-    auto funcs = getOpenGLFunctions();
-
     // Find out what the current OpenGL context state is, so we can reset it afterwards.
 
     const auto originalLineStates = getLineStates();
     const auto originalBlendStates = getBlendStates();
 
     const BlendStates classicBlending(GL_TRUE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    const LineStates smoothLine(GL_TRUE, lines.getLineWidth());
 
+    // We only drawn smooth lines of width 1.
+    const LineStates smoothLine(GL_TRUE, 1.0f);
+
+    ASSERT_OPENGL_OK;
     if (originalLineStates != smoothLine) {
         setLineStates(smoothLine);
     }
 
+    ASSERT_OPENGL_OK;
     if (classicBlending != originalBlendStates) {
         setBlendStates(classicBlending);
     }
 
+    ASSERT_OPENGL_OK;
+    uploadVertices(lines.m_lines);
+    ASSERT_OPENGL_OK;
+    uploadColors(lines.m_colors);
+
+    ASSERT_OPENGL_OK;
     m_colorProgram->bind();
-    m_colorProgram->setUniformValue(m_uniColorTransform, transform);
+    m_colorProgram->setUniformValue("transform", transform);
 
-    const auto pointsBuffer = lines.m_lines.data();
-    const auto colorsBuffer = lines.m_colors.data();
+    ASSERT_OPENGL_OK;
+    m_glfuncs->glBindVertexArray(m_coloredVAO);
+    m_glfuncs->glDrawArrays(GL_LINES, 0, 2u * static_cast<GLsizei>(lines.lineCount()));
+    m_glfuncs->glBindVertexArray(0);
 
-    funcs->glEnableVertexAttribArray(0);
-    funcs->glEnableVertexAttribArray(1);
-
-    funcs->glVertexAttribPointer(m_attrColorPoint, 2, GL_FLOAT, GL_FALSE, 0, pointsBuffer);
-    funcs->glVertexAttribPointer(m_attrColorBgra, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, colorsBuffer);
-
-    funcs->glDrawArrays(GL_LINES, 0, 2u * static_cast<GLsizei>(lines.lineCount()));
-
-    funcs->glDisableVertexAttribArray(1);
-    funcs->glDisableVertexAttribArray(0);
-
+    ASSERT_OPENGL_OK;
     m_colorProgram->release();
 
     // Reset the OpenGL context states.
@@ -391,8 +540,6 @@ void Renderer::Internals::draw(const QMatrix4x4& transform, const ColoredLines& 
 
 void Renderer::Internals::draw(const QMatrix4x4& transform, const ColoredQuads& quads)
 {
-    auto funcs = getOpenGLFunctions();
-
     // Find out what the current OpenGL context state is, so we can reset it afterwards.
 
     const auto originalBlendStates = getBlendStates();
@@ -403,24 +550,15 @@ void Renderer::Internals::draw(const QMatrix4x4& transform, const ColoredQuads& 
         setBlendStates(classicBlending);
     }
 
+    uploadVertices(quads.m_quads);
+    uploadColors(quads.m_quadColors);
+
     m_colorProgram->bind();
-    m_colorProgram->setUniformValue(m_uniColorTransform, transform);
+    m_colorProgram->setUniformValue("transform", transform);
 
-    const auto vertexBuffer = quads.m_quads.data();
-    const auto colorsBuffer = quads.m_quadColors.data();
-
-    funcs->glEnableVertexAttribArray(0);
-    funcs->glEnableVertexAttribArray(1);
-    funcs->glDisableVertexAttribArray(2);
-
-    funcs->glVertexAttribPointer(m_attrColorPoint, 2, GL_FLOAT, GL_FALSE, 0, vertexBuffer);
-    funcs->glVertexAttribPointer(m_attrColorBgra, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, colorsBuffer);
-
-    funcs->glDrawArrays(GL_TRIANGLES, 0, 6u * static_cast<GLsizei>(quads.quadCount()));
-
-    funcs->glDisableVertexAttribArray(1);
-    funcs->glDisableVertexAttribArray(0);
-
+    m_glfuncs->glBindVertexArray(m_coloredVAO);
+    m_glfuncs->glDrawArrays(GL_TRIANGLES, 0, 6u * static_cast<GLsizei>(quads.quadCount()));
+    m_glfuncs->glBindVertexArray(0);
     m_colorProgram->release();
 
     // Reset the OpenGL context states.
@@ -434,9 +572,9 @@ void Renderer::Internals::draw(const QMatrix4x4& transform, const ColoredQuads& 
 
 void Renderer::Internals::draw(const QMatrix4x4& transform,
                                const QString& textureName,
-                               const STTexturedQuads& quads)
+                               const TexturedQuads& quads)
 {
-    auto funcs = getOpenGLFunctions();
+    ASSERT_OPENGL_OK;
 
     auto texture = getTexture(textureName);
 
@@ -450,32 +588,29 @@ void Renderer::Internals::draw(const QMatrix4x4& transform,
         setBlendStates(classicBlending);
     }
 
+    ASSERT_OPENGL_OK;
+
+    uploadVertices(quads.m_quads.m_quads);
+    uploadColors(quads.m_quads.m_quadColors);
+    uploadTexCoords(quads.m_textureCoords);
+
+    ASSERT_OPENGL_OK;
+
     m_textureProgram->bind();
-    m_textureProgram->setUniformValue(m_uniTexTransform, transform);
-    m_textureProgram->setUniformValue(m_uniTexSampler, 0);
-
-    const auto vertexBuffer = quads.m_quads.m_quads.data();
-    const auto uvBuffer = quads.m_textureCoords.data();
-    const auto colorsBuffer = quads.m_quads.m_quadColors.data();
-
-    funcs->glEnableVertexAttribArray(0);
-    funcs->glEnableVertexAttribArray(1);
-    funcs->glEnableVertexAttribArray(2);
-
-    funcs->glVertexAttribPointer(m_attrTexPoint, 2, GL_FLOAT, GL_FALSE, 0, vertexBuffer);
-    funcs->glVertexAttribPointer(m_attrTexUv, 2, GL_FLOAT, GL_FALSE, 0, uvBuffer);
-    funcs->glVertexAttribPointer(m_attrTexBgra, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, colorsBuffer);
+    m_textureProgram->setUniformValue("transform", transform);
+    m_textureProgram->setUniformValue("tex", 0);
 
     texture->bind(0);
+    
+    ASSERT_OPENGL_OK;
 
-    funcs->glDrawArrays(GL_TRIANGLES, 0, 6u * static_cast<GLsizei>(quads.quadCount()));
+    m_glfuncs->glBindVertexArray(m_texturedVAO);
+    m_glfuncs->glDrawArrays(GL_TRIANGLES, 0, 6u * static_cast<GLsizei>(quads.quadCount()));
+    m_glfuncs->glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    ASSERT_OPENGL_OK;
 
     texture->release(0);
-
-    funcs->glDisableVertexAttribArray(2);
-    funcs->glDisableVertexAttribArray(1);
-    funcs->glDisableVertexAttribArray(0);
-
     m_textureProgram->release();
 
     // Reset the OpenGL context states.
@@ -527,7 +662,7 @@ void Renderer::Internals::removeTexture(const QString& name)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer()
-    : m_internals(std::make_shared<Renderer::Internals>())
+    : m_internals(std::make_shared<Renderer::Internals>(makeOpenGLFunctions()))
 {
     ASSERT_OPENGL_OK;
 }
@@ -544,7 +679,7 @@ void Renderer::draw(const QMatrix4x4& transform, const ColoredQuads& quads)
 
 void Renderer::draw(const QMatrix4x4& transform,
                     const QString& textureName,
-                    const STTexturedQuads& quads)
+                    const TexturedQuads& quads)
 {
     m_internals->draw(transform, textureName, quads);
 }
