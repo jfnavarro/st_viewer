@@ -71,16 +71,7 @@ Install JPEG-Turbo :
 
 Clone the repository :
 
-Open a terminal. (In Windows start the Cygwin terminal)
-
-Ensure your computer has access to the Continuous Integration server.
-
-Now you can clone the repository. As username use the username you have chosen in the
-Gerrit web interface.
-
-$ username=esjolund
-$ git clone ssh://$username@gerrit.spatialtranscriptomics.com:29418/st_client && scp -p -P 29418
-$username@gerrit.spatialtranscriptomics.com:hooks/commit-msg st_client/.git/hooks/
+git clone <repo>
 
 Build from the source (Windows) :
 

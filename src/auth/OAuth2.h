@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #ifndef OAUTH2_H
 #define OAUTH2_H
 
@@ -51,9 +44,7 @@ private slots:
 
     // To be notified when access token has been downloaded from network
     // status contains the status of the operation (ok, abort, error)
-    // type contains the type of download
-    void slotDownloadFinished(const DataProxy::DownloadStatus status,
-                              const DataProxy::DownloadType type);
+    void slotAccessTokenDownloaded(const DataProxy::DownloadStatus status);
 
 private:
     // Make the authorization network request

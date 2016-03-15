@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #ifndef stVi_H
 #define stVi_H
 
@@ -61,11 +54,10 @@ private slots:
     // opens pop up static widget to show info about the application
     void slotShowAbout();
 
-    // to handle when the min version is downloaded (if not supported app will close)
+    // to handle when the min version or user are downloaded
     // status the status of the network request
-    // type is the type of request
-    void slotDownloadFinished(const DataProxy::DownloadStatus status,
-                              const DataProxy::DownloadType type);
+    void slotMinVersionDownloaded(const DataProxy::DownloadStatus status);
+    void slotUserDownloaded(const DataProxy::DownloadStatus status);
 
     // to handle different authorization call backs
     void slotAuthorizationError(QSharedPointer<Error> error);

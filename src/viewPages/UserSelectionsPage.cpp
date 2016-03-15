@@ -1,9 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
 #include "UserSelectionsPage.h"
 
 #include "ui_selectionsPage.h"
@@ -72,9 +66,17 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
 
     // connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            SIGNAL(signalUserSelectionsDownloaded(DataProxy::DownloadStatus)),
             this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SLOT(slotSelectionsDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalUserSelectionModified(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotSelectionModified(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalUserSelectionDeleted(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotSelectionModified(DataProxy::DownloadStatus)));
 
     clearControls();
 }
@@ -151,17 +153,21 @@ void UserSelectionsPage::loadSelections()
     m_dataProxy->activateCurrentDownloads();
 }
 
-void UserSelectionsPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                          const DataProxy::DownloadType type)
+void UserSelectionsPage::slotSelectionsDownloaded(const DataProxy::DownloadStatus status)
 {
-    if (type == DataProxy::UserSelectionsDownloaded && status == DataProxy::Success) {
+    if (status == DataProxy::Success) {
         // update model
         slotSelectionsUpdated();
-    } else if (type == DataProxy::UserSelectionModified && status == DataProxy::Success) {
+    }
+    m_waiting_spinner->stop();
+}
+
+void UserSelectionsPage::slotSelectionModified(const DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
         // re-upload genes selections after an update
         loadSelections();
     }
-
     m_waiting_spinner->stop();
 }
 

@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "config/Configuration.h"
 #include "auth/AuthorizationManager.h"
 #include "data/DataProxy.h"

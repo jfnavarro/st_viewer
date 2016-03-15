@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #ifndef DATAPROXY_H
 #define DATAPROXY_H
 
@@ -51,12 +44,14 @@ public:
         UserDownloaded,
         DatasetsDownloaded,
         DatasetModified,
+        DatasetRemoved,
         ImageAlignmentDownloaded,
         ChipDownloaded,
         TissueImageDownloaded,
         FeaturesDownloaded,
         UserSelectionsDownloaded,
-        UserSelectionModified
+        UserSelectionModified,
+        UserSelectionRemoved
     };
 
     // MAIN CONTAINERS (MVC)
@@ -76,13 +71,9 @@ public:
 
     // TODO separate data API and data adquisition
 
-    // TODO replace JSON for binary format for the features
+    // TODO replace JSON for binary format for the features (table format)
 
-    // TODO make the parsing of the data asynchronous
-
-    // TODO find a better make to notify guys using DataProxy when an object has been downloaded
-
-    // TODO study different ways of representing the features (maybe a sparse matrix)
+    // TODO make the parsing of the features data asynchronous
 
     // TODO consider to compute the features rendering data here
 
@@ -136,10 +127,14 @@ public:
     void loadAccessToken(const StringPair& username, const StringPair& password);
     // chip (image alignment must has been downloaded first)
     void loadChip();
+    // chip imported locally
+    void loadChip(const Chip& chip);
     // features (dataset must has been downloaded first)
     void loadFeatures();
     // image alignment (dataset must has been downloaded first)
     void loadImageAlignment();
+    // image alignment imported locally
+    void loadImageAlignment(const ImageAlignment& alignment);
     // cell tissue figure (image alignment must have been downloaded first)
     void loadCellTissueByName(const QString& name);
 
@@ -162,8 +157,9 @@ public:
 
     // add an user selection object to the DB
     void addUserSelection(const UserSelection& userSelection);
-    // add an user selection ot the data container of selections (locally not network)
-    void addUserSelectionLocal(const UserSelection& userSelection);
+
+    // add a dataset to the list of dataset
+    void addDataset(const Dataset& dataset);
 
     // DATA DELETION
     // data deletion methods are meant to remove an object from the database
@@ -241,6 +237,46 @@ public:
     // true if the user is currently logged in
     bool userLogIn() const;
 
+    // function to parse all the features and genes.
+    // returns true if the parsing was correct
+    bool parseFeatures(const QByteArray& rawData);
+
+    // function to parse a cell tissue image
+    // returns true if the parsing was correct
+    bool parseCellTissueImage(const QByteArray& rawData, const QString& imageName = QString());
+
+    // function to parse the datasets
+    // returns true if the parsing was correct
+    bool parseDatasets(const QJsonDocument& doc);
+
+    // function to make sure to clear the selected dataset
+    // in case we remove the dataset that is selected
+    bool parseRemoveDataset(const QString& datasetId);
+
+    // function to parse the user selections
+    // returns true if the parsing was correct
+    bool parseUserSelections(const QJsonDocument& doc);
+
+    // function to parse the User
+    // returns true if the parsing was correct
+    bool parseUser(const QJsonDocument& doc);
+
+    // function to parse the image alignment object
+    // returns true if the parsing was correct
+    bool parseImageAlignment(const QJsonDocument& doc);
+
+    // function to parse the chip
+    // returns true if the parsing was correct
+    bool parseChip(const QJsonDocument& doc);
+
+    // function to parse the min version supported
+    // returns true if the parsing was correct
+    bool parseMinVersion(const QJsonDocument& doc);
+
+    // function to parse the OAuth2 access token
+    // returns true if the parsing was correct
+    bool parseOAuth2(const QJsonDocument& doc);
+
 public slots:
 
     // Abort all the current active downloads if any
@@ -257,55 +293,26 @@ private slots:
 signals:
 
     // signal to notify guys using dataProxy about download/s finished
-    void signalDownloadFinished(DataProxy::DownloadStatus status, DataProxy::DownloadType type);
+    void signalMinVersionDownloaded(DataProxy::DownloadStatus status);
+    void signalAcessTokenDownloaded(DataProxy::DownloadStatus status);
+    void signalUserDownloaded(DataProxy::DownloadStatus status);
+    void signalDatasetsDownloaded(DataProxy::DownloadStatus status);
+    void signalDatasetRemoved(DataProxy::DownloadStatus status);
+    void signalDatasetModified(DataProxy::DownloadStatus status);
+    void signalImageAlignmentDownloaded(DataProxy::DownloadStatus status);
+    void signalChipDownloaded(DataProxy::DownloadStatus status);
+    void signalFeaturesDownloaded(DataProxy::DownloadStatus status);
+    void signalUserSelectionsDownloaded(DataProxy::DownloadStatus status);
+    void signalUserSelectionModified(DataProxy::DownloadStatus status);
+    void signalUserSelectionDeleted(DataProxy::DownloadStatus status);
+    void signalTissueImageDownloaded(DataProxy::DownloadStatus status);
 
 private:
-    // internal function to parse all the features and genes.
-    // returns true if the parsing was correct
-    bool parseFeatures(NetworkReply* reply);
-
-    // internal function to parse a cell tissue image
-    // returns true if the parsing was correct
-    bool parseCellTissueImage(NetworkReply* reply);
-
-    // internal function to parse the datasets
-    // returns true if the parsing was correct
-    bool parseDatasets(NetworkReply* reply);
-
-    // internal function to make sure to clear the selected dataset
-    // in case we remove the dataset that is selected
-    bool parseRemoveDataset(NetworkReply* reply);
-
-    // internal function to parse the user selections
-    // returns true if the parsing was correct
-    bool parseUserSelections(NetworkReply* reply);
-
-    // internal function to parse the User
-    // returns true if the parsing was correct
-    bool parseUser(NetworkReply* reply);
-
-    // internal function to parse the image alignment object
-    // returns true if the parsing was correct
-    bool parseImageAlignment(NetworkReply* reply);
-
-    // internal function to parse the chip
-    // returns true if the parsing was correct
-    bool parseChip(NetworkReply* reply);
-
-    // internal function to parse the min version supported
-    // returns true if the parsing was correct
-    bool parseMinVersion(NetworkReply* reply);
-
-    // internal function to parse the OAuth2 access token
-    // returns true if the parsing was correct
-    bool parseOAuth2(NetworkReply* reply);
 
     // internal function to create network requests for data objects
     // data will be parsed with the function given as argument if given
     // a signal to emit when something goes wrong is also optionally given
-    void createRequest(NetworkReply* reply,
-                       DataProxy::DownloadType type = None,
-                       bool (DataProxy::*parseFunc)(NetworkReply* reply) = nullptr);
+    void createRequest(NetworkReply* reply, DataProxy::DownloadType type = None);
 
     // currently available datasets
     DatasetList m_datasetList;
@@ -337,10 +344,8 @@ private:
 
     // to keep track of the current downloads (async)
     unsigned m_activeDownloads;
-    // this map represents a reply -> pair(download type, call back function to process the
-    // download)
-    QHash<NetworkReply*, QPair<DataProxy::DownloadType, bool (DataProxy::*)(NetworkReply* reply)>>
-        m_activeNetworkReplies;
+    // this map represents a NetworkReply -> download type
+    QHash<NetworkReply*, DataProxy::DownloadType> m_activeNetworkReplies;
 
     Q_DISABLE_COPY(DataProxy)
 };

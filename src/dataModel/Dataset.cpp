@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "Dataset.h"
 
 #include <QStringList>
@@ -28,6 +21,7 @@ Dataset::Dataset()
     , m_createdByAccount()
     , m_created(QDate::currentDate().toString())
     , m_lastMofidied(QDate::currentDate().toString())
+    , m_downloaded(false)
 {
 }
 
@@ -51,6 +45,7 @@ Dataset::Dataset(const Dataset& other)
     m_createdByAccount = other.m_createdByAccount;
     m_created = other.m_created;
     m_lastMofidied = other.m_lastMofidied;
+    m_downloaded = other.m_downloaded;
 }
 
 Dataset::~Dataset()
@@ -77,12 +72,15 @@ Dataset& Dataset::operator=(const Dataset& other)
     m_createdByAccount = other.m_createdByAccount;
     m_created = other.m_created;
     m_lastMofidied = other.m_lastMofidied;
+    m_downloaded = other.m_downloaded;
     return (*this);
 }
 
 bool Dataset::operator==(const Dataset& other) const
 {
-    return (m_id == other.m_id && m_name == other.m_name && m_alignmentId == other.m_alignmentId
+    return (m_id == other.m_id
+            && m_name == other.m_name
+            && m_alignmentId == other.m_alignmentId
             && m_statBarcodes == other.m_statBarcodes
             && m_statGenes == other.m_statGenes
             && m_statUniqueBarcodes == other.m_statUniqueBarcodes
@@ -97,7 +95,8 @@ bool Dataset::operator==(const Dataset& other) const
             && m_grantedAccounts == other.m_grantedAccounts
             && m_createdByAccount == other.m_createdByAccount
             && m_created == other.m_created
-            && m_lastMofidied == other.m_lastMofidied);
+            && m_lastMofidied == other.m_lastMofidied
+            && m_downloaded == other.m_downloaded);
 }
 
 const QString Dataset::id() const
@@ -190,6 +189,11 @@ const QString Dataset::lastModified() const
     return m_lastMofidied;
 }
 
+bool Dataset::downloaded() const
+{
+    return m_downloaded;
+}
+
 void Dataset::id(const QString& id)
 {
     m_id = id;
@@ -278,6 +282,11 @@ void Dataset::created(const QString& created)
 void Dataset::lastModified(const QString& lastModified)
 {
     m_lastMofidied = lastModified;
+}
+
+void Dataset::downloaded(const bool downloaded)
+{
+    m_downloaded = downloaded;
 }
 
 qreal Dataset::statisticsMin() const

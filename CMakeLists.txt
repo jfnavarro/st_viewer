@@ -1,9 +1,3 @@
-#
-#    Copyright (C) 2012  Spatial Transcriptomics AB,
-#    read LICENSE for licensing terms.
-#    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-#
-#
 project(stVi CXX C)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")

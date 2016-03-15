@@ -1,23 +1,20 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "DatasetPage.h"
 
 #include <QDebug>
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
+#include <QUuid>
 #include "dataModel/Dataset.h"
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "utils/Utils.h"
 #include "dialogs/EditDatasetDialog.h"
 #include "QtWaitingSpinner/waitingspinnerwidget.h"
-
+#include "data/DatasetImporter.h"
+#include "dataModel/Chip.h"
+#include "dataModel/ImageAlignment.h"
+#include "dataModel/Dataset.h"
 #include "ui_datasetsPage.h"
 
 using namespace Globals;
@@ -63,12 +60,37 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
     connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
+    connect(m_ui->importDataset, SIGNAL(clicked(bool)), this, SLOT(slotImportDataset()));
 
     // connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            SIGNAL(signalDatasetsDownloaded(DataProxy::DownloadStatus)),
             this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SLOT(slostDatasetsDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDatasetModified(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotDatasetModified(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalDatasetRemoved(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotDatasetModified(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalImageAlignmentDownloaded(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotImageAlignmentDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalChipDownloaded(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotDatasetContentDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalFeaturesDownloaded(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotDatasetContentDownloaded(DataProxy::DownloadStatus)));
+    connect(m_dataProxy.data(),
+            SIGNAL(signalTissueImageDownloaded(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotDatasetContentDownloaded(DataProxy::DownloadStatus)));
 
     clearControls();
 }
@@ -152,7 +174,7 @@ void DatasetPage::slotLoadDatasets()
     m_dataProxy->activateCurrentDownloads();
 }
 
-void DatasetPage::datasetsDownloaded(const DataProxy::DownloadStatus status)
+void DatasetPage::slostDatasetsDownloaded(const DataProxy::DownloadStatus status)
 {
     // if error we reset the selected dataset...this is because we allow free navigation
     // among pages
@@ -196,10 +218,12 @@ void DatasetPage::slotEditDataset()
         dataset->name(editdataset->getName());
         dataset->statComments(editdataset->getComment());
 
-        // update the dataset
-        m_waiting_spinner->start();
-        m_dataProxy->updateDataset(*dataset);
-        m_dataProxy->activateCurrentDownloads();
+        // update the dataset on the cloud if it is downloaded
+        if (dataset->downloaded()) {
+            m_waiting_spinner->start();
+            m_dataProxy->updateDataset(*dataset);
+            m_dataProxy->activateCurrentDownloads();
+        }
     }
 }
 
@@ -219,14 +243,57 @@ void DatasetPage::slotOpenDataset()
     m_dataProxy->setSelectedDataset(dataset);
 
     // Now we proceed to download the dataset content
-    // TODO when caching is on we should not download
-    // the dataset content if it is already downloaded
-    // and in sync with the server
-
-    // first we need to download the image alignment
+    // if it is downloaded from the cloud, otherwise just import the dataset
     m_waiting_spinner->start();
-    m_dataProxy->loadImageAlignment();
-    m_dataProxy->activateCurrentDownloads();
+    if (dataset->downloaded()) {
+        // first we need to download the image alignment
+        m_dataProxy->loadImageAlignment();
+        m_dataProxy->activateCurrentDownloads();
+    } else {
+        const auto importer = m_importedDatasets.value(dataset->id());
+
+        Chip chip;
+        const QRect chip_rect = importer->chipDimensions();
+        const int x1 = chip_rect.topLeft().x();
+        const int y1 = chip_rect.topLeft().y();
+        const int x2 = chip_rect.bottomRight().x();
+        const int y2= chip_rect.bottomRight().y();
+        chip.id(QUuid::createUuid().toString());
+        chip.name(chip.id());
+        chip.x1(x1);
+        chip.x1Border(x1 - 1);
+        chip.x1Total(x1 - 2);
+        chip.y1(y1);
+        chip.y1Border(y1 - 1);
+        chip.y1Total(y1 - 2);
+        chip.x2(x2);
+        chip.x2Border(x2 + 1);
+        chip.x2Total(x2 + 2);
+        chip.y2(y2);
+        chip.y2Border(y2 + 1);
+        chip.y2Total(y2 + 2);
+        m_dataProxy->loadChip(chip);
+
+        QByteArray features = importer->featuresFile();
+        m_dataProxy->parseFeatures(features);
+
+        ImageAlignment alignment;
+        alignment.id(QUuid::createUuid().toString());
+        alignment.chipId(chip.id());
+        alignment.name(alignment.id());
+        const QString mainImageName = QUuid::createUuid().toString();
+        const QString secondImageName = QUuid::createUuid().toString();
+        alignment.figureBlue(mainImageName);
+        alignment.figureRed(secondImageName);
+        m_dataProxy->loadImageAlignment(alignment);
+
+        QByteArray mainImage = importer->mainImageFile();
+        m_dataProxy->parseCellTissueImage(mainImage, secondImageName);
+        QByteArray secondImage = importer->secondImageFile();
+        m_dataProxy->parseCellTissueImage(secondImage, secondImageName);
+
+        m_waiting_spinner->stop();
+    }
 }
 
 void DatasetPage::slotRemoveDataset()
@@ -252,53 +319,73 @@ void DatasetPage::slotRemoveDataset()
         return;
     }
 
-    // remove the dataset
-    m_waiting_spinner->start();
-    m_dataProxy->removeDataset(dataset->id());
-    m_dataProxy->activateCurrentDownloads();
+    // remove the dataset on the cloud if it is downloaded
+    if (dataset->downloaded()) {
+        m_waiting_spinner->start();
+        m_dataProxy->removeDataset(dataset->id());
+        m_dataProxy->activateCurrentDownloads();
+    } else {
+        m_dataProxy->parseRemoveDataset(dataset->id());
+        slotLoadDatasets();
+    }
 }
 
-void DatasetPage::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                       const DataProxy::DownloadType type)
+void DatasetPage::slotDatasetModified(const DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
+        // We have edited a dataset, re-upload them
+        slotLoadDatasets();
+    }
+}
+
+void DatasetPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status)
+{
+    // We are downloading dataset content, first is to download image alignment
+    if (status == DataProxy::Success) {
+        // download the rest of the content
+        m_dataProxy->loadDatasetContent();
+        m_dataProxy->activateCurrentDownloads();
+    } else {
+        // something happened downloading the image alignment
+        m_waiting_spinner->stop();
+        QMessageBox::critical(this,
+                              tr("Image alignment"),
+                              tr("There was an error downloading the image alignment!"));
+    }
+}
+
+void DatasetPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus status)
 {
     const bool isSuccess = status == DataProxy::Success;
     const bool isLastDownload = m_dataProxy->getActiveDownloads() == 0;
+    if (!isSuccess && isLastDownload) {
+        // so this was the last download processed
+        // of the dataset content but it failed or aborted
+        m_waiting_spinner->stop();
+        QMessageBox::critical(this,
+                              tr("Dataset content"),
+                              tr("There was an error downloading the dataset content!"));
+    } else if (isSuccess && isLastDownload) {
+        // so this was the last download of dataset content and it was OK
+        // updates state of DataProxy and notify that dataset is open
+        // TODO we should get the dataset Id in a different way
+        m_waiting_spinner->stop();
+        emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
+    }
+}
 
-    if (type == DataProxy::DatasetsDownloaded) {
-        // We have downloaded datasets, update the view
-        datasetsDownloaded(status);
-    } else if (type == DataProxy::DatasetModified && isSuccess) {
-        // We have edited a dataset, re-upload them
-        slotLoadDatasets();
-    } else if (type == DataProxy::ImageAlignmentDownloaded) {
-        // We are downloading dataset content, first is to download image alignment
-        if (isSuccess) {
-            // download the rest of the content
-            m_dataProxy->loadDatasetContent();
-            m_dataProxy->activateCurrentDownloads();
-        } else {
-            // something happened downloading the image alignment
-            m_waiting_spinner->stop();
-            QMessageBox::critical(this,
-                                  tr("Image alignment"),
-                                  tr("There was an error downloading the image alignment!"));
-        }
-    } else if (type == DataProxy::ChipDownloaded
-               || type == DataProxy::TissueImageDownloaded
-               || type == DataProxy::FeaturesDownloaded) {
-        if (!isSuccess && isLastDownload) {
-            // so this was the last download processed
-            // of the dataset content but it failed or aborted
-            m_waiting_spinner->stop();
-            QMessageBox::critical(this,
-                                  tr("Dataset content"),
-                                  tr("There was an error downloading the dataset content!"));
-        } else if (isSuccess && isLastDownload) {
-            // so this was the last download of dataset content and it was OK
-            // updates state of DataProxy and notify that dataset is open
-            // TODO we should get the dataset Id in a different way
-            m_waiting_spinner->stop();
-            emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
-        }
+void DatasetPage::slotImportDataset()
+{
+    QPointer<DatasetImporter> importer = new DatasetImporter;
+    const int result = importer->exec();
+    if (result == QDialog::Accepted) {
+        Dataset dataset;
+        dataset.id(QUuid::createUuid().toString());
+        dataset.name(importer->datasetName());
+        dataset.downloaded(false);
+        //TODO add more fields for dataset to importer
+        m_importedDatasets.insert(dataset.id(), importer);
+        m_dataProxy->addDataset(dataset);
+        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 }

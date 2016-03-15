@@ -1,9 +1,3 @@
-#
-#    Copyright (C) 2012  Spatial Transcriptomics AB,
-#    read LICENSE for licensing terms. 
-#    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-#
-#
 ### PROJECT AND GLOBAL VARIABLES ##############################################
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -246,9 +240,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_VERSION "${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}")
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright (C) 2012  Spatial Transcriptomics AB,
-                                 read LICENSE for licensing terms. 
-                                 Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>")
+    set(MACOSX_BUNDLE_COPYRIGHT "Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>")
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
     
     # Architecture OSX

@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #ifndef DATASET_H
 #define DATASET_H
 
@@ -44,6 +37,7 @@ public:
     const QString createdByAccount() const;
     const QString created() const;
     const QString lastModified() const;
+    bool downloaded() const;
 
     void id(const QString& id);
     void name(const QString& name);
@@ -63,6 +57,7 @@ public:
     void createdByAccount(const QString& created);
     void created(const QString& created);
     void lastModified(const QString& lastModified);
+    void downloaded(const bool downloaded);
 
     // extended methods to get statistics
     // returns the first quartile
@@ -93,6 +88,7 @@ private:
     QString m_createdByAccount;
     QString m_created;
     QString m_lastMofidied;
+    bool m_downloaded;
 };
 
 #endif // DATASET_H

@@ -1,11 +1,3 @@
-
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "stVi.h"
 
 #if defined Q_OS_WIN
@@ -175,17 +167,13 @@ bool stVi::checkSystemRequirements() const
         return false;
     }
 
-    // check for min version if supported
-    m_dataProxy->loadMinVersion();
-    m_dataProxy->activateCurrentDownloads();
     return true;
 }
 
-void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                const DataProxy::DownloadType type)
+void stVi::slotMinVersionDownloaded(const DataProxy::DownloadStatus status)
 {
-    // TODO do something if it failed or aborted?
-    if (type == DataProxy::MinVersionDownloaded && status == DataProxy::Success) {
+    // TODO do something if it failed or aborted to fetch min version?
+    if (status == DataProxy::Success) {
         const auto minVersion = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
             QMessageBox::critical(this->centralWidget(),
@@ -194,7 +182,13 @@ void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
                                      "please update!"));
             QApplication::exit(EXIT_FAILURE);
         }
-    } else if (type == DataProxy::UserDownloaded && status == DataProxy::Success) {
+    }
+}
+
+void stVi::slotUserDownloaded(const DataProxy::DownloadStatus status)
+{
+    // TODO do something if it failed or aborted to fetch min version?
+    if (status == DataProxy::Success) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
         if (!user->enabled()) {
@@ -206,8 +200,6 @@ void stVi::slotDownloadFinished(const DataProxy::DownloadStatus status,
         // show user info in label
         m_cellview->slotSetUserName(user->username());
     }
-
-    // TODO disable busy bar
 }
 
 void stVi::setupUi()
@@ -389,9 +381,14 @@ void stVi::createConnections()
 
     // connect the data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            SIGNAL(signalMinVersionDownloaded(DataProxy::DownloadStatus)),
             this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SLOT(slotMinVersionDownloaded(DataProxy::DownloadStatus)));
+    // connect the data proxy signal
+    connect(m_dataProxy.data(),
+            SIGNAL(signalUserDownloaded(DataProxy::DownloadStatus)),
+            this,
+            SLOT(slotUserDownloaded(DataProxy::DownloadStatus)));
 
     // connect the open dataset from datasetview -> cellview
     connect(m_datasets.data(),
@@ -481,15 +478,16 @@ void stVi::slotAuthorized()
     // clean the cache in the dataproxy
     m_dataProxy->clean();
 
-    // load user from network
     // TODO show busy bar
+    // check for min version if supported and load user (only in online mode)
+    m_dataProxy->loadMinVersion();
     m_dataProxy->loadUser();
     m_dataProxy->activateCurrentDownloads();
 }
 
 void stVi::slotLogOutButton()
 {
-    qDebug() << "Log in out..";
+    qDebug() << "Loging out..";
 
     // clear user name in label
     m_cellview->slotSetUserName("");

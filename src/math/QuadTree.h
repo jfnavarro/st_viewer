@@ -1,11 +1,4 @@
-﻿/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
-#ifndef QUADTREE_H
+﻿#ifndef QUADTREE_H
 #define QUADTREE_H
 
 #include <QDebug>

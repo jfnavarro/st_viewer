@@ -1,11 +1,3 @@
-
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "CellViewPage.h"
 
 #include <QDebug>
@@ -976,9 +968,9 @@ void CellViewPage::slotSelectionUpdated()
     Q_ASSERT(!user.isNull());
     new_selection.userId(user->id());
     // add the selection object to dataproxy
-    m_dataProxy->addUserSelectionLocal(new_selection);
+    //m_dataProxy->addUserSelectionLocal(new_selection);
     // notify that the selection was created and added locally
-    emit signalUserSelection();
+    //emit signalUserSelection();
 }
 
 void CellViewPage::slotGeneShape(int geneShape)

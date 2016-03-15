@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #include "OAuth2.h"
 
 #include <QDebug>
@@ -28,9 +21,9 @@ OAuth2::OAuth2(QPointer<DataProxy> dataProxy, QObject* parent)
 {
     // Connect data proxy signal
     connect(m_dataProxy.data(),
-            SIGNAL(signalDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)),
+            SIGNAL(signalAcessTokenDownloaded(DataProxy::DownloadStatus)),
             this,
-            SLOT(slotDownloadFinished(DataProxy::DownloadStatus, DataProxy::DownloadType)));
+            SLOT(slotAccessTokenDownloaded(DataProxy::DownloadStatus)));
 }
 
 OAuth2::~OAuth2()
@@ -79,10 +72,9 @@ void OAuth2::requestToken(const StringPair& requestUser, const StringPair& reque
     m_dataProxy->activateCurrentDownloads();
 }
 
-void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
-                                  const DataProxy::DownloadType type)
+void OAuth2::slotAccessTokenDownloaded(const DataProxy::DownloadStatus status)
 {
-    if (type == DataProxy::AccessTokenDownloaded && status == DataProxy::Success) {
+    if (status == DataProxy::Success) {
         const OAuth2TokenDTO& dto = m_dataProxy->getAccessToken();
         const QUuid& accessToken(dto.accessToken());
         const int expiresIn = dto.expiresIn();
@@ -95,7 +87,7 @@ void OAuth2::slotDownloadFinished(const DataProxy::DownloadStatus status,
                 new ServerError(tr("Log in Error"), tr("Access token is expired"), this));
             emit signalError(error);
         }
-    } else if (type == DataProxy::AccessTokenDownloaded) {
+    } else {
         emit signalError(QSharedPointer<ServerError>(
             new ServerError(tr("Log in Error"), tr("Wrong credentials"))));
     }

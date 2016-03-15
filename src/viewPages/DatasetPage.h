@@ -1,10 +1,3 @@
-/*
-    Copyright (C) 2012  Spatial Transcriptomics AB,
-    read LICENSE for licensing terms.
-    Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-
-*/
-
 #ifndef DATASETPAGE_H
 #define DATASETPAGE_H
 
@@ -19,7 +12,7 @@ class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
-
+class DatasetImporter;
 namespace Ui
 {
 class DataSets;
@@ -62,13 +55,13 @@ private slots:
     void slotOpenDataset();
     void slotRemoveDataset();
     void slotEditDataset();
-
-    // slot used to be notified when the datasets have been downloaded,
-    // updated or removed from network
-    // status contains the status of the operation (ok, abort, error)
-    // type contain the type of download request
-    void slotDownloadFinished(const DataProxy::DownloadStatus status,
-                              const DataProxy::DownloadType type);
+    void slotImportDataset();
+    // slot function to process when the datasets have been downloaded/edit/removed
+    // and also when the dataset's content is downloaded
+    void slostDatasetsDownloaded(const DataProxy::DownloadStatus status);
+    void slotDatasetModified(const DataProxy::DownloadStatus status);
+    void slotDatasetContentDownloaded(const DataProxy::DownloadStatus status);
+    void slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status);
 
 signals:
 
@@ -79,8 +72,6 @@ protected:
     void showEvent(QShowEvent* event) override;
 
 private:
-    // internal function to process when the datasets have been downloaded
-    void datasetsDownloaded(const DataProxy::DownloadStatus status);
 
     // clear focus and resets to default
     void clearControls();
@@ -94,6 +85,8 @@ private:
     QPointer<DataProxy> m_dataProxy;
     // waiting spinner
     QPointer<WaitingSpinnerWidget> m_waiting_spinner;
+    // List of imported datasets
+    QHash<QString, QPointer<DatasetImporter> > m_importedDatasets;
 
     Q_DISABLE_COPY(DatasetPage)
 };
