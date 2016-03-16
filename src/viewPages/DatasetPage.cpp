@@ -251,6 +251,8 @@ void DatasetPage::slotOpenDataset()
         m_dataProxy->activateCurrentDownloads();
     } else {
         const auto importer = m_importedDatasets.value(dataset->id());
+        Q_ASSERT(importer);
+        bool parsedOk = true;
 
         Chip chip;
         const QRect chip_rect = importer->chipDimensions();
@@ -274,8 +276,7 @@ void DatasetPage::slotOpenDataset()
         chip.y2Total(y2 + 2);
         m_dataProxy->loadChip(chip);
 
-        QByteArray features = importer->featuresFile();
-        m_dataProxy->parseFeatures(features);
+        parsedOk &= m_dataProxy->parseFeatures(importer->featuresFile());
 
         ImageAlignment alignment;
         alignment.id(QUuid::createUuid().toString());
@@ -287,12 +288,17 @@ void DatasetPage::slotOpenDataset()
         alignment.figureRed(secondImageName);
         m_dataProxy->loadImageAlignment(alignment);
 
-        QByteArray mainImage = importer->mainImageFile();
-        m_dataProxy->parseCellTissueImage(mainImage, secondImageName);
-        QByteArray secondImage = importer->secondImageFile();
-        m_dataProxy->parseCellTissueImage(secondImage, secondImageName);
+        parsedOk &= m_dataProxy->parseCellTissueImage(importer->mainImageFile(), mainImageName);
+        parsedOk &= m_dataProxy->parseCellTissueImage(importer->secondImageFile(), secondImageName);
 
         m_waiting_spinner->stop();
+        if (parsedOk) {
+            emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
+        } else {
+            QMessageBox::critical(this,
+                                  tr("Dataset content"),
+                                  tr("Error loading dataset content"));
+        }
     }
 }
 

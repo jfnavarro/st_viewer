@@ -25,7 +25,7 @@ const QString DatasetImporter::datasetName()
 
 const QByteArray DatasetImporter::featuresFile()
 {
-    QFile file(m_ui->featuresFile);
+    QFile file(m_ui->featuresFile->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return QByteArray();
     }
@@ -34,8 +34,8 @@ const QByteArray DatasetImporter::featuresFile()
 
 const QByteArray DatasetImporter::mainImageFile()
 {
-    QFile file(m_ui->mainImageFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QFile file(m_ui->mainImageFile->text());
+    if (!file.open(QIODevice::ReadOnly)) {
         return QByteArray();
     }
     return file.readAll();
@@ -43,8 +43,8 @@ const QByteArray DatasetImporter::mainImageFile()
 
 const QByteArray DatasetImporter::secondImageFile()
 {
-    QFile file(m_ui->secondImageFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QFile file(m_ui->secondImageFile->text());
+    if (!file.open(QIODevice::ReadOnly)) {
         return QByteArray();
     }
     return file.readAll();
@@ -74,7 +74,9 @@ const QTransform DatasetImporter::alignmentMatrix()
 void DatasetImporter::slotLoadFeaturesFile()
 {
     const QString filename =
-            QFileDialog::getOpenFileName(this, tr("Open Features File"), QDir::homePath(),
+            QFileDialog::getOpenFileName(this,
+                                         tr("Open Features File"),
+                                         QDir::homePath(),
                                          QString("%1").arg(tr("JSON Files (*.json)")));
     // early out
     if (filename.isEmpty()) {
@@ -87,7 +89,9 @@ void DatasetImporter::slotLoadFeaturesFile()
 void DatasetImporter::slotLoadMainImageFile()
 {
     const QString filename =
-            QFileDialog::getOpenFileName(this, tr("Open Main Image File"), QDir::homePath(),
+            QFileDialog::getOpenFileName(this,
+                                         tr("Open Main Image File"),
+                                         QDir::homePath(),
                                          QString("%1").arg(tr("JPEG Files (*.jpg)")));
     // early out
     if (filename.isEmpty()) {
@@ -100,7 +104,9 @@ void DatasetImporter::slotLoadMainImageFile()
 void DatasetImporter::slotLoadSecondImageFile()
 {
     const QString filename =
-            QFileDialog::getOpenFileName(this, tr("Open Second Image File"), QDir::homePath(),
+            QFileDialog::getOpenFileName(this,
+                                         tr("Open Second Image File"),
+                                         QDir::homePath(),
                                          QString("%1").arg(tr("JPEG Files (*.jpg)")));
     // early out
     if (filename.isEmpty()) {
@@ -112,13 +118,27 @@ void DatasetImporter::slotLoadSecondImageFile()
 
 void DatasetImporter::slotValidateForm()
 {
-    if (m_ui->mainImageFile->text().isEmpty() |
-        m_ui->secondImageFile->text().isEmpty() |
-        m_ui->featuresFile->text().isEmpty() |
-        m_ui->datasetName->text().isEmpty()) {
-        QMessageBox::warning(this,
-                             tr("Import dataset"),
-                             tr("Some of the fields are missing or incorrect."));
+    QString error_msg;
+    bool isValid = true;
+    if (m_ui->mainImageFile->text().isEmpty()) {
+        isValid = false;
+        error_msg = tr("Main image is missing!");
+    } else if (m_ui->secondImageFile->text().isEmpty()) {
+        isValid = false;
+        error_msg = tr("Second image is missing!");
+    } else if (m_ui->featuresFile->text().isEmpty()) {
+        isValid = false;
+        error_msg = tr("Features file is missing!");
+    } else if (m_ui->datasetName->text().isEmpty()) {
+        isValid = false;
+        error_msg = tr("Dataset name is missing!");
+    } else if (m_ui->chip_x2->value() == 0 || m_ui->chip_y2->value() == 0) {
+        isValid = false;
+        error_msg = tr("Chip values are invalid!");
+    }
+
+    if (!isValid) {
+        QMessageBox::warning(this, tr("Import dataset"), error_msg);
     } else {
         QDialog::done(QDialog::Accepted);
     }
