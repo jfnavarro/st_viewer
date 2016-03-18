@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QItemSelection>
 
-static const int COLUMN_NUMBER = 3;
+static const int COLUMN_NUMBER = 4;
 
 GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -51,6 +51,8 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
             return Qt::AlignCenter;
         case Name:
             return Qt::AlignLeft;
+        case CutOff:
+            return Qt::AlignCenter;
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -69,6 +71,8 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
             return tr("Show");
         case Color:
             return tr("Color");
+        case CutOff:
+            return tr("Cut-off");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -82,6 +86,8 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
             return tr("Indicates if the genes is visible on the screen");
         case Color:
             return tr("Indicates the color of the gene on the screen");
+        case CutOff:
+            return tr("Numbers of reads from which this gene will be included");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -95,6 +101,8 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
             return Qt::AlignLeft;
         case Name:
             return Qt::AlignLeft;
+        case CutOff:
+            return Qt::AlignCenter;
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -128,6 +136,8 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     case Show:
         return Qt::ItemIsUserCheckable | defaultFlags;
     case Color:
+        return defaultFlags;
+    case CutOff:
         return defaultFlags;
     }
 

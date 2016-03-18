@@ -52,10 +52,8 @@ const QByteArray DatasetImporter::secondImageFile()
 
 const QRect DatasetImporter::chipDimensions()
 {
-    return QRect(m_ui->chip_x1->value(),
-                 m_ui->chip_y1->value(),
-                 m_ui->chip_x2->value(),
-                 m_ui->chip_y2->value());
+    return QRect(QPoint(m_ui->chip_x1->value(), m_ui->chip_y1->value()),
+                 QPoint(m_ui->chip_x2->value(), m_ui->chip_y2->value()));
 }
 
 const QTransform DatasetImporter::alignmentMatrix()
@@ -138,7 +136,9 @@ void DatasetImporter::slotValidateForm()
     }
 
     if (!isValid) {
-        QMessageBox::warning(this, tr("Import dataset"), error_msg);
+        QMessageBox::critical(this, tr("Import dataset"), error_msg);
+        QDialog::done(QDialog::Rejected);
+        //TODO maybe we should not close the dialog
     } else {
         QDialog::done(QDialog::Accepted);
     }

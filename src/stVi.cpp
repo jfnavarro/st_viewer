@@ -131,10 +131,10 @@ void stVi::init()
     // create keyboard shortcuts
     createShorcuts();
 
-    // lets create some stuff
+    // decorate the main window
     createLayouts();
 
-    // connections
+    // make signal connections
     createConnections();
 
     // restore settings
@@ -187,7 +187,7 @@ void stVi::slotMinVersionDownloaded(const DataProxy::DownloadStatus status)
 
 void stVi::slotUserDownloaded(const DataProxy::DownloadStatus status)
 {
-    // TODO do something if it failed or aborted to fetch min version?
+    // TODO do something if it failed or aborted to fetch the user
     if (status == DataProxy::Success) {
         const auto user = m_dataProxy->getUser();
         Q_ASSERT(!user.isNull());
@@ -195,10 +195,10 @@ void stVi::slotUserDownloaded(const DataProxy::DownloadStatus status)
             QMessageBox::critical(this,
                                   tr("Authorization Error"),
                                   tr("The current user is disabled"));
-            return;
+        } else {
+            // show user info in label
+            m_cellview->slotSetUserName(user->username());
         }
-        // show user info in label
-        m_cellview->slotSetUserName(user->username());
     }
 }
 
@@ -478,7 +478,6 @@ void stVi::slotAuthorized()
     // clean the cache in the dataproxy
     m_dataProxy->clean();
 
-    // TODO show busy bar
     // check for min version if supported and load user (only in online mode)
     m_dataProxy->loadMinVersion();
     m_dataProxy->loadUser();

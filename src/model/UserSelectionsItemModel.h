@@ -19,15 +19,14 @@ class UserSelectionsItemModel : public QAbstractTableModel
 public:
     enum Column {
         Saved = 0,
-        Color = 1,
-        Name = 2,
-        Dataset = 3,
-        NGenes = 4,
-        NReads = 5,
-        NFeatures = 6,
-        Comment = 7,
-        Created = 8,
-        LastModified = 9
+        Name = 1,
+        Dataset = 2,
+        NGenes = 3,
+        NReads = 4,
+        NFeatures = 5,
+        Comment = 6,
+        Created = 7,
+        LastModified = 8
     };
 
     explicit UserSelectionsItemModel(QObject* parent = 0);

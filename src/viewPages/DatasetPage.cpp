@@ -259,7 +259,7 @@ void DatasetPage::slotOpenDataset()
         const int x1 = chip_rect.topLeft().x();
         const int y1 = chip_rect.topLeft().y();
         const int x2 = chip_rect.bottomRight().x();
-        const int y2= chip_rect.bottomRight().y();
+        const int y2 = chip_rect.bottomRight().y();
         chip.id(QUuid::createUuid().toString());
         chip.name(chip.id());
         chip.x1(x1);
@@ -286,6 +286,7 @@ void DatasetPage::slotOpenDataset()
         const QString secondImageName = QUuid::createUuid().toString();
         alignment.figureBlue(mainImageName);
         alignment.figureRed(secondImageName);
+        alignment.alignment(importer->alignmentMatrix());
         m_dataProxy->loadImageAlignment(alignment);
 
         parsedOk &= m_dataProxy->parseCellTissueImage(importer->mainImageFile(), mainImageName);
@@ -385,13 +386,20 @@ void DatasetPage::slotImportDataset()
     QPointer<DatasetImporter> importer = new DatasetImporter;
     const int result = importer->exec();
     if (result == QDialog::Accepted) {
-        Dataset dataset;
-        dataset.id(QUuid::createUuid().toString());
-        dataset.name(importer->datasetName());
-        dataset.downloaded(false);
-        //TODO add more fields for dataset to importer
-        m_importedDatasets.insert(dataset.id(), importer);
-        m_dataProxy->addDataset(dataset);
-        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+        if (m_importedDatasets.contains(importer->datasetName())) {
+            QMessageBox::critical(this,
+                                  tr("Import dataset"),
+                                  tr("There is a dataset with the same name!"));
+        } else {
+            Dataset dataset;
+            dataset.id(QUuid::createUuid().toString());
+            dataset.name(importer->datasetName());
+            dataset.downloaded(false);
+            //TODO add more fields for dataset to importer
+            //TODO set created an modified as current date
+            m_importedDatasets.insert(dataset.name(), importer);
+            m_dataProxy->addDataset(dataset);
+            datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+        }
     }
 }

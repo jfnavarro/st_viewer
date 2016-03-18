@@ -6,7 +6,7 @@
 #include <QColor>
 #include <set>
 
-static const int COLUMN_NUMBER = 10;
+static const int COLUMN_NUMBER = 9;
 
 UserSelectionsItemModel::UserSelectionsItemModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -57,13 +57,9 @@ QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
         return item->saved() ? Qt::Checked : Qt::Unchecked;
     }
 
-    if (role == Qt::DecorationRole && index.column() == Color) {
-        return item->color();
-    }
 
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
-        case Color:
         case Saved:
             return Qt::AlignCenter;
         case NGenes:
@@ -97,8 +93,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("#Reads");
         case NFeatures:
             return tr("#Features");
-        case Color:
-            return tr("Color");
         case Saved:
             return tr("Saved");
         case Created:
@@ -124,8 +118,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("The total number of reads in the selection");
         case NFeatures:
             return tr("The total number of features present in the selection");
-        case Color:
-            return tr("The color assigned to the selection to show in the cell view");
         case Saved:
             return tr("Yes if the selection is saved in the database");
         case Created:
@@ -145,7 +137,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case NGenes:
         case NReads:
         case NFeatures:
-        case Color:
         case Saved:
         case Created:
         case LastModified:

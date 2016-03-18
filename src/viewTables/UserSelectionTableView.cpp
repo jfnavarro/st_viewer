@@ -39,9 +39,6 @@ UserSelectionTableView::UserSelectionTableView(QWidget* parent)
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::NFeatures,
                                              QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Color,
-                                             QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(UserSelectionsItemModel::Color, 50);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Saved,
                                              QHeaderView::Fixed);
     horizontalHeader()->resizeSection(UserSelectionsItemModel::Saved, 50);

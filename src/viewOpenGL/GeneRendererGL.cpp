@@ -178,9 +178,10 @@ void GeneRendererGL::generateDataAsync()
     foreach (DataProxy::FeaturePtr feature, m_dataProxy->getFeatureList()) {
         Q_ASSERT(!feature.isNull());
 
-        // reset to default value the gene color
+        // reset to default the attributes of the gene
         feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
         feature->geneObject()->selected(false);
+        feature->geneObject()->cut_off(1);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());

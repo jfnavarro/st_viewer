@@ -7,11 +7,6 @@ set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "5")
 set(PROJECT_VERSION_PATCH "2")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
-set(PROJECT_VENDOR "Spatial Transcriptomics")
-set(PROJECT_COPYRIGHT_YEAR "2013")
-set(PROJECT_DOMAIN_FIRST "spatialtranscriptomics")
-set(PROJECT_DOMAIN_SECOND "com")
-set(PROJECT_DOMAIN "www.${PROJECT_DOMAIN_FIRST}.${PROJECT_DOMAIN_SECOND}")
 
 SET(SERVER "development" CACHE STRING
 "The server providing the experimental data (development/production/local)")
