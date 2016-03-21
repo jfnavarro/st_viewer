@@ -184,7 +184,6 @@ void DataProxy::clean()
     m_cellTissueImages.clear();
     m_minVersion = MinVersionArray();
     m_accessToken = OAuth2TokenDTO();
-    m_selectedDataset.clear();
     m_activeDownloads = 0;
     m_activeNetworkReplies.clear();
     m_user.clear();
@@ -260,23 +259,6 @@ const DataProxy::UserSelectionList DataProxy::getUserSelectionList() const
     return m_userSelectionList;
 }
 
-const DataProxy::DatasetPtr DataProxy::getSelectedDataset() const
-{
-    // used to keep track of what dataset is currently selected
-    return m_selectedDataset;
-}
-
-void DataProxy::setSelectedDataset(const DatasetPtr dataset) const
-{
-    // used to keep track of what dataset is currently selected
-    m_selectedDataset = dataset;
-}
-
-void DataProxy::resetSelectedDataset()
-{
-    m_selectedDataset.clear();
-}
-
 const DataProxy::MinVersionArray DataProxy::getMinVersion() const
 {
     return m_minVersion;
@@ -335,9 +317,9 @@ void DataProxy::removeDataset(const QString& datasetId)
     createRequest(reply, DataProxy::DatasetRemoved);
 }
 
-void DataProxy::loadDatasetContent()
+void DataProxy::loadDatasetContent(const QString& datasetId)
 {
-    Q_ASSERT(!m_selectedDataset.isNull());
+    Q_ASSERT(!datasetId.isNull() && !datasetId.isEmpty());
     Q_ASSERT(!m_imageAlignment.isNull());
 
     // load cell tissue blue
@@ -349,7 +331,7 @@ void DataProxy::loadDatasetContent()
     }
 
     // load features
-    loadFeatures();
+    loadFeatures(datasetId);
 
     // load chip
     loadChip();
@@ -376,16 +358,15 @@ void DataProxy::loadChip(const Chip& chip)
     m_chip = ChipPtr(new Chip(chip));
 }
 
-void DataProxy::loadFeatures()
+void DataProxy::loadFeatures(const QString& datasetId)
 {
-    Q_ASSERT(!m_selectedDataset.isNull() && !m_selectedDataset->id().isNull()
-             && !m_selectedDataset->id().isEmpty());
+    Q_ASSERT(!datasetId.isNull() && !datasetId.isEmpty());
     // clear the containers
     m_genesList.clear();
     m_featuresList.clear();
     // creates the request
-    NetworkCommand* cmd = RESTCommandFactory::getFeatureByDatasetId(m_configurationManager,
-                                                                    m_selectedDataset->id());
+    NetworkCommand* cmd =
+            RESTCommandFactory::getFeatureByDatasetId(m_configurationManager, datasetId);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
     // delete the command
     cmd->deleteLater();
@@ -393,16 +374,14 @@ void DataProxy::loadFeatures()
     createRequest(reply, DataProxy::FeaturesDownloaded);
 }
 
-void DataProxy::loadImageAlignment()
+void DataProxy::loadImageAlignment(const QString& imageAlignmentId)
 {
-    Q_ASSERT(!m_selectedDataset.isNull() && !m_selectedDataset->imageAlignmentId().isNull()
-             && !m_selectedDataset->imageAlignmentId().isEmpty());
+    Q_ASSERT(!imageAlignmentId.isNull() && !imageAlignmentId.isEmpty());
     // clear container
     m_imageAlignment.clear();
     // creates the request
     NetworkCommand* cmd
-        = RESTCommandFactory::getImageAlignmentById(m_configurationManager,
-                                                    m_selectedDataset->imageAlignmentId());
+        = RESTCommandFactory::getImageAlignmentById(m_configurationManager, imageAlignmentId);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
     // delete the command
     cmd->deleteLater();
@@ -778,14 +757,10 @@ bool DataProxy::parseDatasets(const QJsonDocument& doc)
 
 bool DataProxy::parseRemoveDataset(const QString& datasetId)
 {
-    // just to make sure to reset the currently selected dataset variable if we
-    // are removing the selected dataset
-    if (!m_selectedDataset.isNull() && datasetId == m_selectedDataset->id()) {
-        resetSelectedDataset();
-    }
     // remove and return true of it was found and removed
     return std::remove_if(m_datasetList.begin(), m_datasetList.end(),
-                          [=](DatasetPtr dataset) {return dataset->id() == datasetId;}) == m_datasetList.end();
+                          [=](DatasetPtr dataset)
+    {return dataset->id() == datasetId;}) == m_datasetList.end();
 }
 
 bool DataProxy::parseUserSelections(const QJsonDocument& doc)

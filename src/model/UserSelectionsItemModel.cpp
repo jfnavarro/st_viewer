@@ -39,7 +39,7 @@ QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
         case NReads:
             return QString::number(item->totalReads());
         case NFeatures:
-            return QString::number(item->totalFeatures());
+            return QString::number(item->totalSpots());
         case Created:
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
@@ -92,7 +92,7 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case NReads:
             return tr("#Reads");
         case NFeatures:
-            return tr("#Features");
+            return tr("#Spots");
         case Saved:
             return tr("Saved");
         case Created:
@@ -117,7 +117,7 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case NReads:
             return tr("The total number of reads in the selection");
         case NFeatures:
-            return tr("The total number of features present in the selection");
+            return tr("The total number of spots present in the selection");
         case Saved:
             return tr("Yes if the selection is saved in the database");
         case Created:

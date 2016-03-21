@@ -9,14 +9,16 @@
 #include <QTableWidgetItem>
 #include <QScrollArea>
 #include <QDateTime>
+#include "QtWaitingSpinner/waitingspinnerwidget.h"
+
+#include "dataModel/User.h"
 #include "utils/Utils.h"
-#include "io/GeneExporter.h"
 #include "io/FeatureExporter.h"
 #include "model/UserSelectionsItemModel.h"
 #include "dialogs/EditSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
 #include "viewPages/SelectionsWidget.h"
-#include "QtWaitingSpinner/waitingspinnerwidget.h"
+
 
 using namespace Globals;
 
@@ -50,8 +52,8 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
             SIGNAL(textChanged(QString)),
             selectionsProxyModel(),
             SLOT(setFilterFixedString(QString)));
-    connect(m_ui->removeSelections, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
-    connect(m_ui->exportSelections, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
+    connect(m_ui->removeSelection, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
+    connect(m_ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
     connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDEA()));
     connect(m_ui->selections_tableView,
             SIGNAL(clicked(QModelIndex)),
@@ -61,7 +63,6 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
     connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
     connect(m_ui->showTable, SIGNAL(clicked(bool)), this, SLOT(slotShowTable()));
     connect(m_ui->saveDB, SIGNAL(clicked(bool)), this, SLOT(slotSaveSelection()));
-    connect(m_ui->exportGenes, SIGNAL(clicked(bool)), this, SLOT(slotExportGenes()));
     connect(m_ui->importSelection, SIGNAL(clicked(bool)), this, SLOT(slotImportSelection()));
 
     // connect data proxy signal
@@ -83,10 +84,7 @@ UserSelectionsPage::UserSelectionsPage(QPointer<DataProxy> dataProxy, QWidget* p
 
 UserSelectionsPage::~UserSelectionsPage()
 {
-    if (!m_selectionsWidget.isNull()) {
-        delete m_selectionsWidget;
-    }
-    m_selectionsWidget = nullptr;
+
 }
 
 void UserSelectionsPage::clean()
@@ -123,21 +121,16 @@ void UserSelectionsPage::clearControls()
     // clear selection/focus
     m_ui->selections_tableView->clearSelection();
     m_ui->selections_tableView->clearFocus();
-    m_ui->removeSelections->clearFocus();
-    m_ui->exportSelections->clearFocus();
-    m_ui->ddaAnalysis->clearFocus();
-    m_ui->editSelection->clearFocus();
 
     // remove, edit, dda and export not enable by default
-    m_ui->removeSelections->setEnabled(false);
-    m_ui->exportSelections->setEnabled(false);
+    m_ui->removeSelection->setEnabled(false);
+    m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
     m_ui->showTissue->setEnabled(false);
     m_ui->showTable->setEnabled(false);
     m_ui->saveDB->setEnabled(false);
-    m_ui->exportGenes->setEnabled(false);
-    m_ui->importSelection->setEnabled(true);
+    m_ui->importSelection->setEnabled(false);
     m_ui->cluster->setEnabled(false);
 }
 
@@ -177,16 +170,17 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     const auto currentSelection = selectionsModel()->getSelections(selected);
     const bool enableDDA = index.isValid() && currentSelection.size() == 2;
     const bool enableRest = index.isValid() && currentSelection.size() == 1;
+    const auto selection = currentSelection.first();
+    Q_ASSERT(!selection.isNull());
     // configure UI controls if we select 1 or 2 selections
-    m_ui->removeSelections->setEnabled(enableRest);
-    m_ui->exportSelections->setEnabled(enableRest);
+    m_ui->removeSelection->setEnabled(enableRest);
+    m_ui->exportSelection->setEnabled(enableRest);
     m_ui->ddaAnalysis->setEnabled(enableDDA);
     m_ui->editSelection->setEnabled(enableRest);
     m_ui->showTissue->setEnabled(enableRest);
     m_ui->showTable->setEnabled(enableRest);
-    m_ui->saveDB->setEnabled(enableRest);
-    m_ui->exportGenes->setEnabled(enableRest);
-    m_ui->cluster->setEnabled(enableDDA);
+    m_ui->saveDB->setEnabled(enableRest && !selection->saved() && m_dataProxy->userLogIn());
+    m_ui->cluster->setEnabled(false);
 }
 
 void UserSelectionsPage::slotRemoveSelection()
@@ -285,12 +279,10 @@ void UserSelectionsPage::slotEditSelection()
     editSelection->setWindowIcon(QIcon());
     editSelection->setName(selectionItem.name());
     editSelection->setComment(selectionItem.comment());
-    editSelection->setColor(selectionItem.color());
     editSelection->setType(UserSelection::typeToQString(selectionItem.type()));
     if (editSelection->exec() == EditSelectionDialog::Accepted
         && (editSelection->getName() != selectionItem.name()
             || editSelection->getComment() != selectionItem.comment()
-            || editSelection->getColor() != selectionItem.color()
             || editSelection->getType() != UserSelection::typeToQString(selectionItem.type()))
         && !editSelection->getName().isNull()
         && !editSelection->getName().isEmpty()) {
@@ -298,13 +290,14 @@ void UserSelectionsPage::slotEditSelection()
         // update fields
         selectionItem.name(editSelection->getName());
         selectionItem.comment(editSelection->getComment());
-        selectionItem.color(editSelection->getColor());
         selectionItem.type(UserSelection::QStringToType(editSelection->getType()));
 
-        // update the selection object in the database
-        m_waiting_spinner->start();
-        m_dataProxy->updateUserSelection(selectionItem);
-        m_dataProxy->activateCurrentDownloads();
+        if (m_dataProxy->userLogIn()) {
+            // update the selection object in the database
+            m_waiting_spinner->start();
+            m_dataProxy->updateUserSelection(selectionItem);
+            m_dataProxy->activateCurrentDownloads();
+        }
     }
 }
 
@@ -317,9 +310,9 @@ void UserSelectionsPage::slotPerformDEA()
     }
 
     // get the two selection objects
-    auto selectionObject1 = currentSelection.at(0);
+    const auto selectionObject1 = currentSelection.at(0);
     Q_ASSERT(!selectionObject1.isNull());
-    auto selectionObject2 = currentSelection.at(1);
+    const auto selectionObject2 = currentSelection.at(1);
     Q_ASSERT(!selectionObject2.isNull());
     // creates the DEA widget and shows it
     QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
@@ -334,7 +327,7 @@ void UserSelectionsPage::slotShowTissue()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-    auto selectionObject = currentSelection.at(0);
+    const auto selectionObject = currentSelection.first();
 
     // if no snapshot returns
     QByteArray tissue_snapshot = selectionObject->tissueSnapShot();
@@ -350,6 +343,7 @@ void UserSelectionsPage::slotShowTissue()
         return;
     }
 
+    // create a widget to show the image
     QWidget* image_widget = new QWidget();
     image_widget->setAttribute(Qt::WA_DeleteOnClose);
     image_widget->setMinimumSize(600, 600);
@@ -366,13 +360,20 @@ void UserSelectionsPage::slotShowTissue()
 
 void UserSelectionsPage::slotSaveSelection()
 {
+    if (!m_dataProxy->userLogIn()) {
+        return;
+    }
     // get the selected object (should be only one)
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-    auto selectionObject = currentSelection.first();
+    const auto selectionObject = currentSelection.first();
+    // add the user to the selection
+    const auto user = m_dataProxy->getUser();
+    Q_ASSERT(!user.isNull());
+    selectionObject->userId(user->id());
 
     const int answer
         = QMessageBox::warning(this,
@@ -387,7 +388,7 @@ void UserSelectionsPage::slotSaveSelection()
 
     // save the selection object in the database
     m_waiting_spinner->start();
-    m_dataProxy->addUserSelection(*selectionObject);
+    m_dataProxy->addUserSelection(*selectionObject, true);
     m_dataProxy->activateCurrentDownloads();
 }
 
@@ -399,10 +400,10 @@ void UserSelectionsPage::slotShowTable()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-    auto selectionObject = currentSelection.first();
+    const auto selectionObject = currentSelection.first();
     // lazy init
     if (m_selectionsWidget.isNull()) {
-        m_selectionsWidget = new SelectionsWidget(this, Qt::Popup);
+        m_selectionsWidget = new SelectionsWidget(nullptr, Qt::SubWindow);
     }
     // update model
     m_selectionsWidget->slotLoadModel(selectionObject->selectedGenes());
@@ -414,49 +415,6 @@ void UserSelectionsPage::slotSelectionsUpdated()
     // update model with downloaded genes selections
     selectionsModel()->loadUserSelections(m_dataProxy->getUserSelectionList());
     clearControls();
-}
-
-void UserSelectionsPage::slotExportGenes()
-{
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.empty() || currentSelection.size() > 1) {
-        return;
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
-                                                    QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.txt)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    const QFileInfo fileInfo(filename);
-    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
-    if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        QMessageBox::critical(this,
-                              tr("Export Genes Selection"),
-                              tr("The directory is not writable"));
-        return;
-    }
-
-    // create file
-    QFile textFile(filename);
-
-    // currentSelection should only have one element
-    auto selectionItem = currentSelection.first();
-    Q_ASSERT(!selectionItem.isNull());
-
-    // export selection
-    if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        GeneExporter exporter = GeneExporter(GeneExporter::SimpleFull, GeneExporter::TabDelimited);
-        exporter.exportItem(textFile, selectionItem->selectedGenes());
-        qDebug() << "Genes of selection exported to " << textFile.fileName();
-    }
-
-    textFile.close();
 }
 
 void UserSelectionsPage::slotImportSelection()

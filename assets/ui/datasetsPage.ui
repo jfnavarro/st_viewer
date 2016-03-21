@@ -194,8 +194,39 @@
          </item>
          <item>
           <widget class="QPushButton" name="importDataset">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Imports a dataset from files</string>
+           </property>
+           <property name="statusTip">
+            <string>Import a dataset from files</string>
+           </property>
            <property name="text">
-            <string>PushButton</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+             <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

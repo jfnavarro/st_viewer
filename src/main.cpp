@@ -55,9 +55,9 @@ int main(int argc, char** argv)
     setApplicationFlags();
 
     QApplication app(argc, argv);
-    app.setApplicationName(app.translate("main", "ST Viewer"));
-    app.setOrganizationName("Spatial Transcriptomics AB");
-    app.setOrganizationDomain("spatialtranscriptomics.com");
+    app.setApplicationName(app.translate("main", "STViewer"));
+    //app.setOrganizationName("Spatial Transcriptomics");
+    //app.setOrganizationDomain("KTH");
     app.setApplicationVersion(Globals::VERSION);
 
     qDebug() << "Application started successfully.";

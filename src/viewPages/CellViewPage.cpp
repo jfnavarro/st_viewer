@@ -209,17 +209,17 @@ void CellViewPage::clean()
     setEnableButtons(false);
 }
 
-void CellViewPage::slotDatasetOpen(QString datasetId)
+void CellViewPage::slotDatasetOpen(const QString& datasetId)
 {
     // enable toolbar controls
     setEnableButtons(true);
 
-    const auto dataset = m_dataProxy->getSelectedDataset();
+    // get the dataset object
+    const auto dataset = m_dataProxy->getDatasetById(datasetId);
     Q_ASSERT(!dataset.isNull());
-    if (dataset->id() == datasetId) {
-        // We are trying to open the same dataset
-        // We should check if it is the first time if not we return
-    }
+
+    // store the dataset Id
+    m_openedDatasetId = datasetId;
 
     // update Status tip with the name of the currently selected dataset
     setStatusTip(tr("Dataset loaded %1").arg(dataset->name()));
@@ -288,11 +288,6 @@ void CellViewPage::slotDatasetOpen(QString datasetId)
 void CellViewPage::slotClearSelections()
 {
     m_gene_plotter->clearSelection();
-}
-
-void CellViewPage::slotShowSelection(const QVector<UserSelection>& selections)
-{
-    Q_UNUSED(selections);
 }
 
 void CellViewPage::slotGenesSelected(const DataProxy::GeneList& genes)
@@ -937,7 +932,7 @@ void CellViewPage::slotSelectByRegExp()
 void CellViewPage::slotSelectionUpdated()
 {
     // get the current dataset
-    const auto dataset = m_dataProxy->getSelectedDataset();
+    const auto dataset = m_dataProxy->getDatasetById(m_openedDatasetId);
     Q_ASSERT(!dataset.isNull());
     // get selected features and create the selection object
     const auto& selectedFeatures = m_gene_plotter->getSelectedFeatures();
@@ -955,7 +950,7 @@ void CellViewPage::slotSelectionUpdated()
     new_selection.datasetName(dataset->name());
     new_selection.type(UserSelection::Rubberband);
     // proposes as selection name as DATASET NAME + a timestamp
-    new_selection.name(dataset->name() + "_" + QDateTime::currentDateTimeUtc().toString());
+    new_selection.name(dataset->name() + " " + QDateTime::currentDateTimeUtc().toString());
     // add image snapshot
     QImage tissue_snapshot = m_view->grabPixmapGL();
     QByteArray ba;
@@ -963,11 +958,16 @@ void CellViewPage::slotSelectionUpdated()
     buffer.open(QIODevice::WriteOnly);
     tissue_snapshot.save(&buffer, "JPG");
     new_selection.tissueSnapShot(ba);
-    // add account
-    const auto user = m_dataProxy->getUser();
-    Q_ASSERT(!user.isNull());
-    new_selection.userId(user->id());
-    // add the selection object to dataproxy
+    // add account if the user is logged in
+    if (m_dataProxy->userLogIn()) {
+        const auto user = m_dataProxy->getUser();
+        Q_ASSERT(!user.isNull());
+        new_selection.userId(user->id());
+    }
+    // update the created and modified
+    new_selection.created(QDateTime::currentDateTime().toString());
+    new_selection.lastModified(QDateTime::currentDateTime().toString());
+    // add the selection object to dataproxy but not save it to the cloud yet
     m_dataProxy->addUserSelection(new_selection, false);
     // notify that the selection was created and added locally
     emit signalUserSelection();

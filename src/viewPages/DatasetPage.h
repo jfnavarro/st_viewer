@@ -73,6 +73,8 @@ protected:
 
 private:
 
+    // get selected dataset from the table
+    DataProxy::DatasetPtr getSelectedDataset();
     // clear focus and resets to default
     void clearControls();
 

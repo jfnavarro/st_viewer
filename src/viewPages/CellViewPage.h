@@ -35,8 +35,10 @@ class CellView;
 // TODO move visual settings to mainwindow
 // TODO add a ruler visual object
 // TODO add a visual object to show name of dataset
-// TODO add a visual object to draw selections
+// TODO add a visual object to draw selections with color
 // TODO add a lazo selection option
+// TODO add an option to normalize reads with DESeq
+// TODO add an option to show the coordinates when the user hovers a spot
 // TODO add hoover functionalities (specially if user hoovers a selection to show selection info)
 // TODO add a global threshold in percentage for the visual settings
 class CellViewPage : public QWidget
@@ -61,13 +63,10 @@ signals:
 public slots:
 
     // the user has opened a dataset
-    // TODO check if the dataset is already opened
-    void slotDatasetOpen(QString datasetId);
+    // NOTE for now we allow to re-open the same dataset
+    void slotDatasetOpen(const QString &datasetId);
     // the user has cleared the selections
     void slotClearSelections();
-    // the user wants to highlight a selection
-    // TODO send IDs instead
-    void slotShowSelection(const QVector<UserSelection>& selections);
     // the user has selected/deselected genes
     void slotGenesSelected(const DataProxy::GeneList& genes);
     // the user has changed the color of genes
@@ -121,9 +120,6 @@ private:
     // to enable/disable main controls
     void setEnableButtons(bool enable);
 
-    // internal function to initialize UI components
-    void datasetContentDownloaded();
-
     // OpenGL visualization objects
     QPointer<MiniMapGL> m_minimap;
     QPointer<HeatMapLegendGL> m_legend;
@@ -160,6 +156,8 @@ private:
     QPointer<QComboBox> m_geneShapeComboBox;
     // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;
+    // currently opened dataset
+    mutable QString m_openedDatasetId;
 
     Q_DISABLE_COPY(CellViewPage)
 };

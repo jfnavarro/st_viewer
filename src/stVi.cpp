@@ -205,7 +205,7 @@ void stVi::slotUserDownloaded(const DataProxy::DownloadStatus status)
 void stVi::setupUi()
 {
     // main window
-    setObjectName(QStringLiteral("stVi"));
+    setObjectName(QStringLiteral("STViewer"));
     setWindowModality(Qt::NonModal);
     resize(1024, 768);
     setMinimumSize(QSize(1024, 768));
@@ -478,6 +478,12 @@ void stVi::slotAuthorized()
     // clean the cache in the dataproxy
     m_dataProxy->clean();
 
+    // clean datasets/selections and main view
+    m_datasets->clean();
+    m_cellview->clean();
+    m_user_selections->clean();
+    m_genes->clear();
+
     // check for min version if supported and load user (only in online mode)
     m_dataProxy->loadMinVersion();
     m_dataProxy->loadUser();
@@ -491,16 +497,7 @@ void stVi::slotLogOutButton()
     // clear user name in label
     m_cellview->slotSetUserName("");
 
-    // clean data proxy cache
-    m_dataProxy->clean();
-
-    // clean datasets/selections and main view
-    m_datasets->clean();
-    m_cellview->clean();
-    m_user_selections->clean();
-    m_genes->clear();
-
-    // clean access token and authorize
+    // clean access token and start authorization
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
 }

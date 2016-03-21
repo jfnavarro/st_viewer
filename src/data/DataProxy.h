@@ -112,27 +112,28 @@ public:
     // Callers are expected to wait for a signal to notify when the data is downloaded,
     // the signal will contain the status of the operation
 
-    // datasets
+    // dowloads the user's datasets from the cloud
     void loadDatasets();
-    // dataset content (chip, cell images and features)
+    // downloads the dataset content (chip, cell images and features)
     // this function assumes the dataset and its image alignment objects are downloaded
-    void loadDatasetContent();
-    // current logged user
+    // before
+    void loadDatasetContent(const QString &datasetId);
+    // download current logged user
     void loadUser();
-    // selection objects (the new user selections will be added to the container)
+    // download selection objects from the cloud
     void loadUserSelections();
-    // min version supported
+    // download min version supported
     void loadMinVersion();
-    // OAuth2 access token
+    // download OAuth2 access token
     void loadAccessToken(const StringPair& username, const StringPair& password);
-    // chip (image alignment must has been downloaded first)
+    // download chip (image alignment must has been downloaded first)
     void loadChip();
     // chip imported locally
     void loadChip(const Chip& chip);
     // features (dataset must has been downloaded first)
-    void loadFeatures();
+    void loadFeatures(const QString &datasetId);
     // image alignment (dataset must has been downloaded first)
-    void loadImageAlignment();
+    void loadImageAlignment(const QString &imageAlignmentId);
     // image alignment imported locally
     void loadImageAlignment(const ImageAlignment& alignment);
     // cell tissue figure (image alignment must have been downloaded first)
@@ -156,6 +157,7 @@ public:
     // the signal will contain the status of the operation
 
     // add an user selection object to the DB
+    // save = True if the object needs to be saved in the database
     void addUserSelection(const UserSelection& userSelection, bool save = false);
 
     // add a dataset to the list of dataset
@@ -173,7 +175,6 @@ public:
 
     // API DATA GETTERS
     // to retrieve the download objects (caller must have downloaded the object previously)
-    // TODO add some error control here
     // DataProxy assumes only one dataset can be open at the time
 
     // returns the list of currently loaded datasets
@@ -218,14 +219,7 @@ public:
     // returns the current access token if any
     const OAuth2TokenDTO getAccessToken() const;
 
-    // CURRENT DATASET (state selector)
-    // set the currently opened dataset
-    // this will define the status of the DataProxy
-    void setSelectedDataset(const DatasetPtr dataset) const;
-    const DatasetPtr getSelectedDataset() const;
-    void resetSelectedDataset();
-
-    // CURRENTLY ACTIVE DOWNLOADS
+    // returns the number of currently active download processes
     unsigned getActiveDownloads() const;
 
     // Function to connect the active network requests
@@ -337,8 +331,6 @@ private:
     MinVersionArray m_minVersion;
     // the Access token object
     OAuth2TokenDTO m_accessToken;
-    // the current selected dataset
-    mutable DatasetPtr m_selectedDataset;
 
     // configuration manager instance
     Configuration m_configurationManager;

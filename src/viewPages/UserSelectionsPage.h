@@ -25,14 +25,9 @@ class UserSelections;
 // TODO add option to remove multiple selections
 // TODO add option to show selection/s in the cell view
 // TODO add option to show right click with mouse in selection (open, copy, edit...)
-// TODO add initial clustering option
+// TODO implement clustering options
 // TODO add import selections option
-// TODO refactor file explorers to get a file
-// TODO geneExport and featureExport should be one slot and take a type
-// FeaturesExporter and GenesExporter should be one class that can take a type or
-// make them inherit of a common class
 // TODO add ST icon to the widget
-// TODO allow to change color of multiple selections (maybe right click mouse)
 // TODO add posibility to edit and save objects in the table
 class UserSelectionsPage : public QWidget
 {
@@ -61,26 +56,25 @@ private slots:
 
     // slot that handles when the user selects a selection
     void slotSelectionSelected(QModelIndex index);
-    // slots to handle actions from buttons
+    // slots to handle when the user wants to export the selection to a file
     void slotExportSelection();
-    //void slotExportSelectionFeatures();
+    // slot to handle when the user wants to remove a selection
     void slotRemoveSelection();
+    // slot to handle when the user wants to edit a selection
     void slotEditSelection();
-    // this slot will init and show the DEA dialog
+    // this slot will init and show the DEA dialog (requires two selected selections)
     void slotPerformDEA();
     // this slot will get the selection's image and create dialog to show it
     void slotShowTissue();
-    // used to be notified when the genes selections has been downloaded or updated from network
+    // call backs when a selection has been edited or downloaded
     // status contains the status of the operation (ok, abort, error)
     void slotSelectionModified(const DataProxy::DownloadStatus status);
     void slotSelectionsDownloaded(const DataProxy::DownloadStatus status);
-    // to save export the selection to a file
+    // to save a selection in the cloud
     void slotSaveSelection();
-    // to show the genes in the selection in a table
+    // to show the aggregated gene counts of the selection in a table
     void slotShowTable();
-    // to export the aggregated genes to file (show file dialog)
-    void slotExportGenes();
-    // to import a selection from file
+    // to import a selection from a file
     void slotImportSelection();
 
 protected:
@@ -98,6 +92,7 @@ private:
     QSortFilterProxyModel* selectionsProxyModel();
     UserSelectionsItemModel* selectionsModel();
 
+    // Ui object
     std::unique_ptr<Ui::UserSelections> m_ui;
     // reference to dataProxy
     QPointer<DataProxy> m_dataProxy;

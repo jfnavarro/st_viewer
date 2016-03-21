@@ -5,6 +5,8 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <QUuid>
+#include <QDateTime>
+
 #include "dataModel/Dataset.h"
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
@@ -15,6 +17,7 @@
 #include "dataModel/Chip.h"
 #include "dataModel/ImageAlignment.h"
 #include "dataModel/Dataset.h"
+
 #include "ui_datasetsPage.h"
 
 using namespace Globals;
@@ -115,7 +118,8 @@ QSortFilterProxyModel* DatasetPage::datasetsProxyModel()
 
 DatasetItemModel* DatasetPage::datasetsModel()
 {
-    DatasetItemModel* model = qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
+    DatasetItemModel* model =
+            qobject_cast<DatasetItemModel*>(datasetsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -129,13 +133,8 @@ void DatasetPage::showEvent(QShowEvent* event)
 
 void DatasetPage::clearControls()
 {
-    // clear selection/focus
+    // clear selection
     m_ui->datasetsTableView->clearSelection();
-    m_ui->datasetsTableView->clearFocus();
-    m_ui->refresh->clearFocus();
-    m_ui->deleteDataset->clearFocus();
-    m_ui->editDataset->clearFocus();
-    m_ui->openDataset->clearFocus();
 
     // controls disable by default
     m_ui->deleteDataset->setEnabled(false);
@@ -145,12 +144,10 @@ void DatasetPage::clearControls()
 
 void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
-    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
-    const auto currentDataset = datasetsModel()->getDatasets(selected);
-    if (currentDataset.empty() || currentDataset.first().isNull()) {
+    const auto dataset = getSelectedDataset();
+    if (dataset.isNull()) {
         return;
     }
-
     m_ui->deleteDataset->setEnabled(index.isValid());
     m_ui->editDataset->setEnabled(index.isValid());
     m_ui->openDataset->setEnabled(index.isValid());
@@ -176,14 +173,8 @@ void DatasetPage::slotLoadDatasets()
 
 void DatasetPage::slostDatasetsDownloaded(const DataProxy::DownloadStatus status)
 {
-    // if error we reset the selected dataset...this is because we allow free navigation
-    // among pages
-    if (status == DataProxy::Failed) {
-        m_dataProxy->resetSelectedDataset();
-    }
-
-    // if download was not aborted we reset the datasets model
-    if (status != DataProxy::Aborted) {
+    // if the download was sucessful we reset the datasets model
+    if (status == DataProxy::Success) {
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 
@@ -193,16 +184,10 @@ void DatasetPage::slostDatasetsDownloaded(const DataProxy::DownloadStatus status
 
 void DatasetPage::slotEditDataset()
 {
-    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
-    const auto currentDataset = datasetsModel()->getDatasets(selected);
-    if (currentDataset.empty() || currentDataset.size() > 1) {
+    const auto dataset = getSelectedDataset();
+    if (dataset.isNull()) {
         return;
     }
-
-    // currentDataset should only have one element
-    auto dataset = currentDataset.first();
-    Q_ASSERT(!dataset.isNull());
-
     QScopedPointer<EditDatasetDialog> editdataset(
         new EditDatasetDialog(this, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editdataset->setWindowIcon(QIcon());
@@ -229,25 +214,16 @@ void DatasetPage::slotEditDataset()
 
 void DatasetPage::slotOpenDataset()
 {
-    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
-    const auto currentDataset = datasetsModel()->getDatasets(selected);
-    if (currentDataset.empty() || currentDataset.size() > 1) {
+    const auto dataset = getSelectedDataset();
+    if (dataset.isNull()) {
         return;
     }
-
-    // currentDataset should only have one element
-    auto dataset = currentDataset.first();
-    Q_ASSERT(!dataset.isNull());
-
-    // update data proxy with selected dataset
-    m_dataProxy->setSelectedDataset(dataset);
-
     // Now we proceed to download the dataset content
     // if it is downloaded from the cloud, otherwise just import the dataset
     m_waiting_spinner->start();
     if (dataset->downloaded()) {
         // first we need to download the image alignment
-        m_dataProxy->loadImageAlignment();
+        m_dataProxy->loadImageAlignment(dataset->imageAlignmentId());
         m_dataProxy->activateCurrentDownloads();
     } else {
         const auto importer = m_importedDatasets.value(dataset->id());
@@ -294,7 +270,7 @@ void DatasetPage::slotOpenDataset()
 
         m_waiting_spinner->stop();
         if (parsedOk) {
-            emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
+            emit signalDatasetOpen(dataset->id());
         } else {
             QMessageBox::critical(this,
                                   tr("Dataset content"),
@@ -305,15 +281,10 @@ void DatasetPage::slotOpenDataset()
 
 void DatasetPage::slotRemoveDataset()
 {
-    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
-    const auto currentDataset = datasetsModel()->getDatasets(selected);
-    if (currentDataset.empty() || currentDataset.size() > 1) {
+    const auto dataset = getSelectedDataset();
+    if (dataset.isNull()) {
         return;
     }
-
-    // currentDataset should only have one element
-    const auto dataset = currentDataset.first();
-    Q_ASSERT(!dataset.isNull());
 
     const int answer
         = QMessageBox::warning(this,
@@ -348,10 +319,12 @@ void DatasetPage::slotDatasetModified(const DataProxy::DownloadStatus status)
 
 void DatasetPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status)
 {
-    // We are downloading dataset content, first is to download image alignment
+    // If the image alignment was download then we can download the rest of the dataset content
     if (status == DataProxy::Success) {
         // download the rest of the content
-        m_dataProxy->loadDatasetContent();
+        const auto dataset = getSelectedDataset();
+        Q_ASSERT(!dataset.isNull());
+        m_dataProxy->loadDatasetContent(dataset->id());
         m_dataProxy->activateCurrentDownloads();
     } else {
         // something happened downloading the image alignment
@@ -366,19 +339,20 @@ void DatasetPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus s
 {
     const bool isSuccess = status == DataProxy::Success;
     const bool isLastDownload = m_dataProxy->getActiveDownloads() == 0;
+    const auto dataset = getSelectedDataset();
+    Q_ASSERT(!dataset.isNull());
+    // stop downloading spinner
+    m_waiting_spinner->stop();
     if (!isSuccess && isLastDownload) {
         // so this was the last download processed
         // of the dataset content but it failed or aborted
-        m_waiting_spinner->stop();
         QMessageBox::critical(this,
                               tr("Dataset content"),
                               tr("There was an error downloading the dataset content!"));
     } else if (isSuccess && isLastDownload) {
         // so this was the last download of dataset content and it was OK
         // updates state of DataProxy and notify that dataset is open
-        // TODO we should get the dataset Id in a different way
-        m_waiting_spinner->stop();
-        emit signalDatasetOpen(m_dataProxy->getSelectedDataset()->id());
+        emit signalDatasetOpen(dataset->id());
     }
 }
 
@@ -400,11 +374,24 @@ void DatasetPage::slotImportDataset()
             dataset.id(QUuid::createUuid().toString());
             dataset.name(importer->datasetName());
             dataset.downloaded(false);
-            //TODO add more fields for dataset to importer
-            //TODO set created an modified as current date
+            dataset.created(QDateTime::currentDateTime().toString());
+            dataset.lastModified(QDateTime::currentDateTime().toString());
+            //TODO add more fields for dataset to importer (species, stats..)
             m_importedDatasets.insert(dataset.id(), importer);
             m_dataProxy->addDataset(dataset);
             datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
         }
     }
+}
+
+DataProxy::DatasetPtr DatasetPage::getSelectedDataset()
+{
+    const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
+    const auto currentDataset = datasetsModel()->getDatasets(selected);
+    if (currentDataset.empty() || currentDataset.size() > 1) {
+        return DataProxy::DatasetPtr();
+    }
+
+    // currentDataset should only have one element
+    return currentDataset.first();
 }

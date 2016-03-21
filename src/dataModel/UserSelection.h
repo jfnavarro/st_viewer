@@ -88,12 +88,11 @@ public:
     const QString datasetName() const;
     Type type() const;
     const QByteArray tissueSnapShot() const;
-    const QColor color() const;
     // returns true when the selection has been fetched from the DB
     bool saved() const;
     // returns the total sum of reads in the Selection items
     unsigned totalReads() const;
-    // returns the total number of features in this selection
+    // returns the total number of features (gene-spot) in this selection
     unsigned totalFeatures() const;
     // returns the total number of genes in this selection
     unsigned totalGenes() const;
@@ -116,7 +115,6 @@ public:
     void datasetName(const QString& datasetName);
     void type(const Type& type);
     void tissueSnapShot(const QByteArray& tissueSnapShot);
-    void color(const QColor& color);
     void saved(const bool saved);
     // load features is meant to be used when creating the selection
     // this method will call selectedFeatures(features) to assign the features
@@ -145,7 +143,6 @@ private:
     QString m_lastMofidied;
     QString m_datasetName;
     QByteArray m_tissueSnapShot;
-    QColor m_color;
     // for caching purposes
     unsigned m_totalReads;
     unsigned m_totalFeatures;

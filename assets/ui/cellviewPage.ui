@@ -116,7 +116,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/zoom_in.png</normaloff>:/images/zoom_in.png</iconset>
            </property>
            <property name="iconSize">
@@ -157,7 +157,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/zoom_out.png</normaloff>:/images/zoom_out.png</iconset>
            </property>
            <property name="iconSize">
@@ -198,7 +198,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/histogram.png</normaloff>:/images/histogram.png</iconset>
            </property>
            <property name="iconSize">
@@ -239,7 +239,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/selection.png</normaloff>:/images/selection.png</iconset>
            </property>
            <property name="iconSize">
@@ -283,7 +283,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/reg_search.png</normaloff>:/images/reg_search.png</iconset>
            </property>
            <property name="iconSize">
@@ -324,7 +324,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
            </property>
            <property name="iconSize">
@@ -365,7 +365,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
            </property>
            <property name="iconSize">
@@ -406,7 +406,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
            </property>
            <property name="iconSize">
@@ -456,7 +456,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/settings2.png</normaloff>:/images/settings2.png</iconset>
            </property>
            <property name="iconSize">
@@ -492,7 +492,7 @@
          <item>
           <widget class="QLabel" name="username">
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -523,7 +523,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../st_client-build/application.qrc">
+            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
              <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
            </property>
            <property name="iconSize">
@@ -555,7 +555,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="../../../st_client-build/application.qrc">:/images/st_icon.png</pixmap>
+            <pixmap resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">:/images/st_icon.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -821,7 +821,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../st_client-build/application.qrc"/>
+  <include location="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc"/>
  </resources>
  <connections/>
 </ui>

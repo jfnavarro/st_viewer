@@ -73,7 +73,6 @@ UserSelection::UserSelection()
     , m_lastMofidied(QDate::currentDate().toString())
     , m_datasetName()
     , m_tissueSnapShot()
-    , m_color(Qt::red)
     , m_totalReads(0)
     , m_totalFeatures(0)
     , m_totalGenes(0)
@@ -99,7 +98,6 @@ UserSelection::UserSelection(const UserSelection& other)
     , m_lastMofidied(other.m_lastMofidied)
     , m_datasetName(other.m_datasetName)
     , m_tissueSnapShot(other.m_tissueSnapShot)
-    , m_color(other.m_color)
     , m_totalReads(other.m_totalReads)
     , m_totalFeatures(other.m_totalFeatures)
     , m_totalGenes(other.m_totalGenes)
@@ -156,7 +154,6 @@ bool UserSelection::operator==(const UserSelection& other) const
             && m_lastMofidied == other.m_lastMofidied
             && m_datasetName == other.m_datasetName
             && m_tissueSnapShot == other.m_tissueSnapShot
-            && m_color == other.m_color
             && m_totalReads == other.m_totalReads
             && m_totalFeatures == other.m_totalFeatures
             && m_totalGenes == other.m_totalGenes
@@ -244,11 +241,6 @@ const QByteArray UserSelection::tissueSnapShot() const
     return m_tissueSnapShot;
 }
 
-const QColor UserSelection::color() const
-{
-    return m_color;
-}
-
 bool UserSelection::saved() const
 {
     return m_saved;
@@ -274,8 +266,8 @@ unsigned UserSelection::totalGenes() const
 
 unsigned UserSelection::totalSpots() const
 {
-    Q_ASSERT(m_totalGenes == static_cast<unsigned>(m_selectedSpots.size()));
-    return m_totalGenes;
+    Q_ASSERT(m_totalSpots == static_cast<unsigned>(m_selectedSpots.size()));
+    return m_totalSpots;
 }
 
 void UserSelection::id(const QString& id)
@@ -366,17 +358,12 @@ void UserSelection::tissueSnapShot(const QByteArray& tissueSnapShot)
     m_tissueSnapShot = tissueSnapShot;
 }
 
-void UserSelection::color(const QColor& color)
-{
-    m_color = color;
-}
-
 void UserSelection::saved(const bool saved)
 {
     m_saved = saved;
 }
 
-void UserSelection::loadFeatures(const selectedFeaturesList &features)
+void UserSelection::loadFeatures(const selectedFeaturesList& features)
 {
     m_selectedFeatures = features;
     m_selectedGenes.clear();
