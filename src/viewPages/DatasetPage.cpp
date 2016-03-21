@@ -253,7 +253,7 @@ void DatasetPage::slotOpenDataset()
         const auto importer = m_importedDatasets.value(dataset->id());
         Q_ASSERT(importer);
         bool parsedOk = true;
-
+        //TODO feature and image files could be empty (make a check)
         Chip chip;
         const QRect chip_rect = importer->chipDimensions();
         const int x1 = chip_rect.topLeft().x();
@@ -327,13 +327,14 @@ void DatasetPage::slotRemoveDataset()
     }
 
     // remove the dataset on the cloud if it is downloaded
+    //TODO do something when the dataset being removed is the currently opened
     if (dataset->downloaded()) {
         m_waiting_spinner->start();
         m_dataProxy->removeDataset(dataset->id());
         m_dataProxy->activateCurrentDownloads();
     } else {
         m_dataProxy->parseRemoveDataset(dataset->id());
-        slotLoadDatasets();
+        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 }
 
@@ -383,10 +384,14 @@ void DatasetPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus s
 
 void DatasetPage::slotImportDataset()
 {
-    QPointer<DatasetImporter> importer = new DatasetImporter;
+    QPointer<DatasetImporter> importer = new DatasetImporter();
     const int result = importer->exec();
     if (result == QDialog::Accepted) {
-        if (m_importedDatasets.contains(importer->datasetName())) {
+        const DataProxy::DatasetList& datasets = m_dataProxy->getDatasetList();
+        const bool sameName = std::find_if(datasets.begin(), datasets.end(),
+                                           [=](DataProxy::DatasetPtr dataset)
+        {return dataset->name() == importer->datasetName();}) != datasets.end();
+        if (sameName) {
             QMessageBox::critical(this,
                                   tr("Import dataset"),
                                   tr("There is a dataset with the same name!"));
@@ -397,7 +402,7 @@ void DatasetPage::slotImportDataset()
             dataset.downloaded(false);
             //TODO add more fields for dataset to importer
             //TODO set created an modified as current date
-            m_importedDatasets.insert(dataset.name(), importer);
+            m_importedDatasets.insert(dataset.id(), importer);
             m_dataProxy->addDataset(dataset);
             datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
         }

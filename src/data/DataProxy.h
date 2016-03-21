@@ -156,7 +156,7 @@ public:
     // the signal will contain the status of the operation
 
     // add an user selection object to the DB
-    void addUserSelection(const UserSelection& userSelection);
+    void addUserSelection(const UserSelection& userSelection, bool save = false);
 
     // add a dataset to the list of dataset
     void addDataset(const Dataset& dataset);
@@ -249,13 +249,16 @@ public:
     // returns true if the parsing was correct
     bool parseDatasets(const QJsonDocument& doc);
 
-    // function to make sure to clear the selected dataset
-    // in case we remove the dataset that is selected
+    // removes the dataset from the list and makes sure
+    // to put current dataset to null if it is the same
     bool parseRemoveDataset(const QString& datasetId);
 
     // function to parse the user selections
     // returns true if the parsing was correct
     bool parseUserSelections(const QJsonDocument& doc);
+
+    // removes the selection from the list
+    bool parseRemoveUserSelection(const QString& selectionId);
 
     // function to parse the User
     // returns true if the parsing was correct

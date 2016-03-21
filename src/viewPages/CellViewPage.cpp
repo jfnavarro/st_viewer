@@ -968,9 +968,9 @@ void CellViewPage::slotSelectionUpdated()
     Q_ASSERT(!user.isNull());
     new_selection.userId(user->id());
     // add the selection object to dataproxy
-    //m_dataProxy->addUserSelectionLocal(new_selection);
+    m_dataProxy->addUserSelection(new_selection, false);
     // notify that the selection was created and added locally
-    //emit signalUserSelection();
+    emit signalUserSelection();
 }
 
 void CellViewPage::slotGeneShape(int geneShape)

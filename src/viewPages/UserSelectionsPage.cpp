@@ -137,7 +137,7 @@ void UserSelectionsPage::clearControls()
     m_ui->showTable->setEnabled(false);
     m_ui->saveDB->setEnabled(false);
     m_ui->exportGenes->setEnabled(false);
-    m_ui->importSelection->setEnabled(false);
+    m_ui->importSelection->setEnabled(true);
     m_ui->cluster->setEnabled(false);
 }
 
@@ -186,7 +186,6 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->showTable->setEnabled(enableRest);
     m_ui->saveDB->setEnabled(enableRest);
     m_ui->exportGenes->setEnabled(enableRest);
-    m_ui->importSelection->setEnabled(enableRest);
     m_ui->cluster->setEnabled(enableDDA);
 }
 
@@ -214,9 +213,14 @@ void UserSelectionsPage::slotRemoveSelection()
     Q_ASSERT(!selectionItem.isNull());
 
     // remove the selection object
-    m_waiting_spinner->start();
-    m_dataProxy->removeSelection(selectionItem->id());
-    m_dataProxy->activateCurrentDownloads();
+    if (selectionItem->saved()) {
+        m_waiting_spinner->start();
+        m_dataProxy->removeSelection(selectionItem->id());
+        m_dataProxy->activateCurrentDownloads();
+    } else {
+        m_dataProxy->parseRemoveUserSelection(selectionItem->id());
+        slotSelectionsUpdated();
+    }
 }
 
 void UserSelectionsPage::slotExportSelection()
@@ -257,7 +261,6 @@ void UserSelectionsPage::slotExportSelection()
         FeatureExporter exporter
             = FeatureExporter(FeatureExporter::SimpleFull, FeatureExporter::TabDelimited);
         exporter.exportItem(textFile, selectionItem->selectedFeatures());
-        qDebug() << "Selection exported to " << textFile.fileName();
     }
 
     textFile.close();

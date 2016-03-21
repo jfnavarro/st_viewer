@@ -291,7 +291,7 @@ void DataProxy::loadDatasets()
 {
     // clean up container (only online)
     m_datasetList.erase(std::remove_if(m_datasetList.begin(), m_datasetList.end(),
-                                       [](DatasetPtr dataset) {return !dataset->downloaded();}),
+                                       [](DatasetPtr dataset) {return dataset->downloaded();}),
                         m_datasetList.end());
     // creates the request
     NetworkCommand* cmd = RESTCommandFactory::getDatasets(m_configurationManager);
@@ -431,8 +431,10 @@ void DataProxy::loadUser()
 
 void DataProxy::loadUserSelections()
 {
-    // NOTE we do not clean up the container as we might have local selections
-    //m_userSelectionList.clear();
+    // clean up currently download selections
+    m_userSelectionList.erase(std::remove_if(m_userSelectionList.begin(), m_userSelectionList.end(),
+                                             [](UserSelectionPtr selection) {return selection->saved();}),
+            m_userSelectionList.end());
     // creates the requet
     NetworkCommand* cmd = RESTCommandFactory::getSelections(m_configurationManager);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
@@ -457,8 +459,12 @@ void DataProxy::updateUserSelection(const UserSelection& userSelection)
     createRequest(reply, DataProxy::UserSelectionModified);
 }
 
-void DataProxy::addUserSelection(const UserSelection& userSelection)
+void DataProxy::addUserSelection(const UserSelection& userSelection, bool save)
 {
+    if (!save) {
+        m_userSelectionList.append(UserSelectionPtr(new UserSelection(userSelection)));
+        return;
+    }
     // intermediary dto object
     UserSelectionDTO dto(userSelection);
     NetworkCommand* cmd = RESTCommandFactory::addSelection(m_configurationManager);
@@ -477,6 +483,8 @@ void DataProxy::removeSelection(const QString& selectionId)
     NetworkCommand* cmd
         = RESTCommandFactory::removeSelectionBySelectionId(m_configurationManager, selectionId);
     NetworkReply* reply = m_networkManager->httpRequest(cmd);
+    // add the selection id to the reply
+    reply->setProperty("selection_id", QVariant::fromValue<QString>(selectionId));
     // delete the command
     cmd->deleteLater();
     // create the download request
@@ -595,7 +603,6 @@ void DataProxy::slotProcessDownload()
             bool parsedOk = true;
             switch(type) {
             case UserSelectionModified:
-            case UserSelectionRemoved:
             case DatasetModified:
             case None:
             case MinVersionDownloaded:
@@ -628,6 +635,9 @@ void DataProxy::slotProcessDownload()
                 break;
             case UserSelectionsDownloaded:
                 parsedOk = parseUserSelections(reply->getJSON());
+                break;
+            case UserSelectionRemoved:
+                parsedOk = parseRemoveUserSelection(reply->property("selection_id").toString());
                 break;
             }
 
@@ -773,7 +783,9 @@ bool DataProxy::parseRemoveDataset(const QString& datasetId)
     if (!m_selectedDataset.isNull() && datasetId == m_selectedDataset->id()) {
         resetSelectedDataset();
     }
-    return true;
+    // remove and return true of it was found and removed
+    return std::remove_if(m_datasetList.begin(), m_datasetList.end(),
+                          [=](DatasetPtr dataset) {return dataset->id() == datasetId;}) == m_datasetList.end();
 }
 
 bool DataProxy::parseUserSelections(const QJsonDocument& doc)
@@ -806,6 +818,14 @@ bool DataProxy::parseUserSelections(const QJsonDocument& doc)
     }
 
     return true;
+}
+
+bool DataProxy::parseRemoveUserSelection(const QString& selectionId)
+{
+    // remove and return true of it was found and removed
+    return std::remove_if(m_userSelectionList.begin(), m_userSelectionList.end(),
+                          [=](UserSelectionPtr selection)
+    {return selection->id() == selectionId;}) == m_userSelectionList.end();
 }
 
 bool DataProxy::parseUser(const QJsonDocument& doc)

@@ -21,7 +21,7 @@ Dataset::Dataset()
     , m_createdByAccount()
     , m_created(QDate::currentDate().toString())
     , m_lastMofidied(QDate::currentDate().toString())
-    , m_downloaded(false)
+    , m_downloaded(true)
 {
 }
 
