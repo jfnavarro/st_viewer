@@ -206,6 +206,9 @@
              <height>35</height>
             </size>
            </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
            <property name="toolTip">
             <string>Imports a dataset from files</string>
            </property>

@@ -454,7 +454,7 @@ void DataProxy::addUserSelection(const UserSelection& userSelection, bool save)
     // delete the command
     cmd->deleteLater();
     // create the download request
-    createRequest(reply);
+    createRequest(reply, DataProxy::UserSelectionModified);
 }
 
 void DataProxy::removeSelection(const QString& selectionId)
@@ -581,9 +581,6 @@ void DataProxy::slotProcessDownload()
         } else {
             bool parsedOk = true;
             switch(type) {
-            case UserSelectionModified:
-            case DatasetModified:
-            case None:
             case MinVersionDownloaded:
                 parsedOk = parseMinVersion(reply->getJSON());
                 break;
@@ -617,6 +614,8 @@ void DataProxy::slotProcessDownload()
                 break;
             case UserSelectionRemoved:
                 parsedOk = parseRemoveUserSelection(reply->property("selection_id").toString());
+                break;
+            default:
                 break;
             }
 
@@ -652,7 +651,6 @@ void DataProxy::slotProcessDownload()
     // check if it is the last download if so emit the signal to notify
     if (m_activeDownloads == 0) {
         switch(type) {
-        case DataProxy::None:
         case MinVersionDownloaded:
             emit signalMinVersionDownloaded(status);
             break;
@@ -691,6 +689,8 @@ void DataProxy::slotProcessDownload()
             break;
         case DatasetModified:
             emit signalDatasetModified(status);
+            break;
+        default:
             break;
         }
     }
