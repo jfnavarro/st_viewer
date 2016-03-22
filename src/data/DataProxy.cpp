@@ -522,13 +522,13 @@ void DataProxy::createRequest(NetworkReply* reply, DataProxy::DownloadType type)
         QMessageBox::critical(mainWidget,
                               tr("Error downloading data"),
                               tr("There was probably a network problem."));
-        //TODO should send a signal here to notify
+        //TODO should send a signal here to notify that something went wrong
+    } else {
+        // increase active downloads counter
+        m_activeDownloads++;
+        // add reply to the active download replies
+        m_activeNetworkReplies.insert(reply, type);
     }
-
-    // increase active downloads counter
-    m_activeDownloads++;
-    // add reply to the active download replies
-    m_activeNetworkReplies.insert(reply, type);
 }
 
 void DataProxy::activateCurrentDownloads() const
@@ -551,6 +551,13 @@ unsigned DataProxy::getActiveDownloads() const
 
 void DataProxy::slotProcessDownload()
 {
+    // first decrease the counter of currently active downloads
+    if (m_activeDownloads > 0) {
+        m_activeDownloads--;
+    } else {
+        qDebug() << "A network reply call back has been invoked with no active downloads";
+    }
+
     // get reply object from the caller
     NetworkReply* reply = qobject_cast<NetworkReply*>(sender());
     if (reply == nullptr) {
@@ -561,9 +568,16 @@ void DataProxy::slotProcessDownload()
         return;
     }
 
-    // get the parse function from the container (can be nullptr)
+    // get the reply type
     const DataProxy::DownloadType type = m_activeNetworkReplies.value(reply);
+    // status failed by default
     DataProxy::DownloadStatus status = DataProxy::Failed;
+
+    // remove reply from the container
+    const bool removedOK = m_activeNetworkReplies.remove(reply);
+    if (!removedOK) {
+        qDebug() << "A network reply call back has been invoked but it has been processed already";
+    }
 
     if (!reply->hasErrors()) {
         const NetworkReply::ReturnCode returnCode
@@ -619,14 +633,14 @@ void DataProxy::slotProcessDownload()
                 break;
             }
 
-            status = DataProxy::Success;
             // errors could happen parsing the data
             if (reply->hasErrors() || !parsedOk) {
                 const auto error = reply->parseErrors();
                 Q_ASSERT(!error.isNull());
                 QWidget* mainWidget = QApplication::desktop()->screen();
                 QMessageBox::critical(mainWidget, error->name(), error->description());
-                status = DataProxy::Failed;
+            } else {
+                status = DataProxy::Success;
             }
         }
     } else {
@@ -635,16 +649,6 @@ void DataProxy::slotProcessDownload()
         QMessageBox::critical(mainWidget, error->name(), error->description());
     }
 
-    // reply has been processed, lets delete it and decrease counters
-    if (m_activeDownloads > 0) {
-        m_activeDownloads--;
-    } else {
-        qDebug() << "A network reply call back has been invoked with no active downloads";
-    }
-    const bool removedOK = m_activeNetworkReplies.remove(reply);
-    if (!removedOK) {
-        qDebug() << "A network reply call back has been invoked but it has been processed already";
-    }
     // delete reply
     reply->deleteLater();
 
@@ -681,6 +685,7 @@ void DataProxy::slotProcessDownload()
         case UserSelectionsDownloaded:
             emit signalUserSelectionsDownloaded(status);
             break;
+        case UserSelectionAdded:
         case UserSelectionModified:
             emit signalUserSelectionModified(status);
             break;
@@ -721,17 +726,14 @@ bool DataProxy::parseFeatures(const QByteArray& rawData)
 
 bool DataProxy::parseCellTissueImage(const QByteArray& rawData, const QString& imageName)
 {
-    // get filename and file raw data (check if it was encoded or not)
-    bool parsedOk = !rawData.isEmpty() && !rawData.isNull();
-    if (imageName.isEmpty() || imageName.isNull()) {
-        qDebug() << "Error, trying to parse an image without name...";
-        parsedOk = false;
-    }
-
+    // check data and filename
+    const bool parsedOk = !rawData.isEmpty() && !rawData.isNull()
+            && !imageName.isEmpty() && !imageName.isNull();
     if (parsedOk) {
         // store the image as raw data
         m_cellTissueImages.insert(imageName, rawData);
     }
+
     return parsedOk;
 }
 

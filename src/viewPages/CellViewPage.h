@@ -62,9 +62,10 @@ signals:
 
 public slots:
 
-    // the user has opened a dataset
-    // NOTE for now we allow to re-open the same dataset
+    // the user has opened/edit/removed  a dataset
     void slotDatasetOpen(const QString &datasetId);
+    void slotDatasetUpdated(const QString &datasetId);
+    void slotDatasetRemoved(const QString &datasetId);
     // the user has cleared the selections
     void slotClearSelections();
     // the user has selected/deselected genes

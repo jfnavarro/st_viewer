@@ -42,8 +42,10 @@ signals:
 
 public slots:
 
-    // updates the model of the table with the given dataset id
-    void slotLoadModel(const QString& datasetId);
+    // the user has opened/edit/removed  a dataset
+    void slotDatasetOpen(const QString &datasetId);
+    void slotDatasetUpdated(const QString &datasetId);
+    void slotDatasetRemoved(const QString &datasetId);
 
 private slots:
 

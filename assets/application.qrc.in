@@ -1,20 +1,11 @@
 <RCC>
   <qresource>
-    <file alias="images/back.png">${PROJECT_SOURCE_DIR}/assets/images/back.png</file>
-    <file alias="images/next.png">${PROJECT_SOURCE_DIR}/assets/images/next.png</file>
-    <file alias="images/back2.png">${PROJECT_SOURCE_DIR}/assets/images/back2.png</file>
-    <file alias="images/next2.png">${PROJECT_SOURCE_DIR}/assets/images/next2.png</file>
-    <file alias="images/st.png">${PROJECT_SOURCE_DIR}/assets/images/st.png</file>
     <file alias="images/selection_dea.png">${PROJECT_SOURCE_DIR}/assets/images/selection_dea.png</file>
     <file alias="images/logout.png">${PROJECT_SOURCE_DIR}/assets/images/logout.png</file>
     <file alias="images/select-color.png">${PROJECT_SOURCE_DIR}/assets/images/select-color.png</file>
     <file alias="images/zoom_out.png">${PROJECT_SOURCE_DIR}/assets/images/zoom_out.png</file>
     <file alias="images/zoom_in.png">${PROJECT_SOURCE_DIR}/assets/images/zoom_in.png</file>
     <file alias="images/print.png">${PROJECT_SOURCE_DIR}/assets/images/print.png</file>
-    <file alias="images/start-page.png">${PROJECT_SOURCE_DIR}/assets/images/start-page.png</file>
-    <file alias="images/datasets-page.png">${PROJECT_SOURCE_DIR}/assets/images/datasets-page.png</file>
-    <file alias="images/analysis-page.png">${PROJECT_SOURCE_DIR}/assets/images/analysis-page.png</file>
-    <file alias="images/cell-page.png">${PROJECT_SOURCE_DIR}/assets/images/cell-page.png</file>
     <file alias="images/selection.png">${PROJECT_SOURCE_DIR}/assets/images/selection.png</file>
     <file alias="images/settings.png">${PROJECT_SOURCE_DIR}/assets/images/settings.png</file>
     <file alias="images/settings2.png">${PROJECT_SOURCE_DIR}/assets/images/settings2.png</file>
@@ -31,7 +22,6 @@
     <file alias="images/filesave.png">${PROJECT_SOURCE_DIR}/assets/images/filesave.png</file>
     <file alias="images/delete.png">${PROJECT_SOURCE_DIR}/assets/images/delete.png</file>
     <file alias="images/edit.png">${PROJECT_SOURCE_DIR}/assets/images/edit.png</file>
-    <file alias="images/start-button.png">${PROJECT_SOURCE_DIR}/assets/images/start-button.png</file>
     <file alias="images/warning.png">${PROJECT_SOURCE_DIR}/assets/images/warning.png</file>
     <file alias="images/selection2.png">${PROJECT_SOURCE_DIR}/assets/images/selection2.png</file>
     <file alias="images/checked-box.png">${PROJECT_SOURCE_DIR}/assets/images/checked-box.png</file>

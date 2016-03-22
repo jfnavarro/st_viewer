@@ -182,11 +182,22 @@ void GenesWidget::slotSetColorAllSelected(const QColor& color)
     m_genes_tableview->update();
 }
 
-void GenesWidget::slotLoadModel(const QString& datasetId)
+void GenesWidget::slotDatasetOpen(const QString& datasetId)
 {
     Q_UNUSED(datasetId);
     const DataProxy::GeneList& geneList = m_dataProxy->getGeneList();
     getModel()->loadGenes(geneList);
+}
+
+void GenesWidget::slotDatasetUpdated(const QString& datasetId)
+{
+    Q_UNUSED(datasetId);
+}
+
+void GenesWidget::slotDatasetRemoved(const QString& datasetId)
+{
+    Q_UNUSED(datasetId);
+    clear();
 }
 
 GeneFeatureItemModel* GenesWidget::getModel()

@@ -15,12 +15,15 @@ public:
     explicit DatasetImporter(QWidget *parent = 0);
     ~DatasetImporter();
 
-    const QString datasetName();
-    const QByteArray featuresFile();
-    const QRect chipDimensions();
-    const QTransform alignmentMatrix();
-    const QByteArray mainImageFile();
-    const QByteArray secondImageFile();
+    const QString datasetName() const;
+    const QByteArray featuresFile() const;
+    const QRect chipDimensions() const;
+    const QTransform alignmentMatrix() const;
+    const QByteArray mainImageFile() const;
+    const QByteArray secondImageFile() const;
+    const QString species() const;
+    const QString tissue() const;
+    const QString comments() const;
 
 private slots:
 

@@ -369,11 +369,6 @@ void UserSelectionsPage::slotSaveSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-    const auto selectionObject = currentSelection.first();
-    // add the user to the selection
-    const auto user = m_dataProxy->getUser();
-    Q_ASSERT(!user.isNull());
-    selectionObject->userId(user->id());
 
     const int answer
         = QMessageBox::warning(this,
@@ -385,6 +380,12 @@ void UserSelectionsPage::slotSaveSelection()
     if (answer != QMessageBox::Yes) {
         return;
     }
+
+    const auto selectionObject = currentSelection.first();
+    // add the user to the selection
+    const auto user = m_dataProxy->getUser();
+    Q_ASSERT(!user.isNull());
+    selectionObject->userId(user->id());
 
     // save the selection object in the database
     m_waiting_spinner->start();

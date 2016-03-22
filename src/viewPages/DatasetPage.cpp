@@ -77,7 +77,7 @@ DatasetPage::DatasetPage(QPointer<DataProxy> dataProxy, QWidget* parent)
     connect(m_dataProxy.data(),
             SIGNAL(signalDatasetRemoved(DataProxy::DownloadStatus)),
             this,
-            SLOT(slotDatasetModified(DataProxy::DownloadStatus)));
+            SLOT(slotDatasetRemoved(DataProxy::DownloadStatus)));
     connect(m_dataProxy.data(),
             SIGNAL(signalImageAlignmentDownloaded(DataProxy::DownloadStatus)),
             this,
@@ -188,26 +188,39 @@ void DatasetPage::slotEditDataset()
     if (dataset.isNull()) {
         return;
     }
-    QScopedPointer<EditDatasetDialog> editdataset(
-        new EditDatasetDialog(this, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint));
-    editdataset->setWindowIcon(QIcon());
-    editdataset->setName(dataset->name());
-    editdataset->setComment(dataset->statComments());
 
-    if (editdataset->exec() == EditDatasetDialog::Accepted
-        && (editdataset->getName() != dataset->name()
-            || editdataset->getComment() != dataset->statComments())
-        && !editdataset->getName().isEmpty()
-        && !editdataset->getName().isNull()) {
+    if (dataset->downloaded()) {
+        QScopedPointer<EditDatasetDialog> editdataset(
+                    new EditDatasetDialog(this,
+                                          Qt::Dialog |
+                                          Qt::CustomizeWindowHint |
+                                          Qt::WindowTitleHint));
+        editdataset->setWindowIcon(QIcon());
+        editdataset->setName(dataset->name());
+        editdataset->setComment(dataset->statComments());
 
-        dataset->name(editdataset->getName());
-        dataset->statComments(editdataset->getComment());
+        if (editdataset->exec() == EditDatasetDialog::Accepted
+                && (editdataset->getName() != dataset->name()
+                    || editdataset->getComment() != dataset->statComments())
+                && !editdataset->getName().isEmpty()
+                && !editdataset->getName().isNull()) {
 
-        // update the dataset on the cloud if it is downloaded
-        if (dataset->downloaded()) {
+            // TODO maybe check that the name does not exist
+            dataset->name(editdataset->getName());
+            dataset->statComments(editdataset->getComment());
+
+            // update the dataset on the cloud if it is downloaded
             m_waiting_spinner->start();
             m_dataProxy->updateDataset(*dataset);
             m_dataProxy->activateCurrentDownloads();
+        }
+    } else {
+        const auto importer = m_importedDatasets.value(dataset->id());
+        Q_ASSERT(importer);
+        const int result = importer->exec();
+        if (result == QDialog::Accepted) {
+            // TODO maybe check that the name does not exist
+            // TODO should reload the dataset if it is the currently opened
         }
     }
 }
@@ -229,7 +242,8 @@ void DatasetPage::slotOpenDataset()
         const auto importer = m_importedDatasets.value(dataset->id());
         Q_ASSERT(importer);
         bool parsedOk = true;
-        //TODO feature and image files could be empty (make a check)
+
+        // Create a chip with the dimensions given
         Chip chip;
         const QRect chip_rect = importer->chipDimensions();
         const int x1 = chip_rect.topLeft().x();
@@ -252,8 +266,12 @@ void DatasetPage::slotOpenDataset()
         chip.y2Total(y2 + 2);
         m_dataProxy->loadChip(chip);
 
-        parsedOk &= m_dataProxy->parseFeatures(importer->featuresFile());
+        // add the features
+        const QByteArray& featuresFile = importer->featuresFile();
+        Q_ASSERT(!featuresFile.isNull() && !featuresFile.isEmpty());
+        parsedOk &= m_dataProxy->parseFeatures(featuresFile);
 
+        // creates an image alignment with the previous chip and the images
         ImageAlignment alignment;
         alignment.id(QUuid::createUuid().toString());
         alignment.chipId(chip.id());
@@ -265,8 +283,13 @@ void DatasetPage::slotOpenDataset()
         alignment.alignment(importer->alignmentMatrix());
         m_dataProxy->loadImageAlignment(alignment);
 
-        parsedOk &= m_dataProxy->parseCellTissueImage(importer->mainImageFile(), mainImageName);
-        parsedOk &= m_dataProxy->parseCellTissueImage(importer->secondImageFile(), secondImageName);
+        // add the images
+        const QByteArray& mainImageFile = importer->mainImageFile();
+        Q_ASSERT(!mainImageFile.isNull() && !mainImageFile.isEmpty());
+        const QByteArray& secondImageFile = importer->secondImageFile();
+        Q_ASSERT(!secondImageFile.isNull() && !secondImageFile.isEmpty());
+        parsedOk &= m_dataProxy->parseCellTissueImage(mainImageFile, mainImageName);
+        parsedOk &= m_dataProxy->parseCellTissueImage(secondImageFile, secondImageName);
 
         m_waiting_spinner->stop();
         if (parsedOk) {
@@ -275,6 +298,7 @@ void DatasetPage::slotOpenDataset()
             QMessageBox::critical(this,
                                   tr("Dataset content"),
                                   tr("Error loading dataset content"));
+            // TODO clear up the content in dataProxy
         }
     }
 }
@@ -298,7 +322,6 @@ void DatasetPage::slotRemoveDataset()
     }
 
     // remove the dataset on the cloud if it is downloaded
-    //TODO do something when the dataset being removed is the currently opened
     if (dataset->downloaded()) {
         m_waiting_spinner->start();
         m_dataProxy->removeDataset(dataset->id());
@@ -306,20 +329,35 @@ void DatasetPage::slotRemoveDataset()
     } else {
         m_dataProxy->parseRemoveDataset(dataset->id());
         datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+        emit signalDatasetRemoved(dataset->id());
     }
 }
 
 void DatasetPage::slotDatasetModified(const DataProxy::DownloadStatus status)
 {
     if (status == DataProxy::Success) {
-        // We have edited a dataset, re-upload them
+        const auto dataset = getSelectedDataset();
+        Q_ASSERT(!dataset.isNull());
+        emit signalDatasetUpdated(dataset->id());
+        // after we edit a dataset we reload them
+        slotLoadDatasets();
+    }
+}
+
+void DatasetPage::slotDatasetRemoved(const DataProxy::DownloadStatus status)
+{
+    if (status == DataProxy::Success) {
+        const auto dataset = getSelectedDataset();
+        Q_ASSERT(!dataset.isNull());
+        emit signalDatasetRemoved(dataset->id());
+        // after we remove a dataset we reload them
         slotLoadDatasets();
     }
 }
 
 void DatasetPage::slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status)
 {
-    // If the image alignment was download then we can download the rest of the dataset content
+    // If the image alignment was downloaded then we can download the rest of the dataset content
     if (status == DataProxy::Success) {
         // download the rest of the content
         const auto dataset = getSelectedDataset();
@@ -343,14 +381,15 @@ void DatasetPage::slotDatasetContentDownloaded(const DataProxy::DownloadStatus s
     Q_ASSERT(!dataset.isNull());
     // stop downloading spinner
     m_waiting_spinner->stop();
-    if (!isSuccess && isLastDownload) {
-        // so this was the last download processed
-        // of the dataset content but it failed or aborted
+    if (!isSuccess) {
+        // There was an error downloading the dataset content
         QMessageBox::critical(this,
                               tr("Dataset content"),
                               tr("There was an error downloading the dataset content!"));
+        // Cancel the rest of the downloads if any
+        m_dataProxy->slotAbortActiveDownloads();
     } else if (isSuccess && isLastDownload) {
-        // so this was the last download of dataset content and it was OK
+        // so this was the last download of dataset content and it was successful
         // updates state of DataProxy and notify that dataset is open
         emit signalDatasetOpen(dataset->id());
     }
@@ -361,26 +400,19 @@ void DatasetPage::slotImportDataset()
     QPointer<DatasetImporter> importer = new DatasetImporter();
     const int result = importer->exec();
     if (result == QDialog::Accepted) {
-        const DataProxy::DatasetList& datasets = m_dataProxy->getDatasetList();
-        const bool sameName = std::find_if(datasets.begin(), datasets.end(),
-                                           [=](DataProxy::DatasetPtr dataset)
-        {return dataset->name() == importer->datasetName();}) != datasets.end();
-        if (sameName) {
-            QMessageBox::critical(this,
-                                  tr("Import dataset"),
-                                  tr("There is a dataset with the same name!"));
-        } else {
-            Dataset dataset;
-            dataset.id(QUuid::createUuid().toString());
-            dataset.name(importer->datasetName());
-            dataset.downloaded(false);
-            dataset.created(QDateTime::currentDateTime().toString());
-            dataset.lastModified(QDateTime::currentDateTime().toString());
-            //TODO add more fields for dataset to importer (species, stats..)
-            m_importedDatasets.insert(dataset.id(), importer);
-            m_dataProxy->addDataset(dataset);
-            datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
-        }
+        // TODO maybe check that the name does not exist
+        Dataset dataset;
+        dataset.id(QUuid::createUuid().toString());
+        dataset.name(importer->datasetName());
+        dataset.downloaded(false);
+        dataset.created(QDateTime::currentDateTime().toString());
+        dataset.lastModified(QDateTime::currentDateTime().toString());
+        dataset.statComments(importer->comments());
+        dataset.statSpecies(importer->species());
+        dataset.statTissue(importer->tissue());
+        m_importedDatasets.insert(dataset.id(), importer);
+        m_dataProxy->addDataset(dataset);
+        datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
     }
 }
 

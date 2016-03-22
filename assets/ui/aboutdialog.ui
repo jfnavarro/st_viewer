@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>714</height>
+    <width>440</width>
+    <height>305</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,28 +31,6 @@
      <property name="spacing">
       <number>6</number>
      </property>
-     <item>
-      <widget class="QLabel" name="labelAboutIcon">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">:/images/st.png</pixmap>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QLabel" name="labelAboutText">
        <property name="sizePolicy">
@@ -95,9 +73,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

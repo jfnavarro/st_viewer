@@ -8,9 +8,12 @@ DatasetImporter::DatasetImporter(QWidget *parent) :
     m_ui(new Ui::DatasetImporter)
 {
     m_ui->setupUi(this);
-    connect(m_ui->loadFeaturesFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
-    connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
-    connect(m_ui->loadSecondImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSecondImageFile()));
+    connect(m_ui->loadFeaturesFile,
+            SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
+    connect(m_ui->loadMainImageFile,
+            SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
+    connect(m_ui->loadSecondImageFile,
+            SIGNAL(clicked(bool)), this, SLOT(slotLoadSecondImageFile()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(slotValidateForm()));
 }
 
@@ -18,12 +21,27 @@ DatasetImporter::~DatasetImporter()
 {
 }
 
-const QString DatasetImporter::datasetName()
+const QString DatasetImporter::datasetName() const
 {
     return m_ui->datasetName->text();
 }
 
-const QByteArray DatasetImporter::featuresFile()
+const QString DatasetImporter::species() const
+{
+    return m_ui->species->text();
+}
+
+const QString DatasetImporter::tissue() const
+{
+    return m_ui->tissue->text();
+}
+
+const QString DatasetImporter::comments() const
+{
+    return m_ui->comments->toPlainText();
+}
+
+const QByteArray DatasetImporter::featuresFile() const
 {
     QFile file(m_ui->featuresFile->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -32,7 +50,7 @@ const QByteArray DatasetImporter::featuresFile()
     return file.readAll();
 }
 
-const QByteArray DatasetImporter::mainImageFile()
+const QByteArray DatasetImporter::mainImageFile() const
 {
     QFile file(m_ui->mainImageFile->text());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -41,7 +59,7 @@ const QByteArray DatasetImporter::mainImageFile()
     return file.readAll();
 }
 
-const QByteArray DatasetImporter::secondImageFile()
+const QByteArray DatasetImporter::secondImageFile() const
 {
     QFile file(m_ui->secondImageFile->text());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -50,13 +68,13 @@ const QByteArray DatasetImporter::secondImageFile()
     return file.readAll();
 }
 
-const QRect DatasetImporter::chipDimensions()
+const QRect DatasetImporter::chipDimensions() const
 {
     return QRect(QPoint(m_ui->chip_x1->value(), m_ui->chip_y1->value()),
                  QPoint(m_ui->chip_x2->value(), m_ui->chip_y2->value()));
 }
 
-const QTransform DatasetImporter::alignmentMatrix()
+const QTransform DatasetImporter::alignmentMatrix() const
 {
     return QTransform(m_ui->alignment_a11->value(),
                       m_ui->alignment_a12->value(),
@@ -81,7 +99,13 @@ void DatasetImporter::slotLoadFeaturesFile()
         return;
     }
 
-    m_ui->featuresFile->insert(filename);
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Features File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->featuresFile->insert(filename);
+    }
 }
 
 void DatasetImporter::slotLoadMainImageFile()
@@ -96,7 +120,13 @@ void DatasetImporter::slotLoadMainImageFile()
         return;
     }
 
-    m_ui->mainImageFile->insert(filename);
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Main Image File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->mainImageFile->insert(filename);
+    }
 }
 
 void DatasetImporter::slotLoadSecondImageFile()
@@ -111,7 +141,13 @@ void DatasetImporter::slotLoadSecondImageFile()
         return;
     }
 
-    m_ui->secondImageFile->insert(filename);
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Second Image File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->secondImageFile->insert(filename);
+    }
 }
 
 void DatasetImporter::slotValidateForm()

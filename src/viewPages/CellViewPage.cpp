@@ -211,6 +211,10 @@ void CellViewPage::clean()
 
 void CellViewPage::slotDatasetOpen(const QString& datasetId)
 {
+    if (datasetId == m_openedDatasetId) {
+        return;
+    }
+
     // enable toolbar controls
     setEnableButtons(true);
 
@@ -283,6 +287,18 @@ void CellViewPage::slotDatasetOpen(const QString& datasetId)
 
     // load cell tissue (async)
     slotLoadCellFigure();
+}
+
+void CellViewPage::slotDatasetUpdated(const QString &datasetId)
+{
+    slotDatasetOpen(datasetId);
+}
+
+void CellViewPage::slotDatasetRemoved(const QString &datasetId)
+{
+    if (datasetId == m_openedDatasetId) {
+        clean();
+    }
 }
 
 void CellViewPage::slotClearSelections()

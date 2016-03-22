@@ -51,7 +51,8 @@ public:
         FeaturesDownloaded,
         UserSelectionsDownloaded,
         UserSelectionModified,
-        UserSelectionRemoved
+        UserSelectionRemoved,
+        UserSelectionAdded
     };
 
     // MAIN CONTAINERS (MVC)
@@ -63,22 +64,21 @@ public:
     typedef QSharedPointer<UserSelection> UserSelectionPtr;
     typedef QSharedPointer<User> UserPtr;
 
-    // TODO find a way to update DataProxy when data is updated in the backend
-    //(a timed request or a listener thread)
+    // TODO find a way to update or notify DataProxy when data is updated in the backend
 
     // TODO not really needed to use QSharedPointer(they are expensive), it would be better to use
     // direct references or other type of smart pointer
 
     // TODO separate data API and data adquisition
 
-    // TODO replace JSON for binary format for the features (table format)
+    // TODO replace JSON for binary format for the features (data frame or tab delimited)
 
     // TODO make the parsing of the features data asynchronous
 
     // TODO consider to compute the features rendering data here
 
     // TODO Currently dataProxy does not support caching. The dataset content
-    // variables are unique for the dataset currently openned. We should cache
+    // variables are unique for the dataset currently opened. We should cache
     // the dataset content variable by dataset ID
 
     // list of unique genes
@@ -152,7 +152,7 @@ public:
     void updateUserSelection(const UserSelection& geneSelection);
 
     // DATA CREATION
-    // data creation methods are meant to create a new object in the database
+    // data creation methods are meant to create a new object in the database or the local container
     // Callers are expected to wait for a signal to notify when the data is downloaded,
     // the signal will contain the status of the operation
 
@@ -160,7 +160,7 @@ public:
     // save = True if the object needs to be saved in the database
     void addUserSelection(const UserSelection& userSelection, bool save = false);
 
-    // add a dataset to the list of dataset
+    // add a dataset to the list of dataset locally (not in the network)
     void addDataset(const Dataset& dataset);
 
     // DATA DELETION
@@ -231,46 +231,47 @@ public:
     // true if the user is currently logged in
     bool userLogIn() const;
 
-    // function to parse all the features and genes.
+    // function to parse all the features and genes and add them to the containers
     // returns true if the parsing was correct
     bool parseFeatures(const QByteArray& rawData);
 
-    // function to parse a cell tissue image
+    // function to parse a cell tissue image and add it to the container
     // returns true if the parsing was correct
-    bool parseCellTissueImage(const QByteArray& rawData, const QString& imageName = QString());
+    bool parseCellTissueImage(const QByteArray& rawData, const QString& imageName);
 
-    // function to parse the datasets
+    // function to parse the datasets and add them to the container
     // returns true if the parsing was correct
     bool parseDatasets(const QJsonDocument& doc);
 
-    // removes the dataset from the list and makes sure
-    // to put current dataset to null if it is the same
+    // removes the dataset from the container
+    // returns true if it was removed
     bool parseRemoveDataset(const QString& datasetId);
 
-    // function to parse the user selections
+    // function to parse the user selections and add them to the container
     // returns true if the parsing was correct
     bool parseUserSelections(const QJsonDocument& doc);
 
-    // removes the selection from the list
+    // removes the selection from the local container
+    // returns true of it was removed
     bool parseRemoveUserSelection(const QString& selectionId);
 
-    // function to parse the User
+    // function to parse the User and added to the container
     // returns true if the parsing was correct
     bool parseUser(const QJsonDocument& doc);
 
-    // function to parse the image alignment object
+    // function to parse the image alignment object and added to the container
     // returns true if the parsing was correct
     bool parseImageAlignment(const QJsonDocument& doc);
 
-    // function to parse the chip
+    // function to parse a chip and added to the container
     // returns true if the parsing was correct
     bool parseChip(const QJsonDocument& doc);
 
-    // function to parse the min version supported
+    // function to parse the min version supported and added to the container
     // returns true if the parsing was correct
     bool parseMinVersion(const QJsonDocument& doc);
 
-    // function to parse the OAuth2 access token
+    // function to parse the OAuth2 access token and added to the container
     // returns true if the parsing was correct
     bool parseOAuth2(const QJsonDocument& doc);
 

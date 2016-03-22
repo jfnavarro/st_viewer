@@ -56,16 +56,20 @@ private slots:
     void slotRemoveDataset();
     void slotEditDataset();
     void slotImportDataset();
+
     // slot function to process when the datasets have been downloaded/edit/removed
     // and also when the dataset's content is downloaded
     void slostDatasetsDownloaded(const DataProxy::DownloadStatus status);
     void slotDatasetModified(const DataProxy::DownloadStatus status);
     void slotDatasetContentDownloaded(const DataProxy::DownloadStatus status);
     void slotImageAlignmentDownloaded(const DataProxy::DownloadStatus status);
+    void slotDatasetRemoved(const DataProxy::DownloadStatus status);
 
 signals:
 
-    void signalDatasetOpen(QString datasetId);
+    void signalDatasetOpen(const QString datasetId);
+    void signalDatasetRemoved(const QString datasetId);
+    void signalDatasetUpdated(const QString datasetId);
 
 protected:
 

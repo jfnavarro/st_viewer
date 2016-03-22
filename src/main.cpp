@@ -62,12 +62,6 @@ int main(int argc, char** argv)
 
     qDebug() << "Application started successfully.";
 
-    // create and show a splash sreen
-    // TODO replace image for a bigger one with text and info about the group
-    QPixmap pixmap(QStringLiteral(":/images/st.png"));
-    QSplashScreen splash(app.desktop()->screen(), pixmap, Qt::WindowStaysOnTopHint);
-    splash.show();
-
 // set library and plugins paths
 // we need to tell the application where to look for plugins and resources
 #if defined Q_OS_WIN
@@ -108,16 +102,11 @@ int main(int argc, char** argv)
     // check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
-        // close splash screen
-        splash.finish(&mainWindow);
         return EXIT_FAILURE;
     }
 
-    // close splash screen
-    splash.finish(&mainWindow);
     // init graphic components
     mainWindow.init();
-    // TODO we should make sure min-version and other tests pass before showing (maybe block here)
     // show mainwindow.
     mainWindow.show();
     // authorize

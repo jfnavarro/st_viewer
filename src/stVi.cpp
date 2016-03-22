@@ -396,11 +396,35 @@ void stVi::createConnections()
             m_cellview.data(),
             SLOT(slotDatasetOpen(QString)));
 
+    // connect the updated dataset from the datasetview -> cellview
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetUpdated(QString)),
+            m_cellview.data(),
+            SLOT(slotDatasetUpdated(QString)));
+
+    // connect the removed dataset from the datasetview -> cellview
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetRemoved(QString)),
+            m_cellview.data(),
+            SLOT(slotDatasetRemoved(QString)));
+
     // connect the open dataset from datasetview -> genes table
     connect(m_datasets.data(),
             SIGNAL(signalDatasetOpen(QString)),
             m_genes.data(),
-            SLOT(slotLoadModel(QString)));
+            SLOT(slotDatasetOpen(QString)));
+
+    // connect the updated dataset from the datasetview -> cellview
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetUpdated(QString)),
+            m_genes.data(),
+            SLOT(slotDatasetUpdated(QString)));
+
+    // connect the removed dataset from the datasetview -> cellview
+    connect(m_datasets.data(),
+            SIGNAL(signalDatasetRemoved(QString)),
+            m_genes.data(),
+            SLOT(slotDatasetRemoved(QString)));
 
     // connect genes table signals to cellview
     connect(m_genes.data(),
