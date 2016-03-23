@@ -122,7 +122,7 @@ void UserSelectionsPage::clearControls()
     m_ui->selections_tableView->clearSelection();
     m_ui->selections_tableView->clearFocus();
 
-    // remove, edit, dda and export not enable by default
+    // only import enabled by default
     m_ui->removeSelection->setEnabled(false);
     m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
@@ -130,7 +130,7 @@ void UserSelectionsPage::clearControls()
     m_ui->showTissue->setEnabled(false);
     m_ui->showTable->setEnabled(false);
     m_ui->saveDB->setEnabled(false);
-    m_ui->importSelection->setEnabled(false);
+    m_ui->importSelection->setEnabled(true);
     m_ui->cluster->setEnabled(false);
 }
 
@@ -247,7 +247,7 @@ void UserSelectionsPage::slotExportSelection()
     QFile textFile(filename);
 
     // currentSelection should only have one element
-    auto selectionItem = currentSelection.first();
+    const auto selectionItem = currentSelection.first();
     Q_ASSERT(!selectionItem.isNull());
 
     // export selection
@@ -270,33 +270,35 @@ void UserSelectionsPage::slotEditSelection()
     }
 
     // currentSelection should only have one element
-    Q_ASSERT(!currentSelection.first().isNull());
-    UserSelection selectionItem(*currentSelection.first());
+    const auto selection = currentSelection.first();
+    Q_ASSERT(!selection.isNull());
 
     // creates a selection dialog with the current fields
     QScopedPointer<EditSelectionDialog> editSelection(
         new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editSelection->setWindowIcon(QIcon());
-    editSelection->setName(selectionItem.name());
-    editSelection->setComment(selectionItem.comment());
-    editSelection->setType(UserSelection::typeToQString(selectionItem.type()));
+    editSelection->setName(selection->name());
+    editSelection->setComment(selection->comment());
+    editSelection->setType(UserSelection::typeToQString(selection->type()));
     if (editSelection->exec() == EditSelectionDialog::Accepted
-        && (editSelection->getName() != selectionItem.name()
-            || editSelection->getComment() != selectionItem.comment()
-            || editSelection->getType() != UserSelection::typeToQString(selectionItem.type()))
+        && (editSelection->getName() != selection->name()
+            || editSelection->getComment() != selection->comment()
+            || editSelection->getType() != UserSelection::typeToQString(selection->type()))
         && !editSelection->getName().isNull()
         && !editSelection->getName().isEmpty()) {
 
         // update fields
-        selectionItem.name(editSelection->getName());
-        selectionItem.comment(editSelection->getComment());
-        selectionItem.type(UserSelection::QStringToType(editSelection->getType()));
+        selection->name(editSelection->getName());
+        selection->comment(editSelection->getComment());
+        selection->type(UserSelection::QStringToType(editSelection->getType()));
 
-        if (m_dataProxy->userLogIn()) {
+        if (m_dataProxy->userLogIn() && selection->saved()) {
             // update the selection object in the database
             m_waiting_spinner->start();
-            m_dataProxy->updateUserSelection(selectionItem);
+            m_dataProxy->updateUserSelection(*selection);
             m_dataProxy->activateCurrentDownloads();
+        } else {
+            slotSelectionsUpdated();
         }
     }
 }

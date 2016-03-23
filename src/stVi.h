@@ -19,9 +19,7 @@ class CellViewPage;
 class UserSelectionsPage;
 class GenesWidget;
 
-// TODO add somewhere a QLabel to show the user that is logged in
-// TODO action checked does not work with the dataset/selection
-// TODO add shortcuts for the views
+// TODO we might want the cell view tool bar to be in the main window tool bar
 class stVi : public QMainWindow
 {
     Q_OBJECT
@@ -94,13 +92,11 @@ private:
     QPointer<DataProxy> m_dataProxy;
     QPointer<AuthorizationManager> m_authManager;
 
-    // pages
+    // different views
     QPointer<DatasetPage> m_datasets;
     QPointer<CellViewPage> m_cellview;
     QPointer<UserSelectionsPage> m_user_selections;
-    QPointer<GenesWidget> m_genes;
-    // TODO we want the cell view visual settings to be a separate dockable menu
-    // TODO we might want the cell view tool bar to be in the main window tool bar
+    QPointer<GenesWidget> m_genes;    
 };
 
 #endif // stVi_H

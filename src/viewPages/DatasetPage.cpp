@@ -220,7 +220,7 @@ void DatasetPage::slotEditDataset()
         const int result = importer->exec();
         if (result == QDialog::Accepted) {
             // TODO maybe check that the name does not exist
-            // TODO should reload the dataset if it is the currently opened
+            // TODO should reload the dataset automatically if it is the currently opened
         }
     }
 }

@@ -302,7 +302,6 @@ void stVi::slotExit()
                                             QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
-        qDebug() << "[stVi] Info: Exitting the application...";
         saveSettings();
         QApplication::exit(EXIT_SUCCESS);
     }
@@ -317,7 +316,6 @@ void stVi::slotClearCache()
                                             QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
-        qDebug() << "[stVi] : Cleaning the cache...";
         m_dataProxy->cleanAll();
     }
 }
@@ -414,13 +412,13 @@ void stVi::createConnections()
             m_genes.data(),
             SLOT(slotDatasetOpen(QString)));
 
-    // connect the updated dataset from the datasetview -> cellview
+    // connect the updated dataset from the datasetview -> genes table
     connect(m_datasets.data(),
             SIGNAL(signalDatasetUpdated(QString)),
             m_genes.data(),
             SLOT(slotDatasetUpdated(QString)));
 
-    // connect the removed dataset from the datasetview -> cellview
+    // connect the removed dataset from the datasetview -> genes table
     connect(m_datasets.data(),
             SIGNAL(signalDatasetRemoved(QString)),
             m_genes.data(),
@@ -441,10 +439,6 @@ void stVi::createConnections()
             SIGNAL(signalClearSelections()),
             m_cellview.data(),
             SLOT(slotClearSelections()));
-    connect(m_user_selections.data(),
-            SIGNAL(signalShowSelections(QVector<UserSelection>)),
-            m_cellview.data(),
-            SLOT(slotShowSelection(QVector<UserSelection>)));
     connect(m_cellview.data(),
             SIGNAL(signalUserSelection()),
             m_user_selections.data(),
@@ -516,8 +510,6 @@ void stVi::slotAuthorized()
 
 void stVi::slotLogOutButton()
 {
-    qDebug() << "Loging out..";
-
     // clear user name in label
     m_cellview->slotSetUserName("");
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>358</width>
-    <height>501</height>
+    <height>729</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
         <number>9999</number>
        </property>
        <property name="value">
-        <number>1</number>
+        <number>333</number>
        </property>
       </widget>
      </item>
@@ -63,7 +63,7 @@
         <number>9999</number>
        </property>
        <property name="value">
-        <number>1</number>
+        <number>333</number>
        </property>
       </widget>
      </item>
@@ -79,12 +79,18 @@
        <property name="maximum">
         <number>9999</number>
        </property>
+       <property name="value">
+        <number>4700</number>
+       </property>
       </widget>
      </item>
      <item row="2" column="1">
       <widget class="QSpinBox" name="alignment_a32">
        <property name="maximum">
         <number>9999</number>
+       </property>
+       <property name="value">
+        <number>4725</number>
        </property>
       </widget>
      </item>
@@ -134,16 +140,38 @@
    <item row="11" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
-      <widget class="QSpinBox" name="chip_x1"/>
+      <widget class="QSpinBox" name="chip_x1">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>2</number>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QSpinBox" name="chip_y1"/>
+      <widget class="QSpinBox" name="chip_y1">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>2</number>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QSpinBox" name="chip_x2"/>
+      <widget class="QSpinBox" name="chip_x2">
+       <property name="value">
+        <number>32</number>
+       </property>
+      </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QSpinBox" name="chip_y2"/>
+      <widget class="QSpinBox" name="chip_y2">
+       <property name="value">
+        <number>34</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

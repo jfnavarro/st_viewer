@@ -211,9 +211,10 @@ void CellViewPage::clean()
 
 void CellViewPage::slotDatasetOpen(const QString& datasetId)
 {
-    if (datasetId == m_openedDatasetId) {
-        return;
-    }
+    // NOTE for now we enforce to always reload
+    // a dataset even if it is the one currently opened.
+    // The reason is to account for when an element
+    // is updated in the cloud
 
     // enable toolbar controls
     setEnableButtons(true);
@@ -240,7 +241,7 @@ void CellViewPage::slotDatasetOpen(const QString& datasetId)
                                       QPointF(currentChip->x2Border(), currentChip->y2Border()));
 
     // reset main variabless
-    // TODO when we cache user settings we will not need this
+    // TODO when we implement caching of user settings we will not need this
     resetActionStates();
 
     // updade grid size and data
@@ -254,7 +255,7 @@ void CellViewPage::slotDatasetOpen(const QString& datasetId)
     m_gene_plotter->setTransform(alignment);
     m_gene_plotter->generateData();
 
-    // TODO next API will contain these in the dataset
+    // TODO next API will contain these in the dataset stats
     const int min_genes = m_gene_plotter->getMinGenesThreshold();
     const int max_genes = m_gene_plotter->getMaxGenesThreshold();
     const int reads_min = m_gene_plotter->getMinReadsThreshold();
@@ -869,7 +870,7 @@ void CellViewPage::slotSaveImage()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        //showError(tr("Save image"), tr("The directory is not writable"));
+        qDebug() << "Saving the image, the directory is not writtable";
         return;
     }
 
@@ -879,14 +880,14 @@ void CellViewPage::slotSaveImage()
         // adds the suffix from the "Save as type" choosen.
         // But this would be triggered if somehow there is no jpg, png or bmp support
         // compiled in the application
-        //showError(tr("Save image"), tr("The image format is not supported"));
+        qDebug() << "Saving the image, the image format is not supported";
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     QImage image = m_view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        //showError(tr("Save Image"), tr("Error saving image."));
+        qDebug() << "Saving the image, the image coult not be saved";
     }
 }
 
@@ -959,6 +960,7 @@ void CellViewPage::slotSelectionUpdated()
     // create selection object
     UserSelection new_selection;
     // loadFeatures() will populate list of aggregated genes and spots
+    new_selection.id(QUuid::createUuid().toString());
     new_selection.loadFeatures(selectedFeatures);
     new_selection.enabled(true);
     new_selection.saved(false);
