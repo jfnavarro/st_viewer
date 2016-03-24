@@ -43,6 +43,10 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
         return item->color();
     }
 
+    if (role == Qt::DisplayRole && index.column() == CutOff) {
+        return item->cut_off();
+    }
+
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Show:

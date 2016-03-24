@@ -111,28 +111,28 @@ void CellGLView::initializeGL()
                               tr("stVi"),
                               tr("Required OpenGL version not supported.\n"
                                  "Please update your system to at least OpenGL ")
-                                  + QString("%1.%2")
-                                        .arg(OPENGL_VERSION_MAJOR)
-                                        .arg(OPENGL_VERSION_MINOR)
-                                  + ".");
+                              + QString("%1.%2")
+                              .arg(OPENGL_VERSION_MAJOR)
+                              .arg(OPENGL_VERSION_MINOR)
+                              + ".");
         QApplication::exit();
     } else {
 
-    m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // configure OpenGL variables
-    m_qopengl_functions.glDisable(GL_TEXTURE_2D);
-    m_qopengl_functions.glDisable(GL_DEPTH_TEST);
-    m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
-    m_qopengl_functions.glDisable(GL_CULL_FACE);
-    m_qopengl_functions.glShadeModel(GL_SMOOTH);
-    m_qopengl_functions.glEnable(GL_BLEND);
+        // configure OpenGL variables
+        m_qopengl_functions.glDisable(GL_TEXTURE_2D);
+        m_qopengl_functions.glDisable(GL_DEPTH_TEST);
+        m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
+        m_qopengl_functions.glDisable(GL_CULL_FACE);
+        m_qopengl_functions.glShadeModel(GL_SMOOTH);
+        m_qopengl_functions.glEnable(GL_BLEND);
 
-    // set the default blending options.
-    m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
-    m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
-    m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        // set the default blending options.
+        m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
+        m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
+        m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     }
     return;
 }
@@ -390,7 +390,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF& rubberBand, const QMou
 
             // Set the new selection area
             const SelectionEvent::SelectionMode mode
-                = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                    = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
             const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);
@@ -413,7 +413,7 @@ void CellGLView::mousePressEvent(QMouseEvent* event)
     } else {
         // first send the event to any non-transformable nodes under the mouse click
         const bool mouseEventCaptureByNode
-            = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
+                = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
         if (!mouseEventCaptureByNode) {
             // no non-transformable nodes under the mouse click were found.
             if (event->button() == Qt::LeftButton && !m_selecting) {
@@ -495,7 +495,7 @@ void CellGLView::keyPressEvent(QKeyEvent* event)
 {
     const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
     const qreal delta_panning_key
-        = shortest_side_length / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+            = shortest_side_length / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
 
     QPointF pan_adjustment(0, 0);
     switch (event->key()) {
@@ -600,7 +600,7 @@ const QTransform CellGLView::nodeTransformations(GraphicItemGL* node) const
         break;
     case Globals::Anchor::NorthWest:
     case Globals::Anchor::None:
-    // fall trough
+        // fall trough
     default:
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;

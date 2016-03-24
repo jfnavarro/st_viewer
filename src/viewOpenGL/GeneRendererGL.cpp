@@ -55,7 +55,7 @@ void GeneRendererGL::clearData()
     m_geneInfoByIndex.clear();
     m_geneInfoTotalReadsIndex.clear();
     m_geneInfoTotalGenesIndex.clear();
-    m_geneIntoByGene.clear();
+    m_geneInfoByGene.clear();
     m_geneInfoByFeature.clear();
     m_geneInfoByFeatureIndex.clear();
 
@@ -181,7 +181,7 @@ void GeneRendererGL::generateDataAsync()
         // reset to default the attributes of the gene
         feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
         feature->geneObject()->selected(false);
-        feature->geneObject()->cut_off(1);
+        feature->geneObject()->cut_off(0);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -205,7 +205,7 @@ void GeneRendererGL::generateDataAsync()
 
         // update look up container for the features and indexes
         m_geneInfoByIndex.insert(index, feature);                   // multiple features per index
-        m_geneIntoByGene.insert(feature->geneObject(), index);      // multiple indexes per gene
+        m_geneInfoByGene.insert(feature->geneObject(), index);      // multiple indexes per gene
         m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
         m_geneInfoByFeatureIndex.insert(feature, index);            // one index per feature
 
@@ -229,6 +229,46 @@ void GeneRendererGL::generateDataAsync()
         m_thresholdTotalReadsUpper = std::max(feature_total_reads, m_thresholdTotalReadsUpper);
 
     } // endforeach
+
+    // compute gene's cut off
+    const unsigned minseglen = 2;
+    foreach(DataProxy::GenePtr gene, m_dataProxy->getGeneList()) {
+        const auto feature_list = m_geneInfoByFeature.values(gene);
+        const auto num_features = feature_list.size();
+        QVector<unsigned> counts(num_features);
+        std::transform(feature_list.begin(), feature_list.end(), std::back_inserter(counts),
+                       [](DataProxy::FeaturePtr feature) { return feature->hits(); });
+        std::sort(counts.begin(), counts.end());
+        QVector<unsigned> squared_summed_counts(counts);
+        std::transform(squared_summed_counts.begin(), squared_summed_counts.end(),
+                       squared_summed_counts.begin(), squared_summed_counts.begin(),
+                       std::multiplies<int>());
+        std::partial_sum(squared_summed_counts.begin(),
+                         squared_summed_counts.end(),
+                         squared_summed_counts.begin());
+        squared_summed_counts.insert(squared_summed_counts.begin(), 0);
+        QVector<float> taustar;
+        int n = minseglen;
+        std::generate_n(std::back_inserter(taustar),
+                        num_features + minseglen - 2,
+                        [n]()mutable { return n++; });
+        QVector<float> tmp1;
+        QVector<float> tmp2;
+        QVector<float> tmp3;
+        const float last_count = static_cast<float>(squared_summed_counts.last());
+        std::transform(squared_summed_counts.begin() + 2,
+                       squared_summed_counts.end() - 1,
+                       std::back_inserter(tmp1),
+                       [=](int count) { return count / last_count;});
+        std::transform(taustar.begin(), taustar.end(), std::back_inserter(tmp2),
+                       [=](int tau_value) { return tau_value / static_cast<float>(num_features);});
+        std::transform(tmp1.begin(), tmp1.end(), tmp2.begin(), std::back_inserter(tmp3),
+                       [](double a, double b) { return std::fabs(a-b); });
+        const auto tau = std::distance(tmp3.begin(), std::max_element(tmp3.begin(), tmp3.end()));
+        const unsigned est_readcount = *std::lower_bound(counts.begin(),
+                                                         counts.end(), counts.at(tau));
+        gene->cut_off(est_readcount);
+    }
 
     QGuiApplication::restoreOverrideCursor();
 }
@@ -428,7 +468,7 @@ void GeneRendererGL::updateVisual(const DataProxy::GeneList& geneList, const boo
     // get indexes from the list of genes
     QList<int> unique_indexes;
     foreach (DataProxy::GenePtr gene, geneList) {
-        unique_indexes.append(m_geneIntoByGene.values(gene));
+        unique_indexes.append(m_geneInfoByGene.values(gene));
     }
 
     // make the indexes unique

@@ -41,14 +41,21 @@ public:
     // lookup maps for features
     // TODO the current schema to store the visual data does not seem the most
     // convenient, we should get deeper and optimize this
-    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap; // OpenGL index to features
-    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap;     // gene to OpenGL indexes
-    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr>
-        GeneInfoByFeatureMap;                                            // gene to features
-    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap; // feature to OpenGL index
-    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;       // list of features
-    typedef QHash<int, int> GeneInfoFeatureCount; // index to total reads/genes
-    typedef QuadTree<int, 8> GeneInfoQuadTree;    // lookup quadtree type
+
+    // OpenGL index to features
+    typedef QMultiHash<int, DataProxy::FeaturePtr> GeneInfoByIndexMap;
+    // gene to OpenGL indexes
+    typedef QMultiHash<DataProxy::GenePtr, int> GeneInfoByGeneMap;
+    // gene to features
+    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap;
+    // feature to OpenGL index
+    typedef QHash<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap;
+    // list of features
+    typedef QList<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
+    // index to total reads/genes
+    typedef QHash<int, int> GeneInfoFeatureCount;
+    // lookup quadtree type
+    typedef QuadTree<int, 8> GeneInfoQuadTree;
 
     GeneRendererGL(QPointer<DataProxy> dataProxy, QObject* parent = 0);
     virtual ~GeneRendererGL();
@@ -161,7 +168,7 @@ private:
     // gene lookup data (index -> features)
     GeneInfoByIndexMap m_geneInfoByIndex;
     // gene lookup data (gene -> indexes)
-    GeneInfoByGeneMap m_geneIntoByGene;
+    GeneInfoByGeneMap m_geneInfoByGene;
     // gene lookup data (gene -> features)
     GeneInfoByFeatureMap m_geneInfoByFeature;
     // gene look up data (feature -> index)
