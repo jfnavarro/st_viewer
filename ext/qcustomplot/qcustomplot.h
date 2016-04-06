@@ -1,7 +1,7 @@
 /***************************************************************************
 **                                                                        **
 **  QCustomPlot, an easy to use, modern plotting widget for Qt            **
-**  Copyright (C) 2011, 2012, 2013, 2014 Emanuel Eichhammer               **
+**  Copyright (C) 2011-2015 Emanuel Eichhammer                            **
 **                                                                        **
 **  This program is free software: you can redistribute it and/or modify  **
 **  it under the terms of the GNU General Public License as published by  **
@@ -19,8 +19,8 @@
 ****************************************************************************
 **           Author: Emanuel Eichhammer                                   **
 **  Website/Contact: http://www.qcustomplot.com/                          **
-**             Date: 07.04.14                                             **
-**          Version: 1.2.1                                                **
+**             Date: 22.12.15                                             **
+**          Version: 1.3.2                                                **
 ****************************************************************************/
 
 #ifndef QCUSTOMPLOT_H
@@ -51,7 +51,18 @@
 #  include <QPrintEngine>
 #else
 #  include <QtNumeric>
-#  include <QtPrintSupport>
+#  include <QtPrintSupport/QtPrintSupport>
+#endif
+
+// Modification to ignore a warning in cland and GCC
+#if defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
+#if defined(__gcc__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
 class QCPPainter;
@@ -72,6 +83,7 @@ class QCPLegend;
 class QCPAbstractLegendItem;
 class QCPColorMap;
 class QCPColorScale;
+class QCPBars;
 
 
 /*! \file */
@@ -415,7 +427,7 @@ class QCP_LIB_DECL QCPLayerable : public QObject
   Q_PROPERTY(bool antialiased READ antialiased WRITE setAntialiased)
   /// \endcond
 public:
-  QCPLayerable(QCustomPlot *plot, QString targetLayer="", QCPLayerable *parentLayerable=0);
+  QCPLayerable(QCustomPlot *plot, QString targetLayer=QString(), QCPLayerable *parentLayerable=0);
   ~QCPLayerable();
   
   // getters:
@@ -480,8 +492,8 @@ public:
   QCPRange();
   QCPRange(double lower, double upper);
   
-  bool operator==(const QCPRange& other) { return lower == other.lower && upper == other.upper; }
-  bool operator!=(const QCPRange& other) { return !(*this == other); }
+  bool operator==(const QCPRange& other) const { return lower == other.lower && upper == other.upper; }
+  bool operator!=(const QCPRange& other) const { return !(*this == other); }
   
   QCPRange &operator+=(const double& value) { lower+=value; upper+=value; return *this; }
   QCPRange &operator-=(const double& value) { lower-=value; upper-=value; return *this; }
@@ -660,7 +672,7 @@ public:
   QCP::MarginSides autoMargins() const { return mAutoMargins; }
   QSize minimumSize() const { return mMinimumSize; }
   QSize maximumSize() const { return mMaximumSize; }
-  QCPMarginGroup *marginGroup(QCP::MarginSide side) const { return mMarginGroups.value(side, nullptr/*(QCPMarginGroup*)0*/); }
+  QCPMarginGroup *marginGroup(QCP::MarginSide side) const { return mMarginGroups.value(side, (QCPMarginGroup*)0); }
   QHash<QCP::MarginSide, QCPMarginGroup*> marginGroups() const { return mMarginGroups; }
   
   // setters:
@@ -998,6 +1010,7 @@ class QCP_LIB_DECL QCPAxis : public QCPLayerable
   Q_PROPERTY(QFont tickLabelFont READ tickLabelFont WRITE setTickLabelFont)
   Q_PROPERTY(QColor tickLabelColor READ tickLabelColor WRITE setTickLabelColor)
   Q_PROPERTY(double tickLabelRotation READ tickLabelRotation WRITE setTickLabelRotation)
+  Q_PROPERTY(LabelSide tickLabelSide READ tickLabelSide WRITE setTickLabelSide)
   Q_PROPERTY(QString dateTimeFormat READ dateTimeFormat WRITE setDateTimeFormat)
   Q_PROPERTY(Qt::TimeSpec dateTimeSpec READ dateTimeSpec WRITE setDateTimeSpec)
   Q_PROPERTY(QString numberFormat READ numberFormat WRITE setNumberFormat)
@@ -1055,6 +1068,15 @@ public:
                  };
   Q_ENUMS(LabelType)
   /*!
+    Defines on which side of the axis the tick labels (numbers) shall appear.
+    
+    \see setTickLabelSide
+  */
+  enum LabelSide { lsInside    ///< Tick labels will be displayed inside the axis rect and clipped to the inner axis rect
+                   ,lsOutside  ///< Tick labels will be displayed outside the axis rect
+                 };
+  Q_ENUMS(LabelSide)
+  /*!
     Defines the scale of an axis.
     \see setScaleType
   */
@@ -1096,6 +1118,7 @@ public:
   QFont tickLabelFont() const { return mTickLabelFont; }
   QColor tickLabelColor() const { return mTickLabelColor; }
   double tickLabelRotation() const;
+  LabelSide tickLabelSide() const;
   QString dateTimeFormat() const { return mDateTimeFormat; }
   Qt::TimeSpec dateTimeSpec() const { return mDateTimeSpec; }
   QString numberFormat() const;
@@ -1151,6 +1174,7 @@ public:
   void setTickLabelFont(const QFont &font);
   void setTickLabelColor(const QColor &color);
   void setTickLabelRotation(double degrees);
+  void setTickLabelSide(LabelSide side);
   void setDateTimeFormat(const QString &format);
   void setDateTimeSpec(const Qt::TimeSpec &timeSpec);
   void setNumberFormat(const QString &formatCode);
@@ -1240,7 +1264,7 @@ protected:
   QString mDateTimeFormat;
   Qt::TimeSpec mDateTimeSpec;
   int mNumberPrecision;
-  char mNumberFormatChar;
+  QLatin1Char mNumberFormatChar;
   bool mNumberBeautifulPowers;
   //bool mNumberMultiplyCross; // QCPAxisPainter
   // ticks and subticks:
@@ -1329,13 +1353,14 @@ public:
   QString label;
   int tickLabelPadding; // directly accessed by QCPAxis setters/getters
   double tickLabelRotation; // directly accessed by QCPAxis setters/getters
+  QCPAxis::LabelSide tickLabelSide; // directly accessed by QCPAxis setters/getters
   bool substituteExponent;
   bool numberMultiplyCross; // directly accessed by QCPAxis setters/getters
   int tickLengthIn, tickLengthOut, subTickLengthIn, subTickLengthOut; // directly accessed by QCPAxis setters/getters
   QPen tickPen, subTickPen;
   QFont tickLabelFont;
   QColor tickLabelColor;
-  QRect alignmentRect, viewportRect;
+  QRect axisRect, viewportRect;
   double offset; // directly accessed by QCPAxis setters/getters
   bool abbreviateDecimalPowers;
   bool reversedEndings;
@@ -1504,14 +1529,16 @@ protected:
   QCustomPlot *mParentPlot;
   QCPAbstractItem *mParentItem;
   int mAnchorId;
-  QSet<QCPItemPosition*> mChildren;
+  QSet<QCPItemPosition*> mChildrenX, mChildrenY;
   
   // introduced virtual methods:
   virtual QCPItemPosition *toQCPItemPosition() { return 0; }
   
   // non-virtual methods:
-  void addChild(QCPItemPosition* pos); // called from pos when this anchor is set as parent
-  void removeChild(QCPItemPosition *pos); // called from pos when its parent anchor is reset or pos deleted
+  void addChildX(QCPItemPosition* pos); // called from pos when this anchor is set as parent
+  void removeChildX(QCPItemPosition *pos); // called from pos when its parent anchor is reset or pos deleted
+  void addChildY(QCPItemPosition* pos); // called from pos when this anchor is set as parent
+  void removeChildY(QCPItemPosition *pos); // called from pos when its parent anchor is reset or pos deleted
   
 private:
   Q_DISABLE_COPY(QCPItemAnchor)
@@ -1544,8 +1571,12 @@ public:
   virtual ~QCPItemPosition();
   
   // getters:
-  PositionType type() const { return mPositionType; }
-  QCPItemAnchor *parentAnchor() const { return mParentAnchor; }
+  PositionType type() const { return typeX(); }
+  PositionType typeX() const { return mPositionTypeX; }
+  PositionType typeY() const { return mPositionTypeY; }
+  QCPItemAnchor *parentAnchor() const { return parentAnchorX(); }
+  QCPItemAnchor *parentAnchorX() const { return mParentAnchorX; }
+  QCPItemAnchor *parentAnchorY() const { return mParentAnchorY; }
   double key() const { return mKey; }
   double value() const { return mValue; }
   QPointF coords() const { return QPointF(mKey, mValue); }
@@ -1556,7 +1587,11 @@ public:
   
   // setters:
   void setType(PositionType type);
+  void setTypeX(PositionType type);
+  void setTypeY(PositionType type);
   bool setParentAnchor(QCPItemAnchor *parentAnchor, bool keepPixelPosition=false);
+  bool setParentAnchorX(QCPItemAnchor *parentAnchor, bool keepPixelPosition=false);
+  bool setParentAnchorY(QCPItemAnchor *parentAnchor, bool keepPixelPosition=false);
   void setCoords(double key, double value);
   void setCoords(const QPointF &coords);
   void setAxes(QCPAxis* keyAxis, QCPAxis* valueAxis);
@@ -1565,11 +1600,11 @@ public:
   
 protected:
   // property members:
-  PositionType mPositionType;
+  PositionType mPositionTypeX, mPositionTypeY;
   QPointer<QCPAxis> mKeyAxis, mValueAxis;
   QPointer<QCPAxisRect> mAxisRect;
   double mKey, mValue;
-  QCPItemAnchor *mParentAnchor;
+  QCPItemAnchor *mParentAnchorX, *mParentAnchorY;
   
   // reimplemented virtual methods:
   virtual QCPItemPosition *toQCPItemPosition() { return this; }
@@ -1783,7 +1818,7 @@ public:
   QList<QCPLegend*> selectedLegends() const;
   Q_SLOT void deselectAll();
   
-  bool savePdf(const QString &fileName, bool noCosmeticPen=false, int width=0, int height=0, const QString &pdfCreator="", const QString &pdfTitle="");
+  bool savePdf(const QString &fileName, bool noCosmeticPen=false, int width=0, int height=0, const QString &pdfCreator=QString(), const QString &pdfTitle=QString());
   bool savePng(const QString &fileName, int width=0, int height=0, double scale=1.0, int quality=-1);
   bool saveJpg(const QString &fileName, int width=0, int height=0, double scale=1.0, int quality=-1);
   bool saveBmp(const QString &fileName, int width=0, int height=0, double scale=1.0);
@@ -1987,7 +2022,7 @@ public:
   QCPAxis *axis(QCPAxis::AxisType type, int index=0) const;
   QList<QCPAxis*> axes(QCPAxis::AxisTypes types) const;
   QList<QCPAxis*> axes() const;
-  QCPAxis *addAxis(QCPAxis::AxisType type);
+  QCPAxis *addAxis(QCPAxis::AxisType type, QCPAxis *axis=0);
   QList<QCPAxis*> addAxes(QCPAxis::AxisTypes types);
   bool removeAxis(QCPAxis *axis);
   QCPLayoutInset *insetLayout() const { return mInsetLayout; }
@@ -2452,7 +2487,7 @@ public:
 Q_DECLARE_TYPEINFO(QCPData, Q_MOVABLE_TYPE);
 
 /*! \typedef QCPDataMap
-  Container for storing QCPData items in a sorted fashion. The key of the map
+  Container for storing \ref QCPData items in a sorted fashion. The key of the map
   is the key member of the QCPData instance.
   
   This is the container in which QCPGraph holds its data.
@@ -2621,7 +2656,7 @@ public:
 Q_DECLARE_TYPEINFO(QCPCurveData, Q_MOVABLE_TYPE);
 
 /*! \typedef QCPCurveDataMap
-  Container for storing QCPCurveData items in a sorted fashion. The key of the map
+  Container for storing \ref QCPCurveData items in a sorted fashion. The key of the map
   is the t member of the QCPCurveData instance.
   
   This is the container in which QCPCurve holds its data.
@@ -2696,8 +2731,13 @@ protected:
   
   // non-virtual methods:
   void getCurveData(QVector<QPointF> *lineData) const;
+  int getRegion(double x, double y, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
+  QPointF getOptimizedPoint(int prevRegion, double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
+  QVector<QPointF> getOptimizedCornerPoints(int prevRegion, int currentRegion, double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
+  bool mayTraverse(int prevRegion, int currentRegion) const;
+  bool getTraverse(double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom, QPointF &crossA, QPointF &crossB) const;
+  void getTraverseCornerPoints(int prevRegion, int currentRegion, double rectLeft, double rectTop, double rectRight, double rectBottom, QVector<QPointF> &beforeTraverse, QVector<QPointF> &afterTraverse) const;
   double pointDistance(const QPointF &pixelPoint) const;
-  QPointF outsideCoordsToPixels(double key, double value, int region, QRect axisRect) const;
   
   friend class QCustomPlot;
   friend class QCPLegend;
@@ -2706,6 +2746,68 @@ protected:
 
 /*! \file */
 
+
+
+class QCP_LIB_DECL QCPBarsGroup : public QObject
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(SpacingType spacingType READ spacingType WRITE setSpacingType)
+  Q_PROPERTY(double spacing READ spacing WRITE setSpacing)
+  /// \endcond
+public:
+  /*!
+    Defines the ways the spacing between bars in the group can be specified. Thus it defines what
+    the number passed to \ref setSpacing actually means.
+    
+    \see setSpacingType, setSpacing
+  */
+  enum SpacingType { stAbsolute       ///< Bar spacing is in absolute pixels
+                     ,stAxisRectRatio ///< Bar spacing is given by a fraction of the axis rect size
+                     ,stPlotCoords    ///< Bar spacing is in key coordinates and thus scales with the key axis range
+                 };
+  QCPBarsGroup(QCustomPlot *parentPlot);
+  ~QCPBarsGroup();
+  
+  // getters:
+  SpacingType spacingType() const { return mSpacingType; }
+  double spacing() const { return mSpacing; }
+  
+  // setters:
+  void setSpacingType(SpacingType spacingType);
+  void setSpacing(double spacing);
+  
+  // non-virtual methods:
+  QList<QCPBars*> bars() const { return mBars; }
+  QCPBars* bars(int index) const;
+  int size() const { return mBars.size(); }
+  bool isEmpty() const { return mBars.isEmpty(); }
+  void clear();
+  bool contains(QCPBars *bars) const { return mBars.contains(bars); }
+  void append(QCPBars *bars);
+  void insert(int i, QCPBars *bars);
+  void remove(QCPBars *bars);
+  
+protected:
+  // non-property members:
+  QCustomPlot *mParentPlot;
+  SpacingType mSpacingType;
+  double mSpacing;
+  QList<QCPBars*> mBars;
+  
+  // non-virtual methods:
+  void registerBars(QCPBars *bars);
+  void unregisterBars(QCPBars *bars);
+  
+  // virtual methods:
+  double keyPixelOffset(const QCPBars *bars, double keyCoord);
+  double getPixelSpacing(const QCPBars *bars, double keyCoord);
+  
+private:
+  Q_DISABLE_COPY(QCPBarsGroup)
+  
+  friend class QCPBars;
+};
 
 
 class QCP_LIB_DECL QCPBarData
@@ -2718,7 +2820,7 @@ public:
 Q_DECLARE_TYPEINFO(QCPBarData, Q_MOVABLE_TYPE);
 
 /*! \typedef QCPBarDataMap
-  Container for storing QCPBarData items in a sorted fashion. The key of the map
+  Container for storing \ref QCPBarData items in a sorted fashion. The key of the map
   is the key member of the QCPBarData instance.
   
   This is the container in which QCPBars holds its data.
@@ -2734,21 +2836,42 @@ class QCP_LIB_DECL QCPBars : public QCPAbstractPlottable
   Q_OBJECT
   /// \cond INCLUDE_QPROPERTIES
   Q_PROPERTY(double width READ width WRITE setWidth)
+  Q_PROPERTY(WidthType widthType READ widthType WRITE setWidthType)
+  Q_PROPERTY(QCPBarsGroup* barsGroup READ barsGroup WRITE setBarsGroup)
+  Q_PROPERTY(double baseValue READ baseValue WRITE setBaseValue)
   Q_PROPERTY(QCPBars* barBelow READ barBelow)
   Q_PROPERTY(QCPBars* barAbove READ barAbove)
   /// \endcond
 public:
+  /*!
+    Defines the ways the width of the bar can be specified. Thus it defines what the number passed
+    to \ref setWidth actually means.
+    
+    \see setWidthType, setWidth
+  */
+  enum WidthType { wtAbsolute       ///< Bar width is in absolute pixels
+                   ,wtAxisRectRatio ///< Bar width is given by a fraction of the axis rect size
+                   ,wtPlotCoords    ///< Bar width is in key coordinates and thus scales with the key axis range
+                 };
+   Q_ENUMS(WidthType)
+  
   explicit QCPBars(QCPAxis *keyAxis, QCPAxis *valueAxis);
   virtual ~QCPBars();
   
   // getters:
   double width() const { return mWidth; }
+  WidthType widthType() const { return mWidthType; }
+  QCPBarsGroup *barsGroup() const { return mBarsGroup; }
+  double baseValue() const { return mBaseValue; }
   QCPBars *barBelow() const { return mBarBelow.data(); }
   QCPBars *barAbove() const { return mBarAbove.data(); }
   QCPBarDataMap *data() const { return mData; }
   
   // setters:
   void setWidth(double width);
+  void setWidthType(WidthType widthType);
+  void setBarsGroup(QCPBarsGroup *barsGroup);
+  void setBaseValue(double baseValue);
   void setData(QCPBarDataMap *data, bool copy=false);
   void setData(const QVector<double> &key, const QVector<double> &value);
   
@@ -2772,6 +2895,9 @@ protected:
   // property members:
   QCPBarDataMap *mData;
   double mWidth;
+  WidthType mWidthType;
+  QCPBarsGroup *mBarsGroup;
+  double mBaseValue;
   QPointer<QCPBars> mBarBelow, mBarAbove;
   
   // reimplemented virtual methods:
@@ -2781,12 +2907,15 @@ protected:
   virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
   
   // non-virtual methods:
+  void getVisibleDataBounds(QCPBarDataMap::const_iterator &lower, QCPBarDataMap::const_iterator &upperEnd) const;
   QPolygonF getBarPolygon(double key, double value) const;
-  double getBaseValue(double key, bool positive) const;
+  void getPixelWidth(double key, double &lower, double &upper) const;
+  double getStackedBaseValue(double key, bool positive) const;
   static void connectBars(QCPBars* lower, QCPBars* upper);
   
   friend class QCustomPlot;
   friend class QCPLegend;
+  friend class QCPBarsGroup;
 };
 
 
@@ -2981,7 +3110,7 @@ protected:
   bool mTightBoundary;
   QPointer<QCPColorScale> mColorScale;
   // non-property members:
-  QImage mMapImage;
+  QImage mMapImage, mUndersampledMapImage;
   QPixmap mLegendIcon;
   bool mMapImageInvalidated;
   
@@ -2993,6 +3122,123 @@ protected:
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
   virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
   virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  
+  friend class QCustomPlot;
+  friend class QCPLegend;
+};
+
+
+/*! \file */
+
+
+
+class QCP_LIB_DECL QCPFinancialData
+{
+public:
+  QCPFinancialData();
+  QCPFinancialData(double key, double open, double high, double low, double close);
+  double key, open, high, low, close;
+};
+Q_DECLARE_TYPEINFO(QCPFinancialData, Q_MOVABLE_TYPE);
+
+/*! \typedef QCPFinancialDataMap
+  Container for storing \ref QCPFinancialData items in a sorted fashion. The key of the map
+  is the key member of the QCPFinancialData instance.
+  
+  This is the container in which QCPFinancial holds its data.
+  \see QCPFinancial, QCPFinancial::setData
+*/
+typedef QMap<double, QCPFinancialData> QCPFinancialDataMap;
+typedef QMapIterator<double, QCPFinancialData> QCPFinancialDataMapIterator;
+typedef QMutableMapIterator<double, QCPFinancialData> QCPFinancialDataMutableMapIterator;
+
+
+class QCP_LIB_DECL QCPFinancial : public QCPAbstractPlottable
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(ChartStyle chartStyle READ chartStyle WRITE setChartStyle)
+  Q_PROPERTY(double width READ width WRITE setWidth)
+  Q_PROPERTY(bool twoColored READ twoColored WRITE setTwoColored)
+  Q_PROPERTY(QBrush brushPositive READ brushPositive WRITE setBrushPositive)
+  Q_PROPERTY(QBrush brushNegative READ brushNegative WRITE setBrushNegative)
+  Q_PROPERTY(QPen penPositive READ penPositive WRITE setPenPositive)
+  Q_PROPERTY(QPen penNegative READ penNegative WRITE setPenNegative)
+  /// \endcond
+public:
+  /*!
+    Defines the possible representations of OHLC data in the plot.
+    
+    \see setChartStyle
+  */
+  enum ChartStyle { csOhlc         ///< Open-High-Low-Close bar representation
+                   ,csCandlestick  ///< Candlestick representation
+                  };
+  Q_ENUMS(ChartStyle)
+  
+  explicit QCPFinancial(QCPAxis *keyAxis, QCPAxis *valueAxis);
+  virtual ~QCPFinancial();
+  
+  // getters:
+  QCPFinancialDataMap *data() const { return mData; }
+  ChartStyle chartStyle() const { return mChartStyle; }
+  double width() const { return mWidth; }
+  bool twoColored() const { return mTwoColored; }
+  QBrush brushPositive() const { return mBrushPositive; }
+  QBrush brushNegative() const { return mBrushNegative; }
+  QPen penPositive() const { return mPenPositive; }
+  QPen penNegative() const { return mPenNegative; }
+  
+  
+  // setters:
+  void setData(QCPFinancialDataMap *data, bool copy=false);
+  void setData(const QVector<double> &key, const QVector<double> &open, const QVector<double> &high, const QVector<double> &low, const QVector<double> &close);
+  void setChartStyle(ChartStyle style);
+  void setWidth(double width);
+  void setTwoColored(bool twoColored);
+  void setBrushPositive(const QBrush &brush);
+  void setBrushNegative(const QBrush &brush);
+  void setPenPositive(const QPen &pen);
+  void setPenNegative(const QPen &pen);
+  
+  // non-property methods:
+  void addData(const QCPFinancialDataMap &dataMap);
+  void addData(const QCPFinancialData &data);
+  void addData(double key, double open, double high, double low, double close);
+  void addData(const QVector<double> &key, const QVector<double> &open, const QVector<double> &high, const QVector<double> &low, const QVector<double> &close);
+  void removeDataBefore(double key);
+  void removeDataAfter(double key);
+  void removeData(double fromKey, double toKey);
+  void removeData(double key);
+  
+  // reimplemented virtual methods:
+  virtual void clearData();
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+  
+  // static methods:
+  static QCPFinancialDataMap timeSeriesToOhlc(const QVector<double> &time, const QVector<double> &value, double timeBinSize, double timeBinOffset = 0);
+  
+protected:
+  // property members:
+  QCPFinancialDataMap *mData;
+  ChartStyle mChartStyle;
+  double mWidth;
+  bool mTwoColored;
+  QBrush mBrushPositive, mBrushNegative;
+  QPen mPenPositive, mPenNegative;
+  
+  // reimplemented virtual methods:
+  virtual void draw(QCPPainter *painter);
+  virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  
+  // non-virtual methods:
+  void drawOhlcPlot(QCPPainter *painter, const QCPFinancialDataMap::const_iterator &begin, const QCPFinancialDataMap::const_iterator &end);
+  void drawCandlestickPlot(QCPPainter *painter, const QCPFinancialDataMap::const_iterator &begin, const QCPFinancialDataMap::const_iterator &end);
+  double ohlcSelectTest(const QPointF &pos, const QCPFinancialDataMap::const_iterator &begin, const QCPFinancialDataMap::const_iterator &end) const;
+  double candlestickSelectTest(const QPointF &pos, const QCPFinancialDataMap::const_iterator &begin, const QCPFinancialDataMap::const_iterator &end) const;
+  void getVisibleDataBounds(QCPFinancialDataMap::const_iterator &lower, QCPFinancialDataMap::const_iterator &upper) const;
   
   friend class QCustomPlot;
   friend class QCPLegend;
@@ -3339,6 +3585,7 @@ class QCP_LIB_DECL QCPItemPixmap : public QCPAbstractItem
   Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
   Q_PROPERTY(bool scaled READ scaled WRITE setScaled)
   Q_PROPERTY(Qt::AspectRatioMode aspectRatioMode READ aspectRatioMode)
+  Q_PROPERTY(Qt::TransformationMode transformationMode READ transformationMode)
   Q_PROPERTY(QPen pen READ pen WRITE setPen)
   Q_PROPERTY(QPen selectedPen READ selectedPen WRITE setSelectedPen)
   /// \endcond
@@ -3350,12 +3597,13 @@ public:
   QPixmap pixmap() const { return mPixmap; }
   bool scaled() const { return mScaled; }
   Qt::AspectRatioMode aspectRatioMode() const { return mAspectRatioMode; }
+  Qt::TransformationMode transformationMode() const { return mTransformationMode; }
   QPen pen() const { return mPen; }
   QPen selectedPen() const { return mSelectedPen; }
   
   // setters;
   void setPixmap(const QPixmap &pixmap);
-  void setScaled(bool scaled, Qt::AspectRatioMode aspectRatioMode=Qt::KeepAspectRatio);
+  void setScaled(bool scaled, Qt::AspectRatioMode aspectRatioMode=Qt::KeepAspectRatio, Qt::TransformationMode transformationMode=Qt::SmoothTransformation);
   void setPen(const QPen &pen);
   void setSelectedPen(const QPen &pen);
   
@@ -3378,7 +3626,9 @@ protected:
   QPixmap mPixmap;
   QPixmap mScaledPixmap;
   bool mScaled;
+  bool mScaledPixmapInvalidated;
   Qt::AspectRatioMode mAspectRatioMode;
+  Qt::TransformationMode mTransformationMode;
   QPen mPen, mSelectedPen;
   
   // reimplemented virtual methods:
@@ -3524,6 +3774,14 @@ protected:
   // non-virtual methods:
   QPen mainPen() const;
 };
+
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
+
+#if defined(__gcc__)
+# pragma GCC diagnostic pop
+#endif
 
 #endif // QCUSTOMPLOT_H
 

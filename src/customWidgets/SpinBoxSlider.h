@@ -5,11 +5,10 @@
 #include <QPointer>
 
 class QSpinBox;
-class QxtSpanSlider;
 class QHBoxLayout;
 
-// Wrapper around QxtSpanSlider to add two spin boxes one on each side
-// We can control whether to show only the slider, the spin boxes or both
+// A simple widget with two spin boxes
+// TODO add a double slider bar
 class SpinBoxSlider : public QWidget
 {
     Q_OBJECT
@@ -23,7 +22,6 @@ public:
     virtual ~SpinBoxSlider();
 
     // Some setters for the ticks
-    void setToolTip(const QString& str);
     void setMaximumValue(const int max);
     void setMinimumValue(const int min);
     void setTickInterval(const int interval);
@@ -39,7 +37,7 @@ public slots:
     void slotSetUpperValue(const int max);
 
 private:
-    QPointer<QxtSpanSlider> m_spanslider;
+
     QPointer<QSpinBox> m_left_spinbox;
     QPointer<QSpinBox> m_right_spinbox;
     QPointer<QHBoxLayout> m_layout;

@@ -79,9 +79,7 @@ foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
 
-list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qxt>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qcustomplot>")
-list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qjpeg-turbo>")
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 
 # 'rapidjson' does not need to be compiled, we just need to include the headers
@@ -127,9 +125,6 @@ endif()
 # Link libraries to the main target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENGL_LIBRARY})
 
-# Seems like we need to link to the explicit static library of ligjpeg-turbo
-target_link_libraries(${PROJECT_NAME} ${LIBJPEG_STATIC_detected_with_find_library})
-
 ### UNIT TESTS ################################################################
 
 enable_testing()
@@ -153,7 +148,7 @@ include(InstallRequiredSystemLibraries)
 
 set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
 set(PLUGINS_IN_CATEGORY_accessible)
-set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg)
 set(PLUGINS_IN_CATEGORY_printsupport)
 set(PLUGINS_IN_CATEGORY_platforms)
 
@@ -166,224 +161,6 @@ if(UNIX AND NOT APPLE)
     list(APPEND PLUGINS_IN_CATEGORY_platforms qlinuxfb qminimal qxcb)
 endif()
 
-if(UNIX AND NOT APPLE)
+# TODO add installing code that uses dynamic linking
+# TODO add code to make installer that creates binaries that used dynamic linking
 
-    # Use, i.e. don't skip the full RPATH for the build tree
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-    # When building, don't use the install RPATH already
-    # (but later on when installing)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
-
-    # Add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-    # The RPATH to be used when installing, but only if it's not a system directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    endif("${isSystemDir}" STREQUAL "-1")
-
-    # Select TGZ as the packager on Linux
-    set(CPACK_GENERATOR "TGZ")
-    set(CPACK_SYSTEM_NAME "Linux")
-    set(CPACK_SYSTEM_NAME "${CPACK_SYSTEM_NAME}")
-
-    foreach(QT_LIBRARY ${ST_QT_LIBS})
-      # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG 
-      # but I think we don't need them /Erik Sjolund
-      get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
-      INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
-    endforeach()
-
-    # Qt 5.5 needs ICU libaries in Linux 54
-    set(ICU_VERSION "54.1")
-    foreach(ICU_LIB icuuc icui18n icudata)
-      find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
-      if (NOT loc${ICU_LIB})
-        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so.${ICU_VERSION}")
-      endif()
-      INSTALL_LIBRARY_AND_SYMLINKS("${loc${ICU_LIB}}" lib)
-    endforeach()
-
-    deploy_qt_plugins()
-
-    # Install libraries and resources
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
-endif()
-
-if(APPLE)
-
-    # Set project name of binary dir for OSX
-    set(OS_X_PROJECT_BINARY_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app")
-    set(CMAKE_INSTALL_PREFIX ${OS_X_PROJECT_BINARY_DIR}/Contents)
-    set(DMG_DIR ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
-    
-    # Configure and install Info.plist file
-    set(InfoPlistFile ${CMAKE_BINARY_DIR}/Info.plist)
-    execute_process(COMMAND date "+%Y"
-                    OUTPUT_VARIABLE YEAR
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    configure_file(${CMAKE_SOURCE_DIR}/cmake/mac/Info.plist.in ${InfoPlistFile})
-    set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${InfoPlistFile})
-
-    # MACOSX sets
-    set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/assets/images/stVi.icns")
-    set(MACOSX_BUNDLE_INFO_STRING "The Spatial Transcriptomics Viewer")
-    set(MACOSX_BUNDLE_GUI_IDENTIFIER "name.elemc.${PROJECT_NAME}")
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION}")
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
-    set(MACOSX_BUNDLE_VERSION "${PROJECT_VERSION}")
-    set(MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}")
-    set(MACOSX_BUNDLE_COPYRIGHT "Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>")
-    set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
-    
-    # Architecture OSX
-    set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
-    set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
-
-    # Find macdeoployqt
-    find_program(MACDEPLOYQT NAMES macdeployqt macdeployqt-mac PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
-    
-    # Resources
-    add_custom_command (TARGET ${PROJECT_NAME}
-        COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
-        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/stVi.icns ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
-        )
-  
-    # Build dmg
-    add_custom_target(dmg
-        COMMAND mkdir -p ${DMG_DIR}
-        COMMAND cp -R ${OS_X_PROJECT_BINARY_DIR} ${DMG_DIR}/
-        COMMAND ln -sf /Applications ${DMG_DIR}
-        COMMAND cp ${CMAKE_SOURCE_DIR}/assets/images/stVi.icns .VolumeIcon.icns
-        COMMAND cp ${CMAKE_SOURCE_DIR}/LICENSE ${DMG_DIR}
-        COMMAND hdiutil create ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-${CMAKE_BUILD_TYPE}-${PROJECT_VERSION}.dmg -srcfolder ${DMG_DIR}
-        DEPENDS ${PROJECT_NAME}
-        COMMENT "Create DMG image"
-    )
-
-endif(APPLE)
-
-if(WIN32)
-    
-    # By default, do not warn when built on machines using only VS Express:
-    if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-    endif()
-    
-    # Install system libs
-    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION . )
-    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION . )
-
-    # Add systems libs to build directory
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    foreach(LIB ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${LIB} 
-                           ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
-    endforeach()
-
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms)
-                       
-    set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
-    #set(CPACK_NSIS_MODIFY_PATH "ON")
-    set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
-    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
-    set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
-
-
-    # Right now we are invoking Windows CMake from inside Cygwin.
-    # Maybe that is why we need to replace the "/" with "\\\\"?
-    string(REPLACE "/" "\\\\" source_dir_windows "${CMAKE_SOURCE_DIR}")
-    set(CPACK_NSIS_MUI_UNICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_MUI_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_PACKAGE_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
-    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-    set(CPACK_NSIS_PAGE_COMPONENTS "
-        !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
-        !define MUI_STARTMENUPAGE_NODISABLE
-    ")
-    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        CreateShortCut \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"        \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"     \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
-        CreateShortCut \\\"\\\$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"        \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
-    ")
-
-    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-        Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
-        Delete \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\" 
-    ")
-
-    # Qt libraries required by stVi
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory 
-                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory 
-                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins)
-
-    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
-
-    foreach(QT_LIBRARY ${ST_QT_LIBS})
-        if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION_DEBUG)
-        else()
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
-        endif()
-        install(FILES ${ST_QT_LOC} DESTINATION .)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD   
-                           COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC} 
-                           ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
-    endforeach()
-
-    set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
-    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-        set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
-    endif()
-
-    deploy_qt_plugins()
-    
-    # Qt 5.5 ICU is 54
-    windows_deploy_qt_libraries(icudt54 icuin54 icuuc54)
-    
-    # Install platforms plugins
-    foreach(QT_PLUGIN_FILE qminimal qwindows)
-        set(PLUGIN_FILE_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QT_PLUGIN_FILE}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX})
-        install(FILES ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME} DESTINATION platforms)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${QT_PLUGINS_DIR}/platforms/${PLUGIN_FILE_NAME} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms/)
-    endforeach()
-
-    # Install resources
-    # TODO probably not needed the libeay32.dll and ssleay32.dll if we find and link OpenSSL
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
-                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/
-                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
-                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/
-                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/ )
-
-    install(TARGETS ${PROJECT_NAME} DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION . )
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win64/libeay32.dll DESTINATION . )
-        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win64/ssleay32.dll DESTINATION . )
-    else()
-        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/libeay32.dll DESTINATION . )
-        install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/ssleay32.dll DESTINATION . )
-    endif()
-
-endif(WIN32)
-
-include(CPack)

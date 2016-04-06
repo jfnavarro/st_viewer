@@ -5,8 +5,12 @@ set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "5")
-set(PROJECT_VERSION_PATCH "2")
+set(PROJECT_VERSION_PATCH "5")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+SET(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
+SET(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro")
+SET(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
+SET(PROJECT_VENDOR "Jose Fernandez Navarro")
 
 SET(SERVER "development" CACHE STRING
 "The server providing the experimental data (development/production/local)")
@@ -77,6 +81,7 @@ if(WIN32)
   # http://www.qtcentre.org/threads/56185-cmake-error-with-Failed-to-find-quot-glu32-quot-in-quot-quot?p=251234
   # solves the issue. Maybe it's a Qt bug?
   set(CMAKE_LIBRARY_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_RELEASE QT_NO_DEBUG)
 endif (WIN32)
 
 # Some in-house CMake functions/macros
@@ -92,7 +97,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 # Find the path to Qt binaries and set the Qt libraries
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL Concurrent Xml)
+set(ST_QT_LIBS  Widgets PrintSupport Network Core Gui OpenGL Concurrent)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()

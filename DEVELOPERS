@@ -2,7 +2,7 @@ Developers
 
 Install the necessary dependencies :
 
-CMake (Versión 3.0.0 minimum), Git, ligjpeg-turbo, OpenGL,
+CMake (Versión 3.0.0 minimum), Git, OpenGL,
 Qt >=5.4 and a C++ (gcc >=4.6 or clang or Visual Studio) compiler is required.
 
 Ubuntu:

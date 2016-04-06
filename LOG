@@ -132,3 +132,15 @@ v0.5.1
 
 v0.5.2
 	* Show total reads and total genes in selection widget
+
+v0.5.5
+    * Changed UI interface
+    * Added option to load datasets locally
+    * Improved functionality in datasets view
+    * Improved functionality in selections view
+    * Selections do not get automatically saved in the cloud
+    * Added gene based cut-off
+    * Updated license terms
+    * Removed deprecated libraries
+    * Update to link to Qt dynamically
+    * Upgrade how the gene data is stored

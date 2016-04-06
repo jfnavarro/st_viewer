@@ -7,8 +7,7 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QApplication>
-
-#include "qjpeg-turbo/qjpeghandler_p.h"
+#include <QImageReader>
 #include <cmath>
 
 static const int tile_width = 512;
@@ -102,16 +101,15 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     }
 
     // create image from byte array
-    // QJpegHandler is a faster version of QImageReader that uses jpeg-turbo
-    QJpegHandler imageReader;
+    QImageReader imageReader;
     imageReader.setDevice(&imageBuffer);
     QImage image;
     const bool readOk = imageReader.read(&image);
+    imageBuffer.close();
     if (!readOk || image.isNull()) {
-        qDebug() << "[ImageTextureGL] Created image failed ";
+        qDebug() << "[ImageTextureGL] Opening image failed";
         return;
     }
-    imageBuffer.close();
 
     // get size and bounds
     const QSize imageSize = image.size();

@@ -91,6 +91,8 @@ public:
         return true;
     }
 
+    bool RawNumber(const char*, SizeType, bool) { return true; }
+
     bool String(const char* str, SizeType length, bool)
     {
         std::string std_str(str, length);
