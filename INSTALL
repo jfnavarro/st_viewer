@@ -1,20 +1,20 @@
-Install on Mac OS X
+Install on Mac OSX
 
 Download Mac installer
-Double-click .dmg file
-Drag stVi application icon on Application folder
-Start stVi application from your Applications folder
+Double-click the .dmg file
+Drag STViewer application icon to the Application folder
+Start STViewer application from your Applications folder
 (press CTRL to open it the first time it you get a message saying that the tool is not certified)
 
 Install on Ubuntu
 
 Download Ubuntu application package
 Extract the archive to a location where you would like to store the program
-To start the stVi application open the Terminal at the extracted directory and type ‘./stVi’
+To start the STViewer application open the Terminal at the extracted directory and type ‘./STViewer
 
 Install on Windows
 
 Download Windows client installer
 Double click on
-Follow the instructions to install stVi on your Windows machine
-Search for stVi on your applications folder and launch it
+Follow the instructions to install STViewer on your Windows machine
+Search for STViewer on your applications folder and launch it

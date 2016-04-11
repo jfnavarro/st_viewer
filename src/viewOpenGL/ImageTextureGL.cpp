@@ -122,8 +122,6 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     const int yCount = std::ceil(qreal(height) / qreal(tile_height));
     const int count = xCount * yCount;
 
-    QImage sub_image;
-    QRect clip_rect;
     // create tiles and their textures
     for (int i = 0; i < count; ++i) {
 
@@ -133,16 +131,12 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
         const int texture_width = std::min(width - x, tile_width);
         const int texture_height = std::min(height - y, tile_height);
 
-        // create sub image
-        clip_rect.setRect(x, y, texture_width, texture_height);
+        // create sub image and add texture
         // TODO an ideal solution would  be to extract the clip rect part of the image
         // from the imageReader to avoid loading the whole image into memory
         // but the setClipRect option would only work one time, after calling read()
         // the buffer is cleaned
-        sub_image = image.copy(clip_rect);
-
-        // add texture
-        addTexture(sub_image, x, y);
+        addTexture(image.copy(x, y, texture_width, texture_height), x, y);
     }
 
     m_isInitialized = true;

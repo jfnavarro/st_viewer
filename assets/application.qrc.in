@@ -12,7 +12,6 @@
     <file alias="images/st_icon.png">${PROJECT_SOURCE_DIR}/assets/images/st_icon.png</file>
     <file alias="images/histogram.png">${PROJECT_SOURCE_DIR}/assets/images/histogram.png</file>
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
-    <file alias="images/qtlogo.png">${PROJECT_SOURCE_DIR}/assets/images/qtlogo.png</file>
     <file alias="images/select-all.png">${PROJECT_SOURCE_DIR}/assets/images/select-all.png</file>
     <file alias="images/unselect-all.png">${PROJECT_SOURCE_DIR}/assets/images/unselect-all.png</file>
     <file alias="images/visible.png">${PROJECT_SOURCE_DIR}/assets/images/visible.png</file>

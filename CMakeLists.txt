@@ -1,6 +1,6 @@
-project(stVi CXX C)
+project(STViewer CXX)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
-set(APPLICATION_NAME "Spatial Transcriptomics Viewer Tool")
+set(APPLICATION_NAME "Spatial Transcriptomics Viewer")
 
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
@@ -16,6 +16,7 @@ SET(SERVER "development" CACHE STRING
 "The server providing the experimental data (development/production/local)")
 
 set(CLIENTID "st-viewer-client")
+# TODO we must pass the secret ID and the PEM as variables
 set(SECRETID "ayfBaF5UAKR2")
 set(APIPATH  "api")
 set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")

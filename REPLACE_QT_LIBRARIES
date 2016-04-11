@@ -1,0 +1,34 @@
+STViewer is an open source application that
+uses the open source version of Qt. To comply
+the LGPL v3 requirements, intructions on how
+to replace the Qt libraries for the end-user must
+be given.
+
+TODO : Complete this and make it much pedagogic
+
+For OSX:
+
+Check what Qt framewors and plugins that are in use :
+- otool -L /Applications/STViewer.app/Contents/MacOs/STViewer
+
+Copy the framewors and plugins from your Qt installation :
+- cp -R /path/to/Qt/lib/QtCore.framework STViewer.app/Contents/Frameworks
+...
+- cp -R /path/to/Qt/plugin/imageformats/libqjpeg.dylib STViewer.app/Contents/PlugIns
+...
+
+Set the identification names for the frameworks :
+- install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/5.0/QtCore
+STViewer.app/Contents/Frameworks/QtCore.framework/Versions/5.0/QtCore
+...
+
+Ensure STViewer knows where the frameworks are
+- install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/5.0/QtCore
+@executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+STViewer.app/Contents/MacOs/plugandpaint
+...
+
+For Linux:
+
+
+For Windows:

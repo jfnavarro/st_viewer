@@ -286,7 +286,7 @@ void CellViewPage::slotDatasetOpen(const QString& datasetId)
     m_legend->setMinMaxValues(reads_min, reads_max, min_genes, max_genes);
     m_legend->generateHeatMap();
 
-    // load cell tissue (async)
+    // load cell tissue
     slotLoadCellFigure();
 }
 

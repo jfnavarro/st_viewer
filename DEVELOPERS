@@ -3,7 +3,11 @@ Developers
 Install the necessary dependencies :
 
 CMake (Versión 3.0.0 minimum), Git, OpenGL,
-Qt >=5.4 and a C++ (gcc >=4.6 or clang or Visual Studio) compiler is required.
+and a C++ (gcc >=4.6 or clang or Visual Studio) compiler is required.
+
+Install OpenSSL
+
+https://www.openssl.org/source/
 
 Ubuntu:
 
@@ -11,7 +15,7 @@ Download and install Qt binaries from http://qt-project.org/downloads
 
 Issue the following to install the necessary dependencies:
 
-   $ sudo apt-get install cmake git ubuntu-dev-tools libjpeg-turbo8-dev
+   $ sudo apt-get install cmake git ubuntu-dev-tools
 
 Install OpenGL:
 
@@ -26,7 +30,7 @@ Issue the following to install the necessary dependencies:
 
 E.x (Assuming MacPorts is installed, otherwise http://www.macports.org/install.php)
 
-$ sudo port install xcode cmake git libjpeg-turbo
+$ sudo port install xcode cmake git
 
 NOTE : Make sure the XCode Command Line Tools are installed
 
@@ -49,11 +53,9 @@ install CMake for windows :
 
     http://www.cmake.org/cmake/resources/software.html
 
-
 Install Microsoft Visual Studio (make sure you install the C++ compilers)
 
     http://www.microsoft.com/visualstudio/eng/visual-studio-2013
-
 
 Install Qt (Chose the option with MVSC and OpenGL):
 
@@ -65,13 +67,6 @@ Install NSI installers in Windows :
 
     http://nsis.sourceforge.net/Download
 
-Install JPEG-Turbo :
-
-    http://www.libjpeg-turbo.org/Documentation/OfficialBinaries
-
-Clone the repository :
-
-git clone <repo>
 
 Build from the source (Windows) :
 
@@ -81,7 +76,7 @@ It can be built in different ways.
 
 - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
 Make sure the script is configured to the paths of your Visual Studio, Qt,
-CMake and lijpeg-turbo libraries and that the architecture is set to the one in your system (32 or 64)
+CMake and other libraries and that the architecture is set to the one in your system (32 or 64)
 
 Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
 
@@ -94,7 +89,6 @@ Then:
 In a Cygwin terminal, for a production build type:
 
 $ ~/st_client/build_cygwin.sh  ~/st_client  stclient_production_build   st_bin
-
 
 or for a development build type:
 
@@ -119,7 +113,7 @@ you will have to tell cmake to use the macros included in the qt5 binaries :
 
   -DCMAKE_PREFIX_PATH = /path-to-qt5/path-to-cmake-folder (usually it is in lib/cmake)
 
-We will now proceed to build stVi in "/path/to/build", but any directory where the
+We will now proceed to build STViewer in "/path/to/build", but any directory where the
 user has read/write privileges can be chosen. Issue the following:
 
   $ cd /path/to/build
@@ -131,7 +125,7 @@ user has read/write privileges can be chosen. Issue the following:
           [-DSERVER=”production | development | local”]
              /path/to/source
 
-DCMAKE_INSTALL_PREFIX = indicates where to install stVi
+DCMAKE_INSTALL_PREFIX = indicates where to install STViewer
 CMAKE_BUILD_TYPE = indicates the type of building (Release by default)
 CMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the binaries of Qt5.
 DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used
@@ -139,11 +133,10 @@ eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Develope
 DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
     eg: 10.7 , 10.8 or 10.9
 
-DSERVER = Build stVi to connect to the development, local or production servers
+DSERVER = Build STViewer to connect to the development, local or production servers
 
-stVi will detect automatically the platform where it is building on and it will generate
+STViewer will detect automatically the platform where it is building on and it will generate
 the binaries automatically as well.
-
 
 How to run a test
 

@@ -108,7 +108,7 @@ void CellGLView::initializeGL()
 {
     if (!m_qopengl_functions.initializeOpenGLFunctions()) {
         QMessageBox::critical(this,
-                              tr("stVi"),
+                              tr("STViewer"),
                               tr("Required OpenGL version not supported.\n"
                                  "Please update your system to at least OpenGL ")
                               + QString("%1.%2")

@@ -22,14 +22,10 @@ windows_ctest_filepath=`cygpath -w "${cmake_install_dir}/bin/ctest.exe"`
 
 msvc_vars_filepath='/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'
 
-qt_bin='/cygdrive/c/Qt/5.5/msvc2013_64/bin'
+qt_bin='/cygdrive/c/Qt/5.6/msvc2013_64/bin'
 qt_env_filepath="$qt_bin/qtenv2.bat"
 
-
-libjpeg_turbo_dir='/cygdrive/c/libjpeg-turbo64'
-
 # Shows the user the expected arguments.
-
 function print_usage_and_exit {
     echo "Usage: build_cygwin.sh path_to_st_client_source [ stclient_production_build | stclient_development_build | stclient_build_only_run_make ] result_dir" >&2
     exit 1
@@ -61,11 +57,6 @@ fi
 
 if [ ! -f "$qt_env_filepath" ]; then
     echo -e "\nERROR: Qt env file 'qtenv2.bat' was not found at '$qt_env_filepath'.\n"
-	exit 1
-fi
-
-if [ ! -d "$libjpeg_turbo_dir" ]; then
-    echo -e "\nERROR: libjpeg-turbo was not found installed at '$libjpeg_turbo_dir'.\n"
 	exit 1
 fi
 
@@ -123,13 +114,13 @@ fi
 # When running ctest there was a problem with missing dll. The files were on the system but couldn't be found.
 # A good command to diagnose this is "cygcheck".
 # By setting the PATH environment variable, the missing dll files can be found.
-export PATH="$libjpeg_turbo_dir/bin/:$qt_bin:$PATH"
+export PATH="$qt_bin:$PATH"
 
 windows_msvc_vars_filepath=`cygpath -w "$msvc_vars_filepath"`
 cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
   `cygpath -w "$qt_env_filepath"` "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "-DCMAKE_PREFIX_PATH=`cygpath -w "$libjpeg_turbo_dir"`" "$stclient_srcdir_windows" "&&" \
+   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
    "$windows_ctest_filepath" "&&" \
    nmake package
