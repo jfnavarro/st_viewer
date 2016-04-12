@@ -39,6 +39,7 @@ signals:
     // signals emitted when the user selects or change colors of genes in the table
     void signalSelectionChanged(DataProxy::GeneList);
     void signalColorChanged(DataProxy::GeneList);
+    void signalCutOffChanged(DataProxy::GenePtr);
 
 public slots:
 

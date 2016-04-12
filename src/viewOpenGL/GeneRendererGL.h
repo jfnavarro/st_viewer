@@ -117,6 +117,10 @@ public slots:
     // gene data must be initialized
     void updateVisible(const DataProxy::GeneList& geneList);
 
+    // the user has changed the cut off value of a gene so we
+    // should update the visual componets for the spots that contain that gene
+    void updateGene(const DataProxy::GenePtr gene);
+
     // clear all the selected features and notify observers
     void clearSelection();
 

@@ -18,8 +18,8 @@ namespace Ui
 class DataSets;
 } // namespace Ui //
 
-// This is the definition of the datasets page which contains a table of datasets to be selected.
-// It gets updated everytime we enter the page and by selecting a dataset.
+// This is the definition of the datasets view which contains a table of datasets to be selected.
+// It gets updated everytime we show the view.
 // It uses the dataProxy object to load the data.
 // It has a toolbar with basic functionalities
 
@@ -28,6 +28,7 @@ class DataSets;
 // TODO add multiple dataset remove option
 // TODO add ST icon to the widget
 // TODO add posibility to edit and save objects in the table
+// TODO add option to get more info (stats) for the dataset
 class DatasetPage : public QWidget
 {
     Q_OBJECT
@@ -49,15 +50,14 @@ private slots:
     // Selects the indexed dataset and opens it.
     void slotSelectAndOpenDataset(QModelIndex index);
 
-    // some slots for the actions buttons of the view
-    // TODO add support to remove multiple datasets
+    // some slots for the actions of the toolbar
     void slotLoadDatasets();
     void slotOpenDataset();
     void slotRemoveDataset();
     void slotEditDataset();
     void slotImportDataset();
 
-    // slot function to process when the datasets have been downloaded/edit/removed
+    // slots to process when the datasets have been downloaded/edit/removed
     // and also when the dataset's content is downloaded
     void slostDatasetsDownloaded(const DataProxy::DownloadStatus status);
     void slotDatasetModified(const DataProxy::DownloadStatus status);

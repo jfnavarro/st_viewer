@@ -9,22 +9,20 @@ Install OpenSSL
 
 https://www.openssl.org/source/
 
-Ubuntu:
+Download and install Qt open source from : http://qt-project.org/downloads
+For Windows chose the option with MVSC and OpenGL and the default path C:\Qt.
 
-Download and install Qt binaries from http://qt-project.org/downloads
+FOR PLATFORM SPECIFIC LIBRARIES
+
+Ubuntu:
 
 Issue the following to install the necessary dependencies:
 
    $ sudo apt-get install cmake git ubuntu-dev-tools
-
-Install OpenGL:
-
    $ sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
 
 Mac OSX
-
-Download and install Qt binaries from : http://qt-project.org/downloads
 
 Issue the following to install the necessary dependencies:
 
@@ -57,16 +55,12 @@ Install Microsoft Visual Studio (make sure you install the C++ compilers)
 
     http://www.microsoft.com/visualstudio/eng/visual-studio-2013
 
-Install Qt (Chose the option with MVSC and OpenGL):
-
-http://qt-project.org/downloads
-
-(Choose the default installation path C:\Qt)
-
 Install NSI installers in Windows :
 
     http://nsis.sourceforge.net/Download
 
+
+TO BUILD THE APPLICATION
 
 Build from the source (Windows) :
 
@@ -99,12 +93,11 @@ file are printed to the terminal.
 
 - You can can also use CMake-gui to generate a Visual Studio project file that you can load in
 your Visual Studio, then you can build the client in Visual Studio. Make sure for this that you set
-the CMake configuration variables to find the Qt libraries and jpeg-turbo using the variable CMAKE_PREFIX_PATH
+the CMake configuration variables to find the Qt libraries using the variable CMAKE_PREFIX_PATH
 
-e.g. Set CMAKE_PREFIX_PATH to “C:\Qt\5.5\msvc2013_64\lib\cmake;C:\libjpeg-turbo64” in the CMake-gui.
+e.g. Set CMAKE_PREFIX_PATH to “C:\Qt\5.5\msvc2013_64\lib\cmake” in the CMake-gui.
 
-- You can also build it using Qt creator and the Visual Studio compiler/generator. Once again,
-make sure you pass in the configuration of the project the path to libjpeg-turbo.
+- You can also build it using Qt creator and the Visual Studio compiler/generator.
 
 Build from the source (Ubuntu and MAC).
 
@@ -146,7 +139,9 @@ automatically tested by issuing:
   $ cd /path/to/build
   $ make unittest
 
+How to make a package
 
+  $ make package (dmg in OSX)
 
 
 

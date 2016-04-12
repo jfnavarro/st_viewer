@@ -125,6 +125,10 @@ GenesWidget::GenesWidget(QPointer<DataProxy> dataProxy, QWidget* parent)
             SIGNAL(signalColorChanged(DataProxy::GeneList)),
             this,
             SIGNAL(signalColorChanged(DataProxy::GeneList)));
+    connect(getModel(),
+            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
+            this,
+            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)));
 }
 
 GenesWidget::~GenesWidget()

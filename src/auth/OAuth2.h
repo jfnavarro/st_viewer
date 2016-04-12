@@ -12,7 +12,7 @@ class QUuid;
 class QString;
 
 // Simple class that handles OAuth2 authorization requests
-// it contains a Login widget to let the user input the credentials
+// it contains a log-in widget to let the user input the credentials
 // it implements basic error handling and two modes of authorization (interactive and silent)
 class OAuth2 : public QObject
 {
@@ -32,18 +32,17 @@ public:
     void startQuietLogin(const QUuid& refreshToken);
 
 signals:
-    // To communicate if the status of the log in process
+    // To communicate the status of the log-in
     void signalLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
     void signalError(QSharedPointer<Error> error);
 
 private slots:
-
-    // User has entereded log in credentials (called from log in component) can be used to
-    // try log in with hardcoded credentials
+    // User has entereded log in credentials (called from log in component) It can also be used to
+    // try to log in with hardcoded credentials
     void slotEnterDialog(const QString&, const QString&);
 
     // To be notified when access token has been downloaded from network
-    // status contains the status of the operation (ok, abort, error)
+    // Status contains the status of the operation (ok, abort, error)
     void slotAccessTokenDownloaded(const DataProxy::DownloadStatus status);
 
 private:

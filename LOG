@@ -142,5 +142,4 @@ v0.5.5
     * Added gene based cut-off
     * Updated license terms
     * Removed deprecated libraries
-    * Update to link to Qt dynamically
-    * Upgrade how the gene data is stored
+    * General improvements and bug fixes

@@ -317,6 +317,11 @@ void CellViewPage::slotGenesColor(const DataProxy::GeneList& genes)
     m_gene_plotter->updateColor(genes);
 }
 
+void CellViewPage::slotGeneCutOff(const DataProxy::GenePtr gene)
+{
+    m_gene_plotter->updateGene(gene);
+}
+
 void CellViewPage::setEnableButtons(bool enable)
 {
     m_ui->selection->setEnabled(enable);

@@ -433,6 +433,10 @@ void stVi::createConnections()
             SIGNAL(signalColorChanged(DataProxy::GeneList)),
             m_cellview.data(),
             SLOT(slotGenesColor(DataProxy::GeneList)));
+    connect(m_genes.data(),
+            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
+            m_cellview.data(),
+            SLOT(slotGeneCutOff(DataProxy::GenePtr)));
 
     // connect gene selection signals from selections view
     connect(m_user_selections.data(),

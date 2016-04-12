@@ -37,12 +37,14 @@ GenesTableView::GenesTableView(QWidget* parent)
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::MultiSelection);
-    setEditTriggers(QAbstractItemView::NoEditTriggers);
+    setEditTriggers(QAbstractItemView::DoubleClicked);
 
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneFeatureItemModel::Color, 50);
     horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneFeatureItemModel::Show, 50);
+    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::CutOff, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneFeatureItemModel::Show, 50);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();

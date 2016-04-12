@@ -72,6 +72,8 @@ public slots:
     void slotGenesSelected(const DataProxy::GeneList& genes);
     // the user has changed the color of genes
     void slotGenesColor(const DataProxy::GeneList& genes);
+    // the user has changed the cut off of a gene
+    void slotGeneCutOff(const DataProxy::GenePtr gene);
     // set the user name for the tool bar field
     void slotSetUserName(const QString& username);
 

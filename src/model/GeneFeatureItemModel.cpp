@@ -65,6 +65,24 @@ QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
     return QVariant(QVariant::Invalid);
 }
 
+bool GeneFeatureItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
+        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+        Q_ASSERT(!item.isNull());
+        const unsigned new_cutoff = value.toUInt();
+        if (item->cut_off() != new_cutoff && new_cutoff > 0) {
+            item->cut_off(new_cutoff);
+            emit dataChanged(index, index);
+            emit signalCutOffChanged(item);
+            return true;
+        }
+        return false;
+    }
+
+    return false;
+}
+
 QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
@@ -142,7 +160,7 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     case Color:
         return defaultFlags;
     case CutOff:
-        return defaultFlags;
+        return Qt::ItemIsEditable | defaultFlags;
     }
 
     return defaultFlags;

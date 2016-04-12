@@ -234,10 +234,16 @@ void GeneRendererGL::generateDataAsync()
     const unsigned minseglen = 2;
     foreach(DataProxy::GenePtr gene, m_dataProxy->getGeneList()) {
         const auto feature_list = m_geneInfoByFeature.values(gene);
-        const auto num_features = feature_list.size();
-        QVector<unsigned> counts(num_features);
+        QVector<unsigned> counts;
         std::transform(feature_list.begin(), feature_list.end(), std::back_inserter(counts),
                        [](DataProxy::FeaturePtr feature) { return feature->hits(); });
+        const size_t num_features = counts.size();
+        if (num_features < minseglen + 1  ||
+            std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
+            const unsigned cutoff = *std::min_element(counts.begin(), counts.end());
+            gene->cut_off(cutoff);
+            continue;
+        }
         std::sort(counts.begin(), counts.end());
         QVector<unsigned> squared_summed_counts(counts);
         std::transform(squared_summed_counts.begin(), squared_summed_counts.end(),
@@ -247,10 +253,10 @@ void GeneRendererGL::generateDataAsync()
                          squared_summed_counts.end(),
                          squared_summed_counts.begin());
         squared_summed_counts.insert(squared_summed_counts.begin(), 0);
-        QVector<float> taustar;
-        int n = minseglen;
+        QVector<unsigned> taustar;
+        unsigned n = minseglen;
         std::generate_n(std::back_inserter(taustar),
-                        num_features + minseglen - 2,
+                        num_features + minseglen - 2 - 2,
                         [n]()mutable { return n++; });
         QVector<float> tmp1;
         QVector<float> tmp2;
@@ -265,7 +271,7 @@ void GeneRendererGL::generateDataAsync()
         std::transform(tmp1.begin(), tmp1.end(), tmp2.begin(), std::back_inserter(tmp3),
                        [](double a, double b) { return std::fabs(a-b); });
         const auto tau = std::distance(tmp3.begin(), std::max_element(tmp3.begin(), tmp3.end()));
-        const unsigned est_readcount = *std::lower_bound(counts.begin(),
+        const unsigned est_readcount = *std::upper_bound(counts.begin(),
                                                          counts.end(), counts.at(tau));
         gene->cut_off(est_readcount);
     }
@@ -457,6 +463,16 @@ void GeneRendererGL::updateVisible(const DataProxy::GeneList& geneList)
     updateVisual(geneList);
 }
 
+void GeneRendererGL::updateGene(const DataProxy::GenePtr gene)
+{
+    if (gene.isNull()) {
+        return;
+    }
+    // TODO for now update all graphical data but
+    // it is only one gene that changes
+    updateVisual();
+}
+
 void GeneRendererGL::updateVisual()
 {
     // call updateVisual with all the genes
@@ -524,12 +540,17 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
         GeneInfoByIndexMap::const_iterator it = m_geneInfoByIndex.constFind(index);
         GeneInfoByIndexMap::const_iterator end = m_geneInfoByIndex.constEnd();
         for (; it != end && it.key() == index; ++it) {
-            DataProxy::FeaturePtr feature = it.value();
+            const auto feature = it.value();
             Q_ASSERT(feature);
+            const auto gene = feature->geneObject();
+            Q_ASSERT(gene);
 
-            const int currentHits = feature->hits();
+            const bool isSelected = gene->selected();
+            const unsigned geneCutOff = gene->cut_off();
+            const unsigned currentHits = feature->hits();
+
             // check if the reads are outside the threshold
-            if (featureReadsOutsideRange(currentHits)) {
+            if (featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
                 continue;
             }
 
@@ -540,8 +561,7 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
 
             // we check if gene is selected here because we want to select all the genes
             // in the feature when we are forcing selection
-            const auto gene = feature->geneObject();
-            if (!gene->selected()) {
+            if (!isSelected) {
                 continue;
             }
 
@@ -610,7 +630,12 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList& genes)
         GeneInfoByFeatureMap::const_iterator end = m_geneInfoByFeature.end();
         for (; it != end && it.key() == gene; ++it) {
             const auto feature = it.value();
-            if (!featureReadsOutsideRange(feature->hits())) {
+            Q_ASSERT(feature);
+            const auto gene = feature->geneObject();
+            Q_ASSERT(gene);
+            const unsigned geneCutOff = gene->cut_off();
+            const unsigned currentHits = feature->hits();
+            if (!featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
                 indexes.insert(m_geneInfoByFeatureIndex.value(feature));
             }
         }
@@ -671,7 +696,11 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent* event)
             // as we want to include in the selection all the genes
             // of the feature regardless if they are selected or not
             // we just filter features outside the threshold
-            if (featureReadsOutsideRange(feature->hits())) {
+            const auto gene = feature->geneObject();
+            Q_ASSERT(gene);
+            const unsigned geneCutOff = gene->cut_off();
+            const unsigned currentHits = feature->hits();
+            if (featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
                 continue;
             }
 

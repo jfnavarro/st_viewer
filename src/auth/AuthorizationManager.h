@@ -40,14 +40,12 @@ public:
     QUuid getAccessToken() const;
 
 signals:
-
     // The login is successful
     void signalAuthorize();
     // There was an error trying to log in
     void signalError(QSharedPointer<Error> error);
 
 private slots:
-
     // Internal slot to process login object from OAuth2
     void slotLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
 

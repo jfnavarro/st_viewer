@@ -8,10 +8,10 @@ TODO : Complete this and make it much pedagogic
 
 For OSX:
 
-Check what Qt framewors and plugins that are in use :
+Check what Qt frameworks and plugins are in use :
 - otool -L /Applications/STViewer.app/Contents/MacOs/STViewer
 
-Copy the framewors and plugins from your Qt installation :
+Copy the framewors and plugins from your local Qt installation :
 - cp -R /path/to/Qt/lib/QtCore.framework STViewer.app/Contents/Frameworks
 ...
 - cp -R /path/to/Qt/plugin/imageformats/libqjpeg.dylib STViewer.app/Contents/PlugIns
@@ -24,7 +24,7 @@ STViewer.app/Contents/Frameworks/QtCore.framework/Versions/5.0/QtCore
 
 Ensure STViewer knows where the frameworks are
 - install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/5.0/QtCore
-@executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+@executable_path/../Frameworks/QtCore.framework/Versions/5.0/QtCore
 STViewer.app/Contents/MacOs/plugandpaint
 ...
 
