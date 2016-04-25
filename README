@@ -1,4 +1,6 @@
-ST Viewer is a program to visualize spatially resolved gene
+Spatial Transcriptomics Viewer
+
+ST Viewer is a tool to visualize spatially resolved gene
 expression data on cell tissue figures (see LICENSE)
 for the license terms and DEPENDENCIES for the 3rd party
 libraries that are used in this software.
