@@ -5,21 +5,22 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneSelectionItemModel.h"
 
-GeneSelectionTableView::GeneSelectionTableView(QWidget* parent)
+GeneSelectionTableView::GeneSelectionTableView(QWidget *parent)
     : QTableView(parent)
     , m_geneSelectionModel(nullptr)
     , m_sortGenesProxyModel(nullptr)
 {
     // model
-    m_geneSelectionModel = new GeneSelectionItemModel(this);
+    m_geneSelectionModel.reset(new GeneSelectionItemModel(this));
 
     // the sorting model
-    m_sortGenesProxyModel = new SortGenesProxyModel(this);
-    m_sortGenesProxyModel->setSourceModel(m_geneSelectionModel);
+    m_sortGenesProxyModel.reset(new SortGenesProxyModel(this));
+    m_sortGenesProxyModel->setSourceModel(m_geneSelectionModel.data());
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    setModel(m_sortGenesProxyModel);
+    setModel(m_sortGenesProxyModel.data());
 
+    // settings of the table
     setSortingEnabled(true);
     setShowGrid(true);
     setWordWrap(true);
@@ -38,9 +39,7 @@ GeneSelectionTableView::GeneSelectionTableView(QWidget* parent)
 
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Name, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Count, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneSelectionItemModel::Count, 50);
-    horizontalHeader()->setSectionResizeMode(GeneSelectionItemModel::Hits, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneSelectionItemModel::Hits, 75);
+    horizontalHeader()->resizeSection(GeneSelectionItemModel::Count, 75);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
@@ -53,11 +52,11 @@ GeneSelectionTableView::~GeneSelectionTableView()
 
 QItemSelection GeneSelectionTableView::geneTableItemSelection() const
 {
-    const auto selected = selectionModel()->selection();
+    const auto &selected = selectionModel()->selection();
     return m_sortGenesProxyModel->mapSelectionToSource(selected);
 }
 
-void GeneSelectionTableView::setGeneNameFilter(QString str)
+void GeneSelectionTableView::setGeneNameFilter(const QString &str)
 {
     m_sortGenesProxyModel->setFilterFixedString(str);
 }

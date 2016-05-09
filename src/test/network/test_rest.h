@@ -11,7 +11,7 @@ class RestTest : public QObject
     Q_OBJECT
 
 public:
-    explicit RestTest(QObject* parent = 0);
+    explicit RestTest(QObject *parent = 0);
 
 private Q_SLOTS:
 

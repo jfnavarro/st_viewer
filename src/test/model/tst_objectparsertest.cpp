@@ -7,7 +7,7 @@
 namespace unit
 {
 
-ObjectParserTest::ObjectParserTest(QObject* parent)
+ObjectParserTest::ObjectParserTest(QObject *parent)
     : QObject(parent)
 {
 }

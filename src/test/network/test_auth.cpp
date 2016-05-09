@@ -5,7 +5,7 @@
 namespace unit
 {
 
-AuthTest::AuthTest(QObject* parent)
+AuthTest::AuthTest(QObject *parent)
     : QObject(parent)
 {
 }

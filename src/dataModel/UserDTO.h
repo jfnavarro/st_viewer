@@ -36,31 +36,31 @@ public:
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-    explicit UserDTO(QObject* parent = 0)
+    explicit UserDTO(QObject *parent = 0)
         : QObject(parent)
     {
     }
     ~UserDTO() {}
 
     // binding
-    void id(const QString& id) { m_user.id(id); }
-    void username(const QString& username) { m_user.username(username); }
-    void institution(const QString& institution) { m_user.institution(institution); }
-    void firstName(const QString& firstName) { m_user.firstName(firstName); }
-    void lastName(const QString& lastName) { m_user.secondName(lastName); }
-    void streetAddress(const QString& streetAddress) { m_user.address(streetAddress); }
+    void id(const QString &id) { m_user.id(id); }
+    void username(const QString &username) { m_user.username(username); }
+    void institution(const QString &institution) { m_user.institution(institution); }
+    void firstName(const QString &firstName) { m_user.firstName(firstName); }
+    void lastName(const QString &lastName) { m_user.secondName(lastName); }
+    void streetAddress(const QString &streetAddress) { m_user.address(streetAddress); }
     void postcode(int postcode) { m_user.postcode(postcode); }
-    void city(const QString& city) { m_user.city(city); }
-    void country(const QString& country) { m_user.country(country); }
-    void role(const QString& role) { m_user.role(role); }
-    void password(const QString& password) { m_user.password(password); }
+    void city(const QString &city) { m_user.city(city); }
+    void country(const QString &country) { m_user.country(country); }
+    void role(const QString &role) { m_user.role(role); }
+    void password(const QString &password) { m_user.password(password); }
     void enabled(bool enabled) { m_user.enabled(enabled); }
     void grantedDatasets(QVariantList grantedDatasets)
     {
         m_user.grantedDatasets(unserializeVector<QString>(grantedDatasets));
     }
-    void created(const QString& created) { m_user.created(created); }
-    void lastModified(const QString& lastModified) { m_user.lastModified(lastModified); }
+    void created(const QString &created) { m_user.created(created); }
+    void lastModified(const QString &lastModified) { m_user.lastModified(lastModified); }
 
     // read
     const QString id() { return m_user.id(); }
@@ -88,8 +88,8 @@ public:
     //}
 
     // get parsed data model
-    const User& user() const { return m_user; }
-    User& user() { return m_user; }
+    const User &user() const { return m_user; }
+    User &user() { return m_user; }
 
 private:
     User m_user;

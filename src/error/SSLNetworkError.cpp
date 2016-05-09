@@ -2,15 +2,15 @@
 
 #include <QApplication>
 
-static const char* LOC_CONTEXT = "SSLNetworkError";
+static const char *LOC_CONTEXT = "SSLNetworkError";
 
-SSLNetworkError::SSLNetworkError(QObject* parent)
+SSLNetworkError::SSLNetworkError(QObject *parent)
     : Error(parent)
 {
     init(QSslError());
 }
 
-SSLNetworkError::SSLNetworkError(const QSslError& sslError, QObject* parent)
+SSLNetworkError::SSLNetworkError(const QSslError &sslError, QObject *parent)
     : Error(parent)
 {
     init(sslError);
@@ -20,7 +20,7 @@ SSLNetworkError::~SSLNetworkError()
 {
 }
 
-void SSLNetworkError::init(const QSslError& sslError)
+void SSLNetworkError::init(const QSslError &sslError)
 {
     QString name;
     QString description;

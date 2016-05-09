@@ -5,7 +5,7 @@
 
 #include <QMainWindow>
 #include <QApplication>
-#include "stVi.h"
+#include "mainWindow.h"
 
 #include "tst_widgets.h"
 
@@ -14,7 +14,7 @@
 namespace unit
 {
 
-WidgetsTest::WidgetsTest(QObject* parent)
+WidgetsTest::WidgetsTest(QObject *parent)
     : QObject(parent)
 {
 }
@@ -22,19 +22,19 @@ WidgetsTest::WidgetsTest(QObject* parent)
 void WidgetsTest::initTestCase()
 {
     // init configurations
-    Configuration* configuration = new Configuration();
+    Configuration *configuration = new Configuration();
     QVERIFY(configuration != 0);
 
     // init network manager
-    NetworkManager* networkManager = new NetworkManager();
+    NetworkManager *networkManager = new NetworkManager();
     QVERIFY(networkManager != 0);
 
     // init data proxy
-    DataProxy* dataProxy = new DataProxy();
+    QSharedPointer<DataProxy> dataProxy = QSharedPointer<DataProxy>(new DataProxy());
     QVERIFY(dataProxy != 0);
 
     // auth manager
-    AuthorizationManager* authManager = new AuthorizationManager(dataProxy);
+    AuthorizationManager *authManager = new AuthorizationManager(dataProxy);
     QVERIFY(authManager != 0);
 }
 
@@ -50,7 +50,7 @@ void WidgetsTest::testDoesNothing()
     QVERIFY(true);
 }
 
-} // namespace unit 
+} // namespace unit
 
 QTEST_MAIN(unit::WidgetsTest)
 #include "tst_widgets.moc"

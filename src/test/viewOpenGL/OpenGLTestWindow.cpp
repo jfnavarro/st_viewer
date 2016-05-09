@@ -12,7 +12,7 @@
 namespace
 {
 
-static const char* vertexShaderSource = "attribute highp vec4 posAttr;\n"
+static const char *vertexShaderSource = "attribute highp vec4 posAttr;\n"
                                         "attribute lowp vec4 colAttr;\n"
                                         "varying lowp vec4 col;\n"
                                         "uniform highp mat4 matrix;\n"
@@ -21,7 +21,7 @@ static const char* vertexShaderSource = "attribute highp vec4 posAttr;\n"
                                         "   gl_Position = matrix * posAttr;\n"
                                         "}\n";
 
-static const char* fragmentShaderSource = "varying lowp vec4 col;\n"
+static const char *fragmentShaderSource = "varying lowp vec4 col;\n"
                                           "void main() {\n"
                                           "   gl_FragColor = col;\n"
                                           "}\n";
@@ -31,7 +31,7 @@ int OpenGLTestWindow::run(const int maxRenderCount, std::function<void(void)> re
 {
     int argc = 1;
     char fakeAppName[] = "'Fake OpenGLTestWindow App Name'";
-    char* fakeAppArgs[] = {&fakeAppName[0]};
+    char *fakeAppArgs[] = {&fakeAppName[0]};
 
     QGuiApplication app(argc, &fakeAppArgs[0]);
 
@@ -49,7 +49,7 @@ int OpenGLTestWindow::run(const int maxRenderCount, std::function<void(void)> re
 
 OpenGLTestWindow::OpenGLTestWindow(const int renderCount,
                                    std::function<void(void)> renderFunc,
-                                   QWindow* parent)
+                                   QWindow *parent)
     : QWindow(parent)
     , m_update_pending(false)
     , m_animating(false)
@@ -71,7 +71,7 @@ OpenGLTestWindow::~OpenGLTestWindow()
     delete m_device;
 }
 
-bool OpenGLTestWindow::event(QEvent* event)
+bool OpenGLTestWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::UpdateRequest:
@@ -83,7 +83,7 @@ bool OpenGLTestWindow::event(QEvent* event)
     }
 }
 
-void OpenGLTestWindow::exposeEvent(QExposeEvent* event)
+void OpenGLTestWindow::exposeEvent(QExposeEvent *event)
 {
     Q_UNUSED(event);
 
@@ -101,7 +101,7 @@ void OpenGLTestWindow::setAnimating(bool animating)
     }
 }
 
-GLuint OpenGLTestWindow::loadShader(GLenum type, const char* source)
+GLuint OpenGLTestWindow::loadShader(GLenum type, const char *source)
 {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, 0);
@@ -163,7 +163,7 @@ void OpenGLTestWindow::renderNow()
     }
 }
 
-void OpenGLTestWindow::render(QPainter* painter)
+void OpenGLTestWindow::render(QPainter *painter)
 {
     Q_UNUSED(painter);
 }

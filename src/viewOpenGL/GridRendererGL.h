@@ -9,13 +9,14 @@ class QColor;
 class QVector2DArray;
 
 // This class represents a virtual chip or array corresponding
-// to the chip or array where the experiment was performed
+// to the chip or array where the experiment was performed (coordinates are in
+// the arrray space)
 class GridRendererGL : public GraphicItemGL
 {
     Q_OBJECT
 
 public:
-    explicit GridRendererGL(QObject* parent = 0);
+    explicit GridRendererGL(QObject *parent = 0);
     virtual ~GridRendererGL();
 
     // data generation
@@ -23,7 +24,7 @@ public:
     void clearData();
 
     // setters
-    void setDimensions(const QRectF& border, const QRectF& rect);
+    void setDimensions(const QRectF &border, const QRectF &rect);
 
     // gettters
     const QColor color() const;
@@ -37,14 +38,14 @@ public slots:
 
     // TODO slots should have the prefix "slot"
 
-    void setColor(const QColor& color);
+    void setColor(const QColor &color);
 
 protected:
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent*) override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // data vertex arrays
     QVector<QVector2D> m_grid_vertex;

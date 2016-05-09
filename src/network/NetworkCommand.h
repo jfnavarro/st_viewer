@@ -5,8 +5,9 @@
 #include <QUrl>
 #include <QUrlQuery>
 
-#include "utils/Utils.h"
+#include "SettingsNetwork.h"
 
+using namespace Network;
 class QString;
 
 // The network command is an abstraction of a single network request command.
@@ -17,27 +18,28 @@ class NetworkCommand : public QObject
     Q_OBJECT
 
 public:
-    explicit NetworkCommand(QObject* parent = 0);
-    NetworkCommand(const QUrl& url,
-                   Globals::HttpRequestType type = Globals::HttpRequestTypeNone,
-                   QObject* parent = 0);
+    explicit NetworkCommand(QObject *parent = 0);
+    NetworkCommand(const QUrl &url,
+                   HttpRequestType type = HttpRequestTypeNone,
+                   QObject *parent = 0);
     virtual ~NetworkCommand();
 
     // member access
-    const QUrl& url() const;
-    Globals::HttpRequestType type() const;
-    const QUrlQuery& query() const;
+    const QUrl &url() const;
+    HttpRequestType type() const;
+    const QUrlQuery &query() const;
 
     // convenience wrapper functions to add parameters to the network command
-    void addQueryItem(const QString& param, const QString& value = QString());
-    void addQueryItem(const QString& param, const int value);
-    void addQueryItem(const QString& param, const qreal value);
+    void addQueryItem(const QString &param, const QString &value = QString());
+    void addQueryItem(const QString &param, const unsigned value);
+    void addQueryItem(const QString &param, const float value);
 
-    // adds query items from qobject meta data if its elements are possible to parse to QVariant
-    void addQueryItems(QObject* object);
+    // adds query items from qobject meta data if its elements are possible to
+    // parse to QVariant
+    void addQueryItems(QObject *object);
 
     // returns the current query item for the param given
-    const QString getQueryItem(const QString& param) const;
+    const QString getQueryItem(const QString &param) const;
 
     // returns the query part fully encoded.
     const QString getEncodedQuery() const;
@@ -47,11 +49,11 @@ public:
 
     // sets the body as a QByteArray
     // usually needed for sending JSON objects (used in PUT/POST)
-    void setBody(const QByteArray& body);
+    void setBody(const QByteArray &body);
     const QByteArray body() const;
 
 private:
-    typedef Globals::HttpRequestType Type;
+    typedef HttpRequestType Type;
     QUrl m_url;
     Type m_type;
     QUrlQuery m_query;

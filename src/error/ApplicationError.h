@@ -11,8 +11,8 @@ class ApplicationError : public Error
 public:
     enum Type { NoError = 0x216fc9af, LocalizationError = 0x8dacd5d7, UnknownError = 0x942e9ff6 };
 
-    explicit ApplicationError(QObject* parent = 0);
-    ApplicationError(ApplicationError::Type errorType, QObject* parent = 0);
+    explicit ApplicationError(QObject *parent = 0);
+    ApplicationError(ApplicationError::Type errorType, QObject *parent = 0);
     virtual ~ApplicationError();
 
 private:

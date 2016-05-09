@@ -3,10 +3,15 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class DatasetImporter;
 }
 
+// This widget allows the user to import a dataset.
+// The widget asks the user to introduce the chip
+// size, the alignment matrix, the features in JSON data
+// and the images
 class DatasetImporter : public QDialog
 {
     Q_OBJECT
@@ -33,7 +38,7 @@ private slots:
     void slotValidateForm();
 
 private:
-    std::unique_ptr<Ui::DatasetImporter> m_ui;
+    QScopedPointer<Ui::DatasetImporter> m_ui;
 };
 
 #endif // DATASETIMPORTER_H

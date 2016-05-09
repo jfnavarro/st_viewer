@@ -25,7 +25,7 @@ Dataset::Dataset()
 {
 }
 
-Dataset::Dataset(const Dataset& other)
+Dataset::Dataset(const Dataset &other)
 {
     m_name = other.m_name;
     m_id = other.m_id;
@@ -52,7 +52,7 @@ Dataset::~Dataset()
 {
 }
 
-Dataset& Dataset::operator=(const Dataset& other)
+Dataset &Dataset::operator=(const Dataset &other)
 {
     m_id = other.m_id;
     m_name = other.m_name;
@@ -76,27 +76,19 @@ Dataset& Dataset::operator=(const Dataset& other)
     return (*this);
 }
 
-bool Dataset::operator==(const Dataset& other) const
+bool Dataset::operator==(const Dataset &other) const
 {
-    return (m_id == other.m_id
-            && m_name == other.m_name
-            && m_alignmentId == other.m_alignmentId
-            && m_statBarcodes == other.m_statBarcodes
-            && m_statGenes == other.m_statGenes
+    return (m_id == other.m_id && m_name == other.m_name && m_alignmentId == other.m_alignmentId
+            && m_statBarcodes == other.m_statBarcodes && m_statGenes == other.m_statGenes
             && m_statUniqueBarcodes == other.m_statUniqueBarcodes
-            && m_statUniqueGenes == other.m_statUniqueGenes
-            && m_statTissue == other.m_statTissue
-            && m_statSpecies == other.m_statSpecies
-            && m_statComments == other.m_statComments
+            && m_statUniqueGenes == other.m_statUniqueGenes && m_statTissue == other.m_statTissue
+            && m_statSpecies == other.m_statSpecies && m_statComments == other.m_statComments
             && m_oboFroundryTerms == other.m_oboFroundryTerms
             && m_geneHitsQuartiles == other.m_geneHitsQuartiles
             && m_genePooledHitsQuartiles == other.m_genePooledHitsQuartiles
-            && m_enabled == other.m_enabled
-            && m_grantedAccounts == other.m_grantedAccounts
-            && m_createdByAccount == other.m_createdByAccount
-            && m_created == other.m_created
-            && m_lastMofidied == other.m_lastMofidied
-            && m_downloaded == other.m_downloaded);
+            && m_enabled == other.m_enabled && m_grantedAccounts == other.m_grantedAccounts
+            && m_createdByAccount == other.m_createdByAccount && m_created == other.m_created
+            && m_lastMofidied == other.m_lastMofidied && m_downloaded == other.m_downloaded);
 }
 
 const QString Dataset::id() const
@@ -114,22 +106,22 @@ const QString Dataset::imageAlignmentId() const
     return m_alignmentId;
 }
 
-int Dataset::statBarcodes() const
+unsigned Dataset::statBarcodes() const
 {
     return m_statBarcodes;
 }
 
-int Dataset::statGenes() const
+unsigned Dataset::statGenes() const
 {
     return m_statGenes;
 }
 
-int Dataset::statUniqueBarcodes() const
+unsigned Dataset::statUniqueBarcodes() const
 {
     return m_statUniqueBarcodes;
 }
 
-int Dataset::statUniqueGenes() const
+unsigned Dataset::statUniqueGenes() const
 {
     return m_statUniqueGenes;
 }
@@ -149,17 +141,12 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
-const QVector<QString> Dataset::oboFoundryTerms() const
-{
-    return m_oboFroundryTerms;
-}
-
-const QVector<qreal> Dataset::hitsQuartiles() const
+const QVector<float> Dataset::hitsQuartiles() const
 {
     return m_geneHitsQuartiles;
 }
 
-const QVector<qreal> Dataset::hitsPooledQuartiles() const
+const QVector<float> Dataset::hitsPooledQuartiles() const
 {
     return m_genePooledHitsQuartiles;
 }
@@ -194,67 +181,62 @@ bool Dataset::downloaded() const
     return m_downloaded;
 }
 
-void Dataset::id(const QString& id)
+void Dataset::id(const QString &id)
 {
     m_id = id;
 }
 
-void Dataset::name(const QString& name)
+void Dataset::name(const QString &name)
 {
     m_name = name;
 }
 
-void Dataset::imageAlignmentId(const QString& alignmentId)
+void Dataset::imageAlignmentId(const QString &alignmentId)
 {
     m_alignmentId = alignmentId;
 }
 
-void Dataset::statBarcodes(int barcodes)
+void Dataset::statBarcodes(unsigned barcodes)
 {
     m_statBarcodes = barcodes;
 }
 
-void Dataset::statGenes(int genes)
+void Dataset::statGenes(unsigned genes)
 {
     m_statGenes = genes;
 }
 
-void Dataset::statUniqueBarcodes(int uniqueBarcodes)
+void Dataset::statUniqueBarcodes(unsigned uniqueBarcodes)
 {
     m_statUniqueBarcodes = uniqueBarcodes;
 }
 
-void Dataset::statUniqueGenes(int uniqueGenes)
+void Dataset::statUniqueGenes(unsigned uniqueGenes)
 {
     m_statUniqueGenes = uniqueGenes;
 }
 
-void Dataset::statTissue(const QString& statTissue)
+void Dataset::statTissue(const QString &statTissue)
 {
     m_statTissue = statTissue;
 }
 
-void Dataset::statSpecies(const QString& statSpecies)
+void Dataset::statSpecies(const QString &statSpecies)
 {
     m_statSpecies = statSpecies;
 }
 
-void Dataset::statComments(const QString& statComments)
+void Dataset::statComments(const QString &statComments)
 {
     m_statComments = statComments;
 }
 
-void Dataset::oboFoundryTerms(const QVector<QString>& oboFoundryTerms)
-{
-    m_oboFroundryTerms = oboFoundryTerms;
-}
-
-void Dataset::hitsQuartiles(const QVector<qreal>& hitsQuartiles)
+void Dataset::hitsQuartiles(const QVector<float> &hitsQuartiles)
 {
     m_geneHitsQuartiles = hitsQuartiles;
 }
 
-void Dataset::hitsPooledQuartiles(const QVector<qreal>& hitsPooledQuartiles)
+void Dataset::hitsPooledQuartiles(const QVector<float> &hitsPooledQuartiles)
 {
     m_genePooledHitsQuartiles = hitsPooledQuartiles;
 }
@@ -264,22 +246,22 @@ void Dataset::enabled(const bool enabled)
     m_enabled = enabled;
 }
 
-void Dataset::grantedAccounts(const QVector<QString>& grantedAccounts)
+void Dataset::grantedAccounts(const QVector<QString> &grantedAccounts)
 {
     m_grantedAccounts = grantedAccounts;
 }
 
-void Dataset::createdByAccount(const QString& created)
+void Dataset::createdByAccount(const QString &created)
 {
     m_createdByAccount = created;
 }
 
-void Dataset::created(const QString& created)
+void Dataset::created(const QString &created)
 {
     m_created = created;
 }
 
-void Dataset::lastModified(const QString& lastModified)
+void Dataset::lastModified(const QString &lastModified)
 {
     m_lastMofidied = lastModified;
 }
@@ -289,7 +271,7 @@ void Dataset::downloaded(const bool downloaded)
     m_downloaded = downloaded;
 }
 
-qreal Dataset::statisticsMin() const
+float Dataset::statisticsMin() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
     // returning q0, alternatively could return
@@ -297,7 +279,7 @@ qreal Dataset::statisticsMin() const
     return m_geneHitsQuartiles.at(0);
 }
 
-qreal Dataset::statisticsMax() const
+float Dataset::statisticsMax() const
 {
     Q_ASSERT(m_geneHitsQuartiles.size() == 5);
     // returning q4 an alternative would be
@@ -305,7 +287,7 @@ qreal Dataset::statisticsMax() const
     return m_geneHitsQuartiles.at(4);
 }
 
-qreal Dataset::statisticsPooledMin() const
+float Dataset::statisticsPooledMin() const
 {
     Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
     // returning q0, alternatively could return
@@ -313,7 +295,7 @@ qreal Dataset::statisticsPooledMin() const
     return m_genePooledHitsQuartiles.at(0);
 }
 
-qreal Dataset::statisticsPooledMax() const
+float Dataset::statisticsPooledMax() const
 {
     Q_ASSERT(m_genePooledHitsQuartiles.size() == 5);
     // returning q4 an alternative would be

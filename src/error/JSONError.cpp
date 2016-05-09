@@ -2,15 +2,15 @@
 
 #include <QApplication>
 
-static const char* LOC_CONTEXT = "JSONError";
+static const char *LOC_CONTEXT = "JSONError";
 
-JSONError::JSONError(QObject* parent)
+JSONError::JSONError(QObject *parent)
     : Error(parent)
 {
     init(QJsonParseError::NoError);
 }
 
-JSONError::JSONError(QJsonParseError::ParseError error, QObject* parent)
+JSONError::JSONError(QJsonParseError::ParseError error, QObject *parent)
     : Error(parent)
 {
     init(error);

@@ -3,17 +3,17 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-DatasetImporter::DatasetImporter(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::DatasetImporter)
+DatasetImporter::DatasetImporter(QWidget *parent)
+    : QDialog(parent)
+    , m_ui(new Ui::DatasetImporter)
 {
     m_ui->setupUi(this);
-    connect(m_ui->loadFeaturesFile,
-            SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
-    connect(m_ui->loadMainImageFile,
-            SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
+    connect(m_ui->loadFeaturesFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
+    connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
     connect(m_ui->loadSecondImageFile,
-            SIGNAL(clicked(bool)), this, SLOT(slotLoadSecondImageFile()));
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(slotLoadSecondImageFile()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(slotValidateForm()));
 }
 
@@ -89,11 +89,11 @@ const QTransform DatasetImporter::alignmentMatrix() const
 
 void DatasetImporter::slotLoadFeaturesFile()
 {
-    const QString filename =
-            QFileDialog::getOpenFileName(this,
-                                         tr("Open Features File"),
-                                         QDir::homePath(),
-                                         QString("%1").arg(tr("JSON Files (*.json)")));
+    const QString filename
+        = QFileDialog::getOpenFileName(this,
+                                       tr("Open Features File"),
+                                       QDir::homePath(),
+                                       QString("%1").arg(tr("JSON Files (*.json)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -101,8 +101,7 @@ void DatasetImporter::slotLoadFeaturesFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Features File"),
-                              tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Features File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->featuresFile->insert(filename);
     }
@@ -110,11 +109,11 @@ void DatasetImporter::slotLoadFeaturesFile()
 
 void DatasetImporter::slotLoadMainImageFile()
 {
-    const QString filename =
-            QFileDialog::getOpenFileName(this,
-                                         tr("Open Main Image File"),
-                                         QDir::homePath(),
-                                         QString("%1").arg(tr("JPEG Files (*.jpg)")));
+    const QString filename
+        = QFileDialog::getOpenFileName(this,
+                                       tr("Open Main Image File"),
+                                       QDir::homePath(),
+                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -122,8 +121,7 @@ void DatasetImporter::slotLoadMainImageFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Main Image File"),
-                              tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->mainImageFile->insert(filename);
     }
@@ -131,11 +129,11 @@ void DatasetImporter::slotLoadMainImageFile()
 
 void DatasetImporter::slotLoadSecondImageFile()
 {
-    const QString filename =
-            QFileDialog::getOpenFileName(this,
-                                         tr("Open Second Image File"),
-                                         QDir::homePath(),
-                                         QString("%1").arg(tr("JPEG Files (*.jpg)")));
+    const QString filename
+        = QFileDialog::getOpenFileName(this,
+                                       tr("Open Second Image File"),
+                                       QDir::homePath(),
+                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -143,7 +141,8 @@ void DatasetImporter::slotLoadSecondImageFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Second Image File"),
+        QMessageBox::critical(this,
+                              tr("Second Image File"),
                               tr("File is incorrect or not readable"));
     } else {
         m_ui->secondImageFile->insert(filename);
@@ -174,7 +173,7 @@ void DatasetImporter::slotValidateForm()
     if (!isValid) {
         QMessageBox::critical(this, tr("Import dataset"), error_msg);
         QDialog::done(QDialog::Rejected);
-        //TODO maybe we should not close the dialog
+        // TODO maybe we should not close the dialog
     } else {
         QDialog::done(QDialog::Accepted);
     }

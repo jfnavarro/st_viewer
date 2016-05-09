@@ -26,28 +26,27 @@ class CellView;
 } // namespace Ui
 
 // This is the definition of the cell view page visualization widget
-// which contains a table of genes, a table of selected genes and an OpenGL based
+// which contains a table of genes and an OpenGL based
 // rendering canvas to visualize the cell tissue and the genes.
-// It also contains a toobar like every page. Functionalities in the toolbar are handled by slots.
-// We do lazy inizialization of the visual stuff, specially openGL based stuff
+// It also contains a toobar like every page. Functionalities in the toolbar are
+// handled by slots.
+// We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 
 // TODO add a cache for the visual settings
 // TODO move visual settings to mainwindow
 // TODO add a ruler visual object
 // TODO add a visual object to show name of dataset
-// TODO add a visual object to draw selections with color
+// TODO add a visual object to hightlight spots with color
 // TODO add a lazo selection option
-// TODO add an option to normalize reads with DESeq
+// TODO add an option to show normalized reads with DESeq
 // TODO add an option to show the coordinates when the user hovers a spot
-// TODO add hoover functionalities (specially if user hoovers a selection to show selection info)
-// TODO add a global threshold in percentage for the visual settings
+// TODO add an option to show gene expression in a defined color range
 class CellViewPage : public QWidget
 {
     Q_OBJECT
 
 public:
-
-    CellViewPage(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
+    CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~CellViewPage();
 
     // clear the loaded content
@@ -69,13 +68,13 @@ public slots:
     // the user has cleared the selections
     void slotClearSelections();
     // the user has selected/deselected genes
-    void slotGenesSelected(const DataProxy::GeneList& genes);
+    void slotGenesSelected(const DataProxy::GeneList &genes);
     // the user has changed the color of genes
-    void slotGenesColor(const DataProxy::GeneList& genes);
+    void slotGenesColor(const DataProxy::GeneList &genes);
     // the user has changed the cut off of a gene
     void slotGeneCutOff(const DataProxy::GenePtr gene);
     // set the user name for the tool bar field
-    void slotSetUserName(const QString& username);
+    void slotSetUserName(const QString &username);
 
 private slots:
 
@@ -93,16 +92,16 @@ private slots:
     void slotSelectByRegExp();
 
     // select gene visual mode
-    void slotSetGeneVisualMode(QAction* action);
+    void slotSetGeneVisualMode(QAction *action);
 
     // select legend anchor
-    void slotSetLegendAnchor(QAction* action);
+    void slotSetLegendAnchor(QAction *action);
 
     // select legend computation of values (reads or number of genes)
-    void slotSetLegendType(QAction* action);
+    void slotSetLegendType(QAction *action);
 
     // select minimap anchor
-    void slotSetMiniMapAnchor(QAction* action);
+    void slotSetMiniMapAnchor(QAction *action);
 
     // to handle when the user makes a selection
     void slotSelectionUpdated();
@@ -124,41 +123,37 @@ private:
     void setEnableButtons(bool enable);
 
     // OpenGL visualization objects
-    QPointer<MiniMapGL> m_minimap;
-    QPointer<HeatMapLegendGL> m_legend;
-    QPointer<GeneRendererGL> m_gene_plotter;
-    QPointer<ImageTextureGL> m_image;
-    QPointer<GridRendererGL> m_grid;
-    QPointer<CellGLView> m_view;
+    QSharedPointer<MiniMapGL> m_minimap;
+    QSharedPointer<HeatMapLegendGL> m_legend;
+    QSharedPointer<GeneRendererGL> m_gene_plotter;
+    QSharedPointer<ImageTextureGL> m_image;
+    QSharedPointer<GridRendererGL> m_grid;
 
     // color dialog for the grid
-    QPointer<QColorDialog> m_colorDialogGrid;
+    QScopedPointer<QColorDialog> m_colorDialogGrid;
 
     // User interface
-    std::unique_ptr<Ui::CellView> m_ui;
+    QScopedPointer<Ui::CellView> m_ui;
 
     // Features Reads Distribution
-    QPointer<AnalysisFRD> m_FDH;
+    QScopedPointer<AnalysisFRD> m_FDH;
 
     // Elements of the cell view visual settings menu
-    QPointer<QRadioButton> m_colorLinear;
-    QPointer<QRadioButton> m_colorLog;
-    QPointer<QRadioButton> m_colorExp;
-    QPointer<QRadioButton> m_poolingGenes;
-    QPointer<QRadioButton> m_poolingReads;
-    QPointer<QRadioButton> m_poolingTPMs;
-    QPointer<SpinBoxSlider> m_geneHitsThreshold;
-    QPointer<SpinBoxSlider> m_geneGenesThreshold;
-    QPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
-    // TODO temp not smart pointer to make the add addSliderToMenu work
-    // solution is just use smart pointers but transfer ownership when invoking the function
-    QSlider* m_geneIntensitySlider;
-    QSlider* m_geneSizeSlider;
-    QSlider* m_geneShineSlider;
-    QSlider* m_geneBrightnessSlider;
-    QPointer<QComboBox> m_geneShapeComboBox;
+    QScopedPointer<QRadioButton> m_colorLinear;
+    QScopedPointer<QRadioButton> m_colorLog;
+    QScopedPointer<QRadioButton> m_colorExp;
+    QScopedPointer<QRadioButton> m_poolingGenes;
+    QScopedPointer<QRadioButton> m_poolingReads;
+    QScopedPointer<QRadioButton> m_poolingTPMs;
+    QScopedPointer<SpinBoxSlider> m_geneHitsThreshold;
+    QScopedPointer<SpinBoxSlider> m_geneGenesThreshold;
+    QScopedPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
+    QScopedPointer<QSlider> m_geneIntensitySlider;
+    QScopedPointer<QSlider> m_geneSizeSlider;
+    QScopedPointer<QSlider> m_geneBrightnessSlider;
+    QScopedPointer<QComboBox> m_geneShapeComboBox;
     // reference to dataProxy
-    QPointer<DataProxy> m_dataProxy;
+    QSharedPointer<DataProxy> m_dataProxy;
     // currently opened dataset
     mutable QString m_openedDatasetId;
 

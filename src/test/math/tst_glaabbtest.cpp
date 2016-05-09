@@ -11,7 +11,7 @@ Q_DECLARE_METATYPE(QuadTreeAABB)
 namespace unit
 {
 
-GLAABBTest::GLAABBTest(QObject* parent)
+GLAABBTest::GLAABBTest(QObject *parent)
     : QObject(parent)
 {
 }

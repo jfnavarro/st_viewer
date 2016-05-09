@@ -35,32 +35,35 @@ public:
     };
     Q_DECLARE_FLAGS(NetworkFlags, NetworkFlag)
 
-    NetworkManager(QObject* parent = 0);
+    NetworkManager(QObject *parent = 0);
     virtual ~NetworkManager();
 
     // default use Authentication
-    NetworkReply* httpRequest(NetworkCommand* cmd, NetworkFlags flags = NetworkFlag::Default);
+    QSharedPointer<NetworkReply> httpRequest(QSharedPointer<NetworkCommand> cmd,
+                                             NetworkFlags flags = NetworkFlag::Default);
 
     // clear network disk cache
     void cleanCache();
 
 private slots:
     // if remote server requires authentication
-    void provideAuthentication(QNetworkReply*, QAuthenticator*);
+    void provideAuthentication(QNetworkReply *, QAuthenticator *);
 
 private:
     // internal function to add the JSON data info to the headers of the request
-    // and returns the JSON data as a QbyteArray. JSON data is present in NetworkCommand
-    QByteArray addJSONDatatoRequest(NetworkCommand* cmd, QNetworkRequest& request) const;
+    // and returns the JSON data as a QbyteArray. JSON data is present in
+    // NetworkCommand
+    QByteArray addJSONDatatoRequest(QSharedPointer<NetworkCommand> cmd,
+                                    QNetworkRequest &request) const;
 
     // qt network manager object
-    QPointer<QNetworkAccessManager> m_nam;
+    QScopedPointer<QNetworkAccessManager> m_nam;
     // configuration manager instance
     Configuration m_configurationManager;
     // instance of token manager to do authorization when requested
     TokenStorage m_tokenStorage;
     // network disk cache
-    QPointer<NetworkDiskCache> m_diskCache;
+    QScopedPointer<NetworkDiskCache> m_diskCache;
 
     Q_DISABLE_COPY(NetworkManager)
 };

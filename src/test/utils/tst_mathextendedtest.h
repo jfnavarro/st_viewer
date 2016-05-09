@@ -11,7 +11,7 @@ class MathExtendedTest : public QObject
     Q_OBJECT
 
 public:
-    explicit MathExtendedTest(QObject* parent = 0);
+    explicit MathExtendedTest(QObject *parent = 0);
 
 private Q_SLOTS:
     void initTestCase();

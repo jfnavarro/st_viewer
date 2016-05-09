@@ -2,15 +2,15 @@
 
 #include <QApplication>
 
-static const char* LOC_CONTEXT = "ApplicationError";
+static const char *LOC_CONTEXT = "ApplicationError";
 
-ApplicationError::ApplicationError(QObject* parent)
+ApplicationError::ApplicationError(QObject *parent)
     : Error(parent)
 {
     init(ApplicationError::NoError);
 }
 
-ApplicationError::ApplicationError(ApplicationError::Type errorType, QObject* parent)
+ApplicationError::ApplicationError(ApplicationError::Type errorType, QObject *parent)
     : Error(parent)
 {
     init(errorType);

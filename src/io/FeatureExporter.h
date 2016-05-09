@@ -10,8 +10,7 @@
 class QIODevice;
 class Feature;
 
-// TODO this class should really get merged with GeneExporter the reason
-// why we haven't done it already is
+// Simple class to export an UserSelection to a file
 class FeatureExporter
 {
     Q_FLAGS(DetailLevel)
@@ -37,20 +36,25 @@ public:
     FeatureExporter(DetailLevels detailLevel, SeparationModes separationMode);
     ~FeatureExporter();
 
-    void exportItem(QIODevice& device, const DataProxy::FeatureList& featureList) const;
+    // the method to call to write the features to a file
+    void exportItem(QIODevice &device, const DataProxy::FeatureList &featureList) const;
 
-    void addExportProperty(const QString& property);
-    void addExportProperty(const QStringList& properties);
+    // to add dybamic properties to the document
+    void addExportProperty(const QString &property);
+    void addExportProperty(const QStringList &properties);
 
-    static const QString encodePropertyList(const QStringList& properties);
-    static const QStringList decodePropertyList(const QString& properties);
+    // to encode properties
+    static const QString encodePropertyList(const QStringList &properties);
+    static const QStringList decodePropertyList(const QString &properties);
 
-protected:
+private:
+    // to get the list of properties of the document
     const QStringList exportPropertyList() const;
     const QString delimiterCharacter() const;
-    void exportStrings(QTextStream& otxt, const QStringList& strings) const;
-    void exportItem(QTextStream& otxt, const Feature& feature) const;
-    void exportItem(QTextStream& otxt, const DataProxy::FeatureList& selectionList) const;
+    // internal functions to do the writing to file object by object
+    void exportStrings(QTextStream &otxt, const QStringList &strings) const;
+    void exportItem(QTextStream &otxt, const Feature &feature) const;
+    void exportItem(QTextStream &otxt, const DataProxy::FeatureList &selectionList) const;
 
     DetailLevels m_detailLevel;
     SeparationModes m_separationMode;

@@ -18,17 +18,17 @@ class LastModifiedDTO : public QObject
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-    explicit LastModifiedDTO(QObject* parent = 0)
+    explicit LastModifiedDTO(QObject *parent = 0)
         : QObject(parent)
     {
     }
     ~LastModifiedDTO() {}
 
     // binding
-    const QString& lastModified() const { return m_lastModified; }
+    const QString &lastModified() const { return m_lastModified; }
 
     // getters
-    void lastModified(const QString& lastModified) { m_lastModified = lastModified; }
+    void lastModified(const QString &lastModified) { m_lastModified = lastModified; }
 
 private:
     QString m_lastModified;

@@ -12,11 +12,11 @@ class SortGenesProxyModel : public QSortFilterProxyModel
 public:
     enum SortCategory { ambiguousGene = 0, numericGene = 1, normalGene = 2 };
 
-    explicit SortGenesProxyModel(QObject* parent = 0);
+    explicit SortGenesProxyModel(QObject *parent = 0);
     virtual ~SortGenesProxyModel();
 
 protected:
-    bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private:
     Q_DISABLE_COPY(SortGenesProxyModel)

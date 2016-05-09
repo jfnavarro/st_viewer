@@ -9,7 +9,7 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 // Convenience functions to add status tip and tooltip to widgets
 
-void setToolTipAndStatusTip(const QString& str, QWidget* widget);
-void setToolTipAndStatusTip(const QString& str, QAction* action);
+void setToolTipAndStatusTip(const QString &str, QWidget *widget);
+void setToolTipAndStatusTip(const QString &str, QAction *action);
 
 #endif // SETTIPS_H

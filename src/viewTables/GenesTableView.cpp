@@ -6,23 +6,24 @@
 #include "model/SortGenesProxyModel.h"
 #include "model/GeneFeatureItemModel.h"
 
-GenesTableView::GenesTableView(QWidget* parent)
+GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent)
     , m_geneModel(nullptr)
     , m_sortGenesProxyModel(nullptr)
 {
     // model
-    m_geneModel = new GeneFeatureItemModel(this);
+    m_geneModel.reset(new GeneFeatureItemModel(this));
 
     // sorting model
-    m_sortGenesProxyModel = new SortGenesProxyModel(this);
-    m_sortGenesProxyModel->setSourceModel(m_geneModel);
+    m_sortGenesProxyModel.reset(new SortGenesProxyModel(this));
+    m_sortGenesProxyModel->setSourceModel(m_geneModel.data());
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     // this is important because sort proxy will use the column 0 by default
     m_sortGenesProxyModel->setFilterKeyColumn(GeneFeatureItemModel::Name);
-    setModel(m_sortGenesProxyModel);
+    setModel(m_sortGenesProxyModel.data());
 
+    // settings for the table
     setSortingEnabled(true);
     setShowGrid(true);
     setWordWrap(true);
@@ -58,11 +59,11 @@ GenesTableView::~GenesTableView()
 
 QItemSelection GenesTableView::geneTableItemSelection() const
 {
-    const auto selected = selectionModel()->selection();
+    const auto &selected = selectionModel()->selection();
     return m_sortGenesProxyModel->mapSelectionToSource(selected);
 }
 
-void GenesTableView::setGeneNameFilter(QString str)
+void GenesTableView::setGeneNameFilter(const QString &str)
 {
     m_sortGenesProxyModel->setFilterFixedString(str);
 }

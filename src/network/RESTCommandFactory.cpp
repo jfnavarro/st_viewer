@@ -2,105 +2,110 @@
 
 #include <QUuid>
 #include "config/Configuration.h"
+#include "SettingsNetwork.h"
 
-NetworkCommand* RESTCommandFactory::getAuthorizationToken(const Configuration& configuration)
+using namespace Network;
+
+QSharedPointer<NetworkCommand> RESTCommandFactory::getAuthorizationToken(
+    const Configuration &configuration)
 {
     const QUrl endpoint = QUrl(configuration.oauthEndpointToken());
-    NetworkCommand* cmd = new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
-    cmd->addQueryItem(Globals::LBL_GRANT_TYPE, Globals::LBL_GRANT_PASSWORD);
-    cmd->addQueryItem(Globals::LBL_SCOPE, configuration.oauthScope());
+    QSharedPointer<NetworkCommand> cmd
+        = QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypePost));
+    cmd->addQueryItem(LBL_GRANT_TYPE, LBL_GRANT_PASSWORD);
+    cmd->addQueryItem(LBL_SCOPE, configuration.oauthScope());
     return cmd;
 }
 
-NetworkCommand* RESTCommandFactory::getChipByChipId(const Configuration& configuration,
-                                                    const QString& chipId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getChipByChipId(
+    const Configuration &configuration, const QString &chipId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointChips() + "/" + chipId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getDatasets(const Configuration& configuration)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getDatasets(const Configuration &configuration)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointDatasets());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getDatasetByDatasetId(const Configuration& configuration,
-                                                          const QString& datasetId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getDatasetByDatasetId(
+    const Configuration &configuration, const QString &datasetId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::updateDatasetByDatasetId(const Configuration& configuration,
-                                                             const QString& datasetId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::updateDatasetByDatasetId(
+    const Configuration &configuration, const QString &datasetId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypePut));
 }
 
-NetworkCommand* RESTCommandFactory::removeDatasetByDatasetId(const Configuration& configuration,
-                                                             const QString& datasetId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::removeDatasetByDatasetId(
+    const Configuration &configuration, const QString &datasetId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointDatasets() + "/" + datasetId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeDelete));
 }
 
-NetworkCommand* RESTCommandFactory::getFeatureByDatasetId(const Configuration& configuration,
-                                                          const QString& datasetId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getFeatureByDatasetId(
+    const Configuration &configuration, const QString &datasetId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointFeatures() + "/" + datasetId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getImageAlignmentById(const Configuration& configuration,
-                                                          const QString& imageAlignmentId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getImageAlignmentById(
+    const Configuration &configuration, const QString &imageAlignmentId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointImageAlingment() + "/" + imageAlignmentId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getCellTissueFigureByName(const Configuration& configuration,
-                                                              const QString& name)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getCellTissueFigureByName(
+    const Configuration &configuration, const QString &name)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointFigures() + "/" + name);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getUser(const Configuration& configuration)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getUser(const Configuration &configuration)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointUsers());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::getSelections(const Configuration& configuration)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getSelections(const Configuration &configuration)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }
 
-NetworkCommand* RESTCommandFactory::upateSelectionBySelectionId(const Configuration& configuration,
-                                                                const QString& selectionId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::upateSelectionBySelectionId(
+    const Configuration &configuration, const QString &selectionId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypePut);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypePut));
 }
 
-NetworkCommand* RESTCommandFactory::removeSelectionBySelectionId(const Configuration& configuration,
-                                                                 const QString& selectionId)
+QSharedPointer<NetworkCommand> RESTCommandFactory::removeSelectionBySelectionId(
+    const Configuration &configuration, const QString &selectionId)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections() + "/" + selectionId);
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeDelete);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeDelete));
 }
 
-NetworkCommand* RESTCommandFactory::addSelection(const Configuration& configuration)
+QSharedPointer<NetworkCommand> RESTCommandFactory::addSelection(const Configuration &configuration)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointSelections());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypePost);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypePost));
 }
 
-NetworkCommand* RESTCommandFactory::getMinVersion(const Configuration& configuration)
+QSharedPointer<NetworkCommand> RESTCommandFactory::getMinVersion(const Configuration &configuration)
 {
     QUrl endpoint = QUrl(configuration.dataEndpointMinVersion());
-    return new NetworkCommand(endpoint, Globals::HttpRequestTypeGet);
+    return QSharedPointer<NetworkCommand>(new NetworkCommand(endpoint, HttpRequestTypeGet));
 }

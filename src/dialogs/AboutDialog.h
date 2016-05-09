@@ -13,11 +13,11 @@ class AboutDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AboutDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    explicit AboutDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~AboutDialog();
 
 private:
-    std::unique_ptr<Ui::AboutDialog> m_ui;
+    QScopedPointer<Ui::AboutDialog> m_ui;
 
     Q_DISABLE_COPY(AboutDialog)
 };

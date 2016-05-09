@@ -20,7 +20,7 @@ DataRenderer::run()
         DataProxy::FeaturePtr feature = it.value();
         Q_ASSERT(feature);
 
-        const int currentHits = feature->hits();
+        const int currentHits = feature->count();
         // check if the reads are outside the threshold
         if (featureReadsOutsideRange(currentHits)) {
             continue;
@@ -48,7 +48,7 @@ DataRenderer::run()
         const QColor &featureColor = gene->color();
         if (indexColor != featureColor) {
             const qreal adjustment = 1.0 / indexValueGenes;
-            indexColor = STMath::lerp(adjustment, indexColor, featureColor);
+            indexColor = Math::lerp(adjustment, indexColor, featureColor);
         }
     }
 
@@ -60,7 +60,7 @@ DataRenderer::run()
         if (pooling_genes) {
             indexValue = indexValueGenes;
         } else if (pooling_tpm) {
-            indexValue = STMath::tpmNormalization<int>(indexValue, total_reads_feature);
+            indexValue = Math::tpmNormalization<int>(indexValue, total_reads_feature);
         }
         // only update the boundaries for color computation in pooled mode
         m_localPooledMin = std::min(indexValue, m_localPooledMin);

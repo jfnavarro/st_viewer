@@ -11,10 +11,11 @@
 #include <QPushButton>
 #include <QSet>
 
-#include "utils/Utils.h"
 #include "ui_login.h"
 
-LoginDialog::LoginDialog(QWidget* parent, Qt::WindowFlags f)
+static const QString SettingsUsers = QStringLiteral("Users");
+
+LoginDialog::LoginDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::LogIn())
     , m_completer(nullptr)
@@ -31,7 +32,7 @@ LoginDialog::LoginDialog(QWidget* parent, Qt::WindowFlags f)
     m_ui->username->setCompleter(m_completer.data());
 
     // connects slots
-    // TODO user QDialog signals instead
+    // TODO use QDialog signals instead
     connect(m_ui->buttons->button(QDialogButtonBox::Cancel),
             SIGNAL(clicked()),
             this,
@@ -46,9 +47,6 @@ LoginDialog::~LoginDialog()
 {
     // save users
     saveUsers();
-    // delete completer
-    m_completer->deleteLater();
-    m_completer = nullptr;
 }
 
 void LoginDialog::clear()
@@ -57,7 +55,7 @@ void LoginDialog::clear()
     m_ui->password->clear();
 }
 
-void LoginDialog::setUsername(const QString& username)
+void LoginDialog::setUsername(const QString &username)
 {
     m_ui->username->setText(username);
 }
@@ -75,23 +73,22 @@ const QString LoginDialog::getCurrentPassword() const
 void LoginDialog::loadUsers()
 {
     QSettings settings;
-    const QStringList userlist
-        = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
+    const QStringList userlist = settings.value(SettingsUsers, QStringList()).toStringList();
     QSet<QString> stringSet = QSet<QString>::fromList(userlist);
-    m_completer = new QCompleter(stringSet.toList());
+    m_completer.reset(new QCompleter(stringSet.toList()));
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
 }
 
 void LoginDialog::saveUsers()
 {
     QSettings settings;
-    QStringList users = settings.value(Globals::SettingsUsers, QStringList()).toStringList();
+    QStringList users = settings.value(SettingsUsers, QStringList()).toStringList();
     const QString username = m_ui->username->text();
     users.append(username);
-    settings.setValue(Globals::SettingsUsers, users);
+    settings.setValue(SettingsUsers, users);
 }
 
-void LoginDialog::setPassword(const QString& password)
+void LoginDialog::setPassword(const QString &password)
 {
     m_ui->password->setText(password);
 }
@@ -103,7 +100,7 @@ void LoginDialog::slotAcceptLogin()
     emit acceptLogin(m_ui->username->text(), m_ui->password->text());
 }
 
-void LoginDialog::keyPressEvent(QKeyEvent* e)
+void LoginDialog::keyPressEvent(QKeyEvent *e)
 {
     switch (e->key()) {
     case Qt::Key_Escape:

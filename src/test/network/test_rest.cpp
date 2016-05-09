@@ -5,7 +5,7 @@
 namespace unit
 {
 
-RestTest::RestTest(QObject* parent)
+RestTest::RestTest(QObject *parent)
     : QObject(parent)
 {
 }

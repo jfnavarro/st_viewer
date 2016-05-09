@@ -12,13 +12,13 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleTypeIconFile</key>
-            <string>${PROJECT_NAME}.icns</string>
+            <string>st_icon.icns</string>
         </dict>
     </array>
     <key>NSHumanReadableCopyright</key>
-    <string>(C) 2011-${YEAR}</string>
+    <string>(C) 2012-${YEAR}</string>
     <key>CFBundleIconFile</key>
-    <string>${PROJECT_NAME}.icns</string>
+    <string>st_icon.icns</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

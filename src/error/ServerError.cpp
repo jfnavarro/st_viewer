@@ -2,11 +2,11 @@
 
 #include <QApplication>
 
-static const char* LOC_CONTEXT = "ServerError";
+static const char *LOC_CONTEXT = "ServerError";
 
-ServerError::ServerError(const QString& serverErrorName,
-                         const QString& serverErrorDescription,
-                         QObject* parent)
+ServerError::ServerError(const QString &serverErrorName,
+                         const QString &serverErrorDescription,
+                         QObject *parent)
     : Error(parent)
 {
     init(serverErrorName, serverErrorDescription);
@@ -16,7 +16,7 @@ ServerError::~ServerError()
 {
 }
 
-void ServerError::init(const QString& errorName, const QString& errorDescription)
+void ServerError::init(const QString &errorName, const QString &errorDescription)
 {
     QString name;
     QString description;

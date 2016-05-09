@@ -14,7 +14,7 @@ class GLQuadTreeTest : public QObject
     Q_OBJECT
 
 public:
-    explicit GLQuadTreeTest(QObject* parent = 0);
+    explicit GLQuadTreeTest(QObject *parent = 0);
 
 private:
     typedef QList<QPointF> PointList;

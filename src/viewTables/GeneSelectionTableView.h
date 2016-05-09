@@ -7,13 +7,14 @@
 class GeneSelectionItemModel;
 class SortGenesProxyModel;
 
-// An abstraction of QTableView for the gene selections table in the user selections window
+// An abstraction of QTableView for the gene selections table in the user
+// selections window
 class GeneSelectionTableView : public QTableView
 {
     Q_OBJECT
 
 public:
-    explicit GeneSelectionTableView(QWidget* parent = 0);
+    explicit GeneSelectionTableView(QWidget *parent = 0);
     virtual ~GeneSelectionTableView();
 
     // returns the current selection mapped to the sorting model
@@ -22,12 +23,12 @@ public:
 public slots:
 
     // slot used to set a search filter for the table
-    void setGeneNameFilter(QString);
+    void setGeneNameFilter(const QString &str);
 
 private:
     // references to model and proxy model
-    QPointer<GeneSelectionItemModel> m_geneSelectionModel;
-    QPointer<SortGenesProxyModel> m_sortGenesProxyModel;
+    QScopedPointer<GeneSelectionItemModel> m_geneSelectionModel;
+    QScopedPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GeneSelectionTableView)
 };

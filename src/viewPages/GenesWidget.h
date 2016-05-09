@@ -14,18 +14,18 @@ class QSortFilterProxyModel;
 class QColorDialog;
 
 // This widget is componsed of the genes table
-// a search field and the select and action menus
+// a search field and the select and action menus so the user can
+// select/deselect genes
+// and change their color and/or threshold.
+// Every action will affect what genes are shown in the cell view.
 // Here when a dataset is opened its unique genes will be shown
 // so the user can interact with them to visualize them in the cell view
-// TODO add an extra column with a slider (threshold) for each gene, that requires
-// a new field in the gene object and to init the slider values with the max-min relative
-// expression of that gene in the dataset
 class GenesWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GenesWidget(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
+    explicit GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
     virtual ~GenesWidget();
 
     // clear focus/status and selections
@@ -36,7 +36,8 @@ public:
 
 signals:
 
-    // signals emitted when the user selects or change colors of genes in the table
+    // signals emitted when the user selects or change colors of genes in the
+    // table
     void signalSelectionChanged(DataProxy::GeneList);
     void signalColorChanged(DataProxy::GeneList);
     void signalCutOffChanged(DataProxy::GenePtr);
@@ -51,7 +52,7 @@ public slots:
 private slots:
 
     // slots triggered by the show/color controls in the gene table
-    void slotSetColorAllSelected(const QColor& color);
+    void slotSetColorAllSelected(const QColor &color);
     void slotSetVisibilityForSelectedRows(bool visible);
     void slotHideAllSelected();
     void slotShowAllSelected();
@@ -60,21 +61,20 @@ private:
     // internal function to configure created buttons
     // to avoid code duplication
     // TODO better approach would be to have factories somewhere else
-    void configureButton(QPushButton* button,
-                         const QIcon& icon,
-                         const QString& tooltip);
+    void configureButton(QPushButton *button, const QIcon &icon, const QString &tooltip);
 
-    // internal function to retrieve the model and the proxy model of the gene table
-    QSortFilterProxyModel* getProxyModel();
-    GeneFeatureItemModel* getModel();
+    // internal function to retrieve the model and the proxy model of the gene
+    // table
+    QSortFilterProxyModel *getProxyModel();
+    GeneFeatureItemModel *getModel();
 
     // some references needed to UI elements
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<GenesTableView> m_genes_tableview;
-    QPointer<QColorDialog> m_colorList;
+    QScopedPointer<QLineEdit> m_lineEdit;
+    QScopedPointer<GenesTableView> m_genes_tableview;
+    QScopedPointer<QColorDialog> m_colorList;
 
     // reference to dataProxy
-    QPointer<DataProxy> m_dataProxy;
+    QSharedPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(GenesWidget)
 };

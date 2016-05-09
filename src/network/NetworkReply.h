@@ -25,10 +25,10 @@ public:
 
     typedef QList<QSharedPointer<Error>> ErrorList;
 
-    explicit NetworkReply(QNetworkReply* networkReply = 0);
+    explicit NetworkReply(QNetworkReply *networkReply = 0);
     ~NetworkReply();
 
-    // parse body (once parsed data cannot be parsed again)
+    // parse body (once the data has been parsed cannot be parsed again)
     QJsonDocument getJSON();
     QString getText() const;
     QByteArray getRaw() const;
@@ -39,7 +39,7 @@ public:
     ReturnCode return_code() const;
 
     // return reply errors if any
-    const NetworkReply::ErrorList& errors() const;
+    const NetworkReply::ErrorList &errors() const;
 
     // this function will create a single error with all the error messages
     // if no errors are present it returns nullptr
@@ -67,7 +67,7 @@ signals:
 
 private:
     // Qt network reply
-    QPointer<QNetworkReply> m_reply;
+    QScopedPointer<QNetworkReply> m_reply;
     // errors
     ErrorList m_errors;
     // return status code

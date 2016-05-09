@@ -13,7 +13,7 @@ class DatasetsTableView : public QTableView
     Q_OBJECT
 
 public:
-    explicit DatasetsTableView(QWidget* parent = 0);
+    explicit DatasetsTableView(QWidget *parent = 0);
     virtual ~DatasetsTableView();
 
     // returns the current selection mapped to the sorting model
@@ -21,8 +21,8 @@ public:
 
 private:
     // references to model and proxy model
-    QPointer<DatasetItemModel> m_datasetModel;
-    QPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
+    QScopedPointer<DatasetItemModel> m_datasetModel;
+    QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 
     Q_DISABLE_COPY(DatasetsTableView)
 };

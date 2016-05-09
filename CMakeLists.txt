@@ -15,12 +15,9 @@ SET(PROJECT_VENDOR "Jose Fernandez Navarro")
 SET(SERVER "development" CACHE STRING
 "The server providing the experimental data (development/production/local)")
 
-set(CLIENTID "st-viewer-client")
-# TODO we must pass the secret ID and the PEM as variables
-set(SECRETID "ayfBaF5UAKR2")
-set(APIPATH  "api")
 set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 
+set(APIPATH  "api")
 if(SERVER STREQUAL development)
   # DEV configuration
   set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")

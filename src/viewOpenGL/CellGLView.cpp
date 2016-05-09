@@ -1,7 +1,4 @@
 #include "CellGLView.h"
-#include "RubberbandGL.h"
-#include "math/Common.h"
-#include "utils/Utils.h"
 
 #include <QWheelEvent>
 #include <QtOpenGL>
@@ -13,8 +10,11 @@
 #include <QOpenGLFramebufferObject>
 #include <QTransform>
 
+#include "RubberbandGL.h"
+#include "math/Common.h"
+
 // TODO make this names smaller!!!
-static const qreal DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
+static const float DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
 static const int DEFAULT_MIN_ZOOM = 1;
@@ -25,18 +25,18 @@ static const int OPENGL_VERSION_MINOR = 0;
 namespace
 {
 
-bool nodeIsSelectableButNotTransformable(const GraphicItemGL& node)
+bool nodeIsSelectableButNotTransformable(const GraphicItemGL &node)
 {
     return !node.transformable() && node.selectable();
 }
 
-bool nodeIsSelectable(const GraphicItemGL& node)
+bool nodeIsSelectable(const GraphicItemGL &node)
 {
     return node.selectable();
 }
 }
 
-CellGLView::CellGLView(QWidget* parent)
+CellGLView::CellGLView(QWidget *parent)
     : QOpenGLWidget(parent)
     , m_originPanning(-1, -1)
     , m_originRubberBand(-1, -1)
@@ -52,7 +52,7 @@ CellGLView::CellGLView(QWidget* parent)
 
     // TODO consider decoupling rubberband object and view
     m_rubberband = new RubberbandGL(this);
-    m_rubberband->setAnchor(Globals::Anchor::None);
+    m_rubberband->setAnchor(Visual::Anchor::None);
 
     // Configure OpenGL format for this view
     QSurfaceFormat format;
@@ -71,17 +71,17 @@ CellGLView::~CellGLView()
 {
 }
 
-void CellGLView::paintEvent(QPaintEvent* e)
+void CellGLView::paintEvent(QPaintEvent *e)
 {
     QOpenGLWidget::paintEvent(e);
 }
 
-void CellGLView::resizeEvent(QResizeEvent* e)
+void CellGLView::resizeEvent(QResizeEvent *e)
 {
     QOpenGLWidget::resizeEvent(e);
 }
 
-bool CellGLView::event(QEvent* e)
+bool CellGLView::event(QEvent *e)
 {
     return QOpenGLWidget::event(e);
 }
@@ -111,9 +111,7 @@ void CellGLView::initializeGL()
                               tr("STViewer"),
                               tr("Required OpenGL version not supported.\n"
                                  "Please update your system to at least OpenGL ")
-                              + QString("%1.%2")
-                              .arg(OPENGL_VERSION_MAJOR)
-                              .arg(OPENGL_VERSION_MINOR)
+                              + QString("%1.%2").arg(OPENGL_VERSION_MAJOR).arg(OPENGL_VERSION_MINOR)
                               + ".");
         QApplication::exit();
     } else {
@@ -144,7 +142,7 @@ void CellGLView::paintGL()
     m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
     // render nodes
-    foreach (GraphicItemGL* node, m_nodes) {
+    for (auto node : m_nodes) {
         if (node->visible()) {
             QTransform local_transform = nodeTransformations(node);
             if (node->transformable()) {
@@ -154,7 +152,8 @@ void CellGLView::paintGL()
             QMatrix4x4 matrix(local_transform);
             node->setProjection(m_projm);
             node->setModelView(matrix);
-            m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat*>(matrix.constData()));
+            m_qopengl_functions.glLoadMatrixf(
+                reinterpret_cast<const GLfloat *>(matrix.constData()));
             node->draw(m_qopengl_functions);
         }
     }
@@ -179,7 +178,7 @@ void CellGLView::resizeGL(int width, int height)
 
     // reset the coordinate system
     m_qopengl_functions.glMatrixMode(GL_PROJECTION);
-    m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat*>(m_projm.constData()));
+    m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
 
     // reset the model view mode matrix
     m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
@@ -196,37 +195,37 @@ void CellGLView::resizeGL(int width, int height)
     }
 }
 
-void CellGLView::wheelEvent(QWheelEvent* event)
+void CellGLView::wheelEvent(QWheelEvent *event)
 {
     // computes zoom factor and update zoom
-    const qreal zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    const float zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactorAndUpdate(zoomFactor * m_zoom_factor);
     event->ignore();
 }
 
-void CellGLView::addRenderingNode(GraphicItemGL* node)
+void CellGLView::addRenderingNode(QSharedPointer<GraphicItemGL> node)
 {
-    Q_ASSERT(node != nullptr);
+    Q_ASSERT(!node.isNull());
     m_nodes.append(node);
-    connect(node, SIGNAL(updated()), this, SLOT(update()));
+    connect(node.data(), SIGNAL(updated()), this, SLOT(update()));
 }
 
-void CellGLView::removeRenderingNode(GraphicItemGL* node)
+void CellGLView::removeRenderingNode(QSharedPointer<GraphicItemGL> node)
 {
-    Q_ASSERT(node != nullptr);
+    Q_ASSERT(!node.isNull());
     m_nodes.removeOne(node);
-    disconnect(node, SIGNAL(updated()), this, SLOT(update()));
+    disconnect(node.data(), SIGNAL(updated()), this, SLOT(update()));
 }
 
-qreal CellGLView::clampZoomFactorToAllowedRange(const qreal zoom) const
+float CellGLView::clampZoomFactorToAllowedRange(const float zoom) const
 {
     Q_ASSERT(minZoom() < maxZoom());
     return qMin(qMax(minZoom(), zoom), maxZoom());
 }
 
-void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
+void CellGLView::setZoomFactorAndUpdate(const float zoom)
 {
-    const qreal new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
+    const float new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
@@ -235,23 +234,23 @@ void CellGLView::setZoomFactorAndUpdate(const qreal zoom)
     }
 }
 
-void CellGLView::centerOn(const QPointF& point)
+void CellGLView::centerOn(const QPointF &point)
 {
     setSceneFocusCenterPointWithClamping(point);
 }
 
-void CellGLView::rotate(qreal angle)
+void CellGLView::rotate(float angle)
 {
     // TODO this is untested and not functional yet in the application
     if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle) {
         m_rotate += angle;
-        STMath::clamp(m_rotate, -360.0, 360.0);
+        Math::clamp(m_rotate, -360.0f, 360.0f);
         emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
 }
 
-void CellGLView::setViewPort(const QRectF& viewport)
+void CellGLView::setViewPort(const QRectF &viewport)
 {
     if (!viewport.isValid() || viewport.isEmpty() || viewport.isNull()) {
         return;
@@ -264,7 +263,7 @@ void CellGLView::setViewPort(const QRectF& viewport)
     }
 }
 
-void CellGLView::setScene(const QRectF& scene)
+void CellGLView::setScene(const QRectF &scene)
 {
     if (!scene.isValid() || scene.isEmpty() || scene.isNull()) {
         return;
@@ -277,7 +276,7 @@ void CellGLView::setScene(const QRectF& scene)
     }
 }
 
-qreal CellGLView::minZoom() const
+float CellGLView::minZoom() const
 {
     // we want to the min zoom to at least covers the whole image
 
@@ -285,19 +284,19 @@ qreal CellGLView::minZoom() const
         return DEFAULT_MIN_ZOOM;
     }
 
-    const qreal min_zoom_height = m_viewport.height() / m_scene.height();
-    const qreal min_zoom_width = m_viewport.width() / m_scene.width();
+    const float min_zoom_height = m_viewport.height() / m_scene.height();
+    const float min_zoom_width = m_viewport.width() / m_scene.width();
     return qMax(min_zoom_height, min_zoom_width);
 }
 
-qreal CellGLView::maxZoom() const
+float CellGLView::maxZoom() const
 {
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MAX_ZOOM;
     }
 
-    const qreal max_zoom_x = m_viewport.width() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
-    const qreal max_zoom_y = m_viewport.height() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const float max_zoom_x = m_viewport.width() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const float max_zoom_y = m_viewport.height() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
     return qMin(max_zoom_x, max_zoom_y);
 }
 
@@ -337,14 +336,14 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
-bool CellGLView::sendMouseEventToNodes(const QPoint& point,
-                                       const QMouseEvent* event,
+bool CellGLView::sendMouseEventToNodes(const QPoint &point,
+                                       const QMouseEvent *event,
                                        const MouseEventType type,
-                                       const FilterFunc& filterFunc)
+                                       const FilterFunc &filterFunc)
 
 {
     bool mouseEventWasSentToAtleastOneNode = false;
-    foreach (GraphicItemGL* node, m_nodes) {
+    for (const auto &node : m_nodes) {
         const QPointF localPoint = nodeTransformations(node).inverted().map(point);
         if (filterFunc(*node) && node->contains(localPoint)) {
             mouseEventWasSentToAtleastOneNode = true;
@@ -370,10 +369,10 @@ bool CellGLView::sendMouseEventToNodes(const QPoint& point,
     return mouseEventWasSentToAtleastOneNode;
 }
 
-void CellGLView::sendRubberBandEventToNodes(const QRectF& rubberBand, const QMouseEvent* event)
+void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMouseEvent *event)
 {
     // notify nodes for rubberband
-    foreach (GraphicItemGL* node, m_nodes) {
+    for (const auto &node : m_nodes) {
         if (node->rubberBandable()) {
             // apply scene transformations to node
             QTransform node_trans = nodeTransformations(node);
@@ -390,7 +389,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF& rubberBand, const QMou
 
             // Set the new selection area
             const SelectionEvent::SelectionMode mode
-                    = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
             const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);
@@ -398,7 +397,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF& rubberBand, const QMou
     }
 }
 
-void CellGLView::mousePressEvent(QMouseEvent* event)
+void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     const QPoint point = event->pos();
 
@@ -413,7 +412,7 @@ void CellGLView::mousePressEvent(QMouseEvent* event)
     } else {
         // first send the event to any non-transformable nodes under the mouse click
         const bool mouseEventCaptureByNode
-                = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
+            = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
         if (!mouseEventCaptureByNode) {
             // no non-transformable nodes under the mouse click were found.
             if (event->button() == Qt::LeftButton && !m_selecting) {
@@ -432,7 +431,7 @@ void CellGLView::mousePressEvent(QMouseEvent* event)
     event->ignore();
 }
 
-void CellGLView::mouseReleaseEvent(QMouseEvent* event)
+void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 {
     // first check if we are selecting
     if (event->button() == Qt::LeftButton && m_selecting && m_rubberBanding) {
@@ -461,7 +460,7 @@ void CellGLView::mouseReleaseEvent(QMouseEvent* event)
     event->ignore();
 }
 
-void CellGLView::mouseMoveEvent(QMouseEvent* event)
+void CellGLView::mouseMoveEvent(QMouseEvent *event)
 {
     // first check if we are in selection mode
     if (event->buttons() & Qt::LeftButton && m_selecting && m_rubberBanding) {
@@ -491,11 +490,11 @@ void CellGLView::mouseMoveEvent(QMouseEvent* event)
     event->ignore();
 }
 
-void CellGLView::keyPressEvent(QKeyEvent* event)
+void CellGLView::keyPressEvent(QKeyEvent *event)
 {
-    const qreal shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
-    const qreal delta_panning_key
-            = shortest_side_length / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+    const float shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
+    const float delta_panning_key = shortest_side_length
+                                    / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
 
     QPointF pan_adjustment(0, 0);
     switch (event->key()) {
@@ -534,7 +533,7 @@ QPointF CellGLView::sceneFocusCenterPoint() const
     return m_scene_focus_center_point;
 }
 
-void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF& center_point)
+void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
 {
     const QRectF allowed_center_points_rect = allowedCenterPoints();
     QPointF clamped_point = center_point;
@@ -564,43 +563,43 @@ const QTransform CellGLView::sceneTransformations() const
     return transform.inverted();
 }
 
-const QTransform CellGLView::nodeTransformations(GraphicItemGL* node) const
+const QTransform CellGLView::nodeTransformations(QSharedPointer<GraphicItemGL> node) const
 {
     // these functions combines the node internal transformations with respect
     // to the view size and anchor positions to create a new transformation matrix
 
     const QSizeF viewSize = m_viewport.size();
     QTransform transform(Qt::Uninitialized);
-    const Globals::Anchor anchor = node->anchor();
+    const Visual::Anchor anchor = node->anchor();
 
     switch (anchor) {
-    case Globals::Anchor::Center:
+    case Visual::Anchor::Center:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
         break;
-    case Globals::Anchor::North:
+    case Visual::Anchor::North:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
         break;
-    case Globals::Anchor::NorthEast:
+    case Visual::Anchor::NorthEast:
         transform = QTransform::fromTranslate(viewSize.width(), 0.0);
         break;
-    case Globals::Anchor::East:
+    case Visual::Anchor::East:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
         break;
-    case Globals::Anchor::SouthEast:
+    case Visual::Anchor::SouthEast:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
         break;
-    case Globals::Anchor::South:
+    case Visual::Anchor::South:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
         break;
-    case Globals::Anchor::SouthWest:
+    case Visual::Anchor::SouthWest:
         transform = QTransform::fromTranslate(0.0, viewSize.height());
         break;
-    case Globals::Anchor::West:
+    case Visual::Anchor::West:
         transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
         break;
-    case Globals::Anchor::NorthWest:
-    case Globals::Anchor::None:
-        // fall trough
+    case Visual::Anchor::NorthWest:
+    case Visual::Anchor::None:
+    // fall trough
     default:
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;

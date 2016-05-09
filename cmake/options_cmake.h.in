@@ -11,4 +11,8 @@
 // This flag is for unit tests
 #cmakedefine01 BUILD_UNIT_TESTS
 
+static const qulonglong MAJOR = VERSION_MAJOR;
+static const qulonglong MINOR = VERSION_MINOR;
+static const qulonglong PATCH = VERSION_REVISION;
+
 #endif // __COMMON_OPTIONS_CMAKE_H__

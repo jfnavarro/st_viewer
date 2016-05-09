@@ -2,8 +2,9 @@
 
 #include <QDebug>
 
-#include "utils/Utils.h"
 #include "SettingsFormatXML.h"
+
+static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
 
 Configuration::Configuration()
     : m_settings(nullptr)
@@ -11,28 +12,26 @@ Configuration::Configuration()
     QSettings::Format format = QSettings::registerFormat("conf",
                                                          &SettingsFormatXML::readXMLFile,
                                                          &SettingsFormatXML::writeXMLFile);
-    m_settings = new QSettings(":/config/application.conf", format, nullptr);
+    m_settings.reset(new QSettings(":/config/application.conf", format, nullptr));
 }
 
 Configuration::~Configuration()
 {
-    m_settings->deleteLater();
-    m_settings = nullptr;
 }
 
-const QString Configuration::readSetting(const QString& key) const
+const QString Configuration::readSetting(const QString &key) const
 {
     // early out
     if (m_settings.isNull()) {
         return QString();
     }
 
-    m_settings->beginGroup(Globals::SettingsPrefixConfFile);
+    m_settings->beginGroup(SettingsPrefixConfFile);
     const QVariant value = m_settings->value(key);
     m_settings->endGroup();
     if (!value.isValid() || !value.canConvert(QVariant::String)) {
         qDebug() << "[Configuration] Warning: Invalid configuration key:"
-                 << (Globals::SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER + key);
+                 << (SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER + key);
     }
 
     return value.toString();

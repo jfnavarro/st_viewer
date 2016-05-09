@@ -8,7 +8,7 @@
 namespace unit
 {
 
-GLHeatMapTest::GLHeatMapTest(QObject* parent)
+GLHeatMapTest::GLHeatMapTest(QObject *parent)
     : QObject(parent)
 {
 }

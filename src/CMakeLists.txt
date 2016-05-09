@@ -91,7 +91,8 @@ set(QT_TARGET_LINK_LIBS Qt5::Core
                              Qt5::Concurrent)
 
 # Create main target (resources needs to be part of the target)
-set(ST_CLIENT_SOURCES main.cpp stVi.cpp ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
+set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
+    SettingsNetwork.h SettingsStyle.h SettingsVisual.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 if(WIN32)
     add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
@@ -247,7 +248,7 @@ if(APPLE)
     # Resources
     add_custom_command (TARGET ${PROJECT_NAME}
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
-        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/STViewer.icns ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
@@ -257,7 +258,7 @@ if(APPLE)
         COMMAND mkdir -p ${DMG_DIR}
         COMMAND cp -R ${OS_X_PROJECT_BINARY_DIR} ${DMG_DIR}/
         COMMAND ln -sf /Applications ${DMG_DIR}
-        COMMAND cp ${CMAKE_SOURCE_DIR}/assets/images/STViewer.icns .VolumeIcon.icns
+        COMMAND cp ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns .VolumeIcon.icns
         COMMAND cp ${CMAKE_SOURCE_DIR}/LICENSE ${DMG_DIR}
         COMMAND cp ${CMAKE_SOURCE_DIR}/DEPENDENCIES ${DMG_DIR}
         COMMAND cp ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES ${DMG_DIR}

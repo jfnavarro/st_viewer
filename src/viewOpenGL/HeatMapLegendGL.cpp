@@ -1,27 +1,27 @@
 #include "HeatMapLegendGL.h"
 
-#include "math/Common.h"
-#include "color/HeatMap.h"
-
 #include <QPainter>
 #include <QImage>
 #include <QApplication>
 #include <QVector2D>
 #include <QLabel>
 
-static const qreal legend_x = 0.0;
-static const qreal legend_y = 0.0;
-static const qreal legend_width = 25.0;
-static const qreal legend_height = 150.0;
-static const qreal bars_width = 35.0;
+#include "math/Common.h"
+#include "color/HeatMap.h"
 
-HeatMapLegendGL::HeatMapLegendGL(QObject* parent)
+static const float legend_x = 0.0;
+static const float legend_y = 0.0;
+static const float legend_width = 25.0;
+static const float legend_height = 150.0;
+static const float bars_width = 35.0;
+
+HeatMapLegendGL::HeatMapLegendGL(QObject *parent)
     : GraphicItemGL(parent)
     , m_maxReads(1)
     , m_minReads(1)
     , m_minGenes(1)
     , m_maxGenes(1)
-    , m_colorComputingMode(Globals::LinearColor)
+    , m_colorComputingMode(Visual::LinearColor)
     , m_texture(QOpenGLTexture::Target2D)
     , m_textureText(QOpenGLTexture::Target2D)
     , m_valueComputation(Reads)
@@ -62,7 +62,7 @@ void HeatMapLegendGL::clearData()
     m_isInitialized = false;
 }
 
-void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
+void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -88,7 +88,7 @@ void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
         qopengl_functions.glBegin(GL_LINE_LOOP);
         {
             qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            foreach (QVector2D indice, m_texture_vertices) {
+            for (QVector2D indice : m_texture_vertices) {
                 qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
             qopengl_functions.glEnd();
@@ -103,14 +103,14 @@ void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-void HeatMapLegendGL::setSelectionArea(const SelectionEvent*)
+void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 {
 }
 
-void HeatMapLegendGL::setMinMaxValues(const int readsMin,
-                                      const int readsMax,
-                                      const int genesMin,
-                                      const int genesMax)
+void HeatMapLegendGL::setMinMaxValues(const unsigned readsMin,
+                                      const unsigned readsMax,
+                                      const unsigned genesMin,
+                                      const unsigned genesMax)
 {
     m_minReads = readsMin;
     m_maxReads = readsMax;
@@ -118,7 +118,7 @@ void HeatMapLegendGL::setMinMaxValues(const int readsMin,
     m_maxGenes = genesMax;
 }
 
-void HeatMapLegendGL::setLowerLimitReads(const int limit)
+void HeatMapLegendGL::setLowerLimitReads(const unsigned limit)
 {
     if (m_minReads != limit) {
         m_minReads = limit;
@@ -126,7 +126,7 @@ void HeatMapLegendGL::setLowerLimitReads(const int limit)
     }
 }
 
-void HeatMapLegendGL::setUpperLimitReads(const int limit)
+void HeatMapLegendGL::setUpperLimitReads(const unsigned limit)
 {
     if (m_maxReads != limit) {
         m_maxReads = limit;
@@ -142,7 +142,7 @@ void HeatMapLegendGL::setValueComputation(ValueComputation mode)
     }
 }
 
-void HeatMapLegendGL::setColorComputingMode(const Globals::GeneColorMode& mode)
+void HeatMapLegendGL::setColorComputingMode(const Visual::GeneColorMode &mode)
 {
     // update color computing mode
     if (m_colorComputingMode != mode) {
@@ -151,7 +151,7 @@ void HeatMapLegendGL::setColorComputingMode(const Globals::GeneColorMode& mode)
     }
 }
 
-void HeatMapLegendGL::setLowerLimitGenes(const int limit)
+void HeatMapLegendGL::setLowerLimitGenes(const unsigned limit)
 {
     if (m_minGenes != limit) {
         m_minGenes = limit;
@@ -159,7 +159,7 @@ void HeatMapLegendGL::setLowerLimitGenes(const int limit)
     }
 }
 
-void HeatMapLegendGL::setUpperLimitGenes(const int limit)
+void HeatMapLegendGL::setUpperLimitGenes(const unsigned limit)
 {
     if (m_maxGenes != limit) {
         m_maxGenes = limit;
@@ -169,14 +169,14 @@ void HeatMapLegendGL::setUpperLimitGenes(const int limit)
 
 void HeatMapLegendGL::generateHeatMap()
 {
-    const int min = m_valueComputation == Reads ? m_minReads : m_minGenes;
-    const int max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
+    const unsigned min = m_valueComputation == Reads ? m_minReads : m_minGenes;
+    const unsigned max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
 
     // generate image texture
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
     // here we can chose the type of Spectrum (linear, log or exp) and the type
     // of color mapping (wavelenght or linear interpolation)
-    Heatmap::createHeatMapImage(image, min, max, m_colorComputingMode);
+    Color::createHeatMapImage(image, min, max, m_colorComputingMode);
 
     m_texture.destroy();
     m_texture.create();
@@ -200,7 +200,7 @@ void HeatMapLegendGL::generateHeatMap()
     emit updated();
 }
 
-void HeatMapLegendGL::drawText(const QPointF& posn, const QString& str)
+void HeatMapLegendGL::drawText(const QPointF &posn, const QString &str)
 {
     QFont monoFont("Courier", 12, QFont::Normal);
     QFontMetrics metrics(monoFont);

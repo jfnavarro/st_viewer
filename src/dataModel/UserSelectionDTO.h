@@ -17,11 +17,8 @@
 // defining dynamic properties that enable automated serialization and
 // deserialization of server data.
 
-Q_DECLARE_METATYPE(AggregatedGene)
-
 // TODO move definitions to CPP and/or consider removing DTOs
 // TODO add support to send the features data (as binary file)
-// and the spots data (as JSON part of the object)
 class UserSelectionDTO : public QObject
 {
     Q_OBJECT
@@ -30,10 +27,9 @@ class UserSelectionDTO : public QObject
     Q_PROPERTY(QString name READ name WRITE name)
     Q_PROPERTY(QString account_id READ userId WRITE userId)
     Q_PROPERTY(QString dataset_id READ datasetId WRITE datasetId)
-    Q_PROPERTY(QVariantList gene_hits READ selectedGenes WRITE selectedGenes)
+    Q_PROPERTY(QVariantList gene_hits READ selectedFeatures WRITE selectedFeatures)
     Q_PROPERTY(QString type READ type WRITE type)
     Q_PROPERTY(QString status READ status WRITE status)
-    Q_PROPERTY(QVariantList obo_foundry_terms READ oboFoundryTerms WRITE oboFoundryTerms)
     Q_PROPERTY(QString comment READ comment WRITE comment)
     Q_PROPERTY(bool enabled READ enabled WRITE enabled)
     Q_PROPERTY(QString created_at READ created WRITE created)
@@ -41,11 +37,11 @@ class UserSelectionDTO : public QObject
     Q_PROPERTY(QByteArray tissue_snapshot READ tissueSnapShot WRITE tissueSnapShot)
 
 public:
-    explicit UserSelectionDTO(QObject* parent = 0)
+    explicit UserSelectionDTO(QObject *parent = 0)
         : QObject(parent)
     {
     }
-    UserSelectionDTO(const UserSelection& selection, QObject* parent = 0)
+    UserSelectionDTO(const UserSelection &selection, QObject *parent = 0)
         : QObject(parent)
         , m_userSelection(selection)
     {
@@ -57,16 +53,12 @@ public:
     const QString name() const { return m_userSelection.name(); }
     const QString userId() const { return m_userSelection.userId(); }
     const QString datasetId() const { return m_userSelection.datasetId(); }
-    const QVariantList selectedGenes() const
+    const QVariantList selectedFeatures() const
     {
-        return serializeSelectionVector(m_userSelection.selectedGenes());
+        return serializeSelectionVector(m_userSelection.selectedFeatures());
     }
     const QString type() const { return UserSelection::typeToQString(m_userSelection.type()); }
     const QString status() const { return m_userSelection.status(); }
-    const QVariantList oboFoundryTerms() const
-    {
-        return serializeVector<QString>(m_userSelection.oboFoundryTerms());
-    }
     const QString comment() const { return m_userSelection.comment(); }
     bool enabled() const { return m_userSelection.enabled(); }
     const QString created() const { return m_userSelection.created(); }
@@ -74,35 +66,34 @@ public:
     const QByteArray tissueSnapShot() const { return m_userSelection.tissueSnapShot(); }
 
     // binding
-    void id(const QString& id) { m_userSelection.id(id); }
-    void name(const QString& name) { m_userSelection.name(name); }
-    void userId(const QString& userId) { m_userSelection.userId(userId); }
-    void datasetId(const QString& datasetId) { m_userSelection.datasetId(datasetId); }
-    void selectedGenes(const QVariantList& selectedGenes)
+    void id(const QString &id) { m_userSelection.id(id); }
+    void name(const QString &name) { m_userSelection.name(name); }
+    void userId(const QString &userId) { m_userSelection.userId(userId); }
+    void datasetId(const QString &datasetId) { m_userSelection.datasetId(datasetId); }
+    void selectedFeatures(const QVariantList &selectedFeatures)
     {
-        m_userSelection.selectedGenes(unserializeSelectionVector(selectedGenes));
+        m_userSelection.loadFeatures(unserializeSelectionVector(selectedFeatures));
     }
-    void type(const QString& type) { m_userSelection.type(UserSelection::QStringToType(type)); }
-    void status(const QString& status) { m_userSelection.status(status); }
-    void oboFoundryTerms(const QVariantList& oboFoundryTerms)
-    {
-        m_userSelection.oboFoundryTerms(unserializeVector<QString>(oboFoundryTerms));
-    }
-    void comment(const QString& comment) { m_userSelection.comment(comment); }
+    void type(const QString &type) { m_userSelection.type(UserSelection::QStringToType(type)); }
+    void status(const QString &status) { m_userSelection.status(status); }
+    void comment(const QString &comment) { m_userSelection.comment(comment); }
     void enabled(const bool enabled) { m_userSelection.enabled(enabled); }
-    void created(const QString& created) { m_userSelection.created(created); }
-    void lastModified(const QString& lastModified) { m_userSelection.lastModified(lastModified); }
-    void tissueSnapShot(const QByteArray& tissueSnapshot)
+    void created(const QString &created) { m_userSelection.created(created); }
+    void lastModified(const QString &lastModified) { m_userSelection.lastModified(lastModified); }
+    void tissueSnapShot(const QByteArray &tissueSnapshot)
     {
         m_userSelection.tissueSnapShot(tissueSnapshot);
     }
-    // get parsed data model
-    const UserSelection& geneSelection() const { return m_userSelection; }
-    UserSelection& geneSelection() { return m_userSelection; }
 
-    // toJson is needed to send PUT/POST requests as the JSON content of the object
+    // get parsed data model
+    const UserSelection &userSelection() const { return m_userSelection; }
+    UserSelection &userSelection() { return m_userSelection; }
+
+    // toJson is needed to send PUT/POST requests as the JSON content of the
+    // object
     // is appended to the request
-    // TODO transform this to obtain fields and their types dynamically using the meta_properties
+    // TODO transform this to obtain fields and their types dynamically using the
+    // meta_properties
     QByteArray toJson() const
     {
         QJsonObject jsonObj;
@@ -111,28 +102,22 @@ public:
         jsonObj["account_id"] = userId();
         jsonObj["dataset_id"] = datasetId();
         QJsonArray geneHits;
-        foreach (const AggregatedGene& item, m_userSelection.selectedGenes()) {
+        for (const auto &feature : m_userSelection.selectedFeatures()) {
             QJsonArray geneHit;
-            geneHit.append(item.name);
+            geneHit.append(feature->gene());
             // TODO temp hack coz they are wronly defined as strings in the server
-            geneHit.append(QString::number(item.reads));
-            geneHit.append(QString::number(item.count));
-            geneHit.append(QString::number(item.normalizedReads));
+            geneHit.append(QString::number(feature->x()));
+            geneHit.append(QString::number(feature->y()));
+            geneHit.append(QString::number(feature->count()));
             geneHits.append(geneHit);
         }
         jsonObj["gene_hits"] = geneHits;
         jsonObj["type"] = !type().isNull() ? QJsonValue(type()) : QJsonValue::Null;
         jsonObj["status"] = !status().isNull() ? QJsonValue(status()) : QJsonValue::Null;
-        QJsonArray oboTerms;
-        foreach (const QString& item, m_userSelection.oboFoundryTerms()) {
-            oboTerms.append(item);
-        }
-        jsonObj["obo_foundry_terms"] = oboTerms;
         jsonObj["comment"] = !comment().isNull() ? QJsonValue(comment()) : QJsonValue::Null;
         jsonObj["enabled"] = enabled();
-        jsonObj["created_at"] = QJsonValue::Null; // leave this empty the API will take care of it
-        jsonObj["last_modified"] = QJsonValue::Null; // leave this empty the API will take care of
-                                                     // it
+        jsonObj["created_at"] = QJsonValue::Null;    // leave this empty the API will update it
+        jsonObj["last_modified"] = QJsonValue::Null; // leave this empty the API will update it
         QByteArray tissue_base64 = tissueSnapShot().toBase64();
         jsonObj["tissue_snapshot"] = QString::fromUtf8(tissue_base64);
 
@@ -142,46 +127,47 @@ public:
     }
 
 private:
-    // Transforms a list of AggregatedGenes to a QVariantList
-    // TODO this could be done automatically in serializeVector() we just need to register
-    // the selection metatype conversion
+    // Transforms a list of selected features to a QVariantList
+    // TODO this could be done automatically in serializeVector() we just need to
+    // register
+    // the selection metatype conversion in the Feature Object
     const QVariantList serializeSelectionVector(
-        const UserSelection::selectedGenesList& unserializedVector) const
+        const DataProxy::FeatureList &unserializedVector) const
     {
         QVariantList newList;
-        foreach (const AggregatedGene& item, unserializedVector) {
+        for (const auto &feature : unserializedVector) {
             QVariantList itemList;
-            itemList << item.name << QString::number(item.reads) << QString::number(item.count)
-                     << QString::number(item.normalizedReads);
+            itemList << feature->gene() << QString::number(feature->x())
+                     << QString::number(feature->y()) << QString::number(feature->count());
             newList << QVariant::fromValue(itemList);
         }
 
         return newList;
     }
 
-    // Transforms a QVariantList of AggregatedGenes to a list of AggregatedGenes
-    // TODO this could be done automatically in unserializeVector() we just need to register
-    // the selection metatype conversion
-    const UserSelection::selectedGenesList unserializeSelectionVector(
-        const QVariantList& serializedVector) const
+    // Transforms a QVariantList of features to a list of features
+    // TODO this could be done automatically in serializeVector() we just need to
+    // register
+    // the selection metatype conversion in the Feature Object
+    const DataProxy::FeatureList unserializeSelectionVector(
+        const QVariantList &serializedVector) const
     {
         // unserialize data
-        UserSelection::selectedGenesList values;
+        DataProxy::FeatureList features;
         QVariantList::const_iterator it;
         QVariantList::const_iterator end = serializedVector.end();
         for (it = serializedVector.begin(); it != end; ++it) {
             QVariantList elementList = it->toList();
-            // TODO there seems to be some buggy selection items in the DB with 5 elements
+            // TODO there seems to be some buggy selection items in the DB with 5
+            // elements
             Q_ASSERT(elementList.size() >= 4);
-            const QString name = elementList.at(0).toString();
-            const int reads = elementList.at(1).toInt();
-            const int count = elementList.at(2).toInt();
-            const int normalizedReads = elementList.at(3).toInt();
-            AggregatedGene genes_selection(name, reads, normalizedReads, count);
-            values.push_back(genes_selection);
+            const QString gene = elementList.at(0).toString();
+            const unsigned x = elementList.at(1).toInt();
+            const unsigned y = elementList.at(2).toInt();
+            const unsigned count = elementList.at(3).toInt();
+            features.push_back(std::make_shared<Feature>(Feature(gene, x, y, count)));
         }
-
-        return values;
+        return features;
     }
 
     UserSelection m_userSelection;

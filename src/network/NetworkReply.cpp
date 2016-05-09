@@ -20,7 +20,7 @@
 #include "dataModel/ErrorDTO.h"
 #include "data/ObjectParser.h"
 
-NetworkReply::NetworkReply(QNetworkReply* networkReply)
+NetworkReply::NetworkReply(QNetworkReply *networkReply)
     : m_reply(networkReply)
 {
     Q_ASSERT_X(networkReply != nullptr, "NetworkReply", "Null-pointer assertion error!");
@@ -29,13 +29,13 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
     networkReply->setReadBufferSize(0);
 
     // connect signals
-    connect(m_reply, SIGNAL(finished()), this, SLOT(slotFinished()));
-    connect(m_reply, SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
-    connect(m_reply,
+    connect(m_reply.data(), SIGNAL(finished()), this, SLOT(slotFinished()));
+    connect(m_reply.data(), SIGNAL(metaDataChanged()), this, SLOT(slotMetaDataChanged()));
+    connect(m_reply.data(),
             SIGNAL(error(QNetworkReply::NetworkError)),
             this,
             SLOT(slotError(QNetworkReply::NetworkError)));
-    connect(m_reply,
+    connect(m_reply.data(),
             SIGNAL(sslErrors(QList<QSslError>)),
             this,
             SLOT(slotSslErrors(QList<QSslError>)));
@@ -43,13 +43,11 @@ NetworkReply::NetworkReply(QNetworkReply* networkReply)
 
 NetworkReply::~NetworkReply()
 {
-    m_reply->deleteLater();
-    m_reply = nullptr;
 }
 
 QJsonDocument NetworkReply::getJSON()
 {
-    QByteArray rawJSON = m_reply->readAll();
+    const QByteArray &rawJSON = m_reply->readAll();
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(rawJSON, &parseError);
 
@@ -83,7 +81,7 @@ bool NetworkReply::hasErrors() const
     return !m_errors.isEmpty();
 }
 
-const NetworkReply::ErrorList& NetworkReply::errors() const
+const NetworkReply::ErrorList &NetworkReply::errors() const
 {
     return m_errors;
 }
@@ -130,7 +128,7 @@ void NetworkReply::slotError(QNetworkReply::NetworkError networkError)
 
 void NetworkReply::slotSslErrors(QList<QSslError> sslErrorList)
 {
-    foreach (QSslError error, sslErrorList) {
+    for (QSslError error : sslErrorList) {
         QSharedPointer<Error> sslerror(new SSLNetworkError(error, this));
         registerError(sslerror);
     }
@@ -151,7 +149,6 @@ QSharedPointer<Error> NetworkReply::parseErrors()
         foreach (QSharedPointer<Error> error, m_errors) {
             errortext += QString("%1 : %2 \n").arg(error->name()).arg(error->description());
         }
-
         error = QSharedPointer<Error>(new Error(tr("Multiple Network Error"), errortext, this));
     } else if (m_errors.count() == 1) {
         const QJsonDocument doc = getJSON();

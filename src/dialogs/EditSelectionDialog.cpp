@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include "ui_editSelectionDialog.h"
 
-EditSelectionDialog::EditSelectionDialog(QWidget* parent, Qt::WindowFlags f)
+EditSelectionDialog::EditSelectionDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::editSelectionDialog)
 {
@@ -22,13 +22,9 @@ EditSelectionDialog::EditSelectionDialog(QWidget* parent, Qt::WindowFlags f)
     m_ui->type->addItem("Other", 6);
 
     // create QColor dialog
-    m_color = new QColorDialog(this);
+    m_color.reset(new QColorDialog(this));
 
-    connect(m_ui->color,
-            &QPushButton::clicked,
-            [=] {
-                m_color->show();
-            });
+    connect(m_ui->color, &QPushButton::clicked, [=] { m_color->show(); });
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     move(parent->window()->mapToGlobal(parent->window()->rect().center())

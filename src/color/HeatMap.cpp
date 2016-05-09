@@ -3,34 +3,37 @@
 #include <QImage>
 #include <QColor>
 
-void Heatmap::createHeatMapImage(QImage& image,
-                                 const qreal lowerbound,
-                                 const qreal upperbound,
-                                 const Globals::GeneColorMode& colorMode)
+namespace Color
+{
+
+void createHeatMapImage(QImage &image,
+                        const float lowerbound,
+                        const float upperbound,
+                        const Visual::GeneColorMode &colorMode)
 {
     // TODO it appears from now that the color mode must be disregarded as the color
     // spectra for the legend using a linear function should be correct for other color modes
     // Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
     Q_UNUSED(colorMode);
 
-    const int height = image.height();
-    const int width = image.width();
+    const unsigned height = image.height();
+    const unsigned width = image.width();
 
-    for (int y = 0; y < height; ++y) {
+    for (unsigned y = 0; y < height; ++y) {
         // get the color of each line of the image as the heatmap
         // color normalized to the lower and upper bound of the image
-        const int value = height - y - 1;
-        const qreal adjusted_value
-            = STMath::linearConversion<qreal, qreal>(static_cast<qreal>(value),
-                                                     0.0,
-                                                     static_cast<qreal>(height),
-                                                     lowerbound,
-                                                     upperbound);
-        const qreal normalizedValue
-            = STMath::norm<qreal, qreal>(adjusted_value, lowerbound, upperbound);
-        QColor color = Heatmap::createHeatMapWaveLenghtColor(normalizedValue);
+        const unsigned value = height - y - 1;
+        const float adjusted_value
+            = Math::linearConversion<float, float>(static_cast<float>(value),
+                                                   0.0,
+                                                   static_cast<float>(height),
+                                                   lowerbound,
+                                                   upperbound);
+        const float normalizedValue
+            = Math::norm<float, float>(adjusted_value, lowerbound, upperbound);
+        const QColor color = Color::createHeatMapWaveLenghtColor(normalizedValue);
         const QRgb rgb_color = color.rgb();
-        for (int x = 0; x < width; ++x) {
+        for (unsigned x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
         }
     }
@@ -38,28 +41,28 @@ void Heatmap::createHeatMapImage(QImage& image,
 
 // simple function that computes color from a min-max range
 // using linear Interpolation
-QColor Heatmap::createHeatMapLinearColor(const qreal value, const qreal min, const qreal max)
+QColor createHeatMapLinearColor(const double value, const double min, const double max)
 {
-    const qreal halfmax = (min + max) / 2;
-    const int blue = std::max(0.0, 255 * (1 - (value / halfmax)));
-    const int red = std::max(0.0, 255 * ((value / halfmax) - 1));
-    const int green = 255 - blue - red;
+    const double halfmax = (min + max) / 2;
+    const double blue = std::max(0.0, 255 * (1 - (value / halfmax)));
+    const double red = std::max(0.0, 255 * ((value / halfmax) - 1));
+    const double green = 255 - blue - red;
     return QColor::fromRgb(red, green, blue);
 }
 
 // simple function that computes color from a value
 // using the human wave lenght spectra
-QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
+QColor createHeatMapWaveLenghtColor(const float value)
 {
-    static const qreal gamma = 0.8;
+    static const float gamma = 0.8;
 
     // denorm value to range (380-780)
-    const qreal cwavelength = STMath::denorm(value, 380.0, 780.0);
+    const float cwavelength = Math::denorm(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
-    qreal red = 0.0;
-    qreal green = 0.0;
-    qreal blue = 0.0;
+    float red = 0.0;
+    float green = 0.0;
+    float blue = 0.0;
 
     if (380.0 <= cwavelength && cwavelength < 440.0) {
         red = -(cwavelength - 440.0) / (440.0 - 380.0);
@@ -88,7 +91,7 @@ QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
     }
 
     // Let the intensity fall off near the vision limits
-    qreal factor = 0.3;
+    float factor = 0.3;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {
@@ -98,9 +101,9 @@ QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = STMath::clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = STMath::clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = Math::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = Math::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = Math::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
     return QColor::fromRgbF(red, green, blue, 1.0);
@@ -108,23 +111,23 @@ QColor Heatmap::createHeatMapWaveLenghtColor(const qreal value)
 
 // normalizes a value to wave lenghts range using different modes (to be used
 // with the function above)
-qreal Heatmap::normalizeValueSpectrumFunction(const qreal value,
-                                              const Globals::GeneColorMode& colorMode)
+float normalizeValueSpectrumFunction(const float value, const Visual::GeneColorMode &colorMode)
 {
-    qreal transformedValue = value;
+    float transformedValue = value;
 
     switch (colorMode) {
-    case Globals::LogColor:
+    case Visual::LogColor:
         transformedValue = std::log1p(value);
         break;
-    case Globals::ExpColor:
+    case Visual::ExpColor:
         transformedValue = qSqrt(value);
         break;
-    case Globals::LinearColor:
+    case Visual::LinearColor:
     default:
         // do nothing
         break;
     }
 
     return transformedValue;
+}
 }

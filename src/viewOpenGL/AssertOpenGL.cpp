@@ -9,7 +9,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 bool checkOpenGLError()
 {
-    QOpenGLFunctions* openglFuncs = QOpenGLContext::currentContext()->functions();
+    QOpenGLFunctions *openglFuncs = QOpenGLContext::currentContext()->functions();
 
     if (nullptr != openglFuncs) {
         const auto errorCode = openglFuncs->glGetError();

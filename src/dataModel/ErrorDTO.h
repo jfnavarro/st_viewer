@@ -19,7 +19,7 @@ class ErrorDTO : public QObject
     Q_PROPERTY(QString error_description READ errorDescription WRITE errorDescription)
 
 public:
-    explicit ErrorDTO(QObject* parent = 0)
+    explicit ErrorDTO(QObject *parent = 0)
         : QObject(parent)
         , m_errorName()
         , m_errorDescription()
@@ -28,11 +28,11 @@ public:
     ~ErrorDTO() {}
 
     // binding
-    const QString& errorName() const { return m_errorName; }
-    const QString& errorDescription() const { return m_errorDescription; }
+    const QString &errorName() const { return m_errorName; }
+    const QString &errorDescription() const { return m_errorDescription; }
 
-    void errorName(const QString& errorName) { m_errorName = errorName; }
-    void errorDescription(const QString& errorDescription)
+    void errorName(const QString &errorName) { m_errorName = errorName; }
+    void errorDescription(const QString &errorDescription)
     {
         m_errorDescription = errorDescription;
     }

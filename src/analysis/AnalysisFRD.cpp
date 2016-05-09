@@ -9,12 +9,14 @@
 #include "dataModel/Feature.h"
 
 #include <cmath>
+#include <unordered_map>
+
 #include "math/Common.h"
 
-static const QColor BORDER = QColor(0, 155, 60);
-static const QColor BORDER_LIGHTER = QColor(0, 155, 60, 100);
+static const QColor BORDER = QColor(238, 122, 0);
+static const QColor BORDER_LIGHTER = QColor(238, 122, 0, 100);
 
-AnalysisFRD::AnalysisFRD(QWidget* parent, Qt::WindowFlags f)
+AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::frdWidget)
     , m_customPlotNormal(nullptr)
@@ -43,17 +45,16 @@ AnalysisFRD::~AnalysisFRD()
 void AnalysisFRD::initializePlotNormal()
 {
     // creating plotting object for normal reads ditribution
-    m_customPlotNormal = new QCustomPlot(m_ui->plotNormalWidget);
-    Q_ASSERT(m_customPlotNormal != nullptr);
+    m_customPlotNormal.reset(new QCustomPlot(m_ui->plotNormalWidget));
+    Q_ASSERT(!m_customPlotNormal.isNull());
 
-    // add bars
-    m_lowerThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
-    m_customPlotNormal->addItem(m_lowerThresholdBarNormal);
+    // add threshold bars
+    m_lowerThresholdBarNormal.reset(new QCPItemLine(m_customPlotNormal.data()));
+    m_customPlotNormal->addItem(m_lowerThresholdBarNormal.data());
     m_lowerThresholdBarNormal->setHead(QCPLineEnding::esNone);
     m_lowerThresholdBarNormal->setPen(QPen(Qt::red));
-
-    m_upperThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
-    m_customPlotNormal->addItem(m_upperThresholdBarNormal);
+    m_upperThresholdBarNormal.reset(new QCPItemLine(m_customPlotNormal.data()));
+    m_customPlotNormal->addItem(m_upperThresholdBarNormal.data());
     m_upperThresholdBarNormal->setHead(QCPLineEnding::esNone);
     m_upperThresholdBarNormal->setPen(QPen(Qt::red));
 
@@ -82,8 +83,8 @@ void AnalysisFRD::initializePlotNormal()
 
     // connect slots that takes care that when an axis is selected,
     // only that direction can be dragged and zoomed:
-    connect(m_customPlotNormal, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-    connect(m_customPlotNormal, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+    connect(m_customPlotNormal.data(), SIGNAL(mousePress(QMouseEvent *)), this, SLOT(mousePress()));
+    connect(m_customPlotNormal.data(), SIGNAL(mouseWheel(QWheelEvent *)), this, SLOT(mouseWheel()));
 
     m_customPlotNormal->setFixedSize(550, 550);
     m_customPlotNormal->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
@@ -92,17 +93,17 @@ void AnalysisFRD::initializePlotNormal()
 void AnalysisFRD::initializePlotLog()
 {
     // creating plotting object for log reads ditribution
-    m_customPlotLog = new QCustomPlot(m_ui->plotLogWidget);
-    Q_ASSERT(m_customPlotLog != nullptr);
+    m_customPlotLog.reset(new QCustomPlot(m_ui->plotLogWidget));
+    Q_ASSERT(!m_customPlotLog.isNull());
 
     // add bars
-    m_lowerThresholdBarLog = new QCPItemLine(m_customPlotLog);
-    m_customPlotLog->addItem(m_lowerThresholdBarLog);
+    m_lowerThresholdBarLog.reset(new QCPItemLine(m_customPlotLog.data()));
+    m_customPlotLog->addItem(m_lowerThresholdBarLog.data());
     m_lowerThresholdBarLog->setHead(QCPLineEnding::esNone);
     m_lowerThresholdBarLog->setPen(QPen(Qt::red));
 
-    m_upperThresholdBarLog = new QCPItemLine(m_customPlotLog);
-    m_customPlotLog->addItem(m_upperThresholdBarLog);
+    m_upperThresholdBarLog.reset(new QCPItemLine(m_customPlotLog.data()));
+    m_customPlotLog->addItem(m_upperThresholdBarLog.data());
     m_upperThresholdBarLog->setHead(QCPLineEnding::esNone);
     m_upperThresholdBarLog->setPen(QPen(Qt::red));
 
@@ -132,27 +133,38 @@ void AnalysisFRD::initializePlotLog()
 
     // connect slots that takes care that when an axis is selected,
     // only that direction can be dragged and zoomed:
-    connect(m_customPlotLog, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-    connect(m_customPlotLog, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+    connect(m_customPlotLog.data(), SIGNAL(mousePress(QMouseEvent *)), this, SLOT(mousePress()));
+    connect(m_customPlotLog.data(), SIGNAL(mouseWheel(QWheelEvent *)), this, SLOT(mouseWheel()));
 
     m_customPlotLog->setFixedSize(550, 550);
     m_customPlotLog->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 }
 
-// TODO split and optimize this function
-void AnalysisFRD::computeData(const DataProxy::FeatureList& features, const int min, const int max)
+void AnalysisFRD::computeData(const DataProxy::FeatureList &features,
+                              const unsigned min,
+                              const unsigned max)
 {
 
-    QHash<double, double> featureCounter;
+    std::unordered_map<unsigned, unsigned> featureCounter;
 
     // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
-    foreach (DataProxy::FeaturePtr feature, features) {
-        ++featureCounter[feature->hits()];
+    for (const auto &feature : features) {
+        ++featureCounter[feature->count()];
     };
 
-    // x,y corresponds to normal reads
-    QVector<double> x = QVector<double>::fromList(featureCounter.keys());
-    QVector<double> y = QVector<double>::fromList(featureCounter.values());
+    // QCustomPlot only accepts QVector<double>
+    QVector<double> x;
+    QVector<double> y;
+    QVector<double> x_log;
+    QVector<double> y_log;
+    for (const auto &ele : featureCounter) {
+        const double read_value = static_cast<double>(ele.first);
+        const double value_count = static_cast<double>(ele.second);
+        x.push_back(read_value);
+        y.push_back(value_count);
+        x_log.push_back(std::log1p(read_value));
+        y_log.push_back(std::log1p(value_count));
+    }
 
     // TODO probably no need to keep max values of Y as it can be obtained form
     // the plotting object
@@ -167,7 +179,7 @@ void AnalysisFRD::computeData(const DataProxy::FeatureList& features, const int 
     m_customPlotNormal->graph(0)->setData(x, y);
     m_customPlotNormal->graph(0)->rescaleAxes();
     m_customPlotNormal->replot();
-    m_customPlotLog->graph(0)->setData(STMath::logVectorValues(x), STMath::logVectorValues(y));
+    m_customPlotLog->graph(0)->setData(x_log, y_log);
     m_customPlotLog->graph(0)->rescaleAxes();
     m_customPlotLog->replot();
 }

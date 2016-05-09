@@ -11,36 +11,35 @@ class GeneSelectionTableView;
 class GeneSelectionItemModel;
 class QSortFilterProxyModel;
 
-// This widgets is part of the CellView,
-// it is composed of the aggregated genes from an user selection in a table
-// which shows the genes and their values and a search box
+// This widgets is part of the UserSelectionsPage. It shows the list of unique
+// genes present in a UserSelection and their aggregated counts.
+// It contains a search field to search genes by name.
 class SelectionsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SelectionsWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    explicit SelectionsWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionsWidget();
 
-    // clear focus/status and selections
+    // clear focus/status
     void clear();
 
 public slots:
 
-    // reload the model with the objects given as input
-    void slotLoadModel(const UserSelection::selectedGenesList& geneList);
+    // reload the user selection's data model
+    void slotLoadModel(const UserSelection::geneTotalCountsVector &userSelection);
 
 signals:
 
 private:
-
     // internal functions to obtain the model and the proxy model of the table
-    GeneSelectionItemModel* getModel();
-    QSortFilterProxyModel* getProxyModel();
+    GeneSelectionItemModel *getModel();
+    QSortFilterProxyModel *getProxyModel();
 
     // some references needed to UI elements
-    QPointer<QLineEdit> m_geneSelectionFilterLineEdit;
-    QPointer<GeneSelectionTableView> m_selections_tableview;
+    QScopedPointer<QLineEdit> m_geneSelectionFilterLineEdit;
+    QScopedPointer<GeneSelectionTableView> m_selections_tableview;
 
     Q_DISABLE_COPY(SelectionsWidget)
 };

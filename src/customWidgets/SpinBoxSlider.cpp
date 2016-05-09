@@ -4,7 +4,7 @@
 #include <QSpinBox>
 #include <QHBoxLayout>
 
-SpinBoxSlider::SpinBoxSlider(QWidget* parent, ControlsFlags controlFlags)
+SpinBoxSlider::SpinBoxSlider(QWidget *parent, ControlsFlags controlFlags)
     : QWidget(parent)
     , m_left_spinbox(nullptr)
     , m_right_spinbox(nullptr)
@@ -34,7 +34,7 @@ SpinBoxSlider::~SpinBoxSlider()
 {
 }
 
-void SpinBoxSlider::setMaximumValue(const int value)
+void SpinBoxSlider::setMaximumValue(const unsigned value)
 {
     // We block signals here as we only want
     // the signals to be emitted when the user
@@ -47,7 +47,7 @@ void SpinBoxSlider::setMaximumValue(const int value)
     blockSignals(false);
 }
 
-void SpinBoxSlider::setMinimumValue(const int value)
+void SpinBoxSlider::setMinimumValue(const unsigned value)
 {
     // We block signals here as we only want
     // the signals to be emitted when the user
@@ -62,23 +62,25 @@ void SpinBoxSlider::setMinimumValue(const int value)
 
 void SpinBoxSlider::slotSetLowerValue(const int value)
 {
-    if (value != m_lower_value) {
-        m_lower_value = value;
-        m_left_spinbox->setValue(value);
-        emit signalLowerValueChanged(value);
+    const unsigned tmp_value = static_cast<unsigned>(value);
+    if (tmp_value != m_lower_value) {
+        m_lower_value = tmp_value;
+        m_left_spinbox->setValue(m_lower_value);
+        emit signalLowerValueChanged(m_lower_value);
     }
 }
 
 void SpinBoxSlider::slotSetUpperValue(const int value)
 {
-    if (value != m_upper_value) {
-        m_upper_value = value;
-        m_right_spinbox->setValue(value);
-        emit signalUpperValueChanged(value);
+    const unsigned tmp_value = static_cast<unsigned>(value);
+    if (tmp_value != m_upper_value) {
+        m_upper_value = tmp_value;
+        m_right_spinbox->setValue(m_upper_value);
+        emit signalUpperValueChanged(m_upper_value);
     }
 }
 
-void SpinBoxSlider::setTickInterval(const int stepLength)
+void SpinBoxSlider::setTickInterval(const unsigned stepLength)
 {
     m_left_spinbox->setSingleStep(stepLength);
     m_right_spinbox->setSingleStep(stepLength);

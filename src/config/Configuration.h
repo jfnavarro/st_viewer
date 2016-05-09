@@ -44,9 +44,9 @@ public:
     const QString dataEndpointFigures() const;
 
 private:
-    const QString readSetting(const QString& key) const;
+    const QString readSetting(const QString &key) const;
 
-    QPointer<QSettings> m_settings;
+    QScopedPointer<QSettings> m_settings;
 
     Q_DISABLE_COPY(Configuration)
 };

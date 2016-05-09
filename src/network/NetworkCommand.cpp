@@ -6,16 +6,16 @@
 #include <QString>
 #include <QJsonArray>
 
-NetworkCommand::NetworkCommand(QObject* parent)
+NetworkCommand::NetworkCommand(QObject *parent)
     : QObject(parent)
     , m_url()
-    , m_type(Globals::HttpRequestTypeNone)
+    , m_type(HttpRequestTypeNone)
     , m_query()
     , m_body()
 {
 }
 
-NetworkCommand::NetworkCommand(const QUrl& url, Globals::HttpRequestType type, QObject* parent)
+NetworkCommand::NetworkCommand(const QUrl &url, HttpRequestType type, QObject *parent)
     : QObject(parent)
     , m_url(url)
     , m_type(type)
@@ -28,12 +28,12 @@ NetworkCommand::~NetworkCommand()
 {
 }
 
-void NetworkCommand::addQueryItems(QObject* object)
+void NetworkCommand::addQueryItems(QObject *object)
 {
     Q_ASSERT(object != nullptr);
 
     // extract the objects meta data
-    const QMetaObject* metaObject = object->metaObject();
+    const QMetaObject *metaObject = object->metaObject();
     const int size = metaObject->propertyCount();
 
     for (int i = metaObject->propertyOffset(); i < size; ++i) {
@@ -59,17 +59,17 @@ void NetworkCommand::addQueryItems(QObject* object)
     }
 }
 
-const QUrl& NetworkCommand::url() const
+const QUrl &NetworkCommand::url() const
 {
     return m_url;
 }
 
-Globals::HttpRequestType NetworkCommand::type() const
+HttpRequestType NetworkCommand::type() const
 {
     return m_type;
 }
 
-const QUrlQuery& NetworkCommand::query() const
+const QUrlQuery &NetworkCommand::query() const
 {
     return m_query;
 }
@@ -81,7 +81,7 @@ const QString NetworkCommand::getEncodedUrl() const
     return url.toString(QUrl::FullyEncoded);
 }
 
-void NetworkCommand::setBody(const QByteArray& body)
+void NetworkCommand::setBody(const QByteArray &body)
 {
     m_body = body;
 }
@@ -91,22 +91,22 @@ const QByteArray NetworkCommand::body() const
     return m_body;
 }
 
-void NetworkCommand::addQueryItem(const QString& param, const QString& value)
+void NetworkCommand::addQueryItem(const QString &param, const QString &value)
 {
     m_query.addQueryItem(param, value);
 }
 
-void NetworkCommand::addQueryItem(const QString& param, const int value)
+void NetworkCommand::addQueryItem(const QString &param, const unsigned value)
 {
     m_query.addQueryItem(param, QString::number(value));
 }
 
-void NetworkCommand::addQueryItem(const QString& param, const qreal value)
+void NetworkCommand::addQueryItem(const QString &param, const float value)
 {
     m_query.addQueryItem(param, QString::number(value));
 }
 
-const QString NetworkCommand::getQueryItem(const QString& param) const
+const QString NetworkCommand::getQueryItem(const QString &param) const
 {
     return m_query.queryItemValue(param);
 }

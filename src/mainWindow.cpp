@@ -1,4 +1,4 @@
-#include "stVi.h"
+#include "MainWindow.h"
 
 #if defined Q_OS_WIN
 #define NOMINMAX
@@ -21,7 +21,7 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
-#include "utils/Utils.h"
+
 #include "error/Error.h"
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
@@ -32,17 +32,20 @@
 #include "viewPages/UserSelectionsPage.h"
 #include "viewPages/GenesWidget.h"
 #include "dataModel/User.h"
+#include "SettingsStyle.h"
 
-using namespace Globals;
+using namespace Style;
+
+static const std::array<qulonglong, 3> VersionNumbers = {MAJOR, MINOR, PATCH};
 
 namespace
 {
 
-bool versionIsGreaterOrEqual(const std::array<qulonglong, 3>& version1,
-                             const std::array<qulonglong, 3>& version2)
+bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
+                             const std::array<qulonglong, 3> &version2)
 {
     int index = 0;
-    for (const auto& num : version1) {
+    for (const auto &num : version1) {
         if (num > version2[index]) {
             return true;
         }
@@ -55,7 +58,10 @@ bool versionIsGreaterOrEqual(const std::array<qulonglong, 3>& version1,
 }
 }
 
-stVi::stVi(QWidget* parent)
+static const QString SettingsGeometry = QStringLiteral("Geometry");
+static const QString SettingsState = QStringLiteral("State");
+
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_actionExit(nullptr)
     , m_actionHelp(nullptr)
@@ -74,53 +80,24 @@ stVi::stVi(QWidget* parent)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
-    m_dataProxy = new DataProxy();
+    m_dataProxy = QSharedPointer<DataProxy>(new DataProxy());
     Q_ASSERT(!m_dataProxy.isNull());
 
-    m_authManager = new AuthorizationManager(m_dataProxy);
+    m_authManager = QSharedPointer<AuthorizationManager>(new AuthorizationManager(m_dataProxy));
     Q_ASSERT(!m_authManager.isNull());
 
     // We init the views here
-    m_datasets = new DatasetPage(m_dataProxy);
-    m_cellview = new CellViewPage(m_dataProxy);
-    m_user_selections = new UserSelectionsPage(m_dataProxy);
-    m_genes = new GenesWidget(m_dataProxy);
+    m_datasets.reset(new DatasetPage(m_dataProxy));
+    m_cellview.reset(new CellViewPage(m_dataProxy));
+    m_user_selections.reset(new UserSelectionsPage(m_dataProxy));
+    m_genes.reset(new GenesWidget(m_dataProxy));
 }
 
-stVi::~stVi()
+MainWindow::~MainWindow()
 {
-    if (!m_dataProxy.isNull()) {
-        delete m_dataProxy;
-    }
-    m_dataProxy = nullptr;
-
-    if (!m_authManager.isNull()) {
-        delete m_authManager;
-    }
-    m_authManager = nullptr;
-
-    if (!m_datasets.isNull()) {
-        delete m_datasets;
-    }
-    m_datasets = nullptr;
-
-    if (!m_cellview.isNull()) {
-        delete m_cellview;
-    }
-    m_cellview = nullptr;
-
-    if (!m_user_selections.isNull()) {
-        delete m_user_selections;
-    }
-    m_user_selections = nullptr;
-
-    if (!m_genes.isNull()) {
-        delete m_genes;
-    }
-    m_genes = nullptr;
 }
 
-void stVi::init()
+void MainWindow::init()
 {
     // init style, size and icons
     initStyle();
@@ -141,7 +118,7 @@ void stVi::init()
     loadSettings();
 }
 
-bool stVi::checkSystemRequirements() const
+bool MainWindow::checkSystemRequirements() const
 {
     // Test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
@@ -170,39 +147,7 @@ bool stVi::checkSystemRequirements() const
     return true;
 }
 
-void stVi::slotMinVersionDownloaded(const DataProxy::DownloadStatus status)
-{
-    // TODO do something if it failed or aborted to fetch min version?
-    if (status == DataProxy::Success) {
-        const auto minVersion = m_dataProxy->getMinVersion();
-        if (!versionIsGreaterOrEqual(Globals::VersionNumbers, minVersion)) {
-            QMessageBox::critical(this->centralWidget(),
-                                  tr("Minimum Version"),
-                                  tr("This version of the software is not supported anymore,"
-                                     "please update!"));
-            QApplication::exit(EXIT_FAILURE);
-        }
-    }
-}
-
-void stVi::slotUserDownloaded(const DataProxy::DownloadStatus status)
-{
-    // TODO do something if it failed or aborted to fetch the user
-    if (status == DataProxy::Success) {
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(!user.isNull());
-        if (!user->enabled()) {
-            QMessageBox::critical(this,
-                                  tr("Authorization Error"),
-                                  tr("The current user is disabled"));
-        } else {
-            // show user info in label
-            m_cellview->slotSetUserName(user->username());
-        }
-    }
-}
-
-void stVi::setupUi()
+void MainWindow::setupUi()
 {
     // main window
     setObjectName(QStringLiteral("STViewer"));
@@ -212,7 +157,7 @@ void stVi::setupUi()
     setWindowIcon(QIcon(QStringLiteral(":/images/st_icon.png")));
 
     // create main widget
-    QWidget* centralwidget = new QWidget(this);
+    QWidget *centralwidget = new QWidget(this);
     // important to set the style to this widget only to avoid propagation
     centralwidget->setObjectName("centralWidget");
     centralwidget->setStyleSheet("QWidget#centralWidget {background-color: rgb(45, 45, 45);}");
@@ -220,33 +165,33 @@ void stVi::setupUi()
     setCentralWidget(centralwidget);
 
     // create main layout
-    QVBoxLayout* mainlayout = new QVBoxLayout(centralwidget);
+    QVBoxLayout *mainlayout = new QVBoxLayout(centralwidget);
     mainlayout->setSpacing(0);
     mainlayout->setContentsMargins(0, 0, 0, 0);
 
     // main view
-    mainlayout->addWidget(m_cellview);
+    mainlayout->addWidget(m_cellview.data());
 
     // create status bar
-    QStatusBar* statusbar = new QStatusBar();
+    QStatusBar *statusbar = new QStatusBar();
     setStatusBar(statusbar);
 
     // create menu bar
-    QMenuBar* menubar = new QMenuBar();
+    QMenuBar *menubar = new QMenuBar();
     menubar->setNativeMenuBar(true);
     menubar->setGeometry(QRect(0, 0, 1024, 22));
     setMenuBar(menubar);
 
     // create actions
-    m_actionExit = new QAction(this);
-    m_actionHelp = new QAction(this);
-    m_actionVersion = new QAction(this);
-    m_actionAbout = new QAction(this);
-    m_actionClear_Cache = new QAction(this);
-    m_actionDatasets = new QAction(this);
+    m_actionExit.reset(new QAction(this));
+    m_actionHelp.reset(new QAction(this));
+    m_actionVersion.reset(new QAction(this));
+    m_actionAbout.reset(new QAction(this));
+    m_actionClear_Cache.reset(new QAction(this));
+    m_actionDatasets.reset(new QAction(this));
     m_actionDatasets->setCheckable(true);
-    m_actionLogOut = new QAction(this);
-    m_actionSelections = new QAction(this);
+    m_actionLogOut.reset(new QAction(this));
+    m_actionSelections.reset(new QAction(this));
     m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
     m_actionHelp->setText(tr("Help"));
@@ -258,18 +203,18 @@ void stVi::setupUi()
     m_actionSelections->setText(tr("Selections"));
 
     // create menus
-    QMenu* menuLoad = new QMenu(menubar);
-    QMenu* menuHelp = new QMenu(menubar);
-    QMenu* menuViews = new QMenu(menubar);
+    QMenu *menuLoad = new QMenu(menubar);
+    QMenu *menuHelp = new QMenu(menubar);
+    QMenu *menuViews = new QMenu(menubar);
     menuLoad->setTitle(tr("File"));
     menuHelp->setTitle(tr("Help"));
     menuViews->setTitle(tr("Views"));
-    menuLoad->addAction(m_actionExit);
-    menuLoad->addAction(m_actionClear_Cache);
-    menuHelp->addAction(m_actionAbout);
-    menuViews->addAction(m_actionDatasets);
-    menuViews->addAction(m_actionLogOut);
-    menuViews->addAction(m_actionSelections);
+    menuLoad->addAction(m_actionExit.data());
+    menuLoad->addAction(m_actionClear_Cache.data());
+    menuHelp->addAction(m_actionAbout.data());
+    menuViews->addAction(m_actionDatasets.data());
+    menuViews->addAction(m_actionLogOut.data());
+    menuViews->addAction(m_actionSelections.data());
 
     // add menus to menu bar
     menubar->addAction(menuLoad->menuAction());
@@ -277,23 +222,23 @@ void stVi::setupUi()
     menubar->addAction(menuViews->menuAction());
 
     // add gene table as dock widget
-    QDockWidget* dock_genes = new QDockWidget(tr("Genes"), this);
+    QDockWidget *dock_genes = new QDockWidget(tr("Genes"), this);
     m_genes->setObjectName("Genes");
-    dock_genes->setWidget(m_genes);
+    dock_genes->setWidget(m_genes.data());
     dock_genes->setObjectName("GenesDock");
     dock_genes->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     menuViews->addAction(dock_genes->toggleViewAction());
     addDockWidget(Qt::LeftDockWidgetArea, dock_genes);
 }
 
-void stVi::slotShowAbout()
+void MainWindow::slotShowAbout()
 {
     QScopedPointer<AboutDialog> about(
-                new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+        new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     about->exec();
 }
 
-void stVi::slotExit()
+void MainWindow::slotExit()
 {
     const int answer = QMessageBox::warning(this,
                                             tr("Exit application"),
@@ -307,7 +252,7 @@ void stVi::slotExit()
     }
 }
 
-void stVi::slotClearCache()
+void MainWindow::slotClearCache()
 {
     const int answer = QMessageBox::warning(this,
                                             tr("Clear the Cache"),
@@ -320,73 +265,61 @@ void stVi::slotClearCache()
     }
 }
 
-void stVi::createLayouts()
+void MainWindow::createLayouts()
 {
     statusBar()->showMessage(tr("Spatial Transcriptomics Viewer"));
 }
 
 // apply stylesheet and configurations
-void stVi::initStyle()
+void MainWindow::initStyle()
 {
     // TODO move to stylesheet.css file
     setStyleSheet(GENERAL_STYLE);
     m_datasets->setStyleSheet(GENERAL_STYLE);
     m_cellview->setStyleSheet(GENERAL_STYLE);
     m_user_selections->setStyleSheet(GENERAL_STYLE);
-
-    // apply font
-    QFont font("Open Sans", 12);
-    QApplication::setFont(font);
 }
 
-void stVi::createShorcuts()
+void MainWindow::createShorcuts()
 {
 #if defined Q_OS_WIN
     m_actionExit->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::ALT | Qt::Key_F4)
-                               << QKeySequence(Qt::CTRL | Qt::Key_Q));
+                                                     << QKeySequence(Qt::CTRL | Qt::Key_Q));
 #elif defined Q_OS_LINUX || defined Q_OS_MAC
     m_actionExit->setShortcut(QKeySequence::Quit);
 #endif
 
 #if defined Q_OS_MAC
-    QShortcut* shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
+    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(showMinimized()));
     m_actionExit->setShortcut(QKeySequence("Ctrl+W"));
 #endif
 }
 
-void stVi::createConnections()
+void MainWindow::createConnections()
 {
     // exit and print action
-    connect(m_actionExit, SIGNAL(triggered(bool)), this, SLOT(slotExit()));
+    connect(m_actionExit.data(), SIGNAL(triggered(bool)), this, SLOT(slotExit()));
     // clear cache action
-    connect(m_actionClear_Cache, SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
+    connect(m_actionClear_Cache.data(), SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
     // signal that shows the about dialog
-    connect(m_actionAbout, SIGNAL(triggered()), this, SLOT(slotShowAbout()));
+    connect(m_actionAbout.data(), SIGNAL(triggered()), this, SLOT(slotShowAbout()));
     // signal that shows the datasets
-    connect(m_actionDatasets, SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
+    connect(m_actionDatasets.data(), SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
     // signal that shows the log in widget
-    connect(m_actionLogOut, SIGNAL(triggered()), this, SLOT(slotLogOutButton()));
+    connect(m_actionLogOut.data(), SIGNAL(triggered()), this, SLOT(slotLogOutButton()));
     // signal that shows the selections
-    connect(m_actionSelections, SIGNAL(triggered(bool)), m_user_selections.data(), SLOT(show()));
+    connect(m_actionSelections.data(),
+            SIGNAL(triggered(bool)),
+            m_user_selections.data(),
+            SLOT(show()));
 
     // connect authorization signals
-    connect(m_authManager, SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
-    connect(m_authManager,
+    connect(m_authManager.data(), SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
+    connect(m_authManager.data(),
             SIGNAL(signalError(QSharedPointer<Error>)),
             this,
             SLOT(slotAuthorizationError(QSharedPointer<Error>)));
-
-    // connect the data proxy signal
-    connect(m_dataProxy.data(),
-            SIGNAL(signalMinVersionDownloaded(DataProxy::DownloadStatus)),
-            this,
-            SLOT(slotMinVersionDownloaded(DataProxy::DownloadStatus)));
-    // connect the data proxy signal
-    connect(m_dataProxy.data(),
-            SIGNAL(signalUserDownloaded(DataProxy::DownloadStatus)),
-            this,
-            SLOT(slotUserDownloaded(DataProxy::DownloadStatus)));
 
     // connect the open dataset from datasetview -> cellview
     connect(m_datasets.data(),
@@ -449,45 +382,42 @@ void stVi::createConnections()
             SLOT(slotSelectionsUpdated()));
 
     // connect log out signal from cell view
-    connect(m_cellview.data(),
-            SIGNAL(signalLogOut()),
-            this,
-            SLOT(slotLogOutButton()));
+    connect(m_cellview.data(), SIGNAL(signalLogOut()), this, SLOT(slotLogOutButton()));
 }
 
-void stVi::closeEvent(QCloseEvent* event)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
     slotExit();
 }
 
-void stVi::loadSettings()
+void MainWindow::loadSettings()
 {
     QSettings settings;
     // Retrieve the geometry and state of the main window
-    restoreGeometry(settings.value(Globals::SettingsGeometry).toByteArray());
-    restoreState(settings.value(Globals::SettingsState).toByteArray());
+    restoreGeometry(settings.value(SettingsGeometry).toByteArray());
+    restoreState(settings.value(SettingsState).toByteArray());
     // TODO load global settings (menus and status)
 }
 
-void stVi::saveSettings() const
+void MainWindow::saveSettings() const
 {
     QSettings settings;
     // save the geometry and state of the main window
     QByteArray geometry = saveGeometry();
-    settings.setValue(Globals::SettingsGeometry, geometry);
+    settings.setValue(SettingsGeometry, geometry);
     QByteArray state = saveState();
-    settings.setValue(Globals::SettingsState, state);
+    settings.setValue(SettingsState, state);
     // TODO save global settings (menus and status)
 }
 
-void stVi::startAuthorization()
+void MainWindow::startAuthorization()
 {
     // start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
 }
 
-void stVi::slotAuthorizationError(QSharedPointer<Error> error)
+void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 {
     // force clean access token and authorize again
     m_authManager->cleanAccesToken();
@@ -495,7 +425,7 @@ void stVi::slotAuthorizationError(QSharedPointer<Error> error)
     qDebug() << "Error trying to log in " << error->name() << " " << error->description();
 }
 
-void stVi::slotAuthorized()
+void MainWindow::slotAuthorized()
 {
     // clean the cache in the dataproxy
     m_dataProxy->clean();
@@ -507,12 +437,39 @@ void stVi::slotAuthorized()
     m_genes->clear();
 
     // check for min version if supported and load user (only in online mode)
-    m_dataProxy->loadMinVersion();
-    m_dataProxy->loadUser();
-    m_dataProxy->activateCurrentDownloads();
+
+    if (m_dataProxy->loadMinVersion()) {
+        const auto minVersion = m_dataProxy->getMinVersion();
+        if (!versionIsGreaterOrEqual(VersionNumbers, minVersion)) {
+            QMessageBox::critical(this->centralWidget(),
+                                  tr("Minimum Version"),
+                                  tr("This version of the software is not supported anymore,"
+                                     "please update!"));
+            QApplication::exit(EXIT_FAILURE);
+        }
+    } else {
+        // TODO exit here?
+        qDebug() << "Min version could not be downloaded..";
+    }
+
+    if (m_dataProxy->loadUser()) {
+        const auto user = m_dataProxy->getUser();
+        Q_ASSERT(user);
+        if (!user->enabled()) {
+            QMessageBox::critical(this,
+                                  tr("Authorization Error"),
+                                  tr("The current user is disabled"));
+        } else {
+            // show user info in label
+            m_cellview->slotSetUserName(user->username());
+        }
+    } else {
+        // TODO exit here?
+        qDebug() << "User information could not be downloaded..";
+    }
 }
 
-void stVi::slotLogOutButton()
+void MainWindow::slotLogOutButton()
 {
     // clear user name in label
     m_cellview->slotSetUserName("");

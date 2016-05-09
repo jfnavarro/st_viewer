@@ -2,7 +2,9 @@
 #include "ui_selectionConsole.h"
 #include "dataModel/Gene.h"
 
-SelectionDialog::SelectionDialog(QPointer<DataProxy> dataProxy, QWidget* parent, Qt::WindowFlags f)
+SelectionDialog::SelectionDialog(QSharedPointer<DataProxy> dataProxy,
+                                 QWidget *parent,
+                                 Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::SelectionDialog())
     , m_includeAmbiguous(false)
@@ -33,13 +35,13 @@ SelectionDialog::~SelectionDialog()
 {
 }
 
-const SelectionDialog::GeneList& SelectionDialog::selectedGenes() const
+const SelectionDialog::GeneList &SelectionDialog::selectedGenes() const
 {
     return m_selectedGeneList;
 }
 
-const SelectionDialog::GeneList SelectionDialog::selectGenes(QPointer<DataProxy> dataProxy,
-                                                             QWidget* parent)
+const SelectionDialog::GeneList SelectionDialog::selectGenes(QSharedPointer<DataProxy> dataProxy,
+                                                             QWidget *parent)
 {
     SelectionDialog dialog(dataProxy, parent);
     dialog.setWindowIcon(QIcon());
@@ -59,12 +61,9 @@ void SelectionDialog::accept()
         return;
     }
 
-    // get the current list of genes
-    const auto& geneList = m_dataProxy->getGeneList();
-
     // find all genes that match the regular expression
     m_selectedGeneList.clear();
-    foreach (DataProxy::GenePtr gene, geneList) {
+    for (auto &gene : m_dataProxy->getGeneList()) {
         const QString name = gene->name();
         // filter for ambiguos genes and unselected
         // if the options are correct
@@ -76,7 +75,7 @@ void SelectionDialog::accept()
         if (m_regExp.exactMatch(name)) {
             // at this point all included genes must be selected
             gene->selected(true);
-            m_selectedGeneList.append(gene);
+            m_selectedGeneList.push_back(gene);
         }
     }
 
@@ -84,7 +83,7 @@ void SelectionDialog::accept()
     QDialog::accept();
 }
 
-void SelectionDialog::slotValidateRegExp(const QString& pattern)
+void SelectionDialog::slotValidateRegExp(const QString &pattern)
 {
     m_regExp.setPattern(pattern);
     const bool regExpValid = m_regExp.isValid();
@@ -121,7 +120,7 @@ void SelectionDialog::slotCaseSensitive(bool caseSensitive)
 
 void SelectionDialog::slotEnableAcceptAction(bool enableAcceptAction)
 {
-    foreach (QAbstractButton* button, m_ui->buttonBox->buttons()) {
+    for (QAbstractButton *button : m_ui->buttonBox->buttons()) {
         const QDialogButtonBox::ButtonRole role = m_ui->buttonBox->buttonRole(button);
         if (role == QDialogButtonBox::AcceptRole || role == QDialogButtonBox::YesRole
             || role == QDialogButtonBox::ApplyRole) {

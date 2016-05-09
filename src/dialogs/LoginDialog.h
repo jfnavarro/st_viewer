@@ -20,24 +20,24 @@ class LoginDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    explicit LoginDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~LoginDialog();
 
     // clear off the fields
     void clear();
 
     // Sets the proposed username, that can come for instance
-    void setUsername(const QString& username);
+    void setUsername(const QString &username);
     const QString getCurrentUser() const;
 
     // Sets the current password to propose to the user for the login.
-    void setPassword(const QString& password);
+    void setPassword(const QString &password);
     const QString getCurrentPassword() const;
 
 signals:
 
     // A signal emitted when the login is performed.
-    void acceptLogin(const QString&, const QString&);
+    void acceptLogin(const QString &, const QString &);
 
     // A signal emitted when the login is closed
     void exitLogin();
@@ -48,7 +48,7 @@ public slots:
     void slotAcceptLogin();
 
 protected:
-    void keyPressEvent(QKeyEvent* e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     // init graphic stuff
@@ -60,8 +60,8 @@ private:
     // save users from qsettings
     void saveUsers();
 
-    std::unique_ptr<Ui::LogIn> m_ui;
-    QPointer<QCompleter> m_completer;
+    QScopedPointer<Ui::LogIn> m_ui;
+    QScopedPointer<QCompleter> m_completer;
 
     Q_DISABLE_COPY(LoginDialog)
 };

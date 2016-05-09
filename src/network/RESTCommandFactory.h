@@ -13,41 +13,42 @@ class RESTCommandFactory
 
 public:
     // authentication commands
-    static NetworkCommand* getAuthorizationToken(const Configuration& configuration);
+    static QSharedPointer<NetworkCommand> getAuthorizationToken(const Configuration &configuration);
 
     // data access commands
-    static NetworkCommand* getChipByChipId(const Configuration& configuration,
-                                           const QString& chipId);
+    static QSharedPointer<NetworkCommand> getChipByChipId(const Configuration &configuration,
+                                                          const QString &chipId);
 
-    static NetworkCommand* getDatasets(const Configuration& configuration);
-    static NetworkCommand* getDatasetByDatasetId(const Configuration& configuration,
-                                                 const QString& datasetId);
-    static NetworkCommand* updateDatasetByDatasetId(const Configuration& configuration,
-                                                    const QString& datasetId);
-    static NetworkCommand* removeDatasetByDatasetId(const Configuration& configuration,
-                                                    const QString& datasetId);
+    static QSharedPointer<NetworkCommand> getDatasets(const Configuration &configuration);
+    static QSharedPointer<NetworkCommand> getDatasetByDatasetId(const Configuration &configuration,
+                                                                const QString &datasetId);
+    static QSharedPointer<NetworkCommand> updateDatasetByDatasetId(
+        const Configuration &configuration, const QString &datasetId);
+    static QSharedPointer<NetworkCommand> removeDatasetByDatasetId(
+        const Configuration &configuration, const QString &datasetId);
 
-    static NetworkCommand* getFeatureByDatasetId(const Configuration& configuration,
-                                                 const QString& datasetId);
+    static QSharedPointer<NetworkCommand> getFeatureByDatasetId(const Configuration &configuration,
+                                                                const QString &datasetId);
 
-    static NetworkCommand* getImageAlignmentById(const Configuration& configuration,
-                                                 const QString& imageAlignmentId);
+    static QSharedPointer<NetworkCommand> getImageAlignmentById(const Configuration &configuration,
+                                                                const QString &imageAlignmentId);
 
-    static NetworkCommand* getCellTissueFigureByName(const Configuration& configuration,
-                                                     const QString& name);
+    static QSharedPointer<NetworkCommand> getCellTissueFigureByName(
+        const Configuration &configuration, const QString &name);
 
-    static NetworkCommand* getUser(const Configuration& configuration);
-    // static NetworkCommand* updateUserbyUserId(const Configuration& configuration, const QString
+    static QSharedPointer<NetworkCommand> getUser(const Configuration &configuration);
+    // static NetworkCommand* updateUserbyUserId(const Configuration&
+    // configuration, const QString
     // &userId);
 
-    static NetworkCommand* getSelections(const Configuration& configuration);
-    static NetworkCommand* upateSelectionBySelectionId(const Configuration& configuration,
-                                                       const QString& selectionId);
-    static NetworkCommand* addSelection(const Configuration& configuration);
-    static NetworkCommand* removeSelectionBySelectionId(const Configuration& configuration,
-                                                        const QString& selectionId);
+    static QSharedPointer<NetworkCommand> getSelections(const Configuration &configuration);
+    static QSharedPointer<NetworkCommand> upateSelectionBySelectionId(
+        const Configuration &configuration, const QString &selectionId);
+    static QSharedPointer<NetworkCommand> addSelection(const Configuration &configuration);
+    static QSharedPointer<NetworkCommand> removeSelectionBySelectionId(
+        const Configuration &configuration, const QString &selectionId);
     // NOTE this end point does not need authorization
-    static NetworkCommand* getMinVersion(const Configuration& configuration);
+    static QSharedPointer<NetworkCommand> getMinVersion(const Configuration &configuration);
 };
 
 #endif // RESTMANAGER_H //

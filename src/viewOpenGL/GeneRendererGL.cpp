@@ -5,16 +5,18 @@
 #include <QOpenGLShaderProgram>
 #include <QImageReader>
 #include <QApplication>
+
 #include "dataModel/UserSelection.h"
 #include "dataModel/Feature.h"
 #include "dataModel/Gene.h"
+#include "SettingsVisual.h"
 
 static const int INVALID_INDEX = -1;
 static const float GENE_SIZE_DEFAULT = 0.5;
 static const float GENE_INTENSITY_DEFAULT = 1.0;
 static const GeneRendererGL::GeneShape DEFAULT_SHAPE_GENE = GeneRendererGL::GeneShape::Circle;
 
-GeneRendererGL::GeneRendererGL(QPointer<DataProxy> dataProxy, QObject* parent)
+GeneRendererGL::GeneRendererGL(QSharedPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent)
     , m_isDirtyStaticData(false)
     , m_isDirtyDynamicData(false)
@@ -58,6 +60,7 @@ void GeneRendererGL::clearData()
     m_geneInfoByGene.clear();
     m_geneInfoByFeature.clear();
     m_geneInfoByFeatureIndex.clear();
+    m_indexes.clear();
 
     // variables
     m_intensity = GENE_INTENSITY_DEFAULT;
@@ -71,13 +74,14 @@ void GeneRendererGL::clearData()
     m_shape = DEFAULT_SHAPE_GENE;
     m_localPooledMin = std::numeric_limits<int>::max();
     m_localPooledMax = std::numeric_limits<int>::min();
+    m_genes_cutoff = true;
 
     // visual mode
     m_visualMode = NormalMode;
     // pooling mode
     m_poolingMode = PoolReadsCount;
     // color mode
-    m_colorComputingMode = Globals::LinearColor;
+    m_colorComputingMode = Visual::LinearColor;
 
     // set dirty and initialized to false
     m_isDirtyDynamicData = false;
@@ -85,13 +89,13 @@ void GeneRendererGL::clearData()
     m_isInitialized = false;
 }
 
-void GeneRendererGL::resetQuadTree(const QRectF& rect)
+void GeneRendererGL::resetQuadTree(const QRectF &rect)
 {
     m_geneInfoQuadTree.clear();
     m_geneInfoQuadTree = GeneInfoQuadTree(rect);
 }
 
-void GeneRendererGL::setIntensity(qreal intensity)
+void GeneRendererGL::setIntensity(float intensity)
 {
     if (m_intensity != intensity) {
         m_intensity = intensity;
@@ -99,7 +103,7 @@ void GeneRendererGL::setIntensity(qreal intensity)
     }
 }
 
-void GeneRendererGL::setSize(qreal size)
+void GeneRendererGL::setSize(float size)
 {
     if (m_size != size) {
         m_size = size;
@@ -107,7 +111,7 @@ void GeneRendererGL::setSize(qreal size)
     }
 }
 
-void GeneRendererGL::setReadsUpperLimit(const int limit)
+void GeneRendererGL::setReadsUpperLimit(const unsigned limit)
 {
     if (m_thresholdReadsUpper != limit) {
         m_thresholdReadsUpper = limit;
@@ -115,7 +119,7 @@ void GeneRendererGL::setReadsUpperLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setReadsLowerLimit(const int limit)
+void GeneRendererGL::setReadsLowerLimit(const unsigned limit)
 {
     if (m_thresholdReadsLower != limit) {
         m_thresholdReadsLower = limit;
@@ -123,7 +127,7 @@ void GeneRendererGL::setReadsLowerLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setGenesUpperLimit(const int limit)
+void GeneRendererGL::setGenesUpperLimit(const unsigned limit)
 {
     if (m_thresholdGenesUpper != limit) {
         m_thresholdGenesUpper = limit;
@@ -131,7 +135,7 @@ void GeneRendererGL::setGenesUpperLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setGenesLowerLimit(const int limit)
+void GeneRendererGL::setGenesLowerLimit(const unsigned limit)
 {
     if (m_thresholdGenesLower != limit) {
         m_thresholdGenesLower = limit;
@@ -139,7 +143,7 @@ void GeneRendererGL::setGenesLowerLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setTotalReadsUpperLimit(const int limit)
+void GeneRendererGL::setTotalReadsUpperLimit(const unsigned limit)
 {
     if (m_thresholdTotalReadsUpper != limit) {
         m_thresholdTotalReadsUpper = limit;
@@ -147,7 +151,7 @@ void GeneRendererGL::setTotalReadsUpperLimit(const int limit)
     }
 }
 
-void GeneRendererGL::setTotalReadsLowerLimit(const int limit)
+void GeneRendererGL::setTotalReadsLowerLimit(const unsigned limit)
 {
     if (m_thresholdTotalReadsLower != limit) {
         m_thresholdTotalReadsLower = limit;
@@ -162,26 +166,19 @@ void GeneRendererGL::generateData()
     // update shader
     setupShaders();
 
-    // generate data
-    generateDataAsync();
-
-    m_isDirtyStaticData = true;
-    m_isDirtyDynamicData = true;
-    m_isInitialized = true;
-}
-
-// TODO not asynchronous for now
-void GeneRendererGL::generateDataAsync()
-{
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    foreach (DataProxy::FeaturePtr feature, m_dataProxy->getFeatureList()) {
-        Q_ASSERT(!feature.isNull());
+    for (const auto &feature : m_dataProxy->getFeatureList()) {
+        Q_ASSERT(feature);
+
+        // Get the feature's gene
+        auto gene = m_dataProxy->geneGeneObject(feature->gene());
 
         // reset to default the attributes of the gene
-        feature->geneObject()->color(Globals::DEFAULT_COLOR_GENE);
-        feature->geneObject()->selected(false);
-        feature->geneObject()->cut_off(0);
+        // NOTE not needed now as we enforce to clear/reload every time we open a dataset
+        // gene->color(Globals::DEFAULT_COLOR_GENE);
+        // gene->selected(false);
+        // gene->cut_off(0);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -198,29 +195,35 @@ void GeneRendererGL::generateDataAsync()
             index = m_geneData.addQuad(feature->x(),
                                        feature->y(),
                                        m_size,
-                                       Globals::DEFAULT_COLOR_GENE);
+                                       Visual::DEFAULT_COLOR_GENE);
             // update look up container for the quad tree
             m_geneInfoQuadTree.insert(point, index);
+            // add to list of indexes
+            m_indexes.insert(index);
         }
 
         // update look up container for the features and indexes
-        m_geneInfoByIndex.insert(index, feature);                   // multiple features per index
-        m_geneInfoByGene.insert(feature->geneObject(), index);      // multiple indexes per gene
-        m_geneInfoByFeature.insert(feature->geneObject(), feature); // multiple features per gene
-        m_geneInfoByFeatureIndex.insert(feature, index);            // one index per feature
+        // multiple features per index
+        m_geneInfoByIndex.insert(std::make_pair(index, feature));
+        // multiple indexes per gene
+        m_geneInfoByGene.insert(std::make_pair(gene, index));
+        // multiple features per gene
+        m_geneInfoByFeature.insert(std::make_pair(gene, feature));
+        // one index per feature
+        m_geneInfoByFeatureIndex.insert(std::make_pair(feature, index));
 
         // updated total reads per feature position
-        m_geneInfoTotalReadsIndex[index] += feature->hits();
+        m_geneInfoTotalReadsIndex[index] += feature->count();
 
         // update thresholds (TODO next API will contain this information so no need for this)
         ++m_geneInfoTotalGenesIndex[index];
-        const int num_genes_feature = m_geneInfoTotalGenesIndex.value(index);
-        const int feature_reads = feature->hits();
-        const int feature_total_reads = m_geneInfoTotalReadsIndex.value(index);
+        const unsigned num_genes_feature = m_geneInfoTotalGenesIndex.at(index);
+        const unsigned feature_reads = feature->count();
+        const unsigned feature_total_reads = m_geneInfoTotalReadsIndex.at(index);
 
         // updating the min-max values of the thresholds here
         // TODO in the future these values will come with the dataset info
-        // so these expensive steps will not be needed
+        // so these steps will not be needed
         m_thresholdGenesLower = std::min(num_genes_feature, m_thresholdGenesLower);
         m_thresholdGenesUpper = std::max(num_genes_feature, m_thresholdGenesUpper);
         m_thresholdReadsLower = std::min(feature_reads, m_thresholdReadsLower);
@@ -231,52 +234,70 @@ void GeneRendererGL::generateDataAsync()
     } // endforeach
 
     // compute gene's cut off
+    compuateGenesCutoff();
+
+    QGuiApplication::restoreOverrideCursor();
+
+    m_isDirtyStaticData = true;
+    m_isDirtyDynamicData = true;
+    m_isInitialized = true;
+}
+
+void GeneRendererGL::compuateGenesCutoff()
+{
     const unsigned minseglen = 2;
-    foreach(DataProxy::GenePtr gene, m_dataProxy->getGeneList()) {
-        const auto feature_list = m_geneInfoByFeature.values(gene);
-        QVector<unsigned> counts;
-        std::transform(feature_list.begin(), feature_list.end(), std::back_inserter(counts),
-                       [](DataProxy::FeaturePtr feature) { return feature->hits(); });
+    for (auto gene : m_dataProxy->getGeneList()) {
+        auto feature_list = m_geneInfoByFeature.equal_range(gene);
+        std::vector<unsigned> counts;
+        std::transform(feature_list.first,
+                       feature_list.second,
+                       counts.begin(),
+                       [](GeneInfoByFeatureMap::value_type &ele) { return ele.second->count(); });
         const size_t num_features = counts.size();
-        if (num_features < minseglen + 1  ||
-            std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
+        if (num_features < minseglen + 1
+            || std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
             const unsigned cutoff = *std::min_element(counts.begin(), counts.end());
             gene->cut_off(cutoff);
             continue;
         }
         std::sort(counts.begin(), counts.end());
-        QVector<unsigned> squared_summed_counts(counts);
-        std::transform(squared_summed_counts.begin(), squared_summed_counts.end(),
-                       squared_summed_counts.begin(), squared_summed_counts.begin(),
-                       std::multiplies<int>());
+        std::vector<unsigned> squared_summed_counts(counts);
+        std::transform(squared_summed_counts.begin(),
+                       squared_summed_counts.end(),
+                       squared_summed_counts.begin(),
+                       squared_summed_counts.begin(),
+                       std::multiplies<unsigned>());
         std::partial_sum(squared_summed_counts.begin(),
                          squared_summed_counts.end(),
                          squared_summed_counts.begin());
         squared_summed_counts.insert(squared_summed_counts.begin(), 0);
-        QVector<unsigned> taustar;
+        std::vector<unsigned> taustar;
         unsigned n = minseglen;
         std::generate_n(std::back_inserter(taustar),
                         num_features + minseglen - 2 - 2,
-                        [n]()mutable { return n++; });
-        QVector<float> tmp1;
-        QVector<float> tmp2;
-        QVector<float> tmp3;
-        const float last_count = static_cast<float>(squared_summed_counts.last());
+                        [n]() mutable { return n++; });
+        std::vector<float> tmp1;
+        std::vector<float> tmp2;
+        std::vector<float> tmp3;
+        const float last_count = static_cast<float>(squared_summed_counts.back());
         std::transform(squared_summed_counts.begin() + 2,
                        squared_summed_counts.end() - 1,
                        std::back_inserter(tmp1),
-                       [=](int count) { return count / last_count;});
-        std::transform(taustar.begin(), taustar.end(), std::back_inserter(tmp2),
-                       [=](int tau_value) { return tau_value / static_cast<float>(num_features);});
-        std::transform(tmp1.begin(), tmp1.end(), tmp2.begin(), std::back_inserter(tmp3),
-                       [](double a, double b) { return std::fabs(a-b); });
+                       [=](int count) { return count / last_count; });
+        std::transform(taustar.begin(),
+                       taustar.end(),
+                       std::back_inserter(tmp2),
+                       [=](int tau_value) { return tau_value / static_cast<float>(num_features); });
+        std::transform(tmp1.begin(),
+                       tmp1.end(),
+                       tmp2.begin(),
+                       std::back_inserter(tmp3),
+                       [](double a, double b) { return std::fabs(a - b); });
         const auto tau = std::distance(tmp3.begin(), std::max_element(tmp3.begin(), tmp3.end()));
-        const unsigned est_readcount = *std::upper_bound(counts.begin(),
-                                                         counts.end(), counts.at(tau));
+        const unsigned est_readcount
+            = *std::upper_bound(counts.begin(), counts.end(), counts.at(tau));
         gene->cut_off(est_readcount);
     }
-
-    QGuiApplication::restoreOverrideCursor();
 }
 
 void GeneRendererGL::initBasicBuffers()
@@ -393,32 +414,32 @@ void GeneRendererGL::initDynamicBuffers()
     m_isDirtyDynamicData = false;
 }
 
-int GeneRendererGL::getMinReadsThreshold() const
+unsigned GeneRendererGL::getMinReadsThreshold() const
 {
     return m_thresholdReadsLower;
 }
 
-int GeneRendererGL::getMaxReadsThreshold() const
+unsigned GeneRendererGL::getMaxReadsThreshold() const
 {
     return m_thresholdReadsUpper;
 }
 
-int GeneRendererGL::getMinGenesThreshold() const
+unsigned GeneRendererGL::getMinGenesThreshold() const
 {
     return m_thresholdGenesLower;
 }
 
-int GeneRendererGL::getMaxGenesThreshold() const
+unsigned GeneRendererGL::getMaxGenesThreshold() const
 {
     return m_thresholdGenesUpper;
 }
 
-int GeneRendererGL::getMinTotalReadsThreshold() const
+unsigned GeneRendererGL::getMinTotalReadsThreshold() const
 {
     return m_thresholdTotalReadsLower;
 }
 
-int GeneRendererGL::getMaxTotalReadsThreshold() const
+unsigned GeneRendererGL::getMaxTotalReadsThreshold() const
 {
     return m_thresholdTotalReadsUpper;
 }
@@ -431,11 +452,11 @@ void GeneRendererGL::updateSize()
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    foreach (const int index, m_geneInfoByIndex.uniqueKeys()) {
+    for (const unsigned index : m_indexes) {
         // update size of the quad for only one feature
-        // (all features of same index should have same coordinates)
-        DataProxy::FeaturePtr feature = m_geneInfoByIndex.value(index);
-        m_geneData.updateQuadSize(index, feature->x(), feature->y(), m_size);
+        // (all features of same index have same coordinates)
+        const auto feature = m_geneInfoByIndex.find(index);
+        m_geneData.updateQuadSize(index, feature->second->x(), feature->second->y(), m_size);
     }
 
     QGuiApplication::restoreOverrideCursor();
@@ -445,7 +466,7 @@ void GeneRendererGL::updateSize()
     emit updated();
 }
 
-void GeneRendererGL::updateColor(const DataProxy::GeneList& geneList)
+void GeneRendererGL::updateColor(const DataProxy::GeneList &geneList)
 {
     if (geneList.empty()) {
         return;
@@ -454,7 +475,7 @@ void GeneRendererGL::updateColor(const DataProxy::GeneList& geneList)
     updateVisual(geneList);
 }
 
-void GeneRendererGL::updateVisible(const DataProxy::GeneList& geneList)
+void GeneRendererGL::updateVisible(const DataProxy::GeneList &geneList)
 {
     if (geneList.empty()) {
         return;
@@ -465,38 +486,37 @@ void GeneRendererGL::updateVisible(const DataProxy::GeneList& geneList)
 
 void GeneRendererGL::updateGene(const DataProxy::GenePtr gene)
 {
-    if (gene.isNull()) {
+    if (!gene) {
         return;
     }
     // TODO for now update all graphical data but
-    // it is only one gene that changes
+    // it is only one gene that needs to be updated
     updateVisual();
 }
 
 void GeneRendererGL::updateVisual()
 {
     // call updateVisual with all the genes
-    updateVisual(m_geneInfoByIndex.uniqueKeys());
+    updateVisual(m_indexes);
 }
 
-void GeneRendererGL::updateVisual(const DataProxy::GeneList& geneList, const bool forceSelection)
+void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList)
 {
-    // get indexes from the list of genes
-    QList<int> unique_indexes;
-    foreach (DataProxy::GenePtr gene, geneList) {
-        unique_indexes.append(m_geneInfoByGene.values(gene));
+    // get unique indexes from the list of genes
+    IndexesList unique_indexes;
+    for (auto &gene : geneList) {
+        auto range = m_geneInfoByGene.equal_range(gene);
+        std::transform(range.first,
+                       range.second,
+                       std::inserter(unique_indexes, unique_indexes.end()),
+                       [](GeneInfoByGeneMap::value_type &ele) { return ele.second; });
     }
 
-    // make the indexes unique
-    qSort(unique_indexes.begin(), unique_indexes.end());
-    QList<int>::iterator it = std::unique(unique_indexes.begin(), unique_indexes.end());
-    unique_indexes.erase(it, unique_indexes.end());
-
     // compute the rendering information for the selected genes
-    updateVisual(unique_indexes, forceSelection);
+    updateVisual(unique_indexes);
 }
 
-void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSelection)
+void GeneRendererGL::updateVisual(const IndexesList &indexes)
 {
     if (!m_isInitialized) {
         return;
@@ -517,51 +537,42 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
     const bool pooling_tpm = m_poolingMode == PoolTPMs;
     const bool isPooled = m_visualMode == DynamicRangeMode || m_visualMode == HeatMapMode;
 
-    // iterate the index -> features container to compute the rendering data
-    foreach (const int index, indexes) {
+    // iterate the indexes (spots) to compute the visual data by going trough all the
+    // features (gene counts) in each spot
+    foreach (const auto &index, indexes) {
 
-        // check if feature's total reads/genes are inside the threshold
-        const int total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
-        const int total_genes_feature = m_geneInfoTotalGenesIndex.value(index);
-
+        // check if spot's total reads/genes are inside the total reads/genes thresholds
+        const unsigned total_reads_feature = m_geneInfoTotalReadsIndex.find(index)->second;
+        const unsigned total_genes_feature = m_geneInfoTotalGenesIndex.find(index)->second;
         if (featureGenesOutsideRange(total_genes_feature)
             || featureTotalReadsOutsideRange(total_reads_feature)) {
-            // set feature to not visible
+            // set spot to not visible
             m_geneData.updateQuadVisible(index, false);
             continue;
         }
 
-        // temp local variables to store the genes/reads/tpm/color of each feature
-        QColor indexColor = Globals::DEFAULT_COLOR_GENE;
-        int indexValue = 0;
-        int indexValueGenes = 0;
+        // temp local variables to store the color of the spot
+        QColor indexColor = Visual::DEFAULT_COLOR_GENE;
+        unsigned indexValue = 0;
+        unsigned indexValueGenes = 0;
 
-        // iterate the features to compute rendering data for an specific index (position)
-        GeneInfoByIndexMap::const_iterator it = m_geneInfoByIndex.constFind(index);
-        GeneInfoByIndexMap::const_iterator end = m_geneInfoByIndex.constEnd();
-        for (; it != end && it.key() == index; ++it) {
-            const auto feature = it.value();
+        // iterate the genes in the spot to compute rendering data for an specific index (spot)
+        auto range = m_geneInfoByIndex.equal_range(index);
+        for (auto it = range.first; it != range.second; ++it) {
+            const auto feature = it->second;
             Q_ASSERT(feature);
-            const auto gene = feature->geneObject();
+            // get the feature's gene
+            auto gene = m_dataProxy->geneGeneObject(feature->gene());
             Q_ASSERT(gene);
 
             const bool isSelected = gene->selected();
             const unsigned geneCutOff = gene->cut_off();
-            const unsigned currentHits = feature->hits();
+            const unsigned currentHits = feature->count();
 
-            // check if the reads are outside the threshold
-            if (featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
-                continue;
-            }
-
-            // if we want to enforce the selection we add the feature to the container
-            if (forceSelection) {
-                m_geneInfoSelectedFeatures.append(feature);
-            }
-
-            // we check if gene is selected here because we want to select all the genes
-            // in the feature when we are forcing selection
-            if (!isSelected) {
+            // check if the reads count of the gene in this spot are outside the threshold
+            // or the gene is not selected
+            if (featureReadsOutsideRange(currentHits)
+                || (m_genes_cutoff && currentHits < geneCutOff) || !isSelected) {
                 continue;
             }
 
@@ -572,10 +583,10 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
             // when the color of the new feature is different than the color
             // in the feature's index we do linear interpolation adjusted
             // by the number of genes in the feature to obtain the new color
-            const QColor& featureColor = gene->color();
+            const QColor &featureColor = gene->color();
             if (indexColor != featureColor) {
-                const qreal adjustment = 1.0 / indexValueGenes;
-                indexColor = STMath::lerp(adjustment, indexColor, featureColor);
+                const float adjustment = 1.0 / indexValueGenes;
+                indexColor = Math::lerp(adjustment, indexColor, featureColor);
             }
         }
 
@@ -587,7 +598,7 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
             if (pooling_genes) {
                 indexValue = indexValueGenes;
             } else if (pooling_tpm) {
-                indexValue = STMath::tpmNormalization<int>(indexValue, total_reads_feature);
+                indexValue = Math::tpmNormalization<unsigned>(indexValue, total_reads_feature);
             }
             // only update the boundaries for color computation in pooled mode
             m_localPooledMin = std::min(indexValue, m_localPooledMin);
@@ -596,7 +607,7 @@ void GeneRendererGL::updateVisual(const QList<int>& indexes, const bool forceSel
 
         // update rendering data arrays
         m_geneData.updateQuadReads(index, indexValue);
-        m_geneData.updateQuadSelected(index, visible && forceSelection);
+        m_geneData.updateQuadSelected(index, false);
         m_geneData.updateQuadVisible(index, visible);
         m_geneData.updateQuadColor(index, indexColor);
     }
@@ -617,51 +628,62 @@ void GeneRendererGL::clearSelection()
     emit updated();
 }
 
-void GeneRendererGL::selectGenes(const DataProxy::GeneList& genes)
+void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
     // Well, we have some duplicated code here but the problem
     // is that this function is invoked from the reg-exp selection tool.
-    // We want to filter out gene-features that are outside threshold
-    // so they are not included in the selection, that is why we do a little
-    // check here before creating the list of indexes
-    QSet<int> indexes;
-    foreach (DataProxy::GenePtr gene, genes) {
-        GeneInfoByFeatureMap::const_iterator it = m_geneInfoByFeature.find(gene);
-        GeneInfoByFeatureMap::const_iterator end = m_geneInfoByFeature.end();
-        for (; it != end && it.key() == gene; ++it) {
-            const auto feature = it.value();
-            Q_ASSERT(feature);
-            const auto gene = feature->geneObject();
-            Q_ASSERT(gene);
-            const unsigned geneCutOff = gene->cut_off();
-            const unsigned currentHits = feature->hits();
-            if (!featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
-                indexes.insert(m_geneInfoByFeatureIndex.value(feature));
-            }
-        }
+    // We want to make the spots visible that contain genes present in the
+    // search and we also want to select those spots
+    IndexesList unique_indexes;
+    for (const auto &gene : genes) {
+        auto range = m_geneInfoByGene.equal_range(gene);
+        std::transform(range.first,
+                       range.second,
+                       std::inserter(unique_indexes, unique_indexes.end()),
+                       [](const GeneInfoByGeneMap::value_type &ele) { return ele.second; });
     }
-    // we update the rendering data enforcing the selection to true
-    updateVisual(indexes.toList(), true);
+    // we update the rendering data
+    updateVisual(genes);
+    // we select the spots that contain the genes
+    selectSpots(unique_indexes, SelectionEvent::NewSelection);
 }
 
-const DataProxy::FeatureList& GeneRendererGL::getSelectedFeatures() const
+void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
+{
+    // get selection area
+    const QuadTreeAABB aabb(event->path());
+
+    // get selection mode
+    const SelectionEvent::SelectionMode mode = event->mode();
+
+    // get selected points from selection shape
+    GeneInfoQuadTree::PointItemList pointList;
+    m_geneInfoQuadTree.select(aabb, pointList);
+
+    // create a list of indexes from the quadtree' points.
+    IndexesList indexes;
+    std::transform(pointList.begin(),
+                   pointList.end(),
+                   std::inserter(indexes, indexes.end()),
+                   [](GeneInfoQuadTree::PointItemList::value_type &ele) { return ele.second; });
+
+    // make the selection
+    selectSpots(indexes, mode);
+}
+
+const DataProxy::FeatureList &GeneRendererGL::getSelectedFeatures() const
 {
     return m_geneInfoSelectedFeatures;
 }
 
-void GeneRendererGL::setSelectionArea(const SelectionEvent* event)
+void GeneRendererGL::selectSpots(const IndexesList &indexes,
+                                 const SelectionEvent::SelectionMode &mode)
 {
     if (!m_isInitialized) {
         return;
     }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
-    // get selection area
-    const QuadTreeAABB aabb(event->path());
-
-    // get selection mode
-    const SelectionEvent::SelectionMode mode = event->mode();
 
     // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
@@ -670,52 +692,55 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent* event)
         m_geneInfoSelectedFeatures.clear();
     }
 
-    // get selected points from selection shape
-    GeneInfoQuadTree::PointItemList pointList;
-    m_geneInfoQuadTree.select(aabb, pointList);
+    // type of selection (add or remove)
+    const bool remove_selection = (mode == SelectionEvent::ExcludeSelection);
 
     // iterate the points to get the features of each point and make
     // the selection
-    foreach (GeneInfoQuadTree::PointItem point, pointList) {
-        // get the position's index
-        const int index = point.second;
+    for (const auto &index : indexes) {
 
-        // do not select non-visible features
-        // NOTE no point to filter by genes/TPM as discarded indexes by genes/TPM
-        // will not be visible
-        if (!m_geneData.quadVisible(index)) {
+        // do not select non-visible spots or spots that are already selected in ADD mode
+        if (!m_geneData.quadVisible(index)
+            || (m_geneData.quadSelected(index) && !remove_selection)) {
             continue;
         }
 
-        // type of selection (add or remove)
-        const bool isSelected = mode != SelectionEvent::ExcludeSelection;
-
         // iterate all the features in the position to select when possible
-        foreach (DataProxy::FeaturePtr feature, m_geneInfoByIndex.values(index)) {
+        bool no_feature_selected = true;
+        auto range = m_geneInfoByIndex.equal_range(index);
+        for (auto it = range.first; it != range.second; ++it) {
             // not filtering if the feature's gene is selected
             // as we want to include in the selection all the genes
             // of the feature regardless if they are selected or not
             // we just filter features outside the threshold
-            const auto gene = feature->geneObject();
+            const auto feature = it->second;
+            Q_ASSERT(feature);
+            // get the feature's gene
+            auto gene = m_dataProxy->geneGeneObject(feature->gene());
             Q_ASSERT(gene);
             const unsigned geneCutOff = gene->cut_off();
-            const unsigned currentHits = feature->hits();
-            if (featureReadsOutsideRange(currentHits) || currentHits < geneCutOff) {
+            const unsigned currentHits = feature->count();
+            if (featureReadsOutsideRange(currentHits)
+                || (m_genes_cutoff && currentHits < geneCutOff)) {
                 continue;
             }
 
-            // update gene data and feature selected (only needed one time)
-            if (m_geneData.quadSelected(index) != isSelected) {
-                m_geneData.updateQuadSelected(index, isSelected);
-            }
+            // this means that at least one feature was selected
+            no_feature_selected = false;
 
             // update the container with selected features
-            if (isSelected) {
-                m_geneInfoSelectedFeatures.append(feature);
+            if (!remove_selection) {
+                m_geneInfoSelectedFeatures.push_back(feature);
             } else {
-                m_geneInfoSelectedFeatures.removeOne(feature);
+                m_geneInfoSelectedFeatures.erase(std::remove(m_geneInfoSelectedFeatures.begin(),
+                                                             m_geneInfoSelectedFeatures.end(),
+                                                             feature),
+                                                 m_geneInfoSelectedFeatures.end());
             }
         }
+
+        // update gene data to selected or not selected (spot)
+        m_geneData.updateQuadSelected(index, !no_feature_selected && !remove_selection);
     }
 
     QGuiApplication::restoreOverrideCursor();
@@ -745,7 +770,7 @@ void GeneRendererGL::setPoolingMode(const GenePooledMode mode)
     }
 }
 
-void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
+void GeneRendererGL::setColorComputingMode(const Visual::GeneColorMode mode)
 {
     // update color computing mode
     if (m_colorComputingMode != mode) {
@@ -756,7 +781,15 @@ void GeneRendererGL::setColorComputingMode(const Globals::GeneColorMode mode)
     }
 }
 
-void GeneRendererGL::doDraw(QOpenGLFunctionsVersion& qopengl_functions)
+void GeneRendererGL::slotSetGenesCutOff(bool enable)
+{
+    if (m_genes_cutoff != enable) {
+        m_genes_cutoff = enable;
+        updateVisual();
+    }
+}
+
+void GeneRendererGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_isInitialized) {
         return;
@@ -823,7 +856,7 @@ void GeneRendererGL::setupShaders()
     }
 }
 
-void GeneRendererGL::setDimensions(const QRectF& border)
+void GeneRendererGL::setDimensions(const QRectF &border)
 {
     m_border = border;
     m_geneInfoQuadTree.clear();
@@ -843,17 +876,17 @@ void GeneRendererGL::setShape(const GeneShape shape)
     }
 }
 
-bool GeneRendererGL::featureReadsOutsideRange(const int value)
+bool GeneRendererGL::featureReadsOutsideRange(const unsigned value)
 {
     return (value < m_thresholdReadsLower || value > m_thresholdReadsUpper);
 }
 
-bool GeneRendererGL::featureGenesOutsideRange(const int value)
+bool GeneRendererGL::featureGenesOutsideRange(const unsigned value)
 {
     return (value < m_thresholdGenesLower || value > m_thresholdGenesUpper);
 }
 
-bool GeneRendererGL::featureTotalReadsOutsideRange(const int value)
+bool GeneRendererGL::featureTotalReadsOutsideRange(const unsigned value)
 {
     return (value < m_thresholdTotalReadsLower || value > m_thresholdTotalReadsUpper);
 }

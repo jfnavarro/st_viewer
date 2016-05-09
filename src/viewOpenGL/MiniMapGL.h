@@ -19,16 +19,16 @@ class MiniMapGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-    explicit MiniMapGL(QObject* parent = 0);
+    explicit MiniMapGL(QObject *parent = 0);
     virtual ~MiniMapGL();
 
     const QColor sceneColor() const;
     const QColor viewColor() const;
 
     // need to handle the user mouse events for moving the minimap
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     // clear all the data
     void clearData();
@@ -38,31 +38,31 @@ public slots:
     // TODO slots should have the prefix "slot"
 
     // to change minimap's colors
-    void setViewColor(const QColor& viewColor);
-    void setSceneColor(const QColor& sceneColor);
+    void setViewColor(const QColor &viewColor);
+    void setSceneColor(const QColor &sceneColor);
 
     // to adjust minimap with the view's size
-    void setScene(const QRectF& scene);
-    void setViewPort(const QRectF& view);
+    void setScene(const QRectF &scene);
+    void setViewPort(const QRectF &view);
 
     // to adjust minimap with the view's transformations
-    void setParentSceneTransformations(const QTransform& transform);
+    void setParentSceneTransformations(const QTransform &transform);
 
 signals:
 
     // to notify the CellGlView when the user has interacted with the minimap
-    void signalCenterOn(const QPointF& point);
+    void signalCenterOn(const QPointF &point);
 
 protected:
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent*) override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // internal functions to adjust minimap's size and position
     QTransform localTransform() const;
-    void centerOnLocalPos(const QPointF& localPoint);
+    void centerOnLocalPos(const QPointF &localPoint);
 
     // mini versions
     QRectF m_scene;

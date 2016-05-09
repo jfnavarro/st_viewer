@@ -17,12 +17,13 @@ class ImageTextureGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-    explicit ImageTextureGL(QObject* parent = 0);
+    explicit ImageTextureGL(QObject *parent = 0);
     virtual ~ImageTextureGL();
 
-    // will split the image into small textures of fixed size in an asynchronous way
+    // will split the image into small textures of fixed size in an asynchronous
+    // way
     // using createTiles and returning the future object
-    QFuture<void> createTexture(const QByteArray& imageByteArray);
+    QFuture<void> createTexture(const QByteArray &imageByteArray);
 
     // will remove and destroy all textures
     void clearData();
@@ -36,25 +37,26 @@ public:
 public slots:
 
     // to adjust intensity of the textures
-    void setIntensity(qreal intensity);
+    void setIntensity(float intensity);
 
 protected:
-    void setSelectionArea(const SelectionEvent*) override;
+    void setSelectionArea(const SelectionEvent *) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion& qopengl_functions) override;
+    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
-    // internal functions to create a texture from an image and add it to the rendering list
-    void addTexture(const QImage& image, const int x = 0, const int y = 0);
+    // internal functions to create a texture from an image and add it to the
+    // rendering list
+    void addTexture(const QImage &image, const unsigned x = 0, const unsigned y = 0);
 
     // internal function to remove and clean textures
     void clearTextures();
     void clearNodes();
 
-    QVector<QOpenGLTexture*> m_textures;
+    QVector<QOpenGLTexture *> m_textures;
     QVector<QVector2D> m_textures_indices;
     QVector<QVector2D> m_texture_coords;
-    qreal m_intensity;
+    float m_intensity;
     QRectF m_bounds;
     bool m_isInitialized;
 

@@ -2,8 +2,6 @@
 #define TOKENSTORAGE_H
 
 #include <QSettings>
-#include <QPointer>
-#include "utils/Utils.h"
 
 class QUuid;
 class QString;
@@ -18,9 +16,9 @@ public:
     ~TokenStorage();
 
     // Setters
-    void setAccessToken(const QUuid& accessToken);
-    void setAccessToken(const QUuid& accessToken, int expiresIn);
-    void setRefreshToken(const QUuid& refreshToken);
+    void setAccessToken(const QUuid &accessToken);
+    void setAccessToken(const QUuid &accessToken, int expiresIn);
+    void setRefreshToken(const QUuid &refreshToken);
 
     // If the access token has expired or not
     bool isExpired() const;
@@ -37,7 +35,7 @@ public:
     void cleanAll();
 
 private:
-    QPointer<QSettings> m_storage;
+    QScopedPointer<QSettings> m_storage;
 
     Q_DISABLE_COPY(TokenStorage)
 };

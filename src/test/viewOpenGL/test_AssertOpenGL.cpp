@@ -14,7 +14,7 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 namespace unit
 {
 
-OpenGLAssertTest::OpenGLAssertTest(QObject* parent)
+OpenGLAssertTest::OpenGLAssertTest(QObject *parent)
     : QObject(parent)
 {
 }
@@ -32,8 +32,8 @@ void OpenGLAssertTest::test_checkOpenGLErrorWithNoErrors()
     const int framesVisible = 4;
 
     // We expect that the default OpenGL app has no OpenGL errors.
-    auto test_OpenGL_has_no_error
-        = [=](void) { QVERIFY2(checkOpenGLError(), "checkOpenGLError returned false."); };
+    auto test_OpenGL_has_no_error =
+        [=](void) { QVERIFY2(checkOpenGLError(), "checkOpenGLError returned false."); };
 
     OpenGLTestWindow::run(framesVisible, test_OpenGL_has_no_error);
 }
@@ -44,7 +44,7 @@ void OpenGLAssertTest::test_checkOpenGLErrorDetectsError()
 
     // Create an error and check that we detect it.
     auto test_OpenGL_error_detected = [=](void) {
-        QOpenGLFunctions* funcs = QOpenGLContext::currentContext()->functions();
+        QOpenGLFunctions *funcs = QOpenGLContext::currentContext()->functions();
         QVERIFY2(funcs, "No OpenGL context found.");
 
         // glEnable does not accept GL_LINE as an argument: causes GL_INVALID_ENUM.

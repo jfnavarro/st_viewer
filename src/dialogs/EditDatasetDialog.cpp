@@ -2,7 +2,7 @@
 
 #include "ui_editDatasetDialog.h"
 
-EditDatasetDialog::EditDatasetDialog(QWidget* parent, Qt::WindowFlags f)
+EditDatasetDialog::EditDatasetDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::editDatasetDialog)
 {

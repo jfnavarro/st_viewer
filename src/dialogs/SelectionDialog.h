@@ -21,14 +21,16 @@ class SelectionDialog : public QDialog
 public:
     typedef DataProxy::GeneList GeneList;
 
-    SelectionDialog(QPointer<DataProxy> dataProxy, QWidget* parent = 0, Qt::WindowFlags f = 0);
+    SelectionDialog(QSharedPointer<DataProxy> dataProxy,
+                    QWidget *parent = 0,
+                    Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
     // returns the list of genes found in the reg-exp
-    const GeneList& selectedGenes() const;
+    const GeneList &selectedGenes() const;
 
     // launches the dialog
-    static const GeneList selectGenes(QPointer<DataProxy> dataProxy, QWidget* parent = 0);
+    static const GeneList selectGenes(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
 
 signals:
 
@@ -39,7 +41,7 @@ public slots:
     // to get the list of selected genes from the reg-exp
     void accept() override;
     // to validate or not the reg-exp
-    void slotValidateRegExp(const QString& pattern);
+    void slotValidateRegExp(const QString &pattern);
     // to include or not ambiguos genes in the selection
     void slotIncludeAmbiguous(bool includeAmbiguous);
     // to enable/disable case sensitivigy in the reg-exp
@@ -50,7 +52,7 @@ public slots:
     void slotEnableAcceptAction(bool enableAcceptAction);
 
 private:
-    std::unique_ptr<Ui::SelectionDialog> m_ui;
+    QScopedPointer<Ui::SelectionDialog> m_ui;
 
     // configuration variables
     bool m_includeAmbiguous;
@@ -63,7 +65,7 @@ private:
     GeneList m_selectedGeneList;
 
     // ref to DataProxy
-    QPointer<DataProxy> m_dataProxy;
+    QSharedPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(SelectionDialog)
 };

@@ -12,14 +12,15 @@ Contact : Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 namespace unit
 {
 
-// Tests associated with the OpenGLAssert.h file. We cannot test an actual assert, so we test
+// Tests associated with the OpenGLAssert.h file. We cannot test an actual
+// assert, so we test
 // the components used by the OpenGL assert macro.
 class OpenGLAssertTest : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit OpenGLAssertTest(QObject* parent = 0);
+    explicit OpenGLAssertTest(QObject *parent = 0);
 
 private Q_SLOTS:
 

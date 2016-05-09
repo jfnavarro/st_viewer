@@ -1,17 +1,16 @@
 #include "NetworkError.h"
 
-#include "utils/Utils.h"
 #include <QApplication>
 
-static const char* LOC_CONTEXT = "NetworkError";
+static const char *LOC_CONTEXT = "NetworkError";
 
-NetworkError::NetworkError(QObject* parent)
+NetworkError::NetworkError(QObject *parent)
     : Error(parent)
 {
     init(QNetworkReply::NoError);
 }
 
-NetworkError::NetworkError(QNetworkReply::NetworkError error, QObject* parent)
+NetworkError::NetworkError(QNetworkReply::NetworkError error, QObject *parent)
     : Error(parent)
 {
     init(error);

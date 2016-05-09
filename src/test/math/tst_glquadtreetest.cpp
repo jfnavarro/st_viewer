@@ -9,7 +9,7 @@ Q_DECLARE_METATYPE(QList<QPointF>)
 namespace unit
 {
 
-GLQuadTreeTest::GLQuadTreeTest(QObject* parent)
+GLQuadTreeTest::GLQuadTreeTest(QObject *parent)
     : QObject(parent)
 {
 }

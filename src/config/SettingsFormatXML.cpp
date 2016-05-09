@@ -9,7 +9,7 @@
 // format, default '/'
 const QChar SettingsFormatXML::GROUP_DELIMITER = QDir::separator();
 
-bool SettingsFormatXML::readXMLFile(QIODevice& device, QSettings::SettingsMap& map)
+bool SettingsFormatXML::readXMLFile(QIODevice &device, QSettings::SettingsMap &map)
 {
     Q_UNUSED(device);
 
@@ -44,7 +44,7 @@ bool SettingsFormatXML::readXMLFile(QIODevice& device, QSettings::SettingsMap& m
     return true;
 }
 
-bool SettingsFormatXML::writeXMLFile(QIODevice& device, const QSettings::SettingsMap& map)
+bool SettingsFormatXML::writeXMLFile(QIODevice &device, const QSettings::SettingsMap &map)
 {
     Q_UNUSED(device);
     Q_UNUSED(map);

@@ -6,7 +6,7 @@
 namespace unit
 {
 
-MathExtendedTest::MathExtendedTest(QObject* parent)
+MathExtendedTest::MathExtendedTest(QObject *parent)
     : QObject(parent)
 {
 }
@@ -28,7 +28,7 @@ void MathExtendedTest::testFloatMod()
     QFETCH(qreal, result);
     QFETCH(bool, expected);
 
-    QCOMPARE(qFuzzyCompare(STMath::qMod(dividend, divisor), result), expected);
+    QCOMPARE(qFuzzyCompare(Math::qMod(dividend, divisor), result), expected);
 }
 void MathExtendedTest::testFloatMod_data()
 {
@@ -48,7 +48,7 @@ void MathExtendedTest::testFloatMod_data()
 }
 
 // helper function
-bool fuzzyCompare(const QSizeF& s1, const QSizeF& s2)
+bool fuzzyCompare(const QSizeF &s1, const QSizeF &s2)
 {
     return qFuzzyCompare(s1.width(), s2.width()) && qFuzzyCompare(s1.height(), s2.height());
 }
@@ -62,7 +62,7 @@ void MathExtendedTest::testClamp()
     QFETCH(uint, mode);
     QFETCH(bool, expected);
 
-    QCOMPARE(fuzzyCompare(STMath::clamp(size, min, max, static_cast<Qt::AspectRatioMode>(mode)),
+    QCOMPARE(fuzzyCompare(Math::clamp(size, min, max, static_cast<Qt::AspectRatioMode>(mode)),
                           result),
              expected);
 }

@@ -14,7 +14,7 @@ ImageAlignment::ImageAlignment()
 {
 }
 
-ImageAlignment::ImageAlignment(const ImageAlignment& other)
+ImageAlignment::ImageAlignment(const ImageAlignment &other)
     : m_id(other.m_id)
     , m_name(other.m_name)
     , m_chipId(other.m_chipId)
@@ -30,7 +30,7 @@ ImageAlignment::~ImageAlignment()
 {
 }
 
-ImageAlignment& ImageAlignment::operator=(const ImageAlignment& other)
+ImageAlignment &ImageAlignment::operator=(const ImageAlignment &other)
 {
     m_id = other.m_id;
     m_name = other.m_name;
@@ -43,13 +43,11 @@ ImageAlignment& ImageAlignment::operator=(const ImageAlignment& other)
     return (*this);
 }
 
-bool ImageAlignment::operator==(const ImageAlignment& other) const
+bool ImageAlignment::operator==(const ImageAlignment &other) const
 {
     return (m_id == other.m_id && m_name == other.m_name && m_chipId == other.m_chipId
-            && m_figureBlue == other.m_figureBlue
-            && m_figureRed == other.m_figureRed
-            && m_alignment == other.m_alignment
-            && m_created == other.m_created
+            && m_figureBlue == other.m_figureBlue && m_figureRed == other.m_figureRed
+            && m_alignment == other.m_alignment && m_created == other.m_created
             && m_lastModified == other.m_lastModified);
 }
 
@@ -93,42 +91,42 @@ const QString ImageAlignment::lastModified() const
     return m_lastModified;
 }
 
-void ImageAlignment::id(const QString& id)
+void ImageAlignment::id(const QString &id)
 {
     m_id = id;
 }
 
-void ImageAlignment::name(const QString& name)
+void ImageAlignment::name(const QString &name)
 {
     m_name = name;
 }
 
-void ImageAlignment::chipId(const QString& chipId)
+void ImageAlignment::chipId(const QString &chipId)
 {
     m_chipId = chipId;
 }
 
-void ImageAlignment::figureRed(const QString& figureRed)
+void ImageAlignment::figureRed(const QString &figureRed)
 {
     m_figureRed = figureRed;
 }
 
-void ImageAlignment::figureBlue(const QString& figureBlue)
+void ImageAlignment::figureBlue(const QString &figureBlue)
 {
     m_figureBlue = figureBlue;
 }
 
-void ImageAlignment::alignment(const QTransform& alignment)
+void ImageAlignment::alignment(const QTransform &alignment)
 {
     m_alignment = alignment;
 }
 
-void ImageAlignment::created(const QString& created)
+void ImageAlignment::created(const QString &created)
 {
     m_created = created;
 }
 
-void ImageAlignment::lastModified(const QString& lastModified)
+void ImageAlignment::lastModified(const QString &lastModified)
 {
     m_lastModified = lastModified;
 }

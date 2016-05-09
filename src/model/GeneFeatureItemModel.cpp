@@ -9,7 +9,7 @@
 
 static const int COLUMN_NUMBER = 4;
 
-GeneFeatureItemModel::GeneFeatureItemModel(QObject* parent)
+GeneFeatureItemModel::GeneFeatureItemModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
 }
@@ -18,14 +18,14 @@ GeneFeatureItemModel::~GeneFeatureItemModel()
 {
 }
 
-QVariant GeneFeatureItemModel::data(const QModelIndex& index, int role) const
+QVariant GeneFeatureItemModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || m_genelist_reference.isEmpty()) {
+    if (!index.isValid() || m_genelist_reference.empty()) {
         return QVariant(QVariant::Invalid);
     }
 
     DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-    Q_ASSERT(!item.isNull());
+    Q_ASSERT(item);
 
     if (role == Qt::DisplayRole && index.column() == Name) {
         return item->name();
@@ -69,7 +69,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex &index, const QVariant &val
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-        Q_ASSERT(!item.isNull());
+        Q_ASSERT(item);
         const unsigned new_cutoff = value.toUInt();
         if (item->cut_off() != new_cutoff && new_cutoff > 0) {
             item->cut_off(new_cutoff);
@@ -134,17 +134,17 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
     return QVariant(QVariant::Invalid);
 }
 
-int GeneFeatureItemModel::rowCount(const QModelIndex& parent) const
+int GeneFeatureItemModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_genelist_reference.count();
+    return parent.isValid() ? 0 : m_genelist_reference.size();
 }
 
-int GeneFeatureItemModel::columnCount(const QModelIndex& parent) const
+int GeneFeatureItemModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
-Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
+Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
 
@@ -166,10 +166,9 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex& index) const
     return defaultFlags;
 }
 
-void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList& geneList)
+void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList &geneList)
 {
     beginResetModel();
-    m_genelist_reference.clear();
     m_genelist_reference = geneList;
     endResetModel();
 }
@@ -181,14 +180,14 @@ void GeneFeatureItemModel::clearGenes()
     endResetModel();
 }
 
-bool GeneFeatureItemModel::geneName(const QModelIndex& index, QString* genename) const
+bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
 {
-    if (!index.isValid() || m_genelist_reference.isEmpty()) {
+    if (!index.isValid() || m_genelist_reference.empty()) {
         return false;
     }
 
     DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-    Q_ASSERT(!item.isNull());
+    Q_ASSERT(item);
 
     if (index.column() == Name) {
         *genename = item->name();
@@ -198,21 +197,21 @@ bool GeneFeatureItemModel::geneName(const QModelIndex& index, QString* genename)
     return false;
 }
 
-void GeneFeatureItemModel::setGeneVisibility(const QItemSelection& selection, bool visible)
+void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
 {
-    if (m_genelist_reference.isEmpty()) {
+    if (m_genelist_reference.empty()) {
         return;
     }
 
     std::set<int> rows;
-    for (const auto& index : selection.indexes()) {
+    for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::GeneList geneList;
-    for (const auto& row : rows) {
+    for (const auto &row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (!gene.isNull() && gene->selected() != visible) {
+        if (!gene && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
         }
@@ -221,21 +220,21 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection& selection, bo
     emit signalSelectionChanged(geneList);
 }
 
-void GeneFeatureItemModel::setGeneColor(const QItemSelection& selection, const QColor& color)
+void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const QColor &color)
 {
-    if (m_genelist_reference.isEmpty()) {
+    if (m_genelist_reference.empty()) {
         return;
     }
 
     std::set<int> rows;
-    for (const auto& index : selection.indexes()) {
+    for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::GeneList geneList;
-    for (const auto& row : rows) {
+    for (const auto &row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (!gene.isNull() && color.isValid() && gene->color() != color) {
+        if (!gene && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
         }

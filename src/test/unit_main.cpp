@@ -23,7 +23,7 @@
 
 using namespace unit;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     Q_UNUSED(argc);
     Q_UNUSED(argv);

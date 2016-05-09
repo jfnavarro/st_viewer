@@ -11,7 +11,7 @@
 
 static const int COLUMN_NUMBER = 9;
 
-DatasetItemModel::DatasetItemModel(QObject* parent)
+DatasetItemModel::DatasetItemModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
 }
@@ -20,21 +20,21 @@ DatasetItemModel::~DatasetItemModel()
 {
 }
 
-bool DatasetItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool DatasetItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     return QAbstractItemModel::setData(index, value, role);
 }
 
-QVariant DatasetItemModel::data(const QModelIndex& index, int role) const
+QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
 {
     // early out
-    if (!index.isValid() || m_datasets_reference.isEmpty()) {
+    if (!index.isValid() || m_datasets_reference.empty()) {
         return QVariant(QVariant::Invalid);
     }
 
     if (role == Qt::DisplayRole) {
         DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
-        Q_ASSERT(!item.isNull());
+        Q_ASSERT(item);
         switch (index.column()) {
         case Name:
             return item->name();
@@ -152,39 +152,38 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant(QVariant::Invalid);
 }
 
-int DatasetItemModel::columnCount(const QModelIndex& parent) const
+int DatasetItemModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
-int DatasetItemModel::rowCount(const QModelIndex& parent) const
+int DatasetItemModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_datasets_reference.count();
+    return parent.isValid() ? 0 : m_datasets_reference.size();
 }
 
-Qt::ItemFlags DatasetItemModel::flags(const QModelIndex& index) const
+Qt::ItemFlags DatasetItemModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
     return defaultFlags;
 }
 
-void DatasetItemModel::loadDatasets(const DataProxy::DatasetList& datasetList)
+void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
 {
     beginResetModel();
-    m_datasets_reference.clear();
     m_datasets_reference = datasetList;
     endResetModel();
 }
 
-DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection& selection)
+DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection &selection)
 {
     std::set<int> rows;
-    for (const auto& index : selection.indexes()) {
+    for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::DatasetList datasetList;
-    for (const auto& row : rows) {
+    for (const auto &row : rows) {
         auto selection = m_datasets_reference.at(row);
         datasetList.push_back(selection);
     }

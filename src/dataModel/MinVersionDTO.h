@@ -19,14 +19,14 @@ class MinVersionDTO : public QObject
     Q_PROPERTY(QString minSupportedClientVersion READ minSupportedVersion WRITE minSupportedVersion)
 
 public:
-    explicit MinVersionDTO(QObject* parent = 0)
+    explicit MinVersionDTO(QObject *parent = 0)
         : QObject(parent)
     {
     }
     ~MinVersionDTO() {}
 
     // binding
-    const QString& minSupportedVersion() const { return m_minVersion; }
+    const QString &minSupportedVersion() const { return m_minVersion; }
 
     std::array<qulonglong, 3> minVersionAsNumber() const
     {
@@ -49,7 +49,7 @@ public:
     }
 
     // getters
-    void minSupportedVersion(const QString& minVersion) { m_minVersion = minVersion; }
+    void minSupportedVersion(const QString &minVersion) { m_minVersion = minVersion; }
 
 private:
     QString m_minVersion;

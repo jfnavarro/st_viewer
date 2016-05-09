@@ -19,10 +19,10 @@ class OAuth2TokenDTO : public QObject
     Q_PROPERTY(QString token_type READ tokenType WRITE tokenType)
     Q_PROPERTY(QString refresh_token READ refreshToken WRITE refreshToken)
     Q_PROPERTY(QString m_scope READ scope WRITE scope)
-    Q_PROPERTY(int expires_in READ expiresIn WRITE expiresIn)
+    Q_PROPERTY(unsigned expires_in READ expiresIn WRITE expiresIn)
 
 public:
-    explicit OAuth2TokenDTO(QObject* parent = 0)
+    explicit OAuth2TokenDTO(QObject *parent = 0)
         : QObject(parent)
         , m_accessToken()
         , m_tokenType()
@@ -32,7 +32,7 @@ public:
     {
     }
 
-    OAuth2TokenDTO(const OAuth2TokenDTO& other)
+    OAuth2TokenDTO(const OAuth2TokenDTO &other)
         : QObject(other.parent())
         , m_accessToken(other.accessToken())
         , m_tokenType(other.tokenType())
@@ -42,7 +42,7 @@ public:
     {
     }
 
-    OAuth2TokenDTO& operator=(const OAuth2TokenDTO& other)
+    OAuth2TokenDTO &operator=(const OAuth2TokenDTO &other)
     {
         m_accessToken = other.accessToken();
         m_tokenType = other.tokenType();
@@ -55,25 +55,25 @@ public:
     ~OAuth2TokenDTO() {}
 
     // binding
-    const QString& accessToken() const { return m_accessToken; }
-    const QString& tokenType() const { return m_tokenType; }
-    const QString& refreshToken() const { return m_refreshToken; }
-    const QString& scope() const { return m_scopeType; }
-    int expiresIn() const { return m_expiresIn; }
+    const QString &accessToken() const { return m_accessToken; }
+    const QString &tokenType() const { return m_tokenType; }
+    const QString &refreshToken() const { return m_refreshToken; }
+    const QString &scope() const { return m_scopeType; }
+    unsigned expiresIn() const { return m_expiresIn; }
 
     // getters
-    void accessToken(const QString& accessToken) { m_accessToken = accessToken; }
-    void tokenType(const QString& tokenType) { m_tokenType = tokenType; }
-    void refreshToken(const QString& refreshToken) { m_refreshToken = refreshToken; }
-    void scope(const QString& scope) { m_scopeType = scope; }
-    void expiresIn(int expiresIn) { m_expiresIn = expiresIn; }
+    void accessToken(const QString &accessToken) { m_accessToken = accessToken; }
+    void tokenType(const QString &tokenType) { m_tokenType = tokenType; }
+    void refreshToken(const QString &refreshToken) { m_refreshToken = refreshToken; }
+    void scope(const QString &scope) { m_scopeType = scope; }
+    void expiresIn(unsigned expiresIn) { m_expiresIn = expiresIn; }
 
 private:
     QString m_accessToken;
     QString m_tokenType;
     QString m_refreshToken;
     QString m_scopeType;
-    int m_expiresIn;
+    unsigned m_expiresIn;
 };
 
 #endif // OAUTH2TOKENDTO_H //

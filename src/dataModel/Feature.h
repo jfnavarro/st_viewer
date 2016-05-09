@@ -2,65 +2,61 @@
 #define FEATURE_H
 
 #include <QString>
-#include <QColor>
-#include <QSharedPointer>
-
-#include "Gene.h"
+#include <unordered_set>
+#include <unordered_map>
 
 // Data model class to store feature data
 // A feature corresponds to a tuple (barcode or spot in the array)
 // and a gene. In each barcode/spot there can be up to 20k genes.
 // The coordinates x,y refers to chip coordinates but the chip object
-// contains an affine matrix that converts chip coordinates to image pixel coordinates
+// contains an affine matrix that converts chip coordinates to image pixel
+// coordinates
 // which is what we eventually visualize in the cell view.
 class Feature
 {
 
 public:
-    // TODO duplicated in DataProxy
-    typedef QSharedPointer<Gene> GenePtr;
+    // Only for pairs of std::hash-able types for simplicity.
+    // You can of course template this struct to allow other hash functions
+    struct pair_hash {
+        template <class T1, class T2>
+        std::size_t operator()(const std::pair<T1, T2> &p) const
+        {
+            return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
+        }
+    };
+    typedef std::pair<unsigned, unsigned> SpotType;
+    typedef std::unordered_set<SpotType, pair_hash> UniqueSpotsType;
+    typedef std::unordered_map<Feature::SpotType, unsigned, pair_hash> spotTotalCounts;
+    typedef std::unordered_map<QString, unsigned> geneTotalCounts;
 
     Feature();
-    explicit Feature(const Feature& other);
-    Feature(QString barcode, QString gene, double x, double y, int hits);
+    explicit Feature(const Feature &other);
+    Feature(const QString &gene, unsigned x, unsigned y, unsigned count);
     ~Feature();
 
-    Feature& operator=(const Feature& other);
-    bool operator==(const Feature& other) const;
+    Feature &operator=(const Feature &other);
+    bool operator==(const Feature &other) const;
 
-    // barcode corresponds to the DNA ID of the spot
-    const QString barcode() const;
-    // the name of the gene
     const QString gene() const;
-    const QString annotation() const;
-    // the number of reads
-    unsigned hits() const;
-    // the coordinates of the spot
-    double x() const;
-    double y() const;
+    // count represents the expression level
+    unsigned count() const;
+    unsigned x() const;
+    unsigned y() const;
+    // the coordinates of the spot in the array
+    SpotType spot() const;
 
-    void barcode(const QString& barcode);
-    void gene(const QString& gene);
-    void annotation(const QString& annotation);
-    void hits(unsigned hits);
-    void x(double x);
-    void y(double y);
-
-    // Reference to the Gene object just for convenience
-    // this reference will be instantiated when the features are parsed
-    GenePtr geneObject() const;
-    void geneObject(GenePtr gene);
+    void gene(const QString &gene);
+    void count(unsigned count);
+    void x(unsigned x);
+    void y(unsigned y);
 
 protected:
-    QString m_barcode;
+    // basic attributes
     QString m_gene;
-    QString m_annotation;
-    unsigned m_hits;
-    double m_x;
-    double m_y;
-
-    // extended attribute
-    GenePtr m_geneObject;
+    unsigned m_count;
+    unsigned m_x;
+    unsigned m_y;
 };
 
 #endif // FEATURE_H

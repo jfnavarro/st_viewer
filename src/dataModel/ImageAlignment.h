@@ -17,30 +17,32 @@ class ImageAlignment
 {
 public:
     ImageAlignment();
-    explicit ImageAlignment(const ImageAlignment& other);
+    explicit ImageAlignment(const ImageAlignment &other);
     ~ImageAlignment();
 
-    ImageAlignment& operator=(const ImageAlignment& other);
-    bool operator==(const ImageAlignment& other) const;
+    ImageAlignment &operator=(const ImageAlignment &other);
+    bool operator==(const ImageAlignment &other) const;
 
-    // ID corresponds to the DB Id given to the object
+    // ID corresponds to the database Id
     const QString id();
     const QString name() const;
+    // ID corresponds to the database Id of the chip
     const QString chipId() const;
     const QString figureRed() const;
     const QString figureBlue() const;
+    // 3x3 affine matrix to transform array coordinates to image coordinates
     const QTransform alignment() const;
     const QString created() const;
     const QString lastModified() const;
 
-    void id(const QString& id);
-    void name(const QString& name);
-    void chipId(const QString& chipId);
-    void figureRed(const QString& figureRed);
-    void figureBlue(const QString& figureBlue);
-    void alignment(const QTransform& alignment);
-    void created(const QString& created);
-    void lastModified(const QString& lastModified);
+    void id(const QString &id);
+    void name(const QString &name);
+    void chipId(const QString &chipId);
+    void figureRed(const QString &figureRed);
+    void figureBlue(const QString &figureBlue);
+    void alignment(const QTransform &alignment);
+    void created(const QString &created);
+    void lastModified(const QString &lastModified);
 
 private:
     QString m_id;

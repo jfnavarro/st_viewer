@@ -1,12 +1,13 @@
 #include "GraphicItemGL.h"
-#include "AssertOpenGL.h"
 
 #include <QVector3D>
 #include <QtOpenGL>
 
-GraphicItemGL::GraphicItemGL(QObject* parent)
+#include "AssertOpenGL.h"
+
+GraphicItemGL::GraphicItemGL(QObject *parent)
     : QObject(parent)
-    , m_anchor(Globals::Anchor::NorthWest)
+    , m_anchor(Visual::Anchor::NorthWest)
 {
 }
 
@@ -73,12 +74,12 @@ void GraphicItemGL::setVisible(bool value)
     setVisualOption(VisualOption::Visible, value);
 }
 
-Globals::Anchor GraphicItemGL::anchor() const
+Visual::Anchor GraphicItemGL::anchor() const
 {
     return m_anchor;
 }
 
-void GraphicItemGL::setAnchor(Globals::Anchor anchor)
+void GraphicItemGL::setAnchor(Visual::Anchor anchor)
 {
     if (m_anchor != anchor) {
         m_anchor = anchor;
@@ -91,22 +92,22 @@ const QTransform GraphicItemGL::transform() const
     return adjustForAnchor(m_transform);
 }
 
-void GraphicItemGL::setTransform(const QTransform& transform)
+void GraphicItemGL::setTransform(const QTransform &transform)
 {
     m_transform = transform;
 }
 
-bool GraphicItemGL::contains(const QPointF& point) const
+bool GraphicItemGL::contains(const QPointF &point) const
 {
     return boundingRect().contains(point);
 }
 
-bool GraphicItemGL::contains(const QRectF& rect) const
+bool GraphicItemGL::contains(const QRectF &rect) const
 {
     return boundingRect().contains(rect);
 }
 
-const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) const
+const QTransform GraphicItemGL::adjustForAnchor(const QTransform &transform) const
 {
     static const int padding_x = 20.0;
     static const int padding_y = 20.0;
@@ -114,38 +115,38 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     const QRectF rect = boundingRect();
     QTransform adjustedTransform = transform;
     switch (m_anchor) {
-    case Globals::Anchor::Center:
+    case Visual::Anchor::Center:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
                                     (rect.y() + rect.height()) * -0.5);
         break;
-    case Globals::Anchor::North:
+    case Visual::Anchor::North:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
         break;
-    case Globals::Anchor::NorthEast:
+    case Visual::Anchor::NorthEast:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
         break;
-    case Globals::Anchor::East:
+    case Visual::Anchor::East:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
                                     (rect.y() + rect.height()) * -0.5);
         break;
-    case Globals::Anchor::SouthEast:
+    case Visual::Anchor::SouthEast:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
                                     (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Globals::Anchor::South:
+    case Visual::Anchor::South:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
                                     (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Globals::Anchor::SouthWest:
+    case Visual::Anchor::SouthWest:
         adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Globals::Anchor::West:
+    case Visual::Anchor::West:
         adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height()) * -0.5);
         break;
-    case Globals::Anchor::NorthWest:
+    case Visual::Anchor::NorthWest:
         adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
         break;
-    case Globals::Anchor::None:
+    case Visual::Anchor::None:
     // fall trough
     default:
         break;
@@ -153,25 +154,25 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform& transform) con
     return adjustedTransform;
 }
 
-void GraphicItemGL::mouseMoveEvent(QMouseEvent* event)
+void GraphicItemGL::mouseMoveEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 }
 
-void GraphicItemGL::mousePressEvent(QMouseEvent* event)
+void GraphicItemGL::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 }
 
-void GraphicItemGL::mouseReleaseEvent(QMouseEvent* event)
+void GraphicItemGL::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 }
 
 // TODO perhaps the QOpenGLFunctions_2_0 should be a member variable
-void GraphicItemGL::drawBorderRect(const QRectF& rect,
-                                   QColor color,
-                                   QOpenGLFunctionsVersion& qopengl_functions)
+void GraphicItemGL::drawBorderRect(const QRectF &rect,
+                                   const QColor &color,
+                                   QOpenGLFunctionsVersion &qopengl_functions)
 {
     const QPointF stl = rect.topLeft();
     const QPointF str = rect.topRight();
@@ -212,12 +213,12 @@ void GraphicItemGL::drawBorderRect(const QRectF& rect,
     qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void GraphicItemGL::setProjection(const QMatrix4x4& projection)
+void GraphicItemGL::setProjection(const QMatrix4x4 &projection)
 {
     m_projection = projection;
 }
 
-void GraphicItemGL::setModelView(const QMatrix4x4& modelview)
+void GraphicItemGL::setModelView(const QMatrix4x4 &modelview)
 {
     m_modelView = modelview;
 }
@@ -232,7 +233,7 @@ const QMatrix4x4 GraphicItemGL::getModelView() const
     return m_modelView;
 }
 
-void GraphicItemGL::draw(QOpenGLFunctionsVersion& qpengl_functions)
+void GraphicItemGL::draw(QOpenGLFunctionsVersion &qpengl_functions)
 {
     ASSERT_OPENGL_OK;
     // Call overridden method.

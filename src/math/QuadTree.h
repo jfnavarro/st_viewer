@@ -27,22 +27,22 @@ public:
     typedef QVector<QuadTreeAABB> BoundingBoxList;
 
     QuadTree();
-    explicit QuadTree(const QSizeF& size);
-    explicit QuadTree(const QuadTreeAABB& boundingBox);
-    explicit QuadTree(const QRectF& rect);
+    explicit QuadTree(const QSizeF &size);
+    explicit QuadTree(const QuadTreeAABB &boundingBox);
+    explicit QuadTree(const QRectF &rect);
     ~QuadTree();
 
-    bool contains(const QPointF& p) const;
+    bool contains(const QPointF &p) const;
 
     // insert new data at point p returning true if  data was successfully
     // inserted (no data exists on that point).
-    bool insert(const QPointF& p, const T& t);
+    bool insert(const QPointF &p, const T &t);
 
     // return a list of all items within the given area
-    void select(const QuadTreeAABB& b, PointItemList& items) const;
+    void select(const QuadTreeAABB &b, PointItemList &items) const;
 
     // return the item at the specified point
-    void select(const QPointF& p, PointItem& item) const;
+    void select(const QPointF &p, PointItem &item) const;
 
     // clean up
     void clear();
@@ -50,10 +50,10 @@ public:
     int buckets() const;
     int bucketCapacity() const;
 
-    void boundingBoxList(BoundingBoxList& buckets) const;
+    void boundingBoxList(BoundingBoxList &buckets) const;
 
 private:
-    int insert_p(const QPointF& p, const T& t, const int idx);
+    int insert_p(const QPointF &p, const T &t, const int idx);
     void smash(const int idx);
 
     // Simple representation of a quad tree bucket.
@@ -69,16 +69,16 @@ private:
         typedef std::array<int, 4> QuadArrayType;
 
         Bucket();
-        explicit Bucket(const QuadTreeAABB& b);
+        explicit Bucket(const QuadTreeAABB &b);
         ~Bucket();
 
-        bool contains(const QPointF& p) const;
+        bool contains(const QPointF &p) const;
 
-        int insert(const QPointF& p, const T& t);
+        int insert(const QPointF &p, const T &t);
 
-        void select(const QuadTreeAABB& b, PointItemList& items, QuadArrayType& point_array) const;
+        void select(const QuadTreeAABB &b, PointItemList &items, QuadArrayType &point_array) const;
 
-        void select(const QPointF& p, PointItem& item, QuadArrayType& point_array) const;
+        void select(const QPointF &p, PointItem &item, QuadArrayType &point_array) const;
 
         bool isNode() const;
         bool isLeaf() const;
@@ -92,10 +92,11 @@ private:
     BucketList m_data;
 };
 
-/****************************************** DEFINITION ******************************************/
+/****************************************** DEFINITION
+ * ******************************************/
 
 template <typename T, int N>
-void QuadTree<T, N>::boundingBoxList(BoundingBoxList& buckets) const
+void QuadTree<T, N>::boundingBoxList(BoundingBoxList &buckets) const
 {
     typename BucketList::const_iterator it = m_data.begin();
     typename BucketList::const_iterator end = m_data.end();
@@ -113,9 +114,9 @@ void QuadTree<T, N>::clear()
 }
 
 template <typename T, int N>
-void QuadTree<T, N>::Bucket::select(const QuadTreeAABB& b,
-                                    PointItemList& items,
-                                    QuadArrayType& point_array) const
+void QuadTree<T, N>::Bucket::select(const QuadTreeAABB &b,
+                                    PointItemList &items,
+                                    QuadArrayType &point_array) const
 {
     // early out
     if (!aabb.intersects(b)) {
@@ -153,9 +154,9 @@ void QuadTree<T, N>::Bucket::select(const QuadTreeAABB& b,
 }
 
 template <typename T, int N>
-void QuadTree<T, N>::Bucket::select(const QPointF& p,
-                                    PointItem& item,
-                                    QuadArrayType& point_array) const
+void QuadTree<T, N>::Bucket::select(const QPointF &p,
+                                    PointItem &item,
+                                    QuadArrayType &point_array) const
 {
     // early out
     if (!aabb.contains(p)) {
@@ -175,7 +176,7 @@ void QuadTree<T, N>::Bucket::select(const QPointF& p,
     // test and add individual item
     const typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if (STMath::qFuzzyEqual(p, data[i].first)) {
+        if (Math::qFuzzyEqual(p, data[i].first)) {
             item = data[i];
         }
     }
@@ -186,7 +187,7 @@ void QuadTree<T, N>::Bucket::select(const QPointF& p,
 }
 
 template <typename T, int N>
-int QuadTree<T, N>::Bucket::insert(const QPointF& p, const T& t)
+int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
 {
     static const unsigned table[] = {0u, 1u, 3u, 2u};
 
@@ -194,8 +195,8 @@ int QuadTree<T, N>::Bucket::insert(const QPointF& p, const T& t)
     if (quads[0] >= 0) {
         const QPointF middle_point = aabb.middle();
         const QVector2D middle_vector(p.x() - middle_point.x(), p.y() - middle_point.y());
-        const unsigned idx
-            = ((middle_vector.x() < 0.0) ? 1u : 0u) + ((middle_vector.y() < 0.0) ? 2u : 0u);
+        const unsigned idx = ((middle_vector.x() < 0.0) ? 1u : 0u)
+                             + ((middle_vector.y() < 0.0) ? 2u : 0u);
         const unsigned q = table[idx];
         return quads[q];
     }
@@ -203,7 +204,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF& p, const T& t)
     // DEBUG force p to be unique to avoid inf recursion!
     typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if (STMath::qFuzzyEqual(data[i].first, p)) {
+        if (Math::qFuzzyEqual(data[i].first, p)) {
             return INSERT_ERROR_NONUNIQUE;
         }
     }
@@ -219,7 +220,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF& p, const T& t)
 }
 
 template <typename T, int N>
-int QuadTree<T, N>::insert_p(const QPointF& p, const T& t, const int idx)
+int QuadTree<T, N>::insert_p(const QPointF &p, const T &t, const int idx)
 {
     // insert or smash on full
     int lastIdx;
@@ -247,7 +248,7 @@ QuadTree<T, N>::~QuadTree()
 }
 
 template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QSizeF& size)
+QuadTree<T, N>::QuadTree(const QSizeF &size)
     : m_data()
 {
     const QuadTreeAABB boundingBox = QuadTreeAABB(0.0, 0.0, size.width(), size.height());
@@ -255,14 +256,14 @@ QuadTree<T, N>::QuadTree(const QSizeF& size)
 }
 
 template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QuadTreeAABB& boundingBox)
+QuadTree<T, N>::QuadTree(const QuadTreeAABB &boundingBox)
     : m_data()
 {
     m_data.push_back(Bucket(boundingBox));
 }
 
 template <typename T, int N>
-QuadTree<T, N>::QuadTree(const QRectF& rect)
+QuadTree<T, N>::QuadTree(const QRectF &rect)
     : m_data()
 {
     const QuadTreeAABB boundingBox = QuadTreeAABB(rect);
@@ -270,7 +271,7 @@ QuadTree<T, N>::QuadTree(const QRectF& rect)
 }
 
 template <typename T, int N>
-bool QuadTree<T, N>::insert(const QPointF& p, const T& t)
+bool QuadTree<T, N>::insert(const QPointF &p, const T &t)
 {
     // early out
     if (!contains(p)) {
@@ -281,14 +282,14 @@ bool QuadTree<T, N>::insert(const QPointF& p, const T& t)
 }
 
 template <typename T, int N>
-bool QuadTree<T, N>::contains(const QPointF& p) const
+bool QuadTree<T, N>::contains(const QPointF &p) const
 {
     // only look root bucket since it by definition contains all others
     return (m_data.empty() ? false : m_data[0].contains(p));
 }
 
 template <typename T, int N>
-void QuadTree<T, N>::select(const QuadTreeAABB& b, PointItemList& items) const
+void QuadTree<T, N>::select(const QuadTreeAABB &b, PointItemList &items) const
 {
     typedef QVector<int> IndexList;
     IndexList indicies;
@@ -320,7 +321,7 @@ void QuadTree<T, N>::select(const QuadTreeAABB& b, PointItemList& items) const
 }
 
 template <typename T, int N>
-void QuadTree<T, N>::select(const QPointF& p, PointItem& item) const
+void QuadTree<T, N>::select(const QPointF &p, PointItem &item) const
 {
     typedef std::vector<int> IndexList;
     IndexList indicies;
@@ -408,7 +409,7 @@ QuadTree<T, N>::Bucket::~Bucket()
 }
 
 template <typename T, int N>
-QuadTree<T, N>::Bucket::Bucket(const QuadTreeAABB& b)
+QuadTree<T, N>::Bucket::Bucket(const QuadTreeAABB &b)
     : aabb(b)
     , data()
 {
@@ -416,7 +417,7 @@ QuadTree<T, N>::Bucket::Bucket(const QuadTreeAABB& b)
 }
 
 template <typename T, int N>
-bool QuadTree<T, N>::Bucket::contains(const QPointF& p) const
+bool QuadTree<T, N>::Bucket::contains(const QPointF &p) const
 {
     return aabb.contains(p);
 }

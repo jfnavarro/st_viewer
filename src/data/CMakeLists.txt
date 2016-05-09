@@ -13,7 +13,7 @@ set(LIBRARY_ARG_SOURCES
 )
 
 set(LIBRARY_ARG_UI_FILES
-    datasetImporter.ui
+    "${PROJECT_SOURCE_DIR}/assets/ui/datasetImporter.ui"
 )
 
 ST_LIBRARY()

@@ -16,14 +16,15 @@ class WidgetsTest : public QObject
     Q_OBJECT
 
 public:
-    explicit WidgetsTest(QObject* parent = 0);
+    explicit WidgetsTest(QObject *parent = 0);
 
 private Q_SLOTS:
 
     void initTestCase();
     void cleanupTestCase();
 
-    // This test exists because QTest reports test objects with no tests as failures.
+    // This test exists because QTest reports test objects with no tests as
+    // failures.
     void testDoesNothing();
 };
 

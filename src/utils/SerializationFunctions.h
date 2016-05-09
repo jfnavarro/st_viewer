@@ -8,17 +8,17 @@
 // to QVector and viceversa
 // TODO maybe separate definition and declaration
 template <typename N>
-const QVariantList serializeVector(const QVector<N>& unserializedVector)
+const QVariantList serializeVector(const QVector<N> &unserializedVector)
 {
     QVariantList newList;
-    foreach (const N& item, unserializedVector.toList()) {
+    for (const N &item : unserializedVector.toList()) {
         newList << QVariant::fromValue(item);
     }
     return newList;
 }
 
 template <typename N>
-const QVector<N> unserializeVector(const QVariantList& serializedVector)
+const QVector<N> unserializeVector(const QVariantList &serializedVector)
 {
     // unserialize data
     QVector<N> values;

@@ -1,10 +1,9 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/libqxt)
+include_directories(${PROJECT_SOURCE_DIR}/ext)
 
 set(LIBRARY_ARG_INCLUDES
     CellViewPage.h
     DatasetPage.h
     UserSelectionsPage.h
-    ScrollArea.h
     GenesWidget.h
     SelectionsWidget.h
 )
@@ -13,7 +12,6 @@ set(LIBRARY_ARG_SOURCES
     CellViewPage.cpp
     DatasetPage.cpp
     UserSelectionsPage.cpp
-    ScrollArea.cpp
     GenesWidget.cpp
     SelectionsWidget.cpp
 )

@@ -2,7 +2,6 @@
 #define stVi_H
 
 #include <QMainWindow>
-#include <QPointer>
 #include "data/DataProxy.h"
 
 class QSettings;
@@ -19,14 +18,16 @@ class CellViewPage;
 class UserSelectionsPage;
 class GenesWidget;
 
-// TODO we might want the cell view tool bar to be in the main window tool bar
-class stVi : public QMainWindow
+// This class represents the main window of the application
+// it is composed of a tool bar, the cell main view and the gene tables
+// it allows the user to show the datasets and the selections windows as well
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit stVi(QWidget* parent = 0);
-    ~stVi();
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
     // initialize main visual components
     void init();
@@ -49,15 +50,10 @@ private slots:
     // clear the cache and local stored files
     void slotClearCache();
 
-    // opens pop up static widget to show info about the application
+    // open pop up static widget to show info about the application
     void slotShowAbout();
 
-    // to handle when the min version or user are downloaded
-    // status the status of the network request
-    void slotMinVersionDownloaded(const DataProxy::DownloadStatus status);
-    void slotUserDownloaded(const DataProxy::DownloadStatus status);
-
-    // to handle different authorization call backs
+    // to handle different authorization call backs (success and error)
     void slotAuthorizationError(QSharedPointer<Error> error);
     void slotAuthorized();
     // when user clicks to log out, shows log in dialog
@@ -76,27 +72,27 @@ private:
     void createConnections();
 
     // overloaded close Event function to handle the exit
-    void closeEvent(QCloseEvent* event) override;
+    void closeEvent(QCloseEvent *event) override;
 
     // reference to some UI elements
-    QPointer<QAction> m_actionExit;
-    QPointer<QAction> m_actionHelp;
-    QPointer<QAction> m_actionVersion;
-    QPointer<QAction> m_actionAbout;
-    QPointer<QAction> m_actionClear_Cache;
-    QPointer<QAction> m_actionDatasets;
-    QPointer<QAction> m_actionLogOut;
-    QPointer<QAction> m_actionSelections;
+    QScopedPointer<QAction> m_actionExit;
+    QScopedPointer<QAction> m_actionHelp;
+    QScopedPointer<QAction> m_actionVersion;
+    QScopedPointer<QAction> m_actionAbout;
+    QScopedPointer<QAction> m_actionClear_Cache;
+    QScopedPointer<QAction> m_actionDatasets;
+    QScopedPointer<QAction> m_actionLogOut;
+    QScopedPointer<QAction> m_actionSelections;
 
     // stVi owns dataProxy and AuthorizationManager
-    QPointer<DataProxy> m_dataProxy;
-    QPointer<AuthorizationManager> m_authManager;
+    QSharedPointer<DataProxy> m_dataProxy;
+    QSharedPointer<AuthorizationManager> m_authManager;
 
     // different views
-    QPointer<DatasetPage> m_datasets;
-    QPointer<CellViewPage> m_cellview;
-    QPointer<UserSelectionsPage> m_user_selections;
-    QPointer<GenesWidget> m_genes;    
+    QScopedPointer<DatasetPage> m_datasets;
+    QScopedPointer<CellViewPage> m_cellview;
+    QScopedPointer<UserSelectionsPage> m_user_selections;
+    QScopedPointer<GenesWidget> m_genes;
 };
 
 #endif // stVi_H

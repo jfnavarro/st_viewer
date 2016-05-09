@@ -24,7 +24,7 @@ User::User()
 {
 }
 
-User::User(const User& other)
+User::User(const User &other)
     : m_id(other.m_id)
     , m_username(other.m_username)
     , m_instituion(other.m_instituion)
@@ -46,7 +46,7 @@ User::~User()
 {
 }
 
-User& User::operator=(const User& other)
+User &User::operator=(const User &other)
 {
     m_id = other.m_id;
     m_username = other.m_username;
@@ -65,21 +65,15 @@ User& User::operator=(const User& other)
     return (*this);
 }
 
-bool User::operator==(const User& other) const
+bool User::operator==(const User &other) const
 {
     return (m_id == other.m_id && m_username == other.m_username
-            && m_instituion == other.m_instituion
-            && m_firstName == other.m_firstName
-            && m_address == other.m_address
-            && m_postcode == other.m_postcode
-            && m_city == other.m_city
-            && m_country == other.m_country
-            && m_password == other.m_password
-            && m_role == other.m_role
-            && m_enabled == other.m_enabled
-            && m_grantedDatasets == other.m_grantedDatasets
-            && m_created == other.m_created
-            && m_lastMofidied == other.m_lastMofidied);
+            && m_instituion == other.m_instituion && m_firstName == other.m_firstName
+            && m_address == other.m_address && m_postcode == other.m_postcode
+            && m_city == other.m_city && m_country == other.m_country
+            && m_password == other.m_password && m_role == other.m_role
+            && m_enabled == other.m_enabled && m_grantedDatasets == other.m_grantedDatasets
+            && m_created == other.m_created && m_lastMofidied == other.m_lastMofidied);
 }
 
 const QString User::id() const
@@ -112,7 +106,7 @@ const QString User::address() const
     return m_address;
 }
 
-int User::postcode() const
+unsigned User::postcode() const
 {
     return m_postcode;
 }
@@ -157,57 +151,57 @@ const QString User::lastModified() const
     return m_lastMofidied;
 }
 
-void User::id(const QString& id)
+void User::id(const QString &id)
 {
     m_id = id;
 }
 
-void User::username(const QString& username)
+void User::username(const QString &username)
 {
     m_username = username;
 }
 
-void User::institution(const QString& institution)
+void User::institution(const QString &institution)
 {
     m_instituion = institution;
 }
 
-void User::firstName(const QString& firstName)
+void User::firstName(const QString &firstName)
 {
     m_firstName = firstName;
 }
 
-void User::secondName(const QString& secondName)
+void User::secondName(const QString &secondName)
 {
     m_secondName = secondName;
 }
 
-void User::address(const QString& address)
+void User::address(const QString &address)
 {
     m_address = address;
 }
 
-void User::postcode(int postCode)
+void User::postcode(unsigned postCode)
 {
     m_postcode = postCode;
 }
 
-void User::city(const QString& city)
+void User::city(const QString &city)
 {
     m_city = city;
 }
 
-void User::country(const QString& country)
+void User::country(const QString &country)
 {
     m_country = country;
 }
 
-void User::password(const QString& password)
+void User::password(const QString &password)
 {
     m_password = password;
 }
 
-void User::role(const QString& role)
+void User::role(const QString &role)
 {
     m_role = role;
 }
@@ -217,17 +211,17 @@ void User::enabled(bool enabled)
     m_enabled = enabled;
 }
 
-void User::grantedDatasets(const QVector<QString>& grantedDatasets)
+void User::grantedDatasets(const QVector<QString> &grantedDatasets)
 {
     m_grantedDatasets = grantedDatasets;
 }
 
-void User::created(const QString& created)
+void User::created(const QString &created)
 {
     m_created = created;
 }
 
-void User::lastModified(const QString& lastModified)
+void User::lastModified(const QString &lastModified)
 {
     m_lastMofidied = lastModified;
 }

@@ -10,14 +10,14 @@ namespace Ui
 class editSelectionDialog;
 } // namespace Ui //
 
-// Simple dialog that allows to edit some fields in of an UserSelection object
+// Simple dialog that allows to edit some fields in an UserSelection object
 // TODO get the types from the UserSelection meta data
 class EditSelectionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit EditSelectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    explicit EditSelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~EditSelectionDialog();
 
     const QString getName() const;
@@ -31,8 +31,8 @@ public:
     void setType(const QString type);
 
 private:
-    std::unique_ptr<Ui::editSelectionDialog> m_ui;
-    QColorDialog *m_color;
+    QScopedPointer<Ui::editSelectionDialog> m_ui;
+    QScopedPointer<QColorDialog> m_color;
 
     Q_DISABLE_COPY(EditSelectionDialog)
 };

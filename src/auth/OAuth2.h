@@ -13,47 +13,43 @@ class QString;
 
 // Simple class that handles OAuth2 authorization requests
 // it contains a log-in widget to let the user input the credentials
-// it implements basic error handling and two modes of authorization (interactive and silent)
+// it implements basic error handling and two modes of authorization
+// (interactive and silent)
 class OAuth2 : public QObject
 {
     Q_OBJECT
 
 public:
-    // TODO duplicated in DataProxy
-    typedef QPair<QString, QString> StringPair;
-
-    OAuth2(QPointer<DataProxy> dataProxy, QObject* parent = 0);
+    OAuth2(QSharedPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~OAuth2();
 
     // Shows login dialog
     void startInteractiveLogin();
 
     // Try to log in with stored access token
-    void startQuietLogin(const QUuid& refreshToken);
+    void startQuietLogin(const QUuid &refreshToken);
 
 signals:
     // To communicate the status of the log-in
-    void signalLoginDone(const QUuid& accessToken, int expiresIn, const QUuid& refreshToken);
+    void signalLoginDone(const QUuid &accessToken, const int expiresIn, const QUuid &refreshToken);
     void signalError(QSharedPointer<Error> error);
 
 private slots:
-    // User has entereded log in credentials (called from log in component) It can also be used to
+    // User has entereded log in credentials (called from log in component) It can
+    // also be used to
     // try to log in with hardcoded credentials
-    void slotEnterDialog(const QString&, const QString&);
-
-    // To be notified when access token has been downloaded from network
-    // Status contains the status of the operation (ok, abort, error)
-    void slotAccessTokenDownloaded(const DataProxy::DownloadStatus status);
+    void slotEnterDialog(const QString &, const QString &);
 
 private:
     // Make the authorization network request
-    void requestToken(const StringPair& accessType, const StringPair& accessCode);
+    void requestToken(const std::pair<QString, QString> &accessType,
+                      const std::pair<QString, QString> &accessCode);
 
     // Login dialog widget
-    QPointer<LoginDialog> m_loginDialog;
+    QScopedPointer<LoginDialog> m_loginDialog;
 
     // Reference to dataProxy
-    QPointer<DataProxy> m_dataProxy;
+    QSharedPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(OAuth2)
 };

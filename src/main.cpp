@@ -8,10 +8,12 @@
 #include <QDesktopWidget>
 #include <QFontDatabase>
 
-#include <iostream>
-#include "utils/Utils.h"
-#include "stVi.h"
+#include "mainWindow.h"
 #include "options_cmake.h"
+
+#include <iostream>
+
+static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
 namespace
 {
@@ -41,7 +43,7 @@ void setApplicationFlags()
 }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 #ifdef Q_OS_LINUX
     // If this environment variable is not set we get (when having OpenGL resource leaks)
@@ -56,9 +58,7 @@ int main(int argc, char** argv)
 
     QApplication app(argc, argv);
     app.setApplicationName(app.translate("main", "STViewer"));
-    //app.setOrganizationName("Spatial Transcriptomics");
-    //app.setOrganizationDomain("KTH");
-    app.setApplicationVersion(Globals::VERSION);
+    app.setApplicationVersion(VERSION);
 
     qDebug() << "Application started successfully.";
 
@@ -92,11 +92,8 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    // install open-sans-light font
-    QFontDatabase::addApplicationFont(QStringLiteral(":fonts/OpenSans-Light.ttf"));
-
     // create mainWindow
-    stVi mainWindow;
+    MainWindow mainWindow;
     app.setActiveWindow(&mainWindow);
 
     // check for min requirements

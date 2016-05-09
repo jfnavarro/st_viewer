@@ -4,69 +4,18 @@
 #include <QDate>
 #include "dataModel/Feature.h"
 #include "math/Common.h"
+
 #include <numeric>
-
-AggregatedGene::AggregatedGene()
-    : name()
-    , reads(0)
-    , normalizedReads(0)
-    , count(0)
-{
-}
-
-AggregatedGene::AggregatedGene(const AggregatedGene& other)
-    : name(other.name)
-    , reads(other.reads)
-    , normalizedReads(other.normalizedReads)
-    , count(other.count)
-{
-}
-
-AggregatedGene::AggregatedGene(QString name,
-                               unsigned reads,
-                               unsigned normalizedReads,
-                               unsigned count)
-    : name(name)
-    , reads(reads)
-    , normalizedReads(normalizedReads)
-    , count(count)
-{
-}
-
-AggregatedGene& AggregatedGene::operator=(const AggregatedGene& other)
-{
-    name = other.name;
-    reads = other.reads;
-    normalizedReads = other.normalizedReads;
-    count = other.count;
-    return (*this);
-}
-
-// To enable sorting by name
-bool AggregatedGene::operator<(const AggregatedGene& other) const
-{
-    return name < other.name;
-}
-
-bool AggregatedGene::operator==(const AggregatedGene& other) const
-{
-    return (name == other.name
-            && reads == other.reads
-            && normalizedReads == other.normalizedReads
-            && count == other.count);
-}
+#include <unordered_set>
 
 UserSelection::UserSelection()
     : m_id()
     , m_name()
     , m_userId()
     , m_datasetId()
-    , m_selectedGenes()
     , m_selectedFeatures()
-    , m_selectedSpots()
     , m_type()
     , m_status()
-    , m_oboFroundryTerms()
     , m_comment()
     , m_enabled(false)
     , m_created(QDate::currentDate().toString())
@@ -81,17 +30,14 @@ UserSelection::UserSelection()
 {
 }
 
-UserSelection::UserSelection(const UserSelection& other)
+UserSelection::UserSelection(const UserSelection &other)
     : m_id(other.m_id)
     , m_name(other.m_name)
     , m_userId(other.m_userId)
     , m_datasetId(other.m_datasetId)
-    , m_selectedGenes(other.m_selectedGenes)
     , m_selectedFeatures(other.m_selectedFeatures)
-    , m_selectedSpots(other.m_selectedSpots)
     , m_type(other.m_type)
     , m_status(other.m_status)
-    , m_oboFroundryTerms(other.m_oboFroundryTerms)
     , m_comment(other.m_comment)
     , m_enabled(other.m_enabled)
     , m_created(other.m_created)
@@ -110,18 +56,15 @@ UserSelection::~UserSelection()
 {
 }
 
-UserSelection& UserSelection::operator=(const UserSelection& other)
+UserSelection &UserSelection::operator=(const UserSelection &other)
 {
     m_id = other.m_id;
     m_name = other.m_name;
     m_userId = other.m_userId;
     m_datasetId = other.m_datasetId;
-    m_selectedGenes = other.m_selectedGenes;
     m_selectedFeatures = other.m_selectedFeatures;
-    m_selectedSpots = other.m_selectedSpots;
     m_type = other.m_type;
     m_status = other.m_status;
-    m_oboFroundryTerms = other.m_oboFroundryTerms;
     m_comment = other.m_comment;
     m_enabled = other.m_enabled;
     m_created = other.m_created;
@@ -136,29 +79,16 @@ UserSelection& UserSelection::operator=(const UserSelection& other)
     return (*this);
 }
 
-bool UserSelection::operator==(const UserSelection& other) const
+bool UserSelection::operator==(const UserSelection &other) const
 {
-    return (m_id == other.m_id
-            && m_name == other.m_name
-            && m_userId == other.m_userId
-            && m_datasetId == other.m_datasetId
-            && m_selectedGenes == other.m_selectedGenes
-            && m_selectedFeatures == other.m_selectedFeatures
-            && m_selectedSpots == other.m_selectedSpots
-            && m_type == other.m_type
-            && m_status == other.m_status
-            && m_oboFroundryTerms == other.m_oboFroundryTerms
-            && m_comment == other.m_comment
-            && m_enabled == other.m_enabled
-            && m_created == other.m_created
-            && m_lastMofidied == other.m_lastMofidied
-            && m_datasetName == other.m_datasetName
-            && m_tissueSnapShot == other.m_tissueSnapShot
-            && m_totalReads == other.m_totalReads
-            && m_totalFeatures == other.m_totalFeatures
-            && m_totalGenes == other.m_totalGenes
-            && m_totalSpots == other.m_totalSpots
-            && m_saved == other.m_saved);
+    return (m_id == other.m_id && m_name == other.m_name && m_userId == other.m_userId
+            && m_datasetId == other.m_datasetId && m_selectedFeatures == other.m_selectedFeatures
+            && m_type == other.m_type && m_status == other.m_status && m_comment == other.m_comment
+            && m_enabled == other.m_enabled && m_created == other.m_created
+            && m_lastMofidied == other.m_lastMofidied && m_datasetName == other.m_datasetName
+            && m_tissueSnapShot == other.m_tissueSnapShot && m_totalReads == other.m_totalReads
+            && m_totalFeatures == other.m_totalFeatures && m_totalGenes == other.m_totalGenes
+            && m_totalSpots == other.m_totalSpots && m_saved == other.m_saved);
 }
 
 const QString UserSelection::id() const
@@ -181,29 +111,14 @@ const QString UserSelection::datasetId() const
     return m_datasetId;
 }
 
-const UserSelection::selectedGenesList UserSelection::selectedGenes() const
-{
-    return m_selectedGenes;
-}
-
-const UserSelection::selectedFeaturesList UserSelection::selectedFeatures() const
+const DataProxy::FeatureList UserSelection::selectedFeatures() const
 {
     return m_selectedFeatures;
-}
-
-const UserSelection::selectedSpotsList UserSelection::selectedSpots() const
-{
-    return m_selectedSpots;
 }
 
 const QString UserSelection::status() const
 {
     return m_status;
-}
-
-const QVector<QString> UserSelection::oboFoundryTerms() const
-{
-    return m_oboFroundryTerms;
 }
 
 const QString UserSelection::comment() const
@@ -260,70 +175,40 @@ unsigned UserSelection::totalFeatures() const
 
 unsigned UserSelection::totalGenes() const
 {
-    Q_ASSERT(m_totalGenes == static_cast<unsigned>(m_selectedGenes.size()));
     return m_totalGenes;
 }
 
 unsigned UserSelection::totalSpots() const
 {
-    Q_ASSERT(m_totalSpots == static_cast<unsigned>(m_selectedSpots.size()));
     return m_totalSpots;
 }
 
-void UserSelection::id(const QString& id)
+void UserSelection::id(const QString &id)
 {
     m_id = id;
 }
 
-void UserSelection::name(const QString& name)
+void UserSelection::name(const QString &name)
 {
     m_name = name;
 }
 
-void UserSelection::userId(const QString& userId)
+void UserSelection::userId(const QString &userId)
 {
     m_userId = userId;
 }
 
-void UserSelection::datasetId(const QString& datasetId)
+void UserSelection::datasetId(const QString &datasetId)
 {
     m_datasetId = datasetId;
 }
 
-void UserSelection::selectedGenes(const selectedGenesList& selectedGenes)
-{
-    m_selectedGenes = selectedGenes;
-    m_totalGenes = m_selectedGenes.size();
-    m_totalReads = std::accumulate(m_selectedGenes.begin(),
-                                   m_selectedGenes.end(),
-                                   0,
-                                   [](unsigned total, const AggregatedGene& item)
-    { return total + item.reads; });
-}
-
-void UserSelection::selectedFeatures(const selectedFeaturesList& features)
-{
-    m_selectedFeatures = features;
-    m_totalFeatures = m_selectedFeatures.size();
-}
-
-void UserSelection::selectedSpots(const selectedSpotsList& spots)
-{
-    m_selectedSpots = spots;
-    m_totalSpots = m_selectedSpots.size();
-}
-
-void UserSelection::status(const QString& status)
+void UserSelection::status(const QString &status)
 {
     m_status = status;
 }
 
-void UserSelection::oboFoundryTerms(const QVector<QString>& oboFoundryTerms)
-{
-    m_oboFroundryTerms = oboFoundryTerms;
-}
-
-void UserSelection::comment(const QString& comment)
+void UserSelection::comment(const QString &comment)
 {
     m_comment = comment;
 }
@@ -333,17 +218,17 @@ void UserSelection::enabled(const bool enabled)
     m_enabled = enabled;
 }
 
-void UserSelection::created(const QString& created)
+void UserSelection::created(const QString &created)
 {
     m_created = created;
 }
 
-void UserSelection::lastModified(const QString& lastModified)
+void UserSelection::lastModified(const QString &lastModified)
 {
     m_lastMofidied = lastModified;
 }
 
-void UserSelection::datasetName(const QString& datasetName)
+void UserSelection::datasetName(const QString &datasetName)
 {
     m_datasetName = datasetName;
 }
@@ -353,7 +238,7 @@ void UserSelection::type(const Type &type)
     m_type = type;
 }
 
-void UserSelection::tissueSnapShot(const QByteArray& tissueSnapShot)
+void UserSelection::tissueSnapShot(const QByteArray &tissueSnapShot)
 {
     m_tissueSnapShot = tissueSnapShot;
 }
@@ -363,66 +248,52 @@ void UserSelection::saved(const bool saved)
     m_saved = saved;
 }
 
-void UserSelection::loadFeatures(const selectedFeaturesList& features)
+void UserSelection::loadFeatures(const DataProxy::FeatureList &features)
 {
     m_selectedFeatures = features;
-    m_selectedGenes.clear();
-    m_selectedSpots.clear();
+    // clear variables
     m_totalReads = 0;
     m_totalGenes = 0;
     m_totalFeatures = 0;
     m_totalSpots = 0;
 
-    // populate the selected genes by aggregation and the spots
-    QMap<QString,AggregatedGene> temp_map;
-    for (auto feature : features) {
-        m_selectedSpots.insert(feature->barcode());
-        const QString gene_name = feature->gene();
-        const unsigned reads = feature->hits();
-        m_totalReads += reads;
-        if (temp_map.contains(gene_name)){
-            ++temp_map[gene_name].count;
-            temp_map[gene_name].reads += reads;
-        } else {
-            temp_map[gene_name] = AggregatedGene(gene_name, reads);
-        }
+    // populate the selected genes and spots by iterating the features
+    std::unordered_set<QString> unique_genes;
+    Feature::UniqueSpotsType unique_spots;
+    for (const auto &feature : features) {
+        unique_genes.insert(feature->gene());
+        unique_spots.insert(feature->spot());
+        m_totalReads += feature->count();
     }
-    m_selectedGenes = temp_map.values();
 
-    m_totalSpots = m_selectedSpots.size();
+    m_totalSpots = unique_spots.size();
     m_totalFeatures = m_selectedFeatures.size();
-    m_totalGenes = m_selectedGenes.size();
-
-    // compute TPM values
-    selectedGenesList::iterator it;
-    for (it = m_selectedGenes.begin(); it != m_selectedGenes.end(); ++it) {
-        it->normalizedReads = STMath::tpmNormalization<int>(it->reads, m_totalReads);
-    }
+    m_totalGenes = unique_genes.size();
 }
 
-QString UserSelection::typeToQString(const UserSelection::Type& type)
+QString UserSelection::typeToQString(const UserSelection::Type &type)
 {
-    switch(type) {
-        case Rubberband:
-            return QString("Rubberband");
-        case Lazo:
-            return QString("Lazo");
-        case Segmented:
-            return QString("Segmented");
-        case Console:
-            return QString("Console");
-        case Cluster:
-            return QString("Cluster");
-        case Other:
-            return QString("Other");
-        default:
-            Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
+    switch (type) {
+    case Rubberband:
+        return QString("Rubberband");
+    case Lazo:
+        return QString("Lazo");
+    case Segmented:
+        return QString("Segmented");
+    case Console:
+        return QString("Console");
+    case Cluster:
+        return QString("Cluster");
+    case Other:
+        return QString("Other");
+    default:
+        Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
     }
     Q_ASSERT(false); // Should never arrive here
     return QString();
 }
 
-UserSelection::Type UserSelection::QStringToType(const QString& type)
+UserSelection::Type UserSelection::QStringToType(const QString &type)
 {
     const QString lower_type = type.toLower();
     if (lower_type == "rubberband") {
@@ -438,8 +309,35 @@ UserSelection::Type UserSelection::QStringToType(const QString& type)
     } else if (lower_type == "other") {
         return Other;
     }
-
+    // Should never arrive here
     Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
-    // TODO find a cleaner way for this
     return Other;
+}
+
+UserSelection::geneTotalCountsVector UserSelection::getGeneCounts() const
+{
+    Feature::geneTotalCounts gene_countsMap;
+    geneTotalCountsVector gene_countsVector;
+    // aggreate counts by gene
+    for (const auto &feature : m_selectedFeatures) {
+        gene_countsMap[feature->gene()] += feature->count();
+    }
+    // create a vector of gene-count pairs
+    std::transform(gene_countsMap.begin(),
+                   gene_countsMap.end(),
+                   std::back_inserter(gene_countsVector),
+                   [](const Feature::geneTotalCounts::value_type &ele) {
+        return geneCount(ele.first, ele.second);
+    });
+    // return the vector
+    return gene_countsVector;
+}
+
+Feature::spotTotalCounts UserSelection::getTotalCounts() const
+{
+    Feature::spotTotalCounts read_counts;
+    for (const auto &feature : m_selectedFeatures) {
+        read_counts[feature->spot()] += feature->count();
+    }
+    return read_counts;
 }

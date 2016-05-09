@@ -26,7 +26,7 @@
    <string>Datasets</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+   <iconset>
     <normaloff>:/images/st_icon.png</normaloff>:/images/st_icon.png</iconset>
   </property>
   <property name="styleSheet">
@@ -219,7 +219,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
            </property>
            <property name="iconSize">
@@ -269,7 +269,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -319,7 +319,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -369,7 +369,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -425,7 +425,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">
+            <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
            </property>
            <property name="iconSize">
@@ -443,29 +443,20 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label">
-           <property name="minimumSize">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
-             <height>40</height>
+             <width>20</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>40</width>
-             <height>40</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc">:/images/st_icon.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -558,7 +549,7 @@
            <bool>true</bool>
           </property>
           <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
+           <enum>QAbstractItemView::MultiSelection</enum>
           </property>
           <property name="verticalScrollMode">
            <enum>QAbstractItemView::ScrollPerItem</enum>
@@ -642,7 +633,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../build-stviewer-Desktop_Qt_5_6_0_clang_64bit-Default/application.qrc"/>
+  <include location="../../../stviewer-build/application.qrc"/>
  </resources>
  <connections/>
 </ui>

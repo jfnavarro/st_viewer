@@ -14,8 +14,8 @@ class SettingsFormatXML
 public:
     static const QChar GROUP_DELIMITER;
 
-    static bool writeXMLFile(QIODevice& device, const QSettings::SettingsMap& map);
-    static bool readXMLFile(QIODevice& device, QSettings::SettingsMap& map);
+    static bool writeXMLFile(QIODevice &device, const QSettings::SettingsMap &map);
+    static bool readXMLFile(QIODevice &device, QSettings::SettingsMap &map);
 };
 
 #endif // SETTINGSFORMATXML_H //

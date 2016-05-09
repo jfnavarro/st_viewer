@@ -28,24 +28,24 @@ class ImageAlignmentDTO : public QObject
     Q_PROPERTY(QString last_modified READ lastModified WRITE lastModified)
 
 public:
-    explicit ImageAlignmentDTO(QObject* parent = 0)
+    explicit ImageAlignmentDTO(QObject *parent = 0)
         : QObject(parent)
     {
     }
     ~ImageAlignmentDTO() {}
 
     // binding
-    void id(const QString& id) { m_imageAlignment.id(id); }
-    void name(const QString& name) { m_imageAlignment.name(name); }
-    void chipId(const QString& chipId) { m_imageAlignment.chipId(chipId); }
-    void figureRed(const QString& figureRed) { m_imageAlignment.figureRed(figureRed); }
-    void figureBlue(const QString& figureBlue) { m_imageAlignment.figureBlue(figureBlue); }
-    void alignment(const QVariantList& alignment)
+    void id(const QString &id) { m_imageAlignment.id(id); }
+    void name(const QString &name) { m_imageAlignment.name(name); }
+    void chipId(const QString &chipId) { m_imageAlignment.chipId(chipId); }
+    void figureRed(const QString &figureRed) { m_imageAlignment.figureRed(figureRed); }
+    void figureBlue(const QString &figureBlue) { m_imageAlignment.figureBlue(figureBlue); }
+    void alignment(const QVariantList &alignment)
     {
         m_imageAlignment.alignment(unserializeTransform(alignment));
     }
-    void created(const QString& created) { m_imageAlignment.created(created); }
-    void lastModified(const QString& lastModified) { m_imageAlignment.lastModified(lastModified); }
+    void created(const QString &created) { m_imageAlignment.created(created); }
+    void lastModified(const QString &lastModified) { m_imageAlignment.lastModified(lastModified); }
 
     // read
     const QString id() { return m_imageAlignment.id(); }
@@ -58,11 +58,11 @@ public:
     const QString lastModified() const { return m_imageAlignment.lastModified(); }
 
     // get parsed data model
-    const ImageAlignment& imageAlignment() const { return m_imageAlignment; }
-    ImageAlignment& imageAlignment() { return m_imageAlignment; }
+    const ImageAlignment &imageAlignment() const { return m_imageAlignment; }
+    ImageAlignment &imageAlignment() { return m_imageAlignment; }
 
 private:
-    const QVariantList serializeTransform(const QTransform& transform) const
+    const QVariantList serializeTransform(const QTransform &transform) const
     {
         QVariantList serializedTransform;
         // serialize data
@@ -78,15 +78,15 @@ private:
         return serializedTransform;
     }
 
-    const QTransform unserializeTransform(const QVariantList& serializedTransform) const
+    const QTransform unserializeTransform(const QVariantList &serializedTransform) const
     {
         QTransform transform(Qt::Uninitialized);
         // unserialize data
-        QVector<qreal> values;
+        QVector<float> values;
         QVariantList::const_iterator it;
         QVariantList::const_iterator end = serializedTransform.end();
         for (it = serializedTransform.begin(); it != end; ++it) {
-            values << it->value<qreal>();
+            values << it->value<float>();
         }
 
         // parse transform matrix

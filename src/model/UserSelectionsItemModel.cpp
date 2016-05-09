@@ -6,9 +6,9 @@
 #include <QColor>
 #include <set>
 
-static const int COLUMN_NUMBER = 9;
+static const int COLUMN_NUMBER = 7;
 
-UserSelectionsItemModel::UserSelectionsItemModel(QObject* parent)
+UserSelectionsItemModel::UserSelectionsItemModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
 }
@@ -17,29 +17,24 @@ UserSelectionsItemModel::~UserSelectionsItemModel()
 {
 }
 
-QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
+QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || m_userSelectionList.empty()) {
         return QVariant(QVariant::Invalid);
     }
 
     const auto item = m_userSelectionList.at(index.row());
-    Q_ASSERT(!item.isNull());
-
+    Q_ASSERT(item);
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name:
             return item->name();
         case Dataset:
             return item->datasetName();
-        case Comment:
-            return item->comment();
         case NGenes:
             return QString::number(item->totalGenes());
         case NReads:
             return QString::number(item->totalReads());
-        case NFeatures:
-            return QString::number(item->totalSpots());
         case Created:
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
@@ -57,14 +52,12 @@ QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
         return item->saved() ? Qt::Checked : Qt::Unchecked;
     }
 
-
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Saved:
             return Qt::AlignCenter;
         case NGenes:
         case NReads:
-        case NFeatures:
         case Created:
         case LastModified:
             return Qt::AlignRight;
@@ -77,7 +70,8 @@ QVariant UserSelectionsItemModel::data(const QModelIndex& index, int role) const
 }
 
 QVariant UserSelectionsItemModel::headerData(int section,
-                                             Qt::Orientation orientation, int role) const
+                                             Qt::Orientation orientation,
+                                             int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
@@ -85,14 +79,10 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("Name");
         case Dataset:
             return tr("Dataset");
-        case Comment:
-            return tr("Comment");
         case NGenes:
-            return tr("#Genes");
+            return tr("Genes");
         case NReads:
-            return tr("#Reads");
-        case NFeatures:
-            return tr("#Spots");
+            return tr("Reads");
         case Saved:
             return tr("Saved");
         case Created:
@@ -110,14 +100,10 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("The name of the selection");
         case Dataset:
             return tr("The dataset name where the selection was made");
-        case Comment:
-            return tr("The comments made on the selection");
         case NGenes:
             return tr("The number of unique genes present in the selection");
         case NReads:
             return tr("The total number of reads in the selection");
-        case NFeatures:
-            return tr("The total number of spots present in the selection");
         case Saved:
             return tr("Yes if the selection is saved in the database");
         case Created:
@@ -133,10 +119,8 @@ QVariant UserSelectionsItemModel::headerData(int section,
         switch (section) {
         case Name:
         case Dataset:
-        case Comment:
         case NGenes:
         case NReads:
-        case NFeatures:
         case Saved:
         case Created:
         case LastModified:
@@ -150,18 +134,18 @@ QVariant UserSelectionsItemModel::headerData(int section,
     return QVariant(QVariant::Invalid);
 }
 
-Qt::ItemFlags UserSelectionsItemModel::flags(const QModelIndex& index) const
+Qt::ItemFlags UserSelectionsItemModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
     return defaultFlags;
 }
 
-int UserSelectionsItemModel::rowCount(const QModelIndex& parent) const
+int UserSelectionsItemModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_userSelectionList.count();
+    return parent.isValid() ? 0 : m_userSelectionList.size();
 }
 
-int UserSelectionsItemModel::columnCount(const QModelIndex& parent) const
+int UserSelectionsItemModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
@@ -176,20 +160,19 @@ void UserSelectionsItemModel::clear()
 void UserSelectionsItemModel::loadUserSelections(const DataProxy::UserSelectionList selectionList)
 {
     beginResetModel();
-    m_userSelectionList.clear();
     m_userSelectionList = selectionList;
     endResetModel();
 }
 
-DataProxy::UserSelectionList UserSelectionsItemModel::getSelections(const QItemSelection& selection)
+DataProxy::UserSelectionList UserSelectionsItemModel::getSelections(const QItemSelection &selection)
 {
     std::set<int> rows;
-    for (const auto& index : selection.indexes()) {
+    for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
 
     DataProxy::UserSelectionList selectionList;
-    for (const auto& row : rows) {
+    for (const auto &row : rows) {
         auto selection = m_userSelectionList.at(row);
         selectionList.push_back(selection);
     }

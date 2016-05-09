@@ -22,68 +22,72 @@
 #include "NetworkReply.h"
 #include "NetworkDiskCache.h"
 #include "error/Error.h"
+#include "SettingsNetwork.h"
 
-NetworkManager::NetworkManager(QObject* parent)
+using namespace Network;
+
+NetworkManager::NetworkManager(QObject *parent)
     : QObject(parent)
     , m_nam(nullptr)
     , m_diskCache(nullptr)
 {
     // setup network access manager
-    m_nam = new QNetworkAccessManager(this);
+    m_nam.reset(new QNetworkAccessManager(this));
 
-    // add ssl support
+    // add SSL support
     QFile cafile(":public_key.pem");
     cafile.open(QIODevice::ReadOnly);
     QSslCertificate cert(&cafile);
     QSslSocket::addDefaultCaCertificate(cert);
 
     const QString serverURL = m_configurationManager.EndPointUrl();
-    // make DND look up ahead of time
+    // make DNS look up ahead of time
     QHostInfo::lookupHost(serverURL, 0, 0);
     // connect to the HTTPS TCP port ahead of time
     m_nam->connectToHostEncrypted(serverURL);
 
     // add cache support
-    m_diskCache = new NetworkDiskCache(this);
+    m_diskCache.reset(new NetworkDiskCache(this));
     Q_ASSERT(!m_diskCache.isNull());
-    QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    const QString location = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     qDebug() << "Network disk cache location " << location;
     m_diskCache->setCacheDirectory(location + QDir::separator() + "data");
     const quint64 cacheSizeinGB = 5368709120; // 1024*1024*1024*5 5GB
-    // TODO some HD space check should be added here
+    // TODO some HD freee space check should be added here
     m_diskCache->setMaximumCacheSize(cacheSizeinGB);
-    m_nam->setCache(m_diskCache);
+    m_nam->setCache(m_diskCache.data());
 
-    // we want to provide Authentication to our OAuth based servers
-    connect(m_nam,
-            SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
-            SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
+    // we need to provide Authentication to our OAuth based servers
+    connect(m_nam.data(),
+            SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)),
+            SLOT(provideAuthentication(QNetworkReply *, QAuthenticator *)));
 }
 
 NetworkManager::~NetworkManager()
 {
 }
 
-void NetworkManager::provideAuthentication(QNetworkReply* reply, QAuthenticator* authenticator)
+void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
     authenticator->setUser(m_configurationManager.oauthClientID());
     authenticator->setPassword(m_configurationManager.oauthSecret());
 }
 
-NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, NetworkFlags flags)
+QSharedPointer<NetworkReply> NetworkManager::httpRequest(QSharedPointer<NetworkCommand> cmd,
+                                                         NetworkFlags flags)
 {
     // early out
-    if (cmd == nullptr) {
+    if (cmd.isNull()) {
         qDebug() << "[NetworkManager] Error: Unable to create Network Command";
-        return nullptr;
+        return QSharedPointer<NetworkReply>();
     }
 
 // do a connection check here (TODO seems to only work in MAC)
 #ifdef Q_OS_MAC
     if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
         qDebug() << "[NetworkManager] Error: Unable to connect to the network";
-        return nullptr;
+        return QSharedPointer<NetworkReply>();
     }
 #endif
 
@@ -116,7 +120,7 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, NetworkFlags flag
     }
 
     // keep track of reply to match command later on (async callback)
-    QNetworkReply* networkReply = nullptr;
+    QNetworkReply *networkReply = nullptr;
 
     // encode query as part of the url in the request
     QUrl queryUrl(cmd->url());
@@ -124,31 +128,31 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, NetworkFlags flag
     request.setUrl(queryUrl);
 
     switch (cmd->type()) {
-    case Globals::HttpRequestTypeGet: {
+    case HttpRequestTypeGet: {
         qDebug() << "[NetworkManager] GET:" << request.url();
         networkReply = m_nam->get(request);
         break;
     }
-    case Globals::HttpRequestTypePost: {
+    case HttpRequestTypePost: {
         qDebug() << "[NetworkManager] POST:" << request.url();
         // POST methods need a special request header
         QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->post(request, jsonData);
         break;
     }
-    case Globals::HttpRequestTypePut: {
+    case HttpRequestTypePut: {
         qDebug() << "[NetworkManager] PUT:" << request.url();
         // PUT methods need a special request header
         QByteArray jsonData = addJSONDatatoRequest(cmd, request);
         networkReply = m_nam->put(request, jsonData);
         break;
     }
-    case Globals::HttpRequestTypeDelete: {
+    case HttpRequestTypeDelete: {
         qDebug() << "[NetworkManager] DELETE: " << request.url();
         networkReply = m_nam->deleteResource(request);
         break;
     }
-    case Globals::HttpRequestTypeNone: {
+    case HttpRequestTypeNone: {
         qDebug() << "[NetworkManager] Error: Unkown request type";
         break;
     }
@@ -157,20 +161,22 @@ NetworkReply* NetworkManager::httpRequest(NetworkCommand* cmd, NetworkFlags flag
     }
 
     if (networkReply == nullptr) {
-        qDebug() << "[NetworkManager] Error: network reply is null";
-        return nullptr;
+        qDebug() << "[NetworkManager] Error: created network reply is null";
+        return QSharedPointer<NetworkReply>();
     }
 
-    NetworkReply* replyWrapper = new NetworkReply(networkReply);
-    if (replyWrapper == nullptr) {
+    QSharedPointer<NetworkReply> replyWrapper
+        = QSharedPointer<NetworkReply>(new NetworkReply(networkReply));
+    if (replyWrapper.isNull()) {
         qDebug() << "[NetworkManager] Error: Unable to create network request";
-        return nullptr;
+        return replyWrapper;
     }
 
     return replyWrapper;
 }
 
-QByteArray NetworkManager::addJSONDatatoRequest(NetworkCommand* cmd, QNetworkRequest& request) const
+QByteArray NetworkManager::addJSONDatatoRequest(QSharedPointer<NetworkCommand> cmd,
+                                                QNetworkRequest &request) const
 {
     QByteArray jsonData = cmd->body();
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");

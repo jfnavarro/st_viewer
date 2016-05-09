@@ -11,14 +11,14 @@
 namespace data
 {
 
-bool parseObject(const QVariant& source, QObject* target)
+bool parseObject(const QVariant &source, QObject *target)
 {
     if (!source.isValid() || !source.canConvert(QVariant::Map)) {
         qDebug() << "[ObjectParser] Error: Invalid object... " << source.toByteArray();
         return false;
     }
-    const QVariantMap& map = source.toMap();
-    const QMetaObject* metaobject = target->metaObject();
+    const QVariantMap &map = source.toMap();
+    const QMetaObject *metaobject = target->metaObject();
 
     QVariantMap::const_iterator it;
     QVariantMap::const_iterator end = map.constEnd();
@@ -36,8 +36,7 @@ bool parseObject(const QVariant& source, QObject* target)
             v.convert(type);
             metaproperty.write(target, v);
         } else if (QString(QLatin1String("QVariant"))
-                       .compare(QLatin1String(metaproperty.typeName()))
-                   == 0) {
+                       .compare(QLatin1String(metaproperty.typeName())) == 0) {
             metaproperty.write(target, v);
         } else {
             qDebug() << "[ObjectParser] Warning: unable to map variable" << it.key() << "of type"

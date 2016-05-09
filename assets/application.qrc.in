@@ -9,7 +9,6 @@
     <file alias="images/selection.png">${PROJECT_SOURCE_DIR}/assets/images/selection.png</file>
     <file alias="images/settings.png">${PROJECT_SOURCE_DIR}/assets/images/settings.png</file>
     <file alias="images/settings2.png">${PROJECT_SOURCE_DIR}/assets/images/settings2.png</file>
-    <file alias="images/st_icon.png">${PROJECT_SOURCE_DIR}/assets/images/st_icon.png</file>
     <file alias="images/histogram.png">${PROJECT_SOURCE_DIR}/assets/images/histogram.png</file>
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
     <file alias="images/select-all.png">${PROJECT_SOURCE_DIR}/assets/images/select-all.png</file>
@@ -39,6 +38,5 @@
     <file alias="config/application.conf">application.conf</file>
     <file alias="public_key.pem">${PUBLICKEY}</file>
     <file alias="translations/locale_en_us.qm">${PROJECT_BINARY_DIR}/src/locale_en_us.qm</file>
-    <file alias="fonts/OpenSans-Light.ttf">${PROJECT_SOURCE_DIR}/assets/fonts/OpenSans-Light.ttf</file>
   </qresource>
 </RCC>

@@ -15,7 +15,8 @@ class DataRenderer : public QRunnable
                  const int total_reads_feature,
                  const bool forceSelection,
                  GeneRendererGL::GeneInfoByIndexMap &geneInfoByIndex,
-                 GeneRendererGL::GeneInfoSelectedFeatures &geneInfoSelectedFeatures,
+                 GeneRendererGL::GeneInfoSelectedFeatures
+&geneInfoSelectedFeatures,
                  int &localPooledMin,
                  int &localPooledMax,
                  GeneData &geneData,

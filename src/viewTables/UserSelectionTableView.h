@@ -7,12 +7,12 @@
 class UserSelectionsItemModel;
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the user selections data
+// An abstraction of QTableView for the user selections table
 class UserSelectionTableView : public QTableView
 {
 
 public:
-    explicit UserSelectionTableView(QWidget* parent = 0);
+    explicit UserSelectionTableView(QWidget *parent = 0);
     virtual ~UserSelectionTableView();
 
     // returns the current selection mapped to the sorting model
@@ -20,8 +20,8 @@ public:
 
 private:
     // references to model and proxy model
-    QPointer<UserSelectionsItemModel> m_userSelectionModel;
-    QPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
+    QScopedPointer<UserSelectionsItemModel> m_userSelectionModel;
+    QScopedPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
 
     Q_DISABLE_COPY(UserSelectionTableView)
 };

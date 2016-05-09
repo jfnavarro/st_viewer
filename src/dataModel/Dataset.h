@@ -10,79 +10,81 @@ class Dataset
 
 public:
     Dataset();
-    explicit Dataset(const Dataset& other);
+    explicit Dataset(const Dataset &other);
     ~Dataset();
 
-    Dataset& operator=(const Dataset& other);
-    bool operator==(const Dataset& other) const;
-    // Id is the DB id
+    Dataset &operator=(const Dataset &other);
+    bool operator==(const Dataset &other) const;
+    // Id is the DataBase id
     const QString id() const;
     const QString name() const;
-    // reference to image alignment object
+    // reference to image alignment object Id
     const QString imageAlignmentId() const;
     // some stats of the dataset
-    int statBarcodes() const;
-    int statGenes() const;
-    int statUniqueBarcodes() const;
-    int statUniqueGenes() const;
+    unsigned statBarcodes() const;
+    unsigned statGenes() const;
+    unsigned statUniqueBarcodes() const;
+    unsigned statUniqueGenes() const;
     const QString statTissue() const;
     const QString statSpecies() const;
     const QString statComments() const;
-    const QVector<QString> oboFoundryTerms() const;
-    // more stats about the reads distributions
-    const QVector<qreal> hitsQuartiles() const;
-    const QVector<qreal> hitsPooledQuartiles() const;
+    // some stats about the reads distributions
+    const QVector<float> hitsQuartiles() const;
+    const QVector<float> hitsPooledQuartiles() const;
+    // the dataset is enabled or not
     bool enabled() const;
+    // accounts that can access it
     const QVector<QString> grantedAccounts() const;
     const QString createdByAccount() const;
     const QString created() const;
     const QString lastModified() const;
+    // the dataset has been downloaded from the cloud (true) or locally imported
+    // (false)
     bool downloaded() const;
 
-    void id(const QString& id);
-    void name(const QString& name);
-    void imageAlignmentId(const QString& alignmentId);
-    void statBarcodes(int barcodes);
-    void statGenes(int genes);
-    void statUniqueBarcodes(int uniqueBarcodes);
-    void statUniqueGenes(int uniqueGenes);
-    void statTissue(const QString& statTissue);
-    void statSpecies(const QString& statSpecies);
-    void statComments(const QString& statComments);
-    void oboFoundryTerms(const QVector<QString>& oboFoundryTerms);
-    void hitsQuartiles(const QVector<qreal>& hitsQuartiles);
-    void hitsPooledQuartiles(const QVector<qreal>& hitsPooledQuartiles);
+    void id(const QString &id);
+    void name(const QString &name);
+    void imageAlignmentId(const QString &alignmentId);
+    void statBarcodes(unsigned barcodes);
+    void statGenes(unsigned genes);
+    void statUniqueBarcodes(unsigned uniqueBarcodes);
+    void statUniqueGenes(unsigned uniqueGenes);
+    void statTissue(const QString &statTissue);
+    void statSpecies(const QString &statSpecies);
+    void statComments(const QString &statComments);
+    void hitsQuartiles(const QVector<float> &hitsQuartiles);
+    void hitsPooledQuartiles(const QVector<float> &hitsPooledQuartiles);
     void enabled(const bool enabled);
-    void grantedAccounts(const QVector<QString>& grantedAccounts);
-    void createdByAccount(const QString& created);
-    void created(const QString& created);
-    void lastModified(const QString& lastModified);
+    void grantedAccounts(const QVector<QString> &grantedAccounts);
+    void createdByAccount(const QString &created);
+    void created(const QString &created);
+    void lastModified(const QString &lastModified);
     void downloaded(const bool downloaded);
 
-    // extended methods to get statistics
+    // some helper methods to get statistics
     // returns the first quartile
-    qreal statisticsMin() const;
+    float statisticsMin() const;
     // returns the adjusted fourth quartile (account for sparse distributions)
-    qreal statisticsMax() const;
+    float statisticsMax() const;
     // returns the first quartile
-    qreal statisticsPooledMin() const;
+    float statisticsPooledMin() const;
     // returns the adjusted fourth quartile (account for sparse distributions)
-    qreal statisticsPooledMax() const;
+    float statisticsPooledMax() const;
 
 private:
     QString m_id;
     QString m_name;
     QString m_alignmentId;
-    int m_statBarcodes;
-    int m_statGenes;
-    int m_statUniqueBarcodes;
-    int m_statUniqueGenes;
+    unsigned m_statBarcodes;
+    unsigned m_statGenes;
+    unsigned m_statUniqueBarcodes;
+    unsigned m_statUniqueGenes;
     QString m_statTissue;
     QString m_statSpecies;
     QString m_statComments;
     QVector<QString> m_oboFroundryTerms;
-    QVector<qreal> m_geneHitsQuartiles;
-    QVector<qreal> m_genePooledHitsQuartiles;
+    QVector<float> m_geneHitsQuartiles;
+    QVector<float> m_genePooledHitsQuartiles;
     bool m_enabled;
     QVector<QString> m_grantedAccounts;
     QString m_createdByAccount;
