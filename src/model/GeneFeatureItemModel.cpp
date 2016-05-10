@@ -207,16 +207,16 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-
+    // create a list of genes that are changing the selected state
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (!gene && gene->selected() != visible) {
+        if (gene && gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
         }
     }
-
+    // notify with the new list
     emit signalSelectionChanged(geneList);
 }
 
@@ -230,15 +230,15 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-
+    // create a list of genes that are changing the color
     DataProxy::GeneList geneList;
     for (const auto &row : rows) {
         DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (!gene && color.isValid() && gene->color() != color) {
+        if (gene && color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
         }
     }
-
+    // notify with the new list
     emit signalColorChanged(geneList);
 }

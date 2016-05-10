@@ -43,9 +43,9 @@ public slots:
 protected:
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // data vertex arrays
     QVector<QVector2D> m_grid_vertex;

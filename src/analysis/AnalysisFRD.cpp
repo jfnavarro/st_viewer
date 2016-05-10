@@ -212,7 +212,7 @@ void AnalysisFRD::mouseWheel()
     }
 }
 
-void AnalysisFRD::setUpperLimit(int limit)
+void AnalysisFRD::setUpperLimit(unsigned limit)
 {
     m_upperThresholdBarNormal->start->setCoords(limit, m_minY);
     m_upperThresholdBarNormal->end->setCoords(limit, m_maxY);
@@ -222,7 +222,7 @@ void AnalysisFRD::setUpperLimit(int limit)
     m_customPlotLog->replot();
 }
 
-void AnalysisFRD::setLowerLimit(int limit)
+void AnalysisFRD::setLowerLimit(unsigned limit)
 {
     m_lowerThresholdBarNormal->start->setCoords(limit, m_minY);
     m_lowerThresholdBarNormal->end->setCoords(limit, m_maxY);

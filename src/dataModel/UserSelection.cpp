@@ -163,13 +163,11 @@ bool UserSelection::saved() const
 
 unsigned UserSelection::totalReads() const
 {
-    Q_ASSERT(m_totalReads > 0);
     return m_totalReads;
 }
 
 unsigned UserSelection::totalFeatures() const
 {
-    Q_ASSERT(m_totalFeatures == static_cast<unsigned>(m_selectedFeatures.size()));
     return m_totalFeatures;
 }
 

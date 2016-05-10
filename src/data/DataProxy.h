@@ -74,18 +74,12 @@ public:
     // TODO find a way to update or notify DataProxy when data is updated in the
     // backend (database)
 
-    // TODO not really needed to use QSharedPointer(they are expensive), it would
-    // be better to use
-    // direct references or other type of smart pointer
-
     // TODO separate data API and data adquisition
 
     // TODO replace JSON for binary format for the features (data frame or tab
     // delimited)
 
     // TODO make the parsing of the features data asynchronous
-
-    // TODO consider to compute the features rendering data here
 
     // TODO Currently dataProxy does not support caching. The dataset content
     // variables are unique for the dataset currently opened. We should cache
@@ -239,21 +233,21 @@ public:
     // geneName
     // a current dataset object must be selected otherwise it returns an empty
     // list
-    const FeatureList getGeneFeatureList(const QString &geneName) const;
+    const FeatureList &getGeneFeatureList(const QString &geneName) const;
 
     // returns the currently loaded image alignment object
     // a current dataset object must be selected otherwise it returns a null
     // object
-    ImageAlignmentPtr getImageAlignment() const;
+    const ImageAlignmentPtr getImageAlignment() const;
 
     // returns the currently loaded chip
     // a current dataset object must be selected otherwise it returns a null
     // object
-    ChipPtr getChip() const;
+    const ChipPtr getChip() const;
 
     // a current dataset object must be selected otherwise it returns a null
     // object
-    UserPtr getUser() const;
+    const UserPtr getUser() const;
 
     // returns the currently loaded image blue or red as a byte array
     // a current dataset object must be selected otherwise it returns an empty
@@ -360,7 +354,7 @@ private:
     // configuration manager instance
     Configuration m_configurationManager;
     // network manager to make network requests (dataproxy owns it)
-    QPointer<NetworkManager> m_networkManager;
+    QScopedPointer<NetworkManager> m_networkManager;
 
     Q_DISABLE_COPY(DataProxy)
 };

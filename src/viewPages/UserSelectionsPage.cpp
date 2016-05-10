@@ -137,12 +137,15 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
 {
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
-    const bool enableDDA = index.isValid() && currentSelection.size() == 2;
-    const bool enableRest = index.isValid() && currentSelection.size() == 1;
+    if (!index.isValid() || currentSelection.empty()) {
+        return;
+    }
+    const bool enableDDA = currentSelection.size() == 2;
+    const bool enableRest = currentSelection.size() == 1;
     const auto selection = currentSelection.front();
     Q_ASSERT(selection);
     // configure UI controls if we select 1 or 2 selections
-    m_ui->removeSelection->setEnabled(enableRest);
+    m_ui->removeSelection->setEnabled(true);
     m_ui->exportSelection->setEnabled(enableRest);
     m_ui->ddaAnalysis->setEnabled(enableDDA);
     m_ui->editSelection->setEnabled(enableRest);
@@ -369,7 +372,7 @@ void UserSelectionsPage::slotShowTable()
     const auto selectionObject = currentSelection.front();
     // lazy init
     if (m_selectionsWidget.isNull()) {
-        m_selectionsWidget.reset(new SelectionsWidget(nullptr, Qt::SubWindow));
+        m_selectionsWidget.reset(new SelectionsWidget(nullptr, Qt::Dialog));
     }
     // update model
     m_selectionsWidget->slotLoadModel(selectionObject->getGeneCounts());

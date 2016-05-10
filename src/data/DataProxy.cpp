@@ -156,8 +156,7 @@ DataProxy::DataProxy(QObject *parent)
     , m_user(nullptr)
     , m_networkManager(nullptr)
 {
-    m_user = UserPtr(new User());
-    m_networkManager = new NetworkManager(this);
+    m_networkManager.reset(new NetworkManager(this));
     Q_ASSERT(!m_networkManager.isNull());
 }
 
@@ -199,7 +198,7 @@ const DataProxy::DatasetPtr DataProxy::getDatasetById(const QString &datasetId) 
     // dataset list will always be short so a simple find function is enough
     for (auto &dataset : m_datasetList) {
         if (dataset->id() == datasetId) {
-            return std::move(dataset);
+            return dataset;
         }
     }
 
@@ -218,7 +217,13 @@ const DataProxy::GeneList DataProxy::getGeneList() const
 
 DataProxy::GenePtr DataProxy::geneGeneObject(const QString &gene_name) const
 {
-    return m_geneNameToObject.at(gene_name);
+    GenePtr gene_ptr = nullptr;
+    try {
+        gene_ptr = m_geneNameToObject.at(gene_name);
+    } catch(const std::out_of_range &exception) {
+        qDebug() << "Trying to retrieve a gene object that does not exist " << gene_name;
+    }
+    return gene_ptr;
 }
 
 const DataProxy::FeatureList &DataProxy::getFeatureList() const
@@ -226,17 +231,17 @@ const DataProxy::FeatureList &DataProxy::getFeatureList() const
     return m_featuresList;
 }
 
-DataProxy::UserPtr DataProxy::getUser() const
+const DataProxy::UserPtr DataProxy::getUser() const
 {
     return m_user;
 }
 
-DataProxy::ChipPtr DataProxy::getChip() const
+const DataProxy::ChipPtr DataProxy::getChip() const
 {
     return m_chip;
 }
 
-DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment() const
+const DataProxy::ImageAlignmentPtr DataProxy::getImageAlignment() const
 {
     return m_imageAlignment;
 }
@@ -292,8 +297,13 @@ bool DataProxy::loadDatasets()
 
 bool DataProxy::addDataset(const Dataset &dataset)
 {
-    m_datasetList.push_back(DatasetPtr(new Dataset(dataset)));
-    return true;
+    auto dataset_ptr = std::make_shared<Dataset>(dataset);
+    if (dataset_ptr) {
+        m_datasetList.push_back(dataset_ptr);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool DataProxy::updateDataset(const Dataset &dataset)
@@ -308,6 +318,7 @@ bool DataProxy::updateDataset(const Dataset &dataset)
     const bool status_download = createRequest(reply);
     bool status_parsing = false;
     if (status_download) {
+        qDebug() << "Dataset " << dataset.id() << " edited";
         status_parsing = parseRequest(reply, DataProxy::DatasetModified);
     }
     // returns status
@@ -316,7 +327,8 @@ bool DataProxy::updateDataset(const Dataset &dataset)
 
 bool DataProxy::removeDataset(const QString &datasetId, const bool is_downloaded)
 {
-    if (is_downloaded) {
+    if (!is_downloaded) {
+        // the dataset was imported locally..
         return parseRemoveDataset(datasetId);
     }
     const auto cmd
@@ -535,7 +547,7 @@ bool DataProxy::addUserSelection(const UserSelection &userSelection, bool save)
 
 bool DataProxy::removeSelection(const QString &selectionId, const bool is_downloaded)
 {
-    if (is_downloaded) {
+    if (!is_downloaded) {
         return parseRemoveUserSelection(selectionId);
     }
     const auto cmd
@@ -703,6 +715,10 @@ bool DataProxy::parseRequest(QSharedPointer<NetworkReply> reply, const DownloadT
     case UserSelectionRemoved:
         parsedOk = parseRemoveUserSelection(reply->property("selection_id").toString());
         break;
+    case UserSelectionModified:
+    case DatasetModified:
+        parsedOk = true;
+        break;
     default:
         break;
     }
@@ -710,9 +726,13 @@ bool DataProxy::parseRequest(QSharedPointer<NetworkReply> reply, const DownloadT
     // errors could happen parsing the data
     if (reply->hasErrors() || !parsedOk) {
         const auto error = reply->parseErrors();
-        Q_ASSERT(!error.isNull());
+        const QString error_name = error.isNull() ? tr("Error parsing data") : error->name();
+        const QString error_dcr =
+                error.isNull() ?
+                    tr("There was an error parsing the data object from the remote server")
+                  : error->description();
         QWidget *mainWidget = QApplication::desktop()->screen();
-        QMessageBox::critical(mainWidget, error->name(), error->description());
+        QMessageBox::critical(mainWidget, error_name, error_dcr);
         return false;
     } else {
         qDebug() << "Data from network request parsed correctly...";
@@ -761,6 +781,7 @@ bool DataProxy::parseDatasets(const QJsonDocument &doc)
     for (const QVariant &var : doc.toVariant().toList()) {
         data::parseObject(var, &dto);
         DatasetPtr dataset = std::make_shared<Dataset>(dto.dataset());
+        Q_ASSERT(dataset);
         // only adds the datasets that the user has access to
         const auto granted_users = dataset->grantedAccounts();
         if (std::find(granted_users.begin(), granted_users.end(), m_user->id())
@@ -774,8 +795,7 @@ bool DataProxy::parseDatasets(const QJsonDocument &doc)
 
 bool DataProxy::parseRemoveDataset(const QString &datasetId)
 {
-    // remove element from list
-    // TODO should validate that it was removed
+    // remove dataset from list
     m_datasetList.erase(std::remove_if(m_datasetList.begin(),
                                        m_datasetList.end(),
                                        [=](DatasetPtr dataset) {
@@ -784,13 +804,14 @@ bool DataProxy::parseRemoveDataset(const QString &datasetId)
                         m_datasetList.end());
 
     // remove selections created on that dataset and that are not saved in the cloud
+    // the selections of the dataset that are stored in the cloud will automatically be deleted
     m_userSelectionList.erase(std::remove_if(m_userSelectionList.begin(),
                                              m_userSelectionList.end(),
                                              [=](UserSelectionPtr selection) {
                                   return selection->datasetId() == datasetId && !selection->saved();
                               }),
                               m_userSelectionList.end());
-
+    // TODO should check that it was removed
     return true;
 }
 
@@ -808,6 +829,7 @@ bool DataProxy::parseUserSelections(const QJsonDocument &doc)
     for (const QVariant &var : doc.toVariant().toList()) {
         data::parseObject(var, &dto);
         UserSelectionPtr selection = std::make_shared<UserSelection>(dto.userSelection());
+        Q_ASSERT(selection);
         // get the dataset name from the cached datasets
         // TODO if we enter the user selections view without having downloaded the
         // datasets the dataset name cannot be fetched
@@ -829,13 +851,13 @@ bool DataProxy::parseUserSelections(const QJsonDocument &doc)
 bool DataProxy::parseRemoveUserSelection(const QString &selectionId)
 {
     // remove element from the list
-    // TODO should check that it was removed
     m_userSelectionList.erase(std::remove_if(m_userSelectionList.begin(),
                                              m_userSelectionList.end(),
                                              [=](UserSelectionPtr selection) {
                                   return selection->id() == selectionId;
                               }),
                               m_userSelectionList.end());
+    // TODO should check that it was removed
     return true;
 }
 
@@ -852,8 +874,8 @@ bool DataProxy::parseUser(const QJsonDocument &doc)
     // should only be one item
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
-    m_user = UserPtr(new User(dto.user()));
-    return true;
+    m_user = std::make_shared<User>(dto.user());
+    return m_user != nullptr;
 }
 
 bool DataProxy::parseImageAlignment(const QJsonDocument &doc)
@@ -869,9 +891,8 @@ bool DataProxy::parseImageAlignment(const QJsonDocument &doc)
     // image alignment should only contain one object
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
-    ImageAlignmentPtr imageAlignement = ImageAlignmentPtr(new ImageAlignment(dto.imageAlignment()));
-    m_imageAlignment = imageAlignement;
-    return true;
+    m_imageAlignment = std::make_shared<ImageAlignment>(dto.imageAlignment());
+    return m_imageAlignment != nullptr;
 }
 
 bool DataProxy::parseChip(const QJsonDocument &doc)
@@ -887,9 +908,8 @@ bool DataProxy::parseChip(const QJsonDocument &doc)
     // should only be one item
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
-    ChipPtr chip = ChipPtr(new Chip(dto.chip()));
-    m_chip = chip;
-    return true;
+    m_chip = std::make_shared<Chip>(dto.chip());
+    return m_chip != nullptr;
 }
 
 bool DataProxy::parseMinVersion(const QJsonDocument &doc)
@@ -906,7 +926,7 @@ bool DataProxy::parseMinVersion(const QJsonDocument &doc)
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
     m_minVersion = dto.minVersionAsNumber();
-    return true;
+    return m_minVersion.size() == 3;
 }
 
 bool DataProxy::parseOAuth2(const QJsonDocument &doc)
@@ -923,5 +943,5 @@ bool DataProxy::parseOAuth2(const QJsonDocument &doc)
     const QVariant root = doc.toVariant();
     data::parseObject(root, &dto);
     m_accessToken = dto;
-    return true;
+    return !m_accessToken.accessToken().isNull() && !m_accessToken.accessToken().isEmpty();
 }

@@ -1,7 +1,5 @@
 #include "AnalysisDEA.h"
 
-#include "ui_ddaWidget.h"
-
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -10,6 +8,8 @@
 #include "math/Common.h"
 #include "qcustomplot/qcustomplot.h"
 #include "model/GeneSelectionDEAItemModel.h"
+
+#include "ui_ddaWidget.h"
 
 static const QColor BORDER = QColor(238, 122, 0);
 
@@ -105,13 +105,13 @@ AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
             this,
             SLOT(slotSaveToPDF()));
     connect(m_ui->readsThreshold,
-            SIGNAL(signalLowerValueChanged(int)),
+            SIGNAL(signalLowerValueChanged(unsigned)),
             this,
-            SLOT(slotSetLowerThreshold(int)));
+            SLOT(slotSetLowerThreshold(unsigned)));
     connect(m_ui->readsThreshold,
-            SIGNAL(signalUpperValueChanged(int)),
+            SIGNAL(signalUpperValueChanged(unsigned)),
             this,
-            SLOT(slotSetUpperThreshold(int)));
+            SLOT(slotSetUpperThreshold(unsigned)));
     connect(m_ui->geneSearch,
             SIGNAL(textChanged(QString)),
             selectionsProxyModel(),

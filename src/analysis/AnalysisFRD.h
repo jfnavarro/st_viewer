@@ -15,7 +15,7 @@ class frdWidget;
 // (as histogram of the different number of counts sorted)
 // and also the threshold bars, threshold bars are
 // interactive so the will get updated if the user
-// modifies the threshold control.
+// modifies the threshold controls in the cell view.
 
 // TODO add option to compute the plots and threshold bars
 // using genes as the function of features and show the genes thresholds bars as
@@ -40,9 +40,9 @@ signals:
 
 public slots:
 
-    // Slots to adjust the boundaries when the thresholds are changed
-    void setLowerLimit(const int limit);
-    void setUpperLimit(const int limit);
+    // Slots to adjust the boundaries when the thresholds in the cell view are changed
+    void setLowerLimit(const unsigned limit);
+    void setUpperLimit(const unsigned limit);
 
 private slots:
 

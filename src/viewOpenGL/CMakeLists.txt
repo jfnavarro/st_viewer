@@ -1,7 +1,6 @@
 include_directories(${PROJECT_SOURCE_DIR}/ext)
 
 set(LIBRARY_ARG_INCLUDES
-    AssertOpenGL.h
     GeneRendererGL.h
     GeneData.h
     GridRendererGL.h
@@ -15,7 +14,6 @@ set(LIBRARY_ARG_INCLUDES
 )
 
 set(LIBRARY_ARG_SOURCES
-    AssertOpenGL.cpp
     GeneRendererGL.cpp
     GridRendererGL.cpp
     GeneData.cpp

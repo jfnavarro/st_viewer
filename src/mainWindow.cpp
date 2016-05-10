@@ -413,6 +413,8 @@ void MainWindow::saveSettings() const
 
 void MainWindow::startAuthorization()
 {
+    // clean the cache in the dataproxy
+    m_dataProxy->clean();
     // start the authorization (quiet if access token exists or interactive otherwise)
     m_authManager->startAuthorization();
 }
@@ -427,9 +429,6 @@ void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 
 void MainWindow::slotAuthorized()
 {
-    // clean the cache in the dataproxy
-    m_dataProxy->clean();
-
     // clean datasets/selections and main view
     m_datasets->clean();
     m_cellview->clean();
@@ -473,7 +472,8 @@ void MainWindow::slotLogOutButton()
 {
     // clear user name in label
     m_cellview->slotSetUserName("");
-
+    // clean the cache in the dataproxy
+    m_dataProxy->clean();
     // clean access token and start authorization
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();

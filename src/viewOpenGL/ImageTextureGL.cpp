@@ -51,7 +51,7 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
+void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_isInitialized) {
         return;

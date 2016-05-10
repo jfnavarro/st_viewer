@@ -62,7 +62,7 @@ void HeatMapLegendGL::clearData()
     m_isInitialized = false;
 }
 
-void HeatMapLegendGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
+void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_isInitialized) {
         return;

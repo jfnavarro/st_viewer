@@ -23,7 +23,7 @@ GridRendererGL::~GridRendererGL()
 {
 }
 
-void GridRendererGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
+void GridRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     qopengl_functions.glEnable(GL_LINE_SMOOTH);
     {

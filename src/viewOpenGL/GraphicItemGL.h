@@ -57,9 +57,8 @@ public:
     void setVisualOptions(GraphicItemGL::VisualOptions visualOptions);
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
-    // Drawing method, calls the virtual method. Asserts that the OpenGL
-    // state is error free before and after calling the virtual method.
-    void draw(QOpenGLFunctionsVersion &qpengl_functions);
+    // The drawing method, must be overriden in every drawing object
+    virtual void draw(QOpenGLFunctionsVersion &qpengl_functions) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
@@ -89,29 +88,27 @@ public:
     const QMatrix4x4 getProjection() const;
     const QMatrix4x4 getModelView() const;
 
-private:
-    // Override this to draw the item using OpenGL.
-    virtual void doDraw(QOpenGLFunctionsVersion &qpengl_functions) = 0;
-
 public slots:
     // TODO should prepend "slot"
     void setVisible(bool);
 
 signals:
     // TODO should prepend "signal"
-    // tells the view the rendering is needed
+    // to notify the rendering OpenGL canvas that a render is needed
     void updated();
 
 protected:
     // This is used to adjust the position of the element according to an anchor
     // option
-    // returns local transform adjusted for the anchor position
+    // returns the local transformation matrix adjusted for the anchor position
     const QTransform adjustForAnchor(const QTransform &transform) const;
 
-    // some local variables to store rendering properties
+    // local transformation matrix (for the object)
     QTransform m_transform;
+    // anchor position of object with respect to the screen
     Visual::Anchor m_anchor;
     GraphicItemGL::VisualOptions m_visualOptions;
+    // the OpenGL projection and model view matrices
     QMatrix4x4 m_projection;
     QMatrix4x4 m_modelView;
 

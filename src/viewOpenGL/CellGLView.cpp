@@ -302,6 +302,7 @@ float CellGLView::maxZoom() const
 
 const QImage CellGLView::grabPixmapGL()
 {
+    //TODO this does not work correctly now
     const int w = width();
     const int h = height();
     QImage res(w, h, QImage::Format_RGB32);

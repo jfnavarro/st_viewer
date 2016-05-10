@@ -53,9 +53,9 @@ public slots:
 protected:
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // internal function to render text as a texture
     void drawText(const QPointF &posn, const QString &str);

@@ -3,8 +3,6 @@
 #include <QVector3D>
 #include <QtOpenGL>
 
-#include "AssertOpenGL.h"
-
 GraphicItemGL::GraphicItemGL(QObject *parent)
     : QObject(parent)
     , m_anchor(Visual::Anchor::NorthWest)
@@ -231,12 +229,4 @@ const QMatrix4x4 GraphicItemGL::getProjection() const
 const QMatrix4x4 GraphicItemGL::getModelView() const
 {
     return m_modelView;
-}
-
-void GraphicItemGL::draw(QOpenGLFunctionsVersion &qpengl_functions)
-{
-    ASSERT_OPENGL_OK;
-    // Call overridden method.
-    doDraw(qpengl_functions);
-    ASSERT_OPENGL_OK;
 }

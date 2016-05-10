@@ -41,9 +41,9 @@ public slots:
 
 protected:
     void setSelectionArea(const SelectionEvent *) override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // internal functions to create a texture from an image and add it to the
     // rendering list

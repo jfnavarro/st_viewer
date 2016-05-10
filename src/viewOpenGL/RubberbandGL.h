@@ -22,13 +22,13 @@ public:
     virtual ~RubberbandGL();
 
     void setRubberbandRect(const QRectF &rect);
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 protected:
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     QRectF m_rubberbandRect;
 

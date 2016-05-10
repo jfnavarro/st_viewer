@@ -38,6 +38,9 @@ public:
 
     // Visualization data
     // TODO this approach to store and visualization data will be refactored soon
+    // visualization data will be stored and encapsulated in an object and it will
+    // have a much more memory/speed efficient way to access and compute the
+    // visualization data
 
     // list of unique spot indexes
     typedef std::unordered_set<int> IndexesList;
@@ -60,8 +63,6 @@ public:
     virtual ~GeneRendererGL();
 
     // data builder (create data arrays from the features data in async ways)
-    // TODO the data is being parsed before in DataProxy, perhaps we could avoid
-    // parsing it twice
     void generateData();
 
     // This function computes a individual counts cutoff for each gene.
@@ -71,7 +72,7 @@ public:
     // distribution
     void compuateGenesCutoff();
 
-    // clears data and reset variables
+    // clears data containers and reset variables to default
     void clearData();
 
     // set the dimensions of the bounding rect, also for the QuadTree
@@ -142,9 +143,9 @@ protected:
     void setSelectionArea(const SelectionEvent *event) override;
     // override method that returns the drawing size of this element
     const QRectF boundingRect() const override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // helper functions to init OpenGL buffers
     void initBasicBuffers();

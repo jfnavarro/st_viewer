@@ -71,7 +71,7 @@ QTransform MiniMapGL::localTransform() const
     return transform;
 }
 
-void MiniMapGL::doDraw(QOpenGLFunctionsVersion &opengl_functions)
+void MiniMapGL::draw(QOpenGLFunctionsVersion &opengl_functions)
 {
     if (!m_viewPort.isValid() || !m_scene.isValid()) {
         return;

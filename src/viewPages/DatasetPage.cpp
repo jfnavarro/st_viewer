@@ -122,7 +122,7 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
     }
     // Enable only remove if more than one selected
     const bool more_than_one = currentDatasets.size() > 1;
-    m_ui->deleteDataset->setEnabled(more_than_one);
+    m_ui->deleteDataset->setEnabled(true);
     m_ui->editDataset->setEnabled(!more_than_one);
     m_ui->openDataset->setEnabled(!more_than_one);
 }
@@ -299,6 +299,8 @@ void DatasetPage::slotRemoveDataset()
     m_waiting_spinner->start();
     for (const auto &dataset : currentDatasets) {
         m_dataProxy->removeDataset(dataset->id(), dataset->downloaded());
+        //TODO A signal must be send to notify cell view in case the
+        //dataset removed is currently opened
     }
     m_waiting_spinner->stop();
     // after we remove a dataset we refresh the model

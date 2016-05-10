@@ -65,15 +65,15 @@ void GeneRendererGL::clearData()
     // variables
     m_intensity = GENE_INTENSITY_DEFAULT;
     m_size = GENE_SIZE_DEFAULT;
-    m_thresholdReadsLower = std::numeric_limits<int>::max();
-    m_thresholdReadsUpper = std::numeric_limits<int>::min();
-    m_thresholdGenesLower = std::numeric_limits<int>::max();
-    m_thresholdGenesUpper = std::numeric_limits<int>::min();
-    m_thresholdTotalReadsLower = std::numeric_limits<int>::max();
-    m_thresholdTotalReadsUpper = std::numeric_limits<int>::min();
+    m_thresholdReadsLower = std::numeric_limits<unsigned>::max();
+    m_thresholdReadsUpper = std::numeric_limits<unsigned>::min();
+    m_thresholdGenesLower = std::numeric_limits<unsigned>::max();
+    m_thresholdGenesUpper = std::numeric_limits<unsigned>::min();
+    m_thresholdTotalReadsLower = std::numeric_limits<unsigned>::max();
+    m_thresholdTotalReadsUpper = std::numeric_limits<unsigned>::min();
     m_shape = DEFAULT_SHAPE_GENE;
-    m_localPooledMin = std::numeric_limits<int>::max();
-    m_localPooledMax = std::numeric_limits<int>::min();
+    m_localPooledMin = std::numeric_limits<unsigned>::max();
+    m_localPooledMax = std::numeric_limits<unsigned>::min();
     m_genes_cutoff = true;
 
     // visual mode
@@ -187,10 +187,10 @@ void GeneRendererGL::generateData()
         GeneInfoQuadTree::PointItem item(point, INVALID_INDEX);
         m_geneInfoQuadTree.select(point, item);
 
-        // index corresponds to the index in the vertex arrays of the quad
+        // index corresponds to the index in the array of vertices for the OpenGL data
         int index = item.second;
 
-        // if does not exists, create a quad and store the index
+        // if it does not exists, create a quad and store the index
         if (item.second == INVALID_INDEX) {
             index = m_geneData.addQuad(feature->x(),
                                        feature->y(),
@@ -247,19 +247,24 @@ void GeneRendererGL::compuateGenesCutoff()
 {
     const unsigned minseglen = 2;
     for (auto gene : m_dataProxy->getGeneList()) {
+        Q_ASSERT(gene);
         auto feature_list = m_geneInfoByFeature.equal_range(gene);
+        // create a list of the counts of the gene accross all spots
         std::vector<unsigned> counts;
         std::transform(feature_list.first,
                        feature_list.second,
-                       counts.begin(),
-                       [](GeneInfoByFeatureMap::value_type &ele) { return ele.second->count(); });
+                       std::back_inserter(counts),
+                       [](const GeneInfoByFeatureMap::value_type &ele)
+        { return ele.second->count(); });
         const size_t num_features = counts.size();
+        // if too little counts or if all the counts are the same cut off is the min count present
         if (num_features < minseglen + 1
             || std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
             const unsigned cutoff = *std::min_element(counts.begin(), counts.end());
             gene->cut_off(cutoff);
             continue;
         }
+        // sort the counts and compute a list of their squared sum
         std::sort(counts.begin(), counts.end());
         std::vector<unsigned> squared_summed_counts(counts);
         std::transform(squared_summed_counts.begin(),
@@ -271,6 +276,7 @@ void GeneRendererGL::compuateGenesCutoff()
                          squared_summed_counts.end(),
                          squared_summed_counts.begin());
         squared_summed_counts.insert(squared_summed_counts.begin(), 0);
+        // generate a vector taustar with indexes of the counts
         std::vector<unsigned> taustar;
         unsigned n = minseglen;
         std::generate_n(std::back_inserter(taustar),
@@ -280,20 +286,24 @@ void GeneRendererGL::compuateGenesCutoff()
         std::vector<float> tmp2;
         std::vector<float> tmp3;
         const float last_count = static_cast<float>(squared_summed_counts.back());
+        // perform tmp3 = (squared_summed_counts / last_count) - (taustar / num_counts)
         std::transform(squared_summed_counts.begin() + 2,
                        squared_summed_counts.end() - 1,
                        std::back_inserter(tmp1),
-                       [=](int count) { return count / last_count; });
+                       [=](unsigned count) { return count / last_count; });
         std::transform(taustar.begin(),
                        taustar.end(),
                        std::back_inserter(tmp2),
-                       [=](int tau_value) { return tau_value / static_cast<float>(num_features); });
+                       [=](unsigned tau_value)
+        { return tau_value / static_cast<float>(num_features); });
         std::transform(tmp1.begin(),
                        tmp1.end(),
                        tmp2.begin(),
                        std::back_inserter(tmp3),
-                       [](double a, double b) { return std::fabs(a - b); });
+                       [](float a, float b) { return std::fabs(a - b); });
+        // tau is the distance to the max element in tmp3 which is an index
         const auto tau = std::distance(tmp3.begin(), std::max_element(tmp3.begin(), tmp3.end()));
+        // get the read count of the tau index and that is the gene cut off
         const unsigned est_readcount
             = *std::upper_bound(counts.begin(), counts.end(), counts.at(tau));
         gene->cut_off(est_readcount);
@@ -456,6 +466,7 @@ void GeneRendererGL::updateSize()
         // update size of the quad for only one feature
         // (all features of same index have same coordinates)
         const auto feature = m_geneInfoByIndex.find(index);
+        Q_ASSERT(feature != m_geneInfoByIndex.end() && feature->second);
         m_geneData.updateQuadSize(index, feature->second->x(), feature->second->y(), m_size);
     }
 
@@ -526,8 +537,8 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
 
     // we want to get the max and min value of the reads that are going
     // to be rendered to pass these values to the shaders to compute normalized colors
-    m_localPooledMin = std::numeric_limits<int>::max();
-    m_localPooledMax = std::numeric_limits<int>::min();
+    m_localPooledMin = std::numeric_limits<unsigned>::max();
+    m_localPooledMax = std::numeric_limits<unsigned>::min();
 
     // reset selection array that contains the selected features
     m_geneInfoSelectedFeatures.clear();
@@ -591,7 +602,7 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
         }
 
         // we only show indexes where there is at least one gene-feature activated
-        const bool visible = indexValueGenes != 0;
+        const bool visible = indexValueGenes > 0;
 
         // update pooled min-max to compute colors if applies
         if (isPooled && visible) {
@@ -630,6 +641,8 @@ void GeneRendererGL::clearSelection()
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
+    //TODO this does not work correctly now
+
     // Well, we have some duplicated code here but the problem
     // is that this function is invoked from the reg-exp selection tool.
     // We want to make the spots visible that contain genes present in the
@@ -643,7 +656,7 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
                        [](const GeneInfoByGeneMap::value_type &ele) { return ele.second; });
     }
     // we update the rendering data
-    updateVisual(genes);
+    //updateVisual(genes);
     // we select the spots that contain the genes
     selectSpots(unique_indexes, SelectionEvent::NewSelection);
 }
@@ -789,7 +802,7 @@ void GeneRendererGL::slotSetGenesCutOff(bool enable)
     }
 }
 
-void GeneRendererGL::doDraw(QOpenGLFunctionsVersion &qopengl_functions)
+void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_isInitialized) {
         return;

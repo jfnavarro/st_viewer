@@ -18,7 +18,7 @@ class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
 // DEA(Differential Expression Analysis) between two user selections
-// and show the results in a correlation plot and a table
+// and show the results in a correlation plot and a table differently expressed genes
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
@@ -34,16 +34,20 @@ public:
             , pearsonCorrelation(0.0)
         {
         }
-
+        // vector of counts for each selection
         std::vector<double> valuesSelectionA;
         std::vector<double> valuesSelectionB;
+        // number of genes only in A
         unsigned countA;
+        // number of genes only in B
         unsigned countB;
+        // number of genes in both A and B
         unsigned countAB;
+        // correlation value
         double pearsonCorrelation;
     };
 
-    // Data container for normalized and unnormalized reads
+    // Data container the counts in both selection of a gene
     // the idea is that each record contains the information of
     // one gene and its expression levels in the two selections
     struct deaReads {
@@ -97,11 +101,12 @@ private:
     // returns true if they are outside
     bool combinedSelectionThreholsd(const deaReads &deaReads) const;
 
-    // Fills a list of combinedSelectionsType objects for each shared gene in
+    // Fills a list of deaReads objects for each shared gene in
     // both selections and also unique genes.
     // The idea is to have a structure that has information for the intersected
     // set of unique genes in both selections.
-    // The map is stored in the class and it is used to compute statistics
+    // The computed vector is stored for convenience so it can be used
+    // to compute statistics with computeStatistics()
     void computeGeneToReads(const UserSelection &selObjectA, const UserSelection &selObjectB);
 
     // The GUI object

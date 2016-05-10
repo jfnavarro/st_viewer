@@ -56,9 +56,9 @@ signals:
 protected:
     const QRectF boundingRect() const override;
     void setSelectionArea(const SelectionEvent *) override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
-    void doDraw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
     // internal functions to adjust minimap's size and position
     QTransform localTransform() const;
