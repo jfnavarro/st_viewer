@@ -81,12 +81,10 @@ instructions :
 *   Build the application
 
         make -j8 
-        make install
-        make test
     
 * Run the application typing
 
-        STViewer
+        /path/to/build/STViewer.app/Contents/STViewer
         
 * Alternatively for MAC you can build a DMG bundle 
 
@@ -101,7 +99,14 @@ instructions :
         sudo apt-get install cmake git ubuntu-dev-tools
         sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
-* Follow from the third step in the OSX guideline
+* Follow from the third step in the OSX guideline except the last step (build and execute)
+
+        make -j8
+        make install
+        
+    To execute type :
+      
+        STViewer
 
 ###### Windows
 * Download and install Qt open source from : http://qt-project.org/downloads
