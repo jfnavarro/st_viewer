@@ -20,10 +20,10 @@ set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
 set(APIPATH  "api")
 if(SERVER STREQUAL development)
   # DEV configuration
-  set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")
+  set(ENDPOINT "https://admin-dev.spatialrnaseq.org")
 elseif(SERVER STREQUAL production)
   # Production configuration
-  set(ENDPOINT "https://admin.spatialtranscriptomics.com")
+  set(ENDPOINT "https://admin.spatialrnaseq.org")
 elseif(SERVER STREQUAL local)
   # Local configuration
   set(ENDPOINT "http://localhost:8080")
