@@ -123,7 +123,7 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
 * Build from the source (Currently Qt does not support Visual Studio 2015)
 
-    It can be built in different ways (we use CygWIN) :
+    It can be built in different ways (we use Cygwin) :
     ###### CYGWIN
     - You can use the Cygwin based script called build_cygwin.sh to build it from the      Cygwin terminal.
     Make sure the script is configured to the paths of your Visual Studio, Qt,
