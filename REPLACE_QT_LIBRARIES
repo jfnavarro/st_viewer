@@ -2,9 +2,7 @@ STViewer is an open source application that
 uses the open source version of Qt. To comply
 the LGPL v3 requirements, intructions on how
 to replace the Qt libraries for the end-user must
-be given.
-
-TODO : Complete this and make it much pedagogic
+be given in case you decide to distribute the binaries.
 
 For OSX:
 
@@ -30,5 +28,9 @@ STViewer.app/Contents/MacOs/plugandpaint
 
 For Linux:
 
+The same approach as in OSX 
 
 For Windows:
+
+The DLLs must be replaced in the ST Viewer binary for the DDLs present
+in the QT installation folder. 
