@@ -203,11 +203,11 @@ if(UNIX AND NOT APPLE)
     deploy_qt_plugins()
 
     # Install libraries and resources
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION bin)
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
-    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
-    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 endif()
 
@@ -230,11 +230,8 @@ if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/assets/images/STViewer.icns")
     set(MACOSX_BUNDLE_INFO_STRING "Spatial Transcriptomics Viewer")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "name.elemc.${PROJECT_NAME}")
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION}")
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_VERSION "${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}")
-    set(MACOSX_BUNDLE_COPYRIGHT "Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>")
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
 
     # Architecture OSX
@@ -288,37 +285,9 @@ if(WIN32)
                            ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
     endforeach()
 
+    # Create folder for the deployment
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms)
-
-    set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
-    #set(CPACK_NSIS_MODIFY_PATH "ON")
-    set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
-    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
-    set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
-
-    # Right now we are invoking Windows CMake from inside Cygwin.
-    # Maybe that is why we need to replace the "/" with "\\\\"?
-    string(REPLACE "/" "\\\\" source_dir_windows "${CMAKE_SOURCE_DIR}")
-    set(CPACK_NSIS_MUI_UNICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_MUI_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_PACKAGE_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
-    set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
-    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-    set(CPACK_NSIS_PAGE_COMPONENTS "
-        !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
-        !define MUI_STARTMENUPAGE_NODISABLE
-    ")
-    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        CreateShortCut \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"        \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"     \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
-        CreateShortCut \\\"\\\$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\"        \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
-    ")
-
-    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-        Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
-        Delete \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"
-    ")
 
     # Location of libraries
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
