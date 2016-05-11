@@ -15,8 +15,16 @@ The ST viewer uses the data generated with the ST Pipeline (link),
 a pair of tissue images and an alignment matrix (to convert
 array coordinates to image coordinates). 
 
-The ST viewer can access datasets stored in a database
-or imported locally trough the viewer. 
+The ST viewer can access datasets stored in a database troug the ST API (link here)
+or imported locally (more detailed information about this
+in the manual).
+You can use our test dataset (test_data) to import it locally and 
+play around with the ST Viewer.
+If you want the ST Viewer to connect and use the data stored
+in a database trough the ST API you must build the ST Viewer
+with the correct configuration and you must have
+a registered user in the database. For that you can
+use the ST Admin (link here)
 
 ## Manual
 See MANUAL in (link to manual) for more information
