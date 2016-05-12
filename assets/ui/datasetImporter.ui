@@ -264,6 +264,31 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>datasetName</tabstop>
+  <tabstop>species</tabstop>
+  <tabstop>tissue</tabstop>
+  <tabstop>comments</tabstop>
+  <tabstop>featuresFile</tabstop>
+  <tabstop>loadFeaturesFile</tabstop>
+  <tabstop>chip_x1</tabstop>
+  <tabstop>chip_y1</tabstop>
+  <tabstop>chip_x2</tabstop>
+  <tabstop>chip_y2</tabstop>
+  <tabstop>alignment_a11</tabstop>
+  <tabstop>alignment_a12</tabstop>
+  <tabstop>alignment_a13</tabstop>
+  <tabstop>alignment_a21</tabstop>
+  <tabstop>alignment_a22</tabstop>
+  <tabstop>alignment_a23</tabstop>
+  <tabstop>alignment_a31</tabstop>
+  <tabstop>alignment_a32</tabstop>
+  <tabstop>alignment_a33</tabstop>
+  <tabstop>mainImageFile</tabstop>
+  <tabstop>loadMainImageFile</tabstop>
+  <tabstop>secondImageFile</tabstop>
+  <tabstop>loadSecondImageFile</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

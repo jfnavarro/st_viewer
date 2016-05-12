@@ -1,6 +1,6 @@
 project(STViewer CXX)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
-set(APPLICATION_NAME "Spatial Transcriptomics Viewer")
+set(APPLICATION_NAME "Spatial Transcriptomics Research Viewer")
 
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
@@ -61,6 +61,7 @@ message(STATUS "INTERNET SUPPORT = ${REMOTE_DATA}")
 if (REMOTE_DATA)
     message(STATUS "ENDPOINT = ${ENDPOINT}")
     message(STATUS "SERVER = ${SERVER}")
+    message(STATUS "SSL KEY = ${PUBLICKEY}")
 endif()
 message(STATUS
 "-------------------------------------------------------------------------------"

@@ -270,7 +270,7 @@ void MainWindow::slotClearCache()
 
 void MainWindow::createLayouts()
 {
-    statusBar()->showMessage(tr("Spatial Transcriptomics Viewer"));
+    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
 }
 
 // apply stylesheet and configurations

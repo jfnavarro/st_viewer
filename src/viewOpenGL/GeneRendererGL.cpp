@@ -641,8 +641,6 @@ void GeneRendererGL::clearSelection()
 
 void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
 {
-    //TODO this does not work correctly now
-
     // Well, we have some duplicated code here but the problem
     // is that this function is invoked from the reg-exp selection tool.
     // We want to make the spots visible that contain genes present in the
@@ -656,7 +654,7 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
                        [](const GeneInfoByGeneMap::value_type &ele) { return ele.second; });
     }
     // we update the rendering data
-    //updateVisual(genes);
+    updateVisual(genes);
     // we select the spots that contain the genes
     selectSpots(unique_indexes, SelectionEvent::NewSelection);
 }

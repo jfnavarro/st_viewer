@@ -753,9 +753,14 @@ void CellViewPage::resetActionStates()
     m_colorLinear->setChecked(true);
 
     // restrict interface
-    const auto user = m_dataProxy->getUser();
-    Q_ASSERT(user);
-    m_ui->actionShow_cellTissueRed->setVisible(user->hasSpecialRole());
+    if (m_dataProxy->userLogIn()) {
+        const auto user = m_dataProxy->getUser();
+        Q_ASSERT(user);
+        m_ui->actionShow_cellTissueRed->setVisible(user->hasSpecialRole());
+    } else {
+        //TODO true for now but we should only enable if the dataset has two images..
+        m_ui->actionShow_cellTissueRed->setVisible(true);
+    }
 }
 
 void CellViewPage::initGLView()
@@ -816,7 +821,7 @@ void CellViewPage::slotLoadCellFigure()
     m_ui->actionShow_cellTissueBlue->setChecked(!loadRedFigure);
     m_ui->actionShow_cellTissueRed->setChecked(loadRedFigure);
 
-    // TODO QOpenGLTexture has problems creating the textures concurrently
+    // create tiles textures from the image
     m_image->clearData();
     m_image->createTiles(image);
     m_ui->view->setScene(m_image->boundingRect());
@@ -931,9 +936,6 @@ void CellViewPage::slotSetLegendType(QAction *action)
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList &geneList = SelectionDialog::selectGenes(m_dataProxy, this);
-    // TODO load data for gene model
-    // (we need this as selecting genes might change the status of genes)
-    // best way is to send a signal that will trigger slot in genes table
     m_gene_plotter->selectGenes(geneList);
 }
 

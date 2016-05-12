@@ -22,6 +22,9 @@
 // It also allows to select indexes(spots) trough manual selection or gene names
 // To clarify, by index(spot) we mean the physical spot in the array
 // and by feature we mean the gene-index combination
+
+//TODO data and API will be split into two and the data containers will
+//be optimized a lot
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
