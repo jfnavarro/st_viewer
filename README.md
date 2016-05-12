@@ -1,9 +1,13 @@
 # Spatial Transcriptomics Research Viewer
 
+"ADD TRAVIS BUILD STATUS HERE"
+
 The ST viewer is a tool to visualize spatially resolved gene
 expression data on top of cell tissue figures with the correct
 location.
 
+The ST Viewer is cross platform which means that it can
+be built and run in MAC, UNIX and WINDOWS PCs. 
 The ST viewer allows to interact with the data dynamically.
 Users can see where specific genes are expressed and how
 expressed they are. It has different threshold options
@@ -13,9 +17,9 @@ to later do DEA or cell classification.
 
 The ST viewer uses the data generated with the ST Pipeline (link), 
 a pair of tissue images and an alignment matrix (to convert
-array coordinates to image coordinates). 
+array coordinates to image pixel coordinates). 
 
-The ST viewer can access datasets stored in a database troug the ST API (link here)
+The ST viewer can access datasets stored in a database trough the ST API (link here)
 or imported locally (more detailed information about this
 in the manual).
 You can use our test dataset (test_data) to import it locally and 
@@ -60,7 +64,9 @@ instructions :
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
           [-DSERVER=”production | development | local”] \
           [-DCLIENTID="some_name"] \
-          [-DSECRETID="password"]
+          [-DSECRETID="password"] \
+          [-DPUBLICKEY="path_to_ssl_key"] \
+          [-DREMOTE_DATA=ON|OFF]
           /path/to/source
 
     Where : 
@@ -85,6 +91,11 @@ instructions :
 
     DSECRETID = In case we want the ST Viewer to access datasets in a database we must
     give the client password (this is optional) 
+    
+    DPUBLIC_KEY = In case we want the ST Viewer to access datasets in a database we must
+    give a public key if the API implements HTTPS (this is optional) 
+    
+    DREMOTE_DATA = To disable/enable the remote data (fetch data from the remote database)
 
 *   Build the application
 
@@ -138,15 +149,15 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
     It can be built in different ways (we use Cygwin) :
     ###### CYGWIN
-    - You can use the Cygwin based script called build_cygwin.sh to build it from the      Cygwin terminal.
-    Make sure the script is configured to the paths of your Visual Studio, Qt,
-    CMake and other libraries and that the architecture is set to the one in your          system (32 or 64)
+    - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
+    Make sure the script is configured to the paths of your Visual Studio, Qt and and that the architecture 
+    is set to the one in your system (32 or 64)
 
-    - Make a directory for the script to copy the build artifacts to. For example          ‘st_bin’.
+    - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
 
             mkdir st_bin
 
-        (When the build has completed this directory will contain the application and          it’s installer).
+        (When the build has completed this directory will contain the application and it’s installer).
         
         Then in a Cygwin terminal, for a production build type:
         
