@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QSslError>
 
-#include "error/Error.h"
+#include "Error.h"
 #include "network/NetworkCommand.h"
 
 class SSLNetworkError : public Error

@@ -77,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
     , m_genes(nullptr)
+    , m_remote_data(false)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -97,8 +98,10 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::init()
+void MainWindow::init(const bool remote_data)
 {
+    m_remote_data = remote_data;
+
     // init style, size and icons
     initStyle();
 
@@ -413,6 +416,10 @@ void MainWindow::saveSettings() const
 
 void MainWindow::startAuthorization()
 {
+    if (!m_remote_data) {
+        return;
+    }
+
     // clean the cache in the dataproxy
     m_dataProxy->clean();
     // start the authorization (quiet if access token exists or interactive otherwise)
@@ -421,6 +428,10 @@ void MainWindow::startAuthorization()
 
 void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 {
+    if (!m_remote_data) {
+        return;
+    }
+
     // force clean access token and authorize again
     m_authManager->cleanAccesToken();
     m_authManager->startAuthorization();
@@ -429,6 +440,10 @@ void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 
 void MainWindow::slotAuthorized()
 {
+    if (!m_remote_data) {
+        return;
+    }
+
     // clean datasets/selections and main view
     m_datasets->clean();
     m_cellview->clean();
@@ -470,6 +485,9 @@ void MainWindow::slotAuthorized()
 
 void MainWindow::slotLogOutButton()
 {
+    if (!m_remote_data) {
+        return;
+    }
     // clear user name in label
     m_cellview->slotSetUserName("");
     // clean the cache in the dataproxy

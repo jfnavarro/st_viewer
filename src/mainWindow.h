@@ -30,7 +30,7 @@ public:
     ~MainWindow();
 
     // initialize main visual components
-    void init();
+    void init(const bool remote_data);
 
     // check that the host has all the required hardware (true yes : false no )
     bool checkSystemRequirements() const;
@@ -93,6 +93,9 @@ private:
     QScopedPointer<CellViewPage> m_cellview;
     QScopedPointer<UserSelectionsPage> m_user_selections;
     QScopedPointer<GenesWidget> m_genes;
+
+    // true if the app is built with internet support
+    bool m_remote_data;
 };
 
 #endif // stVi_H

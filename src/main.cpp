@@ -101,9 +101,13 @@ int main(int argc, char **argv)
         qDebug() << "[Main] Error: Minimum requirements test failed!";
         return EXIT_FAILURE;
     }
-
+    // check wether the app is being built with internet support
+    bool remote_data = false;
+#ifdef REMOTE_DATA
+    remote_data = true;
+#endif
     // init graphic components
-    mainWindow.init();
+    mainWindow.init(remote_data);
     // show mainwindow.
     mainWindow.show();
     // authorize

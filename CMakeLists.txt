@@ -7,45 +7,62 @@ set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "5")
 set(PROJECT_VERSION_PATCH "6")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
-SET(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
-SET(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro")
-SET(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
-SET(PROJECT_VENDOR "Jose Fernandez Navarro")
+set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
+set(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro")
+set(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
+set(PROJECT_VENDOR "Jose Fernandez Navarro")
 
-SET(SERVER "development" CACHE STRING
-"The server providing the experimental data (development/production/local)")
+option(REMOTE_DATA "Whether the application can connect to a ST API to retrieve data" OFF)
 
-set(PUBLICKEY "${PROJECT_SOURCE_DIR}/assets/dev_server_cert.pem")
+# Check if the remote mode is desired
+if(REMOTE_DATA)
+    set(SERVER "development"
+        CACHE STRING "The server providing the experimental data (development/production/local)")
+    if(SERVER STREQUAL development)
+      # DEV configuration
+      set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")
+    elseif(SERVER STREQUAL production)
+      # Production configuration
+      set(ENDPOINT "https://admin.spatialtranscriptomics.com")
+    elseif(SERVER STREQUAL local)
+      # Local configuration
+      set(ENDPOINT "http://localhost:8080")
+    else()
+      message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
+  endif()
+
+  if (CLIENTID STREQUAL "")
+      message(FATAL_ERRROR "CLIENTID is needed to enable the online mode")
+  endif()
+  if (SECRECTID STREQUAL "")
+      message(FATAL_ERRROR "SECRECTID is needed to enable the online mode")
+  endif()
+  if (PUBLICKEY STREQUAL "")
+      message(FATAL_ERRROR "PUBLICKEY is needed to enable the online mode")
+  endif()
+
+endif()
 
 set(APIPATH  "api")
-if(SERVER STREQUAL development)
-  # DEV configuration
-  set(ENDPOINT "https://admin-dev.spatialrnaseq.org")
-elseif(SERVER STREQUAL production)
-  # Production configuration
-  set(ENDPOINT "https://admin.spatialrnaseq.org")
-elseif(SERVER STREQUAL local)
-  # Local configuration
-  set(ENDPOINT "http://localhost:8080")
-else()
-  message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
-endif()
 
 # print main variables
 message( STATUS )
 message( STATUS
 "-------------------------------------------------------------------------------"
 )
-message( STATUS "Building ${APPLICATION_NAME} ....." )
-message( STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>" )
-message( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
-message( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
-message( STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}" )
-message( STATUS "TARGET_ARCH = ${TARGET_ARCH}" )
-message( STATUS "VERSION = ${PROJECT_VERSION}")
-message( STATUS "ENDPOINT = ${ENDPOINT}")
-message( STATUS "SERVER = ${SERVER}")
-message( STATUS
+message(STATUS "Building ${APPLICATION_NAME} ....." )
+message(STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>" )
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
+message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
+message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}" )
+message(STATUS "TARGET_ARCH = ${TARGET_ARCH}" )
+message(STATUS "VERSION = ${PROJECT_VERSION}")
+message(STATUS "INTERNET SUPPORT = ${REMOTE_DATA}")
+if (REMOTE_DATA)
+    message(STATUS "ENDPOINT = ${ENDPOINT}")
+    message(STATUS "SERVER = ${SERVER}")
+endif()
+message(STATUS
 "-------------------------------------------------------------------------------"
 )
 message( STATUS )

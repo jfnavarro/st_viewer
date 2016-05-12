@@ -3,7 +3,7 @@
 
 #include <QJsonParseError>
 
-#include "error/Error.h"
+#include "Error.h"
 
 class JSONError : public Error
 {

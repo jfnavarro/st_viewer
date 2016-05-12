@@ -59,14 +59,18 @@ private:
     QScopedPointer<Ui::frdWidget> m_ui;
 
     // Plotting objects for normal reads
-    QScopedPointer<QCustomPlot> m_customPlotNormal;
-    QScopedPointer<QCPItemLine> m_upperThresholdBarNormal;
-    QScopedPointer<QCPItemLine> m_lowerThresholdBarNormal;
+    // QCustomPlot forces deleting of every added member,
+    // therefore we cannot use scoped pointer here
+    QPointer<QCustomPlot> m_customPlotNormal;
+    QPointer<QCPItemLine> m_upperThresholdBarNormal;
+    QPointer<QCPItemLine> m_lowerThresholdBarNormal;
 
     // Plotting objects for normal reads in log space
-    QScopedPointer<QCustomPlot> m_customPlotLog;
-    QScopedPointer<QCPItemLine> m_upperThresholdBarLog;
-    QScopedPointer<QCPItemLine> m_lowerThresholdBarLog;
+    // QCustomPlot forces deleting of every added member,
+    // therefore we cannot use scoped pointer here
+    QPointer<QCustomPlot> m_customPlotLog;
+    QPointer<QCPItemLine> m_upperThresholdBarLog;
+    QPointer<QCPItemLine> m_lowerThresholdBarLog;
 
     // To keep track of the min-max of the Y axes to adjust the threshold bars
     unsigned m_minY;

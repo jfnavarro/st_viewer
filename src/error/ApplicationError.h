@@ -1,7 +1,7 @@
 #ifndef APPLICATIONERROR_H
 #define APPLICATIONERROR_H
 
-#include "error/Error.h"
+#include "Error.h"
 
 class ApplicationError : public Error
 {

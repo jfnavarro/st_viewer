@@ -3,7 +3,7 @@
 
 #include <QNetworkReply>
 
-#include "error/Error.h"
+#include "Error.h"
 #include "network/NetworkCommand.h"
 
 class NetworkError : public Error

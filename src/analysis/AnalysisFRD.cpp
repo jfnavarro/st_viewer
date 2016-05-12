@@ -45,15 +45,15 @@ AnalysisFRD::~AnalysisFRD()
 void AnalysisFRD::initializePlotNormal()
 {
     // creating plotting object for normal reads ditribution
-    m_customPlotNormal.reset(new QCustomPlot(m_ui->plotNormalWidget));
+    m_customPlotNormal = new QCustomPlot(m_ui->plotNormalWidget);
     Q_ASSERT(!m_customPlotNormal.isNull());
 
     // add threshold bars
-    m_lowerThresholdBarNormal.reset(new QCPItemLine(m_customPlotNormal.data()));
-    m_customPlotNormal->addItem(m_lowerThresholdBarNormal.data());
+    m_lowerThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
+    m_customPlotNormal->addItem(m_lowerThresholdBarNormal);
     m_lowerThresholdBarNormal->setHead(QCPLineEnding::esNone);
     m_lowerThresholdBarNormal->setPen(QPen(Qt::red));
-    m_upperThresholdBarNormal.reset(new QCPItemLine(m_customPlotNormal.data()));
+    m_upperThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
     m_customPlotNormal->addItem(m_upperThresholdBarNormal.data());
     m_upperThresholdBarNormal->setHead(QCPLineEnding::esNone);
     m_upperThresholdBarNormal->setPen(QPen(Qt::red));
@@ -93,16 +93,16 @@ void AnalysisFRD::initializePlotNormal()
 void AnalysisFRD::initializePlotLog()
 {
     // creating plotting object for log reads ditribution
-    m_customPlotLog.reset(new QCustomPlot(m_ui->plotLogWidget));
+    m_customPlotLog = new QCustomPlot(m_ui->plotLogWidget);
     Q_ASSERT(!m_customPlotLog.isNull());
 
     // add bars
-    m_lowerThresholdBarLog.reset(new QCPItemLine(m_customPlotLog.data()));
+    m_lowerThresholdBarLog = new QCPItemLine(m_customPlotLog);
     m_customPlotLog->addItem(m_lowerThresholdBarLog.data());
     m_lowerThresholdBarLog->setHead(QCPLineEnding::esNone);
     m_lowerThresholdBarLog->setPen(QPen(Qt::red));
 
-    m_upperThresholdBarLog.reset(new QCPItemLine(m_customPlotLog.data()));
+    m_upperThresholdBarLog = new QCPItemLine(m_customPlotLog);
     m_customPlotLog->addItem(m_upperThresholdBarLog.data());
     m_upperThresholdBarLog->setHead(QCPLineEnding::esNone);
     m_upperThresholdBarLog->setPen(QPen(Qt::red));
