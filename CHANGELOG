@@ -134,12 +134,20 @@ v0.5.2
 	* Show total reads and total genes in selection widget
 
 v0.5.5
-    * Changed UI interface
-    * Added option to load datasets locally
-    * Improved functionality in datasets view
-    * Improved functionality in selections view
-    * Selections do not get automatically saved in the cloud
-    * Added gene based cut-off
-    * Updated license terms
-    * Removed deprecated libraries
-    * General improvements and bug fixes
+    	* Changed UI interface
+    	* Added option to load datasets locally
+    	* Improved functionality in datasets view
+    	* Improved functionality in selections view
+    	* Selections do not get automatically saved in the cloud
+    	* Added gene based cut-off
+    	* Updated license terms
+    	* Removed deprecated libraries
+    	* General improvements and bug fixes
+
+v0.5.6
+    	* Fixed many bugs
+    	* Clean up and refactored the code a bit
+    	* Added no internet configuration trough CMake
+    	* Added option to disable individual reads cut off
+    	* Added option to remove multiple datasets/selections
+    	* Users only see their datasets/selections
