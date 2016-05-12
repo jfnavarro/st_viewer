@@ -143,3 +143,11 @@ v0.5.5
     * Updated license terms
     * Removed deprecated libraries
     * General improvements and bug fixes
+
+v0.5.6
+    * Fixed many bugs
+    * Clean up and refactored the code a bit
+    * Added no internet configuration trough CMake
+    * Added option to disable individual reads cut off
+    * Added option to remove multiple datasets/selections
+    * Users only see their datasets/selections
