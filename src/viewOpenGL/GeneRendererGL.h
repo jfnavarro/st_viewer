@@ -51,8 +51,6 @@ public:
     typedef std::unordered_multimap<int, DataProxy::FeaturePtr> GeneInfoByIndexMap;
     // gene object to list of spot indexes
     typedef std::unordered_multimap<DataProxy::GenePtr, int> GeneInfoByGeneMap;
-    // gene object to list of features
-    typedef std::unordered_multimap<DataProxy::GenePtr, DataProxy::FeaturePtr> GeneInfoByFeatureMap;
     // feature object to spot index
     typedef std::unordered_map<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap;
     // list of features
@@ -191,8 +189,6 @@ private:
     GeneInfoByIndexMap m_geneInfoByIndex;
     // gene lookup data (gene -> indexes)
     GeneInfoByGeneMap m_geneInfoByGene;
-    // gene lookup data (gene -> features)
-    GeneInfoByFeatureMap m_geneInfoByFeature;
     // gene look up data (feature -> index)
     GeneInfoByFeatureIndexMap m_geneInfoByFeatureIndex;
     // list of selected features

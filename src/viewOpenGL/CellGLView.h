@@ -29,7 +29,7 @@ class RubberbandGL;
 // What it is shown in the canvas is the cell tissue image
 // in its original resolution and size. Then the spots(genes)
 // are shown on top of the image and therefore their coordinates
-// (array coordinats) must be transformed to the image space.
+// (array coordinates) must be transformed to the image space.
 
 class CellGLView : public QOpenGLWidget
 {
@@ -47,10 +47,6 @@ public:
 
     // return a QImage representation of the canvas
     const QImage grabPixmapGL();
-
-    // used for the ScrollArea container to adjust the scroll bars
-    QRectF allowedCenterPoints() const;
-    QPointF sceneFocusCenterPoint() const;
 
     // clear all local variables and data
     void clearData();
@@ -71,20 +67,18 @@ public slots:
 
     // TODO slots should have the prefix "slot"
 
-    // some public slots to configure properties of the view
+    // zooming and padding
     void zoomOut();
     void zoomIn();
     void centerOn(const QPointF &point);
-    void rotate(float angle);
 
     // slot to enable the rubberband selection mode
     void setSelectionMode(const bool selectionMode);
 
-    // slots to set the viewport and scene size and the set the focus in a point
-    // very handy to make possible the interaction with the minimap
+    // scene is what is visible in the canvas
+    // viewport is the size of the biggest graphical object (cell tissue image)
     void setViewPort(const QRectF &viewport);
     void setScene(const QRectF &scene);
-    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
 
 protected:
     // OpenGL rendering and initialization functions
@@ -96,7 +90,6 @@ protected:
     const QTransform nodeTransformations(QSharedPointer<GraphicItemGL> node) const;
 
 signals:
-
     // signals to notify when the scene/view are changed/transformed
     // very handy for the minimap and the scrollarea
     void signalViewPortUpdated(const QRectF);
@@ -110,11 +103,16 @@ private:
     // helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const float zoom);
 
+    // set the center point on the scene
+    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
+
     // helper functions used to compute center position/zoom/padding
+    QRectF allowedCenterPoints() const;
     const QTransform sceneTransformations() const;
     float clampZoomFactorToAllowedRange(const float zoom) const;
     float minZoom() const;
     float maxZoom() const;
+
     // this function ensures that the whole image fits to the canvas
     void setDefaultPanningAndZooming();
 
@@ -140,8 +138,7 @@ private:
     bool m_panning;
     bool m_rubberBanding;
     bool m_selecting;
-    QPointer<RubberbandGL> m_rubberband;
-    float m_rotate;
+    QScopedPointer<RubberbandGL> m_rubberband;
     QPointF m_scene_focus_center_point;
     float m_zoom_factor;
 

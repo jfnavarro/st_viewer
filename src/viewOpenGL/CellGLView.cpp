@@ -13,7 +13,6 @@
 #include "RubberbandGL.h"
 #include "math/Common.h"
 
-// TODO make this names smaller!!!
 static const float DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
 static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
@@ -44,14 +43,13 @@ CellGLView::CellGLView(QWidget *parent)
     , m_rubberBanding(false)
     , m_selecting(false)
     , m_rubberband(nullptr)
-    , m_rotate(0.0)
     , m_zoom_factor(1.0)
 {
     // init projection matrix to identity
     m_projm.setToIdentity();
 
     // TODO consider decoupling rubberband object and view
-    m_rubberband = new RubberbandGL(this);
+    m_rubberband.reset(new RubberbandGL(this));
     m_rubberband->setAnchor(Visual::Anchor::None);
 
     // Configure OpenGL format for this view
@@ -100,7 +98,6 @@ void CellGLView::clearData()
     m_panning = false;
     m_rubberBanding = false;
     m_selecting = false;
-    m_rotate = 0.0;
     setDefaultPanningAndZooming();
 }
 
@@ -239,17 +236,6 @@ void CellGLView::centerOn(const QPointF &point)
     setSceneFocusCenterPointWithClamping(point);
 }
 
-void CellGLView::rotate(float angle)
-{
-    // TODO this is untested and not functional yet in the application
-    if (angle >= -180.0 && angle <= 180.0 && m_rotate != angle) {
-        m_rotate += angle;
-        Math::clamp(m_rotate, -360.0f, 360.0f);
-        emit signalSceneTransformationsUpdated(sceneTransformations());
-        update();
-    }
-}
-
 void CellGLView::setViewPort(const QRectF &viewport)
 {
     if (!viewport.isValid() || viewport.isEmpty() || viewport.isNull()) {
@@ -279,7 +265,6 @@ void CellGLView::setScene(const QRectF &scene)
 float CellGLView::minZoom() const
 {
     // we want to the min zoom to at least covers the whole image
-
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MIN_ZOOM;
     }
@@ -302,24 +287,8 @@ float CellGLView::maxZoom() const
 
 const QImage CellGLView::grabPixmapGL()
 {
-    //TODO this does not work correctly now
-    const int w = width();
-    const int h = height();
-    QImage res(w, h, QImage::Format_RGB32);
-
-    m_qopengl_functions.glReadBuffer(GL_FRONT_LEFT);
-    m_qopengl_functions.glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
-
-    res = res.rgbSwapped();
-    const QVector<QColor> pal = QColormap::instance().colormap();
-    if (pal.size()) {
-        res.setColorCount(pal.size());
-        for (int i = 0; i < pal.size(); i++) {
-            res.setColor(i, pal.at(i).rgb());
-        }
-    }
-
-    return res.mirrored();
+    QPixmap res = grab(QRect(0,0,width(),height()));
+    return res.toImage();
 }
 
 void CellGLView::setSelectionMode(const bool selectionMode)
@@ -529,11 +498,6 @@ QRectF CellGLView::allowedCenterPoints() const
     return allowed_center_points;
 }
 
-QPointF CellGLView::sceneFocusCenterPoint() const
-{
-    return m_scene_focus_center_point;
-}
-
 void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
 {
     const QRectF allowed_center_points_rect = allowedCenterPoints();
@@ -551,22 +515,18 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_poin
 
 const QTransform CellGLView::sceneTransformations() const
 {
+    // returns all the transformations applied to the scene from the user
     QTransform transform;
     const QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
     transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
     transform.translate(-m_viewport.width() / 2.0, -m_viewport.height() / 2.0);
-    if (m_rotate != 0.0) {
-        // TODO should rotate around its center, complete rotation
-        transform.rotate(m_rotate, Qt::ZAxis);
-    }
-
     return transform.inverted();
 }
 
 const QTransform CellGLView::nodeTransformations(QSharedPointer<GraphicItemGL> node) const
 {
-    // these functions combines the node internal transformations with respect
+    // this function combines the node internal transformations with respect
     // to the view size and anchor positions to create a new transformation matrix
 
     const QSizeF viewSize = m_viewport.size();

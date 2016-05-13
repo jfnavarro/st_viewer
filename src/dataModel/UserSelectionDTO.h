@@ -118,8 +118,7 @@ public:
         jsonObj["enabled"] = enabled();
         jsonObj["created_at"] = QJsonValue::Null;    // leave this empty the API will update it
         jsonObj["last_modified"] = QJsonValue::Null; // leave this empty the API will update it
-        QByteArray tissue_base64 = tissueSnapShot().toBase64();
-        jsonObj["tissue_snapshot"] = QString::fromUtf8(tissue_base64);
+        jsonObj["tissue_snapshot"] = QString::fromUtf8(tissueSnapShot());
 
         QJsonDocument doc(jsonObj);
         QByteArray serializedDoc = doc.toJson(QJsonDocument::Compact);

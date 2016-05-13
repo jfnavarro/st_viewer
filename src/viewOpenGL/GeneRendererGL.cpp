@@ -58,7 +58,6 @@ void GeneRendererGL::clearData()
     m_geneInfoTotalReadsIndex.clear();
     m_geneInfoTotalGenesIndex.clear();
     m_geneInfoByGene.clear();
-    m_geneInfoByFeature.clear();
     m_geneInfoByFeatureIndex.clear();
     m_indexes.clear();
 
@@ -170,15 +169,9 @@ void GeneRendererGL::generateData()
 
     for (const auto &feature : m_dataProxy->getFeatureList()) {
         Q_ASSERT(feature);
-
         // Get the feature's gene
         auto gene = m_dataProxy->geneGeneObject(feature->gene());
-
-        // reset to default the attributes of the gene
-        // NOTE not needed now as we enforce to clear/reload every time we open a dataset
-        // gene->color(Globals::DEFAULT_COLOR_GENE);
-        // gene->selected(false);
-        // gene->cut_off(0);
+        Q_ASSERT(gene);
 
         // feature cordinates
         const QPointF point(feature->x(), feature->y());
@@ -207,29 +200,21 @@ void GeneRendererGL::generateData()
         m_geneInfoByIndex.insert(std::make_pair(index, feature));
         // multiple indexes per gene
         m_geneInfoByGene.insert(std::make_pair(gene, index));
-        // multiple features per gene
-        m_geneInfoByFeature.insert(std::make_pair(gene, feature));
         // one index per feature
         m_geneInfoByFeatureIndex.insert(std::make_pair(feature, index));
 
-        // updated total reads per feature position
-        m_geneInfoTotalReadsIndex[index] += feature->count();
+        // updated total reads/genes per spot/index
+        const unsigned feature_reads = feature->count();
+        const unsigned num_genes_spot = ++m_geneInfoTotalGenesIndex[index];
+        const unsigned num_reads_spot = m_geneInfoTotalReadsIndex[index] += feature_reads;
 
         // update thresholds (TODO next API will contain this information so no need for this)
-        ++m_geneInfoTotalGenesIndex[index];
-        const unsigned num_genes_feature = m_geneInfoTotalGenesIndex.at(index);
-        const unsigned feature_reads = feature->count();
-        const unsigned feature_total_reads = m_geneInfoTotalReadsIndex.at(index);
-
-        // updating the min-max values of the thresholds here
-        // TODO in the future these values will come with the dataset info
-        // so these steps will not be needed
-        m_thresholdGenesLower = std::min(num_genes_feature, m_thresholdGenesLower);
-        m_thresholdGenesUpper = std::max(num_genes_feature, m_thresholdGenesUpper);
+        m_thresholdGenesLower = std::min(num_genes_spot, m_thresholdGenesLower);
+        m_thresholdGenesUpper = std::max(num_genes_spot, m_thresholdGenesUpper);
         m_thresholdReadsLower = std::min(feature_reads, m_thresholdReadsLower);
         m_thresholdReadsUpper = std::max(feature_reads, m_thresholdReadsUpper);
-        m_thresholdTotalReadsLower = std::min(feature_total_reads, m_thresholdTotalReadsLower);
-        m_thresholdTotalReadsUpper = std::max(feature_total_reads, m_thresholdTotalReadsUpper);
+        m_thresholdTotalReadsLower = std::min(num_reads_spot, m_thresholdTotalReadsLower);
+        m_thresholdTotalReadsUpper = std::max(num_reads_spot, m_thresholdTotalReadsUpper);
 
     } // endforeach
 
@@ -248,14 +233,22 @@ void GeneRendererGL::compuateGenesCutoff()
     const unsigned minseglen = 2;
     for (auto gene : m_dataProxy->getGeneList()) {
         Q_ASSERT(gene);
-        auto feature_list = m_geneInfoByFeature.equal_range(gene);
-        // create a list of the counts of the gene accross all spots
-        std::vector<unsigned> counts;
-        std::transform(feature_list.first,
-                       feature_list.second,
+        auto gene_indexes = m_geneInfoByGene.equal_range(gene);
+        // get all the features of the spots that contain that gene
+        DataProxy::FeatureList feature_list;
+        for (auto it = gene_indexes.first; it != gene_indexes.second; ++it) {
+            auto features = m_geneInfoByIndex.equal_range(it->second);
+            std::transform(features.first,
+                           features.second,
+                           std::back_inserter(feature_list),
+                           [](const GeneInfoByIndexMap::value_type &ele) { return ele.second; });
+        }
+        // create a list of the counts from the list of features
+        std::vector<unsigned> counts(feature_list.size());
+        std::transform(feature_list.begin(),
+                       feature_list.end(),
                        std::back_inserter(counts),
-                       [](const GeneInfoByFeatureMap::value_type &ele)
-        { return ele.second->count(); });
+                       [](const DataProxy::FeaturePtr &ele) { return ele->count(); });
         const size_t num_features = counts.size();
         // if too little counts or if all the counts are the same cut off is the min count present
         if (num_features < minseglen + 1
@@ -500,8 +493,13 @@ void GeneRendererGL::updateGene(const DataProxy::GenePtr gene)
     if (!gene) {
         return;
     }
-    // TODO for now update all graphical data but
-    // it is only one gene that needs to be updated
+    // get unique indexes from the gene
+    IndexesList unique_indexes;
+    auto range = m_geneInfoByGene.equal_range(gene);
+    std::transform(range.first,
+                   range.second,
+                   std::inserter(unique_indexes, unique_indexes.end()),
+                   [](GeneInfoByGeneMap::value_type &ele) { return ele.second; });
     updateVisual();
 }
 
@@ -515,7 +513,7 @@ void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList)
 {
     // get unique indexes from the list of genes
     IndexesList unique_indexes;
-    for (auto &gene : geneList) {
+    for (const auto &gene : geneList) {
         auto range = m_geneInfoByGene.equal_range(gene);
         std::transform(range.first,
                        range.second,
@@ -576,6 +574,7 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
             auto gene = m_dataProxy->geneGeneObject(feature->gene());
             Q_ASSERT(gene);
 
+            // get the gene status and the count
             const bool isSelected = gene->selected();
             const unsigned geneCutOff = gene->cut_off();
             const unsigned currentHits = feature->count();

@@ -180,8 +180,8 @@ void UserSelectionsPage::slotRemoveSelection()
         m_dataProxy->removeSelection(selection->id(), selection->saved());
     }
     m_waiting_spinner->stop();
-    // update the model
-    slotSelectionsUpdated();
+    // update the selections
+    loadSelections();
 }
 
 void UserSelectionsPage::slotExportSelection()
@@ -352,13 +352,17 @@ void UserSelectionsPage::slotSaveSelection()
     const auto user = m_dataProxy->getUser();
     Q_ASSERT(user);
     selectionObject->userId(user->id());
+    // must set Id to null before saving it to avoid a DB error
+    //TODO find a cleaner way to solve this
+    selectionObject->id(QString());
 
-    // save the selection object in the database
+    // save the selection object in the database and remove the old one
     m_waiting_spinner->start();
     m_dataProxy->addUserSelection(*selectionObject, true);
+    m_dataProxy->removeSelection(selectionObject->id(), false);
     m_waiting_spinner->stop();
-    // update the model
-    slotSelectionsUpdated();
+    // update the selections
+    loadSelections();
 }
 
 void UserSelectionsPage::slotShowTable()

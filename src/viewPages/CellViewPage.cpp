@@ -968,7 +968,7 @@ void CellViewPage::slotSelectionUpdated()
     QBuffer buffer(&ba);
     buffer.open(QIODevice::WriteOnly);
     tissue_snapshot.save(&buffer, "JPG");
-    new_selection.tissueSnapShot(ba);
+    new_selection.tissueSnapShot(ba.toBase64());
     // add account if the user is logged in
     if (m_dataProxy->userLogIn()) {
         const auto user = m_dataProxy->getUser();
