@@ -30,6 +30,12 @@ with the correct configuration and you must have
 a registered user in the database. For that you can
 use the ST Admin (link here)
 
+## Authors
+Read AUTHORS file
+
+## Dependencies
+Read DEPENDENCIES file
+
 ## Manual
 See MANUAL in (link to manual) for more information
 on how to use the ST Viewer.
@@ -62,7 +68,7 @@ instructions :
           [-DCMAKE_PREFIX_PATH="/path/to/qt"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
-          [-DSERVER=”production | development | local”] \
+          [-DENDPOINT=”http://yourserverapi.] \
           [-DCLIENTID="some_name"] \
           [-DSECRETID="password"] \
           [-DPUBLICKEY="path_to_ssl_key"] \
@@ -84,7 +90,8 @@ instructions :
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
     eg: 10.7 , 10.8 or 10.9
     
-    DSERVER = Build STViewer to connect to the development, local or production servers (this is            optional)
+    DENDPOINT = In case we want the ST Viewer to access datasets in a database we must
+    give the URL of the ST API (this is optional)
 
     DCLIENID = In case we want the ST Viewer to access datasets in a database we must
     give the client ID (this is optional)
@@ -128,6 +135,10 @@ instructions :
         STViewer
 
 ###### Windows
+
+There are different ways to build the ST Viewer in Windows.
+We use Cygwin but there are probably easier ways to do it. 
+
 * Download and install Qt open source from : http://qt-project.org/downloads
 * Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
 
@@ -147,11 +158,9 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
 * Build from the source (Currently Qt does not support Visual Studio 2015)
 
-    It can be built in different ways (we use Cygwin) :
-    ###### CYGWIN
     - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
     Make sure the script is configured to the paths of your Visual Studio, Qt and and that the architecture 
-    is set to the one in your system (32 or 64)
+    is set to the one in your system (32 or 64) as well as the cmake variables (listed above)
 
     - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
 
