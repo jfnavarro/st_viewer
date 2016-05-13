@@ -30,6 +30,12 @@ with the correct configuration and you must have
 a registered user in the database. For that you can
 use the ST Admin (link here)
 
+## Authors
+Read AUTHORS file
+
+## Dependencies
+Read DEPENDENCIES file
+
 ## Manual
 See MANUAL in (link to manual) for more information
 on how to use the ST Viewer.
