@@ -88,7 +88,6 @@ else
   stclient_builddir=`mktemp -d /tmp/stclient.XXX`
 fi
 
-
 cd "$stclient_builddir" 
 stclient_builddir_windows=`cygpath -w "$stclient_builddir"`
 stclient_srcdir_windows=`cygpath -w "$stclient_srcdir"`
@@ -96,14 +95,20 @@ stclient_srcdir_windows=`cygpath -w "$stclient_srcdir"`
 #"Visual Studio 11 Win64" 
 
 if [ $2 = "stclient_development_build" ]; then
-  server=development
   build_type=Debug
 fi
 
 if [ $2 = "stclient_production_build" ]; then
-  server=production
   build_type=Release
 fi
+
+# You must turn remotedata to ON and set the other variables to use the viewer with the ST API
+server=development
+endpoint=
+clientid=
+secretid=
+publickey=
+remotedata=OFF
 
 if [ $2 = "stclient_build_only_run_make" ]; then
   cmd="echo skipping running cmake"
@@ -120,10 +125,9 @@ windows_msvc_vars_filepath=`cygpath -w "$msvc_vars_filepath"`
 cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
   `cygpath -w "$qt_env_filepath"` "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DSERVER:STRING=$server "$stclient_srcdir_windows" "&&" \
+   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DREMOTE_DATA=$remotedata -DPUBLICKEY=$publickey -DSECRETID=$secretid -DCLIENTID=$clientid -DENDPOINT=$endpoint -D "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
    "$windows_ctest_filepath" "&&" \
    nmake package
 
-cp "$stclient_builddir"/stVi.exe "$result_dir"
-cp "$stclient_builddir"/stVi-*-win64.exe "$result_dir"
+cp "$stclient_builddir"/*.exe "$result_dir"
