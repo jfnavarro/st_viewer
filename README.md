@@ -129,6 +129,10 @@ instructions :
         STViewer
 
 ###### Windows
+
+There are different ways to build the ST Viewer in Windows.
+We use Cygwin but there are probably easier ways to do it. 
+
 * Download and install Qt open source from : http://qt-project.org/downloads
 * Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
 
@@ -148,11 +152,9 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
 * Build from the source (Currently Qt does not support Visual Studio 2015)
 
-    It can be built in different ways (we use Cygwin) :
-    ###### CYGWIN
     - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
     Make sure the script is configured to the paths of your Visual Studio, Qt and and that the architecture 
-    is set to the one in your system (32 or 64)
+    is set to the one in your system (32 or 64) as well as the cmake variables (listed above)
 
     - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
 
