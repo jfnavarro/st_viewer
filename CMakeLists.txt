@@ -16,21 +16,9 @@ option(REMOTE_DATA "Whether the application can connect to a ST API to retrieve 
 
 # Check if the remote mode is desired
 if(REMOTE_DATA)
-    set(SERVER "development"
-        CACHE STRING "The server providing the experimental data (development/production/local)")
-    if(SERVER STREQUAL development)
-      # DEV configuration
-      set(ENDPOINT "https://admin-dev.spatialtranscriptomics.com")
-    elseif(SERVER STREQUAL production)
-      # Production configuration
-      set(ENDPOINT "https://admin.spatialtranscriptomics.com")
-    elseif(SERVER STREQUAL local)
-      # Local configuration
-      set(ENDPOINT "http://localhost:8080")
-    else()
-      message(FATAL_ERRROR "unknown value of cmake variable SERVER : ${SERVER}")
+  if (ENDPOINT STREQUAL "")
+      message(FATAL_ERRROR "ENDPOINT is needed to enable the online mode")
   endif()
-
   if (CLIENTID STREQUAL "")
       message(FATAL_ERRROR "CLIENTID is needed to enable the online mode")
   endif()
@@ -40,7 +28,6 @@ if(REMOTE_DATA)
   if (PUBLICKEY STREQUAL "")
       message(FATAL_ERRROR "PUBLICKEY is needed to enable the online mode")
   endif()
-
 endif()
 
 set(APIPATH  "api")
@@ -60,7 +47,7 @@ message(STATUS "VERSION = ${PROJECT_VERSION}")
 message(STATUS "INTERNET SUPPORT = ${REMOTE_DATA}")
 if (REMOTE_DATA)
     message(STATUS "ENDPOINT = ${ENDPOINT}")
-    message(STATUS "SERVER = ${SERVER}")
+    message(STATUS "CLIENT ID = ${CLIENTID}")
     message(STATUS "SSL KEY = ${PUBLICKEY}")
 endif()
 message(STATUS
