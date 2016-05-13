@@ -62,7 +62,7 @@ instructions :
           [-DCMAKE_PREFIX_PATH="/path/to/qt"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
-          [-DSERVER=”production | development | local”] \
+          [-DENDPOINT=”http://yourserverapi.] \
           [-DCLIENTID="some_name"] \
           [-DSECRETID="password"] \
           [-DPUBLICKEY="path_to_ssl_key"] \
@@ -84,7 +84,8 @@ instructions :
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
     eg: 10.7 , 10.8 or 10.9
     
-    DSERVER = Build STViewer to connect to the development, local or production servers (this is            optional)
+    DENDPOINT = In case we want the ST Viewer to access datasets in a database we must
+    give the URL of the ST API (this is optional)
 
     DCLIENID = In case we want the ST Viewer to access datasets in a database we must
     give the client ID (this is optional)
