@@ -380,9 +380,9 @@ void GeneRendererGL::initDynamicBuffers()
     }
     m_selectedBuffer.bind();
     m_selectedBuffer.allocate(m_geneData.m_selected.constData(),
-                              m_geneData.m_selected.size() * 1 * sizeof(float));
+                              m_geneData.m_selected.size() * 1 * sizeof(unsigned));
     m_shader_program.enableAttributeArray("selectedAttr");
-    m_shader_program.setAttributeBuffer("selectedAttr", GL_FLOAT, 0, 1);
+    m_shader_program.setAttributeBuffer("selectedAttr", GL_UNSIGNED_INT, 0, 1);
 
     // visible buffer
     if (!m_visibleBuffer.isCreated()) {
@@ -391,9 +391,9 @@ void GeneRendererGL::initDynamicBuffers()
     }
     m_visibleBuffer.bind();
     m_visibleBuffer.allocate(m_geneData.m_visible.constData(),
-                             m_geneData.m_visible.size() * 1 * sizeof(float));
+                             m_geneData.m_visible.size() * 1 * sizeof(unsigned));
     m_shader_program.enableAttributeArray("visibleAttr");
-    m_shader_program.setAttributeBuffer("visibleAttr", GL_FLOAT, 0, 1);
+    m_shader_program.setAttributeBuffer("visibleAttr", GL_UNSIGNED_INT, 0, 1);
 
     // reads buffer
     if (!m_readsBuffer.isCreated()) {
@@ -402,9 +402,9 @@ void GeneRendererGL::initDynamicBuffers()
     }
     m_readsBuffer.bind();
     m_readsBuffer.allocate(m_geneData.m_reads.constData(),
-                           m_geneData.m_reads.size() * 1 * sizeof(float));
+                           m_geneData.m_reads.size() * 1 * sizeof(unsigned));
     m_shader_program.enableAttributeArray("readsAttr");
-    m_shader_program.setAttributeBuffer("readsAttr", GL_FLOAT, 0, 1);
+    m_shader_program.setAttributeBuffer("readsAttr", GL_UNSIGNED_INT, 0, 1);
 
     m_vao.release();
     m_shader_program.release();

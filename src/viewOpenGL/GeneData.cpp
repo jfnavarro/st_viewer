@@ -40,7 +40,7 @@ void GeneData::clearData()
 
 int GeneData::addQuad(const float x, const float y, const float size, const QColor &color)
 {
-    const unsigned int index_count = static_cast<unsigned int>(m_vertices.size());
+    const int index_count = static_cast<int>(m_vertices.size());
 
     m_vertices.append(QVector3D(x - size / 2.0, y - size / 2.0, 0.0));
     m_vertices.append(QVector3D(x + size / 2.0, y - size / 2.0, 0.0));
@@ -68,8 +68,8 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
     // update custom vertex arrays
     for (int i = 0; i < QUAD_SIZE; ++i) {
         m_reads.append(0);
-        m_visible.append(false);
-        m_selected.append(false);
+        m_visible.append(0);
+        m_selected.append(0);
     }
 
     // return first index of the quad created
@@ -106,7 +106,7 @@ void GeneData::updateQuadVisible(const int index, const bool visible)
     }
 }
 
-void GeneData::updateQuadReads(const int index, const int reads)
+void GeneData::updateQuadReads(const int index, const unsigned reads)
 {
     for (int i = 0; i < QUAD_SIZE; ++i) {
         m_reads[index + i] = reads;
@@ -131,7 +131,7 @@ bool GeneData::quadVisible(const int index) const
     return m_visible.at(index);
 }
 
-int GeneData::quadReads(const int index) const
+unsigned GeneData::quadReads(const int index) const
 {
     // all vertices has same value
     return m_reads.at(index);
