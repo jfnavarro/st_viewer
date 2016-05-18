@@ -151,3 +151,8 @@ v0.5.6
     	* Added option to disable individual reads cut off
     	* Added option to remove multiple datasets/selections
     	* Users only see their datasets/selections
+
+v0.5.7 
+	* Fixed some bugs
+	* Increased speed by adding back Qt containers
+	* Removed VAOs and buffers in the gene renderer
