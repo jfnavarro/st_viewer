@@ -49,8 +49,6 @@ static const int GENE_INTENSITY_MIN = 1;
 static const int GENE_INTENSITY_MAX = 10;
 static const int GENE_SIZE_MIN = 5;
 static const int GENE_SIZE_MAX = 30;
-static const int BRIGHTNESS_MIN = 1;
-static const int BRIGHTNESS_MAX = 10;
 
 using namespace Visual;
 using namespace Style;
@@ -129,7 +127,6 @@ CellViewPage::CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     , m_geneTotalReadsThreshold(nullptr)
     , m_geneIntensitySlider(nullptr)
     , m_geneSizeSlider(nullptr)
-    , m_geneBrightnessSlider(nullptr)
     , m_geneShapeComboBox(nullptr)
     , m_dataProxy(dataProxy)
 {
@@ -485,17 +482,6 @@ void CellViewPage::createMenusAndConnections()
     menu_cellTissue->addAction(m_ui->actionShow_showCellTissue);
     menu_cellTissue->addSeparator();
 
-    // brightness of the cell tissue image
-    m_geneBrightnessSlider.reset(new QSlider(this));
-    addSliderToMenu(this,
-                    tr("Brightness:"),
-                    tr("Brightness level of the Cell Tissue"),
-                    tr("Brightness level of the Cell Tissue"),
-                    menu_cellTissue,
-                    m_geneBrightnessSlider.data(),
-                    BRIGHTNESS_MIN,
-                    BRIGHTNESS_MAX);
-
     // add menu to tool button in top bar
     m_ui->cellmenu->setMenu(menu_cellTissue);
 
@@ -536,11 +522,10 @@ void CellViewPage::createMenusAndConnections()
             SIGNAL(valueChanged(int)),
             this,
             SLOT(slotGeneIntensity(int)));
-    connect(m_geneSizeSlider.data(), SIGNAL(valueChanged(int)), this, SLOT(slotGeneSize(int)));
-    connect(m_geneBrightnessSlider.data(),
+    connect(m_geneSizeSlider.data(),
             SIGNAL(valueChanged(int)),
             this,
-            SLOT(slotGeneBrightness(int)));
+            SLOT(slotGeneSize(int)));
     connect(m_geneShapeComboBox.data(),
             SIGNAL(currentIndexChanged(int)),
             this,
@@ -1007,15 +992,6 @@ void CellViewPage::slotGeneSize(int geneSize)
     Q_ASSERT(!m_gene_plotter.isNull());
     const float decimal = static_cast<float>(geneSize) / 10;
     m_gene_plotter->setSize(decimal);
-}
-
-// input is expected to be >= 1 and <= 10
-void CellViewPage::slotGeneBrightness(int geneBrightness)
-{
-    Q_ASSERT(geneBrightness >= 1 && geneBrightness <= 10);
-    Q_ASSERT(!m_image.isNull());
-    const float decimal = static_cast<float>(geneBrightness) / 10;
-    m_image->setIntensity(decimal);
 }
 
 void CellViewPage::slotSetUserName(const QString &username)

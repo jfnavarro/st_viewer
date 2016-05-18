@@ -37,7 +37,7 @@ NetworkManager::NetworkManager(QObject *parent)
     // add SSL support
     QFile cafile(":public_key.pem");
     cafile.open(QIODevice::ReadOnly);
-    QSslCertificate cert(&cafile);
+    QSslCertificate cert(&cafile, QSsl::Pem);
     QSslSocket::addDefaultCaCertificate(cert);
 
     const QString serverURL = m_configurationManager.EndPointUrl();

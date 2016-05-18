@@ -19,8 +19,8 @@ class UserSelection
     Q_FLAGS(Types)
 
 public:
-    typedef std::pair<QString, unsigned> geneCount;
-    typedef std::vector<geneCount> geneTotalCountsVector;
+    typedef QPair<QString, unsigned> geneCount;
+    typedef QVector<geneCount> geneTotalCountsVector;
 
     enum Type { Rubberband = 1, Lazo = 2, Segmented = 3, Console = 4, Cluster = 5, Other = 6 };
     Q_DECLARE_FLAGS(Types, Type)

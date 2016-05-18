@@ -721,7 +721,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Bottom Right Corner</string>
+    <string>Minimap Bottom Right Corner</string>
    </property>
    <property name="toolTip">
     <string>Places the minimap on the bottom right part of the canvas</string>
@@ -732,7 +732,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Legend Bottom Right Corner</string>
+    <string>Minimap Bottom Right Corner</string>
    </property>
    <property name="toolTip">
     <string>Places the minimap on the bottom left part of the canvas</string>

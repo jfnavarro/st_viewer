@@ -82,7 +82,6 @@ private slots:
     void slotGeneShape(int geneShape);
     void slotGeneIntensity(int geneIntensity);
     void slotGeneSize(int geneSize);
-    void slotGeneBrightness(int geneBrightness);
 
     // save current scene
     void slotSaveImage();
@@ -150,7 +149,6 @@ private:
     QScopedPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
     QScopedPointer<QSlider> m_geneIntensitySlider;
     QScopedPointer<QSlider> m_geneSizeSlider;
-    QScopedPointer<QSlider> m_geneBrightnessSlider;
     QScopedPointer<QComboBox> m_geneShapeComboBox;
     // reference to dataProxy
     QSharedPointer<DataProxy> m_dataProxy;

@@ -36,10 +36,8 @@ public:
 
 public slots:
 
-    // to adjust intensity of the textures
-    void setIntensity(float intensity);
-
 protected:
+
     void setSelectionArea(const SelectionEvent *) override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
@@ -56,7 +54,6 @@ private:
     QVector<QOpenGLTexture *> m_textures;
     QVector<QVector2D> m_textures_indices;
     QVector<QVector2D> m_texture_coords;
-    float m_intensity;
     QRectF m_bounds;
     bool m_isInitialized;
 

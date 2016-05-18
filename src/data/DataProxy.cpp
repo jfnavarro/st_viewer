@@ -130,9 +130,8 @@ public:
         Q_ASSERT(!gene_name.isNull() && !gene_name.isEmpty());
 
         // create unique gene object
-        if (geneNameToGene.find(gene_name) == geneNameToGene.end()) {
-            geneNameToGene.insert(
-                std::make_pair(gene_name, std::make_shared<Gene>(Gene(gene_name))));
+        if (!geneNameToGene.contains(gene_name)) {
+            geneNameToGene.insert(gene_name, std::make_shared<Gene>(Gene(gene_name)));
         }
 
         // update containers
@@ -207,23 +206,12 @@ const DataProxy::DatasetPtr DataProxy::getDatasetById(const QString &datasetId) 
 
 const DataProxy::GeneList DataProxy::getGeneList() const
 {
-    DataProxy::GeneList genes(m_geneNameToObject.size());
-    std::transform(m_geneNameToObject.begin(),
-                   m_geneNameToObject.end(),
-                   genes.begin(),
-                   [](std::pair<QString, GenePtr> pair) { return pair.second; });
-    return genes;
+    return m_geneNameToObject.values();
 }
 
 DataProxy::GenePtr DataProxy::geneGeneObject(const QString &gene_name) const
 {
-    GenePtr gene_ptr = nullptr;
-    try {
-        gene_ptr = m_geneNameToObject.at(gene_name);
-    } catch(const std::out_of_range &exception) {
-        qDebug() << "Trying to retrieve a gene object that does not exist " << gene_name;
-    }
-    return gene_ptr;
+    return m_geneNameToObject.value(gene_name);
 }
 
 const DataProxy::FeatureList &DataProxy::getFeatureList() const
@@ -250,14 +238,14 @@ const QByteArray DataProxy::getFigureRed() const
 {
     Q_ASSERT(m_imageAlignment && !m_imageAlignment->figureRed().isNull()
              && !m_imageAlignment->figureRed().isEmpty());
-    return m_cellTissueImages.at(m_imageAlignment->figureRed());
+    return m_cellTissueImages.value(m_imageAlignment->figureRed());
 }
 
 const QByteArray DataProxy::getFigureBlue() const
 {
     Q_ASSERT(m_imageAlignment && !m_imageAlignment->figureBlue().isNull()
              && !m_imageAlignment->figureBlue().isEmpty());
-    return m_cellTissueImages.at(m_imageAlignment->figureBlue());
+    return m_cellTissueImages.value(m_imageAlignment->figureBlue());
 }
 
 const DataProxy::UserSelectionList DataProxy::getUserSelectionList() const
@@ -568,7 +556,7 @@ bool DataProxy::removeSelection(const QString &selectionId, const bool is_downlo
 bool DataProxy::loadCellTissueByName(const QString &name)
 {
     // remove image if already exists and add the newly created one
-    m_cellTissueImages.erase(name);
+    m_cellTissueImages.remove(name);
 
     // creates the request
     const auto cmd = RESTCommandFactory::getCellTissueFigureByName(m_configurationManager, name);
@@ -761,7 +749,7 @@ bool DataProxy::parseCellTissueImage(const QByteArray &rawData, const QString &i
                           && !imageName.isNull();
     if (parsedOk) {
         // store the image as raw data
-        m_cellTissueImages.insert(std::make_pair(imageName, rawData));
+        m_cellTissueImages.insert(imageName, rawData);
     }
 
     return parsedOk;

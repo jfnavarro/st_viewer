@@ -18,17 +18,8 @@ static const GeneRendererGL::GeneShape DEFAULT_SHAPE_GENE = GeneRendererGL::Gene
 
 GeneRendererGL::GeneRendererGL(QSharedPointer<DataProxy> dataProxy, QObject *parent)
     : GraphicItemGL(parent)
-    , m_isDirtyStaticData(false)
-    , m_isDirtyDynamicData(false)
     , m_isInitialized(false)
     , m_dataProxy(dataProxy)
-    , m_vertexsBuffer(QOpenGLBuffer::VertexBuffer)
-    , m_indexesBuffer(QOpenGLBuffer::IndexBuffer)
-    , m_texturesBuffer(QOpenGLBuffer::VertexBuffer)
-    , m_colorsBuffer(QOpenGLBuffer::VertexBuffer)
-    , m_selectedBuffer(QOpenGLBuffer::VertexBuffer)
-    , m_visibleBuffer(QOpenGLBuffer::VertexBuffer)
-    , m_readsBuffer(QOpenGLBuffer::VertexBuffer)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -59,6 +50,7 @@ void GeneRendererGL::clearData()
     m_geneInfoTotalGenesIndex.clear();
     m_geneInfoByGene.clear();
     m_geneInfoByFeatureIndex.clear();
+    m_geneInfoByGeneFeatures.clear();
     m_indexes.clear();
 
     // variables
@@ -83,8 +75,6 @@ void GeneRendererGL::clearData()
     m_colorComputingMode = Visual::LinearColor;
 
     // set dirty and initialized to false
-    m_isDirtyDynamicData = false;
-    m_isDirtyStaticData = false;
     m_isInitialized = false;
 }
 
@@ -166,7 +156,6 @@ void GeneRendererGL::generateData()
     setupShaders();
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     for (const auto &feature : m_dataProxy->getFeatureList()) {
         Q_ASSERT(feature);
         // Get the feature's gene
@@ -197,11 +186,13 @@ void GeneRendererGL::generateData()
 
         // update look up container for the features and indexes
         // multiple features per index
-        m_geneInfoByIndex.insert(std::make_pair(index, feature));
+        m_geneInfoByIndex.insert(index, feature);
         // multiple indexes per gene
-        m_geneInfoByGene.insert(std::make_pair(gene, index));
+        m_geneInfoByGene.insert(gene, index);
         // one index per feature
-        m_geneInfoByFeatureIndex.insert(std::make_pair(feature, index));
+        m_geneInfoByFeatureIndex.insert(feature, index);
+        // mutiple features per gene
+        m_geneInfoByGeneFeatures.insert(gene, feature);
 
         // updated total reads/genes per spot/index
         const unsigned feature_reads = feature->count();
@@ -220,11 +211,7 @@ void GeneRendererGL::generateData()
 
     // compute gene's cut off
     compuateGenesCutoff();
-
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirtyStaticData = true;
-    m_isDirtyDynamicData = true;
     m_isInitialized = true;
 }
 
@@ -233,16 +220,8 @@ void GeneRendererGL::compuateGenesCutoff()
     const unsigned minseglen = 2;
     for (auto gene : m_dataProxy->getGeneList()) {
         Q_ASSERT(gene);
-        auto gene_indexes = m_geneInfoByGene.equal_range(gene);
         // get all the features of the spots that contain that gene
-        DataProxy::FeatureList feature_list;
-        for (auto it = gene_indexes.first; it != gene_indexes.second; ++it) {
-            auto features = m_geneInfoByIndex.equal_range(it->second);
-            std::transform(features.first,
-                           features.second,
-                           std::back_inserter(feature_list),
-                           [](const GeneInfoByIndexMap::value_type &ele) { return ele.second; });
-        }
+        auto feature_list = m_geneInfoByGeneFeatures.values(gene);
         // create a list of the counts from the list of features
         std::vector<unsigned> counts(feature_list.size());
         std::transform(feature_list.begin(),
@@ -303,120 +282,6 @@ void GeneRendererGL::compuateGenesCutoff()
     }
 }
 
-void GeneRendererGL::initBasicBuffers()
-{
-    if (!m_vao.isCreated()) {
-        m_vao.create();
-    }
-    m_vao.bind();
-
-    m_shader_program.bind();
-
-    // vertices buffer
-    if (!m_vertexsBuffer.isCreated()) {
-        m_vertexsBuffer.create();
-        m_vertexsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_vertexsBuffer.bind();
-    m_vertexsBuffer.allocate(m_geneData.m_vertices.constData(),
-                             m_geneData.m_vertices.size() * 3 * sizeof(float));
-    m_shader_program.enableAttributeArray("vertexAttr");
-    m_shader_program.setAttributeBuffer("vertexAttr", GL_FLOAT, 0, 3);
-
-    // indexes buffer
-    if (!m_indexesBuffer.isCreated()) {
-        m_indexesBuffer.create();
-        m_indexesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_indexesBuffer.bind();
-    m_indexesBuffer.allocate(m_geneData.m_indexes.constData(),
-                             m_geneData.m_indexes.size() * 1 * sizeof(unsigned int));
-
-    // textures buffer
-    if (!m_texturesBuffer.isCreated()) {
-        m_texturesBuffer.create();
-        m_texturesBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_texturesBuffer.bind();
-    m_texturesBuffer.allocate(m_geneData.m_textures.constData(),
-                              m_geneData.m_textures.size() * 2 * sizeof(float));
-    m_shader_program.enableAttributeArray("textureAttr");
-    m_shader_program.setAttributeBuffer("textureAttr", GL_FLOAT, 0, 2);
-
-    m_vao.release();
-    m_shader_program.release();
-
-    m_vertexsBuffer.release();
-    m_indexesBuffer.release();
-    m_texturesBuffer.release();
-
-    m_isDirtyStaticData = false;
-}
-
-void GeneRendererGL::initDynamicBuffers()
-{
-    if (!m_vao.isCreated()) {
-        m_vao.create();
-    }
-    m_vao.bind();
-
-    m_shader_program.bind();
-
-    // color buffer
-    if (!m_colorsBuffer.isCreated()) {
-        m_colorsBuffer.create();
-        m_colorsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_colorsBuffer.bind();
-    m_colorsBuffer.allocate(m_geneData.m_colors.constData(),
-                            m_geneData.m_colors.size() * 4 * sizeof(float));
-    m_shader_program.enableAttributeArray("colorAttr");
-    m_shader_program.setAttributeBuffer("colorAttr", GL_FLOAT, 0, 4);
-
-    // selected buffer
-    if (!m_selectedBuffer.isCreated()) {
-        m_selectedBuffer.create();
-        m_selectedBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_selectedBuffer.bind();
-    m_selectedBuffer.allocate(m_geneData.m_selected.constData(),
-                              m_geneData.m_selected.size() * 1 * sizeof(unsigned));
-    m_shader_program.enableAttributeArray("selectedAttr");
-    m_shader_program.setAttributeBuffer("selectedAttr", GL_UNSIGNED_INT, 0, 1);
-
-    // visible buffer
-    if (!m_visibleBuffer.isCreated()) {
-        m_visibleBuffer.create();
-        m_visibleBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_visibleBuffer.bind();
-    m_visibleBuffer.allocate(m_geneData.m_visible.constData(),
-                             m_geneData.m_visible.size() * 1 * sizeof(unsigned));
-    m_shader_program.enableAttributeArray("visibleAttr");
-    m_shader_program.setAttributeBuffer("visibleAttr", GL_UNSIGNED_INT, 0, 1);
-
-    // reads buffer
-    if (!m_readsBuffer.isCreated()) {
-        m_readsBuffer.create();
-        m_readsBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    }
-    m_readsBuffer.bind();
-    m_readsBuffer.allocate(m_geneData.m_reads.constData(),
-                           m_geneData.m_reads.size() * 1 * sizeof(unsigned));
-    m_shader_program.enableAttributeArray("readsAttr");
-    m_shader_program.setAttributeBuffer("readsAttr", GL_UNSIGNED_INT, 0, 1);
-
-    m_vao.release();
-    m_shader_program.release();
-
-    m_colorsBuffer.release();
-    m_selectedBuffer.release();
-    m_visibleBuffer.release();
-    m_readsBuffer.release();
-
-    m_isDirtyDynamicData = false;
-}
-
 unsigned GeneRendererGL::getMinReadsThreshold() const
 {
     return m_thresholdReadsLower;
@@ -454,19 +319,15 @@ void GeneRendererGL::updateSize()
     }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     for (const unsigned index : m_indexes) {
         // update size of the quad for only one feature
         // (all features of same index have same coordinates)
-        const auto feature = m_geneInfoByIndex.find(index);
-        Q_ASSERT(feature != m_geneInfoByIndex.end() && feature->second);
-        m_geneData.updateQuadSize(index, feature->second->x(), feature->second->y(), m_size);
+        const auto feature = m_geneInfoByIndex.value(index);
+        Q_ASSERT(feature);
+        m_geneData.updateQuadSize(index, feature->x(), feature->y(), m_size);
     }
 
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirtyStaticData = true;
-    m_isDirtyDynamicData = true;
     emit updated();
 }
 
@@ -494,13 +355,8 @@ void GeneRendererGL::updateGene(const DataProxy::GenePtr gene)
         return;
     }
     // get unique indexes from the gene
-    IndexesList unique_indexes;
-    auto range = m_geneInfoByGene.equal_range(gene);
-    std::transform(range.first,
-                   range.second,
-                   std::inserter(unique_indexes, unique_indexes.end()),
-                   [](GeneInfoByGeneMap::value_type &ele) { return ele.second; });
-    updateVisual();
+    auto unique_indexes = m_geneInfoByGene.values(gene);
+    updateVisual(IndexesList::fromList(unique_indexes));
 }
 
 void GeneRendererGL::updateVisual()
@@ -514,11 +370,8 @@ void GeneRendererGL::updateVisual(const DataProxy::GeneList &geneList)
     // get unique indexes from the list of genes
     IndexesList unique_indexes;
     for (const auto &gene : geneList) {
-        auto range = m_geneInfoByGene.equal_range(gene);
-        std::transform(range.first,
-                       range.second,
-                       std::inserter(unique_indexes, unique_indexes.end()),
-                       [](GeneInfoByGeneMap::value_type &ele) { return ele.second; });
+        auto indexes = m_geneInfoByGene.values(gene);
+        unique_indexes.unite(IndexesList::fromList(indexes));
     }
 
     // compute the rendering information for the selected genes
@@ -551,8 +404,8 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
     foreach (const auto &index, indexes) {
 
         // check if spot's total reads/genes are inside the total reads/genes thresholds
-        const unsigned total_reads_feature = m_geneInfoTotalReadsIndex.find(index)->second;
-        const unsigned total_genes_feature = m_geneInfoTotalGenesIndex.find(index)->second;
+        const unsigned total_reads_feature = m_geneInfoTotalReadsIndex.value(index);
+        const unsigned total_genes_feature = m_geneInfoTotalGenesIndex.value(index);
         if (featureGenesOutsideRange(total_genes_feature)
             || featureTotalReadsOutsideRange(total_reads_feature)) {
             // set spot to not visible
@@ -566,9 +419,7 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
         unsigned indexValueGenes = 0;
 
         // iterate the genes in the spot to compute rendering data for an specific index (spot)
-        auto range = m_geneInfoByIndex.equal_range(index);
-        for (auto it = range.first; it != range.second; ++it) {
-            const auto feature = it->second;
+        for (const auto feature : m_geneInfoByIndex.values(index)) {
             Q_ASSERT(feature);
             // get the feature's gene
             auto gene = m_dataProxy->geneGeneObject(feature->gene());
@@ -621,10 +472,7 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
         m_geneData.updateQuadVisible(index, visible);
         m_geneData.updateQuadColor(index, indexColor);
     }
-
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirtyDynamicData = true;
     emit selectionUpdated();
     emit updated();
 }
@@ -633,7 +481,6 @@ void GeneRendererGL::clearSelection()
 {
     m_geneData.clearSelectionArray();
     m_geneInfoSelectedFeatures.clear();
-    m_isDirtyDynamicData = true;
     emit selectionUpdated();
     emit updated();
 }
@@ -646,11 +493,7 @@ void GeneRendererGL::selectGenes(const DataProxy::GeneList &genes)
     // search and we also want to select those spots
     IndexesList unique_indexes;
     for (const auto &gene : genes) {
-        auto range = m_geneInfoByGene.equal_range(gene);
-        std::transform(range.first,
-                       range.second,
-                       std::inserter(unique_indexes, unique_indexes.end()),
-                       [](const GeneInfoByGeneMap::value_type &ele) { return ele.second; });
+        unique_indexes.unite(IndexesList::fromList(m_geneInfoByGene.values(gene)));
     }
     // we update the rendering data
     updateVisual(genes);
@@ -672,10 +515,9 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent *event)
 
     // create a list of indexes from the quadtree' points.
     IndexesList indexes;
-    std::transform(pointList.begin(),
-                   pointList.end(),
-                   std::inserter(indexes, indexes.end()),
-                   [](GeneInfoQuadTree::PointItemList::value_type &ele) { return ele.second; });
+    for (const auto point : pointList) {
+        indexes.insert(point.second);
+    }
 
     // make the selection
     selectSpots(indexes, mode);
@@ -694,7 +536,6 @@ void GeneRendererGL::selectSpots(const IndexesList &indexes,
     }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     // if new selection clear the current selection
     if (mode == SelectionEvent::NewSelection) {
         // unselect previous selection
@@ -717,13 +558,12 @@ void GeneRendererGL::selectSpots(const IndexesList &indexes,
 
         // iterate all the features in the position to select when possible
         bool no_feature_selected = true;
-        auto range = m_geneInfoByIndex.equal_range(index);
-        for (auto it = range.first; it != range.second; ++it) {
+        auto features = m_geneInfoByIndex.values(index);
+        for (const auto feature : features) {
             // not filtering if the feature's gene is selected
             // as we want to include in the selection all the genes
             // of the feature regardless if they are selected or not
             // we just filter features outside the threshold
-            const auto feature = it->second;
             Q_ASSERT(feature);
             // get the feature's gene
             auto gene = m_dataProxy->geneGeneObject(feature->gene());
@@ -752,10 +592,7 @@ void GeneRendererGL::selectSpots(const IndexesList &indexes,
         // update gene data to selected or not selected (spot)
         m_geneData.updateQuadSelected(index, !no_feature_selected && !remove_selection);
     }
-
     QGuiApplication::restoreOverrideCursor();
-
-    m_isDirtyDynamicData = true;
     emit selectionUpdated();
     emit updated();
 }
@@ -805,16 +642,9 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
         return;
     }
 
-    if (m_isDirtyStaticData) {
-        initBasicBuffers();
-    }
+    m_shader_program.bind();
 
-    if (m_isDirtyDynamicData) {
-        initDynamicBuffers();
-    }
-
-    QMatrix4x4 projectionModelViewMatrix = getProjection() * getModelView();
-
+    const QMatrix4x4 projectionModelViewMatrix = getProjection() * getModelView();
     int visualMode = m_shader_program.uniformLocation("in_visualMode");
     int colorMode = m_shader_program.uniformLocation("in_colorMode");
     int poolingMode = m_shader_program.uniformLocation("in_poolingMode");
@@ -823,25 +653,55 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     int intensity = m_shader_program.uniformLocation("in_intensity");
     int shape = m_shader_program.uniformLocation("in_shape");
     int projMatrix = m_shader_program.uniformLocation("in_ModelViewProjectionMatrix");
-
-    m_shader_program.bind();
+    int counts = m_shader_program.attributeLocation("countAttr");
+    int selected = m_shader_program.attributeLocation("selectedAttr");
+    int visible = m_shader_program.attributeLocation("visibleAttr");
+    int vertex = m_shader_program.attributeLocation("vertexAttr");
+    int color = m_shader_program.attributeLocation("colorAttr");
+    int texture = m_shader_program.attributeLocation("textureAttr");
 
     // add UNIFORM values to shader program
-    m_shader_program.setUniformValue(visualMode, static_cast<GLint>(m_visualMode));
-    m_shader_program.setUniformValue(colorMode, static_cast<GLint>(m_colorComputingMode));
-    m_shader_program.setUniformValue(poolingMode, static_cast<GLint>(m_poolingMode));
-    m_shader_program.setUniformValue(upperLimit, static_cast<GLint>(m_localPooledMax));
-    m_shader_program.setUniformValue(lowerLimit, static_cast<GLint>(m_localPooledMin));
+    m_shader_program.setUniformValue(visualMode, static_cast<GLuint>(m_visualMode));
+    m_shader_program.setUniformValue(colorMode, static_cast<GLuint>(m_colorComputingMode));
+    m_shader_program.setUniformValue(poolingMode, static_cast<GLuint>(m_poolingMode));
+    m_shader_program.setUniformValue(upperLimit, static_cast<GLuint>(m_localPooledMax));
+    m_shader_program.setUniformValue(lowerLimit, static_cast<GLuint>(m_localPooledMin));
     m_shader_program.setUniformValue(intensity, static_cast<GLfloat>(m_intensity));
-    m_shader_program.setUniformValue(shape, static_cast<GLint>(m_shape));
+    m_shader_program.setUniformValue(shape, static_cast<GLuint>(m_shape));
     m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
+    // Add arrays to the shader program
+    m_shader_program.setAttributeArray(counts,
+                                       reinterpret_cast<const GLfloat*>(m_geneData.m_reads.constData()),
+                                       1);
+    m_shader_program.setAttributeArray(selected,
+                                       reinterpret_cast<const GLfloat*>(m_geneData.m_selected.constData()),
+                                       1);
+    m_shader_program.setAttributeArray(visible,
+                                       reinterpret_cast<const GLfloat*>(m_geneData.m_visible.constData()),
+                                       1);
+    m_shader_program.setAttributeArray(vertex,
+                                       m_geneData.m_vertices.constData());
+    m_shader_program.setAttributeArray(color,
+                                       m_geneData.m_colors.constData());
+    m_shader_program.setAttributeArray(texture, m_geneData.m_textures.constData());
 
-    m_vao.bind();
+    m_shader_program.enableAttributeArray(vertex);
+    m_shader_program.enableAttributeArray(color);
+    m_shader_program.enableAttributeArray(texture);
+    m_shader_program.enableAttributeArray(counts);
+    m_shader_program.enableAttributeArray(selected);
+    m_shader_program.enableAttributeArray(visible);
 
-    qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(), GL_UNSIGNED_INT, 0);
+    qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData.m_indexes.size(),
+                                     GL_UNSIGNED_INT,
+                                     reinterpret_cast<const GLuint*>(m_geneData.m_indexes.constData()));
 
-    m_vao.release();
-
+    m_shader_program.disableAttributeArray(vertex);
+    m_shader_program.disableAttributeArray(color);
+    m_shader_program.disableAttributeArray(texture);
+    m_shader_program.disableAttributeArray(counts);
+    m_shader_program.disableAttributeArray(selected);
+    m_shader_program.disableAttributeArray(visible);
     m_shader_program.release();
 }
 

@@ -2,6 +2,7 @@
 
 #include <QMap>
 #include <QDate>
+#include <QDebug>
 #include "dataModel/Feature.h"
 #include "math/Common.h"
 
@@ -256,7 +257,7 @@ void UserSelection::loadFeatures(const DataProxy::FeatureList &features)
     m_totalSpots = 0;
 
     // populate the selected genes and spots by iterating the features
-    std::unordered_set<QString> unique_genes;
+    QSet<QString> unique_genes;
     Feature::UniqueSpotsType unique_spots;
     for (const auto &feature : features) {
         unique_genes.insert(feature->gene());
@@ -318,15 +319,15 @@ UserSelection::geneTotalCountsVector UserSelection::getGeneCounts() const
     geneTotalCountsVector gene_countsVector;
     // aggreate counts by gene
     for (const auto &feature : m_selectedFeatures) {
+        Q_ASSERT(feature);
         gene_countsMap[feature->gene()] += feature->count();
     }
     // create a vector of gene-count pairs
-    std::transform(gene_countsMap.begin(),
-                   gene_countsMap.end(),
-                   std::back_inserter(gene_countsVector),
-                   [](const Feature::geneTotalCounts::value_type &ele) {
-        return geneCount(ele.first, ele.second);
-    });
+    Feature::geneTotalCounts::const_iterator it = gene_countsMap.constBegin();
+    while (it != gene_countsMap.constEnd()) {
+        gene_countsVector.push_back(geneCount(it.key(), it.value()));
+        ++it;
+    }
     // return the vector
     return gene_countsVector;
 }

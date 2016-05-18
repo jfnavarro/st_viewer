@@ -24,14 +24,6 @@ class Dataset;
 class Chip;
 class MinVersionDTO;
 
-namespace std
-{
-template <>
-struct hash<QString> {
-    size_t operator()(const QString &s) const { return qHash(s); }
-};
-}
-
 // DataProxy is a globally accessible all-in-all data store. It provides an
 // interface to access remotely stored data and means of storing and managing
 // the transferred data locally.
@@ -86,19 +78,19 @@ public:
     // the dataset content variable by dataset ID
 
     // list of unique genes
-    typedef std::vector<GenePtr> GeneList;
+    typedef QList<GenePtr> GeneList;
     // list of features
-    typedef std::vector<FeaturePtr> FeatureList;
+    typedef QList<FeaturePtr> FeatureList;
     // list of unique datasets
-    typedef std::vector<DatasetPtr> DatasetList;
+    typedef QList<DatasetPtr> DatasetList;
     // list of user selections
-    typedef std::vector<UserSelectionPtr> UserSelectionList;
+    typedef QList<UserSelectionPtr> UserSelectionList;
     // cell figure hashed by figure name (figure names are unique)
-    typedef std::unordered_map<QString, QByteArray> CellFigureMap;
+    typedef QHash<QString, QByteArray> CellFigureMap;
     // array of three elements containing the min version supported
     typedef std::array<qulonglong, 3> MinVersionArray;
     // gene name to gene object
-    typedef std::unordered_map<QString, GenePtr> GeneNameToObject;
+    typedef QHash<QString, GenePtr> GeneNameToObject;
 
     explicit DataProxy(QObject *parent = 0);
     ~DataProxy();

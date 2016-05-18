@@ -37,7 +37,7 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
                                         static_cast<GLfloat>(m_gridBorderColor.greenF()),
                                         static_cast<GLfloat>(m_gridBorderColor.blueF()),
                                         static_cast<GLfloat>(m_gridBorderColor.alphaF()));
-            for (QVector2D indice : m_border_vertex) {
+            for (const auto indice : m_border_vertex) {
                 qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
 
@@ -46,7 +46,7 @@ void GridRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
                                         static_cast<GLfloat>(m_gridColor.greenF()),
                                         static_cast<GLfloat>(m_gridColor.blueF()),
                                         static_cast<GLfloat>(m_gridColor.alphaF()));
-            for (QVector2D indice : m_grid_vertex) {
+            for (const auto indice : m_grid_vertex) {
                 qopengl_functions.glVertex2f(indice.x(), indice.y());
             }
         }

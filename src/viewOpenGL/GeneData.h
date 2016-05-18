@@ -51,10 +51,15 @@ public:
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
     QVector<unsigned> m_indexes;
-    QVector<unsigned> m_reads;
-    QVector<unsigned> m_visible;
-    QVector<unsigned> m_selected;
-/*
+    // Implicit converstion here
+    // but the rendering data is being
+    // refactored. Computation of colorr
+    // will not be performed in the shaders..
+    QVector<float> m_reads;
+    QVector<float> m_visible;
+    QVector<float> m_selected;
+
+    /* NEW RENDERING DATA MODEL
     // the spots numered from 1 to num_spots
     std::vector<unsigned> indexes;
     // gene index is the position of the index in the list of counts for each spot

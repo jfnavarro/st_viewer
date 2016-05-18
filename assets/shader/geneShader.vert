@@ -4,9 +4,11 @@
 attribute lowp vec4 colorAttr;
 attribute lowp vec2 textureAttr;
 attribute highp vec4 vertexAttr;
-attribute lowp float visibleAttr;
+attribute lowp float countAttr;
 attribute lowp float selectedAttr;
-attribute lowp float readsAttr;
+attribute lowp float visibleAttr;
+
+// model_view * projection matrix
 uniform mediump mat4 in_ModelViewProjectionMatrix;
 
 // passed along to fragment shader
@@ -25,7 +27,6 @@ uniform lowp int in_shape;
 uniform lowp float in_intensity;
 
 //Some in-house functions
-
 float norm(inout float v, in float t0, in float t1)
 {
     float vh = clamp(v, t0, t1);
@@ -97,16 +98,17 @@ vec4 createHeatMapColor(inout float value)
 void main(void)
 {
     outColor = colorAttr;
-    outSelected = selectedAttr;
     outTextCoord = textureAttr;
+    // This is ugly but the fragment shader does not accept other than float
+    outSelected = selectedAttr;
     outShape = float(in_shape);
     
-    //get the value attribute and limits (Reads, genes or TPM)
-    float value = readsAttr;
+    // Get the value attribute and limits (Reads, genes or TPM)
+    float value = countAttr;
     float upper_limit = float(in_pooledUpper);
     float lower_limit = float(in_pooledLower);
     
-    //adjust for color mode (1 linear - 2 log - 3 exp)
+    // Adjust for color mode (1 linear - 2 log - 3 exp)
     if (in_colorMode == 2) {
         value = log(value + 1);
         upper_limit = log(upper_limit + 1);
@@ -118,12 +120,12 @@ void main(void)
     }
     
     if (bool(visibleAttr)) {
-        //visual modes (1 normal - 2 dynamic range - 3 heatmap)
+        // Visual modes (1 normal - 2 dynamic range - 3 heatmap)
         outColor.a = in_intensity;
         if (in_visualMode == 2) { //dynamic range mode
             float normalizedValue = norm(value, lower_limit, upper_limit);
             outColor.a = normalizedValue + (1.0 - in_intensity);
-        } else if (in_visualMode == 3) { //heat map mode
+        } else if (in_visualMode == 3) { // heat map mode
             float normalizedValue = norm(value, lower_limit, upper_limit);
             outColor = createHeatMapColor(normalizedValue);
             outColor.a = in_intensity;

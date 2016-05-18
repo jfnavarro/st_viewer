@@ -2,8 +2,8 @@
 #define FEATURE_H
 
 #include <QString>
-#include <unordered_set>
-#include <unordered_map>
+#include <QHash>
+#include <QSet>
 
 // Data model class to store feature data
 // A feature corresponds to a tuple (barcode or spot in the array)
@@ -18,17 +18,10 @@ class Feature
 public:
     // Only for pairs of std::hash-able types for simplicity.
     // You can of course template this struct to allow other hash functions
-    struct pair_hash {
-        template <class T1, class T2>
-        std::size_t operator()(const std::pair<T1, T2> &p) const
-        {
-            return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
-        }
-    };
-    typedef std::pair<unsigned, unsigned> SpotType;
-    typedef std::unordered_set<SpotType, pair_hash> UniqueSpotsType;
-    typedef std::unordered_map<Feature::SpotType, unsigned, pair_hash> spotTotalCounts;
-    typedef std::unordered_map<QString, unsigned> geneTotalCounts;
+    typedef QPair<unsigned, unsigned> SpotType;
+    typedef QSet<SpotType> UniqueSpotsType;
+    typedef QHash<Feature::SpotType, unsigned> spotTotalCounts;
+    typedef QHash<QString, unsigned> geneTotalCounts;
 
     Feature();
     explicit Feature(const Feature &other);

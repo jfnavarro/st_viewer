@@ -15,7 +15,6 @@ static const unsigned tile_height = 512;
 
 ImageTextureGL::ImageTextureGL(QObject *parent)
     : GraphicItemGL(parent)
-    , m_intensity(1.0)
     , m_isInitialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
@@ -169,12 +168,4 @@ void ImageTextureGL::addTexture(const QImage &image, const unsigned x, const uns
 const QRectF ImageTextureGL::boundingRect() const
 {
     return m_bounds;
-}
-
-void ImageTextureGL::setIntensity(float intensity)
-{
-    if (m_intensity != intensity) {
-        m_intensity = intensity;
-        emit updated();
-    }
 }

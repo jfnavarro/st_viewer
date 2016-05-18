@@ -16,6 +16,13 @@
 
 #include "GraphicItemGL.h"
 
+// STL datatypes
+template<typename T>
+Q_DECL_PURE_FUNCTION inline uint qHash(const std::shared_ptr<T> &key, uint seed = 0) Q_DECL_NOTHROW
+{
+    return qHash(key.get(), seed);
+}
+
 // Gene renderer is what renders the genes/features on the CellGLView canvas.
 // It uses data arrays (GeneData) to render trough shaders.
 // It has some attributes and variables changeable by slots.
@@ -46,17 +53,18 @@ public:
     // visualization data
 
     // list of unique spot indexes
-    typedef std::unordered_set<int> IndexesList;
+    // Qt containers are faster than STL containers
+    typedef QSet<int> IndexesList;
     // Spot index to list of features (gene-spot)
-    typedef std::unordered_multimap<int, DataProxy::FeaturePtr> GeneInfoByIndexMap;
+    typedef QMultiHash<int, DataProxy::FeaturePtr> FeaturesByIndexMap;
+    // Gene object to list of features (accross all spots)
+    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> FeaturesByGeneMap;
     // gene object to list of spot indexes
-    typedef std::unordered_multimap<DataProxy::GenePtr, int> GeneInfoByGeneMap;
+    typedef QMultiHash<DataProxy::GenePtr, int> IndexesByGeneMap;
     // feature object to spot index
-    typedef std::unordered_map<DataProxy::FeaturePtr, int> GeneInfoByFeatureIndexMap;
-    // list of features
-    typedef std::vector<DataProxy::FeaturePtr> GeneInfoSelectedFeatures;
+    typedef QHash<DataProxy::FeaturePtr, int> IndexesByFeatureMap;
     // spot index to total reads/genes
-    typedef std::unordered_map<int, unsigned> GeneInfoFeatureCount;
+    typedef QHash<int, unsigned> IndexTotalCount;
     // lookup quadtree type (spot indexes)
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
@@ -148,10 +156,6 @@ protected:
 
 private:
 
-    // helper functions to init OpenGL buffers
-    void initBasicBuffers();
-    void initDynamicBuffers();
-
     // helper functions to test whether a feature is outside the threshold
     // area or not by reads/genes or TPM
     bool featureReadsOutsideRange(const unsigned value);
@@ -183,20 +187,24 @@ private:
     // compiles and loads the shaders
     void setupShaders();
 
-    // gene lookup data (indexes)
+    // lookup data (features respesent counts, a feature = (gene,spot) count
+    // index is the OpenGL index
+    // just the set of indexes for convenience
     IndexesList m_indexes;
-    // gene lookup data (index -> features)
-    GeneInfoByIndexMap m_geneInfoByIndex;
-    // gene lookup data (gene -> indexes)
-    GeneInfoByGeneMap m_geneInfoByGene;
-    // gene look up data (feature -> index)
-    GeneInfoByFeatureIndexMap m_geneInfoByFeatureIndex;
+    // lookup data (index -> features)
+    FeaturesByIndexMap m_geneInfoByIndex;
+    // lookup data (gene -> indexes)
+    IndexesByGeneMap m_geneInfoByGene;
+    // look up data (feature -> index)
+    IndexesByFeatureMap m_geneInfoByFeatureIndex;
+    // look up data (gene -> features)
+    FeaturesByGeneMap m_geneInfoByGeneFeatures;
     // list of selected features
-    GeneInfoSelectedFeatures m_geneInfoSelectedFeatures;
+    DataProxy::FeatureList m_geneInfoSelectedFeatures;
     // gene look up (index -> total reads)
-    GeneInfoFeatureCount m_geneInfoTotalReadsIndex;
+    IndexTotalCount m_geneInfoTotalReadsIndex;
     // gene look up (index -> total genes)
-    GeneInfoFeatureCount m_geneInfoTotalGenesIndex;
+    IndexTotalCount m_geneInfoTotalGenesIndex;
     // quad tree container (used to find by coordinates)
     GeneInfoQuadTree m_geneInfoQuadTree;
 
@@ -233,9 +241,7 @@ private:
     // color computing mode (exp - log - linear)
     Visual::GeneColorMode m_colorComputingMode;
 
-    // to know if visual data has changed or initialized
-    bool m_isDirtyStaticData;
-    bool m_isDirtyDynamicData;
+    // to know if the rendering data is ready
     bool m_isInitialized;
 
     // reference to dataProxy
@@ -243,14 +249,6 @@ private:
 
     // OpenGL rendering variables
     GeneData m_geneData;
-    QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_vertexsBuffer;
-    QOpenGLBuffer m_indexesBuffer;
-    QOpenGLBuffer m_texturesBuffer;
-    QOpenGLBuffer m_colorsBuffer;
-    QOpenGLBuffer m_selectedBuffer;
-    QOpenGLBuffer m_visibleBuffer;
-    QOpenGLBuffer m_readsBuffer;
     QOpenGLShaderProgram m_shader_program;
 
     Q_DISABLE_COPY(GeneRendererGL)
