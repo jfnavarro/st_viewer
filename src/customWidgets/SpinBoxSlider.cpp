@@ -34,7 +34,7 @@ SpinBoxSlider::~SpinBoxSlider()
 {
 }
 
-void SpinBoxSlider::setMaximumValue(const unsigned value)
+void SpinBoxSlider::setMaximumValue(const int value)
 {
     // We block signals here as we only want
     // the signals to be emitted when the user
@@ -47,7 +47,7 @@ void SpinBoxSlider::setMaximumValue(const unsigned value)
     blockSignals(false);
 }
 
-void SpinBoxSlider::setMinimumValue(const unsigned value)
+void SpinBoxSlider::setMinimumValue(const int value)
 {
     // We block signals here as we only want
     // the signals to be emitted when the user
@@ -62,9 +62,8 @@ void SpinBoxSlider::setMinimumValue(const unsigned value)
 
 void SpinBoxSlider::slotSetLowerValue(const int value)
 {
-    const unsigned tmp_value = static_cast<unsigned>(value);
-    if (tmp_value != m_lower_value) {
-        m_lower_value = tmp_value;
+    if (value != m_lower_value) {
+        m_lower_value = value;
         m_left_spinbox->setValue(m_lower_value);
         emit signalLowerValueChanged(m_lower_value);
     }
@@ -72,15 +71,14 @@ void SpinBoxSlider::slotSetLowerValue(const int value)
 
 void SpinBoxSlider::slotSetUpperValue(const int value)
 {
-    const unsigned tmp_value = static_cast<unsigned>(value);
-    if (tmp_value != m_upper_value) {
-        m_upper_value = tmp_value;
+    if (value != m_upper_value) {
+        m_upper_value = value;
         m_right_spinbox->setValue(m_upper_value);
         emit signalUpperValueChanged(m_upper_value);
     }
 }
 
-void SpinBoxSlider::setTickInterval(const unsigned stepLength)
+void SpinBoxSlider::setTickInterval(const int stepLength)
 {
     m_left_spinbox->setSingleStep(stepLength);
     m_right_spinbox->setSingleStep(stepLength);

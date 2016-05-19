@@ -107,10 +107,10 @@ void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
 {
 }
 
-void HeatMapLegendGL::setMinMaxValues(const unsigned readsMin,
-                                      const unsigned readsMax,
-                                      const unsigned genesMin,
-                                      const unsigned genesMax)
+void HeatMapLegendGL::setMinMaxValues(const int readsMin,
+                                      const int readsMax,
+                                      const int genesMin,
+                                      const int genesMax)
 {
     m_minReads = readsMin;
     m_maxReads = readsMax;
@@ -118,7 +118,7 @@ void HeatMapLegendGL::setMinMaxValues(const unsigned readsMin,
     m_maxGenes = genesMax;
 }
 
-void HeatMapLegendGL::setLowerLimitReads(const unsigned limit)
+void HeatMapLegendGL::setLowerLimitReads(const int limit)
 {
     if (m_minReads != limit) {
         m_minReads = limit;
@@ -126,7 +126,7 @@ void HeatMapLegendGL::setLowerLimitReads(const unsigned limit)
     }
 }
 
-void HeatMapLegendGL::setUpperLimitReads(const unsigned limit)
+void HeatMapLegendGL::setUpperLimitReads(const int limit)
 {
     if (m_maxReads != limit) {
         m_maxReads = limit;
@@ -151,7 +151,7 @@ void HeatMapLegendGL::setColorComputingMode(const Visual::GeneColorMode &mode)
     }
 }
 
-void HeatMapLegendGL::setLowerLimitGenes(const unsigned limit)
+void HeatMapLegendGL::setLowerLimitGenes(const int limit)
 {
     if (m_minGenes != limit) {
         m_minGenes = limit;
@@ -159,7 +159,7 @@ void HeatMapLegendGL::setLowerLimitGenes(const unsigned limit)
     }
 }
 
-void HeatMapLegendGL::setUpperLimitGenes(const unsigned limit)
+void HeatMapLegendGL::setUpperLimitGenes(const int limit)
 {
     if (m_maxGenes != limit) {
         m_maxGenes = limit;
@@ -169,8 +169,8 @@ void HeatMapLegendGL::setUpperLimitGenes(const unsigned limit)
 
 void HeatMapLegendGL::generateHeatMap()
 {
-    const unsigned min = m_valueComputation == Reads ? m_minReads : m_minGenes;
-    const unsigned max = m_valueComputation == Reads ? m_maxReads : m_maxGenes;
+    const float min = static_cast<float>(m_valueComputation == Reads ? m_minReads : m_minGenes);
+    const float max = static_cast<float>(m_valueComputation == Reads ? m_maxReads : m_maxGenes);
 
     // generate image texture
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);

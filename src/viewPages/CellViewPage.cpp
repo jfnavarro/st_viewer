@@ -512,6 +512,9 @@ void CellViewPage::createMenusAndConnections()
     });
     connect(m_ui->regexpselection, SIGNAL(clicked()), this, SLOT(slotSelectByRegExp()));
 
+    // create selection object from the selections made
+    connect(m_ui->createSelection, SIGNAL(clicked()), this, SLOT(slotCreateSelection()));
+
     // color selectors
     connect(m_ui->actionColor_selectColorGrid, &QAction::triggered, [=] {
         m_colorDialogGrid->show();
@@ -554,52 +557,49 @@ void CellViewPage::createMenusAndConnections()
         m_gene_plotter->setPoolingMode(GeneRendererGL::PoolTPMs);
     });
 
-    // connect gene plotter to gene selection model
-    connect(m_gene_plotter.data(), SIGNAL(selectionUpdated()), this, SLOT(slotSelectionUpdated()));
-
     // threshold slider signals
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setReadsLowerLimit(unsigned)));
+            SLOT(setReadsLowerLimit(int)));
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setReadsUpperLimit(unsigned)));
+            SLOT(setReadsUpperLimit(int)));
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(),
-            SLOT(setLowerLimitReads(unsigned)));
+            SLOT(setLowerLimitReads(int)));
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(),
-            SLOT(setUpperLimitReads(unsigned)));
+            SLOT(setUpperLimitReads(int)));
 
     connect(m_geneGenesThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setGenesLowerLimit(unsigned)));
+            SLOT(setGenesLowerLimit(int)));
     connect(m_geneGenesThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setGenesUpperLimit(unsigned)));
+            SLOT(setGenesUpperLimit(int)));
     connect(m_geneGenesThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(),
-            SLOT(setLowerLimitGenes(unsigned)));
+            SLOT(setLowerLimitGenes(int)));
     connect(m_geneGenesThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(),
-            SLOT(setUpperLimitGenes(unsigned)));
+            SLOT(setUpperLimitGenes(int)));
 
     connect(m_geneTotalReadsThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setTotalReadsLowerLimit(unsigned)));
+            SLOT(setTotalReadsLowerLimit(int)));
     connect(m_geneTotalReadsThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_gene_plotter.data(),
-            SLOT(setTotalReadsUpperLimit(unsigned)));
+            SLOT(setTotalReadsUpperLimit(int)));
 
     // show/not genes signal
     connect(m_ui->actionShow_showGenes,
@@ -661,13 +661,13 @@ void CellViewPage::createMenusAndConnections()
 
     // Features Histogram Distribution
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             m_FDH.data(),
-            SLOT(setLowerLimit(unsigned)));
+            SLOT(setLowerLimit(int)));
     connect(m_geneHitsThreshold.data(),
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             m_FDH.data(),
-            SLOT(setUpperLimit(unsigned)));
+            SLOT(setUpperLimit(int)));
     connect(m_ui->histogram, &QPushButton::clicked, [=] { m_FDH->show(); });
 }
 
@@ -924,7 +924,7 @@ void CellViewPage::slotSelectByRegExp()
     m_gene_plotter->selectGenes(geneList);
 }
 
-void CellViewPage::slotSelectionUpdated()
+void CellViewPage::slotCreateSelection()
 {
     // get the current dataset
     const auto dataset = m_dataProxy->getDatasetById(m_openedDatasetId);

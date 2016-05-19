@@ -70,7 +70,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex &index, const QVariant &val
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
         Q_ASSERT(item);
-        const unsigned new_cutoff = value.toUInt();
+        const int new_cutoff = value.toUInt();
         if (item->cut_off() != new_cutoff && new_cutoff > 0) {
             item->cut_off(new_cutoff);
             emit dataChanged(index, index);
@@ -202,8 +202,8 @@ void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bo
     if (m_genelist_reference.empty()) {
         return;
     }
-
-    std::set<int> rows;
+    // get unique indexes from the user selection
+    QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
@@ -225,8 +225,8 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
     if (m_genelist_reference.empty()) {
         return;
     }
-
-    std::set<int> rows;
+    // get unique indexes from the user selection
+    QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }

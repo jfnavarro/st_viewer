@@ -106,22 +106,22 @@ const QString Dataset::imageAlignmentId() const
     return m_alignmentId;
 }
 
-unsigned Dataset::statBarcodes() const
+int Dataset::statBarcodes() const
 {
     return m_statBarcodes;
 }
 
-unsigned Dataset::statGenes() const
+int Dataset::statGenes() const
 {
     return m_statGenes;
 }
 
-unsigned Dataset::statUniqueBarcodes() const
+int Dataset::statUniqueBarcodes() const
 {
     return m_statUniqueBarcodes;
 }
 
-unsigned Dataset::statUniqueGenes() const
+int Dataset::statUniqueGenes() const
 {
     return m_statUniqueGenes;
 }
@@ -196,22 +196,22 @@ void Dataset::imageAlignmentId(const QString &alignmentId)
     m_alignmentId = alignmentId;
 }
 
-void Dataset::statBarcodes(unsigned barcodes)
+void Dataset::statBarcodes(int barcodes)
 {
     m_statBarcodes = barcodes;
 }
 
-void Dataset::statGenes(unsigned genes)
+void Dataset::statGenes(int genes)
 {
     m_statGenes = genes;
 }
 
-void Dataset::statUniqueBarcodes(unsigned uniqueBarcodes)
+void Dataset::statUniqueBarcodes(int uniqueBarcodes)
 {
     m_statUniqueBarcodes = uniqueBarcodes;
 }
 
-void Dataset::statUniqueGenes(unsigned uniqueGenes)
+void Dataset::statUniqueGenes(int uniqueGenes)
 {
     m_statUniqueGenes = uniqueGenes;
 }

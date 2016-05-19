@@ -126,7 +126,7 @@ inline float euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
     T sum;
     diff = v1[0] - v2[0];
     sum = diff * diff;
-    for (unsigned i = 1; i < v1.size(); ++i) {
+    for (size_t i = 1; i < v1.size(); ++i) {
         diff = v1[i] - v2[i];
         sum += diff * diff;
     }

@@ -16,7 +16,7 @@ Gene::Gene(const Gene &other)
 {
 }
 
-Gene::Gene(const QString &name, bool selected, const QColor &color, const unsigned cutoff)
+Gene::Gene(const QString &name, bool selected, const QColor &color, const int cutoff)
     : m_name(name)
     , m_color(color)
     , m_selected(selected)
@@ -57,7 +57,7 @@ const QColor Gene::color() const
     return m_color;
 }
 
-unsigned Gene::cut_off() const
+int Gene::cut_off() const
 {
     return m_cutoff;
 }
@@ -77,7 +77,7 @@ void Gene::color(const QColor &color)
     m_color = color;
 }
 
-void Gene::cut_off(const unsigned cutoff)
+void Gene::cut_off(const int cutoff)
 {
     m_cutoff = cutoff;
 }

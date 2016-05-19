@@ -200,6 +200,9 @@ selection-background-color: darkgray;</string>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
            <property name="toolTip">
             <string>Show tissue snapshot</string>
            </property>
@@ -241,6 +244,9 @@ selection-background-color: darkgray;</string>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
            <property name="toolTip">
             <string>Save selection in the cloud</string>
            </property>
@@ -281,6 +287,9 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Show genes in a table</string>
@@ -329,6 +338,9 @@ selection-background-color: darkgray;</string>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
            <property name="toolTip">
             <string>Performs a clustering</string>
            </property>
@@ -371,7 +383,7 @@ selection-background-color: darkgray;</string>
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Perform a Differential Expression analysis</string>
@@ -410,6 +422,9 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Import selection from file</string>
@@ -453,7 +468,7 @@ selection-background-color: darkgray;</string>
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Export the selected selections</string>
@@ -497,7 +512,7 @@ selection-background-color: darkgray;</string>
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Edit the current selection</string>
@@ -541,7 +556,7 @@ selection-background-color: darkgray;</string>
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Remove the selected selections</string>

@@ -141,11 +141,11 @@ void AnalysisFRD::initializePlotLog()
 }
 
 void AnalysisFRD::computeData(const DataProxy::FeatureList &features,
-                              const unsigned min,
-                              const unsigned max)
+                              const int min,
+                              const int max)
 {
 
-    std::unordered_map<unsigned, unsigned> featureCounter;
+    QHash<int, int> featureCounter;
 
     // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
     for (const auto &feature : features) {
@@ -157,13 +157,16 @@ void AnalysisFRD::computeData(const DataProxy::FeatureList &features,
     QVector<double> y;
     QVector<double> x_log;
     QVector<double> y_log;
-    for (const auto &ele : featureCounter) {
-        const double read_value = static_cast<double>(ele.first);
-        const double value_count = static_cast<double>(ele.second);
+    // iterate hash to populate the vectors for the plot
+    QHash<int, int>::const_iterator it = featureCounter.constBegin();
+    while (it != featureCounter.constEnd()) {
+        const double read_value = static_cast<double>(it.key());
+        const double value_count = static_cast<double>(it.value());
         x.push_back(read_value);
         y.push_back(value_count);
         x_log.push_back(std::log1p(read_value));
         y_log.push_back(std::log1p(value_count));
+        ++it;
     }
 
     // TODO probably no need to keep max values of Y as it can be obtained form
@@ -212,7 +215,7 @@ void AnalysisFRD::mouseWheel()
     }
 }
 
-void AnalysisFRD::setUpperLimit(unsigned limit)
+void AnalysisFRD::setUpperLimit(int limit)
 {
     m_upperThresholdBarNormal->start->setCoords(limit, m_minY);
     m_upperThresholdBarNormal->end->setCoords(limit, m_maxY);
@@ -222,7 +225,7 @@ void AnalysisFRD::setUpperLimit(unsigned limit)
     m_customPlotLog->replot();
 }
 
-void AnalysisFRD::setLowerLimit(unsigned limit)
+void AnalysisFRD::setLowerLimit(int limit)
 {
     m_lowerThresholdBarNormal->start->setCoords(limit, m_minY);
     m_lowerThresholdBarNormal->end->setCoords(limit, m_maxY);

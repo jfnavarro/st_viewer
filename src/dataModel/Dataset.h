@@ -21,10 +21,10 @@ public:
     // reference to image alignment object Id
     const QString imageAlignmentId() const;
     // some stats of the dataset
-    unsigned statBarcodes() const;
-    unsigned statGenes() const;
-    unsigned statUniqueBarcodes() const;
-    unsigned statUniqueGenes() const;
+    int statBarcodes() const;
+    int statGenes() const;
+    int statUniqueBarcodes() const;
+    int statUniqueGenes() const;
     const QString statTissue() const;
     const QString statSpecies() const;
     const QString statComments() const;
@@ -45,10 +45,10 @@ public:
     void id(const QString &id);
     void name(const QString &name);
     void imageAlignmentId(const QString &alignmentId);
-    void statBarcodes(unsigned barcodes);
-    void statGenes(unsigned genes);
-    void statUniqueBarcodes(unsigned uniqueBarcodes);
-    void statUniqueGenes(unsigned uniqueGenes);
+    void statBarcodes(int barcodes);
+    void statGenes(int genes);
+    void statUniqueBarcodes(int uniqueBarcodes);
+    void statUniqueGenes(int uniqueGenes);
     void statTissue(const QString &statTissue);
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
@@ -75,10 +75,10 @@ private:
     QString m_id;
     QString m_name;
     QString m_alignmentId;
-    unsigned m_statBarcodes;
-    unsigned m_statGenes;
-    unsigned m_statUniqueBarcodes;
-    unsigned m_statUniqueGenes;
+    int m_statBarcodes;
+    int m_statGenes;
+    int m_statUniqueBarcodes;
+    int m_statUniqueGenes;
     QString m_statTissue;
     QString m_statSpecies;
     QString m_statComments;

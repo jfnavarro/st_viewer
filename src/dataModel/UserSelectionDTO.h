@@ -161,9 +161,9 @@ private:
             // elements
             Q_ASSERT(elementList.size() >= 4);
             const QString gene = elementList.at(0).toString();
-            const unsigned x = elementList.at(1).toInt();
-            const unsigned y = elementList.at(2).toInt();
-            const unsigned count = elementList.at(3).toInt();
+            const int x = elementList.at(1).toInt();
+            const int y = elementList.at(2).toInt();
+            const int count = elementList.at(3).toInt();
             features.push_back(std::make_shared<Feature>(Feature(gene, x, y, count)));
         }
         return features;

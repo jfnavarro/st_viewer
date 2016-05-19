@@ -13,6 +13,9 @@ class SelectionEvent;
 
 // Base class for rendering nodes used in CellGLView
 // it contains some basic functionalities and options
+// For any OpenGL based graphical object that needs
+// to be rendered in the CellGLView, the object
+// must has this class as a base class
 class GraphicItemGL : public QObject
 {
 
@@ -40,7 +43,8 @@ public:
     Visual::Anchor anchor() const;
     void setAnchor(Visual::Anchor anchor);
 
-    // transformation matrix of the element
+    // transformation matrix of the object
+    // (local transformation with respect to the rendering canvas)
     const QTransform transform() const;
     void setTransform(const QTransform &transform);
 
@@ -63,7 +67,7 @@ public:
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
 
-    // must be implemented in the node supports selection events
+    // must be implemented in the node to support selection events (mouse selection)
     virtual void setSelectionArea(const SelectionEvent *event) = 0;
 
     // bounding rect boundaries check
@@ -82,7 +86,7 @@ public:
                         QOpenGLFunctionsVersion &qopengl_functions);
 
     // to set/get the projection and model view matrices of the rendering object
-    // these matrices will be used when rendering
+    // these matrices will be used when rendering with shaders for instance
     void setProjection(const QMatrix4x4 &projection);
     void setModelView(const QMatrix4x4 &modelview);
     const QMatrix4x4 getProjection() const;

@@ -145,11 +145,12 @@ void GeneSelectionDEAItemModel::loadCombinedSelectedGenes(
 AnalysisDEA::combinedSelectionType GeneSelectionDEAItemModel::getSelections(
     const QItemSelection &selection)
 {
-    std::set<int> rows;
+    // get unique indexes from the user selection
+    QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-
+    // get the combined selection objects and return them
     AnalysisDEA::combinedSelectionType selectionList;
     for (const auto &row : rows) {
         auto selection = m_combinedSelections.at(row);

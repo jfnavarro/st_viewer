@@ -18,7 +18,10 @@ class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
 // DEA(Differential Expression Analysis) between two user selections
-// and show the results in a correlation plot and a table differently expressed genes
+// It shows the results in a correlation plot and a table
+// that includes the gene counts for both selections
+// It also computes some basic stats
+// TODO a DESeq2 approach to compute the DEA must be implemented
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
@@ -38,11 +41,11 @@ public:
         std::vector<double> valuesSelectionA;
         std::vector<double> valuesSelectionB;
         // number of genes only in A
-        unsigned countA;
+        int countA;
         // number of genes only in B
-        unsigned countB;
+        int countB;
         // number of genes in both A and B
-        unsigned countAB;
+        int countAB;
         // correlation value
         double pearsonCorrelation;
     };
@@ -59,11 +62,11 @@ public:
         }
 
         QString gene;
-        unsigned readsA;
-        unsigned readsB;
+        int readsA;
+        int readsB;
     };
 
-    typedef std::vector<deaReads> combinedSelectionType;
+    typedef QList<deaReads> combinedSelectionType;
 
     AnalysisDEA(const UserSelection &selObjectA,
                 const UserSelection &selObjectB,
@@ -82,8 +85,8 @@ signals:
 private slots:
 
     // Threshold slider slots for number of reads (update the UI too)
-    void slotSetLowerThreshold(const unsigned value);
-    void slotSetUpperThreshold(const unsigned value);
+    void slotSetLowerThreshold(const int value);
+    void slotSetUpperThreshold(const int value);
 
     // Save correlation plot to a file
     void slotSaveToPDF();
@@ -113,8 +116,8 @@ private:
     QScopedPointer<Ui::ddaWidget> m_ui;
     // We use these variables to cache the statistics for convenience
     combinedSelectionType m_combinedSelections;
-    unsigned m_lowerThreshold;
-    unsigned m_upperThreshold;
+    int m_lowerThreshold;
+    int m_upperThreshold;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

@@ -10,8 +10,8 @@
 #include <QImageReader>
 #include <cmath>
 
-static const unsigned tile_width = 512;
-static const unsigned tile_height = 512;
+static const int tile_width = 512;
+static const int tile_height = 512;
 
 ImageTextureGL::ImageTextureGL(QObject *parent)
     : GraphicItemGL(parent)
@@ -115,20 +115,20 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     m_bounds = image.rect();
 
     // compute tiles size and numbers
-    const unsigned width = imageSize.width();
-    const unsigned height = imageSize.height();
-    const unsigned xCount = std::ceil(width / static_cast<float>(tile_width));
-    const unsigned yCount = std::ceil(height / static_cast<float>(tile_height));
-    const unsigned count = xCount * yCount;
+    const int width = imageSize.width();
+    const int height = imageSize.height();
+    const int xCount = std::ceil(width / static_cast<float>(tile_width));
+    const int yCount = std::ceil(height / static_cast<float>(tile_height));
+    const int count = xCount * yCount;
 
     // create tiles and their textures
-    for (unsigned i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
 
         // texture sizes
-        const unsigned x = tile_width * (i % xCount);
-        const unsigned y = tile_height * (i / xCount);
-        const unsigned texture_width = std::min(width - x, tile_width);
-        const unsigned texture_height = std::min(height - y, tile_height);
+        const int x = tile_width * (i % xCount);
+        const int y = tile_height * (i / xCount);
+        const int texture_width = std::min(width - x, tile_width);
+        const int texture_height = std::min(height - y, tile_height);
 
         // create sub image and add texture
         // TODO an ideal solution would  be to extract the clip rect part of the image
@@ -142,7 +142,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     QGuiApplication::restoreOverrideCursor();
 }
 
-void ImageTextureGL::addTexture(const QImage &image, const unsigned x, const unsigned y)
+void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
 {
     const float width = static_cast<float>(image.width());
     const float height = static_cast<float>(image.height());

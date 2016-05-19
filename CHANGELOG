@@ -156,3 +156,7 @@ v0.5.7
 	* Fixed some bugs
 	* Increased speed by adding back Qt containers
 	* Removed VAOs and buffers in the gene renderer
+
+v0.5.8
+	* Fixed small bugs
+	* Added an option to create selection object when the user needs

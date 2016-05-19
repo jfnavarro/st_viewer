@@ -166,7 +166,7 @@ void UserSelectionsItemModel::loadUserSelections(const DataProxy::UserSelectionL
 
 DataProxy::UserSelectionList UserSelectionsItemModel::getSelections(const QItemSelection &selection)
 {
-    std::set<int> rows;
+    QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }

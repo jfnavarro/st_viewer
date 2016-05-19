@@ -70,7 +70,7 @@ public:
         return true;
     }
 
-    bool Uint(unsigned u)
+    bool Uint(int u)
     {
         varMap.insert(currentKey, u);
         return true;
@@ -593,8 +593,8 @@ bool DataProxy::loadMinVersion()
     return status_download && status_parsing;
 }
 
-bool DataProxy::loadAccessToken(const std::pair<QString, QString> &username,
-                                const std::pair<QString, QString> &password)
+bool DataProxy::loadAccessToken(const QPair<QString, QString> &username,
+                                const QPair<QString, QString> &password)
 {
     auto cmd = RESTCommandFactory::getAuthorizationToken(m_configurationManager);
     // add username and password to the request
@@ -729,8 +729,7 @@ bool DataProxy::parseRequest(QSharedPointer<NetworkReply> reply, const DownloadT
 }
 
 // TODO this function is causing the CPU to freeze with big datasets
-// solution is to run it concurrently but that implies changes
-// in the main logic of this class
+// solution is to run it concurrently
 bool DataProxy::parseFeatures(const QByteArray &rawData)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -770,12 +769,13 @@ bool DataProxy::parseDatasets(const QJsonDocument &doc)
         data::parseObject(var, &dto);
         DatasetPtr dataset = std::make_shared<Dataset>(dto.dataset());
         Q_ASSERT(dataset);
-        // only adds the datasets that the user has access to
-        const auto granted_users = dataset->grantedAccounts();
-        if (std::find(granted_users.begin(), granted_users.end(), m_user->id())
-            != granted_users.end()) {
-            m_datasetList.push_back(dataset);
-        }
+        // the commented lines are to only adds the datasets that the user has access to
+        //const auto granted_users = dataset->grantedAccounts();
+        //if (std::find(granted_users.begin(), granted_users.end(), m_user->id())
+        //    != granted_users.end()) {
+        //    m_datasetList.push_back(dataset);
+        //}
+        m_datasetList.push_back(dataset);
     }
 
     return true;

@@ -77,17 +77,19 @@ void NetworkManager::provideAuthentication(QNetworkReply *reply, QAuthenticator 
 QSharedPointer<NetworkReply> NetworkManager::httpRequest(QSharedPointer<NetworkCommand> cmd,
                                                          NetworkFlags flags)
 {
+    QSharedPointer<NetworkReply> replyWrapper;
+
     // early out
     if (cmd.isNull()) {
         qDebug() << "[NetworkManager] Error: Unable to create Network Command";
-        return QSharedPointer<NetworkReply>();
+        return replyWrapper;
     }
 
 // do a connection check here (TODO seems to only work in MAC)
 #ifdef Q_OS_MAC
     if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
         qDebug() << "[NetworkManager] Error: Unable to connect to the network";
-        return QSharedPointer<NetworkReply>();
+        return replyWrapper;
     }
 #endif
 
@@ -95,7 +97,10 @@ QSharedPointer<NetworkReply> NetworkManager::httpRequest(QSharedPointer<NetworkC
     if (flags.testFlag(UseAuthentication)) {
         // append access token
         const QUuid accessToken = m_tokenStorage.getAccessToken();
-        Q_ASSERT(!accessToken.isNull());
+        if (accessToken.isNull()) {
+            qDebug() << "Tring to make a network request with an empty access token...";
+            return replyWrapper;
+        }
         // QUuid encloses its uuids in "{}"
         cmd->addQueryItem(QStringLiteral("access_token"), accessToken.toString().mid(1, 36));
     }
@@ -162,11 +167,10 @@ QSharedPointer<NetworkReply> NetworkManager::httpRequest(QSharedPointer<NetworkC
 
     if (networkReply == nullptr) {
         qDebug() << "[NetworkManager] Error: created network reply is null";
-        return QSharedPointer<NetworkReply>();
+        return replyWrapper;
     }
 
-    QSharedPointer<NetworkReply> replyWrapper
-        = QSharedPointer<NetworkReply>(new NetworkReply(networkReply));
+    replyWrapper = QSharedPointer<NetworkReply>(new NetworkReply(networkReply));
     if (replyWrapper.isNull()) {
         qDebug() << "[NetworkManager] Error: Unable to create network request";
         return replyWrapper;

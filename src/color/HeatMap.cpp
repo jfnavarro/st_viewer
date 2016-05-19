@@ -16,13 +16,13 @@ void createHeatMapImage(QImage &image,
     // Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
     Q_UNUSED(colorMode);
 
-    const unsigned height = image.height();
-    const unsigned width = image.width();
+    const int height = image.height();
+    const int width = image.width();
 
-    for (unsigned y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y) {
         // get the color of each line of the image as the heatmap
         // color normalized to the lower and upper bound of the image
-        const unsigned value = height - y - 1;
+        const int value = height - y - 1;
         const float adjusted_value
             = Math::linearConversion<float, float>(static_cast<float>(value),
                                                    0.0,
@@ -33,7 +33,7 @@ void createHeatMapImage(QImage &image,
             = Math::norm<float, float>(adjusted_value, lowerbound, upperbound);
         const QColor color = Color::createHeatMapWaveLenghtColor(normalizedValue);
         const QRgb rgb_color = color.rgb();
-        for (unsigned x = 0; x < width; ++x) {
+        for (int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
         }
     }

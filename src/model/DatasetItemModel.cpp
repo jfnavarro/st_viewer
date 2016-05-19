@@ -177,17 +177,17 @@ void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
 
 DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection &selection)
 {
-    std::set<int> rows;
+    // get unique indexes from the user selection
+    QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-
+    // get the datasets and return them
     DataProxy::DatasetList datasetList;
     for (const auto &row : rows) {
         auto selection = m_datasets_reference.at(row);
         datasetList.push_back(selection);
     }
-
     return datasetList;
 }
 

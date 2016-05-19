@@ -26,10 +26,10 @@ public:
     void clearData();
 
     // set the min-values of thresholds without invoking generateData
-    void setMinMaxValues(const unsigned readsMin,
-                         const unsigned readsMax,
-                         const unsigned genesMin,
-                         const unsigned genesMax);
+    void setMinMaxValues(const int readsMin,
+                         const int readsMax,
+                         const int genesMin,
+                         const int genesMax);
 
     // rendering functions (heatmap is created as a texture)
     void generateHeatMap();
@@ -39,10 +39,10 @@ public slots:
     // TODO slots should have the prefix "slot"
 
     // slots to adjust the boundaries when the threshold is changed
-    void setLowerLimitReads(const unsigned limit);
-    void setUpperLimitReads(const unsigned limit);
-    void setLowerLimitGenes(const unsigned limit);
-    void setUpperLimitGenes(const unsigned limit);
+    void setLowerLimitReads(const int limit);
+    void setUpperLimitReads(const int limit);
+    void setLowerLimitGenes(const int limit);
+    void setUpperLimitGenes(const int limit);
 
     // slow to change the value computation type (genes or reads)
     void setValueComputation(ValueComputation mode);
@@ -61,10 +61,10 @@ private:
     void drawText(const QPointF &posn, const QString &str);
 
     // min and max boundaries values to compute colors from
-    unsigned m_maxReads;
-    unsigned m_minReads;
-    unsigned m_minGenes;
-    unsigned m_maxGenes;
+    int m_maxReads;
+    int m_minReads;
+    int m_minGenes;
+    int m_maxGenes;
 
     // color computing mode (exp - log - linear)
     Visual::GeneColorMode m_colorComputingMode;

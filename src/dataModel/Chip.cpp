@@ -86,7 +86,7 @@ const QString Chip::id() const
     return m_id;
 }
 
-unsigned Chip::spots() const
+int Chip::spots() const
 {
     return m_spots;
 }
@@ -96,62 +96,62 @@ const QString Chip::name() const
     return m_name;
 }
 
-unsigned Chip::x1() const
+int Chip::x1() const
 {
     return m_x1;
 }
 
-unsigned Chip::x2() const
+int Chip::x2() const
 {
     return m_x2;
 }
 
-unsigned Chip::x1Total() const
+int Chip::x1Total() const
 {
     return m_x1Total;
 }
 
-unsigned Chip::x2Total() const
+int Chip::x2Total() const
 {
     return m_x2Total;
 }
 
-unsigned Chip::x1Border() const
+int Chip::x1Border() const
 {
     return m_x1Border;
 }
 
-unsigned Chip::x2Border() const
+int Chip::x2Border() const
 {
     return m_x2Border;
 }
 
-unsigned Chip::y1() const
+int Chip::y1() const
 {
     return m_y1;
 }
 
-unsigned Chip::y2() const
+int Chip::y2() const
 {
     return m_y2;
 }
 
-unsigned Chip::y1Total() const
+int Chip::y1Total() const
 {
     return m_y1Total;
 }
 
-unsigned Chip::y2Total() const
+int Chip::y2Total() const
 {
     return m_y2Total;
 }
 
-unsigned Chip::y1Border() const
+int Chip::y1Border() const
 {
     return m_y1Border;
 }
 
-unsigned Chip::y2Border() const
+int Chip::y2Border() const
 {
     return m_y2Border;
 }
@@ -171,7 +171,7 @@ void Chip::id(const QString &id)
     m_id = id;
 }
 
-void Chip::spots(unsigned spots)
+void Chip::spots(int spots)
 {
     m_spots = spots;
 }
@@ -181,62 +181,62 @@ void Chip::name(const QString &name)
     m_name = name;
 }
 
-void Chip::x1(unsigned x1)
+void Chip::x1(int x1)
 {
     m_x1 = x1;
 }
 
-void Chip::x2(unsigned x2)
+void Chip::x2(int x2)
 {
     m_x2 = x2;
 }
 
-void Chip::x1Total(unsigned x1Total)
+void Chip::x1Total(int x1Total)
 {
     m_x1Total = x1Total;
 }
 
-void Chip::x2Total(unsigned x2Total)
+void Chip::x2Total(int x2Total)
 {
     m_x2Total = x2Total;
 }
 
-void Chip::x1Border(unsigned x1Border)
+void Chip::x1Border(int x1Border)
 {
     m_x1Border = x1Border;
 }
 
-void Chip::x2Border(unsigned x2Border)
+void Chip::x2Border(int x2Border)
 {
     m_x2Border = x2Border;
 }
 
-void Chip::y1(unsigned y1)
+void Chip::y1(int y1)
 {
     m_y1 = y1;
 }
 
-void Chip::y2(unsigned y2)
+void Chip::y2(int y2)
 {
     m_y2 = y2;
 }
 
-void Chip::y1Total(unsigned y1Total)
+void Chip::y1Total(int y1Total)
 {
     m_y1Total = y1Total;
 }
 
-void Chip::y2Total(unsigned y2Total)
+void Chip::y2Total(int y2Total)
 {
     m_y2Total = y2Total;
 }
 
-void Chip::y1Border(unsigned y1Border)
+void Chip::y1Border(int y1Border)
 {
     m_y1Border = y1Border;
 }
 
-void Chip::y2Border(unsigned y2Border)
+void Chip::y2Border(int y2Border)
 {
     m_y2Border = y2Border;
 }

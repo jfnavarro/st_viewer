@@ -451,7 +451,6 @@ void MainWindow::slotAuthorized()
     m_genes->clear();
 
     // check for min version if supported and load user (only in online mode)
-
     if (m_dataProxy->loadMinVersion()) {
         const auto minVersion = m_dataProxy->getMinVersion();
         if (!versionIsGreaterOrEqual(VersionNumbers, minVersion)) {

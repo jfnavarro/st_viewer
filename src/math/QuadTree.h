@@ -189,15 +189,15 @@ void QuadTree<T, N>::Bucket::select(const QPointF &p,
 template <typename T, int N>
 int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
 {
-    static const unsigned table[] = {0u, 1u, 3u, 2u};
+    static const int table[] = {0, 1, 3, 2};
 
     // if non-leaf bucket
     if (quads[0] >= 0) {
         const QPointF middle_point = aabb.middle();
         const QVector2D middle_vector(p.x() - middle_point.x(), p.y() - middle_point.y());
-        const unsigned idx = ((middle_vector.x() < 0.0) ? 1u : 0u)
-                             + ((middle_vector.y() < 0.0) ? 2u : 0u);
-        const unsigned q = table[idx];
+        const int idx = ((middle_vector.x() < 0.0) ? 1 : 0)
+                             + ((middle_vector.y() < 0.0) ? 2 : 0);
+        const int q = table[idx];
         return quads[q];
     }
 

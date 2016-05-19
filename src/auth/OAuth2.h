@@ -42,8 +42,8 @@ private slots:
 
 private:
     // Make the authorization network request
-    void requestToken(const std::pair<QString, QString> &accessType,
-                      const std::pair<QString, QString> &accessCode);
+    void requestToken(const QPair<QString, QString> &accessType,
+                      const QPair<QString, QString> &accessCode);
 
     // Login dialog widget
     QScopedPointer<LoginDialog> m_loginDialog;

@@ -96,7 +96,7 @@ void NetworkCommand::addQueryItem(const QString &param, const QString &value)
     m_query.addQueryItem(param, value);
 }
 
-void NetworkCommand::addQueryItem(const QString &param, const unsigned value)
+void NetworkCommand::addQueryItem(const QString &param, const int value)
 {
     m_query.addQueryItem(param, QString::number(value));
 }

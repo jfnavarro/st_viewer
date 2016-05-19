@@ -25,7 +25,8 @@ public:
     AuthorizationManager(QSharedPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~AuthorizationManager();
 
-    // Start the login process
+    // Start the login process (first tries to log in with the stored accesss token
+    // if any, if the token does not exist or it is expired it will launch a log in dialog)
     void startAuthorization();
 
     // Clean access token

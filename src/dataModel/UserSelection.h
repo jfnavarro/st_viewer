@@ -19,7 +19,7 @@ class UserSelection
     Q_FLAGS(Types)
 
 public:
-    typedef QPair<QString, unsigned> geneCount;
+    typedef QPair<QString, int> geneCount;
     typedef QVector<geneCount> geneTotalCountsVector;
 
     enum Type { Rubberband = 1, Lazo = 2, Segmented = 3, Console = 4, Cluster = 5, Other = 6 };
@@ -55,13 +55,13 @@ public:
     // returns true when the selection has been fetched from the DB
     bool saved() const;
     // returns the total sum of reads in the selection
-    unsigned totalReads() const;
+    int totalReads() const;
     // returns the total number of features (gene-spot) in the selection
-    unsigned totalFeatures() const;
+    int totalFeatures() const;
     // returns the total number of genes in the selection
-    unsigned totalGenes() const;
+    int totalGenes() const;
     // returns the total number of spots in the selection
-    unsigned totalSpots() const;
+    int totalSpots() const;
 
     void id(const QString &id);
     void name(const QString &name);
@@ -108,10 +108,10 @@ private:
     QString m_datasetName;
     QByteArray m_tissueSnapShot;
     // for caching purposes to not have to recompute them
-    unsigned m_totalReads;
-    unsigned m_totalFeatures;
-    unsigned m_totalGenes;
-    unsigned m_totalSpots;
+    int m_totalReads;
+    int m_totalFeatures;
+    int m_totalGenes;
+    int m_totalSpots;
     // to differiante local selections from downloaded ones
     bool m_saved;
 };

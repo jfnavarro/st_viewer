@@ -30,9 +30,9 @@ OAuth2::~OAuth2()
 void OAuth2::startQuietLogin(const QUuid &refreshToken)
 {
     // QUuid encloses its uuids in "{}"...
-    requestToken(std::pair<QString, QString>(LBL_GRANT_TYPE, SettingsRefreshToken),
-                 std::pair<QString, QString>(SettingsRefreshToken,
-                                             refreshToken.toString().mid(1, 36)));
+    requestToken(QPair<QString, QString>(LBL_GRANT_TYPE, SettingsRefreshToken),
+                 QPair<QString, QString>(SettingsRefreshToken,
+                                         refreshToken.toString().mid(1, 36)));
 }
 
 void OAuth2::startInteractiveLogin()
@@ -57,12 +57,12 @@ void OAuth2::startInteractiveLogin()
 void OAuth2::slotEnterDialog(const QString &username, const QString &password)
 {
     // Request token based on password/username
-    requestToken(std::pair<QString, QString>(LBL_ACCESS_TOKEN_USERNAME, username),
-                 std::pair<QString, QString>(LBL_ACCESS_TOKEN_PASSWORD, password));
+    requestToken(QPair<QString, QString>(LBL_ACCESS_TOKEN_USERNAME, username),
+                 QPair<QString, QString>(LBL_ACCESS_TOKEN_PASSWORD, password));
 }
 
-void OAuth2::requestToken(const std::pair<QString, QString> &requestUser,
-                          const std::pair<QString, QString> &requestPassword)
+void OAuth2::requestToken(const QPair<QString, QString> &requestUser,
+                          const QPair<QString, QString> &requestPassword)
 {
     if (m_dataProxy->loadAccessToken(requestUser, requestPassword)) {
         const OAuth2TokenDTO &dto = m_dataProxy->getAccessToken();

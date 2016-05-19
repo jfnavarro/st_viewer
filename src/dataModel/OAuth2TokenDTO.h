@@ -19,7 +19,7 @@ class OAuth2TokenDTO : public QObject
     Q_PROPERTY(QString token_type READ tokenType WRITE tokenType)
     Q_PROPERTY(QString refresh_token READ refreshToken WRITE refreshToken)
     Q_PROPERTY(QString m_scope READ scope WRITE scope)
-    Q_PROPERTY(unsigned expires_in READ expiresIn WRITE expiresIn)
+    Q_PROPERTY(int expires_in READ expiresIn WRITE expiresIn)
 
 public:
     explicit OAuth2TokenDTO(QObject *parent = 0)
@@ -59,21 +59,21 @@ public:
     const QString &tokenType() const { return m_tokenType; }
     const QString &refreshToken() const { return m_refreshToken; }
     const QString &scope() const { return m_scopeType; }
-    unsigned expiresIn() const { return m_expiresIn; }
+    int expiresIn() const { return m_expiresIn; }
 
     // getters
     void accessToken(const QString &accessToken) { m_accessToken = accessToken; }
     void tokenType(const QString &tokenType) { m_tokenType = tokenType; }
     void refreshToken(const QString &refreshToken) { m_refreshToken = refreshToken; }
     void scope(const QString &scope) { m_scopeType = scope; }
-    void expiresIn(unsigned expiresIn) { m_expiresIn = expiresIn; }
+    void expiresIn(int expiresIn) { m_expiresIn = expiresIn; }
 
 private:
     QString m_accessToken;
     QString m_tokenType;
     QString m_refreshToken;
     QString m_scopeType;
-    unsigned m_expiresIn;
+    int m_expiresIn;
 };
 
 #endif // OAUTH2TOKENDTO_H //

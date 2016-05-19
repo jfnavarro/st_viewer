@@ -106,7 +106,7 @@ const QString User::address() const
     return m_address;
 }
 
-unsigned User::postcode() const
+int User::postcode() const
 {
     return m_postcode;
 }
@@ -181,7 +181,7 @@ void User::address(const QString &address)
     m_address = address;
 }
 
-void User::postcode(unsigned postCode)
+void User::postcode(int postCode)
 {
     m_postcode = postCode;
 }

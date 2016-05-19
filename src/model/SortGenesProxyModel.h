@@ -4,7 +4,7 @@
 #include <QSortFilterProxyModel>
 
 // Sort proxy class used to sort genes features table
-// by some specific criteria
+// by some specific criteria (for instance name)
 class SortGenesProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT

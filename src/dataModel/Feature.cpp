@@ -8,7 +8,7 @@ Feature::Feature()
 {
 }
 
-Feature::Feature(const QString &gene, unsigned x, unsigned y, unsigned count)
+Feature::Feature(const QString &gene, int x, int y, int count)
     : m_gene(gene)
     , m_count(count)
     , m_x(x)
@@ -48,17 +48,17 @@ const QString Feature::gene() const
     return m_gene;
 }
 
-unsigned Feature::count() const
+int Feature::count() const
 {
     return m_count;
 }
 
-unsigned Feature::x() const
+int Feature::x() const
 {
     return m_x;
 }
 
-unsigned Feature::y() const
+int Feature::y() const
 {
     return m_y;
 }
@@ -73,17 +73,17 @@ void Feature::gene(const QString &gene)
     m_gene = gene;
 }
 
-void Feature::count(unsigned count)
+void Feature::count(int count)
 {
     m_count = count;
 }
 
-void Feature::x(unsigned x)
+void Feature::x(int x)
 {
     m_x = x;
 }
 
-void Feature::y(unsigned y)
+void Feature::y(int y)
 {
     m_y = y;
 }

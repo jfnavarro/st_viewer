@@ -162,22 +162,22 @@ bool UserSelection::saved() const
     return m_saved;
 }
 
-unsigned UserSelection::totalReads() const
+int UserSelection::totalReads() const
 {
     return m_totalReads;
 }
 
-unsigned UserSelection::totalFeatures() const
+int UserSelection::totalFeatures() const
 {
     return m_totalFeatures;
 }
 
-unsigned UserSelection::totalGenes() const
+int UserSelection::totalGenes() const
 {
     return m_totalGenes;
 }
 
-unsigned UserSelection::totalSpots() const
+int UserSelection::totalSpots() const
 {
     return m_totalSpots;
 }

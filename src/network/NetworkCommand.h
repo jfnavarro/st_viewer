@@ -31,7 +31,7 @@ public:
 
     // convenience wrapper functions to add parameters to the network command
     void addQueryItem(const QString &param, const QString &value = QString());
-    void addQueryItem(const QString &param, const unsigned value);
+    void addQueryItem(const QString &param, const int value);
     void addQueryItem(const QString &param, const float value);
 
     // adds query items from qobject meta data if its elements are possible to

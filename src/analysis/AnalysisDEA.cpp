@@ -105,13 +105,13 @@ AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
             this,
             SLOT(slotSaveToPDF()));
     connect(m_ui->readsThreshold,
-            SIGNAL(signalLowerValueChanged(unsigned)),
+            SIGNAL(signalLowerValueChanged(int)),
             this,
-            SLOT(slotSetLowerThreshold(unsigned)));
+            SLOT(slotSetLowerThreshold(int)));
     connect(m_ui->readsThreshold,
-            SIGNAL(signalUpperValueChanged(unsigned)),
+            SIGNAL(signalUpperValueChanged(int)),
             this,
-            SLOT(slotSetUpperThreshold(unsigned)));
+            SLOT(slotSetUpperThreshold(int)));
     connect(m_ui->geneSearch,
             SIGNAL(textChanged(QString)),
             selectionsProxyModel(),
@@ -172,8 +172,8 @@ void AnalysisDEA::computeGeneToReads(const UserSelection &selObjectA,
                                      const UserSelection &selObjectB)
 {
     // reset thresholds
-    m_lowerThreshold = std::numeric_limits<unsigned>::max();
-    m_upperThreshold = std::numeric_limits<unsigned>::min();
+    m_lowerThreshold = std::numeric_limits<int>::max();
+    m_upperThreshold = std::numeric_limits<int>::min();
 
     // get the list of aggregated genes from both selections
     const auto &selA = selObjectA.getGeneCounts();
@@ -185,7 +185,7 @@ void AnalysisDEA::computeGeneToReads(const UserSelection &selObjectA,
     // depending of the value of the hash (0.0 no present)
     auto it1 = selA.begin();
     auto it2 = selB.begin();
-    std::map<QString, deaReads> tempMap;
+    QHash<QString, deaReads> tempMap;
     while (it1 != selA.end() || it2 != selB.end()) {
 
         if (it1 != selA.end()) {
@@ -210,11 +210,7 @@ void AnalysisDEA::computeGeneToReads(const UserSelection &selObjectA,
     }
 
     // clear the container and fill it with the deaReads objects
-    m_combinedSelections.clear();
-    std::transform(tempMap.begin(),
-                   tempMap.end(),
-                   std::back_inserter(m_combinedSelections),
-                   [](const std::map<QString, deaReads>::value_type &pair) { return pair.second; });
+    m_combinedSelections = tempMap.values();
 
     // update table model for genes
     selectionsModel()->loadCombinedSelectedGenes(m_combinedSelections);
@@ -233,8 +229,8 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
         }
 
         // get read values
-        const unsigned readsSelA = readsValues.readsA;
-        const unsigned readsSelB = readsValues.readsB;
+        const int readsSelA = readsValues.readsA;
+        const int readsSelB = readsValues.readsB;
 
         // compute overlapping counting values
         if (readsSelA == 0) {
@@ -283,7 +279,7 @@ void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
     update();
 }
 
-void AnalysisDEA::slotSetLowerThreshold(const unsigned value)
+void AnalysisDEA::slotSetLowerThreshold(const int value)
 {
     if (value != m_lowerThreshold) {
         m_lowerThreshold = value;
@@ -291,7 +287,7 @@ void AnalysisDEA::slotSetLowerThreshold(const unsigned value)
     }
 }
 
-void AnalysisDEA::slotSetUpperThreshold(const unsigned value)
+void AnalysisDEA::slotSetUpperThreshold(const int value)
 {
     if (value != m_upperThreshold) {
         m_upperThreshold = value;

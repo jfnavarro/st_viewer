@@ -23,7 +23,7 @@ public:
     const QString firstName() const;
     const QString secondName() const;
     const QString address() const;
-    unsigned postcode() const;
+    int postcode() const;
     const QString city() const;
     const QString country() const;
     const QString password() const;
@@ -40,7 +40,7 @@ public:
     void firstName(const QString &firstName);
     void secondName(const QString &secondName);
     void address(const QString &address);
-    void postcode(unsigned postCode);
+    void postcode(int postCode);
     void city(const QString &city);
     void country(const QString &country);
     void password(const QString &password);
@@ -60,7 +60,7 @@ private:
     QString m_firstName;
     QString m_secondName;
     QString m_address;
-    unsigned m_postcode;
+    int m_postcode;
     QString m_city;
     QString m_country;
     QString m_password;

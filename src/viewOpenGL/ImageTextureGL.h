@@ -45,7 +45,7 @@ private:
 
     // internal functions to create a texture from an image and add it to the
     // rendering list
-    void addTexture(const QImage &image, const unsigned x = 0, const unsigned y = 0);
+    void addTexture(const QImage &image, const int x = 0, const int y = 0);
 
     // internal function to remove and clean textures
     void clearTextures();

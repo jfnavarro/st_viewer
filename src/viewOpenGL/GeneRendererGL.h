@@ -16,9 +16,9 @@
 
 #include "GraphicItemGL.h"
 
-// STL datatypes
+// To allow to use std::shared_ptr in Qt containers
 template<typename T>
-Q_DECL_PURE_FUNCTION inline uint qHash(const std::shared_ptr<T> &key, uint seed = 0) Q_DECL_NOTHROW
+inline uint qHash(const std::shared_ptr<T> &key, uint seed = 0)
 {
     return qHash(key.get(), seed);
 }
@@ -50,7 +50,7 @@ public:
     // TODO this approach to store and visualization data will be refactored soon
     // visualization data will be stored and encapsulated in an object and it will
     // have a much more memory/speed efficient way to access and compute the
-    // visualization data
+    // visualization data.
 
     // list of unique spot indexes
     // Qt containers are faster than STL containers
@@ -64,14 +64,14 @@ public:
     // feature object to spot index
     typedef QHash<DataProxy::FeaturePtr, int> IndexesByFeatureMap;
     // spot index to total reads/genes
-    typedef QHash<int, unsigned> IndexTotalCount;
+    typedef QHash<int, int> IndexTotalCount;
     // lookup quadtree type (spot indexes)
     typedef QuadTree<int, 8> GeneInfoQuadTree;
 
     GeneRendererGL(QSharedPointer<DataProxy> dataProxy, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
-    // data builder (create data arrays from the features data in async ways)
+    // data builder (create visualization data from the ST data present in dataProxy)
     void generateData();
 
     // This function computes a individual counts cutoff for each gene.
@@ -87,19 +87,19 @@ public:
     // set the dimensions of the bounding rect, also for the QuadTree
     void setDimensions(const QRectF &border);
 
-    // makes a selection of features given a list of genes
+    // makes a selection of spots given a list of genes (always account for the tresholds)
     void selectGenes(const DataProxy::GeneList &genes);
 
-    // returns the currently selected features
+    // returns the currently selected features (counts on each selected spot)
     const DataProxy::FeatureList &getSelectedFeatures() const;
 
     // some getters for the thresholds
-    unsigned getMinReadsThreshold() const;
-    unsigned getMaxReadsThreshold() const;
-    unsigned getMinGenesThreshold() const;
-    unsigned getMaxGenesThreshold() const;
-    unsigned getMinTotalReadsThreshold() const;
-    unsigned getMaxTotalReadsThreshold() const;
+    int getMinReadsThreshold() const;
+    int getMaxReadsThreshold() const;
+    int getMinGenesThreshold() const;
+    int getMaxGenesThreshold() const;
+    int getMinTotalReadsThreshold() const;
+    int getMaxTotalReadsThreshold() const;
 
 public slots:
 
@@ -108,29 +108,29 @@ public slots:
     // slots to change visual atttributes
     void setIntensity(float intensity);
     void setSize(float size);
-    void setShape(const GeneShape shape);
+    void setShape(const GeneShape &shape);
 
     // slots for the thresholds
-    void setReadsLowerLimit(const unsigned limit);
-    void setReadsUpperLimit(const unsigned limit);
-    void setGenesLowerLimit(const unsigned limit);
-    void setGenesUpperLimit(const unsigned limit);
-    void setTotalReadsLowerLimit(const unsigned limit);
-    void setTotalReadsUpperLimit(const unsigned limit);
+    void setReadsLowerLimit(const int limit);
+    void setReadsUpperLimit(const int limit);
+    void setGenesLowerLimit(const int limit);
+    void setGenesUpperLimit(const int limit);
+    void setTotalReadsLowerLimit(const int limit);
+    void setTotalReadsUpperLimit(const int limit);
 
     // slots to set visual modes and color computations modes
-    void setVisualMode(const GeneVisualMode mode);
-    void setPoolingMode(const GenePooledMode mode);
-    void setColorComputingMode(const Visual::GeneColorMode mode);
+    void setVisualMode(const GeneVisualMode &mode);
+    void setPoolingMode(const GenePooledMode &mode);
+    void setColorComputingMode(const Visual::GeneColorMode &mode);
 
     // for the given genes list updates the color
-    // of all the featuers whose genes are in the list and visible
-    // gene data must be initialized
+    // of all the spots whose genes are in the list and visible
+    // (always account for the tresholds)
     void updateColor(const DataProxy::GeneList &geneList);
 
     // for the given gene list see all its features to visible
     // according if the gene is selected or not
-    // gene data must be initialized
+    // (always account for the tresholds)
     void updateVisible(const DataProxy::GeneList &geneList);
 
     // the user has changed the cut off value of a gene so we
@@ -140,7 +140,7 @@ public slots:
     // to disable/enable the individual genes cut-off
     void slotSetGenesCutOff(bool enable);
 
-    // clear all the selected features and notify observers
+    // clear all the selected features and send a signal to notify
     void clearSelection();
 
 signals:
@@ -158,9 +158,9 @@ private:
 
     // helper functions to test whether a feature is outside the threshold
     // area or not by reads/genes or TPM
-    bool featureReadsOutsideRange(const unsigned value);
-    bool featureGenesOutsideRange(const unsigned value);
-    bool featureTotalReadsOutsideRange(const unsigned value);
+    bool featureReadsOutsideRange(const int value);
+    bool featureGenesOutsideRange(const int value);
+    bool featureTotalReadsOutsideRange(const int value);
 
     // will iterate all the features to change size
     void updateSize();
@@ -214,20 +214,20 @@ private:
     GeneShape m_shape;
 
     // threshold limits for gene hits
-    unsigned m_thresholdReadsLower;
-    unsigned m_thresholdReadsUpper;
-    unsigned m_thresholdGenesLower;
-    unsigned m_thresholdGenesUpper;
-    unsigned m_thresholdTotalReadsLower;
-    unsigned m_thresholdTotalReadsUpper;
+    int m_thresholdReadsLower;
+    int m_thresholdReadsUpper;
+    int m_thresholdGenesLower;
+    int m_thresholdGenesUpper;
+    int m_thresholdTotalReadsLower;
+    int m_thresholdTotalReadsUpper;
 
     // enable/disable genes cutoff
     bool m_genes_cutoff;
 
     // local pooled min-max for rendering (Adjusted according to what is being
     // rendered)
-    unsigned m_localPooledMin;
-    unsigned m_localPooledMax;
+    int m_localPooledMin;
+    int m_localPooledMax;
 
     // bounding rect area
     QRectF m_border;

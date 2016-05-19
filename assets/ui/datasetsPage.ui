@@ -209,6 +209,9 @@
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
            <property name="toolTip">
             <string>Imports a dataset from files</string>
            </property>
@@ -257,7 +260,7 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Open the selected dataset</string>
@@ -307,7 +310,7 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Edit the selected dataset</string>
@@ -357,7 +360,7 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Delete the selected dataset</string>
@@ -407,7 +410,7 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="mouseTracking">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="focusPolicy">
             <enum>Qt::TabFocus</enum>

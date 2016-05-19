@@ -7,9 +7,7 @@
 #include <QSharedPointer>
 #include "config/Configuration.h"
 #include "dataModel/OAuth2TokenDTO.h"
-
 #include <array>
-#include <unordered_map>
 
 class QByteArray;
 class NetworkManager;
@@ -26,10 +24,10 @@ class MinVersionDTO;
 
 // DataProxy is a globally accessible all-in-all data store. It provides an
 // interface to access remotely stored data and means of storing and managing
-// the transferred data locally.
+// data imported locally.
 // It provides the backbone for most of the data models which are in turn used
 // to access specific subsets of the data store in the data proxy.
-// it also provides and API to load the data from the network
+// It also provides and API to load the data from the network
 class DataProxy : public QObject
 {
     Q_OBJECT
@@ -37,7 +35,7 @@ class DataProxy : public QObject
 
 public:
     enum DownloadType {
-        None, // do nothing, useful to remove requests
+        None, // do nothing
         MinVersionDownloaded,
         AccessTokenDownloaded,
         UserDownloaded,
@@ -125,8 +123,8 @@ public:
     bool loadMinVersion();
     // Download and parses OAuth2 access token for the user credentials given
     // Returns true if the download and parsing went fine
-    bool loadAccessToken(const std::pair<QString, QString> &username,
-                         const std::pair<QString, QString> &password);
+    bool loadAccessToken(const QPair<QString, QString> &username,
+                         const QPair<QString, QString> &password);
     // Download the chip and parses it
     // Returns true if the download and parsing went fine
     bool loadChip(const QString &chipId);
@@ -267,7 +265,7 @@ signals:
 
 private:
     // Internal function to create network requests for data objects
-    // The network call will be synchrnous and the function will
+    // The network call will be synchronous and the function will
     // return true of the the network call was successful (no errors)
     // or false otherwise.
     bool createRequest(QSharedPointer<NetworkReply> reply);

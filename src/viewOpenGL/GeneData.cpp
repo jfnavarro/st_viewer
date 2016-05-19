@@ -67,9 +67,9 @@ int GeneData::addQuad(const float x, const float y, const float size, const QCol
 
     // update custom vertex arrays
     for (int i = 0; i < QUAD_SIZE; ++i) {
-        m_reads.append(0);
-        m_visible.append(0);
-        m_selected.append(0);
+        m_reads.append(0.0);
+        m_visible.append(0.0);
+        m_selected.append(0.0);
     }
 
     // return first index of the quad created
@@ -95,21 +95,21 @@ void GeneData::updateQuadColor(const int index, const QColor &color)
 void GeneData::updateQuadSelected(const int index, const bool selected)
 {
     for (int i = 0; i < QUAD_SIZE; ++i) {
-        m_selected[index + i] = selected;
+        m_selected[index + i] = static_cast<float>(selected);
     }
 }
 
 void GeneData::updateQuadVisible(const int index, const bool visible)
 {
     for (int i = 0; i < QUAD_SIZE; ++i) {
-        m_visible[index + i] = visible;
+        m_visible[index + i] = static_cast<float>(visible);
     }
 }
 
-void GeneData::updateQuadReads(const int index, const unsigned reads)
+void GeneData::updateQuadReads(const int index, const int reads)
 {
     for (int i = 0; i < QUAD_SIZE; ++i) {
-        m_reads[index + i] = reads;
+        m_reads[index + i] = static_cast<float>(reads);
     }
 }
 
@@ -122,22 +122,22 @@ QColor GeneData::quadColor(const int index) const
 bool GeneData::quadSelected(const int index) const
 {
     // all vertices has same value
-    return m_selected.at(index);
+    return static_cast<bool>(m_selected.at(index));
 }
 
 bool GeneData::quadVisible(const int index) const
 {
     // all vertices has same value
-    return m_visible.at(index);
+    return static_cast<bool>(m_visible.at(index));
 }
 
-unsigned GeneData::quadReads(const int index) const
+int GeneData::quadReads(const int index) const
 {
     // all vertices has same value
-    return m_reads.at(index);
+    return static_cast<int>(m_reads.at(index));
 }
 
 void GeneData::clearSelectionArray()
 {
-    std::fill(m_selected.begin(), m_selected.end(), false);
+    std::fill(m_selected.begin(), m_selected.end(), 0.0);
 }

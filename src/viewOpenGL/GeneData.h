@@ -35,13 +35,13 @@ public:
     void updateQuadColor(const int index, const QColor &newcolor);
     void updateQuadSelected(const int index, const bool selected);
     void updateQuadVisible(const int index, const bool visible);
-    void updateQuadReads(const int index, const unsigned reads);
+    void updateQuadReads(const int index, const int reads);
 
     // some getters
     QColor quadColor(const int index) const;
     bool quadSelected(const int index) const;
     bool quadVisible(const int index) const;
-    unsigned quadReads(const int index) const;
+    int quadReads(const int index) const;
 
     // set selected array to all false
     void clearSelectionArray();
@@ -61,19 +61,19 @@ public:
 
     /* NEW RENDERING DATA MODEL
     // the spots numered from 1 to num_spots
-    std::vector<unsigned> indexes;
+    std::vector<int> indexes;
     // gene index is the position of the index in the list of counts for each spot
     // not to confuxed to the index of a spot. The gene index is just the position of the count
-    std::unordered_map<QString, unsigned> gene_index;
+    std::unordered_map<QString, int> gene_index;
     // a simple map from spot coordinate (x,y) to spot index
-    std::unordered_map<std::pair<unsigned, unsigned>, unsigned> spot_index;
+    std::unordered_map<std::pair<int, int>, int> spot_index;
     // vector of vectors
-    std::vector<std::vector<unsigned> > index_counts;
+    std::vector<std::vector<int> > index_counts;
 
-    std::vector<unsigned> getCountsGene(const QString &geneName) const;
-    std::vector<unsigned> getCountsSpot(const std::pair<unsigned, unsigned> spot) const;
-    std::vector<unsigned> getAccumulatedCounts() const;
-    unsigned getCount(const QString &geneName, const std::pair<unsigned, unsigned> spot) const;
+    std::vector<int> getCountsGene(const QString &geneName) const;
+    std::vector<int> getCountsSpot(const std::pair<int, int> spot) const;
+    std::vector<int> getAccumulatedCounts() const;
+    int getCount(const QString &geneName, const std::pair<int, int> spot) const;
 */
     Q_DISABLE_COPY(GeneData)
 };

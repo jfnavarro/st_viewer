@@ -41,6 +41,8 @@ class CellView;
 // TODO add an option to show normalized reads with DESeq
 // TODO add an option to show the coordinates when the user hovers a spot
 // TODO add an option to show gene expression in a defined color range
+// TODO the thresholds and shared settings should be encapsulated in an object
+// then the rendering objects just need to have a reference and update when anything changes
 class CellViewPage : public QWidget
 {
     Q_OBJECT
@@ -87,7 +89,7 @@ private slots:
     void slotSaveImage();
     void slotPrintImage();
 
-    // selection of genes using a the reg-exp dialog
+    // selection of spot using a the reg-exp dialog that takes gene names as input
     void slotSelectByRegExp();
 
     // select gene visual mode
@@ -102,10 +104,10 @@ private slots:
     // select minimap anchor
     void slotSetMiniMapAnchor(QAction *action);
 
-    // to handle when the user makes a selection
-    void slotSelectionUpdated();
+    // to handle when the user want to store the current selection into a selection object
+    void slotCreateSelection();
 
-    // to load the cell tissue figure (tile it into textures) asynchronously
+    // to load the cell tissue figure (tile it into textures)
     void slotLoadCellFigure();
 
 private:

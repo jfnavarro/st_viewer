@@ -22,14 +22,14 @@ public:
     virtual ~SpinBoxSlider();
 
     // Some setters for the ticks
-    void setMaximumValue(const unsigned max);
-    void setMinimumValue(const unsigned min);
-    void setTickInterval(const unsigned interval);
+    void setMaximumValue(const int max);
+    void setMinimumValue(const int min);
+    void setTickInterval(const int interval);
 
 signals:
 
-    void signalLowerValueChanged(unsigned);
-    void signalUpperValueChanged(unsigned);
+    void signalLowerValueChanged(int);
+    void signalUpperValueChanged(int);
 
 public slots:
 
@@ -41,8 +41,8 @@ private:
     QPointer<QSpinBox> m_right_spinbox;
     QPointer<QHBoxLayout> m_layout;
 
-    unsigned m_upper_value;
-    unsigned m_lower_value;
+    int m_upper_value;
+    int m_lower_value;
 
     Q_DISABLE_COPY(SpinBoxSlider)
 };
