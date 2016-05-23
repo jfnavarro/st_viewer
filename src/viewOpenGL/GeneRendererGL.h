@@ -58,11 +58,9 @@ public:
     // Spot index to list of features (gene-spot)
     typedef QMultiHash<int, DataProxy::FeaturePtr> FeaturesByIndexMap;
     // Gene object to list of features (accross all spots)
-    typedef QMultiHash<DataProxy::GenePtr, DataProxy::FeaturePtr> FeaturesByGeneMap;
+    typedef QHash<DataProxy::GenePtr, std::vector<int> > FeaturesByGeneMap;
     // gene object to list of spot indexes
     typedef QMultiHash<DataProxy::GenePtr, int> IndexesByGeneMap;
-    // feature object to spot index
-    typedef QHash<DataProxy::FeaturePtr, int> IndexesByFeatureMap;
     // spot index to total reads/genes
     typedef QHash<int, int> IndexTotalCount;
     // lookup quadtree type (spot indexes)
@@ -195,9 +193,7 @@ private:
     FeaturesByIndexMap m_geneInfoByIndex;
     // lookup data (gene -> indexes)
     IndexesByGeneMap m_geneInfoByGene;
-    // look up data (feature -> index)
-    IndexesByFeatureMap m_geneInfoByFeatureIndex;
-    // look up data (gene -> features)
+    // look up data (gene -> counts)
     FeaturesByGeneMap m_geneInfoByGeneFeatures;
     // list of selected features
     DataProxy::FeatureList m_geneInfoSelectedFeatures;

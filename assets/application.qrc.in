@@ -32,6 +32,7 @@
     <file alias="images/import.png">${PROJECT_SOURCE_DIR}/assets/images/import.png</file>
     <file alias="images/import-dataset.png">${PROJECT_SOURCE_DIR}/assets/images/import-dataset.png</file>
     <file alias="images/export_genes.png">${PROJECT_SOURCE_DIR}/assets/images/export_genes.png</file>
+    <file alias="images/create_selection.png">${PROJECT_SOURCE_DIR}/assets/images/create-selection.png</file>
     <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>

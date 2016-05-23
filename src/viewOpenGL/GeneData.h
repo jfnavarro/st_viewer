@@ -10,10 +10,11 @@
 // This class contains the GeneRendererGL visual
 // data containers and it presents an easy interface
 // to add/remove/update data
-// OpenGL buffers are configured automatically
 // The main principle is that the data points are stored
 // as triangles but they are represented as quads
-
+// Each spot in the array will be represented as one quad
+// and the color of the spot will be computed summing up
+// all the gene counts in the spot (accounting for thresholds)
 class GeneData
 {
 
@@ -53,7 +54,7 @@ public:
     QVector<unsigned> m_indexes;
     // Implicit converstion here
     // but the rendering data is being
-    // refactored. Computation of colorr
+    // refactored. Computation of color
     // will not be performed in the shaders..
     QVector<float> m_reads;
     QVector<float> m_visible;

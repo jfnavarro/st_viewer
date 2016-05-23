@@ -294,8 +294,9 @@
            <property name="statusTip">
             <string>Create a selection object</string>
            </property>
-           <property name="text">
-            <string>E.S</string>
+           <property name="icon">
+            <iconset resource="../../../stviewer-build/application.qrc">
+             <normaloff>:/images/create_selection.png</normaloff>:/images/create_selection.png</iconset>
            </property>
            <property name="iconSize">
             <size>

@@ -316,56 +316,6 @@ selection-background-color: darkgray;</string>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cluster">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Performs a clustering</string>
-           </property>
-           <property name="statusTip">
-            <string>Performs a clustering</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
-             <normaloff>:/images/cluster.png</normaloff>:/images/cluster.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="ddaAnalysis">
            <property name="minimumSize">
             <size>
@@ -394,50 +344,6 @@ selection-background-color: darkgray;</string>
            <property name="icon">
             <iconset resource="../../../stviewer-build/application.qrc">
              <normaloff>:/images/selection_dea.png</normaloff>:/images/selection_dea.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="importSelection">
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Import selection from file</string>
-           </property>
-           <property name="statusTip">
-            <string>Import selection from file</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
-             <normaloff>:/images/import.png</normaloff>:/images/import.png</iconset>
            </property>
            <property name="iconSize">
             <size>

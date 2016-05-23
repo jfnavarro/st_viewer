@@ -33,7 +33,7 @@ class CellView;
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 
 // TODO add a cache for the visual settings
-// TODO move visual settings to mainwindow
+// TODO move visual settings to mainwindow as an independent widget
 // TODO add a ruler visual object
 // TODO add a visual object to show name of dataset
 // TODO add a visual object to hightlight spots with color

@@ -28,7 +28,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     sortByColumn(DatasetItemModel::Name, Qt::AscendingOrder);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::SelectedClicked);
-    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionMode(QAbstractItemView::MultiSelection);
 
     resizeColumnsToContents();
     resizeRowsToContents();

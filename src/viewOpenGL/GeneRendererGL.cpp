@@ -49,7 +49,6 @@ void GeneRendererGL::clearData()
     m_geneInfoTotalReadsIndex.clear();
     m_geneInfoTotalGenesIndex.clear();
     m_geneInfoByGene.clear();
-    m_geneInfoByFeatureIndex.clear();
     m_geneInfoByGeneFeatures.clear();
     m_indexes.clear();
 
@@ -189,10 +188,8 @@ void GeneRendererGL::generateData()
         m_geneInfoByIndex.insert(index, feature);
         // multiple indexes per gene
         m_geneInfoByGene.insert(gene, index);
-        // one index per feature
-        m_geneInfoByFeatureIndex.insert(feature, index);
-        // mutiple features per gene
-        m_geneInfoByGeneFeatures.insert(gene, feature);
+        // mutiple count per gene
+        m_geneInfoByGeneFeatures[gene].push_back(feature->count());
 
         // updated total reads/genes per spot/index
         const int feature_reads = feature->count();
@@ -220,14 +217,8 @@ void GeneRendererGL::compuateGenesCutoff()
     const int minseglen = 2;
     for (auto gene : m_dataProxy->getGeneList()) {
         Q_ASSERT(gene);
-        // get all the features of the spots that contain that gene
-        auto feature_list = m_geneInfoByGeneFeatures.values(gene);
-        // create a list of the counts from the list of features
-        std::vector<int> counts(feature_list.size());
-        std::transform(feature_list.begin(),
-                       feature_list.end(),
-                       std::back_inserter(counts),
-                       [](const DataProxy::FeaturePtr &ele) { return ele->count(); });
+        // get all the counts of the spots that contain that gene
+        auto counts = m_geneInfoByGeneFeatures.value(gene);
         const size_t num_features = counts.size();
         // if too little counts or if all the counts are the same cut off is the min count present
         if (num_features < minseglen + 1
@@ -391,9 +382,6 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
     m_localPooledMin = std::numeric_limits<int>::max();
     m_localPooledMax = std::numeric_limits<int>::min();
 
-    // reset selection array that contains the selected features
-    m_geneInfoSelectedFeatures.clear();
-
     // some visualization options
     const bool pooling_genes = m_poolingMode == PoolNumberGenes;
     const bool pooling_tpm = m_poolingMode == PoolTPMs;
@@ -409,6 +397,7 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
         if (featureGenesOutsideRange(total_genes_feature)
             || featureTotalReadsOutsideRange(total_reads_feature)) {
             // set spot to not visible
+            m_geneData.updateQuadSelected(index, false);
             m_geneData.updateQuadVisible(index, false);
             continue;
         }
@@ -468,12 +457,13 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
 
         // update rendering data arrays
         m_geneData.updateQuadReads(index, indexValue);
-        m_geneData.updateQuadSelected(index, false);
         m_geneData.updateQuadVisible(index, visible);
+        if (!visible) {
+            m_geneData.updateQuadSelected(index, false);
+        }
         m_geneData.updateQuadColor(index, indexColor);
     }
     QGuiApplication::restoreOverrideCursor();
-    emit selectionUpdated();
     emit updated();
 }
 
@@ -582,10 +572,7 @@ void GeneRendererGL::selectSpots(const IndexesList &indexes,
             if (!remove_selection) {
                 m_geneInfoSelectedFeatures.push_back(feature);
             } else {
-                m_geneInfoSelectedFeatures.erase(std::remove(m_geneInfoSelectedFeatures.begin(),
-                                                             m_geneInfoSelectedFeatures.end(),
-                                                             feature),
-                                                 m_geneInfoSelectedFeatures.end());
+                m_geneInfoSelectedFeatures.removeOne(feature);
             }
         }
 

@@ -63,7 +63,7 @@ UserSelectionsPage::UserSelectionsPage(QSharedPointer<DataProxy> dataProxy, QWid
     connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
     connect(m_ui->showTable, SIGNAL(clicked(bool)), this, SLOT(slotShowTable()));
     connect(m_ui->saveDB, SIGNAL(clicked(bool)), this, SLOT(slotSaveSelection()));
-    connect(m_ui->importSelection, SIGNAL(clicked(bool)), this, SLOT(slotImportSelection()));
+    //connect(m_ui->importSelection, SIGNAL(clicked(bool)), this, SLOT(slotImportSelection()));
 
     clearControls();
 }
@@ -115,8 +115,8 @@ void UserSelectionsPage::clearControls()
     m_ui->showTissue->setEnabled(false);
     m_ui->showTable->setEnabled(false);
     m_ui->saveDB->setEnabled(false);
-    m_ui->importSelection->setEnabled(true);
-    m_ui->cluster->setEnabled(false);
+    //m_ui->importSelection->setEnabled(true);
+    //m_ui->cluster->setEnabled(false);
 }
 
 void UserSelectionsPage::loadSelections()
@@ -152,7 +152,7 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->showTissue->setEnabled(enableRest);
     m_ui->showTable->setEnabled(enableRest);
     m_ui->saveDB->setEnabled(enableRest && !selection->saved() && m_dataProxy->userLogIn());
-    m_ui->cluster->setEnabled(false);
+    //m_ui->cluster->setEnabled(false);
 }
 
 void UserSelectionsPage::slotRemoveSelection()
