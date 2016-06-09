@@ -4,11 +4,11 @@ set(APPLICATION_NAME "Spatial Transcriptomics Research Viewer")
 
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "5")
-set(PROJECT_VERSION_PATCH "9")
+set(PROJECT_VERSION_MINOR "6")
+set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
-set(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro")
+set(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro, KTH, KI.")
 set(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
 set(PROJECT_VENDOR "Jose Fernandez Navarro")
 

@@ -18,8 +18,8 @@ class FeatureDTO : public QObject
 
     Q_PROPERTY(QString gene READ gene WRITE gene)
     Q_PROPERTY(int hits READ count WRITE count)
-    Q_PROPERTY(int x READ x WRITE x)
-    Q_PROPERTY(int y READ y WRITE y)
+    Q_PROPERTY(float x READ x WRITE x)
+    Q_PROPERTY(float y READ y WRITE y)
 
 public:
     explicit FeatureDTO(QObject *parent = 0)
@@ -31,14 +31,14 @@ public:
     // binding
     void gene(const QString &gene) { m_feature.gene(gene); }
     void count(int count) { m_feature.count(count); }
-    void x(int x) { m_feature.x(x); }
-    void y(int y) { m_feature.y(y); }
+    void x(float x) { m_feature.x(x); }
+    void y(float y) { m_feature.y(y); }
 
     // read
     const QString gene() { return m_feature.gene(); }
     int count() { return m_feature.count(); }
-    int x() { return m_feature.x(); }
-    int y() { return m_feature.y(); }
+    float x() { return m_feature.x(); }
+    float y() { return m_feature.y(); }
 
     // get parsed data model
     const Feature &feature() const { return m_feature; }

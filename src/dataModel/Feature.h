@@ -18,14 +18,14 @@ class Feature
 public:
     // Only for pairs of std::hash-able types for simplicity.
     // You can of course template this struct to allow other hash functions
-    typedef QPair<int, int> SpotType;
+    typedef QPair<float, float> SpotType;
     typedef QSet<SpotType> UniqueSpotsType;
     typedef QHash<Feature::SpotType, int> spotTotalCounts;
     typedef QHash<QString, int> geneTotalCounts;
 
     Feature();
     explicit Feature(const Feature &other);
-    Feature(const QString &gene, int x, int y, int count);
+    Feature(const QString &gene, float x, float y, int count);
     ~Feature();
 
     Feature &operator=(const Feature &other);
@@ -34,22 +34,22 @@ public:
     const QString gene() const;
     // count represents the expression level
     int count() const;
-    int x() const;
-    int y() const;
+    float x() const;
+    float y() const;
     // the coordinates of the spot in the array
     SpotType spot() const;
 
     void gene(const QString &gene);
     void count(int count);
-    void x(int x);
-    void y(int y);
+    void x(float x);
+    void y(float y);
 
 protected:
     // basic attributes
     QString m_gene;
     int m_count;
-    int m_x;
-    int m_y;
+    float m_x;
+    float m_y;
 };
 
 #endif // FEATURE_H

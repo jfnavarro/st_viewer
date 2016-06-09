@@ -32,6 +32,10 @@ QColor createHeatMapWaveLenghtColor(const float value);
 // range
 QColor createHeatMapLinearColor(const float value, const float min, const float max);
 
+// Function that creates a dynamic color (alpha adjusted to the value given and min-max)
+QColor createDynamicRangeColor(const float value, const float min,
+                               const float max, QColor color = Qt::red);
+
 // Convenience function to adjust the input value using a Linear - Exponential
 // or Logaritmic
 // function

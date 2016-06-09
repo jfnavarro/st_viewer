@@ -322,8 +322,6 @@ void CellViewPage::createMenusAndConnections()
     m_ui->action_toggleMinimapTopLeft->setProperty("mode", Anchor::NorthWest);
     m_ui->action_toggleMinimapDownRight->setProperty("mode", Anchor::SouthEast);
     m_ui->action_toggleMinimapDownLeft->setProperty("mode", Anchor::SouthWest);
-    m_ui->action_toggleLegendReads->setProperty("mode", HeatMapLegendGL::Reads);
-    m_ui->action_toggleLegendGenes->setProperty("mode", HeatMapLegendGL::Genes);
 
     // menu gene plotter actions
     QMenu *menu_genePlotter = new QMenu(this);
@@ -444,12 +442,6 @@ void CellViewPage::createMenusAndConnections()
     setToolTipAndStatusTip(tr("Tools for visualization of the cell tissue"), menu_cellTissue);
     menu_cellTissue->addAction(m_ui->actionShow_showMiniMap);
     menu_cellTissue->addAction(m_ui->actionShow_showLegend);
-    menu_cellTissue->addSeparator()->setText(tr("Legend Values"));
-    QActionGroup *actionGroup_toggleLegendType = new QActionGroup(menu_cellTissue);
-    actionGroup_toggleLegendType->setExclusive(true);
-    actionGroup_toggleLegendType->addAction(m_ui->action_toggleLegendReads);
-    actionGroup_toggleLegendType->addAction(m_ui->action_toggleLegendGenes);
-    menu_cellTissue->addActions(actionGroup_toggleLegendType->actions());
 
     // group legend positions actions into one
     menu_cellTissue->addSeparator()->setText(tr("Legend Position"));
@@ -548,13 +540,16 @@ void CellViewPage::createMenusAndConnections()
         m_gene_plotter->setColorComputingMode(LogColor);
     });
     connect(m_poolingGenes.data(), &QRadioButton::clicked, [=] {
-        m_gene_plotter->setPoolingMode(GeneRendererGL::PoolNumberGenes);
+        m_gene_plotter->setPoolingMode(Visual::PoolNumberGenes);
+        m_legend->setPoolingMode(Visual::PoolNumberGenes);
     });
     connect(m_poolingReads.data(), &QRadioButton::clicked, [=] {
-        m_gene_plotter->setPoolingMode(GeneRendererGL::PoolReadsCount);
+        m_gene_plotter->setPoolingMode(Visual::PoolReadsCount);
+        m_legend->setPoolingMode(Visual::PoolReadsCount);
     });
     connect(m_poolingTPMs.data(), &QRadioButton::clicked, [=] {
-        m_gene_plotter->setPoolingMode(GeneRendererGL::PoolTPMs);
+        m_gene_plotter->setPoolingMode(Visual::PoolTPMs);
+        m_legend->setPoolingMode(Visual::PoolTPMs);
     });
 
     // threshold slider signals
@@ -569,11 +564,11 @@ void CellViewPage::createMenusAndConnections()
     connect(m_geneHitsThreshold.data(),
             SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(),
-            SLOT(setLowerLimitReads(int)));
+            SLOT(setReadsLowerLimit(int)));
     connect(m_geneHitsThreshold.data(),
             SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(),
-            SLOT(setUpperLimitReads(int)));
+            SLOT(setReadsUpperLimit(int)));
 
     connect(m_geneGenesThreshold.data(),
             SIGNAL(signalLowerValueChanged(int)),
@@ -586,11 +581,11 @@ void CellViewPage::createMenusAndConnections()
     connect(m_geneGenesThreshold.data(),
             SIGNAL(signalLowerValueChanged(int)),
             m_legend.data(),
-            SLOT(setLowerLimitGenes(int)));
+            SLOT(setGenesLowerLimit(int)));
     connect(m_geneGenesThreshold.data(),
             SIGNAL(signalUpperValueChanged(int)),
             m_legend.data(),
-            SLOT(setUpperLimitGenes(int)));
+            SLOT(setGenesUpperLimit(int)));
 
     connect(m_geneTotalReadsThreshold.data(),
             SIGNAL(signalLowerValueChanged(int)),
@@ -644,10 +639,6 @@ void CellViewPage::createMenusAndConnections()
             SIGNAL(triggered(QAction *)),
             this,
             SLOT(slotSetLegendAnchor(QAction *)));
-    connect(actionGroup_toggleLegendType,
-            SIGNAL(triggered(QAction *)),
-            this,
-            SLOT(slotSetLegendType(QAction *)));
 
     // minimap signals
     connect(m_ui->actionShow_showMiniMap,
@@ -722,10 +713,6 @@ void CellViewPage::resetActionStates()
     // anchor signals
     m_ui->action_toggleLegendTopRight->setChecked(true);
     m_ui->action_toggleMinimapDownRight->setChecked(true);
-
-    // legend computation values signals
-    m_ui->action_toggleLegendReads->setChecked(true);
-    m_ui->action_toggleLegendGenes->setChecked(false);
 
     // show legend and minimap
     m_ui->actionShow_showLegend->setChecked(false);
@@ -906,18 +893,6 @@ void CellViewPage::slotSetLegendAnchor(QAction *action)
     }
 }
 
-void CellViewPage::slotSetLegendType(QAction *action)
-{
-    const QVariant variant = action->property("mode");
-    if (variant.canConvert(QVariant::Int)) {
-        const HeatMapLegendGL::ValueComputation mode
-            = static_cast<HeatMapLegendGL::ValueComputation>(variant.toInt());
-        m_legend->setValueComputation(mode);
-    } else {
-        Q_ASSERT("[CellViewPage] Undefined legend computation value!");
-    }
-}
-
 void CellViewPage::slotSelectByRegExp()
 {
     const DataProxy::GeneList &geneList = SelectionDialog::selectGenes(m_dataProxy, this);
@@ -965,6 +940,8 @@ void CellViewPage::slotCreateSelection()
     new_selection.lastModified(QDateTime::currentDateTime().toString());
     // add the selection object to dataproxy but not save it to the cloud yet
     m_dataProxy->addUserSelection(new_selection, false);
+    // clear the selection in gene plotter
+    m_gene_plotter->clearSelection();
     // notify that the selection was created and added locally
     emit signalUserSelection();
 }

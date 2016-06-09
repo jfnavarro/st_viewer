@@ -37,8 +37,6 @@ class GeneRendererGL : public GraphicItemGL
     Q_OBJECT
 
 public:
-    // if user want to visualize read counts or number of genes or TPM read counts
-    enum GenePooledMode { PoolReadsCount = 1, PoolNumberGenes = 2, PoolTPMs = 3 };
 
     // must start by 0 as they are used to populate a combobox
     enum GeneShape { Circle = 0, Cross = 1, Square = 2 };
@@ -118,7 +116,7 @@ public slots:
 
     // slots to set visual modes and color computations modes
     void setVisualMode(const GeneVisualMode &mode);
-    void setPoolingMode(const GenePooledMode &mode);
+    void setPoolingMode(const Visual::GenePooledMode &mode);
     void setColorComputingMode(const Visual::GeneColorMode &mode);
 
     // for the given genes list updates the color
@@ -231,8 +229,8 @@ private:
     // visual mode
     GeneVisualMode m_visualMode;
 
-    // pooling mode (by gene count or reads counts)
-    GenePooledMode m_poolingMode;
+    // pooling mode (by gene count or reads counts or tpm counts)
+    Visual::GenePooledMode m_poolingMode;
 
     // color computing mode (exp - log - linear)
     Visual::GeneColorMode m_colorComputingMode;

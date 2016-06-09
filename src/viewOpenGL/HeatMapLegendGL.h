@@ -12,12 +12,13 @@ class QImage;
 // in order to give a reference point about the color-value relationship for the
 // gene data
 // when the user selects heat map mode
+//TODO the threshold values and methods are duplicated in geneRenderedGL. They should
+//be factored out into an object
 class HeatMapLegendGL : public GraphicItemGL
 {
     Q_OBJECT
 
 public:
-    enum ValueComputation { Reads = 1, Genes = 2, TPM = 3 };
 
     explicit HeatMapLegendGL(QObject *parent = 0);
     virtual ~HeatMapLegendGL();
@@ -36,18 +37,14 @@ public:
 
 public slots:
 
-    // TODO slots should have the prefix "slot"
+    // slots for the thresholds
+    void setReadsLowerLimit(const int limit);
+    void setReadsUpperLimit(const int limit);
+    void setGenesLowerLimit(const int limit);
+    void setGenesUpperLimit(const int limit);
 
-    // slots to adjust the boundaries when the threshold is changed
-    void setLowerLimitReads(const int limit);
-    void setUpperLimitReads(const int limit);
-    void setLowerLimitGenes(const int limit);
-    void setUpperLimitGenes(const int limit);
-
-    // slow to change the value computation type (genes or reads)
-    void setValueComputation(ValueComputation mode);
-
-    // slot to change the function to compute color values
+    // slots to set visual modes and color computations modes
+    void setPoolingMode(const Visual::GenePooledMode &mode);
     void setColorComputingMode(const Visual::GeneColorMode &mode);
 
 protected:
@@ -58,13 +55,14 @@ protected:
 private:
 
     // internal function to render text as a texture
-    void drawText(const QPointF &posn, const QString &str);
+    void drawText(const QPointF &posn, const QString &str,
+                  QOpenGLFunctionsVersion &qopengl_functions);
 
-    // min and max boundaries values to compute colors from
-    int m_maxReads;
-    int m_minReads;
-    int m_minGenes;
-    int m_maxGenes;
+    // threshold limits for gene hits
+    int m_thresholdReadsLower;
+    int m_thresholdReadsUpper;
+    int m_thresholdGenesLower;
+    int m_thresholdGenesUpper;
 
     // color computing mode (exp - log - linear)
     Visual::GeneColorMode m_colorComputingMode;
@@ -75,8 +73,8 @@ private:
     QVector<QVector2D> m_texture_vertices;
     QVector<QVector2D> m_texture_cords;
 
-    // use genes or reads to compute min-max
-    ValueComputation m_valueComputation;
+    // (gene counts, reads counts or tpm)
+    Visual::GenePooledMode m_valueComputation;
 
     // to know when the rendering data is initialized
     bool m_isInitialized;

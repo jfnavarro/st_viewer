@@ -50,6 +50,15 @@ QColor createHeatMapLinearColor(const double value, const double min, const doub
     return QColor::fromRgb(red, green, blue);
 }
 
+QColor createDynamicRangeColor(const float value, const float min,
+                               const float max, QColor color)
+{
+    const float adjusted_value
+        = Math::norm<float, float>(value, min, max);
+    color.setAlphaF(adjusted_value);
+    return color;
+}
+
 // simple function that computes color from a value
 // using the human wave lenght spectra
 QColor createHeatMapWaveLenghtColor(const float value)

@@ -16,6 +16,13 @@ enum GeneColorMode {
     ExpColor = 3,
 };
 
+// if user want to visualize read counts or number of genes or TPM read counts
+enum GenePooledMode {
+    PoolReadsCount = 1,
+    PoolNumberGenes = 2,
+    PoolTPMs = 3
+};
+
 enum Anchor {
     Center = 1,
     North = 2,

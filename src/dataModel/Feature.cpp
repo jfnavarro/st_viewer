@@ -8,7 +8,7 @@ Feature::Feature()
 {
 }
 
-Feature::Feature(const QString &gene, int x, int y, int count)
+Feature::Feature(const QString &gene, float x, float y, int count)
     : m_gene(gene)
     , m_count(count)
     , m_x(x)
@@ -53,12 +53,12 @@ int Feature::count() const
     return m_count;
 }
 
-int Feature::x() const
+float Feature::x() const
 {
     return m_x;
 }
 
-int Feature::y() const
+float Feature::y() const
 {
     return m_y;
 }
@@ -78,12 +78,12 @@ void Feature::count(int count)
     m_count = count;
 }
 
-void Feature::x(int x)
+void Feature::x(float x)
 {
     m_x = x;
 }
 
-void Feature::y(int y)
+void Feature::y(float y)
 {
     m_y = y;
 }

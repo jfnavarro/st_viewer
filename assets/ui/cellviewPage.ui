@@ -825,28 +825,6 @@
     <string>Shows a color selector to change color of the grid</string>
    </property>
   </action>
-  <action name="action_toggleLegendReads">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Values Reads</string>
-   </property>
-   <property name="toolTip">
-    <string>Compute values using reads</string>
-   </property>
-  </action>
-  <action name="action_toggleLegendGenes">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Values Genes</string>
-   </property>
-   <property name="toolTip">
-    <string>Compute values using genes</string>
-   </property>
-  </action>
   <action name="actionIndividual_gene_cut_off">
    <property name="checkable">
     <bool>true</bool>

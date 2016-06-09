@@ -69,7 +69,7 @@ void GeneRendererGL::clearData()
     // visual mode
     m_visualMode = NormalMode;
     // pooling mode
-    m_poolingMode = PoolReadsCount;
+    m_poolingMode = Visual::PoolReadsCount;
     // color mode
     m_colorComputingMode = Visual::LinearColor;
 
@@ -383,8 +383,8 @@ void GeneRendererGL::updateVisual(const IndexesList &indexes)
     m_localPooledMax = std::numeric_limits<int>::min();
 
     // some visualization options
-    const bool pooling_genes = m_poolingMode == PoolNumberGenes;
-    const bool pooling_tpm = m_poolingMode == PoolTPMs;
+    const bool pooling_genes = m_poolingMode == Visual::PoolNumberGenes;
+    const bool pooling_tpm = m_poolingMode == Visual::PoolTPMs;
     const bool isPooled = m_visualMode == DynamicRangeMode || m_visualMode == HeatMapMode;
 
     // iterate the indexes (spots) to compute the visual data by going trough all the
@@ -593,7 +593,7 @@ void GeneRendererGL::setVisualMode(const GeneVisualMode &mode)
     }
 }
 
-void GeneRendererGL::setPoolingMode(const GenePooledMode &mode)
+void GeneRendererGL::setPoolingMode(const Visual::GenePooledMode &mode)
 {
     // update pooling mode
     if (m_poolingMode != mode) {
