@@ -8,6 +8,7 @@
 #include "config/Configuration.h"
 #include "dataModel/OAuth2TokenDTO.h"
 #include <array>
+#include <memory>
 
 class QByteArray;
 class NetworkManager;
