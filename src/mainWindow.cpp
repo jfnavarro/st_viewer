@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "mainWindow.h"
 
 #if defined Q_OS_WIN
 #define NOMINMAX
