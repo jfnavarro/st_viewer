@@ -3,7 +3,7 @@
 #include "SettingsFormatXML.h"
 #include "options_cmake.h"
 #include <QLibraryInfo>
-#include <Qdir>
+#include <QDir>
 
 static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
 
