@@ -13,12 +13,10 @@
 
 #include <iostream>
 
-static const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
-
 namespace
 {
 
-// application flags must be set before instantiating QApplication
+// Application flags must be set before instantiating QApplication
 void setApplicationFlags()
 {
 
@@ -45,41 +43,19 @@ void setApplicationFlags()
 
 int main(int argc, char **argv)
 {
-#ifdef Q_OS_LINUX
-    // If this environment variable is not set we get (when having OpenGL resource leaks)
-    // "Segmentation fault (core dumped)" when we exit
-    // the application (running Ubuntu 14.04, Qt 5.3.1 with an nVidia graphics card)
-    // The idea for this workaround came from here
-    // http://www.opengl.org/discussion_boards/archive/index.php/t-173485.html
-    setenv("__GL_NO_DSO_FINALIZER", "1", 1);
-#endif
+    const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
 
+    // Define some configuration flags
     setApplicationFlags();
 
+    // Creates the application object
     QApplication app(argc, argv);
     app.setApplicationName(app.translate("main", "STViewer"));
     app.setApplicationVersion(VERSION);
 
     qDebug() << "Application started successfully.";
 
-// set library and plugins paths
-// we need to tell the application where to look for plugins and resources
-#if defined Q_OS_WIN
-    app.addLibraryPath(QDir(app.applicationDirPath()).canonicalPath() + QDir::separator()
-                       + "plugins");
-#elif defined Q_OS_MAC
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("PlugIns");
-    app.addLibraryPath(dir.path());
-#else
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("plugins");
-    app.addLibraryPath(dir.path());
-#endif
-
-    // install translation file
+    // Install translation file
     bool initialized = true;
     QTranslator trans;
     initialized &= trans.load(":translations/locale_en_us.qm");
@@ -92,25 +68,19 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    // create mainWindow
+    // Create main window
     MainWindow mainWindow;
     app.setActiveWindow(&mainWindow);
-
-    // check for min requirements
+    // Check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
         return EXIT_FAILURE;
     }
-    // check wether the app is being built with internet support
-    bool remote_data = false;
-#ifdef REMOTE_DATA
-    remote_data = true;
-#endif
-    // init graphic components
-    mainWindow.init(remote_data);
-    // show mainwindow.
+    // Initialize graphic components
+    mainWindow.init();
+    // Show main window.
     mainWindow.show();
-    // authorize
+    // Authorize (if the online mode is supported)
     mainWindow.startAuthorization();
     // launch the app
     return app.exec();

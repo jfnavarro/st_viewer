@@ -29,17 +29,17 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    // initialize main visual components
-    void init(const bool remote_data);
+    // Initialize main visual components
+    void init();
 
-    // check that the host has all the required hardware (true yes : false no )
+    // Check that the host has all the required hardware (true yes : false no )
     bool checkSystemRequirements() const;
 
-    // system settings
+    // System settings
     void loadSettings();
     void saveSettings() const;
 
-    // tries to find a cached access token otherwise it will show a log in dialog
+    // Tries to find a cached access token otherwise it will show a log in dialog
     void startAuthorization();
 
 private slots:
@@ -94,8 +94,8 @@ private:
     QScopedPointer<UserSelectionsPage> m_user_selections;
     QScopedPointer<GenesWidget> m_genes;
 
-    // true if the app is built with internet support
-    bool m_remote_data;
+    // the configuration settings
+    Configuration m_config;
 };
 
 #endif // stVi_H

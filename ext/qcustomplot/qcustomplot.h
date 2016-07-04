@@ -21,6 +21,8 @@
 **  Website/Contact: http://www.qcustomplot.com/                          **
 **             Date: 22.12.15                                             **
 **          Version: 1.3.2                                                **
+** This file has been modified by Jose Fernandez Navarro                  **
+** Date: 01.06.16                                                         **
 ****************************************************************************/
 
 #ifndef QCUSTOMPLOT_H
@@ -54,7 +56,7 @@
 #  include <QtPrintSupport/QtPrintSupport>
 #endif
 
-// Modification to ignore a warning in cland and GCC
+// Jose Fernandez Navarro: Modification to ignore a warning in cland and GCC
 #if defined(__clang__)
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wold-style-cast"

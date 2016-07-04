@@ -48,16 +48,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ###PACKAGES######################################
 
-find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
-mark_as_advanced(${OPENGL_LIBRARY})
-
-# TODO Maybe we should do this for OSX and Linux as well
-if (WIN32)
-    find_package(OpenSSL REQUIRED)
-    include_directories(${OPENSSL_INCLUDE_DIR})
-    mark_as_advanced(${OPENSSL_LIBRARIES})
-endif(WIN32)
 
 ##FLAGS AND DEFINITIONS###
 
@@ -116,7 +106,7 @@ if(MSVC)
 endif()
 
 # Link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS})
 
 ### UNIT TESTS ################################################################
 
@@ -204,10 +194,11 @@ if(UNIX AND NOT APPLE)
 
     # Install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${PUBLICKEY} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 endif()
 
@@ -246,6 +237,8 @@ if(APPLE)
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
         )
 
@@ -273,8 +266,8 @@ if(WIN32)
     endif()
 
     # Install system libs
-    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION . )
-    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION . )
+    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION .)
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION .)
 
     # Add systems libs to build directory
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -288,6 +281,36 @@ if(WIN32)
     # Create folder for the deployment
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms)
+
+    set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
+    #set(CPACK_NSIS_MODIFY_PATH "ON")
+    set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
+    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
+    set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
+    # Right now we are invoking Windows CMake from inside Cygwin.
+    # Maybe that is why we need to replace the "/" with "\\\\"?
+    string(REPLACE "/" "\\\\" source_dir_windows "${CMAKE_SOURCE_DIR}")
+    set(CPACK_NSIS_MUI_UNICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_MUI_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_PACKAGE_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
+    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    set(CPACK_NSIS_PAGE_COMPONENTS "
+        !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
+        !define MUI_STARTMENUPAGE_NODISABLE")
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+        CreateShortCut \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
+        CreateShortCut \\\"\\\$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
+    ")
+
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}
+        Delete \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\\${PROJECT_NAME}.lnk\\\"
+        Delete \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\\Uninstall.lnk \\\"
+        RmDir \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\"
+        Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
+        Delete \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"
+    ")
 
     # Location of libraries
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -325,12 +348,14 @@ if(WIN32)
     # Install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
-                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/ )
-    install(TARGETS ${PROJECT_NAME} DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION . )
-    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION . )
+                       COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/)
+    install(TARGETS ${PROJECT_NAME} DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION .)
+    install(FILES ${CONFIG_FILE} DESTINATION .)
+    install(FILES ${PUBLICKEY} DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
 
 endif(WIN32)
 

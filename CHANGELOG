@@ -160,3 +160,11 @@ v0.5.7
 v0.5.8
 	* Fixed small bugs
 	* Added an option to create selection object when the user needs
+
+v0.6.0 
+	* Fixed small bugs
+
+V0.6.1
+	* Added network settings as a config file
+	* Simplied importing of datasets
+

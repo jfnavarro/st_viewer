@@ -362,7 +362,6 @@ bool DataProxy::loadDatasetContent(const DatasetPtr dataset)
 
     // load features
     const bool features = loadFeatures(dataset->id());
-
     if (!features) {
         qDebug() << "Error downloading st data features...";
         return false;
@@ -370,8 +369,12 @@ bool DataProxy::loadDatasetContent(const DatasetPtr dataset)
 
     // load chip
     const bool chip = loadChip(m_imageAlignment->chipId());
+    if (!chip) {
+        qDebug() << "Error downloading chip...";
+        return false;
+    }
 
-    return image_alignment && image_one && image_two && features && chip;
+    return true;
 }
 
 bool DataProxy::loadChip(const QString &chipId)

@@ -60,7 +60,7 @@ macro(INITIALISE_PROJECT)
             set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
             # Needed for a bug in Qt 5.5.0, it will be fixed in 5.5.1
-            set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-unknown-pragmas")
+            # set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-unknown-pragmas")
         endif()
     endif()
 

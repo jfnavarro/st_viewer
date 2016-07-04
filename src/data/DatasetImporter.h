@@ -35,6 +35,7 @@ private slots:
     void slotLoadFeaturesFile();
     void slotLoadMainImageFile();
     void slotLoadSecondImageFile();
+    void slotLoadAlignmentFile();
     void slotValidateForm();
 
 private:

@@ -7,7 +7,7 @@
 #define VERSION_REVISION @PROJECT_VERSION_PATCH@
 #define VERSION_BUILD @PROJECT_VERSION_MAJOR@
 #cmakedefine TRANSLATION_FILE "@TRANSLATION_FILE@"
-#cmakedefine REMOTE_DATA
+#cmakedefine CONFIG_FILE "@CONFIG_FILE_NAME@"
 
 // This flag is for unit tests
 #cmakedefine01 BUILD_UNIT_TESTS

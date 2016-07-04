@@ -2,6 +2,7 @@
 #include "ui_datasetImporter.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTextStream>
 
 DatasetImporter::DatasetImporter(QWidget *parent)
     : QDialog(parent)
@@ -14,6 +15,10 @@ DatasetImporter::DatasetImporter(QWidget *parent)
             SIGNAL(clicked(bool)),
             this,
             SLOT(slotLoadSecondImageFile()));
+    connect(m_ui->loadImageAlignmentFile,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(slotLoadAlignmentFile()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(slotValidateForm()));
 }
 
@@ -70,21 +75,44 @@ const QByteArray DatasetImporter::secondImageFile() const
 
 const QRect DatasetImporter::chipDimensions() const
 {
-    return QRect(QPoint(m_ui->chip_x1->value(), m_ui->chip_y1->value()),
-                 QPoint(m_ui->chip_x2->value(), m_ui->chip_y2->value()));
+    //NOTE hardcoded for now..
+    return QRect(QPoint(2, 2),
+                 QPoint(32, 34));
 }
 
 const QTransform DatasetImporter::alignmentMatrix() const
 {
-    return QTransform(m_ui->alignment_a11->value(),
-                      m_ui->alignment_a12->value(),
-                      m_ui->alignment_a13->value(),
-                      m_ui->alignment_a21->value(),
-                      m_ui->alignment_a22->value(),
-                      m_ui->alignment_a23->value(),
-                      m_ui->alignment_a31->value(),
-                      m_ui->alignment_a32->value(),
-                      m_ui->alignment_a33->value());
+    float a11 = 1.0;
+    float a12 = 0.0;
+    float a13 = 0.0;
+    float a21 = 0.0;
+    float a22 = 1.0;
+    float a23 = 0.0;
+    float a31 = 0.0;
+    float a32 = 0.0;
+    float a33 = 1.0;
+
+    QFile file(m_ui->imageAlignmentFile->text());
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            // TODO check it is only one line and 9 columns
+            QStringList fields = line.split(" ");
+            a11 = fields.at(0).toFloat();
+            a12 = fields.at(1).toFloat();
+            a13 = fields.at(2).toFloat();
+            a21 = fields.at(3).toFloat();
+            a22 = fields.at(4).toFloat();
+            a23 = fields.at(5).toFloat();
+            a31 = fields.at(6).toFloat();
+            a32 = fields.at(7).toFloat();
+            a33 = fields.at(8).toFloat();
+        }
+    }
+    file.close();
+
+    return QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
 }
 
 void DatasetImporter::slotLoadFeaturesFile()
@@ -149,6 +177,28 @@ void DatasetImporter::slotLoadSecondImageFile()
     }
 }
 
+void DatasetImporter::slotLoadAlignmentFile()
+{
+    const QString filename
+        = QFileDialog::getOpenFileName(this,
+                                       tr("Open Alignment File"),
+                                       QDir::homePath(),
+                                       QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Alignment File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->imageAlignmentFile->insert(filename);
+    }
+}
+
 void DatasetImporter::slotValidateForm()
 {
     QString error_msg;
@@ -161,13 +211,10 @@ void DatasetImporter::slotValidateForm()
         error_msg = tr("Second image is missing!");
     } else if (m_ui->featuresFile->text().isEmpty()) {
         isValid = false;
-        error_msg = tr("Features file is missing!");
+        error_msg = tr("ST Data file is missing!");
     } else if (m_ui->datasetName->text().isEmpty()) {
         isValid = false;
         error_msg = tr("Dataset name is missing!");
-    } else if (m_ui->chip_x2->value() == 0 || m_ui->chip_y2->value() == 0) {
-        isValid = false;
-        error_msg = tr("Chip values are invalid!");
     }
 
     if (!isValid) {

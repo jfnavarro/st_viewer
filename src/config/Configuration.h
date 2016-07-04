@@ -43,7 +43,16 @@ public:
     const QString dataEndpointSelections() const;
     const QString dataEndpointFigures() const;
 
+    // True if the configuration file has a url defined
+    bool has_network() const;
+    // True if the QSettings object is initilized and valid
+    bool is_valid() const;
+    // The path to the SSL key file if present in the configuration file
+    const QString pathSSL() const;
+
 private:
+    // reads the setting stored in the key given and returns
+    // its value or empty string if there was a problem
     const QString readSetting(const QString &key) const;
 
     QScopedPointer<QSettings> m_settings;

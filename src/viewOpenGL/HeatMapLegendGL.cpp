@@ -221,7 +221,7 @@ void HeatMapLegendGL::drawText(const QPointF &posn, const QString &str,
     image.fill(0);
     QPainter qpainter(&image);
     qpainter.setFont(monoFont);
-    qpainter.setPen(Qt::white);
+    qpainter.setPen(Qt::black);
     qpainter.setRenderHint(QPainter::Antialiasing, true);
     qpainter.drawText(textRect.x(), metrics.ascent(), str);
     qpainter.end();

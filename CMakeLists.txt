@@ -5,55 +5,33 @@ set(APPLICATION_NAME "Spatial Transcriptomics Research Viewer")
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "6")
-set(PROJECT_VERSION_PATCH "0")
+set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
-set(PROJECT_COPYRIGHT "Copyright (C) Jose Fernandez Navarro, KTH, KI.")
+set(PROJECT_COPYRIGHT "Copyright (C) 2016 Jose Fernandez Navarro, Jonas Frisen, Patrik Stall, Joakim Lundeberg, KTH, KI.")
 set(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
 set(PROJECT_VENDOR "Jose Fernandez Navarro")
 
-option(REMOTE_DATA "Whether the application can connect to a ST API to retrieve data" OFF)
-
-# Check if the remote mode is desired
-if(REMOTE_DATA)
-  if (ENDPOINT STREQUAL "")
-      message(FATAL_ERRROR "ENDPOINT is needed to enable the online mode")
-  endif()
-  if (CLIENTID STREQUAL "")
-      message(FATAL_ERRROR "CLIENTID is needed to enable the online mode")
-  endif()
-  if (SECRECTID STREQUAL "")
-      message(FATAL_ERRROR "SECRECTID is needed to enable the online mode")
-  endif()
-  if (PUBLICKEY STREQUAL "")
-      message(FATAL_ERRROR "PUBLICKEY is needed to enable the online mode")
-  endif()
-endif()
-
-set(APIPATH  "api")
+set(CONFIG_FILE "${PROJECT_SOURCE_DIR}/assets/stviewer.conf" CACHE STRING
+    "The file with the network configuration settings")
 
 # print main variables
-message( STATUS )
-message( STATUS
-"-------------------------------------------------------------------------------"
-)
-message(STATUS "Building ${APPLICATION_NAME} ....." )
-message(STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>" )
-message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
-message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
-message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}" )
-message(STATUS "TARGET_ARCH = ${TARGET_ARCH}" )
-message(STATUS "VERSION = ${PROJECT_VERSION}")
-message(STATUS "INTERNET SUPPORT = ${REMOTE_DATA}")
-if (REMOTE_DATA)
-    message(STATUS "ENDPOINT = ${ENDPOINT}")
-    message(STATUS "CLIENT ID = ${CLIENTID}")
-    message(STATUS "SSL KEY = ${PUBLICKEY}")
-endif()
+message(STATUS)
 message(STATUS
 "-------------------------------------------------------------------------------"
 )
-message( STATUS )
+message(STATUS "Building ${APPLICATION_NAME} .....")
+message(STATUS "Change a configuration variable with: cmake -D<Variable>=<Value>")
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
+message(STATUS "TARGET_ARCH = ${TARGET_ARCH}")
+message(STATUS "VERSION = ${PROJECT_VERSION}")
+message(STATUS "CONFIGURATION FILE = ${CONFIG_FILE}")
+message(STATUS
+"-------------------------------------------------------------------------------"
+)
+message(STATUS)
 
 enable_testing()
 
@@ -72,28 +50,28 @@ endif(COMMAND cmake_policy)
 
 # File that contains the default language for Qt
 set(TRANSLATION_FILE "locale_en_us.qm")
+# We just need to pass the app the name of the config file
+get_filename_component(CONFIG_FILE_NAME ${CONFIG_FILE} NAME)
 
 # Compile RC-file, only for Windows
 if(WIN32)
   set (RC_FILE ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.rc)
   add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o
     COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR} -i${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.rc
-    -o ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o )
-  # Failed to find "glu32"
-  # The suggested solution in 
-  # http://www.qtcentre.org/threads/56185-cmake-error-with-Failed-to-find-quot-glu32-quot-in-quot-quot?p=251234
-  # solves the issue. Maybe it's a Qt bug?
-  set(CMAKE_LIBRARY_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_RELEASE QT_NO_DEBUG)
+    -o ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o)
 endif (WIN32)
 
 # Some in-house CMake functions/macros
 include(${CMAKE_SOURCE_DIR}/cmake/utils.cmake)
 
+# Check the the configuration file is present
+if (NOT EXISTS ${CONFIG_FILE})
+    message(FATAL_ERROR "Configuration file not present!")
+endif()
+
 # Compile CMake generated based files
-configure_file(${PROJECT_SOURCE_DIR}/assets/config/application.conf.in ${PROJECT_BINARY_DIR}/application.conf )
-configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc )
-configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h )
+configure_file(${PROJECT_SOURCE_DIR}/assets/application.qrc.in ${PROJECT_BINARY_DIR}/application.qrc)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/options_cmake.h.in ${PROJECT_BINARY_DIR}/options_cmake.h)
 
 # Include the project binary dir
 include_directories(${PROJECT_BINARY_DIR})

@@ -68,11 +68,8 @@ instructions :
           [-DCMAKE_PREFIX_PATH="/path/to/qt"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
-          [-DENDPOINT=”http://yourserverapi.] \
-          [-DCLIENTID="some_name"] \
-          [-DSECRETID="password"] \
           [-DPUBLICKEY="path_to_ssl_key"] \
-          [-DREMOTE_DATA=ON|OFF]
+          [-DCONFIG_FILE=”path_to_networl_config_file”]
           /path/to/source
 
     Where : 
@@ -90,19 +87,13 @@ instructions :
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
     eg: 10.7 , 10.8 or 10.9
     
-    DENDPOINT = In case we want the ST Viewer to access datasets in a database we must
-    give the URL of the ST API (this is optional)
-
-    DCLIENID = In case we want the ST Viewer to access datasets in a database we must
-    give the client ID (this is optional)
-
-    DSECRETID = In case we want the ST Viewer to access datasets in a database we must
-    give the client password (this is optional) 
-    
     DPUBLIC_KEY = In case we want the ST Viewer to access datasets in a database we must
     give a public key if the API implements HTTPS (this is optional) 
     
-    DREMOTE_DATA = To disable/enable the remote data (fetch data from the remote database)
+    DCONFIG_FILE = In case we want the ST Viewer to access datasets in a database we must
+    give a configuration file with the endpoints and the OAuth access settings.
+    The STViewer will load this file in running time after it is installed so you can
+    also edit the file after installation.
 
 *   Build the application
 
@@ -119,6 +110,7 @@ instructions :
     Then you can use the bundle to install the ST Viewer as an application
 
 ###### Ubuntu
+
 * Download and install Qt open source from : http://qt-project.org/downloads
 * Issue the following commands
 
@@ -155,6 +147,8 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 * Install Microsoft Visual Studio (make sure you install the C++ compilers) : http://www.microsoft.com/visualstudio/eng/visual-studio-2013
 
 * Install NSI installers in Windows : http://nsis.sourceforge.net/Download
+
+* Install OpenSSL
 
 * Build from the source (Currently Qt does not support Visual Studio 2015)
 

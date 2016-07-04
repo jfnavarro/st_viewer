@@ -13,112 +13,56 @@
   <property name="windowTitle">
    <string>Import Dataset</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <item row="17" column="0">
-    <widget class="QLineEdit" name="secondImageFile"/>
-   </item>
-   <item row="15" column="1">
-    <widget class="QToolButton" name="loadMainImageFile">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QSpinBox" name="alignment_a11">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>333</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="alignment_a12">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QSpinBox" name="alignment_a13">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QSpinBox" name="alignment_a21">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="alignment_a22">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>333</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QSpinBox" name="alignment_a23">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QSpinBox" name="alignment_a31">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>4700</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="alignment_a32">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>4725</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QSpinBox" name="alignment_a33">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>1</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Comments</string>
-     </property>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Dataset Name</string>
      </property>
     </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLineEdit" name="datasetName"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Species (Optional)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLineEdit" name="species"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Tissue (Optional)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLineEdit" name="tissue"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Comments (Optional)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QTextEdit" name="comments"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>ST Data file</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLineEdit" name="featuresFile"/>
    </item>
    <item row="9" column="1">
     <widget class="QToolButton" name="loadFeaturesFile">
@@ -127,99 +71,58 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="QLineEdit" name="featuresFile"/>
-   </item>
    <item row="10" column="0">
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Chip</string>
+      <string>Alignment file (optional)</string>
      </property>
     </widget>
    </item>
    <item row="11" column="0">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QSpinBox" name="chip_x1">
-       <property name="maximum">
-        <number>999</number>
-       </property>
-       <property name="value">
-        <number>2</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="chip_y1">
-       <property name="maximum">
-        <number>999</number>
-       </property>
-       <property name="value">
-        <number>2</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QSpinBox" name="chip_x2">
-       <property name="value">
-        <number>32</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="chip_y2">
-       <property name="value">
-        <number>34</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QLineEdit" name="imageAlignmentFile"/>
    </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="datasetName"/>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_2">
+   <item row="11" column="1">
+    <widget class="QToolButton" name="loadImageAlignmentFile">
      <property name="text">
-      <string>Features file</string>
+      <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="15" column="0">
-    <widget class="QLineEdit" name="mainImageFile"/>
-   </item>
-   <item row="14" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Main image</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="label_6">
+   <item row="13" column="0">
+    <widget class="QLineEdit" name="mainImageFile"/>
+   </item>
+   <item row="13" column="1">
+    <widget class="QToolButton" name="loadMainImageFile">
      <property name="text">
-      <string>Alignment</string>
+      <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="16" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Second image</string>
      </property>
     </widget>
    </item>
-   <item row="17" column="1">
+   <item row="15" column="0">
+    <widget class="QLineEdit" name="secondImageFile"/>
+   </item>
+   <item row="15" column="1">
     <widget class="QToolButton" name="loadSecondImageFile">
      <property name="text">
       <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLineEdit" name="species"/>
-   </item>
-   <item row="18" column="0">
+   <item row="16" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -228,39 +131,6 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
-   </item>
-   <item row="11" column="1">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Tissue</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Species</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QTextEdit" name="comments"/>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLineEdit" name="tissue"/>
    </item>
   </layout>
  </widget>
@@ -271,19 +141,6 @@
   <tabstop>comments</tabstop>
   <tabstop>featuresFile</tabstop>
   <tabstop>loadFeaturesFile</tabstop>
-  <tabstop>chip_x1</tabstop>
-  <tabstop>chip_y1</tabstop>
-  <tabstop>chip_x2</tabstop>
-  <tabstop>chip_y2</tabstop>
-  <tabstop>alignment_a11</tabstop>
-  <tabstop>alignment_a12</tabstop>
-  <tabstop>alignment_a13</tabstop>
-  <tabstop>alignment_a21</tabstop>
-  <tabstop>alignment_a22</tabstop>
-  <tabstop>alignment_a23</tabstop>
-  <tabstop>alignment_a31</tabstop>
-  <tabstop>alignment_a32</tabstop>
-  <tabstop>alignment_a33</tabstop>
   <tabstop>mainImageFile</tabstop>
   <tabstop>loadMainImageFile</tabstop>
   <tabstop>secondImageFile</tabstop>

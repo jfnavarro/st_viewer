@@ -31,14 +31,17 @@ NetworkManager::NetworkManager(QObject *parent)
     , m_nam(nullptr)
     , m_diskCache(nullptr)
 {
-    // setup network access manager
+    // Setup network access manager
     m_nam.reset(new QNetworkAccessManager(this));
 
-    // add SSL support
-    QFile cafile(":public_key.pem");
-    cafile.open(QIODevice::ReadOnly);
-    QSslCertificate cert(&cafile, QSsl::Pem);
-    QSslSocket::addDefaultCaCertificate(cert);
+    // Add SSL support
+    if (QFile::exists(m_configurationManager.pathSSL())) {
+        qDebug() << "Using SSL key " << m_configurationManager.pathSSL();
+        QFile cafile(m_configurationManager.pathSSL());
+        cafile.open(QIODevice::ReadOnly);
+        QSslCertificate cert(&cafile, QSsl::Pem);
+        QSslSocket::addDefaultCaCertificate(cert);
+    }
 
     const QString serverURL = m_configurationManager.EndPointUrl();
     // make DNS look up ahead of time
@@ -53,7 +56,7 @@ NetworkManager::NetworkManager(QObject *parent)
     qDebug() << "Network disk cache location " << location;
     m_diskCache->setCacheDirectory(location + QDir::separator() + "data");
     const quint64 cacheSizeinGB = 5368709120; // 1024*1024*1024*5 5GB
-    // TODO some HD freee space check should be added here
+    // TODO some HD free space check should be added here
     m_diskCache->setMaximumCacheSize(cacheSizeinGB);
     m_nam->setCache(m_diskCache.data());
 
@@ -85,13 +88,11 @@ QSharedPointer<NetworkReply> NetworkManager::httpRequest(QSharedPointer<NetworkC
         return replyWrapper;
     }
 
-// do a connection check here (TODO seems to only work in MAC)
-#ifdef Q_OS_MAC
+    // do a connection check here (TODO seems to only work in MAC)
     if (m_nam->networkAccessible() == QNetworkAccessManager::NotAccessible) {
         qDebug() << "[NetworkManager] Error: Unable to connect to the network";
         return replyWrapper;
     }
-#endif
 
     // check if authentication is needed
     if (flags.testFlag(UseAuthentication)) {

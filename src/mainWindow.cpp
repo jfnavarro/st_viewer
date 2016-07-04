@@ -21,6 +21,7 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
+#include <QDir>
 
 #include "error/Error.h"
 #include "error/ApplicationError.h"
@@ -77,7 +78,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
     , m_genes(nullptr)
-    , m_remote_data(false)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -98,10 +98,8 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::init(const bool remote_data)
+void MainWindow::init()
 {
-    m_remote_data = remote_data;
-
     // init style, size and icons
     initStyle();
 
@@ -144,6 +142,15 @@ bool MainWindow::checkSystemRequirements() const
         QMessageBox::critical(this->centralWidget(),
                               tr("Secure connection"),
                               tr("This system does not secure SSL connections"));
+        return false;
+    }
+
+    // Fail if there is not configuration file
+    Configuration config;
+    if (!config.is_valid()) {
+        QMessageBox::critical(this->centralWidget(),
+                              tr("Configuration file"),
+                              tr("Configuration file could not be loaded"));
         return false;
     }
 
@@ -416,7 +423,7 @@ void MainWindow::saveSettings() const
 
 void MainWindow::startAuthorization()
 {
-    if (!m_remote_data) {
+    if (!m_config.has_network()) {
         return;
     }
 
@@ -428,7 +435,7 @@ void MainWindow::startAuthorization()
 
 void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 {
-    if (!m_remote_data) {
+    if (!m_config.has_network()) {
         return;
     }
 
@@ -440,7 +447,7 @@ void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
 
 void MainWindow::slotAuthorized()
 {
-    if (!m_remote_data) {
+    if (!m_config.has_network()) {
         return;
     }
 
@@ -484,9 +491,10 @@ void MainWindow::slotAuthorized()
 
 void MainWindow::slotLogOutButton()
 {
-    if (!m_remote_data) {
+    if (!m_config.has_network()) {
         return;
     }
+
     // clear user name in label
     m_cellview->slotSetUserName("");
     // clean the cache in the dataproxy

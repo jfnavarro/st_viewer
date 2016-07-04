@@ -725,14 +725,8 @@ void CellViewPage::resetActionStates()
     m_colorLinear->setChecked(true);
 
     // restrict interface
-    if (m_dataProxy->userLogIn()) {
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(user);
-        m_ui->actionShow_cellTissueRed->setVisible(user->hasSpecialRole());
-    } else {
-        //TODO true for now but we should only enable if the dataset has two images..
-        m_ui->actionShow_cellTissueRed->setVisible(true);
-    }
+    //TODO true for now but we should only enable if the dataset has two images..
+    m_ui->actionShow_cellTissueRed->setVisible(true);
 }
 
 void CellViewPage::initGLView()

@@ -1,8 +1,9 @@
 #include "Configuration.h"
-
 #include <QDebug>
-
 #include "SettingsFormatXML.h"
+#include "options_cmake.h"
+#include <QLibraryInfo>
+#include <Qdir>
 
 static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
 
@@ -12,7 +13,9 @@ Configuration::Configuration()
     QSettings::Format format = QSettings::registerFormat("conf",
                                                          &SettingsFormatXML::readXMLFile,
                                                          &SettingsFormatXML::writeXMLFile);
-    m_settings.reset(new QSettings(":/config/application.conf", format, nullptr));
+    const QString config_file = QLibraryInfo::location(QLibraryInfo::DataPath)
+            + QDir::separator() + CONFIG_FILE;
+    m_settings.reset(new QSettings(config_file, format, nullptr));
 }
 
 Configuration::~Configuration()
@@ -22,7 +25,7 @@ Configuration::~Configuration()
 const QString Configuration::readSetting(const QString &key) const
 {
     // early out
-    if (m_settings.isNull()) {
+    if (!is_valid()) {
         return QString();
     }
 
@@ -32,6 +35,7 @@ const QString Configuration::readSetting(const QString &key) const
     if (!value.isValid() || !value.canConvert(QVariant::String)) {
         qDebug() << "[Configuration] Warning: Invalid configuration key:"
                  << (SettingsPrefixConfFile + SettingsFormatXML::GROUP_DELIMITER + key);
+        return QString();
     }
 
     return value.toString();
@@ -108,4 +112,21 @@ const QString Configuration::dataEndpointSelections() const
 const QString Configuration::dataEndpointFigures() const
 {
     return readSetting(QStringLiteral("data/endpoints/figure"));
+}
+
+bool Configuration::is_valid() const
+{
+    return !m_settings.isNull() && m_settings->status() == QSettings::NoError;
+}
+
+bool Configuration::has_network() const
+{
+    return !readSetting(QStringLiteral("application/url")).trimmed().isEmpty();
+}
+
+const QString Configuration::pathSSL() const
+{
+    const QString ssl_file = QLibraryInfo::location(QLibraryInfo::DataPath)
+            + QDir::separator() + readSetting(QStringLiteral("application/ssl"));
+    return ssl_file;
 }
