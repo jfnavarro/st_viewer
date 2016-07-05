@@ -4,6 +4,7 @@
 #include "options_cmake.h"
 #include <QLibraryInfo>
 #include <Qdir>
+#include <QApplication>
 
 static const QString SettingsPrefixConfFile = QStringLiteral("configuration");
 
@@ -13,8 +14,12 @@ Configuration::Configuration()
     QSettings::Format format = QSettings::registerFormat("conf",
                                                          &SettingsFormatXML::readXMLFile,
                                                          &SettingsFormatXML::writeXMLFile);
-    const QString config_file = QLibraryInfo::location(QLibraryInfo::DataPath)
-            + QDir::separator() + CONFIG_FILE;
+    QDir dir(QApplication::applicationDirPath());
+#if defined Q_OS_MAC
+    dir.cdUp();
+    dir.cd("Resources");
+#endif
+    const QString config_file = dir.canonicalPath() + QDir::separator() + CONFIG_FILE;
     m_settings.reset(new QSettings(config_file, format, nullptr));
 }
 
@@ -126,7 +131,12 @@ bool Configuration::has_network() const
 
 const QString Configuration::pathSSL() const
 {
-    const QString ssl_file = QLibraryInfo::location(QLibraryInfo::DataPath)
+    QDir dir(QApplication::applicationDirPath());
+#if defined Q_OS_MAC
+    dir.cdUp();
+    dir.cd("Resources");
+#endif
+    const QString ssl_file = dir.canonicalPath()
             + QDir::separator() + readSetting(QStringLiteral("application/ssl"));
     return ssl_file;
 }

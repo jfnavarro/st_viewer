@@ -193,7 +193,6 @@ if(UNIX AND NOT APPLE)
     deploy_qt_plugins()
 
     # Install libraries and resources
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/qt.conf DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES ${CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX})
@@ -350,7 +349,6 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/)
     install(TARGETS ${PROJECT_NAME} DESTINATION .)
-    install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/qt.conf DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
     install(FILES ${PUBLICKEY} DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
