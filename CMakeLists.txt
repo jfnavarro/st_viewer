@@ -92,5 +92,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Initialize project settings (important to do it first as it defines compilation flags)
 initialise_project()
 
+IF(EXISTS "${CMAKE_SOURCE_DIR}/local_configuration.cmake")
+  INCLUDE("${CMAKE_SOURCE_DIR}/local_configuration.cmake")
+ENDIF()
+
 add_subdirectory(ext) # include third party libraries
 add_subdirectory(src) # include source code
