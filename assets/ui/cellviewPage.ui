@@ -638,7 +638,7 @@
     <string>Show Genes</string>
    </property>
    <property name="toolTip">
-    <string>Show/Hide geness</string>
+    <string>Show/Hide genes</string>
    </property>
   </action>
   <action name="actionShow_cellTissueBlue">
@@ -646,10 +646,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Load Blue Cell Tissue</string>
+    <string>Load main tissue image</string>
    </property>
    <property name="toolTip">
-    <string>Load blue cell tissue</string>
+    <string>Load main tissue image</string>
    </property>
   </action>
   <action name="actionShow_cellTissueRed">
@@ -657,10 +657,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Load Red Cell Tissue</string>
+    <string>Load second tissue image</string>
    </property>
    <property name="toolTip">
-    <string>Load red cell tissue</string>
+    <string>Load second tissue image</string>
    </property>
   </action>
   <action name="actionShow_showCellTissue">
@@ -668,10 +668,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Cell Tissue</string>
+    <string>Show/Hide tissue image</string>
    </property>
    <property name="toolTip">
-    <string>Show/Hide the cell tissue image</string>
+    <string>Show/Hide tissue image</string>
    </property>
   </action>
   <action name="actionShow_toggleNormal">
@@ -760,61 +760,6 @@
    </property>
    <property name="toolTip">
     <string>Show/Hide the heatmap legend</string>
-   </property>
-  </action>
-  <action name="action_toggleMinimapTopRight">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Minimap Top Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the minimap on the top right part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleMinimapTopLeft">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Minimap Top Left Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the minimap on the top left part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleMinimapDownRight">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Minimap Bottom Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the minimap on the bottom right part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleMinimapDownLeft">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Minimap Bottom Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the minimap on the bottom left part of the canvas</string>
-   </property>
-  </action>
-  <action name="actionShow_showMiniMap">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show MiniMap</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/hides the minimap</string>
    </property>
   </action>
   <action name="actionColor_selectColorGrid">

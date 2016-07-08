@@ -12,7 +12,6 @@ class CellGLView;
 class ImageTextureGL;
 class GridRendererGL;
 class HeatMapLegendGL;
-class MiniMapGL;
 class GeneRendererGL;
 class AnalysisFRD;
 class QSlider;
@@ -98,9 +97,6 @@ private slots:
     // select legend anchor
     void slotSetLegendAnchor(QAction *action);
 
-    // select minimap anchor
-    void slotSetMiniMapAnchor(QAction *action);
-
     // to handle when the user want to store the current selection into a selection object
     void slotCreateSelection();
 
@@ -121,7 +117,6 @@ private:
     void setEnableButtons(bool enable);
 
     // OpenGL visualization objects
-    QSharedPointer<MiniMapGL> m_minimap;
     QSharedPointer<HeatMapLegendGL> m_legend;
     QSharedPointer<GeneRendererGL> m_gene_plotter;
     QSharedPointer<ImageTextureGL> m_image;

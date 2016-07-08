@@ -260,10 +260,11 @@ void DatasetPage::slotOpenDataset()
         // add the images
         const QByteArray &mainImageFile = importer->mainImageFile();
         Q_ASSERT(!mainImageFile.isNull() && !mainImageFile.isEmpty());
-        const QByteArray &secondImageFile = importer->secondImageFile();
-        Q_ASSERT(!secondImageFile.isNull() && !secondImageFile.isEmpty());
         parsedOk &= m_dataProxy->loadCellTissueImage(mainImageFile, mainImageName);
-        parsedOk &= m_dataProxy->loadCellTissueImage(secondImageFile, secondImageName);
+        const QByteArray &secondImageFile = importer->secondImageFile();
+        if (!secondImageFile.isEmpty() && !secondImageFile.isNull()) {
+            parsedOk &= m_dataProxy->loadCellTissueImage(secondImageFile, secondImageName);
+        }
 
         if (parsedOk) {
             emit signalDatasetOpen(dataset->id());

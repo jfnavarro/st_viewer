@@ -9,7 +9,7 @@
 #include "dataModel/Dataset.h"
 #include <set>
 
-static const int COLUMN_NUMBER = 9;
+static const int COLUMN_NUMBER = 5;
 
 DatasetItemModel::DatasetItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -42,14 +42,6 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
             return item->statTissue();
         case Species:
             return item->statSpecies();
-        case Barcodes:
-            return item->statBarcodes();
-        case Genes:
-            return item->statGenes();
-        case UBarcodes:
-            return item->statUniqueBarcodes();
-        case UGenes:
-            return item->statUniqueGenes();
         case Created:
             return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
         case LastModified:
@@ -65,10 +57,6 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
-        case Barcodes:
-        case Genes:
-        case UBarcodes:
-        case UGenes:
         case Created:
         case LastModified:
             return Qt::AlignRight;
@@ -90,14 +78,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
             return tr("Tissue name");
         case Species:
             return tr("Species name");
-        case Barcodes:
-            return tr("Number of reads");
-        case Genes:
-            return tr("Number of gene detection events");
-        case UBarcodes:
-            return tr("Number of uniquely detected barcodes");
-        case UGenes:
-            return tr("Number of uniquely detected genes");
         case Created:
             return tr("Created at this date");
         case LastModified:
@@ -115,14 +95,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
             return tr("Tissue");
         case Species:
             return tr("Species");
-        case Barcodes:
-            return tr("Unique events");
-        case Genes:
-            return tr("Transcript reads");
-        case UBarcodes:
-            return tr("Detected Barcodes");
-        case UGenes:
-            return tr("Detected Genes");
         case Created:
             return tr("Created");
         case LastModified:
@@ -137,10 +109,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
         case Name:
         case Tissue:
         case Species:
-        case Barcodes:
-        case Genes:
-        case UBarcodes:
-        case UGenes:
         case Created:
         case LastModified:
             return Qt::AlignLeft;

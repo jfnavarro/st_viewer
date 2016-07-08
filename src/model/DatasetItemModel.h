@@ -21,12 +21,8 @@ public:
         Name = 0,
         Tissue = 1,
         Species = 2,
-        Barcodes = 3,
-        Genes = 4,
-        UBarcodes = 5,
-        UGenes = 6,
-        Created = 7,
-        LastModified = 8,
+        Created = 3,
+        LastModified = 4
     };
 
     explicit DatasetItemModel(QObject *parent = 0);

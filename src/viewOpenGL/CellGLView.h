@@ -16,7 +16,7 @@ class RubberbandGL;
 // CellGLView is a container
 // to render OpenGL GraphicItemGL type objects
 // It allows for zooming, panning and selection.
-// It is based on a QOpenGLWidget which is a OpenGL
+// It is based on a QOpenGLWidget which is an OpenGL
 // renderable qt widget.
 // It also makes use of QOpenGLfunctions to
 // assure cross-platform compatibility
@@ -29,7 +29,7 @@ class RubberbandGL;
 // What it is shown in the canvas is the cell tissue image
 // in its original resolution and size. Then the spots(genes)
 // are shown on top of the image and therefore their coordinates
-// (array coordinates) must be transformed to the image space.
+// (array coordinates) must be transformed to the image pixel space.
 
 class CellGLView : public QOpenGLWidget
 {
@@ -67,16 +67,15 @@ public slots:
 
     // TODO slots should have the prefix "slot"
 
-    // zooming and padding
+    // Zooming the canvas
     void zoomOut();
     void zoomIn();
-    void centerOn(const QPointF &point);
 
     // slot to enable the rubberband selection mode
     void setSelectionMode(const bool selectionMode);
 
-    // scene is what is visible in the canvas
-    // viewport is the size of the biggest graphical object (cell tissue image)
+    // viewport is what is visible in the canvas
+    // scene is the size of the tissue image
     void setViewPort(const QRectF &viewport);
     void setScene(const QRectF &scene);
 
@@ -90,11 +89,6 @@ protected:
     const QTransform nodeTransformations(QSharedPointer<GraphicItemGL> node) const;
 
 signals:
-    // signals to notify when the scene/view are changed/transformed
-    // very handy for the minimap and the scrollarea
-    void signalViewPortUpdated(const QRectF);
-    void signalSceneUpdated(const QRectF);
-    void signalSceneTransformationsUpdated(const QTransform transform);
 
 private:
     // used to filter nodes for mouse events
@@ -108,10 +102,12 @@ private:
 
     // helper functions used to compute center position/zoom/padding
     QRectF allowedCenterPoints() const;
-    const QTransform sceneTransformations() const;
     float clampZoomFactorToAllowedRange(const float zoom) const;
     float minZoom() const;
     float maxZoom() const;
+
+    // returns all the transformations applied to the scene
+    const QTransform sceneTransformations() const;
 
     // this function ensures that the whole image fits to the canvas
     void setDefaultPanningAndZooming();

@@ -14,8 +14,8 @@
 #include "math/Common.h"
 
 static const float DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
-static const int KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN = 10;
-static const int MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM = 100;
+static const int KEY_OFFSET = 10;
+static const int MIN_PIXELS_MAX_ZOOM = 100;
 static const int DEFAULT_MIN_ZOOM = 1;
 static const int DEFAULT_MAX_ZOOM = 100;
 static const int OPENGL_VERSION_MAJOR = 2;
@@ -43,6 +43,7 @@ CellGLView::CellGLView(QWidget *parent)
     , m_rubberBanding(false)
     , m_selecting(false)
     , m_rubberband(nullptr)
+    , m_scene_focus_center_point(-1, -1)
     , m_zoom_factor(1.0)
 {
     // init projection matrix to identity
@@ -84,13 +85,6 @@ bool CellGLView::event(QEvent *e)
     return QOpenGLWidget::event(e);
 }
 
-void CellGLView::setDefaultPanningAndZooming()
-{
-    m_scene_focus_center_point = m_scene.center();
-    m_zoom_factor = minZoom();
-    emit signalSceneTransformationsUpdated(sceneTransformations());
-}
-
 void CellGLView::clearData()
 {
     m_originPanning = QPoint(-1, -1);
@@ -98,7 +92,8 @@ void CellGLView::clearData()
     m_panning = false;
     m_rubberBanding = false;
     m_selecting = false;
-    setDefaultPanningAndZooming();
+    m_zoom_factor = 1;
+    m_scene_focus_center_point = QPoint(-1, -1);
 }
 
 void CellGLView::initializeGL()
@@ -111,25 +106,24 @@ void CellGLView::initializeGL()
                               + QString("%1.%2").arg(OPENGL_VERSION_MAJOR).arg(OPENGL_VERSION_MINOR)
                               + ".");
         QApplication::exit();
-    } else {
-
-        m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-        // configure OpenGL variables
-        m_qopengl_functions.glDisable(GL_TEXTURE_2D);
-        m_qopengl_functions.glDisable(GL_DEPTH_TEST);
-        m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
-        m_qopengl_functions.glDisable(GL_CULL_FACE);
-        m_qopengl_functions.glShadeModel(GL_SMOOTH);
-        m_qopengl_functions.glEnable(GL_BLEND);
-
-        // set the default blending options.
-        m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
-        m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
-        m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        return;
     }
-    return;
+
+    m_qopengl_functions.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // configure OpenGL variables
+    m_qopengl_functions.glDisable(GL_TEXTURE_2D);
+    m_qopengl_functions.glDisable(GL_DEPTH_TEST);
+    m_qopengl_functions.glDisable(GL_COLOR_MATERIAL);
+    m_qopengl_functions.glDisable(GL_CULL_FACE);
+    m_qopengl_functions.glShadeModel(GL_SMOOTH);
+    m_qopengl_functions.glEnable(GL_BLEND);
+
+    // set the default blending options.
+    m_qopengl_functions.glBlendColor(0.0f, 0.0f, 0.0f, 0.0f);
+    m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_qopengl_functions.glBlendEquation(GL_FUNC_ADD);
+    m_qopengl_functions.glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 }
 
 void CellGLView::paintGL()
@@ -150,7 +144,7 @@ void CellGLView::paintGL()
             node->setProjection(m_projm);
             node->setModelView(matrix);
             m_qopengl_functions.glLoadMatrixf(
-                reinterpret_cast<const GLfloat *>(matrix.constData()));
+                        reinterpret_cast<const GLfloat *>(matrix.constData()));
             node->draw(m_qopengl_functions);
         }
     }
@@ -170,14 +164,14 @@ void CellGLView::resizeGL(int width, int height)
     m_projm.setToIdentity();
     m_projm.ortho(newViewport);
 
-    // sets the projection matrix
+    // sets the OpenGL viewport
     m_qopengl_functions.glViewport(0.0f, 0.0f, width, height);
 
-    // reset the coordinate system
+    // reset the OpenGL coordinate system with the projection matrix
     m_qopengl_functions.glMatrixMode(GL_PROJECTION);
     m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
 
-    // reset the model view mode matrix
+    // reset the OpenGL model view matrix
     m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
     m_qopengl_functions.glLoadIdentity();
 
@@ -188,7 +182,6 @@ void CellGLView::resizeGL(int width, int height)
     if (m_scene.isValid()) {
         m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
-        emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -225,15 +218,10 @@ void CellGLView::setZoomFactorAndUpdate(const float zoom)
     const float new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
+        qDebug() << "Setting zoom factor " << m_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
-        emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
-}
-
-void CellGLView::centerOn(const QPointF &point)
-{
-    setSceneFocusCenterPointWithClamping(point);
 }
 
 void CellGLView::setViewPort(const QRectF &viewport)
@@ -243,9 +231,8 @@ void CellGLView::setViewPort(const QRectF &viewport)
     }
 
     if (m_viewport != viewport) {
+        qDebug() << "Setting viwport to " << m_viewport;
         m_viewport = viewport;
-        emit signalViewPortUpdated(m_viewport);
-        emit signalSceneTransformationsUpdated(sceneTransformations());
     }
 }
 
@@ -257,8 +244,9 @@ void CellGLView::setScene(const QRectF &scene)
 
     if (m_scene != scene) {
         m_scene = scene;
-        setDefaultPanningAndZooming();
-        emit signalSceneUpdated(m_scene);
+        qDebug() << "Setting scene to " << m_scene;
+        m_scene_focus_center_point = m_scene.center();
+        m_zoom_factor = minZoom();
     }
 }
 
@@ -271,17 +259,18 @@ float CellGLView::minZoom() const
 
     const float min_zoom_height = m_viewport.height() / m_scene.height();
     const float min_zoom_width = m_viewport.width() / m_scene.width();
-    return qMax(min_zoom_height, min_zoom_width);
+    return qMin(min_zoom_height, min_zoom_width);
 }
 
 float CellGLView::maxZoom() const
 {
+    // we want the max zoom to have a min number of pixes visible
     if (!m_viewport.isValid() || !m_scene.isValid()) {
         return DEFAULT_MAX_ZOOM;
     }
 
-    const float max_zoom_x = m_viewport.width() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
-    const float max_zoom_y = m_viewport.height() / MIN_NUM_IMAGE_PIXELS_PER_SCREEN_IN_MAX_ZOOM;
+    const float max_zoom_x = m_viewport.width() / MIN_PIXELS_MAX_ZOOM;
+    const float max_zoom_y = m_viewport.height() / MIN_PIXELS_MAX_ZOOM;
     return qMin(max_zoom_x, max_zoom_y);
 }
 
@@ -359,7 +348,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
 
             // Set the new selection area
             const SelectionEvent::SelectionMode mode
-                = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
+                    = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
             const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
             node->setSelectionArea(&selectionEvent);
@@ -370,7 +359,6 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
 void CellGLView::mousePressEvent(QMouseEvent *event)
 {
     const QPoint point = event->pos();
-
     if (event->button() == Qt::LeftButton && m_selecting && !m_rubberBanding) {
         // rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
@@ -382,7 +370,7 @@ void CellGLView::mousePressEvent(QMouseEvent *event)
     } else {
         // first send the event to any non-transformable nodes under the mouse click
         const bool mouseEventCaptureByNode
-            = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
+                = sendMouseEventToNodes(point, event, pressType, nodeIsSelectableButNotTransformable);
         if (!mouseEventCaptureByNode) {
             // no non-transformable nodes under the mouse click were found.
             if (event->button() == Qt::LeftButton && !m_selecting) {
@@ -416,9 +404,6 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
         // reset rubberband variables
         m_rubberBanding = false;
         m_rubberband->setRubberbandRect(QRect());
-        // well, there is no need to trigger an update here since
-        // sendRubberBandEventToNodes will make the GeneRenderer node trigger an update
-        // update();
     } else if (event->button() == Qt::LeftButton && m_panning && !m_selecting) {
         unsetCursor();
         m_panning = false;
@@ -463,8 +448,7 @@ void CellGLView::mouseMoveEvent(QMouseEvent *event)
 void CellGLView::keyPressEvent(QKeyEvent *event)
 {
     const float shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
-    const float delta_panning_key = shortest_side_length
-                                    / (KEY_PRESSES_TO_MOVE_A_POINT_OVER_THE_SCREEN * m_zoom_factor);
+    const float delta_panning_key = shortest_side_length / (KEY_OFFSET * m_zoom_factor);
 
     QPointF pan_adjustment(0, 0);
     switch (event->key()) {
@@ -508,14 +492,13 @@ void CellGLView::setSceneFocusCenterPointWithClamping(const QPointF &center_poin
     clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
     if (clamped_point != m_scene_focus_center_point) {
         m_scene_focus_center_point = clamped_point;
-        emit signalSceneTransformationsUpdated(sceneTransformations());
         update();
     }
 }
 
 const QTransform CellGLView::sceneTransformations() const
 {
-    // returns all the transformations applied to the scene from the user
+    // returns all the transformations applied to the scene from the user with respect to the viewport
     QTransform transform;
     const QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
@@ -560,7 +543,7 @@ const QTransform CellGLView::nodeTransformations(QSharedPointer<GraphicItemGL> n
         break;
     case Visual::Anchor::NorthWest:
     case Visual::Anchor::None:
-    // fall trough
+        // fall trough
     default:
         transform = QTransform::fromTranslate(0.0, 0.0);
         break;

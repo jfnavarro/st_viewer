@@ -108,7 +108,7 @@
    <item row="14" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Second image</string>
+      <string>Second image (Optional)</string>
      </property>
     </widget>
    </item>

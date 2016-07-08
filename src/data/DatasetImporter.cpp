@@ -206,9 +206,6 @@ void DatasetImporter::slotValidateForm()
     if (m_ui->mainImageFile->text().isEmpty()) {
         isValid = false;
         error_msg = tr("Main image is missing!");
-    } else if (m_ui->secondImageFile->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("Second image is missing!");
     } else if (m_ui->featuresFile->text().isEmpty()) {
         isValid = false;
         error_msg = tr("ST Data file is missing!");

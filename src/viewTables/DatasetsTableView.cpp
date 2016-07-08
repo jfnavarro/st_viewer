@@ -37,10 +37,6 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Tissue, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Species, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Barcodes, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Genes, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::UBarcodes, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::UGenes, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Created, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::LastModified, QHeaderView::Stretch);
     verticalHeader()->hide();

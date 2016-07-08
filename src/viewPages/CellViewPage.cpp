@@ -28,7 +28,6 @@
 #include "viewOpenGL/ImageTextureGL.h"
 #include "viewOpenGL/GridRendererGL.h"
 #include "viewOpenGL/HeatMapLegendGL.h"
-#include "viewOpenGL/MiniMapGL.h"
 #include "viewOpenGL/GeneRendererGL.h"
 #include "dataModel/Dataset.h"
 #include "dataModel/Chip.h"
@@ -108,7 +107,6 @@ bool imageFormatHasWriteSupport(const QString &format)
 
 CellViewPage::CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     : QWidget(parent)
-    , m_minimap(nullptr)
     , m_legend(nullptr)
     , m_gene_plotter(nullptr)
     , m_image(nullptr)
@@ -171,7 +169,6 @@ void CellViewPage::clean()
     m_image->clearData();
     m_gene_plotter->clearData();
     m_legend->clearData();
-    m_minimap->clearData();
     m_ui->view->clearData();
     m_ui->view->update();
 
@@ -318,10 +315,6 @@ void CellViewPage::createMenusAndConnections()
     m_ui->action_toggleLegendTopLeft->setProperty("mode", Anchor::NorthWest);
     m_ui->action_toggleLegendDownRight->setProperty("mode", Anchor::SouthEast);
     m_ui->action_toggleLegendDownLeft->setProperty("mode", Anchor::SouthWest);
-    m_ui->action_toggleMinimapTopRight->setProperty("mode", Anchor::NorthEast);
-    m_ui->action_toggleMinimapTopLeft->setProperty("mode", Anchor::NorthWest);
-    m_ui->action_toggleMinimapDownRight->setProperty("mode", Anchor::SouthEast);
-    m_ui->action_toggleMinimapDownLeft->setProperty("mode", Anchor::SouthWest);
 
     // menu gene plotter actions
     QMenu *menu_genePlotter = new QMenu(this);
@@ -440,7 +433,6 @@ void CellViewPage::createMenusAndConnections()
     QMenu *menu_cellTissue = new QMenu(this);
     menu_cellTissue->setTitle(tr("Cell Tissue"));
     setToolTipAndStatusTip(tr("Tools for visualization of the cell tissue"), menu_cellTissue);
-    menu_cellTissue->addAction(m_ui->actionShow_showMiniMap);
     menu_cellTissue->addAction(m_ui->actionShow_showLegend);
 
     // group legend positions actions into one
@@ -452,17 +444,6 @@ void CellViewPage::createMenusAndConnections()
     actionGroup_toggleLegendPosition->addAction(m_ui->action_toggleLegendDownRight);
     actionGroup_toggleLegendPosition->addAction(m_ui->action_toggleLegendDownLeft);
     menu_cellTissue->addActions(actionGroup_toggleLegendPosition->actions());
-    menu_cellTissue->addSeparator();
-
-    // group minimap positions actions into one
-    menu_cellTissue->addSeparator()->setText(tr("Minimap Position"));
-    QActionGroup *actionGroup_toggleMinimapPosition = new QActionGroup(menu_cellTissue);
-    actionGroup_toggleMinimapPosition->setExclusive(true);
-    actionGroup_toggleMinimapPosition->addAction(m_ui->action_toggleMinimapTopRight);
-    actionGroup_toggleMinimapPosition->addAction(m_ui->action_toggleMinimapTopLeft);
-    actionGroup_toggleMinimapPosition->addAction(m_ui->action_toggleMinimapDownRight);
-    actionGroup_toggleMinimapPosition->addAction(m_ui->action_toggleMinimapDownLeft);
-    menu_cellTissue->addActions(actionGroup_toggleMinimapPosition->actions());
     menu_cellTissue->addSeparator();
 
     // load red/blue actions and show/hide action for cell tissue
@@ -640,16 +621,6 @@ void CellViewPage::createMenusAndConnections()
             this,
             SLOT(slotSetLegendAnchor(QAction *)));
 
-    // minimap signals
-    connect(m_ui->actionShow_showMiniMap,
-            SIGNAL(toggled(bool)),
-            m_minimap.data(),
-            SLOT(setVisible(bool)));
-    connect(actionGroup_toggleMinimapPosition,
-            SIGNAL(triggered(QAction *)),
-            this,
-            SLOT(slotSetMiniMapAnchor(QAction *)));
-
     // Features Histogram Distribution
     connect(m_geneHitsThreshold.data(),
             SIGNAL(signalLowerValueChanged(int)),
@@ -678,10 +649,6 @@ void CellViewPage::resetActionStates()
     // reset gene plotter to visible
     m_gene_plotter->setVisible(true);
     m_gene_plotter->setAnchor(DEFAULT_ANCHOR_GENE);
-
-    // reset minimap to visible true
-    m_minimap->setVisible(true);
-    m_minimap->setAnchor(DEFAULT_ANCHOR_MINIMAP);
 
     // reset legend to visible true
     m_legend->setVisible(false);
@@ -712,11 +679,9 @@ void CellViewPage::resetActionStates()
 
     // anchor signals
     m_ui->action_toggleLegendTopRight->setChecked(true);
-    m_ui->action_toggleMinimapDownRight->setChecked(true);
 
     // show legend and minimap
     m_ui->actionShow_showLegend->setChecked(false);
-    m_ui->actionShow_showMiniMap->setChecked(true);
 
     // reset pooling mode
     m_poolingReads->setChecked(true);
@@ -725,8 +690,8 @@ void CellViewPage::resetActionStates()
     m_colorLinear->setChecked(true);
 
     // restrict interface
-    //TODO true for now but we should only enable if the dataset has two images..
-    m_ui->actionShow_cellTissueRed->setVisible(true);
+    m_ui->actionShow_cellTissueRed->setVisible(!m_dataProxy->getFigureRed().isEmpty()
+                                               && !m_dataProxy->getFigureRed().isNull());
 }
 
 void CellViewPage::initGLView()
@@ -750,27 +715,6 @@ void CellViewPage::initGLView()
     m_legend = QSharedPointer<HeatMapLegendGL>(new HeatMapLegendGL());
     m_legend->setAnchor(DEFAULT_ANCHOR_LEGEND);
     m_ui->view->addRenderingNode(m_legend);
-
-    // minimap component
-    m_minimap = QSharedPointer<MiniMapGL>(new MiniMapGL());
-    m_minimap->setAnchor(DEFAULT_ANCHOR_MINIMAP);
-    m_ui->view->addRenderingNode(m_minimap);
-
-    // minimap needs to be notified when the canvas is resized and when the image
-    // is zoomed or moved
-    connect(m_minimap.data(), SIGNAL(signalCenterOn(QPointF)), m_ui->view, SLOT(centerOn(QPointF)));
-    connect(m_ui->view,
-            SIGNAL(signalSceneUpdated(QRectF)),
-            m_minimap.data(),
-            SLOT(setScene(QRectF)));
-    connect(m_ui->view,
-            SIGNAL(signalViewPortUpdated(QRectF)),
-            m_minimap.data(),
-            SLOT(setViewPort(QRectF)));
-    connect(m_ui->view,
-            SIGNAL(signalSceneTransformationsUpdated(const QTransform)),
-            m_minimap.data(),
-            SLOT(setParentSceneTransformations(const QTransform)));
 }
 
 void CellViewPage::slotLoadCellFigure()
@@ -862,17 +806,6 @@ void CellViewPage::slotSetGeneVisualMode(QAction *action)
         m_gene_plotter->setVisualMode(mode);
     } else {
         Q_ASSERT("[CellViewPage] Undefined gene visual mode!");
-    }
-}
-
-void CellViewPage::slotSetMiniMapAnchor(QAction *action)
-{
-    const QVariant variant = action->property("mode");
-    if (variant.canConvert(QVariant::Int)) {
-        const Anchor mode = static_cast<Anchor>(variant.toInt());
-        m_minimap->setAnchor(mode);
-    } else {
-        Q_ASSERT("[CellViewPage] Undefined minimap anchor!");
     }
 }
 

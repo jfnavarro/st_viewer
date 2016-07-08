@@ -7,7 +7,6 @@ set(LIBRARY_ARG_INCLUDES
     CellGLView.h
     HeatMapLegendGL.h
     ImageTextureGL.h
-    MiniMapGL.h
     GraphicItemGL.h
     SelectionEvent.h
     RubberbandGL.h
@@ -20,7 +19,6 @@ set(LIBRARY_ARG_SOURCES
     CellGLView.cpp
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp
-    MiniMapGL.cpp
     GraphicItemGL.cpp
     RubberbandGL.cpp
 )
