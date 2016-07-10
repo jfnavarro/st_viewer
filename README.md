@@ -20,15 +20,18 @@ a pair of tissue images and an alignment matrix (to convert
 array coordinates to image pixel coordinates). 
 
 The ST viewer can access datasets stored in a database trough the ST API (link here)
-or imported locally (more detailed information about this
-in the manual).
-You can use our test dataset (test_data) to import it locally and 
-play around with the ST Viewer.
+or imported locally with the option "Import dataset" in the Datasets windows
+(more detailed information about this in the manual).
+
+You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
+if you want to try the ST Viewer.
+
 If you want the ST Viewer to connect and use the data stored
-in a database trough the ST API you must build the ST Viewer
-with the correct configuration and you must have
-a registered user in the database. For that you can
-use the ST Admin (link here)
+in a database trough the ST API you must
+configure and deploy the ST API, the ST ADMIN
+and a database. You must then include the server credentials
+in the configuration file "stviewer.conf". 
+(More information about this will be added to the manual soon).
 
 ## Authors
 Read AUTHORS file
@@ -39,6 +42,9 @@ Read DEPENDENCIES file
 ## Manual
 See MANUAL in (link to manual) for more information
 on how to use the ST Viewer.
+Currently the manual is a outdated and a new updated
+manual is being created but many of the main options
+remain the same. 
 
 ## License
 See LICENSE for the license terms and DEPENDENCIES for the 3rd party
@@ -76,15 +82,15 @@ instructions :
 
     DCMAKE_INSTALL_PREFIX = indicates where to install STViewer
 
-    CMAKE_BUILD_TYPE = indicates the type of building (Release by default)
+    DCMAKE_BUILD_TYPE = indicates the type of building (Release by default)
 
-    CMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
+    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
     binaries of Qt5.
 
-    DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used
-    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sd    k/
+    DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
+    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version
+    DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
     eg: 10.7 , 10.8 or 10.9
     
     DPUBLIC_KEY = In case we want the ST Viewer to access datasets in a database we must
