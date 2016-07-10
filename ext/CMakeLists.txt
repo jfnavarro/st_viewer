@@ -1,3 +1,2 @@
-add_subdirectory(qcustomplot)
 add_subdirectory(QtWaitingSpinner)
-include_directories(qcustomplot QtWaitingSpinner)
+include_directories(QtWaitingSpinner)

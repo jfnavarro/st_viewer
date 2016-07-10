@@ -422,6 +422,9 @@ bool DataProxy::loadFeatures(const QString &datasetId)
 
 bool DataProxy::loadFeatures(const QByteArray &rawData)
 {
+    // clear the containers
+    m_geneNameToObject.clear();
+    m_featuresList.clear();
     return parseFeatures(rawData);
 }
 

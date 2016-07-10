@@ -164,7 +164,10 @@ v0.5.8
 v0.6.0 
 	* Fixed small bugs
 
-V0.6.1
+v0.6.1
 	* Added network settings as a config file
-	* Simplied importing of datasets
+	* Simplified importing of datasets
+
+v0.6.2
+	* Removed plotting library/functionalities
 
