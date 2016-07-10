@@ -22,10 +22,12 @@ array coordinates to image pixel coordinates).
 The ST viewer can access datasets stored in a database trough the ST API (link here)
 or imported locally with the option "Import dataset" in the Datasets windows
 (more detailed information about this in the manual).
+
 You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
 if you want to try the ST Viewer.
+
 If you want the ST Viewer to connect and use the data stored
-in a database trough the ST API you must have
+in a database trough the ST API you must
 configure and deploy the ST API, the ST ADMIN
 and a database. You must then include the server credentials
 in the configuration file "stviewer.conf". 
