@@ -61,9 +61,10 @@ if(WIN32)
     -o ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.o)
 endif (WIN32)
 
-if(UNIX AND NOT APPLE)
-# Qt states "must build your code with position independent code if Qt was built with -reduce-relocations"
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+# Check whether the compiler supports position-independent code
+CHECK_CXX_COMPILER_FLAG("-fPIC" COMPILER_SUPPORTS_PIC)
+if(COMPILER_SUPPORTS_PIC)
+  add_definitions("-fPIC")
 endif()
 
 # Some in-house CMake functions/macros
