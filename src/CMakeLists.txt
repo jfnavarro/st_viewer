@@ -179,8 +179,8 @@ if(UNIX AND NOT APPLE)
        INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
      endforeach()
 
-    # Qt 5.5 needs ICU libaries in Linux 54
-    set(ICU_VERSION "54.1")
+    # Qt 5.7 needs ICU libraries in Linux
+    set(ICU_VERSION "56.1")
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
