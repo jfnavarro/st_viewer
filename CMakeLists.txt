@@ -62,6 +62,7 @@ if(WIN32)
 endif (WIN32)
 
 # Check whether the compiler supports position-independent code
+INCLUDE(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-fPIC" COMPILER_SUPPORTS_PIC)
 if(COMPILER_SUPPORTS_PIC)
   add_definitions("-fPIC")
