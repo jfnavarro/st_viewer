@@ -132,7 +132,7 @@ include(InstallRequiredSystemLibraries)
 # Qt plug-ins needed
 set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
 set(PLUGINS_IN_CATEGORY_accessible)
-set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
 set(PLUGINS_IN_CATEGORY_printsupport)
 set(PLUGINS_IN_CATEGORY_platforms)
 
@@ -163,7 +163,7 @@ if(UNIX AND NOT APPLE)
     # The RPATH to be used when installing, but only if it's not a system directory
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
     if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
     endif("${isSystemDir}" STREQUAL "-1")
 
     # Select TGZ as the packager on Linux
@@ -179,7 +179,7 @@ if(UNIX AND NOT APPLE)
        INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
      endforeach()
 
-    # Qt 5.7 needs ICU libraries in Linux
+    # Qt needs ICU libraries in Linux
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
@@ -191,11 +191,12 @@ if(UNIX AND NOT APPLE)
     deploy_qt_plugins()
 
     # Install libraries and resources
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${PUBLICKEY} DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CONFIG_FILE} DESTINATION .)
+    install(FILES ${PUBLICKEY} DESTINATION .)
+    install(TARGETS ${PROJECT_NAME} DESTINATION .)
 
 endif()
 

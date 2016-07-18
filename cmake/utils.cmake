@@ -44,9 +44,9 @@ macro(INITIALISE_PROJECT)
         # It is a temporary fix to get building with CLANG working again.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
         set(WARNING_ERROR "-Werror")
-        # Disabled warnings due to Qt
-        set(DISABLED_WARNINGS "-Wno-missing-braces -Wno-float-equal -Wno-shadow -Wno-unreachable-code \
-                               -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
+        # Disabled warnings due to Qt (should be fixed in Qt 5.7)
+        #set(DISABLED_WARNINGS "-Wno-missing-braces -Wno-float-equal -Wno-shadow -Wno-unreachable-code \
+        #                       -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
@@ -59,27 +59,14 @@ macro(INITIALISE_PROJECT)
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
-            # Needed for a bug in Qt 5.5.0, it will be fixed in 5.5.1
-            # set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-unknown-pragmas")
         endif()
     endif()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
 
-    # Ask for Unicode to be used
-    add_definitions(-DUNICODE)
-    if(WIN32)
-        add_definitions(-D_UNICODE)
-    endif()
 
     # Qt 5.X does not include private headers by default
     add_definitions(-DNO_QT_PRIVATE_HEADERS)
-
-    # Set the RPATH information on Linux
-    # Note: this prevent us from having to use the uncool LD_LIBRARY_PATH...
-    if(NOT WIN32 AND NOT APPLE)
-        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
-    endif()
 
     if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
