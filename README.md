@@ -8,30 +8,39 @@ location.
 
 The ST Viewer is cross platform which means that it can
 be built and run in MAC, UNIX and WINDOWS PCs. 
-The ST viewer allows to interact with the data dynamically.
+The ST viewer allows to interact with the data in real time.
 Users can see where specific genes are expressed and how
 expressed they are. It has different threshold options
 and many visualization options. It also allows
 to select areas of the tissue to obtain gene patterns
 to later do DEA or cell classification. 
 
-The ST viewer uses the data generated with the ST Pipeline (link), 
-a pair of tissue images and an alignment matrix (to convert
-array coordinates to image pixel coordinates). 
+The ST viewer uses the data generated with the ST Pipeline https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
+a tissue HE image and an alignment matrix (to convert
+array coordinates to image pixel coordinates in case the coordinates
+in input data are not converted already).
 
-The ST viewer can access datasets stored in a database trough the ST API (link here)
-or imported locally with the option "Import dataset" in the Datasets windows
+Currently the ST Viewer works with the deprecated JSON format for the ST data.
+The ST Pipeline generates the data in form of a matrix of counts and the next
+release of the ST Viewer will work with this format. If you want to convert
+the matrix of counts to a JSON file you can use the script matrix_to_json.py in
+the ST Analysis package https://github.com/SpatialTranscriptomicsResearch/st_analysis
+
+If you want to load a dataset you can go to the "Datasets view" and click in the button
+"Import dataset" then a dialog form will be shown where you can load the ST data, the image/s
+and the alignment matrix. After that you can just double click in the dataset to open it. 
 (more detailed information about this in the manual).
+
+Alternatively, the ST viewer can access datasets stored in a database trough the ST API https://github.com/SpatialTranscriptomicsResearch/st_api
+For that you must have the database server and the RESFull API server up and running
+and properly configured and also update the configuration file of the ST Viwer (stviewer.conf)
+to the correct network settings. In this case the ST Viewer will require you to log in
+with your user credentials and the datasets that you have access to will automatically
+be downloaded in the "Datasets view".
+(More information about this will be added to the manual soon).
 
 You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
 if you want to try the ST Viewer.
-
-If you want the ST Viewer to connect and use the data stored
-in a database trough the ST API you must
-configure and deploy the ST API, the ST ADMIN
-and a database. You must then include the server credentials
-in the configuration file "stviewer.conf". 
-(More information about this will be added to the manual soon).
 
 ## Authors
 Read AUTHORS file
@@ -40,9 +49,9 @@ Read AUTHORS file
 Read DEPENDENCIES file
 
 ## Manual
-See MANUAL in (link to manual) for more information
+See MANUAL in the document manual_old.pdf for more information
 on how to use the ST Viewer.
-Currently the manual is a outdated and a new updated
+Currently the manual is a bit outdated and a new updated
 manual is being created but many of the main options
 remain the same. 
 
@@ -50,10 +59,10 @@ remain the same.
 See LICENSE for the license terms and DEPENDENCIES for the 3rd party
 libraries that are used in this software.
 
+## Contact
+For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+
 ## Building
-For the moment we do not generate binaries
-but you can build the ST Viewer following these
-instructions :
 
 ###### OSX
 * Download and install Qt open source from : http://qt-project.org/downloads
@@ -109,7 +118,7 @@ instructions :
 
         /path/to/build/STViewer.app/Contents/STViewer
         
-* Alternatively for MAC you can build a DMG bundle 
+* Alternatively for MAC you can build a stand alone DMG bundle that you can install and/or distribute
 
         make dmg
         
@@ -130,7 +139,11 @@ instructions :
         
     To execute type :
       
-        STViewer
+        /path/to/bin/STViewer
+  
+  * Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
+  
+        make package
 
 ###### Windows
 
@@ -178,6 +191,7 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
             ~/st_client/build_cygwin.sh  ~/st_client  stclient_development_build  st_bin
 
         At the end of the build script, the paths to the executable and to the package
-        file are printed to the terminal so you can either execute the ST Viewer or install it.
+        file are printed to the terminal so you can either execute the ST Viewer or install it from
+        the installer which can be distributed as well.
     
 
