@@ -141,7 +141,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
       
         /path/to/bin/STViewer
   
-  * Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
+* Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
   
         make package
 
