@@ -67,8 +67,10 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 ###### OSX
 * Download and install Qt open source from : http://qt-project.org/downloads
 
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH
+
 * Issue the following to install the necessary dependencies:
-  E.x (Assuming MacPorts is installed, otherwise http://www.macports.org/install.php)
+  E.x (Assuming MacPorts is installed, alternatively you can build them from the source or use another package manager)
         
         sudo port install xcode cmake git
 
@@ -80,7 +82,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
         cd /path/to/build
         cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
           [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
-          [-DCMAKE_PREFIX_PATH="/path/to/qt"] \
+          [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
           [-DPUBLICKEY="path_to_ssl_key"] \
@@ -94,7 +96,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
     DCMAKE_BUILD_TYPE = indicates the type of building (Release by default)
 
     DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    binaries of Qt5.
+    binaries of Qt5 or the source of QCustomplot.
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/
@@ -108,7 +110,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
     DCONFIG_FILE = In case we want the ST Viewer to access datasets in a database we must
     give a configuration file with the endpoints and the OAuth access settings.
     The STViewer will load this file in running time after it is installed so you can
-    also edit the file after installation.
+    also edit the file after installation (this is optional)
 
 *   Build the application
 
@@ -127,17 +129,22 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 ###### Ubuntu
 
 * Download and install Qt open source from : http://qt-project.org/downloads
-* Issue the following commands
+
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH
+
+* Issue the following commands (Ubuntu, for Fedora you must use yum)
 
         sudo apt-get install cmake git ubuntu-dev-tools
         sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
-* Follow from the third step in the OSX guideline except the last step (build and execute)
+* Perform the 4th step of the OSX guideline (clone the repo and invoke CMake)
+
+* Then type the following to build and install
 
         make -j8
         make install
         
-    To execute type :
+* To execute type :
       
         /path/to/bin/STViewer
   
@@ -151,6 +158,9 @@ There are different ways to build the ST Viewer in Windows.
 We use Cygwin but there are probably easier ways to do it. 
 
 * Download and install Qt open source from : http://qt-project.org/downloads
+
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH 
+
 * Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
 
     During the installation, select these additional packages:
@@ -172,8 +182,8 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 * Build from the source (Currently Qt does not support Visual Studio 2015)
 
     - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
-    Make sure the script is configured to the paths of your Visual Studio, Qt and and that the architecture 
-    is set to the one in your system (32 or 64) as well as the cmake variables (listed above)
+    Make sure the script is configured to the paths of your Visual Studio, Qt and QCustompllot and that the architecture 
+    is set to the one in your system (32 or 64) as well as the CMake variables (listed above)
 
     - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
 
