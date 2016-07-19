@@ -128,6 +128,9 @@ private:
     // User interface
     QScopedPointer<Ui::CellView> m_ui;
 
+    // Features Reads Distribution
+    QScopedPointer<AnalysisFRD> m_FDH;
+
     // Elements of the cell view visual settings menu
     QScopedPointer<QRadioButton> m_colorLinear;
     QScopedPointer<QRadioButton> m_colorLog;

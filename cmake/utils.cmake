@@ -25,6 +25,8 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
+    set(CMAKE_CXX_STANDARD 14)
+
     # Defining compiler specific settings
     if(WIN32)
         if(MSVC)
@@ -41,11 +43,14 @@ macro(INITIALISE_PROJECT)
         endif()
     else()
         # Adding -std=c++11 flag explicitly
-        # It is a temporary fix to get building with CLANG working again.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+        # Enable warning errors
         set(WARNING_ERROR "-Werror")
-        # Disabled warnings due to QCustomplot
-        set(DISABLED_WARNINGS "-Wno-old-style-cast -Wno-missing-braces")
+
+        # Disabled warnings due to QCustomplot and Qt
+        set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-old-style-cast -Wno-missing-braces")
+
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
@@ -63,28 +68,19 @@ macro(INITIALISE_PROJECT)
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
 
-    # Ask for Unicode to be used
-    add_definitions(-DUNICODE)
-    if(WIN32)
-        add_definitions(-D_UNICODE)
+    # Check whether the compiler supports position-independent code
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-fPIC" COMPILER_SUPPORTS_PIC)
+    if(COMPILER_SUPPORTS_PIC)
+      add_definitions("-fPIC")
     endif()
 
     # Qt 5.X does not include private headers by default
     add_definitions(-DNO_QT_PRIVATE_HEADERS)
-
-    # Set the RPATH information on Linux
-    # Note: this prevent us from having to use the uncool LD_LIBRARY_PATH...
-    if(NOT WIN32 AND NOT APPLE)
-        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../plugins/${PROJECT_NAME}")
-    endif()
-
-    if(APPLE)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
-    endif()
     
 endmacro()
 
-macro(use_qt5lib qt5lib)
+macro(USE_QT5LIB qt5lib)
     find_package(${qt5lib} REQUIRED)
     include_directories(${${qt5lib}_INCLUDE_DIRS})
     add_definitions(${${qt5lib}_DEFINITIONS})

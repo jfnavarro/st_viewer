@@ -6,9 +6,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
 # Load resource and translations files
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
@@ -16,26 +13,11 @@ qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
 ###DYNAMIC LIBRARIES#####################################
-
-find_library(QCUSTOMPLOT_LIB NAMES qcustomplot)
 find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
-message(STATUS ${QCUSTOMPLOT_PATH})
-message(STATUS ${QCUSTOMPLOT_LIB})
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(QCustomPlot
-    DEFAULT_MSG
-    QCUSTOMPLOT_LIB
-    QCUSTOMPLOT_PATH)
-mark_as_advanced(QCUSTOMPLOT_PATH QCUSTOMPLOT_LIB)
+add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
+target_include_directories(qcustomplot INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories(${QCUSTOMPLOT_PATH})
-
-set(QT_TARGET_LINK_LIBS Qt5::Core
-                             Qt5::Network
-                             Qt5::Gui
-                             Qt5::Widgets
-                             Qt5::PrintSupport
-                             Qt5::OpenGL
-                             Qt5::Concurrent)
+target_link_libraries(qcustomplot ${QT_TARGET_LINK_LIBS})
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -92,10 +74,11 @@ include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
 ###CREATE TARGET BINARY#################################
 
-# Create main target (resources needs to be part of the target)
+# Create main target's sources (resources needs to be part of the target)
 set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
     SettingsNetwork.h SettingsStyle.h SettingsVisual.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
+# Create executable target
 if(WIN32)
     add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
 elseif(APPLE)
@@ -113,13 +96,13 @@ if(MSVC)
     endif()
 endif()
 
-# Link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${QCUSTOMPLOT_LIB})
+# Link libraries for hte ST Viewer target
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
 
 ### UNIT TESTS ################################################################
 
-enable_testing()
-add_subdirectory(test)
+#enable_testing()
+#add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
@@ -141,7 +124,7 @@ include(InstallRequiredSystemLibraries)
 # Qt plug-ins needed
 set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
 set(PLUGINS_IN_CATEGORY_accessible)
-set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qmng qsvg qtga qtiff qwbmp)
+set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
 set(PLUGINS_IN_CATEGORY_printsupport)
 set(PLUGINS_IN_CATEGORY_platforms)
 
@@ -172,7 +155,7 @@ if(UNIX AND NOT APPLE)
     # The RPATH to be used when installing, but only if it's not a system directory
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
     if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
     endif("${isSystemDir}" STREQUAL "-1")
 
     # Select TGZ as the packager on Linux
@@ -183,12 +166,11 @@ if(UNIX AND NOT APPLE)
     # Add Qt libraries as shared libraries
     foreach(QT_LIBRARY ${ST_QT_LIBS})
        # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG
-       # but I think we don't need them /Erik Sjolund
-       get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+       get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
        INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
      endforeach()
 
-    # Qt 5.5 needs ICU libaries in Linux 54
+    # Qt needs ICU libraries in Linux
     foreach(ICU_LIB icuuc icui18n icudata)
       find_library(loc${ICU_LIB} lib${ICU_LIB}.so NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
@@ -200,11 +182,12 @@ if(UNIX AND NOT APPLE)
     deploy_qt_plugins()
 
     # Install libraries and resources
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${PUBLICKEY} DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CONFIG_FILE} DESTINATION .)
+    install(FILES ${PUBLICKEY} DESTINATION .)
+    install(TARGETS ${PROJECT_NAME} DESTINATION .)
 
 endif()
 
@@ -331,9 +314,9 @@ if(WIN32)
     # Add QT libraries as shared libraries
     foreach(QT_LIBRARY ${ST_QT_LIBS})
         if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION_DEBUG)
+            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION_DEBUG)
         else()
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
         endif()
         install(FILES ${ST_QT_LOC} DESTINATION .)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -348,8 +331,8 @@ if(WIN32)
 
     deploy_qt_plugins()
 
-    # Qt 5.5 ICU is 54
-    windows_deploy_qt_libraries(icudt54 icuin54 icuuc54)
+    # Qt 5.7 ICU is 56
+    windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
 
     # Install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
