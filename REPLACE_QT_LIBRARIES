@@ -28,9 +28,13 @@ STViewer.app/Contents/MacOs/plugandpaint
 
 For Linux:
 
-The same approach as in OSX 
+The same approach as in OSX (shared libraries are in the folder
+lib in the application rool folder and plugins are in the folder
+plugins in the application root folder).
 
 For Windows:
 
 The QT DDLs present in the ST Viewer installation folder must
 be replaced for the DDLs present in the QT installation folder. 
+Libraries are in the folder lib and plugins are in the folder plugins
+inside the application folder.

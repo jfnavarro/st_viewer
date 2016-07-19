@@ -15,6 +15,28 @@ set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
+###DYNAMIC LIBRARIES#####################################
+
+find_library(QCUSTOMPLOT_LIB NAMES qcustomplot)
+find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
+message(STATUS ${QCUSTOMPLOT_PATH})
+message(STATUS ${QCUSTOMPLOT_LIB})
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(QCustomPlot
+    DEFAULT_MSG
+    QCUSTOMPLOT_LIB
+    QCUSTOMPLOT_PATH)
+mark_as_advanced(QCUSTOMPLOT_PATH QCUSTOMPLOT_LIB)
+include_directories(${QCUSTOMPLOT_PATH})
+
+set(QT_TARGET_LINK_LIBS Qt5::Core
+                             Qt5::Network
+                             Qt5::Gui
+                             Qt5::Widgets
+                             Qt5::PrintSupport
+                             Qt5::OpenGL
+                             Qt5::Concurrent)
+
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
@@ -46,9 +68,6 @@ endforeach()
 # Organize projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-###PACKAGES######################################
-
-
 ##FLAGS AND DEFINITIONS###
 
 add_definitions(-DPROJECT_VERSION=\"${PROJECT_VERSION}\")
@@ -71,13 +90,7 @@ list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 # 'rapidjson' does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
-set(QT_TARGET_LINK_LIBS Qt5::Core
-                             Qt5::Network
-                             Qt5::Gui
-                             Qt5::Widgets
-                             Qt5::PrintSupport
-                             Qt5::OpenGL
-                             Qt5::Concurrent)
+###CREATE TARGET BINARY#################################
 
 # Create main target (resources needs to be part of the target)
 set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
@@ -91,10 +104,6 @@ else()
     add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
 
-# The Qt5 IMPORTED targets for the QtGui libraries specify that the qtmain.lib static
-# library shipped with Qt will be linked by all dependent executables which have the WIN32_EXECUTABLE enabled.
-#set_property(TARGET ${PROJECT_NAME} PROPERTY Qt5_NO_LINK_QTMAIN ON)
-
 if(MSVC)
     # A dependency is linking to the non debug version. This causes an annoying 
     # warning in Visual Studio debug builds.    
@@ -105,7 +114,7 @@ if(MSVC)
 endif()
 
 # Link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} ${QCUSTOMPLOT_LIB})
 
 ### UNIT TESTS ################################################################
 
@@ -180,11 +189,10 @@ if(UNIX AND NOT APPLE)
      endforeach()
 
     # Qt 5.5 needs ICU libaries in Linux 54
-    set(ICU_VERSION "54.1")
     foreach(ICU_LIB icuuc icui18n icudata)
-      find_library(loc${ICU_LIB} lib${ICU_LIB}.so.${ICU_VERSION} NO_CMAKE_SYSTEM_PATH)
+      find_library(loc${ICU_LIB} lib${ICU_LIB}.so NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
-        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so.${ICU_VERSION}")
+        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so")
       endif()
       INSTALL_LIBRARY_AND_SYMLINKS("${loc${ICU_LIB}}" lib)
     endforeach()

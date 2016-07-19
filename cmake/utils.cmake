@@ -44,9 +44,8 @@ macro(INITIALISE_PROJECT)
         # It is a temporary fix to get building with CLANG working again.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
         set(WARNING_ERROR "-Werror")
-        # Disabled warnings due to Qt
-        set(DISABLED_WARNINGS "-Wno-missing-braces -Wno-float-equal -Wno-shadow -Wno-unreachable-code \
-                               -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
+        # Disabled warnings due to QCustomplot
+        set(DISABLED_WARNINGS "-Wno-old-style-cast -Wno-missing-braces")
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
@@ -57,10 +56,8 @@ macro(INITIALISE_PROJECT)
                            -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch \
                            -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
+            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
-            # Needed for a bug in Qt 5.5.0, it will be fixed in 5.5.1
-            # set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-unknown-pragmas")
         endif()
     endif()
 
