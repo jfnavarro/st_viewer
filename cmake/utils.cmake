@@ -154,8 +154,7 @@ function(INSTALL_LIBRARY_AND_SYMLINKS SRCPATH DEST)
   while(NOT ${NEXTSTRING} STREQUAL ${CURRENTSTRING})
     set(CURRENTSTRING "${NEXTSTRING}")
     if(EXISTS "${CURRENTSTRING}")
-      install(FILES ${CURRENTSTRING}
-              DESTINATION ${DEST})
+      install(FILES ${CURRENTSTRING} DESTINATION ${DEST})
     endif()
     # The REGEX tries to remove a version number from the end of the string
     string(REGEX REPLACE "\\.[0-9]+$" "" NEXTSTRING "${CURRENTSTRING}")

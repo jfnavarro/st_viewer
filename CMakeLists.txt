@@ -85,22 +85,5 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/local_configuration.cmake")
   include("${CMAKE_SOURCE_DIR}/local_configuration.cmake")
 endif()
 
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
-# Find the path to Qt binaries and set the Qt libraries (needed here since /ext contains Qt libraries)
-find_package(Qt5LinguistTools REQUIRED CONFIG)
-set(ST_QT_LIBS Widgets PrintSupport Network Core Gui OpenGL Concurrent)
-if(UNIX AND NOT APPLE)
-  list(APPEND ST_QT_LIBS Qt5DBus Qt5Svg)
-endif()
-foreach(i ${ST_QT_LIBS})
-  USE_QT5LIB("Qt5${i}")
-  list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
-endforeach()
-
-# Include third party libraries
-add_subdirectory(ext)
-
 # Include source code
 add_subdirectory(src)

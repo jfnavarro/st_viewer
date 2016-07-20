@@ -7,7 +7,7 @@
 #include <QUuid>
 #include <QDateTime>
 
-#include "QtWaitingSpinner/waitingspinnerwidget.h"
+#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 
 #include "error/Error.h"
 #include "model/DatasetItemModel.h"
