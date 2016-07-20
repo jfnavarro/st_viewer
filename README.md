@@ -116,9 +116,9 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 
         make -j8 
     
-* Run the application typing
+* Run the application typing clicking in the app icon that can be found in
 
-        /path/to/build/STViewer.app/Contents/STViewer
+        /path/to/build/
         
 * Alternatively for MAC you can build a stand alone DMG bundle that you can install and/or distribute
 
@@ -146,7 +146,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
         
 * To execute type :
       
-        /path/to/bin/STViewer
+        /path/to/bin/STViewer.sh
   
 * Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
   
