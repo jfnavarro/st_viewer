@@ -37,9 +37,9 @@
 #include "dataModel/ImageAlignment.h"
 #include "dataModel/User.h"
 #include "dataModel/Gene.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/filereadstream.h"
-#include "rapidjson/error/en.h"
+#include "ext/rapidjson/reader.h"
+#include "ext/rapidjson/filereadstream.h"
+#include "ext/rapidjson/error/en.h"
 
 #include <iostream>
 #include <sstream>

@@ -6,6 +6,23 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+# Find the path to Qt binaries and set the Qt libraries (needed here since /ext contains Qt libraries)
+find_package(Qt5LinguistTools REQUIRED CONFIG)
+set(ST_QT_LIBS Widgets PrintSupport Network Core Gui OpenGL Concurrent)
+if(UNIX AND NOT APPLE)
+  list(APPEND ST_QT_LIBS DBus Svg)
+endif()
+foreach(i ${ST_QT_LIBS})
+  USE_QT5LIB("Qt5${i}")
+  list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
+endforeach()
+
+# Include third party libraries
+add_subdirectory(ext)
+
 # Load resource and translations files
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
@@ -70,7 +87,7 @@ foreach(dir ${subdir_list})
 endforeach()
 list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 # 'rapidjson' does not need to be compiled, we just need to include the headers
-include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
+include_directories(${PROJECT_SOURCE_DIR}/src/ext/rapidjson)
 
 ###CREATE TARGET BINARY#################################
 
@@ -145,18 +162,8 @@ if(UNIX AND NOT APPLE)
     # When building, don't use the install RPATH already
     # (but later on when installing)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
-
-    # Add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-    # The RPATH to be used when installing, but only if it's not a system directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/plugins")
-    endif("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+    set(CMAKE_INSTALL_RPATH lib)
 
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
@@ -164,30 +171,37 @@ if(UNIX AND NOT APPLE)
     set(CPACK_SYSTEM_NAME "${CPACK_SYSTEM_NAME}")
 
     # Add Qt libraries as shared libraries
-    foreach(QT_LIBRARY ${ST_QT_LIBS})
+    foreach(QT_LIBRARY ${QT_TARGET_LINK_LIBS})
        # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG
-       get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
+       get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION)
        INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
      endforeach()
 
-    # Qt needs ICU libraries in Linux
+    # Qt needs ICU 56 libraries in Linux
+    set(ICU_VERSION "56.1")
     foreach(ICU_LIB icuuc icui18n icudata)
-      find_library(loc${ICU_LIB} lib${ICU_LIB}.so NO_CMAKE_SYSTEM_PATH)
+      find_library(loc${ICU_LIB} "lib${ICU_LIB}.so.${ICU_VERSION}" NO_CMAKE_SYSTEM_PATH)
       if (NOT loc${ICU_LIB})
-        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so")
+        message(FATAL_ERROR "Could not find lib${ICU_LIB}.so.${ICU_VERSION}")
       endif()
+      message(STATUS "${loc${ICU_LIB}}")
       INSTALL_LIBRARY_AND_SYMLINKS("${loc${ICU_LIB}}" lib)
     endforeach()
 
+    # Deploy the qt plugins in the plugins folder
     deploy_qt_plugins()
 
     # Install libraries and resources
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/STViewer.sh DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
     install(FILES ${PUBLICKEY} DESTINATION .)
-    install(TARGETS ${PROJECT_NAME} DESTINATION .)
+    install(TARGETS ${PROJECT_NAME} qcustomplot DESTINATION .
+            RUNTIME DESTINATION .
+            LIBRARY DESTINATION lib
+            ARCHIVE DESTINATION .)
 
 endif()
 
@@ -312,11 +326,11 @@ if(WIN32)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
 
     # Add QT libraries as shared libraries
-    foreach(QT_LIBRARY ${ST_QT_LIBS})
+    foreach(QT_LIBRARY ${QT_TARGET_LINK_LIBS})
         if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION_DEBUG)
+            get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION_DEBUG)
         else()
-            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
+            get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION)
         endif()
         install(FILES ${ST_QT_LOC} DESTINATION .)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
