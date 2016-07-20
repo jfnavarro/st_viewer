@@ -25,6 +25,8 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
+    set(CMAKE_CXX_STANDARD 14)
+
     # Defining compiler specific settings
     if(WIN32)
         if(MSVC)
@@ -41,12 +43,14 @@ macro(INITIALISE_PROJECT)
         endif()
     else()
         # Adding -std=c++11 flag explicitly
-        # It is a temporary fix to get building with CLANG working again.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+        # Enable warning errors
         set(WARNING_ERROR "-Werror")
-        # Disabled warnings due to Qt (should be fixed in Qt 5.7)
-        #set(DISABLED_WARNINGS "-Wno-missing-braces -Wno-float-equal -Wno-shadow -Wno-unreachable-code \
-        #                       -Wno-switch-enum -Wno-type-limits -Wno-deprecated")
+
+        # Disabled warnings due to QCustomplot and Qt
+        set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-old-style-cast -Wno-missing-braces")
+
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
@@ -57,24 +61,26 @@ macro(INITIALISE_PROJECT)
                            -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch \
                            -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wold-style-cast -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
+            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
         endif()
     endif()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_WARNINGS} ${DISABLED_WARNINGS} ${WARNING_ERROR}")
 
+    # Check whether the compiler supports position-independent code
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-fPIC" COMPILER_SUPPORTS_PIC)
+    if(COMPILER_SUPPORTS_PIC)
+      add_definitions("-fPIC")
+    endif()
 
     # Qt 5.X does not include private headers by default
     add_definitions(-DNO_QT_PRIVATE_HEADERS)
-
-    if(APPLE)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.7 -stdlib=libc++")
-    endif()
     
 endmacro()
 
-macro(use_qt5lib qt5lib)
+macro(USE_QT5LIB qt5lib)
     find_package(${qt5lib} REQUIRED)
     include_directories(${${qt5lib}_INCLUDE_DIRS})
     add_definitions(${${qt5lib}_DEFINITIONS})

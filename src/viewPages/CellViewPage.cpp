@@ -35,6 +35,7 @@
 #include "dataModel/ImageAlignment.h"
 #include "dataModel/User.h"
 #include "dataModel/UserSelection.h"
+#include "analysis/AnalysisFRD.h"
 #include "customWidgets/SpinBoxSlider.h"
 #include "utils/SetTips.h"
 #include "SettingsVisual.h"
@@ -113,6 +114,7 @@ CellViewPage::CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     , m_grid(nullptr)
     , m_colorDialogGrid(nullptr)
     , m_ui(new Ui::CellView())
+    , m_FDH(nullptr)
     , m_colorLinear(nullptr)
     , m_colorLog(nullptr)
     , m_colorExp(nullptr)
@@ -138,6 +140,10 @@ CellViewPage::CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->selection->setStyleSheet(
         "QPushButton {border-image: url(:/images/selection.png); } "
         "QPushButton:checked {border-image: url(:/images/selection2.png); }");
+
+    // instantiante FDH
+    m_FDH.reset(new AnalysisFRD());
+    Q_ASSERT(!m_FDH.isNull());
 
     // color dialog for the grid color
     m_colorDialogGrid.reset(new QColorDialog(GridRendererGL::DEFAULT_COLOR_GRID, this));
@@ -166,6 +172,9 @@ void CellViewPage::clean()
     m_legend->clearData();
     m_ui->view->clearData();
     m_ui->view->update();
+
+    // close FDH widget
+    m_FDH->close();
 
     // disable toolbar controls
     setEnableButtons(false);
@@ -237,6 +246,9 @@ void CellViewPage::slotDatasetOpen(const QString &datasetId)
     m_geneTotalReadsThreshold->setMinimumValue(total_reads_min);
     m_geneTotalReadsThreshold->setMaximumValue(total_reads_max);
     m_geneTotalReadsThreshold->setTickInterval(1);
+
+    // load features and threshold boundaries into FDH
+    m_FDH->computeData(m_dataProxy->getFeatureList(), reads_min, reads_max);
 
     // load min max values to legend
     m_legend->clearData();
@@ -609,6 +621,17 @@ void CellViewPage::createMenusAndConnections()
             SIGNAL(triggered(QAction *)),
             this,
             SLOT(slotSetLegendAnchor(QAction *)));
+
+    // Features Histogram Distribution
+    connect(m_geneHitsThreshold.data(),
+            SIGNAL(signalLowerValueChanged(int)),
+            m_FDH.data(),
+            SLOT(setLowerLimit(int)));
+    connect(m_geneHitsThreshold.data(),
+            SIGNAL(signalUpperValueChanged(int)),
+            m_FDH.data(),
+            SLOT(setUpperLimit(int)));
+    connect(m_ui->histogram, &QPushButton::clicked, [=] { m_FDH->show(); });
 }
 
 void CellViewPage::resetActionStates()

@@ -8,7 +8,7 @@
 #include <cmath>
 #include "math/Common.h"
 #include "model/GeneSelectionDEAItemModel.h"
-
+#include "qcustomplot.h"
 #include "ui_ddaWidget.h"
 
 static const QColor BORDER = QColor(238, 122, 0);
@@ -50,8 +50,33 @@ AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
         "QTableCornerButton::section {background-color: transparent;} ");
 
 
-    //TODO
-    //Set up scatter plot objects..
+    // Set up scatter plot objects
+    m_ui->customPlot->addGraph();
+    m_ui->customPlot->graph(0)
+        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
+    m_ui->customPlot->graph(0)->setAntialiasedScatters(true);
+    m_ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
+    m_ui->customPlot->graph(0)->setName(tr("Correlation Scatter Plot"));
+    m_ui->customPlot->graph(0)->rescaleAxes(true);
+    // add another scatter plot graph to mark selected genes
+    m_ui->customPlot->addGraph();
+    m_ui->customPlot->graph(1)
+        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::red), Qt::white, 5));
+    m_ui->customPlot->graph(1)->setAntialiasedScatters(true);
+    m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
+    m_ui->customPlot->graph(1)->rescaleAxes(true);
+    // sets the legend and attributes in the plots
+    m_ui->customPlot->legend->setVisible(false);
+    m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLinear);
+    m_ui->customPlot->yAxis->setScaleType(QCPAxis::stLinear);
+    m_ui->customPlot->xAxis->setTicks(true);
+    m_ui->customPlot->yAxis->setTicks(true);
+    m_ui->customPlot->xAxis->setLabel(tr("Selection A log counts"));
+    m_ui->customPlot->yAxis->setLabel(tr("Selection B log counts"));
+    // make top right axes clones of bottom left axes since it looks prettier
+    m_ui->customPlot->axisRect()->setupFullAxesBox();
+    // add mouse interaction
+    m_ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 
     // populate the gene to read pairs containers
     // computeGeneToReads will update the max|min thresholds variables (to initialize slider)
@@ -120,7 +145,8 @@ GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
 
 void AnalysisDEA::slotSelectionSelected(QModelIndex index)
 {
-    //TODO clear scatter plot for selected points
+    // always clear the selected plot
+    m_ui->customPlot->graph(1)->clearData();
 
     if (index.isValid()) {
         const auto selected = m_ui->tableView->geneTableItemSelection();
@@ -136,10 +162,12 @@ void AnalysisDEA::slotSelectionSelected(QModelIndex index)
             x.append(deaRead.readsA);
             y.append(deaRead.readsB);
         }
-        //TODO set new data for the scatter plot for selected points
+
+        // the scatter plot needs a vector
+        m_ui->customPlot->graph(1)->setData(x, y);
     }
 
-    //TODO update plotting objet (replot)
+    m_ui->customPlot->replot();
 }
 
 void AnalysisDEA::computeGeneToReads(const UserSelection &selObjectA,
@@ -229,13 +257,17 @@ const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
 
 void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
 {
-    // TODO update scatter plot data
+    // update scatter plot data
+    m_ui->customPlot->graph(0)->setData(QVector<double>::fromStdVector(stats.valuesSelectionA),
+                                        QVector<double>::fromStdVector(stats.valuesSelectionB));
+    m_ui->customPlot->graph(0)->rescaleAxes();
 
     // clear selection
     m_ui->tableView->clearSelection();
-    // TODO clear selected point scatter
+    m_ui->customPlot->graph(1)->clearData();
 
-    // TODO update plot object (replot)
+    // update plot
+    m_ui->customPlot->replot();
 
     // update UI fields for stats
     m_ui->numGenesSelectionA->setText(QString::number(stats.countA + stats.countAB));
@@ -267,10 +299,24 @@ void AnalysisDEA::slotSetUpperThreshold(const int value)
 
 void AnalysisDEA::slotSaveToPDF()
 {
-    return;
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Export File"),
+                                                    QDir::homePath(),
+                                                    QString("%1").arg(tr("PNG Files (*.png)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
     // TODO add most DEA genes and stats (use QPrinter)
     // TODO use PDF as output
-    // TODO save plot to file
+    const bool saveOk = m_ui->customPlot->savePng(filename, 800, 800, 1.0, 100);
+
+    if (!saveOk) {
+        QMessageBox::critical(this, tr("Save DEA"), tr("Error saving DEA to a file"));
+    } else {
+        QMessageBox::information(this, tr("Save DEA"), tr("DEA was saved successfully"));
+    }
 }
 
 bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaReads) const

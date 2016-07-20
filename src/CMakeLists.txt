@@ -6,14 +6,18 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
 # Load resource and translations files
 set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
+
+###DYNAMIC LIBRARIES#####################################
+find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
+add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
+target_include_directories(qcustomplot INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(${QCUSTOMPLOT_PATH})
+target_link_libraries(qcustomplot ${QT_TARGET_LINK_LIBS})
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -46,9 +50,6 @@ endforeach()
 # Organize projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-###PACKAGES######################################
-
-
 ##FLAGS AND DEFINITIONS###
 
 add_definitions(-DPROJECT_VERSION=\"${PROJECT_VERSION}\")
@@ -71,18 +72,13 @@ list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 # 'rapidjson' does not need to be compiled, we just need to include the headers
 include_directories(${PROJECT_SOURCE_DIR}/ext/rapidjson)
 
-set(QT_TARGET_LINK_LIBS Qt5::Core
-                             Qt5::Network
-                             Qt5::Gui
-                             Qt5::Widgets
-                             Qt5::PrintSupport
-                             Qt5::OpenGL
-                             Qt5::Concurrent)
+###CREATE TARGET BINARY#################################
 
-# Create main target (resources needs to be part of the target)
+# Create main target's sources (resources needs to be part of the target)
 set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
     SettingsNetwork.h SettingsStyle.h SettingsVisual.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
+# Create executable target
 if(WIN32)
     add_executable(${PROJECT_NAME} WIN32 ${ST_CLIENT_SOURCES})
 elseif(APPLE)
@@ -90,10 +86,6 @@ elseif(APPLE)
 else()
     add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
-
-# The Qt5 IMPORTED targets for the QtGui libraries specify that the qtmain.lib static
-# library shipped with Qt will be linked by all dependent executables which have the WIN32_EXECUTABLE enabled.
-#set_property(TARGET ${PROJECT_NAME} PROPERTY Qt5_NO_LINK_QTMAIN ON)
 
 if(MSVC)
     # A dependency is linking to the non debug version. This causes an annoying 
@@ -104,13 +96,13 @@ if(MSVC)
     endif()
 endif()
 
-# Link libraries to the main target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS})
+# Link libraries for hte ST Viewer target
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
 
 ### UNIT TESTS ################################################################
 
-enable_testing()
-add_subdirectory(test)
+#enable_testing()
+#add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
@@ -174,8 +166,7 @@ if(UNIX AND NOT APPLE)
     # Add Qt libraries as shared libraries
     foreach(QT_LIBRARY ${ST_QT_LIBS})
        # note there is also the targets: LOCATION_RELEASE and LOCATION_DEBUG
-       # but I think we don't need them /Erik Sjolund
-       get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+       get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
        INSTALL_LIBRARY_AND_SYMLINKS("${ST_QT_LOC}" lib)
      endforeach()
 
@@ -323,9 +314,9 @@ if(WIN32)
     # Add QT libraries as shared libraries
     foreach(QT_LIBRARY ${ST_QT_LIBS})
         if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION_DEBUG)
+            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION_DEBUG)
         else()
-            get_target_property(ST_QT_LOC "Qt5::${QT_LIBRARY}" LOCATION)
+            get_target_property(ST_QT_LOC QT_TARGET_LINK_LIBS LOCATION)
         endif()
         install(FILES ${ST_QT_LOC} DESTINATION .)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -340,8 +331,8 @@ if(WIN32)
 
     deploy_qt_plugins()
 
-    # Qt 5.5 ICU is 54
-    windows_deploy_qt_libraries(icudt54 icuin54 icuuc54)
+    # Qt 5.7 ICU is 56
+    windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
 
     # Install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
