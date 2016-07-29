@@ -39,17 +39,20 @@ a11 a21 a31 a21 a22 a23 a31 a32 a33
 If your HE image is cropped to the array boundaries it is very easy to figure out the values that you need :
 
 a11 a22 (scaling factors for x and y) 
-a31 a33 (offset factors for x and y)
+a31 a32 (offset factors for x and y)
 
 The scaling factors would be 
 
-scale_x = width_image / 33  
-scale_y = height_image / 35 
+scale_x = width_image / (33 - 1) 
+scale_y = height_image / (35 - 1)
 
-and the offset factors would be 
+Where 33 and 35 are the dimensions of the chip.
 
-offset_x = -1 * scaling_factor_x 
-offset_y = -1 * scaling_factor_y
+The offset factors would be 
+
+offset_x = 1
+offset_y = 1
+a33 = 1
 
 Alternatively, the ST viewer can access datasets stored in a database trough the ST API https://github.com/SpatialTranscriptomicsResearch/st_api
 For that you must have the database server and the RESFull API server up and running
