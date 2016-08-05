@@ -8,7 +8,7 @@
 #include <QScrollArea>
 #include <QDateTime>
 #include <QLabel>
-#include "QtWaitingSpinner/waitingspinnerwidget.h"
+#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 
 #include "dataModel/User.h"
 #include "io/FeatureExporter.h"
