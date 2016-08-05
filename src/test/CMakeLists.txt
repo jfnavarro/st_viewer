@@ -32,7 +32,7 @@ macro(add_st_client_test subdir name)
   endforeach()
   add_executable(${name} ${srcs})
   target_link_libraries(${name} ${QT_TARGET_LINK_LIBS}
-                        ${OPENGL_LIBRARY} ${LIBJPEG_STATIC_detected_with_find_library} Qt5::Test)
+                        qcustomplot ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARY} Qt5::Test)
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)
 
