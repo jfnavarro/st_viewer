@@ -88,7 +88,7 @@ QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
     return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
 }
 
-void ImageTextureGL::createTiles(QByteArray imageByteArray)
+bool ImageTextureGL::createTiles(QByteArray imageByteArray)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -96,7 +96,8 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     QBuffer imageBuffer(&imageByteArray);
     if (!imageBuffer.open(QIODevice::ReadOnly)) {
         qDebug() << "[ImageTextureGL] Image decoding buffer error:" << imageBuffer.errorString();
-        return;
+        QGuiApplication::restoreOverrideCursor();
+        return false;
     }
 
     // create image from byte array
@@ -107,7 +108,8 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
     imageBuffer.close();
     if (!readOk || image.isNull()) {
         qDebug() << "[ImageTextureGL] Opening image failed";
-        return;
+        QGuiApplication::restoreOverrideCursor();
+        return false;
     }
 
     // get size and bounds
@@ -140,6 +142,7 @@ void ImageTextureGL::createTiles(QByteArray imageByteArray)
 
     m_isInitialized = true;
     QGuiApplication::restoreOverrideCursor();
+    return true;
 }
 
 void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)

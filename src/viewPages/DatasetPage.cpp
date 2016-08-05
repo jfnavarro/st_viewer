@@ -208,8 +208,9 @@ void DatasetPage::slotOpenDataset()
         if (m_dataProxy->loadDatasetContent(dataset)) {
             emit signalDatasetOpen(dataset->id());
         } else {
-            // NOTE show error here?
-            qDebug() << "Error downloading the dataset content..";
+            QMessageBox::critical(this, tr("Dataset content"),
+                                  tr("Error loading dataset content"));
+            //TODO clear data in data proxy
         }
     } else {
 

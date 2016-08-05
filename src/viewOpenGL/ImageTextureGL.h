@@ -31,8 +31,9 @@ public:
     // return the total size of the image as a QRectF
     const QRectF boundingRect() const override;
 
-    // will split the images into small textures of fixed size
-    void createTiles(QByteArray imageByteArray);
+    // will split the image given as input into small textures of fixed size
+    // returns true if the parsing and creation of tiles was correct
+    bool createTiles(QByteArray imageByteArray);
 
 public slots:
 

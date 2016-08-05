@@ -218,7 +218,6 @@ void CellGLView::setZoomFactorAndUpdate(const float zoom)
     const float new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
     if (m_zoom_factor != new_zoom_factor) {
         m_zoom_factor = new_zoom_factor;
-        qDebug() << "Setting zoom factor " << m_zoom_factor;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         update();
     }

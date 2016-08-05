@@ -734,7 +734,11 @@ void CellViewPage::slotLoadCellFigure()
 
     // create tiles textures from the image
     m_image->clearData();
-    m_image->createTiles(image);
+    const bool image_loaded = m_image->createTiles(image);
+    if (!image_loaded) {
+        QMessageBox::warning(this, tr("Tissue image"),
+                              tr("Error loading tissue image"));
+    }
     m_ui->view->setScene(m_image->boundingRect());
     m_ui->view->update();
 }
