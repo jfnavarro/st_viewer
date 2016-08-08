@@ -63,7 +63,7 @@ QColor createDynamicRangeColor(const float value, const float min,
 // using the human wave lenght spectra
 QColor createHeatMapWaveLenghtColor(const float value)
 {
-    static const float gamma = 0.8;
+    static const float gamma = 0.8f;
 
     // denorm value to range (380-780)
     const float cwavelength = Math::denorm(value, 380.0, 780.0);
@@ -100,7 +100,7 @@ QColor createHeatMapWaveLenghtColor(const float value)
     }
 
     // Let the intensity fall off near the vision limits
-    float factor = 0.3;
+    float factor = 0.3f;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {

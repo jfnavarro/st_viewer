@@ -139,5 +139,5 @@ int GeneData::quadReads(const int index) const
 
 void GeneData::clearSelectionArray()
 {
-    std::fill(m_selected.begin(), m_selected.end(), 0.0);
+    std::fill(m_selected.begin(), m_selected.end(), 0.0f);
 }
