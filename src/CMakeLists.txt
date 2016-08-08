@@ -36,6 +36,11 @@ target_include_directories(qcustomplot INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories(${QCUSTOMPLOT_PATH})
 target_link_libraries(qcustomplot ${QT_TARGET_LINK_LIBS})
 
+find_package(OpenGL REQUIRED)
+if(WIN32)
+find_package(OpenSSL REQUIRED)
+endif()
+
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
@@ -114,12 +119,13 @@ if(MSVC)
 endif()
 
 # Link libraries for hte ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS}
+    qcustomplot ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARY})
 
 ### UNIT TESTS ################################################################
 
-#enable_testing()
-#add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
@@ -162,8 +168,9 @@ if(UNIX AND NOT APPLE)
     # When building, don't use the install RPATH already
     # (but later on when installing)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     set(CMAKE_INSTALL_RPATH lib)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
