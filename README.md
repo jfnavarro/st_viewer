@@ -85,6 +85,10 @@ libraries that are used in this software.
 ## Contact
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
+## Binaries
+You can find and the download the latest binaries/installers for Windows, Linux and OSX
+in the section "Releases".
+
 ## Building
 
 ###### OSX
