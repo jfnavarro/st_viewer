@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QDebug>
 
 DatasetImporter::DatasetImporter(QWidget *parent)
     : QDialog(parent)
@@ -50,6 +51,7 @@ const QByteArray DatasetImporter::featuresFile() const
 {
     QFile file(m_ui->featuresFile->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Error opening ST data file " << file.errorString();
         return QByteArray();
     }
     return file.readAll();

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#  Normally the stclient is built like this:
-#  sh build_cygwin.sh  /path/to/stclient/source  stclient_production_build  /your/result/dir
+#  Normally the ST Viewer is built like this:
+#  sh build_cygwin.sh  /path/to/stviewer/source  production_build  /your/result/dir
 #
-#  If you need to edit the stclient source code you can save compilation time if you run
-#  sh build_cygwin.sh  /path/to/stclient/source  stclient_build_only_run_make  /your/result/dir
+#  If you need to edit the ST Viewer source code you can save compilation time if you run
+#  sh build_cygwin.sh  /path/to/stviewer/source  build_only_run_make  /your/result/dir
 
 set -ex
 
@@ -20,14 +20,16 @@ cmake_install_dir='/cygdrive/C/Program Files (x86)/CMake'
 windows_cmake_filepath=`cygpath -w "${cmake_install_dir}/bin/cmake.exe"`
 windows_ctest_filepath=`cygpath -w "${cmake_install_dir}/bin/ctest.exe"`
 
+# Path to Visual Studio
 msvc_vars_filepath='/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat'
 
-qt_bin='/cygdrive/c/Qt/5.6/msvc2013_64/bin'
+# Path to Qt
+qt_bin='/cygdrive/c/Qt/5.7/msvc2013_64/bin'
 qt_env_filepath="$qt_bin/qtenv2.bat"
 
 # Shows the user the expected arguments.
 function print_usage_and_exit {
-    echo "Usage: build_cygwin.sh path_to_st_client_source [ stclient_production_build | stclient_development_build | stclient_build_only_run_make ] result_dir" >&2
+    echo "Usage: build_cygwin.sh path_to_st_client_source [ production_build | development_build | build_only ] result_dir" >&2
     exit 1
 }
 
@@ -60,11 +62,11 @@ if [ ! -f "$qt_env_filepath" ]; then
 	exit 1
 fi
 
-if ! [ $2 = "stclient_production_build" -o $2 = "stclient_development_build" -o $2 = "stclient_build_only_run_make" ]; then
+if ! [ $2 = "production_build" -o $2 = "development_build" -o $2 = "build_only" ]; then
   print_usage_and_exit
 fi
 
-result_dir=`cygpath -w $3`
+result_dir=`cygpath -w -a $3`
 
 if [ ! -d "$result_dir" ]; then
     echo "\nERROR: Result directory '$result_dir' does not exist.\n" >&2
@@ -78,7 +80,7 @@ if [ ! -d "$stclient_srcdir" ]; then
     print_usage_and_exit
 fi
 
-if [ $2 = "stclient_build_only_run_make" ]; then
+if [ $2 = "build_only" ]; then
   stclient_builddir=`ls -dt1 /tmp/stclient.* | head -1`
   if [ -z $stclient_builddir ]; then
     echo -e "nERROR: could not find the last build dir for the stclient under /tmp/stclient.*\n"  >&2
@@ -88,29 +90,26 @@ else
   stclient_builddir=`mktemp -d /tmp/stclient.XXX`
 fi
 
-cd "$stclient_builddir" 
-stclient_builddir_windows=`cygpath -w "$stclient_builddir"`
-stclient_srcdir_windows=`cygpath -w "$stclient_srcdir"`
+stclient_builddir_windows=`cygpath -w -a "$stclient_builddir"`
+stclient_srcdir_windows=`cygpath -w -a "$stclient_srcdir"`
 
 #"Visual Studio 11 Win64" 
 
-if [ $2 = "stclient_development_build" ]; then
+if [ $2 = "development_build" ]; then
   build_type=Debug
 fi
 
-if [ $2 = "stclient_production_build" ]; then
+if [ $2 = "production_build" ]; then
   build_type=Release
 fi
 
-# You must turn remotedata to ON and set the other variables to use the viewer with the ST API
-server=development
-endpoint=
-clientid=
-secretid=
+# Paths to qcustomplot, openssl and the config file (public key is optional)
+qcustomplot='/cygdrive/C/QCustomPlot'
+ssl=
+config=$stclient_srcdir_windows\\assets\\stviewer.conf
 publickey=
-remotedata=OFF
 
-if [ $2 = "stclient_build_only_run_make" ]; then
+if [ $2 = "build_only" ]; then
   cmd="echo skipping running cmake"
 else
   cmd=""
@@ -119,13 +118,13 @@ fi
 # When running ctest there was a problem with missing dll. The files were on the system but couldn't be found.
 # A good command to diagnose this is "cygcheck".
 # By setting the PATH environment variable, the missing dll files can be found.
-export PATH="$qt_bin:$PATH"
+export PATH="$ssl:$qcustomplot:$qt_bin:$PATH"
 
 windows_msvc_vars_filepath=`cygpath -w "$msvc_vars_filepath"`
 cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
   `cygpath -w "$qt_env_filepath"` "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DREMOTE_DATA=$remotedata -DPUBLICKEY=$publickey -DSECRETID=$secretid -DCLIENTID=$clientid -DENDPOINT=$endpoint -D "$stclient_srcdir_windows" "&&" \
+   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DPUBLICKEY=$publickey -DCONFIG_FILE=$config "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
    "$windows_ctest_filepath" "&&" \
    nmake package

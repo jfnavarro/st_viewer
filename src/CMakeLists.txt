@@ -3,6 +3,20 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+### PROJECT AND SOURCE STRUCTURE ##############################################
+
+# NOTE this is very useful for Visual Studio
+# Organize projects into folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+##LIBRARIES#####################################################
+
+# Put everything that is generated into the binary dir
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -20,21 +34,22 @@ foreach(i ${ST_QT_LIBS})
   list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
 endforeach()
 
-# Include third party libraries
-add_subdirectory(ext)
-
 # Load resource and translations files
-set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
+set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts")
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
 ###DYNAMIC LIBRARIES#####################################
+
 find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
 add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
-target_include_directories(qcustomplot INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
+target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
-target_link_libraries(qcustomplot ${QT_TARGET_LINK_LIBS})
+
+# Include third party libraries
+add_subdirectory(ext)
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -60,24 +75,6 @@ set(subdir_list
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
-
-### PROJECT AND SOURCE STRUCTURE ##############################################
-
-# NOTE this is very useful for Visual Studio
-# Organize projects into folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-##FLAGS AND DEFINITIONS###
-
-add_definitions(-DPROJECT_VERSION=\"${PROJECT_VERSION}\")
-
-##BUILDING AND INSTALLING #############################################################
-
-# Put everything that is generated into the binary dir
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ###STATIC LIBRARIES#####################################
 
@@ -107,23 +104,25 @@ endif()
 if(MSVC)
     # A dependency is linking to the non debug version. This causes an annoying 
     # warning in Visual Studio debug builds.    
-    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE )
+    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt")
     endif()
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for hte ST Viewer target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
 
 ### UNIT TESTS ################################################################
 
-#enable_testing()
-#add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 # PACKAGING OPTIONS: GENERAL
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
@@ -135,7 +134,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 
 # Add systems libraries
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
 include(InstallRequiredSystemLibraries)
 
 # Qt plug-ins needed
@@ -156,14 +155,9 @@ endif()
 
 if(UNIX AND NOT APPLE)
 
-    # Use, i.e. don't skip the full RPATH for the build tree
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-    # When building, don't use the install RPATH already
-    # (but later on when installing)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-    set(CMAKE_INSTALL_RPATH lib)
+    # To make the binary link to the libraries in the lib folder
+    SET_TARGET_PROPERTIES(${PROJECT_NAME}
+        PROPERTIES INSTALL_RPATH "$ORIGIN/lib:$ORIGIN/:$ORIGIN/plugins")
 
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
@@ -198,10 +192,11 @@ if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/STViewer.sh DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
     install(FILES ${PUBLICKEY} DESTINATION .)
-    install(TARGETS ${PROJECT_NAME} qcustomplot DESTINATION .
+    install(TARGETS ${PROJECT_NAME} DESTINATION .
             RUNTIME DESTINATION .
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION .)
+    install(TARGETS qcustomplot LIBRARY DESTINATION lib)
 
 endif()
 
@@ -345,8 +340,8 @@ if(WIN32)
 
     deploy_qt_plugins()
 
-    # Qt 5.7 ICU is 56
-    windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
+    # Qt 5.7 does not include ICU libraries
+    # windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
 
     # Install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -358,6 +353,15 @@ if(WIN32)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
+	# Install shared libraries
+	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(WIN_FOLDER win64)
+	else()
+		set(WIN_FOLDER win)
+	endif()
+	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/libeay32.dll DESTINATION .)
+	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/ssleay32.dll DESTINATION .)
+	install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION .)
 
 endif(WIN32)
 
