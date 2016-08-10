@@ -31,8 +31,7 @@ macro(add_st_client_test subdir name)
     set(srcs ${srcs} ${subdir}/${file}.h ${subdir}/${file}.cpp )
   endforeach()
   add_executable(${name} ${srcs})
-  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS}
-                        qcustomplot ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARY} Qt5::Test)
+  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test)
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)
 
