@@ -3,6 +3,20 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+### PROJECT AND SOURCE STRUCTURE ##############################################
+
+# NOTE this is very useful for Visual Studio
+# Organize projects into folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+##LIBRARIES#####################################################
+
+# Put everything that is generated into the binary dir
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -20,26 +34,22 @@ foreach(i ${ST_QT_LIBS})
   list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
 endforeach()
 
-# Include third party libraries
-add_subdirectory(ext)
-
 # Load resource and translations files
-set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts") 
+set(LOCALES "${PROJECT_SOURCE_DIR}/assets/trans/locale_en_us.ts")
 set(RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 qt5_add_resources(QT_RESOURCES ${RESOURCES})
 qt5_add_translation(QT_LOCALES ${LOCALES})
 
 ###DYNAMIC LIBRARIES#####################################
+
 find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
 add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
-target_include_directories(qcustomplot INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
+target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
-target_link_libraries(qcustomplot ${QT_TARGET_LINK_LIBS})
 
-find_package(OpenGL REQUIRED)
-if(WIN32)
-find_package(OpenSSL REQUIRED)
-endif()
+# Include third party libraries
+add_subdirectory(ext)
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -65,24 +75,6 @@ set(subdir_list
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
 endforeach()
-
-### PROJECT AND SOURCE STRUCTURE ##############################################
-
-# NOTE this is very useful for Visual Studio
-# Organize projects into folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-##FLAGS AND DEFINITIONS###
-
-add_definitions(-DPROJECT_VERSION=\"${PROJECT_VERSION}\")
-
-##BUILDING AND INSTALLING #############################################################
-
-# Put everything that is generated into the binary dir
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_BINARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ###STATIC LIBRARIES#####################################
 
@@ -112,15 +104,16 @@ endif()
 if(MSVC)
     # A dependency is linking to the non debug version. This causes an annoying 
     # warning in Visual Studio debug builds.    
-    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE )
+    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt")
     endif()
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
+
 # Link libraries for hte ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS}
-    qcustomplot ${OPENSSL_LIBRARIES} ${OPENGL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
 
 ### UNIT TESTS ################################################################
 

@@ -9,6 +9,7 @@
 #include "math/Common.h"
 #include "model/GeneSelectionDEAItemModel.h"
 #include "qcustomplot.h"
+
 #include "ui_ddaWidget.h"
 
 static const QColor BORDER = QColor(238, 122, 0);
