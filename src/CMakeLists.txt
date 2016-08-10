@@ -345,8 +345,8 @@ if(WIN32)
 
     deploy_qt_plugins()
 
-    # Qt 5.7 ICU is 56
-    windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
+    # Qt 5.7 does not include ICU libraries
+    # windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
 
     # Install resources
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -358,6 +358,15 @@ if(WIN32)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
+	# Install shared libraries
+	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(WIN_FOLDER win64)
+	else()
+		set(WIN_FOLDER win)
+	endif()
+	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/libeay32.dll DESTINATION .)
+	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/ssleay32.dll DESTINATION .)
+	install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION .)
 
 endif(WIN32)
 

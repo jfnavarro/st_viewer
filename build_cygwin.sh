@@ -105,7 +105,7 @@ fi
 
 # Paths to qcustomplot, openssl and the config file (public key is optional)
 qcustomplot='/cygdrive/C/QCustomPlot'
-ssl='/cygdrive/C/openssl'
+ssl=
 config=$stclient_srcdir_windows\\assets\\stviewer.conf
 publickey=
 
