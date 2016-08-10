@@ -171,3 +171,6 @@ v0.6.1
 v0.6.2
 	* Removed plotting library/functionalities
 
+v0.6.3
+	* Added back plotting functionalities
+	* Fixed the building and packing for all the platforms
