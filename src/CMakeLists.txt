@@ -138,14 +138,14 @@ set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 include(InstallRequiredSystemLibraries)
 
 # Qt plug-ins needed
-set(QT_PLUGIN_CATEGORIES accessible imageformats printsupport platforms)
-set(PLUGINS_IN_CATEGORY_accessible)
+set(QT_PLUGIN_CATEGORIES imageformats printsupport platforms)
 set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
 set(PLUGINS_IN_CATEGORY_printsupport)
 set(PLUGINS_IN_CATEGORY_platforms)
 
 if(WIN32)
     list(APPEND PLUGINS_IN_CATEGORY_printsupport windowsprintersupport)
+	list(APPEND PLUGINS_IN_CATEGORY_platforms qwindows)
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -281,10 +281,6 @@ if(WIN32)
                            ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
     endforeach()
 
-    # Create folder for the deployment
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/platforms)
-
     set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
     #set(CPACK_NSIS_MODIFY_PATH "ON")
     set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
@@ -319,9 +315,11 @@ if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E make_directory
                        ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E make_directory
-                       ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins)
+	foreach(PLUGIN_CATEGORY ${QT_PLUGIN_CATEGORIES})
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+						   COMMAND ${CMAKE_COMMAND} -E make_directory
+						   ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${PLUGIN_CATEGORY})
+	endforeach()
 
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
 
@@ -343,6 +341,7 @@ if(WIN32)
         set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
     endif()
 
+	# Deploy the qt plugins in the expected location 
     deploy_qt_plugins()
 
     # Qt 5.7 does not include ICU libraries

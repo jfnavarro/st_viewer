@@ -93,7 +93,7 @@ macro(DEPLOY_QT_PLUGINS)
             if(WIN32)
                 windows_deploy_library(${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}
                 ${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                plugins/${PLUGIN_CATEGORY})
+                ${PLUGIN_CATEGORY})
             endif()
             if(NOT WIN32 AND NOT APPLE)
                 install(FILES ${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
