@@ -43,8 +43,8 @@ a31 a32 (offset factors for x and y)
 
 The scaling factors would be 
 
-scale_x = width_image / (33 - 1) 
-scale_y = height_image / (35 - 1)
+scale_x = width_image / (32 - 1) 
+scale_y = height_image / (34 - 1)
 
 Where 33 and 35 are the dimensions of the chip.
 
@@ -85,12 +85,16 @@ libraries that are used in this software.
 ## Contact
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
+## Binaries
+You can find and the download the latest binaries/installers for Windows, Linux and OSX
+in the section "Releases".
+
 ## Building
 
 ###### OSX
 * Download and install Qt open source from : http://qt-project.org/downloads
 
-* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
 
 * Issue the following to install the necessary dependencies:
   E.x (Assuming MacPorts is installed, alternatively you can build them from the source or use another package manager)
@@ -153,7 +157,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 
 * Download and install Qt open source from : http://qt-project.org/downloads
 
-* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
@@ -169,7 +173,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
         
 * To execute type :
       
-        /path/to/bin/STViewer.sh
+        /path/to/bin/STViewer
   
 * Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
   
@@ -182,7 +186,7 @@ We use Cygwin but there are probably easier ways to do it.
 
 * Download and install Qt open source from : http://qt-project.org/downloads
 
-* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH 
+* Download and extract QCustomplot sources from http://qcustomplot.com/ 
 
 * Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
 
@@ -202,10 +206,10 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
 * Install OpenSSL
 
-* Build from the source (Currently Qt does not support Visual Studio 2015)
+* Build from the source
 
     - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
-    Make sure the script is configured to the paths of your Visual Studio, Qt and QCustompllot and that the architecture 
+    Make sure the script is configured to the paths of your Visual Studio, Qt and QCustomplot and that the architecture 
     is set to the one in your system (32 or 64) as well as the CMake variables (listed above)
 
     - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
@@ -217,11 +221,11 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
         Then in a Cygwin terminal, for a production build type:
         
             git clone st_client_repo ~/st_client
-            ~/st_client/build_cygwin.sh ~/st_client stclient_production_build st_bin
+            ~/st_client/build_cygwin.sh ~/st_client production_build st_bin
 
         or for a development build type:
 
-            ~/st_client/build_cygwin.sh  ~/st_client  stclient_development_build  st_bin
+            ~/st_client/build_cygwin.sh  ~/st_client  development_build  st_bin
 
         At the end of the build script, the paths to the executable and to the package
         file are printed to the terminal so you can either execute the ST Viewer or install it from
