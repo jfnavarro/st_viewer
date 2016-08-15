@@ -122,7 +122,7 @@ add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 # PACKAGING OPTIONS: GENERAL
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
@@ -134,7 +134,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 
 # Add systems libraries
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
 include(InstallRequiredSystemLibraries)
 
 # Qt plug-ins needed
@@ -155,15 +155,9 @@ endif()
 
 if(UNIX AND NOT APPLE)
 
-    # Use, i.e. don't skip the full RPATH for the build tree
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-    # When building, don't use the install RPATH already
-    # (but later on when installing)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    set(CMAKE_INSTALL_RPATH lib)
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    # To make the binary link to the libraries in the lib folder
+    SET_TARGET_PROPERTIES(${PROJECT_NAME}
+        PROPERTIES INSTALL_RPATH "$ORIGIN/lib:$ORIGIN/:$ORIGIN/plugins")
 
     # Select TGZ as the packager on Linux
     set(CPACK_GENERATOR "TGZ")
@@ -198,10 +192,11 @@ if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/STViewer.sh DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
     install(FILES ${PUBLICKEY} DESTINATION .)
-    install(TARGETS ${PROJECT_NAME} qcustomplot DESTINATION .
+    install(TARGETS ${PROJECT_NAME} DESTINATION .
             RUNTIME DESTINATION .
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION .)
+    install(TARGETS qcustomplot LIBRARY DESTINATION lib)
 
 endif()
 

@@ -31,6 +31,29 @@ If you want to load a dataset you can go to the "Datasets view" and click in the
 and the alignment matrix. After that you can just double click in the dataset to open it. 
 (more detailed information about this in the manual).
 
+Note that to view a dataset in the ST Viewer you need an alignment matrix (3x3) in form
+of a file with 9 tab delimited elements : 
+
+a11 a21 a31 a21 a22 a23 a31 a32 a33
+
+If your HE image is cropped to the array boundaries it is very easy to figure out the values that you need :
+
+a11 a22 (scaling factors for x and y) 
+a31 a32 (offset factors for x and y)
+
+The scaling factors would be 
+
+scale_x = width_image / (33 - 1) 
+scale_y = height_image / (35 - 1)
+
+Where 33 and 35 are the dimensions of the chip.
+
+The offset factors would be 
+
+offset_x = 1
+offset_y = 1
+a33 = 1
+
 Alternatively, the ST viewer can access datasets stored in a database trough the ST API https://github.com/SpatialTranscriptomicsResearch/st_api
 For that you must have the database server and the RESFull API server up and running
 and properly configured and also update the configuration file of the ST Viwer (stviewer.conf)
@@ -116,9 +139,9 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 
         make -j8 
     
-* Run the application typing
+* Run the application typing clicking in the app icon that can be found in
 
-        /path/to/build/STViewer.app/Contents/STViewer
+        /path/to/build/
         
 * Alternatively for MAC you can build a stand alone DMG bundle that you can install and/or distribute
 
@@ -146,7 +169,7 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
         
 * To execute type :
       
-        /path/to/bin/STViewer
+        /path/to/bin/STViewer.sh
   
 * Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
   
