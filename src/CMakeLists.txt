@@ -191,7 +191,9 @@ if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/STViewer.sh DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
-    install(FILES ${PUBLICKEY} DESTINATION .)
+    if(${PUBLICKEY})
+        install(FILES ${PUBLICKEY} DESTINATION .)
+    endif()
     install(TARGETS ${PROJECT_NAME} DESTINATION .
             RUNTIME DESTINATION .
             LIBRARY DESTINATION lib
@@ -231,14 +233,15 @@ if(APPLE)
     find_program(MACDEPLOYQT NAMES macdeployqt macdeployqt-mac PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
 
     # Resources
-    add_custom_command (TARGET ${PROJECT_NAME}
+    add_custom_command(TARGET ${PROJECT_NAME}
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
-        )
+        COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
+    if(${PUBLICKEY})
+        add_custom_command(TARGET ${PROJECT_NAME} COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/)
+    endif()
+    add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
 
     # Build dmg
     add_custom_target(dmg
@@ -348,7 +351,9 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/)
     install(TARGETS ${PROJECT_NAME} DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
-    install(FILES ${PUBLICKEY} DESTINATION .)
+    if(${PUBLICKEY})
+        install(FILES ${PUBLICKEY} DESTINATION .)
+    endif()
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
