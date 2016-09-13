@@ -2,119 +2,108 @@
 
 "ADD TRAVIS BUILD STATUS HERE"
 
-The ST viewer is a tool to visualize spatially resolved gene
-expression data on top of cell tissue figures with the correct
-location.
+The ST viewer is a tool to visualize spatially resolved gene expression data on
+top of cell tissue figures with the correct location.
 
-The ST Viewer is cross platform which means that it can
-be built and run in MAC, UNIX and WINDOWS PCs. 
-The ST viewer allows to interact with the data in real time.
-Users can see where specific genes are expressed and how
-expressed they are. It has different threshold options
-and many visualization options. It also allows
-to select areas of the tissue to obtain gene patterns
-to later do DEA or cell classification. 
+The ST Viewer is cross platform which means that it can be built and run in MAC,
+UNIX and WINDOWS PCs.  The ST viewer allows the user to interact with the data
+in real time.  Users can see where specific genes are expressed in the sample
+and the level of gene expression.  It has different threshold options and many
+visualization options.  It also allows the user to select areas of the tissue to
+obtain gene patterns to later do DEA or cell classification. 
 
-The ST viewer uses the data generated with the ST Pipeline https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
-a tissue HE image and an alignment matrix (to convert
-array coordinates to image pixel coordinates in case the coordinates
-in input data are not converted already).
+The ST viewer uses the data generated with the ST Pipeline
+(https://github.com/SpatialTranscriptomicsResearch/st_pipeline).  These are a
+tissue HE image and an alignment matrix (which converts array coordinates to
+image pixel coordinates in case the coordinates in input data are not converted
+already).
 
-Currently the ST Viewer works with the deprecated JSON format for the ST data.
-The ST Pipeline generates the data in form of a matrix of counts and the next
-release of the ST Viewer will work with this format. If you want to convert
-the matrix of counts to a JSON file you can use the script matrix_to_json.py in
-the ST Analysis package https://github.com/SpatialTranscriptomicsResearch/st_analysis
+Currently the ST Viewer works with JSON format for the ST data.  The ST Pipeline
+generates the data in form of a matrix of counts and the next release of the ST
+Viewer will work with this format. If you want to convert the matrix of counts
+to a JSON file you can use the script matrix_to_json.py in the ST Analysis
+package https://github.com/SpatialTranscriptomicsResearch/st_analysis
 
-If you want to load a dataset you can go to the "Datasets view" and click in the button
-"Import dataset" then a dialog form will be shown where you can load the ST data, the image/s
-and the alignment matrix. After that you can just double click in the dataset to open it. 
-(more detailed information about this in the manual).
+If you want to load a dataset you can go to the "Datasets view" and click in the
+button "Import dataset" then a dialog form will be shown where you can load the
+ST data, the images and the alignment matrix. After that you can just double
+click in the dataset to open it.  (more detailed information about this in the
+manual).
 
-Note that to view a dataset in the ST Viewer you need an alignment matrix (3x3) in form
-of a file with 9 tab delimited elements : 
+Note that to view a dataset in the ST Viewer you need an alignment matrix (3x3)
+in form of a file with 9 tab delimited elements : 
 
 a11 a21 a31 a21 a22 a23 a31 a32 a33
 
-If your HE image is cropped to the array boundaries it is very easy to figure out the values that you need :
+If your HE image is cropped to the array boundaries it is very easy to figure
+out the values that you need :
 
-a11 a22 (scaling factors for x and y) 
-a31 a32 (offset factors for x and y)
+a11 a22 (scaling factors for x and y) a31 a32 (offset factors for x and y)
 
 The scaling factors would be 
 
-scale_x = width_image / (32 - 1) 
-scale_y = height_image / (34 - 1)
+scale_x = width_image / (32 - 1) scale_y = height_image / (34 - 1)
 
 Where 33 and 35 are the dimensions of the chip.
 
 The offset factors would be 
 
-offset_x = 1
-offset_y = 1
-a33 = 1
+offset_x = 1 offset_y = 1 a33 = 1
 
-Alternatively, the ST viewer can access datasets stored in a database trough the ST API https://github.com/SpatialTranscriptomicsResearch/st_api
-For that you must have the database server and the RESFull API server up and running
-and properly configured and also update the configuration file of the ST Viwer (stviewer.conf)
-to the correct network settings. In this case the ST Viewer will require you to log in
-with your user credentials and the datasets that you have access to will automatically
-be downloaded in the "Datasets view".
-(More information about this will be added to the manual soon).
+Alternatively, the ST viewer can access datasets stored in a database through
+the ST API (https://github.com/SpatialTranscriptomicsResearch/st_api). To do
+this, you must have the database server and the RESFull API server up and
+running and properly configured. The configuration file of the ST Viwer
+(stviewer.conf) needs to be updated to the correct network settings. In this
+case the ST Viewer will require you to log in with your user credentials and the
+datasets that you have access to will automatically be downloaded in the
+"Datasets view".  (More information about this will be added to the manual
+soon).
 
-You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
-if you want to try the ST Viewer.
+You can use our public datasets hosted in
+http://www.spatialtranscriptomicsresearch.org/ if you want to try the ST Viewer.
 
-## Authors
-Read AUTHORS file
+## Authors Read AUTHORS file
 
-## Dependencies
-Read DEPENDENCIES file
+## Dependencies Read DEPENDENCIES file
 
-## Manual
-See MANUAL in the document manual_old.pdf for more information
-on how to use the ST Viewer.
-Currently the manual is a bit outdated and a new updated
-manual is being created but many of the main options
-remain the same. 
+## Manual See MANUAL in the document manual_old.pdf for more information on how
+to use the ST Viewer.  Currently the manual is a bit outdated and a new updated
+manual is being created but many of the main options remain the same. 
 
-## License
-See LICENSE for the license terms and DEPENDENCIES for the 3rd party
+## License See LICENSE for the license terms and DEPENDENCIES for the 3rd party
 libraries that are used in this software.
 
-## Contact
-For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+## Contact For any question/bugs/feedback you can contact Jose Fernandez Navarro
+<jose.fernandez.navarro@scilifelab.se>
 
-## Binaries
-You can find and the download the latest binaries/installers for Windows, Linux and OSX
-in the section "Releases".
+## Binaries You can find and the download the latest binaries/installers for
+Windows, Linux and OSX in the section "Releases".
 
 ## Building
 
 ###### OSX
 * Download and install Qt open source from : http://qt-project.org/downloads
 
-* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber
+* to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
 
 * Issue the following to install the necessary dependencies:
-  E.x (Assuming MacPorts is installed, alternatively you can build them from the source or use another package manager)
+  E.x (Assuming MacPorts is installed, alternatively you can build them from the
+source or use another package manager)
         
-        sudo port install xcode cmake git
+	sudo port install xcode cmake git
 
     NOTE : Make sure the XCode Command Line Tools are installed
 * Clone the repository to a specific folder and build the application
 
-        git clone st_viewer_repo /path/to/source
-        mkdir /path/to/build
-        cd /path/to/build
-        cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
-          [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
-          [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
-          [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
-          [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
-          [-DPUBLICKEY="path_to_ssl_key"] \
-          [-DCONFIG_FILE=”path_to_networl_config_file”]
-          /path/to/source
+	git clone st_viewer_repo /path/to/source mkdir /path/to/build cd
+/path/to/build cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
+[-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
+[-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
+[-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
+[-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \ [-DPUBLICKEY="path_to_ssl_key"] \
+[-DCONFIG_FILE=”path_to_networl_config_file”] /path/to/source
 
     Where : 
 
@@ -122,34 +111,39 @@ in the section "Releases".
 
     DCMAKE_BUILD_TYPE = indicates the type of building (Release by default)
 
-    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    binaries of Qt5 or the source of QCustomplot.
+    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for
+example the binaries of Qt5 or the source of QCustomplot.  e.g	If you installed
+Qt in $HOME then the binaries are located in $HOME/[version
+number]/clang_64/lib/cmake
 
-    DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
-    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/
+    DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used
+(Only OSX users) eg:
+Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
-    eg: 10.7 , 10.8 or 10.9
+    DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only
+OSX users) eg: 10.7 , 10.8 or 10.9. This can be older than the version of the OS
+that you are using.
     
-    DPUBLIC_KEY = In case we want the ST Viewer to access datasets in a database we must
-    give a public key if the API implements HTTPS (this is optional) 
+    DPUBLIC_KEY = In case we want the ST Viewer to access datasets in a database
+we must give a public key if the API implements HTTPS (this is optional) 
     
-    DCONFIG_FILE = In case we want the ST Viewer to access datasets in a database we must
-    give a configuration file with the endpoints and the OAuth access settings.
-    The STViewer will load this file in running time after it is installed so you can
-    also edit the file after installation (this is optional)
+    DCONFIG_FILE = In case we want the ST Viewer to access datasets in a
+database we must give a configuration file with the endpoints and the OAuth
+access settings.  The STViewer will load this file in running time after it is
+installed so you can also edit the file after installation (this is optional)
 
 *   Build the application
 
-        make -j8 
+	make -j8 
     
 * Run the application typing clicking in the app icon that can be found in
 
-        /path/to/build/
+	/path/to/build/
         
-* Alternatively for MAC you can build a stand alone DMG bundle that you can install and/or distribute
+* Alternatively for MAC you can build a stand alone DMG bundle that you can
+* install and/or distribute
 
-        make dmg
+	make dmg
         
     Then you can use the bundle to install the ST Viewer as an application
 
@@ -157,50 +151,51 @@ in the section "Releases".
 
 * Download and install Qt open source from : http://qt-project.org/downloads
 
-* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
+* Download and extract QCustomplot sources from http://qcustomplot.com/ (Remeber
+* to tell CMake where QCustomplot is using CMAKE_PREFIX_PATH)
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
-        sudo apt-get install cmake git ubuntu-dev-tools
-        sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+	sudo apt-get install cmake git ubuntu-dev-tools sudo apt-get install
+libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
 * Perform the 4th step of the OSX guideline (clone the repo and invoke CMake)
 
 * Then type the following to build and install
 
-        make -j8
-        make install
+	make -j8 make install
         
 * To execute type :
       
-        /path/to/bin/STViewer
+	/path/to/bin/STViewer
   
-* Alternatively for Linux you can build a stand alone tar package that you can install and/or distribute
+* Alternatively for Linux you can build a stand alone tar package that you can
+* install and/or distribute
   
-        make package
+	make package
 
 ###### Windows
 
-There are different ways to build the ST Viewer in Windows.
-We use Cygwin but there are probably easier ways to do it. 
+There are different ways to build the ST Viewer in Windows.  We use Cygwin but
+there are probably easier ways to do it. 
 
 * Download and install Qt open source from : http://qt-project.org/downloads
 
 * Download and extract QCustomplot sources from http://qcustomplot.com/ 
 
-* Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
+* Install Cygwin, by downloading and executing
+* http://cygwin.com/setup-x86_64.exe
 
     During the installation, select these additional packages:
 
-    * git (category: Devel)
-    * wget (category: Web)
-    * openssh (category: Net)
+    * git (category: Devel) wget (category: Web) openssh (category: Net)
 
 * The CMake included in Cygwin unfortunately doesn’t include
-the generator for Nmake (-G "NMake Makefiles" ) so you need to
-install CMake for windows : http://www.cmake.org/cmake/resources/software.html
+the generator for Nmake (-G "NMake Makefiles" ) so you need to install CMake for
+windows : http://www.cmake.org/cmake/resources/software.html
 
-* Install Microsoft Visual Studio (make sure you install the C++ compilers) : http://www.microsoft.com/visualstudio/eng/visual-studio-2013
+* Install Microsoft Visual Studio (make sure you install the C++ compilers) :
+* http://www.microsoft.com/visualstudio/eng/visual-studio-2013
 
 * Install NSI installers in Windows : http://nsis.sourceforge.net/Download
 
@@ -208,27 +203,30 @@ install CMake for windows : http://www.cmake.org/cmake/resources/software.html
 
 * Build from the source
 
-    - You can use the Cygwin based script called build_cygwin.sh to build it from the Cygwin terminal.
-    Make sure the script is configured to the paths of your Visual Studio, Qt and QCustomplot and that the architecture 
-    is set to the one in your system (32 or 64) as well as the CMake variables (listed above)
+    - You can use the Cygwin based script called build_cygwin.sh to build it
+      from the Cygwin terminal.  Make sure the script is configured to the paths
+of your Visual Studio, Qt and QCustomplot and that the architecture is set to
+the one in your system (32 or 64) as well as the CMake variables (listed above)
 
-    - Make a directory for the script to copy the build artifacts to. For example ‘st_bin’.
+    - Make a directory for the script to copy the build artifacts to. For
+      example ‘st_bin’.
 
-            mkdir st_bin
+	    mkdir st_bin
 
-        (When the build has completed this directory will contain the application and it’s installer).
+	(When the build has completed this directory will contain the
+application and its installer).
         
-        Then in a Cygwin terminal, for a production build type:
+	Then in a Cygwin terminal, for a production build type:
         
-            git clone st_client_repo ~/st_client
-            ~/st_client/build_cygwin.sh ~/st_client production_build st_bin
+	    git clone st_client_repo ~/st_client ~/st_client/build_cygwin.sh
+~/st_client production_build st_bin
 
-        or for a development build type:
+	or for a development build type:
 
-            ~/st_client/build_cygwin.sh  ~/st_client  development_build  st_bin
+	    ~/st_client/build_cygwin.sh  ~/st_client  development_build  st_bin
 
-        At the end of the build script, the paths to the executable and to the package
-        file are printed to the terminal so you can either execute the ST Viewer or install it from
-        the installer which can be distributed as well.
+	At the end of the build script, the paths to the executable and to the
+package file are printed to the terminal so you can either execute the ST Viewer
+or install it from the installer which can be distributed as well.
     
 
