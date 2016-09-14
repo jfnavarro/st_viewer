@@ -89,14 +89,26 @@ Each dataset is associated with a substantial amount of data, which will be acce
 
 
 When a dataset is loaded, the gene list will populate with the list of all genes that are associated with the current dataset, and the visual canvas will display the image of the tissue section (see figure \ref{fig:default_loaded_data}). 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=0.9\linewidth]{./Pictures/default_dataset_loaded}
 	\caption[Default view after loading a dataset]{The default view after loading a dataset. The gene list is populated by all the genes in the data, and an image of the tissue section is presented on the visual canvas.}
 	\label{fig:default_loaded_data}
 \end{figure}
 
-\begin{figure}
+The gene list is headed by five buttons and a text box. The buttons are, in order:
+\begin{enumerate}
+\item	Show selected
+\item	Hide selected
+\item	Select all
+\item	Deselect all
+\item	Set colour
+\item	Search box
+\end{enumerate}
+
+The text box enables you to search the list of genes for genes that are of interest. Shown genes are marked with a checkmark in the box to the left of the gene name / ensemble ID. Selected genes have their names highlighted in orange instead of green, and have a darker grey background. Note that shown genes and selected genes may differ (as seen in figure \ref{fig:gene_list}). The gene list is also able to be sorted by gene name and cut-off value.
+
+\begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.7]{./Pictures/gene_list}
 	\caption[Gene List]{Gene list}
