@@ -1,6 +1,6 @@
 macro(INITIALISE_PROJECT)
 
-    set(CMAKE_VERBOSE_MAKEFILE OFF)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
     # Required packages

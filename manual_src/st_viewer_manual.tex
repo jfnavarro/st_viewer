@@ -1,0 +1,106 @@
+\documentclass[10pt,a4paper,titlepage]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage{enumitem}
+\setlist{noitemsep}
+
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE Spatial Transcriptomics Viewer v0.6.3 User Manual\par}
+	\vspace{1cm}
+	{\Large Jose Fernandez Navarro\\ Alexander Stuckey\par}
+	\vspace{1cm}
+	{\today\par}
+	\vspace{1cm}
+	\href{mailto:alexander.stuckey@scilifelab.se}{alexander.stuckey@scilifelab.se}
+
+\end{titlepage}
+
+\pagenumbering{Roman}
+
+\subsection*{Preface}
+The Spatial Transcriptomics viewer (ST viewer) is a desktop application that allows users to securely access and visualize spatially distributed gene expression profile data with their respective tissue image. At the same time it allows users to analyze the data directly, or export it for their own analyses. The application can obtain the data from a secured server (configuration files will need to be updated for this) and/or from local files.
+
+
+For installation instructions, please see the README.md file. This file describes the install instructions on Windows, OSX and Linux.
+
+%\raggedbottom
+
+%\clearpage
+\tableofcontents
+\raggedbottom
+\clearpage
+\listoffigures
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+\section{User Interface}
+ When running the spatial transcriptomics viewer for the first time, you will be presented with an interface as shown in figure \ref{fig:default_view}. If the viewer has been configured to access datasets through the ST API then the login window will be shown, otherwise it will not be shown.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{./Pictures/default_logged_out_labelled}
+	\caption[The spatial transcriptomics viewer default interface]{The default interface presented when the ST viewer is run for the first time. The elements present are the gene list window on the left, the toolbar in the top right, the visual canvas on the right, and optionally the log in window (if the viewer is configured to access datasets through the ST API).}
+	\label{fig:default_view}
+
+\end{figure}
+
+Once you have logged in (if applicable), your user name will be displayed in the toolbar, as shown in figure \ref{fig:user_name}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{./Pictures/logged_in}
+	\caption{Toolbar showing username after logging in.}
+	\label{fig:user_name}
+\end{figure}
+
+There are two other main windows in the ST viewer, datasets and selections. They can both be accessed from the views menu by clicking views $\rightarrow$ datasets and views $\rightarrow$ selections.
+The datasets window shows all the datasets that you have access to. There is a search box that can be used to find a keyword in the dataset names to narrow down the list of datasets (see figure \ref{fig:datasets_view}). There are five buttons to the right of the dataset search box (labelled 1 --- 5). They are:
+\begin{enumerate}
+\item Import dataset from file (local file on your computer)
+\item Open selected dataset (for datasets stored in the database)
+\item Edit selected dataset (change name, add comments)
+\item Delete selected dataset
+\item Refresh list of datasets
+\end{enumerate}
+
+The datasets displayed in the dataset view can also be sorted by each column (e.g. name or species).
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{./Pictures/datasets}
+	\caption[Datasets view.]{Datasets view. The search box is being used to display only the datasets that contain the word "test" in their name.}
+	\label{fig:datasets_view}
+\end{figure}
+
+The selection view will be discussed further in {\LARGE a following chapter}.
+
+
+{ \textbf Note:} 
+Each dataset is associated with a substantial amount of data, which will be accessed after a dataset has been selected and opened. As such the transition between the views might require a few moments. It is worth noting that the data is cached, which implies that once it is downloaded, the next time the same dataset will open much quicker. This does not apply if the dataset is updated in the cloud in the meantime.
+
+
+When a dataset is loaded, the gene list will populate with the list of all genes that are associated with the current dataset, and the visual canvas will display the image of the tissue section (see figure \ref{fig:default_loaded_data}). 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{./Pictures/default_dataset_loaded}
+	\caption[Default view after loading a dataset]{The default view after loading a dataset. The gene list is populated by all the genes in the data, and an image of the tissue section is presented on the visual canvas.}
+	\label{fig:default_loaded_data}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.7]{./Pictures/gene_list}
+	\caption[Gene List]{Gene list}
+	\label{fig:gene_list}
+\end{figure}
+
+\end{document}

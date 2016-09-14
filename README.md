@@ -97,8 +97,10 @@ source or use another package manager)
     NOTE : Make sure the XCode Command Line Tools are installed
 * Clone the repository to a specific folder and build the application
 
-	git clone st_viewer_repo /path/to/source mkdir /path/to/build cd
-/path/to/build cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
+	git clone st_viewer_repo /path/to/source 
+    mkdir /path/to/build 
+    cd /path/to/build 
+cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
 [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
 [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
 [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
