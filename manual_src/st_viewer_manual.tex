@@ -106,13 +106,59 @@ The gene list is headed by five buttons and a text box. The buttons are, in orde
 \item	Search box
 \end{enumerate}
 
-The text box enables you to search the list of genes for genes that are of interest. Shown genes are marked with a checkmark in the box to the left of the gene name / ensemble ID. Selected genes have their names highlighted in orange instead of green, and have a darker grey background. Note that shown genes and selected genes may differ (as seen in figure \ref{fig:gene_list}). The gene list is also able to be sorted by gene name and cut-off value.
+The text box enables you to search the list of genes for genes that are of interest. Shown genes are marked with a checkmark in the box to the left of the gene name / ensemble ID. Selected genes have their names highlighted in orange instead of green, and have a darker grey background. Note that shown genes and selected genes may differ (as seen in figure \ref{fig:gene_list}). The colour column allows you to choose custom colours for single genes or groups of genes, in order to increase visual clarity. The gene list can also be sorted by gene name and cut-off value.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.7]{./Pictures/gene_list}
-	\caption[Gene List]{Gene list}
+	\caption[Gene List]{Gene list for the current dataset, sorted by cut-off value.}
 	\label{fig:gene_list}
+\end{figure}
+
+When a dataset is loaded into the viewer the buttons above the visual canvas become active (figure \ref{fig:toolbar_data_loaded}). The buttons on the toolbar are:
+\begin{enumerate}
+\item	Zoom in
+\item	Zoom out
+\item	Feature distribution histograms
+\item	Selection mode toggle
+\item	Create selection object
+\item	Feature selection by regular expression
+\item	Save a picture of the visual canvas
+\item	Print a picture of the visual canvas
+\item	Gene display configuration
+\item	Visual canvas options
+\item	Logout button
+\end{enumerate}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{./Pictures/toolbar_data_loaded}
+	\caption{The toolbar when a dataset is loaded.}
+	\label{fig:toolbar_data_loaded}
+\end{figure}
+
+The gene display configuration is shown in figure \ref{fig:gene_display_config}. From top to bottom, the options are:\\
+\textbf{Show Grid} toggles the display of the original array and its border simplified to $5*5$ features per square.\\
+\textbf{Show Genes} toggles the display of the currently selected genes.\\
+\textbf{Choose Colour Grid} opens a menu to change the colour of the displayed array grid.\\
+
+
+\textbf{\textit{Gene Display Modes}}\\
+
+
+In \textbf{Normal Mode} the selected genes in each feature are treated independently. When multiple genes are selected, the final colour of the feature will be a mix of the different colours of the selected genes. In normal mode, the threshold setting treats the genes in each feature separately. Therefore, the threshold can hide some of the selected genes in a feature, or even all the genes in a feature. In all cases, the final colour of the feature will be adjusted accordingly.
+
+In \textbf{Dynamic Range Mode} the selected genes in a feature are all treated as one unit (as opposed to normal mode). This means that each feature is treated as a single unit where the level of expression is determined by the combination of all the genes selected in the feature. The final expression is normalised and the alpha channel (the brightness) of the feature is adjusted according  to the normalised final expression of the feature. This way, users can get an idea of the total expression level of a feature compared to all other features. The colour of each feature will be computed in the same way as in the normal mode (it combines the colours of the genes in each feature).
+The threshold in dynamic mode affects features as a whole, instead of gene-by-gene as in normal mode. When the threshold is changed the intensity for all the features is re-calculated, as the normalisation factor might have changed.
+
+\textbf{Heatmap Mode} treats genes in a feature in the same manner as the dynamic range mode. Instead of adjusting the brightness of the colour, a new colour is computed for the feature representing the overall level of expression. The low frequencies are blue and represent a low hit count, while the high frequencies are red and represent a high hit count. The heatmap spectrum and threshold levels can be seen on the legend, when the legend is enabled.
+The threshold works the same way as in dynamic range mode, when the threshold is changed the colour range and colour of features will be recalculated.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{./Pictures/menu_1}
+	\caption{Gene display configuration}
+	\label{fig:gene_display_config}
 \end{figure}
 
 \end{document}
