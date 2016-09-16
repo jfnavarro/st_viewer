@@ -8,6 +8,8 @@
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{times}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{parskip}
 \usepackage{enumitem}
 \setlist{noitemsep}
@@ -19,11 +21,9 @@
 	\centering
 	{\scshape\LARGE Spatial Transcriptomics Viewer v0.6.3 User Manual\par}
 	\vspace{1cm}
-	{\Large Jose Fernandez Navarro\\ Alexander Stuckey\par}
+	{\Large Jose Fernandez Navarro\par}
 	\vspace{1cm}
 	{\today\par}
-	\vspace{1cm}
-	\href{mailto:alexander.stuckey@scilifelab.se}{alexander.stuckey@scilifelab.se}
 
 \end{titlepage}
 
@@ -35,6 +35,18 @@ The Spatial Transcriptomics viewer (ST viewer) is a desktop application that all
 
 For installation instructions, please see the README.md file. This file describes the install instructions on Windows, OSX and Linux.
 
+{\textbf{Licensing}}
+
+This is open source software under the MIT license.
+Read LICENSE for more information about the licensing terms.
+
+{\textbf{Contact}}
+
+Please report bugs, feedback, questions and errors to:\\
+Jose Fernandez Navarro (\href{mailto:jose.fernandez.navarro@scilifelab.se}{jose.fernandez.navarro@scilifelab.se}) or\\
+Alexander Stuckey (\href{mailto:alexander.stuckey@scilifelab.se}{alexander.stuckey@scilifelab.se})
+
+
 %\raggedbottom
 
 %\clearpage
@@ -44,12 +56,12 @@ For installation instructions, please see the README.md file. This file describe
 \listoffigures
 \pagenumbering{arabic}
 
-\chapter{Introduction}
+\chapter{General Overview}
 \section{User Interface}
  When running the spatial transcriptomics viewer for the first time, you will be presented with an interface as shown in figure \ref{fig:default_view}. If the viewer has been configured to access datasets through the ST API then the login window will be shown, otherwise it will not be shown.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{./Pictures/default_logged_out_labelled}
+	\includegraphics[width=0.8\linewidth]{./Pictures/default_logged_out_labelled}
 	\caption[The spatial transcriptomics viewer default interface]{The default interface presented when the ST viewer is run for the first time. The elements present are the gene list window on the left, the toolbar in the top right, the visual canvas on the right, and optionally the log in window (if the viewer is configured to access datasets through the ST API).}
 	\label{fig:default_view}
 
@@ -58,7 +70,7 @@ For installation instructions, please see the README.md file. This file describe
 Once you have logged in (if applicable), your user name will be displayed in the toolbar, as shown in figure \ref{fig:user_name}.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{./Pictures/logged_in}
+	\includegraphics[width=0.8\linewidth]{./Pictures/logged_in}
 	\caption{Toolbar showing username after logging in.}
 	\label{fig:user_name}
 \end{figure}
@@ -76,12 +88,12 @@ The datasets window shows all the datasets that you have access to. There is a s
 The datasets displayed in the dataset view can also be sorted by each column (e.g. name or species).
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{./Pictures/datasets}
+	\includegraphics[width=0.8\linewidth]{./Pictures/datasets}
 	\caption[Datasets view.]{Datasets view. The search box is being used to display only the datasets that contain the word "test" in their name.}
 	\label{fig:datasets_view}
 \end{figure}
 
-The selection view will be discussed further in {\LARGE a following chapter}.
+The selection view will be discussed further in chapter \ref{ch:selection}.
 
 
 { \textbf Note:} 
@@ -91,7 +103,7 @@ Each dataset is associated with a substantial amount of data, which will be acce
 When a dataset is loaded, the gene list will populate with the list of all genes that are associated with the current dataset, and the visual canvas will display the image of the tissue section (see figure \ref{fig:default_loaded_data}). 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{./Pictures/default_dataset_loaded}
+	\includegraphics[width=0.8\linewidth]{./Pictures/default_dataset_loaded}
 	\caption[Default view after loading a dataset]{The default view after loading a dataset. The gene list is populated by all the genes in the data, and an image of the tissue section is presented on the visual canvas.}
 	\label{fig:default_loaded_data}
 \end{figure}
@@ -132,7 +144,7 @@ When a dataset is loaded into the viewer the buttons above the visual canvas bec
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{./Pictures/toolbar_data_loaded}
+	\includegraphics[width=0.8\linewidth]{./Pictures/toolbar_data_loaded}
 	\caption{The toolbar when a dataset is loaded.}
 	\label{fig:toolbar_data_loaded}
 \end{figure}
@@ -142,17 +154,37 @@ The gene display configuration is shown in figure \ref{fig:gene_display_config}.
 \textbf{Show Genes} toggles the display of the currently selected genes.\\
 \textbf{Choose Colour Grid} opens a menu to change the colour of the displayed array grid.\\
 
+\section{Gene Display Modes}
 
-\textbf{\textit{Gene Display Modes}}\\
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/vc_normal}
+		\caption{Visual canvas in normal mode.}
+		\label{fig:vc_normal}
+	\end{subfigure}
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/vc_dynamic}
+		\caption{Visual canvas in dynamic mode.}
+		\label{fig:vc_dynamic}
+	\end{subfigure}
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/vc_heatmap}
+		\caption{Visual canvas in heatmap mode}
+		\label{fig:vc_heatmap}
+	\end{subfigure}
+	\caption[The visual canvas of the ST viewer in each map mode.]{The visual canvas of the ST viewer in the normal, dynamic and heatmap map modes. All genes are selected in these images, with all colours set to the defaults.}
+\end{figure}
 
+In \textbf{Normal Mode} (figure \ref{fig:vc_normal}) the selected genes in each feature are treated independently. When multiple genes are selected, the final colour of the feature will be a mix of the different colours of the selected genes. In normal mode, the threshold setting treats the genes in each feature separately. Therefore, the threshold can hide some of the selected genes in a feature, or even all the genes in a feature. In all cases, the final colour of the feature will be adjusted accordingly.
 
-In \textbf{Normal Mode} the selected genes in each feature are treated independently. When multiple genes are selected, the final colour of the feature will be a mix of the different colours of the selected genes. In normal mode, the threshold setting treats the genes in each feature separately. Therefore, the threshold can hide some of the selected genes in a feature, or even all the genes in a feature. In all cases, the final colour of the feature will be adjusted accordingly.
-
-In \textbf{Dynamic Range Mode} the selected genes in a feature are all treated as one unit (as opposed to normal mode). This means that each feature is treated as a single unit where the level of expression is determined by the combination of all the genes selected in the feature. The final expression is normalised and the alpha channel (the brightness) of the feature is adjusted according  to the normalised final expression of the feature. This way, users can get an idea of the total expression level of a feature compared to all other features. The colour of each feature will be computed in the same way as in the normal mode (it combines the colours of the genes in each feature).
+In \textbf{Dynamic Range Mode} (figure \ref{fig:vc_dynamic}) the selected genes in a feature are all treated as one unit (as opposed to normal mode). This means that each feature is treated as a single unit where the level of expression is determined by the combination of all the genes selected in the feature. The final expression is normalised and the alpha channel (the brightness) of the feature is adjusted according  to the normalised final expression of the feature. This way, users can get an idea of the total expression level of a feature compared to all other features. The colour of each feature will be computed in the same way as in the normal mode (it combines the colours of the genes in each feature).
 The threshold in dynamic mode affects features as a whole, instead of gene-by-gene as in normal mode. When the threshold is changed the intensity for all the features is re-calculated, as the normalisation factor might have changed.
 
-\textbf{Heatmap Mode} treats genes in a feature in the same manner as the dynamic range mode. Instead of adjusting the brightness of the colour, a new colour is computed for the feature representing the overall level of expression. The low frequencies are blue and represent a low hit count, while the high frequencies are red and represent a high hit count. The heatmap spectrum and threshold levels can be seen on the legend, when the legend is enabled.
+\textbf{Heatmap Mode} (figure \ref{fig:vc_heatmap}) treats genes in a feature in the same manner as the dynamic range mode. Instead of adjusting the brightness of the colour, a new colour is computed for the feature representing the overall level of expression. The low frequencies are blue and represent a low hit count, while the high frequencies are red and represent a high hit count. The heatmap spectrum and threshold levels can be seen on the legend, when the legend is enabled.
 The threshold works the same way as in dynamic range mode, when the threshold is changed the colour range and colour of features will be recalculated.
+
+The opacity, size and shape parameters change the display of the features on the visual map mode.
 
 \begin{figure}[h]
 	\centering
@@ -160,5 +192,84 @@ The threshold works the same way as in dynamic range mode, when the threshold is
 	\caption{Gene display configuration}
 	\label{fig:gene_display_config}
 \end{figure}
+
+\chapter{Using the Viewer}
+\label{ch:selection}
+
+\section{Selection Mode}
+Selection mode is toggled using button 4 in \ref{fig:toolbar_data_loaded}. When selection mode is enabled the user is able to select features on the canvas by clicking and dragging a box on the visual canvas (figure \ref{fig:default_selection}). The user can select disjointed areas by holding down shift while selecting an area (figure \ref{fig:double_selection}). Areas can also be removed from the selection by either shift $+$ control (Windows and Linux) or shift $+$ command on Mac (figure \ref{fig:selective_selection}).
+
+In addition to selecting via clicking and dragging on the visual canvas, users can also select genes via regular expressions (button 6 in figure \ref{fig:toolbar_data_loaded}). Regular expressions provide the user with a powerful means to select specific genes by matching the gene names against a specific string pattern. The regular expression syntax is modeled after the Perl regular expressions.
+In addition the selection dialog provides three options; to include ambiguous genes, to select non-visible genes, and to make the regular expression case sensitive.
+By default the regular expression selection excludes ambiguous genes and ignores case differences.
+
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/default_selection}
+		\caption{Visual canvas with some features selected.}
+		\label{fig:default_selection}
+	\end{subfigure}
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/double_selection}
+		\caption{Visual canvas with two disjointed regions of features selected.}
+		\label{fig:double_selection}
+	\end{subfigure}
+	\begin{subfigure}{0.3\linewidth}
+		\includegraphics[width=\linewidth]{./Pictures/selective_selection}
+		\caption{Visual canvas with two disjointed regions of features selected, with some interior features de-selected}
+		\label{fig:selective_selection}
+	\end{subfigure}
+	\caption[The visual canvas of the ST viewer showing different selection types.]{The visual canvas of the ST viewer showing the different ways of selecting features.}
+\end{figure}
+
+When the desired features are selected, the user can create a selection object by clicking button 5 in \ref{fig:toolbar_data_loaded}. The selections can then be viewed by clicking on views $\rightarrow$ selection. This brings up the selection window (figure \ref{fig:selection_menu}).
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./Pictures/selection_menu}
+	\caption{The selection window.}
+	\label{fig:selection_menu}
+\end{figure}
+
+The selection menu lists all the selections that have been made in the current sample. The textbox on the top left enables the user to narrow down the list of selections. The buttons on the right, in order, show an image of the visual canvas with the selection that was used, saves the current selection to the cloud, shows the list of genes in the selection (along with the count of genes, figure \ref{fig:selection_gene_list}), performs a differential expression analysis on the selected selections (figure ), saves the current selection to the local computer, edits the name and details of the current selection, and remove the current selection.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{./Pictures/selection_gene_list}
+	\caption{The genes in the current selection.}
+	\label{fig:selection_gene_list}
+\end{figure}
+
+\clearpage
+
+\section{Differential Expression Window}
+
+The differential expression window shows a log-log graph of counts for each gene in both selections, a list of all the genes and their counts in both selections and some statistics for the differential expression analysis. The statistics include The number of genes in both selections, the number of genes present in both selections, and the number of genes unique to each selection. Also displayed is the Pearson correlation for the differential expression. It is also possible to change the threshold for the number of reads used in the differential expression analysis. Changing the threshold changes both what is displayed on the graph, and also recomputes the Pearson correlation. The save button will save the current graph to the local computer.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./Pictures/DE_view}
+	\caption[The differential expression window.]{The differential expression window.}
+\end{figure}
+
+\chapter{Known Issues and Future Plans}
+\section{Known Issues}
+
+As the application is still in the early alpha phase it may contain functional as well as visual discrepancies and issues. Some of these are known but were out of the scope of this release.
+
+Below follows a list detailing each known issue, the afflicted platform as well as a brief description of its effect:
+
+\begin{itemize}
+\item	General
+\subitem		Speed and memory issues
+\item	Linux
+\subitem		Some GUI related artifacts
+\item	Windows
+\subitem		Some GUI related artifacts
+\end{itemize}
+
+\section{Future Plans}
 
 \end{document}
