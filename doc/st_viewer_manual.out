@@ -1,0 +1,21 @@
+\BOOKMARK [0][-]{chapter.1}{Spatial Transcriptomics Technology}{}% 1
+\BOOKMARK [1][-]{section.1.1}{What is Spatial Transcriptomics}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{What is a Spatial Transcriptomics dataset}{chapter.1}% 3
+\BOOKMARK [0][-]{chapter.2}{Installing and Running the Spatial Transcriptomics Viewer}{}% 4
+\BOOKMARK [1][-]{section.2.1}{Installing the viewer}{chapter.2}% 5
+\BOOKMARK [1][-]{section.2.2}{Running the Viewer}{chapter.2}% 6
+\BOOKMARK [0][-]{chapter.3}{General Overview}{}% 7
+\BOOKMARK [1][-]{section.3.1}{Online Database}{chapter.3}% 8
+\BOOKMARK [1][-]{section.3.2}{User Interface}{chapter.3}% 9
+\BOOKMARK [1][-]{section.3.3}{Gene Display Modes}{chapter.3}% 10
+\BOOKMARK [1][-]{section.3.4}{Importing a local dataset}{chapter.3}% 11
+\BOOKMARK [0][-]{chapter.4}{Using the Viewer}{}% 12
+\BOOKMARK [1][-]{section.4.1}{Selection Mode}{chapter.4}% 13
+\BOOKMARK [1][-]{section.4.2}{Differential Expression Window}{chapter.4}% 14
+\BOOKMARK [0][-]{chapter.5}{Known Issues and Future Plans}{}% 15
+\BOOKMARK [1][-]{section.5.1}{Known Issues}{chapter.5}% 16
+\BOOKMARK [0][-]{section*.24}{Appendices}{}% 17
+\BOOKMARK [0][-]{Appendix*.25}{Appendix A}{}% 18
+\BOOKMARK [1][-]{section*.26}{Installing in OSX}{Appendix*.25}% 19
+\BOOKMARK [1][-]{section*.27}{Installing in UNIX}{Appendix*.25}% 20
+\BOOKMARK [1][-]{section*.28}{Installing in Windows}{Appendix*.25}% 21
