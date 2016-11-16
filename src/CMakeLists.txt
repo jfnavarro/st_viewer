@@ -237,18 +237,12 @@ if(APPLE)
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
-<<<<<<< HEAD
-        COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/
-        #COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/
-        COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR}
-        )
-=======
         COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
     if(${PUBLICKEY})
         add_custom_command(TARGET ${PROJECT_NAME} COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/)
     endif()
     add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
->>>>>>> jfnavarro/master
+
 
     # Build dmg
     add_custom_target(dmg
