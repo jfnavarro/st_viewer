@@ -17,7 +17,6 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QGLFormat>
-#include <QSslSocket>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
@@ -27,7 +26,6 @@
 #include "error/ApplicationError.h"
 #include "error/ServerError.h"
 #include "dialogs/AboutDialog.h"
-#include "auth/AuthorizationManager.h"
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
@@ -70,10 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_actionAbout(nullptr)
     , m_actionClear_Cache(nullptr)
     , m_actionDatasets(nullptr)
-    , m_actionLogOut(nullptr)
     , m_actionSelections(nullptr)
     , m_dataProxy(nullptr)
-    , m_authManager(nullptr)
     , m_datasets(nullptr)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
@@ -83,9 +79,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_dataProxy = QSharedPointer<DataProxy>(new DataProxy());
     Q_ASSERT(!m_dataProxy.isNull());
-
-    m_authManager = QSharedPointer<AuthorizationManager>(new AuthorizationManager(m_dataProxy));
-    Q_ASSERT(!m_authManager.isNull());
 
     // We init the views here
     m_datasets.reset(new DatasetPage(m_dataProxy));
@@ -134,14 +127,6 @@ bool MainWindow::checkSystemRequirements() const
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL 2.x Context"),
                               tr("This system does not support OpenGL 2.x Contexts"));
-        return false;
-    }
-
-    // Fail if you do not support SSL secure connection
-    if (!QSslSocket::supportsSsl()) {
-        QMessageBox::critical(this->centralWidget(),
-                              tr("Secure connection"),
-                              tr("This system does not secure SSL connections"));
         return false;
     }
 
@@ -200,7 +185,6 @@ void MainWindow::setupUi()
     m_actionClear_Cache.reset(new QAction(this));
     m_actionDatasets.reset(new QAction(this));
     m_actionDatasets->setCheckable(true);
-    m_actionLogOut.reset(new QAction(this));
     m_actionSelections.reset(new QAction(this));
     m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
@@ -223,7 +207,6 @@ void MainWindow::setupUi()
     menuLoad->addAction(m_actionClear_Cache.data());
     menuHelp->addAction(m_actionAbout.data());
     menuViews->addAction(m_actionDatasets.data());
-    menuViews->addAction(m_actionLogOut.data());
     menuViews->addAction(m_actionSelections.data());
 
     // add menus to menu bar
@@ -316,20 +299,11 @@ void MainWindow::createConnections()
     connect(m_actionAbout.data(), SIGNAL(triggered()), this, SLOT(slotShowAbout()));
     // signal that shows the datasets
     connect(m_actionDatasets.data(), SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
-    // signal that shows the log in widget
-    connect(m_actionLogOut.data(), SIGNAL(triggered()), this, SLOT(slotLogOutButton()));
     // signal that shows the selections
     connect(m_actionSelections.data(),
             SIGNAL(triggered(bool)),
             m_user_selections.data(),
             SLOT(show()));
-
-    // connect authorization signals
-    connect(m_authManager.data(), SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
-    connect(m_authManager.data(),
-            SIGNAL(signalError(QSharedPointer<Error>)),
-            this,
-            SLOT(slotAuthorizationError(QSharedPointer<Error>)));
 
     // connect the open dataset from datasetview -> cellview
     connect(m_datasets.data(),
@@ -390,9 +364,6 @@ void MainWindow::createConnections()
             SIGNAL(signalUserSelection()),
             m_user_selections.data(),
             SLOT(slotSelectionsUpdated()));
-
-    // connect log out signal from cell view
-    connect(m_cellview.data(), SIGNAL(signalLogOut()), this, SLOT(slotLogOutButton()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -419,87 +390,4 @@ void MainWindow::saveSettings() const
     QByteArray state = saveState();
     settings.setValue(SettingsState, state);
     // TODO save global settings (menus and status)
-}
-
-void MainWindow::startAuthorization()
-{
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clean the cache in the dataproxy
-    m_dataProxy->clean();
-    // start the authorization (quiet if access token exists or interactive otherwise)
-    m_authManager->startAuthorization();
-}
-
-void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
-{
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // force clean access token and authorize again
-    m_authManager->cleanAccesToken();
-    m_authManager->startAuthorization();
-    qDebug() << "Error trying to log in " << error->name() << " " << error->description();
-}
-
-void MainWindow::slotAuthorized()
-{
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clean datasets/selections and main view
-    m_datasets->clean();
-    m_cellview->clean();
-    m_user_selections->clean();
-    m_genes->clear();
-
-    // check for min version if supported and load user (only in online mode)
-    if (m_dataProxy->loadMinVersion()) {
-        const auto minVersion = m_dataProxy->getMinVersion();
-        if (!versionIsGreaterOrEqual(VersionNumbers, minVersion)) {
-            QMessageBox::critical(this->centralWidget(),
-                                  tr("Minimum Version"),
-                                  tr("This version of the software is not supported anymore,"
-                                     "please update!"));
-            QApplication::exit(EXIT_FAILURE);
-        }
-    } else {
-        // TODO exit here?
-        qDebug() << "Min version could not be downloaded..";
-    }
-
-    if (m_dataProxy->loadUser()) {
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(user);
-        if (!user->enabled()) {
-            QMessageBox::critical(this,
-                                  tr("Authorization Error"),
-                                  tr("The current user is disabled"));
-        } else {
-            // show user info in label
-            m_cellview->slotSetUserName(user->username());
-        }
-    } else {
-        // TODO exit here?
-        qDebug() << "User information could not be downloaded..";
-    }
-}
-
-void MainWindow::slotLogOutButton()
-{
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clear user name in label
-    m_cellview->slotSetUserName("");
-    // clean the cache in the dataproxy
-    m_dataProxy->clean();
-    // clean access token and start authorization
-    m_authManager->cleanAccesToken();
-    m_authManager->startAuthorization();
 }

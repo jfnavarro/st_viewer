@@ -39,9 +39,6 @@ public:
     void loadSettings();
     void saveSettings() const;
 
-    // Tries to find a cached access token otherwise it will show a log in dialog
-    void startAuthorization();
-
 private slots:
 
     // exit the application
@@ -52,12 +49,6 @@ private slots:
 
     // open pop up static widget to show info about the application
     void slotShowAbout();
-
-    // to handle different authorization call backs (success and error)
-    void slotAuthorizationError(QSharedPointer<Error> error);
-    void slotAuthorized();
-    // when user clicks to log out, shows log in dialog
-    void slotLogOutButton();
 
 private:
     // create all the widgets
@@ -81,12 +72,10 @@ private:
     QScopedPointer<QAction> m_actionAbout;
     QScopedPointer<QAction> m_actionClear_Cache;
     QScopedPointer<QAction> m_actionDatasets;
-    QScopedPointer<QAction> m_actionLogOut;
     QScopedPointer<QAction> m_actionSelections;
 
-    // stVi owns dataProxy and AuthorizationManager
+    // MainWindow owns the dataProxy instance
     QSharedPointer<DataProxy> m_dataProxy;
-    QSharedPointer<AuthorizationManager> m_authManager;
 
     // different views
     QScopedPointer<DatasetPage> m_datasets;
