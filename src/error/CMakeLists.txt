@@ -1,18 +1,10 @@
 set(LIBRARY_ARG_INCLUDES
-    SSLNetworkError.h
-    NetworkError.h
-    JSONError.h
     ApplicationError.h
     Error.h
-    ServerError.h
 )
 set(LIBRARY_ARG_SOURCES
-    SSLNetworkError.cpp
-    NetworkError.cpp
-    JSONError.cpp
     ApplicationError.cpp
     Error.cpp
-    ServerError.cpp
 )
 set(LIBRARY_ARG_UI_FILES)
 ST_LIBRARY()

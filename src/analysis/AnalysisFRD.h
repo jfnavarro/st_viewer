@@ -12,15 +12,12 @@ class frdWidget;
 }
 
 // Analysis FDR is a Widget that is used to show to the users
-// the counts distributions of the features of a dataset
-// (as histogram of the different number of counts sorted)
-// and also the threshold bars, threshold bars are
+// the counts/genes distributions of the features of a dataset (as histograms)
+// and also shows the threshold bars, threshold bars are
 // interactive so the will get updated if the user
-// modifies the threshold controls in the cell view (threshold of number of reads).
+// modifies the threshold controls in the cell view (threshold of number of counts/genes).
 
-// TODO add option to compute the plots and threshold bars
-// using genes as the function of features and show the genes thresholds bars as well
-// TODO perhaps separate computation and visualization
+// TODO separate computation and visualization
 class AnalysisFRD : public QDialog
 {
     Q_OBJECT

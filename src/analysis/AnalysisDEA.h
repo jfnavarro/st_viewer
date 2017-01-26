@@ -17,11 +17,9 @@ class GeneSelectionDEAItemModel;
 class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
-// DEA(Differential Expression Analysis) between two user selections
-// It shows the results in a correlation plot and a table
-// that includes the gene counts for both selections
-// It also computes some basic stats
-// TODO a DESeq2 approach to compute the DEA must be implemented
+// DEA(Differential Expression Analysis) between two ST data matrices
+// It shows the results in a volcano plot and a table
+// that includes the differently expressed genes at a given FDR
 class AnalysisDEA : public QDialog
 {
     Q_OBJECT
