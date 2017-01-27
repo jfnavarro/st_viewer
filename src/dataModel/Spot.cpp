@@ -1,89 +1,92 @@
-#include "dataModel/Feature.h"
+#include "dataModel/Spot.h"
 
-Feature::Feature()
-    : m_gene()
-    , m_count(0)
+Spot::Spot()
+    : m_count(0)
+    , m_geneCount(0)
     , m_x(0)
     , m_y(0)
+    , m_visible(false)
 {
 }
 
-Feature::Feature(const QString &gene, float x, float y, int count)
-    : m_gene(gene)
-    , m_count(count)
-    , m_x(x)
-    , m_y(y)
+Spot::Spot(const Spot &other)
 {
-}
-
-Feature::Feature(const Feature &other)
-{
-    m_gene = other.m_gene;
     m_count = other.m_count;
+    m_geneCount = other.m_geneCount;
     m_x = other.m_x;
     m_y = other.m_y;
+    m_visible = other.m_visible;
 }
 
-Feature::~Feature()
+Spot::~Spot()
 {
 }
 
-Feature &Feature::operator=(const Feature &other)
+Spot &Spot::operator=(const Spot &other)
 {
-    m_gene = other.m_gene;
     m_count = other.m_count;
+    m_geneCount = other.m_geneCount;
     m_x = other.m_x;
     m_y = other.m_y;
+    m_visible = other.m_visible;
     return (*this);
 }
 
-bool Feature::operator==(const Feature &other) const
+bool Spot::operator==(const Spot &other) const
 {
-    return (m_gene == other.m_gene && m_count == other.m_count && m_x == other.m_x
-            && m_y == other.m_y);
+    return (m_count == other.m_count
+            && m_geneCount == other.m_geneCount
+            && m_x == other.m_x
+            && m_y == other.m_y
+            && m_visible == other.m_visible);
 }
 
-const QString Feature::gene() const
-{
-    return m_gene;
-}
-
-int Feature::count() const
+int Spot::count() const
 {
     return m_count;
 }
 
-float Feature::x() const
+int Spot::geneCount() const
+{
+    return m_geneCount;
+}
+
+float Spot::x() const
 {
     return m_x;
 }
 
-float Feature::y() const
+float Spot::y() const
 {
     return m_y;
 }
 
-Feature::SpotType Feature::spot() const
+bool Spot::visible() const
 {
-    return Feature::SpotType(m_x, m_y);
+    return m_visible;
 }
 
-void Feature::gene(const QString &gene)
-{
-    m_gene = gene;
-}
-
-void Feature::count(int count)
+void Spot::count(int count)
 {
     m_count = count;
 }
 
-void Feature::x(float x)
+void Spot::geneCount(int geneCount)
+{
+    m_geneCount = geneCount;
+}
+
+void Spot::x(float x)
 {
     m_x = x;
 }
 
-void Feature::y(float y)
+void Spot::y(float y)
 {
     m_y = y;
+}
+
+void Spot::visible(bool visible)
+{
+    m_visible = visible;
 }

@@ -3,7 +3,7 @@ set(LIBRARY_ARG_INCLUDES
     Spot.h
     Gene.h
     UserSelection.h
-    ImageAlignment.h
+    STData.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -11,7 +11,7 @@ set(LIBRARY_ARG_SOURCES
     Spot.cpp
     Gene.cpp
     UserSelection.cpp
-    ImageAlignment.cpp
+    STData.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

@@ -7,7 +7,7 @@
 #include "SettingsVisual.h"
 
 // Data model class to store gene data.
-// The genes are part of the features, they are modeled in a class
+// The genes are part of the ST Data, they are modeled in a class
 // to encapculate their status and attributes
 class Gene
 {
@@ -24,16 +24,23 @@ public:
     Gene &operator=(const Gene &other);
     bool operator==(const Gene &other) const;
 
+    // the name of the gene
     const QString name() const;
+    // true if gene is selected to be viewed
     bool selected() const;
+    // the color of the gene
     const QColor color() const;
+    // the threshold (reads)
+    // the gene cut-off is used to hide
+    // features whose read counts is below the cut off
     int cut_off() const;
+    // this is the index the gene has in the respective column/row (stored for convenience)
+    int index() const;
 
+    // Setters
     void name(const QString &name);
     void selected(bool selected);
     void color(const QColor &color);
-    // the gene cut-off is used to hide
-    // features whose read counts is below the cut off
     void cut_off(const int cutoff);
 
     // NOTE ambiguous property shouldn't be stored as part of the name
@@ -44,6 +51,8 @@ private:
     QColor m_color;
     bool m_selected;
     int m_cutoff;
+    //the row/column index
+    int m_index;
 };
 
 #endif // GENE_H //

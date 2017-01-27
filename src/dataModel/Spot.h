@@ -1,55 +1,45 @@
-#ifndef FEATURE_H
-#define FEATURE_H
+#ifndef SPOT_H
+#define SPOT_H
 
-#include <QString>
-#include <QHash>
-#include <QSet>
-
-// Data model class to store feature data
-// A feature corresponds to a tuple (barcode or spot in the array)
-// and a gene. In each barcode/spot there can be up to 20k genes.
-// The coordinates x,y refers to chip coordinates but the chip object
-// contains an affine matrix that converts chip coordinates to image pixel
-// coordinates
-// which is what we eventually visualize in the cell view.
-class Feature
+// Data model class to store spot data
+// Each spot correspond to a spot in the the array and it is
+// defined by two int/float coordinates.
+// Extra attributes for the spots are added in this data model
+class Spot
 {
 
 public:
-    // Only for pairs of std::hash-able types for simplicity.
-    // You can of course template this struct to allow other hash functions
-    typedef QPair<float, float> SpotType;
-    typedef QSet<SpotType> UniqueSpotsType;
-    typedef QHash<Feature::SpotType, int> spotTotalCounts;
-    typedef QHash<QString, int> geneTotalCounts;
 
-    Feature();
-    explicit Feature(const Feature &other);
-    Feature(const QString &gene, float x, float y, int count);
-    ~Feature();
+    Spot();
+    explicit Spot(const Spot &other);
+    ~Spot();
 
-    Feature &operator=(const Feature &other);
-    bool operator==(const Feature &other) const;
+    Spot &operator=(const Spot &other);
+    bool operator==(const Spot &other) const;
 
-    const QString gene() const;
-    // count represents the expression level
+    // count represents the total sum of counts in the spot
     int count() const;
+    // geneCount represents the total number of expressed genes in the spot
+    int geneCount() const;
+    // the spot's coordinates
     float x() const;
     float y() const;
-    // the coordinates of the spot in the array
-    SpotType spot() const;
+    // true if the spot is visible
+    bool visible() const;
 
-    void gene(const QString &gene);
+    // Setters
     void count(int count);
+    void geneCount(int geneCount);
     void x(float x);
     void y(float y);
+    void visible(bool visible);
 
-protected:
-    // basic attributes
-    QString m_gene;
+private:
     int m_count;
+    int m_geneCount;
     float m_x;
     float m_y;
+    bool m_visible;
 };
 
-#endif // FEATURE_H
+#endif // SPOT_H

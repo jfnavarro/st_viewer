@@ -3,40 +3,29 @@
 #include <QMap>
 #include <QDate>
 #include <QDebug>
-#include "dataModel/Feature.h"
 #include "math/Common.h"
 
 #include <numeric>
 #include <unordered_set>
 
 UserSelection::UserSelection()
-    : m_id()
-    , m_name()
-    , m_userId()
-    , m_datasetId()
-    , m_selectedFeatures()
+    : m_name()
+    , m_dataset()
+    , m_selectedSpots()
+    , m_selectedGenes()
     , m_type()
     , m_status()
     , m_comment()
-    , m_enabled(false)
-    , m_created(QDate::currentDate().toString())
-    , m_lastMofidied(QDate::currentDate().toString())
-    , m_datasetName()
     , m_tissueSnapShot()
     , m_totalReads(0)
-    , m_totalFeatures(0)
-    , m_totalGenes(0)
-    , m_totalSpots(0)
-    , m_saved(false)
 {
 }
 
 UserSelection::UserSelection(const UserSelection &other)
-    : m_id(other.m_id)
-    , m_name(other.m_name)
-    , m_userId(other.m_userId)
-    , m_datasetId(other.m_datasetId)
-    , m_selectedFeatures(other.m_selectedFeatures)
+    : m_name(other.m_name)
+    , m_dataset(other.m_datasetId)
+    , m_selectedSpots(other.m_selectedSpots)
+    , m_selectedGenes(other.m_selectedGenes)
     , m_type(other.m_type)
     , m_status(other.m_status)
     , m_comment(other.m_comment)
@@ -112,7 +101,7 @@ const QString UserSelection::datasetId() const
     return m_datasetId;
 }
 
-const DataProxy::FeatureList UserSelection::selectedFeatures() const
+const QList<Spot> UserSelection::selectedFeatures() const
 {
     return m_selectedFeatures;
 }
