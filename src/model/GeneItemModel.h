@@ -1,20 +1,18 @@
-#ifndef GENEFEATUREITEMMODEL_H
-#define GENEFEATUREITEMMODEL_H
-
-#include "data/DataProxy.h"
+#ifndef GENEFITEMMODEL_H
+#define GENEFITEMMODEL_H
 
 #include <QAbstractTableModel>
+#include "dataModel/STData.h"
 
 class QModelIndex;
 class QStringList;
 class QMimeData;
 class QItemSelection;
 
-// Wrapper model class for the gene data (specific to a dataset) found in the
-// features.
+// Wrapper model class for the gene data (specific to a dataset).
 // Primarily used to enumerate the genes in the cell view (genes table)
-// and allow the user to interact.
-class GeneFeatureItemModel : public QAbstractTableModel
+// and allow the user to interact with individual genes.
+class GeneItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
@@ -22,8 +20,8 @@ class GeneFeatureItemModel : public QAbstractTableModel
 public:
     enum Column { Show = 0, Name = 1, CutOff = 2, Color = 3 };
 
-    explicit GeneFeatureItemModel(QObject *parent = 0);
-    virtual ~GeneFeatureItemModel();
+    explicit GeneItemModel(QObject *parent = 0);
+    virtual ~GeneItemModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -46,7 +44,7 @@ public:
     void setGeneColor(const QItemSelection &selection, const QColor &color);
 
     // reload the reference to the genes from DataProxy
-    void loadGenes(const DataProxy::GeneList &geneList);
+    void loadGenes(const STData::gene_list &geneList);
 
     // clear and reset the model
     void clearGenes();
@@ -58,14 +56,14 @@ public slots:
 
 signals:
     // Signals to notify that any of the gene/s properties have changed
-    void signalCutOffChanged(DataProxy::GenePtr gene);
+    void signalCutOffChanged(Gene gene);
     void signalSelectionChanged(DataProxy::GeneList geneList);
     void signalColorChanged(DataProxy::GeneList geneList);
 
 private:
-    DataProxy::GeneList m_genelist_reference;
+    STData::gene_list m_genelist_reference;
 
     Q_DISABLE_COPY(GeneFeatureItemModel)
 };
 
-#endif // GENEFEATUREITEMMODEL_H
+#endif // GENEFITEMMODEL_H

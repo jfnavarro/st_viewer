@@ -48,19 +48,19 @@ public:
     void dataset(const QString &dataset);
     void selectedSpots(const STData::spot_list &spots);
     void selectedGenes(const STData::gene_list &genes);
-    void status(const QString &status);
     void comment(const QString &comment);
     void type(const Type &type);
     void tissueSnapShot(const QByteArray &tissueSnapShot);
     void totalReads(const int totalReads);
 
+    static const QString typeToQString(const UserSelection::Type &type);
+    static UserSelection::Type QStringToType(const QString &type);
 private:
     QString m_name;
     QString m_dataset;
     STData::spot_list m_selectedSpots;
     STData::gene_list m_selectedGenes;
     Type m_type;
-    QString m_status;
     QString m_comment;
     QByteArray m_tissueSnapShot;
     int m_totalReads;

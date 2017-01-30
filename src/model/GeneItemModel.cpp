@@ -1,4 +1,4 @@
-#include "GeneFeatureItemModel.h"
+#include "GeneItemModel.h"
 #include "dataModel/Gene.h"
 #include <set>
 #include <QDebug>
@@ -9,23 +9,22 @@
 
 static const int COLUMN_NUMBER = 4;
 
-GeneFeatureItemModel::GeneFeatureItemModel(QObject *parent)
+GeneItemModel::GeneItemModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
 }
 
-GeneFeatureItemModel::~GeneFeatureItemModel()
+GeneItemModel::~GeneFeatureItemModel()
 {
 }
 
-QVariant GeneFeatureItemModel::data(const QModelIndex &index, int role) const
+QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || m_genelist_reference.empty()) {
         return QVariant(QVariant::Invalid);
     }
 
-    DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-    Q_ASSERT(item);
+    const Gene &item = m_genelist_reference.at(index.row());
 
     if (role == Qt::DisplayRole && index.column() == Name) {
         return item->name();
@@ -65,7 +64,7 @@ QVariant GeneFeatureItemModel::data(const QModelIndex &index, int role) const
     return QVariant(QVariant::Invalid);
 }
 
-bool GeneFeatureItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
         DataProxy::GenePtr item = m_genelist_reference.at(index.row());
@@ -83,7 +82,7 @@ bool GeneFeatureItemModel::setData(const QModelIndex &index, const QVariant &val
     return false;
 }
 
-QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
@@ -134,17 +133,17 @@ QVariant GeneFeatureItemModel::headerData(int section, Qt::Orientation orientati
     return QVariant(QVariant::Invalid);
 }
 
-int GeneFeatureItemModel::rowCount(const QModelIndex &parent) const
+int GeneItemModel::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_genelist_reference.size();
 }
 
-int GeneFeatureItemModel::columnCount(const QModelIndex &parent) const
+int GeneItemModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : COLUMN_NUMBER;
 }
 
-Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex &index) const
+Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
 
@@ -166,27 +165,27 @@ Qt::ItemFlags GeneFeatureItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void GeneFeatureItemModel::loadGenes(const DataProxy::GeneList &geneList)
+void GeneItemModel::loadGenes(const DataProxy::GeneList &geneList)
 {
     beginResetModel();
     m_genelist_reference = geneList;
     endResetModel();
 }
 
-void GeneFeatureItemModel::clearGenes()
+void GeneItemModel::clearGenes()
 {
     beginResetModel();
     m_genelist_reference.clear();
     endResetModel();
 }
 
-bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename) const
+bool GeneItemModel::geneName(const QModelIndex &index, QString *genename) const
 {
     if (!index.isValid() || m_genelist_reference.empty()) {
         return false;
     }
 
-    DataProxy::GenePtr item = m_genelist_reference.at(index.row());
+    const Gene &item = m_genelist_reference.at(index.row());
     Q_ASSERT(item);
 
     if (index.column() == Name) {
@@ -197,7 +196,7 @@ bool GeneFeatureItemModel::geneName(const QModelIndex &index, QString *genename)
     return false;
 }
 
-void GeneFeatureItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
+void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
 {
     if (m_genelist_reference.empty()) {
         return;

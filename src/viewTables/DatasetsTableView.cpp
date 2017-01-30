@@ -10,7 +10,7 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     : QTableView(parent)
     , m_datasetModel(nullptr)
 {
-    // the model
+    // the data model
     m_datasetModel.reset(new DatasetItemModel(this));
 
     // the sorting model
@@ -37,8 +37,6 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Tissue, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(DatasetItemModel::Species, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Created, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::LastModified, QHeaderView::Stretch);
     verticalHeader()->hide();
 
     model()->submit(); // support for caching (speed up)
