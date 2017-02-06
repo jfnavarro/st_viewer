@@ -5,7 +5,9 @@ set(LIBRARY_ARG_INCLUDES
     DatasetPage.h
     UserSelectionsPage.h
     GenesWidget.h
-    SelectionsWidget.h
+    SpotsWidget.h
+    SelectionGenesWidget.h
+    SelectionSpotsWidget.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -13,7 +15,9 @@ set(LIBRARY_ARG_SOURCES
     DatasetPage.cpp
     UserSelectionsPage.cpp
     GenesWidget.cpp
-    SelectionsWidget.cpp
+    SpotsWidget.cpp
+    SelectionGenesWidget.cpp
+    SelectionSpotsWidget.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

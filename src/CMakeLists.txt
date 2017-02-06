@@ -55,16 +55,12 @@ add_subdirectory(ext)
 set(subdir_list
                    dialogs
                    color
-                   concurrent
-                   dataModel
                    data
                    customWidgets
                    viewTables
                    viewPages
-                   viewOpenGL
+                   viewRenderer
                    utils
-                   error
-                   io
                    model
                    config
                    math

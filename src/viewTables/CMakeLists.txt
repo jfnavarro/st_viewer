@@ -2,16 +2,14 @@
 set(LIBRARY_ARG_INCLUDES
     DatasetsTableView.h
     GenesTableView.h
-    GeneSelectionTableView.h
-    GeneSelectionDEATableView.h
+    SpotsTableView.h
     UserSelectionTableView.h
 )
 
 set(LIBRARY_ARG_SOURCES
     DatasetsTableView.cpp
     GenesTableView.cpp
-    GeneSelectionTableView.cpp
-    GeneSelectionDEATableView.cpp
+    SpotsTableView.cpp
     UserSelectionTableView.cpp
 )
 

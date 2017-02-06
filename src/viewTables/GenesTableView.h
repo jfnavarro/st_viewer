@@ -4,7 +4,7 @@
 #include <QTableView>
 #include <QPointer>
 
-class GeneFeatureItemModel;
+class GeneItemModel;
 class SortGenesProxyModel;
 
 // An abstraction of QTableView for the genes table
@@ -26,7 +26,7 @@ public slots:
 
 private:
     // references to model and proxy model
-    QScopedPointer<GeneFeatureItemModel> m_geneModel;
+    QScopedPointer<GeneItemModel> m_geneModel;
     QScopedPointer<SortGenesProxyModel> m_sortGenesProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)

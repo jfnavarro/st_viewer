@@ -24,10 +24,10 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    const Gene &item = m_genelist_reference.at(index.row());
+    const auto item = m_genelist_reference.at(index.row());
 
     if (role == Qt::DisplayRole && index.column() == Name) {
-        return item->name();
+        return item.name();
     }
 
     if (role == Qt::ForegroundRole && index.column() == Name) {
@@ -35,15 +35,15 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::CheckStateRole && index.column() == Show) {
-        return item->selected() ? Qt::Checked : Qt::Unchecked;
+        return item.selected() ? Qt::Checked : Qt::Unchecked;
     }
 
     if (role == Qt::DecorationRole && index.column() == Color) {
-        return item->color();
+        return item.color();
     }
 
     if (role == Qt::DisplayRole && index.column() == CutOff) {
-        return item->cut_off();
+        return item.cut_off();
     }
 
     if (role == Qt::TextAlignmentRole) {
@@ -67,11 +67,10 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
-        DataProxy::GenePtr item = m_genelist_reference.at(index.row());
-        Q_ASSERT(item);
+        const auto item = m_genelist_reference.at(index.row());
         const int new_cutoff = value.toUInt();
-        if (item->cut_off() != new_cutoff && new_cutoff > 0) {
-            item->cut_off(new_cutoff);
+        if (item.cut_off() != new_cutoff && new_cutoff > 0) {
+            item.cut_off(new_cutoff);
             emit dataChanged(index, index);
             emit signalCutOffChanged(item);
             return true;
@@ -165,7 +164,7 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void GeneItemModel::loadGenes(const DataProxy::GeneList &geneList)
+void GeneItemModel::loadGenes(const STData::gene_list &geneList)
 {
     beginResetModel();
     m_genelist_reference = geneList;
@@ -185,11 +184,9 @@ bool GeneItemModel::geneName(const QModelIndex &index, QString *genename) const
         return false;
     }
 
-    const Gene &item = m_genelist_reference.at(index.row());
-    Q_ASSERT(item);
-
+    const auto item = m_genelist_reference.at(index.row());
     if (index.column() == Name) {
-        *genename = item->name();
+        *genename = item.name();
         return true;
     }
 
@@ -207,11 +204,11 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
         rows.insert(index.row());
     }
     // create a list of genes that are changing the selected state
-    DataProxy::GeneList geneList;
+    STData::gene_list geneList;
     for (const auto &row : rows) {
-        DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (gene && gene->selected() != visible) {
-            gene->selected(visible);
+        auto gene = m_genelist_reference.at(row);
+        if (gene.selected() != visible) {
+            gene.selected(visible);
             geneList.push_back(gene);
         }
     }
@@ -219,7 +216,7 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
     emit signalSelectionChanged(geneList);
 }
 
-void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const QColor &color)
+void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &color)
 {
     if (m_genelist_reference.empty()) {
         return;
@@ -230,11 +227,11 @@ void GeneFeatureItemModel::setGeneColor(const QItemSelection &selection, const Q
         rows.insert(index.row());
     }
     // create a list of genes that are changing the color
-    DataProxy::GeneList geneList;
+    STData::gene_list geneList;
     for (const auto &row : rows) {
-        DataProxy::GenePtr gene = m_genelist_reference.at(row);
-        if (gene && color.isValid() && gene->color() != color) {
-            gene->color(color);
+        auto gene = m_genelist_reference.at(row);
+        if (color.isValid() && gene.color() != color) {
+            gene.color(color);
             geneList.push_back(gene);
         }
     }

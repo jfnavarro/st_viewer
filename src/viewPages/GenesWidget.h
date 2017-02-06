@@ -4,8 +4,6 @@
 #include <QDockWidget>
 #include <QIcon>
 
-#include "data/DataProxy.h"
-
 class QPushButton;
 class QLineEdit;
 class GenesTableView;
@@ -72,9 +70,6 @@ private:
     QScopedPointer<QLineEdit> m_lineEdit;
     QScopedPointer<GenesTableView> m_genes_tableview;
     QScopedPointer<QColorDialog> m_colorList;
-
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(GenesWidget)
 };

@@ -4,13 +4,14 @@
 #include <QWidget>
 #include <QModelIndex>
 #include <memory>
-#include "data/DataProxy.h"
 
 class UserSelectionsItemModel;
 class QSortFilterProxyModel;
 class AnalysisDEA;
-class SelectionsWidget;
+class SelectionGenesWidget;
+class SelectionSpotsWidget;
 class WaitingSpinnerWidget;
+class UserSelection;
 
 namespace Ui
 {
@@ -41,14 +42,10 @@ public:
 
 signals:
 
-    // to notify the cell view when the user wants to show or hide selections
-    void signalClearSelections();
-    void signalShowSelections(const QVector<UserSelection> &selections);
-
 public slots:
 
-    // to notify when the user has made a new selection
-    void slotSelectionsUpdated();
+    // slot to add a new selection to the list
+    void slotAddSelection(const UserSelection& selection);
 
 private slots:
 
@@ -60,15 +57,19 @@ private slots:
     void slotRemoveSelection();
     // slot to handle when the user wants to edit a selection
     void slotEditSelection();
-    // this slot will init and show the DEA dialog (requires two selected
+    // this slot will init and show the D.E.A. dialog (requires two selected
     // selections)
     void slotPerformDEA();
+    // slot to perform a correlation analysis between two selections
+    void slotPerformCorrelation();
+    // slot to perform a tSNE analysis on 1 or more selections
+    void slotPerformClustering();
     // this slot will get the selection's image and create dialog to show it
     void slotShowTissue();
-    // to save a selection in the cloud
-    void slotSaveSelection();
-    // to show the aggregated gene counts of the selection in a table
-    void slotShowTable();
+    // slot to show the aggregated gene counts of the selection in a table
+    void slotShowGenes();
+    // slot to show the aggregated spot counts of the selection in a table
+    void slotShowSpots();
     // to import a selection from a file
     void slotImportSelection();
 
@@ -76,8 +77,6 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
-    // internal function to invoke the download of genes selections
-    void loadSelections();
 
     // internal clear focus and default status for the buttons
     void clearControls();
@@ -88,10 +87,12 @@ private:
 
     // Ui object
     QScopedPointer<Ui::UserSelections> m_ui;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
+    // the list of selections objects
+    QList<UserSelection> m_selections;
     // selections widget where the aggregated genes can be shown in a table
-    QScopedPointer<SelectionsWidget> m_selectionsWidget;
+    QScopedPointer<SelectionGenesWidget> m_genesWidget;
+    // selections widget where the aggregated genes can be shown in a table
+    QScopedPointer<SelectionSpotsWidget> m_spotsWidget;
     // waiting spinner
     QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
 

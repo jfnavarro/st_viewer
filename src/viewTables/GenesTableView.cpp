@@ -4,7 +4,7 @@
 #include <QHeaderView>
 
 #include "model/SortGenesProxyModel.h"
-#include "model/GeneFeatureItemModel.h"
+#include "model/GeneItemModel.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent)
@@ -12,7 +12,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     , m_sortGenesProxyModel(nullptr)
 {
     // model
-    m_geneModel.reset(new GeneFeatureItemModel(this));
+    m_geneModel.reset(new GeneItemModel(this));
 
     // sorting model
     m_sortGenesProxyModel.reset(new SortGenesProxyModel(this));
@@ -20,7 +20,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     m_sortGenesProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortGenesProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     // this is important because sort proxy will use the column 0 by default
-    m_sortGenesProxyModel->setFilterKeyColumn(GeneFeatureItemModel::Name);
+    m_sortGenesProxyModel->setFilterKeyColumn(GeneItemModel::Name);
     setModel(m_sortGenesProxyModel.data());
 
     // settings for the table
@@ -28,7 +28,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     setShowGrid(true);
     setWordWrap(true);
     setAlternatingRowColors(true);
-    sortByColumn(GeneFeatureItemModel::Name, Qt::AscendingOrder);
+    sortByColumn(GeneItemModel::Name, Qt::AscendingOrder);
 
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
@@ -40,13 +40,13 @@ GenesTableView::GenesTableView(QWidget *parent)
     setSelectionMode(QAbstractItemView::MultiSelection);
     setEditTriggers(QAbstractItemView::DoubleClicked);
 
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Name, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Color, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneFeatureItemModel::Color, 50);
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::Show, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneFeatureItemModel::Show, 50);
-    horizontalHeader()->setSectionResizeMode(GeneFeatureItemModel::CutOff, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneFeatureItemModel::Show, 50);
+    horizontalHeader()->setSectionResizeMode(GeneItemModel::Name, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(GeneItemModel::Color, QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneItemModel::Color, 50);
+    horizontalHeader()->setSectionResizeMode(GeneItemModel::Show, QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
+    horizontalHeader()->setSectionResizeMode(GeneItemModel::CutOff, QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

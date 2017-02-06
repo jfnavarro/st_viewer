@@ -6,7 +6,7 @@
 #include <QColor>
 #include <set>
 
-static const int COLUMN_NUMBER = 7;
+static const int COLUMN_NUMBER = 4;
 
 UserSelectionsItemModel::UserSelectionsItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -24,21 +24,16 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
     }
 
     const auto item = m_userSelectionList.at(index.row());
-    Q_ASSERT(item);
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name:
-            return item->name();
+            return item.name();
         case Dataset:
-            return item->datasetName();
+            return item.dataset();
         case NGenes:
-            return QString::number(item->totalGenes());
+            return QString::number(item.totalGenes());
         case NReads:
-            return QString::number(item->totalReads());
-        case Created:
-            return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
-        case LastModified:
-            return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
+            return QString::number(item.totalReads());
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -48,18 +43,10 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
         return QColor(0, 155, 60);
     }
 
-    if (role == Qt::CheckStateRole && index.column() == Saved) {
-        return item->saved() ? Qt::Checked : Qt::Unchecked;
-    }
-
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
-        case Saved:
-            return Qt::AlignCenter;
         case NGenes:
         case NReads:
-        case Created:
-        case LastModified:
             return Qt::AlignRight;
         default:
             return QVariant(QVariant::Invalid);
@@ -83,12 +70,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("Genes");
         case NReads:
             return tr("Reads");
-        case Saved:
-            return tr("Saved");
-        case Created:
-            return tr("Created");
-        case LastModified:
-            return tr("Last Modified");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -104,12 +85,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("The number of unique genes present in the selection");
         case NReads:
             return tr("The total number of reads in the selection");
-        case Saved:
-            return tr("Yes if the selection is saved in the database");
-        case Created:
-            return tr("Created at this date");
-        case LastModified:
-            return tr("Last Modified at this date");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -121,9 +96,6 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case Dataset:
         case NGenes:
         case NReads:
-        case Saved:
-        case Created:
-        case LastModified:
             return Qt::AlignLeft;
         default:
             return QVariant(QVariant::Invalid);
@@ -157,21 +129,21 @@ void UserSelectionsItemModel::clear()
     endResetModel();
 }
 
-void UserSelectionsItemModel::loadUserSelections(const DataProxy::UserSelectionList selectionList)
+void UserSelectionsItemModel::loadUserSelections(const QList<UserSelection> &selectionList)
 {
     beginResetModel();
     m_userSelectionList = selectionList;
     endResetModel();
 }
 
-DataProxy::UserSelectionList UserSelectionsItemModel::getSelections(const QItemSelection &selection)
+const QList<UserSelection>& UserSelectionsItemModel::getSelections(const QItemSelection &selection)
 {
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
 
-    DataProxy::UserSelectionList selectionList;
+    QList<UserSelection> selectionList;
     for (const auto &row : rows) {
         auto selection = m_userSelectionList.at(row);
         selectionList.push_back(selection);

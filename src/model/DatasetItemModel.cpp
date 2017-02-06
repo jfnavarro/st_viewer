@@ -36,11 +36,11 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
         auto item = m_datasets_reference.at(index.row());
         switch (index.column()) {
         case Name:
-            return item->name();
+            return item.name();
         case Tissue:
-            return item->statTissue();
+            return item.statTissue();
         case Species:
-            return item->statSpecies();
+            return item.statSpecies();
        default:
             return QVariant(QVariant::Invalid);
         }

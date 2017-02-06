@@ -8,6 +8,7 @@ class QModelIndex;
 class QStringList;
 class QMimeData;
 class QItemSelection;
+class Gene;
 
 // Wrapper model class for the gene data (specific to a dataset).
 // Primarily used to enumerate the genes in the cell view (genes table)
@@ -57,13 +58,13 @@ public slots:
 signals:
     // Signals to notify that any of the gene/s properties have changed
     void signalCutOffChanged(Gene gene);
-    void signalSelectionChanged(DataProxy::GeneList geneList);
-    void signalColorChanged(DataProxy::GeneList geneList);
+    void signalSelectionChanged(const STData::gene_list &geneList);
+    void signalColorChanged(const STData::gene_list &geneLis);
 
 private:
     STData::gene_list m_genelist_reference;
 
-    Q_DISABLE_COPY(GeneFeatureItemModel)
+    Q_DISABLE_COPY(GeneItemModel)
 };
 
 #endif // GENEFITEMMODEL_H

@@ -36,12 +36,6 @@ UserSelectionTableView::UserSelectionTableView(QWidget *parent)
                                              QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::NReads,
                                              QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Saved, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(UserSelectionsItemModel::Saved, 50);
-    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Created,
-                                             QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::LastModified,
-                                             QHeaderView::ResizeToContents);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

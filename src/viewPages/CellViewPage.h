@@ -2,12 +2,10 @@
 #define CELLVIEWPAGE_H
 
 #include <QWidget>
-#include "data/DataProxy.h"
 #include <memory>
 
 class QColorDialog;
 class SelectionDialog;
-class Error;
 class CellGLView;
 class ImageTextureGL;
 class GridRendererGL;
@@ -47,35 +45,27 @@ class CellViewPage : public QWidget
     Q_OBJECT
 
 public:
-    CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    CellViewPage(QWidget *parent = 0);
     virtual ~CellViewPage();
 
-    // clear the loaded content
+    // clear the loaded dataset and reset settings
     void clean();
 
 signals:
 
     // notify the user has made a selection
     void signalUserSelection();
-    // notify the user wants to log out
-    void signalLogOut();
 
 public slots:
 
     // the user has opened/edit/removed  a dataset
-    void slotDatasetOpen(const QString &datasetId);
-    void slotDatasetUpdated(const QString &datasetId);
-    void slotDatasetRemoved(const QString &datasetId);
+    void slotDatasetOpen(const Dataset &dataset);
+    void slotDatasetUpdated(const Dataset &dataset);
+    void slotDatasetRemoved(const Dataset &dataset);
     // the user has cleared the selections
     void slotClearSelections();
-    // the user has selected/deselected genes
-    void slotGenesSelected(const DataProxy::GeneList &genes);
-    // the user has changed the color of genes
-    void slotGenesColor(const DataProxy::GeneList &genes);
-    // the user has changed the cut off of a gene
-    void slotGeneCutOff(const DataProxy::GenePtr gene);
-    // set the user name for the tool bar field
-    void slotSetUserName(const QString &username);
+    // the user has modify the genes, spots or visual settings
+    void slotUpdateView();
 
 private slots:
 
@@ -144,8 +134,7 @@ private:
     QScopedPointer<QSlider> m_geneIntensitySlider;
     QScopedPointer<QSlider> m_geneSizeSlider;
     QScopedPointer<QComboBox> m_geneShapeComboBox;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
+
     // currently opened dataset
     mutable QString m_openedDatasetId;
 

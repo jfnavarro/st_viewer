@@ -106,7 +106,7 @@ bool imageFormatHasWriteSupport(const QString &format)
 }
 }
 
-CellViewPage::CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+CellViewPage::CellViewPage(QWidget *parent)
     : QWidget(parent)
     , m_legend(nullptr)
     , m_gene_plotter(nullptr)
@@ -180,7 +180,7 @@ void CellViewPage::clean()
     setEnableButtons(false);
 }
 
-void CellViewPage::slotDatasetOpen(const QString &datasetId)
+void CellViewPage::slotDatasetOpen(const Dataset &datasetId)
 {
     // NOTE for now we enforce to always reload
     // a dataset even if it is the one currently opened.
@@ -259,12 +259,12 @@ void CellViewPage::slotDatasetOpen(const QString &datasetId)
     slotLoadCellFigure();
 }
 
-void CellViewPage::slotDatasetUpdated(const QString &datasetId)
+void CellViewPage::slotDatasetUpdated(const Dataset &datasetId)
 {
     slotDatasetOpen(datasetId);
 }
 
-void CellViewPage::slotDatasetRemoved(const QString &datasetId)
+void CellViewPage::slotDatasetRemoved(const Dataset &datasetId)
 {
     if (datasetId == m_openedDatasetId) {
         clean();
