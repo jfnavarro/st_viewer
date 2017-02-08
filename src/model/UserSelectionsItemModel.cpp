@@ -1,5 +1,5 @@
 #include "UserSelectionsItemModel.h"
-#include "dataModel/UserSelection.h"
+#include "data/UserSelection.h"
 #include <QDebug>
 #include <QItemSelection>
 #include <QDateTime>

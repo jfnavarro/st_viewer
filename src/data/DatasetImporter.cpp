@@ -10,12 +10,8 @@ DatasetImporter::DatasetImporter(QWidget *parent)
     , m_ui(new Ui::DatasetImporter)
 {
     m_ui->setupUi(this);
-    connect(m_ui->loadFeaturesFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
+    connect(m_ui->loadSTDataFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSTDataFile()));
     connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
-    connect(m_ui->loadSecondImageFile,
-            SIGNAL(clicked(bool)),
-            this,
-            SLOT(slotLoadSecondImageFile()));
     connect(m_ui->loadImageAlignmentFile,
             SIGNAL(clicked(bool)),
             this,
@@ -47,9 +43,9 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
-const QByteArray DatasetImporter::featuresFile() const
+const QByteArray DatasetImporter::STDataFile() const
 {
-    QFile file(m_ui->featuresFile->text());
+    QFile file(m_ui->STDataFile->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "Error opening ST data file " << file.errorString();
         return QByteArray();
@@ -64,22 +60,6 @@ const QByteArray DatasetImporter::mainImageFile() const
         return QByteArray();
     }
     return file.readAll();
-}
-
-const QByteArray DatasetImporter::secondImageFile() const
-{
-    QFile file(m_ui->secondImageFile->text());
-    if (!file.open(QIODevice::ReadOnly)) {
-        return QByteArray();
-    }
-    return file.readAll();
-}
-
-const QRect DatasetImporter::chipDimensions() const
-{
-    //NOTE hardcoded for now..
-    return QRect(QPoint(2, 2),
-                 QPoint(32, 34));
 }
 
 const QTransform DatasetImporter::alignmentMatrix() const
@@ -117,7 +97,7 @@ const QTransform DatasetImporter::alignmentMatrix() const
     return QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
 }
 
-void DatasetImporter::slotLoadFeaturesFile()
+void DatasetImporter::slotLoadSTDataFile()
 {
     const QString filename
         = QFileDialog::getOpenFileName(this,
@@ -154,28 +134,6 @@ void DatasetImporter::slotLoadMainImageFile()
         QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->mainImageFile->insert(filename);
-    }
-}
-
-void DatasetImporter::slotLoadSecondImageFile()
-{
-    const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Second Image File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    QFileInfo info(filename);
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Second Image File"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        m_ui->secondImageFile->insert(filename);
     }
 }
 

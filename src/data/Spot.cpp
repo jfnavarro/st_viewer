@@ -1,4 +1,4 @@
-#include "dataModel/Spot.h"
+#include "data/Spot.h"
 
 Spot::Spot()
     : m_count(0)

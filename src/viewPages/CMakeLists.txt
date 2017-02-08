@@ -8,6 +8,7 @@ set(LIBRARY_ARG_INCLUDES
     SpotsWidget.h
     SelectionGenesWidget.h
     SelectionSpotsWidget.h
+    SettingsWidget.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -18,12 +19,14 @@ set(LIBRARY_ARG_SOURCES
     SpotsWidget.cpp
     SelectionGenesWidget.cpp
     SelectionSpotsWidget.cpp
+    SettingsWidget.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
     "${PROJECT_SOURCE_DIR}/assets/ui/datasetsPage.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/selectionsPage.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/cellviewPage.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/SettingsWidget.ui"
 )
 
 ST_LIBRARY()

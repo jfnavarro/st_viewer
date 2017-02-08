@@ -30,7 +30,7 @@
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
 #include "viewPages/GenesWidget.h"
-#include "dataModel/User.h"
+#include "data/User.h"
 #include "SettingsStyle.h"
 
 using namespace Style;

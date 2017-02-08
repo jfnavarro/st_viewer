@@ -6,7 +6,7 @@
 #include <QItemSelection>
 #include <QDateTime>
 
-#include "dataModel/Dataset.h"
+#include "data/Dataset.h"
 #include <set>
 
 static const int COLUMN_NUMBER = 3;

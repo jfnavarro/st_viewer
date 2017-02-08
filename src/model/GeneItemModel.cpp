@@ -1,5 +1,5 @@
 #include "GeneItemModel.h"
-#include "dataModel/Gene.h"
+#include "data/Gene.h"
 #include <set>
 #include <QDebug>
 #include <QModelIndex>

@@ -5,6 +5,7 @@
 #include <QColor>
 
 // Some settings and common variables for the main user windows
+//TODO add this to the config file so they are loaded dynamically
 namespace Visual
 {
 

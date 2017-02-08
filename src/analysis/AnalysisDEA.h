@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QModelIndex>
 
-#include "dataModel/UserSelection.h"
+#include "data/UserSelection.h"
 #include <memory>
 
 namespace Ui

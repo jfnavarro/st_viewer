@@ -9,9 +9,9 @@ class DatasetImporter;
 }
 
 // This widget allows the user to import a dataset.
-// The widget asks the user to introduce the chip
-// size, the alignment matrix, the features in JSON data
-// and the images
+// The widget asks the user to introduce the STData (matrix),
+// the cell tissue image and optionally a 3x3 alignment matrix
+//TODO factor out the file open dialog
 class DatasetImporter : public QDialog
 {
     Q_OBJECT
@@ -21,20 +21,17 @@ public:
     ~DatasetImporter();
 
     const QString datasetName() const;
-    const QByteArray featuresFile() const;
-    const QRect chipDimensions() const;
+    const QByteArray STDataFile() const;
     const QTransform alignmentMatrix() const;
     const QByteArray mainImageFile() const;
-    const QByteArray secondImageFile() const;
     const QString species() const;
     const QString tissue() const;
     const QString comments() const;
 
 private slots:
 
-    void slotLoadFeaturesFile();
+    void slotLoadSTDataFile();
     void slotLoadMainImageFile();
-    void slotLoadSecondImageFile();
     void slotLoadAlignmentFile();
     void slotValidateForm();
 

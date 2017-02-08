@@ -74,14 +74,10 @@ private:
     QScopedPointer<QAction> m_actionDatasets;
     QScopedPointer<QAction> m_actionSelections;
 
-    // MainWindow owns the dataProxy instance
-    QSharedPointer<DataProxy> m_dataProxy;
-
     // different views
     QScopedPointer<DatasetPage> m_datasets;
     QScopedPointer<CellViewPage> m_cellview;
     QScopedPointer<UserSelectionsPage> m_user_selections;
-    QScopedPointer<GenesWidget> m_genes;
 
     // the configuration settings
     Configuration m_config;

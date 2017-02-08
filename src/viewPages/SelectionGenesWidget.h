@@ -3,7 +3,7 @@
 
 #include <QDockWidget>
 #include <QPointer>
-#include <dataModel/STData.h>
+#include <data/STData.h>
 
 class QLineEdit;
 class GeneSelectionTableView;

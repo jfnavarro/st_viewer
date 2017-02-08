@@ -1,12 +1,12 @@
 #ifndef USERSELECTION_H
 #define USERSELECTION_H
 
-#include <STData.h>
 #include <QString>
+#include "STData.h"
 
-// Gene selection represents a selection of spots made by the user trough the UI.
+// UserSelection represents a selection of spots made by the user trough the UI.
 // Users can select spots manually (lazo, rubberband ..) or by using the selection search
-// box with specific gene names
+// box with specific gene names (reg-exp).
 class UserSelection
 {
 
@@ -53,8 +53,10 @@ public:
     void tissueSnapShot(const QByteArray &tissueSnapShot);
     void totalReads(const int totalReads);
 
+    // convenience functions to convert Type to QString and vice-versa
     static const QString typeToQString(const UserSelection::Type &type);
     static UserSelection::Type QStringToType(const QString &type);
+
 private:
     QString m_name;
     QString m_dataset;

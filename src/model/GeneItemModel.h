@@ -2,7 +2,7 @@
 #define GENEFITEMMODEL_H
 
 #include <QAbstractTableModel>
-#include "dataModel/STData.h"
+#include "data/STData.h"
 
 class QModelIndex;
 class QStringList;

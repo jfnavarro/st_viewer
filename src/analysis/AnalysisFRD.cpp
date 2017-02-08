@@ -6,7 +6,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "dataModel/Feature.h"
+#include "data/Feature.h"
 
 #include <cmath>
 #include <unordered_map>

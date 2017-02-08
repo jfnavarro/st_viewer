@@ -14,42 +14,52 @@
    <string>Import Dataset</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
+   <item row="13" column="1">
+    <widget class="QToolButton" name="loadMainImageFile">
      <property name="text">
-      <string>Dataset Name</string>
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="QLineEdit" name="mainImageFile"/>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Main image</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLineEdit" name="STDataFile"/>
+   </item>
+   <item row="9" column="1">
+    <widget class="QToolButton" name="loadSTDataFile">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QToolButton" name="loadImageAlignmentFile">
+     <property name="text">
+      <string>...</string>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QLineEdit" name="datasetName"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Species (Optional)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLineEdit" name="species"/>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Tissue (Optional)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLineEdit" name="tissue"/>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Comments (Optional)</string>
-     </property>
-    </widget>
    </item>
    <item row="7" column="0">
     <widget class="QTextEdit" name="comments"/>
@@ -61,16 +71,6 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="QLineEdit" name="featuresFile"/>
-   </item>
-   <item row="9" column="1">
-    <widget class="QToolButton" name="loadFeaturesFile">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
    <item row="10" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
@@ -78,57 +78,40 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QLineEdit" name="species"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Dataset Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLineEdit" name="tissue"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Species (Optional)</string>
+     </property>
+    </widget>
+   </item>
    <item row="11" column="0">
     <widget class="QLineEdit" name="imageAlignmentFile"/>
    </item>
-   <item row="11" column="1">
-    <widget class="QToolButton" name="loadImageAlignmentFile">
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>...</string>
+      <string>Tissue (Optional)</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="label_4">
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Main image</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0">
-    <widget class="QLineEdit" name="mainImageFile"/>
-   </item>
-   <item row="13" column="1">
-    <widget class="QToolButton" name="loadMainImageFile">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Second image (Optional)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="0">
-    <widget class="QLineEdit" name="secondImageFile"/>
-   </item>
-   <item row="15" column="1">
-    <widget class="QToolButton" name="loadSecondImageFile">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <string>Comments (Optional)</string>
      </property>
     </widget>
    </item>
@@ -139,12 +122,10 @@
   <tabstop>species</tabstop>
   <tabstop>tissue</tabstop>
   <tabstop>comments</tabstop>
-  <tabstop>featuresFile</tabstop>
-  <tabstop>loadFeaturesFile</tabstop>
+  <tabstop>STDataFile</tabstop>
+  <tabstop>loadSTDataFile</tabstop>
   <tabstop>mainImageFile</tabstop>
   <tabstop>loadMainImageFile</tabstop>
-  <tabstop>secondImageFile</tabstop>
-  <tabstop>loadSecondImageFile</tabstop>
  </tabstops>
  <resources/>
  <connections>

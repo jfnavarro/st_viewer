@@ -1,14 +1,14 @@
 #include "GeneRendererGL.h"
-
+/*
 #include <QFutureWatcher>
 #include <QtConcurrent>
 #include <QOpenGLShaderProgram>
 #include <QImageReader>
 #include <QApplication>
 
-#include "dataModel/UserSelection.h"
-#include "dataModel/Feature.h"
-#include "dataModel/Gene.h"
+#include "data/UserSelection.h"
+#include "data/Feature.h"
+#include "data/Gene.h"
 #include "SettingsVisual.h"
 
 static const int INVALID_INDEX = -1;
@@ -748,3 +748,4 @@ bool GeneRendererGL::featureTotalReadsOutsideRange(const int value)
 {
     return (value < m_thresholdTotalReadsLower || value > m_thresholdTotalReadsUpper);
 }
+*/

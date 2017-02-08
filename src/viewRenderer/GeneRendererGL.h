@@ -1,14 +1,12 @@
 #ifndef GENERENDERERGL_H
 #define GENERENDERERGL_H
-
+/*
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 
 #include "math/QuadTree.h"
 #include "SelectionEvent.h"
-#include "GeneData.h"
-#include "data/DataProxy.h"
 #include "SettingsVisual.h"
 
 #include <unordered_set>
@@ -247,5 +245,5 @@ private:
 
     Q_DISABLE_COPY(GeneRendererGL)
 };
-
+*/
 #endif // GENERENDERERGL_H

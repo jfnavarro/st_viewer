@@ -4,30 +4,25 @@
 #include <QWidget>
 #include <QModelIndex>
 #include <memory>
-#include "data/DataProxy.h"
 
 class QItemSelectionModel;
 class QItemSelection;
-class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
 class DatasetImporter;
+
 namespace Ui
 {
 class DataSets;
 } // namespace Ui //
 
 // This is the definition of the datasets view which contains
-// a tables with datasets (imported locally and/or downloaded from the database)
-// It gets updated everytime we show the view.
-// It uses the dataProxy object to load the data.
-// It has a toolbar with basic functionalities
+// a table with datasets (imported locally)
+// It has a toolbar with basic functionalities (such as open, edit, export, import, etc..)
 
 // TODO add option to highlight the currently opened dataset
 // TODO add right click support (copy, open, save, delete...)
-// TODO add posibility to edit and save objects in the table
-// TODO add option to get more info (stats) for the dataset
 class DatasetPage : public QWidget
 {
     Q_OBJECT
@@ -79,8 +74,6 @@ private:
 
     // reference to ui object
     QScopedPointer<Ui::DataSets> m_ui;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
     // waiting (loading) spinner
     QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
     // List of imported datasets (from files)
