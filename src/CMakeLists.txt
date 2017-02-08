@@ -48,6 +48,12 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
+find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
+
+find_package(Rcpp REQUIRED)
+include_directories(${RCPP_INCLUDE_DIRS})
+
 # Include third party libraries
 add_subdirectory(ext)
 
@@ -105,7 +111,7 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for hte ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot ${ARMADILLO_LIBRARIES} ${RCPP_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 
