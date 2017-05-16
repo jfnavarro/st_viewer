@@ -23,7 +23,7 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    const auto item = m_userSelectionList.at(index.row());
+    const UserSelection &item = m_userSelectionList.at(index.row());
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Name:
@@ -136,7 +136,7 @@ void UserSelectionsItemModel::loadUserSelections(const QList<UserSelection> &sel
     endResetModel();
 }
 
-const QList<UserSelection>& UserSelectionsItemModel::getSelections(const QItemSelection &selection)
+QList<UserSelection> UserSelectionsItemModel::getSelections(const QItemSelection &selection)
 {
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
@@ -145,7 +145,7 @@ const QList<UserSelection>& UserSelectionsItemModel::getSelections(const QItemSe
 
     QList<UserSelection> selectionList;
     for (const auto &row : rows) {
-        auto selection = m_userSelectionList.at(row);
+        const UserSelection &selection = m_userSelectionList.at(row);
         selectionList.push_back(selection);
     }
 

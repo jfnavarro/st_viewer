@@ -28,7 +28,7 @@ class DatasetPage : public QWidget
     Q_OBJECT
 
 public:
-    DatasetPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    DatasetPage(QWidget *parent = 0);
     virtual ~DatasetPage();
 
     // clear the loaded content

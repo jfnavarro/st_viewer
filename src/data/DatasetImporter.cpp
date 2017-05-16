@@ -11,6 +11,7 @@ DatasetImporter::DatasetImporter(QWidget *parent)
 {
     m_ui->setupUi(this);
     connect(m_ui->loadSTDataFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSTDataFile()));
+    connect(m_ui->loadSpotMapFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSpotsMapFile()));
     connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
     connect(m_ui->loadImageAlignmentFile,
             SIGNAL(clicked(bool)),
@@ -45,7 +46,7 @@ const QString DatasetImporter::comments() const
 
 const QByteArray DatasetImporter::STDataFile() const
 {
-    QFile file(m_ui->STDataFile->text());
+    QFile file(m_ui->stDataFile->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "Error opening ST data file " << file.errorString();
         return QByteArray();
@@ -97,13 +98,23 @@ const QTransform DatasetImporter::alignmentMatrix() const
     return QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
 }
 
+const QByteArray DatasetImporter::spotsMapFile() const
+{
+    QFile file(m_ui->spotMapFile->text());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Error opening Spots Map file " << file.errorString();
+        return QByteArray();
+    }
+    return file.readAll();
+}
+
 void DatasetImporter::slotLoadSTDataFile()
 {
     const QString filename
         = QFileDialog::getOpenFileName(this,
-                                       tr("Open Features File"),
+                                       tr("Open ST Data File"),
                                        QDir::homePath(),
-                                       QString("%1").arg(tr("JSON Files (*.json)")));
+                                       QString("%1").arg(tr("TSV Files (*.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -111,9 +122,9 @@ void DatasetImporter::slotLoadSTDataFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Features File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("ST Data File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->featuresFile->insert(filename);
+        m_ui->stDataFile->insert(filename);
     }
 }
 
@@ -134,6 +145,26 @@ void DatasetImporter::slotLoadMainImageFile()
         QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->mainImageFile->insert(filename);
+    }
+}
+
+void DatasetImporter::slotLoadSpotsMapFile()
+{
+    const QString filename
+        = QFileDialog::getOpenFileName(this,
+                                       tr("Open Spots Map File"),
+                                       QDir::homePath(),
+                                       QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Spots Map File"), tr("File is incorrect or not readable"));
+    } else {
+        m_ui->spotMapFile->insert(filename);
     }
 }
 
@@ -166,7 +197,7 @@ void DatasetImporter::slotValidateForm()
     if (m_ui->mainImageFile->text().isEmpty()) {
         isValid = false;
         error_msg = tr("Main image is missing!");
-    } else if (m_ui->featuresFile->text().isEmpty()) {
+    } else if (m_ui->stDataFile->text().isEmpty()) {
         isValid = false;
         error_msg = tr("ST Data file is missing!");
     } else if (m_ui->datasetName->text().isEmpty()) {

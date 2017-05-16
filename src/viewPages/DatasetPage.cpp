@@ -9,13 +9,9 @@
 
 #include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 
-#include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "dialogs/EditDatasetDialog.h"
 #include "data/DatasetImporter.h"
-#include "data/Dataset.h"
-#include "data/Chip.h"
-#include "data/ImageAlignment.h"
 #include "data/Dataset.h"
 #include "SettingsStyle.h"
 
@@ -23,10 +19,9 @@
 
 using namespace Style;
 
-DatasetPage::DatasetPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+DatasetPage::DatasetPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::DataSets())
-    , m_dataProxy(dataProxy)
     , m_waiting_spinner(nullptr)
 {
     m_ui->setupUi(this);
@@ -133,22 +128,8 @@ void DatasetPage::slotSelectAndOpenDataset(QModelIndex index)
     slotOpenDataset();
 }
 
-void DatasetPage::slotLoadDatasets()
-{
-    if (!m_dataProxy->userLogIn()) {
-        return;
-    }
-
-    // download datasets
-    m_waiting_spinner->start();
-    if (m_dataProxy->loadDatasets()) {
-        slotDatasetsUpdated();
-    }
-    m_waiting_spinner->stop();
-}
-
 void DatasetPage::slotEditDataset()
-{
+{/*
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
     // Can only edit 1 valid dataset
@@ -190,11 +171,11 @@ void DatasetPage::slotEditDataset()
             // TODO maybe check that the name does not exist
             // TODO should reload the dataset automatically if it is the currently opened
         }
-    }
+    }*/
 }
 
 void DatasetPage::slotOpenDataset()
-{
+{/*
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
     // Can only open 1 valid dataset
@@ -275,11 +256,12 @@ void DatasetPage::slotOpenDataset()
         }
     }
 
-    m_waiting_spinner->stop();
+    m_waiting_spinner->stop();*/
 }
 
 void DatasetPage::slotRemoveDataset()
 {
+    /*
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
     // Can remove multiple datasets
@@ -307,10 +289,12 @@ void DatasetPage::slotRemoveDataset()
     m_waiting_spinner->stop();
     // after we remove a dataset we refresh the model
     slotDatasetsUpdated();
+    */
 }
 
 void DatasetPage::slotImportDataset()
 {
+    /*
     QPointer<DatasetImporter> importer = new DatasetImporter();
     const int result = importer->exec();
     if (result == QDialog::Accepted) {
@@ -330,11 +314,13 @@ void DatasetPage::slotImportDataset()
         m_dataProxy->addDataset(dataset);
         slotDatasetsUpdated();
     }
+    */
 }
 
 void DatasetPage::slotDatasetsUpdated()
 {
+    /*
     // update model
     datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
-    clearControls();
+    clearControls();*/
 }

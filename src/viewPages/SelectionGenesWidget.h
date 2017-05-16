@@ -3,9 +3,9 @@
 
 #include <QDockWidget>
 #include <QPointer>
-#include <data/STData.h>
 
 class QLineEdit;
+class UserSelection;
 class GeneSelectionTableView;
 class GeneSelectionItemModel;
 class QSortFilterProxyModel;
@@ -27,15 +27,13 @@ public:
 public slots:
 
     // reload the user selection's data model
-    void slotLoadModel(const STData::gene_count_list &gene_counts);
+    void slotLoadModel(const UserSelection &selection);
 
 signals:
 
 private:
 
     // some references needed to UI elements
-    QScopedPointer<QLineEdit> m_geneSelectionFilterLineEdit;
-    QScopedPointer<GeneSelectionTableView> m_selections_tableview;
 
     Q_DISABLE_COPY(SelectionGenesWidget)
 };

@@ -1,11 +1,13 @@
 #include "GeneItemModel.h"
-#include "data/Gene.h"
 #include <set>
 #include <QDebug>
 #include <QModelIndex>
 #include <QMimeData>
 #include <QStringList>
 #include <QItemSelection>
+
+#include "data/Gene.h"
+#include "data/Dataset.h"
 
 static const int COLUMN_NUMBER = 4;
 
@@ -14,7 +16,7 @@ GeneItemModel::GeneItemModel(QObject *parent)
 {
 }
 
-GeneItemModel::~GeneFeatureItemModel()
+GeneItemModel::~GeneItemModel()
 {
 }
 
@@ -24,7 +26,7 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return QVariant(QVariant::Invalid);
     }
 
-    const auto item = m_genelist_reference.at(index.row());
+    const Gene &item = m_genelist_reference.at(index.row());
 
     if (role == Qt::DisplayRole && index.column() == Name) {
         return item.name();
@@ -67,7 +69,7 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
-        const auto item = m_genelist_reference.at(index.row());
+        Gene item = m_genelist_reference.at(index.row());
         const int new_cutoff = value.toUInt();
         if (item.cut_off() != new_cutoff && new_cutoff > 0) {
             item.cut_off(new_cutoff);
@@ -164,10 +166,11 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void GeneItemModel::loadGenes(const STData::gene_list &geneList)
+void GeneItemModel::loadGenes(const Dataset &dataset)
 {
+    Q_UNUSED(dataset)
     beginResetModel();
-    m_genelist_reference = geneList;
+    //m_genelist_reference = dataset;
     endResetModel();
 }
 
@@ -184,7 +187,7 @@ bool GeneItemModel::geneName(const QModelIndex &index, QString *genename) const
         return false;
     }
 
-    const auto item = m_genelist_reference.at(index.row());
+    const Gene &item = m_genelist_reference.at(index.row());
     if (index.column() == Name) {
         *genename = item.name();
         return true;
@@ -204,9 +207,9 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
         rows.insert(index.row());
     }
     // create a list of genes that are changing the selected state
-    STData::gene_list geneList;
+    QList<Gene> geneList;
     for (const auto &row : rows) {
-        auto gene = m_genelist_reference.at(row);
+        const Gene &gene = m_genelist_reference.at(row);
         if (gene.selected() != visible) {
             gene.selected(visible);
             geneList.push_back(gene);
@@ -227,9 +230,9 @@ void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &
         rows.insert(index.row());
     }
     // create a list of genes that are changing the color
-    STData::gene_list geneList;
+    QList<Gene> geneList;
     for (const auto &row : rows) {
-        auto gene = m_genelist_reference.at(row);
+        Gene gene = m_genelist_reference.at(row);
         if (color.isValid() && gene.color() != color) {
             gene.color(color);
             geneList.push_back(gene);

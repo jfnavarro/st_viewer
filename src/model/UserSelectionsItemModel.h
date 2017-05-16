@@ -41,7 +41,7 @@ public:
     void loadUserSelections(const QList<UserSelection> &selectionList);
 
     // returns a list of selections items from the indexes given as input
-    const QList<UserSelection>& getSelections(const QItemSelection &selection);
+    QList<UserSelection> getSelections(const QItemSelection &selection);
 
 private:
     QList<UserSelection> m_userSelectionList;

@@ -10,17 +10,17 @@
 #include <QColorDialog>
 #include "customWidgets/SpinBoxSlider.h"
 
-static const int GENE_INTENSITY_MIN = 1;
-static const int GENE_INTENSITY_MAX = 10;
-static const int GENE_SIZE_MIN = 5;
-static const int GENE_SIZE_MAX = 30;
+//static const int GENE_INTENSITY_MIN = 1;
+//static const int GENE_INTENSITY_MAX = 10;
+//static const int GENE_SIZE_MIN = 5;
+//static const int GENE_SIZE_MAX = 30;
 
 SettingsWidget::SettingsWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SettingsWidget)
 {
     ui->setupUi(this);
-
+/*
     // set some default properties for some actions
     m_ui->actionShow_toggleNormal->setProperty("mode", GeneRendererGL::NormalMode);
     m_ui->actionShow_toggleDynamicRange->setProperty("mode", GeneRendererGL::DynamicRangeMode);
@@ -170,7 +170,7 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
     menu_cellTissue->addSeparator();
 
     // add menu to tool button in top bar
-    m_ui->cellmenu->setMenu(menu_cellTissue);
+    m_ui->cellmenu->setMenu(menu_cellTissue);*/
 }
 
 SettingsWidget::~SettingsWidget()
@@ -178,7 +178,7 @@ SettingsWidget::~SettingsWidget()
     delete ui;
 }
 
-
+/*
 void CellViewPage::resetActionStates()
 {
     // reset color dialogs
@@ -287,3 +287,4 @@ void CellViewPage::slotGeneSize(int geneSize)
     const float decimal = static_cast<float>(geneSize) / 10;
     m_gene_plotter->setSize(decimal);
 }
+*/

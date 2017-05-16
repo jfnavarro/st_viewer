@@ -5,12 +5,12 @@
 #include <QModelIndex>
 #include <memory>
 
+#include "viewPages/SelectionGenesWidget.h"
+#include "viewPages/SelectionSpotsWidget.h"
+#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
+
 class UserSelectionsItemModel;
 class QSortFilterProxyModel;
-class AnalysisDEA;
-class SelectionGenesWidget;
-class SelectionSpotsWidget;
-class WaitingSpinnerWidget;
 class UserSelection;
 
 namespace Ui
@@ -19,22 +19,21 @@ class UserSelections;
 } // namespace Ui //
 
 // UserSelections page contains a table with the selection made by the user.
-// Users can interact here to edit/remove selections and to perform analysis on
-// them
+// Users can interact here to edit/remove selections and to perform analysis
 // like the DEA, PCA, etc..
 
 // TODO factor out the confirmation dialog
 // TODO add option to show right click with mouse in selection (open, copy,
 // edit...)
-// TODO implement clustering options to compute cell types (spot type)
-// TODO add import selections option
-// TODO add posibility to edit and save objects in the table
+// TODO implement tsne clustering
+// TODO implement DEA analysis
+// TODO add import/export selections option
 class UserSelectionsPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    UserSelectionsPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    UserSelectionsPage(QWidget *parent = 0);
     virtual ~UserSelectionsPage();
 
     // clear the loaded content

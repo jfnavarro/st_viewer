@@ -13,11 +13,11 @@
 #include <QImageWriter>
 #include <QPainter>
 
-#include "dialogs/SelectionDialog.h"
 #include "viewRenderer/CellGLView.h"
 #include "viewRenderer/ImageTextureGL.h"
 #include "viewRenderer/HeatMapLegendGL.h"
 #include "viewRenderer/GeneRendererGL.h"
+#include "dialogs/SelectionDialog.h"
 #include "SettingsWidget.h"
 #include "GenesWidget.h"
 #include "SpotsWidget.h"
@@ -51,13 +51,12 @@ bool imageFormatHasWriteSupport(const QString &format)
 CellViewPage::CellViewPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::CellView())
-    , m_legend(nullptr)
-    , m_gene_plotter(nullptr)
-    , m_image(nullptr)
+    //, m_legend(nullptr)
+    //, m_gene_plotter(nullptr)
+    //, m_image(nullptr)
     , m_genes(nullptr)
     , m_spots(nullptr)
     , m_settings(nullptr)
-    , m_FDH(nullptr)
 
 {
     m_ui->setupUi(this);
@@ -72,10 +71,6 @@ CellViewPage::CellViewPage(QWidget *parent)
         "QPushButton {border-image: url(:/images/selection.png); } "
         "QPushButton:checked {border-image: url(:/images/selection2.png); }");
 
-    // instantiante FDH
-    m_FDH.reset(new AnalysisFRD());
-    Q_ASSERT(!m_FDH.isNull());
-
     // instantiate Spots Widget
     m_spots.reset(new SpotsWidget());
     Q_ASSERT(!m_spots.isNull());
@@ -89,13 +84,10 @@ CellViewPage::CellViewPage(QWidget *parent)
     Q_ASSERT(!m_settings.isNull());
 
     // initialize rendering pipeline
-    initRendering();
+    initRenderer();
 
     // create toolbar and all the connections
-    createMenusAndConnections();
-
-    // disable toolbar controls
-    setEnableButtons(false);
+    createConnections();
 }
 
 CellViewPage::~CellViewPage()
@@ -105,28 +97,19 @@ CellViewPage::~CellViewPage()
 void CellViewPage::clean()
 {
     // reset visualization objects
-    m_image->clearData();
-    m_gene_plotter->clearData();
-    m_legend->clearData();
+    //m_image->clearData();
+    //m_gene_plotter->clearData();
+    //m_legend->clearData();
     m_ui->view->clearData();
     m_ui->view->update();
-    m_genes->clearData();
-    m_spots->clearData();
-    m_settings->reset();
-    // close FDH widget
-    m_FDH->close();
-
-    // disable toolbar controls
-    setEnableButtons(false);
+    //m_genes->clearData();
+    //m_spots->clearData();
+    //m_settings->reset();
 }
 
 void CellViewPage::slotDatasetOpen(const Dataset &dataset)
 {
-    //NOTE we allow to re-open the same dataset (in case it has
-    //been edited)
-
-    // enable toolbar controls
-    setEnableButtons(true);
+    //NOTE we allow to re-open the same dataset (in case it has been edited)
 
     // store the dataset
     m_openedDataset = dataset;
@@ -135,25 +118,22 @@ void CellViewPage::slotDatasetOpen(const Dataset &dataset)
     setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
     // update gene plotter rendering object with the dataset
-    m_gene_plotter->setDataset(dataset);
-
-    // update Spots/Genes distribution widget with the dataset
-    m_FDH->setDataset(dataset);
+    //m_gene_plotter->setDataset(dataset);
 
     // update Genes Widget with the opened dataset
-    m_genes->setDataset(dataset);
+    //m_genes->setDataset(dataset);
 
     // update Spots Widget with the opened dataset
-    m_spots->setDataset(dataset);
+    //m_spots->setDataset(dataset);
 
     // update Settings Widget with the opened dataset
-    m_settings->setDataset(dataset);
+    //m_settings->setDataset(dataset);
 
     // update color map legend with the dataset
-    m_legend->setDataset(dataset);
+    //m_legend->setDataset(dataset);
 
     // load cell tissue (to load the dataset's cell tissue image)
-    m_image->setDataset(dataset);
+    //m_image->setDataset(dataset);
 }
 
 void CellViewPage::slotDatasetUpdated(const Dataset &dataset)
@@ -170,24 +150,11 @@ void CellViewPage::slotDatasetRemoved(const Dataset &dataset)
 
 void CellViewPage::slotClearSelections()
 {
-    m_gene_plotter->clearSelection();
-}
-
-void CellViewPage::setEnableButtons(bool enable)
-{
-    m_ui->selection->setEnabled(enable);
-    m_ui->save->setEnabled(enable);
-    m_ui->print->setEnabled(enable);
-    m_ui->regexpselection->setEnabled(enable);
-    m_ui->zoomin->setEnabled(enable);
-    m_ui->zoomout->setEnabled(enable);
-    m_ui->histogram->setEnabled(enable);
-    m_ui->view->setEnabled(enable);
 }
 
 void CellViewPage::createConnections()
 {
-
+/*
     // cell tissue
     connect(m_ui->actionShow_cellTissueBlue,
             SIGNAL(triggered(bool)),
@@ -361,12 +328,12 @@ void CellViewPage::createConnections()
             m_FDH.data(),
             SLOT(setUpperLimit(int)));
     connect(m_ui->histogram, &QPushButton::clicked, [=] { m_FDH->show(); });
+  */
 }
 
 
-void CellViewPage::initRendering()
-{
-    // the OpenGL main view object is initialized in the UI form class
+void CellViewPage::initRenderer()
+{/*    // the OpenGL main view object is initialized in the UI form class
 
     // image texture graphical object
     m_image = QSharedPointer<ImageTextureGL>(new ImageTextureGL());
@@ -380,6 +347,7 @@ void CellViewPage::initRendering()
     m_legend = QSharedPointer<HeatMapLegendGL>(new HeatMapLegendGL());
     m_legend->setAnchor(DEFAULT_ANCHOR_LEGEND);
     m_ui->view->addRenderingNode(m_legend);
+*/
 }
 
 void CellViewPage::slotPrintImage()
@@ -443,12 +411,12 @@ void CellViewPage::slotSaveImage()
 
 void CellViewPage::slotSelectByRegExp()
 {
-    const STData::gene_list &geneList = SelectionDialog::selectGenes(m_openedDataset->genes());
-    m_openedDataset->seletGenes(geneList);
+    //const STData::gene_list &geneList = SelectionDialog::selectGenes(m_openedDataset->genes());
+    //m_openedDataset->seletGenes(geneList);
 }
 
 void CellViewPage::slotCreateSelection()
-{
+{/*
     // get selected features and create the selection object
     const auto &selectedSpots = m_gene_plotter->getSelectedSpots();
     if (selectedSpots.empty()) {
@@ -473,10 +441,5 @@ void CellViewPage::slotCreateSelection()
     // clear the selection in gene plotter
     m_gene_plotter->clearSelection();
     // notify that the selection was created and added locally
-    emit signalUserSelection(UserSelection);
-}
-
-void CellViewPage::slotSetUserName(const QString &username)
-{
-    m_ui->username->setText(username);
+    emit signalUserSelection(UserSelection);*/
 }

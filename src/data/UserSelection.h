@@ -29,7 +29,7 @@ public:
     // the list of selected spots
     const STData::spot_list selectedSpots() const;
     const STData::gene_list selectedGenes() const;
-    // the list
+
     // some metat-data
     const QString comment() const;
     // the type of the selection

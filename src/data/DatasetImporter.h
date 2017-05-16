@@ -10,7 +10,10 @@ class DatasetImporter;
 
 // This widget allows the user to import a dataset.
 // The widget asks the user to introduce the STData (matrix),
-// the cell tissue image and optionally a 3x3 alignment matrix
+// the tissue image and optionally a 3x3 alignment matrix and
+// a file mapping coordiantes to new coordinates
+
+//TODO add method to open an entire dataset from folder
 //TODO factor out the file open dialog
 class DatasetImporter : public QDialog
 {
@@ -23,6 +26,7 @@ public:
     const QString datasetName() const;
     const QByteArray STDataFile() const;
     const QTransform alignmentMatrix() const;
+    const QByteArray spotsMapFile() const;
     const QByteArray mainImageFile() const;
     const QString species() const;
     const QString tissue() const;
@@ -32,6 +36,7 @@ private slots:
 
     void slotLoadSTDataFile();
     void slotLoadMainImageFile();
+    void slotLoadSpotsMapFile();
     void slotLoadAlignmentFile();
     void slotValidateForm();
 

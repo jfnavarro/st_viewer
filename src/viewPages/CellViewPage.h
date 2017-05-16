@@ -23,8 +23,7 @@ class CellView;
 // This is the definition of the cell view page visualization widget
 // which contains a table of genes/spots and an OpenGL based
 // rendering canvas to visualize the cell tissue and the spots (dataset).
-// It also contains a toobar like every page. Functionalities in the toolbar are
-// handled by slots.
+// It also contains a toobar. Functionalities in the toolbar are handled by slots.
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 // It contains a widget with different visualization and data settings
 
@@ -51,7 +50,7 @@ signals:
 
 public slots:
 
-    // the user has opened/edit/removed  a dataset
+    // the user has opened/edit/removed a dataset
     void slotDatasetOpen(const Dataset &dataset);
     void slotDatasetUpdated(const Dataset &dataset);
     void slotDatasetRemoved(const Dataset &dataset);
@@ -86,15 +85,14 @@ private:
     QScopedPointer<Ui::CellView> m_ui;
 
     // OpenGL visualization objects
-    QSharedPointer<HeatMapLegendGL> m_legend;
-    QSharedPointer<GeneRendererGL> m_gene_plotter;
-    QSharedPointer<ImageTextureGL> m_image;
+    //QSharedPointer<HeatMapLegendGL> m_legend;
+    //QSharedPointer<GeneRendererGL> m_gene_plotter;
+    //QSharedPointer<ImageTextureGL> m_image;
 
     // different control widgets and views
     QScopedPointer<GenesWidget> m_genes;
     QScopedPointer<SpotsWidget> m_spots;
     QScopedPointer<SettingsWidget> m_settings;
-    QScopedPointer<AnalysisFRD> m_FDH;
 
     // currently opened dataset
     mutable Dataset m_openedDataset;

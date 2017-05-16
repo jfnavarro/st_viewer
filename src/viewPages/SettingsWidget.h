@@ -21,6 +21,7 @@ public:
     ~SettingsWidget();
 
 public slots:
+    /*
     // some slots for gene actions that need adjustment of the value (scale)
     void slotSpotShape(int geneShape);
     void slotSpotIntensity(int geneIntensity);
@@ -28,11 +29,11 @@ public slots:
     // select gene visual mode
     void slotSetGeneVisualMode(QAction *action);
     // select legend anchor
-    void slotSetLegendAnchor(QAction *action);
+    void slotSetLegendAnchor(QAction *action);*/
 
 private:
     Ui::SettingsWidget *ui;
-
+/*
     // Elements of the cell view visual settings menu
     QScopedPointer<QRadioButton> m_colorLinear;
     QScopedPointer<QRadioButton> m_colorLog;
@@ -46,7 +47,7 @@ private:
     QScopedPointer<QSlider> m_geneIntensitySlider;
     QScopedPointer<QSlider> m_geneSizeSlider;
     QScopedPointer<QComboBox> m_geneShapeComboBox;
-
+*/
 };
 
 #endif // SETTINGSWIDGET_H

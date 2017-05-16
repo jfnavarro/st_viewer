@@ -33,7 +33,7 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole) {
-        auto item = m_datasets_reference.at(index.row());
+        const Dataset &item = m_datasets_reference.at(index.row());
         switch (index.column()) {
         case Name:
             return item.name();
@@ -118,7 +118,7 @@ void DatasetItemModel::loadDatasets(const QList<Dataset> &datasetList)
     endResetModel();
 }
 
-DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection &selection)
+QList<Dataset> DatasetItemModel::getDatasets(const QItemSelection &selection)
 {
     // get unique row indexes from the user selection
     QSet<int> rows;
@@ -128,8 +128,8 @@ DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection &selec
     // get the datasets corresponding to the selection and return them
     QList<Dataset> datasetList;
     for (const auto &row : rows) {
-        auto selection = m_datasets_reference.at(row);
-        datasetList.push_back(selection);
+        const Dataset &item = m_datasets_reference.at(row);
+        datasetList.push_back(item);
     }
     return datasetList;
 }

@@ -10,19 +10,18 @@
 #include <QColorDialog>
 
 #include "viewTables/GenesTableView.h"
-#include "model/GeneFeatureItemModel.h"
+#include "model/GeneItemModel.h"
 #include "utils/SetTips.h"
 #include "SettingsStyle.h"
 #include "SettingsVisual.h"
 
 using namespace Style;
 
-GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+GenesWidget::GenesWidget(QWidget *parent)
     : QWidget(parent)
     , m_lineEdit(nullptr)
     , m_genes_tableview(nullptr)
     , m_colorList(nullptr)
-    , m_dataProxy(dataProxy)
 {
     // one layout for the controls and another for the table
     QVBoxLayout *genesLayout = new QVBoxLayout();
@@ -186,28 +185,14 @@ void GenesWidget::slotSetColorAllSelected(const QColor &color)
     m_genes_tableview->update();
 }
 
-void GenesWidget::slotDatasetOpen(const QString &datasetId)
+void GenesWidget::slotLoadDataset(const Dataset &dataset)
 {
-    Q_UNUSED(datasetId);
-    const DataProxy::GeneList &geneList = m_dataProxy->getGeneList();
-    getModel()->loadGenes(geneList);
+    Q_UNUSED(dataset);
 }
 
-void GenesWidget::slotDatasetUpdated(const QString &datasetId)
+GeneItemModel *GenesWidget::getModel()
 {
-    Q_UNUSED(datasetId);
-}
-
-void GenesWidget::slotDatasetRemoved(const QString &datasetId)
-{
-    Q_UNUSED(datasetId);
-    clear();
-}
-
-GeneFeatureItemModel *GenesWidget::getModel()
-{
-    GeneFeatureItemModel *geneModel
-        = qobject_cast<GeneFeatureItemModel *>(getProxyModel()->sourceModel());
+    GeneItemModel *geneModel = qobject_cast<GeneItemModel *>(getProxyModel()->sourceModel());
     Q_ASSERT(geneModel);
     return geneModel;
 }

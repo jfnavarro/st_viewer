@@ -140,15 +140,13 @@ void AnalysisFRD::initializePlotLog()
     m_customPlotLog->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 }
 
-void AnalysisFRD::computeData(const DataProxy::FeatureList &features,
-                              const int min,
-                              const int max)
+void AnalysisFRD::computeData(const STData &dataset)
 {
 
     QHash<int, int> featureCounter;
 
     // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
-    for (const auto &feature : features) {
+    for (const auto &feature : dataset) {
         ++featureCounter[feature->count()];
     };
 

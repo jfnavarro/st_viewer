@@ -8,22 +8,19 @@
 #include <QScrollArea>
 #include <QDateTime>
 #include <QLabel>
-#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
+
 #include "model/UserSelectionsItemModel.h"
 #include "dialogs/EditSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
-#include "viewPages/SelectionsWidget.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
 
 using namespace Style;
 
-UserSelectionsPage::UserSelectionsPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::UserSelections())
-    , m_dataProxy(dataProxy)
-    , m_selectionsWidget(nullptr)
     , m_waiting_spinner(nullptr)
 {
     m_ui->setupUi(this);
@@ -143,7 +140,7 @@ void UserSelectionsPage::slotRemoveSelection()
     if (currentSelections.empty()) {
         return;
     }
-
+/*
     const int answer
         = QMessageBox::warning(this,
                                tr("Remove Selection"),
@@ -158,7 +155,7 @@ void UserSelectionsPage::slotRemoveSelection()
     //TODO remove the selections
 
     // update the model
-    slotSelectionsUpdated();
+    slotSelectionsUpdated();*/
 }
 
 void UserSelectionsPage::slotExportSelection()
@@ -168,7 +165,7 @@ void UserSelectionsPage::slotExportSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-
+/*
     QString filename = QFileDialog::getSaveFileName(this,
                                                     tr("Export File"),
                                                     QDir::homePath(),
@@ -195,7 +192,7 @@ void UserSelectionsPage::slotExportSelection()
     selectionItem.save(textFile);
 
     // close file
-    textFile.close();
+    textFile.close();*/
 }
 
 void UserSelectionsPage::slotEditSelection()
@@ -206,7 +203,7 @@ void UserSelectionsPage::slotEditSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-
+/*
     // currentSelection should only have one element
     const auto selection = currentSelection.front();
 
@@ -232,7 +229,7 @@ void UserSelectionsPage::slotEditSelection()
 
         // update model
         slotSelectionsUpdated()
-    }
+    }*/
 }
 
 void UserSelectionsPage::slotImportSelection()
@@ -242,18 +239,21 @@ void UserSelectionsPage::slotImportSelection()
 
 void UserSelectionsPage::slotPerformDEA()
 {
+
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
     if (currentSelection.empty() || currentSelection.size() != 2) {
         return;
     }
 
+    /*
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
     // creates the DEA widget and shows it
     QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
     analysisDEA->exec();
+    */
 }
 
 void UserSelectionsPage::slotPerformClustering()
@@ -275,6 +275,7 @@ void UserSelectionsPage::slotShowTissue()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+    /*
     const auto selectionObject = currentSelection.front();
 
     // if no snapshot returns
@@ -304,6 +305,7 @@ void UserSelectionsPage::slotShowTissue()
     image_label->setScaledContents(true);
     layout->addWidget(image_label);
     image_widget->show();
+    */
 }
 
 void UserSelectionsPage::slotShowGenes()
@@ -314,6 +316,8 @@ void UserSelectionsPage::slotShowGenes()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+
+    /*
     const auto selectionObject = currentSelection.front();
     // lazy init
     if (m_genesWidget.isNull()) {
@@ -322,6 +326,7 @@ void UserSelectionsPage::slotShowGenes()
     // update model
     m_genesWidget->slotLoadModel(selectionObject.getGenesCounts());
     m_genesWidget->show();
+    */
 }
 
 void UserSelectionsPage::slotShowSpots()
@@ -332,6 +337,8 @@ void UserSelectionsPage::slotShowSpots()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+
+    /*
     const auto selectionObject = currentSelection.front();
     // lazy init
     if (m_spotsWidget.isNull()) {
@@ -340,11 +347,5 @@ void UserSelectionsPage::slotShowSpots()
     // update model
     m_spotsWidget->slotLoadModel(selectionObject.getSpotsCounts());
     m_spotsWidget->show();
-}
-
-void UserSelectionsPage::slotSelectionsUpdated()
-{
-    // update model with downloaded genes selections
-    selectionsModel()->loadUserSelections(m_selections);
-    clearControls();
+    */
 }
