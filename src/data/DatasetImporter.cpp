@@ -78,19 +78,20 @@ const QTransform DatasetImporter::alignmentMatrix() const
     QFile file(m_ui->imageAlignmentFile->text());
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            // TODO check it is only one line and 9 columns
-            QStringList fields = line.split(" ");
-            a11 = fields.at(0).toFloat();
-            a12 = fields.at(1).toFloat();
-            a13 = fields.at(2).toFloat();
-            a21 = fields.at(3).toFloat();
-            a22 = fields.at(4).toFloat();
-            a23 = fields.at(5).toFloat();
-            a31 = fields.at(6).toFloat();
-            a32 = fields.at(7).toFloat();
-            a33 = fields.at(8).toFloat();
+        QString line = in.readLine();
+        QStringList fields = line.split(" ");
+        if (fields.length() == 9) {
+           a11 = fields.at(0).toFloat();
+           a12 = fields.at(1).toFloat();
+           a13 = fields.at(2).toFloat();
+           a21 = fields.at(3).toFloat();
+           a22 = fields.at(4).toFloat();
+           a23 = fields.at(5).toFloat();
+           a31 = fields.at(6).toFloat();
+           a32 = fields.at(7).toFloat();
+           a33 = fields.at(8).toFloat();
+        } else {
+            qDebug() << "Error parsing alignment matrix";
         }
     }
     file.close();

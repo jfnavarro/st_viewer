@@ -2,6 +2,10 @@
 #define STDATA_H
 
 #include <QList>
+#include <armadillo>
+
+using namespace arma;
+
 class Spot;
 class Gene;
 
@@ -20,15 +24,18 @@ public:
     //typedef QList<gene_count> gene_count_list;
 
     STData();
-    STData(int dummy);
     explicit STData(const STData &other);
     ~STData();
 
     STData &operator=(const STData &other);
     bool operator==(const STData &other) const;
 
+    void parse_matrix(QByteArray filename);
+
 private:
-    int dummy;
+    // should store the filename
+    // should store bool for open or not
+    Mat<float> m_counts_matrix;
 };
 
 #endif // STDATA_H

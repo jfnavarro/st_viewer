@@ -10,7 +10,7 @@ class QItemSelection;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
-class DatasetImporter;
+class Dataset;
 
 namespace Ui
 {
@@ -76,7 +76,7 @@ private:
     // waiting (loading) spinner
     QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
     // List of imported datasets (from files)
-    QHash<QString, QPointer<DatasetImporter>> m_importedDatasets;
+    QList<Dataset> m_importedDatasets;
 
     Q_DISABLE_COPY(DatasetPage)
 };

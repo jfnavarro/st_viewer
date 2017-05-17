@@ -55,8 +55,8 @@ macro(INITIALISE_PROJECT)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
         endif()
-
-        set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral \
+        #-Wformat-nonliteral (Armadillo complaints about this)
+        set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
                            -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization \
                            -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch \
                            -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")

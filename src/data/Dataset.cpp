@@ -7,6 +7,7 @@ Dataset::Dataset()
     , m_statTissue()
     , m_statSpecies()
     , m_statComments()
+    , m_data_file()
     , m_data(nullptr)
 {
 }
@@ -18,7 +19,7 @@ Dataset::Dataset(const Dataset &other)
     m_statTissue = other.m_statTissue;
     m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
-    //TODO do the copy properly
+    m_data_file = other.m_data_file;
     m_data = other.m_data;
 }
 
@@ -33,7 +34,7 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_statTissue = other.m_statTissue;
     m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
-    //TODO do the copy properly
+    m_data_file = other.m_data_file;
     m_data = other.m_data;
     return (*this);
 }
@@ -45,6 +46,7 @@ bool Dataset::operator==(const Dataset &other) const
             && m_statTissue == other.m_statTissue
             && m_statSpecies == other.m_statSpecies
             && m_statComments == other.m_statComments
+            && m_data_file == other.m_data_file
             && m_data == other.m_data);
 }
 
@@ -78,15 +80,14 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
-
 void Dataset::name(const QString &name)
 {
     m_name = name;
 }
 
-void Dataset::data(const STData &data)
+void Dataset::dataFile(const QByteArray &datafile)
 {
-    m_data = std::make_shared<STData>(data);
+    m_data_file = datafile;
 }
 
 void Dataset::imageAlignment(const QTransform &alignment)

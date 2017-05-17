@@ -29,7 +29,7 @@ public:
     const QString statSpecies() const;
     const QString statComments() const;
     // Setters
-    void data(const STData &data);
+    void dataFile(const QByteArray &data);
     void name(const QString &name);
     void imageAlignment(const QTransform &alignmentId);
     void statTissue(const QString &statTissue);
@@ -42,6 +42,7 @@ private:
     QString m_statTissue;
     QString m_statSpecies;
     QString m_statComments;
+    QByteArray m_data_file;
     std::shared_ptr<STData> m_data;
 };
 

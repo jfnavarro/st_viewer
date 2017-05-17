@@ -293,33 +293,32 @@ void DatasetPage::slotRemoveDataset()
 
 void DatasetPage::slotImportDataset()
 {
-    /*
     QPointer<DatasetImporter> importer = new DatasetImporter();
     const int result = importer->exec();
+    // TODO check for dataset name if exists
     if (result == QDialog::Accepted) {
         // TODO maybe check that the name does not exist
         Dataset dataset;
-        dataset.id(QUuid::createUuid().toString());
         dataset.name(importer->datasetName());
-        dataset.downloaded(false);
-        dataset.created(QDateTime::currentDateTime().toString());
-        dataset.lastModified(QDateTime::currentDateTime().toString());
         dataset.statComments(importer->comments());
         dataset.statSpecies(importer->species());
         dataset.statTissue(importer->tissue());
-        // store locally the imported dataset
-        m_importedDatasets.insert(dataset.id(), importer);
-        // add the dataset to dataProxy and update the model
-        m_dataProxy->addDataset(dataset);
+        dataset.dataFile(importer->STDataFile());
+        dataset.imageAlignment(importer->alignmentMatrix());
+        //TODO load spot coordiantes map
+        //dataset.spotcoordinates(importer->spotsMapCoordinates());
+        // add dataset and update model
+        m_importedDatasets.append(dataset);
         slotDatasetsUpdated();
+    } else {
+        //TODO better error description
+        QMessageBox::critical(this, tr("Datasert import"), tr("Error importing dataset"));
     }
-    */
 }
 
 void DatasetPage::slotDatasetsUpdated()
 {
-    /*
-    // update model
-    datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
-    clearControls();*/
+    // update model and clear controls
+    datasetsModel()->loadDatasets(m_importedDatasets);
+    clearControls();
 }
