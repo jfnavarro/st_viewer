@@ -22,41 +22,15 @@
 #include <QFont>
 #include <QDir>
 
-#include "error/Error.h"
-#include "error/ApplicationError.h"
-#include "error/ServerError.h"
 #include "dialogs/AboutDialog.h"
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
 #include "viewPages/GenesWidget.h"
-#include "data/User.h"
+#include "config/Configuration.h"
 #include "SettingsStyle.h"
 
 using namespace Style;
-
-static const std::array<qulonglong, 3> VersionNumbers = {MAJOR, MINOR, PATCH};
-
-namespace
-{
-
-bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
-                             const std::array<qulonglong, 3> &version2)
-{
-    int index = 0;
-    for (const auto &num : version1) {
-        if (num > version2[index]) {
-            return true;
-        }
-        if (num < version2[index]) {
-            return false;
-        }
-        ++index;
-    }
-    return true;
-}
-}
-
 static const QString SettingsGeometry = QStringLiteral("Geometry");
 static const QString SettingsState = QStringLiteral("State");
 
@@ -69,22 +43,19 @@ MainWindow::MainWindow(QWidget *parent)
     , m_actionClear_Cache(nullptr)
     , m_actionDatasets(nullptr)
     , m_actionSelections(nullptr)
-    , m_dataProxy(nullptr)
     , m_datasets(nullptr)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
-    , m_genes(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
-    m_dataProxy = QSharedPointer<DataProxy>(new DataProxy());
-    Q_ASSERT(!m_dataProxy.isNull());
-
-    // We init the views here
-    m_datasets.reset(new DatasetPage(m_dataProxy));
-    m_cellview.reset(new CellViewPage(m_dataProxy));
-    m_user_selections.reset(new UserSelectionsPage(m_dataProxy));
-    m_genes.reset(new GenesWidget(m_dataProxy));
+    // Create the main views
+    m_datasets.reset(new DatasetPage());
+    Q_ASSERT(m_datasets);
+    m_cellview.reset(new CellViewPage());
+    Q_ASSERT(m_cellview);
+    m_user_selections.reset(new UserSelectionsPage());
+    Q_ASSERT(m_user_selections);
 }
 
 MainWindow::~MainWindow()
@@ -193,7 +164,6 @@ void MainWindow::setupUi()
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
     m_actionDatasets->setText(tr("Datasets"));
-    m_actionLogOut->setText(tr("Log out"));
     m_actionSelections->setText(tr("Selections"));
 
     // create menus
@@ -213,15 +183,6 @@ void MainWindow::setupUi()
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
     menubar->addAction(menuViews->menuAction());
-
-    // add gene table as dock widget
-    QDockWidget *dock_genes = new QDockWidget(tr("Genes"), this);
-    m_genes->setObjectName("Genes");
-    dock_genes->setWidget(m_genes.data());
-    dock_genes->setObjectName("GenesDock");
-    dock_genes->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    menuViews->addAction(dock_genes->toggleViewAction());
-    addDockWidget(Qt::LeftDockWidgetArea, dock_genes);
 }
 
 void MainWindow::slotShowAbout()
@@ -254,7 +215,7 @@ void MainWindow::slotClearCache()
                                             QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
-        m_dataProxy->cleanAll();
+        //NOTE nothing for now
     }
 }
 
@@ -263,9 +224,9 @@ void MainWindow::createLayouts()
     statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
 }
 
-// apply stylesheet and configurations
 void MainWindow::initStyle()
 {
+    // apply stylesheet and configurations
     // TODO move to stylesheet.css file
     setStyleSheet(GENERAL_STYLE);
     m_datasets->setStyleSheet(GENERAL_STYLE);
@@ -322,38 +283,6 @@ void MainWindow::createConnections()
             SIGNAL(signalDatasetRemoved(QString)),
             m_cellview.data(),
             SLOT(slotDatasetRemoved(QString)));
-
-    // connect the open dataset from datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetOpen(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetOpen(QString)));
-
-    // connect the updated dataset from the datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetUpdated(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetUpdated(QString)));
-
-    // connect the removed dataset from the datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetRemoved(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetRemoved(QString)));
-
-    // connect genes table signals to cellview
-    connect(m_genes.data(),
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
-            m_cellview.data(),
-            SLOT(slotGenesSelected(DataProxy::GeneList)));
-    connect(m_genes.data(),
-            SIGNAL(signalColorChanged(DataProxy::GeneList)),
-            m_cellview.data(),
-            SLOT(slotGenesColor(DataProxy::GeneList)));
-    connect(m_genes.data(),
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
-            m_cellview.data(),
-            SLOT(slotGeneCutOff(DataProxy::GenePtr)));
 
     // connect gene selection signals from selections view
     connect(m_user_selections.data(),

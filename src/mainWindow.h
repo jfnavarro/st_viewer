@@ -1,22 +1,18 @@
-#ifndef stVi_H
-#define stVi_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "data/DataProxy.h"
 
 class QSettings;
 class QCloseEvent;
 class QAction;
 class QStatusBar;
 class QMenu;
-class Error;
 class QVBoxLayout;
 class QWidget;
-class AuthorizationManager;
 class DatasetPage;
 class CellViewPage;
 class UserSelectionsPage;
-class GenesWidget;
 
 // This class represents the main window of the application
 // it is composed of a tool bar, the cell main view and the gene tables
@@ -78,9 +74,6 @@ private:
     QScopedPointer<DatasetPage> m_datasets;
     QScopedPointer<CellViewPage> m_cellview;
     QScopedPointer<UserSelectionsPage> m_user_selections;
-
-    // the configuration settings
-    Configuration m_config;
 };
 
-#endif // stVi_H
+#endif // MAINWINDOW_H

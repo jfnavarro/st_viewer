@@ -93,7 +93,6 @@ void DatasetPage::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     clearControls();
-    slotLoadDatasets();
 }
 
 void DatasetPage::clearControls()

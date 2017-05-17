@@ -133,6 +133,11 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->clusterAnalysis->setEnabled(enableMultiple);
 }
 
+void UserSelectionsPage::slotAddSelection(const UserSelection& selection)
+{
+    Q_UNUSED(selection)
+}
+
 void UserSelectionsPage::slotRemoveSelection()
 {
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
@@ -254,6 +259,11 @@ void UserSelectionsPage::slotPerformDEA()
     QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
     analysisDEA->exec();
     */
+}
+
+void UserSelectionsPage::slotPerformCorrelation()
+{
+
 }
 
 void UserSelectionsPage::slotPerformClustering()

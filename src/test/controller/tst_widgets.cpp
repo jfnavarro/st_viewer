@@ -1,12 +1,7 @@
-#include "config/Configuration.h"
-#include "auth/AuthorizationManager.h"
-#include "data/DataProxy.h"
-#include "network/NetworkManager.h"
-
 #include <QMainWindow>
 #include <QApplication>
 #include "mainWindow.h"
-
+#include "config/Configuration.h"
 #include "tst_widgets.h"
 
 #include <QtTest/QTest>
@@ -24,18 +19,6 @@ void WidgetsTest::initTestCase()
     // init configurations
     Configuration *configuration = new Configuration();
     QVERIFY(configuration != 0);
-
-    // init network manager
-    NetworkManager *networkManager = new NetworkManager();
-    QVERIFY(networkManager != 0);
-
-    // init data proxy
-    QSharedPointer<DataProxy> dataProxy = QSharedPointer<DataProxy>(new DataProxy());
-    QVERIFY(dataProxy != 0);
-
-    // auth manager
-    AuthorizationManager *authManager = new AuthorizationManager(dataProxy);
-    QVERIFY(authManager != 0);
 }
 
 void WidgetsTest::cleanupTestCase()

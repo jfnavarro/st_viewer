@@ -2,12 +2,12 @@
 #define GENEFITEMMODEL_H
 
 #include <QAbstractTableModel>
+#include "data/STData.h"
 
 class QModelIndex;
 class QStringList;
 class QMimeData;
 class QItemSelection;
-class Gene;
 class Dataset;
 
 // Wrapper model class for the gene data (specific to a dataset).
@@ -44,25 +44,24 @@ public:
     // and emit a signal with the modified genes
     void setGeneColor(const QItemSelection &selection, const QColor &color);
 
-    // reload the reference to the genes from DataProxy
-    void loadGenes(const Dataset &dataset);
+    // reload the model's data from the dataset (genes)
+    void loadDataset(const Dataset &dataset);
 
     // clear and reset the model
-    void clearGenes();
+    void clear();
 
 public slots:
-    // TODO pass reference instead of the gene name
-    // Used to sort the genes in the table
-    bool geneName(const QModelIndex &index, QString *genename) const;
+    // Used to sort the genes in the table from the Sorting Proxy Model
+    bool geneName(const QModelIndex &index, QString &genename) const;
 
 signals:
-    // Signals to notify that any of the gene/s properties have changed
-    void signalCutOffChanged(Gene gene);
-    void signalSelectionChanged(const QList<Gene> &geneList);
-    void signalColorChanged(const QList<Gene> &geneLis);
+    // Signals to notify that any of the gene|s properties have changed
+    void signalCutOffChanged();
+    void signalSelectionChanged();
+    void signalColorChanged();
 
 private:
-    QList<Gene> m_genelist_reference;
+    STData::gene_list m_genelist_reference;
 
     Q_DISABLE_COPY(GeneItemModel)
 };

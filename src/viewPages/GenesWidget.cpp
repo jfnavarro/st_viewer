@@ -138,12 +138,9 @@ void GenesWidget::clear()
 {
     m_lineEdit->clearFocus();
     m_lineEdit->clear();
-
     m_genes_tableview->clearSelection();
     m_genes_tableview->clearFocus();
-
-    getModel()->clearGenes();
-
+    getModel()->clear();
     m_colorList->setCurrentColor(Visual::DEFAULT_COLOR_GENE);
 }
 

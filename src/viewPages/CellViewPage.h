@@ -72,7 +72,7 @@ private slots:
     void slotCreateSelection();
 
     // to load the cell tissue image rom the Dataset (tile it into textures)
-    void slotLoadCellFigure();
+    //void slotLoadCellFigure();
 
 private:
     // create OpenGL graphical elements and view

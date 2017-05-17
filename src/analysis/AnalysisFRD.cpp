@@ -6,8 +6,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "data/Feature.h"
-
 #include <cmath>
 #include <unordered_map>
 
@@ -20,13 +18,7 @@ AnalysisFRD::AnalysisFRD(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
     , m_ui(new Ui::frdWidget)
     , m_customPlotNormal(nullptr)
-    , m_upperThresholdBarNormal(nullptr)
-    , m_lowerThresholdBarNormal(nullptr)
     , m_customPlotLog(nullptr)
-    , m_upperThresholdBarLog(nullptr)
-    , m_lowerThresholdBarLog(nullptr)
-    , m_minY(0.0)
-    , m_maxY(1.0)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
@@ -47,16 +39,6 @@ void AnalysisFRD::initializePlotNormal()
     // creating plotting object for normal reads ditribution
     m_customPlotNormal = new QCustomPlot(m_ui->plotNormalWidget);
     Q_ASSERT(!m_customPlotNormal.isNull());
-
-    // add threshold bars
-    m_lowerThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
-    m_customPlotNormal->addItem(m_lowerThresholdBarNormal);
-    m_lowerThresholdBarNormal->setHead(QCPLineEnding::esNone);
-    m_lowerThresholdBarNormal->setPen(QPen(Qt::red));
-    m_upperThresholdBarNormal = new QCPItemLine(m_customPlotNormal);
-    m_customPlotNormal->addItem(m_upperThresholdBarNormal.data());
-    m_upperThresholdBarNormal->setHead(QCPLineEnding::esNone);
-    m_upperThresholdBarNormal->setPen(QPen(Qt::red));
 
     // add plot of data
     m_customPlotNormal->addGraph();
@@ -96,17 +78,6 @@ void AnalysisFRD::initializePlotLog()
     m_customPlotLog = new QCustomPlot(m_ui->plotLogWidget);
     Q_ASSERT(!m_customPlotLog.isNull());
 
-    // add bars
-    m_lowerThresholdBarLog = new QCPItemLine(m_customPlotLog);
-    m_customPlotLog->addItem(m_lowerThresholdBarLog.data());
-    m_lowerThresholdBarLog->setHead(QCPLineEnding::esNone);
-    m_lowerThresholdBarLog->setPen(QPen(Qt::red));
-
-    m_upperThresholdBarLog = new QCPItemLine(m_customPlotLog);
-    m_customPlotLog->addItem(m_upperThresholdBarLog.data());
-    m_upperThresholdBarLog->setHead(QCPLineEnding::esNone);
-    m_upperThresholdBarLog->setPen(QPen(Qt::red));
-
     // add plot of data
     m_customPlotLog->addGraph();
     m_customPlotLog->graph(0)->setPen(QPen(BORDER));
@@ -142,7 +113,8 @@ void AnalysisFRD::initializePlotLog()
 
 void AnalysisFRD::computeData(const STData &dataset)
 {
-
+    Q_UNUSED(dataset)
+/*
     QHash<int, int> featureCounter;
 
     // iterate the features to compute hash tables to help to obtain the X and Y axes for the plots
@@ -183,6 +155,7 @@ void AnalysisFRD::computeData(const STData &dataset)
     m_customPlotLog->graph(0)->setData(x_log, y_log);
     m_customPlotLog->graph(0)->rescaleAxes();
     m_customPlotLog->replot();
+*/
 }
 
 void AnalysisFRD::mousePress()
@@ -213,22 +186,3 @@ void AnalysisFRD::mouseWheel()
     }
 }
 
-void AnalysisFRD::setUpperLimit(int limit)
-{
-    m_upperThresholdBarNormal->start->setCoords(limit, m_minY);
-    m_upperThresholdBarNormal->end->setCoords(limit, m_maxY);
-    m_upperThresholdBarLog->start->setCoords(std::log1p(limit), std::log1p(m_minY));
-    m_upperThresholdBarLog->end->setCoords(std::log1p(limit), std::log1p(m_maxY));
-    m_customPlotNormal->replot();
-    m_customPlotLog->replot();
-}
-
-void AnalysisFRD::setLowerLimit(int limit)
-{
-    m_lowerThresholdBarNormal->start->setCoords(limit, m_minY);
-    m_lowerThresholdBarNormal->end->setCoords(limit, m_maxY);
-    m_lowerThresholdBarLog->start->setCoords(std::log1p(limit), std::log1p(m_minY));
-    m_lowerThresholdBarLog->end->setCoords(std::log1p(limit), std::log1p(m_maxY));
-    m_customPlotNormal->replot();
-    m_customPlotLog->replot();
-}

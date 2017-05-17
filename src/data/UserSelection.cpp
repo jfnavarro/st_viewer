@@ -3,24 +3,20 @@
 UserSelection::UserSelection()
     : m_name()
     , m_dataset()
-    , m_selectedSpots()
-    , m_selectedGenes()
+    , m_sliced_data()
     , m_type()
     , m_comment()
     , m_tissueSnapShot()
-    , m_totalReads(0)
 {
 }
 
 UserSelection::UserSelection(const UserSelection &other)
     : m_name(other.m_name)
     , m_dataset(other.m_dataset)
-    , m_selectedSpots(other.m_selectedSpots)
-    , m_selectedGenes(other.m_selectedGenes)
+    , m_sliced_data(other.m_sliced_data)
     , m_type(other.m_type)
     , m_comment(other.m_comment)
     , m_tissueSnapShot(other.m_tissueSnapShot)
-    , m_totalReads(other.m_totalReads)
 {
 }
 
@@ -32,12 +28,10 @@ UserSelection &UserSelection::operator=(const UserSelection &other)
 {
     m_name = other.m_name;
     m_dataset = other.m_dataset;
-    m_selectedSpots = other.m_selectedSpots;
-    m_selectedGenes = other.m_selectedGenes;
+    m_sliced_data = other.m_sliced_data;
     m_type = other.m_type;
     m_comment = other.m_comment;
     m_tissueSnapShot = other.m_tissueSnapShot;
-    m_totalReads = other.m_totalReads;
     return (*this);
 }
 
@@ -45,12 +39,10 @@ bool UserSelection::operator==(const UserSelection &other) const
 {
     return (m_name == other.m_name
             && m_dataset == other.m_dataset
-            && m_selectedSpots == other.m_selectedSpots
-            && m_selectedGenes == m_selectedGenes
+            && m_sliced_data == other.m_sliced_data
             && m_type == other.m_type
             && m_comment == other.m_comment
-            && m_tissueSnapShot == other.m_tissueSnapShot
-            && m_totalReads == other.m_totalReads);
+            && m_tissueSnapShot == other.m_tissueSnapShot);
 }
 
 const QString UserSelection::name() const
@@ -63,14 +55,9 @@ const QString UserSelection::dataset() const
     return m_dataset;
 }
 
-const STData::spot_list UserSelection::selectedSpots() const
+const STData &UserSelection::slicedData() const
 {
-    return m_selectedSpots;
-}
-
-const STData::gene_list UserSelection::selectedGenes() const
-{
-    return m_selectedGenes;
+    return m_sliced_data;
 }
 
 const QString UserSelection::comment() const
@@ -88,12 +75,6 @@ const QByteArray UserSelection::tissueSnapShot() const
     return m_tissueSnapShot;
 }
 
-int UserSelection::totalReads() const
-{
-    return m_totalReads;
-}
-
-
 void UserSelection::name(const QString &name)
 {
     m_name = name;
@@ -104,14 +85,9 @@ void UserSelection::dataset(const QString &dataset)
     m_dataset = dataset;
 }
 
-void UserSelection::selectedSpots(const STData::spot_list &selectedSpots)
+void UserSelection::slicedData(const STData &data)
 {
-    m_selectedSpots = selectedSpots;
-}
-
-void UserSelection::selectedGenes(const STData::gene_list &selectedGenes)
-{
-    m_selectedGenes = selectedGenes;
+    m_sliced_data = data;
 }
 
 void UserSelection::type(const Type &type)
@@ -124,15 +100,9 @@ void UserSelection::comment(const QString &comment)
     m_comment = comment;
 }
 
-
 void UserSelection::tissueSnapShot(const QByteArray &tissueSnapShot)
 {
     m_tissueSnapShot = tissueSnapShot;
-}
-
-void UserSelection::totalReads(const int totalReads)
-{
-    m_totalReads = totalReads;
 }
 
 const QString UserSelection::typeToQString(const UserSelection::Type &type)

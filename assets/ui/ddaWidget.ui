@@ -277,37 +277,6 @@
            </item>
           </layout>
          </item>
-         <item>
-          <widget class="GeneSelectionDEATableView" name="tableView">
-           <property name="toolTip">
-            <string>Gene name and expression levels present in both selections</string>
-           </property>
-           <property name="statusTip">
-            <string>Gene name and expression levels present in both selections</string>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
-           </property>
-           <property name="sortingEnabled">
-            <bool>true</bool>
-           </property>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="verticalHeaderCascadingSectionResizes">
-            <bool>true</bool>
-           </attribute>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -333,11 +302,6 @@
    <extends>QWidget</extends>
    <header>customWidgets/SpinBoxSlider.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GeneSelectionDEATableView</class>
-   <extends>QTableView</extends>
-   <header>viewTables/GeneSelectionDEATableView.h</header>
   </customwidget>
   <customwidget>
    <class>QCustomPlot</class>

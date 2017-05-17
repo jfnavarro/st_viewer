@@ -7,13 +7,22 @@
 
 #include <cmath>
 #include "math/Common.h"
-#include "model/GeneSelectionDEAItemModel.h"
 #include "qcustomplot.h"
 
 #include "ui_ddaWidget.h"
 
 static const QColor BORDER = QColor(238, 122, 0);
 
+AnalysisDEA::AnalysisDEA()
+{
+
+}
+
+AnalysisDEA::~AnalysisDEA()
+{
+}
+
+/*
 AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
                          const UserSelection &selObjectB,
                          QWidget *parent,
@@ -122,10 +131,6 @@ AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
             SIGNAL(clicked(QModelIndex)),
             this,
             SLOT(slotSelectionSelected(QModelIndex)));
-}
-
-AnalysisDEA::~AnalysisDEA()
-{
 }
 
 QSortFilterProxyModel *AnalysisDEA::selectionsProxyModel()
@@ -327,3 +332,4 @@ bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaRea
              && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
              && deaReads.readsA > 0 && deaReads.readsB > 0));
 }
+*/

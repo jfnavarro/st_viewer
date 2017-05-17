@@ -3,8 +3,6 @@
 #include <QString>
 #include <QDebug>
 
-#include "data/DataProxy.h"
-
 namespace
 {
 
@@ -70,13 +68,13 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
                               Qt::DirectConnection,
                               Q_RETURN_ARG(bool, leftNameFound),
                               Q_ARG(const QModelIndex &, left),
-                              Q_ARG(QString *, &leftName));
+                              Q_ARG(QString &, leftName));
     QMetaObject::invokeMethod(model,
                               "geneName",
                               Qt::DirectConnection,
                               Q_RETURN_ARG(bool, rightNameFound),
                               Q_ARG(const QModelIndex &, right),
-                              Q_ARG(QString *, &rightName));
+                              Q_ARG(QString &, rightName));
 
     if (leftNameFound && rightNameFound) {
         return geneNameLessThan(leftName, rightName, sortCaseSensitivity(), isSortLocaleAware());

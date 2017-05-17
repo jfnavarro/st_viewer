@@ -8,9 +8,14 @@ SpotItemModel::SpotItemModel(QObject *parent)
 QVariant SpotItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     // FIXME: Implement me!
+    Q_UNUSED(section)
+    Q_UNUSED(orientation)
+    Q_UNUSED(role)
+    return QVariant();
 }
 
-bool SpotItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+bool SpotItemModel::setHeaderData(int section, Qt::Orientation orientation,
+                                  const QVariant &value, int role)
 {
     if (value != headerData(section, orientation, role)) {
         // FIXME: Implement me!
@@ -23,22 +28,26 @@ bool SpotItemModel::setHeaderData(int section, Qt::Orientation orientation, cons
 
 int SpotItemModel::rowCount(const QModelIndex &parent) const
 {
+    // FIXME: Implement me!
+    Q_UNUSED(parent)
     if (parent.isValid())
         return 0;
-
-    // FIXME: Implement me!
+    return -1;
 }
 
 int SpotItemModel::columnCount(const QModelIndex &parent) const
 {
+    // FIXME: Implement me!
+    Q_UNUSED(parent)
     if (parent.isValid())
         return 0;
-
-    // FIXME: Implement me!
+    return -1;
 }
 
 QVariant SpotItemModel::data(const QModelIndex &index, int role) const
 {
+    Q_UNUSED(index)
+    Q_UNUSED(role)
     if (!index.isValid())
         return QVariant();
 

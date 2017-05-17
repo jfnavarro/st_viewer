@@ -26,32 +26,22 @@ public:
     const QString name() const;
     // the name of the dataset where the selection has been made
     const QString dataset() const;
-    // the list of selected spots
-    const STData::spot_list selectedSpots() const;
-    const STData::gene_list selectedGenes() const;
-
+    // the sliced data
+    const STData& slicedData() const;
     // some metat-data
     const QString comment() const;
     // the type of the selection
     Type type() const;
     // a image snapshot of the tissue taken when the selection was made
     const QByteArray tissueSnapShot() const;
-    // returns the total sum of reads in the selection
-    int totalReads() const;
-    // returns the total number of genes in the selection
-    int totalGenes() const;
-    // returns the total number of spots in the selection
-    int totalSpots() const;
 
     // Setters
     void name(const QString &name);
     void dataset(const QString &dataset);
-    void selectedSpots(const STData::spot_list &spots);
-    void selectedGenes(const STData::gene_list &genes);
+    void slicedData(const STData &data);
     void comment(const QString &comment);
     void type(const Type &type);
     void tissueSnapShot(const QByteArray &tissueSnapShot);
-    void totalReads(const int totalReads);
 
     // convenience functions to convert Type to QString and vice-versa
     static const QString typeToQString(const UserSelection::Type &type);
@@ -60,12 +50,10 @@ public:
 private:
     QString m_name;
     QString m_dataset;
-    STData::spot_list m_selectedSpots;
-    STData::gene_list m_selectedGenes;
+    STData m_sliced_data;
     Type m_type;
     QString m_comment;
     QByteArray m_tissueSnapShot;
-    int m_totalReads;
 };
 
 #endif // USERSELECTION_H

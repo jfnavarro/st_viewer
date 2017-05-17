@@ -12,9 +12,9 @@ namespace Ui
 class ddaWidget;
 }
 
-class QTableWidget;
-class GeneSelectionDEAItemModel;
-class QSortFilterProxyModel;
+//class QTableWidget;
+//class GeneSelectionDEAItemModel;
+//class QSortFilterProxyModel;
 
 // AnalysisDEA is a widget that contains methods to compute
 // DEA(Differential Expression Analysis) between two ST data matrices
@@ -25,6 +25,7 @@ class AnalysisDEA : public QDialog
     Q_OBJECT
 
 public:
+    /*
     // Data container for the computed statistics
     struct deaStats {
 
@@ -63,25 +64,27 @@ public:
         int readsA;
         int readsB;
     };
+    */
+    //typedef QList<deaReads> combinedSelectionType;
 
-    typedef QList<deaReads> combinedSelectionType;
-
-    AnalysisDEA(const UserSelection &selObjectA,
-                const UserSelection &selObjectB,
-                QWidget *parent = 0,
-                Qt::WindowFlags f = 0);
+    AnalysisDEA();
+    //AnalysisDEA(const UserSelection &selObjectA,
+    //            const UserSelection &selObjectB,
+    //           QWidget *parent = 0,
+    //            Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
-
+    /*
     // Computes the statistics and visualization data points
     const deaStats computeStatistics();
 
     // Update UI elements for the statistics and correlation plots
     void updateStatisticsUI(const deaStats &stats);
-
+    */
 signals:
 
 private slots:
 
+    /*
     // Threshold slider slots for number of reads (update the UI too)
     void slotSetLowerThreshold(const int value);
     void slotSetUpperThreshold(const int value);
@@ -92,8 +95,9 @@ private slots:
     // To be invoked if the user selects a gene in the table
     // this will trigger a highlight of the gene in the scatter plot
     void slotSelectionSelected(QModelIndex index);
-
+    */
 private:
+    /*
     // Helper functions to get the model from the gene selections table
     GeneSelectionDEAItemModel *selectionsModel();
     QSortFilterProxyModel *selectionsProxyModel();
@@ -109,14 +113,15 @@ private:
     // The computed vector is stored for convenience so it can be used
     // to compute statistics with computeStatistics()
     void computeGeneToReads(const UserSelection &selObjectA, const UserSelection &selObjectB);
-
+    */
     // The GUI object
     QScopedPointer<Ui::ddaWidget> m_ui;
+    /*
     // We use these variables to cache the statistics for convenience
     combinedSelectionType m_combinedSelections;
     int m_lowerThreshold;
     int m_upperThreshold;
-
+    */
     Q_DISABLE_COPY(AnalysisDEA)
 };
 

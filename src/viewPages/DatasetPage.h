@@ -48,7 +48,6 @@ private slots:
     void slotDatasetsUpdated();
 
     // some slots for the actions of the toolbar
-    void slotLoadDatasets();
     void slotOpenDataset();
     void slotRemoveDataset();
     void slotEditDataset();

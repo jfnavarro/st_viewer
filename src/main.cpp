@@ -80,8 +80,6 @@ int main(int argc, char **argv)
     mainWindow.init();
     // Show main window.
     mainWindow.show();
-    // Authorize (if the online mode is supported)
-    mainWindow.startAuthorization();
     // launch the app
     return app.exec();
 }

@@ -54,10 +54,7 @@ endmacro()
 
 ### ST UNIT TESTS LIST ########################################################
 add_st_client_test(controller tst_widgets)
-add_st_client_test(model tst_objectparsertest)
 add_st_client_test(utils tst_mathextendedtest)
-add_st_client_test(network test_auth)
-add_st_client_test(network test_rest)
 add_st_client_test(math tst_glaabbtest)
 add_st_client_test(math tst_glquadtreetest)
 add_st_client_test(math tst_glheatmaptest)

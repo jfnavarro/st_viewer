@@ -2,8 +2,10 @@
 #define ANALYSISHISTOGRAM_H
 
 #include <QDialog>
-#include "qcustomplot.h"
 #include <memory>
+
+#include "qcustomplot.h"
+#include "data/STData.h"
 
 namespace Ui
 {
