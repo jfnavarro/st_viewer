@@ -25,8 +25,9 @@ public:
     // Getters
     const QString name() const;
     const QString dataFile() const;
-    const QTransform imageAlignment();
+    const QTransform imageAlignment() const;
     const QString imageAlignmentFile() const;
+    const QString imageFile() const;
     const QString spotsFile() const;
     const QString statTissue() const;
     const QString statSpecies() const;
@@ -36,6 +37,7 @@ public:
     void dataFile(const QString &data);
     void imageAlignment(const QTransform &alignmentId);
     void imageAlignmentFile(const QString &aligment_file);
+    void imageFile(const QString &image_file);
     void spotsFile(const QString &spots_file);
     void statTissue(const QString &statTissue);
     void statSpecies(const QString &statSpecies);

@@ -4,13 +4,13 @@
 #include <QWidget>
 #include <QModelIndex>
 #include <memory>
+#include "data/Dataset.h"
 
 class QItemSelectionModel;
 class QItemSelection;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
-class Dataset;
 class DatasetImporter;
 
 namespace Ui
@@ -54,6 +54,9 @@ private slots:
     void slotEditDataset();
     void slotImportDataset();
 
+    // the currently open dataset
+    const Dataset &currentDataset() const;
+
 signals:
 
     // to notify about dataset/s action/s
@@ -69,6 +72,8 @@ private:
     void clearControls();
     // add/edit a dataset
     void addDataset(DatasetImporter &importer, bool replace=false);
+    // check if a dataset with the same name exists
+    bool nameExist(const QString &name);
 
     // to get the data model from the table
     QSortFilterProxyModel *datasetsProxyModel();
@@ -80,6 +85,8 @@ private:
     QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
     // List of imported datasets (from files)
     QList<Dataset> m_importedDatasets;
+    // Currently open dataset
+    Dataset m_open_dataset;
 
     Q_DISABLE_COPY(DatasetPage)
 };

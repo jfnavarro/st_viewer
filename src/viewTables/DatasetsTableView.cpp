@@ -35,9 +35,12 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     resizeRowsToContents();
 
     horizontalHeader()->setSortIndicatorShown(true);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name, QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Tissue, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Species, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Name,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Tissue,
+                                             QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(DatasetItemModel::Species,
+                                             QHeaderView::ResizeToContents);
     verticalHeader()->hide();
 
     model()->submit(); // support for caching (speed up)

@@ -93,47 +93,19 @@ const QString Dataset::dataFile() const
     return m_data_file;
 }
 
-const QTransform Dataset::imageAlignment()
+const QTransform Dataset::imageAlignment() const
 {
-    if (m_alignment == QTransform()) {
-        float a11 = 1.0;
-        float a12 = 0.0;
-        float a13 = 0.0;
-        float a21 = 0.0;
-        float a22 = 1.0;
-        float a23 = 0.0;
-        float a31 = 0.0;
-        float a32 = 0.0;
-        float a33 = 1.0;
-        QFile file(m_alignment_file);
-        if (file.open(QIODevice::ReadOnly)) {
-            QTextStream in(&file);
-            QString line = in.readLine();
-            QStringList fields = line.split(" ");
-            if (fields.length() == 9) {
-               a11 = fields.at(0).toFloat();
-               a12 = fields.at(1).toFloat();
-               a13 = fields.at(2).toFloat();
-               a21 = fields.at(3).toFloat();
-               a22 = fields.at(4).toFloat();
-               a23 = fields.at(5).toFloat();
-               a31 = fields.at(6).toFloat();
-               a32 = fields.at(7).toFloat();
-               a33 = fields.at(8).toFloat();
-            } else {
-                qDebug() << "Error parsing alignment matrix";
-            }
-        }
-        file.close();
-        m_alignment = QTransform(a11, a12, a13, a21, a22,
-                                 a23, a31, a32, a33);
-    }
     return m_alignment;
 }
 
 const QString Dataset::imageAlignmentFile() const
 {
     return m_alignment_file;
+}
+
+const QString Dataset::imageFile() const
+{
+    return m_image_file;
 }
 
 const QString Dataset::spotsFile() const
@@ -176,6 +148,11 @@ void Dataset::imageAlignmentFile(const QString &aligment_file)
     m_alignment_file = aligment_file;
 }
 
+void Dataset::imageFile(const QString &image_file)
+{
+    m_image_file = image_file;
+}
+
 void Dataset::spotsFile(const QString &spots_file)
 {
     m_spots_file = spots_file;
@@ -206,6 +183,43 @@ bool Dataset::load_data()
        qDebug() << "Error parsing matrix " << e.what();
        parsed = false;
    }
+
+   // Parse image alignment
+   if (!m_alignment_file.isEmpty()) {
+       float a11 = 1.0;
+       float a12 = 0.0;
+       float a13 = 0.0;
+       float a21 = 0.0;
+       float a22 = 1.0;
+       float a23 = 0.0;
+       float a31 = 0.0;
+       float a32 = 0.0;
+       float a33 = 1.0;
+       QFile file(m_alignment_file);
+       if (file.open(QIODevice::ReadOnly)) {
+           QTextStream in(&file);
+           QString line = in.readLine();
+           QStringList fields = line.split(" ");
+           if (fields.length() == 9) {
+              a11 = fields.at(0).toFloat();
+              a12 = fields.at(1).toFloat();
+              a13 = fields.at(2).toFloat();
+              a21 = fields.at(3).toFloat();
+              a22 = fields.at(4).toFloat();
+              a23 = fields.at(5).toFloat();
+              a31 = fields.at(6).toFloat();
+              a32 = fields.at(7).toFloat();
+              a33 = fields.at(8).toFloat();
+           } else {
+               qDebug() << "Error parsing alignment matrix";
+               parsed = false;
+           }
+       }
+       file.close();
+       m_alignment = QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+   }
+
+   // TODO Parse stops coordinates
 
    return parsed;
 }

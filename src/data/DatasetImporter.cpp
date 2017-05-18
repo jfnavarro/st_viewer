@@ -16,6 +16,7 @@ DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
     m_ui->comments->setText(dataset.statComments());
     m_ui->stDataFile->setText(dataset.dataFile());
     m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
+    m_ui->mainImageFile->setText(dataset.imageAlignmentFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
 }
 

@@ -8,11 +8,9 @@
 #include <QDateTime>
 
 #include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
-
 #include "model/DatasetItemModel.h"
 #include "dialogs/EditDatasetDialog.h"
 #include "data/DatasetImporter.h"
-#include "data/Dataset.h"
 #include "SettingsStyle.h"
 
 #include "ui_datasetsPage.h"
@@ -153,6 +151,8 @@ void DatasetPage::slotOpenDataset()
         QMessageBox::critical(this, tr("Datasert import"), tr("Error opening ST data file"));
     }
     m_waiting_spinner->stop();
+    // Set selected dataset
+    m_open_dataset = dataset;
     // Notify that the dataset was open
     emit signalDatasetOpen(dataset.name());
 }
@@ -181,6 +181,9 @@ void DatasetPage::slotRemoveDataset()
         //TODO check the they were removed
         m_importedDatasets.removeOne(dataset);
         emit signalDatasetUpdated(dataset.name());
+        if (m_open_dataset == dataset) {
+            m_open_dataset = Dataset();
+        }
     }
     slotDatasetsUpdated();
 }
@@ -191,6 +194,11 @@ void DatasetPage::slotImportDataset()
     addDataset(importer);
 }
 
+const Dataset &DatasetPage::currentDataset() const
+{
+    return m_open_dataset;
+}
+
 void DatasetPage::addDataset(DatasetImporter &importer, bool replace)
 {
     // Launch the dialog
@@ -198,17 +206,14 @@ void DatasetPage::addDataset(DatasetImporter &importer, bool replace)
     if (result == QDialog::Accepted) {
         // Check that the name does not exist
         const QString datasetName = importer.datasetName();
-        if (!replace && std::find_if(m_importedDatasets.begin(),
-                                     m_importedDatasets.end(),
-                         [&datasetName](const Dataset& dataset)
-                         {return dataset.name() == datasetName;})
-                != m_importedDatasets.end()) {
+        if (!replace && nameExist(datasetName)) {
             QMessageBox::critical(this, tr("Datasert import"),
                                   tr("There is another dataset with the same name"));
         } else {
             Dataset dataset(importer);
             if (replace) {
                 const int index = m_importedDatasets.indexOf(dataset);
+                Q_ASSERT(index != -1);
                 m_importedDatasets.replace(index, dataset);
             } else {
                 // add dataset and update model
@@ -226,4 +231,11 @@ void DatasetPage::slotDatasetsUpdated()
     // update model and clear controls
     datasetsModel()->loadDatasets(m_importedDatasets);
     clearControls();
+}
+
+bool DatasetPage::nameExist(const QString &name)
+{
+    return std::find_if(m_importedDatasets.begin(), m_importedDatasets.end(),
+                        [&name](const Dataset& dataset)
+    {return dataset.name() == name;}) != m_importedDatasets.end();
 }

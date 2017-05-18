@@ -46,6 +46,9 @@ private slots:
     // open pop up static widget to show info about the application
     void slotShowAbout();
 
+    // a dataset has been opened
+    void slotDatasetOpen(const QString &datasetname);
+
 private:
     // create all the widgets
     void setupUi();

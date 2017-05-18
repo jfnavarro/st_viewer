@@ -26,7 +26,6 @@
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
-#include "viewPages/GenesWidget.h"
 #include "config/Configuration.h"
 #include "SettingsStyle.h"
 
@@ -265,13 +264,13 @@ void MainWindow::createConnections()
             SIGNAL(triggered(bool)),
             m_user_selections.data(),
             SLOT(show()));
-    /*
+
     // connect the open dataset from datasetview -> cellview
     connect(m_datasets.data(),
             SIGNAL(signalDatasetOpen(QString)),
-            m_cellview.data(),
+            this,
             SLOT(slotDatasetOpen(QString)));
-
+/*
     // connect the updated dataset from the datasetview -> cellview
     connect(m_datasets.data(),
             SIGNAL(signalDatasetUpdated(QString)),
@@ -320,4 +319,9 @@ void MainWindow::saveSettings() const
     QByteArray state = saveState();
     settings.setValue(SettingsState, state);
     // TODO save global settings (menus and status)
+}
+
+void MainWindow::slotDatasetOpen(const QString &datasetname)
+{
+    qDebug() << "Dataset opened " << datasetname;
 }
