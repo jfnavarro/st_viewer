@@ -1,18 +1,22 @@
 #include "data/Spot.h"
 
 Spot::Spot()
-    : m_count(0)
-    , m_geneCount(0)
-    , m_x(0)
+    : m_x(0)
     , m_y(0)
     , m_visible(false)
 {
 }
 
+Spot::Spot(const float x, const float y)
+    : m_x(x)
+    , m_y(y)
+    , m_visible(false)
+{
+
+}
+
 Spot::Spot(const Spot &other)
 {
-    m_count = other.m_count;
-    m_geneCount = other.m_geneCount;
     m_x = other.m_x;
     m_y = other.m_y;
     m_visible = other.m_visible;
@@ -24,8 +28,6 @@ Spot::~Spot()
 
 Spot &Spot::operator=(const Spot &other)
 {
-    m_count = other.m_count;
-    m_geneCount = other.m_geneCount;
     m_x = other.m_x;
     m_y = other.m_y;
     m_visible = other.m_visible;
@@ -34,21 +36,9 @@ Spot &Spot::operator=(const Spot &other)
 
 bool Spot::operator==(const Spot &other) const
 {
-    return (m_count == other.m_count
-            && m_geneCount == other.m_geneCount
-            && m_x == other.m_x
+    return (m_x == other.m_x
             && m_y == other.m_y
             && m_visible == other.m_visible);
-}
-
-int Spot::count() const
-{
-    return m_count;
-}
-
-int Spot::geneCount() const
-{
-    return m_geneCount;
 }
 
 float Spot::x() const
@@ -61,19 +51,14 @@ float Spot::y() const
     return m_y;
 }
 
+QPair<float, float> Spot::coordinates() const
+{
+    return QPair<float,float>(m_x, m_y);
+}
+
 bool Spot::visible() const
 {
     return m_visible;
-}
-
-void Spot::count(int count)
-{
-    m_count = count;
-}
-
-void Spot::geneCount(int geneCount)
-{
-    m_geneCount = geneCount;
 }
 
 void Spot::x(float x)

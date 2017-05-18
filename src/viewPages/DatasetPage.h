@@ -11,6 +11,7 @@ class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
 class Dataset;
+class DatasetImporter;
 
 namespace Ui
 {
@@ -56,9 +57,9 @@ private slots:
 signals:
 
     // to notify about dataset/s action/s
-    void signalDatasetOpen(const QString datasetId);
-    void signalDatasetRemoved(const QString datasetId);
-    void signalDatasetUpdated(const QString datasetId);
+    void signalDatasetOpen(const QString dataset);
+    void signalDatasetRemoved(const QString dataset);
+    void signalDatasetUpdated(const QString dataset);
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -66,6 +67,8 @@ protected:
 private:
     // clear focus and resets to default all buttons status
     void clearControls();
+    // add/edit a dataset
+    void addDataset(DatasetImporter &importer, bool replace=false);
 
     // to get the data model from the table
     QSortFilterProxyModel *datasetsProxyModel();

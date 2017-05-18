@@ -265,7 +265,7 @@ void MainWindow::createConnections()
             SIGNAL(triggered(bool)),
             m_user_selections.data(),
             SLOT(show()));
-
+    /*
     // connect the open dataset from datasetview -> cellview
     connect(m_datasets.data(),
             SIGNAL(signalDatasetOpen(QString)),
@@ -293,6 +293,7 @@ void MainWindow::createConnections()
             SIGNAL(signalUserSelection()),
             m_user_selections.data(),
             SLOT(slotSelectionsUpdated()));
+            */
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

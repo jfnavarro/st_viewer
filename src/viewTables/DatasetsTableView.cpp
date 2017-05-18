@@ -4,6 +4,7 @@
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 #include <QPalette>
+#include <QDebug>
 #include "model/DatasetItemModel.h"
 
 DatasetsTableView::DatasetsTableView(QWidget *parent)

@@ -4,10 +4,29 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QDebug>
+#include "Dataset.h"
+
+DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
+    : QDialog(parent)
+    , m_ui(new Ui::DatasetImporter)
+{
+    init();
+    m_ui->datasetName->setText(dataset.name());
+    m_ui->species->setText(dataset.statSpecies());
+    m_ui->comments->setText(dataset.statComments());
+    m_ui->stDataFile->setText(dataset.dataFile());
+    m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
+    m_ui->spotMapFile->setText(dataset.spotsFile());
+}
 
 DatasetImporter::DatasetImporter(QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::DatasetImporter)
+{
+    init();
+}
+
+void DatasetImporter::init()
 {
     m_ui->setupUi(this);
     connect(m_ui->loadSTDataFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSTDataFile()));
@@ -44,78 +63,33 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
-const QByteArray DatasetImporter::STDataFile() const
+const QString DatasetImporter::STDataFile() const
 {
-    QFile file(m_ui->stDataFile->text());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Error opening ST data file " << file.errorString();
-        return QByteArray();
-    }
-    return file.readAll();
+    return m_ui->stDataFile->text();
 }
 
-const QByteArray DatasetImporter::mainImageFile() const
+const QString DatasetImporter::mainImageFile() const
 {
-    QFile file(m_ui->mainImageFile->text());
-    if (!file.open(QIODevice::ReadOnly)) {
-        return QByteArray();
-    }
-    return file.readAll();
+    return m_ui->mainImageFile->text();
 }
 
-const QTransform DatasetImporter::alignmentMatrix() const
+const QString DatasetImporter::alignmentMatrix() const
 {
-    float a11 = 1.0;
-    float a12 = 0.0;
-    float a13 = 0.0;
-    float a21 = 0.0;
-    float a22 = 1.0;
-    float a23 = 0.0;
-    float a31 = 0.0;
-    float a32 = 0.0;
-    float a33 = 1.0;
-
-    QFile file(m_ui->imageAlignmentFile->text());
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream in(&file);
-        QString line = in.readLine();
-        QStringList fields = line.split(" ");
-        if (fields.length() == 9) {
-           a11 = fields.at(0).toFloat();
-           a12 = fields.at(1).toFloat();
-           a13 = fields.at(2).toFloat();
-           a21 = fields.at(3).toFloat();
-           a22 = fields.at(4).toFloat();
-           a23 = fields.at(5).toFloat();
-           a31 = fields.at(6).toFloat();
-           a32 = fields.at(7).toFloat();
-           a33 = fields.at(8).toFloat();
-        } else {
-            qDebug() << "Error parsing alignment matrix";
-        }
-    }
-    file.close();
-
-    return QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+    return m_ui->imageAlignmentFile->text();
 }
 
-const QByteArray DatasetImporter::spotsMapFile() const
+const QString DatasetImporter::spotsMapFile() const
 {
-    QFile file(m_ui->spotMapFile->text());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Error opening Spots Map file " << file.errorString();
-        return QByteArray();
-    }
-    return file.readAll();
+    return m_ui->spotMapFile->text();
 }
 
 void DatasetImporter::slotLoadSTDataFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open ST Data File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("TSV Files (*.tsv)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open ST Data File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -132,10 +106,10 @@ void DatasetImporter::slotLoadSTDataFile()
 void DatasetImporter::slotLoadMainImageFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Main Image File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Main Image File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("JPEG Files (*.jpg)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -152,10 +126,10 @@ void DatasetImporter::slotLoadMainImageFile()
 void DatasetImporter::slotLoadSpotsMapFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Spots Map File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("TXT Files (*.txt)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spots Map File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -172,10 +146,10 @@ void DatasetImporter::slotLoadSpotsMapFile()
 void DatasetImporter::slotLoadAlignmentFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Alignment File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("TXT Files (*.txt)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Alignment File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;

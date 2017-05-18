@@ -61,7 +61,7 @@ signals:
     void signalColorChanged();
 
 private:
-    STData::gene_list m_genelist_reference;
+    STData::GeneListType m_genelist_reference;
 
     Q_DISABLE_COPY(GeneItemModel)
 };

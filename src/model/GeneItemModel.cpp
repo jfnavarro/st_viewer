@@ -207,7 +207,7 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
         rows.insert(index.row());
     }
     // create a list of genes that are changing the selected state
-    STData::gene_list geneList;
+    STData::GeneListType geneList;
     for (const auto &row : rows) {
         auto gene = m_genelist_reference.at(row);
         if (gene->selected() != visible) {
@@ -233,7 +233,7 @@ void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &
         rows.insert(index.row());
     }
     // create a list of genes that are changing the color
-    STData::gene_list geneList;
+    STData::GeneListType geneList;
     for (const auto &row : rows) {
         auto gene = m_genelist_reference.at(row);
         if (color.isValid() && gene->color() != color) {

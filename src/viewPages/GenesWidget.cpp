@@ -117,17 +117,17 @@ GenesWidget::GenesWidget(QWidget *parent)
             m_genes_tableview.data(),
             SLOT(setGeneNameFilter(QString)));
     connect(getModel(),
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
+            SIGNAL(signalSelectionChanged()),
             this,
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)));
+            SIGNAL(signalGenesUpdated()));
     connect(getModel(),
-            SIGNAL(signalColorChanged(DataProxy::GeneList)),
+            SIGNAL(signalColorChanged()),
             this,
-            SIGNAL(signalColorChanged(DataProxy::GeneList)));
+            SIGNAL(signalGenesUpdated()));
     connect(getModel(),
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
+            SIGNAL(signalCutOffChanged()),
             this,
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)));
+            SIGNAL(signalGenesUpdated()));
 }
 
 GenesWidget::~GenesWidget()

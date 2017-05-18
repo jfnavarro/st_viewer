@@ -3,9 +3,10 @@
 
 #include <QString>
 #include <QTransform>
-#include <memory>
+#include <QSharedPointer>
 
 class STData;
+class DatasetImporter;
 
 // Data model class to store datasets.
 class Dataset
@@ -13,37 +14,48 @@ class Dataset
 
 public:
     Dataset();
-    explicit Dataset(const Dataset &other);
+    Dataset(const DatasetImporter &importer);
+    Dataset(const Dataset &other);
     ~Dataset();
 
     Dataset &operator=(const Dataset &other);
     bool operator==(const Dataset &other) const;
-    // the reference to the ST Data matrix
-    const std::shared_ptr<STData> data() const;
-    // the name of the dataset
+    // The reference to the ST Data matrix
+    const QSharedPointer<STData> data() const;
+    // Getters
     const QString name() const;
-    // 3x3 Affine transformation matrix
-    const QTransform imageAlignment() const;
-    // Some useful stats
+    const QString dataFile() const;
+    const QTransform imageAlignment();
+    const QString imageAlignmentFile() const;
+    const QString spotsFile() const;
     const QString statTissue() const;
     const QString statSpecies() const;
     const QString statComments() const;
     // Setters
-    void dataFile(const QByteArray &data);
     void name(const QString &name);
+    void dataFile(const QString &data);
     void imageAlignment(const QTransform &alignmentId);
+    void imageAlignmentFile(const QString &aligment_file);
+    void spotsFile(const QString &spots_file);
     void statTissue(const QString &statTissue);
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
 
+    // creates the STData object (parse data)
+    bool load_data();
+
 private:
     QString m_name;
-    QTransform m_alignment;
     QString m_statTissue;
     QString m_statSpecies;
     QString m_statComments;
-    QByteArray m_data_file;
-    std::shared_ptr<STData> m_data;
+    QString m_data_file;
+    QString m_image_file;
+    QString m_alignment_file;
+    QString m_spots_file;
+    // generated
+    QTransform m_alignment;
+    QSharedPointer<STData> m_data;
 };
 
 #endif // DATASET_H
