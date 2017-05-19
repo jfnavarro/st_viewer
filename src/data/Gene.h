@@ -4,8 +4,6 @@
 #include <QString>
 #include <QColor>
 
-#include "SettingsVisual.h"
-
 // Data model class to store gene data.
 // The genes are part of the ST Data, they are modeled in a class
 // to encapculate their status and attributes
@@ -17,7 +15,7 @@ public:
     explicit Gene(const Gene &other);
     explicit Gene(const QString &name,
                   bool selected = false,
-                  const QColor &color = Visual::DEFAULT_COLOR_GENE,
+                  const QColor &color = Qt::red,
                   const int cutoff = 1);
     ~Gene();
 
@@ -31,11 +29,8 @@ public:
     // the color of the gene
     const QColor color() const;
     // the threshold (reads)
-    // the gene cut-off is used to hide
-    // features whose read counts is below the cut off
+    // the gene cut-off is used to discard genes whose count is below the cut off
     int cut_off() const;
-    // this is the index the gene has in the respective column/row (stored for convenience)
-    int index() const;
 
     // Setters
     void name(const QString &name);
@@ -51,8 +46,6 @@ private:
     QColor m_color;
     bool m_selected;
     int m_cutoff;
-    //the row/column index
-    int m_index;
 };
 
 #endif // GENE_H //

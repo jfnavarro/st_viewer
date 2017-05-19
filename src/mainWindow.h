@@ -13,6 +13,8 @@ class QWidget;
 class DatasetPage;
 class CellViewPage;
 class UserSelectionsPage;
+class SpotsWidget;
+class GenesWidget;
 
 // This class represents the main window of the application
 // it is composed of a tool bar, the cell main view and the gene tables
@@ -48,6 +50,10 @@ private slots:
 
     // a dataset has been opened
     void slotDatasetOpen(const QString &datasetname);
+    // a dataset has been edited
+    void slotDatasetUpdated(const QString &datasetname);
+    // a dataset has been removed (the current open)
+    void slotDatasetRemoved(const QString &datasetname);
 
 private:
     // create all the widgets
@@ -77,6 +83,8 @@ private:
     QScopedPointer<DatasetPage> m_datasets;
     QScopedPointer<CellViewPage> m_cellview;
     QScopedPointer<UserSelectionsPage> m_user_selections;
+    QScopedPointer<GenesWidget> m_genes;
+    QScopedPointer<SpotsWidget> m_spots;
 };
 
 #endif // MAINWINDOW_H

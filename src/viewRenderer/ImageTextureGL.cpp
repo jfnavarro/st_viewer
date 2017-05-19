@@ -88,9 +88,18 @@ QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
     return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
 }
 
-bool ImageTextureGL::createTiles(QByteArray imageByteArray)
+bool ImageTextureGL::createTiles(const QString &imagefile)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
+    // Load the image file into a byte array
+    QFile file(imagefile);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "[ImageTextureGL] Image loading file error";
+        QGuiApplication::restoreOverrideCursor();
+        return false;
+    }
+    QByteArray imageByteArray = file.readAll();
 
     // extract image from byte array
     QBuffer imageBuffer(&imageByteArray);

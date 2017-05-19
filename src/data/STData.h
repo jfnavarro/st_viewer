@@ -59,6 +59,9 @@ public:
     size_t number_spots() const;
     size_t number_genes() const;
 
+    GeneListType genes();
+    SpotListType spots();
+
 private:
 
     Mat<float> m_counts_matrix;

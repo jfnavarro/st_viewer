@@ -64,13 +64,13 @@ bool SortGenesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &r
     // As this proxy sorter is used in wrapper for models, the models
     // must have a method called geneName in order for the sorting to work
     QMetaObject::invokeMethod(model,
-                              "geneName",
+                              "getName",
                               Qt::DirectConnection,
                               Q_RETURN_ARG(bool, leftNameFound),
                               Q_ARG(const QModelIndex &, left),
                               Q_ARG(QString &, leftName));
     QMetaObject::invokeMethod(model,
-                              "geneName",
+                              "getName",
                               Qt::DirectConnection,
                               Q_RETURN_ARG(bool, rightNameFound),
                               Q_ARG(const QModelIndex &, right),

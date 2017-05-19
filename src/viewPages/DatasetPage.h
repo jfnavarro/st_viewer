@@ -35,6 +35,9 @@ public:
     // clear the loaded content
     void clean();
 
+    // the currently open dataset
+    const Dataset &currentDataset() const;
+
 public slots:
 
 private slots:
@@ -54,9 +57,6 @@ private slots:
     void slotEditDataset();
     void slotImportDataset();
 
-    // the currently open dataset
-    const Dataset &currentDataset() const;
-
 signals:
 
     // to notify about dataset/s action/s
@@ -70,8 +70,6 @@ protected:
 private:
     // clear focus and resets to default all buttons status
     void clearControls();
-    // add/edit a dataset
-    void addDataset(DatasetImporter &importer, bool replace=false);
     // check if a dataset with the same name exists
     bool nameExist(const QString &name);
 

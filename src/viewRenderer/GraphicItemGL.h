@@ -5,8 +5,6 @@
 #include <QMatrix4x4>
 #include <QOpenGLFunctions_2_0>
 
-#include "SettingsVisual.h"
-
 class QRectF;
 class QMouseEvent;
 class SelectionEvent;
@@ -25,6 +23,19 @@ class GraphicItemGL : public QObject
 public:
     using QOpenGLFunctionsVersion = QOpenGLFunctions_2_0;
 
+    enum Anchor {
+        Center = 1,
+        North = 2,
+        NorthEast = 3,
+        East = 4,
+        SouthEast = 5,
+        South = 6,
+        SouthWest = 7,
+        West = 8,
+        NorthWest = 9,
+        None = 10
+    };
+
     enum VisualOption {
         Visible = 1,
         Selectable = 2,
@@ -40,8 +51,8 @@ public:
 
     // The anchor defines where the object will be placed
     // with respect to the rendering canvas
-    Visual::Anchor anchor() const;
-    void setAnchor(Visual::Anchor anchor);
+    Anchor anchor() const;
+    void setAnchor(Anchor anchor);
 
     // transformation matrix of the object
     // (local transformation with respect to the rendering canvas)
@@ -110,7 +121,7 @@ protected:
     // local transformation matrix (for the object)
     QTransform m_transform;
     // anchor position of object with respect to the screen
-    Visual::Anchor m_anchor;
+    Anchor m_anchor;
     GraphicItemGL::VisualOptions m_visualOptions;
     // the OpenGL projection and model view matrices
     QMatrix4x4 m_projection;

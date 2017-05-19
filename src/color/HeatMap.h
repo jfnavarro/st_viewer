@@ -2,7 +2,6 @@
 #define HEATMAP_H
 
 #include "math/Common.h"
-#include "SettingsVisual.h"
 
 class QImage;
 
@@ -22,8 +21,7 @@ enum InterpolationColorMode { SpectrumRaibow, SpectrumLinearInterpolation };
 // the input image will be transformed with the new colors
 void createHeatMapImage(QImage &image,
                         const float lowerbound,
-                        const float upperbound,
-                        const Visual::GeneColorMode &colorMode);
+                        const float upperbound);
 
 // Convenience function to generate a QColor color from a real value
 QColor createHeatMapWaveLenghtColor(const float value);
@@ -36,10 +34,6 @@ QColor createHeatMapLinearColor(const float value, const float min, const float 
 QColor createDynamicRangeColor(const float value, const float min,
                                const float max, QColor color = Qt::red);
 
-// Convenience function to adjust the input value using a Linear - Exponential
-// or Logaritmic
-// function
-float normalizeValueSpectrumFunction(const float value, const Visual::GeneColorMode &colorMode);
 }
 
 #endif // HEATMAP_H //

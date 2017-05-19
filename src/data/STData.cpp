@@ -212,3 +212,13 @@ size_t STData::number_genes() const
 {
     return m_genes.size();
 }
+
+STData::GeneListType STData::genes()
+{
+    return m_genes;
+}
+
+STData::SpotListType STData::spots()
+{
+    return m_spots;
+}

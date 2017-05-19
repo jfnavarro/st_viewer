@@ -115,17 +115,17 @@ GenesWidget::GenesWidget(QWidget *parent)
     connect(m_lineEdit.data(),
             SIGNAL(textChanged(QString)),
             m_genes_tableview.data(),
-            SLOT(setGeneNameFilter(QString)));
+            SLOT(setNameFilter(QString)));
     connect(getModel(),
-            SIGNAL(signalSelectionChanged()),
+            SIGNAL(signalGeneSelectionChanged()),
             this,
             SIGNAL(signalGenesUpdated()));
     connect(getModel(),
-            SIGNAL(signalColorChanged()),
+            SIGNAL(signalGeneColorChanged()),
             this,
             SIGNAL(signalGenesUpdated()));
     connect(getModel(),
-            SIGNAL(signalCutOffChanged()),
+            SIGNAL(signalGeneCutOffChanged()),
             this,
             SIGNAL(signalGenesUpdated()));
 }
@@ -172,19 +172,20 @@ void GenesWidget::slotHideAllSelected()
 
 void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
-    getModel()->setGeneVisibility(m_genes_tableview->geneTableItemSelection(), visible);
+    getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
-    getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
+    getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();
 }
 
 void GenesWidget::slotLoadDataset(const Dataset &dataset)
 {
-    Q_UNUSED(dataset);
+    getModel()->loadDataset(dataset);
+    m_genes_tableview->update();
 }
 
 GeneItemModel *GenesWidget::getModel()

@@ -67,6 +67,7 @@ DatasetPage::~DatasetPage()
 
 void DatasetPage::clean()
 {
+    m_importedDatasets.clear();
     datasetsModel()->clear();
     clearControls();
 }
@@ -134,7 +135,29 @@ void DatasetPage::slotEditDataset()
     }
     const auto dataset = currentDatasets.front();
     DatasetImporter importer(dataset);
-    addDataset(importer, true);
+    // Launch the dialog
+    const int result = importer.exec();
+    if (result == QDialog::Accepted) {
+        // Check that the name does not exist
+        const QString datasetName = importer.datasetName();
+        if (nameExist(datasetName) && datasetName != dataset.name()) {
+            QMessageBox::critical(this, tr("Datasert import"),
+                                  tr("There is another dataset with the same name"));
+        } else {
+            const int index = m_importedDatasets.indexOf(dataset);
+            Q_ASSERT(index != -1);
+            Dataset updated_dataset(importer);
+            m_importedDatasets.replace(index, updated_dataset);
+            if (dataset == m_open_dataset) {
+                m_open_dataset = updated_dataset;
+                //TODO should only update if the data or image was altered
+                emit signalDatasetUpdated(updated_dataset.name());
+            }
+            slotDatasetsUpdated();
+        }
+    } else {
+        QMessageBox::critical(this, tr("Datasert import"), tr("Error importing dataset"));
+    }
 }
 
 void DatasetPage::slotOpenDataset()
@@ -180,50 +203,39 @@ void DatasetPage::slotRemoveDataset()
     for (auto dataset: currentDatasets) {
         //TODO check the they were removed
         m_importedDatasets.removeOne(dataset);
-        emit signalDatasetUpdated(dataset.name());
         if (m_open_dataset == dataset) {
+            emit signalDatasetRemoved(dataset.name());
             m_open_dataset = Dataset();
         }
     }
+
     slotDatasetsUpdated();
 }
 
 void DatasetPage::slotImportDataset()
 {
     DatasetImporter importer;
-    addDataset(importer);
-}
-
-const Dataset &DatasetPage::currentDataset() const
-{
-    return m_open_dataset;
-}
-
-void DatasetPage::addDataset(DatasetImporter &importer, bool replace)
-{
     // Launch the dialog
     const int result = importer.exec();
     if (result == QDialog::Accepted) {
         // Check that the name does not exist
         const QString datasetName = importer.datasetName();
-        if (!replace && nameExist(datasetName)) {
+        if (nameExist(datasetName)) {
             QMessageBox::critical(this, tr("Datasert import"),
                                   tr("There is another dataset with the same name"));
         } else {
             Dataset dataset(importer);
-            if (replace) {
-                const int index = m_importedDatasets.indexOf(dataset);
-                Q_ASSERT(index != -1);
-                m_importedDatasets.replace(index, dataset);
-            } else {
-                // add dataset and update model
-                m_importedDatasets.append(dataset);
-            }
+            m_importedDatasets.append(dataset);
             slotDatasetsUpdated();
         }
     } else {
         QMessageBox::critical(this, tr("Datasert import"), tr("Error importing dataset"));
     }
+}
+
+const Dataset &DatasetPage::currentDataset() const
+{
+    return m_open_dataset;
 }
 
 void DatasetPage::slotDatasetsUpdated()

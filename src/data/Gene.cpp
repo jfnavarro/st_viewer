@@ -2,7 +2,7 @@
 
 Gene::Gene()
     : m_name()
-    , m_color(Visual::DEFAULT_COLOR_GENE)
+    , m_color(Qt::red)
     , m_selected(false)
     , m_cutoff(1)
 {

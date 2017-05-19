@@ -17,17 +17,17 @@ public:
     virtual ~GenesTableView();
 
     // returns the current selection mapped to the sorting model
-    QItemSelection geneTableItemSelection() const;
+    QItemSelection getItemSelection() const;
 
 public slots:
 
     // slot used to set a search filter for the table
-    void setGeneNameFilter(const QString &str);
+    void setNameFilter(const QString &str);
 
 private:
     // references to model and proxy model
-    QScopedPointer<GeneItemModel> m_geneModel;
-    QScopedPointer<SortGenesProxyModel> m_sortGenesProxyModel;
+    QScopedPointer<GeneItemModel> m_model;
+    QScopedPointer<SortGenesProxyModel> m_sortProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };

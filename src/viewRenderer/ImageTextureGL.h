@@ -33,7 +33,7 @@ public:
 
     // will split the image given as input into small textures of fixed size
     // returns true if the parsing and creation of tiles was correct
-    bool createTiles(QByteArray imageByteArray);
+    bool createTiles(const QString &imagefile);
 
 public slots:
 

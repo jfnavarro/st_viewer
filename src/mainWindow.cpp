@@ -26,6 +26,8 @@
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
+#include "viewPages/GenesWidget.h"
+#include "viewPages/SpotsWidget.h"
 #include "config/Configuration.h"
 #include "SettingsStyle.h"
 
@@ -45,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_datasets(nullptr)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
+    , m_genes(nullptr)
+    , m_spots(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -55,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
     Q_ASSERT(m_cellview);
     m_user_selections.reset(new UserSelectionsPage());
     Q_ASSERT(m_user_selections);
+    m_genes.reset(new GenesWidget());
+    Q_ASSERT(m_genes);
+    m_spots.reset(new SpotsWidget());
+    Q_ASSERT(m_spots);
 }
 
 MainWindow::~MainWindow()
@@ -182,6 +190,24 @@ void MainWindow::setupUi()
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
     menubar->addAction(menuViews->menuAction());
+
+    // add genes table as dock widget
+    QDockWidget *dock_genes = new QDockWidget(tr("Genes"), this);
+    m_genes->setObjectName("Genes");
+    dock_genes->setWidget(m_genes.data());
+    dock_genes->setObjectName("GenesDock");
+    dock_genes->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menuViews->addAction(dock_genes->toggleViewAction());
+    addDockWidget(Qt::LeftDockWidgetArea, dock_genes);
+
+    // add spots table as dock widget
+    QDockWidget *dock_spots = new QDockWidget(tr("Spots"), this);
+    m_genes->setObjectName("Spots");
+    dock_spots->setWidget(m_spots.data());
+    dock_spots->setObjectName("SpotsDock");
+    dock_spots->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menuViews->addAction(dock_spots->toggleViewAction());
+    addDockWidget(Qt::LeftDockWidgetArea, dock_spots);
 }
 
 void MainWindow::slotShowAbout()
@@ -265,22 +291,20 @@ void MainWindow::createConnections()
             m_user_selections.data(),
             SLOT(show()));
 
-    // connect the open dataset from datasetview -> cellview
+    // when the user opens a dataset
     connect(m_datasets.data(),
             SIGNAL(signalDatasetOpen(QString)),
             this,
             SLOT(slotDatasetOpen(QString)));
-/*
-    // connect the updated dataset from the datasetview -> cellview
+    // when the users edits a dataset
     connect(m_datasets.data(),
             SIGNAL(signalDatasetUpdated(QString)),
-            m_cellview.data(),
+            this,
             SLOT(slotDatasetUpdated(QString)));
-
-    // connect the removed dataset from the datasetview -> cellview
+    // when the user removes the currently opened dataset
     connect(m_datasets.data(),
             SIGNAL(signalDatasetRemoved(QString)),
-            m_cellview.data(),
+            this,
             SLOT(slotDatasetRemoved(QString)));
 
     // connect gene selection signals from selections view
@@ -292,7 +316,6 @@ void MainWindow::createConnections()
             SIGNAL(signalUserSelection()),
             m_user_selections.data(),
             SLOT(slotSelectionsUpdated()));
-            */
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -324,4 +347,27 @@ void MainWindow::saveSettings() const
 void MainWindow::slotDatasetOpen(const QString &datasetname)
 {
     qDebug() << "Dataset opened " << datasetname;
+    Dataset dataset = m_datasets->currentDataset();
+    Q_ASSERT(!dataset.data().isNull());
+    m_genes->slotLoadDataset(dataset);
+    m_spots->slotLoadDataset(dataset);
+    m_cellview->slotLoadDataset(dataset);
+}
+
+void MainWindow::slotDatasetUpdated(const QString &datasetname)
+{
+    qDebug() << "Dataset updated " << datasetname;
+    Dataset dataset = m_datasets->currentDataset();
+    Q_ASSERT(!dataset.data().isNull());
+    m_genes->slotLoadDataset(dataset);
+    m_spots->slotLoadDataset(dataset);
+    m_cellview->slotLoadDataset(dataset);
+}
+
+void MainWindow::slotDatasetRemoved(const QString &datasetname)
+{
+    qDebug() << "Dataset removed " << datasetname;
+    m_genes->clear();
+    m_spots->clear();
+    m_cellview->clean();
 }

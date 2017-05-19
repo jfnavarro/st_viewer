@@ -8,13 +8,8 @@ namespace Color
 
 void createHeatMapImage(QImage &image,
                         const float lowerbound,
-                        const float upperbound,
-                        const Visual::GeneColorMode &colorMode)
+                        const float upperbound)
 {
-    // TODO it appears from now that the color mode must be disregarded as the color
-    // spectra for the legend using a linear function should be correct for other color modes
-    // Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
-    Q_UNUSED(colorMode);
 
     const int height = image.height();
     const int width = image.width();
@@ -118,25 +113,4 @@ QColor createHeatMapWaveLenghtColor(const float value)
     return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
-// normalizes a value to wave lenghts range using different modes (to be used
-// with the function above)
-float normalizeValueSpectrumFunction(const float value, const Visual::GeneColorMode &colorMode)
-{
-    float transformedValue = value;
-
-    switch (colorMode) {
-    case Visual::LogColor:
-        transformedValue = std::log1p(value);
-        break;
-    case Visual::ExpColor:
-        transformedValue = qSqrt(value);
-        break;
-    case Visual::LinearColor:
-    default:
-        // do nothing
-        break;
-    }
-
-    return transformedValue;
-}
 }

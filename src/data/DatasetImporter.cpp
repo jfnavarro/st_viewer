@@ -13,10 +13,11 @@ DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
     init();
     m_ui->datasetName->setText(dataset.name());
     m_ui->species->setText(dataset.statSpecies());
+    m_ui->tissue->setText(dataset.statTissue());
     m_ui->comments->setText(dataset.statComments());
     m_ui->stDataFile->setText(dataset.dataFile());
     m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
-    m_ui->mainImageFile->setText(dataset.imageAlignmentFile());
+    m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
 }
 

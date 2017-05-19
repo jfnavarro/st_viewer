@@ -38,11 +38,11 @@ public:
 
     // this function will set to visible the genes included in the selection
     // and emit a signal with the modified genes
-    void setGeneVisibility(const QItemSelection &selection, bool visible);
+    void setVisibility(const QItemSelection &selection, bool visible);
 
     // this function will modify the color of the genes included in the selection
     // and emit a signal with the modified genes
-    void setGeneColor(const QItemSelection &selection, const QColor &color);
+    void setColor(const QItemSelection &selection, const QColor &color);
 
     // reload the model's data from the dataset (genes)
     void loadDataset(const Dataset &dataset);
@@ -52,16 +52,16 @@ public:
 
 public slots:
     // Used to sort the genes in the table from the Sorting Proxy Model
-    bool geneName(const QModelIndex &index, QString &genename) const;
+    bool getName(const QModelIndex &index, QString &name) const;
 
 signals:
     // Signals to notify that any of the gene|s properties have changed
-    void signalCutOffChanged();
-    void signalSelectionChanged();
-    void signalColorChanged();
+    void signalGeneCutOffChanged();
+    void signalGeneSelectionChanged();
+    void signalGeneColorChanged();
 
 private:
-    STData::GeneListType m_genelist_reference;
+    STData::GeneListType m_items_reference;
 
     Q_DISABLE_COPY(GeneItemModel)
 };

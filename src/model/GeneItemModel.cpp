@@ -22,11 +22,11 @@ GeneItemModel::~GeneItemModel()
 
 QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || m_genelist_reference.empty()) {
+    if (!index.isValid() || m_items_reference.empty()) {
         return QVariant(QVariant::Invalid);
     }
 
-    const auto item = m_genelist_reference.at(index.row());
+    const auto item = m_items_reference.at(index.row());
 
     if (role == Qt::DisplayRole && index.column() == Name) {
         return item->name();
@@ -69,12 +69,12 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
-        auto item = m_genelist_reference.at(index.row());
+        auto item = m_items_reference.at(index.row());
         const int new_cutoff = value.toUInt();
         if (item->cut_off() != new_cutoff && new_cutoff > 0) {
             item->cut_off(new_cutoff);
             emit dataChanged(index, index);
-            emit signalCutOffChanged();
+            emit signalGeneCutOffChanged();
             return true;
         }
         return false;
@@ -136,7 +136,7 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
 
 int GeneItemModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_genelist_reference.size();
+    return parent.isValid() ? 0 : m_items_reference.size();
 }
 
 int GeneItemModel::columnCount(const QModelIndex &parent) const
@@ -170,35 +170,35 @@ void GeneItemModel::loadDataset(const Dataset &dataset)
 {
     Q_UNUSED(dataset)
     beginResetModel();
-    //m_genelist_reference = dataset;
+    m_items_reference = dataset.data()->genes();
     endResetModel();
 }
 
 void GeneItemModel::clear()
 {
     beginResetModel();
-    m_genelist_reference.clear();
+    m_items_reference.clear();
     endResetModel();
 }
 
-bool GeneItemModel::geneName(const QModelIndex &index, QString &genename) const
+bool GeneItemModel::getName(const QModelIndex &index, QString &name) const
 {
-    if (!index.isValid() || m_genelist_reference.empty()) {
+    if (!index.isValid() || m_items_reference.empty()) {
         return false;
     }
 
-    const auto item = m_genelist_reference.at(index.row());
+    const auto item = m_items_reference.at(index.row());
     if (index.column() == Name) {
-        genename = item->name();
+        name = item->name();
         return true;
     }
 
     return false;
 }
 
-void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visible)
+void GeneItemModel::setVisibility(const QItemSelection &selection, bool visible)
 {
-    if (m_genelist_reference.empty()) {
+    if (m_items_reference.empty()) {
         return;
     }
     // get unique indexes from the user selection
@@ -209,7 +209,7 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
     // create a list of genes that are changing the selected state
     STData::GeneListType geneList;
     for (const auto &row : rows) {
-        auto gene = m_genelist_reference.at(row);
+        auto gene = m_items_reference.at(row);
         if (gene->selected() != visible) {
             gene->selected(visible);
             geneList.push_back(gene);
@@ -218,13 +218,13 @@ void GeneItemModel::setGeneVisibility(const QItemSelection &selection, bool visi
     //NOTE do not seem the changed genes for now
     if (!geneList.empty()) {
         // notify with the new list
-        emit signalSelectionChanged();
+        emit signalGeneSelectionChanged();
     }
 }
 
-void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &color)
+void GeneItemModel::setColor(const QItemSelection &selection, const QColor &color)
 {
-    if (m_genelist_reference.empty()) {
+    if (m_items_reference.empty()) {
         return;
     }
     // get unique indexes from the user selection
@@ -235,7 +235,7 @@ void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &
     // create a list of genes that are changing the color
     STData::GeneListType geneList;
     for (const auto &row : rows) {
-        auto gene = m_genelist_reference.at(row);
+        auto gene = m_items_reference.at(row);
         if (color.isValid() && gene->color() != color) {
             gene->color(color);
             geneList.push_back(gene);
@@ -244,6 +244,6 @@ void GeneItemModel::setGeneColor(const QItemSelection &selection, const QColor &
     //NOTE do not seem the changed genes for now
     if (!geneList.empty()) {
         // notify with the new list
-        emit signalColorChanged();
+        emit signalGeneColorChanged();
     }
 }

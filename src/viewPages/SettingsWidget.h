@@ -7,47 +7,58 @@ namespace Ui {
 class SettingsWidget;
 }
 
-class QSlider;
-class SpinBoxSlider;
-class QComboBox;
-class QRadioButton;
-
 class SettingsWidget : public QWidget
 {
     Q_OBJECT
+
+    enum VisualTypeMode {
+        Reads = 1,
+        ReadsLog = 2,
+        Genes = 3,
+        GenesLog = 4
+    };
+
+    enum NormalizationMode {
+        RAW = 1,
+        TPM = 2,
+        REL = 3,
+        DESEQ = 4,
+        SCRAN = 5
+    };
+
+    enum VisualMode {
+        Normal = 1,
+        DynamicRange = 2,
+        HeatMap = 3,
+        ColorRange = 4
+    };
 
 public:
     explicit SettingsWidget(QWidget *parent = 0);
     ~SettingsWidget();
 
+    void resetReadsThreshold(int min, int max);
+    void resetTotalReadsThreshold(int min, int max);
+    void resetTotalGenesThreshold(int min, int max);
+    void reset();
+
 public slots:
-    /*
-    // some slots for gene actions that need adjustment of the value (scale)
-    void slotSpotShape(int geneShape);
-    void slotSpotIntensity(int geneIntensity);
-    void slotSpotSize(int geneSize);
-    // select gene visual mode
-    void slotSetGeneVisualMode(QAction *action);
-    // select legend anchor
-    void slotSetLegendAnchor(QAction *action);*/
+
+private slots:
+    // select visual mode
+    void slotSetVisualMode(QAction *action);
+    // select visual type mode
+    void slotSetVisualTypeMode(QAction *action);
+    // select normalization mode
+    void slotSetNormalizationMode(QAction *action);
+signals:
+
+    void signalNormalizationModeChanged(NormalizationMode);
+    void signalVisualTypeModeChanged(VisualTypeMode);
+    void signalVisualModeChanged(VisualMode);
 
 private:
-    Ui::SettingsWidget *ui;
-/*
-    // Elements of the cell view visual settings menu
-    QScopedPointer<QRadioButton> m_colorLinear;
-    QScopedPointer<QRadioButton> m_colorLog;
-    QScopedPointer<QRadioButton> m_colorExp;
-    QScopedPointer<QRadioButton> m_poolingGenes;
-    QScopedPointer<QRadioButton> m_poolingReads;
-    QScopedPointer<QRadioButton> m_poolingTPMs;
-    QScopedPointer<SpinBoxSlider> m_geneHitsThreshold;
-    QScopedPointer<SpinBoxSlider> m_geneGenesThreshold;
-    QScopedPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
-    QScopedPointer<QSlider> m_geneIntensitySlider;
-    QScopedPointer<QSlider> m_geneSizeSlider;
-    QScopedPointer<QComboBox> m_geneShapeComboBox;
-*/
+    QScopedPointer<Ui::SettingsWidget> m_ui;
 };
 
 #endif // SETTINGSWIDGET_H

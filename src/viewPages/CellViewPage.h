@@ -4,13 +4,12 @@
 #include <QWidget>
 #include "data/Dataset.h"
 #include "data/UserSelection.h"
+#include "viewRenderer/ImageTextureGL.h"
+#include "viewRenderer/HeatMapLegendGL.h"
+#include "viewRenderer/GeneRendererGL.h"
 
 class SelectionDialog;
 class CellGLView;
-class ImageTextureGL;
-class HeatMapLegendGL;
-class GeneRendererGL;
-class AnalysisFRD;
 class SpotsWidget;
 class GenesWidget;
 class SettingsWidget;
@@ -31,6 +30,7 @@ class CellView;
 // TODO add a ruler visual object
 // TODO add a visual object to show name of dataset
 // TODO add a lazo selection option
+// TODO add tissue detection selection (Ludvig's)
 // TODO add a visual object to show the coordinates when the user hovers a spot
 class CellViewPage : public QWidget
 {
@@ -41,7 +41,7 @@ public:
     virtual ~CellViewPage();
 
     // clear the loaded dataset and reset settings
-    void clean();
+    void clear();
 
 signals:
 
@@ -51,9 +51,7 @@ signals:
 public slots:
 
     // the user has opened/edit/removed a dataset
-    void slotDatasetOpen(const Dataset &dataset);
-    void slotDatasetUpdated(const Dataset &dataset);
-    void slotDatasetRemoved(const Dataset &dataset);
+    void slotLoadDataset(const Dataset &dataset);
 
     // the user has cleared the selections
     void slotClearSelections();
@@ -71,9 +69,6 @@ private slots:
     // the function will create an UserSelection object and send it to the SelectionsPage
     void slotCreateSelection();
 
-    // to load the cell tissue image rom the Dataset (tile it into textures)
-    //void slotLoadCellFigure();
-
 private:
     // create OpenGL graphical elements and view
     void initRenderer();
@@ -85,17 +80,12 @@ private:
     QScopedPointer<Ui::CellView> m_ui;
 
     // OpenGL visualization objects
-    //QSharedPointer<HeatMapLegendGL> m_legend;
-    //QSharedPointer<GeneRendererGL> m_gene_plotter;
-    //QSharedPointer<ImageTextureGL> m_image;
+    QSharedPointer<HeatMapLegendGL> m_legend;
+    QSharedPointer<GeneRendererGL> m_gene_plotter;
+    QSharedPointer<ImageTextureGL> m_image;
 
     // different control widgets and views
-    QScopedPointer<GenesWidget> m_genes;
-    QScopedPointer<SpotsWidget> m_spots;
     QScopedPointer<SettingsWidget> m_settings;
-
-    // currently opened dataset
-    mutable Dataset m_openedDataset;
 
     Q_DISABLE_COPY(CellViewPage)
 };

@@ -4,6 +4,8 @@ Spot::Spot()
     : m_x(0)
     , m_y(0)
     , m_visible(false)
+    , m_color()
+    , m_name()
 {
 }
 
@@ -11,6 +13,8 @@ Spot::Spot(const float x, const float y)
     : m_x(x)
     , m_y(y)
     , m_visible(false)
+    , m_color()
+    , m_name()
 {
 
 }
@@ -19,6 +23,8 @@ Spot::Spot(const Spot &other)
 {
     m_x = other.m_x;
     m_y = other.m_y;
+    m_color = other.m_color;
+    m_name = other.m_name;
     m_visible = other.m_visible;
 }
 
@@ -31,6 +37,8 @@ Spot &Spot::operator=(const Spot &other)
     m_x = other.m_x;
     m_y = other.m_y;
     m_visible = other.m_visible;
+    m_color = other.m_color;
+    m_name = other.m_name;
     return (*this);
 }
 
@@ -38,7 +46,9 @@ bool Spot::operator==(const Spot &other) const
 {
     return (m_x == other.m_x
             && m_y == other.m_y
-            && m_visible == other.m_visible);
+            && m_visible == other.m_visible
+            && m_color == other.m_color
+            && m_name == other.m_name);
 }
 
 float Spot::x() const
@@ -54,6 +64,19 @@ float Spot::y() const
 QPair<float, float> Spot::coordinates() const
 {
     return QPair<float,float>(m_x, m_y);
+}
+
+QColor Spot::color() const
+{
+    return m_color;
+}
+
+QString Spot::name()
+{
+    if (m_name.isEmpty() || m_name.isNull()) {
+        m_name = QString::number(m_x) + "x" + QString::number(m_y);
+    }
+    return m_name;
 }
 
 bool Spot::visible() const
@@ -74,4 +97,9 @@ void Spot::y(float y)
 void Spot::visible(bool visible)
 {
     m_visible = visible;
+}
+
+void Spot::color(QColor color)
+{
+    m_color = color;
 }
