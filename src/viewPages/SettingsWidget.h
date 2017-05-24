@@ -11,6 +11,8 @@ class SettingsWidget : public QWidget
 {
     Q_OBJECT
 
+public:
+
     enum VisualTypeMode {
         Reads = 1,
         ReadsLog = 2,
@@ -33,7 +35,18 @@ class SettingsWidget : public QWidget
         ColorRange = 4
     };
 
-public:
+    struct Rendering {
+        int reads_threshold;
+        int genes_threshold;
+        int ind_reads_threshold;
+        float intensity;
+        float size;
+        VisualMode visual_mode;
+        NormalizationMode normalization_mode;
+        VisualTypeMode visual_type_mode;
+        bool gene_cutoff;
+    };
+
     explicit SettingsWidget(QWidget *parent = 0);
     ~SettingsWidget();
 
@@ -41,24 +54,32 @@ public:
     void resetTotalReadsThreshold(int min, int max);
     void resetTotalGenesThreshold(int min, int max);
     void reset();
+    const Rendering &renderingSettings() const;
 
 public slots:
 
 private slots:
-    // select visual mode
-    void slotSetVisualMode(QAction *action);
-    // select visual type mode
-    void slotSetVisualTypeMode(QAction *action);
-    // select normalization mode
-    void slotSetNormalizationMode(QAction *action);
+
+    void slotGenesTreshold(int);
+    void slotReadsTreshold(int);
+    void slotIndReadsTreshold(int);
+    void slotIntensity(int);
+    void slotSize(int);
+    void slotGeneCutoff(bool);
+    void slotNormalization(NormalizationMode);
+    void slotVisualMode(VisualMode);
+    void slotVisualMode(VisualTypeMode);
+
 signals:
 
-    void signalNormalizationModeChanged(NormalizationMode);
-    void signalVisualTypeModeChanged(VisualTypeMode);
-    void signalVisualModeChanged(VisualMode);
+    void signalShowSpots(bool);
+    void signalShowLegend(bool);
+    void signalShowImage(bool);
+    void signalSpotRendering();
 
 private:
     QScopedPointer<Ui::SettingsWidget> m_ui;
+    Rendering m_rendering_settings;
 };
 
 #endif // SETTINGSWIDGET_H

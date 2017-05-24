@@ -13,7 +13,6 @@
 #include "model/GeneItemModel.h"
 #include "utils/SetTips.h"
 #include "SettingsStyle.h"
-#include "SettingsVisual.h"
 
 using namespace Style;
 
@@ -71,7 +70,7 @@ GenesWidget::GenesWidget(QWidget *parent)
                     QIcon(QStringLiteral(":/images/select-color.png")),
                     tr("Set color of selected genes"));
     // show color button will open up a color selector
-    m_colorList.reset(new QColorDialog(Visual::DEFAULT_COLOR_GENE, this));
+    m_colorList.reset(new QColorDialog(Qt::red, this));
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     geneListLayout->addWidget(showColorButton);
     // add separation
@@ -141,7 +140,7 @@ void GenesWidget::clear()
     m_genes_tableview->clearSelection();
     m_genes_tableview->clearFocus();
     getModel()->clear();
-    m_colorList->setCurrentColor(Visual::DEFAULT_COLOR_GENE);
+    m_colorList->setCurrentColor(Qt::red);
 }
 
 void GenesWidget::updateModelTable()

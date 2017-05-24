@@ -222,3 +222,96 @@ STData::SpotListType STData::spots()
 {
     return m_spots;
 }
+
+void STData::compuateGenesCutoff()
+{
+    /*
+    const int minseglen = 2;
+    for (auto gene : m_dataProxy->getGeneList()) {
+        Q_ASSERT(gene);
+        // get all the counts of the spots that contain that gene
+        auto counts = m_geneInfoByGeneFeatures.value(gene);
+        const size_t num_features = counts.size();
+        // if too little counts or if all the counts are the same cut off is the min count present
+        if (num_features < minseglen + 1
+            || std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
+            const int cutoff = *std::min_element(counts.begin(), counts.end());
+            gene->cut_off(cutoff);
+            continue;
+        }
+        // sort the counts and compute a list of their squared sum
+        std::sort(counts.begin(), counts.end());
+        std::vector<int> squared_summed_counts(counts);
+        std::transform(squared_summed_counts.begin(),
+                       squared_summed_counts.end(),
+                       squared_summed_counts.begin(),
+                       squared_summed_counts.begin(),
+                       std::multiplies<int>());
+        std::partial_sum(squared_summed_counts.begin(),
+                         squared_summed_counts.end(),
+                         squared_summed_counts.begin());
+        squared_summed_counts.insert(squared_summed_counts.begin(), 0);
+        // generate a vector taustar with indexes of the counts
+        std::vector<int> taustar;
+        int n = minseglen;
+        std::generate_n(std::back_inserter(taustar),
+                        num_features + minseglen - 2 - 2,
+                        [n]() mutable { return n++; });
+        std::vector<float> tmp1;
+        std::vector<float> tmp2;
+        std::vector<float> tmp3;
+        const float last_count = static_cast<float>(squared_summed_counts.back());
+        // perform tmp3 = (squared_summed_counts / last_count) - (taustar / num_counts)
+        std::transform(squared_summed_counts.begin() + 2,
+                       squared_summed_counts.end() - 1,
+                       std::back_inserter(tmp1),
+                       [=](int count) { return count / last_count; });
+        std::transform(taustar.begin(),
+                       taustar.end(),
+                       std::back_inserter(tmp2),
+                       [=](int tau_value)
+        { return tau_value / static_cast<float>(num_features); });
+        std::transform(tmp1.begin(),
+                       tmp1.end(),
+                       tmp2.begin(),
+                       std::back_inserter(tmp3),
+                       [](float a, float b) { return std::fabs(a - b); });
+        // tau is the distance to the max element in tmp3 which is an index
+        const auto tau = std::distance(tmp3.begin(), std::max_element(tmp3.begin(), tmp3.end()));
+        // get the read count of the tau index and that is the gene cut off
+        const int est_readcount
+            = *std::upper_bound(counts.begin(), counts.end(), counts.at(tau));
+        gene->cut_off(est_readcount);
+    }
+    */
+}
+
+float STData::min_genes_spot() const
+{
+    return 0.0;
+}
+
+float STData::max_genes_spot() const
+{
+    return 0.0;
+}
+
+float STData::min_reads_spot() const
+{
+    return 0.0;
+}
+
+float STData::max_reads_spot() const
+{
+   return 0.0;
+}
+
+float STData::max_reads() const
+{
+    return m_counts_matrix.max();
+}
+
+float STData::min_reads() const
+{
+    return m_counts_matrix.min();
+}

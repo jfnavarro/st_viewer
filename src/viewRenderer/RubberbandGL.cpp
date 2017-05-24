@@ -1,6 +1,5 @@
 #include "RubberbandGL.h"
-
-#include <QEvent>
+#include <QColor>
 
 RubberbandGL::RubberbandGL(QObject *parent)
     : GraphicItemGL(parent)
@@ -19,8 +18,7 @@ RubberbandGL::~RubberbandGL()
 
 const QRectF RubberbandGL::boundingRect() const
 {
-    // TODO should prob return m_rubberbandRect but it is not relevant
-    return QRectF();
+    return m_rubberbandRect;
 }
 
 void RubberbandGL::setRubberbandRect(const QRectF &rect)
@@ -33,10 +31,7 @@ void RubberbandGL::setRubberbandRect(const QRectF &rect)
 void RubberbandGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
-        drawBorderRect(m_rubberbandRect, Qt::blue, qopengl_functions);
+        drawBorderRect(m_rubberbandRect, QColor(Qt::blue), qopengl_functions);
     }
 }
 
-void RubberbandGL::setSelectionArea(const SelectionEvent *)
-{
-}

@@ -60,7 +60,6 @@ CellViewPage::CellViewPage(QWidget *parent)
         "QPushButton {border-image: url(:/images/selection.png); } "
         "QPushButton:checked {border-image: url(:/images/selection2.png); }");
 
-
     // instantiate Settings Widget
     m_settings.reset(new SettingsWidget());
     Q_ASSERT(!m_settings.isNull());
@@ -80,11 +79,11 @@ void CellViewPage::clear()
 {
     // reset visualization objects
     m_image->clearData();
-    //m_gene_plotter->clearData();
-    //m_legend->clearData();
+    m_gene_plotter->clearData();
+    m_legend->clearData();
     m_ui->view->clearData();
     m_ui->view->update();
-    //m_settings->reset();
+    m_settings->reset();
 }
 
 void CellViewPage::slotLoadDataset(const Dataset &dataset)
@@ -94,13 +93,16 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     // update Status tip with the name of the currently selected dataset
     setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
-    // update gene plotter rendering object with the dataset
-    //m_gene_plotter->setDataset(dataset);
+    // The STData object
+    auto data = dataset.data();
 
-    // update Settings Widget with the opened dataset
+    // update gene plotter rendering object with the dataset
+    m_gene_plotter->attachData(data);
+
+    // update SettingsWidget with the opened dataset (min max values)
     //m_settings->setDataset(dataset);
 
-    // update color map legend with the dataset
+    // update color map legend with the dataset (min max values)
     //m_legend->setDataset(dataset);
 
     // load cell tissue (to load the dataset's cell tissue image)
@@ -123,25 +125,43 @@ void CellViewPage::slotClearSelections()
 void CellViewPage::createConnections()
 {
 
-    // cell tissue
-    //TODO rest of signals from Settings object
+    // settings menu
+    connect(m_ui->genemenu, &QPushButton::clicked, m_settings.data(), &SettingsWidget::show);
+
+    // show/hide cell image
+    connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
+            [=](bool visible){m_image->setVisible(visible);});
+
+    // show/hide spots
+    connect(m_settings.data(), &SettingsWidget::signalShowSpots, this,
+            [=](bool visible){m_gene_plotter->setVisible(visible);});
+
+    // show/hide legend
+    connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
+            [=](bool visible){m_legend->setVisible(visible);});
+
+    // rendering settings changed
+    connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
+            [=](){m_gene_plotter->updated();});
 
     // graphic view signals
-    connect(m_ui->zoomin, SIGNAL(clicked()), m_ui->view, SLOT(zoomIn()));
-    connect(m_ui->zoomout, SIGNAL(clicked()), m_ui->view, SLOT(zoomOut()));
+    connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view, &CellGLView::zoomIn);
+    connect(m_ui->zoomout, &QPushButton::clicked, m_ui->view, &CellGLView::zoomOut);
 
     // print canvas
-    connect(m_ui->save, SIGNAL(clicked()), this, SLOT(slotSaveImage()));
-    connect(m_ui->print, SIGNAL(clicked()), this, SLOT(slotPrintImage()));
+    connect(m_ui->save, &QPushButton::clicked, this, &CellViewPage::slotSaveImage);
+    connect(m_ui->print, &QPushButton::clicked, this, &CellViewPage::slotPrintImage);
 
     // selection mode
     connect(m_ui->selection, &QPushButton::clicked, [=] {
         m_ui->view->setSelectionMode(m_ui->selection->isChecked());
     });
-    connect(m_ui->regexpselection, SIGNAL(clicked()), this, SLOT(slotSelectByRegExp()));
+    connect(m_ui->regexpselection, &QPushButton::clicked,
+            this, &CellViewPage::slotSelectByRegExp);
 
     // create selection object from the selections made
-    connect(m_ui->createSelection, SIGNAL(clicked()), this, SLOT(slotCreateSelection()));
+    connect(m_ui->createSelection, &QPushButton::clicked,
+            this, &CellViewPage::slotCreateSelection);
 }
 
 
@@ -154,12 +174,12 @@ void CellViewPage::initRenderer()
     m_ui->view->addRenderingNode(m_image);
 
     // gene plotter component
-    m_gene_plotter = QSharedPointer<GeneRendererGL>(new GeneRendererGL(m_dataProxy));
+    m_gene_plotter = QSharedPointer<GeneRendererGL>(
+                new GeneRendererGL(m_settings->renderingSettings()));
     m_ui->view->addRenderingNode(m_gene_plotter);
 
     // heatmap component
     m_legend = QSharedPointer<HeatMapLegendGL>(new HeatMapLegendGL());
-    m_legend->setAnchor(DEFAULT_ANCHOR_LEGEND);
     m_ui->view->addRenderingNode(m_legend);
 }
 

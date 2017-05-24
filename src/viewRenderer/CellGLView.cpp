@@ -51,7 +51,6 @@ CellGLView::CellGLView(QWidget *parent)
 
     // TODO consider decoupling rubberband object and view
     m_rubberband.reset(new RubberbandGL(this));
-    m_rubberband->setAnchor(Visual::Anchor::None);
 
     // Configure OpenGL format for this view
     QSurfaceFormat format;
@@ -350,7 +349,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
                     = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
             const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
-            node->setSelectionArea(&selectionEvent);
+            //node->setSelectionArea(&selectionEvent);
         }
     }
 }
@@ -513,35 +512,35 @@ const QTransform CellGLView::nodeTransformations(QSharedPointer<GraphicItemGL> n
 
     const QSizeF viewSize = m_viewport.size();
     QTransform transform(Qt::Uninitialized);
-    const Visual::Anchor anchor = node->anchor();
+    const GraphicItemGL::Anchor anchor = node->anchor();
 
     switch (anchor) {
-    case Visual::Anchor::Center:
+    case GraphicItemGL::Anchor::Center:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height() * 0.5);
         break;
-    case Visual::Anchor::North:
+    case GraphicItemGL::Anchor::North:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, 0.0);
         break;
-    case Visual::Anchor::NorthEast:
+    case GraphicItemGL::Anchor::NorthEast:
         transform = QTransform::fromTranslate(viewSize.width(), 0.0);
         break;
-    case Visual::Anchor::East:
+    case GraphicItemGL::Anchor::East:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height() * 0.5);
         break;
-    case Visual::Anchor::SouthEast:
+    case GraphicItemGL::Anchor::SouthEast:
         transform = QTransform::fromTranslate(viewSize.width(), viewSize.height());
         break;
-    case Visual::Anchor::South:
+    case GraphicItemGL::Anchor::South:
         transform = QTransform::fromTranslate(viewSize.width() * 0.5, viewSize.height());
         break;
-    case Visual::Anchor::SouthWest:
+    case GraphicItemGL::Anchor::SouthWest:
         transform = QTransform::fromTranslate(0.0, viewSize.height());
         break;
-    case Visual::Anchor::West:
+    case GraphicItemGL::Anchor::West:
         transform = QTransform::fromTranslate(0.0, viewSize.height() * 0.5);
         break;
-    case Visual::Anchor::NorthWest:
-    case Visual::Anchor::None:
+    case GraphicItemGL::Anchor::NorthWest:
+    case GraphicItemGL::Anchor::None:
         // fall trough
     default:
         transform = QTransform::fromTranslate(0.0, 0.0);

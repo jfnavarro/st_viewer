@@ -18,6 +18,8 @@
 // NOTE this implementation does not allow multiple data to be stored in the
 // same point (this is to avoid inf-recursion when splitting).
 
+using namespace Math;
+
 template <typename T, int N = 8>
 class QuadTree
 {
@@ -176,7 +178,7 @@ void QuadTree<T, N>::Bucket::select(const QPointF &p,
     // test and add individual item
     const typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if (Math::qFuzzyEqual(p, data[i].first)) {
+        if (qFuzzyEqual(p, data[i].first)) {
             item = data[i];
         }
     }
@@ -204,7 +206,7 @@ int QuadTree<T, N>::Bucket::insert(const QPointF &p, const T &t)
     // DEBUG force p to be unique to avoid inf recursion!
     typename StaticPointItemList::size_type size = data.size();
     for (typename StaticPointItemList::size_type i = 0; i < size; ++i) {
-        if (Math::qFuzzyEqual(data[i].first, p)) {
+        if (qFuzzyEqual(data[i].first, p)) {
             return INSERT_ERROR_NONUNIQUE;
         }
     }

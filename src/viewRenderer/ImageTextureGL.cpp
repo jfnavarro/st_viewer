@@ -77,10 +77,6 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-void ImageTextureGL::setSelectionArea(const SelectionEvent *)
-{
-}
-
 QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
 {
     // clear memory

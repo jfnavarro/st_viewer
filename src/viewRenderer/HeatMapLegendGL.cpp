@@ -17,15 +17,12 @@ static const float bars_width = 35.0;
 
 HeatMapLegendGL::HeatMapLegendGL(QObject *parent)
     : GraphicItemGL(parent)
-    , m_thresholdReadsLower(1)
-    , m_thresholdReadsUpper(1)
-    , m_thresholdGenesLower(1)
-    , m_thresholdGenesUpper(1)
-    , m_colorComputingMode(Visual::LinearColor)
     , m_texture(QOpenGLTexture::Target2D)
     , m_textureText(QOpenGLTexture::Target2D)
-    , m_valueComputation(Visual::PoolReadsCount)
-    , m_isInitialized(false)
+    , m_texture_vertices()
+    , m_texture_cords()
+    , m_min(0)
+    , m_max(0)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -53,22 +50,10 @@ void HeatMapLegendGL::clearData()
     if (m_textureText.isCreated()) {
         m_textureText.destroy();
     }
-
-    m_valueComputation = Visual::PoolReadsCount;
-    m_colorComputingMode = Visual::LinearColor;
-    m_thresholdReadsLower = 1;
-    m_thresholdReadsUpper = 1;
-    m_thresholdGenesLower = 1;
-    m_thresholdGenesUpper = 1;
-    m_isInitialized = false;
 }
 
 void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
-    if (!m_isInitialized) {
-        return;
-    }
-
     qopengl_functions.glEnable(GL_TEXTURE_2D);
     {
         // draw heatmap texture
@@ -96,100 +81,25 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
         qopengl_functions.glEnd();
 
         // draw text (add 5 pixels offset to the right)
-        const float min = static_cast<float>((m_valueComputation == Visual::PoolReadsCount
-                                             || m_valueComputation == Visual::PoolTPMs)
-                                             ? m_thresholdReadsLower : m_thresholdGenesLower);
-        const float max = static_cast<float>((m_valueComputation == Visual::PoolReadsCount
-                                              || m_valueComputation == Visual::PoolTPMs)
-                                             ? m_thresholdReadsUpper : m_thresholdGenesUpper);
-        drawText(QPointF(legend_x + legend_width + 5, 0),
-                 QString::number(max),
+        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(m_max),
                  qopengl_functions);
-        drawText(QPointF(legend_x + legend_width + 5, legend_height),
-                 QString::number(min),
+        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(m_min),
                  qopengl_functions);
     }
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-void HeatMapLegendGL::setSelectionArea(const SelectionEvent *)
+void HeatMapLegendGL::generateHeatMap(const int min, const int max)
 {
-}
-
-void HeatMapLegendGL::setMinMaxValues(const int readsMin,
-                                      const int readsMax,
-                                      const int genesMin,
-                                      const int genesMax)
-{
-    m_thresholdReadsLower = readsMin;
-    m_thresholdReadsUpper = readsMax;
-    m_thresholdGenesLower = genesMin;
-    m_thresholdGenesUpper = genesMax;
-}
-
-void HeatMapLegendGL::setReadsLowerLimit(const int limit)
-{
-    if (m_thresholdReadsLower != limit) {
-        m_thresholdReadsLower = limit;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::setReadsUpperLimit(const int limit)
-{
-    if (m_thresholdReadsUpper != limit) {
-        m_thresholdReadsUpper = limit;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::setGenesLowerLimit(const int limit)
-{
-    if (m_thresholdGenesLower != limit) {
-        m_thresholdGenesLower = limit;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::setGenesUpperLimit(const int limit)
-{
-    if (m_thresholdGenesUpper != limit) {
-        m_thresholdGenesUpper = limit;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::setPoolingMode(const Visual::GenePooledMode &mode)
-{
-    if (m_valueComputation != mode) {
-        m_valueComputation = mode;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::setColorComputingMode(const Visual::GeneColorMode &mode)
-{
-    // update color computing mode
-    if (m_colorComputingMode != mode) {
-        m_colorComputingMode = mode;
-        generateHeatMap();
-    }
-}
-
-void HeatMapLegendGL::generateHeatMap()
-{
-    const float min = static_cast<float>((m_valueComputation == Visual::PoolReadsCount
-                                         || m_valueComputation == Visual::PoolTPMs)
-                                         ? m_thresholdReadsLower : m_thresholdGenesLower);
-    const float max = static_cast<float>((m_valueComputation == Visual::PoolReadsCount
-                                          || m_valueComputation == Visual::PoolTPMs)
-                                         ? m_thresholdReadsUpper : m_thresholdGenesUpper);
+    // update the values so the text can be drawn
+    m_min = min;
+    m_max = max;
     // generate image texture with the size of the legend and then fill it up with the colors
     // using the min-max values of the threshold and the color mode
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
     // here we can chose the type of Spectrum (linear, log or exp) and the type
     // of color mapping (wavelenght or linear interpolation)
-    Color::createHeatMapImage(image, min, max, m_colorComputingMode);
+    Color::createHeatMapImage(image, min, max);
     // update the OpenGL texture
     m_texture.destroy();
     m_texture.create();
@@ -205,8 +115,6 @@ void HeatMapLegendGL::generateHeatMap()
     m_texture_cords.append(QVector2D(1.0, 0.0));
     m_texture_cords.append(QVector2D(1.0, 1.0));
     m_texture_cords.append(QVector2D(0.0, 1.0));
-    // update initialized flag and send signal to notify of the update
-    m_isInitialized = true;
     emit updated();
 }
 

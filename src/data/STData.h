@@ -62,7 +62,16 @@ public:
     GeneListType genes();
     SpotListType spots();
 
+    float min_genes_spot() const;
+    float max_genes_spot() const;
+    float min_reads_spot() const;
+    float max_reads_spot() const;
+    float max_reads() const;
+    float min_reads() const;
+
 private:
+
+    void compuateGenesCutoff();
 
     Mat<float> m_counts_matrix;
     Mat<float> m_counts_norm_matrix;

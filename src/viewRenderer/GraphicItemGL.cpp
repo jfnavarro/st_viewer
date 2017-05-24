@@ -5,7 +5,7 @@
 
 GraphicItemGL::GraphicItemGL(QObject *parent)
     : QObject(parent)
-    , m_anchor(Visual::Anchor::NorthWest)
+    , m_anchor(NorthWest)
 {
 }
 
@@ -72,12 +72,12 @@ void GraphicItemGL::setVisible(bool value)
     setVisualOption(VisualOption::Visible, value);
 }
 
-Visual::Anchor GraphicItemGL::anchor() const
+GraphicItemGL::Anchor GraphicItemGL::anchor() const
 {
     return m_anchor;
 }
 
-void GraphicItemGL::setAnchor(Visual::Anchor anchor)
+void GraphicItemGL::setAnchor(Anchor anchor)
 {
     if (m_anchor != anchor) {
         m_anchor = anchor;
@@ -113,38 +113,38 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform &transform) con
     const QRectF rect = boundingRect();
     QTransform adjustedTransform = transform;
     switch (m_anchor) {
-    case Visual::Anchor::Center:
+    case GraphicItemGL::Anchor::Center:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
                                     (rect.y() + rect.height()) * -0.5);
         break;
-    case Visual::Anchor::North:
+    case GraphicItemGL::Anchor::North:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5, 0.0 + padding_y);
         break;
-    case Visual::Anchor::NorthEast:
+    case GraphicItemGL::Anchor::NorthEast:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0, 0.0 + padding_y);
         break;
-    case Visual::Anchor::East:
+    case GraphicItemGL::Anchor::East:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
                                     (rect.y() + rect.height()) * -0.5);
         break;
-    case Visual::Anchor::SouthEast:
+    case GraphicItemGL::Anchor::SouthEast:
         adjustedTransform.translate((rect.x() + rect.width() + padding_x) * -1.0,
                                     (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Visual::Anchor::South:
+    case GraphicItemGL::Anchor::South:
         adjustedTransform.translate((rect.x() + rect.width()) * -0.5,
                                     (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Visual::Anchor::SouthWest:
+    case GraphicItemGL::Anchor::SouthWest:
         adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height() + padding_y) * -1.0);
         break;
-    case Visual::Anchor::West:
+    case GraphicItemGL::Anchor::West:
         adjustedTransform.translate(0.0 + padding_x, (rect.y() + rect.height()) * -0.5);
         break;
-    case Visual::Anchor::NorthWest:
+    case GraphicItemGL::Anchor::NorthWest:
         adjustedTransform.translate(0.0 + padding_x, 0.0 + padding_y);
         break;
-    case Visual::Anchor::None:
+    case GraphicItemGL::Anchor::None:
     // fall trough
     default:
         break;

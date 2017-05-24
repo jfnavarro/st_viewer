@@ -3,13 +3,7 @@
 
 #include "GraphicItemGL.h"
 
-class QGLPainter;
-class QImage;
-class QVector2DArray;
 class QRectF;
-class QColor;
-class QEvent;
-class QMouseEvent;
 
 // RubberbandGL is a graphical item that visualizes a rubberband that is
 // shown while the user is selecting genes.
@@ -26,7 +20,6 @@ public:
 
 protected:
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
 
 private:
 

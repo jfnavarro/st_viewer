@@ -278,18 +278,16 @@ void MainWindow::createShorcuts()
 void MainWindow::createConnections()
 {
     // exit and print action
-    connect(m_actionExit.data(), SIGNAL(triggered(bool)), this, SLOT(slotExit()));
+    connect(m_actionExit.data(), &QAction::triggered, this, &MainWindow::slotExit);
     // clear cache action
-    connect(m_actionClear_Cache.data(), SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
+    connect(m_actionClear_Cache.data(), &QAction::triggered, this, &MainWindow::slotClearCache);
     // signal that shows the about dialog
-    connect(m_actionAbout.data(), SIGNAL(triggered()), this, SLOT(slotShowAbout()));
+    connect(m_actionAbout.data(), &QAction::triggered, this, &MainWindow::slotShowAbout);
     // signal that shows the datasets
-    connect(m_actionDatasets.data(), SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
+    connect(m_actionDatasets.data(), &QAction::triggered, m_datasets.data(), &DatasetPage::show);
     // signal that shows the selections
-    connect(m_actionSelections.data(),
-            SIGNAL(triggered(bool)),
-            m_user_selections.data(),
-            SLOT(show()));
+    connect(m_actionSelections.data(), &QAction::triggered, m_user_selections.data(),
+            &UserSelectionsPage::show);
 
     // when the user opens a dataset
     connect(m_datasets.data(),
@@ -306,16 +304,6 @@ void MainWindow::createConnections()
             SIGNAL(signalDatasetRemoved(QString)),
             this,
             SLOT(slotDatasetRemoved(QString)));
-
-    // connect gene selection signals from selections view
-    connect(m_user_selections.data(),
-            SIGNAL(signalClearSelections()),
-            m_cellview.data(),
-            SLOT(slotClearSelections()));
-    connect(m_cellview.data(),
-            SIGNAL(signalUserSelection()),
-            m_user_selections.data(),
-            SLOT(slotSelectionsUpdated()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -369,5 +357,5 @@ void MainWindow::slotDatasetRemoved(const QString &datasetname)
     qDebug() << "Dataset removed " << datasetname;
     m_genes->clear();
     m_spots->clear();
-    m_cellview->clean();
+    m_cellview->clear();
 }

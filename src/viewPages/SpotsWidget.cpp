@@ -13,7 +13,6 @@
 #include "model/SpotItemModel.h"
 #include "utils/SetTips.h"
 #include "SettingsStyle.h"
-#include "SettingsVisual.h"
 
 using namespace Style;
 
@@ -71,7 +70,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
                     QIcon(QStringLiteral(":/images/select-color.png")),
                     tr("Set color of selected spots"));
     // show color button will open up a color selector
-    m_colorList.reset(new QColorDialog(Visual::DEFAULT_COLOR_GENE, this));
+    m_colorList.reset(new QColorDialog(Qt::red, this));
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     spotListLayout->addWidget(showColorButton);
     // add separation
@@ -137,7 +136,7 @@ void SpotsWidget::clear()
     m_spots_tableview->clearSelection();
     m_spots_tableview->clearFocus();
     getModel()->clear();
-    m_colorList->setCurrentColor(Visual::DEFAULT_COLOR_GENE);
+    m_colorList->setCurrentColor(Qt::red);
 }
 
 void SpotsWidget::updateModelTable()

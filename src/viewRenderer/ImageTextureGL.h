@@ -39,7 +39,6 @@ public slots:
 
 protected:
 
-    void setSelectionArea(const SelectionEvent *) override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:

@@ -25,13 +25,12 @@ public:
 
     // create the heatmap
     void generateHeatMap(const int min, const int max);
-    void generateHeatMap(const int min, const int max,
-                         const QColor &low, const QColor &up);
+    //void generateHeatMap(const int min, const int max,
+    //                     const QColor &low, const QColor &up);
 public slots:
 
 protected:
     const QRectF boundingRect() const override;
-    void setSelectionArea(const SelectionEvent *) override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
@@ -45,7 +44,8 @@ private:
     QOpenGLTexture m_textureText;
     QVector<QVector2D> m_texture_vertices;
     QVector<QVector2D> m_texture_cords;
-
+    int m_min;
+    int m_max;
     Q_DISABLE_COPY(HeatMapLegendGL)
 };
 

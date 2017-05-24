@@ -87,8 +87,7 @@ list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 ###CREATE TARGET BINARY#################################
 
 # Create main target's sources (resources needs to be part of the target)
-set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
-    SettingsStyle.h SettingsVisual.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
+set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp SettingsStyle.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 # Create executable target
 if(WIN32)
