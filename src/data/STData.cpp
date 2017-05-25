@@ -1,6 +1,9 @@
 #include "STData.h"
 #include <QDebug>
 
+static const int ROW = 1;
+static const int COLUMN = 0;
+
 STData::STData():
    m_counts_matrix(),
    m_counts_norm_matrix(),
@@ -288,22 +291,22 @@ void STData::compuateGenesCutoff()
 
 float STData::min_genes_spot() const
 {
-    return 0.0;
+    return cumsum(m_counts_matrix, COLUMN).min();
 }
 
 float STData::max_genes_spot() const
 {
-    return 0.0;
+    return cumsum(m_counts_matrix, COLUMN).max();
 }
 
 float STData::min_reads_spot() const
 {
-    return 0.0;
+    return cumsum(m_counts_matrix, ROW).min();
 }
 
 float STData::max_reads_spot() const
 {
-   return 0.0;
+    return cumsum(m_counts_matrix, ROW).max();
 }
 
 float STData::max_reads() const

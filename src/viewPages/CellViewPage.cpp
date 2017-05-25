@@ -100,10 +100,9 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     m_gene_plotter->attachData(data);
 
     // update SettingsWidget with the opened dataset (min max values)
-    //m_settings->setDataset(dataset);
-
-    // update color map legend with the dataset (min max values)
-    //m_legend->setDataset(dataset);
+    m_settings->resetReadsThreshold(data->min_reads(), data->max_reads());
+    m_settings->resetTotalReadsThreshold(data->min_reads_spot(), data->max_reads_spot());
+    m_settings->resetTotalGenesThreshold(data->min_genes_spot(), data->max_genes_spot());
 
     // load cell tissue (to load the dataset's cell tissue image)
     // create tiles textures from the image
@@ -179,7 +178,8 @@ void CellViewPage::initRenderer()
     m_ui->view->addRenderingNode(m_gene_plotter);
 
     // heatmap component
-    m_legend = QSharedPointer<HeatMapLegendGL>(new HeatMapLegendGL());
+    m_legend = QSharedPointer<HeatMapLegendGL>(
+                new HeatMapLegendGL(m_settings->renderingSettings()));
     m_ui->view->addRenderingNode(m_legend);
 }
 

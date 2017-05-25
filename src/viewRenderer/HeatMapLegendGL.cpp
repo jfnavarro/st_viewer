@@ -15,14 +15,13 @@ static const float legend_width = 25.0;
 static const float legend_height = 150.0;
 static const float bars_width = 35.0;
 
-HeatMapLegendGL::HeatMapLegendGL(QObject *parent)
+HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
     , m_texture(QOpenGLTexture::Target2D)
     , m_textureText(QOpenGLTexture::Target2D)
     , m_texture_vertices()
     , m_texture_cords()
-    , m_min(0)
-    , m_max(0)
+    , m_rendering_settings(rendering_settings)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -79,21 +78,26 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
             }
         }
         qopengl_functions.glEnd();
-
+        // get the min max values
+        QPair<float, float> min_max = getMinMax();
+        float min = min_max.first;
+        float max = min_max.second;
         // draw text (add 5 pixels offset to the right)
-        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(m_max),
+        drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max),
                  qopengl_functions);
-        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(m_min),
+        drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min),
                  qopengl_functions);
     }
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-void HeatMapLegendGL::generateHeatMap(const int min, const int max)
+void HeatMapLegendGL::generateHeatMap()
 {
-    // update the values so the text can be drawn
-    m_min = min;
-    m_max = max;
+    QPair<float, float> min_max = getMinMax();
+    float min = min_max.first;
+    float max = min_max.second;
+    //TODO pass the color mode as well
+
     // generate image texture with the size of the legend and then fill it up with the colors
     // using the min-max values of the threshold and the color mode
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
@@ -165,4 +169,32 @@ void HeatMapLegendGL::drawText(const QPointF &posn, const QString &str,
 const QRectF HeatMapLegendGL::boundingRect() const
 {
     return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
+}
+
+QPair<float,float> HeatMapLegendGL::getMinMax() const
+{
+    float min = 0;
+    float max = 0;
+    switch (m_rendering_settings.visual_type_mode) {
+        case SettingsWidget::Reads: {
+            min = m_rendering_settings.reads_min_threshold;
+            max = m_rendering_settings.reads_max_threshold;
+        } break;
+
+        case SettingsWidget::ReadsLog: {
+            min = std::log(m_rendering_settings.reads_min_threshold);
+            max = std::log(m_rendering_settings.reads_max_threshold);
+        } break;
+
+        case SettingsWidget::Genes: {
+            min = m_rendering_settings.genes_min_threshold;
+            max = m_rendering_settings.genes_max_threshold;
+        } break;
+
+        case SettingsWidget::GenesLog: {
+            min = std::log(m_rendering_settings.genes_min_threshold);
+            max = std::log(m_rendering_settings.genes_max_threshold);
+        }
+    }
+    return QPair<float, float>(min,max);
 }

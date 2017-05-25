@@ -90,6 +90,12 @@ void SettingsWidget::reset()
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
+    m_rendering_settings.reads_min_threshold = 0;
+    m_rendering_settings.reads_max_threshold = 1;
+    m_rendering_settings.reads_min_threshold = 0;
+    m_rendering_settings.reads_max_threshold = 1;
+    m_rendering_settings.genes_min_threshold = 0;
+    m_rendering_settings.genes_max_threshold = 1;
 }
 
 const SettingsWidget::Rendering &SettingsWidget::renderingSettings() const
@@ -101,18 +107,24 @@ void SettingsWidget::resetReadsThreshold(int min, int max)
 {
     m_ui->individual_reads_threshold->setMinimum(min);
     m_ui->individual_reads_threshold->setMaximum(max);
+    m_rendering_settings.ind_reads_min_threshold = min;
+    m_rendering_settings.ind_reads_max_threshold = max;
 }
 
 void SettingsWidget::resetTotalReadsThreshold(int min, int max)
 {
     m_ui->reads_threshold->setMinimum(min);
     m_ui->reads_threshold->setMaximum(max);
+    m_rendering_settings.reads_min_threshold = min;
+    m_rendering_settings.reads_max_threshold = max;
 }
 
 void SettingsWidget::resetTotalGenesThreshold(int min, int max)
 {
     m_ui->genes_threshold->setMinimum(min);
     m_ui->genes_threshold->setMaximum(max);
+    m_rendering_settings.genes_min_threshold = min;
+    m_rendering_settings.genes_max_threshold = max;
 }
 
 void SettingsWidget::slotGenesTreshold(int value)

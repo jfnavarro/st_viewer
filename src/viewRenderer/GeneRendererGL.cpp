@@ -44,64 +44,6 @@ void GeneRendererGL::attachData(QSharedPointer<STData> data)
     setupShaders();
 
     m_geneData = data;
-/*
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    for (const auto &feature : m_dataProxy->getFeatureList()) {
-        Q_ASSERT(feature);
-        // Get the feature's gene
-        auto gene = m_dataProxy->geneGeneObject(feature->gene());
-        Q_ASSERT(gene);
-
-        // feature cordinates
-        const QPointF point(feature->x(), feature->y());
-
-        // test if point already exists (quad tree)
-        GeneInfoQuadTree::PointItem item(point, INVALID_INDEX);
-        m_geneInfoQuadTree.select(point, item);
-
-        // index corresponds to the index in the array of vertices for the OpenGL data
-        int index = item.second;
-
-        // if it does not exists, create a quad and store the index
-        if (item.second == INVALID_INDEX) {
-            index = m_geneData.addQuad(feature->x(),
-                                       feature->y(),
-                                       m_size,
-                                       Visual::DEFAULT_COLOR_GENE);
-            // update look up container for the quad tree
-            m_geneInfoQuadTree.insert(point, index);
-            // add to list of indexes
-            m_indexes.insert(index);
-        }
-
-        // update look up container for the features and indexes
-        // multiple features per index
-        m_geneInfoByIndex.insert(index, feature);
-        // multiple indexes per gene
-        m_geneInfoByGene.insert(gene, index);
-        // mutiple count per gene
-        m_geneInfoByGeneFeatures[gene].push_back(feature->count());
-
-        // updated total reads/genes per spot/index
-        const int feature_reads = feature->count();
-        const int num_genes_spot = ++m_geneInfoTotalGenesIndex[index];
-        const int num_reads_spot = m_geneInfoTotalReadsIndex[index] += feature_reads;
-
-        // update thresholds (TODO next API will contain this information so no need for this)
-        m_thresholdGenesLower = std::min(num_genes_spot, m_thresholdGenesLower);
-        m_thresholdGenesUpper = std::max(num_genes_spot, m_thresholdGenesUpper);
-        m_thresholdReadsLower = std::min(feature_reads, m_thresholdReadsLower);
-        m_thresholdReadsUpper = std::max(feature_reads, m_thresholdReadsUpper);
-        m_thresholdTotalReadsLower = std::min(num_reads_spot, m_thresholdTotalReadsLower);
-        m_thresholdTotalReadsUpper = std::max(num_reads_spot, m_thresholdTotalReadsUpper);
-
-    } // endforeach
-
-    // compute gene's cut off
-    compuateGenesCutoff();
-    QGuiApplication::restoreOverrideCursor();
-    m_isInitialized = true;
-    */
 }
 
 // we update the rendering data

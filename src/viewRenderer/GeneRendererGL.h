@@ -46,9 +46,6 @@ protected:
 
 private:
 
-    // renders the data
-    void render();
-
     // reset quad tree to rect size
     //void resetQuadTree(const QRectF &rect);
 

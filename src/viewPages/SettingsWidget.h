@@ -37,8 +37,14 @@ public:
 
     struct Rendering {
         int reads_threshold;
+        int reads_min_threshold;
+        int reads_max_threshold;
         int genes_threshold;
+        int genes_min_threshold;
+        int genes_max_threshold;
         int ind_reads_threshold;
+        int ind_reads_min_threshold;
+        int ind_reads_max_threshold;
         float intensity;
         float size;
         VisualMode visual_mode;

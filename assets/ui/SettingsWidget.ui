@@ -206,8 +206,17 @@
    </item>
    <item>
     <widget class="QSlider" name="genes_threshold">
+     <property name="toolTip">
+      <string/>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
      </property>
     </widget>
    </item>
@@ -223,6 +232,12 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
     </widget>
    </item>
    <item>
@@ -236,6 +251,12 @@
     <widget class="QSlider" name="individual_reads_threshold">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
      </property>
     </widget>
    </item>
@@ -251,6 +272,12 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
     </widget>
    </item>
    <item>
@@ -264,6 +291,12 @@
     <widget class="QSlider" name="spots_intensity">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
      </property>
     </widget>
    </item>

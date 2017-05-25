@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>547</width>
-    <height>210</height>
+    <width>652</width>
+    <height>254</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -224,6 +224,38 @@
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="importFolder">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Import dataset from folder</string>
+           </property>
+           <property name="statusTip">
+            <string>Import dataset from folder</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/save_selection.png</normaloff>:/images/save_selection.png</iconset>
            </property>
            <property name="iconSize">
             <size>

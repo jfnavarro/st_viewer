@@ -3,6 +3,7 @@
 
 #include <QOpenGLTexture>
 #include "GraphicItemGL.h"
+#include "viewPages/SettingsWidget.h"
 
 class QImage;
 
@@ -17,16 +18,15 @@ class HeatMapLegendGL : public GraphicItemGL
 
 public:
 
-    explicit HeatMapLegendGL(QObject *parent = 0);
+    HeatMapLegendGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent = 0);
     virtual ~HeatMapLegendGL();
 
     // clear up all data
     void clearData();
 
     // create the heatmap
-    void generateHeatMap(const int min, const int max);
-    //void generateHeatMap(const int min, const int max,
-    //                     const QColor &low, const QColor &up);
+    void generateHeatMap();
+
 public slots:
 
 protected:
@@ -34,6 +34,9 @@ protected:
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
+
+    // Return the threshold min-max values from the settings object
+    QPair<float, float> getMinMax() const;
 
     // internal function to render text as a texture
     void drawText(const QPointF &posn, const QString &str,
@@ -44,8 +47,9 @@ private:
     QOpenGLTexture m_textureText;
     QVector<QVector2D> m_texture_vertices;
     QVector<QVector2D> m_texture_cords;
-    int m_min;
-    int m_max;
+    // rendering settings
+    const SettingsWidget::Rendering &m_rendering_settings;
+
     Q_DISABLE_COPY(HeatMapLegendGL)
 };
 

@@ -6,6 +6,11 @@
 #include <QMessageBox>
 #include <QUuid>
 #include <QDateTime>
+#include <QFileDialog>
+#include <QDirIterator>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QPushButton>
 
 #include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 #include "model/DatasetItemModel.h"
@@ -42,22 +47,24 @@ DatasetPage::DatasetPage(QWidget *parent)
 
     // connect signals
     connect(m_ui->filterLineEdit,
-            SIGNAL(textChanged(QString)),
+            &QLineEdit::textChanged,
             datasetsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
+            &QSortFilterProxyModel::setFilterFixedString);
     connect(m_ui->datasetsTableView,
-            SIGNAL(clicked(QModelIndex)),
+            &DatasetsTableView::clicked,
             this,
-            SLOT(slotDatasetSelected(QModelIndex)));
+            &DatasetPage::slotDatasetSelected);
     connect(m_ui->datasetsTableView,
-            SIGNAL(doubleClicked(QModelIndex)),
+            &DatasetsTableView::doubleClicked,
             this,
-            SLOT(slotSelectAndOpenDataset(QModelIndex)));
-    connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
-    connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
-    connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
-    connect(m_ui->importDataset, SIGNAL(clicked(bool)), this, SLOT(slotImportDataset()));
+            &DatasetPage::slotSelectAndOpenDataset);
+    connect(m_ui->deleteDataset, &QPushButton::clicked, this, &DatasetPage::slotRemoveDataset);
+    connect(m_ui->editDataset, &QPushButton::clicked, this, &DatasetPage::slotEditDataset);
+    connect(m_ui->openDataset, &QPushButton::clicked, this, &DatasetPage::slotOpenDataset);
+    connect(m_ui->importDataset, &QPushButton::clicked, this, &DatasetPage::slotImportDataset);
+    connect(m_ui->importFolder, &QPushButton::clicked, this, &DatasetPage::slotImportDatasetFolder);
 
+    // reset controls
     clearControls();
 }
 
@@ -250,4 +257,65 @@ bool DatasetPage::nameExist(const QString &name)
     return std::find_if(m_importedDatasets.begin(), m_importedDatasets.end(),
                         [&name](const Dataset& dataset)
     {return dataset.name() == name;}) != m_importedDatasets.end();
+}
+
+void DatasetPage::slotImportDatasetFolder()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::Detail);
+    if (dialog.exec()) {
+        QDir selectedDir = dialog.directory();
+        selectedDir.setFilter(QDir::Files);
+        Dataset dataset;
+        QDirIterator it(selectedDir, QDirIterator::NoIteratorFlags);
+        while (it.hasNext()) {
+            const QString file = it.next();
+            qDebug() << "Parsing dataset file " << file;
+            if (file.contains("stdata.tsv")) {
+                dataset.dataFile(file);
+            } else if (file.contains("image.jpg")) {
+                dataset.imageFile(file);
+            } else if (file.contains("alignment.txt")) {
+                dataset.imageAlignmentFile(file);
+            } else if (file.contains("spots.txt")) {
+                dataset.spotsFile(file);
+            } else if (file.contains("info.json")) {
+                QFile file_data(file);
+                if (file_data.open(QIODevice::ReadOnly)) {
+                    const QByteArray &data = file_data.readAll();
+                    const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+                    const QJsonObject &jsonObject = loadDoc.object();
+                    if (jsonObject.contains("name")) {
+                        dataset.name(jsonObject["name"].toString());
+                    }
+                    if (jsonObject.contains("species")) {
+                        dataset.statSpecies(jsonObject["species"].toString());
+                    }
+                    if (jsonObject.contains("tissue")) {
+                        dataset.statTissue(jsonObject["tissue"].toString());
+                    }
+                    if (jsonObject.contains("comments")) {
+                        dataset.statComments(jsonObject["comments"].toString());
+                    }
+                } else {
+                    qDebug() << "Error parsing info.json for dataset";
+                }
+            }
+        }
+
+        // Validate dataset
+        if (!dataset.name().isEmpty() && !dataset.dataFile().isEmpty()
+                && !dataset.imageFile().isEmpty()) {
+            if (nameExist(dataset.name())) {
+                QMessageBox::critical(this, tr("Datasert import"),
+                                      tr("There is another dataset with the same name"));
+            } else {
+                m_importedDatasets.append(dataset);
+                slotDatasetsUpdated();
+            }
+        } else {
+            QMessageBox::critical(this, tr("Datasert import"), tr("Error importing dataset"));
+        }
+    }
 }
