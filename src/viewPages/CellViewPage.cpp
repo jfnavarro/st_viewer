@@ -98,6 +98,7 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
 
     // update gene plotter rendering object with the dataset
     m_gene_plotter->attachData(data);
+    //TODO set bounding rect
 
     // update SettingsWidget with the opened dataset (min max values)
     m_settings->resetReadsThreshold(data->min_reads(), data->max_reads());
@@ -113,8 +114,28 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
                               tr("Error loading tissue image"));
     } else {
         m_ui->view->setScene(m_image->boundingRect());
-        m_ui->view->update();
+        // Update the image aligment with the image's dimension
+        // if it is not given by the user
+        QTransform alignment = dataset.imageAlignment();
+        if (alignment.isIdentity()) {
+            const int width_image = m_image->boundingRect().width();
+            const int height_image = m_image->boundingRect().height();
+            const float a11 = width_image / (32 - 1);
+            const float a12 = 0.0;
+            const float a13 = 0.0;
+            const float a21 = 0.0;
+            const float a22 = height_image / (34 - 1);
+            const float a23 = 0.0;
+            const float a31 = -a11;
+            const float a32 = -a22;
+            const float a33 = 1.0;
+            alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+        }
+        qDebug() << "Setting alignment matrix to " << alignment;
+        m_gene_plotter->setTransform(alignment);
     }
+    // call for an update
+    m_ui->view->update();
 }
 
 void CellViewPage::slotClearSelections()

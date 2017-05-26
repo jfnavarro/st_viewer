@@ -229,7 +229,6 @@ void CellGLView::setViewPort(const QRectF &viewport)
     }
 
     if (m_viewport != viewport) {
-        qDebug() << "Setting viwport to " << m_viewport;
         m_viewport = viewport;
     }
 }

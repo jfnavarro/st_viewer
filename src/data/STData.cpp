@@ -1,53 +1,50 @@
 #include "STData.h"
 #include <QDebug>
+#include "math/Common.h"
 
 static const int ROW = 1;
 static const int COLUMN = 0;
+//static const int QUAD_SIZE = 4;
+static const QVector2D ta(0.0, 0.0);
+static const QVector2D tb(0.0, 1.0);
+static const QVector2D tc(1.0, 1.0);
+static const QVector2D td(1.0, 0.0);
 
-STData::STData():
-   m_counts_matrix(),
-   m_counts_norm_matrix(),
-   m_normalization(Normalization::RAW),
-   m_spots(),
-   m_genes(),
-   m_matrix_genes(),
-   m_matrix_spots(),
-   m_spot_count_threshold(0),
-   m_gene_count_threshold(0),
-   m_spot_gene_count_threshold(0)
+using namespace Math;
+
+namespace
 {
-    Q_UNUSED(m_normalization)
-    Q_UNUSED(m_spot_count_threshold)
-    Q_UNUSED(m_gene_count_threshold)
-    Q_UNUSED(m_spot_gene_count_threshold)
+
+QVector4D fromQtColor(const QColor color)
+{
+    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+}
 }
 
-STData::STData(const STData &other)
+STData::STData()
+   : m_counts_matrix()
+   , m_counts_norm_matrix()
+   , m_spots()
+   , m_genes()
+   , m_matrix_genes()
+   , m_matrix_spots()
+   , m_rendering_settings(nullptr)
+   , m_normalization(SettingsWidget::NormalizationMode::RAW)
+   , m_vertices()
+   , m_textures()
+   , m_colors()
+   , m_indexes()
+
 {
-    Q_UNUSED(other);
-    //TODO implement
+
 }
 
 STData::~STData()
 {
-}
 
-STData &STData::operator=(const STData &other)
-{
-    Q_UNUSED(other);
-    //TODO implement
-    return (*this);
-}
-
-bool STData::operator==(const STData &other) const
-{
-    Q_UNUSED(other);
-    //TODO implement
-    return true;
 }
 
 void STData::read(const QString &filename) {
-    // TODO the values type can be templated
     m_matrix_genes.clear();
     m_matrix_spots.clear();
     m_genes.clear();
@@ -56,7 +53,7 @@ void STData::read(const QString &filename) {
 
     // Open file
     std::ifstream f(filename.toStdString());
-    qDebug() << "Opening file " << filename;
+    qDebug() << "Opening ST Data file " << filename;
 
     // Process the rest of the lines (row names and counts)
     int row_number = 0;
@@ -118,11 +115,6 @@ void STData::save(const QString &filename) const
     Q_UNUSED(filename)
 }
 
-void STData::normalize(Normalization normalization)
-{
-    Q_UNUSED(normalization)
-}
-
 std::vector<float> STData::count(const GeneType &gene) const
 {
     Q_UNUSED(gene)
@@ -161,12 +153,12 @@ float STData::count(const GeneObjectType &gene, const SpotObjectType &spot) cons
     return m_counts_matrix.at(i,j);
 }
 
-Mat<float> STData::slice_matrix_counts() const
+STData::Matrix STData::slice_matrix_counts() const
 {
     return m_counts_matrix;
 }
 
-Mat<float> STData::matrix_counts() const
+STData::Matrix STData::matrix_counts() const
 {
     return m_counts_matrix;
 }
@@ -179,11 +171,6 @@ std::vector<float> STData::spots_counts()
 std::vector<float> STData::genes_counts()
 {
     return std::vector<float>();
-}
-
-QVector<QColor> STData::spots_colors() const
-{
-    return QVector<QColor>();
 }
 
 STData::GeneType STData::gene_at(size_t index) const
@@ -226,7 +213,132 @@ STData::SpotListType STData::spots()
     return m_spots;
 }
 
-void STData::compuateGenesCutoff()
+float STData::min_genes_spot() const
+{
+    return cumsum(m_counts_matrix, COLUMN).min();
+}
+
+float STData::max_genes_spot() const
+{
+    return cumsum(m_counts_matrix, COLUMN).max();
+}
+
+float STData::min_reads_spot() const
+{
+    return cumsum(m_counts_matrix, ROW).min();
+}
+
+float STData::max_reads_spot() const
+{
+    return cumsum(m_counts_matrix, ROW).max();
+}
+
+float STData::max_reads() const
+{
+    return m_counts_matrix.max();
+}
+
+float STData::min_reads() const
+{
+    return m_counts_matrix.min();
+}
+
+void STData::computeRenderingData()
+{
+    //TODO normalize the counts
+    //TODO parallelize this
+    // Iterate all the spots
+    for (int i = 0; i < m_spots.size(); ++i) {
+        const auto spot = m_spots.at(i);
+        if (!spot->visible() || accu(cumsum(m_counts_matrix, ROW))
+                < m_rendering_settings->reads_threshold) {
+            continue;
+        }
+        // Iterage the genes in the spot to compute the sum of values and color
+        QColor merged_color;
+        float merged_value = 0;
+        int num_genes = 0;
+        for (int j = 0; j < m_genes.size(); ++j) {
+            const auto gene = m_genes.at(i);
+            const float value = m_counts_matrix.at(i,j);
+            if (!gene->selected() || value < m_rendering_settings->ind_reads_threshold) {
+                continue;
+            }
+            ++num_genes;
+            merged_value += value;
+            merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
+        }
+        // Update the color of the spot
+        if (num_genes > m_rendering_settings->genes_threshold) {
+            //TODO adjust color for type and mode
+            //TODO adjust color for intensity
+            m_colors[i] = fromQtColor(merged_color);
+        } else {
+            // not visible
+            m_colors[i] = QVector4D(0.0, 0.0, 0.0, 0.0);
+        }
+    }
+}
+
+const QVector<unsigned> &STData::renderingIndexes() const
+{
+    return m_indexes;
+}
+
+const QVector<QVector3D> &STData::renderingVertices() const
+{
+    return m_vertices;
+}
+
+const QVector<QVector2D> &STData::renderingTextures() const
+{
+    return m_textures;
+}
+
+const QVector<QVector4D> &STData::renderingColors() const
+{
+    return m_colors;
+}
+
+void STData::updateSize(const float size)
+{
+    Q_UNUSED(size)
+}
+
+void STData::initRenderingData()
+{
+    m_vertices.clear();
+    m_textures.clear();
+    m_colors.clear();
+    m_indexes.clear();
+    const QVector4D opengl_color = fromQtColor(Qt::white);
+    const float size = 1.0;
+    for (const SpotType &spot : m_matrix_spots) {
+        const int index_count = static_cast<int>(m_vertices.size());
+        const float x = spot.first;
+        const float y = spot.second;
+        m_vertices.append(QVector3D(x - size / 2.0, y - size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x + size / 2.0, y - size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x + size / 2.0, y + size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x - size / 2.0, y + size / 2.0, 0.0));
+        m_textures.append(ta);
+        m_textures.append(tb);
+        m_textures.append(tc);
+        m_textures.append(td);
+        m_colors.append(opengl_color);
+        m_colors.append(opengl_color);
+        m_colors.append(opengl_color);
+        m_colors.append(opengl_color);
+        m_indexes.append(index_count);
+        m_indexes.append(index_count + 1);
+        m_indexes.append(index_count + 2);
+        m_indexes.append(index_count);
+        m_indexes.append(index_count + 2);
+        m_indexes.append(index_count + 3);
+    }
+}
+
+void STData::computeGenesCutoff()
 {
     /*
     const int minseglen = 2;
@@ -287,34 +399,4 @@ void STData::compuateGenesCutoff()
         gene->cut_off(est_readcount);
     }
     */
-}
-
-float STData::min_genes_spot() const
-{
-    return cumsum(m_counts_matrix, COLUMN).min();
-}
-
-float STData::max_genes_spot() const
-{
-    return cumsum(m_counts_matrix, COLUMN).max();
-}
-
-float STData::min_reads_spot() const
-{
-    return cumsum(m_counts_matrix, ROW).min();
-}
-
-float STData::max_reads_spot() const
-{
-    return cumsum(m_counts_matrix, ROW).max();
-}
-
-float STData::max_reads() const
-{
-    return m_counts_matrix.max();
-}
-
-float STData::min_reads() const
-{
-    return m_counts_matrix.min();
 }

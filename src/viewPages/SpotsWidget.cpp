@@ -70,7 +70,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
                     QIcon(QStringLiteral(":/images/select-color.png")),
                     tr("Set color of selected spots"));
     // show color button will open up a color selector
-    m_colorList.reset(new QColorDialog(Qt::red, this));
+    m_colorList.reset(new QColorDialog(Qt::white, this));
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     spotListLayout->addWidget(showColorButton);
     // add separation

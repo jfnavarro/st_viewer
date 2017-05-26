@@ -3,19 +3,25 @@
 
 #include <QSharedPointer>
 #include <QList>
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
+#include <QColor>
+
 #include "data/Gene.h"
 #include "data/Spot.h"
+#include "viewPages/SettingsWidget.h"
+
 #include <armadillo>
 
 using namespace arma;
 
+// TODO the values type can be templated
 class STData
 {
 
 public:
-
-    enum Normalization { RAW = 0, DESeq = 1, TPM = 2, REL = 3, SCRAN };
-
+    typedef Mat<float> Matrix;
     typedef QPair<float,float> SpotType;
     typedef QString GeneType;
     typedef QSharedPointer<Spot> SpotObjectType;
@@ -24,16 +30,12 @@ public:
     typedef QList<GeneObjectType> GeneListType;
 
     STData();
-    explicit STData(const STData &other);
     ~STData();
 
-    STData &operator=(const STData &other);
-    bool operator==(const STData &other) const;
-
+    // import/export matrix
     void read(const QString &filename);
     void save(const QString &filename) const;
 
-    void normalize(Normalization normalization);
 
     std::vector<float> count(const GeneType &gene) const;
     std::vector<float> count(const SpotType &spot) const;
@@ -43,13 +45,11 @@ public:
     std::vector<float> count(const SpotObjectType &spot) const;
     float count(const GeneObjectType &gene, const SpotObjectType &spot) const;
 
-    Mat<float> slice_matrix_counts() const;
-    Mat<float> matrix_counts() const;
+    Matrix slice_matrix_counts() const;
+    Matrix matrix_counts() const;
 
     std::vector<float> spots_counts();
     std::vector<float> genes_counts();
-
-    QVector<QColor> spots_colors() const;
 
     GeneType gene_at(size_t index) const;
     SpotType spot_at(size_t index) const;
@@ -69,20 +69,40 @@ public:
     float max_reads() const;
     float min_reads() const;
 
+    void setRenderingSettings(const SettingsWidget::Rendering &m_rendering_settings);
+
+    void computeRenderingData();
+
+    const QVector<unsigned> &renderingIndexes() const;
+    const QVector<QVector3D> &renderingVertices() const;
+    const QVector<QVector2D> &renderingTextures() const;
+    const QVector<QVector4D> &renderingColors() const;
+
+    void updateSize(const float size);
+
+    void initRenderingData();
+
 private:
 
-    void compuateGenesCutoff();
+    void computeGenesCutoff();
 
-    Mat<float> m_counts_matrix;
-    Mat<float> m_counts_norm_matrix;
-    Normalization m_normalization;
+    Matrix m_counts_matrix;
+    // cache the normalized matrix to save computational time
+    Matrix m_counts_norm_matrix;
+    // store gene/spots objects and indexes in matrix
     SpotListType m_spots;
     GeneListType m_genes;
     QVector<GeneType> m_matrix_genes;
     QVector<SpotType> m_matrix_spots;
-    float m_spot_count_threshold;
-    float m_gene_count_threshold;
-    float m_spot_gene_count_threshold;
+    // rendering settings
+    const SettingsWidget::Rendering *m_rendering_settings;
+    mutable SettingsWidget::NormalizationMode m_normalization;
+    // cache the normalization settings to do it only when necessary
+    // rendering data
+    QVector<QVector3D> m_vertices;
+    QVector<QVector2D> m_textures;
+    QVector<QVector4D> m_colors;
+    QVector<unsigned> m_indexes;
 };
 
 #endif // STDATA_H

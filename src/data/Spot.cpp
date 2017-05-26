@@ -4,7 +4,7 @@ Spot::Spot()
     : m_x(0)
     , m_y(0)
     , m_visible(false)
-    , m_color(Qt::red)
+    , m_color(Qt::white)
     , m_name()
 {
 }
@@ -13,7 +13,7 @@ Spot::Spot(const float x, const float y)
     : m_x(x)
     , m_y(y)
     , m_visible(false)
-    , m_color(Qt::red)
+    , m_color(Qt::white)
     , m_name()
 {
 

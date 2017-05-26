@@ -23,6 +23,7 @@ Gene::Gene(const QString &name, bool selected, const QColor &color, const int cu
     , m_cutoff(cutoff)
 {
 }
+
 Gene::~Gene()
 {
 }

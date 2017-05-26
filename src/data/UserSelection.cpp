@@ -10,39 +10,8 @@ UserSelection::UserSelection()
 {
 }
 
-UserSelection::UserSelection(const UserSelection &other)
-    : m_name(other.m_name)
-    , m_dataset(other.m_dataset)
-    , m_sliced_data(other.m_sliced_data)
-    , m_type(other.m_type)
-    , m_comment(other.m_comment)
-    , m_tissueSnapShot(other.m_tissueSnapShot)
-{
-}
-
 UserSelection::~UserSelection()
 {
-}
-
-UserSelection &UserSelection::operator=(const UserSelection &other)
-{
-    m_name = other.m_name;
-    m_dataset = other.m_dataset;
-    m_sliced_data = other.m_sliced_data;
-    m_type = other.m_type;
-    m_comment = other.m_comment;
-    m_tissueSnapShot = other.m_tissueSnapShot;
-    return (*this);
-}
-
-bool UserSelection::operator==(const UserSelection &other) const
-{
-    return (m_name == other.m_name
-            && m_dataset == other.m_dataset
-            && m_sliced_data == other.m_sliced_data
-            && m_type == other.m_type
-            && m_comment == other.m_comment
-            && m_tissueSnapShot == other.m_tissueSnapShot);
 }
 
 const QString UserSelection::name() const
@@ -55,7 +24,7 @@ const QString UserSelection::dataset() const
     return m_dataset;
 }
 
-const STData &UserSelection::slicedData() const
+const STData::Matrix &UserSelection::slicedData() const
 {
     return m_sliced_data;
 }
@@ -85,7 +54,7 @@ void UserSelection::dataset(const QString &dataset)
     m_dataset = dataset;
 }
 
-void UserSelection::slicedData(const STData &data)
+void UserSelection::slicedData(const STData::Matrix &data)
 {
     m_sliced_data = data;
 }

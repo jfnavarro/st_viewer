@@ -37,6 +37,9 @@ public:
 
 public slots:
 
+    // update the rendering data
+    void update();
+
 signals:
 
 protected:
