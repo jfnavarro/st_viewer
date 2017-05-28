@@ -37,7 +37,7 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::CheckStateRole && index.column() == Show) {
-        return item->selected() ? Qt::Checked : Qt::Unchecked;
+        return item->visible() ? Qt::Checked : Qt::Unchecked;
     }
 
     if (role == Qt::DecorationRole && index.column() == Color) {
@@ -210,8 +210,8 @@ void GeneItemModel::setVisibility(const QItemSelection &selection, bool visible)
     STData::GeneListType geneList;
     for (const auto &row : rows) {
         auto gene = m_items_reference.at(row);
-        if (gene->selected() != visible) {
-            gene->selected(visible);
+        if (gene->visible() != visible) {
+            gene->visible(visible);
             geneList.push_back(gene);
         }
     }

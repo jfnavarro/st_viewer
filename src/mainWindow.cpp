@@ -80,10 +80,7 @@ void MainWindow::init()
     // create keyboard shortcuts
     createShorcuts();
 
-    // decorate the main window
-    createLayouts();
-
-    // make signal connections
+    // create connections
     createConnections();
 
     // restore settings
@@ -208,6 +205,9 @@ void MainWindow::setupUi()
     dock_spots->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     menuViews->addAction(dock_spots->toggleViewAction());
     addDockWidget(Qt::LeftDockWidgetArea, dock_spots);
+
+    // App's name
+    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
 }
 
 void MainWindow::slotShowAbout()
@@ -242,11 +242,6 @@ void MainWindow::slotClearCache()
     if (answer == QMessageBox::Yes) {
         //NOTE nothing for now
     }
-}
-
-void MainWindow::createLayouts()
-{
-    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
 }
 
 void MainWindow::initStyle()
@@ -291,19 +286,31 @@ void MainWindow::createConnections()
 
     // when the user opens a dataset
     connect(m_datasets.data(),
-            SIGNAL(signalDatasetOpen(QString)),
+            &DatasetPage::signalDatasetOpen,
             this,
-            SLOT(slotDatasetOpen(QString)));
+            &MainWindow::slotDatasetOpen);
     // when the users edits a dataset
     connect(m_datasets.data(),
-            SIGNAL(signalDatasetUpdated(QString)),
+            &DatasetPage::signalDatasetUpdated,
             this,
-            SLOT(slotDatasetUpdated(QString)));
+            &MainWindow::slotDatasetUpdated);
     // when the user removes the currently opened dataset
     connect(m_datasets.data(),
-            SIGNAL(signalDatasetRemoved(QString)),
+            &DatasetPage::signalDatasetRemoved,
             this,
-            SLOT(slotDatasetRemoved(QString)));
+            &MainWindow::slotDatasetRemoved);
+
+    // when the user change any gene
+    connect(m_genes.data(),
+            &GenesWidget::signalGenesUpdated,
+            m_cellview.data(),
+            &CellViewPage::slotGenesUpdate);
+
+    // when the user change any spot
+    connect(m_spots.data(),
+            &SpotsWidget::signalSpotsUpdated,
+            m_cellview.data(),
+            &CellViewPage::slotSpotsUpdated);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

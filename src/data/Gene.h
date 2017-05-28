@@ -14,7 +14,7 @@ public:
     Gene();
     explicit Gene(const Gene &other);
     explicit Gene(const QString &name,
-                  bool selected = false,
+                  bool visible = false,
                   const QColor &color = Qt::red,
                   const int cutoff = 1);
     ~Gene();
@@ -24,8 +24,8 @@ public:
 
     // the name of the gene
     const QString name() const;
-    // true if gene is selected to be viewed
-    bool selected() const;
+    // true if gene is visible
+    bool visible() const;
     // the color of the gene
     const QColor color() const;
     // the threshold (reads)
@@ -34,7 +34,7 @@ public:
 
     // Setters
     void name(const QString &name);
-    void selected(bool selected);
+    void visible(bool visible);
     void color(const QColor &color);
     void cut_off(const int cutoff);
 
@@ -44,7 +44,7 @@ public:
 private:
     QString m_name;
     QColor m_color;
-    bool m_selected;
+    bool m_visible;
     int m_cutoff;
 };
 

@@ -70,6 +70,12 @@ private:
     // OpenGL rendering shader
     QOpenGLShaderProgram m_shader_program;
 
+    // Save the size to not recompute it always
+    float m_size;
+
+    // true when the rendering data has been initialized
+    bool m_initialized;
+
     Q_DISABLE_COPY(GeneRendererGL)
 };
 

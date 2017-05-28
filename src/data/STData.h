@@ -69,7 +69,7 @@ public:
     float max_reads() const;
     float min_reads() const;
 
-    void setRenderingSettings(const SettingsWidget::Rendering &m_rendering_settings);
+    void setRenderingSettings(const SettingsWidget::Rendering *rendering_settings);
 
     void computeRenderingData();
 
@@ -85,10 +85,12 @@ public:
 private:
 
     void computeGenesCutoff();
+    void updateColor(const int index, const QColor &color);
 
     Matrix m_counts_matrix;
-    // cache the normalized matrix to save computational time
-    Matrix m_counts_norm_matrix;
+    // cache the size factors to save computational time
+    std::vector<float> m_deseq_size_factors;
+    std::vector<float> m_scran_size_factors;
     // store gene/spots objects and indexes in matrix
     SpotListType m_spots;
     GeneListType m_genes;
@@ -96,7 +98,7 @@ private:
     QVector<SpotType> m_matrix_spots;
     // rendering settings
     const SettingsWidget::Rendering *m_rendering_settings;
-    mutable SettingsWidget::NormalizationMode m_normalization;
+    //mutable SettingsWidget::NormalizationMode m_normalization;
     // cache the normalization settings to do it only when necessary
     // rendering data
     QVector<QVector3D> m_vertices;

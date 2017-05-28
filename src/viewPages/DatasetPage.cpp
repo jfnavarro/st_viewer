@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QPushButton>
+#include <QStandardPaths>
 
 #include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 #include "model/DatasetItemModel.h"
@@ -261,7 +262,7 @@ bool DatasetPage::nameExist(const QString &name)
 
 void DatasetPage::slotImportDatasetFolder()
 {
-    QFileDialog dialog(this);
+    QFileDialog dialog(this, tr("Select folder with the ST Dataset"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::Detail);
     if (dialog.exec()) {

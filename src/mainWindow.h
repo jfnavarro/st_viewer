@@ -58,8 +58,6 @@ private slots:
 private:
     // create all the widgets
     void setupUi();
-    // initialize and configure layout
-    void createLayouts();
     // load style sheets
     void initStyle();
     // create keyboard shortcuts

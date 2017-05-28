@@ -34,6 +34,10 @@ QColor createHeatMapLinearColor(const float value, const float min, const float 
 QColor createDynamicRangeColor(const float value, const float min,
                                const float max, QColor color = Qt::red);
 
+// Functions to create a color mapped in the color range given
+QColor createRangeColor(const float value, const float min, const float max,
+                        QColor init, QColor end);
+
 }
 
 #endif // HEATMAP_H //

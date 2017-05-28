@@ -9,6 +9,8 @@
 GeneRendererGL::GeneRendererGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
     , m_rendering_settings(rendering_settings)
+    , m_size(1.0)
+    , m_initialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -16,6 +18,7 @@ GeneRendererGL::GeneRendererGL(const SettingsWidget::Rendering &rendering_settin
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
     setVisualOption(GraphicItemGL::RubberBandable, true);
+    setAnchor(GraphicItemGL::Anchor::None);
 
     // initialize variables
     clearData();
@@ -27,7 +30,7 @@ GeneRendererGL::~GeneRendererGL()
 
 void GeneRendererGL::clearData()
 {
-
+    m_initialized = false;
 }
 
 void GeneRendererGL::update()
@@ -50,13 +53,20 @@ void GeneRendererGL::attachData(QSharedPointer<STData> data)
 
     m_geneData = data;
     m_geneData->initRenderingData();
+    m_initialized = true;
 }
 
 // we update the rendering data
 void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
-    if (!m_shader_program.isLinked()) {
+    if (!m_initialized) {
         return;
+    }
+
+    // Update size if needed
+    if (m_size != m_rendering_settings.size) {
+        m_size = m_rendering_settings.size;
+        m_geneData->updateSize(m_size);
     }
 
     m_shader_program.bind();

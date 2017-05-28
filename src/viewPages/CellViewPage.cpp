@@ -95,6 +95,7 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
 
     // The STData object
     auto data = dataset.data();
+    data->setRenderingSettings(&m_settings->renderingSettings());
 
     // update gene plotter rendering object with the dataset
     m_gene_plotter->attachData(data);
@@ -118,13 +119,14 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
         // if it is not given by the user
         QTransform alignment = dataset.imageAlignment();
         if (alignment.isIdentity()) {
+            // TODO 33 and 35 should be retrieved from the spots (max x and max y)
             const int width_image = m_image->boundingRect().width();
             const int height_image = m_image->boundingRect().height();
-            const float a11 = width_image / (32 - 1);
+            const float a11 = width_image / 32;
             const float a12 = 0.0;
             const float a13 = 0.0;
             const float a21 = 0.0;
-            const float a22 = height_image / (34 - 1);
+            const float a22 = height_image / 34;
             const float a23 = 0.0;
             const float a31 = -a11;
             const float a32 = -a22;
@@ -140,6 +142,16 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
 
 void CellViewPage::slotClearSelections()
 {
+}
+
+void CellViewPage::slotGenesUpdate()
+{
+    m_gene_plotter->update();
+}
+
+void CellViewPage::slotSpotsUpdated()
+{
+    m_gene_plotter->update();
 }
 
 void CellViewPage::createConnections()
@@ -162,7 +174,7 @@ void CellViewPage::createConnections()
 
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
-            [=](){m_gene_plotter->updated();});
+            [=](){m_gene_plotter->update();});
 
     // graphic view signals
     connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view, &CellGLView::zoomIn);

@@ -56,6 +56,12 @@ public slots:
     // the user has cleared the selections
     void slotClearSelections();
 
+    // the user has updated the genes
+    void slotGenesUpdate();
+
+    // the user has updated the spots
+    void slotSpotsUpdated();
+
 private slots:
 
     // save/esport current view

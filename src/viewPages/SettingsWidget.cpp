@@ -70,10 +70,13 @@ SettingsWidget::~SettingsWidget()
 
 void SettingsWidget::reset()
 {
+    const QSignalBlocker blocker(this);
     m_ui->spots_intensity->setMinimum(INTENSITY_MIN);
     m_ui->spots_intensity->setMaximum(INTENSITY_MAX);
+    m_ui->spots_intensity->setValue(INTENSITY_MAX);
     m_ui->spots_size->setMinimum(SIZEMIN);
     m_ui->spots_size->setMaximum(SIZEMAX);
+    m_ui->spots_size->setValue(SIZEMIN);
     m_ui->show_image->setChecked(true);
     m_ui->show_spots->setChecked(true);
     m_ui->legend->setChecked(false);
@@ -105,24 +108,30 @@ const SettingsWidget::Rendering &SettingsWidget::renderingSettings() const
 
 void SettingsWidget::resetReadsThreshold(int min, int max)
 {
+    const QSignalBlocker blocker(this);
     m_ui->individual_reads_threshold->setMinimum(min);
     m_ui->individual_reads_threshold->setMaximum(max);
+    m_ui->individual_reads_threshold->setValue(min);
     m_rendering_settings.ind_reads_min_threshold = min;
     m_rendering_settings.ind_reads_max_threshold = max;
 }
 
 void SettingsWidget::resetTotalReadsThreshold(int min, int max)
 {
+    const QSignalBlocker blocker(this);
     m_ui->reads_threshold->setMinimum(min);
     m_ui->reads_threshold->setMaximum(max);
+    m_ui->reads_threshold->setValue(min);
     m_rendering_settings.reads_min_threshold = min;
     m_rendering_settings.reads_max_threshold = max;
 }
 
 void SettingsWidget::resetTotalGenesThreshold(int min, int max)
 {
+    const QSignalBlocker blocker(this);
     m_ui->genes_threshold->setMinimum(min);
     m_ui->genes_threshold->setMaximum(max);
+    m_ui->genes_threshold->setValue(min);
     m_rendering_settings.genes_min_threshold = min;
     m_rendering_settings.genes_max_threshold = max;
 }
@@ -153,16 +162,18 @@ void SettingsWidget::slotIndReadsTreshold(int value)
 
 void SettingsWidget::slotIntensity(int value)
 {
-    if (m_rendering_settings.intensity != value) {
-        m_rendering_settings.intensity = value;
+    const float intensity = static_cast<float>(value) / 10;
+    if (m_rendering_settings.intensity != intensity) {
+        m_rendering_settings.intensity = intensity;
         emit signalSpotRendering();
     }
 }
 
 void SettingsWidget::slotSize(int value)
 {
-    if (m_rendering_settings.size != value) {
-        m_rendering_settings.size = value;
+    const float size = static_cast<float>(value) / 10;
+    if (m_rendering_settings.size != size) {
+        m_rendering_settings.size = size;
         emit signalSpotRendering();
     }
 }

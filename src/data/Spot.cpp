@@ -3,7 +3,8 @@
 Spot::Spot()
     : m_x(0)
     , m_y(0)
-    , m_visible(false)
+    , m_visible(true)
+    , m_selected(false)
     , m_color(Qt::white)
     , m_name()
 {
@@ -12,7 +13,8 @@ Spot::Spot()
 Spot::Spot(const float x, const float y)
     : m_x(x)
     , m_y(y)
-    , m_visible(false)
+    , m_visible(true)
+    , m_selected(false)
     , m_color(Qt::white)
     , m_name()
 {
@@ -26,6 +28,7 @@ Spot::Spot(const Spot &other)
     m_color = other.m_color;
     m_name = other.m_name;
     m_visible = other.m_visible;
+    m_selected = other.m_selected;
 }
 
 Spot::~Spot()
@@ -37,6 +40,7 @@ Spot &Spot::operator=(const Spot &other)
     m_x = other.m_x;
     m_y = other.m_y;
     m_visible = other.m_visible;
+    m_selected = other.m_selected;
     m_color = other.m_color;
     m_name = other.m_name;
     return (*this);
@@ -47,6 +51,7 @@ bool Spot::operator==(const Spot &other) const
     return (m_x == other.m_x
             && m_y == other.m_y
             && m_visible == other.m_visible
+            && m_selected == other.m_selected
             && m_color == other.m_color
             && m_name == other.m_name);
 }
@@ -84,6 +89,11 @@ bool Spot::visible() const
     return m_visible;
 }
 
+bool Spot::selected() const
+{
+    return m_selected;
+}
+
 void Spot::x(float x)
 {
     m_x = x;
@@ -97,6 +107,11 @@ void Spot::y(float y)
 void Spot::visible(bool visible)
 {
     m_visible = visible;
+}
+
+void Spot::selected(bool selected)
+{
+    m_selected = selected;
 }
 
 void Spot::color(QColor color)

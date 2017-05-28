@@ -1,10 +1,11 @@
 #include "STData.h"
 #include <QDebug>
 #include "math/Common.h"
+#include "color/HeatMap.h"
 
 static const int ROW = 1;
 static const int COLUMN = 0;
-//static const int QUAD_SIZE = 4;
+static const int QUAD_SIZE = 4;
 static const QVector2D ta(0.0, 0.0);
 static const QVector2D tb(0.0, 1.0);
 static const QVector2D tc(1.0, 1.0);
@@ -22,18 +23,19 @@ QVector4D fromQtColor(const QColor color)
 }
 
 STData::STData()
-   : m_counts_matrix()
-   , m_counts_norm_matrix()
-   , m_spots()
-   , m_genes()
-   , m_matrix_genes()
-   , m_matrix_spots()
-   , m_rendering_settings(nullptr)
-   , m_normalization(SettingsWidget::NormalizationMode::RAW)
-   , m_vertices()
-   , m_textures()
-   , m_colors()
-   , m_indexes()
+    : m_counts_matrix()
+    , m_deseq_size_factors()
+    , m_scran_size_factors()
+    , m_spots()
+    , m_genes()
+    , m_matrix_genes()
+    , m_matrix_spots()
+    , m_rendering_settings(nullptr)
+    //, m_normalization(SettingsWidget::NormalizationMode::RAW)
+    , m_vertices()
+    , m_textures()
+    , m_colors()
+    , m_indexes()
 
 {
 
@@ -101,10 +103,10 @@ void STData::read(const QString &filename) {
     }
 
     // Create an armadillo matrix
-    Mat<float> counts_matrix(row_number - 1, col_number - 1);
+    Matrix counts_matrix(row_number - 1, col_number - 1);
     for (int i = 0; i < row_number - 1; ++i) {
         for (int j = 0; j < col_number - 1; ++j) {
-            counts_matrix(i, j) = values[i][j];
+            counts_matrix.at(i, j) = values[i][j];
         }
     }
     m_counts_matrix = counts_matrix;
@@ -215,22 +217,22 @@ STData::SpotListType STData::spots()
 
 float STData::min_genes_spot() const
 {
-    return cumsum(m_counts_matrix, COLUMN).min();
+    return sum(m_counts_matrix, COLUMN).min();
 }
 
 float STData::max_genes_spot() const
 {
-    return cumsum(m_counts_matrix, COLUMN).max();
+    return sum(m_counts_matrix, COLUMN).max();
 }
 
 float STData::min_reads_spot() const
 {
-    return cumsum(m_counts_matrix, ROW).min();
+    return sum(m_counts_matrix, ROW).min();
 }
 
 float STData::max_reads_spot() const
 {
-    return cumsum(m_counts_matrix, ROW).max();
+    return sum(m_counts_matrix, ROW).max();
 }
 
 float STData::max_reads() const
@@ -243,40 +245,101 @@ float STData::min_reads() const
     return m_counts_matrix.min();
 }
 
+void STData::setRenderingSettings(const SettingsWidget::Rendering *rendering_settings)
+{
+    m_rendering_settings = rendering_settings;
+}
+
 void STData::computeRenderingData()
 {
-    //TODO normalize the counts
+    Q_ASSERT(m_rendering_settings != nullptr);
+    Q_ASSERT(!m_colors.empty());
+
+    //TODO normalize the counts and/or log the counts
     //TODO parallelize this
-    // Iterate all the spots
+
+    // Get the list of selected genes
+    GeneListType selected_genes;
+    std::copy_if(m_genes.begin(), m_genes.end(),
+                 std::back_inserter(selected_genes), [&](const auto gene) {
+        return gene->visible();
+    });
+
+    // Empty color for non visible spots
+    const QColor empty(0.0, 0.0, 0.0, 0.0);
+
+    const Col<float> &col_sums = sum(m_counts_matrix, ROW);
+
+    float min_genes = 10e6;
+    float max_genes = -1.0;
+    float min_reads = 10e6;
+    float max_reads = -1.0;
     for (int i = 0; i < m_spots.size(); ++i) {
         const auto spot = m_spots.at(i);
-        if (!spot->visible() || accu(cumsum(m_counts_matrix, ROW))
-                < m_rendering_settings->reads_threshold) {
+        if (!spot->visible() || col_sums.at(i) < m_rendering_settings->reads_threshold) {
+            updateColor(i, empty);
             continue;
         }
         // Iterage the genes in the spot to compute the sum of values and color
         QColor merged_color;
         float merged_value = 0;
-        int num_genes = 0;
-        for (int j = 0; j < m_genes.size(); ++j) {
-            const auto gene = m_genes.at(i);
+        float num_genes = 0;
+        for (int j = 0; j < selected_genes.size(); ++j) {;
+            const auto gene = selected_genes[j];
             const float value = m_counts_matrix.at(i,j);
-            if (!gene->selected() || value < m_rendering_settings->ind_reads_threshold) {
+            if (m_rendering_settings->gene_cutoff && gene->cut_off() > value) {
                 continue;
             }
             ++num_genes;
             merged_value += value;
             merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
+            min_reads = std::min(value, min_reads);
+            max_reads = std::max(value, max_reads);
         }
+        min_genes = std::min(num_genes, min_genes);
+        max_genes = std::max(num_genes, max_genes);
+
+        // Adjust spot's value according to type of visualization
+        switch (m_rendering_settings->visual_type_mode) {
+        case (SettingsWidget::VisualTypeMode::Reads): {
+        } break;
+        case (SettingsWidget::VisualTypeMode::ReadsLog): {
+            merged_value = std::log(merged_value);
+            min_reads = std::log(min_reads);
+            max_reads = std::log(max_reads);
+        } break;
+        case (SettingsWidget::VisualTypeMode::Genes): {
+            merged_value = num_genes;
+            min_reads = min_genes;
+            max_reads = max_genes;
+        } break;
+        case (SettingsWidget::VisualTypeMode::GenesLog): {
+            merged_value = std::log(num_genes);
+            min_reads = std::log(min_genes);
+            max_reads = std::log(max_genes);
+        }
+        }
+
         // Update the color of the spot
+        QColor color = spot->color();
         if (num_genes > m_rendering_settings->genes_threshold) {
-            //TODO adjust color for type and mode
-            //TODO adjust color for intensity
-            m_colors[i] = fromQtColor(merged_color);
-        } else {
-            // not visible
-            m_colors[i] = QVector4D(0.0, 0.0, 0.0, 0.0);
+            switch (m_rendering_settings->visual_mode) {
+            case (SettingsWidget::VisualMode::Normal): {
+                color = merged_color;
+            } break;
+            case (SettingsWidget::VisualMode::DynamicRange): {
+                color = Color::createDynamicRangeColor(merged_value, min_reads, max_reads, merged_color);
+            } break;
+            case (SettingsWidget::VisualMode::HeatMap): {
+                color = Color::createHeatMapLinearColor(merged_value, min_reads, max_reads);
+            } break;
+            case (SettingsWidget::VisualMode::ColorRange): {
+                color = Color::createRangeColor(merged_value, min_reads, max_reads, Qt::yellow, Qt::yellow);
+            }
+            }
         }
+        color.setAlphaF(m_rendering_settings->intensity);
+        updateColor(i, color);
     }
 }
 
@@ -302,7 +365,19 @@ const QVector<QVector4D> &STData::renderingColors() const
 
 void STData::updateSize(const float size)
 {
-    Q_UNUSED(size)
+    for (int index = 0; index < m_spots.size(); ++index) {
+        const auto spot = m_matrix_spots.at(index);
+        const float x = spot.first;
+        const float y = spot.second;
+        m_vertices[(QUAD_SIZE * index)] =
+                QVector3D(x - size / 2.0, y - size / 2.0, 0.0);
+        m_vertices[(QUAD_SIZE * index) + 1] =
+                QVector3D(x + size / 2.0, y - size / 2.0, 0.0);
+        m_vertices[(QUAD_SIZE * index) + 2] =
+                QVector3D(x + size / 2.0, y + size / 2.0, 0.0);
+        m_vertices[(QUAD_SIZE * index) + 3] =
+                QVector3D(x - size / 2.0, y + size / 2.0, 0.0);
+    }
 }
 
 void STData::initRenderingData()
@@ -312,7 +387,7 @@ void STData::initRenderingData()
     m_colors.clear();
     m_indexes.clear();
     const QVector4D opengl_color = fromQtColor(Qt::white);
-    const float size = 1.0;
+    const float size = 0.5;
     for (const SpotType &spot : m_matrix_spots) {
         const int index_count = static_cast<int>(m_vertices.size());
         const float x = spot.first;
@@ -399,4 +474,12 @@ void STData::computeGenesCutoff()
         gene->cut_off(est_readcount);
     }
     */
+}
+
+void STData::updateColor(const int index, const QColor &color)
+{
+    const QVector4D opengl_color = fromQtColor(color);
+    for (int z = 0; z < QUAD_SIZE; ++z) {
+        m_colors[(QUAD_SIZE * index) + z] = opengl_color;
+    }
 }

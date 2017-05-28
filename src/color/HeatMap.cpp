@@ -36,7 +36,7 @@ void createHeatMapImage(QImage &image,
 
 // simple function that computes color from a min-max range
 // using linear Interpolation
-QColor createHeatMapLinearColor(const double value, const double min, const double max)
+QColor createHeatMapLinearColor(const float value, const float min, const float max)
 {
     const double halfmax = (min + max) / 2;
     const double blue = std::max(0.0, 255 * (1 - (value / halfmax)));
@@ -111,6 +111,17 @@ QColor createHeatMapWaveLenghtColor(const float value)
 
     // return color
     return QColor::fromRgbF(red, green, blue, 1.0);
+}
+
+// Functions to create a color mapped in the color range given
+QColor createRangeColor(const float value, const float min, const float max,
+                        QColor init, QColor end)
+{
+    Q_UNUSED(value)
+    Q_UNUSED(min)
+    Q_UNUSED(max)
+    Q_UNUSED(init)
+    return end;
 }
 
 }
