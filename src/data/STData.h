@@ -16,6 +16,8 @@
 
 using namespace arma;
 
+class RInside;
+
 // TODO the values type can be templated
 class STData
 {
@@ -86,6 +88,8 @@ private:
 
     void computeGenesCutoff();
     void updateColor(const int index, const QColor &color);
+    void computeDESeqFactors();
+    void computeScranFactors();
 
     Matrix m_counts_matrix;
     // cache the size factors to save computational time
@@ -105,6 +109,8 @@ private:
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
     QVector<unsigned> m_indexes;
+    // Access to R terminal
+    RInside *R;
 };
 
 #endif // STDATA_H

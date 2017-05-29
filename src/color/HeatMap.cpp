@@ -6,9 +6,8 @@
 namespace Color
 {
 
-void createHeatMapImage(QImage &image,
-                        const float lowerbound,
-                        const float upperbound)
+void createLegend(QImage &image, const float lowerbound,
+                  const float upperbound, const ColorGradients cmap)
 {
 
     const int height = image.height();
@@ -24,9 +23,7 @@ void createHeatMapImage(QImage &image,
                                                    static_cast<float>(height),
                                                    lowerbound,
                                                    upperbound);
-        const float normalizedValue
-            = Math::norm<float, float>(adjusted_value, lowerbound, upperbound);
-        const QColor color = Color::createHeatMapWaveLenghtColor(normalizedValue);
+        const QColor color = Color::createCMapColor(adjusted_value, lowerbound, upperbound, cmap);
         const QRgb rgb_color = color.rgb();
         for (int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
@@ -46,12 +43,13 @@ QColor createHeatMapLinearColor(const float value, const float min, const float 
 }
 
 QColor createDynamicRangeColor(const float value, const float min,
-                               const float max, QColor color)
+                               const float max, const QColor color)
 {
     const float adjusted_value
         = Math::norm<float, float>(value, min, max);
-    color.setAlphaF(adjusted_value);
-    return color;
+    QColor newcolor(color);
+    newcolor.setAlphaF(adjusted_value);
+    return newcolor;
 }
 
 // simple function that computes color from a value
@@ -117,11 +115,22 @@ QColor createHeatMapWaveLenghtColor(const float value)
 QColor createRangeColor(const float value, const float min, const float max,
                         QColor init, QColor end)
 {
-    Q_UNUSED(value)
-    Q_UNUSED(min)
-    Q_UNUSED(max)
-    Q_UNUSED(init)
-    return end;
+    const float norm_value = Math::norm<float, float>(value, min, max);
+    return Math::lerp(norm_value, init, end);
 }
 
+QColor createCMapColorGpHot(const float value, const float min, const float max)
+{
+    const QCPRange range(min,max);
+    QCPColorGradient cmap(QCPColorGradient::gpHot);
+    return QColor(cmap.color(value, range));
+}
+
+QColor createCMapColor(const float value, const float min,
+                       const float max, const ColorGradients cmap)
+{
+    const QCPRange range(min, max);
+    QCPColorGradient cmapper(cmap);
+    return QColor(cmapper.color(value, range));
+}
 }

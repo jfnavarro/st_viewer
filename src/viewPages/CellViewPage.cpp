@@ -98,13 +98,15 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     data->setRenderingSettings(&m_settings->renderingSettings());
 
     // update gene plotter rendering object with the dataset
+    m_gene_plotter->clearData();
     m_gene_plotter->attachData(data);
-    //TODO set bounding rect
+    //TODO set bounding rect to min and max spots
 
     // update SettingsWidget with the opened dataset (min max values)
     m_settings->resetReadsThreshold(data->min_reads(), data->max_reads());
     m_settings->resetTotalReadsThreshold(data->min_reads_spot(), data->max_reads_spot());
-    m_settings->resetTotalGenesThreshold(data->min_genes_spot(), data->max_genes_spot());
+    //NOTE the total number of genes per spot can be a fixed number for the threshold
+    m_settings->resetTotalGenesThreshold(1, 10000);
 
     // load cell tissue (to load the dataset's cell tissue image)
     // create tiles textures from the image
@@ -146,12 +148,14 @@ void CellViewPage::slotClearSelections()
 
 void CellViewPage::slotGenesUpdate()
 {
-    m_gene_plotter->update();
+    m_gene_plotter->slotUpdate();
+    m_ui->view->update();
 }
 
 void CellViewPage::slotSpotsUpdated()
 {
-    m_gene_plotter->update();
+    m_gene_plotter->slotUpdate();
+    m_ui->view->update();
 }
 
 void CellViewPage::createConnections()
@@ -174,7 +178,11 @@ void CellViewPage::createConnections()
 
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
-            [=](){m_gene_plotter->update();});
+            [=](){
+        m_gene_plotter->slotUpdate();
+        m_legend->slotUpdate();
+        m_ui->view->update();
+    });
 
     // graphic view signals
     connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view, &CellGLView::zoomIn);

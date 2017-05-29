@@ -38,7 +38,7 @@ public:
 public slots:
 
     // update the rendering data
-    void update();
+    void slotUpdate();
 
 signals:
 

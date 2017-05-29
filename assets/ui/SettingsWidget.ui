@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
+    <width>451</width>
     <height>559</height>
    </rect>
   </property>
@@ -26,21 +26,21 @@
      <item>
       <widget class="QCheckBox" name="show_spots">
        <property name="text">
-        <string>Show Spots</string>
+        <string>Spots</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="show_image">
        <property name="text">
-        <string>Show Image</string>
+        <string>Image</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="gene_cutoff">
        <property name="text">
-        <string>Individual gene cut off</string>
+        <string>Gene cut off</string>
        </property>
       </widget>
      </item>
@@ -205,20 +205,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSlider" name="genes_threshold">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <number>1</number>
-     </property>
-    </widget>
+    <widget class="QDoubleSpinBox" name="genes_threshold"/>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
@@ -228,17 +215,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSlider" name="reads_threshold">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <number>1</number>
-     </property>
-    </widget>
+    <widget class="QDoubleSpinBox" name="reads_threshold"/>
    </item>
    <item>
     <widget class="QLabel" name="label_4">
@@ -248,17 +225,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSlider" name="individual_reads_threshold">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <number>1</number>
-     </property>
-    </widget>
+    <widget class="QDoubleSpinBox" name="individual_reads_threshold"/>
    </item>
    <item>
     <widget class="QLabel" name="label_3">

@@ -19,11 +19,11 @@ SettingsWidget::SettingsWidget(QWidget *parent)
 
     // Make connections (propagate signals)
     connect(m_ui->genes_threshold,
-            &QSlider::valueChanged, this, &SettingsWidget::slotGenesTreshold);
+            SLOT(valueChanged(double)), this, SIGNAL(slotGenesTreshold(double)));
     connect(m_ui->reads_threshold,
-            &QSlider::valueChanged, this, &SettingsWidget::slotReadsTreshold);
+            SLOT(valueChanged(double)), this, SIGNAL(slotReadsTreshold(double)));
     connect(m_ui->individual_reads_threshold,
-            &QSlider::valueChanged, this, &SettingsWidget::slotIndReadsTreshold);
+            SLOT(valueChanged(double)), this, SIGNAL(slotIndReadsTreshold(double)));
     connect(m_ui->spots_intensity,
             &QSlider::valueChanged, this, &SettingsWidget::slotIntensity);
     connect(m_ui->spots_size,
@@ -136,7 +136,7 @@ void SettingsWidget::resetTotalGenesThreshold(int min, int max)
     m_rendering_settings.genes_max_threshold = max;
 }
 
-void SettingsWidget::slotGenesTreshold(int value)
+void SettingsWidget::slotGenesTreshold(double value)
 {
     if (m_rendering_settings.genes_threshold != value) {
         m_rendering_settings.genes_threshold = value;
@@ -144,7 +144,7 @@ void SettingsWidget::slotGenesTreshold(int value)
     }
 }
 
-void SettingsWidget::slotReadsTreshold(int value)
+void SettingsWidget::slotReadsTreshold(double value)
 {
     if (m_rendering_settings.reads_threshold != value) {
         m_rendering_settings.reads_threshold = value;
@@ -152,7 +152,7 @@ void SettingsWidget::slotReadsTreshold(int value)
     }
 }
 
-void SettingsWidget::slotIndReadsTreshold(int value)
+void SettingsWidget::slotIndReadsTreshold(double value)
 {
     if (m_rendering_settings.ind_reads_threshold != value) {
         m_rendering_settings.ind_reads_threshold = value;

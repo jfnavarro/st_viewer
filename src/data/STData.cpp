@@ -2,6 +2,9 @@
 #include <QDebug>
 #include "math/Common.h"
 #include "color/HeatMap.h"
+#include "R.h"
+#include "Rcpp.h"
+#include "RInside.h"
 
 static const int ROW = 1;
 static const int COLUMN = 0;
@@ -38,7 +41,7 @@ STData::STData()
     , m_indexes()
 
 {
-
+    R = new RInside();
 }
 
 STData::~STData()
@@ -110,6 +113,9 @@ void STData::read(const QString &filename) {
         }
     }
     m_counts_matrix = counts_matrix;
+
+    computeDESeqFactors();
+    computeScranFactors();
 }
 
 void STData::save(const QString &filename) const
@@ -222,6 +228,7 @@ float STData::min_genes_spot() const
 
 float STData::max_genes_spot() const
 {
+
     return sum(m_counts_matrix, COLUMN).max();
 }
 
@@ -322,19 +329,22 @@ void STData::computeRenderingData()
 
         // Update the color of the spot
         QColor color = spot->color();
-        if (num_genes > m_rendering_settings->genes_threshold) {
+        if (num_genes > m_rendering_settings->genes_threshold && color == Qt::white) {
             switch (m_rendering_settings->visual_mode) {
             case (SettingsWidget::VisualMode::Normal): {
                 color = merged_color;
             } break;
             case (SettingsWidget::VisualMode::DynamicRange): {
-                color = Color::createDynamicRangeColor(merged_value, min_reads, max_reads, merged_color);
+                color = Color::createDynamicRangeColor(merged_value, min_reads,
+                                                       max_reads, merged_color);
             } break;
             case (SettingsWidget::VisualMode::HeatMap): {
-                color = Color::createHeatMapLinearColor(merged_value, min_reads, max_reads);
+                color = Color::createCMapColor(merged_value, min_reads,
+                                               max_reads, Color::ColorGradients::gpSpectrum);
             } break;
             case (SettingsWidget::VisualMode::ColorRange): {
-                color = Color::createRangeColor(merged_value, min_reads, max_reads, Qt::yellow, Qt::yellow);
+                color = Color::createCMapColor(merged_value, min_reads,
+                                               max_reads, Color::ColorGradients::gpHot);
             }
             }
         }
@@ -482,4 +492,14 @@ void STData::updateColor(const int index, const QColor &color)
     for (int z = 0; z < QUAD_SIZE; ++z) {
         m_colors[(QUAD_SIZE * index) + z] = opengl_color;
     }
+}
+
+void STData::computeDESeqFactors()
+{
+
+}
+
+void STData::computeScranFactors()
+{
+
 }

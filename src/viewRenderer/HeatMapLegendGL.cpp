@@ -11,9 +11,9 @@
 
 static const float legend_x = 0.0;
 static const float legend_y = 0.0;
-static const float legend_width = 25.0;
-static const float legend_height = 150.0;
-static const float bars_width = 35.0;
+static const float legend_width = 30.0;
+static const float legend_height = 200.0;
+static const float bars_width = 40.0;
 
 HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
@@ -22,6 +22,7 @@ HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_sett
     , m_texture_vertices()
     , m_texture_cords()
     , m_rendering_settings(rendering_settings)
+    , m_initialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, false);
     setVisualOption(GraphicItemGL::Visible, false);
@@ -29,6 +30,7 @@ HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_sett
     setVisualOption(GraphicItemGL::Yinverted, false);
     setVisualOption(GraphicItemGL::Xinverted, false);
     setVisualOption(GraphicItemGL::RubberBandable, false);
+    setAnchor(Anchor::NorthEast);
 }
 
 HeatMapLegendGL::~HeatMapLegendGL()
@@ -49,10 +51,21 @@ void HeatMapLegendGL::clearData()
     if (m_textureText.isCreated()) {
         m_textureText.destroy();
     }
+
+    m_initialized = false;
+}
+
+void HeatMapLegendGL::slotUpdate()
+{
+    generateHeatMap();
 }
 
 void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
+    if (!m_initialized) {
+        return;
+    }
+
     qopengl_functions.glEnable(GL_TEXTURE_2D);
     {
         // draw heatmap texture
@@ -96,14 +109,13 @@ void HeatMapLegendGL::generateHeatMap()
     QPair<float, float> min_max = getMinMax();
     float min = min_max.first;
     float max = min_max.second;
-    //TODO pass the color mode as well
-
     // generate image texture with the size of the legend and then fill it up with the colors
     // using the min-max values of the threshold and the color mode
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
-    // here we can chose the type of Spectrum (linear, log or exp) and the type
-    // of color mapping (wavelenght or linear interpolation)
-    Color::createHeatMapImage(image, min, max);
+    Color::ColorGradients cmap =
+            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::ColorRange?
+                Color::ColorGradients::gpHot : Color::ColorGradients::gpSpectrum;
+    Color::createLegend(image, min, max, cmap);
     // update the OpenGL texture
     m_texture.destroy();
     m_texture.create();
@@ -119,7 +131,7 @@ void HeatMapLegendGL::generateHeatMap()
     m_texture_cords.append(QVector2D(1.0, 0.0));
     m_texture_cords.append(QVector2D(1.0, 1.0));
     m_texture_cords.append(QVector2D(0.0, 1.0));
-    emit updated();
+    m_initialized = true;
 }
 
 void HeatMapLegendGL::drawText(const QPointF &posn, const QString &str,

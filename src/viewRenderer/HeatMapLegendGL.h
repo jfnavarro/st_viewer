@@ -24,16 +24,19 @@ public:
     // clear up all data
     void clearData();
 
-    // create the heatmap
-    void generateHeatMap();
-
 public slots:
+
+    // Update the rendering data
+    void slotUpdate();
 
 protected:
     const QRectF boundingRect() const override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 private:
+
+    // create the legend
+    void generateHeatMap();
 
     // Return the threshold min-max values from the settings object
     QPair<float, float> getMinMax() const;
@@ -49,6 +52,8 @@ private:
     QVector<QVector2D> m_texture_cords;
     // rendering settings
     const SettingsWidget::Rendering &m_rendering_settings;
+    // true when rendering data has been computed
+    bool m_initialized;
 
     Q_DISABLE_COPY(HeatMapLegendGL)
 };

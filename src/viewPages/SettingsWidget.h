@@ -66,9 +66,9 @@ public slots:
 
 private slots:
 
-    void slotGenesTreshold(int);
-    void slotReadsTreshold(int);
-    void slotIndReadsTreshold(int);
+    void slotGenesTreshold(double);
+    void slotReadsTreshold(double);
+    void slotIndReadsTreshold(double);
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);

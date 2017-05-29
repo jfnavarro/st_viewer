@@ -51,8 +51,10 @@ include_directories(${QCUSTOMPLOT_PATH})
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
-find_package(Rcpp REQUIRED)
-include_directories(${RCPP_INCLUDE_DIRS})
+find_package(R REQUIRED)
+include_directories(${R_INCLUDE_DIR})
+include_directories(${RCPP_INCLUDE_DIR})
+include_directories(${RINSIDE_INCLUDE_DIR})
 
 # Include third party libraries
 add_subdirectory(ext)
@@ -109,8 +111,10 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
+message(STATUS "R libraries: ${R_LIBRARIES}")
 # Link libraries for hte ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot ${ARMADILLO_LIBRARIES} ${RCPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
+    ${ARMADILLO_LIBRARIES} ${R_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 

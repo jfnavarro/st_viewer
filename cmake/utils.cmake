@@ -48,20 +48,21 @@ macro(INITIALISE_PROJECT)
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
-        # Disabled warnings due to QCustomplot and Qt
-        set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-old-style-cast -Wno-missing-braces")
+        # Rcpp needs -Wno-infinite-recursion -Wno-unused-parameter
+        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter")
 
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
         endif()
+
         #-Wformat-nonliteral (Armadillo complaints about this)
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
                            -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization \
                            -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch \
                            -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
+            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
         endif()
     endif()

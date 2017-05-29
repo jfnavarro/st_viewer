@@ -33,9 +33,9 @@ void GeneRendererGL::clearData()
     m_initialized = false;
 }
 
-void GeneRendererGL::update()
+void GeneRendererGL::slotUpdate()
 {
-    if (!m_geneData.isNull()) {
+    if (m_initialized) {
         m_geneData->computeRenderingData();
     }
 }
