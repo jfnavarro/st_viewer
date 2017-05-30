@@ -42,14 +42,14 @@ macro(INITIALISE_PROJECT)
            add_definitions(-D_SCL_SECURE_NO_WARNINGS)
         endif()
     else()
-        # Adding -std=c++11 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        # Adding -std=c++14 flag explicitly
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
-        # Rcpp needs -Wno-infinite-recursion -Wno-unused-parameter
-        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter")
+        # Rcpp/RInside needs -Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined
+        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined")
 
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7

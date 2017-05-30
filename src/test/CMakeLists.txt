@@ -12,9 +12,6 @@ include_directories(${PROJECT_SOURCE_DIR}/src
 # Define source files
 set(ST_UNITTEST_SOURCES
     ${ST_MAIN}
-    ${LIB_ST_SIMPLECRYPT}
-    ${LIB_ST_MATH}
-    ${LIB_ST_NETWORK}
     ${ST_TARGET_OBJECTS}
 )
 
@@ -31,7 +28,8 @@ macro(add_st_client_test subdir name)
     set(srcs ${srcs} ${subdir}/${file}.h ${subdir}/${file}.cpp )
   endforeach()
   add_executable(${name} ${srcs})
-  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test)
+  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test
+      ${ARMADILLO_LIBRARIES} ${R_LIBRARIES})
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)
 

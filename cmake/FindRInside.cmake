@@ -1,4 +1,3 @@
-
 # Cmake module to find RInisde
 # - Try to find Rinside
 # Once done, this will define
@@ -9,38 +8,40 @@
 # Autor: Omar Andres Zapata Mesa 31/05/2013
 # Mofified by: Jose Fernandez Navarro
 
-set(RINSIDE_PKGCONF_LIBRARY_INCLUDE
-    "/usr/local/include"
-    "/usr/include"
-    "/opt/R/site-library/RInside/include"
-    "/usr/local/lib/R/site-library/RInside/include"
-    "/usr/lib/R/site-library/RInside/include"
-    "${RINSIDE_PATH}/include")
-
-set(RINSIDE_PKGCONF_LIBRARY_DIRS
-    "/usr/local/lib"
+set(R_DIR
+    "/usr/local"
+    "/usr"
     "/usr/lib"
-    "/opt/R/site-library/RInside/lib"
-    "/usr/local/lib/R/site-library/RInside/lib"
-    "/usr/lib/R/site-library/RInside/lib"
-    "${RINSIDE_PATH}/lib"
-    "${RINSIDE_PATH}/libs"
-    "${RINSIDE_PATH}/libs/x64"
-    "${RINSIDE_PATH}/libs/i386")
+    "/usr/local/lib"
+    "/usr/share"
+    "/opt/R/site-library"
+    "/usr/local/lib/R/site-library"
+    "/usr/lib/R/site-library"
+    "/Library/Frameworks/R.framework/Resources"
+    "/Library/Frameworks/R.framework/Resources/library")
 
 # Find the include dir
 find_path(RINSIDE_INCLUDE_DIR
   NAMES RInside.h
-  PATHS ${RINSIDE_PKGCONF_LIBRARY_INCLUDE}
+  HINTS ${R_PATH} ${R_DIR}
+  PATH_SUFFIXES include RInside/include RInside
 )
+# TODO fix this
+set(RINSIDE_INCLUDE_DIR "/Library/Frameworks/R.framework/Resources/library/RInside/include")
 
 # Find the library
-find_library(RINSIDE_LIBRARY NAMES RInside.so PATHS ${RINSIDE_PKGCONF_LIBRARY_DIRS})
+find_library(RINSIDE_LIBRARY
+    NAMES RInside
+    HINTS ${R_PATH} ${R_DIR} ${R_PATH}/library ${R_DIR}/library
+    PATH_SUFFIXES libs lib lib32 lib64 RInside/libs RInside/lib RInside/lib32 RInside/lib64
+)
+# TODO fix this
+set(RINSIDE_LIBRARY "/Library/Frameworks/R.framework/Resources/library/RInside/lib/libRInside.a")
 
 if(RINSIDE_INCLUDE_DIR AND RINSIDE_LIBRARY)
     set(RINSIDE_FOUND TRUE)
     mark_as_advanced(RINSIDE_LIBRARY RINSIDE_LIBRARY)
 else()
     set(RINSIDE_FOUND FALSE)
-    message(FATAL_ERROR "Looking for RInside -- not found. Try to set RINSIDE_PATH to the path of RInside")
+    message(FATAL_ERROR "Looking for RInside -- not found.")
 endif()

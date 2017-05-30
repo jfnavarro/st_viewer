@@ -13,10 +13,11 @@
 #include "viewPages/SettingsWidget.h"
 
 #include <armadillo>
+//As crazy as it sounds RcppArmadillo must be included before RInside
+#include "RcppArmadillo.h"
+#include "RInside.h"
 
 using namespace arma;
-
-class RInside;
 
 // TODO the values type can be templated
 class STData
@@ -24,6 +25,8 @@ class STData
 
 public:
     typedef Mat<float> Matrix;
+    typedef Row<float> rowvec;
+    typedef Col<float> colvec;
     typedef QPair<float,float> SpotType;
     typedef QString GeneType;
     typedef QSharedPointer<Spot> SpotObjectType;
@@ -87,14 +90,18 @@ public:
 private:
 
     void computeGenesCutoff();
-    void updateColor(const int index, const QColor &color);
+    inline void updateColor(const int index, const QColor &color);
     void computeDESeqFactors();
     void computeScranFactors();
+    inline QColor adjustVisualMode(const QColor merged_color, const float &merged_value,
+                                   const float &min_reads, const float &max_reads) const;
+    inline Matrix normalizeCounts() const;
+    inline colvec computeNonZeroColumns() const;
 
     Matrix m_counts_matrix;
     // cache the size factors to save computational time
-    std::vector<float> m_deseq_size_factors;
-    std::vector<float> m_scran_size_factors;
+    rowvec m_deseq_size_factors;
+    rowvec m_scran_size_factors;
     // store gene/spots objects and indexes in matrix
     SpotListType m_spots;
     GeneListType m_genes;
@@ -102,15 +109,13 @@ private:
     QVector<SpotType> m_matrix_spots;
     // rendering settings
     const SettingsWidget::Rendering *m_rendering_settings;
-    //mutable SettingsWidget::NormalizationMode m_normalization;
-    // cache the normalization settings to do it only when necessary
     // rendering data
     QVector<QVector3D> m_vertices;
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
     QVector<unsigned> m_indexes;
-    // Access to R terminal
-    RInside *R;
+    // R terminal
+    RInside R;
 };
 
 #endif // STDATA_H

@@ -2,9 +2,6 @@
 #include <QDebug>
 #include "math/Common.h"
 #include "color/HeatMap.h"
-#include "R.h"
-#include "Rcpp.h"
-#include "RInside.h"
 
 static const int ROW = 1;
 static const int COLUMN = 0;
@@ -13,6 +10,7 @@ static const QVector2D ta(0.0, 0.0);
 static const QVector2D tb(0.0, 1.0);
 static const QVector2D tc(1.0, 1.0);
 static const QVector2D td(1.0, 0.0);
+static const QColor empty(0.0, 0.0, 0.0, 0.0);
 
 using namespace Math;
 
@@ -34,19 +32,16 @@ STData::STData()
     , m_matrix_genes()
     , m_matrix_spots()
     , m_rendering_settings(nullptr)
-    //, m_normalization(SettingsWidget::NormalizationMode::RAW)
     , m_vertices()
     , m_textures()
     , m_colors()
     , m_indexes()
 
 {
-    R = new RInside();
 }
 
 STData::~STData()
 {
-
 }
 
 void STData::read(const QString &filename) {
@@ -223,13 +218,13 @@ STData::SpotListType STData::spots()
 
 float STData::min_genes_spot() const
 {
-    return sum(m_counts_matrix, COLUMN).min();
+    return computeNonZeroColumns().min();
 }
 
 float STData::max_genes_spot() const
 {
 
-    return sum(m_counts_matrix, COLUMN).max();
+    return computeNonZeroColumns().max();
 }
 
 float STData::min_reads_spot() const
@@ -262,91 +257,81 @@ void STData::computeRenderingData()
     Q_ASSERT(m_rendering_settings != nullptr);
     Q_ASSERT(!m_colors.empty());
 
-    //TODO normalize the counts and/or log the counts
-    //TODO parallelize this
+    const bool use_genes =
+            m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::Genes ||
+            m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::GenesLog;
+    const bool use_log =
+            m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::ReadsLog ||
+            m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::GenesLog;
+
+    // Normalize the counts and/or log the counts
+    Matrix counts = normalizeCounts();
 
     // Get the list of selected genes
+    colvec non_zeros = computeNonZeroColumns();
+    std::vector<uword> selected_genes_index;
     GeneListType selected_genes;
-    std::copy_if(m_genes.begin(), m_genes.end(),
-                 std::back_inserter(selected_genes), [&](const auto gene) {
-        return gene->visible();
-    });
-
-    // Empty color for non visible spots
-    const QColor empty(0.0, 0.0, 0.0, 0.0);
-
-    const Col<float> &col_sums = sum(m_counts_matrix, ROW);
-
-    float min_genes = 10e6;
-    float max_genes = -1.0;
-    float min_reads = 10e6;
-    float max_reads = -1.0;
-    for (int i = 0; i < m_spots.size(); ++i) {
-        const auto spot = m_spots.at(i);
-        if (!spot->visible() || col_sums.at(i) < m_rendering_settings->reads_threshold) {
-            updateColor(i, empty);
-            continue;
+    for (int i = 0; i < m_genes.size(); ++i) {
+        const auto gene = m_genes[i];
+        if (gene->visible() && non_zeros(i) > m_rendering_settings->genes_threshold) {
+            selected_genes_index.push_back(i);
+            selected_genes.push_back(gene);
         }
+    }
+
+    // Get the list of selected spots
+    rowvec sum_rows = sum(m_counts_matrix, ROW);
+    std::vector<uword> selected_spots_index;
+    SpotListType selected_spots;
+    for (int i = 0; i < m_spots.size(); ++i) {
+        const auto spot = m_spots[i];
+        if (spot->selected() && sum_rows(i) > m_rendering_settings->reads_threshold) {
+            selected_spots_index.push_back(i);
+            selected_spots.push_back(spot);
+        } else {
+            updateColor(i, empty);
+        }
+    }
+
+    // Reduce matrix
+    counts = counts.submat(uvec(selected_spots_index), uvec(selected_genes_index));
+
+    // Compute color adjusment constants
+    non_zeros = computeNonZeroColumns();
+    sum_rows = sum(m_counts_matrix, ROW);
+    float min_value = use_genes? non_zeros.min() : sum_rows.min();
+    float max_value = use_genes? non_zeros.max() : sum_rows.max();
+    min_value = use_log? std::log(min_value) : min_value;
+    max_value = use_log? std::log(max_value) : max_value;
+
+    // Iterate the spots and genes in the matrix to compute the rendering colors
+    //TODO make this paralell
+    for (int i = 0; i < selected_spots.size(); ++i) {
+        const auto spot = selected_spots[i];
         // Iterage the genes in the spot to compute the sum of values and color
         QColor merged_color;
         float merged_value = 0;
         float num_genes = 0;
         for (int j = 0; j < selected_genes.size(); ++j) {;
             const auto gene = selected_genes[j];
-            const float value = m_counts_matrix.at(i,j);
+            const float value = counts.at(i,j);
             if (m_rendering_settings->gene_cutoff && gene->cut_off() > value) {
                 continue;
             }
             ++num_genes;
             merged_value += value;
             merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
-            min_reads = std::min(value, min_reads);
-            max_reads = std::max(value, max_reads);
         }
-        min_genes = std::min(num_genes, min_genes);
-        max_genes = std::max(num_genes, max_genes);
+        // Use number of genes or total reads in the spot depending on settings
+        float value = use_genes? num_genes : merged_value;
 
-        // Adjust spot's value according to type of visualization
-        switch (m_rendering_settings->visual_type_mode) {
-        case (SettingsWidget::VisualTypeMode::Reads): {
-        } break;
-        case (SettingsWidget::VisualTypeMode::ReadsLog): {
-            merged_value = std::log(merged_value);
-            min_reads = std::log(min_reads);
-            max_reads = std::log(max_reads);
-        } break;
-        case (SettingsWidget::VisualTypeMode::Genes): {
-            merged_value = num_genes;
-            min_reads = min_genes;
-            max_reads = max_genes;
-        } break;
-        case (SettingsWidget::VisualTypeMode::GenesLog): {
-            merged_value = std::log(num_genes);
-            min_reads = std::log(min_genes);
-            max_reads = std::log(max_genes);
-        }
-        }
+        // Update the counts with the visual type (log or not)
+        value = use_log? std::log(value) : value;
 
         // Update the color of the spot
         QColor color = spot->color();
-        if (num_genes > m_rendering_settings->genes_threshold && color == Qt::white) {
-            switch (m_rendering_settings->visual_mode) {
-            case (SettingsWidget::VisualMode::Normal): {
-                color = merged_color;
-            } break;
-            case (SettingsWidget::VisualMode::DynamicRange): {
-                color = Color::createDynamicRangeColor(merged_value, min_reads,
-                                                       max_reads, merged_color);
-            } break;
-            case (SettingsWidget::VisualMode::HeatMap): {
-                color = Color::createCMapColor(merged_value, min_reads,
-                                               max_reads, Color::ColorGradients::gpSpectrum);
-            } break;
-            case (SettingsWidget::VisualMode::ColorRange): {
-                color = Color::createCMapColor(merged_value, min_reads,
-                                               max_reads, Color::ColorGradients::gpHot);
-            }
-            }
+        if (color == Qt::white) {
+            color = adjustVisualMode(merged_color, value, min_value, max_value);
         }
         color.setAlphaF(m_rendering_settings->intensity);
         updateColor(i, color);
@@ -496,10 +481,110 @@ void STData::updateColor(const int index, const QColor &color)
 
 void STData::computeDESeqFactors()
 {
-
+    try {
+        const std::string R_libs = "suppressMessages(library(DESeq2));";
+        R.parseEvalQ(R_libs);
+        R["counts"] = m_counts_matrix;
+        // For DESeq2 genes must be rows so we transpose the matri
+        // We also remove very lowly present genes/spots
+        const std::string call1 = "counts = t(counts)";
+        const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
+        //const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
+        const std::string call4 = "dds = DESeq2::estimateSizeFactorsForMatrix(counts)";
+        R.parseEvalQ(call1);
+        R.parseEvalQ(call2);
+        //R.parseEvalQ(call3);
+        m_deseq_size_factors = Rcpp::as<rowvec>(R.parseEval(call4));
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing DESeq2 size factors " << e.what();
+    }
 }
 
 void STData::computeScranFactors()
 {
+    try {
+        const std::string R_libs = "suppressMessages(library(limSolve)); suppressMessages(library(scran))";
+        R.parseEvalQ(R_libs);
+        R["counts"] = m_counts_matrix;
+        // For DESeq2 genes must be rows so we transpose the matri
+        // We also remove very lowly present genes/spots
+        const std::string call1 = "counts = t(counts)";
+        const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
+        //const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
+        const std::string call4 = "sce = newSCESet(countData=counts)";
+        const std::string call5 = "clust = quickCluster(counts, min.size=20)";
+        const std::string call6 = "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=c(10,15,20,30))";
+        const std::string call7 = "sce = normalize(sce, recompute_cpm=FALSE)";
+        const std::string call8 = "size_factors = sce@phenoData$size_factor";
+        R.parseEvalQ(call1);
+        R.parseEvalQ(call2);
+        //R.parseEvalQ(call3);
+        R.parseEvalQ(call4);
+        R.parseEvalQ(call5);
+        R.parseEvalQ(call6);
+        R.parseEvalQ(call7);
+        m_scran_size_factors = Rcpp::as<rowvec>(R.parseEval(call8));
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing SCRAN size factors " << e.what();
+    }
+}
 
+QColor STData::adjustVisualMode(const QColor merged_color, const float &merged_value,
+                                const float &min_reads, const float &max_reads) const
+{
+    QColor color = merged_color;
+    switch (m_rendering_settings->visual_mode) {
+    case (SettingsWidget::VisualMode::Normal): {
+    } break;
+    case (SettingsWidget::VisualMode::DynamicRange): {
+        color = Color::createDynamicRangeColor(merged_value, min_reads,
+                                               max_reads, merged_color);
+    } break;
+    case (SettingsWidget::VisualMode::HeatMap): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpSpectrum);
+    } break;
+    case (SettingsWidget::VisualMode::ColorRange): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpHot);
+    }
+    }
+    return color;
+}
+
+STData::Matrix STData::normalizeCounts() const
+{
+    Matrix counts = m_counts_matrix;
+    switch (m_rendering_settings->normalization_mode) {
+    case (SettingsWidget::NormalizationMode::RAW): {
+    } break;
+    case (SettingsWidget::NormalizationMode::REL): {
+        counts = counts / sum(counts, COLUMN);
+    } break;
+    case (SettingsWidget::NormalizationMode::TPM): {
+        counts = (counts + 1) / (sum(counts, COLUMN) * 1e6);
+    } break;
+    case (SettingsWidget::NormalizationMode::DESEQ): {
+        counts = counts / m_deseq_size_factors;
+    } break;
+    case (SettingsWidget::NormalizationMode::SCRAN): {
+        counts = counts / m_scran_size_factors;
+    }
+    }
+    return counts;
+}
+
+STData::colvec STData::computeNonZeroColumns() const
+{
+    colvec non_zeros(m_counts_matrix.n_cols);
+    for (uword i = 0; i < m_counts_matrix.n_cols; ++i) {
+        int non_zero = 0;
+        for (uword j = 0; j < m_counts_matrix.n_rows; ++j) {
+            if (m_counts_matrix.at(j,i) > 0.0) {
+                ++non_zero;
+            }
+        }
+        non_zeros[i] = non_zero;
+    }
+    return non_zeros;
 }
