@@ -181,21 +181,6 @@ void GeneItemModel::clear()
     endResetModel();
 }
 
-bool GeneItemModel::getName(const QModelIndex &index, QString &name) const
-{
-    if (!index.isValid() || m_items_reference.empty()) {
-        return false;
-    }
-
-    const auto item = m_items_reference.at(index.row());
-    if (index.column() == Name) {
-        name = item->name();
-        return true;
-    }
-
-    return false;
-}
-
 void GeneItemModel::setVisibility(const QItemSelection &selection, bool visible)
 {
     if (m_items_reference.empty()) {

@@ -102,12 +102,6 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     m_gene_plotter->attachData(data);
     //TODO set bounding rect to min and max spots
 
-    // update SettingsWidget with the opened dataset (min max values)
-    m_settings->resetReadsThreshold(data->min_reads(), data->max_reads());
-    m_settings->resetTotalReadsThreshold(data->min_reads_spot(), data->max_reads_spot());
-    //NOTE the total number of genes per spot can be a fixed number for the threshold
-    m_settings->resetTotalGenesThreshold(1, 10000);
-
     // load cell tissue (to load the dataset's cell tissue image)
     // create tiles textures from the image
     m_image->clearData();
@@ -124,11 +118,11 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
             // TODO 33 and 35 should be retrieved from the spots (max x and max y)
             const int width_image = m_image->boundingRect().width();
             const int height_image = m_image->boundingRect().height();
-            const float a11 = width_image / 32;
+            const float a11 = width_image / (33 - 1);
             const float a12 = 0.0;
             const float a13 = 0.0;
             const float a21 = 0.0;
-            const float a22 = height_image / 34;
+            const float a22 = height_image / (35 - 1);
             const float a23 = 0.0;
             const float a31 = -a11;
             const float a32 = -a22;

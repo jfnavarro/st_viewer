@@ -1,10 +1,11 @@
 #include "STData.h"
 #include <QDebug>
+#include <QMessageBox>
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
 static const int ROW = 1;
-static const int COLUMN = 0;
+//static const int COLUMN = 0;
 static const int QUAD_SIZE = 4;
 static const QVector2D ta(0.0, 0.0);
 static const QVector2D tb(0.0, 1.0);
@@ -66,16 +67,16 @@ void STData::read(const QString &filename) {
         col_number = 0;
         while(std::getline(iss, token, sep)) {
             if (row_number == 0) {
-                const GeneType gene = QString::fromStdString(token);
+                const GeneType gene = QString::fromStdString(token).trimmed();
                 m_matrix_genes.push_back(gene);
                 m_genes.append(GeneObjectType(new Gene(gene)));
             } else if (col_number == 0) {
-                const QString spot_tmp = QString::fromStdString(token);
+                const QString spot_tmp = QString::fromStdString(token).trimmed();
                 const QStringList items = spot_tmp.split("x");
                 Q_ASSERT(items.size() == 2);
-                float x = items.at(0).toFloat();
-                float y = items.at(1).toFloat();
-                m_matrix_spots.push_back(SpotType(x,y));
+                const float x = items.at(0).toFloat();
+                const float y = items.at(1).toFloat();
+                m_matrix_spots.push_back(Spot::SpotType(x,y));
                 m_spots.append(SpotObjectType(new Spot(x,y)));
             } else {
                 values_row.push_back(std::stod(token));
@@ -109,91 +110,37 @@ void STData::read(const QString &filename) {
     }
     m_counts_matrix = counts_matrix;
 
+    // Filter out almost non-present spots
+    for (uword i = 0; i < m_counts_matrix.n_rows; ++i) {
+        if (accu(m_counts_matrix.row(i)) < 5) {
+            m_counts_matrix.shed_row(i);
+            m_spots.removeAt(i);
+            m_matrix_spots.removeAt(i);
+        }
+    }
+
+    // Compute these only when the dataset is created
+    computeGenesCutoff();
     computeDESeqFactors();
     computeScranFactors();
 }
 
 void STData::save(const QString &filename) const
 {
+    //TODO implement
     Q_UNUSED(filename)
 }
 
-std::vector<float> STData::count(const GeneType &gene) const
-{
-    Q_UNUSED(gene)
-    return std::vector<float>();
-}
-
-std::vector<float> STData::count(const SpotType &spot) const
-{
-    Q_UNUSED(spot)
-    return std::vector<float>();
-}
-
-float STData::count(const GeneType &gene, const SpotType &spot) const
-{
-    const uword i = m_matrix_genes.indexOf(gene);
-    const uword j = m_matrix_spots.indexOf(spot);
-    return m_counts_matrix.at(i,j);
-}
-
-std::vector<float> STData::count(const GeneObjectType &gene) const
-{
-    Q_UNUSED(gene)
-    return std::vector<float>();
-}
-
-std::vector<float> STData::count(const SpotObjectType &spot) const
-{
-    Q_UNUSED(spot)
-    return std::vector<float>();
-}
-
-float STData::count(const GeneObjectType &gene, const SpotObjectType &spot) const
-{
-    const uword i = m_genes.indexOf(gene);
-    const uword j = m_spots.indexOf(spot);
-    return m_counts_matrix.at(i,j);
-}
 
 STData::Matrix STData::slice_matrix_counts() const
 {
+    //TODO returns a matrix with only spots and gene selected (including threshold)
     return m_counts_matrix;
 }
 
 STData::Matrix STData::matrix_counts() const
 {
     return m_counts_matrix;
-}
-
-std::vector<float> STData::spots_counts()
-{
-    return std::vector<float>();
-}
-
-std::vector<float> STData::genes_counts()
-{
-    return std::vector<float>();
-}
-
-STData::GeneType STData::gene_at(size_t index) const
-{
-    return m_matrix_genes.at(index);
-}
-
-STData::SpotType STData::spot_at(size_t index) const
-{
-    return m_matrix_spots.at(index);
-}
-
-STData::GeneObjectType STData::gene_object_at(size_t index) const
-{
-    return m_genes.at(index);
-}
-
-STData::SpotObjectType STData::spot_object_at(size_t index) const
-{
-    return m_spots.at(index);
 }
 
 size_t STData::number_spots() const
@@ -216,38 +163,7 @@ STData::SpotListType STData::spots()
     return m_spots;
 }
 
-float STData::min_genes_spot() const
-{
-    return computeNonZeroColumns().min();
-}
-
-float STData::max_genes_spot() const
-{
-
-    return computeNonZeroColumns().max();
-}
-
-float STData::min_reads_spot() const
-{
-    return sum(m_counts_matrix, ROW).min();
-}
-
-float STData::max_reads_spot() const
-{
-    return sum(m_counts_matrix, ROW).max();
-}
-
-float STData::max_reads() const
-{
-    return m_counts_matrix.max();
-}
-
-float STData::min_reads() const
-{
-    return m_counts_matrix.min();
-}
-
-void STData::setRenderingSettings(const SettingsWidget::Rendering *rendering_settings)
+void STData::setRenderingSettings(SettingsWidget::Rendering *rendering_settings)
 {
     m_rendering_settings = rendering_settings;
 }
@@ -268,24 +184,24 @@ void STData::computeRenderingData()
     Matrix counts = normalizeCounts();
 
     // Get the list of selected genes
-    colvec non_zeros = computeNonZeroColumns();
+    rowvec colsum_nonzero = computeNonZeroColumns(counts);
     std::vector<uword> selected_genes_index;
     GeneListType selected_genes;
     for (int i = 0; i < m_genes.size(); ++i) {
         const auto gene = m_genes[i];
-        if (gene->visible() && non_zeros(i) > m_rendering_settings->genes_threshold) {
+        if (gene->visible() && colsum_nonzero(i) > m_rendering_settings->genes_threshold) {
             selected_genes_index.push_back(i);
             selected_genes.push_back(gene);
         }
     }
 
     // Get the list of selected spots
-    rowvec sum_rows = sum(m_counts_matrix, ROW);
+    colvec rowsum = sum(counts, ROW);
     std::vector<uword> selected_spots_index;
     SpotListType selected_spots;
     for (int i = 0; i < m_spots.size(); ++i) {
         const auto spot = m_spots[i];
-        if (spot->selected() && sum_rows(i) > m_rendering_settings->reads_threshold) {
+        if (spot->visible() && rowsum(i) > m_rendering_settings->reads_threshold) {
             selected_spots_index.push_back(i);
             selected_spots.push_back(spot);
         } else {
@@ -293,16 +209,24 @@ void STData::computeRenderingData()
         }
     }
 
-    // Reduce matrix
-    counts = counts.submat(uvec(selected_spots_index), uvec(selected_genes_index));
+    if (selected_spots.empty() && selected_genes.empty()) {
+        return;
+    }
+
+    if (selected_spots.size() < m_spots.size() ||  selected_genes.size() < m_genes.size()) {
+        // Reduce matrix
+        counts = counts.submat(uvec(selected_spots_index), uvec(selected_genes_index));
+        colsum_nonzero = computeNonZeroColumns(counts);
+        rowsum = sum(counts, ROW);
+    }
 
     // Compute color adjusment constants
-    non_zeros = computeNonZeroColumns();
-    sum_rows = sum(m_counts_matrix, ROW);
-    float min_value = use_genes? non_zeros.min() : sum_rows.min();
-    float max_value = use_genes? non_zeros.max() : sum_rows.max();
-    min_value = use_log? std::log(min_value) : min_value;
-    max_value = use_log? std::log(max_value) : max_value;
+    float min_value = use_genes ? colsum_nonzero.min() : rowsum.min();
+    float max_value = use_genes ? colsum_nonzero.max() : rowsum.max();
+    min_value = use_log ? std::log(min_value) : min_value;
+    max_value = use_log ? std::log(max_value) : max_value;
+    m_rendering_settings->legend_min = min_value;
+    m_rendering_settings->legend_max = max_value;
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
     //TODO make this paralell
@@ -323,10 +247,10 @@ void STData::computeRenderingData()
             merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
         }
         // Use number of genes or total reads in the spot depending on settings
-        float value = use_genes? num_genes : merged_value;
+        float value = use_genes ? num_genes : merged_value;
 
         // Update the counts with the visual type (log or not)
-        value = use_log? std::log(value) : value;
+        value = use_log ? std::log(value) : value;
 
         // Update the color of the spot
         QColor color = spot->color();
@@ -383,7 +307,7 @@ void STData::initRenderingData()
     m_indexes.clear();
     const QVector4D opengl_color = fromQtColor(Qt::white);
     const float size = 0.5;
-    for (const SpotType &spot : m_matrix_spots) {
+    for (const Spot::SpotType &spot : m_matrix_spots) {
         const int index_count = static_cast<int>(m_vertices.size());
         const float x = spot.first;
         const float y = spot.second;
@@ -406,6 +330,73 @@ void STData::initRenderingData()
         m_indexes.append(index_count + 2);
         m_indexes.append(index_count + 3);
     }
+}
+
+bool STData::parseSpotsMap(const QString &spots_file)
+{
+    qDebug() << "Parsing spots file " << spots_file;
+    QMap<Spot::SpotType, Spot::SpotType> spotMap;
+    QFile file(spots_file);
+    bool parsed = true;
+    // Parse the spots map = old_spot -> new_spot
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        QString line;
+        QStringList fields;
+        while (!in.atEnd()) {
+            line = in.readLine();
+            fields = line.split("\t");
+            if (fields.length() != 4) {
+                parsed = false;
+                break;
+            }
+            const float orig_x = fields.at(0).toFloat();
+            const float orig_y = fields.at(1).toFloat();
+            const float new_x = fields.at(2).toFloat();
+            const float new_y = fields.at(3).toFloat();
+            spotMap.insert(Spot::SpotType(orig_x, orig_y), Spot::SpotType(new_x, new_y));
+        }
+
+        if (spotMap.empty()) {
+            qDebug() << "No valid spots could be found in the spots file";
+            parsed = false;
+        }
+
+    } else {
+        qDebug() << "Could not open spots file";
+    }
+
+    file.close();
+
+    // Update matrix and containers
+    QVector<int> remove_indexes;
+    if (parsed) {
+        for (int i = 0; i < m_matrix_spots.size(); ++i) {
+            auto oldspot = m_matrix_spots[i];
+            if (spotMap.contains(oldspot)) {
+                auto newspot = spotMap[oldspot];
+                m_matrix_spots[i] = newspot;
+                m_spots[i]->coordinates(newspot);
+            } else {
+                remove_indexes.push_back(i);
+            }
+        }
+    }
+
+    if (remove_indexes.size() < m_matrix_spots.size() && !remove_indexes.empty()) {
+        const int answer = QMessageBox::warning(nullptr,
+                                                QObject::tr("Spots coordinates"),
+                                                QObject::tr("Some spots in the data matrix were not found"
+                                                   "in the file\n. Do you want to keep them?"),
+                                                QMessageBox::Yes,
+                                                QMessageBox::No | QMessageBox::Escape);
+
+        if (answer != QMessageBox::Yes) {
+            //TODO remove spots from the matrix
+        }
+    }
+
+    return parsed;
 }
 
 void STData::computeGenesCutoff()
@@ -489,12 +480,14 @@ void STData::computeDESeqFactors()
         // We also remove very lowly present genes/spots
         const std::string call1 = "counts = t(counts)";
         const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
-        //const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
+        const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
         const std::string call4 = "dds = DESeq2::estimateSizeFactorsForMatrix(counts)";
         R.parseEvalQ(call1);
         R.parseEvalQ(call2);
-        //R.parseEvalQ(call3);
+        R.parseEvalQ(call3);
         m_deseq_size_factors = Rcpp::as<rowvec>(R.parseEval(call4));
+        qDebug() << "Computed DESeq2 size factors " << m_deseq_size_factors.size();
+        Q_ASSERT(m_deseq_size_factors.size() == m_counts_matrix.n_rows);
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
     }
@@ -503,14 +496,14 @@ void STData::computeDESeqFactors()
 void STData::computeScranFactors()
 {
     try {
-        const std::string R_libs = "suppressMessages(library(limSolve)); suppressMessages(library(scran))";
+        const std::string R_libs = "suppressMessages(library(scran))";
         R.parseEvalQ(R_libs);
         R["counts"] = m_counts_matrix;
         // For DESeq2 genes must be rows so we transpose the matri
         // We also remove very lowly present genes/spots
         const std::string call1 = "counts = t(counts)";
         const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
-        //const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
+        const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
         const std::string call4 = "sce = newSCESet(countData=counts)";
         const std::string call5 = "clust = quickCluster(counts, min.size=20)";
         const std::string call6 = "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=c(10,15,20,30))";
@@ -518,12 +511,14 @@ void STData::computeScranFactors()
         const std::string call8 = "size_factors = sce@phenoData$size_factor";
         R.parseEvalQ(call1);
         R.parseEvalQ(call2);
-        //R.parseEvalQ(call3);
+        R.parseEvalQ(call3);
         R.parseEvalQ(call4);
         R.parseEvalQ(call5);
         R.parseEvalQ(call6);
         R.parseEvalQ(call7);
         m_scran_size_factors = Rcpp::as<rowvec>(R.parseEval(call8));
+        qDebug() << "Computed SCRAN size factors " << m_deseq_size_factors.size();
+        Q_ASSERT(m_scran_size_factors.size() == m_counts_matrix.n_rows);
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();
     }
@@ -559,28 +554,28 @@ STData::Matrix STData::normalizeCounts() const
     case (SettingsWidget::NormalizationMode::RAW): {
     } break;
     case (SettingsWidget::NormalizationMode::REL): {
-        counts = counts / sum(counts, COLUMN);
+        counts.each_col() /= sum(counts, ROW);
     } break;
     case (SettingsWidget::NormalizationMode::TPM): {
-        counts = (counts + 1) / (sum(counts, COLUMN) * 1e6);
+        counts.each_col() /= (sum(counts, ROW) * 1e6);
     } break;
     case (SettingsWidget::NormalizationMode::DESEQ): {
-        counts = counts / m_deseq_size_factors;
+        counts.each_col() /= m_deseq_size_factors.t();
     } break;
     case (SettingsWidget::NormalizationMode::SCRAN): {
-        counts = counts / m_scran_size_factors;
+        counts.each_col() /= m_scran_size_factors.t();
     }
     }
     return counts;
 }
 
-STData::colvec STData::computeNonZeroColumns() const
+STData::rowvec STData::computeNonZeroColumns(STData::Matrix matrix)
 {
-    colvec non_zeros(m_counts_matrix.n_cols);
-    for (uword i = 0; i < m_counts_matrix.n_cols; ++i) {
+    rowvec non_zeros(matrix.n_cols);
+    for (uword i = 0; i < matrix.n_cols; ++i) {
         int non_zero = 0;
-        for (uword j = 0; j < m_counts_matrix.n_rows; ++j) {
-            if (m_counts_matrix.at(j,i) > 0.0) {
+        for (uword j = 0; j < matrix.n_rows; ++j) {
+            if (matrix.at(j,i) > 0.0) {
                 ++non_zero;
             }
         }

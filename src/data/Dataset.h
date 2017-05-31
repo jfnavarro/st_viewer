@@ -47,6 +47,8 @@ public:
     bool load_data();
 
 private:
+    bool load_imageAligment();
+
     QString m_name;
     QString m_statTissue;
     QString m_statSpecies;

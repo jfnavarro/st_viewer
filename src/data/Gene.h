@@ -38,9 +38,6 @@ public:
     void color(const QColor &color);
     void cut_off(const int cutoff);
 
-    // NOTE ambiguous property shouldn't be stored as part of the name
-    bool isAmbiguous() const;
-
 private:
     QString m_name;
     QColor m_color;

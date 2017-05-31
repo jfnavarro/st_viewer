@@ -8,6 +8,7 @@
 #include <QSortFilterProxyModel>
 #include <QAction>
 #include <QColorDialog>
+#include <QMessageBox>
 
 #include "viewTables/SpotsTableView.h"
 #include "model/SpotItemModel.h"
@@ -183,6 +184,16 @@ void SpotsWidget::slotLoadDataset(const Dataset &dataset)
     m_spots_tableview->update();
 }
 
+void SpotsWidget::slotLoadSpotColors(const QString &filename)
+{
+    if (getModel()->loadSpotColors(filename)) {
+        m_spots_tableview->update();
+    } else {
+        QMessageBox::critical(this, tr("Spots color import"),
+                              tr("There was an error parsing the file"));
+    }
+}
+
 SpotItemModel *SpotsWidget::getModel()
 {
     SpotItemModel *spotModel = qobject_cast<SpotItemModel *>(getProxyModel()->sourceModel());
@@ -193,7 +204,7 @@ SpotItemModel *SpotsWidget::getModel()
 QSortFilterProxyModel *SpotsWidget::getProxyModel()
 {
     QSortFilterProxyModel *proxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_spots_tableview->model());
+            = qobject_cast<QSortFilterProxyModel *>(m_spots_tableview->model());
     Q_ASSERT(proxyModel);
     return proxyModel;
 }

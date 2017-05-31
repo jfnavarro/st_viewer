@@ -51,8 +51,6 @@ public:
     void clear();
 
 public slots:
-    // Used to sort the genes in the table from the Sorting Proxy Model
-    bool getName(const QModelIndex &index, QString &name) const;
 
 signals:
     // Signals to notify that any of the gene|s properties have changed

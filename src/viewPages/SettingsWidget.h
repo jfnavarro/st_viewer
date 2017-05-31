@@ -36,15 +36,11 @@ public:
     };
 
     struct Rendering {
-        int reads_threshold;
-        int reads_min_threshold;
-        int reads_max_threshold;
-        int genes_threshold;
-        int genes_min_threshold;
-        int genes_max_threshold;
-        int ind_reads_threshold;
-        int ind_reads_min_threshold;
-        int ind_reads_max_threshold;
+        float reads_threshold;
+        float genes_threshold;
+        float ind_reads_threshold;
+        float legend_min;
+        float legend_max;
         float intensity;
         float size;
         VisualMode visual_mode;
@@ -56,11 +52,8 @@ public:
     explicit SettingsWidget(QWidget *parent = 0);
     ~SettingsWidget();
 
-    void resetReadsThreshold(int min, int max);
-    void resetTotalReadsThreshold(int min, int max);
-    void resetTotalGenesThreshold(int min, int max);
     void reset();
-    const Rendering &renderingSettings() const;
+    Rendering &renderingSettings();
 
 public slots:
 

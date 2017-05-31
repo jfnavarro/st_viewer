@@ -12,9 +12,11 @@ class Spot
 {
 
 public:
+    typedef QPair<float,float> SpotType;
 
     Spot();
     Spot(const float x, const float y);
+    Spot(const SpotType coordinates);
     explicit Spot(const Spot &other);
     ~Spot();
 
@@ -22,11 +24,10 @@ public:
     bool operator==(const Spot &other) const;
 
     // the spot's coordinates
-    float x() const;
-    float y() const;
-    QPair<float, float> coordinates() const;
+    SpotType coordinates() const;
     // name returns the X and Y coordiantes as a string
-    QString name();
+    QString name() const;
+    // the spot's color
     QColor color() const;
     // true if the spot is visible
     bool visible() const;
@@ -34,15 +35,16 @@ public:
     bool selected() const;
 
     // Setters
-    void x(float x);
-    void y(float y);
-    void color(QColor color);
-    void visible(bool visible);
-    void selected(bool selected);
+    void coordinates(const float x, const float y);
+    void coordinates(const SpotType &coordinates);
+    void color(const QColor color);
+    void visible(const bool visible);
+    void selected(const bool selected);
+    void name(const QString &name);
 
 private:
-    float m_x;
-    float m_y;
+    void updateName();
+    SpotType m_coordinates;
     bool m_visible;
     bool m_selected;
     QColor m_color;

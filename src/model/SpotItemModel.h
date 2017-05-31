@@ -43,12 +43,13 @@ public:
     // reload the model's data from the dataset (spots)
     void loadDataset(const Dataset &dataset);
 
+    // loads a file containing colors for each spot
+    bool loadSpotColors(const QString &filename);
+
     // clear and reset the model
     void clear();
 
 public slots:
-    // Used to sort the genes in the table from the Sorting Proxy Model
-    bool getName(const QModelIndex &index, QString &name) const;
 
 signals:
     // Signals to notify that any of the spot|s properties have changed

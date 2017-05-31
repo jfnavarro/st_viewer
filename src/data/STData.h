@@ -27,7 +27,6 @@ public:
     typedef Mat<float> Matrix;
     typedef Row<float> rowvec;
     typedef Col<float> colvec;
-    typedef QPair<float,float> SpotType;
     typedef QString GeneType;
     typedef QSharedPointer<Spot> SpotObjectType;
     typedef QSharedPointer<Gene> GeneObjectType;
@@ -41,25 +40,8 @@ public:
     void read(const QString &filename);
     void save(const QString &filename) const;
 
-
-    std::vector<float> count(const GeneType &gene) const;
-    std::vector<float> count(const SpotType &spot) const;
-    float count(const GeneType &gene, const SpotType &spot) const;
-
-    std::vector<float> count(const GeneObjectType &gene) const;
-    std::vector<float> count(const SpotObjectType &spot) const;
-    float count(const GeneObjectType &gene, const SpotObjectType &spot) const;
-
     Matrix slice_matrix_counts() const;
     Matrix matrix_counts() const;
-
-    std::vector<float> spots_counts();
-    std::vector<float> genes_counts();
-
-    GeneType gene_at(size_t index) const;
-    SpotType spot_at(size_t index) const;
-    GeneObjectType gene_object_at(size_t index) const;
-    SpotObjectType spot_object_at(size_t index) const;
 
     size_t number_spots() const;
     size_t number_genes() const;
@@ -67,14 +49,7 @@ public:
     GeneListType genes();
     SpotListType spots();
 
-    float min_genes_spot() const;
-    float max_genes_spot() const;
-    float min_reads_spot() const;
-    float max_reads_spot() const;
-    float max_reads() const;
-    float min_reads() const;
-
-    void setRenderingSettings(const SettingsWidget::Rendering *rendering_settings);
+    void setRenderingSettings(SettingsWidget::Rendering *rendering_settings);
 
     void computeRenderingData();
 
@@ -87,6 +62,11 @@ public:
 
     void initRenderingData();
 
+    bool parseSpotsMap(const QString &spots_file);
+
+    static inline rowvec computeNonZeroColumns(Matrix matrix);
+    inline Matrix normalizeCounts() const;
+
 private:
 
     void computeGenesCutoff();
@@ -95,8 +75,6 @@ private:
     void computeScranFactors();
     inline QColor adjustVisualMode(const QColor merged_color, const float &merged_value,
                                    const float &min_reads, const float &max_reads) const;
-    inline Matrix normalizeCounts() const;
-    inline colvec computeNonZeroColumns() const;
 
     Matrix m_counts_matrix;
     // cache the size factors to save computational time
@@ -106,9 +84,9 @@ private:
     SpotListType m_spots;
     GeneListType m_genes;
     QVector<GeneType> m_matrix_genes;
-    QVector<SpotType> m_matrix_spots;
+    QVector<Spot::SpotType> m_matrix_spots;
     // rendering settings
-    const SettingsWidget::Rendering *m_rendering_settings;
+    SettingsWidget::Rendering *m_rendering_settings;
     // rendering data
     QVector<QVector3D> m_vertices;
     QVector<QVector2D> m_textures;

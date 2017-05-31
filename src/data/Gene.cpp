@@ -39,7 +39,9 @@ Gene &Gene::operator=(const Gene &other)
 
 bool Gene::operator==(const Gene &other) const
 {
-    return (m_visible == other.m_visible && m_name == other.m_name && m_color == other.m_color
+    return (m_visible == other.m_visible
+            && m_name == other.m_name
+            && m_color == other.m_color
             && m_cutoff == other.m_cutoff);
 }
 
@@ -81,9 +83,4 @@ void Gene::color(const QColor &color)
 void Gene::cut_off(const int cutoff)
 {
     m_cutoff = cutoff;
-}
-
-bool Gene::isAmbiguous() const
-{
-    return m_name.startsWith("ambiguous", Qt::CaseSensitive);
 }

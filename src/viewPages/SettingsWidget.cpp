@@ -19,11 +19,14 @@ SettingsWidget::SettingsWidget(QWidget *parent)
 
     // Make connections (propagate signals)
     connect(m_ui->genes_threshold,
-            SLOT(valueChanged(double)), this, SIGNAL(slotGenesTreshold(double)));
+            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &SettingsWidget::slotGenesTreshold);
     connect(m_ui->reads_threshold,
-            SLOT(valueChanged(double)), this, SIGNAL(slotReadsTreshold(double)));
+            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &SettingsWidget::slotReadsTreshold);
     connect(m_ui->individual_reads_threshold,
-            SLOT(valueChanged(double)), this, SIGNAL(slotIndReadsTreshold(double)));
+            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            this, &SettingsWidget::slotIndReadsTreshold);
     connect(m_ui->spots_intensity,
             &QSlider::valueChanged, this, &SettingsWidget::slotIntensity);
     connect(m_ui->spots_size,
@@ -84,56 +87,28 @@ void SettingsWidget::reset()
     m_ui->normalization_raw->setChecked(true);
     m_ui->visual_reads->setChecked(true);
     m_ui->visual_normal->setChecked(true);
+    m_ui->reads_threshold->setMinimum(-1);
+    m_ui->reads_threshold->setMaximum(20000);
+    m_ui->individual_reads_threshold->setMinimum(-1);
+    m_ui->individual_reads_threshold->setMaximum(1000);
+    m_ui->genes_threshold->setMinimum(-1);
+    m_ui->genes_threshold->setMaximum(10000);
     m_rendering_settings.intensity = INTENSITY_DEFAULT;
     m_rendering_settings.size = SIZE_DEFAULT;
     m_rendering_settings.gene_cutoff = false;
-    m_rendering_settings.genes_threshold = 0;
-    m_rendering_settings.reads_threshold = 0;
-    m_rendering_settings.ind_reads_threshold = 0;
+    m_rendering_settings.genes_threshold = 1;
+    m_rendering_settings.reads_threshold = 1;
+    m_rendering_settings.ind_reads_threshold = 1;
+    m_rendering_settings.legend_max = 10000;
+    m_rendering_settings.legend_min = 1;
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
-    m_rendering_settings.reads_min_threshold = 0;
-    m_rendering_settings.reads_max_threshold = 1;
-    m_rendering_settings.reads_min_threshold = 0;
-    m_rendering_settings.reads_max_threshold = 1;
-    m_rendering_settings.genes_min_threshold = 0;
-    m_rendering_settings.genes_max_threshold = 1;
 }
 
-const SettingsWidget::Rendering &SettingsWidget::renderingSettings() const
+SettingsWidget::Rendering &SettingsWidget::renderingSettings()
 {
     return m_rendering_settings;
-}
-
-void SettingsWidget::resetReadsThreshold(int min, int max)
-{
-    const QSignalBlocker blocker(this);
-    m_ui->individual_reads_threshold->setMinimum(min);
-    m_ui->individual_reads_threshold->setMaximum(max);
-    m_ui->individual_reads_threshold->setValue(min);
-    m_rendering_settings.ind_reads_min_threshold = min;
-    m_rendering_settings.ind_reads_max_threshold = max;
-}
-
-void SettingsWidget::resetTotalReadsThreshold(int min, int max)
-{
-    const QSignalBlocker blocker(this);
-    m_ui->reads_threshold->setMinimum(min);
-    m_ui->reads_threshold->setMaximum(max);
-    m_ui->reads_threshold->setValue(min);
-    m_rendering_settings.reads_min_threshold = min;
-    m_rendering_settings.reads_max_threshold = max;
-}
-
-void SettingsWidget::resetTotalGenesThreshold(int min, int max)
-{
-    const QSignalBlocker blocker(this);
-    m_ui->genes_threshold->setMinimum(min);
-    m_ui->genes_threshold->setMaximum(max);
-    m_ui->genes_threshold->setValue(min);
-    m_rendering_settings.genes_min_threshold = min;
-    m_rendering_settings.genes_max_threshold = max;
 }
 
 void SettingsWidget::slotGenesTreshold(double value)

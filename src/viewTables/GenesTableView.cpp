@@ -2,8 +2,6 @@
 
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
-
-#include "model/SortGenesProxyModel.h"
 #include "model/GeneItemModel.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
@@ -15,7 +13,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     m_model.reset(new GeneItemModel(this));
 
     // sorting model
-    m_sortProxyModel.reset(new SortGenesProxyModel(this));
+    m_sortProxyModel.reset(new QSortFilterProxyModel(this));
     m_sortProxyModel->setSourceModel(m_model.data());
     m_sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

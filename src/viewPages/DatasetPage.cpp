@@ -163,8 +163,6 @@ void DatasetPage::slotEditDataset()
             }
             slotDatasetsUpdated();
         }
-    } else {
-        QMessageBox::critical(this, tr("Datasert import"), tr("Error importing dataset"));
     }
 }
 
@@ -179,7 +177,7 @@ void DatasetPage::slotOpenDataset()
     auto dataset = currentDatasets.front();
     m_waiting_spinner->start();
     if (!dataset.load_data()) {
-        QMessageBox::critical(this, tr("Datasert import"), tr("Error opening ST data file"));
+        QMessageBox::critical(this, tr("Datasert import"), tr("Error opening ST dataset"));
     }
     m_waiting_spinner->stop();
     // Set selected dataset

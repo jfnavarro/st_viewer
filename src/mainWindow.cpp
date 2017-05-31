@@ -21,6 +21,7 @@
 #include <QStatusBar>
 #include <QFont>
 #include <QDir>
+#include <QFileDialog>
 
 #include "dialogs/AboutDialog.h"
 #include "viewPages/DatasetPage.h"
@@ -161,6 +162,7 @@ void MainWindow::setupUi()
     m_actionDatasets.reset(new QAction(this));
     m_actionDatasets->setCheckable(true);
     m_actionSelections.reset(new QAction(this));
+    m_actionSpotColors.reset(new QAction(this));
     m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
     m_actionHelp->setText(tr("Help"));
@@ -169,6 +171,7 @@ void MainWindow::setupUi()
     m_actionClear_Cache->setText(tr("Clear Cache"));
     m_actionDatasets->setText(tr("Datasets"));
     m_actionSelections->setText(tr("Selections"));
+    m_actionSpotColors->setText(tr("Load spot colors"));
 
     // create menus
     QMenu *menuLoad = new QMenu(menubar);
@@ -179,10 +182,10 @@ void MainWindow::setupUi()
     menuViews->setTitle(tr("Views"));
     menuLoad->addAction(m_actionExit.data());
     menuLoad->addAction(m_actionClear_Cache.data());
+    menuLoad->addAction(m_actionSpotColors.data());
     menuHelp->addAction(m_actionAbout.data());
     menuViews->addAction(m_actionDatasets.data());
     menuViews->addAction(m_actionSelections.data());
-
     // add menus to menu bar
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
@@ -283,6 +286,7 @@ void MainWindow::createConnections()
     // signal that shows the selections
     connect(m_actionSelections.data(), &QAction::triggered, m_user_selections.data(),
             &UserSelectionsPage::show);
+    connect(m_actionSpotColors.data(), &QAction::triggered, this, &MainWindow::slotLoadSpotColors);
 
     // when the user opens a dataset
     connect(m_datasets.data(),
@@ -365,4 +369,28 @@ void MainWindow::slotDatasetRemoved(const QString &datasetname)
     m_genes->clear();
     m_spots->clear();
     m_cellview->clear();
+}
+
+void MainWindow::slotLoadSpotColors()
+{
+    //TODO check that a dataset is open
+
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spot Colors File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Spot Colors File File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_spots->slotLoadSpotColors(filename);
+    }
 }

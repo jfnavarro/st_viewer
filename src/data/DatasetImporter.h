@@ -14,9 +14,6 @@ class Dataset;
 // The widget asks the user to introduce the STData (matrix),
 // the tissue image and optionally a 3x3 alignment matrix and
 // a file mapping coordiantes to new coordinates
-
-//TODO add method to open an entire dataset from folder
-//TODO factor out the file open dialog
 class DatasetImporter : public QDialog
 {
     Q_OBJECT

@@ -92,9 +92,8 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
         }
         qopengl_functions.glEnd();
         // get the min max values
-        QPair<float, float> min_max = getMinMax();
-        float min = min_max.first;
-        float max = min_max.second;
+        const float min = m_rendering_settings.legend_min;
+        const float max = m_rendering_settings.legend_max;
         // draw text (add 5 pixels offset to the right)
         drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max),
                  qopengl_functions);
@@ -106,9 +105,9 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 
 void HeatMapLegendGL::generateHeatMap()
 {
-    QPair<float, float> min_max = getMinMax();
-    float min = min_max.first;
-    float max = min_max.second;
+    // get the min max values
+    const float min = m_rendering_settings.legend_min;
+    const float max = m_rendering_settings.legend_max;
     // generate image texture with the size of the legend and then fill it up with the colors
     // using the min-max values of the threshold and the color mode
     QImage image(legend_width, legend_height, QImage::Format_ARGB32);
@@ -181,32 +180,4 @@ void HeatMapLegendGL::drawText(const QPointF &posn, const QString &str,
 const QRectF HeatMapLegendGL::boundingRect() const
 {
     return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
-}
-
-QPair<float,float> HeatMapLegendGL::getMinMax() const
-{
-    float min = 0;
-    float max = 0;
-    switch (m_rendering_settings.visual_type_mode) {
-        case SettingsWidget::Reads: {
-            min = m_rendering_settings.reads_min_threshold;
-            max = m_rendering_settings.reads_max_threshold;
-        } break;
-
-        case SettingsWidget::ReadsLog: {
-            min = std::log(m_rendering_settings.reads_min_threshold);
-            max = std::log(m_rendering_settings.reads_max_threshold);
-        } break;
-
-        case SettingsWidget::Genes: {
-            min = m_rendering_settings.genes_min_threshold;
-            max = m_rendering_settings.genes_max_threshold;
-        } break;
-
-        case SettingsWidget::GenesLog: {
-            min = std::log(m_rendering_settings.genes_min_threshold);
-            max = std::log(m_rendering_settings.genes_max_threshold);
-        }
-    }
-    return QPair<float, float>(min,max);
 }
