@@ -7,8 +7,6 @@
 
 #include "data/STData.h"
 #include "viewPages/SettingsWidget.h"
-//#include "math/QuadTree.h"
-//#include "SelectionEvent.h"
 
 #include "GraphicItemGL.h"
 
@@ -23,9 +21,6 @@ class GeneRendererGL : public GraphicItemGL
 
 public:
 
-    // lookup quadtree type (spot indexes)
-    //typedef QuadTree<int, 8> GeneInfoQuadTree;
-
     GeneRendererGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
@@ -34,6 +29,9 @@ public:
 
     // clears data containers and reset variables to default
     void clearData();
+
+    // clears the selected spots
+    void clearSelection();
 
 public slots:
 
@@ -46,17 +44,12 @@ protected:
     // override method that returns the drawing size of this element
     const QRectF boundingRect() const override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
+    void setSelectionArea(const SelectionEvent &event);
 
 private:
 
-    // reset quad tree to rect size
-    //void resetQuadTree(const QRectF &rect);
-
     // compiles and loads the shaders
     void setupShaders();
-
-    // quad tree container (used to find by coordinates)
-    //GeneInfoQuadTree m_geneInfoQuadTree;
 
     // bounding rect area
     QRectF m_border;
@@ -69,9 +62,6 @@ private:
 
     // OpenGL rendering shader
     QOpenGLShaderProgram m_shader_program;
-
-    // Save the size to not recompute it always
-    float m_size;
 
     // true when the rendering data has been initialized
     bool m_initialized;

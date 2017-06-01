@@ -19,6 +19,7 @@ public:
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
 
 protected:
+    void setSelectionArea(const SelectionEvent &event);
     const QRectF boundingRect() const override;
 
 private:

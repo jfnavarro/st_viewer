@@ -77,7 +77,7 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-QFuture<void> ImageTextureGL::createTexture(const QByteArray &imageByteArray)
+QFuture<void> ImageTextureGL::createTextures(const QByteArray &imageByteArray)
 {
     // clear memory
     clearData();
@@ -176,4 +176,9 @@ void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
 const QRectF ImageTextureGL::boundingRect() const
 {
     return m_bounds;
+}
+
+void ImageTextureGL::setSelectionArea(const SelectionEvent &event)
+{
+    Q_UNUSED(event)
 }

@@ -100,7 +100,6 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     // update gene plotter rendering object with the dataset
     m_gene_plotter->clearData();
     m_gene_plotter->attachData(data);
-    //TODO set bounding rect to min and max spots
 
     // load cell tissue (to load the dataset's cell tissue image)
     // create tiles textures from the image
@@ -143,13 +142,11 @@ void CellViewPage::slotClearSelections()
 void CellViewPage::slotGenesUpdate()
 {
     m_gene_plotter->slotUpdate();
-    m_ui->view->update();
 }
 
 void CellViewPage::slotSpotsUpdated()
 {
     m_gene_plotter->slotUpdate();
-    m_ui->view->update();
 }
 
 void CellViewPage::createConnections()

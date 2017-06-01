@@ -20,10 +20,9 @@ public:
     explicit ImageTextureGL(QObject *parent = 0);
     virtual ~ImageTextureGL();
 
-    // will split the image into small textures of fixed size in an asynchronous
-    // way
+    // will split the image into small textures of fixed size in an asynchronous way
     // using createTiles and returning the future object
-    QFuture<void> createTexture(const QByteArray &imageByteArray);
+    QFuture<void> createTextures(const QByteArray &imageByteArray);
 
     // will remove and destroy all textures
     void clearData();
@@ -40,6 +39,7 @@ public slots:
 protected:
 
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
+    void setSelectionArea(const SelectionEvent &event);
 
 private:
 

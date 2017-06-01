@@ -181,3 +181,8 @@ const QRectF HeatMapLegendGL::boundingRect() const
 {
     return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
 }
+
+void HeatMapLegendGL::setSelectionArea(const SelectionEvent &event)
+{
+    Q_UNUSED(event)
+}

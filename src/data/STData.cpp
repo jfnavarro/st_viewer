@@ -4,6 +4,10 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
+//RcppArmadillo must be included before RInside
+#include "RcppArmadillo.h"
+#include "RInside.h"
+
 static const int ROW = 1;
 //static const int COLUMN = 0;
 static const int QUAD_SIZE = 4;
@@ -30,15 +34,17 @@ STData::STData()
     , m_scran_size_factors()
     , m_spots()
     , m_genes()
-    , m_matrix_genes()
-    , m_matrix_spots()
     , m_rendering_settings(nullptr)
+    , m_selected()
     , m_vertices()
     , m_textures()
     , m_colors()
     , m_indexes()
-
+    , m_quadTree()
+    , R(new RInside())
+    , m_size(0.5)
 {
+
 }
 
 STData::~STData()
@@ -46,8 +52,6 @@ STData::~STData()
 }
 
 void STData::read(const QString &filename) {
-    m_matrix_genes.clear();
-    m_matrix_spots.clear();
     m_genes.clear();
     m_spots.clear();
     std::vector<std::vector<float>> values;
@@ -67,8 +71,7 @@ void STData::read(const QString &filename) {
         col_number = 0;
         while(std::getline(iss, token, sep)) {
             if (row_number == 0) {
-                const GeneType gene = QString::fromStdString(token).trimmed();
-                m_matrix_genes.push_back(gene);
+                const QString gene = QString::fromStdString(token).trimmed();
                 m_genes.append(GeneObjectType(new Gene(gene)));
             } else if (col_number == 0) {
                 const QString spot_tmp = QString::fromStdString(token).trimmed();
@@ -76,7 +79,6 @@ void STData::read(const QString &filename) {
                 Q_ASSERT(items.size() == 2);
                 const float x = items.at(0).toFloat();
                 const float y = items.at(1).toFloat();
-                m_matrix_spots.push_back(Spot::SpotType(x,y));
                 m_spots.append(SpotObjectType(new Spot(x,y)));
             } else {
                 values_row.push_back(std::stod(token));
@@ -91,13 +93,12 @@ void STData::read(const QString &filename) {
     // Close file
     f.close();
 
-    // Remove the first column
-    if (m_matrix_genes.size() == col_number) {
-        m_matrix_genes.removeAt(0);
+    // Remove the first empty column name (gene)
+    if (m_genes.size() == col_number) {
         m_genes.removeAt(0);
     }
 
-    if (m_matrix_spots.empty() || m_matrix_genes.empty()) {
+    if (m_spots.empty() || m_genes.empty()) {
         throw std::runtime_error("The file does not contain a valid matrix");
     }
 
@@ -110,12 +111,20 @@ void STData::read(const QString &filename) {
     }
     m_counts_matrix = counts_matrix;
 
-    // Filter out almost non-present spots
+    // Initialize quad tree
+    m_quadTree.clear();
+    const QRectF border = getBorder();
+    m_quadTree = SpotsQuadTree(QuadTreeAABB(border));
+
+    // Filter out almost non-present spots (total count < 5)
     for (uword i = 0; i < m_counts_matrix.n_rows; ++i) {
         if (accu(m_counts_matrix.row(i)) < 5) {
             m_counts_matrix.shed_row(i);
             m_spots.removeAt(i);
-            m_matrix_spots.removeAt(i);
+        } else {
+            // add the coordinates to the quad tree
+            const auto spot = m_spots[i]->coordinates();
+            m_quadTree.insert(QPointF(spot.first, spot.second), i);
         }
     }
 
@@ -129,13 +138,6 @@ void STData::save(const QString &filename) const
 {
     //TODO implement
     Q_UNUSED(filename)
-}
-
-
-STData::Matrix STData::slice_matrix_counts() const
-{
-    //TODO returns a matrix with only spots and gene selected (including threshold)
-    return m_counts_matrix;
 }
 
 STData::Matrix STData::matrix_counts() const
@@ -180,51 +182,57 @@ void STData::computeRenderingData()
             m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::ReadsLog ||
             m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::GenesLog;
 
-    // Normalize the counts and/or log the counts
+    // Normalize the counts
     Matrix counts = normalizeCounts();
+
+    // Update spots size
+    if (m_size != m_rendering_settings->size) {
+        m_size = m_rendering_settings->size;
+        updateSize(m_size);
+    }
 
     // Get the list of selected genes
     rowvec colsum_nonzero = computeNonZeroColumns(counts);
-    std::vector<uword> selected_genes_index;
     GeneListType selected_genes;
-    for (int i = 0; i < m_genes.size(); ++i) {
+    float max_value_gene = -1;
+    float min_value_gene = 10e6;
+    for (uword i = 0; i < counts.n_cols; ++i) {
         const auto gene = m_genes[i];
-        if (gene->visible() && colsum_nonzero(i) > m_rendering_settings->genes_threshold) {
-            selected_genes_index.push_back(i);
+        const float gene_count = colsum_nonzero(i);
+        if (gene->visible() && gene_count > m_rendering_settings->genes_threshold) {
             selected_genes.push_back(gene);
+            max_value_gene = std::max(max_value_gene, gene_count);
+            min_value_gene = std::min(min_value_gene, gene_count);
         }
     }
 
     // Get the list of selected spots
     colvec rowsum = sum(counts, ROW);
-    std::vector<uword> selected_spots_index;
     SpotListType selected_spots;
-    for (int i = 0; i < m_spots.size(); ++i) {
+    float max_value_reads = -1;
+    float min_value_reads = 10e6;
+    for (uword i = 0; i < counts.n_rows; ++i) {
         const auto spot = m_spots[i];
-        if (spot->visible() && rowsum(i) > m_rendering_settings->reads_threshold) {
-            selected_spots_index.push_back(i);
+        m_selected[i] = false;
+        updateColor(i, empty);
+        const float reads_count = rowsum(i);
+        if (reads_count > m_rendering_settings->reads_threshold) {
             selected_spots.push_back(spot);
-        } else {
-            updateColor(i, empty);
+            max_value_reads = std::max(max_value_reads, reads_count);
+            min_value_reads = std::min(min_value_reads, reads_count);
         }
     }
 
-    if (selected_spots.empty() && selected_genes.empty()) {
+    // early out
+    if (selected_spots.empty() || selected_genes.empty()) {
         return;
     }
 
-    if (selected_spots.size() < m_spots.size() ||  selected_genes.size() < m_genes.size()) {
-        // Reduce matrix
-        counts = counts.submat(uvec(selected_spots_index), uvec(selected_genes_index));
-        colsum_nonzero = computeNonZeroColumns(counts);
-        rowsum = sum(counts, ROW);
-    }
-
     // Compute color adjusment constants
-    float min_value = use_genes ? colsum_nonzero.min() : rowsum.min();
-    float max_value = use_genes ? colsum_nonzero.max() : rowsum.max();
-    min_value = use_log ? std::log(min_value) : min_value;
-    max_value = use_log ? std::log(max_value) : max_value;
+    float min_value = use_genes ? min_value_gene : min_value_reads;
+    float max_value = use_genes ? max_value_gene : max_value_reads;
+    min_value = use_log ? std::log(min_value + std::numeric_limits<float>::epsilon()) : min_value;
+    max_value = use_log ? std::log(max_value + std::numeric_limits<float>::epsilon()) : max_value;
     m_rendering_settings->legend_min = min_value;
     m_rendering_settings->legend_max = max_value;
 
@@ -232,33 +240,44 @@ void STData::computeRenderingData()
     //TODO make this paralell
     for (int i = 0; i < selected_spots.size(); ++i) {
         const auto spot = selected_spots[i];
-        // Iterage the genes in the spot to compute the sum of values and color
-        QColor merged_color;
+        bool visible = false;
         float merged_value = 0;
         float num_genes = 0;
-        for (int j = 0; j < selected_genes.size(); ++j) {;
-            const auto gene = selected_genes[j];
-            const float value = counts.at(i,j);
-            if (m_rendering_settings->gene_cutoff && gene->cut_off() > value) {
-                continue;
+        QColor merged_color;
+        if (!spot->visible()) {
+            merged_value = 0;
+            num_genes = 0;
+            // Iterage the genes in the spot to compute the sum of values and color
+            for (int j = 0; j < selected_genes.size(); ++j) {;
+                const auto gene = selected_genes[j];
+                const float value = counts.at(i,j);
+                if (m_rendering_settings->gene_cutoff && gene->cut_off() > value) {
+                    continue;
+                }
+                ++num_genes;
+                merged_value += value;
+                merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
             }
-            ++num_genes;
-            merged_value += value;
-            merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
-        }
-        // Use number of genes or total reads in the spot depending on settings
-        float value = use_genes ? num_genes : merged_value;
+            // Use number of genes or total reads in the spot depending on settings
+            merged_value = use_genes ? num_genes : merged_value;
 
-        // Update the counts with the visual type (log or not)
-        value = use_log ? std::log(value) : value;
-
-        // Update the color of the spot
-        QColor color = spot->color();
-        if (color == Qt::white) {
-            color = adjustVisualMode(merged_color, value, min_value, max_value);
+            // Update the color of the spot
+            if (merged_value > 0) {
+                // Update the counts with the visual type (log or not)
+                merged_value = use_log ? std::log(merged_value) : merged_value;
+                merged_color = adjustVisualMode(merged_color, merged_value, min_value, max_value);
+                visible = true;
+            }
+        } else {
+            visible = true;
+            merged_color = spot->color();
         }
-        color.setAlphaF(m_rendering_settings->intensity);
-        updateColor(i, color);
+
+        m_selected[i] = spot->selected() && visible;
+        if (visible) {
+            merged_color.setAlphaF(m_rendering_settings->intensity);
+            updateColor(i, merged_color);
+        }
     }
 }
 
@@ -282,10 +301,15 @@ const QVector<QVector4D> &STData::renderingColors() const
     return m_colors;
 }
 
+const QVector<bool> &STData::renderingSelected() const
+{
+    return m_selected;
+}
+
 void STData::updateSize(const float size)
 {
     for (int index = 0; index < m_spots.size(); ++index) {
-        const auto spot = m_matrix_spots.at(index);
+        const auto spot = m_spots[index]->coordinates();
         const float x = spot.first;
         const float y = spot.second;
         m_vertices[(QUAD_SIZE * index)] =
@@ -301,20 +325,22 @@ void STData::updateSize(const float size)
 
 void STData::initRenderingData()
 {
+    m_selected.clear();
     m_vertices.clear();
     m_textures.clear();
     m_colors.clear();
     m_indexes.clear();
-    const QVector4D opengl_color = fromQtColor(Qt::white);
-    const float size = 0.5;
-    for (const Spot::SpotType &spot : m_matrix_spots) {
+    static const QVector4D opengl_color = fromQtColor(Qt::white);
+    m_size = 0.5;
+    for (const auto spot : m_spots) {
         const int index_count = static_cast<int>(m_vertices.size());
-        const float x = spot.first;
-        const float y = spot.second;
-        m_vertices.append(QVector3D(x - size / 2.0, y - size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x + size / 2.0, y - size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x + size / 2.0, y + size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x - size / 2.0, y + size / 2.0, 0.0));
+        const auto spot_cor = spot->coordinates();
+        const float x = spot_cor.first;
+        const float y = spot_cor.second;
+        m_vertices.append(QVector3D(x - m_size / 2.0, y - m_size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x + m_size / 2.0, y - m_size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x + m_size / 2.0, y + m_size / 2.0, 0.0));
+        m_vertices.append(QVector3D(x - m_size / 2.0, y + m_size / 2.0, 0.0));
         m_textures.append(ta);
         m_textures.append(tb);
         m_textures.append(tc);
@@ -329,6 +355,7 @@ void STData::initRenderingData()
         m_indexes.append(index_count);
         m_indexes.append(index_count + 2);
         m_indexes.append(index_count + 3);
+        m_selected.append(false);
     }
 }
 
@@ -371,28 +398,30 @@ bool STData::parseSpotsMap(const QString &spots_file)
     // Update matrix and containers
     QVector<int> remove_indexes;
     if (parsed) {
-        for (int i = 0; i < m_matrix_spots.size(); ++i) {
-            auto oldspot = m_matrix_spots[i];
+        for (int i = 0; i < m_spots.size(); ++i) {
+            auto oldspot = m_spots[i]->coordinates();
             if (spotMap.contains(oldspot)) {
-                auto newspot = spotMap[oldspot];
-                m_matrix_spots[i] = newspot;
-                m_spots[i]->coordinates(newspot);
+                m_spots[i]->coordinates(spotMap[oldspot]);
             } else {
                 remove_indexes.push_back(i);
             }
         }
     }
 
-    if (remove_indexes.size() < m_matrix_spots.size() && !remove_indexes.empty()) {
+    if (remove_indexes.size() < m_spots.size() && !remove_indexes.empty()) {
         const int answer = QMessageBox::warning(nullptr,
                                                 QObject::tr("Spots coordinates"),
                                                 QObject::tr("Some spots in the data matrix were not found"
-                                                   "in the file\n. Do you want to keep them?"),
+                                                            "in the file\n. Do you want to keep them?"),
                                                 QMessageBox::Yes,
                                                 QMessageBox::No | QMessageBox::Escape);
 
-        if (answer != QMessageBox::Yes) {
-            //TODO remove spots from the matrix
+        if (answer == QMessageBox::No) {
+            //Remove spots from the matrix and the containers
+            for (const int index : remove_indexes) {
+                m_spots.removeAt(index);
+                m_counts_matrix.shed_row(index);
+            }
         }
     }
 
@@ -474,18 +503,18 @@ void STData::computeDESeqFactors()
 {
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));";
-        R.parseEvalQ(R_libs);
-        R["counts"] = m_counts_matrix;
+        R->parseEvalQ(R_libs);
+        (*R)["counts"] = m_counts_matrix;
         // For DESeq2 genes must be rows so we transpose the matri
         // We also remove very lowly present genes/spots
         const std::string call1 = "counts = t(counts)";
         const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
         const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
         const std::string call4 = "dds = DESeq2::estimateSizeFactorsForMatrix(counts)";
-        R.parseEvalQ(call1);
-        R.parseEvalQ(call2);
-        R.parseEvalQ(call3);
-        m_deseq_size_factors = Rcpp::as<rowvec>(R.parseEval(call4));
+        R->parseEvalQ(call1);
+        R->parseEvalQ(call2);
+        R->parseEvalQ(call3);
+        m_deseq_size_factors = Rcpp::as<rowvec>(R->parseEval(call4));
         qDebug() << "Computed DESeq2 size factors " << m_deseq_size_factors.size();
         Q_ASSERT(m_deseq_size_factors.size() == m_counts_matrix.n_rows);
     } catch (const std::exception &e) {
@@ -497,8 +526,8 @@ void STData::computeScranFactors()
 {
     try {
         const std::string R_libs = "suppressMessages(library(scran))";
-        R.parseEvalQ(R_libs);
-        R["counts"] = m_counts_matrix;
+        R->parseEvalQ(R_libs);
+        (*R)["counts"] = m_counts_matrix;
         // For DESeq2 genes must be rows so we transpose the matri
         // We also remove very lowly present genes/spots
         const std::string call1 = "counts = t(counts)";
@@ -509,14 +538,14 @@ void STData::computeScranFactors()
         const std::string call6 = "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=c(10,15,20,30))";
         const std::string call7 = "sce = normalize(sce, recompute_cpm=FALSE)";
         const std::string call8 = "size_factors = sce@phenoData$size_factor";
-        R.parseEvalQ(call1);
-        R.parseEvalQ(call2);
-        R.parseEvalQ(call3);
-        R.parseEvalQ(call4);
-        R.parseEvalQ(call5);
-        R.parseEvalQ(call6);
-        R.parseEvalQ(call7);
-        m_scran_size_factors = Rcpp::as<rowvec>(R.parseEval(call8));
+        R->parseEvalQ(call1);
+        R->parseEvalQ(call2);
+        R->parseEvalQ(call3);
+        R->parseEvalQ(call4);
+        R->parseEvalQ(call5);
+        R->parseEvalQ(call6);
+        R->parseEvalQ(call7);
+        m_scran_size_factors = Rcpp::as<rowvec>(R->parseEval(call8));
         qDebug() << "Computed SCRAN size factors " << m_deseq_size_factors.size();
         Q_ASSERT(m_scran_size_factors.size() == m_counts_matrix.n_rows);
     } catch (const std::exception &e) {
@@ -569,7 +598,7 @@ STData::Matrix STData::normalizeCounts() const
     return counts;
 }
 
-STData::rowvec STData::computeNonZeroColumns(STData::Matrix matrix)
+STData::rowvec STData::computeNonZeroColumns(const STData::Matrix &matrix)
 {
     rowvec non_zeros(matrix.n_cols);
     for (uword i = 0; i < matrix.n_cols; ++i) {
@@ -582,4 +611,73 @@ STData::rowvec STData::computeNonZeroColumns(STData::Matrix matrix)
         non_zeros[i] = non_zero;
     }
     return non_zeros;
+}
+
+STData::colvec computeNonZeroRows(const STData::Matrix &matrix)
+{
+    STData::colvec non_zeros(matrix.n_rows);
+    for (uword i = 0; i < matrix.n_rows; ++i) {
+        int non_zero = 0;
+        for (uword j = 0; j < matrix.n_cols; ++j) {
+            if (matrix.at(i,j) > 0.0) {
+                ++non_zero;
+            }
+        }
+        non_zeros[i] = non_zero;
+    }
+    return non_zeros;
+}
+
+void STData::clearSelection()
+{
+    for (int i = 0; i < m_spots.size(); ++i) {
+        m_spots[i]->selected(false);
+        m_selected[i] = false;
+    }
+}
+
+void STData::selectSpots(const SelectionEvent &event)
+{
+    const QRectF rect = event.path();
+    const auto mode = event.mode();
+
+    if (mode == SelectionEvent::SelectionMode::NewSelection) {
+        clearSelection();
+    }
+
+    // get selection area
+    const QuadTreeAABB aabb(rect);
+
+    // get selected points from selection shape
+    SpotsQuadTree::PointItemList pointList;
+    m_quadTree.select(aabb, pointList);
+
+    // update selection
+    const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
+    for (const auto point : pointList) {
+        const int index = point.second;
+        m_spots[index]->selected(!remove);
+    }
+}
+
+void STData::selectSpots(const QString &genes)
+{
+    Q_UNUSED(genes)
+}
+
+const QRectF STData::getBorder() const
+{
+    const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
+                                          [] (const auto lhs, const auto rhs) {
+        return lhs->coordinates().first < rhs->coordinates().first;});
+
+    const auto mm_y = std::minmax_element(m_spots.begin(), m_spots.end(),
+                                          [] (const auto lhs, const auto rhs) {
+        return lhs->coordinates().second < rhs->coordinates().second;});
+
+    const auto min_x = (*mm_x.first)->coordinates().first;
+    const auto min_y = (*mm_y.first)->coordinates().second;
+    const auto max_x = (*mm_x.first)->coordinates().second;
+    const auto max_y = (*mm_y.first)->coordinates().first;
+    return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
 }

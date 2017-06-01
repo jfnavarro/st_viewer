@@ -35,3 +35,7 @@ void RubberbandGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     }
 }
 
+void RubberbandGL::setSelectionArea(const SelectionEvent &event)
+{
+    Q_UNUSED(event)
+}

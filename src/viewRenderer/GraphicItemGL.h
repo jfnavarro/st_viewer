@@ -78,6 +78,9 @@ public:
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
 
+    // must be implemented in the node to support selection events (mouse selection)
+    virtual void setSelectionArea(const SelectionEvent &event) = 0;
+
     // bounding rect boundaries check
     bool contains(const QPointF &point) const;
     bool contains(const QRectF &point) const;

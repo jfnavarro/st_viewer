@@ -149,6 +149,7 @@ void CellGLView::paintGL()
     }
 
     m_qopengl_functions.glLoadIdentity();
+
     // paint rubberband if selecting
     if (m_rubberBanding && m_selecting) {
         m_rubberband->draw(m_qopengl_functions);
@@ -241,7 +242,7 @@ void CellGLView::setScene(const QRectF &scene)
 
     if (m_scene != scene) {
         m_scene = scene;
-        qDebug() << "Setting scene to " << m_scene;
+        qDebug() << "Setting view scene to " << m_scene;
         m_scene_focus_center_point = m_scene.center();
         m_zoom_factor = minZoom();
     }
@@ -338,6 +339,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
 
             // map selected area to node cordinate system
             QRectF transformed = node_trans.inverted().mapRect(rubberBand);
+
             // if selection area is not inside the bounding rect select empty rect
             if (!node->boundingRect().contains(transformed)) {
                 transformed = QRectF();
@@ -348,7 +350,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
                     = SelectionEvent::modeFromKeyboardModifiers(event->modifiers());
             const SelectionEvent selectionEvent(transformed, mode);
             // send selection event to node
-            //node->setSelectionArea(&selectionEvent);
+            node->setSelectionArea(selectionEvent);
         }
     }
 }

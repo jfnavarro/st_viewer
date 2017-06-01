@@ -9,7 +9,6 @@
 GeneRendererGL::GeneRendererGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
     , m_rendering_settings(rendering_settings)
-    , m_size(1.0)
     , m_initialized(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
@@ -37,14 +36,9 @@ void GeneRendererGL::slotUpdate()
 {
     if (m_initialized) {
         m_geneData->computeRenderingData();
+        emit updated();
     }
 }
-
-//void GeneRendererGL::resetQuadTree(const QRectF &rect)
-//{
-//    m_geneInfoQuadTree.clear();
-//    m_geneInfoQuadTree = GeneInfoQuadTree(rect);
-//}
 
 void GeneRendererGL::attachData(QSharedPointer<STData> data)
 {
@@ -54,6 +48,7 @@ void GeneRendererGL::attachData(QSharedPointer<STData> data)
     m_geneData = data;
     m_geneData->initRenderingData();
     m_initialized = true;
+    m_border = m_geneData->getBorder();
 }
 
 // we update the rendering data
@@ -63,12 +58,6 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
         return;
     }
 
-    // Update size if needed
-    if (m_size != m_rendering_settings.size) {
-        m_size = m_rendering_settings.size;
-        m_geneData->updateSize(m_size);
-    }
-
     m_shader_program.bind();
 
     const QMatrix4x4 projectionModelViewMatrix = getProjection() * getModelView();
@@ -76,9 +65,13 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     int vertex = m_shader_program.attributeLocation("vertexAttr");
     int color = m_shader_program.attributeLocation("colorAttr");
     int texture = m_shader_program.attributeLocation("textureAttr");
+    int selected = m_shader_program.attributeLocation("selected");
 
     // add UNIFORM values to shader program
     m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
+    m_shader_program.setUniformValueArray(selected,
+                                          reinterpret_cast<const GLuint*>(
+                                              m_geneData->renderingSelected().constData()), 1);
 
     // Add arrays to the shader program
     m_shader_program.setAttributeArray(vertex,
@@ -126,4 +119,10 @@ void GeneRendererGL::setupShaders()
 const QRectF GeneRendererGL::boundingRect() const
 {
     return m_border;
+}
+
+void GeneRendererGL::setSelectionArea(const SelectionEvent &event)
+{
+    m_geneData->selectSpots(event);
+    slotUpdate();
 }

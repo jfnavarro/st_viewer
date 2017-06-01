@@ -32,14 +32,12 @@ public slots:
 protected:
     const QRectF boundingRect() const override;
     void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
+    void setSelectionArea(const SelectionEvent &event);
 
 private:
 
     // create the legend
     void generateHeatMap();
-
-    // Return the threshold min-max values from the settings object
-    QPair<float, float> getMinMax() const;
 
     // internal function to render text as a texture
     void drawText(const QPointF &posn, const QString &str,
