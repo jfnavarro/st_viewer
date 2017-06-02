@@ -17,7 +17,6 @@ SelectionDialog::SelectionDialog(QWidget *parent,
 
     // set default state
     slotCaseSensitive(false);
-    slotIncludeAmbiguous(false);
     slotSelectNonVisible(false);
     move(parent->window()->mapToGlobal(parent->window()->rect().center())
          - mapToGlobal(rect().center()));
@@ -39,10 +38,28 @@ void SelectionDialog::accept()
         return;
     }
 
-    // find all genes that match the regular expression
-
     // and propagate accept call
     QDialog::accept();
+}
+
+QRegExp SelectionDialog::getRegExp() const
+{
+    return m_regExp;
+}
+
+bool SelectionDialog::isValid() const
+{
+    return m_regExpValid;
+}
+
+bool SelectionDialog::selectNonVisible() const
+{
+    return m_selectNonVisible;
+}
+
+bool SelectionDialog::caseSensitive() const
+{
+    return m_caseSensitive;
 }
 
 void SelectionDialog::slotValidateRegExp(const QString &pattern)
@@ -51,14 +68,6 @@ void SelectionDialog::slotValidateRegExp(const QString &pattern)
     const bool regExpValid = m_regExp.isValid();
     if (regExpValid != m_regExpValid) {
         m_regExpValid = regExpValid;
-    }
-}
-
-void SelectionDialog::slotIncludeAmbiguous(bool includeAmbiguous)
-{
-    m_includeAmbiguous = includeAmbiguous;
-    if (m_includeAmbiguous != m_ui->checkAmbiguous->isChecked()) {
-        m_ui->checkAmbiguous->setChecked(m_includeAmbiguous);
     }
 }
 

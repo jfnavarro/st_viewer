@@ -21,9 +21,10 @@ public:
     SelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
-    // returns the list of genes found in the reg-exp
-
-    // returns the list of spots found in the reg-exp
+    QRegExp getRegExp() const;
+    bool isValid() const;
+    bool selectNonVisible() const;
+    bool caseSensitive() const;
 
 signals:
 
@@ -35,8 +36,6 @@ public slots:
     void accept() override;
     // to validate or not the reg-exp
     void slotValidateRegExp(const QString &pattern);
-    // to include or not ambiguos genes in the selection
-    void slotIncludeAmbiguous(bool includeAmbiguous);
     // to enable/disable case sensitivigy in the reg-exp
     void slotCaseSensitive(bool caseSensitive);
     // to enable/disable the inclusion of non visible in the selection

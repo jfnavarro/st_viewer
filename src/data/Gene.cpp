@@ -4,6 +4,16 @@ Gene::Gene()
     : m_name()
     , m_color(Qt::red)
     , m_visible(false)
+    , m_selected(false)
+    , m_cutoff(1)
+{
+}
+
+Gene::Gene(const QString &name)
+    : m_name(name)
+    , m_color(Qt::red)
+    , m_visible(false)
+    , m_selected(false)
     , m_cutoff(1)
 {
 }
@@ -12,15 +22,8 @@ Gene::Gene(const Gene &other)
     : m_name(other.m_name)
     , m_color(other.m_color)
     , m_visible(other.m_visible)
+    , m_selected(other.m_selected)
     , m_cutoff(other.m_cutoff)
-{
-}
-
-Gene::Gene(const QString &name, bool visible, const QColor &color, const int cutoff)
-    : m_name(name)
-    , m_color(color)
-    , m_visible(visible)
-    , m_cutoff(cutoff)
 {
 }
 
@@ -32,6 +35,7 @@ Gene &Gene::operator=(const Gene &other)
 {
     m_name = other.m_name;
     m_visible = other.m_visible;
+    m_selected = other.m_selected;
     m_color = other.m_color;
     m_cutoff = other.m_cutoff;
     return (*this);
@@ -40,6 +44,7 @@ Gene &Gene::operator=(const Gene &other)
 bool Gene::operator==(const Gene &other) const
 {
     return (m_visible == other.m_visible
+            && m_selected == other.m_selected
             && m_name == other.m_name
             && m_color == other.m_color
             && m_cutoff == other.m_cutoff);
@@ -53,6 +58,11 @@ const QString Gene::name() const
 bool Gene::visible() const
 {
     return m_visible;
+}
+
+bool Gene::selected() const
+{
+    return m_selected;
 }
 
 const QColor Gene::color() const
@@ -70,9 +80,14 @@ void Gene::name(const QString &name)
     m_name = name;
 }
 
-void Gene::visible(bool visible)
+void Gene::visible(const bool visible)
 {
     m_visible = visible;
+}
+
+void Gene::selected(const bool selected)
+{
+    m_selected = selected;
 }
 
 void Gene::color(const QColor &color)

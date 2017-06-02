@@ -114,14 +114,16 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
         // if it is not given by the user
         QTransform alignment = dataset.imageAlignment();
         if (alignment.isIdentity()) {
-            // TODO 33 and 35 should be retrieved from the spots (max x and max y)
+            // TODO these should be given or taken from config
+            const int chip_x2 = 33;
+            const int chip_y2 = 35;
             const int width_image = m_image->boundingRect().width();
             const int height_image = m_image->boundingRect().height();
-            const float a11 = width_image / (33 - 1);
+            const float a11 = width_image / (chip_x2 - 1);
             const float a12 = 0.0;
             const float a13 = 0.0;
             const float a21 = 0.0;
-            const float a22 = height_image / (35 - 1);
+            const float a22 = height_image / (chip_y2 - 1);
             const float a23 = 0.0;
             const float a31 = -a11;
             const float a32 = -a22;
@@ -276,8 +278,12 @@ void CellViewPage::slotSaveImage()
 
 void CellViewPage::slotSelectByRegExp()
 {
-    //const STData::gene_list &geneList = SelectionDialog::selectGenes(m_openedDataset->genes());
-    //m_openedDataset->seletGenes(geneList);
+    SelectionDialog selectGenes(this);
+    if (selectGenes.exec() == QDialog::Accepted) {
+        if (selectGenes.isValid()) {
+            m_gene_plotter->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
+        }
+    }
 }
 
 void CellViewPage::slotCreateSelection()

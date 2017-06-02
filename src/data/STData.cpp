@@ -15,7 +15,7 @@ static const QVector2D ta(0.0, 0.0);
 static const QVector2D tb(0.0, 1.0);
 static const QVector2D tc(1.0, 1.0);
 static const QVector2D td(1.0, 0.0);
-static const QColor empty(0.0, 0.0, 0.0, 0.0);
+static const QColor cempty(0.0, 0.0, 0.0, 0.0);
 
 using namespace Math;
 
@@ -173,7 +173,10 @@ void STData::setRenderingSettings(SettingsWidget::Rendering *rendering_settings)
 void STData::computeRenderingData()
 {
     Q_ASSERT(m_rendering_settings != nullptr);
+    Q_ASSERT(m_counts_matrix.size() > 0);
     Q_ASSERT(!m_colors.empty());
+    Q_ASSERT(!m_selected.empty());
+    Q_ASSERT(m_selected.size() == m_colors.size());
 
     const bool use_genes =
             m_rendering_settings->visual_type_mode == SettingsWidget::VisualTypeMode::Genes ||
@@ -193,14 +196,14 @@ void STData::computeRenderingData()
 
     // Get the list of selected genes
     rowvec colsum_nonzero = computeNonZeroColumns(counts);
-    GeneListType selected_genes;
+    QVector<uword> selected_genes_indexes;
     float max_value_gene = -1;
     float min_value_gene = 10e6;
     for (uword i = 0; i < counts.n_cols; ++i) {
         const auto gene = m_genes[i];
         const float gene_count = colsum_nonzero(i);
         if (gene->visible() && gene_count > m_rendering_settings->genes_threshold) {
-            selected_genes.push_back(gene);
+            selected_genes_indexes.push_back(i);
             max_value_gene = std::max(max_value_gene, gene_count);
             min_value_gene = std::min(min_value_gene, gene_count);
         }
@@ -208,23 +211,22 @@ void STData::computeRenderingData()
 
     // Get the list of selected spots
     colvec rowsum = sum(counts, ROW);
-    SpotListType selected_spots;
+    QVector<uword> selected_spots_indexes;
     float max_value_reads = -1;
     float min_value_reads = 10e6;
     for (uword i = 0; i < counts.n_rows; ++i) {
-        const auto spot = m_spots[i];
-        m_selected[i] = false;
-        updateColor(i, empty);
+        updateSelected(i, false);
+        updateColor(i, cempty);
         const float reads_count = rowsum(i);
         if (reads_count > m_rendering_settings->reads_threshold) {
-            selected_spots.push_back(spot);
+            selected_spots_indexes.push_back(i);
             max_value_reads = std::max(max_value_reads, reads_count);
             min_value_reads = std::min(min_value_reads, reads_count);
         }
     }
 
     // early out
-    if (selected_spots.empty() || selected_genes.empty()) {
+    if (selected_spots_indexes.empty() && selected_genes_indexes.empty()) {
         return;
     }
 
@@ -238,18 +240,19 @@ void STData::computeRenderingData()
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
     //TODO make this paralell
-    for (int i = 0; i < selected_spots.size(); ++i) {
-        const auto spot = selected_spots[i];
+    for (const uword i : selected_spots_indexes) {
+        const auto spot = m_spots[i];
         bool visible = false;
         float merged_value = 0;
         float num_genes = 0;
+        bool any_gene_selected = false;
         QColor merged_color;
         if (!spot->visible()) {
             merged_value = 0;
             num_genes = 0;
             // Iterage the genes in the spot to compute the sum of values and color
-            for (int j = 0; j < selected_genes.size(); ++j) {;
-                const auto gene = selected_genes[j];
+            for (const uword j : selected_genes_indexes) {;
+                const auto gene = m_genes[j];
                 const float value = counts.at(i,j);
                 if (m_rendering_settings->gene_cutoff && gene->cut_off() > value) {
                     continue;
@@ -257,6 +260,7 @@ void STData::computeRenderingData()
                 ++num_genes;
                 merged_value += value;
                 merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
+                any_gene_selected |= gene->selected();
             }
             // Use number of genes or total reads in the spot depending on settings
             merged_value = use_genes ? num_genes : merged_value;
@@ -267,13 +271,14 @@ void STData::computeRenderingData()
                 merged_value = use_log ? std::log(merged_value) : merged_value;
                 merged_color = adjustVisualMode(merged_color, merged_value, min_value, max_value);
                 visible = true;
+                spot->selected(spot->selected() || any_gene_selected);
             }
         } else {
             visible = true;
             merged_color = spot->color();
         }
 
-        m_selected[i] = spot->selected() && visible;
+        updateSelected(i, spot->selected() && visible);
         if (visible) {
             merged_color.setAlphaF(m_rendering_settings->intensity);
             updateColor(i, merged_color);
@@ -301,7 +306,7 @@ const QVector<QVector4D> &STData::renderingColors() const
     return m_colors;
 }
 
-const QVector<bool> &STData::renderingSelected() const
+const QVector<float> &STData::renderingSelected() const
 {
     return m_selected;
 }
@@ -330,8 +335,9 @@ void STData::initRenderingData()
     m_textures.clear();
     m_colors.clear();
     m_indexes.clear();
-    static const QVector4D opengl_color = fromQtColor(Qt::white);
     m_size = 0.5;
+    const QVector4D default_color = fromQtColor(cempty);
+    const bool default_sected = false;
     for (const auto spot : m_spots) {
         const int index_count = static_cast<int>(m_vertices.size());
         const auto spot_cor = spot->coordinates();
@@ -345,17 +351,20 @@ void STData::initRenderingData()
         m_textures.append(tb);
         m_textures.append(tc);
         m_textures.append(td);
-        m_colors.append(opengl_color);
-        m_colors.append(opengl_color);
-        m_colors.append(opengl_color);
-        m_colors.append(opengl_color);
+        m_colors.append(default_color);
+        m_colors.append(default_color);
+        m_colors.append(default_color);
+        m_colors.append(default_color);
         m_indexes.append(index_count);
         m_indexes.append(index_count + 1);
         m_indexes.append(index_count + 2);
         m_indexes.append(index_count);
         m_indexes.append(index_count + 2);
         m_indexes.append(index_count + 3);
-        m_selected.append(false);
+        m_selected.append(default_sected);
+        m_selected.append(default_sected);
+        m_selected.append(default_sected);
+        m_selected.append(default_sected);
     }
 }
 
@@ -499,6 +508,13 @@ void STData::updateColor(const int index, const QColor &color)
     }
 }
 
+void STData::updateSelected(const int index, const bool &selected)
+{
+    for (int z = 0; z < QUAD_SIZE; ++z) {
+        m_selected[(QUAD_SIZE * index) + z] = static_cast<float>(selected);
+    }
+}
+
 void STData::computeDESeqFactors()
 {
     try {
@@ -632,7 +648,11 @@ void STData::clearSelection()
 {
     for (int i = 0; i < m_spots.size(); ++i) {
         m_spots[i]->selected(false);
-        m_selected[i] = false;
+        updateSelected(i, false);
+    }
+
+    for (auto gene : m_genes) {
+        gene->selected(false);
     }
 }
 
@@ -660,14 +680,17 @@ void STData::selectSpots(const SelectionEvent &event)
     }
 }
 
-void STData::selectSpots(const QString &genes)
+void STData::selectGenes(const QRegExp &regexp, const bool force)
 {
-    Q_UNUSED(genes)
+    for (auto gene : m_genes) {
+        gene->selected(regexp.exactMatch(gene->name()));
+        gene->visible(gene->visible() || force);
+    }
 }
 
 const QRectF STData::getBorder() const
 {
-    const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
+    /*const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
                                           [] (const auto lhs, const auto rhs) {
         return lhs->coordinates().first < rhs->coordinates().first;});
 
@@ -678,6 +701,7 @@ const QRectF STData::getBorder() const
     const auto min_x = (*mm_x.first)->coordinates().first;
     const auto min_y = (*mm_y.first)->coordinates().second;
     const auto max_x = (*mm_x.first)->coordinates().second;
-    const auto max_y = (*mm_y.first)->coordinates().first;
-    return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
+    const auto max_y = (*mm_y.first)->coordinates().first;*/
+    //TODO fix the bounding border computation
+    return QRectF(QPointF(1, 1), QPointF(33, 35));
 }

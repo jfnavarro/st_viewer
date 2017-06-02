@@ -1,6 +1,6 @@
 varying highp vec2 outTextCoord;
-varying lowp vec4 outColor;
-uniform lowp bool selected;
+varying mediump vec4 outColor;
+varying lowp float outSelected;
 
 // bandpass smooth filter   __/  \__
 float smoothband(float lo, float hi, float e, float t) {
@@ -12,11 +12,13 @@ float smoothband(float lo, float hi, float e, float t) {
 void main(void)
 {
     // helper colors
-    vec4 cNone = vec4(0.0,0.0,0.0,0.0);
-    vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
+    const vec4 cNone = vec4(0.0,0.0,0.0,0.0);
+    const vec4 cWhite = vec4(1.0,1.0,1.0,1.0);
 
     // derive color
     vec4 fragColor = outColor;
+    bool selected = bool(outSelected);
+
     vec2 pos = mod(outTextCoord.xy, vec2(1.0)) - vec2(0.5);
     float dist = length(pos);
 

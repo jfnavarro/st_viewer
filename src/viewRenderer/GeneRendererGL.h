@@ -33,6 +33,9 @@ public:
     // clears the selected spots
     void clearSelection();
 
+    // regular expression to select genes that match
+    void selectGenes(const QRegExp &regexp, const bool force = false);
+
 public slots:
 
     // update the rendering data

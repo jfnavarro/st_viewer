@@ -65,23 +65,19 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     int vertex = m_shader_program.attributeLocation("vertexAttr");
     int color = m_shader_program.attributeLocation("colorAttr");
     int texture = m_shader_program.attributeLocation("textureAttr");
-    int selected = m_shader_program.attributeLocation("selected");
-
-    // add UNIFORM values to shader program
-    m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
-    m_shader_program.setUniformValueArray(selected,
-                                          reinterpret_cast<const GLuint*>(
-                                              m_geneData->renderingSelected().constData()), 1);
+    int selected = m_shader_program.attributeLocation("selectedAttr");
 
     // Add arrays to the shader program
-    m_shader_program.setAttributeArray(vertex,
-                                       m_geneData->renderingVertices().constData());
-    m_shader_program.setAttributeArray(color,
-                                       m_geneData->renderingColors().constData());
-    m_shader_program.setAttributeArray(texture, m_geneData->renderingTextures().constData());
     m_shader_program.enableAttributeArray(vertex);
     m_shader_program.enableAttributeArray(color);
     m_shader_program.enableAttributeArray(texture);
+    m_shader_program.enableAttributeArray(selected);
+
+    m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
+    m_shader_program.setAttributeArray(vertex, m_geneData->renderingVertices().constData());
+    m_shader_program.setAttributeArray(color, m_geneData->renderingColors().constData());
+    m_shader_program.setAttributeArray(texture, m_geneData->renderingTextures().constData());
+    m_shader_program.setAttributeArray(selected, m_geneData->renderingSelected().constData(), 1);
 
     qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData->renderingIndexes().size(),
                                      GL_UNSIGNED_INT,
@@ -91,6 +87,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
     m_shader_program.disableAttributeArray(vertex);
     m_shader_program.disableAttributeArray(color);
     m_shader_program.disableAttributeArray(texture);
+    m_shader_program.disableAttributeArray(selected);
 
     m_shader_program.release();
 }
@@ -124,5 +121,17 @@ const QRectF GeneRendererGL::boundingRect() const
 void GeneRendererGL::setSelectionArea(const SelectionEvent &event)
 {
     m_geneData->selectSpots(event);
+    slotUpdate();
+}
+
+void GeneRendererGL::clearSelection()
+{
+    m_geneData->clearSelection();
+    slotUpdate();
+}
+
+void GeneRendererGL::selectGenes(const QRegExp &regexp, const bool force)
+{
+    m_geneData->selectGenes(regexp, force);
     slotUpdate();
 }

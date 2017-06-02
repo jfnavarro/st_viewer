@@ -341,7 +341,7 @@ void CellGLView::sendRubberBandEventToNodes(const QRectF &rubberBand, const QMou
             QRectF transformed = node_trans.inverted().mapRect(rubberBand);
 
             // if selection area is not inside the bounding rect select empty rect
-            if (!node->boundingRect().contains(transformed)) {
+            if (!node->boundingRect().intersects(transformed)) {
                 transformed = QRectF();
             }
 

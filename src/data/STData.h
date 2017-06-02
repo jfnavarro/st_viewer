@@ -56,7 +56,7 @@ public:
     const QVector<QVector3D> &renderingVertices() const;
     const QVector<QVector2D> &renderingTextures() const;
     const QVector<QVector4D> &renderingColors() const;
-    const QVector<bool> &renderingSelected() const;
+    const QVector<float> &renderingSelected() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
     // the spots coordinates will be updated and the spots
@@ -73,7 +73,7 @@ public:
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
-    void selectSpots(const QString &genes);
+    void selectGenes(const QRegExp &regexp, const bool force = true);
 
     // return the boundaries (min spot and max spot)
     const QRectF getBorder() const;
@@ -81,8 +81,9 @@ public:
 private:
     // function to compute a default values for individual genes cut-off
     void computeGenesCutoff();
-    // helper function to update the color of a spot (rendering data)
+    // helper function to update the color and selected of a spot (rendering data)
     inline void updateColor(const int index, const QColor &color);
+    inline void updateSelected(const int index, const bool &selected);
     // update the size of the spots
     void updateSize(const float size);
     // helper functions to compute normalization size factors that are used to normalize
@@ -104,7 +105,7 @@ private:
     // rendering settings
     SettingsWidget::Rendering *m_rendering_settings;
     // rendering data
-    QVector<bool> m_selected;
+    QVector<float> m_selected;
     QVector<QVector3D> m_vertices;
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
