@@ -31,9 +31,9 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
         case Dataset:
             return item.dataset();
         case NGenes:
-            return 0 /*QString::number(item.totalGenes())*/;
+            return QString::number(item.totalGenes());
         case NReads:
-            return 0 /*QString::number(item.totalReads())*/;
+            return QString::number(item.totalReads());
         default:
             return QVariant(QVariant::Invalid);
         }

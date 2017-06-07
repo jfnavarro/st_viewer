@@ -315,6 +315,12 @@ void MainWindow::createConnections()
             &SpotsWidget::signalSpotsUpdated,
             m_cellview.data(),
             &CellViewPage::slotSpotsUpdated);
+
+    // when the user creates a selection
+    connect(m_cellview.data(),
+            &CellViewPage::signalUserSelection,
+            this,
+            &MainWindow::slotCreateSelection);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -345,22 +351,22 @@ void MainWindow::saveSettings() const
 
 void MainWindow::slotDatasetOpen(const QString &datasetname)
 {
+    const auto dataset = m_datasets->getCurrentDataset();
     qDebug() << "Dataset opened " << datasetname;
-    Dataset dataset = m_datasets->currentDataset();
-    Q_ASSERT(!dataset.data().isNull());
-    m_genes->slotLoadDataset(dataset);
-    m_spots->slotLoadDataset(dataset);
-    m_cellview->slotLoadDataset(dataset);
+    Q_ASSERT(!dataset->data().isNull());
+    m_genes->slotLoadDataset(*(dataset.data()));
+    m_spots->slotLoadDataset(*(dataset.data()));
+    m_cellview->loadDataset(*(dataset.data()));
 }
 
 void MainWindow::slotDatasetUpdated(const QString &datasetname)
 {
+    const auto dataset = m_datasets->getCurrentDataset();
     qDebug() << "Dataset updated " << datasetname;
-    Dataset dataset = m_datasets->currentDataset();
-    Q_ASSERT(!dataset.data().isNull());
-    m_genes->slotLoadDataset(dataset);
-    m_spots->slotLoadDataset(dataset);
-    m_cellview->slotLoadDataset(dataset);
+    Q_ASSERT(!dataset->data().isNull());
+    m_genes->slotLoadDataset(*(dataset.data()));
+    m_spots->slotLoadDataset(*(dataset.data()));
+    m_cellview->loadDataset(*(dataset.data()));
 }
 
 void MainWindow::slotDatasetRemoved(const QString &datasetname)
@@ -373,8 +379,6 @@ void MainWindow::slotDatasetRemoved(const QString &datasetname)
 
 void MainWindow::slotLoadSpotColors()
 {
-    //TODO check that a dataset is open
-
     const QString filename
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Spot Colors File"),
@@ -393,4 +397,15 @@ void MainWindow::slotLoadSpotColors()
     } else {
         m_spots->slotLoadSpotColors(filename);
     }
+}
+
+void MainWindow::slotCreateSelection()
+{
+    if (!m_cellview->hasSelection()) {
+        // the user has probably clear the selections or clicked by error
+        return;
+    }
+    UserSelection selection = m_cellview->createSelection();
+    qDebug() << "Creating selection " << selection.name();
+    m_user_selections->addSelection(selection);
 }

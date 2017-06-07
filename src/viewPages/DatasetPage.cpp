@@ -27,6 +27,8 @@ DatasetPage::DatasetPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::DataSets())
     , m_waiting_spinner(nullptr)
+    , m_importedDatasets()
+    , m_open_dataset()
 {
     m_ui->setupUi(this);
 
@@ -75,6 +77,7 @@ DatasetPage::~DatasetPage()
 
 void DatasetPage::clean()
 {
+    m_open_dataset = nullptr;
     m_importedDatasets.clear();
     datasetsModel()->clear();
     clearControls();
@@ -83,14 +86,15 @@ void DatasetPage::clean()
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_ui->datasetsTableView->model());
+            = qobject_cast<QSortFilterProxyModel *>(m_ui->datasetsTableView->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
 
 DatasetItemModel *DatasetPage::datasetsModel()
 {
-    DatasetItemModel *model = qobject_cast<DatasetItemModel *>(datasetsProxyModel()->sourceModel());
+    DatasetItemModel *model =
+            qobject_cast<DatasetItemModel *>(datasetsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -156,9 +160,12 @@ void DatasetPage::slotEditDataset()
             Q_ASSERT(index != -1);
             Dataset updated_dataset(importer);
             m_importedDatasets.replace(index, updated_dataset);
-            if (dataset == m_open_dataset) {
-                m_open_dataset = updated_dataset;
-                //TODO should only update if the data or image was altered
+            if (dataset == *(m_open_dataset.data())
+                    && (dataset.dataFile() != updated_dataset.dataFile()
+                        || dataset.imageFile() != updated_dataset.imageFile()
+                        || dataset.imageAlignmentFile() != updated_dataset.imageAlignmentFile()
+                        || dataset.spotsFile() != updated_dataset.spotsFile())) {
+                m_open_dataset = QSharedPointer<Dataset>(new Dataset(updated_dataset));
                 emit signalDatasetUpdated(updated_dataset.name());
             }
             slotDatasetsUpdated();
@@ -181,7 +188,7 @@ void DatasetPage::slotOpenDataset()
     }
     m_waiting_spinner->stop();
     // Set selected dataset
-    m_open_dataset = dataset;
+    m_open_dataset = QSharedPointer<Dataset>(new Dataset(dataset));
     // Notify that the dataset was open
     emit signalDatasetOpen(dataset.name());
 }
@@ -196,22 +203,21 @@ void DatasetPage::slotRemoveDataset()
     }
 
     const int answer
-        = QMessageBox::warning(this,
-                               tr("Remove Dataset"),
-                               tr("Are you really sure you want to remove the dataset/s?"),
-                               QMessageBox::Yes,
-                               QMessageBox::No | QMessageBox::Escape);
+            = QMessageBox::warning(this,
+                                   tr("Remove Dataset"),
+                                   tr("Are you really sure you want to remove the dataset/s?"),
+                                   QMessageBox::Yes,
+                                   QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
     }
 
     for (auto dataset: currentDatasets) {
-        //TODO check the they were removed
-        m_importedDatasets.removeOne(dataset);
-        if (m_open_dataset == dataset) {
+        Q_ASSERT(m_importedDatasets.removeOne(dataset));
+        if (*(m_open_dataset.data()) == dataset) {
             emit signalDatasetRemoved(dataset.name());
-            m_open_dataset = Dataset();
+            m_open_dataset = nullptr;
         }
     }
 
@@ -239,7 +245,7 @@ void DatasetPage::slotImportDataset()
     }
 }
 
-const Dataset &DatasetPage::currentDataset() const
+QSharedPointer<Dataset> DatasetPage::getCurrentDataset() const
 {
     return m_open_dataset;
 }

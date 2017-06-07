@@ -133,7 +133,7 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->clusterAnalysis->setEnabled(enableMultiple);
 }
 
-void UserSelectionsPage::slotAddSelection(const UserSelection& selection)
+void UserSelectionsPage::addSelection(const UserSelection& selection)
 {
     Q_UNUSED(selection)
 }

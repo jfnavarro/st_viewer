@@ -27,6 +27,7 @@ class UserSelections;
 // edit...)
 // TODO implement tsne clustering
 // TODO implement DEA analysis
+// TODO implement correlation analysis
 // TODO add import/export selections option
 class UserSelectionsPage : public QWidget
 {
@@ -39,12 +40,12 @@ public:
     // clear the loaded content
     void clean();
 
+    // to add a new selection to the list
+    void addSelection(const UserSelection& selection);
+
 signals:
 
 public slots:
-
-    // slot to add a new selection to the list
-    void slotAddSelection(const UserSelection& selection);
 
 private slots:
 

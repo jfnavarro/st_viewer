@@ -12,6 +12,7 @@
 #include <QImageReader>
 #include <QImageWriter>
 #include <QPainter>
+#include <QDateTime>
 
 #include "viewRenderer/CellGLView.h"
 #include "dialogs/SelectionDialog.h"
@@ -25,20 +26,6 @@
 
 using namespace Style;
 
-namespace
-{
-
-bool imageFormatHasWriteSupport(const QString &format)
-{
-    QStringList supportedImageFormats;
-    for (auto imageformat : QImageWriter::supportedImageFormats()) {
-        supportedImageFormats << QString(imageformat).toLower();
-    }
-    return (std::find(supportedImageFormats.begin(), supportedImageFormats.end(), format)
-            != supportedImageFormats.end());
-}
-}
-
 CellViewPage::CellViewPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::CellView())
@@ -46,6 +33,7 @@ CellViewPage::CellViewPage(QWidget *parent)
     , m_gene_plotter(nullptr)
     , m_image(nullptr)
     , m_settings(nullptr)
+    , m_dataset()
 
 {
     m_ui->setupUi(this);
@@ -84,22 +72,22 @@ void CellViewPage::clear()
     m_ui->view->clearData();
     m_ui->view->update();
     m_settings->reset();
+    m_dataset = Dataset();
 }
 
-void CellViewPage::slotLoadDataset(const Dataset &dataset)
+void CellViewPage::loadDataset(const Dataset &dataset)
 {
     //NOTE we allow to re-open the same dataset (in case it has been edited)
 
     // update Status tip with the name of the currently selected dataset
     setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
-    // The STData object
-    auto data = dataset.data();
-    data->setRenderingSettings(&m_settings->renderingSettings());
+    // store the dataset
+    m_dataset = dataset;
 
     // update gene plotter rendering object with the dataset
     m_gene_plotter->clearData();
-    m_gene_plotter->attachData(data);
+    m_gene_plotter->attachData(dataset.data());
 
     // load cell tissue (to load the dataset's cell tissue image)
     // create tiles textures from the image
@@ -137,8 +125,10 @@ void CellViewPage::slotLoadDataset(const Dataset &dataset)
     m_ui->view->update();
 }
 
-void CellViewPage::slotClearSelections()
+void CellViewPage::clearSelections()
 {
+    m_dataset.data()->clearSelection();
+    m_ui->view->update();
 }
 
 void CellViewPage::slotGenesUpdate()
@@ -194,7 +184,7 @@ void CellViewPage::createConnections()
 
     // create selection object from the selections made
     connect(m_ui->createSelection, &QPushButton::clicked,
-            this, &CellViewPage::slotCreateSelection);
+            this, &CellViewPage::signalUserSelection);
 }
 
 
@@ -259,17 +249,8 @@ void CellViewPage::slotSaveImage()
         return;
     }
 
-    const QString format = fileInfo.suffix().toLower();
-    if (!imageFormatHasWriteSupport(format)) {
-        // This should never happen because getSaveFileName() automatically
-        // adds the suffix from the "Save as type" choosen.
-        // But this would be triggered if somehow there is no jpg, png or bmp support
-        // compiled in the application
-        qDebug() << "Saving the image, the image format is not supported";
-        return;
-    }
-
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
     QImage image = m_ui->view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         qDebug() << "Saving the image, the image coult not be saved";
@@ -281,36 +262,27 @@ void CellViewPage::slotSelectByRegExp()
     SelectionDialog selectGenes(this);
     if (selectGenes.exec() == QDialog::Accepted) {
         if (selectGenes.isValid()) {
-            m_gene_plotter->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
+            m_dataset.data()->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
+            m_ui->view->update();
         }
     }
 }
 
-void CellViewPage::slotCreateSelection()
-{/*
-    // get selected features and create the selection object
-    const auto &selectedSpots = m_gene_plotter->getSelectedSpots();
-    if (selectedSpots.empty()) {
-        // the user has probably clear the selections
-        return;
-    }
-    // create a copy of the Dataet slicing by the selected spots
-    Dataset dataset_copy = m_openedDataset.sliceSpots(selectedSpots);
+UserSelection CellViewPage::createSelection()
+{
+    // create a copy of the data matrix
+    auto data_copy = m_dataset.data()->clone();
     // create selection object
     UserSelection new_selection;
-    new_selection.dataset(dataset_copy);
-    new_selection.type(UserSelection::Rubberband);
+    new_selection.data(data_copy);
     // proposes as selection name as DATASET NAME plus current timestamp
-    new_selection.name(m_openedDataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
-    // add image snapshot of the main canvas
-    QImage tissue_snapshot = m_ui->view->grabPixmapGL();
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    tissue_snapshot.save(&buffer, "JPG");
-    new_selection.tissueSnapShot(ba.toBase64());
-    // clear the selection in gene plotter
-    m_gene_plotter->clearSelection();
-    // notify that the selection was created and added locally
-    emit signalUserSelection(UserSelection);*/
+    new_selection.name(m_dataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
+    // clear the selection
+    clearSelections();
+    return new_selection;
+}
+
+bool CellViewPage::hasSelection()
+{
+    return m_dataset.data()->hasSelection();
 }

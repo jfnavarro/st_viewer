@@ -43,6 +43,7 @@ private slots:
 private:
     void init();
     QScopedPointer<Ui::DatasetImporter> m_ui;
+
 };
 
 #endif // DATASETIMPORTER_H

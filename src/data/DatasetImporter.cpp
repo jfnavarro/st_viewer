@@ -31,14 +31,16 @@ DatasetImporter::DatasetImporter(QWidget *parent)
 void DatasetImporter::init()
 {
     m_ui->setupUi(this);
-    connect(m_ui->loadSTDataFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSTDataFile()));
-    connect(m_ui->loadSpotMapFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadSpotsMapFile()));
-    connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
+    connect(m_ui->loadSTDataFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+    connect(m_ui->loadSpotMapFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+    connect(m_ui->loadMainImageFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->loadImageAlignmentFile,
-            SIGNAL(clicked(bool)),
-            this,
-            SLOT(slotLoadAlignmentFile()));
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(slotValidateForm()));
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+    connect(m_ui->buttonBox,
+            &QDialogButtonBox::accepted, this, &DatasetImporter::slotValidateForm);
 }
 
 DatasetImporter::~DatasetImporter()

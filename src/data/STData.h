@@ -37,6 +37,9 @@ public:
     STData();
     ~STData();
 
+    // Clone the data using only the spots and genes that are selected
+    QSharedPointer<STData> clone() const;
+
     // Functions to import/export the matrix
     void read(const QString &filename);
     void save(const QString &filename) const;
@@ -49,9 +52,8 @@ public:
     SpotListType spots();
 
     // Rendering functions
-    void setRenderingSettings(SettingsWidget::Rendering *rendering_settings);
     void initRenderingData();
-    void computeRenderingData();
+    void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
     const QVector<unsigned> &renderingIndexes() const;
     const QVector<QVector3D> &renderingVertices() const;
     const QVector<QVector2D> &renderingTextures() const;
@@ -68,14 +70,24 @@ public:
     // helper function to get the sum of non zeroes elements (by row, aka spot)
     static inline colvec computeNonZeroRows(const Matrix &matrix);
     // helper function that returns the normalized matrix counts using the rendering settings
-    inline Matrix normalizeCounts() const;
-
+    static inline Matrix normalizeCounts(const Matrix &counts,
+                                         SettingsWidget::NormalizationMode mode,
+                                         const rowvec &deseq_factors,
+                                         const rowvec &scran_factors);
+    // helper fuctions to adjust a spot's color according to the rendering settings
+    static inline QColor adjustVisualMode(const QColor merged_color,
+                                          const float &merged_value,
+                                          const float &min_reads,
+                                          const float &max_reads,
+                                          const SettingsWidget::VisualMode mode);
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
     void selectGenes(const QRegExp &regexp, const bool force = true);
+    // returns true if there are valid selections
+    bool hasSelection() const;
 
-    // return the boundaries (min spot and max spot)
+    // returns the boundaries (min spot and max spot)
     const QRectF getBorder() const;
 
 private:
@@ -89,9 +101,6 @@ private:
     // helper functions to compute normalization size factors that are used to normalize
     void computeDESeqFactors();
     void computeScranFactors();
-    // helper fuctions to adjust a spot's color according to the rendering settings
-    inline QColor adjustVisualMode(const QColor merged_color, const float &merged_value,
-                                   const float &min_reads, const float &max_reads) const;
 
     // The matrix with the counts (spots are rows and genes are columns)
     Matrix m_counts_matrix;
@@ -102,8 +111,6 @@ private:
     // each index in each vector correspond to a row index or column index in the matrix
     SpotListType m_spots;
     GeneListType m_genes;
-    // rendering settings
-    SettingsWidget::Rendering *m_rendering_settings;
     // rendering data
     QVector<float> m_selected;
     QVector<QVector3D> m_vertices;

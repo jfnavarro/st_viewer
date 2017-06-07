@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QModelIndex>
-#include <memory>
 #include "data/Dataset.h"
 
 class QItemSelectionModel;
@@ -35,8 +34,8 @@ public:
     // clear the loaded content
     void clean();
 
-    // the currently open dataset
-    const Dataset &currentDataset() const;
+    // returns the currently opened dataset
+    QSharedPointer<Dataset> getCurrentDataset() const;
 
 public slots:
 
@@ -85,7 +84,7 @@ private:
     // List of imported datasets (from files)
     QList<Dataset> m_importedDatasets;
     // Currently open dataset
-    Dataset m_open_dataset;
+    QSharedPointer<Dataset> m_open_dataset;
 
     Q_DISABLE_COPY(DatasetPage)
 };

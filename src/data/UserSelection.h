@@ -12,44 +12,37 @@ class UserSelection
 
 public:
 
-    enum Type { Rubberband = 1, Lazo = 2, Segmented = 3, Console = 4, Cluster = 5, Other = 6 };
-    Q_DECLARE_FLAGS(Types, Type)
-
     UserSelection();
+    UserSelection(const UserSelection &other);
     ~UserSelection();
+
+    UserSelection &operator=(const UserSelection &other);
+    bool operator==(const UserSelection &other) const;
 
     // the name of the selection
     const QString name() const;
     // the name of the dataset where the selection has been made
     const QString dataset() const;
-    // the sliced data
-    const STData::Matrix& slicedData() const;
-    // some metat-data
+    // the data matrix of counts
+    QSharedPointer<STData> data() const;
+    // some meta-data
     const QString comment() const;
-    // the type of the selection
-    Type type() const;
-    // a image snapshot of the tissue taken when the selection was made
-    const QByteArray tissueSnapShot() const;
+
+    // obtained from the data object
+    int totalGenes() const;
+    int totalReads() const;
 
     // Setters
     void name(const QString &name);
     void dataset(const QString &dataset);
-    void slicedData(const STData::Matrix &data);
+    void data(const QSharedPointer<STData> data);
     void comment(const QString &comment);
-    void type(const Type &type);
-    void tissueSnapShot(const QByteArray &tissueSnapShot);
-
-    // convenience functions to convert Type to QString and vice-versa
-    static const QString typeToQString(const UserSelection::Type &type);
-    static UserSelection::Type QStringToType(const QString &type);
 
 private:
     QString m_name;
     QString m_dataset;
-    STData::Matrix m_sliced_data;
-    Type m_type;
+    QSharedPointer<STData> m_data;
     QString m_comment;
-    QByteArray m_tissueSnapShot;
 };
 
 #endif // USERSELECTION_H

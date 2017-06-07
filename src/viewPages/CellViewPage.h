@@ -26,9 +26,7 @@ class CellView;
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 // It contains a widget with different visualization and data settings
 
-// TODO add a cache for the visual settings
 // TODO add a ruler visual object
-// TODO add a visual object to show name of dataset
 // TODO add a lazo selection option
 // TODO add tissue detection selection (Ludvig's)
 // TODO add a visual object to show the coordinates when the user hovers a spot
@@ -43,18 +41,25 @@ public:
     // clear the loaded dataset and reset settings
     void clear();
 
+    // to handle when the user want to store the current selection into a selection object
+    // the function will create an UserSelection object and send it to the SelectionsPage
+    UserSelection createSelection();
+
+    // true if the user has made a valid selection and it is active
+    bool hasSelection();
+
+    // the user has opened/edit a dataset
+    void loadDataset(const Dataset &dataset);
+
+    // the user has cleared the selections
+    void clearSelections();
+
 signals:
 
     // notify the user has made a selection
-    void signalUserSelection(const UserSelection &selection);
+    void signalUserSelection();
 
 public slots:
-
-    // the user has opened/edit/removed a dataset
-    void slotLoadDataset(const Dataset &dataset);
-
-    // the user has cleared the selections
-    void slotClearSelections();
 
     // the user has updated the genes
     void slotGenesUpdate();
@@ -70,10 +75,6 @@ private slots:
 
     // selection of spots using a the reg-exp dialog that takes gene names as input
     void slotSelectByRegExp();
-
-    // to handle when the user want to store the current selection into a selection object
-    // the function will create an UserSelection object and send it to the SelectionsPage
-    void slotCreateSelection();
 
 private:
     // create OpenGL graphical elements and view
@@ -92,6 +93,9 @@ private:
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
+
+    // the currently opened dataset
+    Dataset m_dataset;
 
     Q_DISABLE_COPY(CellViewPage)
 };

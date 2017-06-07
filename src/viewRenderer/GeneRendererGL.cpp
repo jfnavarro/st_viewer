@@ -6,7 +6,7 @@
 #include <QImageReader>
 #include <QApplication>
 
-GeneRendererGL::GeneRendererGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
+GeneRendererGL::GeneRendererGL(SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
     , m_rendering_settings(rendering_settings)
     , m_initialized(false)
@@ -35,7 +35,7 @@ void GeneRendererGL::clearData()
 void GeneRendererGL::slotUpdate()
 {
     if (m_initialized) {
-        m_geneData->computeRenderingData();
+        m_geneData->computeRenderingData(m_rendering_settings);
         emit updated();
     }
 }
@@ -121,17 +121,5 @@ const QRectF GeneRendererGL::boundingRect() const
 void GeneRendererGL::setSelectionArea(const SelectionEvent &event)
 {
     m_geneData->selectSpots(event);
-    slotUpdate();
-}
-
-void GeneRendererGL::clearSelection()
-{
-    m_geneData->clearSelection();
-    slotUpdate();
-}
-
-void GeneRendererGL::selectGenes(const QRegExp &regexp, const bool force)
-{
-    m_geneData->selectGenes(regexp, force);
     slotUpdate();
 }

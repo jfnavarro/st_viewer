@@ -3,15 +3,38 @@
 UserSelection::UserSelection()
     : m_name()
     , m_dataset()
-    , m_sliced_data()
-    , m_type()
+    , m_data(nullptr)
     , m_comment()
-    , m_tissueSnapShot()
 {
 }
 
 UserSelection::~UserSelection()
 {
+}
+
+UserSelection::UserSelection(const UserSelection &other)
+{
+    m_name = other.m_name;
+    m_dataset = other.m_dataset;
+    m_data = other.m_data;
+    m_comment = other.m_comment;
+}
+
+UserSelection &UserSelection::operator=(const UserSelection &other)
+{
+    m_name = other.m_name;
+    m_dataset = other.m_dataset;
+    m_data = other.m_data;
+    m_comment = other.m_comment;
+    return (*this);
+}
+
+bool UserSelection::operator==(const UserSelection &other) const
+{
+    return (m_name == other.m_name
+            && m_dataset == other.m_dataset
+            && m_data == other.m_data
+            && m_comment == other.m_comment);
 }
 
 const QString UserSelection::name() const
@@ -24,9 +47,10 @@ const QString UserSelection::dataset() const
     return m_dataset;
 }
 
-const STData::Matrix &UserSelection::slicedData() const
+QSharedPointer<STData> UserSelection::data() const
 {
-    return m_sliced_data;
+    Q_ASSERT(!m_data.isNull());
+    return m_data;
 }
 
 const QString UserSelection::comment() const
@@ -34,14 +58,14 @@ const QString UserSelection::comment() const
     return m_comment;
 }
 
-UserSelection::Type UserSelection::type() const
+int UserSelection::totalGenes() const
 {
-    return m_type;
+    return m_data->number_genes();
 }
 
-const QByteArray UserSelection::tissueSnapShot() const
+int UserSelection::totalReads() const
 {
-    return m_tissueSnapShot;
+    return m_data->number_spots();
 }
 
 void UserSelection::name(const QString &name)
@@ -54,65 +78,13 @@ void UserSelection::dataset(const QString &dataset)
     m_dataset = dataset;
 }
 
-void UserSelection::slicedData(const STData::Matrix &data)
+void UserSelection::data(const QSharedPointer<STData> data)
 {
-    m_sliced_data = data;
-}
-
-void UserSelection::type(const Type &type)
-{
-    m_type = type;
+    Q_ASSERT(!data.isNull());
+    m_data = data;
 }
 
 void UserSelection::comment(const QString &comment)
 {
     m_comment = comment;
-}
-
-void UserSelection::tissueSnapShot(const QByteArray &tissueSnapShot)
-{
-    m_tissueSnapShot = tissueSnapShot;
-}
-
-const QString UserSelection::typeToQString(const UserSelection::Type &type)
-{
-    switch (type) {
-    case Rubberband:
-        return QString("Rubberband");
-    case Lazo:
-        return QString("Lazo");
-    case Segmented:
-        return QString("Segmented");
-    case Console:
-        return QString("Console");
-    case Cluster:
-        return QString("Cluster");
-    case Other:
-        return QString("Other");
-    default:
-        Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
-    }
-    Q_ASSERT(false); // Should never arrive here
-    return QString();
-}
-
-UserSelection::Type UserSelection::QStringToType(const QString &type)
-{
-    const QString lower_type = type.toLower();
-    if (lower_type == "rubberband") {
-        return Rubberband;
-    } else if (lower_type == "lazo") {
-        return Lazo;
-    } else if (lower_type == "segmented") {
-        return Segmented;
-    } else if (lower_type == "console") {
-        return Console;
-    } else if (lower_type == "cluster") {
-        return Cluster;
-    } else if (lower_type == "other") {
-        return Other;
-    }
-    // Should never arrive here
-    Q_ASSERT_X(true, "UserSelection", "Invalid selection type!");
-    return Other;
 }

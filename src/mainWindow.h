@@ -56,6 +56,8 @@ private slots:
     void slotDatasetRemoved(const QString &datasetname);
     // the user wants to load a file with spot's colors
     void slotLoadSpotColors();
+    // the user wants to create a selection
+    void slotCreateSelection();
 
 private:
     // create all the widgets

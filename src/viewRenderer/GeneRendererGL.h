@@ -21,7 +21,7 @@ class GeneRendererGL : public GraphicItemGL
 
 public:
 
-    GeneRendererGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent = 0);
+    GeneRendererGL(SettingsWidget::Rendering &rendering_settings, QObject *parent = 0);
     virtual ~GeneRendererGL();
 
     // data builder (create visualization data from the ST data)
@@ -29,12 +29,6 @@ public:
 
     // clears data containers and reset variables to default
     void clearData();
-
-    // clears the selected spots
-    void clearSelection();
-
-    // regular expression to select genes that match
-    void selectGenes(const QRegExp &regexp, const bool force = false);
 
 public slots:
 
@@ -58,7 +52,7 @@ private:
     QRectF m_border;
 
     // rendering settings
-    const SettingsWidget::Rendering &m_rendering_settings;
+    SettingsWidget::Rendering &m_rendering_settings;
 
     // rendering data
     QSharedPointer<STData> m_geneData;
