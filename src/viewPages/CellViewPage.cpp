@@ -134,11 +134,13 @@ void CellViewPage::clearSelections()
 void CellViewPage::slotGenesUpdate()
 {
     m_gene_plotter->slotUpdate();
+    m_ui->view->update();
 }
 
 void CellViewPage::slotSpotsUpdated()
 {
     m_gene_plotter->slotUpdate();
+    m_ui->view->update();
 }
 
 void CellViewPage::createConnections()
@@ -179,12 +181,21 @@ void CellViewPage::createConnections()
     connect(m_ui->selection, &QPushButton::clicked, [=] {
         m_ui->view->setSelectionMode(m_ui->selection->isChecked());
     });
+    connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
+        m_ui->view->setLassoSelectionMode(m_ui->selection->isChecked());
+    });
     connect(m_ui->regexpselection, &QPushButton::clicked,
             this, &CellViewPage::slotSelectByRegExp);
 
     // create selection object from the selections made
     connect(m_ui->createSelection, &QPushButton::clicked,
             this, &CellViewPage::signalUserSelection);
+
+    // show QC widget
+    connect(m_ui->histogram, &QPushButton::clicked, this, &CellViewPage::slotShowQC);
+
+    // show Clustering widget
+    connect(m_ui->clustering, &QPushButton::clicked, this, &CellViewPage::slowClustering);
 }
 
 
@@ -270,19 +281,23 @@ void CellViewPage::slotSelectByRegExp()
 
 UserSelection CellViewPage::createSelection()
 {
-    // create a copy of the data matrix
-    auto data_copy = m_dataset.data()->clone();
+    //TODO check and throw exception if no spots are currently selected
     // create selection object
-    UserSelection new_selection;
-    new_selection.data(data_copy);
+    UserSelection new_selection(m_dataset.data());
     // proposes as selection name as DATASET NAME plus current timestamp
     new_selection.name(m_dataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
+    new_selection.dataset(m_dataset.name());
     // clear the selection
     clearSelections();
     return new_selection;
 }
 
-bool CellViewPage::hasSelection()
+void CellViewPage::slotShowQC()
 {
-    return m_dataset.data()->hasSelection();
+
+}
+
+void CellViewPage::slowClustering()
+{
+
 }

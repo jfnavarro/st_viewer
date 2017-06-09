@@ -29,13 +29,13 @@ UserSelectionTableView::UserSelectionTableView(QWidget *parent)
     setSelectionMode(QAbstractItemView::MultiSelection);
     // Columns settings
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Name,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Dataset,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::NGenes,
-                                             QHeaderView::ResizeToContents);
-    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::NReads,
-                                             QHeaderView::ResizeToContents);
+                                             QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::NSpots,
+                                             QHeaderView::Stretch);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

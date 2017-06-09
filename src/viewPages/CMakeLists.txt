@@ -27,6 +27,8 @@ set(LIBRARY_ARG_UI_FILES
     "${PROJECT_SOURCE_DIR}/assets/ui/selectionsPage.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/cellviewPage.ui"
     "${PROJECT_SOURCE_DIR}/assets/ui/SettingsWidget.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/genesSelectionWidget.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/spotsSelectionWidget.ui"
 )
 
 ST_LIBRARY()

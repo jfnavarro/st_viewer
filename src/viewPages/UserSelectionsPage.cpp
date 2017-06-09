@@ -42,23 +42,25 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     m_waiting_spinner->setColor(QColor(0, 155, 60));
 
     // connect signals
-    connect(m_ui->filterLineEdit,
-            SIGNAL(textChanged(QString)),
-            selectionsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(m_ui->removeSelection, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
-    connect(m_ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
-    connect(m_ui->importSelection, SIGNAL(clicked(bool)), this, SLOT(slotImportSelection()));
-    connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
-    connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDEA()));
-    connect(m_ui->clusterAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformClustering()));
+    connect(m_ui->filterLineEdit, &QLineEdit::textChanged,
+            selectionsProxyModel(), &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_ui->removeSelection, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotRemoveSelection);
+    connect(m_ui->exportSelection, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotExportSelection);
+    connect(m_ui->importSelection, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotImportSelection);
+    connect(m_ui->editSelection, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotEditSelection);
+    connect(m_ui->ddaAnalysis, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotPerformDEA);
+    connect(m_ui->correlationAnalysis, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotPerformCorrelation);
     connect(m_ui->selections_tableView,
-            SIGNAL(clicked(QModelIndex)),
-            this,
-            SLOT(slotSelectionSelected(QModelIndex)));
-    connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
-    connect(m_ui->showGenes, SIGNAL(clicked(bool)), this, SLOT(slotShowGenes()));
-    connect(m_ui->showSpots, SIGNAL(clicked(bool)), this, SLOT(slotShowSpots()));
+            &UserSelectionTableView::clicked,
+            this, &UserSelectionsPage::slotSelectionSelected);
+    connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
+    connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
 
     clearControls();
 }
@@ -105,11 +107,10 @@ void UserSelectionsPage::clearControls()
     m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
-    m_ui->showTissue->setEnabled(false);
     m_ui->showGenes->setEnabled(false);
     m_ui->showSpots->setEnabled(false);
     m_ui->importSelection->setEnabled(true);
-    m_ui->clusterAnalysis->setEnabled(false);
+    m_ui->correlationAnalysis->setEnabled(false);
 }
 
 
@@ -127,15 +128,21 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->exportSelection->setEnabled(enableSingle);
     m_ui->ddaAnalysis->setEnabled(enableMultiple);
     m_ui->editSelection->setEnabled(enableSingle);
-    m_ui->showTissue->setEnabled(enableSingle);
     m_ui->showGenes->setEnabled(enableSingle);
     m_ui->showSpots->setEnabled(enableSingle);
-    m_ui->clusterAnalysis->setEnabled(enableMultiple);
+    m_ui->correlationAnalysis->setEnabled(enableMultiple);
 }
 
 void UserSelectionsPage::addSelection(const UserSelection& selection)
 {
-    Q_UNUSED(selection)
+    m_selections.append(selection);
+    selectionsUpdated();
+}
+
+void UserSelectionsPage::selectionsUpdated()
+{
+    selectionsModel()->loadUserSelections(m_selections);
+    m_ui->selections_tableView->update();
 }
 
 void UserSelectionsPage::slotRemoveSelection()
@@ -145,7 +152,7 @@ void UserSelectionsPage::slotRemoveSelection()
     if (currentSelections.empty()) {
         return;
     }
-/*
+
     const int answer
         = QMessageBox::warning(this,
                                tr("Remove Selection"),
@@ -157,10 +164,13 @@ void UserSelectionsPage::slotRemoveSelection()
         return;
     }
 
-    //TODO remove the selections
+    // Remove the selections
+    for (auto selection : currentSelections) {
+        m_selections.removeOne(selection);
+    }
 
     // update the model
-    slotSelectionsUpdated();*/
+    selectionsUpdated();
 }
 
 void UserSelectionsPage::slotExportSelection()
@@ -170,11 +180,11 @@ void UserSelectionsPage::slotExportSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-/*
+
     QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
+                                                    tr("Export Selection"),
                                                     QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.txt)")));
+                                                    QString("%1").arg(tr("Text Files (*.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -187,17 +197,11 @@ void UserSelectionsPage::slotExportSelection()
         return;
     }
 
-    // create file
-    QFile textFile(filename);
-
     // currentSelection should only have one element
     const auto selectionItem = currentSelection.front();
 
     // export selection
-    selectionItem.save(textFile);
-
-    // close file
-    textFile.close();*/
+    selectionItem.save(filename);
 }
 
 void UserSelectionsPage::slotEditSelection()
@@ -208,9 +212,9 @@ void UserSelectionsPage::slotEditSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-/*
+
     // currentSelection should only have one element
-    const auto selection = currentSelection.front();
+    auto selection = currentSelection.front();
 
     // creates a selection dialog with the current fields
     QScopedPointer<EditSelectionDialog> editSelection(
@@ -218,23 +222,24 @@ void UserSelectionsPage::slotEditSelection()
     editSelection->setWindowIcon(QIcon());
     editSelection->setName(selection.name());
     editSelection->setComment(selection.comment());
-    editSelection->setType(UserSelection::typeToQString(selection.type()));
     if (editSelection->exec() == EditSelectionDialog::Accepted
         && (editSelection->getName() != selection.name()
-            || editSelection->getComment() != selection.comment()
-            || editSelection->getType() != UserSelection::typeToQString(selection.type()))
+            || editSelection->getComment() != selection.comment())
         && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()) {
+
+        const int index = m_selections.indexOf(selection);
+        Q_ASSERT(index != -1);
 
         // update fields
         selection.name(editSelection->getName());
         selection.comment(editSelection->getComment());
-        selection.type(UserSelection::QStringToType(editSelection->getType()));
 
-        //TODO update object in the container
+        // update object in the container
+        m_selections[index] = selection;
 
         // update model
-        slotSelectionsUpdated()
-    }*/
+        selectionsUpdated();
+    }
 }
 
 void UserSelectionsPage::slotImportSelection()
@@ -263,59 +268,16 @@ void UserSelectionsPage::slotPerformDEA()
 
 void UserSelectionsPage::slotPerformCorrelation()
 {
-
-}
-
-void UserSelectionsPage::slotPerformClustering()
-{
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.empty()) {
+    if (currentSelection.empty() || currentSelection.size() != 2) {
         return;
     }
 
-    //TODO invoke clustering dialog with the selections
-}
-
-void UserSelectionsPage::slotShowTissue()
-{
-    // get the selected object (should be only one)
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.empty() || currentSelection.size() > 1) {
-        return;
-    }
-    /*
-    const auto selectionObject = currentSelection.front();
-
-    // if no snapshot returns
-    QByteArray tissue_snapshot = selectionObject.tissueSnapShot();
-    if (tissue_snapshot.isNull() || tissue_snapshot.isEmpty()) {
-        return;
-    }
-
-    // create a widget that shows the tissue snapshot
-    QByteArray image_ba = QByteArray::fromBase64(tissue_snapshot);
-    QImage image;
-    image.loadFromData(image_ba);
-    if (image.isNull()) {
-        return;
-    }
-
-    // create a widget to show the image
-    QWidget *image_widget = new QWidget();
-    image_widget->setAttribute(Qt::WA_DeleteOnClose);
-    image_widget->setMinimumSize(600, 600);
-    QVBoxLayout *layout1 = new QVBoxLayout(image_widget);
-    QScrollArea *image_scroll = new QScrollArea();
-    layout1->addWidget(image_scroll);
-    QVBoxLayout *layout = new QVBoxLayout(image_scroll);
-    QLabel *image_label = new QLabel();
-    image_label->setPixmap(QPixmap::fromImage(image));
-    image_label->setScaledContents(true);
-    layout->addWidget(image_label);
-    image_widget->show();
-    */
+    // get the two selection objects
+    //const auto selectionObject1 = currentSelection.at(0);
+    //const auto selectionObject2 = currentSelection.at(1);
+    // launch the correlation widget
 }
 
 void UserSelectionsPage::slotShowGenes()
@@ -327,16 +289,14 @@ void UserSelectionsPage::slotShowGenes()
         return;
     }
 
-    /*
     const auto selectionObject = currentSelection.front();
     // lazy init
     if (m_genesWidget.isNull()) {
-        m_genesWidget.reset(new SelectionsWidget(nullptr, Qt::Dialog));
+        m_genesWidget.reset(new SelectionGenesWidget());
     }
     // update model
-    m_genesWidget->slotLoadModel(selectionObject.getGenesCounts());
+    m_genesWidget->loaData(selectionObject.genes(), selectionObject.data());
     m_genesWidget->show();
-    */
 }
 
 void UserSelectionsPage::slotShowSpots()
@@ -348,14 +308,12 @@ void UserSelectionsPage::slotShowSpots()
         return;
     }
 
-    /*
     const auto selectionObject = currentSelection.front();
     // lazy init
     if (m_spotsWidget.isNull()) {
-        m_spotsWidget.reset(new SelectionsWidget(nullptr, Qt::Dialog));
+        m_spotsWidget.reset(new SelectionSpotsWidget());
     }
     // update model
-    m_spotsWidget->slotLoadModel(selectionObject.getSpotsCounts());
+    m_spotsWidget->loaData(selectionObject.spots(), selectionObject.data());
     m_spotsWidget->show();
-    */
 }

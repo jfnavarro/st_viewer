@@ -36,7 +36,6 @@ void GeneRendererGL::slotUpdate()
 {
     if (m_initialized) {
         m_geneData->computeRenderingData(m_rendering_settings);
-        emit updated();
     }
 }
 
@@ -122,4 +121,5 @@ void GeneRendererGL::setSelectionArea(const SelectionEvent &event)
 {
     m_geneData->selectSpots(event);
     slotUpdate();
+    emit updated();
 }

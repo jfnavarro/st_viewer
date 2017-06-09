@@ -3,10 +3,7 @@
 #include <QMessageBox>
 #include "math/Common.h"
 #include "color/HeatMap.h"
-
-//RcppArmadillo must be included before RInside
-#include "RcppArmadillo.h"
-#include "RInside.h"
+#include "math/RInterface.h"
 
 static const int ROW = 1;
 //static const int COLUMN = 0;
@@ -40,7 +37,6 @@ STData::STData()
     , m_colors()
     , m_indexes()
     , m_quadTree()
-    , R(new RInside())
     , m_size(0.5)
 {
 
@@ -48,12 +44,7 @@ STData::STData()
 
 STData::~STData()
 {
-}
 
-QSharedPointer<STData> STData::clone() const
-{
-    QSharedPointer<STData> data(new STData());
-    return data;
 }
 
 void STData::read(const QString &filename) {
@@ -135,8 +126,8 @@ void STData::read(const QString &filename) {
 
     // Compute these only when the dataset is created
     computeGenesCutoff();
-    computeDESeqFactors();
-    computeScranFactors();
+    m_deseq_size_factors = RInterface::computeDESeqFactors(m_counts_matrix);
+    m_scran_size_factors = RInterface::computeScranFactors(m_counts_matrix);
 }
 
 void STData::save(const QString &filename) const
@@ -530,59 +521,7 @@ void STData::updateSelected(const int index, const bool &selected)
     }
 }
 
-void STData::computeDESeqFactors()
-{
-    try {
-        const std::string R_libs = "suppressMessages(library(DESeq2));";
-        R->parseEvalQ(R_libs);
-        (*R)["counts"] = m_counts_matrix;
-        // For DESeq2 genes must be rows so we transpose the matri
-        // We also remove very lowly present genes/spots
-        const std::string call1 = "counts = t(counts)";
-        const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
-        const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
-        const std::string call4 = "dds = DESeq2::estimateSizeFactorsForMatrix(counts)";
-        R->parseEvalQ(call1);
-        R->parseEvalQ(call2);
-        R->parseEvalQ(call3);
-        m_deseq_size_factors = Rcpp::as<rowvec>(R->parseEval(call4));
-        qDebug() << "Computed DESeq2 size factors " << m_deseq_size_factors.size();
-        Q_ASSERT(m_deseq_size_factors.size() == m_counts_matrix.n_rows);
-    } catch (const std::exception &e) {
-        qDebug() << "Error computing DESeq2 size factors " << e.what();
-    }
-}
 
-void STData::computeScranFactors()
-{
-    try {
-        const std::string R_libs = "suppressMessages(library(scran))";
-        R->parseEvalQ(R_libs);
-        (*R)["counts"] = m_counts_matrix;
-        // For DESeq2 genes must be rows so we transpose the matri
-        // We also remove very lowly present genes/spots
-        const std::string call1 = "counts = t(counts)";
-        const std::string call2 = "counts = counts[,colSums(counts > 0) >= 5]";
-        const std::string call3 = "counts = counts[rowSums(counts > 0) >= 5,]";
-        const std::string call4 = "sce = newSCESet(countData=counts)";
-        const std::string call5 = "clust = quickCluster(counts, min.size=20)";
-        const std::string call6 = "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=c(10,15,20,30))";
-        const std::string call7 = "sce = normalize(sce, recompute_cpm=FALSE)";
-        const std::string call8 = "size_factors = sce@phenoData$size_factor";
-        R->parseEvalQ(call1);
-        R->parseEvalQ(call2);
-        R->parseEvalQ(call3);
-        R->parseEvalQ(call4);
-        R->parseEvalQ(call5);
-        R->parseEvalQ(call6);
-        R->parseEvalQ(call7);
-        m_scran_size_factors = Rcpp::as<rowvec>(R->parseEval(call8));
-        qDebug() << "Computed SCRAN size factors " << m_deseq_size_factors.size();
-        Q_ASSERT(m_scran_size_factors.size() == m_counts_matrix.n_rows);
-    } catch (const std::exception &e) {
-        qDebug() << "Error computing SCRAN size factors " << e.what();
-    }
-}
 
 QColor STData::adjustVisualMode(const QColor merged_color,
                                 const float &merged_value,
@@ -723,11 +662,5 @@ const QRectF STData::getBorder() const
     const auto min_y = (*mm_y.first)->coordinates().second;
     const auto max_x = (*mm_x.first)->coordinates().second;
     const auto max_y = (*mm_y.first)->coordinates().first;*/
-    //TODO fix the bounding border computation
     return QRectF(QPointF(1, 1), QPointF(33, 35));
-}
-
-bool STData::hasSelection() const
-{
-    return std::any_of(m_selected.begin(), m_selected.end(), [](bool ele) {return ele;});
 }

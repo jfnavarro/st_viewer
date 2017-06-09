@@ -1,14 +1,15 @@
 #ifndef SELECTIONGENESWIDGET_H
 #define SELECTIONGENESWIDGET_H
 
-#include <QDockWidget>
+#include <QWidget>
 #include <QPointer>
 
-class QLineEdit;
-class UserSelection;
-class GeneSelectionTableView;
-class GeneSelectionItemModel;
-class QSortFilterProxyModel;
+#include "data/UserSelection.h"
+
+namespace Ui
+{
+class genesSelectionWidget;
+} // namespace Ui
 
 // This widgets is part of the UserSelectionsPage. It shows the list of unique
 // genes present in a UserSelection and their aggregated counts.
@@ -18,22 +19,22 @@ class SelectionGenesWidget : public QWidget
     Q_OBJECT
 
 public:
+
     explicit SelectionGenesWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionGenesWidget();
 
-    // clear focus/status
-    void clear();
-
+    // loads the data
+    void loaData(const UserSelection::GeneListType &genes,
+                 const UserSelection::Matrix &counts);
 public slots:
-
-    // reload the user selection's data model
-    void slotLoadModel(const UserSelection &selection);
 
 signals:
 
 private:
 
-    // some references needed to UI elements
+    // GUI UI object
+    QScopedPointer<Ui::genesSelectionWidget> m_ui;
+
 
     Q_DISABLE_COPY(SelectionGenesWidget)
 };

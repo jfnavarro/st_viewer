@@ -62,10 +62,6 @@ private slots:
     void slotPerformDEA();
     // slot to perform a correlation analysis between two selections
     void slotPerformCorrelation();
-    // slot to perform a tSNE analysis on 1 or more selections
-    void slotPerformClustering();
-    // this slot will get the selection's image and create dialog to show it
-    void slotShowTissue();
     // slot to show the aggregated gene counts of the selection in a table
     void slotShowGenes();
     // slot to show the aggregated spot counts of the selection in a table
@@ -80,6 +76,8 @@ private:
 
     // internal clear focus and default status for the buttons
     void clearControls();
+    // internal function to update the selections in the model
+    void selectionsUpdated();
 
     // to retrieve the table's model
     QSortFilterProxyModel *selectionsProxyModel();

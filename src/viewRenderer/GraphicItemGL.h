@@ -90,12 +90,6 @@ public:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-    // drawing functions
-    // we pass the QOpenGLFunctions_2_0 functions
-    void drawBorderRect(const QRectF &rect,
-                        const QColor &color,
-                        QOpenGLFunctionsVersion &qopengl_functions);
-
     // to set/get the projection and model view matrices of the rendering object
     // these matrices will be used when rendering with shaders for instance
     void setProjection(const QMatrix4x4 &projection);

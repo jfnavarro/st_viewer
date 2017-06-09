@@ -18,8 +18,6 @@
 
 using namespace arma;
 
-class RInside;
-
 class STData
 {
 
@@ -37,14 +35,11 @@ public:
     STData();
     ~STData();
 
-    // Clone the data using only the spots and genes that are selected
-    QSharedPointer<STData> clone() const;
-
     // Functions to import/export the matrix
     void read(const QString &filename);
     void save(const QString &filename) const;
 
-    // Some gettings
+    // Some getters
     Matrix matrix_counts() const;
     size_t number_spots() const;
     size_t number_genes() const;
@@ -84,10 +79,9 @@ public:
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
     void selectGenes(const QRegExp &regexp, const bool force = true);
-    // returns true if there are valid selections
-    bool hasSelection() const;
 
     // returns the boundaries (min spot and max spot)
+    //TODO fix the bounding border computation
     const QRectF getBorder() const;
 
 private:
@@ -96,11 +90,8 @@ private:
     // helper function to update the color and selected of a spot (rendering data)
     inline void updateColor(const int index, const QColor &color);
     inline void updateSelected(const int index, const bool &selected);
-    // update the size of the spots
+    // update the size of the spots (rendering data)
     void updateSize(const float size);
-    // helper functions to compute normalization size factors that are used to normalize
-    void computeDESeqFactors();
-    void computeScranFactors();
 
     // The matrix with the counts (spots are rows and genes are columns)
     Matrix m_counts_matrix;
@@ -119,8 +110,6 @@ private:
     QVector<unsigned> m_indexes;
     // quad tree container (used to find spots by coordinates)
     SpotsQuadTree m_quadTree;
-    // R terminal
-    QScopedPointer<RInside> R;
     // Save the size to not recompute it always
     float m_size;
 

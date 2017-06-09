@@ -51,6 +51,11 @@ public:
     // clear all local variables and data
     void clearData();
 
+    // viewport is what is visible in the canvas
+    // scene is the size of the tissue image
+    void setViewPort(const QRectF &viewport);
+    void setScene(const QRectF &scene);
+
     // we must keep these overrided functions public so they can
     // be accessed from the ScrollArea class which wraps around
     // this object to implement scroll bars
@@ -73,11 +78,7 @@ public slots:
 
     // slot to enable the rubberband selection mode
     void setSelectionMode(const bool selectionMode);
-
-    // viewport is what is visible in the canvas
-    // scene is the size of the tissue image
-    void setViewPort(const QRectF &viewport);
-    void setScene(const QRectF &scene);
+    void setLassoSelectionMode(const bool lassoSelectionMode);
 
 protected:
     // OpenGL rendering and initialization functions

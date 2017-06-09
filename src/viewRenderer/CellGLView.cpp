@@ -283,6 +283,11 @@ void CellGLView::setSelectionMode(const bool selectionMode)
     m_selecting = selectionMode;
 }
 
+void CellGLView::setLassoSelectionMode(const bool lassoSelectionMode)
+{
+    Q_UNUSED(lassoSelectionMode)
+}
+
 void CellGLView::zoomIn()
 {
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 + DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);

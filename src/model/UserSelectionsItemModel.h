@@ -17,10 +17,10 @@ class UserSelectionsItemModel : public QAbstractTableModel
 
 public:
     enum Column {
-        Name = 1,
-        Dataset = 2,
-        NGenes = 3,
-        NReads = 4,
+        Name = 0,
+        Dataset = 1,
+        NGenes = 2,
+        NSpots = 3,
     };
 
     explicit UserSelectionsItemModel(QObject *parent = 0);

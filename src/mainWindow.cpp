@@ -401,10 +401,6 @@ void MainWindow::slotLoadSpotColors()
 
 void MainWindow::slotCreateSelection()
 {
-    if (!m_cellview->hasSelection()) {
-        // the user has probably clear the selections or clicked by error
-        return;
-    }
     UserSelection selection = m_cellview->createSelection();
     qDebug() << "Creating selection " << selection.name();
     m_user_selections->addSelection(selection);

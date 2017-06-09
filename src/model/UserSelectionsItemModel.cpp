@@ -32,8 +32,8 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
             return item.dataset();
         case NGenes:
             return QString::number(item.totalGenes());
-        case NReads:
-            return QString::number(item.totalReads());
+        case NSpots:
+            return QString::number(item.totalSpots());
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -46,7 +46,7 @@ QVariant UserSelectionsItemModel::data(const QModelIndex &index, int role) const
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case NGenes:
-        case NReads:
+        case NSpots:
             return Qt::AlignRight;
         default:
             return QVariant(QVariant::Invalid);
@@ -68,8 +68,8 @@ QVariant UserSelectionsItemModel::headerData(int section,
             return tr("Dataset");
         case NGenes:
             return tr("Genes");
-        case NReads:
-            return tr("Reads");
+        case NSpots:
+            return tr("Spots");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -82,9 +82,9 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case Dataset:
             return tr("The dataset name where the selection was made");
         case NGenes:
-            return tr("The number of unique genes present in the selection");
-        case NReads:
-            return tr("The total number of reads in the selection");
+            return tr("The number of unique genes in the selection");
+        case NSpots:
+            return tr("The total number of spots in the selection");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -95,7 +95,7 @@ QVariant UserSelectionsItemModel::headerData(int section,
         case Name:
         case Dataset:
         case NGenes:
-        case NReads:
+        case NSpots:
             return Qt::AlignLeft;
         default:
             return QVariant(QVariant::Invalid);

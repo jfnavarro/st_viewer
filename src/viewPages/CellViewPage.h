@@ -45,9 +45,6 @@ public:
     // the function will create an UserSelection object and send it to the SelectionsPage
     UserSelection createSelection();
 
-    // true if the user has made a valid selection and it is active
-    bool hasSelection();
-
     // the user has opened/edit a dataset
     void loadDataset(const Dataset &dataset);
 
@@ -75,6 +72,12 @@ private slots:
 
     // selection of spots using a the reg-exp dialog that takes gene names as input
     void slotSelectByRegExp();
+
+    // user wants to show the QC widget
+    void slotShowQC();
+
+    // user wants to perform spot clustering
+    void slowClustering();
 
 private:
     // create OpenGL graphical elements and view

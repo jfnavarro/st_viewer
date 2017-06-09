@@ -31,7 +31,44 @@ void RubberbandGL::setRubberbandRect(const QRectF &rect)
 void RubberbandGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 {
     if (!m_rubberbandRect.isNull() && m_rubberbandRect.isValid()) {
-        drawBorderRect(m_rubberbandRect, QColor(Qt::blue), qopengl_functions);
+        const QColor color = QColor(Qt::blue);
+        const QPointF stl = m_rubberbandRect.topLeft();
+        const QPointF str = m_rubberbandRect.topRight();
+        const QPointF sbr = m_rubberbandRect.bottomRight();
+        const QPointF sbl = m_rubberbandRect.bottomLeft();
+
+        qopengl_functions.glBegin(GL_QUADS);
+        {
+            qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                        static_cast<GLfloat>(color.greenF()),
+                                        static_cast<GLfloat>(color.blueF()),
+                                        0.2f);
+            qopengl_functions.glVertex2f(stl.x(), stl.y());
+            qopengl_functions.glVertex2f(str.x(), str.y());
+            qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+            qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+        }
+        qopengl_functions.glEnd();
+
+        qopengl_functions.glBegin(GL_LINES);
+        {
+            qopengl_functions.glColor4f(static_cast<GLfloat>(color.redF()),
+                                        static_cast<GLfloat>(color.greenF()),
+                                        static_cast<GLfloat>(color.blueF()),
+                                        0.8f);
+            qopengl_functions.glVertex2f(stl.x(), stl.y());
+            qopengl_functions.glVertex2f(str.x(), str.y());
+            qopengl_functions.glVertex2f(str.x(), str.y());
+            qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+            qopengl_functions.glVertex2f(sbr.x(), sbr.y());
+            qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+            qopengl_functions.glVertex2f(sbl.x(), sbl.y());
+            qopengl_functions.glVertex2f(stl.x(), stl.y());
+        }
+        qopengl_functions.glEnd();
+
+        // set the color back to white to not over-draw the textures
+        qopengl_functions.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 }
 
