@@ -109,21 +109,23 @@ void UserSelection::init(QSharedPointer<STData> data)
     const auto spots = data->spots();
     const auto selected = data->renderingSelected();
 
+    std::vector<uword> to_keep_rows;
     for (uword i = 0; i < m_counts.n_rows; ++i) {
-        if (!selected.at(i)) {
-            m_counts.shed_row(i);
-        } else {
+        if (selected.at(i)) {
+            to_keep_rows.push_back(i);
             m_spots.append(spots.at(i)->coordinates());
         }
     }
+    m_counts = m_counts.rows(uvec(to_keep_rows));
 
+    std::vector<uword> to_keep_genes;
     for (uword j = 0; j < m_counts.n_cols; ++j) {
-        if (sum(m_counts.col(j)) == 0) {
-            m_counts.shed_col(j);
-        } else {
+        if (sum(m_counts.col(j)) > 0) {
+            to_keep_genes.push_back(j);
             m_genes.append(genes.at(j)->name());
         }
     }
+    m_counts = m_counts.cols(uvec(to_keep_genes));
 }
 
 void UserSelection::save(const QString filename) const

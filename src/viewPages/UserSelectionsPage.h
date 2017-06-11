@@ -87,10 +87,6 @@ private:
     QScopedPointer<Ui::UserSelections> m_ui;
     // the list of selections objects
     QList<UserSelection> m_selections;
-    // selections widget where the aggregated genes can be shown in a table
-    QScopedPointer<SelectionGenesWidget> m_genesWidget;
-    // selections widget where the aggregated genes can be shown in a table
-    QScopedPointer<SelectionSpotsWidget> m_spotsWidget;
     // waiting spinner
     QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
 

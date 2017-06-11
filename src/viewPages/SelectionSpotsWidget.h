@@ -9,17 +9,20 @@ namespace Ui
 class spotsSelectionWidget;
 } // namespace Ui
 
+
+// This widgets is part of the UserSelectionsPage. It shows the list of unique
+// spots present in a UserSelection and their aggregated counts.
+// It contains a search field to search genes by name.
 class SelectionSpotsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
 
-    explicit SelectionSpotsWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit SelectionSpotsWidget(const UserSelection::SpotListType &spots,
+                                  const UserSelection::Matrix &counts,
+                                  QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionSpotsWidget();
-
-    void loaData(const UserSelection::SpotListType &spots,
-                 const UserSelection::Matrix &counts);
 signals:
 
 public slots:

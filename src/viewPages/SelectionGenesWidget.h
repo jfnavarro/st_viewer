@@ -20,12 +20,11 @@ class SelectionGenesWidget : public QWidget
 
 public:
 
-    explicit SelectionGenesWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit SelectionGenesWidget(const UserSelection::GeneListType &genes,
+                                  const UserSelection::Matrix &counts,
+                                  QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionGenesWidget();
 
-    // loads the data
-    void loaData(const UserSelection::GeneListType &genes,
-                 const UserSelection::Matrix &counts);
 public slots:
 
 signals:

@@ -290,13 +290,11 @@ void UserSelectionsPage::slotShowGenes()
     }
 
     const auto selectionObject = currentSelection.front();
-    // lazy init
-    if (m_genesWidget.isNull()) {
-        m_genesWidget.reset(new SelectionGenesWidget());
-    }
-    // update model
-    m_genesWidget->loaData(selectionObject.genes(), selectionObject.data());
-    m_genesWidget->show();
+    SelectionGenesWidget *genesWidget(
+                new SelectionGenesWidget(selectionObject.genes(),
+                                         selectionObject.data(),
+                                         this, Qt::Window));
+    genesWidget->show();
 }
 
 void UserSelectionsPage::slotShowSpots()
@@ -309,11 +307,9 @@ void UserSelectionsPage::slotShowSpots()
     }
 
     const auto selectionObject = currentSelection.front();
-    // lazy init
-    if (m_spotsWidget.isNull()) {
-        m_spotsWidget.reset(new SelectionSpotsWidget());
-    }
-    // update model
-    m_spotsWidget->loaData(selectionObject.spots(), selectionObject.data());
-    m_spotsWidget->show();
+    SelectionSpotsWidget *spotsWidget(
+                new SelectionSpotsWidget(selectionObject.spots(),
+                                         selectionObject.data(),
+                                         this, Qt::Window));
+    spotsWidget->show();
 }
