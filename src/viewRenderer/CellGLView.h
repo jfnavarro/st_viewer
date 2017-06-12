@@ -36,7 +36,6 @@ class CellGLView : public QOpenGLWidget
     Q_OBJECT
 
 public:
-    enum MouseEventType { moveType, pressType, releaseType };
 
     explicit CellGLView(QWidget *parent = 0);
     virtual ~CellGLView();
@@ -56,12 +55,7 @@ public:
     void setViewPort(const QRectF &viewport);
     void setScene(const QRectF &scene);
 
-    // we must keep these overrided functions public so they can
-    // be accessed from the ScrollArea class which wraps around
-    // this object to implement scroll bars
-    void paintEvent(QPaintEvent *e) override;
-    void resizeEvent(QResizeEvent *e) override;
-    bool event(QEvent *e) override;
+    // mouse/key events functions
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -92,8 +86,6 @@ protected:
 signals:
 
 private:
-    // used to filter nodes for mouse events
-    typedef std::function<bool(const GraphicItemGL &)> FilterFunc;
 
     // helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const float zoom);
@@ -113,14 +105,8 @@ private:
     // this function ensures that the whole image fits to the canvas
     void setDefaultPanningAndZooming();
 
-    // notify rubberbandable nodes with a rubberband event
-    void sendRubberBandEventToNodes(const QRectF &rubberBand, const QMouseEvent *event);
-
-    // returns true if the event was sent to at least one of the nodes
-    bool sendMouseEventToNodes(const QPoint &point,
-                               const QMouseEvent *event,
-                               const MouseEventType type,
-                               const FilterFunc &filterFunc);
+    // notify rubberbandable nodes with a rubberband/lasso selection event
+    void sendSelectionToNodes(const QPainterPath &path, const QMouseEvent *event);
 
     // scene and viewport aux variables
     QRectF m_viewport;
@@ -132,10 +118,13 @@ private:
     // auxiliary variables for panning, zoom and selection
     QPoint m_originPanning;
     QPoint m_originRubberBand;
+    QPoint m_originLasso;
     bool m_panning;
     bool m_rubberBanding;
+    bool m_lassoSelection;
     bool m_selecting;
-    QScopedPointer<RubberbandGL> m_rubberband;
+    QScopedPointer<QRubberBand> m_rubberband;
+    QPainterPath m_lasso;
     QPointF m_scene_focus_center_point;
     float m_zoom_factor;
 

@@ -3,7 +3,6 @@
 
 #include <QString>
 #include "STData.h"
-#include "Spot.h"
 
 // UserSelection represents a selection of spots made by the user trough the UI.
 // Users can select spots manually (lazo, rubberband ..) or by using the selection search
@@ -13,10 +12,9 @@ class UserSelection
 
 public:
 
-    typedef QList<QString> GeneListType;
-    typedef QList<Spot::SpotType> SpotListType;
-    typedef STData::Matrix Matrix;
+    typedef STData::STDataFrame STDataFrame;
 
+    UserSelection();
     explicit UserSelection(QSharedPointer<STData> data);
     UserSelection(const UserSelection &other);
     ~UserSelection();
@@ -29,11 +27,7 @@ public:
     // the name of the dataset where the selection has been made
     const QString dataset() const;
     // the data matrix of counts
-    const STData::Matrix &data() const;
-    // the genes
-    const GeneListType &genes() const;
-    // the spots
-    const SpotListType &spots() const;
+    const STData::STDataFrame &data() const;
     // some meta-data
     const QString comment() const;
 
@@ -45,18 +39,13 @@ public:
     void name(const QString &name);
     void dataset(const QString &dataset);
     void comment(const QString &comment);
-
-    // import/export
-    void save(const QString filename) const;
-    void load(const QString filename);
+    void data(const STData::STDataFrame &data);
 
 private:
     void init(QSharedPointer<STData> data);
     QString m_name;
     QString m_dataset;
-    Matrix m_counts;
-    QList<QString> m_genes;
-    QList<Spot::SpotType> m_spots;
+    STData::STDataFrame m_data;
     QString m_comment;
 };
 

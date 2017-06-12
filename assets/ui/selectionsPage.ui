@@ -210,10 +210,10 @@ selection-background-color: darkgray;</string>
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>Perform a cluster analysi</string>
+            <string>Perform a correlation analysi</string>
            </property>
            <property name="statusTip">
-            <string>Perform a cluster analysi</string>
+            <string>Perform a correlation analysi</string>
            </property>
            <property name="text">
             <string/>

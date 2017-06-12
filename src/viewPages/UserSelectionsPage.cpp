@@ -1,17 +1,14 @@
 #include "UserSelectionsPage.h"
 
 #include <QDebug>
-#include <QSortFilterProxyModel>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QTableWidgetItem>
-#include <QScrollArea>
-#include <QDateTime>
-#include <QLabel>
+#include <QSortFilterProxyModel>
 
 #include "model/UserSelectionsItemModel.h"
 #include "dialogs/EditSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
+#include "analysis/AnalysisCorrelation.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
@@ -124,8 +121,9 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     const bool enableMultiple = currentSelection.size() > 1;
     const bool enableSingle = currentSelection.size() == 1;
     // configure UI controls if we select 1 or more selections
-    m_ui->removeSelection->setEnabled(enableMultiple);
+    m_ui->removeSelection->setEnabled(enableMultiple || enableSingle);
     m_ui->exportSelection->setEnabled(enableSingle);
+    m_ui->importSelection->setEnabled(enableSingle);
     m_ui->ddaAnalysis->setEnabled(enableMultiple);
     m_ui->editSelection->setEnabled(enableSingle);
     m_ui->showGenes->setEnabled(enableSingle);
@@ -201,7 +199,12 @@ void UserSelectionsPage::slotExportSelection()
     const auto selectionItem = currentSelection.front();
 
     // export selection
-    selectionItem.save(filename);
+    try {
+        STData::save(filename, selectionItem.data());
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, tr("Export Selection"), tr("Error exporting the selection"));
+        qDebug() << "There was an error saving the matrix in the selection page " << e.what();
+    }
 }
 
 void UserSelectionsPage::slotEditSelection()
@@ -244,7 +247,34 @@ void UserSelectionsPage::slotEditSelection()
 
 void UserSelectionsPage::slotImportSelection()
 {
-    //TODO show file dialog and create a new selection
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open ST Data File (Selection)"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("ST Data File"), tr("File is incorrect or not readable"));
+    } else {
+        try {
+            auto data = STData::read(filename);
+            UserSelection new_selection;
+            new_selection.data(data);
+            //TODO check that the name does not exist already
+            new_selection.name(info.baseName());
+            //TODO the meta data (dataset name) is lost here
+            //use a JSON metadata file to get it
+            addSelection(new_selection);
+        } catch (const std::exception &e) {
+            QMessageBox::critical(this, tr("ST Data File"), tr("Error parsing file"));
+            qDebug() << "Error parsing ST data file (Selection) " << e.what();
+        }
+    }
 }
 
 void UserSelectionsPage::slotPerformDEA()
@@ -260,9 +290,7 @@ void UserSelectionsPage::slotPerformDEA()
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
-    // creates the DEA widget and shows it
-    QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
-    analysisDEA->exec();
+    // launch the DEA widget
     */
 }
 
@@ -291,9 +319,7 @@ void UserSelectionsPage::slotShowGenes()
 
     const auto selectionObject = currentSelection.front();
     SelectionGenesWidget *genesWidget(
-                new SelectionGenesWidget(selectionObject.genes(),
-                                         selectionObject.data(),
-                                         this, Qt::Window));
+                new SelectionGenesWidget(selectionObject.data(), this, Qt::Window));
     genesWidget->show();
 }
 
@@ -308,8 +334,6 @@ void UserSelectionsPage::slotShowSpots()
 
     const auto selectionObject = currentSelection.front();
     SelectionSpotsWidget *spotsWidget(
-                new SelectionSpotsWidget(selectionObject.spots(),
-                                         selectionObject.data(),
-                                         this, Qt::Window));
+                new SelectionSpotsWidget(selectionObject.data(), this, Qt::Window));
     spotsWidget->show();
 }

@@ -1,11 +1,17 @@
 #include "UserSelection.h"
 
+UserSelection::UserSelection()
+    : m_name()
+    , m_dataset()
+    , m_data()
+    , m_comment()
+{
+}
+
 UserSelection::UserSelection(QSharedPointer<STData> data)
     : m_name()
     , m_dataset()
-    , m_counts()
-    , m_genes()
-    , m_spots()
+    , m_data()
     , m_comment()
 {
     init(data);
@@ -19,9 +25,7 @@ UserSelection::UserSelection(const UserSelection &other)
 {
     m_name = other.m_name;
     m_dataset = other.m_dataset;
-    m_counts = other.m_counts;
-    m_genes = other.m_genes;
-    m_spots = other.m_spots;
+    m_data = other.m_data;
     m_comment = other.m_comment;
 }
 
@@ -29,9 +33,7 @@ UserSelection &UserSelection::operator=(const UserSelection &other)
 {
     m_name = other.m_name;
     m_dataset = other.m_dataset;
-    m_counts = other.m_counts;
-    m_genes = other.m_genes;
-    m_spots = other.m_spots;
+    m_data = other.m_data;
     m_comment = other.m_comment;
     return (*this);
 }
@@ -41,9 +43,9 @@ bool UserSelection::operator==(const UserSelection &other) const
     return (m_name == other.m_name
             && m_dataset == other.m_dataset
             //TODO gotta fix the == for the Matrix type
-            //&& m_counts == other.m_counts
-            && m_genes == other.m_genes
-            && m_spots == other.m_spots
+            //&& m_data.counts == other.m_data.counts
+            && m_data.genes == other.m_data.genes
+            && m_data.spots == other.m_data.spots
             && m_comment == other.m_comment);
 }
 
@@ -57,19 +59,9 @@ const QString UserSelection::dataset() const
     return m_dataset;
 }
 
-const STData::Matrix &UserSelection::data() const
+const STData::STDataFrame &UserSelection::data() const
 {
-    return m_counts;
-}
-
-const UserSelection::GeneListType &UserSelection::genes() const
-{
-    return m_genes;
-}
-
-const UserSelection::SpotListType &UserSelection::spots() const
-{
-    return m_spots;
+    return m_data;
 }
 
 const QString UserSelection::comment() const
@@ -79,12 +71,12 @@ const QString UserSelection::comment() const
 
 int UserSelection::totalGenes() const
 {
-    return m_genes.size();
+    return m_data.genes.size();
 }
 
 int UserSelection::totalSpots() const
 {
-    return m_spots.size();
+    return m_data.spots.size();
 }
 
 void UserSelection::name(const QString &name)
@@ -102,38 +94,38 @@ void UserSelection::comment(const QString &comment)
     m_comment = comment;
 }
 
+void UserSelection::data(const STData::STDataFrame &data)
+{
+    m_data = data;
+}
+
 void UserSelection::init(QSharedPointer<STData> data)
 {
-    m_counts = data->matrix_counts();
-    const auto genes = data->genes();
-    const auto spots = data->spots();
+    m_data = data->data();
     const auto selected = data->renderingSelected();
 
+    // Keep only selected spots
     std::vector<uword> to_keep_rows;
-    for (uword i = 0; i < m_counts.n_rows; ++i) {
+    QList<Spot::SpotType> selected_spots;
+    for (uword i = 0; i < m_data.counts.n_rows; ++i) {
         if (selected.at(i)) {
             to_keep_rows.push_back(i);
-            m_spots.append(spots.at(i)->coordinates());
+            selected_spots.append(m_data.spots.at(i));
         }
     }
-    m_counts = m_counts.rows(uvec(to_keep_rows));
+    m_data.spots = selected_spots;
+    m_data.counts = m_data.counts.rows(uvec(to_keep_rows));
 
+    // Remove non present genes
     std::vector<uword> to_keep_genes;
-    for (uword j = 0; j < m_counts.n_cols; ++j) {
-        if (sum(m_counts.col(j)) > 0) {
+    QList<QString> selected_genes;
+    for (uword j = 0; j < m_data.counts.n_cols; ++j) {
+        if (sum(m_data.counts.col(j)) > 0) {
             to_keep_genes.push_back(j);
-            m_genes.append(genes.at(j)->name());
+            selected_genes.append(m_data.genes.at(j));
         }
     }
-    m_counts = m_counts.cols(uvec(to_keep_genes));
+    m_data.genes = selected_genes;
+    m_data.counts = m_data.counts.cols(uvec(to_keep_genes));
 }
 
-void UserSelection::save(const QString filename) const
-{
-    Q_UNUSED(filename)
-}
-
-void UserSelection::load(const QString filename)
-{
-    Q_UNUSED(filename)
-}

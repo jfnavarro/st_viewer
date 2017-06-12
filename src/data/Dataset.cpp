@@ -177,7 +177,7 @@ bool Dataset::load_data()
 {
     m_data = QSharedPointer<STData>(new STData());
     try {
-        m_data->read(m_data_file);
+        m_data->init(m_data_file);
     } catch (const std::exception &e) {
         qDebug() << "Error parsing data matrix " << e.what();
         return false;

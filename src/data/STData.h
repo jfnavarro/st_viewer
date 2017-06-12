@@ -29,18 +29,25 @@ public:
     typedef QSharedPointer<Gene> GeneObjectType;
     typedef QList<SpotObjectType> SpotListType;
     typedef QList<GeneObjectType> GeneListType;
-    // lookup quadtree type (spot indexes)
-    typedef QuadTree<int, 8> SpotsQuadTree;
+
+    struct STDataFrame {
+        Matrix counts;
+        QList<QString> genes;
+        QList<Spot::SpotType> spots;
+    };
 
     STData();
     ~STData();
 
-    // Functions to import/export the matrix
-    void read(const QString &filename);
-    void save(const QString &filename) const;
+    // Parses the matrix and initialize the size-factors and genes/spots containers
+    void init(const QString &filename);
+
+    // Functions to import/export the data
+    static STDataFrame read(const QString &filename);
+    static void save(const QString &filename, const STDataFrame &data);
 
     // Some getters
-    Matrix matrix_counts() const;
+    STDataFrame data() const;
     size_t number_spots() const;
     size_t number_genes() const;
     GeneListType genes();
@@ -81,7 +88,6 @@ public:
     void selectGenes(const QRegExp &regexp, const bool force = true);
 
     // returns the boundaries (min spot and max spot)
-    //TODO fix the bounding border computation
     const QRectF getBorder() const;
 
 private:
@@ -94,7 +100,7 @@ private:
     void updateSize(const float size);
 
     // The matrix with the counts (spots are rows and genes are columns)
-    Matrix m_counts_matrix;
+    STDataFrame m_data;
     // cache the size factors to save computational time
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
@@ -108,8 +114,6 @@ private:
     QVector<QVector2D> m_textures;
     QVector<QVector4D> m_colors;
     QVector<unsigned> m_indexes;
-    // quad tree container (used to find spots by coordinates)
-    SpotsQuadTree m_quadTree;
     // Save the size to not recompute it always
     float m_size;
 

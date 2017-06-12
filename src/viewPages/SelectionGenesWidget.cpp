@@ -8,8 +8,7 @@
 
 using namespace Style;
 
-SelectionGenesWidget::SelectionGenesWidget(const UserSelection::GeneListType &genes,
-                                           const UserSelection::Matrix &counts,
+SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &data,
                                            QWidget *parent, Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::genesSelectionWidget())
@@ -21,14 +20,14 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::GeneListType &ge
 
     // data model
     const int columns = 2;
-    const int rows = genes.size();
+    const int rows = data.genes.size();
     QStandardItemModel *model = new QStandardItemModel(rows,columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    for (uword i = 0; i < counts.n_cols; ++i) {
-        const QString gene = genes.at(i);
-        const float count = sum(counts.col(i));
+    for (uword i = 0; i < data.counts.n_cols; ++i) {
+        const QString gene = data.genes.at(i);
+        const float count = sum(data.counts.col(i));
         model->setItem(i,0,new QStandardItem(gene));
         model->setItem(i,1,new QStandardItem(QString::number(count)));
     }

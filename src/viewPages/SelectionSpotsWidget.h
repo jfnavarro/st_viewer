@@ -19,8 +19,7 @@ class SelectionSpotsWidget : public QWidget
 
 public:
 
-    explicit SelectionSpotsWidget(const UserSelection::SpotListType &spots,
-                                  const UserSelection::Matrix &counts,
+    explicit SelectionSpotsWidget(const UserSelection::STDataFrame &data,
                                   QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionSpotsWidget();
 signals:
@@ -32,6 +31,7 @@ private:
     // GUI UI object
     QScopedPointer<Ui::spotsSelectionWidget> m_ui;
 
+    Q_DISABLE_COPY(SelectionSpotsWidget)
 };
 
 #endif // SELECTIONSPOTSWIDGET_H

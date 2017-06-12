@@ -7,7 +7,6 @@ set(LIBRARY_ARG_INCLUDES
     ImageTextureGL.h
     GraphicItemGL.h
     SelectionEvent.h
-    RubberbandGL.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -16,7 +15,6 @@ set(LIBRARY_ARG_SOURCES
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp
     GraphicItemGL.cpp
-    RubberbandGL.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES

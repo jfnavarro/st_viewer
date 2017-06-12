@@ -22,13 +22,9 @@ class UserSelections;
 // Users can interact here to edit/remove selections and to perform analysis
 // like the DEA, PCA, etc..
 
-// TODO factor out the confirmation dialog
-// TODO add option to show right click with mouse in selection (open, copy,
-// edit...)
-// TODO implement tsne clustering
+// TODO add option to show right click with mouse in selection (open, copy, edit...)
 // TODO implement DEA analysis
 // TODO implement correlation analysis
-// TODO add import/export selections option
 class UserSelectionsPage : public QWidget
 {
     Q_OBJECT

@@ -182,7 +182,7 @@ void CellViewPage::createConnections()
         m_ui->view->setSelectionMode(m_ui->selection->isChecked());
     });
     connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
-        m_ui->view->setLassoSelectionMode(m_ui->selection->isChecked());
+        m_ui->view->setLassoSelectionMode(m_ui->lasso_selection->isChecked());
     });
     connect(m_ui->regexpselection, &QPushButton::clicked,
             this, &CellViewPage::slotSelectByRegExp);

@@ -5,8 +5,6 @@
 #include <QPainterPath>
 
 // Selection event used to propagate selection data to view items.
-// TODO move definition to CPP
-// TODO extend to allow lasso selection (QPolygon)
 class SelectionEvent : public QEvent
 {
 
@@ -20,14 +18,14 @@ public:
     {
     }
 
-    SelectionEvent(const QRectF &rect, const SelectionMode mode = NewSelection)
+    SelectionEvent(const QPainterPath &path, const SelectionMode mode = NewSelection)
         : QEvent(TYPE)
-        , m_path(rect)
+        , m_path(path)
         , m_mode(mode)
     {
     }
 
-    QRectF path() const { return m_path; }
+    QPainterPath path() const { return m_path; }
     SelectionMode mode() const { return m_mode; }
 
     static SelectionMode modeFromKeyboardModifiers(Qt::KeyboardModifiers modifiers)
@@ -41,7 +39,7 @@ public:
 private:
     static const QEvent::Type TYPE = static_cast<QEvent::Type>(QEvent::User + 42);
 
-    const QRectF m_path;
+    const QPainterPath m_path;
     const SelectionMode m_mode;
 };
 

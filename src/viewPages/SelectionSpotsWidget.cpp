@@ -8,8 +8,7 @@
 
 using namespace Style;
 
-SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::SpotListType &spots,
-                                           const UserSelection::Matrix &counts,
+SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &data,
                                            QWidget *parent, Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::spotsSelectionWidget())
@@ -21,15 +20,17 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::SpotListType &sp
 
     // data model
     const int columns = 2;
-    const int rows = spots.size();
+    const int rows = data.spots.size();
     QStandardItemModel *model = new QStandardItemModel(rows,columns,this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Spot")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    for (uword i = 0; i < counts.n_rows; ++i) {
-        const auto spot = spots.at(i);
+    qDebug() << "Spots widget with " << data.spots.size() << " spots";
+    qDebug() << "Spots widget with " << data.spots.size() << " spots";
+    for (uword i = 0; i < data.counts.n_rows; ++i) {
+        const auto spot = data.spots.at(i);
         const QString spot_str = QString::number(spot.first) + "x" + QString::number(spot.second);
-        const float count = sum(counts.row(i));
+        const float count = sum(data.counts.row(i));
         model->setItem(i,0,new QStandardItem(spot_str));
         model->setItem(i,1,new QStandardItem(QString::number(count)));
     }

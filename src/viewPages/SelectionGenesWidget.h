@@ -20,8 +20,7 @@ class SelectionGenesWidget : public QWidget
 
 public:
 
-    explicit SelectionGenesWidget(const UserSelection::GeneListType &genes,
-                                  const UserSelection::Matrix &counts,
+    explicit SelectionGenesWidget(const UserSelection::STDataFrame &data,
                                   QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionGenesWidget();
 
