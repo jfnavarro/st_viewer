@@ -5,7 +5,6 @@
 #include <QModelIndex>
 
 #include "data/UserSelection.h"
-#include <memory>
 
 namespace Ui
 {
@@ -115,7 +114,7 @@ private:
     void computeGeneToReads(const UserSelection &selObjectA, const UserSelection &selObjectB);
     */
     // The GUI object
-    QScopedPointer<Ui::ddaWidget> m_ui;
+    //QScopedPointer<Ui::ddaWidget> m_ui;
     /*
     // We use these variables to cache the statistics for convenience
     combinedSelectionType m_combinedSelections;

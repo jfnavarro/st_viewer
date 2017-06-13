@@ -16,7 +16,7 @@
 
 #include "viewRenderer/CellGLView.h"
 #include "dialogs/SelectionDialog.h"
-
+#include "analysis/AnalysisQC.h"
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
 
@@ -294,7 +294,8 @@ UserSelection CellViewPage::createSelection()
 
 void CellViewPage::slotShowQC()
 {
-
+    AnalysisQC *qc = new AnalysisQC(m_dataset.data()->data(), this, Qt::Window);
+    qc->show();
 }
 
 void CellViewPage::slowClustering()

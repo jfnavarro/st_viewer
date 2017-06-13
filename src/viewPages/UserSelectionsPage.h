@@ -5,10 +5,6 @@
 #include <QModelIndex>
 #include <memory>
 
-#include "viewPages/SelectionGenesWidget.h"
-#include "viewPages/SelectionSpotsWidget.h"
-#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
-
 class UserSelectionsItemModel;
 class QSortFilterProxyModel;
 class UserSelection;
@@ -83,8 +79,6 @@ private:
     QScopedPointer<Ui::UserSelections> m_ui;
     // the list of selections objects
     QList<UserSelection> m_selections;
-    // waiting spinner
-    QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
 
     Q_DISABLE_COPY(UserSelectionsPage)
 };

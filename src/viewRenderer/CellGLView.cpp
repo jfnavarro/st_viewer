@@ -38,7 +38,11 @@ CellGLView::CellGLView(QWidget *parent)
     // init projection matrix to identity
     m_projm.setToIdentity();
 
+    // init rubber band object
     m_rubberband.reset(new QRubberBand(QRubberBand::Rectangle, this));
+    QPalette palette;
+    palette.setBrush(QPalette::Highlight, QBrush(lasso_color));
+    m_rubberband->setPalette(palette);
 
     // Configure OpenGL format for this view
     QSurfaceFormat format;

@@ -4,7 +4,7 @@
 #include <QDialog>
 
 namespace Ui {
-class AnalysisClustering;
+class analysisClustering;
 }
 
 class AnalysisClustering : public QDialog
@@ -16,7 +16,7 @@ public:
     ~AnalysisClustering();
 
 private:
-    Ui::AnalysisClustering *ui;
+    Ui::analysisClustering *ui;
 };
 
 #endif // ANALYSISCLUSTERING_H

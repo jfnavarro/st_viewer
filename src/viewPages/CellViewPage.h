@@ -27,7 +27,6 @@ class CellView;
 // It contains a widget with different visualization and data settings
 
 // TODO add a ruler visual object
-// TODO add a lazo selection option
 // TODO add tissue detection selection (Ludvig's)
 // TODO add a visual object to show the coordinates when the user hovers a spot
 class CellViewPage : public QWidget

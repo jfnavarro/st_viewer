@@ -25,7 +25,7 @@ set(CMAKE_AUTOMOC ON)
 
 # Find the path to Qt binaries and set the Qt libraries (needed here since /ext contains Qt libraries)
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent 3DRender)
+set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent Charts)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()
@@ -72,15 +72,11 @@ include_directories(${RCPP_ARMADILLO_INCLUDE_DIR})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${R_CXXFLAGS} ${RCPP_CXXFLAGS} ${RINSIDE_CXXFLAGS} ${RCPPARMADILLO_CXXFLAGS}")
 set(R_LIBRARIES "${R_LIBRARIES};${RINSIDE_LIBRARY}")
 
-# Include third party libraries
-add_subdirectory(ext)
-
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
                    color
                    data
-                   customWidgets
                    viewTables
                    viewPages
                    viewRenderer
@@ -100,7 +96,6 @@ endforeach()
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
-list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
 
 ###CREATE TARGET BINARY#################################
 

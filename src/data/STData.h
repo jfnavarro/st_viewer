@@ -68,20 +68,20 @@ public:
     bool parseSpotsMap(const QString &spots_file);
 
     // helper function to get the sum of non zeroes elements (by column, aka gene)
-    static inline rowvec computeNonZeroColumns(const Matrix &matrix);
+    static rowvec computeNonZeroColumns(const Matrix &matrix);
     // helper function to get the sum of non zeroes elements (by row, aka spot)
-    static inline colvec computeNonZeroRows(const Matrix &matrix);
+    static colvec computeNonZeroRows(const Matrix &matrix);
     // helper function that returns the normalized matrix counts using the rendering settings
-    static inline Matrix normalizeCounts(const Matrix &counts,
-                                         SettingsWidget::NormalizationMode mode,
-                                         const rowvec &deseq_factors,
-                                         const rowvec &scran_factors);
+    static Matrix normalizeCounts(const Matrix &counts,
+                                  SettingsWidget::NormalizationMode mode,
+                                  const rowvec &deseq_factors,
+                                  const rowvec &scran_factors);
     // helper fuctions to adjust a spot's color according to the rendering settings
-    static inline QColor adjustVisualMode(const QColor merged_color,
-                                          const float &merged_value,
-                                          const float &min_reads,
-                                          const float &max_reads,
-                                          const SettingsWidget::VisualMode mode);
+    static QColor adjustVisualMode(const QColor merged_color,
+                                   const float &merged_value,
+                                   const float &min_reads,
+                                   const float &max_reads,
+                                   const SettingsWidget::VisualMode mode);
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);

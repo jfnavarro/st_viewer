@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
+#include "viewPages/SelectionGenesWidget.h"
+#include "viewPages/SelectionSpotsWidget.h"
 #include "model/UserSelectionsItemModel.h"
 #include "dialogs/EditSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
@@ -18,25 +20,12 @@ using namespace Style;
 UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::UserSelections())
-    , m_waiting_spinner(nullptr)
 {
     m_ui->setupUi(this);
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->userSelectionsPageWidget->setStyleSheet("QWidget#userSelectionsPageWidget "
                                                   + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
-
-    // initialize waiting spinner
-    m_waiting_spinner.reset(new WaitingSpinnerWidget(this, true, true));
-    m_waiting_spinner->setRoundness(70.0);
-    m_waiting_spinner->setMinimumTrailOpacity(15.0);
-    m_waiting_spinner->setTrailFadePercentage(70.0);
-    m_waiting_spinner->setNumberOfLines(12);
-    m_waiting_spinner->setLineLength(20);
-    m_waiting_spinner->setLineWidth(10);
-    m_waiting_spinner->setInnerRadius(20);
-    m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0, 155, 60));
 
     // connect signals
     connect(m_ui->filterLineEdit, &QLineEdit::textChanged,
@@ -303,9 +292,13 @@ void UserSelectionsPage::slotPerformCorrelation()
     }
 
     // get the two selection objects
-    //const auto selectionObject1 = currentSelection.at(0);
-    //const auto selectionObject2 = currentSelection.at(1);
+    const auto selectionObject1 = currentSelection.at(0);
+    const auto selectionObject2 = currentSelection.at(1);
     // launch the correlation widget
+    AnalysisCorrelation *correlationWidget(
+                new AnalysisCorrelation(selectionObject1.data(),
+                                        selectionObject2.data(), this, Qt::Window));
+    correlationWidget->show();
 }
 
 void UserSelectionsPage::slotShowGenes()

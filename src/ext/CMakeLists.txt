@@ -1,2 +1,0 @@
-add_subdirectory(QtWaitingSpinner)
-include_directories(QtWaitingSpinner)

@@ -79,8 +79,6 @@ private:
 
     // reference to ui object
     QScopedPointer<Ui::DataSets> m_ui;
-    // waiting (loading) spinner
-    QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
     // List of imported datasets (from files)
     QList<Dataset> m_importedDatasets;
     // Currently open dataset

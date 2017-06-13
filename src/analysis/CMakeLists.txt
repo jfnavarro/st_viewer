@@ -2,22 +2,22 @@ include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/qcustomp
 
 set(LIBRARY_ARG_INCLUDES
   AnalysisDEA.h
-  AnalysisFRD.h
+  AnalysisQC.h
   AnalysisCorrelation.h
   AnalysisClustering.h
 )
 
 set(LIBRARY_ARG_SOURCES
   AnalysisDEA.cpp
-  AnalysisFRD.cpp
+  AnalysisQC.cpp
   AnalysisCorrelation.cpp
   AnalysisClustering.cpp
 )
 
 set(LIBRARY_ARG_UI_FILES
-    "${PROJECT_SOURCE_DIR}/assets/ui/ddaWidget.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/frdWidget.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/AnalysisCorrelation.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/analysisclustering.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/analysisDEA.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/analysisQC.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/analysisCorrelation.ui"
+    "${PROJECT_SOURCE_DIR}/assets/ui/analysisClustering.ui"
 )
 ST_LIBRARY()

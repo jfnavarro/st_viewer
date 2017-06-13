@@ -7,9 +7,8 @@
 
 #include <cmath>
 #include "math/Common.h"
-#include "qcustomplot.h"
 
-#include "ui_ddaWidget.h"
+//#include "ui_ddaWidget.h"
 
 static const QColor BORDER = QColor(238, 122, 0);
 

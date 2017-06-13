@@ -1,19 +1,52 @@
 #ifndef RINTERFACE_H
 #define RINTERFACE_H
 
+#include <QString>
+#include <QDebug>
+
 //RcppArmadillo must be included before RInside
 #include "RcppArmadillo.h"
 #include "RInside.h"
 
-namespace  RInterface {
-
-static RInside *R =  new RInside();
+namespace RInterface {
 
 typedef Mat<float> Matrix;
 typedef Row<float> rowvec;
 
+// Computes correlation betwee two vectors (method can be : pearson, spearman and kendall)
+static float computeCorrelation(const rowvec &A, const rowvec &B, const std::string method)
+{
+    RInside *R = nullptr;
+    if (RInside::instancePtr() != nullptr) {
+        R = RInside::instancePtr();
+    } else {
+        R = new RInside();
+    }
+    Q_ASSERT(A.n_elem == B.n_elem);
+    float corr = 0.0;
+    try {
+        (*R)["A"] = A;
+        (*R)["B"] = B;
+        (*R)["method"] = method;
+        const std::string call = "corr = cor(A, B, method)";
+        corr = Rcpp::as<float>(R->parseEval(call));
+        qDebug() << "Computed R " << QString::fromStdString(method) << " correlation " << corr;
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing R correlation " << e.what();
+    }
+    return corr;
+}
+
+// Computes size factors using the DESEq2 method (one factor per spot)
 static rowvec computeDESeqFactors(Matrix counts)
 {
+    RInside *R = nullptr;
+    if (RInside::instancePtr() != nullptr) {
+        qDebug() << "Using R instance";
+        R = RInside::instancePtr();
+    } else {
+        R = new RInside();
+    }
     rowvec factors;
     factors.fill(1.0);
     try {
@@ -30,9 +63,16 @@ static rowvec computeDESeqFactors(Matrix counts)
     }
     return factors;
 }
-
-static rowvec computeScranFactors(Matrix counts)
+// Computes size factors using the SCRAN method (one factor per spot)
+static rowvec computeScranFactors(const Matrix &counts)
 {
+    RInside *R = nullptr;
+    if (RInside::instancePtr() != nullptr) {
+        qDebug() << "Using R instance";
+        R = RInside::instancePtr();
+    } else {
+        R = new RInside();
+    }
     rowvec factors;
     factors.fill(1.0);
     try {

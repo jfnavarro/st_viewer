@@ -8,8 +8,7 @@ set(PROJECT_VERSION_MINOR "7")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
-set(PROJECT_COPYRIGHT "Copyright (C) 2017 Jose Fernandez Navarro, Jonas Frisen, \
-    Patrik Stall, Joakim Lundeberg, KTH, KI.")
+set(PROJECT_COPYRIGHT "Copyright (C) 2017 Jose Fernandez Navarro, KTH, KI.")
 set(PROJECT_CONTACT "jose.fernandez.navarro@scilifelab.se")
 set(PROJECT_VENDOR "Jose Fernandez Navarro")
 set(CONFIG_FILE "${PROJECT_SOURCE_DIR}/assets/stviewer.conf" CACHE STRING

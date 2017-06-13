@@ -557,7 +557,7 @@ STData::Matrix STData::normalizeCounts(const Matrix &counts,
 
 STData::rowvec STData::computeNonZeroColumns(const STData::Matrix &matrix)
 {
-    rowvec non_zeros(matrix.n_cols);
+    STData::rowvec non_zeros(matrix.n_cols);
     for (uword i = 0; i < matrix.n_cols; ++i) {
         const uvec t = find(matrix.col(i) > 0);
         non_zeros[i] = t.n_elem;
@@ -565,7 +565,7 @@ STData::rowvec STData::computeNonZeroColumns(const STData::Matrix &matrix)
     return non_zeros;
 }
 
-STData::colvec computeNonZeroRows(const STData::Matrix &matrix)
+STData::colvec STData::computeNonZeroRows(const STData::Matrix &matrix)
 {
     STData::colvec non_zeros(matrix.n_rows);
     for (uword i = 0; i < matrix.n_rows; ++i) {
@@ -614,17 +614,17 @@ void STData::selectGenes(const QRegExp &regexp, const bool force)
 
 const QRectF STData::getBorder() const
 {
-    //const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
-    //                                      [] (const auto lhs, const auto rhs) {
-    //    return lhs->coordinates().first < rhs->coordinates().first;});
+    const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
+                                          [] (const auto lhs, const auto rhs) {
+        return lhs->coordinates().first < rhs->coordinates().first;});
 
-    //const auto mm_y = std::minmax_element(m_spots.begin(), m_spots.end(),
-    //                                      [] (const auto lhs, const auto rhs) {
-    //    return lhs->coordinates().second < rhs->coordinates().second;});
+    const auto mm_y = std::minmax_element(m_spots.begin(), m_spots.end(),
+                                          [] (const auto lhs, const auto rhs) {
+        return lhs->coordinates().second < rhs->coordinates().second;});
 
-    //const auto min_x = (*mm_x.first)->coordinates().first;
-    //const auto min_y = (*mm_y.first)->coordinates().second;
-    //const auto max_x = (*mm_x.first)->coordinates().second;
-    //const auto max_y = (*mm_y.first)->coordinates().first;
-    return QRectF(QPointF(1, 1), QPointF(33, 35));
+    const auto min_x = (*mm_x.first)->coordinates().first;
+    const auto min_y = (*mm_y.first)->coordinates().second;
+    const auto max_x = (*mm_x.first)->coordinates().second;
+    const auto max_y = (*mm_y.first)->coordinates().first;
+    return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
 }

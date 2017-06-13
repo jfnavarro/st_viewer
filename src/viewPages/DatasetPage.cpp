@@ -13,7 +13,6 @@
 #include <QPushButton>
 #include <QStandardPaths>
 
-#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
 #include "model/DatasetItemModel.h"
 #include "dialogs/EditDatasetDialog.h"
 #include "data/DatasetImporter.h"
@@ -26,7 +25,6 @@ using namespace Style;
 DatasetPage::DatasetPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::DataSets())
-    , m_waiting_spinner(nullptr)
     , m_importedDatasets()
     , m_open_dataset()
 {
@@ -35,18 +33,6 @@ DatasetPage::DatasetPage(QWidget *parent)
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
-
-    // initialize waiting spinner
-    m_waiting_spinner.reset(new WaitingSpinnerWidget(this, true, true));
-    m_waiting_spinner->setRoundness(70.0);
-    m_waiting_spinner->setMinimumTrailOpacity(15.0);
-    m_waiting_spinner->setTrailFadePercentage(70.0);
-    m_waiting_spinner->setNumberOfLines(12);
-    m_waiting_spinner->setLineLength(20);
-    m_waiting_spinner->setLineWidth(10);
-    m_waiting_spinner->setInnerRadius(20);
-    m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0, 155, 60));
 
     // connect signals
     connect(m_ui->filterLineEdit,
@@ -182,11 +168,11 @@ void DatasetPage::slotOpenDataset()
         return;
     }
     auto dataset = currentDatasets.front();
-    m_waiting_spinner->start();
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     if (!dataset.load_data()) {
         QMessageBox::critical(this, tr("Datasert import"), tr("Error opening ST dataset"));
     }
-    m_waiting_spinner->stop();
+    QGuiApplication::restoreOverrideCursor();
     // Set selected dataset
     m_open_dataset = QSharedPointer<Dataset>(new Dataset(dataset));
     // Notify that the dataset was open

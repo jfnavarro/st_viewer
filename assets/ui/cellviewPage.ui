@@ -198,10 +198,10 @@
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000300;&quot;&gt;Shows the Features Distribution Histogram&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Shows the Genes/Transcripts  Histogram</string>
            </property>
            <property name="statusTip">
-            <string>Shows the Features Distribution Histogram</string>
+            <string>Shows the Genes/Transcripts  Histogram</string>
            </property>
            <property name="text">
             <string/>
