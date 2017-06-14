@@ -55,7 +55,6 @@ private slots:
     void slotRemoveDataset();
     void slotEditDataset();
     void slotImportDataset();
-    void slotImportDatasetFolder();
 
 signals:
 

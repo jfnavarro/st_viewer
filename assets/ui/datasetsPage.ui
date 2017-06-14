@@ -222,49 +222,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="importFolder">
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="toolTip">
-            <string>Import dataset from folder</string>
-           </property>
-           <property name="statusTip">
-            <string>Import dataset from folder</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/save_selection.png</normaloff>:/images/save_selection.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -313,7 +272,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -363,7 +322,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -413,7 +372,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -618,7 +577,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../build-st_viewer-Desktop_Qt_5_8_0_clang_64bit-Debug/application.qrc"/>
+  <include location="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc"/>
  </resources>
  <connections/>
 </ui>

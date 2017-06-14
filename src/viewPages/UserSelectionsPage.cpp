@@ -122,8 +122,10 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
 
 void UserSelectionsPage::addSelection(const UserSelection& selection)
 {
-    m_selections.append(selection);
-    selectionsUpdated();
+    if (selection.totalGenes() > 0 && selection.totalSpots() > 0) {
+        m_selections.append(selection);
+        selectionsUpdated();
+    }
 }
 
 void UserSelectionsPage::selectionsUpdated()

@@ -47,6 +47,8 @@ public:
     bool load_data();
 
 private:
+
+    // Private function to load the image aligment matrix from a file
     bool load_imageAligment();
 
     QString m_name;

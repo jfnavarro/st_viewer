@@ -2,6 +2,7 @@
 #define DATASETIMPORTER_H
 
 #include <QDialog>
+#include <QDir>
 
 namespace Ui
 {
@@ -31,6 +32,15 @@ public:
     const QString species() const;
     const QString tissue() const;
     const QString comments() const;
+
+    // To import a dataset from a folder
+    // the function assumes that
+    // the image is called image.jpg
+    // the data is called stdata.tsv
+    // the aligment is called alignment.txt
+    // the spots file is called spots.txt
+    // the metadata is present in a JSON file called info.json
+    void slotParseFolder();
 
 private slots:
 

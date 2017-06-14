@@ -1,7 +1,9 @@
 #include "AnalysisCorrelation.h"
 
-#include <QtCharts/QChartView>
-#include <QtCharts/QScatterSeries>
+#include <QChartView>
+#include <QScatterSeries>
+#include <QValueAxis>
+#include <QLogValueAxis>
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QSet>
@@ -75,6 +77,8 @@ AnalysisCorrelation::~AnalysisCorrelation()
 
 void AnalysisCorrelation::updateData()
 {
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
         normalization = SettingsWidget::REL;
@@ -96,8 +100,8 @@ void AnalysisCorrelation::updateData()
         B = log(B + 1.0);
     }
 
-    const STData::rowvec rowsumA = sum(m_dataA, 0);
-    const STData::rowvec rowsumB = sum(m_dataB, 0);
+    const std::vector<float> rowsumA = conv_to<std::vector<float>>::from(sum(A, 0));
+    const std::vector<float> rowsumB = conv_to<std::vector<float>>::from(sum(B, 0));
 
     const double pearson = RInterface::computeCorrelation(rowsumA, rowsumB, "pearson");
     const double spearman = RInterface::computeCorrelation(rowsumA, rowsumB, "spearman");
@@ -108,7 +112,7 @@ void AnalysisCorrelation::updateData()
     series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series->setMarkerSize(5.0);
     series->setColor(Qt::blue);
-    for (uword i = 0; i < rowsumA.n_elem; ++i) {
+    for (unsigned i = 0; i < rowsumA.size(); ++i) {
         series->append(rowsumA.at(i), rowsumB.at(i));
     }
 
@@ -116,6 +120,24 @@ void AnalysisCorrelation::updateData()
     m_ui->plot->chart()->removeAllSeries();
     m_ui->plot->chart()->addSeries(series);
     m_ui->plot->chart()->setTitle("Correlation Plot (genes)");
-    m_ui->plot->chart()->createDefaultAxes();
     m_ui->plot->chart()->setDropShadowEnabled(false);
+    m_ui->plot->chart()->legend()->hide();
+
+    if (m_ui->logScale->isChecked()) {
+        QLogValueAxis *axisX = new QLogValueAxis();
+        QLogValueAxis *axisY = new QLogValueAxis();
+        axisX->setBase(8.0);
+        axisX->setMinorTickCount(-1);
+        axisY->setBase(8.0);
+        axisY->setMinorTickCount(-1);
+        m_ui->plot->chart()->addAxis(axisX, Qt::AlignBottom);
+        m_ui->plot->chart()->addAxis(axisY, Qt::AlignLeft);
+        series->attachAxis(axisX);
+        series->attachAxis(axisY);
+    } else {
+        m_ui->plot->chart()->createDefaultAxes();
+    }
+
+
+    QGuiApplication::restoreOverrideCursor();
 }

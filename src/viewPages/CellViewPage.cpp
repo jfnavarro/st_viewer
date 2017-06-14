@@ -14,9 +14,13 @@
 #include <QPainter>
 #include <QDateTime>
 
+#include "viewPages/GenesWidget.h"
+#include "viewPages/SpotsWidget.h"
+#include "viewPages/UserSelectionsPage.h"
 #include "viewRenderer/CellGLView.h"
 #include "dialogs/SelectionDialog.h"
 #include "analysis/AnalysisQC.h"
+#include "analysis/AnalysisClustering.h"
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
 
@@ -26,8 +30,14 @@
 
 using namespace Style;
 
-CellViewPage::CellViewPage(QWidget *parent)
+CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
+                           QSharedPointer<GenesWidget> genes,
+                           QSharedPointer<UserSelectionsPage> user_selections,
+                           QWidget *parent)
     : QWidget(parent)
+    , m_spots(spots)
+    , m_genes(genes)
+    , m_user_selections(user_selections)
     , m_ui(new Ui::CellView())
     , m_legend(nullptr)
     , m_gene_plotter(nullptr)
@@ -57,6 +67,9 @@ CellViewPage::CellViewPage(QWidget *parent)
 
     // create toolbar and all the connections
     createConnections();
+
+    // disable controls at first
+    m_ui->frame->setEnabled(false);
 }
 
 CellViewPage::~CellViewPage()
@@ -72,6 +85,8 @@ void CellViewPage::clear()
     m_ui->view->clearData();
     m_ui->view->update();
     m_settings->reset();
+    m_spots->clear();
+    m_genes->clear();
     m_dataset = Dataset();
 }
 
@@ -121,6 +136,10 @@ void CellViewPage::loadDataset(const Dataset &dataset)
         qDebug() << "Setting alignment matrix to " << alignment;
         m_gene_plotter->setTransform(alignment);
     }
+
+    // enable controls
+    m_ui->frame->setEnabled(true);
+
     // call for an update
     m_ui->view->update();
 }
@@ -189,13 +208,28 @@ void CellViewPage::createConnections()
 
     // create selection object from the selections made
     connect(m_ui->createSelection, &QPushButton::clicked,
-            this, &CellViewPage::signalUserSelection);
+            this, &CellViewPage::slotCreateSelection);
 
     // show QC widget
     connect(m_ui->histogram, &QPushButton::clicked, this, &CellViewPage::slotShowQC);
 
     // show Clustering widget
-    connect(m_ui->clustering, &QPushButton::clicked, this, &CellViewPage::slowClustering);
+    connect(m_ui->clustering, &QPushButton::clicked, this, &CellViewPage::slotClustering);
+
+    // when the user change any gene
+    connect(m_genes.data(),
+            &GenesWidget::signalGenesUpdated,
+            this,
+            &CellViewPage::slotGenesUpdate);
+
+    // when the user change any spot
+    connect(m_spots.data(),
+            &SpotsWidget::signalSpotsUpdated,
+            this,
+            &CellViewPage::slotSpotsUpdated);
+
+    // when the user wants to load a file with spot colors
+    connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColors);
 }
 
 
@@ -279,9 +313,42 @@ void CellViewPage::slotSelectByRegExp()
     }
 }
 
-UserSelection CellViewPage::createSelection()
+void CellViewPage::slotShowQC()
 {
-    //TODO check and throw exception if no spots are currently selected
+    AnalysisQC *qc = new AnalysisQC(m_dataset.data()->data(), this, Qt::Window);
+    qc->show();
+}
+
+void CellViewPage::slotClustering()
+{
+    AnalysisClustering *clustering = new AnalysisClustering(m_dataset.data()->data(), this, Qt::Window);
+    clustering->show();
+}
+
+void CellViewPage::slotLoadSpotColors()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spot Colors File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Spot Colors File File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_spots->slotLoadSpotColors(filename);
+    }
+}
+
+void CellViewPage::slotCreateSelection()
+{
     // create selection object
     UserSelection new_selection(m_dataset.data());
     // proposes as selection name as DATASET NAME plus current timestamp
@@ -289,16 +356,6 @@ UserSelection CellViewPage::createSelection()
     new_selection.dataset(m_dataset.name());
     // clear the selection
     clearSelections();
-    return new_selection;
-}
-
-void CellViewPage::slotShowQC()
-{
-    AnalysisQC *qc = new AnalysisQC(m_dataset.data()->data(), this, Qt::Window);
-    qc->show();
-}
-
-void CellViewPage::slowClustering()
-{
-
+    qDebug() << "Creating selection " << new_selection.name();
+    m_user_selections->addSelection(new_selection);
 }

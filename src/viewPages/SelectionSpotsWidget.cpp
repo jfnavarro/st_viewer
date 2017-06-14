@@ -25,8 +25,6 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Spot")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    qDebug() << "Spots widget with " << data.spots.size() << " spots";
-    qDebug() << "Spots widget with " << data.spots.size() << " spots";
     for (uword i = 0; i < data.counts.n_rows; ++i) {
         const auto spot = data.spots.at(i);
         const QString spot_str = QString::number(spot.first) + "x" + QString::number(spot.second);

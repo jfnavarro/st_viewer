@@ -278,6 +278,11 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
+void CellGLView::rotate(const int angle)
+{
+    Q_UNUSED(angle)
+}
+
 void CellGLView::sendSelectionToNodes(const QPainterPath &path, const QMouseEvent *event)
 {
     // notify nodes for rubberband

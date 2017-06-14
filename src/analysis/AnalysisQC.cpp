@@ -27,8 +27,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     const QString avg_transcritps = QString::number(mean(rowsums));
     const QString std_genes = QString::number(stddev(nonzero_row));
     const QString std_transcripts = QString::number(stddev(rowsums));
-    const uvec hist_genes = hist(nonzero_row, 25);
-    const uvec hist_transcripts = hist(rowsums, 25);
+    const uvec hist_genes = hist(nonzero_row, 10);
+    const uvec hist_transcripts = hist(rowsums, 10);
 
     // populate the line edits
     m_ui->maxTranscripts->setText(max_transcripts_spot);

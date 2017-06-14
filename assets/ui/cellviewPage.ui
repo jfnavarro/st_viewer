@@ -357,6 +357,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="loadSpots">
+           <property name="text">
+            <string>load spots</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="createSelection">
            <property name="minimumSize">
             <size>

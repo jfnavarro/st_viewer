@@ -9,10 +9,10 @@
 #include "viewRenderer/GeneRendererGL.h"
 
 class SelectionDialog;
-class CellGLView;
+class SettingsWidget;
 class SpotsWidget;
 class GenesWidget;
-class SettingsWidget;
+class UserSelectionsPage;
 
 namespace Ui
 {
@@ -34,15 +34,14 @@ class CellViewPage : public QWidget
     Q_OBJECT
 
 public:
-    CellViewPage(QWidget *parent = 0);
+    CellViewPage(QSharedPointer<SpotsWidget> spots,
+                 QSharedPointer<GenesWidget> genes,
+                 QSharedPointer<UserSelectionsPage> user_selections,
+                 QWidget *parent = 0);
     virtual ~CellViewPage();
 
     // clear the loaded dataset and reset settings
     void clear();
-
-    // to handle when the user want to store the current selection into a selection object
-    // the function will create an UserSelection object and send it to the SelectionsPage
-    UserSelection createSelection();
 
     // the user has opened/edit a dataset
     void loadDataset(const Dataset &dataset);
@@ -52,18 +51,15 @@ public:
 
 signals:
 
-    // notify the user has made a selection
-    void signalUserSelection();
-
 public slots:
+
+private slots:
 
     // the user has updated the genes
     void slotGenesUpdate();
 
     // the user has updated the spots
     void slotSpotsUpdated();
-
-private slots:
 
     // save/esport current view
     void slotSaveImage();
@@ -76,7 +72,13 @@ private slots:
     void slotShowQC();
 
     // user wants to perform spot clustering
-    void slowClustering();
+    void slotClustering();
+
+    // user wants to load a file with spot colors
+    void slotLoadSpotColors();
+
+    // user wants to create a selection
+    void slotCreateSelection();
 
 private:
     // create OpenGL graphical elements and view
@@ -84,6 +86,11 @@ private:
 
     // create all the connections
     void createConnections();
+
+    // Reference to other views
+    QSharedPointer<SpotsWidget> m_spots;
+    QSharedPointer<GenesWidget> m_genes;
+    QSharedPointer<UserSelectionsPage> m_user_selections;
 
     // GUI UI object
     QScopedPointer<Ui::CellView> m_ui;

@@ -1,10 +1,18 @@
 #include "DatasetImporter.h"
-#include "ui_datasetImporter.h"
-#include <QFileDialog>
+
 #include <QMessageBox>
 #include <QTextStream>
 #include <QDebug>
+#include <QCommandLinkButton>
+#include <QFileDialog>
+#include <QDirIterator>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QStandardPaths>
+
 #include "Dataset.h"
+
+#include "ui_datasetImporter.h"
 
 DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
     : QDialog(parent)
@@ -41,6 +49,8 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->buttonBox,
             &QDialogButtonBox::accepted, this, &DatasetImporter::slotValidateForm);
+    connect(m_ui->loadFolder,
+            &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
 }
 
 DatasetImporter::~DatasetImporter()
@@ -190,5 +200,51 @@ void DatasetImporter::slotValidateForm()
         // TODO maybe we should not close the dialog
     } else {
         QDialog::done(QDialog::Accepted);
+    }
+}
+
+void DatasetImporter::slotParseFolder()
+{
+    QFileDialog dialog(this, tr("Select folder with the ST Dataset"), QDir::homePath());
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::Detail);
+    if (dialog.exec()) {
+        QDir selectedDir = dialog.directory();
+        selectedDir.setFilter(QDir::Files);
+        QDirIterator it(selectedDir, QDirIterator::NoIteratorFlags);
+        while (it.hasNext()) {
+            const QString file = it.next();
+            qDebug() << "Parsing dataset file from folder " << file;
+            if (file.contains("stdata.tsv")) {
+                m_ui->stDataFile->setText(file);
+            } else if (file.contains("image.jpg")) {
+                m_ui->mainImageFile->setText(file);
+            } else if (file.contains("alignment.txt")) {
+                m_ui->imageAlignmentFile->setText(file);
+            } else if (file.contains("spots.txt")) {
+                m_ui->spotMapFile->setText(file);
+            } else if (file.contains("info.json")) {
+                QFile file_data(file);
+                if (file_data.open(QIODevice::ReadOnly)) {
+                    const QByteArray &data = file_data.readAll();
+                    const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+                    const QJsonObject &jsonObject = loadDoc.object();
+                    if (jsonObject.contains("name")) {
+                        m_ui->datasetName->setText(jsonObject["name"].toString());
+                    }
+                    if (jsonObject.contains("species")) {
+                        m_ui->species->setText(jsonObject["species"].toString());
+                    }
+                    if (jsonObject.contains("tissue")) {
+                        m_ui->tissue->setText(jsonObject["tissue"].toString());
+                    }
+                    if (jsonObject.contains("comments")) {
+                        m_ui->comments->setText(jsonObject["comments"].toString());
+                    }
+                } else {
+                    qDebug() << "Error parsing info.json for dataset";
+                }
+            }
+        }
     }
 }

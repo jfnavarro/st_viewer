@@ -49,7 +49,8 @@ macro(INITIALISE_PROJECT)
         set(WARNING_ERROR "-Werror")
 
         # Rcpp/RInside needs -Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined
-        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined -Wno-unused-function")
+        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined \
+            -Wno-unused-function -Wno-sign-compare")
 
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7

@@ -54,16 +54,16 @@ MainWindow::MainWindow(QWidget *parent)
     setUnifiedTitleAndToolBarOnMac(true);
 
     // Create the main views
-    m_datasets.reset(new DatasetPage());
-    Q_ASSERT(m_datasets);
-    m_cellview.reset(new CellViewPage());
-    Q_ASSERT(m_cellview);
-    m_user_selections.reset(new UserSelectionsPage());
-    Q_ASSERT(m_user_selections);
     m_genes.reset(new GenesWidget());
     Q_ASSERT(m_genes);
     m_spots.reset(new SpotsWidget());
     Q_ASSERT(m_spots);
+    m_datasets.reset(new DatasetPage());
+    Q_ASSERT(m_datasets);
+    m_user_selections.reset(new UserSelectionsPage());
+    Q_ASSERT(m_user_selections);
+    m_cellview.reset(new CellViewPage(m_spots, m_genes, m_user_selections));
+    Q_ASSERT(m_cellview);
 }
 
 MainWindow::~MainWindow()
@@ -162,7 +162,6 @@ void MainWindow::setupUi()
     m_actionDatasets.reset(new QAction(this));
     m_actionDatasets->setCheckable(true);
     m_actionSelections.reset(new QAction(this));
-    m_actionSpotColors.reset(new QAction(this));
     m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
     m_actionHelp->setText(tr("Help"));
@@ -171,7 +170,6 @@ void MainWindow::setupUi()
     m_actionClear_Cache->setText(tr("Clear Cache"));
     m_actionDatasets->setText(tr("Datasets"));
     m_actionSelections->setText(tr("Selections"));
-    m_actionSpotColors->setText(tr("Load spot colors"));
 
     // create menus
     QMenu *menuLoad = new QMenu(menubar);
@@ -182,7 +180,6 @@ void MainWindow::setupUi()
     menuViews->setTitle(tr("Views"));
     menuLoad->addAction(m_actionExit.data());
     menuLoad->addAction(m_actionClear_Cache.data());
-    menuLoad->addAction(m_actionSpotColors.data());
     menuHelp->addAction(m_actionAbout.data());
     menuViews->addAction(m_actionDatasets.data());
     menuViews->addAction(m_actionSelections.data());
@@ -286,7 +283,6 @@ void MainWindow::createConnections()
     // signal that shows the selections
     connect(m_actionSelections.data(), &QAction::triggered, m_user_selections.data(),
             &UserSelectionsPage::show);
-    connect(m_actionSpotColors.data(), &QAction::triggered, this, &MainWindow::slotLoadSpotColors);
 
     // when the user opens a dataset
     connect(m_datasets.data(),
@@ -303,24 +299,6 @@ void MainWindow::createConnections()
             &DatasetPage::signalDatasetRemoved,
             this,
             &MainWindow::slotDatasetRemoved);
-
-    // when the user change any gene
-    connect(m_genes.data(),
-            &GenesWidget::signalGenesUpdated,
-            m_cellview.data(),
-            &CellViewPage::slotGenesUpdate);
-
-    // when the user change any spot
-    connect(m_spots.data(),
-            &SpotsWidget::signalSpotsUpdated,
-            m_cellview.data(),
-            &CellViewPage::slotSpotsUpdated);
-
-    // when the user creates a selection
-    connect(m_cellview.data(),
-            &CellViewPage::signalUserSelection,
-            this,
-            &MainWindow::slotCreateSelection);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -375,33 +353,4 @@ void MainWindow::slotDatasetRemoved(const QString &datasetname)
     m_genes->clear();
     m_spots->clear();
     m_cellview->clear();
-}
-
-void MainWindow::slotLoadSpotColors()
-{
-    const QString filename
-            = QFileDialog::getOpenFileName(this,
-                                           tr("Open Spot Colors File"),
-                                           QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    QFileInfo info(filename);
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Spot Colors File File"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        m_spots->slotLoadSpotColors(filename);
-    }
-}
-
-void MainWindow::slotCreateSelection()
-{
-    UserSelection selection = m_cellview->createSelection();
-    qDebug() << "Creating selection " << selection.name();
-    m_user_selections->addSelection(selection);
 }

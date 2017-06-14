@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>728</width>
-    <height>354</height>
+    <width>788</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,27 +17,24 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QtCharts::QChartView" name="plot"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QtCharts::QChartView" name="plot">
+       <property name="minimumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>500</width>
+         <height>300</height>
         </size>
        </property>
-      </spacer>
+      </widget>
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="logScale">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetFixedSize</enum>
+       </property>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label">
          <property name="text">
-          <string>Log scale</string>
+          <string>Shared genes</string>
          </property>
         </widget>
        </item>
@@ -48,23 +45,34 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="pearson">
+         <property name="minimumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>100</width>
+           <height>21</height>
           </size>
          </property>
-        </spacer>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Shared genes</string>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Pearson correlation value</string>
+         </property>
+         <property name="statusTip">
+          <string>Pearson correlation value</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -75,69 +83,49 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="sharedGenes">
-         <property name="mouseTracking">
-          <bool>false</bool>
-         </property>
-         <property name="acceptDrops">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Number of genes shared between selections</string>
-         </property>
-         <property name="statusTip">
-          <string>Number of genes shared between selections</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
+       <item row="3" column="1">
         <widget class="QLineEdit" name="spearman">
-         <property name="mouseTracking">
-          <bool>false</bool>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>21</height>
+          </size>
          </property>
-         <property name="acceptDrops">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Spearman correlation value</string>
-         </property>
-         <property name="statusTip">
-          <string>Spearman correlation value</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLineEdit" name="pearson">
-         <property name="mouseTracking">
-          <bool>false</bool>
-         </property>
-         <property name="acceptDrops">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Pearson correlation value</string>
-         </property>
-         <property name="statusTip">
-          <string>Pearson correlation value</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QGroupBox" name="groupBoxNormalization">
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>75</height>
+           <width>100</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Spearman correlation value</string>
+         </property>
+         <property name="statusTip">
+          <string>Spearman correlation value</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBoxNormalization">
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>250</width>
+           <height>100</height>
           </size>
          </property>
          <property name="cursor">
@@ -161,58 +149,80 @@
          <property name="checkable">
           <bool>false</bool>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
            <widget class="QRadioButton" name="normalization_raw">
             <property name="text">
              <string>RAW</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QRadioButton" name="normalization_tpm">
-            <property name="text">
-             <string>TPM</string>
-            </property>
-           </widget>
-          </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QRadioButton" name="normalization_rel">
             <property name="text">
              <string>REL</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QRadioButton" name="normalization_deseq">
-            <property name="text">
-             <string>DESeq2</string>
-            </property>
-           </widget>
-          </item>
-          <item>
+          <item row="0" column="2">
            <widget class="QRadioButton" name="normalization_scran">
             <property name="text">
              <string>SCRAN</string>
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="normalization_tpm">
+            <property name="text">
+             <string>TPM</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="normalization_deseq">
+            <property name="text">
+             <string>DESeq2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="logScale">
+            <property name="text">
+             <string>Log scale</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="5" column="2">
-        <widget class="QPushButton" name="exportPlot">
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="sharedGenes">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
          </property>
          <property name="toolTip">
-          <string>Export the correlation plot to a file</string>
+          <string>Number of genes shared between selections</string>
          </property>
          <property name="statusTip">
-          <string>Export the correlation plot to a file</string>
+          <string>Number of genes shared between selections</string>
          </property>
-         <property name="text">
-          <string>Export Plot</string>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

@@ -20,7 +20,6 @@ class UserSelections;
 
 // TODO add option to show right click with mouse in selection (open, copy, edit...)
 // TODO implement DEA analysis
-// TODO implement correlation analysis
 class UserSelectionsPage : public QWidget
 {
     Q_OBJECT

@@ -54,10 +54,6 @@ private slots:
     void slotDatasetUpdated(const QString &datasetname);
     // a dataset has been removed (the current open)
     void slotDatasetRemoved(const QString &datasetname);
-    // the user wants to load a file with spot's colors
-    void slotLoadSpotColors();
-    // the user wants to create a selection
-    void slotCreateSelection();
 
 private:
     // create all the widgets
@@ -80,14 +76,13 @@ private:
     QScopedPointer<QAction> m_actionClear_Cache;
     QScopedPointer<QAction> m_actionDatasets;
     QScopedPointer<QAction> m_actionSelections;
-    QScopedPointer<QAction> m_actionSpotColors;
 
     // different views
     QScopedPointer<DatasetPage> m_datasets;
     QScopedPointer<CellViewPage> m_cellview;
-    QScopedPointer<UserSelectionsPage> m_user_selections;
-    QScopedPointer<GenesWidget> m_genes;
-    QScopedPointer<SpotsWidget> m_spots;
+    QSharedPointer<UserSelectionsPage> m_user_selections;
+    QSharedPointer<GenesWidget> m_genes;
+    QSharedPointer<SpotsWidget> m_spots;
 };
 
 #endif // MAINWINDOW_H

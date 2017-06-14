@@ -66,6 +66,9 @@ public slots:
 
     // TODO slots should have the prefix "slot"
 
+    // rotate the main view by angle (-360, 0 , 360)
+    void rotate(const int angle);
+
     // Zooming the canvas
     void zoomOut();
     void zoomIn();
