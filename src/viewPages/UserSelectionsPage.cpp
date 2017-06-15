@@ -63,7 +63,7 @@ void UserSelectionsPage::clean()
 QSortFilterProxyModel *UserSelectionsPage::selectionsProxyModel()
 {
     QSortFilterProxyModel *selectionsProxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_ui->selections_tableView->model());
+            = qobject_cast<QSortFilterProxyModel *>(m_ui->selections_tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
@@ -71,7 +71,7 @@ QSortFilterProxyModel *UserSelectionsPage::selectionsProxyModel()
 UserSelectionsItemModel *UserSelectionsPage::selectionsModel()
 {
     UserSelectionsItemModel *model
-        = qobject_cast<UserSelectionsItemModel *>(selectionsProxyModel()->sourceModel());
+            = qobject_cast<UserSelectionsItemModel *>(selectionsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -143,11 +143,11 @@ void UserSelectionsPage::slotRemoveSelection()
     }
 
     const int answer
-        = QMessageBox::warning(this,
-                               tr("Remove Selection"),
-                               tr("Are you really sure you want to remove the selection/s?"),
-                               QMessageBox::Yes,
-                               QMessageBox::No | QMessageBox::Escape);
+            = QMessageBox::warning(this,
+                                   tr("Remove Selection"),
+                                   tr("Are you really sure you want to remove the selection/s?"),
+                                   QMessageBox::Yes,
+                                   QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
@@ -212,14 +212,14 @@ void UserSelectionsPage::slotEditSelection()
 
     // creates a selection dialog with the current fields
     QScopedPointer<EditSelectionDialog> editSelection(
-        new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editSelection->setWindowIcon(QIcon());
     editSelection->setName(selection.name());
     editSelection->setComment(selection.comment());
     if (editSelection->exec() == EditSelectionDialog::Accepted
-        && (editSelection->getName() != selection.name()
-            || editSelection->getComment() != selection.comment())
-        && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()) {
+            && (editSelection->getName() != selection.name()
+                || editSelection->getComment() != selection.comment())
+            && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()) {
 
         const int index = m_selections.indexOf(selection);
         Q_ASSERT(index != -1);
@@ -277,12 +277,15 @@ void UserSelectionsPage::slotPerformDEA()
         return;
     }
 
-    /*
+
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
     // launch the DEA widget
-    */
+    AnalysisDEA *deaWidget(
+                new AnalysisDEA(selectionObject1.data(),
+                                selectionObject2.data(), this, Qt::Window));
+    deaWidget->show();
 }
 
 void UserSelectionsPage::slotPerformCorrelation()
