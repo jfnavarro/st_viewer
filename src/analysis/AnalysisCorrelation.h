@@ -27,17 +27,18 @@ private slots:
     void updateData();
 
 private:
-
+    // GUI object
     QScopedPointer<Ui::analysisCorrelation> m_ui;
 
     // the two datasets
-    STData::Matrix m_dataA;
-    STData::Matrix m_dataB;
+    mat m_dataA;
+    mat m_dataB;
+
     // store the size factors to save computational time
-    STData::rowvec m_deseq_factorsA;
-    STData::rowvec m_scran_factorsA;
-    STData::rowvec m_deseq_factorsB;
-    STData::rowvec m_scran_factorsB;
+    rowvec m_deseq_factorsA;
+    rowvec m_scran_factorsA;
+    rowvec m_deseq_factorsB;
+    rowvec m_scran_factorsB;
 
     Q_DISABLE_COPY(AnalysisCorrelation)
 };

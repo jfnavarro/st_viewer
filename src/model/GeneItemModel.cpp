@@ -186,24 +186,19 @@ void GeneItemModel::setVisibility(const QItemSelection &selection, bool visible)
     if (m_items_reference.empty()) {
         return;
     }
+
     // get unique indexes from the user selection
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-    // create a list of genes that are changing the selected state
-    STData::GeneListType geneList;
+
+    // update the genes
     for (const auto &row : rows) {
         auto gene = m_items_reference.at(row);
         if (gene->visible() != visible) {
             gene->visible(visible);
-            geneList.push_back(gene);
         }
-    }
-    //NOTE do not seem the changed genes for now
-    if (!geneList.empty()) {
-        // notify with the new list
-        emit signalGeneSelectionChanged();
     }
 }
 
@@ -212,23 +207,18 @@ void GeneItemModel::setColor(const QItemSelection &selection, const QColor &colo
     if (m_items_reference.empty()) {
         return;
     }
+
     // get unique indexes from the user selection
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-    // create a list of genes that are changing the color
-    STData::GeneListType geneList;
+
+    // update the genes
     for (const auto &row : rows) {
         auto gene = m_items_reference.at(row);
         if (color.isValid() && gene->color() != color) {
             gene->color(color);
-            geneList.push_back(gene);
         }
-    }
-    //NOTE do not seem the changed genes for now
-    if (!geneList.empty()) {
-        // notify with the new list
-        emit signalGeneColorChanged();
     }
 }

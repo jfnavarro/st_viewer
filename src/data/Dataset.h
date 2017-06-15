@@ -32,6 +32,8 @@ public:
     const QString statTissue() const;
     const QString statSpecies() const;
     const QString statComments() const;
+    const QRect chip() const;
+
     // Setters
     void name(const QString &name);
     void dataFile(const QString &data);
@@ -42,6 +44,7 @@ public:
     void statTissue(const QString &statTissue);
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
+    void chip(const QRect &chip);
 
     // creates the STData object (parse data)
     bool load_data();
@@ -59,6 +62,8 @@ private:
     QString m_image_file;
     QString m_alignment_file;
     QString m_spots_file;
+    QRect m_chip;
+
     // generated
     QTransform m_alignment;
     QSharedPointer<STData> m_data;

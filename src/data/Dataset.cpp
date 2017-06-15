@@ -12,6 +12,7 @@ Dataset::Dataset()
     , m_image_file()
     , m_alignment_file()
     , m_spots_file()
+    , m_chip()
     , m_alignment()
     , m_data(nullptr)
 {
@@ -27,6 +28,7 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_image_file = importer.mainImageFile();
     m_alignment_file = importer.alignmentMatrix();
     m_spots_file = importer.spotsMapFile();
+    m_chip = importer.chip();
     m_alignment = QTransform();
     m_data = nullptr;
 }
@@ -41,6 +43,7 @@ Dataset::Dataset(const Dataset &other)
     m_image_file = other.m_image_file;
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
+    m_chip = other.m_chip;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
 }
@@ -59,6 +62,7 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_image_file = other.m_image_file;
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
+    m_chip = other.m_chip;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
     return (*this);
@@ -74,6 +78,7 @@ bool Dataset::operator==(const Dataset &other) const
             && m_image_file == other.m_image_file
             && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
+            && m_chip == other.m_chip
             && m_alignment == other.m_alignment
             && m_data == other.m_data);
 }
@@ -128,6 +133,11 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
+const QRect Dataset::chip() const
+{
+    return m_chip;
+}
+
 void Dataset::name(const QString &name)
 {
     m_name = name;
@@ -171,6 +181,11 @@ void Dataset::statSpecies(const QString &statSpecies)
 void Dataset::statComments(const QString &statComments)
 {
     m_statComments = statComments;
+}
+
+void Dataset::chip(const QRect &chip)
+{
+    m_chip = chip;
 }
 
 bool Dataset::load_data()

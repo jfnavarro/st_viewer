@@ -22,16 +22,14 @@ class STData
 {
 
 public:
-    typedef Mat<float> Matrix;
-    typedef Row<float> rowvec;
-    typedef Col<float> colvec;
+
     typedef QSharedPointer<Spot> SpotObjectType;
     typedef QSharedPointer<Gene> GeneObjectType;
     typedef QList<SpotObjectType> SpotListType;
     typedef QList<GeneObjectType> GeneListType;
 
     struct STDataFrame {
-        Matrix counts;
+        mat counts;
         QList<QString> genes;
         QList<Spot::SpotType> spots;
     };
@@ -68,14 +66,14 @@ public:
     bool parseSpotsMap(const QString &spots_file);
 
     // helper function to get the sum of non zeroes elements (by column, aka gene)
-    static rowvec computeNonZeroColumns(const Matrix &matrix);
+    static rowvec computeNonZeroColumns(const mat &matrix);
     // helper function to get the sum of non zeroes elements (by row, aka spot)
-    static colvec computeNonZeroRows(const Matrix &matrix);
+    static colvec computeNonZeroRows(const mat &matrix);
     // helper function that returns the normalized matrix counts using the rendering settings
-    static Matrix normalizeCounts(const Matrix &counts,
-                                  SettingsWidget::NormalizationMode mode,
-                                  const rowvec &deseq_factors,
-                                  const rowvec &scran_factors);
+    static mat normalizeCounts(const mat &counts,
+                               SettingsWidget::NormalizationMode mode,
+                               const rowvec &deseq_factors,
+                               const rowvec &scran_factors);
     // helper fuctions to adjust a spot's color according to the rendering settings
     static QColor adjustVisualMode(const QColor merged_color,
                                    const float &merged_value,

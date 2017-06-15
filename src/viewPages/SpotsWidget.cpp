@@ -97,13 +97,14 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     setLayout(spotsLayout);
 
     // connections
-    connect(showSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotShowAllSelected()));
-    connect(hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
-    connect(selectionAllButton, SIGNAL(clicked(bool)), m_spots_tableview.data(), SLOT(selectAll()));
+    connect(showSelectedButton, &QPushButton::clicked, this, &SpotsWidget::slotShowAllSelected);
+    connect(hideSelectedButton, &QPushButton::clicked, this, &SpotsWidget::slotHideAllSelected);
+    connect(selectionAllButton, &QPushButton::clicked,
+            m_spots_tableview.data(), &SpotsTableView::selectAll);
     connect(selectionClearAllButton,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             m_spots_tableview.data(),
-            SLOT(clearSelection()));
+            &SpotsTableView::clearSelection);
     connect(showColorButton, &QPushButton::clicked, [=] {
         m_colorList->show();
         m_colorList->raise();
@@ -113,17 +114,9 @@ SpotsWidget::SpotsWidget(QWidget *parent)
         slotSetColorAllSelected(m_colorList->currentColor());
     });
     connect(m_lineEdit.data(),
-            SIGNAL(textChanged(QString)),
+            &QLineEdit::textChanged,
             m_spots_tableview.data(),
-            SLOT(setNameFilter(QString)));
-    connect(getModel(),
-            SIGNAL(signalSpotSelectionChanged()),
-            this,
-            SIGNAL(signalSpotsUpdated()));
-    connect(getModel(),
-            SIGNAL(signalSpotColorChanged()),
-            this,
-            SIGNAL(signalSpotsUpdated()));
+            &SpotsTableView::setNameFilter);
 }
 
 SpotsWidget::~SpotsWidget()
@@ -170,12 +163,14 @@ void SpotsWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
     getModel()->setVisibility(m_spots_tableview->getItemSelection(), visible);
     m_spots_tableview->update();
+    emit signalSpotsUpdated();
 }
 
 void SpotsWidget::slotSetColorAllSelected(const QColor &color)
 {
     getModel()->setColor(m_spots_tableview->getItemSelection(), color);
     m_spots_tableview->update();
+    emit signalSpotsUpdated();
 }
 
 void SpotsWidget::slotLoadDataset(const Dataset &dataset)
@@ -184,14 +179,22 @@ void SpotsWidget::slotLoadDataset(const Dataset &dataset)
     m_spots_tableview->update();
 }
 
-void SpotsWidget::slotLoadSpotColors(const QString &filename)
+void SpotsWidget::slotLoadSpotColorsFile(const QString &filename)
 {
-    if (getModel()->loadSpotColors(filename)) {
+    if (getModel()->loadSpotColorsFile(filename)) {
         m_spots_tableview->update();
+        emit signalSpotsUpdated();
     } else {
         QMessageBox::critical(this, tr("Spots color import"),
                               tr("There was an error parsing the file"));
     }
+}
+
+void SpotsWidget::slotLoadSpotColors(const QVector<QColor> &colors)
+{
+    getModel()->loadSpotColors(colors);
+    m_spots_tableview->update();
+    emit signalSpotsUpdated();
 }
 
 SpotItemModel *SpotsWidget::getModel()

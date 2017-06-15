@@ -151,24 +151,19 @@ void SpotItemModel::setVisibility(const QItemSelection &selection, bool visible)
     if (m_items_reference.empty()) {
         return;
     }
+
     // get unique indexes from the user selection
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-    // create a list of spots that are changing the selected state
-    STData::SpotListType spotList;
+
+    // update the spots
     for (const auto &row : rows) {
         auto spot = m_items_reference.at(row);
         if (spot->visible() != visible) {
             spot->visible(visible);
-            spotList.push_back(spot);
         }
-    }
-    //NOTE do not seem the changed genes for now
-    if (!spotList.empty()) {
-        // notify with the new list
-        emit signalSpotSelectionChanged();
     }
 }
 
@@ -177,30 +172,27 @@ void SpotItemModel::setColor(const QItemSelection &selection, const QColor &colo
     if (m_items_reference.empty()) {
         return;
     }
+
     // get unique indexes from the user selection
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-    // create a list of genes that are changing the color
-    STData::SpotListType spotList;
+
+    // update the spots
     for (const auto &row : rows) {
         auto spot = m_items_reference.at(row);
         if (color.isValid() && spot->color() != color) {
             spot->color(color);
-            spotList.push_back(spot);
         }
-    }
-    //NOTE do not seem the changed genes for now
-    if (!spotList.empty()) {
-        // notify with the new list
-        emit signalSpotColorChanged();
     }
 }
 
-bool SpotItemModel::loadSpotColors(const QString &filename)
+bool SpotItemModel::loadSpotColorsFile(const QString &filename)
 {
-    QStringList color_list = QColor::colorNames();
+    QStringList color_list;
+    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
+               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
     QMap<Spot::SpotType, QColor> spotMap;
     QFile file(filename);
     bool parsed = true;
@@ -253,9 +245,15 @@ bool SpotItemModel::loadSpotColors(const QString &filename)
             }
             ++it;
         }
-
-        emit signalSpotColorChanged();
     }
 
     return parsed;
+}
+
+void SpotItemModel::loadSpotColors(const QVector<QColor> &colors)
+{
+    Q_ASSERT(m_items_reference.size() == colors.size());
+    for (int i = 0; i < colors.size(); ++i) {
+        m_items_reference[i]->color(colors.at(i));
+    }
 }

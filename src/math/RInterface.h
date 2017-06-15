@@ -10,12 +10,9 @@
 
 namespace RInterface {
 
-typedef Mat<float> Matrix;
-typedef Row<float> rowvec;
-
 // Computes correlation betwee two vectors (method can be : pearson, spearman and kendall)
-static float computeCorrelation(const std::vector<float> &A,
-                                const std::vector<float> &B,
+static float computeCorrelation(const std::vector<double> &A,
+                                const std::vector<double> &B,
                                 const std::string &method)
 {
     RInside *R = nullptr;
@@ -39,8 +36,49 @@ static float computeCorrelation(const std::vector<float> &A,
     return corr;
 }
 
+// Classifies spots based on gene expression (tSNE + KMeans)
+static void spotClassification(const mat &counts,
+                               const int num_clusters,
+                               const int inital_dim,
+                               const int no_dims,
+                               const int perplexity,
+                               const int max_iter,
+                               const double theta,
+                               std::vector<int> &colors, mat &tsne)
+{
+    RInside *R = nullptr;
+    if (RInside::instancePtr() != nullptr) {
+        R = RInside::instancePtr();
+    } else {
+        R = new RInside();
+    }
+    try {
+        const std::string R_libs = "suppressMessages(library(Rtsne));";
+        R->parseEvalQ(R_libs);
+        (*R)["counts"] = counts;
+        (*R)["k"] = num_clusters;
+        (*R)["DIM"] = no_dims;
+        (*R)["inital_dim"] = inital_dim;
+        (*R)["perplexity"] = perplexity;
+        (*R)["max_iter"] = max_iter;
+        (*R)["theta"] = theta;
+        const std::string call1 = "tsne_out = Rtsne(counts, dims=DIM,"
+                "theta=theta, check_duplicates=FALSE, pca=TRUE,"
+                "initial_dims=inital_dim, perplexity=perplexity,"
+                "max_iter=max_iter, verbose=FALSE);"
+                "tsne_out = tsne_out$Y[,1:DIM];";
+        const std::string call2 = "fit = kmeans(tsne_out, k)$cluster";
+        tsne = Rcpp::as<mat>(R->parseEval(call1));
+        colors = Rcpp::as<std::vector<int>>(R->parseEval(call2));
+        qDebug() << "Computed Spot colors " << colors.size();
+        Q_ASSERT(colors.size() == counts.n_rows);
+    } catch (const std::exception &e) {
+        qDebug() << "Error doing R dimensionality reduction " << e.what();
+    }
+}
+
 // Computes size factors using the DESEq2 method (one factor per spot)
-static rowvec computeDESeqFactors(Matrix counts)
+static rowvec computeDESeqFactors(const mat &counts)
 {
     RInside *R = nullptr;
     if (RInside::instancePtr() != nullptr) {
@@ -64,8 +102,9 @@ static rowvec computeDESeqFactors(Matrix counts)
     }
     return factors;
 }
+
 // Computes size factors using the SCRAN method (one factor per spot)
-static rowvec computeScranFactors(const Matrix &counts)
+static rowvec computeScranFactors(const mat &counts)
 {
     RInside *R = nullptr;
     if (RInside::instancePtr() != nullptr) {
@@ -89,7 +128,7 @@ static rowvec computeScranFactors(const Matrix &counts)
                                  "sizes[3] = (num_spots / 2) * 0.75;"
                                  "sizes[4] = (num_spots / 2);"
                                  "sce = newSCESet(countData=counts);"
-                                 "clust = quickCluster(counts, min.size=sizes[1]);"
+                                 "clust = quickCluster(counts, min.size=sizes[1] / 2);"
                                  "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=sizes);"
                                  "sce = normalize(sce, recompute_cpm=FALSE);"
                                  "size_factors = sce@phenoData$size_factor";

@@ -30,6 +30,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     m_dataB = data2.counts;
 
     if (shared_genes.size() > 0) {
+        // keep only the shared genes
         std::vector<uword> to_keepA;
         std::vector<uword> to_keepB;
         for (const QString &shared_gene : shared_genes) {
@@ -90,18 +91,18 @@ void AnalysisCorrelation::updateData()
         normalization = SettingsWidget::SCRAN;
     }
 
-    STData::Matrix A = STData::normalizeCounts(m_dataA, normalization,
-                                               m_deseq_factorsA, m_scran_factorsA);
-    STData::Matrix B = STData::normalizeCounts(m_dataB, normalization,
-                                               m_deseq_factorsB, m_scran_factorsB);
+    mat A = STData::normalizeCounts(m_dataA, normalization,
+                                    m_deseq_factorsA, m_scran_factorsA);
+    mat B = STData::normalizeCounts(m_dataB, normalization,
+                                    m_deseq_factorsB, m_scran_factorsB);
 
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);
         B = log(B + 1.0);
     }
 
-    const std::vector<float> rowsumA = conv_to<std::vector<float>>::from(sum(A, 0));
-    const std::vector<float> rowsumB = conv_to<std::vector<float>>::from(sum(B, 0));
+    const std::vector<double> rowsumA = conv_to<std::vector<double>>::from(sum(A, 0));
+    const std::vector<double> rowsumB = conv_to<std::vector<double>>::from(sum(B, 0));
 
     const double pearson = RInterface::computeCorrelation(rowsumA, rowsumB, "pearson");
     const double spearman = RInterface::computeCorrelation(rowsumA, rowsumB, "spearman");
@@ -112,6 +113,7 @@ void AnalysisCorrelation::updateData()
     series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series->setMarkerSize(5.0);
     series->setColor(Qt::blue);
+    series->setUseOpenGL(true);
     for (unsigned i = 0; i < rowsumA.size(); ++i) {
         series->append(rowsumA.at(i), rowsumB.at(i));
     }

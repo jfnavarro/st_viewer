@@ -29,9 +29,6 @@ public:
     // clear focus/status and selections
     void clear();
 
-    // forces an update of the table
-    void updateModelTable();
-
 signals:
 
     // signals emitted when the user selects or change colors of genes

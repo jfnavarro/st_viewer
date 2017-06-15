@@ -16,8 +16,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->setupUi(this);
 
     // compute the stats
-    const STData::colvec rowsums = sum(data.counts, 1);
-    const STData::colvec nonzero_row = STData::computeNonZeroRows(data.counts);
+    const colvec rowsums = sum(data.counts, 1);
+    const colvec nonzero_row = STData::computeNonZeroRows(data.counts);
     const QString max_transcripts_spot = QString::number(rowsums.max());
     const QString max_genes_spot = QString::number(nonzero_row.max());
     const QString num_genes = QString::number(data.counts.n_cols);

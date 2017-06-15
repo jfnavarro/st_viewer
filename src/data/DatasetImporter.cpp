@@ -77,6 +77,11 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
+const QRect DatasetImporter::chip() const
+{
+    return QRect(1,1,m_ui->chip_x->value(), m_ui->chip_y->value());
+}
+
 const QString DatasetImporter::STDataFile() const
 {
     return m_ui->stDataFile->text();

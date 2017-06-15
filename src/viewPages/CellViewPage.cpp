@@ -62,6 +62,10 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     m_settings.reset(new SettingsWidget());
     Q_ASSERT(!m_settings.isNull());
 
+    // instance of clustering widget
+    m_clustering.reset(new AnalysisClustering(this, Qt::Window));
+    Q_ASSERT(!m_clustering.isNull());
+
     // initialize rendering pipeline
     initRenderer();
 
@@ -113,13 +117,15 @@ void CellViewPage::loadDataset(const Dataset &dataset)
                               tr("Error loading tissue image"));
     } else {
         m_ui->view->setScene(m_image->boundingRect());
-        // Update the image aligment with the image's dimension
-        // if it is not given by the user
+        // If the user has not given any transformation matrix
+        // we compute a simple transformation matrix using
+        // the image and chip dimensions so the spot's coordinates
+        // can be mapped to the image's coordinates space
         QTransform alignment = dataset.imageAlignment();
         if (alignment.isIdentity()) {
-            // TODO these should be given or taken from config
-            const int chip_x2 = 33;
-            const int chip_y2 = 35;
+            const QRect chip = m_dataset.chip();
+            const int chip_x2 = chip.height();
+            const int chip_y2 = chip.width();
             const int width_image = m_image->boundingRect().width();
             const int height_image = m_image->boundingRect().height();
             const float a11 = width_image / (chip_x2 - 1);
@@ -229,7 +235,11 @@ void CellViewPage::createConnections()
             &CellViewPage::slotSpotsUpdated);
 
     // when the user wants to load a file with spot colors
-    connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColors);
+    connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColorsFile);
+
+    // when the users clusters the spots
+    connect(m_clustering.data(), &AnalysisClustering::singalClusteringUpdated,
+            this, &CellViewPage::slotLoadSpotColors);
 }
 
 
@@ -321,11 +331,11 @@ void CellViewPage::slotShowQC()
 
 void CellViewPage::slotClustering()
 {
-    AnalysisClustering *clustering = new AnalysisClustering(m_dataset.data()->data(), this, Qt::Window);
-    clustering->show();
+    m_clustering->loadData(m_dataset.data()->data());
+    m_clustering->show();
 }
 
-void CellViewPage::slotLoadSpotColors()
+void CellViewPage::slotLoadSpotColorsFile()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
@@ -343,8 +353,14 @@ void CellViewPage::slotLoadSpotColors()
                               tr("Spot Colors File File"),
                               tr("File is incorrect or not readable"));
     } else {
-        m_spots->slotLoadSpotColors(filename);
+        m_spots->slotLoadSpotColorsFile(filename);
     }
+}
+
+void CellViewPage::slotLoadSpotColors()
+{
+    const auto colors = m_clustering->getComputedClasses();
+    m_spots->slotLoadSpotColors(colors);
 }
 
 void CellViewPage::slotCreateSelection()

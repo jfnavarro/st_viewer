@@ -98,7 +98,7 @@ STData::STDataFrame STData::read(const QString &filename)
     }
 
     // Create an armadillo matrix
-    Matrix counts_matrix(row_number - 1, col_number - 1);
+    mat counts_matrix(row_number - 1, col_number - 1);
     for (int i = 0; i < row_number - 1; ++i) {
         for (int j = 0; j < col_number - 1; ++j) {
             counts_matrix.at(i, j) = values[i][j];
@@ -215,7 +215,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::GenesLog;
 
     // Normalize the counts
-    Matrix counts = normalizeCounts(m_data.counts,
+    mat counts = normalizeCounts(m_data.counts,
                                     rendering_settings.normalization_mode,
                                     m_deseq_size_factors,
                                     m_scran_size_factors);
@@ -530,12 +530,12 @@ QColor STData::adjustVisualMode(const QColor merged_color,
     return color;
 }
 
-STData::Matrix STData::normalizeCounts(const Matrix &counts,
+mat STData::normalizeCounts(const mat &counts,
                                        SettingsWidget::NormalizationMode mode,
                                        const rowvec &deseq_factors,
                                        const rowvec &scran_factors)
 {
-    Matrix norm_counts = counts;
+    mat norm_counts = counts;
     switch (mode) {
     case (SettingsWidget::NormalizationMode::RAW): {
     } break;
@@ -555,9 +555,9 @@ STData::Matrix STData::normalizeCounts(const Matrix &counts,
     return counts;
 }
 
-STData::rowvec STData::computeNonZeroColumns(const STData::Matrix &matrix)
+rowvec STData::computeNonZeroColumns(const mat &matrix)
 {
-    STData::rowvec non_zeros(matrix.n_cols);
+    rowvec non_zeros(matrix.n_cols);
     for (uword i = 0; i < matrix.n_cols; ++i) {
         const uvec t = find(matrix.col(i) > 0);
         non_zeros[i] = t.n_elem;
@@ -565,9 +565,9 @@ STData::rowvec STData::computeNonZeroColumns(const STData::Matrix &matrix)
     return non_zeros;
 }
 
-STData::colvec STData::computeNonZeroRows(const STData::Matrix &matrix)
+colvec STData::computeNonZeroRows(const mat &matrix)
 {
-    STData::colvec non_zeros(matrix.n_rows);
+    colvec non_zeros(matrix.n_rows);
     for (uword i = 0; i < matrix.n_rows; ++i) {
         const uvec t = find(matrix.row(i) > 0);
         non_zeros[i] = t.n_elem;

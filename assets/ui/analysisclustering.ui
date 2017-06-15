@@ -13,21 +13,39 @@
   <property name="windowTitle">
    <string>Clustering spots</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_8">
+  <layout class="QHBoxLayout" name="horizontalLayout_5">
    <item>
     <widget class="QtCharts::QChartView" name="plot"/>
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
-     </property>
      <item>
-      <widget class="QGroupBox" name="groupBoxNormalization">
+      <widget class="QLabel" name="label_5">
        <property name="font">
         <font>
-         <pointsize>13</pointsize>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
+       </property>
+       <property name="text">
+        <string>Normalization</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBoxNormalization_2">
+       <property name="minimumSize">
+        <size>
+         <width>250</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>250</width>
+         <height>60</height>
+        </size>
        </property>
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
@@ -42,7 +60,7 @@
         <string>Different normalization methods for the counts</string>
        </property>
        <property name="title">
-        <string>Normalization</string>
+        <string/>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -50,39 +68,46 @@
        <property name="checkable">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
          <widget class="QRadioButton" name="normalization_raw">
           <property name="text">
            <string>RAW</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QRadioButton" name="normalization_tpm">
-          <property name="text">
-           <string>TPM</string>
-          </property>
-         </widget>
-        </item>
-        <item>
+        <item row="0" column="1">
          <widget class="QRadioButton" name="normalization_rel">
           <property name="text">
            <string>REL</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="0" column="2">
+         <widget class="QRadioButton" name="normalization_scran">
+          <property name="text">
+           <string>SCRAN</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="normalization_tpm">
+          <property name="text">
+           <string>TPM</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
          <widget class="QRadioButton" name="normalization_deseq">
           <property name="text">
            <string>DESeq2</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QRadioButton" name="normalization_scran">
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="logScale">
           <property name="text">
-           <string>SCRAN</string>
+           <string>Log scale</string>
           </property>
          </widget>
         </item>
@@ -99,112 +124,16 @@
         </font>
        </property>
        <property name="text">
-        <string>Dimenstionality Reduction</string>
+        <string>Dimenstionality Reduction (t-SNE)</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="title">
-        <string>Method</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QRadioButton" name="tSNE">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Dimenstionality by t-SNE (non-linear)</string>
-          </property>
-          <property name="statusTip">
-           <string>Dimenstionality by t-SNE (non-linear)</string>
-          </property>
-          <property name="text">
-           <string>t-SNE</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="PCA">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Dimenstionality by PCA (linear)</string>
-          </property>
-          <property name="statusTip">
-           <string>Dimenstionality by PCA (linear)</string>
-          </property>
-          <property name="text">
-           <string>PCA</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Initial components (t-SNE)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="initial_pc">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>The number if initial components to use in t-SNE</string>
-         </property>
-         <property name="statusTip">
-          <string>The number if initial components to use in t-SNE</string>
-         </property>
-         <property name="minimum">
-          <number>5</number>
-         </property>
-         <property name="value">
-          <number>25</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Perplexity (t-SNE)</string>
+          <string>Perplexity</string>
          </property>
         </widget>
        </item>
@@ -212,13 +141,13 @@
         <widget class="QSpinBox" name="perplexity">
          <property name="minimumSize">
           <size>
-           <width>50</width>
+           <width>60</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>50</width>
+           <width>60</width>
            <height>16777215</height>
           </size>
          </property>
@@ -239,61 +168,115 @@
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="title">
-        <string>Dimensions</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QRadioButton" name="dimenstions_2">
-          <property name="cursor">
-           <cursorShape>BlankCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Reduce to 2 main pricincipal components</string>
-          </property>
-          <property name="statusTip">
-           <string>Reduce to 2 main pricincipal components</string>
-          </property>
-          <property name="text">
-           <string>2</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="dimensions_3">
-          <property name="cursor">
-           <cursorShape>SplitHCursor</cursorShape>
-          </property>
-          <property name="toolTip">
-           <string>Reduce to 3 main pricincipal components</string>
-          </property>
-          <property name="statusTip">
-           <string>Reduce to 3 main pricincipal components</string>
-          </property>
-          <property name="text">
-           <string>3</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Theta</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="theta">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="minimum">
+          <double>-10.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>0.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Max. iterations</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="max_iter">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="minimum">
+          <number>10</number>
+         </property>
+         <property name="maximum">
+          <number>9999</number>
+         </property>
+         <property name="value">
+          <number>1000</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Init. dimensions</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="init_dims">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="minimum">
+          <number>5</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QLabel" name="label_6">
@@ -305,62 +288,8 @@
         </font>
        </property>
        <property name="text">
-        <string>Clustering</string>
+        <string>Clustering (KMeans)</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Method</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QRadioButton" name="kmeans">
-          <property name="toolTip">
-           <string>KMeans clustering (centroids)</string>
-          </property>
-          <property name="statusTip">
-           <string>KMeans clustering (centroids)</string>
-          </property>
-          <property name="text">
-           <string>KMeans</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="hiearchical">
-          <property name="toolTip">
-           <string>Hierarchical clustering (Ward linkage)</string>
-          </property>
-          <property name="statusTip">
-           <string>Hierarchical clustering (Ward linkage)</string>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string>Hierarchical</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
       </widget>
      </item>
      <item>
@@ -376,13 +305,13 @@
         <widget class="QSpinBox" name="clusters">
          <property name="minimumSize">
           <size>
-           <width>50</width>
+           <width>60</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>50</width>
+           <width>60</width>
            <height>16777215</height>
           </size>
          </property>
@@ -409,32 +338,49 @@
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="runClustering">
-       <property name="minimumSize">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
         <size>
-         <width>100</width>
-         <height>0</height>
+         <width>20</width>
+         <height>40</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Run</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="runClustering">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Run</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

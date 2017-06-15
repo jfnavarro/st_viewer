@@ -96,13 +96,14 @@ GenesWidget::GenesWidget(QWidget *parent)
     setLayout(genesLayout);
 
     // connections
-    connect(showSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotShowAllSelected()));
-    connect(hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
-    connect(selectionAllButton, SIGNAL(clicked(bool)), m_genes_tableview.data(), SLOT(selectAll()));
+    connect(showSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotShowAllSelected);
+    connect(hideSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotHideAllSelected);
+    connect(selectionAllButton, &QPushButton::clicked,
+            m_genes_tableview.data(), &GenesTableView::selectAll);
     connect(selectionClearAllButton,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             m_genes_tableview.data(),
-            SLOT(clearSelection()));
+            &GenesTableView::clearSelection);
     connect(showColorButton, &QPushButton::clicked, [=] {
         m_colorList->show();
         m_colorList->raise();
@@ -112,21 +113,13 @@ GenesWidget::GenesWidget(QWidget *parent)
         slotSetColorAllSelected(m_colorList->currentColor());
     });
     connect(m_lineEdit.data(),
-            SIGNAL(textChanged(QString)),
+            &QLineEdit::textChanged,
             m_genes_tableview.data(),
-            SLOT(setNameFilter(QString)));
+            &GenesTableView::setNameFilter);
     connect(getModel(),
-            SIGNAL(signalGeneSelectionChanged()),
+            &GeneItemModel::signalGeneCutOffChanged,
             this,
-            SIGNAL(signalGenesUpdated()));
-    connect(getModel(),
-            SIGNAL(signalGeneColorChanged()),
-            this,
-            SIGNAL(signalGenesUpdated()));
-    connect(getModel(),
-            SIGNAL(signalGeneCutOffChanged()),
-            this,
-            SIGNAL(signalGenesUpdated()));
+            &GenesWidget::signalGenesUpdated);
 }
 
 GenesWidget::~GenesWidget()
@@ -141,11 +134,6 @@ void GenesWidget::clear()
     m_genes_tableview->clearFocus();
     getModel()->clear();
     m_colorList->setCurrentColor(Qt::red);
-}
-
-void GenesWidget::updateModelTable()
-{
-    m_genes_tableview->update();
 }
 
 void GenesWidget::configureButton(QPushButton *button, const QIcon &icon, const QString &tooltip)
@@ -173,12 +161,14 @@ void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
     getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
+    emit signalGenesUpdated();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
     getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();
+    emit signalGenesUpdated();
 }
 
 void GenesWidget::slotLoadDataset(const Dataset &dataset)

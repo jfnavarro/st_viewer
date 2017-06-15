@@ -32,6 +32,7 @@ public:
     const QString species() const;
     const QString tissue() const;
     const QString comments() const;
+    const QRect chip() const;
 
     // To import a dataset from a folder
     // the function assumes that

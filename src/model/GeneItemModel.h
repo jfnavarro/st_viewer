@@ -53,10 +53,8 @@ public:
 public slots:
 
 signals:
-    // Signals to notify that any of the gene|s properties have changed
+    // to notify that the user has changed a gene's cut-off
     void signalGeneCutOffChanged();
-    void signalGeneSelectionChanged();
-    void signalGeneColorChanged();
 
 private:
     STData::GeneListType m_items_reference;

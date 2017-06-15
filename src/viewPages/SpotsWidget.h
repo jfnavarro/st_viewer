@@ -42,7 +42,10 @@ public slots:
     void slotLoadDataset(const Dataset &dataset);
 
     // the user is loading a file with spot colors
-    void slotLoadSpotColors(const QString &filename);
+    void slotLoadSpotColorsFile(const QString &filename);
+
+    // the user wants to load a set colors
+    void slotLoadSpotColors(const QVector<QColor> &colors);
 
 private slots:
 

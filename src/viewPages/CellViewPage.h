@@ -13,6 +13,7 @@ class SettingsWidget;
 class SpotsWidget;
 class GenesWidget;
 class UserSelectionsPage;
+class AnalysisClustering;
 
 namespace Ui
 {
@@ -75,6 +76,9 @@ private slots:
     void slotClustering();
 
     // user wants to load a file with spot colors
+    void slotLoadSpotColorsFile();
+
+    // user has performed spot classification
     void slotLoadSpotColors();
 
     // user wants to create a selection
@@ -102,6 +106,9 @@ private:
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
+
+    // the spot clustering widget
+    QScopedPointer<AnalysisClustering> m_clustering;
 
     // the currently opened dataset
     Dataset m_dataset;
