@@ -4,10 +4,9 @@
 #include <QTableView>
 #include <QPointer>
 
-class UserSelectionsItemModel;
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the user selections table
+// An abstraction of QTableView for the user selections page's table
 class UserSelectionTableView : public QTableView
 {
 
@@ -19,8 +18,7 @@ public:
     QItemSelection userSelecionTableItemSelection() const;
 
 private:
-    // references to model and proxy model
-    QScopedPointer<UserSelectionsItemModel> m_userSelectionModel;
+    // references to the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
 
     Q_DISABLE_COPY(UserSelectionTableView)

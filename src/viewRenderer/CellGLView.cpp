@@ -109,6 +109,11 @@ void CellGLView::paintGL()
     // clear color buffer
     m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT);
 
+    QPainter painter(this);
+    painter.setWorldMatrixEnabled(true);
+    painter.setViewTransformEnabled(true);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
     // render nodes
     for (auto node : m_nodes) {
         if (node->visible()) {
@@ -116,18 +121,16 @@ void CellGLView::paintGL()
             if (node->transformable()) {
                 local_transform *= sceneTransformations();
             }
-
-            QMatrix4x4 matrix(local_transform);
-            node->setProjection(m_projm);
-            node->setModelView(matrix);
+            painter.setWorldTransform(local_transform);
+            m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
             m_qopengl_functions.glLoadMatrixf(
-                        reinterpret_cast<const GLfloat *>(matrix.constData()));
-            node->draw(m_qopengl_functions);
+                        reinterpret_cast<const GLfloat *>(QMatrix4x4(local_transform).constData()));
+            node->draw(m_qopengl_functions, painter);
+            painter.resetTransform();
         }
     }
 
-    if (m_selecting && m_lassoSelection) {
-        QPainter painter(this);
+    if (m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
         painter.setBrush(lasso_color);
         painter.setPen(lasso_color);
         painter.drawPath(m_lasso.simplified());

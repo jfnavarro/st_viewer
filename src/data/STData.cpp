@@ -7,23 +7,7 @@
 
 static const int ROW = 1;
 //static const int COLUMN = 0;
-static const int QUAD_SIZE = 4;
-static const QVector2D ta(0.0, 0.0);
-static const QVector2D tb(0.0, 1.0);
-static const QVector2D tc(1.0, 1.0);
-static const QVector2D td(1.0, 0.0);
-static const QColor cempty(0.0, 0.0, 0.0, 0.0);
-
 using namespace Math;
-
-namespace
-{
-
-QVector4D fromQtColor(const QColor color)
-{
-    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-}
-}
 
 STData::STData()
     : m_data()
@@ -31,12 +15,6 @@ STData::STData()
     , m_scran_size_factors()
     , m_spots()
     , m_genes()
-    , m_selected()
-    , m_vertices()
-    , m_textures()
-    , m_colors()
-    , m_indexes()
-    , m_size(0.5)
 {
 
 }
@@ -147,7 +125,6 @@ void STData::init(const QString &filename) {
     m_data.counts = m_data.counts.cols(uvec(to_keep_genes));
 
     // Compute these only when the dataset is created
-    computeGenesCutoff();
     m_deseq_size_factors = RInterface::computeDESeqFactors(m_data.counts);
     m_scran_size_factors = RInterface::computeScranFactors(m_data.counts);
 }
@@ -203,9 +180,9 @@ STData::SpotListType STData::spots()
 void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 {
     Q_ASSERT(m_data.counts.size() > 0);
-    Q_ASSERT(!m_colors.empty());
-    Q_ASSERT(!m_selected.empty());
-    Q_ASSERT(m_selected.size() == m_colors.size());
+    m_rendering_colors.clear();
+    m_rendering_selected.clear();
+    m_rendering_spots.clear();
 
     const bool use_genes =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::Genes ||
@@ -219,12 +196,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                                     rendering_settings.normalization_mode,
                                     m_deseq_size_factors,
                                     m_scran_size_factors);
-
-    // Update spots size
-    if (m_size != rendering_settings.size) {
-        m_size = rendering_settings.size;
-        updateSize(m_size);
-    }
 
     // Get the list of selected genes
     rowvec colsum_nonzero = computeNonZeroColumns(counts);
@@ -246,9 +217,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     QVector<uword> selected_spots_indexes;
     float max_value_reads = -1;
     float min_value_reads = 10e6;
-    for (uword i = 0; i < counts.n_rows; ++i) {
-        updateSelected(i, false);
-        updateColor(i, cempty);
+    for (uword i = 0; i < counts.n_rows; ++i) {;
         const float reads_count = rowsum(i);
         if (reads_count > rendering_settings.reads_threshold) {
             selected_spots_indexes.push_back(i);
@@ -314,96 +283,28 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             merged_color = spot->color();
         }
 
-        updateSelected(i, spot->selected() && visible);
         if (visible) {
             merged_color.setAlphaF(rendering_settings.intensity);
-            updateColor(i, merged_color);
+            m_rendering_colors.append(merged_color);
+            m_rendering_selected.append(spot->selected());
+            m_rendering_spots.append(spot->coordinates());
         }
     }
 }
 
-const QVector<unsigned> &STData::renderingIndexes() const
+const QVector<Spot::SpotType> &STData::renderingSpots() const
 {
-    return m_indexes;
+    return m_rendering_spots;
 }
 
-const QVector<QVector3D> &STData::renderingVertices() const
+const QVector<QColor> &STData::renderingColors() const
 {
-    return m_vertices;
+    return m_rendering_colors;
 }
 
-const QVector<QVector2D> &STData::renderingTextures() const
+const QVector<bool> &STData::renderingSelected() const
 {
-    return m_textures;
-}
-
-const QVector<QVector4D> &STData::renderingColors() const
-{
-    return m_colors;
-}
-
-const QVector<float> &STData::renderingSelected() const
-{
-    return m_selected;
-}
-
-void STData::updateSize(const float size)
-{
-    for (int index = 0; index < m_spots.size(); ++index) {
-        const auto spot = m_spots[index]->coordinates();
-        const float x = spot.first;
-        const float y = spot.second;
-        m_vertices[(QUAD_SIZE * index)] =
-                QVector3D(x - size / 2.0, y - size / 2.0, 0.0);
-        m_vertices[(QUAD_SIZE * index) + 1] =
-                QVector3D(x + size / 2.0, y - size / 2.0, 0.0);
-        m_vertices[(QUAD_SIZE * index) + 2] =
-                QVector3D(x + size / 2.0, y + size / 2.0, 0.0);
-        m_vertices[(QUAD_SIZE * index) + 3] =
-                QVector3D(x - size / 2.0, y + size / 2.0, 0.0);
-    }
-}
-
-void STData::initRenderingData()
-{
-    m_selected.clear();
-    m_vertices.clear();
-    m_textures.clear();
-    m_colors.clear();
-    m_indexes.clear();
-    const QVector4D default_color = fromQtColor(cempty);
-    const bool default_sected = false;
-    m_size = 0.5;
-    for (int i = 0; i < m_spots.size(); ++i) {
-        const auto spot = m_spots[i];
-        const int index_count = static_cast<int>(m_vertices.size());
-        const auto spot_cor = spot->coordinates();
-        const float x = spot_cor.first;
-        const float y = spot_cor.second;
-        // init the OpenGL reneering data (rendering spots as two triangles with a texture)
-        m_vertices.append(QVector3D(x - m_size / 2.0, y - m_size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x + m_size / 2.0, y - m_size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x + m_size / 2.0, y + m_size / 2.0, 0.0));
-        m_vertices.append(QVector3D(x - m_size / 2.0, y + m_size / 2.0, 0.0));
-        m_textures.append(ta);
-        m_textures.append(tb);
-        m_textures.append(tc);
-        m_textures.append(td);
-        m_colors.append(default_color);
-        m_colors.append(default_color);
-        m_colors.append(default_color);
-        m_colors.append(default_color);
-        m_indexes.append(index_count);
-        m_indexes.append(index_count + 1);
-        m_indexes.append(index_count + 2);
-        m_indexes.append(index_count);
-        m_indexes.append(index_count + 2);
-        m_indexes.append(index_count + 3);
-        m_selected.append(default_sected);
-        m_selected.append(default_sected);
-        m_selected.append(default_sected);
-        m_selected.append(default_sected);
-    }
+    return m_rendering_selected;
 }
 
 bool STData::parseSpotsMap(const QString &spots_file)
@@ -484,26 +385,6 @@ bool STData::parseSpotsMap(const QString &spots_file)
     return true;
 }
 
-void STData::computeGenesCutoff()
-{
-
-}
-
-void STData::updateColor(const int index, const QColor &color)
-{
-    const QVector4D opengl_color = fromQtColor(color);
-    for (int z = 0; z < QUAD_SIZE; ++z) {
-        m_colors[(QUAD_SIZE * index) + z] = opengl_color;
-    }
-}
-
-void STData::updateSelected(const int index, const bool &selected)
-{
-    for (int z = 0; z < QUAD_SIZE; ++z) {
-        m_selected[(QUAD_SIZE * index) + z] = static_cast<float>(selected);
-    }
-}
-
 QColor STData::adjustVisualMode(const QColor merged_color,
                                 const float &merged_value,
                                 const float &min_reads,
@@ -577,12 +458,11 @@ colvec STData::computeNonZeroRows(const mat &matrix)
 
 void STData::clearSelection()
 {
-    for (int i = 0; i < m_spots.size(); ++i) {
-        m_spots[i]->selected(false);
-        updateSelected(i, false);
+    for (auto spot : m_spots) {
+        spot->selected(false);
     }
 
-    for (const auto gene : m_genes) {
+    for (auto gene : m_genes) {
         gene->selected(false);
     }
 }

@@ -5,14 +5,14 @@
 
 UserSelectionTableView::UserSelectionTableView(QWidget *parent)
     : QTableView(parent)
-    , m_userSelectionModel(nullptr)
+    , m_sortSelectionsProxyModel(nullptr)
 {
     // model
-    m_userSelectionModel.reset(new UserSelectionsItemModel(this));
+    UserSelectionsItemModel *data_model = new UserSelectionsItemModel(this);
 
     // sorting model
     m_sortSelectionsProxyModel.reset(new QSortFilterProxyModel(this));
-    m_sortSelectionsProxyModel->setSourceModel(m_userSelectionModel.data());
+    m_sortSelectionsProxyModel->setSourceModel(data_model);
     m_sortSelectionsProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortSelectionsProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     setModel(m_sortSelectionsProxyModel.data());

@@ -151,38 +151,3 @@ const QTransform GraphicItemGL::adjustForAnchor(const QTransform &transform) con
     }
     return adjustedTransform;
 }
-
-void GraphicItemGL::mouseMoveEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event);
-}
-
-void GraphicItemGL::mousePressEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event);
-}
-
-void GraphicItemGL::mouseReleaseEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event);
-}
-
-void GraphicItemGL::setProjection(const QMatrix4x4 &projection)
-{
-    m_projection = projection;
-}
-
-void GraphicItemGL::setModelView(const QMatrix4x4 &modelview)
-{
-    m_modelView = modelview;
-}
-
-const QMatrix4x4 GraphicItemGL::getProjection() const
-{
-    return m_projection;
-}
-
-const QMatrix4x4 GraphicItemGL::getModelView() const
-{
-    return m_modelView;
-}

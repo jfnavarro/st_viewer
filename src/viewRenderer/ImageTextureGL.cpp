@@ -50,8 +50,10 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
+void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter)
 {
+    Q_UNUSED(painter);
+
     if (!m_isInitialized) {
         return;
     }
@@ -79,8 +81,6 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
 
 QFuture<void> ImageTextureGL::createTextures(const QByteArray &imageByteArray)
 {
-    // clear memory
-    clearData();
     return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
 }
 
@@ -91,7 +91,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     // Load the image file into a byte array
     QFile file(imagefile);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "[ImageTextureGL] Image loading file error";
+        qDebug() << "Image loading file error";
         QGuiApplication::restoreOverrideCursor();
         return false;
     }
@@ -100,7 +100,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     // extract image from byte array
     QBuffer imageBuffer(&imageByteArray);
     if (!imageBuffer.open(QIODevice::ReadOnly)) {
-        qDebug() << "[ImageTextureGL] Image decoding buffer error:" << imageBuffer.errorString();
+        qDebug() << "Image decoding buffer error:" << imageBuffer.errorString();
         QGuiApplication::restoreOverrideCursor();
         return false;
     }
@@ -112,7 +112,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     const bool readOk = imageReader.read(&image);
     imageBuffer.close();
     if (!readOk || image.isNull()) {
-        qDebug() << "[ImageTextureGL] Opening image failed";
+        qDebug() << "Opening image failed";
         QGuiApplication::restoreOverrideCursor();
         return false;
     }

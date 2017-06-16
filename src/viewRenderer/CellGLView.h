@@ -14,7 +14,7 @@ class QRubberBand;
 class RubberbandGL;
 
 // CellGLView is a container
-// to render OpenGL GraphicItemGL type objects
+// to render OpenGL/QPainter GraphicItemGL type objects
 // It allows for zooming, panning and selection.
 // It is based on a QOpenGLWidget which is an OpenGL
 // renderable qt widget.

@@ -52,13 +52,10 @@ public:
     SpotListType spots();
 
     // Rendering functions
-    void initRenderingData();
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
-    const QVector<unsigned> &renderingIndexes() const;
-    const QVector<QVector3D> &renderingVertices() const;
-    const QVector<QVector2D> &renderingTextures() const;
-    const QVector<QVector4D> &renderingColors() const;
-    const QVector<float> &renderingSelected() const;
+    const QVector<Spot::SpotType> &renderingSpots() const;
+    const QVector<QColor> &renderingColors() const;
+    const QVector<bool> &renderingSelected() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
     // the spots coordinates will be updated and the spots
@@ -89,31 +86,23 @@ public:
     const QRectF getBorder() const;
 
 private:
-    // function to compute a default values for individual genes cut-off
-    void computeGenesCutoff();
-    // helper function to update the color and selected of a spot (rendering data)
-    inline void updateColor(const int index, const QColor &color);
-    inline void updateSelected(const int index, const bool &selected);
-    // update the size of the spots (rendering data)
-    void updateSize(const float size);
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
+
     // cache the size factors to save computational time
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
+
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix
     SpotListType m_spots;
     GeneListType m_genes;
+
     // rendering data
-    QVector<float> m_selected;
-    QVector<QVector3D> m_vertices;
-    QVector<QVector2D> m_textures;
-    QVector<QVector4D> m_colors;
-    QVector<unsigned> m_indexes;
-    // Save the size to not recompute it always
-    float m_size;
+    QVector<bool> m_rendering_selected;
+    QVector<Spot::SpotType> m_rendering_spots;
+    QVector<QColor> m_rendering_colors;
 
     Q_DISABLE_COPY(STData)
 };

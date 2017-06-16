@@ -11,7 +11,7 @@ class SelectionEvent;
 
 // Base class for rendering nodes used in CellGLView
 // it contains some basic functionalities and options
-// For any OpenGL based graphical object that needs
+// For any OpenGL/QPainter based graphical object that needs
 // to be rendered in the CellGLView, the object
 // must has this class as a base class
 class GraphicItemGL : public QObject
@@ -73,7 +73,7 @@ public:
     void setVisualOption(GraphicItemGL::VisualOption visualOption, bool value);
 
     // The drawing method, must be overriden in every drawing object
-    virtual void draw(QOpenGLFunctionsVersion &qpengl_functions) = 0;
+    virtual void draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter) = 0;
 
     // geometry of the graphic element
     virtual const QRectF boundingRect() const = 0;
@@ -84,18 +84,6 @@ public:
     // bounding rect boundaries check
     bool contains(const QPointF &point) const;
     bool contains(const QRectF &point) const;
-
-    // mouse events can be sent to the node
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-
-    // to set/get the projection and model view matrices of the rendering object
-    // these matrices will be used when rendering with shaders for instance
-    void setProjection(const QMatrix4x4 &projection);
-    void setModelView(const QMatrix4x4 &modelview);
-    const QMatrix4x4 getProjection() const;
-    const QMatrix4x4 getModelView() const;
 
 public slots:
     // TODO should prepend "slot"
@@ -116,10 +104,8 @@ protected:
     QTransform m_transform;
     // anchor position of object with respect to the screen
     Anchor m_anchor;
+    // object's rendering settings
     GraphicItemGL::VisualOptions m_visualOptions;
-    // the OpenGL projection and model view matrices
-    QMatrix4x4 m_projection;
-    QMatrix4x4 m_modelView;
 
     Q_DISABLE_COPY(GraphicItemGL)
 };

@@ -6,15 +6,14 @@
 
 GenesTableView::GenesTableView(QWidget *parent)
     : QTableView(parent)
-    , m_model(nullptr)
     , m_sortProxyModel(nullptr)
 {
     // model
-    m_model.reset(new GeneItemModel(this));
+    GeneItemModel *data_model = new GeneItemModel(this);
 
     // sorting model
     m_sortProxyModel.reset(new QSortFilterProxyModel(this));
-    m_sortProxyModel->setSourceModel(m_model.data());
+    m_sortProxyModel->setSourceModel(data_model);
     m_sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     // this is important because sort proxy will use the column 0 by default

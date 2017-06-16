@@ -4,7 +4,6 @@
 #include <QTableView>
 #include <QPointer>
 
-class SpotItemModel;
 class QSortFilterProxyModel;
 
 // An abstraction of QTableView for the spots table
@@ -20,12 +19,11 @@ public:
     QItemSelection getItemSelection() const;
 
 public slots:
-    // slot used to set a search filter for the table
+    // slot used to set a search items in the model by name
     void setNameFilter(const QString &str);
 
 private:
-    // references to model and proxy model
-    QScopedPointer<SpotItemModel> m_model;
+    // references to  the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortProxyModel;
 
     Q_DISABLE_COPY(SpotsTableView)

@@ -40,7 +40,7 @@ signals:
 protected:
     // override method that returns the drawing size of this element
     const QRectF boundingRect() const override;
-    void draw(QOpenGLFunctionsVersion &qopengl_functions) override;
+    void draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter) override;
     void setSelectionArea(const SelectionEvent &event);
 
 private:

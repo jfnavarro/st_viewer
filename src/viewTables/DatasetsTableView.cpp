@@ -3,20 +3,18 @@
 #include <QModelIndex>
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
-#include <QPalette>
-#include <QDebug>
 #include "model/DatasetItemModel.h"
 
 DatasetsTableView::DatasetsTableView(QWidget *parent)
     : QTableView(parent)
-    , m_datasetModel(nullptr)
+    , m_sortDatasetsProxyModel(nullptr)
 {
     // the data model
-    m_datasetModel.reset(new DatasetItemModel(this));
+    DatasetItemModel *data_model = new DatasetItemModel(this);
 
     // the sorting model
     m_sortDatasetsProxyModel.reset(new QSortFilterProxyModel(this));
-    m_sortDatasetsProxyModel->setSourceModel(m_datasetModel.data());
+    m_sortDatasetsProxyModel->setSourceModel(data_model);
     m_sortDatasetsProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortDatasetsProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     setModel(m_sortDatasetsProxyModel.data());
@@ -30,7 +28,6 @@ DatasetsTableView::DatasetsTableView(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::SelectedClicked);
     setSelectionMode(QAbstractItemView::MultiSelection);
-
     resizeColumnsToContents();
     resizeRowsToContents();
 

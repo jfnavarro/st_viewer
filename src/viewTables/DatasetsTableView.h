@@ -4,10 +4,9 @@
 #include <QTableView>
 #include <QPointer>
 
-class DatasetItemModel;
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the datasets table
+// An abstraction of QTableView for the datasets page's table
 class DatasetsTableView : public QTableView
 {
     Q_OBJECT
@@ -20,8 +19,7 @@ public:
     QItemSelection datasetsTableItemSelection() const;
 
 private:
-    // references to model and proxy model
-    QScopedPointer<DatasetItemModel> m_datasetModel;
+    // references to proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 
     Q_DISABLE_COPY(DatasetsTableView)

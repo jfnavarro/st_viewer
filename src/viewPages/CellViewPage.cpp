@@ -153,6 +153,7 @@ void CellViewPage::loadDataset(const Dataset &dataset)
 void CellViewPage::clearSelections()
 {
     m_dataset.data()->clearSelection();
+    m_gene_plotter->slotUpdate();
     m_ui->view->update();
 }
 

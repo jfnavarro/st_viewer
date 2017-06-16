@@ -122,15 +122,15 @@ static rowvec computeScranFactors(const mat &counts)
         // For Scran genes must be rows so we transpose the matrixs
         const std::string call = "counts = t(counts);"
                                  "num_spots = dim(counts)[2];"
-                                 "sizes = vector(mode=\"numeric\", length=4);"
-                                 "sizes[1] = (num_spots / 2) * 0.25;"
-                                 "sizes[2] = (num_spots / 2) * 0.5;"
-                                 "sizes[3] = (num_spots / 2) * 0.75;"
-                                 "sizes[4] = (num_spots / 2);"
+                                 "sizes = vector(length=4);"
+                                 "sizes[1] = floor((num_spots / 2) * 0.1);"
+                                 "sizes[2] = floor((num_spots / 2) * 0.2);"
+                                 "sizes[3] = floor((num_spots / 2) * 0.3);"
+                                 "sizes[4] = floor((num_spots / 2) * 0.4);"
                                  "sce = newSCESet(countData=counts);"
-                                 "clust = quickCluster(counts, min.size=sizes[1] / 2);"
+                                 "clust = quickCluster(counts, min.size=sizes[1]);"
                                  "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=sizes);"
-                                 "sce = normalize(sce, recompute_cpm=FALSE);"
+                                 "sce = normalize(sce);"
                                  "size_factors = sce@phenoData$size_factor";
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed SCRAN size factors " << factors.size();

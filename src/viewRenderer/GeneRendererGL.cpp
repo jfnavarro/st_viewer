@@ -5,6 +5,7 @@
 #include <QOpenGLShaderProgram>
 #include <QImageReader>
 #include <QApplication>
+#include <QPainter>
 
 GeneRendererGL::GeneRendererGL(SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
@@ -41,76 +42,46 @@ void GeneRendererGL::slotUpdate()
 
 void GeneRendererGL::attachData(QSharedPointer<STData> data)
 {
-    // update shader
-    setupShaders();
-
     m_geneData = data;
-    m_geneData->initRenderingData();
     m_initialized = true;
     m_border = m_geneData->getBorder();
 }
 
-// we update the rendering data
-void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions)
+void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter)
 {
+    Q_UNUSED(qopengl_functions)
+
     if (!m_initialized) {
         return;
     }
 
-    m_shader_program.bind();
-
-    const QMatrix4x4 projectionModelViewMatrix = getProjection() * getModelView();
-    int projMatrix = m_shader_program.uniformLocation("in_ModelViewProjectionMatrix");
-    int vertex = m_shader_program.attributeLocation("vertexAttr");
-    int color = m_shader_program.attributeLocation("colorAttr");
-    int texture = m_shader_program.attributeLocation("textureAttr");
-    int selected = m_shader_program.attributeLocation("selectedAttr");
-
-    // Add arrays to the shader program
-    m_shader_program.enableAttributeArray(vertex);
-    m_shader_program.enableAttributeArray(color);
-    m_shader_program.enableAttributeArray(texture);
-    m_shader_program.enableAttributeArray(selected);
-
-    m_shader_program.setUniformValue(projMatrix, projectionModelViewMatrix);
-    m_shader_program.setAttributeArray(vertex, m_geneData->renderingVertices().constData());
-    m_shader_program.setAttributeArray(color, m_geneData->renderingColors().constData());
-    m_shader_program.setAttributeArray(texture, m_geneData->renderingTextures().constData());
-    m_shader_program.setAttributeArray(selected, m_geneData->renderingSelected().constData(), 1);
-
-    qopengl_functions.glDrawElements(GL_TRIANGLES, m_geneData->renderingIndexes().size(),
-                                     GL_UNSIGNED_INT,
-                                     reinterpret_cast<const GLuint*>(
-                                         m_geneData->renderingIndexes().constData()));
-
-    m_shader_program.disableAttributeArray(vertex);
-    m_shader_program.disableAttributeArray(color);
-    m_shader_program.disableAttributeArray(texture);
-    m_shader_program.disableAttributeArray(selected);
-
-    m_shader_program.release();
-}
-
-void GeneRendererGL::setupShaders()
-{
-    if (m_shader_program.isLinked()) {
-        return;
-    }
-
-    QOpenGLShader vShader(QOpenGLShader::Vertex);
-    vShader.compileSourceFile(":shader/geneShader.vert");
-
-    QOpenGLShader fShader(QOpenGLShader::Fragment);
-    fShader.compileSourceFile(":shader/geneShader.frag");
-
-    m_shader_program.addShader(&vShader);
-    m_shader_program.addShader(&fShader);
-
-    if (!m_shader_program.link()) {
-        qDebug() << "GeneRendererGL: unable to link a shader program." + m_shader_program.log();
-        QApplication::exit();
+    const auto spots = m_geneData->renderingSpots();
+    const auto colors = m_geneData->renderingColors();
+    const auto selecteds = m_geneData->renderingSelected();
+    painter.setBrush(Qt::NoBrush);
+    const double size = m_rendering_settings.size / 2;
+    const double size2 = size / 2;
+    QPen pen;
+    pen.setWidthF(size);
+    for (int i = 0; i < spots.size(); ++i) {
+        const auto spot  = spots.at(i);
+        const double x = spot.first;
+        const double y = spot.second;
+        const QColor color = colors.at(i);
+        const bool selected = selecteds.at(i);
+        if (selected) {
+            pen.setColor(Qt::white);
+            painter.setPen(pen);
+            painter.drawLine(QPointF(x - size2, y), QPointF(x + size2, y));
+            painter.drawLine(QPointF(x, y - size2), QPointF(x, y + size2));
+        } else {
+            pen.setColor(color);
+            painter.setPen(pen);
+            painter.drawEllipse(QRectF(x, y, size, size));
+        }
     }
 }
+
 
 const QRectF GeneRendererGL::boundingRect() const
 {
