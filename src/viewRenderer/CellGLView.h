@@ -67,7 +67,9 @@ public slots:
     // TODO slots should have the prefix "slot"
 
     // rotate the main view by angle (-360, 0 , 360)
-    void rotate(const int angle);
+    void rotate(const float angle);
+    // flip the main view by angle
+    void flip(const float angle);
 
     // Zooming the canvas
     void zoomOut();
@@ -130,6 +132,8 @@ private:
     QPainterPath m_lasso;
     QPointF m_scene_focus_center_point;
     float m_zoom_factor;
+    float m_rotate_factor;
+    float m_flip_factor;
 
     // scene viewport projection
     QMatrix4x4 m_projm;

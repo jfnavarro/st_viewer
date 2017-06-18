@@ -220,7 +220,7 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/cluster.png</normaloff>:/images/cluster.png</iconset>
+             <normaloff>:/images/correlation.png</normaloff>:/images/correlation.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -264,7 +264,7 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/show_genes.png</normaloff>:/images/show_genes.png</iconset>
+             <normaloff>:/images/show_spots.png</normaloff>:/images/show_spots.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -349,7 +349,7 @@ selection-background-color: darkgray;</string>
            </property>
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/selection_dea.png</normaloff>:/images/selection_dea.png</iconset>
+             <normaloff>:/images/DEA.png</normaloff>:/images/DEA.png</iconset>
            </property>
            <property name="iconSize">
             <size>

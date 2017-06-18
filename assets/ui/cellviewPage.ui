@@ -178,6 +178,126 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="rotate_right">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>SplitHCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="statusTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/rotateRight.png</normaloff>:/images/rotateRight.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rotate_left">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Rotate image -45°</string>
+           </property>
+           <property name="statusTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/rotateLeft.png</normaloff>:/images/rotateLeft.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="flip">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Flip image vertically</string>
+           </property>
+           <property name="statusTip">
+            <string>Flip image vertically</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/flip.png</normaloff>:/images/flip.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="histogram">
            <property name="minimumSize">
             <size>
@@ -249,7 +369,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/cluster.png</normaloff>:/images/cluster.png</iconset>
+             <normaloff>:/images/clusterBW.png</normaloff>:/images/clusterBW.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -326,6 +446,9 @@
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
            <property name="toolTip">
             <string>Activate lasso selection</string>
            </property>
@@ -340,7 +463,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
-             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
+             <normaloff>:/images/lasso.png</normaloff>:/images/lasso.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -353,13 +476,6 @@
            </property>
            <property name="flat">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="loadSpots">
-           <property name="text">
-            <string>load spots</string>
            </property>
           </widget>
          </item>
@@ -524,6 +640,47 @@
            <property name="icon">
             <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="loadSpots">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Load spot colors from file</string>
+           </property>
+           <property name="statusTip">
+            <string>Load spot colors from file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/loadSpots.png</normaloff>:/images/loadSpots.png</iconset>
            </property>
            <property name="iconSize">
             <size>

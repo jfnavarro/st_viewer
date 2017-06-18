@@ -34,6 +34,8 @@ CellGLView::CellGLView(QWidget *parent)
     , m_lasso()
     , m_scene_focus_center_point(-1, -1)
     , m_zoom_factor(1.0)
+    , m_rotate_factor(0)
+    , m_flip_factor(0)
 {
     // init projection matrix to identity
     m_projm.setToIdentity();
@@ -71,6 +73,9 @@ void CellGLView::clearData()
     m_selecting = false;
     m_lassoSelection = false;
     m_zoom_factor = 1;
+    m_rotate_factor = 0;
+    m_flip_factor = 0;
+    m_lasso = QPainterPath();
     m_scene_focus_center_point = QPoint(-1, -1);
 }
 
@@ -281,9 +286,20 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
-void CellGLView::rotate(const int angle)
+void CellGLView::rotate(const float angle)
 {
-    Q_UNUSED(angle)
+    m_rotate_factor += angle;
+    if (std::abs(m_rotate_factor) >= 360) {
+        m_rotate_factor = 0;
+    }
+}
+
+void CellGLView::flip(const float angle)
+{
+    m_flip_factor += angle;
+    if (std::abs(m_flip_factor) >= 360) {
+        m_flip_factor = 0;
+    }
 }
 
 void CellGLView::sendSelectionToNodes(const QPainterPath &path, const QMouseEvent *event)
@@ -443,6 +459,10 @@ const QTransform CellGLView::sceneTransformations() const
     QTransform transform;
     const QPointF point = m_scene.center() + (m_scene.center() - m_scene_focus_center_point);
     transform.translate(point.x(), point.y());
+    transform.rotate(m_rotate_factor, Qt::ZAxis);
+    if (m_flip_factor == 180) {
+        transform.scale(1.0, -1.0);
+    }
     transform.scale(1 / m_zoom_factor, 1 / m_zoom_factor);
     transform.translate(-m_viewport.width() / 2.0, -m_viewport.height() / 2.0);
     return transform.inverted();

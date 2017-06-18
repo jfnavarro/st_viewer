@@ -222,11 +222,11 @@ void DatasetImporter::slotParseFolder()
             qDebug() << "Parsing dataset file from folder " << file;
             if (file.contains("stdata.tsv")) {
                 m_ui->stDataFile->setText(file);
-            } else if (file.contains("image.jpg")) {
+            } else if (file.contains(".jpg")) {
                 m_ui->mainImageFile->setText(file);
-            } else if (file.contains("alignment.txt")) {
+            } else if (file.contains("alignment")) {
                 m_ui->imageAlignmentFile->setText(file);
-            } else if (file.contains("spots.txt")) {
+            } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
             } else if (file.contains("info.json")) {
                 QFile file_data(file);

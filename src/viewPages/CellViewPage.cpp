@@ -58,6 +58,11 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
         "QPushButton {border-image: url(:/images/selection.png); } "
         "QPushButton:checked {border-image: url(:/images/selection2.png); }");
 
+    // make lasso button use different icon when selected
+    m_ui->lasso_selection->setStyleSheet(
+        "QPushButton {border-image: url(:/images/lasso.png); } "
+        "QPushButton:checked {border-image: url(:/images/lasso2.png); }");
+
     // instantiate Settings Widget
     m_settings.reset(new SettingsWidget());
     Q_ASSERT(!m_settings.isNull());
@@ -212,6 +217,20 @@ void CellViewPage::createConnections()
     });
     connect(m_ui->regexpselection, &QPushButton::clicked,
             this, &CellViewPage::slotSelectByRegExp);
+
+    // view rotations
+    connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
+        m_ui->view->rotate(-45);
+        m_ui->view->update();
+    });
+    connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
+        m_ui->view->rotate(45);
+        m_ui->view->update();
+    });
+    connect(m_ui->flip, &QPushButton::clicked, [=] {
+        m_ui->view->flip(180);
+        m_ui->view->update();
+    });
 
     // create selection object from the selections made
     connect(m_ui->createSelection, &QPushButton::clicked,

@@ -58,24 +58,24 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     const auto spots = m_geneData->renderingSpots();
     const auto colors = m_geneData->renderingColors();
     const auto selecteds = m_geneData->renderingSelected();
-    painter.setBrush(Qt::NoBrush);
     const double size = m_rendering_settings.size / 2;
-    const double size2 = size / 2;
+    const double size_selected = size / 4;
     QPen pen;
-    pen.setWidthF(size);
+    painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
         const auto spot  = spots.at(i);
         const double x = spot.first;
         const double y = spot.second;
         const QColor color = colors.at(i);
         const bool selected = selecteds.at(i);
+        // draw spot
+        pen.setColor(color);
+        pen.setWidthF(size);
+        painter.setPen(pen);
+        painter.drawEllipse(QRectF(x, y, size, size));
         if (selected) {
             pen.setColor(Qt::white);
-            painter.setPen(pen);
-            painter.drawLine(QPointF(x - size2, y), QPointF(x + size2, y));
-            painter.drawLine(QPointF(x, y - size2), QPointF(x, y + size2));
-        } else {
-            pen.setColor(color);
+            pen.setWidthF(size_selected);
             painter.setPen(pen);
             painter.drawEllipse(QRectF(x, y, size, size));
         }
