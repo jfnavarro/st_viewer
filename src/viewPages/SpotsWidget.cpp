@@ -12,7 +12,7 @@
 
 #include "viewTables/SpotsTableView.h"
 #include "model/SpotItemModel.h"
-#include "utils/SetTips.h"
+
 #include "SettingsStyle.h"
 
 using namespace Style;
@@ -81,7 +81,8 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
     m_lineEdit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
-    setToolTipAndStatusTip(tr("Search by spot name"), m_lineEdit.data());
+    m_lineEdit->setToolTip(tr("Search by spot name"));
+    m_lineEdit->setStatusTip(tr("Search by spot name"));
     spotListLayout->addWidget(m_lineEdit.data());
     spotListLayout->setAlignment(m_lineEdit.data(), Qt::AlignRight);
 
@@ -146,7 +147,8 @@ void SpotsWidget::configureButton(QPushButton *button, const QIcon &icon, const 
     button->setFixedSize(CELL_PAGE_SUB_MENU_BUTTON_SIZE);
     button->setStyleSheet(CELL_PAGE_SUB_MENU_BUTTON_STYLE);
     button->setCursor(Qt::PointingHandCursor);
-    setToolTipAndStatusTip(tooltip, button);
+    button->setToolTip(tooltip);
+    button->setStatusTip(tooltip);
 }
 
 void SpotsWidget::slotShowAllSelected()

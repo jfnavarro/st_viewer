@@ -193,14 +193,14 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
     // Normalize the counts
     mat counts = normalizeCounts(m_data.counts,
-                                    rendering_settings.normalization_mode,
-                                    m_deseq_size_factors,
-                                    m_scran_size_factors);
+                                 rendering_settings.normalization_mode,
+                                 m_deseq_size_factors,
+                                 m_scran_size_factors);
 
     // Get the list of selected genes
     rowvec colsum_nonzero = computeNonZeroColumns(counts);
     QVector<uword> selected_genes_indexes;
-    float max_value_gene = -1;
+    float max_value_gene = -10e6;
     float min_value_gene = 10e6;
     for (uword i = 0; i < counts.n_cols; ++i) {
         const auto gene = m_genes[i];
@@ -215,7 +215,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // Get the list of selected spots
     colvec rowsum = sum(counts, ROW);
     QVector<uword> selected_spots_indexes;
-    float max_value_reads = -1;
+    float max_value_reads = -10e6;
     float min_value_reads = 10e6;
     for (uword i = 0; i < counts.n_rows; ++i) {;
         const float reads_count = rowsum(i);
@@ -234,8 +234,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // Compute color adjusment constants
     float min_value = use_genes ? min_value_gene : min_value_reads;
     float max_value = use_genes ? max_value_gene : max_value_reads;
-    min_value = use_log ? std::log(min_value + std::numeric_limits<float>::epsilon()) : min_value;
-    max_value = use_log ? std::log(max_value + std::numeric_limits<float>::epsilon()) : max_value;
+    min_value = use_log ? std::log(min_value + std::numeric_limits<double>::epsilon()) : min_value;
+    max_value = use_log ? std::log(max_value + std::numeric_limits<double>::epsilon()) : max_value;
     rendering_settings.legend_min = min_value;
     rendering_settings.legend_max = max_value;
 
@@ -412,9 +412,9 @@ QColor STData::adjustVisualMode(const QColor merged_color,
 }
 
 mat STData::normalizeCounts(const mat &counts,
-                                       SettingsWidget::NormalizationMode mode,
-                                       const rowvec &deseq_factors,
-                                       const rowvec &scran_factors)
+                            SettingsWidget::NormalizationMode mode,
+                            const rowvec &deseq_factors,
+                            const rowvec &scran_factors)
 {
     mat norm_counts = counts;
     switch (mode) {
@@ -433,7 +433,7 @@ mat STData::normalizeCounts(const mat &counts,
         norm_counts.each_col() /= scran_factors.t();
     }
     }
-    return counts;
+    return norm_counts;
 }
 
 rowvec STData::computeNonZeroColumns(const mat &matrix)
@@ -487,8 +487,9 @@ void STData::selectSpots(const SelectionEvent &event)
 void STData::selectGenes(const QRegExp &regexp, const bool force)
 {
     for (auto gene : m_genes) {
-        gene->selected(regexp.exactMatch(gene->name()));
-        gene->visible(gene->visible() || force);
+        const bool selected = regexp.exactMatch(gene->name());
+        gene->selected(selected);
+        gene->visible(gene->visible() || (force && selected));
     }
 }
 

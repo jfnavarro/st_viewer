@@ -24,6 +24,8 @@ DatasetPage::DatasetPage(QWidget *parent)
 {
     m_ui->setupUi(this);
 
+    setWindowFlags(Qt::WindowStaysOnTopHint);
+
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);

@@ -1,12 +1,14 @@
 #ifndef RINTERFACE_H
 #define RINTERFACE_H
 
-#include <QString>
+#include <string>
 #include <QDebug>
 
 //RcppArmadillo must be included before RInside
 #include "RcppArmadillo.h"
 #include "RInside.h"
+
+#include "viewPages/SettingsWidget.h"
 
 namespace RInterface {
 
@@ -36,6 +38,83 @@ static float computeCorrelation(const std::vector<double> &A,
     return corr;
 }
 
+// Computes a DEA (Differential Expression Analysis with DESeq2) between two selections
+static void computeDEA(const mat &countsA,
+                       const mat &countsB,
+                       const std::vector<std::string> &rowsA,
+                       const std::vector<std::string> &rowsB,
+                       const std::vector<std::string> &colsA,
+                       const std::vector<std::string> &colsB,
+                       const SettingsWidget::NormalizationMode &normalization,
+                       mat &results,
+                       std::vector<std::string> &rows,
+                       std::vector<std::string> &cols)
+{
+    RInside *R = nullptr;
+    if (RInside::instancePtr() != nullptr) {
+        R = RInside::instancePtr();
+    } else {
+        R = new RInside();
+    }
+
+    try {
+        const std::string R_libs = "suppressMessages(library(DESeq2));"
+                                   "suppressMessages(library(plyr));"
+                                   "suppressMessages(library(scran))";
+        R->parseEvalQ(R_libs);
+
+        (*R)["A"] = countsA;
+        (*R)["B"] = countsB;
+        (*R)["rowsA"] = rowsA;
+        (*R)["rowsB"] = rowsB;
+        (*R)["colsA"] = colsA;
+        (*R)["colsB"] = colsB;
+        std::string call = "A = as.data.frame(A); rownames(A) = rowsA; colnames(A) = colsA;"
+                           "B = as.data.frame(B); rownames(B) = rowsB; colnames(B) = colsB;"
+                           "merged = suppressMessages(join(A, B, by=NULL, type='full', match='all'));"
+                           "rownames(merged) = c(rownames(A), rownames(B));"
+                           "exp_values = t(merged);"
+                           "exp_values[is.na(exp_values)] = 0;"
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
+                           "exp_values = exp_values[,colSums(exp_values > 0) >= 5];"
+                           "exp_values = exp_values[rowSums(exp_values > 0) >= 5,];";
+        if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
+            call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
+        } else {
+            call += "num_spots = dim(exp_values)[2];"
+                    "sizes = vector(length=4);"
+                    "sizes[1] = floor((num_spots / 2) * 0.1);"
+                    "sizes[2] = floor((num_spots / 2) * 0.2);"
+                    "sizes[3] = floor((num_spots / 2) * 0.3);"
+                    "sizes[4] = floor((num_spots / 2) * 0.4);"
+                    "sce = newSCESet(countData=exp_values);"
+                    "sce = computeSumFactors(sce, positive=T, sizes=sizes);"
+                    "sce = normalize(sce);"
+                    "size_factors = sce@phenoData$size_factor";
+        }
+        call +=
+                "condition = c(rep('A', length(rowsA)), rep('B', length(rowsB)));"
+                "coldata = data.frame(row.names=colnames(exp_values), condition=condition);"
+                "dds = DESeqDataSetFromMatrix(countData=exp_values, colData=coldata, design=~condition);"
+                "dds@colData$sizeFactor = size_factors;"
+                "dds = estimateDispersions(dds, fitType='local');"
+                "dds = nbinomWaldTest(dds);"
+                "res = results(dds, contrast=c('condition', 'A', 'B'));";
+
+        const std::string call2 = "values = as.matrix(res);";
+        const std::string call3 = "cols = colnames(res);";
+        const std::string call4 = "rows = rownames(res);";
+
+        R->parseEvalQ(call);
+        results = Rcpp::as<mat>(R->parseEval(call2));
+        cols = Rcpp::as<std::vector<std::string>>(R->parseEval(call3));
+        rows = Rcpp::as<std::vector<std::string>>(R->parseEval(call4));
+        qDebug() << "Computed R DEA with DESEq2";
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing R DEA with DESEq2" << e.what();
+    }
+}
+
 // Classifies spots based on gene expression (tSNE + KMeans)
 static void spotClassification(const mat &counts,
                                const int num_clusters,
@@ -63,10 +142,10 @@ static void spotClassification(const mat &counts,
         (*R)["max_iter"] = max_iter;
         (*R)["theta"] = theta;
         const std::string call1 = "tsne_out = Rtsne(counts, dims=DIM,"
-                "theta=theta, check_duplicates=FALSE, pca=TRUE,"
-                "initial_dims=inital_dim, perplexity=perplexity,"
-                "max_iter=max_iter, verbose=FALSE);"
-                "tsne_out = tsne_out$Y[,1:DIM];";
+                                  "theta=theta, check_duplicates=FALSE, pca=TRUE,"
+                                  "initial_dims=inital_dim, perplexity=perplexity,"
+                                  "max_iter=max_iter, verbose=FALSE);"
+                                  "tsne_out = tsne_out$Y[,1:DIM];";
         const std::string call2 = "fit = kmeans(tsne_out, k)$cluster";
         tsne = Rcpp::as<mat>(R->parseEval(call1));
         colors = Rcpp::as<std::vector<int>>(R->parseEval(call2));
@@ -86,7 +165,7 @@ static rowvec computeDESeqFactors(const mat &counts)
     } else {
         R = new RInside();
     }
-    rowvec factors;
+    rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));";
@@ -113,7 +192,7 @@ static rowvec computeScranFactors(const mat &counts)
         R = new RInside();
     }
 
-    rowvec factors;
+    rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
         const std::string R_libs = "suppressMessages(library(scran))";
@@ -128,8 +207,7 @@ static rowvec computeScranFactors(const mat &counts)
                                  "sizes[3] = floor((num_spots / 2) * 0.3);"
                                  "sizes[4] = floor((num_spots / 2) * 0.4);"
                                  "sce = newSCESet(countData=counts);"
-                                 "clust = quickCluster(counts, min.size=sizes[1]);"
-                                 "sce = computeSumFactors(sce, clusters=clust, positive=T, sizes=sizes);"
+                                 "sce = computeSumFactors(sce, positive=T, sizes=sizes);"
                                  "sce = normalize(sce);"
                                  "size_factors = sce@phenoData$size_factor";
         factors = Rcpp::as<rowvec>(R->parseEval(call));

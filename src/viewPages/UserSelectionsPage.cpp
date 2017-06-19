@@ -22,6 +22,9 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     , m_ui(new Ui::UserSelections())
 {
     m_ui->setupUi(this);
+
+    setWindowFlags(Qt::WindowStaysOnTopHint);
+
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->userSelectionsPageWidget->setStyleSheet("QWidget#userSelectionsPageWidget "
                                                   + PAGE_WIDGETS_STYLE);

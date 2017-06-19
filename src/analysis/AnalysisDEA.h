@@ -25,28 +25,37 @@ public:
                          QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
-    void exportTable() const;
+
 
 signals:
 
 private slots:
 
+    void exportTable();
+
 private:
 
     void run();
-
-    // the two datasets
-    STData::STDataFrame m_dataA;
-    STData::STDataFrame m_dataB;
+    void updateTable();
+    void updatePlot();
 
     // GUI object
     QScopedPointer<Ui::analysisDEA> m_ui;
 
-    // store the size factors to save computational time
-    rowvec m_deseq_factorsA;
-    rowvec m_scran_factorsA;
-    rowvec m_deseq_factorsB;
-    rowvec m_scran_factorsB;
+    // the two datasets
+    mat m_dataA;
+    mat m_dataB;
+    std::vector<std::string> m_rowsA;
+    std::vector<std::string> m_rowsB;
+    std::vector<std::string> m_colsA;
+    std::vector<std::string> m_colsB;
+
+    // cache the results to not recompute
+    mat m_results;
+    std::vector<std::string> m_results_cols;
+    std::vector<std::string> m_results_rows;
+    bool m_initialized;
+    SettingsWidget::NormalizationMode m_normalization;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

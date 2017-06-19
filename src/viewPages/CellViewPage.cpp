@@ -338,6 +338,7 @@ void CellViewPage::slotSelectByRegExp()
     if (selectGenes.exec() == QDialog::Accepted) {
         if (selectGenes.isValid()) {
             m_dataset.data()->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
+            m_gene_plotter->slotUpdate();
             m_ui->view->update();
         }
     }
@@ -385,6 +386,11 @@ void CellViewPage::slotLoadSpotColors()
 
 void CellViewPage::slotCreateSelection()
 {
+    const auto selected = m_dataset.data()->renderingSelected();
+    const bool anyValid = std::any_of(selected.begin(), selected.end(), [](bool x) { return x; });
+    if (!anyValid) {
+        return;
+    }
     // create selection object
     UserSelection new_selection(m_dataset.data());
     // proposes as selection name as DATASET NAME plus current timestamp

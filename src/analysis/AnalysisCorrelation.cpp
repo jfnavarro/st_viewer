@@ -44,7 +44,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_deseq_factorsA = RInterface::computeDESeqFactors(m_dataA);
         m_deseq_factorsB = RInterface::computeDESeqFactors(m_dataB);
         m_scran_factorsA = RInterface::computeScranFactors(m_dataA);
-        m_scran_factorsA = RInterface::computeScranFactors(m_dataB);
+        m_scran_factorsB = RInterface::computeScranFactors(m_dataB);
 
         m_ui->normalization_raw->setChecked(true);
 
@@ -124,22 +124,9 @@ void AnalysisCorrelation::updateData()
     m_ui->plot->chart()->setTitle("Correlation Plot (genes)");
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
-
-    if (m_ui->logScale->isChecked()) {
-        QLogValueAxis *axisX = new QLogValueAxis();
-        QLogValueAxis *axisY = new QLogValueAxis();
-        axisX->setBase(8.0);
-        axisX->setMinorTickCount(-1);
-        axisY->setBase(8.0);
-        axisY->setMinorTickCount(-1);
-        m_ui->plot->chart()->addAxis(axisX, Qt::AlignBottom);
-        m_ui->plot->chart()->addAxis(axisY, Qt::AlignLeft);
-        series->attachAxis(axisX);
-        series->attachAxis(axisY);
-    } else {
-        m_ui->plot->chart()->createDefaultAxes();
-    }
-
+    m_ui->plot->chart()->createDefaultAxes();
+    m_ui->plot->chart()->axisX()->setTitleText("Selection A");
+    m_ui->plot->chart()->axisY()->setTitleText("Selection B");
 
     QGuiApplication::restoreOverrideCursor();
 }

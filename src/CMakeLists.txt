@@ -80,7 +80,6 @@ set(subdir_list
                    viewTables
                    viewPages
                    viewRenderer
-                   utils
                    model
                    config
                    math
