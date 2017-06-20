@@ -99,7 +99,7 @@ void STData::init(const QString &filename) {
     std::vector<uword> to_keep_spots;
     QList<Spot::SpotType> filtered_spots;
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        if (accu(m_data.counts.row(i)) >= 5) {
+        if (accu(m_data.counts.row(i)) > 5) {
             to_keep_spots.push_back(i);
             const auto spot = m_data.spots.at(i);
             filtered_spots.append(spot);
@@ -114,7 +114,7 @@ void STData::init(const QString &filename) {
     QList<QString> filtered_genes;
     for (uword j = 0; j < m_data.counts.n_cols; ++j) {
         const uvec t = find(m_data.counts.col(j) > 0);
-        if (t.n_elem >= 5) {
+        if (t.n_elem > 5) {
             to_keep_genes.push_back(j);
             const QString gene = m_data.genes.at(j);
             filtered_genes.append(gene);
@@ -148,7 +148,6 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
             }
             stream << endl;
         }
-
     }
 }
 
@@ -190,6 +189,10 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool use_log =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::ReadsLog ||
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::GenesLog;
+    const bool is_dynamic =
+            rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
+    const bool is_normal=
+            rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
 
     // Normalize the counts
     mat counts = normalizeCounts(m_data.counts,
@@ -203,8 +206,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     float max_value_gene = -10e6;
     float min_value_gene = 10e6;
     for (uword i = 0; i < counts.n_cols; ++i) {
-        const auto gene = m_genes[i];
-        const float gene_count = colsum_nonzero(i);
+        const auto gene = m_genes.at(i);
+        const float gene_count = colsum_nonzero.at(i);
         if (gene->visible() && gene_count > rendering_settings.genes_threshold) {
             selected_genes_indexes.push_back(i);
             max_value_gene = std::max(max_value_gene, gene_count);
@@ -218,7 +221,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     float max_value_reads = -10e6;
     float min_value_reads = 10e6;
     for (uword i = 0; i < counts.n_rows; ++i) {;
-        const float reads_count = rowsum(i);
+        const float reads_count = rowsum.at(i);
         if (reads_count > rendering_settings.reads_threshold) {
             selected_spots_indexes.push_back(i);
             max_value_reads = std::max(max_value_reads, reads_count);
@@ -242,7 +245,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // Iterate the spots and genes in the matrix to compute the rendering colors
     //TODO make this paralell
     for (const uword i : selected_spots_indexes) {
-        const auto spot = m_spots[i];
+        const auto spot = m_spots.at(i);
         bool visible = false;
         float merged_value = 0;
         float num_genes = 0;
@@ -253,14 +256,16 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             num_genes = 0;
             // Iterage the genes in the spot to compute the sum of values and color
             for (const uword j : selected_genes_indexes) {
-                const auto gene = m_genes[j];
+                const auto gene = m_genes.at(j);
                 const float value = counts.at(i,j);
                 if (rendering_settings.gene_cutoff && gene->cut_off() > value) {
                     continue;
                 }
                 ++num_genes;
                 merged_value += value;
-                merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
+                if (is_normal || is_dynamic) {
+                    merged_color = lerp(1.0 / num_genes, merged_color, gene->color());
+                }
                 any_gene_selected |= gene->selected();
             }
             // Use number of genes or total reads in the spot depending on settings
@@ -284,7 +289,10 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         }
 
         if (visible) {
-            merged_color.setAlphaF(rendering_settings.intensity);
+            const float intensity = is_dynamic ? rendering_settings.intensity +
+                                                 (1 - rendering_settings.intensity)
+                                                  : rendering_settings.intensity;
+            merged_color.setAlphaF(intensity);
             m_rendering_colors.append(merged_color);
             m_rendering_selected.append(spot->selected());
             m_rendering_spots.append(spot->coordinates());

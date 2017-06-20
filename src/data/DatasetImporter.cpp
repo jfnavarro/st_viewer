@@ -128,7 +128,7 @@ void DatasetImporter::slotLoadMainImageFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Main Image File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("JPEG Files (*.jpg)")));
+                                           QString("%1").arg(tr("JPEG Files (*.jpg | *.jpeg)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -201,8 +201,6 @@ void DatasetImporter::slotValidateForm()
 
     if (!isValid) {
         QMessageBox::critical(this, tr("Import dataset"), error_msg);
-        QDialog::done(QDialog::Rejected);
-        // TODO maybe we should not close the dialog
     } else {
         QDialog::done(QDialog::Accepted);
     }

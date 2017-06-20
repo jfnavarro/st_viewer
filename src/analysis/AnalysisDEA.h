@@ -2,6 +2,9 @@
 #define ANALYSISDEA_H
 
 #include <QWidget>
+#include <QModelIndex>
+#include <QSortFilterProxyModel>
+#include <QFutureWatcher>
 
 #include "data/STData.h"
 
@@ -31,11 +34,18 @@ signals:
 
 private slots:
 
-    void exportTable();
+    // the user wants to export the DE genes
+    void slotExportTable();
+    // the user has selected a DE gene in the table
+    void slotGeneSelected(QModelIndex index);
+    // when the DE genes have been computed in the worker thread
+    void slotDEAComputed();
 
 private:
 
+    // to initialize the data (DE genes and volcano plot)
     void run();
+    void runDEAAsync();
     void updateTable();
     void updatePlot();
 
@@ -54,8 +64,20 @@ private:
     mat m_results;
     std::vector<std::string> m_results_cols;
     std::vector<std::string> m_results_rows;
+
+    // the gene to highlight in the volcano plot
+    QPointF m_gene_highlight;
+
+    // True when the DE genes are computed
     bool m_initialized;
+    // cache the normalization mode to not re-compute always
     SettingsWidget::NormalizationMode m_normalization;
+
+    // the proxy model
+    QScopedPointer<QSortFilterProxyModel> m_proxy;
+
+    // The computational thread
+    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

@@ -4,11 +4,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardItemModel>
-#include <QSortFilterProxyModel>
 #include <QChartView>
 #include <QScatterSeries>
-#include <QValueAxis>
-#include <QLogValueAxis>
+#include <QFuture>
+#include <QtConcurrent>
 
 #include <string>
 
@@ -26,6 +25,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
 {
     m_ui->setupUi(this);
 
+    // initialize data
     m_dataA = data1.counts;
     m_dataB = data2.counts;
     std::transform(data1.spots.begin(), data1.spots.end(), std::back_inserter(m_rowsA),
@@ -37,20 +37,35 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
     std::transform(data2.genes.begin(), data2.genes.end(), std::back_inserter(m_colsB),
                    [](auto gene) {return gene.toStdString();});
 
+    // default values
     m_ui->fdr->setValue(0.1);
     m_ui->foldchange->setValue(1.0);
     m_ui->normalization_deseq->setChecked(true);
     m_ui->exportTable->setEnabled(false);
     m_ui->searchField->setEnabled(false);
+    m_ui->progressBar->setTextVisible(true);
+    m_proxy.reset(new QSortFilterProxyModel());
+
+    // create connections
+    connect(m_ui->searchField,
+            &QLineEdit::textChanged,
+            m_proxy.data(),
+            &QSortFilterProxyModel::setFilterFixedString);
     connect(m_ui->run, &QPushButton::clicked, this, &AnalysisDEA::run);
-    connect(m_ui->exportTable, &QPushButton::clicked, this, &AnalysisDEA::exportTable);
+    connect(m_ui->exportTable, &QPushButton::clicked, this, &AnalysisDEA::slotExportTable);
+    connect(m_ui->tableview,
+            &QTableView::clicked,
+            this,
+            &AnalysisDEA::slotGeneSelected);
+    connect(&m_watcher, &QFutureWatcher<void>::finished, this, &AnalysisDEA::slotDEAComputed);
 }
 
 AnalysisDEA::~AnalysisDEA()
 {
+
 }
 
-void AnalysisDEA::exportTable()
+void AnalysisDEA::slotExportTable()
 {
     QString filename = QFileDialog::getSaveFileName(this,
                                                     tr("Export DE Genes"),
@@ -87,6 +102,31 @@ void AnalysisDEA::exportTable()
 
 }
 
+void AnalysisDEA::slotGeneSelected(QModelIndex index)
+{
+    // Check if the selection is valid
+    if (!index.isValid() || m_proxy.isNull()) {
+        m_gene_highlight = QPointF();
+        return;
+    }
+
+    const QItemSelection &selected = m_ui->tableview->selectionModel()->selection();
+    const QModelIndexList &selected_indexes = m_proxy->mapSelectionToSource(selected).indexes();
+
+    // Check if only 1 element is selected
+    if (selected_indexes.empty()) {
+        m_gene_highlight = QPointF();
+        return;
+    }
+
+    // update the highlight coordinate and refresh the plot
+    const int row_index = selected_indexes.first().row();
+    const double pvalue = -log10(m_results.at(row_index, 4) + std::numeric_limits<double>::epsilon());
+    const double foldchange = m_results.at(row_index, 1);
+    m_gene_highlight = QPointF(foldchange, pvalue);
+    updatePlot();
+}
+
 void AnalysisDEA::updatePlot()
 {
     QScatterSeries *series1 = new QScatterSeries();
@@ -104,7 +144,7 @@ void AnalysisDEA::updatePlot()
 
     // populate
     for (uword i = 0; i < m_results.n_rows; ++i) {
-        const double fdr = 1 - m_results.at(i, 5);
+        const double fdr = m_results.at(i, 5);
         const double pvalue = -log10(m_results.at(i, 4) + std::numeric_limits<double>::epsilon());
         const double foldchange = m_results.at(i, 1);
         if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
@@ -118,6 +158,16 @@ void AnalysisDEA::updatePlot()
     m_ui->plot->chart()->removeAllSeries();
     m_ui->plot->chart()->addSeries(series1);
     m_ui->plot->chart()->addSeries(series2);
+
+    if (!m_gene_highlight.isNull()) {
+        QScatterSeries *series3 = new QScatterSeries();
+        series3->setMarkerSize(8.0);
+        series3->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+        series3->setColor(Qt::yellow);
+        series3->setUseOpenGL(true);
+        *series3 << m_gene_highlight;
+        m_ui->plot->chart()->addSeries(series3);
+    }
 
     m_ui->plot->chart()->setTitle("Volcano plot");
     m_ui->plot->chart()->setDropShadowEnabled(false);
@@ -146,7 +196,7 @@ void AnalysisDEA::updateTable()
     // populate
     for (uword i = 0; i < m_results.n_rows; ++i) {
         const QString gene = QString::fromStdString(m_results_rows.at(i));
-        const double fdr = 1 - m_results.at(i, 5);
+        const double fdr = m_results.at(i, 5);
         const double pvalue = m_results.at(i, 4);
         const double foldchange = m_results.at(i, 1);
         QStandardItem *gene_item = new QStandardItem(gene);
@@ -166,11 +216,10 @@ void AnalysisDEA::updateTable()
     }
 
     // sorting model
-    QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
-    proxy->setSourceModel(model);
-    proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
-    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_ui->tableview->setModel(proxy);
+    m_proxy->setSourceModel(model);
+    m_proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_ui->tableview->setModel(m_proxy.data());
 
     // settings for the table
     m_ui->tableview->setSortingEnabled(true);
@@ -186,7 +235,7 @@ void AnalysisDEA::updateTable()
     m_ui->tableview->setLineWidth(1);
 
     m_ui->tableview->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_ui->tableview->setSelectionMode(QAbstractItemView::NoSelection);
+    m_ui->tableview->setSelectionMode(QAbstractItemView::SingleSelection);
     m_ui->tableview->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     m_ui->tableview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -197,18 +246,10 @@ void AnalysisDEA::updateTable()
     m_ui->tableview->verticalHeader()->hide();
 
     m_ui->tableview->model()->submit(); // support for caching (speed up)
-
-    // Connect the search field signal
-    connect(m_ui->searchField,
-            &QLineEdit::textChanged,
-            proxy,
-            &QSortFilterProxyModel::setFilterFixedString);
 }
 
 void AnalysisDEA::run()
 {
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     if (m_ui->normalization_deseq->isChecked()
             && m_normalization != SettingsWidget::NormalizationMode::DESEQ) {
         m_normalization = SettingsWidget::NormalizationMode::DESEQ;
@@ -220,17 +261,38 @@ void AnalysisDEA::run()
     }
 
     if (!m_initialized) {
-        qDebug() << "Computing DEA";
-        RInterface::computeDEA(m_dataA, m_dataB, m_rowsA, m_rowsB, m_colsA, m_colsB,
-                               m_normalization, m_results, m_results_rows, m_results_cols);
-        m_initialized = true;
+        qDebug() << "Computing DEA Asynchronously..";
+        // initialize progress bar
+        m_ui->progressBar->setRange(0,0);
+        // disable controls
+        m_ui->run->setEnabled(false);
+        m_ui->exportTable->setEnabled(false);
+        // initialize worker
+        QFuture<void> future = QtConcurrent::run(this, &AnalysisDEA::runDEAAsync);
+        m_watcher.setFuture(future);
+    } else {
+        slotDEAComputed();
     }
+}
+
+void AnalysisDEA::runDEAAsync()
+{
+    RInterface::computeDEA(m_dataA, m_dataB, m_rowsA, m_rowsB, m_colsA, m_colsB,
+                           m_normalization, m_results, m_results_rows, m_results_cols);
+}
+
+void AnalysisDEA::slotDEAComputed()
+{
+    // stop progress bar
+    m_ui->progressBar->setMaximum(10);
+    // enable controls
+    m_ui->run->setEnabled(true);
+    m_ui->exportTable->setEnabled(true);
+    m_initialized = true;
 
     // update table with fdr and foldchange
     updateTable();
 
     // update plot with fdr and foldchange
     updatePlot();
-
-    QGuiApplication::restoreOverrideCursor();
 }

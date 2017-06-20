@@ -2,6 +2,8 @@
 #define ANALYSISCLUSTERING_H
 
 #include <QDialog>
+#include <QFutureWatcher>
+
 #include "data/STData.h"
 
 namespace Ui {
@@ -39,12 +41,21 @@ private slots:
 
 private:
 
+    void computeColorsAsync();
+    void colorsComputed();
+
     STData::STDataFrame m_data;
-    QVector<QColor> m_computed_colors;
 
     // store the size factors to save computational time
     rowvec m_deseq_factors;
     rowvec m_scran_factors;
+
+    // the results
+    std::vector<int> m_colors;
+    mat m_reduced_coordinates;
+
+    // The computational thread
+    QFutureWatcher<void> m_watcher;
 
     QScopedPointer<Ui::analysisClustering> m_ui;
 };

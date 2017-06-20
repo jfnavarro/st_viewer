@@ -146,7 +146,8 @@ static void spotClassification(const mat &counts,
                                   "initial_dims=inital_dim, perplexity=perplexity,"
                                   "max_iter=max_iter, verbose=FALSE);"
                                   "tsne_out = tsne_out$Y[,1:DIM];";
-        const std::string call2 = "fit = kmeans(tsne_out, k)$cluster";
+        const std::string call2 = "fit = kmeans(tsne_out, k)$cluster;"
+                                  "if (!0 %in% fit) fit = fit - 1;";
         tsne = Rcpp::as<mat>(R->parseEval(call1));
         colors = Rcpp::as<std::vector<int>>(R->parseEval(call2));
         qDebug() << "Computed Spot colors " << colors.size();

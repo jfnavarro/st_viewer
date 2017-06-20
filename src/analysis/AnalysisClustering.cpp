@@ -3,6 +3,8 @@
 #include <QChartView>
 #include <QScatterSeries>
 #include <QValueAxis>
+#include <QFuture>
+#include <QtConcurrent>
 
 #include "math/RInterface.h"
 
@@ -16,7 +18,10 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->setupUi(this);
     m_ui->normalization_raw->setChecked(true);
     m_ui->theta->setValue(0.5);
+    m_ui->progressBar->setTextVisible(true);
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::run);
+    connect(&m_watcher, &QFutureWatcher<void>::finished,
+            this, &AnalysisClustering::colorsComputed);
 }
 
 AnalysisClustering::~AnalysisClustering()
@@ -26,15 +31,19 @@ AnalysisClustering::~AnalysisClustering()
 
 QVector<QColor> AnalysisClustering::getComputedClasses() const
 {
-    return m_computed_colors;
+    QStringList color_list;
+    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
+               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
+    QVector<QColor> computed_colors(m_colors.size());
+    for (unsigned i = 0; i < m_colors.size(); ++i) {
+        computed_colors[i] = QColor(color_list.at(m_colors.at(i)));
+    }
+    return computed_colors;
 }
 
 void AnalysisClustering::loadData(const STData::STDataFrame &data)
 {
     m_data = data;
-
-    // initialize the color vector to the number of spots
-    m_computed_colors = QVector<QColor>(m_data.counts.n_rows);
 
     // compute size factors for normalization
     m_deseq_factors = RInterface::computeDESeqFactors(m_data.counts);
@@ -43,8 +52,17 @@ void AnalysisClustering::loadData(const STData::STDataFrame &data)
 
 void AnalysisClustering::run()
 {
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    qDebug() << "Computing spot colors asynchronously";
+    // initialize progress bar
+    m_ui->progressBar->setRange(0,0);
+    // disable controls
+    m_ui->runClustering->setEnabled(false);
+    QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
+    m_watcher.setFuture(future);
+}
 
+void AnalysisClustering::computeColorsAsync()
+{
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
         normalization = SettingsWidget::REL;
@@ -70,11 +88,16 @@ void AnalysisClustering::run()
     const int init_dim = m_ui->init_dims->value();
     const int num_clusters = m_ui->clusters->value();
 
-    std::vector<int> colors;
-    mat reduced_coordinates;
-    //Surprisingly it is much faster to call R's tsne than to use C++ implemtation....
+    // Surprisingly it is much faster to call R's tsne than to use C++ implemtation....
     RInterface::spotClassification(A, num_clusters, init_dim, no_dims, perplexity,
-                                   max_iter, theta, colors, reduced_coordinates);
+                                   max_iter, theta, m_colors, m_reduced_coordinates);
+}
+
+void AnalysisClustering::colorsComputed()
+{
+    const int num_clusters = m_ui->clusters->value();
+    Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors)) == 0
+             && *std::max_element(std::begin(m_colors), std::end(m_colors)) == (num_clusters - 1));
 
     // Create one serie for each different cluster (color)
     QStringList color_list;
@@ -90,13 +113,12 @@ void AnalysisClustering::run()
         series_vector.push_back(series);
     }
 
-    const std::vector<double> x = conv_to<std::vector<double>>::from(reduced_coordinates.col(0));
-    const std::vector<double> y = conv_to<std::vector<double>>::from(reduced_coordinates.col(1));
+    const std::vector<double> x = conv_to<std::vector<double>>::from(m_reduced_coordinates.col(0));
+    const std::vector<double> y = conv_to<std::vector<double>>::from(m_reduced_coordinates.col(1));
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
-    for (unsigned i = 0; i < colors.size(); ++i) {
-        const int k = colors.at(i);
-        m_computed_colors[i] = color_list.at(k);
-        series_vector[k - 1]->append(x.at(i), y.at(i));
+    for (unsigned i = 0; i < m_colors.size(); ++i) {
+        const int k = m_colors.at(i);
+        series_vector[k]->append(x.at(i), y.at(i));
     }
 
     // update the scatter plot
@@ -110,8 +132,11 @@ void AnalysisClustering::run()
     m_ui->plot->chart()->legend()->show();
     m_ui->plot->chart()->createDefaultAxes();
 
+    // stop progress bar
+    m_ui->progressBar->setMaximum(10);
+    // enable controls
+    m_ui->runClustering->setEnabled(true);
+
     // notify the main view
     emit singalClusteringUpdated();
-
-    QGuiApplication::restoreOverrideCursor();
 }

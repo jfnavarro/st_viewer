@@ -220,7 +220,20 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="genes_threshold"/>
+      <widget class="QDoubleSpinBox" name="genes_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -247,7 +260,20 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="reads_threshold"/>
+      <widget class="QDoubleSpinBox" name="reads_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -274,7 +300,20 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="individual_reads_threshold"/>
+      <widget class="QDoubleSpinBox" name="individual_reads_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

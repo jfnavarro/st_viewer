@@ -72,6 +72,9 @@ include_directories(${RCPP_ARMADILLO_INCLUDE_DIR})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${R_CXXFLAGS} ${RCPP_CXXFLAGS} ${RINSIDE_CXXFLAGS} ${RCPPARMADILLO_CXXFLAGS}")
 set(R_LIBRARIES "${R_LIBRARIES};${RINSIDE_LIBRARY}")
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
@@ -123,7 +126,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-    ${ARMADILLO_LIBRARIES} ${R_LIBRARIES})
+    ${ARMADILLO_LIBRARIES} ${R_LIBRARIES} Threads::Threads)
 
 ### UNIT TESTS ################################################################
 
