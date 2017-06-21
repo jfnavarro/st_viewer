@@ -7,6 +7,7 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QSet>
+#include <QFileDialog>
 
 #include "math/RInterface.h"
 
@@ -47,21 +48,24 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_scran_factorsB = RInterface::computeScranFactors(m_dataB);
 
         m_ui->normalization_raw->setChecked(true);
+        m_ui->exportPlot->setEnabled(false);
 
-        updateData();
+        slotUpdateData();
 
         connect(m_ui->normalization_raw, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->normalization_tpm, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->normalization_rel, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->normalization_deseq, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->normalization_scran, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->logScale, &QCheckBox::clicked,
-                this, &AnalysisCorrelation::updateData);
+                this, &AnalysisCorrelation::slotUpdateData);
+        connect(m_ui->exportPlot, &QPushButton::clicked,
+                this, &AnalysisCorrelation::slotExportPlot);
 
     } else {
         m_ui->groupBoxNormalization->setEnabled(false);
@@ -76,7 +80,7 @@ AnalysisCorrelation::~AnalysisCorrelation()
 
 }
 
-void AnalysisCorrelation::updateData()
+void AnalysisCorrelation::slotUpdateData()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -113,7 +117,7 @@ void AnalysisCorrelation::updateData()
     series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series->setMarkerSize(5.0);
     series->setColor(Qt::blue);
-    series->setUseOpenGL(true);
+    series->setUseOpenGL(false);
     for (unsigned i = 0; i < rowsumA.size(); ++i) {
         series->append(rowsumA.at(i), rowsumB.at(i));
     }
@@ -128,5 +132,36 @@ void AnalysisCorrelation::updateData()
     m_ui->plot->chart()->axisX()->setTitleText("Selection A");
     m_ui->plot->chart()->axisY()->setTitleText("Selection B");
 
+    m_ui->exportPlot->setEnabled(true);
+
     QGuiApplication::restoreOverrideCursor();
+}
+
+void AnalysisCorrelation::slotExportPlot()
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Correlation Plot"),
+                                                    QDir::homePath(),
+                                                    QString("%1;;%2;;%3")
+                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                        .arg(tr("PNG Image Files (*.png)"))
+                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        qDebug() << "Saving the t-SNE plot, the directory is not writtable";
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QPixmap image = m_ui->plot->grab();
+    if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        qDebug() << "Saving the Correlation plot, the image coult not be saved";
+    }
 }

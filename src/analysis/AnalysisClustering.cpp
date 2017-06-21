@@ -5,6 +5,7 @@
 #include <QValueAxis>
 #include <QFuture>
 #include <QtConcurrent>
+#include <QFileDialog>
 
 #include "math/RInterface.h"
 
@@ -19,7 +20,9 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->normalization_raw->setChecked(true);
     m_ui->theta->setValue(0.5);
     m_ui->progressBar->setTextVisible(true);
-    connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::run);
+    m_ui->exportPlot->setEnabled(false);
+    connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
+    connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
     connect(&m_watcher, &QFutureWatcher<void>::finished,
             this, &AnalysisClustering::colorsComputed);
 }
@@ -50,15 +53,45 @@ void AnalysisClustering::loadData(const STData::STDataFrame &data)
     m_scran_factors = RInterface::computeScranFactors(m_data.counts);
 }
 
-void AnalysisClustering::run()
+void AnalysisClustering::slotRun()
 {
     qDebug() << "Computing spot colors asynchronously";
     // initialize progress bar
     m_ui->progressBar->setRange(0,0);
     // disable controls
     m_ui->runClustering->setEnabled(false);
+    m_ui->exportPlot->setEnabled(false);
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
     m_watcher.setFuture(future);
+}
+
+void AnalysisClustering::slotExportPlot()
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save t-SNE Plot"),
+                                                    QDir::homePath(),
+                                                    QString("%1;;%2;;%3")
+                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                        .arg(tr("PNG Image Files (*.png)"))
+                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        qDebug() << "Saving the t-SNE plot, the directory is not writtable";
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QPixmap image = m_ui->plot->grab();
+    if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        qDebug() << "Saving the t-SNE plot, the image coult not be saved";
+    }
 }
 
 void AnalysisClustering::computeColorsAsync()
@@ -109,7 +142,7 @@ void AnalysisClustering::colorsComputed()
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(10.0);
         series->setColor(color_list.at(k));
-        series->setUseOpenGL(true);
+        series->setUseOpenGL(false);
         series_vector.push_back(series);
     }
 
@@ -136,6 +169,7 @@ void AnalysisClustering::colorsComputed()
     m_ui->progressBar->setMaximum(10);
     // enable controls
     m_ui->runClustering->setEnabled(true);
+    m_ui->exportPlot->setEnabled(true);
 
     // notify the main view
     emit singalClusteringUpdated();

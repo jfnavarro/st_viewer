@@ -8,6 +8,7 @@
 #include <QScatterSeries>
 #include <QFuture>
 #include <QtConcurrent>
+#include <QFileDialog>
 
 #include <string>
 
@@ -44,6 +45,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
     m_ui->exportTable->setEnabled(false);
     m_ui->searchField->setEnabled(false);
     m_ui->progressBar->setTextVisible(true);
+    m_ui->exportPlot->setEnabled(false);
     m_proxy.reset(new QSortFilterProxyModel());
 
     // create connections
@@ -58,6 +60,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
             this,
             &AnalysisDEA::slotGeneSelected);
     connect(&m_watcher, &QFutureWatcher<void>::finished, this, &AnalysisDEA::slotDEAComputed);
+    connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisDEA::slotExportPlot);
 }
 
 AnalysisDEA::~AnalysisDEA()
@@ -135,12 +138,12 @@ void AnalysisDEA::updatePlot()
     series1->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series1->setMarkerSize(5.0);
     series1->setColor(Qt::blue);
-    series1->setUseOpenGL(true);
+    series1->setUseOpenGL(false);
 
     series2->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series2->setMarkerSize(5.0);
     series2->setColor(Qt::red);
-    series2->setUseOpenGL(true);
+    series2->setUseOpenGL(false);
 
     // populate
     for (uword i = 0; i < m_results.n_rows; ++i) {
@@ -164,7 +167,7 @@ void AnalysisDEA::updatePlot()
         series3->setMarkerSize(8.0);
         series3->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
         series3->setColor(Qt::yellow);
-        series3->setUseOpenGL(true);
+        series3->setUseOpenGL(false);
         *series3 << m_gene_highlight;
         m_ui->plot->chart()->addSeries(series3);
     }
@@ -288,6 +291,7 @@ void AnalysisDEA::slotDEAComputed()
     // enable controls
     m_ui->run->setEnabled(true);
     m_ui->exportTable->setEnabled(true);
+    m_ui->exportPlot->setEnabled(true);
     m_initialized = true;
 
     // update table with fdr and foldchange
@@ -295,4 +299,33 @@ void AnalysisDEA::slotDEAComputed()
 
     // update plot with fdr and foldchange
     updatePlot();
+}
+
+void AnalysisDEA::slotExportPlot()
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Volano Plot"),
+                                                    QDir::homePath(),
+                                                    QString("%1;;%2;;%3")
+                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                        .arg(tr("PNG Image Files (*.png)"))
+                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        qDebug() << "Saving the Volano plot, the directory is not writtable";
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QPixmap image = m_ui->plot->grab();
+    if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        qDebug() << "Saving the Volano plot, the image coult not be saved";
+    }
 }

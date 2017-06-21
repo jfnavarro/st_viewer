@@ -31,17 +31,17 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetFixedSize</enum>
        </property>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Shared genes</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Pearson</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Shared genes</string>
          </property>
         </widget>
        </item>
@@ -76,15 +76,8 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Spearman</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="spearman">
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="sharedGenes">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -104,13 +97,20 @@
           <bool>false</bool>
          </property>
          <property name="toolTip">
-          <string>Spearman correlation value</string>
+          <string>Number of genes shared between selections</string>
          </property>
          <property name="statusTip">
-          <string>Spearman correlation value</string>
+          <string>Number of genes shared between selections</string>
          </property>
          <property name="readOnly">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Spearman</string>
          </property>
         </widget>
        </item>
@@ -195,8 +195,8 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="sharedGenes">
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="spearman">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -216,13 +216,41 @@
           <bool>false</bool>
          </property>
          <property name="toolTip">
-          <string>Number of genes shared between selections</string>
+          <string>Spearman correlation value</string>
          </property>
          <property name="statusTip">
-          <string>Number of genes shared between selections</string>
+          <string>Spearman correlation value</string>
          </property>
          <property name="readOnly">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QPushButton" name="exportPlot">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>SplitHCursor</cursorShape>
+         </property>
+         <property name="toolTip">
+          <string>Export the correlation plot to a file</string>
+         </property>
+         <property name="statusTip">
+          <string>Export the correlation plot to a file</string>
+         </property>
+         <property name="text">
+          <string>Export</string>
          </property>
         </widget>
        </item>

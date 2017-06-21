@@ -27,6 +27,9 @@ public slots:
 
 private slots:
 
+    // to save the histogram to a file (type 1 genes, type 2 transcripts)
+    void slotExportPlot(const int type);
+
 private:
 
     // GUI object

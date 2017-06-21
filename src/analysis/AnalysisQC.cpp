@@ -3,6 +3,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
+#include <QFileDialog>
 
 #include "ui_analysisQC.h"
 
@@ -11,8 +12,6 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     : QWidget(parent, f)
     , m_ui(new Ui::analysisQC)
 {
-    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-
     m_ui->setupUi(this);
 
     // compute the stats
@@ -65,8 +64,44 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->transcriptsPlot->chart()->setTitle("Histogram transcripts");
     m_ui->transcriptsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->transcriptsPlot->chart()->createDefaultAxes();
+    connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
+    connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});
 }
 
 AnalysisQC::~AnalysisQC()
 {
+}
+
+void AnalysisQC::slotExportPlot(const int type)
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Histogram Plot"),
+                                                    QDir::homePath(),
+                                                    QString("%1;;%2;;%3")
+                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                        .arg(tr("PNG Image Files (*.png)"))
+                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        qDebug() << "Saving the Histogram plot, the directory is not writtable";
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QPixmap image;
+    if (type == 1) {
+        image = m_ui->genesPlot->grab();
+     } else {
+        image = m_ui->transcriptsPlot->grab();
+    }
+    if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        qDebug() << "Saving the Histogram plot, the image coult not be saved";
+    }
 }

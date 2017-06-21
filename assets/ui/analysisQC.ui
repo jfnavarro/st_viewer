@@ -31,31 +31,10 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetFixedSize</enum>
      </property>
-     <item row="8" column="1">
-      <widget class="QLineEdit" name="stdTranscripts">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>The standard deviation of transcripts per spot</string>
-       </property>
-       <property name="statusTip">
-        <string>The standard deviation of transcripts per spot</string>
-       </property>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_9">
        <property name="text">
-        <string/>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
+        <string>Total Spots</string>
        </property>
       </widget>
      </item>
@@ -93,24 +72,62 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>General</string>
+        <string>Total</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_9">
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_11">
        <property name="text">
-        <string>Total Spots</string>
+        <string>Max genes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Total</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLineEdit" name="maxTranscripts">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>The maximum number of transcripts in a spot</string>
+       </property>
+       <property name="statusTip">
+        <string>The maximum number of transcripts in a spot</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Median/spot</string>
        </property>
       </widget>
      </item>
@@ -145,8 +162,91 @@
        </property>
       </widget>
      </item>
+     <item row="10" column="1">
+      <widget class="QLineEdit" name="totalSpots">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>The total number of spots</string>
+       </property>
+       <property name="statusTip">
+        <string>The total number of spots</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Transcripts</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="totalGenes">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>The total number of genes</string>
+       </property>
+       <property name="statusTip">
+        <string>The total number of genes</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Std/spot</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_6">
        <property name="text">
         <string>Std/spot</string>
        </property>
@@ -156,6 +256,34 @@
       <widget class="QLabel" name="label_10">
        <property name="text">
         <string>Max transcripts</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="stdGenes">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>The standard deviation os genes per spot</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -199,20 +327,6 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Total</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Total</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
@@ -220,8 +334,8 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="stdGenes">
+     <item row="8" column="1">
+      <widget class="QLineEdit" name="stdTranscripts">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -234,67 +348,22 @@
          <height>21</height>
         </size>
        </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
        <property name="toolTip">
-        <string>The standard deviation os genes per spot</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="totalGenes">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>The total number of genes</string>
+        <string>The standard deviation of transcripts per spot</string>
        </property>
        <property name="statusTip">
-        <string>The total number of genes</string>
+        <string>The standard deviation of transcripts per spot</string>
+       </property>
+       <property name="text">
+        <string/>
        </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Std/spot</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Median/spot</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_8">
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_12">
        <property name="font">
         <font>
          <pointsize>14</pointsize>
@@ -303,38 +372,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Transcripts</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QLineEdit" name="totalSpots">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>21</height>
-        </size>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>The total number of spots</string>
-       </property>
-       <property name="statusTip">
-        <string>The total number of spots</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
+        <string>General</string>
        </property>
       </widget>
      </item>
@@ -369,54 +407,59 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="1">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="11" column="1">
-      <widget class="QLineEdit" name="maxTranscripts">
+     <item row="14" column="0">
+      <widget class="QPushButton" name="exportGenes">
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>21</height>
+         <width>140</width>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>21</height>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
+       <property name="cursor">
+        <cursorShape>SplitHCursor</cursorShape>
        </property>
        <property name="toolTip">
-        <string>The maximum number of transcripts in a spot</string>
+        <string>Eport the genes' histogram to a file</string>
        </property>
        <property name="statusTip">
-        <string>The maximum number of transcripts in a spot</string>
+        <string>Eport the genes' histogram to a file</string>
        </property>
-       <property name="readOnly">
-        <bool>true</bool>
+       <property name="text">
+        <string>Export Genes</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_11">
+     <item row="15" column="0">
+      <widget class="QPushButton" name="exportTranscripts">
+       <property name="minimumSize">
+        <size>
+         <width>140</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Eport the transcripts' histogram to a file</string>
+       </property>
+       <property name="statusTip">
+        <string>Eport the transcritps' histogram to a file</string>
+       </property>
        <property name="text">
-        <string>Max genes</string>
+        <string>Export Transcripts</string>
        </property>
       </widget>
      </item>
@@ -433,6 +476,19 @@
         <string>Genes</string>
        </property>
       </widget>
+     </item>
+     <item row="13" column="0">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

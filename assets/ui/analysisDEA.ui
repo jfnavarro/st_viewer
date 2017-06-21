@@ -204,20 +204,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QProgressBar" name="progressBar">
+        <widget class="QPushButton" name="exportPlot">
          <property name="minimumSize">
           <size>
            <width>120</width>
@@ -227,6 +214,40 @@
          <property name="maximumSize">
           <size>
            <width>120</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip">
+          <string>Export the volcano plot to a file</string>
+         </property>
+         <property name="statusTip">
+          <string>Export the volcano plot to a file</string>
+         </property>
+         <property name="text">
+          <string>Export Plot</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -250,13 +271,13 @@
         <widget class="QPushButton" name="exportTable">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>120</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>75</width>
+           <width>120</width>
            <height>16777215</height>
           </size>
          </property>
@@ -270,7 +291,7 @@
           <string>Export DE genes to a file</string>
          </property>
          <property name="text">
-          <string>Export</string>
+          <string>Export Genes</string>
          </property>
         </widget>
        </item>

@@ -40,6 +40,8 @@ private slots:
     void slotGeneSelected(QModelIndex index);
     // when the DE genes have been computed in the worker thread
     void slotDEAComputed();
+    // to export the volcano plot to  a file
+    void slotExportPlot();
 
 private:
 

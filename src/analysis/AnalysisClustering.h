@@ -37,7 +37,10 @@ private slots:
     // Performs a dimensionality reduction (t-SNE) on the data matrix and then
     // cluster the reduced coordinates (2D) using KMeans so to compute classes/colors
     // for each spot
-    void run();
+    void slotRun();
+
+    // exports the plot to a file
+    void slotExportPlot();
 
 private:
 

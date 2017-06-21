@@ -24,9 +24,11 @@ public:
 
 private slots:
 
-    void updateData();
+    void slotUpdateData();
+    void slotExportPlot();
 
 private:
+
     // GUI object
     QScopedPointer<Ui::analysisCorrelation> m_ui;
 
