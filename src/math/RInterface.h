@@ -17,12 +17,7 @@ static float computeCorrelation(const std::vector<double> &A,
                                 const std::vector<double> &B,
                                 const std::string &method)
 {
-    RInside *R = nullptr;
-    if (RInside::instancePtr() != nullptr) {
-        R = RInside::instancePtr();
-    } else {
-        R = new RInside();
-    }
+    RInside *R = RInside::instancePtr();
     Q_ASSERT(A.size() == B.size());
     float corr = 0.0;
     try {
@@ -50,12 +45,7 @@ static void computeDEA(const mat &countsA,
                        std::vector<std::string> &rows,
                        std::vector<std::string> &cols)
 {
-    RInside *R = nullptr;
-    if (RInside::instancePtr() != nullptr) {
-        R = RInside::instancePtr();
-    } else {
-        R = new RInside();
-    }
+    RInside *R = RInside::instancePtr();
 
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));"
@@ -76,8 +66,8 @@ static void computeDEA(const mat &countsA,
                            "exp_values = t(merged);"
                            "exp_values[is.na(exp_values)] = 0;"
                            "exp_values = apply(exp_values, c(1,2), as.numeric);"
-                           "exp_values = exp_values[,colSums(exp_values > 0) >= 5];"
-                           "exp_values = exp_values[rowSums(exp_values > 0) >= 5,];";
+                           "exp_values = exp_values[,colSums(exp_values > 0) > 5];"
+                           "exp_values = exp_values[rowSums(exp_values > 0) > 5,];";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
             call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
         } else {
@@ -88,7 +78,7 @@ static void computeDEA(const mat &countsA,
                     "sizes[3] = floor((num_spots / 2) * 0.3);"
                     "sizes[4] = floor((num_spots / 2) * 0.4);"
                     "sce = newSCESet(countData=exp_values);"
-                    "sce = computeSumFactors(sce, positive=T, sizes=sizes);"
+                    "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                     "sce = normalize(sce);"
                     "size_factors = sce@phenoData$size_factor";
         }
@@ -117,20 +107,21 @@ static void computeDEA(const mat &countsA,
 
 // Classifies spots based on gene expression (tSNE + KMeans)
 static void spotClassification(const mat &counts,
+                               const bool tsne,
+                               const bool kmeans,
                                const int num_clusters,
                                const int inital_dim,
                                const int no_dims,
                                const int perplexity,
                                const int max_iter,
                                const double theta,
-                               std::vector<int> &colors, mat &tsne)
+                               const bool scale,
+                               const bool center,
+                               std::vector<int> &colors,
+                               mat &results)
 {
-    RInside *R = nullptr;
-    if (RInside::instancePtr() != nullptr) {
-        R = RInside::instancePtr();
-    } else {
-        R = new RInside();
-    }
+    RInside *R = RInside::instancePtr();
+
     try {
         const std::string R_libs = "suppressMessages(library(Rtsne));";
         R->parseEvalQ(R_libs);
@@ -141,14 +132,31 @@ static void spotClassification(const mat &counts,
         (*R)["perplexity"] = perplexity;
         (*R)["max_iter"] = max_iter;
         (*R)["theta"] = theta;
-        const std::string call1 = "tsne_out = Rtsne(counts, dims=DIM,"
-                                  "theta=theta, check_duplicates=FALSE, pca=TRUE,"
-                                  "initial_dims=inital_dim, perplexity=perplexity,"
-                                  "max_iter=max_iter, verbose=FALSE);"
-                                  "tsne_out = tsne_out$Y[,1:DIM];";
-        const std::string call2 = "fit = kmeans(tsne_out, k)$cluster;"
-                                  "if (!0 %in% fit) fit = fit - 1;";
-        tsne = Rcpp::as<mat>(R->parseEval(call1));
+        (*R)["do_tsne"] = tsne;
+        (*R)["do_kmeans"] = kmeans;
+        (*R)["scale"] = scale;
+        (*R)["center"] = center;
+        const std::string call1 = "if (do_tsne) {"
+                                  "    tsne_out = Rtsne(counts, dims=DIM,"
+                                  "      theta=theta, check_duplicates=FALSE, pca=TRUE,"
+                                  "      initial_dims=inital_dim, perplexity=perplexity,"
+                                  "      max_iter=max_iter, verbose=FALSE);"
+                                  "    tsne_out = tsne_out$Y[,1:DIM];"
+                                  "} else {"
+                                  "    pcs = prcomp(counts, center=center, scale.=scale);"
+                                  "    tsne_out = predict(pcs);"
+                                  "    tsne_out = tsne_out[,1:DIM];"
+                                  "}";
+        const std::string call2 = "if (do_kmeans) {\n"
+                                  "    fit = kmeans(tsne_out, k)$cluster;"
+                                  "} else {\n"
+                                  "    h = hclust(dist(tsne_out), method='ward.D2');\n"
+                                  "    fit = cutree(h, k=k);\n"
+                                  "}\n"
+                                  "if (!0 %in% fit) {\n"
+                                  "    fit = fit - 1;\n"
+                                  "}";
+        results = Rcpp::as<mat>(R->parseEval(call1));
         colors = Rcpp::as<std::vector<int>>(R->parseEval(call2));
         qDebug() << "Computed Spot colors " << colors.size();
         Q_ASSERT(colors.size() == counts.n_rows);
@@ -160,12 +168,8 @@ static void spotClassification(const mat &counts,
 // Computes size factors using the DESEq2 method (one factor per spot)
 static rowvec computeDESeqFactors(const mat &counts)
 {
-    RInside *R = nullptr;
-    if (RInside::instancePtr() != nullptr) {
-        R = RInside::instancePtr();
-    } else {
-        R = new RInside();
-    }
+    RInside *R = RInside::instancePtr();
+
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
@@ -186,12 +190,7 @@ static rowvec computeDESeqFactors(const mat &counts)
 // Computes size factors using the SCRAN method (one factor per spot)
 static rowvec computeScranFactors(const mat &counts)
 {
-    RInside *R = nullptr;
-    if (RInside::instancePtr() != nullptr) {
-        R = RInside::instancePtr();
-    } else {
-        R = new RInside();
-    }
+    RInside *R = RInside::instancePtr();
 
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
@@ -208,7 +207,7 @@ static rowvec computeScranFactors(const mat &counts)
                                  "sizes[3] = floor((num_spots / 2) * 0.3);"
                                  "sizes[4] = floor((num_spots / 2) * 0.4);"
                                  "sce = newSCESet(countData=counts);"
-                                 "sce = computeSumFactors(sce, positive=T, sizes=sizes);"
+                                 "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                                  "sce = normalize(sce);"
                                  "size_factors = sce@phenoData$size_factor";
         factors = Rcpp::as<rowvec>(R->parseEval(call));

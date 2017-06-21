@@ -181,24 +181,6 @@ void SpotsWidget::slotLoadDataset(const Dataset &dataset)
     m_spots_tableview->update();
 }
 
-void SpotsWidget::slotLoadSpotColorsFile(const QString &filename)
-{
-    if (getModel()->loadSpotColorsFile(filename)) {
-        m_spots_tableview->update();
-        emit signalSpotsUpdated();
-    } else {
-        QMessageBox::critical(this, tr("Spots color import"),
-                              tr("There was an error parsing the file"));
-    }
-}
-
-void SpotsWidget::slotLoadSpotColors(const QVector<QColor> &colors)
-{
-    getModel()->loadSpotColors(colors);
-    m_spots_tableview->update();
-    emit signalSpotsUpdated();
-}
-
 SpotItemModel *SpotsWidget::getModel()
 {
     SpotItemModel *spotModel = qobject_cast<SpotItemModel *>(getProxyModel()->sourceModel());

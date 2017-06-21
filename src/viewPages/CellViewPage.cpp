@@ -55,13 +55,13 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
 
     // make selection button use different icon when selected
     m_ui->selection->setStyleSheet(
-        "QPushButton {border-image: url(:/images/selection.png); } "
-        "QPushButton:checked {border-image: url(:/images/selection2.png); }");
+                "QPushButton {border-image: url(:/images/selection.png); } "
+                "QPushButton:checked {border-image: url(:/images/selection2.png); }");
 
     // make lasso button use different icon when selected
     m_ui->lasso_selection->setStyleSheet(
-        "QPushButton {border-image: url(:/images/lasso.png); } "
-        "QPushButton:checked {border-image: url(:/images/lasso2.png); }");
+                "QPushButton {border-image: url(:/images/lasso.png); } "
+                "QPushButton:checked {border-image: url(:/images/lasso2.png); }");
 
     // instantiate Settings Widget
     m_settings.reset(new SettingsWidget());
@@ -99,34 +99,49 @@ void CellViewPage::clear()
     m_dataset = Dataset();
 }
 
-void CellViewPage::loadDataset(const Dataset &dataset)
+void CellViewPage::loadDataset(Dataset dataset)
 {
     //NOTE we allow to re-open the same dataset (in case it has been edited)
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    if (!dataset.load_data()) {
+        QMessageBox::critical(this, tr("Dataset"), tr("Error opening ST dataset"));
+    } else {
+        // update Status tip with the name of the currently selected dataset
+        setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
-    // update Status tip with the name of the currently selected dataset
-    setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
+        // update genes and spots
+        m_genes->slotLoadDataset(dataset);
+        m_spots->slotLoadDataset(dataset);
 
-    // store the dataset
-    m_dataset = dataset;
+        // update gene plotter rendering object with the dataset
+        m_gene_plotter->clearData();
+        m_gene_plotter->attachData(dataset.data());
 
-    // update gene plotter rendering object with the dataset
-    m_gene_plotter->clearData();
-    m_gene_plotter->attachData(dataset.data());
+        // store the dataset
+        m_dataset = dataset;
 
-    // load cell tissue (to load the dataset's cell tissue image)
-    // create tiles textures from the image
-    m_image->clearData();
-    const bool image_loaded = m_image->createTiles(dataset.imageFile());
-    if (!image_loaded) {
-        QMessageBox::warning(this, tr("Tissue image"),
-                              tr("Error loading tissue image"));
+        // create tiles textures from the image (async)
+        m_image->clearData();
+        const bool result = m_image->createTiles(dataset.imageFile());
+        slotImageLoaded(result);
+        //QFutureWatcher<void> watcher;
+        //QFuture<void> future = m_image->createTextures(dataset.imageFile());
+        //watcher.setFuture(future);
+    }
+    QGuiApplication::restoreOverrideCursor();
+}
+
+void CellViewPage::slotImageLoaded(const bool loaded)
+{
+    if (!loaded) {
+        QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
     } else {
         m_ui->view->setScene(m_image->boundingRect());
         // If the user has not given any transformation matrix
         // we compute a simple transformation matrix using
         // the image and chip dimensions so the spot's coordinates
         // can be mapped to the image's coordinates space
-        QTransform alignment = dataset.imageAlignment();
+        QTransform alignment = m_dataset.imageAlignment();
         if (alignment.isIdentity()) {
             const QRect chip = m_dataset.chip();
             const int chip_x2 = chip.height();
@@ -150,6 +165,9 @@ void CellViewPage::loadDataset(const Dataset &dataset)
 
     // enable controls
     m_ui->frame->setEnabled(true);
+
+    // show settings widget
+    m_settings->show();
 
     // call for an update
     m_ui->view->update();
@@ -257,9 +275,15 @@ void CellViewPage::createConnections()
     // when the user wants to load a file with spot colors
     connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColorsFile);
 
+    // when the user wants to load a file with genes to select
+    connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenes);
+
     // when the users clusters the spots
     connect(m_clustering.data(), &AnalysisClustering::singalClusteringUpdated,
             this, &CellViewPage::slotLoadSpotColors);
+
+    // when the image has been loaded
+    //connect(&m_watcher, &QFutureWatcher<void>::finished, this, &CellViewPage::slotImageLoaded);
 }
 
 
@@ -309,9 +333,9 @@ void CellViewPage::slotSaveImage()
                                                     tr("Save Image"),
                                                     QDir::homePath(),
                                                     QString("%1;;%2;;%3")
-                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                        .arg(tr("PNG Image Files (*.png)"))
-                                                        .arg(tr("BMP Image Files (*.bmp)")));
+                                                    .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                    .arg(tr("PNG Image Files (*.png)"))
+                                                    .arg(tr("BMP Image Files (*.bmp)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -371,17 +395,134 @@ void CellViewPage::slotLoadSpotColorsFile()
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this,
-                              tr("Spot Colors File File"),
+                              tr("Spot Colors File"),
                               tr("File is incorrect or not readable"));
+        return;
+    }
+
+    QStringList color_list;
+    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
+               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
+    QMap<Spot::SpotType, QColor> spotMap;
+    QFile file(filename);
+    bool parsed = true;
+    // Parse the spots map = spot -> color
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        QString line;
+        QStringList fields;
+        while (!in.atEnd()) {
+            line = in.readLine();
+            fields = line.split("\t");
+            if (fields.length() != 2) {
+                parsed = false;
+                break;
+            }
+            const QString spot = fields.at(1);
+            const QColor color = color_list.at(fields.at(0).toInt());
+            fields = spot.split("x");
+            if (fields.length() != 2) {
+                parsed = false;
+                break;
+            }
+            const float x = fields.at(0).toFloat();
+            const float y = fields.at(1).toFloat();
+            spotMap.insert(Spot::SpotType(x, y), color);
+        }
+
+        if (spotMap.empty()) {
+            qDebug() << "No valid spots could be found in the spots colors file";
+            parsed = false;
+        }
+
     } else {
-        m_spots->slotLoadSpotColorsFile(filename);
+        qDebug() << "Could not open spots colors file";
+        parsed = false;
+    }
+    file.close();
+
+    // Update spot colors
+    if (parsed) {
+        m_dataset.data()->loadSpotColors(spotMap);
+        m_spots->update();
+        m_gene_plotter->slotUpdate();
+        m_ui->view->update();
+    } else {
+        QMessageBox::critical(this,
+                              tr("Spots Color File"),
+                              tr("There was an error parsing the file"));
+    }
+}
+
+void CellViewPage::slotLoadGenes()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Genes File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Genes File"),
+                              tr("File is incorrect or not readable"));
+        return;
+    }
+
+    QFile file(filename);
+    bool parsed = true;
+    QList<QString> genes;
+    // Parse the spots map = spot -> color
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        QString line;
+        QStringList fields;
+        while (!in.atEnd()) {
+            line = in.readLine();
+            fields = line.split("\t");
+            if (fields.empty()) {
+                parsed = false;
+                break;
+            }
+            const QString gene = fields.at(0);
+            genes.append(gene);
+        }
+
+        if (genes.empty()) {
+            qDebug() << "No valid genes could be found in the file";
+            parsed = false;
+        }
+
+    } else {
+        qDebug() << "Could not open genes file";
+        parsed = false;
+    }
+    file.close();
+
+    if (!parsed) {
+        QMessageBox::critical(this,
+                              tr("Genes File"),
+                              tr("There was an error parsing the file"));
+    } else {
+        m_dataset.data()->selectGenes(genes);
+        m_genes->update();
+        m_gene_plotter->slotUpdate();
+        m_ui->view->update();
     }
 }
 
 void CellViewPage::slotLoadSpotColors()
 {
     const auto colors = m_clustering->getComputedClasses();
-    m_spots->slotLoadSpotColors(colors);
+    m_dataset.data()->loadSpotColors(colors);
+    m_spots->update();
+    m_gene_plotter->slotUpdate();
+    m_ui->view->update();
 }
 
 void CellViewPage::slotCreateSelection()

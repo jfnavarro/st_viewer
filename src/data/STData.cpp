@@ -182,6 +182,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     m_rendering_colors.clear();
     m_rendering_selected.clear();
     m_rendering_spots.clear();
+    m_rendering_values.clear();
 
     const bool use_genes =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::Genes ||
@@ -200,51 +201,11 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                                  m_deseq_size_factors,
                                  m_scran_size_factors);
 
-    // Get the list of selected genes
-    rowvec colsum_nonzero = computeNonZeroColumns(counts);
-    QVector<uword> selected_genes_indexes;
-    float max_value_gene = -10e6;
-    float min_value_gene = 10e6;
-    for (uword i = 0; i < counts.n_cols; ++i) {
-        const auto gene = m_genes.at(i);
-        const float gene_count = colsum_nonzero.at(i);
-        if (gene->visible() && gene_count > rendering_settings.genes_threshold) {
-            selected_genes_indexes.push_back(i);
-            max_value_gene = std::max(max_value_gene, gene_count);
-            min_value_gene = std::min(min_value_gene, gene_count);
-        }
-    }
-
-    // Get the list of selected spots
-    colvec rowsum = sum(counts, ROW);
-    QVector<uword> selected_spots_indexes;
-    float max_value_reads = -10e6;
-    float min_value_reads = 10e6;
-    for (uword i = 0; i < counts.n_rows; ++i) {;
-        const float reads_count = rowsum.at(i);
-        if (reads_count > rendering_settings.reads_threshold) {
-            selected_spots_indexes.push_back(i);
-            max_value_reads = std::max(max_value_reads, reads_count);
-            min_value_reads = std::min(min_value_reads, reads_count);
-        }
-    }
-
-    // early out
-    if (selected_spots_indexes.empty() && selected_genes_indexes.empty()) {
-        return;
-    }
-
-    // Compute color adjusment constants
-    float min_value = use_genes ? min_value_gene : min_value_reads;
-    float max_value = use_genes ? max_value_gene : max_value_reads;
-    min_value = use_log ? std::log(min_value + std::numeric_limits<double>::epsilon()) : min_value;
-    max_value = use_log ? std::log(max_value + std::numeric_limits<double>::epsilon()) : max_value;
-    rendering_settings.legend_min = min_value;
-    rendering_settings.legend_max = max_value;
-
     // Iterate the spots and genes in the matrix to compute the rendering colors
     //TODO make this paralell
-    for (const uword i : selected_spots_indexes) {
+    float min_value = 10e6;
+    float max_value = -10e6;
+    for (uword i = 0; i < counts.n_rows; ++i) {
         const auto spot = m_spots.at(i);
         bool visible = false;
         float merged_value = 0;
@@ -252,13 +213,11 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         bool any_gene_selected = false;
         QColor merged_color;
         if (!spot->visible()) {
-            merged_value = 0;
-            num_genes = 0;
             // Iterage the genes in the spot to compute the sum of values and color
-            for (const uword j : selected_genes_indexes) {
+            for (uword j = 0; j < counts.n_cols; ++j) {
                 const auto gene = m_genes.at(j);
                 const float value = counts.at(i,j);
-                if (rendering_settings.gene_cutoff && gene->cut_off() > value) {
+                if (!gene->visible() || (rendering_settings.gene_cutoff && gene->cut_off() > value)) {
                     continue;
                 }
                 ++num_genes;
@@ -268,18 +227,13 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                 }
                 any_gene_selected |= gene->selected();
             }
-            // Use number of genes or total reads in the spot depending on settings
-            merged_value = use_genes ? num_genes : merged_value;
-
             // Update the color of the spot
             if (merged_value > 0) {
-                // Update the counts with the visual type (log or not)
+                // Use number of genes or total reads in the spot depending on settings
+                merged_value = use_genes ? num_genes : merged_value;
                 merged_value = use_log ? std::log(merged_value) : merged_value;
-                merged_color = adjustVisualMode(merged_color,
-                                                merged_value,
-                                                min_value,
-                                                max_value,
-                                                rendering_settings.visual_mode);
+                min_value = std::min(min_value, merged_value);
+                max_value = std::max(max_value, merged_value);
                 visible = true;
                 spot->selected(spot->selected() || any_gene_selected);
             }
@@ -289,15 +243,15 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         }
 
         if (visible) {
-            const float intensity = is_dynamic ? rendering_settings.intensity +
-                                                 (1 - rendering_settings.intensity)
-                                                  : rendering_settings.intensity;
-            merged_color.setAlphaF(intensity);
             m_rendering_colors.append(merged_color);
             m_rendering_selected.append(spot->selected());
+            m_rendering_values.append(merged_value);
             m_rendering_spots.append(spot->coordinates());
         }
     }
+
+    rendering_settings.legend_min = min_value;
+    rendering_settings.legend_max = max_value;
 }
 
 const QVector<Spot::SpotType> &STData::renderingSpots() const
@@ -313,6 +267,11 @@ const QVector<QColor> &STData::renderingColors() const
 const QVector<bool> &STData::renderingSelected() const
 {
     return m_rendering_selected;
+}
+
+const QVector<double> &STData::renderingValues() const
+{
+    return m_rendering_values;
 }
 
 bool STData::parseSpotsMap(const QString &spots_file)
@@ -391,32 +350,6 @@ bool STData::parseSpotsMap(const QString &spots_file)
     }
 
     return true;
-}
-
-QColor STData::adjustVisualMode(const QColor merged_color,
-                                const float &merged_value,
-                                const float &min_reads,
-                                const float &max_reads,
-                                const SettingsWidget::VisualMode mode)
-{
-    QColor color = merged_color;
-    switch (mode) {
-    case (SettingsWidget::VisualMode::Normal): {
-    } break;
-    case (SettingsWidget::VisualMode::DynamicRange): {
-        color = Color::createDynamicRangeColor(merged_value, min_reads,
-                                               max_reads, merged_color);
-    } break;
-    case (SettingsWidget::VisualMode::HeatMap): {
-        color = Color::createCMapColor(merged_value, min_reads,
-                                       max_reads, Color::ColorGradients::gpSpectrum);
-    } break;
-    case (SettingsWidget::VisualMode::ColorRange): {
-        color = Color::createCMapColor(merged_value, min_reads,
-                                       max_reads, Color::ColorGradients::gpHot);
-    }
-    }
-    return color;
 }
 
 mat STData::normalizeCounts(const mat &counts,
@@ -498,6 +431,42 @@ void STData::selectGenes(const QRegExp &regexp, const bool force)
         const bool selected = regexp.exactMatch(gene->name());
         gene->selected(selected);
         gene->visible(gene->visible() || (force && selected));
+    }
+}
+
+void STData::selectGenes(const QList<QString> &genes)
+{
+    for (auto gene : m_genes) {
+        for (auto gene2 : genes) {
+            if (gene->name() == gene2) {
+                gene->visible(true);
+                break;
+            }
+        }
+    }
+}
+
+void STData::loadSpotColors(const QVector<QColor> &colors)
+{
+    Q_ASSERT(m_spots.size() == colors.size());
+    for (int i = 0; i < colors.size(); ++i) {
+        m_spots[i]->color(colors.at(i));
+    }
+}
+
+void STData::loadSpotColors(const QMap<Spot::SpotType,QColor> &colors)
+{
+    QMap<Spot::SpotType, QColor>::const_iterator it = colors.constBegin();
+    while (it != colors.constEnd()) {
+        const Spot::SpotType oldspot = it.key();
+        const QColor color = it.value();
+        auto it_spot =
+                std::find_if(m_spots.begin(), m_spots.end(),
+                             [&](const auto spot) { return spot->coordinates() == oldspot; });
+        if (it_spot != m_spots.end()) {
+            (*it_spot)->color(color);
+        }
+        ++it;
     }
 }
 

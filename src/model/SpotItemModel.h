@@ -43,12 +43,6 @@ public:
     // reload the model's data from the dataset (spots)
     void loadDataset(const Dataset &dataset);
 
-    // loads a file containing colors for each spot using a file
-    bool loadSpotColorsFile(const QString &filename);
-
-    // loads the given colors for each spot
-    void loadSpotColors(const QVector<QColor> &colors);
-
     // clear and reset the model
     void clear();
 

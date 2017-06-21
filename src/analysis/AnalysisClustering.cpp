@@ -6,6 +6,7 @@
 #include <QFuture>
 #include <QtConcurrent>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "math/RInterface.h"
 
@@ -21,6 +22,8 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->theta->setValue(0.5);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
+    m_ui->tsne->setChecked(true);
+    m_ui->kmeans->setChecked(true);
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
     connect(&m_watcher, &QFutureWatcher<void>::finished,
@@ -120,14 +123,31 @@ void AnalysisClustering::computeColorsAsync()
     const int max_iter = m_ui->max_iter->value();
     const int init_dim = m_ui->init_dims->value();
     const int num_clusters = m_ui->clusters->value();
+    const bool scale = m_ui->scale->isChecked();
+    const bool center = m_ui->center->isChecked();
+    const bool tsne = m_ui->tsne->isChecked();
+    const bool kmeans = m_ui->kmeans->isChecked();
 
-    // Surprisingly it is much faster to call R's tsne than to use C++ implemtation....
-    RInterface::spotClassification(A, num_clusters, init_dim, no_dims, perplexity,
-                                   max_iter, theta, m_colors, m_reduced_coordinates);
+    // Surprisingly it is much faster to call R's tsne/pca than to use C++ implemtation....
+    RInterface::spotClassification(A, tsne, kmeans, num_clusters, init_dim, no_dims, perplexity,
+                                   max_iter, theta, scale, center, m_colors, m_reduced_coordinates);
 }
 
 void AnalysisClustering::colorsComputed()
 {
+    // stop progress bar
+    m_ui->progressBar->setMaximum(10);
+    // enable run button
+    m_ui->runClustering->setEnabled(true);
+
+    if (m_colors.empty() || m_reduced_coordinates.empty()) {
+        qDebug() << "Error while doing dimentionality reduction";
+        QMessageBox::critical(this,
+                              tr("Spot classification"),
+                              tr("There was an error performing the classification"));
+        return;
+    }
+
     const int num_clusters = m_ui->clusters->value();
     Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors)) == 0
              && *std::max_element(std::begin(m_colors), std::end(m_colors)) == (num_clusters - 1));
@@ -165,10 +185,7 @@ void AnalysisClustering::colorsComputed()
     m_ui->plot->chart()->legend()->show();
     m_ui->plot->chart()->createDefaultAxes();
 
-    // stop progress bar
-    m_ui->progressBar->setMaximum(10);
-    // enable controls
-    m_ui->runClustering->setEnabled(true);
+    // enable export controls
     m_ui->exportPlot->setEnabled(true);
 
     // notify the main view

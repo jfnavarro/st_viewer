@@ -56,6 +56,7 @@ public:
     const QVector<Spot::SpotType> &renderingSpots() const;
     const QVector<QColor> &renderingColors() const;
     const QVector<bool> &renderingSelected() const;
+    const QVector<double> &renderingValues() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
     // the spots coordinates will be updated and the spots
@@ -71,16 +72,15 @@ public:
                                SettingsWidget::NormalizationMode mode,
                                const rowvec &deseq_factors,
                                const rowvec &scran_factors);
-    // helper fuctions to adjust a spot's color according to the rendering settings
-    static QColor adjustVisualMode(const QColor merged_color,
-                                   const float &merged_value,
-                                   const float &min_reads,
-                                   const float &max_reads,
-                                   const SettingsWidget::VisualMode mode);
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
     void selectGenes(const QRegExp &regexp, const bool force = true);
+    void selectGenes(const QList<QString> &genes);
+
+    // functions to change spot colors
+    void loadSpotColors(const QVector<QColor> &colors);
+    void loadSpotColors(const QMap<Spot::SpotType,QColor> &colors);
 
     // returns the boundaries (min spot and max spot)
     const QRectF getBorder() const;
@@ -103,6 +103,7 @@ private:
     QVector<bool> m_rendering_selected;
     QVector<Spot::SpotType> m_rendering_spots;
     QVector<QColor> m_rendering_colors;
+    QVector<double> m_rendering_values;
 
     Q_DISABLE_COPY(STData)
 };

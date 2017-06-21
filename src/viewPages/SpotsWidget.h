@@ -41,12 +41,6 @@ public slots:
     // spots is a reference to the spots of the dataset
     void slotLoadDataset(const Dataset &dataset);
 
-    // the user is loading a file with spot colors
-    void slotLoadSpotColorsFile(const QString &filename);
-
-    // the user wants to load a set colors
-    void slotLoadSpotColors(const QVector<QColor> &colors);
-
 private slots:
 
     // slots triggered by the show/color controls in the gene table

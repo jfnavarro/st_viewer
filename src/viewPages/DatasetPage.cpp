@@ -161,11 +161,6 @@ void DatasetPage::slotOpenDataset()
         return;
     }
     auto dataset = currentDatasets.front();
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    if (!dataset.load_data()) {
-        QMessageBox::critical(this, tr("Datasert import"), tr("Error opening ST dataset"));
-    }
-    QGuiApplication::restoreOverrideCursor();
     // Set selected dataset
     m_open_dataset = QSharedPointer<Dataset>(new Dataset(dataset));
     // Notify that the dataset was open

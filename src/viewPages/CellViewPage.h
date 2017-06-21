@@ -2,6 +2,8 @@
 #define CELLVIEWPAGE_H
 
 #include <QWidget>
+#include <QFutureWatcher>
+
 #include "data/Dataset.h"
 #include "data/UserSelection.h"
 #include "viewRenderer/ImageTextureGL.h"
@@ -45,7 +47,7 @@ public:
     void clear();
 
     // the user has opened/edit a dataset
-    void loadDataset(const Dataset &dataset);
+    void loadDataset(Dataset dataset);
 
     // the user has cleared the selections
     void clearSelections();
@@ -78,11 +80,17 @@ private slots:
     // user wants to load a file with spot colors
     void slotLoadSpotColorsFile();
 
+    // user wants to load a file with genes to select
+    void slotLoadGenes();
+
     // user has performed spot classification
     void slotLoadSpotColors();
 
     // user wants to create a selection
     void slotCreateSelection();
+
+    // when the image has been tiled and loaded
+    void slotImageLoaded(const bool loaded);
 
 private:
     // create OpenGL graphical elements and view
@@ -112,6 +120,9 @@ private:
 
     // the currently opened dataset
     Dataset m_dataset;
+
+    // watcher for the image loading
+    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(CellViewPage)
 };

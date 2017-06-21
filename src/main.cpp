@@ -11,6 +11,10 @@
 #include "mainWindow.h"
 #include "options_cmake.h"
 
+//RcppArmadillo must be included before RInside
+#include "RcppArmadillo.h"
+#include "RInside.h"
+
 #include <iostream>
 
 namespace
@@ -68,12 +72,15 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    // Initialize RInside object here since it is global...
+    RInside *dummyR = new RInside();
     // Create main window
     MainWindow mainWindow;
     app.setActiveWindow(&mainWindow);
     // Check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
+        delete dummyR;
         return EXIT_FAILURE;
     }
     // Initialize graphic components
@@ -81,5 +88,7 @@ int main(int argc, char **argv)
     // Show main window.
     mainWindow.show();
     // launch the app
-    return app.exec();
+    const int status = app.exec();
+    delete dummyR;
+    return status;
 }

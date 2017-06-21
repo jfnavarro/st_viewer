@@ -79,15 +79,13 @@ void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     qopengl_functions.glDisable(GL_TEXTURE_2D);
 }
 
-QFuture<void> ImageTextureGL::createTextures(const QByteArray &imageByteArray)
+QFuture<void> ImageTextureGL::createTextures(const QString &imagefile)
 {
-    return QtConcurrent::run(this, &ImageTextureGL::createTiles, imageByteArray);
+    return QtConcurrent::run(this, &ImageTextureGL::createTiles, imagefile);
 }
 
 bool ImageTextureGL::createTiles(const QString &imagefile)
 {
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
     // Load the image file into a byte array
     QFile file(imagefile);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -146,7 +144,6 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     }
 
     m_isInitialized = true;
-    QGuiApplication::restoreOverrideCursor();
     return true;
 }
 

@@ -22,7 +22,7 @@ public:
 
     // this function will split the image into small textures of fixed size in an asynchronous way
     // using createTiles and returning the future object
-    QFuture<void> createTextures(const QByteArray &imageByteArray);
+    QFuture<void> createTextures(const QString &imagefile);
 
     // will remove and destroy all textures
     void clearData();

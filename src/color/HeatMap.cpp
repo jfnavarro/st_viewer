@@ -18,11 +18,11 @@ void createLegend(QImage &image, const float lowerbound,
         // color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
         const float adjusted_value
-            = Math::linearConversion<float, float>(static_cast<float>(value),
-                                                   0.0,
-                                                   static_cast<float>(height),
-                                                   lowerbound,
-                                                   upperbound);
+                = Math::linearConversion<float, float>(static_cast<float>(value),
+                                                       0.0,
+                                                       static_cast<float>(height),
+                                                       lowerbound,
+                                                       upperbound);
         const QColor color = Color::createCMapColor(adjusted_value, lowerbound, upperbound, cmap);
         const QRgb rgb_color = color.rgb();
         for (int x = 0; x < width; ++x) {
@@ -46,7 +46,7 @@ QColor createDynamicRangeColor(const float value, const float min,
                                const float max, const QColor color)
 {
     const float adjusted_value
-        = Math::norm<float, float>(value, min, max);
+            = Math::norm<float, float>(value, min, max);
     QColor newcolor(color);
     newcolor.setAlphaF(adjusted_value);
     return newcolor;
@@ -132,5 +132,31 @@ QColor createCMapColor(const float value, const float min,
     const QCPRange range(min, max);
     QCPColorGradient cmapper(cmap);
     return QColor(cmapper.color(value, range));
+}
+
+QColor adjustVisualMode(const QColor merged_color,
+                        const float &merged_value,
+                        const float &min_reads,
+                        const float &max_reads,
+                        const SettingsWidget::VisualMode mode)
+{
+    QColor color = merged_color;
+    switch (mode) {
+    case (SettingsWidget::VisualMode::Normal): {
+    } break;
+    case (SettingsWidget::VisualMode::DynamicRange): {
+        color = Color::createDynamicRangeColor(merged_value, min_reads,
+                                               max_reads, merged_color);
+    } break;
+    case (SettingsWidget::VisualMode::HeatMap): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpSpectrum);
+    } break;
+    case (SettingsWidget::VisualMode::ColorRange): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpHot);
+    }
+    }
+    return color;
 }
 }

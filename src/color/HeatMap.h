@@ -3,6 +3,7 @@
 
 #include "math/Common.h"
 #include "qcustomplot.h"
+#include "viewPages/SettingsWidget.h"
 
 class QImage;
 
@@ -38,6 +39,13 @@ QColor createRangeColor(const float value, const float min, const float max,
 // Functions to create a color from a pre-set color map
 QColor createCMapColor(const float value, const float min, const float max,
                        const ColorGradients cmap);
+
+// helper fuctions to adjust a spot's color according to the rendering settings
+QColor adjustVisualMode(const QColor merged_color,
+                        const float &merged_value,
+                        const float &min_reads,
+                        const float &max_reads,
+                        const SettingsWidget::VisualMode mode);
 
 }
 

@@ -33,6 +33,7 @@
     <file alias="images/rotateRight.png">${PROJECT_SOURCE_DIR}/assets/images/rotateRight.png</file>
     <file alias="images/flip.png">${PROJECT_SOURCE_DIR}/assets/images/flip.png</file>
     <file alias="images/loadSpots.png">${PROJECT_SOURCE_DIR}/assets/images/loadSpots.png</file>
+    <file alias="images/loadGenes.png">${PROJECT_SOURCE_DIR}/assets/images/loadGenes.png</file>
     <file alias="images/lasso.png">${PROJECT_SOURCE_DIR}/assets/images/lasso.png</file>
     <file alias="images/lasso2.png">${PROJECT_SOURCE_DIR}/assets/images/lasso2.png</file>
     <file alias="images/import-dataset.png">${PROJECT_SOURCE_DIR}/assets/images/import-dataset.png</file>

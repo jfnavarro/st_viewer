@@ -694,6 +694,47 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="loadGenes">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Load and select genes from a file</string>
+           </property>
+           <property name="statusTip">
+            <string>Load and select genes from a file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/loadGenes.png</normaloff>:/images/loadGenes.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="genemenu">
            <property name="minimumSize">
             <size>

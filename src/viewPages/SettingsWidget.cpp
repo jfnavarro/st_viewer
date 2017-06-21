@@ -13,6 +13,7 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     , m_ui(new Ui::SettingsWidget)
 {
     m_ui->setupUi(this);
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);
 
     // Reset elemements to default
     reset();

@@ -7,6 +7,8 @@
 #include <QApplication>
 #include <QPainter>
 
+#include "color/HeatMap.h"
+
 GeneRendererGL::GeneRendererGL(SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
     , m_rendering_settings(rendering_settings)
@@ -55,19 +57,36 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
         return;
     }
 
+    const bool is_dynamic =
+            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
+    const bool is_normal=
+            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
+
     const auto spots = m_geneData->renderingSpots();
     const auto colors = m_geneData->renderingColors();
     const auto selecteds = m_geneData->renderingSelected();
+    const auto values = m_geneData->renderingValues();
     const double size = m_rendering_settings.size / 2;
     const double size_selected = size / 4;
+    const double min_value = m_rendering_settings.legend_min;
+    const double max_value = m_rendering_settings.legend_max;
+    const float intensity = m_rendering_settings.intensity;
     QPen pen;
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
         const auto spot  = spots.at(i);
         const double x = spot.first;
         const double y = spot.second;
-        const QColor color = colors.at(i);
         const bool selected = selecteds.at(i);
+        const double value = values.at(i);
+        QColor color = colors.at(i);
+        if (!is_normal) {
+            color = Color::adjustVisualMode(color, value, min_value,
+                                            max_value, m_rendering_settings.visual_mode);
+        }
+        if (!is_dynamic) {
+            color.setAlphaF(intensity);
+        }
         // draw spot
         pen.setColor(color);
         pen.setWidthF(size);

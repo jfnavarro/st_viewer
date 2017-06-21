@@ -331,9 +331,6 @@ void MainWindow::slotDatasetOpen(const QString &datasetname)
 {
     const auto dataset = m_datasets->getCurrentDataset();
     qDebug() << "Dataset opened " << datasetname;
-    Q_ASSERT(!dataset->data().isNull());
-    m_genes->slotLoadDataset(*(dataset.data()));
-    m_spots->slotLoadDataset(*(dataset.data()));
     m_cellview->loadDataset(*(dataset.data()));
 }
 
@@ -341,9 +338,6 @@ void MainWindow::slotDatasetUpdated(const QString &datasetname)
 {
     const auto dataset = m_datasets->getCurrentDataset();
     qDebug() << "Dataset updated " << datasetname;
-    Q_ASSERT(!dataset->data().isNull());
-    m_genes->slotLoadDataset(*(dataset.data()));
-    m_spots->slotLoadDataset(*(dataset.data()));
     m_cellview->loadDataset(*(dataset.data()));
 }
 

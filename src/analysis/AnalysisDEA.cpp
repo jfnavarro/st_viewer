@@ -288,8 +288,17 @@ void AnalysisDEA::slotDEAComputed()
 {
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
-    // enable controls
+    // enable run button
     m_ui->run->setEnabled(true);
+    if (m_results_rows.empty() || m_results_cols.empty() || m_results.empty()) {
+        qDebug() << "Error while doing DEA";
+        QMessageBox::critical(this,
+                              tr("DEA Analysis"),
+                              tr("There was an error performing the DEA"));
+        return;
+    }
+
+    // enable controls
     m_ui->exportTable->setEnabled(true);
     m_ui->exportPlot->setEnabled(true);
     m_initialized = true;
