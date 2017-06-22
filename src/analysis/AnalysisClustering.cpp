@@ -1,12 +1,12 @@
 #include "AnalysisClustering.h"
 
 #include <QChartView>
-#include <QScatterSeries>
 #include <QValueAxis>
 #include <QFuture>
 #include <QtConcurrent>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPdfWriter>
 
 #include "math/RInterface.h"
 
@@ -70,13 +70,14 @@ void AnalysisClustering::slotRun()
 
 void AnalysisClustering::slotExportPlot()
 {
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Save t-SNE Plot"),
-                                                    QDir::homePath(),
-                                                    QString("%1;;%2;;%3")
-                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                        .arg(tr("PNG Image Files (*.png)"))
-                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Save Clustering Plot"),
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -85,15 +86,27 @@ void AnalysisClustering::slotExportPlot()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        qDebug() << "Saving the t-SNE plot, the directory is not writtable";
+        QMessageBox::critical(this,
+                              tr("Save Clustering Plot"),
+                              tr("The file is not writable"));
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
-    QPixmap image = m_ui->plot->grab();
-    if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        qDebug() << "Saving the t-SNE plot, the image coult not be saved";
+    QImage image = m_ui->plot->grab().toImage();
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              tr("Save Clustering Plot"),
+                              tr("The image could not be creted."));
     }
 }
 
@@ -141,7 +154,6 @@ void AnalysisClustering::colorsComputed()
     m_ui->runClustering->setEnabled(true);
 
     if (m_colors.empty() || m_reduced_coordinates.empty()) {
-        qDebug() << "Error while doing dimentionality reduction";
         QMessageBox::critical(this,
                               tr("Spot classification"),
                               tr("There was an error performing the classification"));
@@ -156,28 +168,29 @@ void AnalysisClustering::colorsComputed()
     QStringList color_list;
     color_list << "red" << "green" << "blue" << "cyan" << "magenta"
                << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
-    QVector<QScatterSeries *> series_vector;
+    m_series_vector.clear();
     for (int k = 0; k < num_clusters; ++k) {
-        QScatterSeries *series = new QScatterSeries();
+        QScatterSeries *series = new QScatterSeries(this);
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(10.0);
         series->setColor(color_list.at(k));
         series->setUseOpenGL(false);
-        series_vector.push_back(series);
+        m_series_vector.push_back(series);
+        connect(series, &QScatterSeries::clicked, this, &AnalysisClustering::slotClickedPoint);
     }
 
-    const std::vector<double> x = conv_to<std::vector<double>>::from(m_reduced_coordinates.col(0));
-    const std::vector<double> y = conv_to<std::vector<double>>::from(m_reduced_coordinates.col(1));
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const int k = m_colors.at(i);
-        series_vector[k]->append(x.at(i), y.at(i));
+        const float x = m_reduced_coordinates.at(i,0);
+        const float y = m_reduced_coordinates.at(i,1);
+        m_series_vector[k]->append(x, y);
     }
 
     // update the scatter plot
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
-    for (auto series : series_vector) {
+    for (auto series : m_series_vector) {
         m_ui->plot->chart()->addSeries(series);
     }
     m_ui->plot->chart()->setTitle("Spots colored by cluster");
@@ -190,4 +203,45 @@ void AnalysisClustering::colorsComputed()
 
     // notify the main view
     emit singalClusteringUpdated();
+}
+
+void AnalysisClustering::slotClickedPoint(const QPointF point)
+{
+    // Find the closest point from all series
+    const QPointF clickedPoint = point;
+    float closest_x = INT_MAX;
+    float closest_y = INT_MAX;
+    float distance = INT_MAX;
+    for (const auto series : m_series_vector) {
+        for (const auto point : series->points()) {
+            const float currentDistance = qSqrt((point.x() - clickedPoint.x())
+                                                * (point.x() - clickedPoint.x())
+                                                + (point.y() - clickedPoint.y())
+                                                * (point.y() - clickedPoint.y()));
+            if (currentDistance < distance) {
+                distance = currentDistance;
+                closest_x = point.x();
+                closest_y = point.y();
+            }
+        }
+    }
+
+    // Find the spot coorespondign to the clicked point
+    int spot_index = -1;
+    for (unsigned i = 0; i < m_colors.size(); ++i) {
+        const float x = m_reduced_coordinates.at(i,0);
+        const float y = m_reduced_coordinates.at(i,1);
+        if (x == closest_x && y == closest_y) {
+            spot_index = i;
+            break;
+        }
+    }
+
+    // Update the fied if valid spot was found
+    if (spot_index != -1) {
+        const auto spot = m_data.spots.at(spot_index);
+        m_ui->selectedSpot->setText(
+                    QString::number(spot.first) + "x" + QString::number(spot.second));
+    }
+
 }

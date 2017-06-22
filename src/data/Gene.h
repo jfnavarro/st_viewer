@@ -30,21 +30,21 @@ public:
     const QColor color() const;
     // the threshold (reads)
     // the gene cut-off is used to discard genes whose count is below the cut off
-    int cut_off() const;
+    float cut_off() const;
 
     // Setters
     void name(const QString &name);
     void visible(const bool visible);
     void selected(const bool selected);
     void color(const QColor &color);
-    void cut_off(const int cutoff);
+    void cut_off(const float cutoff);
 
 private:
     QString m_name;
     QColor m_color;
     bool m_visible;
     bool m_selected;
-    int m_cutoff;
+    float m_cutoff;
 };
 
 #endif // GENE_H //

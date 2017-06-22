@@ -4,6 +4,8 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QFileDialog>
+#include <QPdfWriter>
+#include <QMessageBox>
 
 #include "ui_analysisQC.h"
 
@@ -13,6 +15,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     , m_ui(new Ui::analysisQC)
 {
     m_ui->setupUi(this);
+
+    Q_ASSERT(data.counts.size() > 0);
 
     // compute the stats
     const colvec rowsums = sum(data.counts, 1);
@@ -79,34 +83,49 @@ AnalysisQC::~AnalysisQC()
 
 void AnalysisQC::slotExportPlot(const int type)
 {
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Histogram Plot"),
-                                                    QDir::homePath(),
-                                                    QString("%1;;%2;;%3")
-                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                        .arg(tr("PNG Image Files (*.png)"))
-                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Save Histogram Plot"),
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
     // early out
     if (filename.isEmpty()) {
         return;
     }
 
+
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        qDebug() << "Saving the Histogram plot, the directory is not writtable";
+        QMessageBox::critical(this,
+                              tr("Save Histogram Plot"),
+                              tr("The file is not writable"));
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
-    QPixmap image;
+    QImage image;
     if (type == 1) {
-        image = m_ui->genesPlot->grab();
-     } else {
-        image = m_ui->transcriptsPlot->grab();
+        image = m_ui->genesPlot->grab().toImage();
+    } else {
+        image = m_ui->transcriptsPlot->grab().toImage();
     }
-    if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        qDebug() << "Saving the Histogram plot, the image coult not be saved";
+
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              tr("Save Histogram Plot"),
+                              tr("The image could not be creted."));
     }
 }

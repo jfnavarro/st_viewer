@@ -66,11 +66,12 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     const auto colors = m_geneData->renderingColors();
     const auto selecteds = m_geneData->renderingSelected();
     const auto values = m_geneData->renderingValues();
-    const double size = m_rendering_settings.size / 2;
-    const double size_selected = size / 4;
+    const float size = m_rendering_settings.size / 2;
+    const float size_selected = size / 4;
     const double min_value = m_rendering_settings.legend_min;
     const double max_value = m_rendering_settings.legend_max;
     const float intensity = m_rendering_settings.intensity;
+    const bool invalid_color = min_value == max_value;
     QPen pen;
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
@@ -80,11 +81,11 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
         const bool selected = selecteds.at(i);
         const double value = values.at(i);
         QColor color = colors.at(i);
-        if (!is_normal) {
+        if (!is_normal && value > 0.0 && !invalid_color) {
             color = Color::adjustVisualMode(color, value, min_value,
                                             max_value, m_rendering_settings.visual_mode);
         }
-        if (!is_dynamic) {
+        if (!is_dynamic || value == 0) {
             color.setAlphaF(intensity);
         }
         // draw spot

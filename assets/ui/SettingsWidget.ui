@@ -202,7 +202,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Total Genes Threshold</string>
+        <string>Total Detected Genes Threshold (Per spot)</string>
        </property>
       </widget>
      </item>
@@ -220,7 +220,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="genes_threshold">
+      <widget class="QSpinBox" name="genes_threshold">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -242,7 +242,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Total Reads Threshold</string>
+        <string>Total Reads Threshold (Per spot)</string>
        </property>
       </widget>
      </item>
@@ -282,7 +282,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Reads Threshold</string>
+        <string>Reads Threshold (Per gene-spot)</string>
        </property>
       </widget>
      </item>
@@ -318,13 +318,53 @@
     </layout>
    </item>
    <item row="7" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Total Detected Spots (Per gene)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spots_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="8" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Size Spots</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QSlider" name="spots_size">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -337,14 +377,14 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Intensity Spots</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QSlider" name="spots_intensity">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

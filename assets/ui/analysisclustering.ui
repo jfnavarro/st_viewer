@@ -6,16 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>888</width>
-    <height>590</height>
+    <width>816</width>
+    <height>650</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>650</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>816</width>
+    <height>651</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Clustering spots</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_8">
+  <layout class="QHBoxLayout" name="horizontalLayout_9">
    <item>
-    <widget class="QtCharts::QChartView" name="plot">
+    <widget class="ChartView" name="plot">
      <property name="minimumSize">
       <size>
        <width>500</width>
@@ -44,13 +56,13 @@
       <widget class="QGroupBox" name="groupBoxNormalization_2">
        <property name="minimumSize">
         <size>
-         <width>250</width>
+         <width>280</width>
          <height>70</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>280</width>
          <height>70</height>
         </size>
        </property>
@@ -139,14 +151,14 @@
       <widget class="QGroupBox" name="groupBox">
        <property name="minimumSize">
         <size>
-         <width>0</width>
-         <height>30</height>
+         <width>200</width>
+         <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
-         <height>30</height>
+         <width>200</width>
+         <height>50</height>
         </size>
        </property>
        <property name="cursor">
@@ -164,38 +176,28 @@
        <property name="flat">
         <bool>true</bool>
        </property>
-       <widget class="QRadioButton" name="tsne">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>100</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
-        </property>
-        <property name="text">
-         <string>t-SNE</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="pca">
-        <property name="geometry">
-         <rect>
-          <x>120</x>
-          <y>10</y>
-          <width>100</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="cursor">
-         <cursorShape>SplitHCursor</cursorShape>
-        </property>
-        <property name="text">
-         <string>PCA</string>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="tsne">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>t-SNE</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="pca">
+          <property name="cursor">
+           <cursorShape>SplitHCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>PCA</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
@@ -402,14 +404,14 @@
       <widget class="QGroupBox" name="groupBox_2">
        <property name="minimumSize">
         <size>
-         <width>0</width>
-         <height>30</height>
+         <width>250</width>
+         <height>60</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
-         <height>30</height>
+         <width>250</width>
+         <height>60</height>
         </size>
        </property>
        <property name="cursor">
@@ -427,32 +429,22 @@
        <property name="flat">
         <bool>true</bool>
        </property>
-       <widget class="QRadioButton" name="kmeans">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>100</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>KMeans</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="hclust">
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>10</y>
-          <width>131</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>HClust (ward.D2)</string>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="kmeans">
+          <property name="text">
+           <string>KMeans</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="hclust">
+          <property name="text">
+           <string>HClust (ward.D2)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
@@ -501,17 +493,43 @@
       </layout>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Selected spot coordinate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="selectedSpot">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>The spot coordinates of the selected point in the plot</string>
+         </property>
+         <property name="statusTip">
+          <string>The spot coordinates of the selected point in the plot</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QProgressBar" name="progressBar">
@@ -620,10 +638,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtCharts::QChartView</class>
+   <class>ChartView</class>
    <extends>QGraphicsView</extends>
-   <header location="global">QtCharts/QChartView&gt;
-#include &lt;QtCharts/chartsnamespace.h</header>
+   <header>analysis/ChartView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

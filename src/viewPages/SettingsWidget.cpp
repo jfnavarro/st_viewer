@@ -20,7 +20,7 @@ SettingsWidget::SettingsWidget(QWidget *parent)
 
     // Make connections (propagate signals)
     connect(m_ui->genes_threshold,
-            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotGenesTreshold);
     connect(m_ui->reads_threshold,
             static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
@@ -28,6 +28,10 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->individual_reads_threshold,
             static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
             this, &SettingsWidget::slotIndReadsTreshold);
+    connect(m_ui->spots_threshold,
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &SettingsWidget::slotSpotsTreshold);
+
     connect(m_ui->spots_intensity,
             &QSlider::valueChanged, this, &SettingsWidget::slotIntensity);
     connect(m_ui->spots_size,
@@ -88,20 +92,27 @@ void SettingsWidget::reset()
     m_ui->normalization_raw->setChecked(true);
     m_ui->visual_reads->setChecked(true);
     m_ui->visual_normal->setChecked(true);
-    m_ui->reads_threshold->setMinimum(-1);
+    m_ui->reads_threshold->setMinimum(0);
+    m_ui->reads_threshold->setValue(0);
     m_ui->reads_threshold->setMaximum(20000);
-    m_ui->individual_reads_threshold->setMinimum(-1);
+    m_ui->individual_reads_threshold->setMinimum(0);
+    m_ui->individual_reads_threshold->setValue(0);
     m_ui->individual_reads_threshold->setMaximum(1000);
-    m_ui->genes_threshold->setMinimum(-1);
+    m_ui->genes_threshold->setMinimum(0);
+    m_ui->genes_threshold->setValue(0);
     m_ui->genes_threshold->setMaximum(10000);
+    m_ui->spots_threshold->setMinimum(0);
+    m_ui->spots_threshold->setValue(0);
+    m_ui->spots_threshold->setMaximum(10000);
     m_rendering_settings.intensity = INTENSITY_DEFAULT;
     m_rendering_settings.size = SIZE_DEFAULT;
     m_rendering_settings.gene_cutoff = false;
-    m_rendering_settings.genes_threshold = 1;
-    m_rendering_settings.reads_threshold = 1;
-    m_rendering_settings.ind_reads_threshold = 1;
-    m_rendering_settings.legend_max = 10000;
-    m_rendering_settings.legend_min = 1;
+    m_rendering_settings.genes_threshold = 0;
+    m_rendering_settings.spots_threshold = 0;
+    m_rendering_settings.reads_threshold = 0;
+    m_rendering_settings.ind_reads_threshold = 0;
+    m_rendering_settings.legend_max = 1;
+    m_rendering_settings.legend_min = 0;
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
@@ -112,10 +123,18 @@ SettingsWidget::Rendering &SettingsWidget::renderingSettings()
     return m_rendering_settings;
 }
 
-void SettingsWidget::slotGenesTreshold(double value)
+void SettingsWidget::slotGenesTreshold(int value)
 {
     if (m_rendering_settings.genes_threshold != value) {
         m_rendering_settings.genes_threshold = value;
+        emit signalSpotRendering();
+    }
+}
+
+void SettingsWidget::slotSpotsTreshold(int value)
+{
+    if (m_rendering_settings.spots_threshold != value) {
+        m_rendering_settings.spots_threshold = value;
         emit signalSpotRendering();
     }
 }

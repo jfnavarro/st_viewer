@@ -9,6 +9,7 @@
 #include <QFuture>
 #include <QtConcurrent>
 #include <QFileDialog>
+#include <QPdfWriter>
 
 #include <string>
 
@@ -26,13 +27,13 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
 {
     m_ui->setupUi(this);
 
-    // initialize data
+    // initialize data (matrix of counts and row/column names)
     m_dataA = data1.counts;
     m_dataB = data2.counts;
     std::transform(data1.spots.begin(), data1.spots.end(), std::back_inserter(m_rowsA),
-                   [](auto spot) {return std::to_string(spot.first) + "x" + std::to_string(spot.second);});
+                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
     std::transform(data2.spots.begin(), data2.spots.end(), std::back_inserter(m_rowsB),
-                   [](auto spot) {return std::to_string(spot.first) + "x" + std::to_string(spot.second);});
+                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
     std::transform(data1.genes.begin(), data1.genes.end(), std::back_inserter(m_colsA),
                    [](auto gene) {return gene.toStdString();});
     std::transform(data2.genes.begin(), data2.genes.end(), std::back_inserter(m_colsB),
@@ -46,6 +47,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
     m_ui->searchField->setEnabled(false);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
+    m_ui->searchField->setClearButtonEnabled(true);
     m_proxy.reset(new QSortFilterProxyModel());
 
     // create connections
@@ -70,10 +72,10 @@ AnalysisDEA::~AnalysisDEA()
 
 void AnalysisDEA::slotExportTable()
 {
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export DE Genes"),
-                                                    QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.tsv)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Export DE Genes"),
+                                                          QDir::homePath(),
+                                                          QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -94,15 +96,17 @@ void AnalysisDEA::slotExportTable()
         // write values
         for (uword i = 0; i < m_results.n_rows; ++i) {
             const QString gene = QString::fromStdString(m_results_rows.at(i));
-            const double fdr = 1 - m_results.at(i, 5);
+            const double fdr = m_results.at(i, 5);
             const double pvalue = m_results.at(i, 4);
             const double foldchange = m_results.at(i, 1);
             if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
                 stream << gene << "\t" << fdr << "\t" << pvalue << "\t" << foldchange << endl;
             }
         }
+    } else {
+        QMessageBox::critical(this, tr("Export DE Genes"), tr("Coult not open the file"));
     }
-
+    file.close();
 }
 
 void AnalysisDEA::slotGeneSelected(QModelIndex index)
@@ -116,7 +120,7 @@ void AnalysisDEA::slotGeneSelected(QModelIndex index)
     const QItemSelection &selected = m_ui->tableview->selectionModel()->selection();
     const QModelIndexList &selected_indexes = m_proxy->mapSelectionToSource(selected).indexes();
 
-    // Check if only 1 element is selected
+    // Check if only elements are selected
     if (selected_indexes.empty()) {
         m_gene_highlight = QPointF();
         return;
@@ -181,12 +185,7 @@ void AnalysisDEA::updatePlot()
 }
 
 void AnalysisDEA::updateTable()
-{
-    m_ui->exportTable->setEnabled(true);
-    m_ui->searchField->setEnabled(true);
-
-    m_ui->searchField->setClearButtonEnabled(true);
-
+{   
     // data model
     const int columns = 4;
     const int rows = m_results_rows.size();
@@ -270,6 +269,7 @@ void AnalysisDEA::run()
         // disable controls
         m_ui->run->setEnabled(false);
         m_ui->exportTable->setEnabled(false);
+        m_ui->searchField->setEnabled(false);
         // initialize worker
         QFuture<void> future = QtConcurrent::run(this, &AnalysisDEA::runDEAAsync);
         m_watcher.setFuture(future);
@@ -290,8 +290,9 @@ void AnalysisDEA::slotDEAComputed()
     m_ui->progressBar->setMaximum(10);
     // enable run button
     m_ui->run->setEnabled(true);
+
+    // check that the DE genes were computed
     if (m_results_rows.empty() || m_results_cols.empty() || m_results.empty()) {
-        qDebug() << "Error while doing DEA";
         QMessageBox::critical(this,
                               tr("DEA Analysis"),
                               tr("There was an error performing the DEA"));
@@ -301,6 +302,7 @@ void AnalysisDEA::slotDEAComputed()
     // enable controls
     m_ui->exportTable->setEnabled(true);
     m_ui->exportPlot->setEnabled(true);
+    m_ui->searchField->setEnabled(true);
     m_initialized = true;
 
     // update table with fdr and foldchange
@@ -312,13 +314,14 @@ void AnalysisDEA::slotDEAComputed()
 
 void AnalysisDEA::slotExportPlot()
 {
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Volano Plot"),
-                                                    QDir::homePath(),
-                                                    QString("%1;;%2;;%3")
-                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                        .arg(tr("PNG Image Files (*.png)"))
-                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Save Volcano Plot"),
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -327,14 +330,26 @@ void AnalysisDEA::slotExportPlot()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        qDebug() << "Saving the Volano plot, the directory is not writtable";
+        QMessageBox::critical(this,
+                              tr("Save Volcano Plot"),
+                              tr("The file is not writable"));
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
-    QPixmap image = m_ui->plot->grab();
-    if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        qDebug() << "Saving the Volano plot, the image coult not be saved";
+    QImage image = m_ui->plot->grab().toImage();
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              tr("Save Volcano Plot"),
+                              tr("The image could not be creted."));
     }
 }

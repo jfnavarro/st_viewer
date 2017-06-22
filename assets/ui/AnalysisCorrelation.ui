@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
+    <width>793</width>
     <height>361</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QtCharts::QChartView" name="plot">
+      <widget class="ChartView" name="plot">
        <property name="minimumSize">
         <size>
          <width>500</width>
@@ -262,10 +262,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtCharts::QChartView</class>
+   <class>ChartView</class>
    <extends>QGraphicsView</extends>
-   <header location="global">QtCharts/QChartView&gt;
-#include &lt;QtCharts/chartsnamespace.h</header>
+   <header>analysis/ChartView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

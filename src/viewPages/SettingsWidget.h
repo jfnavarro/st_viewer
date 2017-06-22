@@ -37,7 +37,8 @@ public:
 
     struct Rendering {
         float reads_threshold;
-        float genes_threshold;
+        int genes_threshold;
+        int spots_threshold;
         float ind_reads_threshold;
         float legend_min;
         float legend_max;
@@ -59,7 +60,8 @@ public slots:
 
 private slots:
 
-    void slotGenesTreshold(double);
+    void slotGenesTreshold(int);
+    void slotSpotsTreshold(int);
     void slotReadsTreshold(double);
     void slotIndReadsTreshold(double);
     void slotIntensity(int);

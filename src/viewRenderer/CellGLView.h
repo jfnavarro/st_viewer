@@ -55,13 +55,6 @@ public:
     void setViewPort(const QRectF &viewport);
     void setScene(const QRectF &scene);
 
-    // mouse/key events functions
-    void wheelEvent(QWheelEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-
 public slots:
 
     // TODO slots should have the prefix "slot"
@@ -81,16 +74,22 @@ public slots:
 
 protected:
     // OpenGL rendering and initialization functions
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int width, int height);
-
-    // returns the node local transformations in the view CS adjusted for anchor
-    const QTransform nodeTransformations(QSharedPointer<GraphicItemGL> node) const;
+    void initializeGL() override;
+    void paintGL() override;
+    void resizeGL(int width, int height) override;
+    // mouse/key events functions
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 signals:
 
 private:
+
+    // returns the node local transformations in the view CS adjusted for anchor
+    const QTransform nodeTransformations(QSharedPointer<GraphicItemGL> node) const;
 
     // helper function to adjust the zoom level
     void setZoomFactorAndUpdate(const float zoom);

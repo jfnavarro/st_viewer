@@ -49,16 +49,18 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter 
 {
     Q_UNUSED(qopengl_functions)
 
-    if (!m_initialized) {
+    if (!m_initialized || m_rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal
+            || m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange) {
         return;
     }
 
     // draw the image
     painter.drawImage(QPointF(legend_x, legend_y), m_image);
     // get the min max values
-    const float min = m_rendering_settings.legend_min;
-    const float max = m_rendering_settings.legend_max;
+    const double min = m_rendering_settings.legend_min;
+    const double max = m_rendering_settings.legend_max;
     // draw text (add 5 pixels offset to the right)
+    painter.setBrush(Qt::darkBlue);
     painter.drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
     painter.drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
 }

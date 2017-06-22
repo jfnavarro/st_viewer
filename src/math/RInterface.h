@@ -29,7 +29,10 @@ static float computeCorrelation(const std::vector<double> &A,
         qDebug() << "Computed R " << QString::fromStdString(method) << " correlation " << corr;
     } catch (const std::exception &e) {
         qDebug() << "Error computing R correlation " << e.what();
+    } catch (...) {
+        qDebug() << "Uknown error computing R correlation";
     }
+
     return corr;
 }
 
@@ -102,6 +105,8 @@ static void computeDEA(const mat &countsA,
         qDebug() << "Computed R DEA with DESEq2";
     } catch (const std::exception &e) {
         qDebug() << "Error computing R DEA with DESEq2" << e.what();
+    } catch (...) {
+        qDebug() << "Uknown error computing R DEA with DESeq2";
     }
 }
 
@@ -162,6 +167,8 @@ static void spotClassification(const mat &counts,
         Q_ASSERT(colors.size() == counts.n_rows);
     } catch (const std::exception &e) {
         qDebug() << "Error doing R dimensionality reduction " << e.what();
+    } catch (...) {
+        qDebug() << "Uknown error computing R dimensionality reduction";
     }
 }
 
@@ -183,6 +190,8 @@ static rowvec computeDESeqFactors(const mat &counts)
         Q_ASSERT(factors.size() == counts.n_rows);
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
+    } catch (...) {
+        qDebug() << "Uknown error computing DESeq2 size factors";
     }
     return factors;
 }
@@ -215,6 +224,8 @@ static rowvec computeScranFactors(const mat &counts)
         Q_ASSERT(factors.size() == counts.n_rows);
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();
+    } catch (...) {
+        qDebug() << "Uknown error computing SCRAN size factors";
     }
     return factors;
 }

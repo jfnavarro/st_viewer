@@ -94,39 +94,13 @@ void STData::init(const QString &filename) {
     m_genes.clear();
     m_spots.clear();
     m_data = read(filename);
-
-    // Filter out almost non-present spots (total count < 5)
-    std::vector<uword> to_keep_spots;
-    QList<Spot::SpotType> filtered_spots;
+    // Create genes/spots lists
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        if (accu(m_data.counts.row(i)) > 5) {
-            to_keep_spots.push_back(i);
-            const auto spot = m_data.spots.at(i);
-            filtered_spots.append(spot);
-            m_spots.append(SpotObjectType(new Spot(spot)));
-        }
+        m_spots.append(SpotObjectType(new Spot(m_data.spots.at(i))));
     }
-    m_data.spots = filtered_spots;
-    m_data.counts = m_data.counts.rows(uvec(to_keep_spots));
-
-    // Filter out almost non-present genes (total count < 5)
-    std::vector<uword> to_keep_genes;
-    QList<QString> filtered_genes;
     for (uword j = 0; j < m_data.counts.n_cols; ++j) {
-        const uvec t = find(m_data.counts.col(j) > 0);
-        if (t.n_elem > 5) {
-            to_keep_genes.push_back(j);
-            const QString gene = m_data.genes.at(j);
-            filtered_genes.append(gene);
-            m_genes.append(GeneObjectType(new Gene(gene)));
-        }
+        m_genes.append(GeneObjectType(new Gene(m_data.genes.at(j))));
     }
-    m_data.genes = filtered_genes;
-    m_data.counts = m_data.counts.cols(uvec(to_keep_genes));
-
-    // Compute these only when the dataset is created
-    m_deseq_size_factors = RInterface::computeDESeqFactors(m_data.counts);
-    m_scran_size_factors = RInterface::computeScranFactors(m_data.counts);
 }
 
 void STData::save(const QString &filename, const STData::STDataFrame &data)
@@ -195,29 +169,64 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool is_normal=
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
 
+    mat counts = m_data.counts;
+
+    //TODO cache these
+    colvec rowsum = sum(counts, ROW);
+    colvec gene_counts = computeNonZeroRows(counts);
+    rowvec spot_counts = computeNonZeroColumns(counts);
+
+    // Filter out spots
+    std::vector<uword> to_keep_spots;
+    for (uword i = 0; i < counts.n_rows; ++i) {
+        const double reads_count = rowsum.at(i);
+        const int genes_count = gene_counts.at(i);
+        if (reads_count >= rendering_settings.reads_threshold
+                && genes_count >= rendering_settings.genes_threshold) {
+            to_keep_spots.push_back(i);
+        }
+    }
+    counts = counts.rows(uvec(to_keep_spots));
+
+    // Filter out genes
+    std::vector<uword> to_keep_genes;
+    for (uword j = 0; j < counts.n_cols; ++j) {
+        const int spot_count = spot_counts.at(j);
+        const auto gene = m_genes.at(j);
+        if (gene->visible() && spot_count >= rendering_settings.spots_threshold) {
+            to_keep_genes.push_back(j);
+        }
+    }
+    counts = counts.cols(uvec(to_keep_genes));
+
+    // TODO cache these
+    m_deseq_size_factors = RInterface::computeDESeqFactors(m_data.counts);
+    m_scran_size_factors = RInterface::computeScranFactors(m_data.counts);
+
     // Normalize the counts
-    mat counts = normalizeCounts(m_data.counts,
-                                 rendering_settings.normalization_mode,
-                                 m_deseq_size_factors,
-                                 m_scran_size_factors);
+    counts = normalizeCounts(counts,
+                             rendering_settings.normalization_mode,
+                             m_deseq_size_factors,
+                             m_scran_size_factors);
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
     //TODO make this paralell
-    float min_value = 10e6;
-    float max_value = -10e6;
+    double min_value = 10e6;
+    double max_value = -10e6;
     for (uword i = 0; i < counts.n_rows; ++i) {
         const auto spot = m_spots.at(i);
         bool visible = false;
-        float merged_value = 0;
-        float num_genes = 0;
+        double merged_value = 0.0;
+        int num_genes = 0;
         bool any_gene_selected = false;
         QColor merged_color;
         if (!spot->visible()) {
             // Iterage the genes in the spot to compute the sum of values and color
-            for (uword j = 0; j < counts.n_cols; ++j) {
+            for (uword j = 0; j < counts.n_cols; ++j)  {
                 const auto gene = m_genes.at(j);
-                const float value = counts.at(i,j);
-                if (!gene->visible() || (rendering_settings.gene_cutoff && gene->cut_off() > value)) {
+                const double value = counts.at(i,j);
+                if (rendering_settings.ind_reads_threshold > value
+                        || (rendering_settings.gene_cutoff && gene->cut_off() > value)) {
                     continue;
                 }
                 ++num_genes;
@@ -228,9 +237,10 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                 any_gene_selected |= gene->selected();
             }
             // Update the color of the spot
-            if (merged_value > 0) {
+            if (merged_value > 0.0) {
                 // Use number of genes or total reads in the spot depending on settings
-                merged_value = use_genes ? num_genes : merged_value;
+                const double genes_count = gene_counts.at(i);
+                merged_value = use_genes ? genes_count : merged_value;
                 merged_value = use_log ? std::log(merged_value) : merged_value;
                 min_value = std::min(min_value, merged_value);
                 max_value = std::max(max_value, merged_value);
@@ -249,7 +259,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             m_rendering_spots.append(spot->coordinates());
         }
     }
-
     rendering_settings.legend_min = min_value;
     rendering_settings.legend_max = max_value;
 }
@@ -365,7 +374,8 @@ mat STData::normalizeCounts(const mat &counts,
         norm_counts.each_col() /= sum(norm_counts, ROW);
     } break;
     case (SettingsWidget::NormalizationMode::TPM): {
-        norm_counts.each_col() /= (sum(norm_counts, ROW) * 1e6);
+        norm_counts.each_col() /= sum(norm_counts, ROW);
+        norm_counts *= 1e6;
     } break;
     case (SettingsWidget::NormalizationMode::DESEQ): {
         norm_counts.each_col() /= deseq_factors.t();

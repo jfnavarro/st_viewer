@@ -422,7 +422,7 @@
         </size>
        </property>
        <property name="cursor">
-        <cursorShape>SplitHCursor</cursorShape>
+        <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="toolTip">
         <string>Eport the genes' histogram to a file</string>
@@ -498,7 +498,7 @@
       <enum>QLayout::SetMaximumSize</enum>
      </property>
      <item>
-      <widget class="QtCharts::QChartView" name="genesPlot">
+      <widget class="ChartView" name="genesPlot">
        <property name="minimumSize">
         <size>
          <width>400</width>
@@ -508,7 +508,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QtCharts::QChartView" name="transcriptsPlot">
+      <widget class="ChartView" name="transcriptsPlot">
        <property name="minimumSize">
         <size>
          <width>400</width>
@@ -523,10 +523,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtCharts::QChartView</class>
+   <class>ChartView</class>
    <extends>QGraphicsView</extends>
-   <header location="global">QtCharts/QChartView&gt;
-#include &lt;QtCharts/chartsnamespace.h</header>
+   <header>analysis/ChartView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

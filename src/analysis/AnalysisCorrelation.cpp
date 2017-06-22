@@ -8,6 +8,8 @@
 #include <QCheckBox>
 #include <QSet>
 #include <QFileDialog>
+#include <QPdfWriter>
+#include <QMessageBox>
 
 #include "math/RInterface.h"
 
@@ -20,6 +22,8 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     , m_ui(new Ui::analysisCorrelation)
 {
     m_ui->setupUi(this);
+
+    m_ui->exportPlot->setEnabled(false);
 
     // Update shared genes value
     QSet<QString> genesA = QSet<QString>::fromList(data1.genes);
@@ -48,7 +52,6 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_scran_factorsB = RInterface::computeScranFactors(m_dataB);
 
         m_ui->normalization_raw->setChecked(true);
-        m_ui->exportPlot->setEnabled(false);
 
         slotUpdateData();
 
@@ -139,13 +142,14 @@ void AnalysisCorrelation::slotUpdateData()
 
 void AnalysisCorrelation::slotExportPlot()
 {
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Save Correlation Plot"),
-                                                    QDir::homePath(),
-                                                    QString("%1;;%2;;%3")
-                                                        .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                        .arg(tr("PNG Image Files (*.png)"))
-                                                        .arg(tr("BMP Image Files (*.bmp)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Save Correlation Plot"),
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -154,14 +158,26 @@ void AnalysisCorrelation::slotExportPlot()
     const QFileInfo fileInfo(filename);
     const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
     if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        qDebug() << "Saving the t-SNE plot, the directory is not writtable";
+        QMessageBox::critical(this,
+                              tr("Save Correlation Plot"),
+                              tr("The file is not writable"));
         return;
     }
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
-    QPixmap image = m_ui->plot->grab();
-    if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        qDebug() << "Saving the Correlation plot, the image coult not be saved";
+    QImage image = m_ui->plot->grab().toImage();
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              tr("Save Correlation Plot"),
+                              tr("The image could not be creted."));
     }
 }

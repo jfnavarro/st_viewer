@@ -70,7 +70,7 @@ const QColor Gene::color() const
     return m_color;
 }
 
-int Gene::cut_off() const
+float Gene::cut_off() const
 {
     return m_cutoff;
 }
@@ -95,7 +95,7 @@ void Gene::color(const QColor &color)
     m_color = color;
 }
 
-void Gene::cut_off(const int cutoff)
+void Gene::cut_off(const float cutoff)
 {
     m_cutoff = cutoff;
 }
