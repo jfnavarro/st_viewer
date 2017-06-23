@@ -13,6 +13,8 @@ Dataset::Dataset()
     , m_alignment_file()
     , m_spots_file()
     , m_chip()
+    , m_spikein_file()
+    , m_size_factors_file()
     , m_alignment()
     , m_data(nullptr)
 {
@@ -29,6 +31,8 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_alignment_file = importer.alignmentMatrix();
     m_spots_file = importer.spotsMapFile();
     m_chip = importer.chip();
+    m_spikein_file = importer.spikeinFile();
+    m_size_factors_file = importer.sizeFactorsFile();
     m_alignment = QTransform();
     m_data = nullptr;
 }
@@ -44,6 +48,8 @@ Dataset::Dataset(const Dataset &other)
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
+    m_spikein_file = other.m_spikein_file;
+    m_size_factors_file = other.m_size_factors_file;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
 }
@@ -63,6 +69,8 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
+    m_spikein_file = other.m_spikein_file;
+    m_size_factors_file = other.m_size_factors_file;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
     return (*this);
@@ -79,6 +87,8 @@ bool Dataset::operator==(const Dataset &other) const
             && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
             && m_chip == other.m_chip
+            && m_spikein_file == other.m_spikein_file
+            && m_size_factors_file == other.m_size_factors_file
             && m_alignment == other.m_alignment
             && m_data == other.m_data);
 }
@@ -138,6 +148,16 @@ const QRect Dataset::chip() const
     return m_chip;
 }
 
+const QString Dataset::spikeinFile() const
+{
+    return m_spikein_file;
+}
+
+const QString Dataset::sizeFactorsFile() const
+{
+    return m_spots_file;
+}
+
 void Dataset::name(const QString &name)
 {
     m_name = name;
@@ -188,25 +208,62 @@ void Dataset::chip(const QRect &chip)
     m_chip = chip;
 }
 
-bool Dataset::load_data()
+void Dataset::spikeinFile(const QString &spikeinFile)
 {
+    m_spikein_file = spikeinFile;
+}
+
+void Dataset::sizeFactorsFile(const QString &sizeFactorsFile)
+{
+    m_size_factors_file = sizeFactorsFile;
+}
+
+void Dataset::load_data()
+{
+    // Parse ST Data file
     m_data = QSharedPointer<STData>(new STData());
     try {
         m_data->init(m_data_file);
     } catch (const std::exception &e) {
         qDebug() << "Error parsing data matrix " << e.what();
-        return false;
+        throw std::runtime_error("Error parsing ST Data file");
     }
-    bool parsed = true;
+
     // Parse image alignment
     if (!m_alignment_file.isEmpty()) {
-        parsed &= load_imageAligment();
+        const bool parsed = load_imageAligment();
+        if (!parsed) {
+            qDebug() << "Error parsing image aligment file";
+            throw std::runtime_error("Error parsing Image alignment file");
+        }
     }
+
     // Parse stops coordinates
     if (!m_spots_file.isEmpty()) {
-        parsed &= m_data->parseSpotsMap(m_spots_file);
+        const bool parsed = m_data->parseSpotsMap(m_spots_file);
+        if (!parsed) {
+            qDebug() << "Error parsing Spot coordinates file";
+            throw std::runtime_error("Error parsing Spot coordinates file");
+        }
     }
-    return parsed;
+
+    // Parse spike-ins
+    if (!m_spikein_file.isEmpty()) {
+        const bool parsed = m_data->parseSpikeIn(m_spikein_file);
+        if (!parsed) {
+            qDebug() << "Error parsing Spike-in file";
+            throw std::runtime_error("Error parsing Spike-in file");
+        }
+    }
+
+    // Parse size-factors
+    if (!m_size_factors_file.isEmpty()) {
+        const bool parsed = m_data->parseSizeFactors(m_size_factors_file);
+        if (!parsed) {
+            qDebug() << "Error parsing Size Factors file";
+            throw std::runtime_error("Error parsing Size Factors file");
+        }
+    }
 }
 
 bool Dataset::load_imageAligment()
@@ -238,15 +295,15 @@ bool Dataset::load_imageAligment()
             a32 = fields.at(7).toFloat();
             a33 = fields.at(8).toFloat();
         } else {
-            qDebug() << "Error parsing alignment matrix";
+            qDebug() << "Error parsing alignment matrix (incorrect fields)";
             parsed = false;
         }
-        m_alignment = QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
     } else {
         qDebug() << "Image alignment file coult not be opened";
         parsed = false;
     }
     file.close();
+    m_alignment = QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
     return parsed;
 }
 

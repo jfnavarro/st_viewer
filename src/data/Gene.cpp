@@ -5,7 +5,7 @@ Gene::Gene()
     , m_color(Qt::red)
     , m_visible(false)
     , m_selected(false)
-    , m_cutoff(1)
+    , m_cutoff(0)
 {
 }
 
@@ -14,7 +14,7 @@ Gene::Gene(const QString &name)
     , m_color(Qt::red)
     , m_visible(false)
     , m_selected(false)
-    , m_cutoff(1)
+    , m_cutoff(0)
 {
 }
 

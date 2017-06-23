@@ -20,8 +20,10 @@ public:
 
     Dataset &operator=(const Dataset &other);
     bool operator==(const Dataset &other) const;
+
     // The reference to the ST Data matrix
     const QSharedPointer<STData> data() const;
+
     // Getters
     const QString name() const;
     const QString dataFile() const;
@@ -33,6 +35,8 @@ public:
     const QString statSpecies() const;
     const QString statComments() const;
     const QRect chip() const;
+    const QString spikeinFile() const;
+    const QString sizeFactorsFile() const;
 
     // Setters
     void name(const QString &name);
@@ -45,9 +49,14 @@ public:
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
     void chip(const QRect &chip);
+    void spikeinFile(const QString &spikeinFile);
+    void sizeFactorsFile(const QString &sizeFactorsFile);
 
     // creates the STData object (parse data)
-    bool load_data();
+    // Parses : matrix of counts, image, size factors (if any), alignment (if any),
+    //          spots-file (if any) and spike-in (if any)
+    // throws exception if parsing is something went wrong
+    void load_data();
 
 private:
 
@@ -63,6 +72,8 @@ private:
     QString m_alignment_file;
     QString m_spots_file;
     QRect m_chip;
+    QString m_spikein_file;
+    QString m_size_factors_file;
 
     // generated
     QTransform m_alignment;

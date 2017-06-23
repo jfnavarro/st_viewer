@@ -13,26 +13,25 @@
 namespace RInterface {
 
 // Computes correlation betwee two vectors (method can be : pearson, spearman and kendall)
-static float computeCorrelation(const std::vector<double> &A,
+static double computeCorrelation(const std::vector<double> &A,
                                 const std::vector<double> &B,
                                 const std::string &method)
 {
     RInside *R = RInside::instancePtr();
     Q_ASSERT(A.size() == B.size());
-    float corr = 0.0;
+    double corr = -1.0;
     try {
         (*R)["A"] = A;
         (*R)["B"] = B;
         (*R)["method"] = method;
         const std::string call = "corr = cor(A, B, method=method)";
-        corr = Rcpp::as<float>(R->parseEval(call));
+        corr = Rcpp::as<double>(R->parseEval(call));
         qDebug() << "Computed R " << QString::fromStdString(method) << " correlation " << corr;
     } catch (const std::exception &e) {
         qDebug() << "Error computing R correlation " << e.what();
     } catch (...) {
         qDebug() << "Uknown error computing R correlation";
     }
-
     return corr;
 }
 
@@ -93,11 +92,9 @@ static void computeDEA(const mat &countsA,
                 "dds = estimateDispersions(dds, fitType='local');"
                 "dds = nbinomWaldTest(dds);"
                 "res = results(dds, contrast=c('condition', 'A', 'B'));";
-
         const std::string call2 = "values = as.matrix(res);";
         const std::string call3 = "cols = colnames(res);";
         const std::string call4 = "rows = rownames(res);";
-
         R->parseEvalQ(call);
         results = Rcpp::as<mat>(R->parseEval(call2));
         cols = Rcpp::as<std::vector<std::string>>(R->parseEval(call3));
@@ -110,7 +107,7 @@ static void computeDEA(const mat &countsA,
     }
 }
 
-// Classifies spots based on gene expression (tSNE + KMeans)
+// Classifies spots based on gene expression (tSNE or PCA + KMeans or HClust)
 static void spotClassification(const mat &counts,
                                const bool tsne,
                                const bool kmeans,
@@ -126,7 +123,6 @@ static void spotClassification(const mat &counts,
                                mat &results)
 {
     RInside *R = RInside::instancePtr();
-
     try {
         const std::string R_libs = "suppressMessages(library(Rtsne));";
         R->parseEvalQ(R_libs);
@@ -176,7 +172,6 @@ static void spotClassification(const mat &counts,
 static rowvec computeDESeqFactors(const mat &counts)
 {
     RInside *R = RInside::instancePtr();
-
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
@@ -200,7 +195,6 @@ static rowvec computeDESeqFactors(const mat &counts)
 static rowvec computeScranFactors(const mat &counts)
 {
     RInside *R = RInside::instancePtr();
-
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {

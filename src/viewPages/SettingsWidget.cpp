@@ -41,13 +41,14 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowSpots);
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
     connect(m_ui->gene_cutoff, &QCheckBox::stateChanged, this, &SettingsWidget::slotGeneCutoff);
+    connect(m_ui->spikeIn, &QCheckBox::stateChanged, this, &SettingsWidget::slotSpikeIn);
+    connect(m_ui->sizeFactors, &QCheckBox::stateChanged, this, &SettingsWidget::slotSizeFactors);
+
+    // trigger update when the user  clikcs the update button
+    connect(m_ui->update, &QPushButton::clicked, this, &SettingsWidget::signalSpotRendering);
 
     connect(m_ui->normalization_raw, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::RAW);});
-    connect(m_ui->normalization_tpm, &QRadioButton::clicked, this,
-            [=]() {slotNormalization(NormalizationMode::TPM);});
-    connect(m_ui->normalization_rel, &QRadioButton::clicked, this,
-            [=]() {slotNormalization(NormalizationMode::REL);});
     connect(m_ui->normalization_deseq, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::DESEQ);});
     connect(m_ui->normalization_scran, &QRadioButton::clicked, this,
@@ -116,6 +117,8 @@ void SettingsWidget::reset()
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
+    m_rendering_settings.spike_in = false;
+    m_rendering_settings.size_factors = false;
 }
 
 SettingsWidget::Rendering &SettingsWidget::renderingSettings()
@@ -125,82 +128,62 @@ SettingsWidget::Rendering &SettingsWidget::renderingSettings()
 
 void SettingsWidget::slotGenesTreshold(int value)
 {
-    if (m_rendering_settings.genes_threshold != value) {
-        m_rendering_settings.genes_threshold = value;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.genes_threshold = value;
 }
 
 void SettingsWidget::slotSpotsTreshold(int value)
 {
-    if (m_rendering_settings.spots_threshold != value) {
-        m_rendering_settings.spots_threshold = value;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.spots_threshold = value;
 }
 
 void SettingsWidget::slotReadsTreshold(double value)
 {
-    if (m_rendering_settings.reads_threshold != value) {
-        m_rendering_settings.reads_threshold = value;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.reads_threshold = value;
 }
 
 void SettingsWidget::slotIndReadsTreshold(double value)
 {
-    if (m_rendering_settings.ind_reads_threshold != value) {
-        m_rendering_settings.ind_reads_threshold = value;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.ind_reads_threshold = value;
 }
 
 void SettingsWidget::slotIntensity(int value)
 {
     const float intensity = static_cast<float>(value) / 10;
-    if (m_rendering_settings.intensity != intensity) {
-        m_rendering_settings.intensity = intensity;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.intensity = intensity;
 }
 
 void SettingsWidget::slotSize(int value)
 {
     const float size = static_cast<float>(value) / 10;
-    if (m_rendering_settings.size != size) {
-        m_rendering_settings.size = size;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.size = size;
 }
 
 void SettingsWidget::slotGeneCutoff(bool value)
 {
-    if (m_rendering_settings.gene_cutoff != value) {
-        m_rendering_settings.gene_cutoff = value;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.gene_cutoff = value;
+}
+
+void SettingsWidget::slotSpikeIn(bool value)
+{
+    m_rendering_settings.spike_in = value;
+}
+
+void SettingsWidget::slotSizeFactors(bool value)
+{
+    m_rendering_settings.size_factors = value;
 }
 
 void SettingsWidget::slotNormalization(NormalizationMode mode)
 {
-    if (m_rendering_settings.normalization_mode != mode) {
-        m_rendering_settings.normalization_mode = mode;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.normalization_mode = mode;
 }
 
 void SettingsWidget::slotVisualMode(VisualMode mode)
 {
-    if (m_rendering_settings.visual_mode != mode) {
-        m_rendering_settings.visual_mode = mode;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.visual_mode = mode;
 }
 
 void SettingsWidget::slotVisualMode(VisualTypeMode mode)
 {
-    if (m_rendering_settings.visual_type_mode != mode) {
-        m_rendering_settings.visual_type_mode = mode;
-        emit signalSpotRendering();
-    }
+    m_rendering_settings.visual_type_mode = mode;
 }

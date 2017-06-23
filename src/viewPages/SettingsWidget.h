@@ -36,10 +36,10 @@ public:
     };
 
     struct Rendering {
-        float reads_threshold;
+        double reads_threshold;
         int genes_threshold;
         int spots_threshold;
-        float ind_reads_threshold;
+        double ind_reads_threshold;
         float legend_min;
         float legend_max;
         float intensity;
@@ -48,6 +48,8 @@ public:
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;
         bool gene_cutoff;
+        bool spike_in;
+        bool size_factors;
     };
 
     explicit SettingsWidget(QWidget *parent = 0);
@@ -67,6 +69,8 @@ private slots:
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
+    void slotSpikeIn(bool value);
+    void slotSizeFactors(bool value);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);
     void slotVisualMode(VisualTypeMode);

@@ -103,9 +103,10 @@ void CellViewPage::loadDataset(Dataset dataset)
 {
     //NOTE we allow to re-open the same dataset (in case it has been edited)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    if (!dataset.load_data()) {
-        QMessageBox::critical(this, tr("Dataset"), tr("Error opening ST dataset"));
-    } else {
+    try {
+
+        dataset.load_data();
+
         // update Status tip with the name of the currently selected dataset
         setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
@@ -124,9 +125,14 @@ void CellViewPage::loadDataset(Dataset dataset)
         m_image->clearData();
         const bool result = m_image->createTiles(dataset.imageFile());
         slotImageLoaded(result);
+        //TODO can crete OpenGL textures on a different thread (FIX THIS)
         //QFutureWatcher<void> watcher;
         //QFuture<void> future = m_image->createTextures(dataset.imageFile());
         //watcher.setFuture(future);
+    } catch (const std::exception &e) {
+        const QString ex_message = QString::fromStdString(e.what());
+        const QString message = "Error opening ST Dataset " + ex_message;
+        QMessageBox::critical(this, tr("Load Dataset"), message);
     }
     QGuiApplication::restoreOverrideCursor();
 }
@@ -418,8 +424,8 @@ void CellViewPage::slotLoadSpotColorsFile()
                 parsed = false;
                 break;
             }
-            const QString spot = fields.at(1);
-            const QColor color = color_list.at(fields.at(0).toInt());
+            const QString spot = fields.at(0);
+            const QColor color = color_list.at(fields.at(1).toInt());
             fields = spot.split("x");
             if (fields.length() != 2) {
                 parsed = false;
@@ -431,12 +437,16 @@ void CellViewPage::slotLoadSpotColorsFile()
         }
 
         if (spotMap.empty()) {
-            qDebug() << "No valid spots could be found in the spots colors file";
+            QMessageBox::warning(this,
+                                 tr("Spot Colors File"),
+                                 tr("No valid spots could be found in the file"));
             parsed = false;
         }
 
     } else {
-        qDebug() << "Could not open spots colors file";
+        QMessageBox::critical(this,
+                              tr("Spot Colors File"),
+                              tr("File could not be parsed"));
         parsed = false;
     }
     file.close();
@@ -447,10 +457,6 @@ void CellViewPage::slotLoadSpotColorsFile()
         m_spots->update();
         m_gene_plotter->slotUpdate();
         m_ui->view->update();
-    } else {
-        QMessageBox::critical(this,
-                              tr("Spots Color File"),
-                              tr("There was an error parsing the file"));
     }
 }
 
@@ -494,21 +500,21 @@ void CellViewPage::slotLoadGenes()
         }
 
         if (genes.empty()) {
-            qDebug() << "No valid genes could be found in the file";
+            QMessageBox::warning(this,
+                                  tr("Genes File"),
+                                  tr("No valid genes could be found in the file"));
             parsed = false;
         }
 
     } else {
-        qDebug() << "Could not open genes file";
+        QMessageBox::critical(this,
+                              tr("Genes File"),
+                              tr("Error parsing the file"));
         parsed = false;
     }
     file.close();
 
-    if (!parsed) {
-        QMessageBox::critical(this,
-                              tr("Genes File"),
-                              tr("There was an error parsing the file"));
-    } else {
+    if (parsed) {
         m_dataset.data()->selectGenes(genes);
         m_genes->update();
         m_gene_plotter->slotUpdate();

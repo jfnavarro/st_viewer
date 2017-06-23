@@ -27,6 +27,8 @@ DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
     m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
+    m_ui->spikeInFile->setText(dataset.spikeinFile());
+    m_ui->sizeFactorsFile->setText(dataset.sizeFactorsFile());
 }
 
 DatasetImporter::DatasetImporter(QWidget *parent)
@@ -47,6 +49,10 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->loadImageAlignmentFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+    connect(m_ui->loadSpikeInFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSpikeInFile);
+    connect(m_ui->loadSizeFactorsFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSizeFactorsFile);
     connect(m_ui->buttonBox,
             &QDialogButtonBox::accepted, this, &DatasetImporter::slotValidateForm);
     connect(m_ui->loadFolder,
@@ -100,6 +106,16 @@ const QString DatasetImporter::alignmentMatrix() const
 const QString DatasetImporter::spotsMapFile() const
 {
     return m_ui->spotMapFile->text();
+}
+
+const QString DatasetImporter::spikeinFile() const
+{
+    return m_ui->spikeInFile->text();
+}
+
+const QString DatasetImporter::sizeFactorsFile() const
+{
+    return m_ui->sizeFactorsFile->text();
 }
 
 void DatasetImporter::slotLoadSTDataFile()
@@ -184,6 +200,50 @@ void DatasetImporter::slotLoadAlignmentFile()
     }
 }
 
+void DatasetImporter::slotLoadSpikeInFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spike-in File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Spike-in File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->spikeInFile->insert(filename);
+    }
+}
+
+void DatasetImporter::slotLoadSizeFactorsFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Size Factors File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Size Factors File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->sizeFactorsFile->insert(filename);
+    }
+}
+
 void DatasetImporter::slotValidateForm()
 {
     QString error_msg;
@@ -198,7 +258,6 @@ void DatasetImporter::slotValidateForm()
         isValid = false;
         error_msg = tr("Dataset name is missing!");
     }
-
     if (!isValid) {
         QMessageBox::critical(this, tr("Import dataset"), error_msg);
     } else {
@@ -226,6 +285,10 @@ void DatasetImporter::slotParseFolder()
                 m_ui->imageAlignmentFile->setText(file);
             } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
+            } else if (file.contains("spikein")) {
+                m_ui->spikeInFile->setText(file);
+            } else if (file.contains("sizefactors")) {
+                m_ui->sizeFactorsFile->setText(file);
             } else if (file.contains("info.json")) {
                 QFile file_data(file);
                 if (file_data.open(QIODevice::ReadOnly)) {

@@ -61,7 +61,16 @@ public:
     // to parse a file with spots coordinates old_spot -> new_spot
     // the spots coordinates will be updated and the spots
     // that are not found will be removed if the user says yes to this
+    // it returns true if the parsing went fine
     bool parseSpotsMap(const QString &spots_file);
+
+    // to parse a file with spike-in factors (one per spot)
+    // it returns bool if the parsing was okay and the number of factors is the same as rows
+    bool parseSpikeIn(const QString &spikeInFile);
+
+    // to parse a file with size factors (one per spot)
+    // it returns bool if the parsing was okay and the number of factors is the same as rows
+    bool parseSizeFactors(const QString &spikeInFile);
 
     // helper function to get the sum of non zeroes elements (by column, aka gene)
     static rowvec computeNonZeroColumns(const mat &matrix);
@@ -89,10 +98,18 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
+    // cache the filtered counnts
+    mat m_counts;
 
     // cache the size factors to save computational time
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
+
+    // user loaded spike-in
+    rowvec m_spike_in;
+
+    // user loaded size factors
+    rowvec m_size_factors;
 
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix

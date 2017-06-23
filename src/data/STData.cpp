@@ -13,6 +13,8 @@ STData::STData()
     : m_data()
     , m_deseq_size_factors()
     , m_scran_size_factors()
+    , m_spike_in()
+    , m_size_factors()
     , m_spots()
     , m_genes()
 {
@@ -37,6 +39,7 @@ STData::STDataFrame STData::read(const QString &filename)
     int row_number = 0;
     int col_number = 0;
     char sep = '\t';
+    bool parsed = true;
     for (std::string line; std::getline(f, line);) {
         std::istringstream iss(line);
         std::string token;
@@ -49,7 +52,10 @@ STData::STDataFrame STData::read(const QString &filename)
             } else if (col_number == 0) {
                 const QString spot_tmp = QString::fromStdString(token).trimmed();
                 const QStringList items = spot_tmp.split("x");
-                Q_ASSERT(items.size() == 2);
+                if (items.size() != 2) {
+                    parsed = false;
+                    break;
+                }
                 const float x = items.at(0).toFloat();
                 const float y = items.at(1).toFloat();
                 data.spots.append(Spot::SpotType(x,y));
@@ -66,13 +72,13 @@ STData::STDataFrame STData::read(const QString &filename)
     // Close file
     f.close();
 
+    if (!parsed || data.spots.empty() || data.genes.empty()) {
+        throw std::runtime_error("The file does not contain a valid matrix");
+    }
+
     // Remove the first empty column name (gene)
     if (data.genes.size() == col_number) {
         data.genes.removeAt(0);
-    }
-
-    if (data.spots.empty() || data.genes.empty()) {
-        throw std::runtime_error("The file does not contain a valid matrix");
     }
 
     // Create an armadillo matrix
@@ -86,6 +92,7 @@ STData::STDataFrame STData::read(const QString &filename)
 
     qDebug() << "Parsed data file with " << data.genes.size()
              << " genes and " << data.spots.size() << " spots";
+
     // returns the data frame
     return data;
 }
@@ -101,6 +108,11 @@ void STData::init(const QString &filename) {
     for (uword j = 0; j < m_data.counts.n_cols; ++j) {
         m_genes.append(GeneObjectType(new Gene(m_data.genes.at(j))));
     }
+    // init spike-in and size-factors
+    m_spike_in = rowvec(m_data.counts.n_rows);
+    m_spike_in.fill(1.0);
+    m_size_factors = rowvec(m_data.counts.n_rows);
+    m_size_factors.fill(1.0);
 }
 
 void STData::save(const QString &filename, const STData::STDataFrame &data)
@@ -171,7 +183,15 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
     mat counts = m_data.counts;
 
-    //TODO cache these
+    if (rendering_settings.spike_in) {
+        counts.each_col() /= m_spike_in.t();
+    }
+
+    if (rendering_settings.size_factors) {
+        counts.each_col() /= m_size_factors.t();
+    }
+
+    // Compute row-column sums
     colvec rowsum = sum(counts, ROW);
     colvec gene_counts = computeNonZeroRows(counts);
     rowvec spot_counts = computeNonZeroColumns(counts);
@@ -180,28 +200,37 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     std::vector<uword> to_keep_spots;
     for (uword i = 0; i < counts.n_rows; ++i) {
         const double reads_count = rowsum.at(i);
-        const int genes_count = gene_counts.at(i);
+        const double genes_count = gene_counts.at(i);
         if (reads_count >= rendering_settings.reads_threshold
                 && genes_count >= rendering_settings.genes_threshold) {
             to_keep_spots.push_back(i);
         }
     }
-    counts = counts.rows(uvec(to_keep_spots));
 
     // Filter out genes
     std::vector<uword> to_keep_genes;
     for (uword j = 0; j < counts.n_cols; ++j) {
-        const int spot_count = spot_counts.at(j);
+        const double spot_count = spot_counts.at(j);
         const auto gene = m_genes.at(j);
         if (gene->visible() && spot_count >= rendering_settings.spots_threshold) {
             to_keep_genes.push_back(j);
         }
     }
-    counts = counts.cols(uvec(to_keep_genes));
 
-    // TODO cache these
-    m_deseq_size_factors = RInterface::computeDESeqFactors(m_data.counts);
-    m_scran_size_factors = RInterface::computeScranFactors(m_data.counts);
+    if (to_keep_genes.empty() || to_keep_spots.empty()) {
+        return;
+    }
+
+    // slice the matrix of counts
+    counts = counts.submat(uvec(to_keep_spots), uvec(to_keep_genes));
+
+    // check if the number of filterd genes/spots have changed
+    if (m_counts.empty() || m_counts.n_cols != counts.n_cols || m_counts.n_rows != counts.n_rows) {
+        // recompute size factors
+        m_deseq_size_factors = RInterface::computeDESeqFactors(counts);
+        m_scran_size_factors = RInterface::computeScranFactors(counts);
+        m_counts = counts;
+    }
 
     // Normalize the counts
     counts = normalizeCounts(counts,
@@ -217,7 +246,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         const auto spot = m_spots.at(i);
         bool visible = false;
         double merged_value = 0.0;
-        int num_genes = 0;
+        double num_genes = 0.0;
         bool any_gene_selected = false;
         QColor merged_color;
         if (!spot->visible()) {
@@ -225,8 +254,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             for (uword j = 0; j < counts.n_cols; ++j)  {
                 const auto gene = m_genes.at(j);
                 const double value = counts.at(i,j);
-                if (rendering_settings.ind_reads_threshold > value
-                        || (rendering_settings.gene_cutoff && gene->cut_off() > value)) {
+                if (value <= rendering_settings.ind_reads_threshold
+                        || (rendering_settings.gene_cutoff && gene->cut_off() >= value)) {
                     continue;
                 }
                 ++num_genes;
@@ -239,8 +268,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             // Update the color of the spot
             if (merged_value > 0.0) {
                 // Use number of genes or total reads in the spot depending on settings
-                const double genes_count = gene_counts.at(i);
-                merged_value = use_genes ? genes_count : merged_value;
+                merged_value = use_genes ? num_genes : merged_value;
                 merged_value = use_log ? std::log(merged_value) : merged_value;
                 min_value = std::min(min_value, merged_value);
                 max_value = std::max(max_value, merged_value);
@@ -309,9 +337,7 @@ bool STData::parseSpotsMap(const QString &spots_file)
         }
 
         if (spotMap.empty() || !parsed) {
-            QMessageBox::warning(nullptr,
-                                 QObject::tr("Spot coordinates"),
-                                 QObject::tr("No valid spots were found in the given file"));
+            qDebug() << "No valid spots were found in the spots file";
             file.close();
             return false;
         }
@@ -337,7 +363,7 @@ bool STData::parseSpotsMap(const QString &spots_file)
     if (remove_indexes.size() == m_spots.size()) {
         QMessageBox::warning(nullptr,
                              QObject::tr("Spot coordinates"),
-                             QObject::tr("No spots were matched in the spots file"));
+                             QObject::tr("No spots could be matched in the spots file"));
         return true;
     }
 
@@ -359,6 +385,96 @@ bool STData::parseSpotsMap(const QString &spots_file)
     }
 
     return true;
+}
+
+bool STData::parseSpikeIn(const QString &spikeInFile)
+{
+    qDebug() << "Parsing spike-in file " << spikeInFile;
+    QFile file(spikeInFile);
+    std::vector<double> spike_ins;
+    bool parsed = true;
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        QString line;
+        QStringList fields;
+        while (!in.atEnd()) {
+            line = in.readLine();
+            fields = line.split("\t");
+            if (fields.length() != 1) {
+                parsed = false;
+                break;
+            }
+            const double spike_in = fields.at(0).toFloat();
+            spike_ins.push_back(spike_in);
+        }
+
+        if (spike_ins.empty() || !parsed) {
+            qDebug() << "No valid spike-ins were found in the given file";
+            parsed = false;
+        }
+
+    } else {
+        qDebug() << "Could not parse spike-ins file";
+        parsed = false;
+    }
+    file.close();
+
+    if (!parsed) {
+        return parsed;
+    }
+
+    if (spike_ins.size() != m_spots.size()) {
+        qDebug() << "The number of spike-ins found is not the same as the number of rows";
+    } else {
+        m_spike_in = rowvec(spike_ins);
+    }
+
+    return parsed;
+}
+
+bool STData::parseSizeFactors(const QString &sizefactors)
+{
+    qDebug() << "Parsing size factors file " << sizefactors;
+    QFile file(sizefactors);
+    std::vector<double> size_factors;
+    bool parsed = true;
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        QString line;
+        QStringList fields;
+        while (!in.atEnd()) {
+            line = in.readLine();
+            fields = line.split("\t");
+            if (fields.length() != 1) {
+                parsed = false;
+                break;
+            }
+            const double size_factor = fields.at(0).toFloat();
+            size_factors.push_back(size_factor);
+        }
+
+        if (size_factors.empty() || !parsed) {
+            qDebug() << "No valid size factors were found in the given file";
+            parsed = false;
+        }
+
+    } else {
+        qDebug() << "Could not parse size factors file";
+        parsed = false;
+    }
+    file.close();
+
+    if (!parsed) {
+        return parsed;
+    }
+
+    if (size_factors.size() != m_spots.size()) {
+        qDebug() << "The number of size factors found is not the same as the number of rows";
+    } else {
+        m_size_factors = rowvec(size_factors);
+    }
+
+    return parsed;
 }
 
 mat STData::normalizeCounts(const mat &counts,
