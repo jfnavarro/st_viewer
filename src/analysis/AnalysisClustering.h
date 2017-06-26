@@ -23,8 +23,8 @@ public:
     explicit AnalysisClustering(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisClustering();
 
-    // One color for each spot (the same order as in the table loaded)
-    QVector<QColor> getComputedClasses() const;
+    // One color for each spot
+    QHash<Spot::SpotType, QColor> getComputedClasses() const;
 
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
@@ -53,11 +53,8 @@ private:
     void computeColorsAsync();
     void colorsComputed();
 
+    // the data
     STData::STDataFrame m_data;
-
-    // store the size factors to save computational time
-    rowvec m_deseq_factors;
-    rowvec m_scran_factors;
 
     // the results
     std::vector<int> m_colors;

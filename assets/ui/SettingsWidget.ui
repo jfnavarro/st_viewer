@@ -46,6 +46,20 @@
        </widget>
       </item>
       <item>
+       <widget class="QRadioButton" name="normalization_tpm">
+        <property name="text">
+         <string>TPM</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="normalization_rel">
+        <property name="text">
+         <string>REL</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="normalization_deseq">
         <property name="text">
          <string>DESeq2</string>
@@ -176,7 +190,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Total Reads Threshold (Per spot)</string>
+        <string>Total Reads (Per spot)</string>
        </property>
       </widget>
      </item>
@@ -194,7 +208,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="reads_threshold">
+      <widget class="QSpinBox" name="reads_threshold">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -282,7 +296,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Reads Threshold (Per gene-spot)</string>
+        <string>Individual Reads (Per gene-spot)</string>
        </property>
       </widget>
      </item>
@@ -300,7 +314,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="individual_reads_threshold">
+      <widget class="QSpinBox" name="individual_reads_threshold">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -325,7 +339,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Total Detected Genes Threshold (Per spot)</string>
+        <string>Total Detected Genes (Per spot)</string>
        </property>
       </widget>
      </item>

@@ -31,8 +31,8 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     const QSet<QString> shared_genes = genesA.intersect(genesB);
     m_ui->sharedGenes->setText(QString::number(shared_genes.size()));
 
-    m_dataA = data1.counts;
-    m_dataB = data2.counts;
+    m_dataA = data1;
+    m_dataB = data2;
 
     if (shared_genes.size() > 0) {
         // keep only the shared genes
@@ -42,14 +42,14 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
             to_keepA.push_back(data1.genes.indexOf(shared_gene));
             to_keepB.push_back(data2.genes.indexOf(shared_gene));
         }
-        m_dataA = m_dataA.cols(uvec(to_keepA));
-        m_dataB = m_dataB.cols(uvec(to_keepB));
+        m_dataA.counts = m_dataA.counts.cols(uvec(to_keepA));
+        m_dataB.counts = m_dataB.counts.cols(uvec(to_keepB));
 
         // Compute and cache size factors
-        m_deseq_factorsA = RInterface::computeDESeqFactors(m_dataA);
-        m_deseq_factorsB = RInterface::computeDESeqFactors(m_dataB);
-        m_scran_factorsA = RInterface::computeScranFactors(m_dataA);
-        m_scran_factorsB = RInterface::computeScranFactors(m_dataB);
+        m_dataA.deseq_size_factors = RInterface::computeDESeqFactors(m_dataA.counts);
+        m_dataB.deseq_size_factors = RInterface::computeDESeqFactors(m_dataB.counts);
+        m_dataA.scran_size_factors = RInterface::computeScranFactors(m_dataA.counts);
+        m_dataB.scran_size_factors = RInterface::computeScranFactors(m_dataB.counts);
 
         m_ui->normalization_raw->setChecked(true);
 
@@ -98,10 +98,8 @@ void AnalysisCorrelation::slotUpdateData()
         normalization = SettingsWidget::SCRAN;
     }
 
-    mat A = STData::normalizeCounts(m_dataA, normalization,
-                                    m_deseq_factorsA, m_scran_factorsA);
-    mat B = STData::normalizeCounts(m_dataB, normalization,
-                                    m_deseq_factorsB, m_scran_factorsB);
+    mat A = STData::normalizeCounts(m_dataA, normalization).counts;
+    mat B = STData::normalizeCounts(m_dataB, normalization).counts;
 
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);

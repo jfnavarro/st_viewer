@@ -23,10 +23,10 @@ SettingsWidget::SettingsWidget(QWidget *parent)
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotGenesTreshold);
     connect(m_ui->reads_threshold,
-            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotReadsTreshold);
     connect(m_ui->individual_reads_threshold,
-            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotIndReadsTreshold);
     connect(m_ui->spots_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -49,6 +49,10 @@ SettingsWidget::SettingsWidget(QWidget *parent)
 
     connect(m_ui->normalization_raw, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::RAW);});
+    connect(m_ui->normalization_tpm, &QRadioButton::clicked, this,
+            [=]() {slotNormalization(NormalizationMode::TPM);});
+    connect(m_ui->normalization_rel, &QRadioButton::clicked, this,
+            [=]() {slotNormalization(NormalizationMode::REL);});
     connect(m_ui->normalization_deseq, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::DESEQ);});
     connect(m_ui->normalization_scran, &QRadioButton::clicked, this,
@@ -136,12 +140,12 @@ void SettingsWidget::slotSpotsTreshold(int value)
     m_rendering_settings.spots_threshold = value;
 }
 
-void SettingsWidget::slotReadsTreshold(double value)
+void SettingsWidget::slotReadsTreshold(int value)
 {
     m_rendering_settings.reads_threshold = value;
 }
 
-void SettingsWidget::slotIndReadsTreshold(double value)
+void SettingsWidget::slotIndReadsTreshold(int value)
 {
     m_rendering_settings.ind_reads_threshold = value;
 }

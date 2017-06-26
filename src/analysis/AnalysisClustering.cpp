@@ -35,25 +35,23 @@ AnalysisClustering::~AnalysisClustering()
 }
 
 
-QVector<QColor> AnalysisClustering::getComputedClasses() const
+QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
 {
     QStringList color_list;
     color_list << "red" << "green" << "blue" << "cyan" << "magenta"
                << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
-    QVector<QColor> computed_colors(m_colors.size());
+    QHash<Spot::SpotType, QColor> computed_colors;
     for (unsigned i = 0; i < m_colors.size(); ++i) {
-        computed_colors[i] = QColor(color_list.at(m_colors.at(i)));
+        const QColor color(color_list.at(m_colors.at(i)));
+        computed_colors.insert(m_data.spots.at(i), color);
     }
     return computed_colors;
 }
 
 void AnalysisClustering::loadData(const STData::STDataFrame &data)
 {
+    // store the data
     m_data = data;
-
-    // compute size factors for normalization
-    m_deseq_factors = RInterface::computeDESeqFactors(m_data.counts);
-    m_scran_factors = RInterface::computeScranFactors(m_data.counts);
 }
 
 void AnalysisClustering::slotRun()
@@ -112,6 +110,18 @@ void AnalysisClustering::slotExportPlot()
 
 void AnalysisClustering::computeColorsAsync()
 {
+
+    // filter out
+    std::vector<uword> to_keep_genes;
+    std::vector<uword> to_keep_spots;
+    STData::STDataFrame data = STData::filterDataFrame(m_data,
+                                                       to_keep_genes,
+                                                       to_keep_spots,
+                                                       m_ui->individual_reads_threshold->value(),
+                                                       m_ui->reads_threshold->value(),
+                                                       m_ui->genes_threshold->value(),
+                                                       m_ui->spots_threshold->value());
+
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
         normalization = SettingsWidget::REL;
@@ -123,9 +133,12 @@ void AnalysisClustering::computeColorsAsync()
         normalization = SettingsWidget::SCRAN;
     }
 
+    // compute size factors for normalization
+    data.deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
+    data.scran_size_factors = RInterface::computeScranFactors(data.counts);
+
     // Normalize and log matrix of counts
-    mat A = STData::normalizeCounts(m_data.counts, normalization,
-                                    m_deseq_factors, m_scran_factors);
+    mat A = STData::normalizeCounts(data, normalization).counts;
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);
     }
@@ -141,7 +154,7 @@ void AnalysisClustering::computeColorsAsync()
     const bool tsne = m_ui->tsne->isChecked();
     const bool kmeans = m_ui->kmeans->isChecked();
 
-    // Surprisingly it is much faster to call R's tsne/pca than to use C++ implemtation....
+    // Surprisingly it is much faster to call R's tsne/pca than to use C++ implementation....
     RInterface::spotClassification(A, tsne, kmeans, num_clusters, init_dim, no_dims, perplexity,
                                    max_iter, theta, scale, center, m_colors, m_reduced_coordinates);
 }

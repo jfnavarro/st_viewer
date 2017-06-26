@@ -33,14 +33,8 @@ private:
     QScopedPointer<Ui::analysisCorrelation> m_ui;
 
     // the two datasets
-    mat m_dataA;
-    mat m_dataB;
-
-    // store the size factors to save computational time
-    rowvec m_deseq_factorsA;
-    rowvec m_scran_factorsA;
-    rowvec m_deseq_factorsB;
-    rowvec m_scran_factorsB;
+    STData::STDataFrame m_dataA;
+    STData::STDataFrame m_dataB;
 
     Q_DISABLE_COPY(AnalysisCorrelation)
 };

@@ -36,10 +36,10 @@ public:
     };
 
     struct Rendering {
-        double reads_threshold;
+        int reads_threshold;
         int genes_threshold;
         int spots_threshold;
-        double ind_reads_threshold;
+        int ind_reads_threshold;
         float legend_min;
         float legend_max;
         float intensity;
@@ -64,13 +64,13 @@ private slots:
 
     void slotGenesTreshold(int);
     void slotSpotsTreshold(int);
-    void slotReadsTreshold(double);
-    void slotIndReadsTreshold(double);
+    void slotReadsTreshold(int);
+    void slotIndReadsTreshold(int);
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
-    void slotSpikeIn(bool value);
-    void slotSizeFactors(bool value);
+    void slotSpikeIn(bool);
+    void slotSizeFactors(bool);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);
     void slotVisualMode(VisualTypeMode);

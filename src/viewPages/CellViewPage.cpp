@@ -409,7 +409,7 @@ void CellViewPage::slotLoadSpotColorsFile()
     QStringList color_list;
     color_list << "red" << "green" << "blue" << "cyan" << "magenta"
                << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
-    QMap<Spot::SpotType, QColor> spotMap;
+    QHash<Spot::SpotType, QColor> spotMap;
     QFile file(filename);
     bool parsed = true;
     // Parse the spots map = spot -> color
