@@ -197,11 +197,15 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // check if we need to recompute normalization factors
     if (m_filterd_data_size != data.counts.size()) {
         // recompute size factors then
-        data.deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-        data.scran_size_factors = RInterface::computeScranFactors(data.counts);
-        m_data.deseq_size_factors = data.deseq_size_factors;
-        m_data.scran_size_factors = data.scran_size_factors;
-        m_filterd_data_size = data.counts.size();
+        if (rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ) {
+            data.scran_size_factors = RInterface::computeScranFactors(data.counts);
+            m_data.deseq_size_factors = data.deseq_size_factors;
+            m_filterd_data_size = data.counts.size();
+        } else if (rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN) {
+            data.scran_size_factors = RInterface::computeScranFactors(data.counts);
+            m_data.scran_size_factors = data.scran_size_factors;
+            m_filterd_data_size = data.counts.size();
+        }
     }
 
     // Normalize the counts

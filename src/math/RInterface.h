@@ -67,9 +67,7 @@ static void computeDEA(const mat &countsA,
                            "rownames(merged) = c(rownames(A), rownames(B));"
                            "exp_values = t(merged);"
                            "exp_values[is.na(exp_values)] = 0;"
-                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
-                           "exp_values = exp_values[,colSums(exp_values > 0) > 5];"
-                           "exp_values = exp_values[rowSums(exp_values > 0) > 5,];";
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
             call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
         } else {

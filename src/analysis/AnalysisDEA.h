@@ -55,12 +55,15 @@ private:
     QScopedPointer<Ui::analysisDEA> m_ui;
 
     // the two datasets
-    mat m_dataA;
-    mat m_dataB;
-    std::vector<std::string> m_rowsA;
-    std::vector<std::string> m_rowsB;
-    std::vector<std::string> m_colsA;
-    std::vector<std::string> m_colsB;
+    STData::STDataFrame m_dataA;
+    STData::STDataFrame m_dataB;
+
+    // cache the settings to not recompute always
+    SettingsWidget::NormalizationMode m_normalization;
+    int m_reads_threshold;
+    int m_genes_threshold;
+    int m_ind_reads_treshold;
+    int m_spots_threshold;
 
     // cache the results to not recompute
     mat m_results;
@@ -69,11 +72,6 @@ private:
 
     // the gene to highlight in the volcano plot
     QPointF m_gene_highlight;
-
-    // True when the DE genes are computed
-    bool m_initialized;
-    // cache the normalization mode to not re-compute always
-    SettingsWidget::NormalizationMode m_normalization;
 
     // the proxy model
     QScopedPointer<QSortFilterProxyModel> m_proxy;

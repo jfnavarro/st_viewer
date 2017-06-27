@@ -102,13 +102,13 @@ void UserSelection::data(const STData::STDataFrame &data)
 void UserSelection::init(QSharedPointer<STData> data)
 {
     m_data = data->data();
-    const auto selected = data->renderingSelected();
+    const auto spots = data->spots();
 
     // Keep only selected spots
     std::vector<uword> to_keep_rows;
     QList<Spot::SpotType> selected_spots;
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        if (selected.at(i)) {
+        if (spots.at(i)->selected()) {
             to_keep_rows.push_back(i);
             selected_spots.append(m_data.spots.at(i));
         }
