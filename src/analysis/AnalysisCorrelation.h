@@ -36,6 +36,12 @@ private:
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
 
+    // the size factors
+    rowvec m_deseq_size_factorsA;
+    rowvec m_deseq_size_factorsB;
+    rowvec m_scran_size_factorsA;
+    rowvec m_scran_size_factorsB;
+
     Q_DISABLE_COPY(AnalysisCorrelation)
 };
 

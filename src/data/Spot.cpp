@@ -4,7 +4,7 @@ Spot::Spot()
     : m_coordinates(0,0)
     , m_visible(false)
     , m_selected(false)
-    , m_color(Qt::white)
+    , m_color(Qt::black)
     , m_name()
 {
     updateName();

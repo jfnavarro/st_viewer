@@ -46,10 +46,10 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_dataB.counts = m_dataB.counts.cols(uvec(to_keepB));
 
         // Compute and cache size factors
-        m_dataA.deseq_size_factors = RInterface::computeDESeqFactors(m_dataA.counts);
-        m_dataB.deseq_size_factors = RInterface::computeDESeqFactors(m_dataB.counts);
-        m_dataA.scran_size_factors = RInterface::computeScranFactors(m_dataA.counts);
-        m_dataB.scran_size_factors = RInterface::computeScranFactors(m_dataB.counts);
+        m_deseq_size_factorsA = RInterface::computeDESeqFactors(m_dataA.counts);
+        m_deseq_size_factorsB = RInterface::computeDESeqFactors(m_dataB.counts);
+        m_scran_size_factorsA = RInterface::computeScranFactors(m_dataA.counts);
+        m_scran_size_factorsB = RInterface::computeScranFactors(m_dataB.counts);
 
         m_ui->normalization_raw->setChecked(true);
 
@@ -98,8 +98,13 @@ void AnalysisCorrelation::slotUpdateData()
         normalization = SettingsWidget::SCRAN;
     }
 
-    mat A = STData::normalizeCounts(m_dataA, normalization).counts;
-    mat B = STData::normalizeCounts(m_dataB, normalization).counts;
+    mat A = STData::normalizeCounts(m_dataA,
+                                    m_deseq_size_factorsA,
+                                    m_scran_size_factorsA, normalization).counts;
+
+    mat B = STData::normalizeCounts(m_dataB,
+                                    m_deseq_size_factorsB,
+                                    m_scran_size_factorsB, normalization).counts;
 
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);

@@ -40,8 +40,8 @@ public:
         int genes_threshold;
         int spots_threshold;
         int ind_reads_threshold;
-        float legend_min;
-        float legend_max;
+        double legend_min;
+        double legend_max;
         float intensity;
         float size;
         VisualMode visual_mode;

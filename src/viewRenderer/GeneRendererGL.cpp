@@ -59,43 +59,49 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
 
     const bool is_dynamic =
             m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
-    const bool is_normal=
-            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
 
-    const auto spots = m_geneData->renderingSpots();
+    const auto spots = m_geneData->spots();
+    const auto visibles = m_geneData->renderingVisible();
     const auto colors = m_geneData->renderingColors();
     const auto selecteds = m_geneData->renderingSelected();
     const auto values = m_geneData->renderingValues();
     const float size = m_rendering_settings.size / 2;
     const float size_selected = size / 4;
+    const float size_non_visible = size / 2;
     const double min_value = m_rendering_settings.legend_min;
     const double max_value = m_rendering_settings.legend_max;
     const float intensity = m_rendering_settings.intensity;
     QPen pen;
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
-        const auto spot  = spots.at(i);
+        const bool visible = visibles.at(i);
+        const auto spot  = spots.at(i)->coordinates();
         const double x = spot.first;
         const double y = spot.second;
-        const bool selected = selecteds.at(i);
-        const double value = values.at(i);
-        const bool has_value = value > 0.0;
-        QColor color = colors.at(i);
-        if (!is_normal && has_value) {
-            color = Color::adjustVisualMode(color, value, min_value,
-                                            max_value, m_rendering_settings.visual_mode);
-        }
-        if (!is_dynamic || !has_value) {
-            color.setAlphaF(intensity);
-        }
-        // draw spot
-        pen.setColor(color);
-        pen.setWidthF(size);
-        painter.setPen(pen);
-        painter.drawEllipse(QRectF(x, y, size, size));
-        if (selected) {
+        if (visible) {
+            const bool selected = selecteds.at(i);
+            const double value = values.at(i);
+            const bool has_value = value > 0.0;
+            QColor color = colors.at(i);
+            if (has_value) {
+                color = Color::adjustVisualMode(color, value, min_value,
+                                                max_value, m_rendering_settings.visual_mode);
+            } else if (!is_dynamic) {
+                color.setAlphaF(intensity);
+            }
+            pen.setColor(color);
+            pen.setWidthF(size);
+            painter.setPen(pen);
+            painter.drawEllipse(QRectF(x, y, size, size));
+            if (selected) {
+                pen.setColor(Qt::white);
+                pen.setWidthF(size_selected);
+                painter.setPen(pen);
+                painter.drawEllipse(QRectF(x, y, size, size));
+            }
+        } else {
             pen.setColor(Qt::white);
-            pen.setWidthF(size_selected);
+            pen.setWidthF(size_non_visible);
             painter.setPen(pen);
             painter.drawEllipse(QRectF(x, y, size, size));
         }

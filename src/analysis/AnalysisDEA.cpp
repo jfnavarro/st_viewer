@@ -296,21 +296,14 @@ void AnalysisDEA::run()
 
 void AnalysisDEA::runDEAAsync()
 {
-    std::vector<uword> to_keep_genes;
-    std::vector<uword> to_keep_spots;
-
     // filter out dataset A
     STData::STDataFrame dataA = STData::filterDataFrame(m_dataA,
-                                                        to_keep_genes,
-                                                        to_keep_spots,
                                                         m_ind_reads_treshold,
                                                         m_reads_threshold,
                                                         m_genes_threshold,
                                                         m_spots_threshold);
     // filter out dataset B
     STData::STDataFrame dataB = STData::filterDataFrame(m_dataB,
-                                                        to_keep_genes,
-                                                        to_keep_spots,
                                                         m_ind_reads_treshold,
                                                         m_reads_threshold,
                                                         m_genes_threshold,

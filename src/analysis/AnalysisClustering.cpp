@@ -110,13 +110,8 @@ void AnalysisClustering::slotExportPlot()
 
 void AnalysisClustering::computeColorsAsync()
 {
-
     // filter out
-    std::vector<uword> to_keep_genes;
-    std::vector<uword> to_keep_spots;
     STData::STDataFrame data = STData::filterDataFrame(m_data,
-                                                       to_keep_genes,
-                                                       to_keep_spots,
                                                        m_ui->individual_reads_threshold->value(),
                                                        m_ui->reads_threshold->value(),
                                                        m_ui->genes_threshold->value(),
@@ -129,16 +124,17 @@ void AnalysisClustering::computeColorsAsync()
         normalization = SettingsWidget::TPM;
     } else if (m_ui->normalization_deseq->isChecked()) {
         normalization = SettingsWidget::DESEQ;
+        m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
     } else if (m_ui->normalization_scran->isChecked()) {
         normalization = SettingsWidget::SCRAN;
+        m_scran_size_factors = RInterface::computeScranFactors(data.counts);
     }
 
-    // compute size factors for normalization
-    data.deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-    data.scran_size_factors = RInterface::computeScranFactors(data.counts);
-
     // Normalize and log matrix of counts
-    mat A = STData::normalizeCounts(data, normalization).counts;
+    mat A = STData::normalizeCounts(data,
+                                    m_deseq_size_factors,
+                                    m_scran_size_factors,
+                                    normalization).counts;
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);
     }

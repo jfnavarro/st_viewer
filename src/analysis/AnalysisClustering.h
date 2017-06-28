@@ -56,6 +56,10 @@ private:
     // the data
     STData::STDataFrame m_data;
 
+    // the size factors
+    rowvec m_deseq_size_factors;
+    rowvec m_scran_size_factors;
+
     // the results
     std::vector<int> m_colors;
     mat m_reduced_coordinates;

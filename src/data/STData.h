@@ -32,13 +32,9 @@ public:
         mat counts;
         QList<QString> genes;
         QList<Spot::SpotType> spots;
-        // scran and deseq2 size factors
-        rowvec deseq_size_factors;
-        rowvec scran_size_factors;
-        // user loaded spike-in
-        rowvec spike_in;
-        // user loaded size factors
-        rowvec size_factors;
+        // when spots/genes are filtered
+        std::vector<uword> to_keep_genes;
+        std::vector<uword> to_keep_spots;
     };
 
     STData();
@@ -53,13 +49,14 @@ public:
 
     // Retrieves the original data frame (without filtering using the tresholds)
     STDataFrame data() const;
+
     // Returns the spot/gene objects corresponding to the data frame
     GeneListType genes();
     SpotListType spots();
 
     // Rendering functions
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
-    const QVector<Spot::SpotType> &renderingSpots() const;
+    const QVector<bool> &renderingVisible() const;
     const QVector<QColor> &renderingColors() const;
     const QVector<bool> &renderingSelected() const;
     const QVector<double> &renderingValues() const;
@@ -80,8 +77,6 @@ public:
 
     // helper function to filter out a data frame using thresholds
     static STDataFrame filterDataFrame(const STDataFrame &data,
-                                       std::vector<uword> &to_keep_genes,
-                                       std::vector<uword> &to_keep_spots,
                                        const int min_exp_value,
                                        const int min_reads_spot,
                                        const int min_genes_spot,
@@ -92,7 +87,9 @@ public:
     static colvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
     // helper function that returns the normalized matrix counts using the rendering settings
     static STDataFrame normalizeCounts(const STDataFrame &data,
-                               SettingsWidget::NormalizationMode mode);
+                                       const rowvec deseq_size_factors,
+                                       const rowvec scran_size_factors,
+                                       SettingsWidget::NormalizationMode mode);
 
     // functions to select spots
     void clearSelection();
@@ -101,7 +98,6 @@ public:
     void selectGenes(const QList<QString> &genes);
 
     // functions to change spot colors
-    void loadSpotColors(const QVector<QColor> &colors);
     void loadSpotColors(const QHash<Spot::SpotType,QColor> &colors);
 
     // returns the boundaries (min spot and max spot)
@@ -111,8 +107,22 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
-    // store the size of the filtered data (thresholds) to not recompute size factors always
-    uword m_filterd_data_size;
+
+    // cache the thresholds settings to not re-compute always
+    int m_reads_threshold;
+    int m_genes_threshold;
+    int m_ind_reads_treshold;
+    int m_spots_threshold;
+
+    // scran and deseq2 size factors
+    rowvec m_deseq_size_factors;
+    rowvec m_scran_size_factors;
+
+    // user loaded spike-in
+    rowvec m_spike_in;
+
+    // user loaded size factors
+    rowvec m_size_factors;
 
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix
@@ -121,7 +131,7 @@ private:
 
     // rendering data
     QVector<bool> m_rendering_selected;
-    QVector<Spot::SpotType> m_rendering_spots;
+    QVector<bool> m_rendering_visible;
     QVector<QColor> m_rendering_colors;
     QVector<double> m_rendering_values;
 
