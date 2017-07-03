@@ -24,6 +24,8 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->exportPlot->setEnabled(false);
     m_ui->tsne->setChecked(true);
     m_ui->kmeans->setChecked(true);
+
+
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
     connect(&m_watcher, &QFutureWatcher<void>::finished,
@@ -43,7 +45,7 @@ QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
     QHash<Spot::SpotType, QColor> computed_colors;
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const QColor color(color_list.at(m_colors.at(i)));
-        computed_colors.insert(m_data.spots.at(i), color);
+        computed_colors.insert(m_spots.at(i), color);
     }
     return computed_colors;
 }
@@ -116,6 +118,7 @@ void AnalysisClustering::computeColorsAsync()
                                                        m_ui->reads_threshold->value(),
                                                        m_ui->genes_threshold->value(),
                                                        m_ui->spots_threshold->value());
+    m_spots = data.spots;
 
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {

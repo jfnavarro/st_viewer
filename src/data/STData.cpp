@@ -171,42 +171,44 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         data.counts.each_col() /= m_size_factors.t();
     }
 
-    bool recompute_size = false;
+    bool recompute_size_factors = false;
     if (m_reads_threshold != rendering_settings.ind_reads_threshold) {
         m_reads_threshold = rendering_settings.ind_reads_threshold;
-        recompute_size = true;
+        recompute_size_factors = true;
     }
 
     if (m_genes_threshold != rendering_settings.genes_threshold) {
         m_genes_threshold = rendering_settings.genes_threshold;
-        recompute_size = true;
+        recompute_size_factors = true;
     }
 
     if (m_ind_reads_treshold != rendering_settings.ind_reads_threshold) {
         m_ind_reads_treshold = rendering_settings.ind_reads_threshold;
-        recompute_size = true;
+        recompute_size_factors = true;
     }
 
     if (m_spots_threshold != rendering_settings.spots_threshold) {
         m_spots_threshold = rendering_settings.spots_threshold;
-        recompute_size = true;
+        recompute_size_factors = true;
     }
 
-    // check if we need to recompute normalization factors
-    if (recompute_size) {
-        data = filterDataFrame(data,
-                               rendering_settings.ind_reads_threshold,
-                               rendering_settings.reads_threshold,
-                               rendering_settings.genes_threshold,
-                               rendering_settings.spots_threshold);
-        // recompute size factors then
-        m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-        m_scran_size_factors = RInterface::computeScranFactors(data.counts);
-    }
+    // slice the data frame (TODO we could cache it and avoid this always)
+    data = filterDataFrame(data,
+                           rendering_settings.ind_reads_threshold,
+                           rendering_settings.reads_threshold,
+                           rendering_settings.genes_threshold,
+                           rendering_settings.spots_threshold);
 
     // early out
     if (data.to_keep_genes.empty() || data.to_keep_spots.empty()) {
         return;
+    }
+
+    // check if we need to recompute normalization factors
+    if (recompute_size_factors) {
+        // recompute size factors then
+        m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
+        m_scran_size_factors = RInterface::computeScranFactors(data.counts);
     }
 
     // set visible to false to all the spots

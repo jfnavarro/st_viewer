@@ -134,7 +134,7 @@ void AnalysisDEA::updatePlot()
 
     series1->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series1->setMarkerSize(5.0);
-    series1->setColor(Qt::blue);
+    series1->setColor(Qt::gray);
     series1->setUseOpenGL(false);
 
     series2->setMarkerShape(QScatterSeries::MarkerShapeCircle);
@@ -163,7 +163,7 @@ void AnalysisDEA::updatePlot()
         QScatterSeries *series3 = new QScatterSeries();
         series3->setMarkerSize(8.0);
         series3->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
-        series3->setColor(Qt::yellow);
+        series3->setColor(Qt::darkMagenta);
         series3->setUseOpenGL(false);
         *series3 << m_gene_highlight;
         m_ui->plot->chart()->addSeries(series3);

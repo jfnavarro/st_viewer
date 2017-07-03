@@ -63,6 +63,7 @@ private:
     // the results
     std::vector<int> m_colors;
     mat m_reduced_coordinates;
+    QList<Spot::SpotType> m_spots;
 
     // the computational thread
     QFutureWatcher<void> m_watcher;
