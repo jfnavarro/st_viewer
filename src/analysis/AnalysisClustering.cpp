@@ -22,9 +22,7 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->theta->setValue(0.5);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
-    m_ui->tsne->setChecked(true);
-    m_ui->kmeans->setChecked(true);
-
+    m_ui->tab->setCurrentIndex(0);
 
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
@@ -142,16 +140,22 @@ void AnalysisClustering::computeColorsAsync()
         A = log(A + 1.0);
     }
 
+    QWidget *tsne_tab = m_ui->tab->findChild<QWidget *>("tab_tsne");
+    QWidget *pca_tab = m_ui->tab->findChild<QWidget *>("tab_pca");
+
     const int no_dims = 2;
-    const int perplexity = m_ui->perplexity->value();
-    const double theta = m_ui->theta->value();
-    const int max_iter = m_ui->max_iter->value();
-    const int init_dim = m_ui->init_dims->value();
-    const int num_clusters = m_ui->clusters->value();
-    const bool scale = m_ui->scale->isChecked();
-    const bool center = m_ui->center->isChecked();
-    const bool tsne = m_ui->tsne->isChecked();
+    const int perplexity = tsne_tab->findChild<QSpinBox *>("perplexity")->value();
+    const double theta = tsne_tab->findChild<QDoubleSpinBox *>("theta")->value();
+    const int max_iter = tsne_tab->findChild<QSpinBox *>("max_iter")->value();
+    const int init_dim = tsne_tab->findChild<QSpinBox *>("init_dims")->value();
+
     const bool kmeans = m_ui->kmeans->isChecked();
+    const int num_clusters = m_ui->clusters->value();
+
+    const bool scale = pca_tab->findChild<QCheckBox *>("scale")->isChecked();
+    const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
+
+    const bool tsne = m_ui->tab->currentIndex() == 0;
 
     // Surprisingly it is much faster to call R's tsne/pca than to use C++ implementation....
     RInterface::spotClassification(A, tsne, kmeans, num_clusters, init_dim, no_dims, perplexity,
@@ -238,7 +242,7 @@ void AnalysisClustering::slotClickedPoint(const QPointF point)
         }
     }
 
-    // Find the spot coorespondign to the clicked point
+    // Find the spot corresponding to the clicked point
     int spot_index = -1;
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const float x = m_reduced_coordinates.at(i,0);
@@ -252,8 +256,8 @@ void AnalysisClustering::slotClickedPoint(const QPointF point)
     // Update the fied if valid spot was found
     if (spot_index != -1) {
         const auto spot = m_data.spots.at(spot_index);
-        m_ui->selectedSpot->setText(
-                    QString::number(spot.first) + "x" + QString::number(spot.second));
+        qDebug() << "Selected spot in clustering widget " << spot;
+        //TODO send selection signal to cell view
     }
 
 }

@@ -23,9 +23,12 @@ class AnalysisDEA : public QWidget
 
 public:
 
-    explicit AnalysisDEA(const STData::STDataFrame &data1,
+    AnalysisDEA(const STData::STDataFrame &data1,
                          const STData::STDataFrame &data2,
-                         QWidget *parent = 0, Qt::WindowFlags f = 0);
+                         const QString &nameA,
+                         const QString &nameB,
+                         QWidget *parent = 0,
+                         Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
 
@@ -57,6 +60,8 @@ private:
     // the two datasets
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
+    QString m_nameA;
+    QString m_nameB;
 
     // cache the settings to not recompute always
     SettingsWidget::NormalizationMode m_normalization;

@@ -1,7 +1,6 @@
 #include "AnalysisCorrelation.h"
 
 #include <QChartView>
-#include <QScatterSeries>
 #include <QValueAxis>
 #include <QLogValueAxis>
 #include <QRadioButton>
@@ -17,25 +16,34 @@
 
 AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
                                          const STData::STDataFrame &data2,
-                                         QWidget *parent, Qt::WindowFlags f)
+                                         const QString &nameA,
+                                         const QString &nameB,
+                                         QWidget *parent,
+                                         Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::analysisCorrelation)
 {
     m_ui->setupUi(this);
-
     m_ui->exportPlot->setEnabled(false);
 
-    // Update shared genes value
+    // Get the shared genes (by name)
     QSet<QString> genesA = QSet<QString>::fromList(data1.genes);
     QSet<QString> genesB = QSet<QString>::fromList(data2.genes);
     const QSet<QString> shared_genes = genesA.intersect(genesB);
-    m_ui->sharedGenes->setText(QString::number(shared_genes.size()));
+    const int num_shared_genes = shared_genes.size();
 
+    // update the shared genes field
+    m_ui->sharedGenes->setText(QString::number(num_shared_genes));
+
+    // store the data
     m_dataA = data1;
     m_dataB = data2;
+    m_nameA = nameA;
+    m_nameB = nameB;
+    m_genes = shared_genes.toList();
 
-    if (shared_genes.size() > 0) {
-        // keep only the shared genes
+    if (num_shared_genes > 0) {
+        // keep only the shared genes in the data matrix (same order)
         std::vector<uword> to_keepA;
         std::vector<uword> to_keepB;
         for (const QString &shared_gene : shared_genes) {
@@ -51,10 +59,10 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_scran_size_factorsA = RInterface::computeScranFactors(m_dataA.counts);
         m_scran_size_factorsB = RInterface::computeScranFactors(m_dataB.counts);
 
+        // default normalization is RAW
         m_ui->normalization_raw->setChecked(true);
 
-        slotUpdateData();
-
+        // create the connections
         connect(m_ui->normalization_raw, &QRadioButton::clicked,
                 this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->normalization_tpm, &QRadioButton::clicked,
@@ -70,12 +78,13 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         connect(m_ui->exportPlot, &QPushButton::clicked,
                 this, &AnalysisCorrelation::slotExportPlot);
 
+        // Update the plots and data fields
+        slotUpdateData();
+
     } else {
         m_ui->groupBoxNormalization->setEnabled(false);
         m_ui->logScale->setEnabled(false);
     }
-
-
 }
 
 AnalysisCorrelation::~AnalysisCorrelation()
@@ -111,32 +120,37 @@ void AnalysisCorrelation::slotUpdateData()
         B = log(B + 1.0);
     }
 
-    const std::vector<double> rowsumA = conv_to<std::vector<double>>::from(sum(A, 0));
-    const std::vector<double> rowsumB = conv_to<std::vector<double>>::from(sum(B, 0));
+    // get the accumulated gene counts
+    m_rowsumA = conv_to<std::vector<double>>::from(sum(A, 0));
+    m_rowsumB = conv_to<std::vector<double>>::from(sum(B, 0));
 
-    const double pearson = RInterface::computeCorrelation(rowsumA, rowsumB, "pearson");
-    const double spearman = RInterface::computeCorrelation(rowsumA, rowsumB, "spearman");
+    // compute correlation values
+    const double pearson = RInterface::computeCorrelation(m_rowsumA, m_rowsumB, "pearson");
+    const double spearman = RInterface::computeCorrelation(m_rowsumA, m_rowsumB, "spearman");
     m_ui->pearson->setText(QString::number(pearson));
     m_ui->spearman->setText(QString::number(spearman));
 
-    QScatterSeries *series = new QScatterSeries();
-    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-    series->setMarkerSize(5.0);
-    series->setColor(Qt::blue);
-    series->setUseOpenGL(false);
-    for (unsigned i = 0; i < rowsumA.size(); ++i) {
-        series->append(rowsumA.at(i), rowsumB.at(i));
+    // create scatter plot
+    m_series.reset(new QScatterSeries());
+    m_series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+    m_series->setMarkerSize(5.0);
+    m_series->setColor(Qt::blue);
+    m_series->setUseOpenGL(false);
+    for (unsigned i = 0; i < m_rowsumA.size(); ++i) {
+        m_series->append(m_rowsumA.at(i), m_rowsumB.at(i));
     }
+    connect(m_series.data(), &QScatterSeries::clicked,
+            this, &AnalysisCorrelation::slotClickedPoint);
 
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
-    m_ui->plot->chart()->addSeries(series);
-    m_ui->plot->chart()->setTitle("Correlation Plot (genes)");
+    m_ui->plot->chart()->addSeries(m_series.data());
+    m_ui->plot->chart()->setTitle("Correlation Plot (Accumulated genes counts)");
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
     m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axisX()->setTitleText("Selection A");
-    m_ui->plot->chart()->axisY()->setTitleText("Selection B");
+    m_ui->plot->chart()->axisX()->setTitleText("# " + m_nameA);
+    m_ui->plot->chart()->axisY()->setTitleText("# " + m_nameB);
 
     m_ui->exportPlot->setEnabled(true);
 
@@ -182,5 +196,41 @@ void AnalysisCorrelation::slotExportPlot()
         QMessageBox::critical(this,
                               tr("Save Correlation Plot"),
                               tr("The image could not be creted."));
+    }
+}
+
+void AnalysisCorrelation::slotClickedPoint(const QPointF point)
+{
+    // Find the closest point from the series
+    const QPointF clickedPoint = point;
+    float closest_x = INT_MAX;
+    float closest_y = INT_MAX;
+    float distance = INT_MAX;
+    for (const auto point : m_series->points()) {
+        const float currentDistance = qSqrt((point.x() - clickedPoint.x())
+                                            * (point.x() - clickedPoint.x())
+                                            + (point.y() - clickedPoint.y())
+                                            * (point.y() - clickedPoint.y()));
+        if (currentDistance < distance) {
+            distance = currentDistance;
+            closest_x = point.x();
+            closest_y = point.y();
+        }
+    }
+
+    // Find the spot corresponding to the clicked point
+    int spot_index = -1;
+    for (unsigned i = 0; i < m_rowsumA.size(); ++i) {
+        const float x = m_rowsumA.at(i);
+        const float y = m_rowsumB.at(i);
+        if (x == closest_x && y == closest_y) {
+            spot_index = i;
+            break;
+        }
+    }
+
+    // Update the fied if valid gene was found
+    if (spot_index != -1) {
+        m_ui->selected_gene->setText(m_genes.at(spot_index));
     }
 }

@@ -19,11 +19,16 @@
 
 AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
                          const STData::STDataFrame &data2,
-                         QWidget *parent, Qt::WindowFlags f)
+                         const QString &nameA,
+                         const QString &nameB,
+                         QWidget *parent,
+                         Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::analysisDEA)
     , m_dataA(data1)
     , m_dataB(data2)
+    , m_nameA(nameA)
+    , m_nameB(nameB)
     , m_normalization(SettingsWidget::NormalizationMode::DESEQ)
     , m_reads_threshold(-1)
     , m_genes_threshold(-1)
@@ -188,6 +193,7 @@ void AnalysisDEA::updateTable()
     model->setHorizontalHeaderItem(2, new QStandardItem(QString("p-value")));
     model->setHorizontalHeaderItem(3, new QStandardItem(QString("log2FoldChange")));
 
+    int high_confidence_de = 0;
     // populate
     for (uword i = 0; i < m_results.n_rows; ++i) {
         const QString gene = QString::fromStdString(m_results_rows.at(i));
@@ -203,12 +209,16 @@ void AnalysisDEA::updateTable()
             fdr_item->setBackground(Qt::red);
             pvalue_item->setBackground(Qt::red);
             foldchange_item->setBackground(Qt::red);
+            ++high_confidence_de;
         }
         model->setItem(i,0,gene_item);
         model->setItem(i,1,fdr_item);
         model->setItem(i,2,pvalue_item);
         model->setItem(i,3,foldchange_item);
     }
+
+    // update total number of DE genes
+    m_ui->total_genes->setText(QString::number(high_confidence_de));
 
     // sorting model
     m_proxy->setSourceModel(model);

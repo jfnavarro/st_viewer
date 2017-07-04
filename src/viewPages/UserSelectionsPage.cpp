@@ -271,7 +271,6 @@ void UserSelectionsPage::slotImportSelection()
 
 void UserSelectionsPage::slotPerformDEA()
 {
-
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
     if (currentSelection.empty() || currentSelection.size() != 2) {
@@ -282,10 +281,15 @@ void UserSelectionsPage::slotPerformDEA()
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
+
     // launch the DEA widget
     AnalysisDEA *deaWidget(
                 new AnalysisDEA(selectionObject1.data(),
-                                selectionObject2.data(), this, Qt::Window));
+                                selectionObject2.data(),
+                                selectionObject1.name(),
+                                selectionObject2.name(),
+                                this,
+                                Qt::Window));
     deaWidget->show();
 }
 
@@ -300,10 +304,15 @@ void UserSelectionsPage::slotPerformCorrelation()
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
+
     // launch the correlation widget
     AnalysisCorrelation *correlationWidget(
                 new AnalysisCorrelation(selectionObject1.data(),
-                                        selectionObject2.data(), this, Qt::Window));
+                                        selectionObject2.data(),
+                                        selectionObject1.name(),
+                                        selectionObject2.name(),
+                                        this,
+                                        Qt::Window));
     correlationWidget->show();
 }
 
