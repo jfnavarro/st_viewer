@@ -44,11 +44,11 @@ void DatasetImporter::init()
     connect(m_ui->loadSTDataFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->loadSpotMapFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSpotsMapFile);
     connect(m_ui->loadMainImageFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
     connect(m_ui->loadImageAlignmentFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadAlignmentFile);
     connect(m_ui->loadSpikeInFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSpikeInFile);
     connect(m_ui->loadSizeFactorsFile,

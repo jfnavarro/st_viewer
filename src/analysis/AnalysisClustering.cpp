@@ -18,11 +18,7 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
 {
     // setup UI
     m_ui->setupUi(this);
-    m_ui->normalization_raw->setChecked(true);
-    m_ui->theta->setValue(0.5);
-    m_ui->progressBar->setTextVisible(true);
-    m_ui->exportPlot->setEnabled(false);
-    m_ui->tab->setCurrentIndex(0);
+    clear();
 
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
@@ -34,6 +30,29 @@ AnalysisClustering::~AnalysisClustering()
 {
 }
 
+void AnalysisClustering::clear()
+{
+    m_ui->normalization_raw->setChecked(true);
+    m_ui->theta->setValue(0.5);
+    m_ui->center->setChecked(false);
+    m_ui->scale->setChecked(false);
+    m_ui->perplexity->setValue(30);
+    m_ui->max_iter->setValue(1000);
+    m_ui->init_dims->setValue(50);
+    m_ui->progressBar->setTextVisible(true);
+    m_ui->exportPlot->setEnabled(false);
+    m_ui->runClustering->setEnabled(true);
+    m_ui->tab->setCurrentIndex(0);
+    m_ui->kmeans->setChecked(true);
+    m_ui->individual_reads_threshold->setValue(0);
+    m_ui->reads_threshold->setValue(0);
+    m_ui->genes_threshold->setValue(0);
+    m_ui->spots_threshold->setValue(0);
+    m_ui->clusters->setValue(5);
+    m_ui->plot->chart()->removeAllSeries();
+    m_colors.clear();
+    m_reduced_coordinates.clear();
+}
 
 QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
 {

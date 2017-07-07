@@ -249,6 +249,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         // Update the color of the spot
         if (spot->visible()) {
             merged_color = spot->color();
+            merged_value = 0.0;
             visible = true;
         } else if (merged_value > 0.0) {
             // Use number of genes or total reads in the spot depending on settings

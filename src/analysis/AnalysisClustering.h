@@ -29,6 +29,9 @@ public:
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
 
+    // reset to default
+    void clear();
+
 public slots:
 
 signals:

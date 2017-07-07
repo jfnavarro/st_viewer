@@ -88,6 +88,8 @@ CellViewPage::~CellViewPage()
 void CellViewPage::clear()
 {
     // reset visualization objects
+    m_ui->lasso_selection->setChecked(false);
+    m_ui->selection->setChecked(false);
     m_image->clearData();
     m_gene_plotter->clearData();
     m_legend->clearData();
@@ -96,6 +98,8 @@ void CellViewPage::clear()
     m_settings->reset();
     m_spots->clear();
     m_genes->clear();
+    m_clustering->clear();
+    m_clustering->close();
     m_dataset = Dataset();
 }
 
@@ -104,8 +108,11 @@ void CellViewPage::loadDataset(Dataset dataset)
     //NOTE we allow to re-open the same dataset (in case it has been edited)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     try {
-
+        // first load the dataset
         dataset.load_data();
+
+        // reset to default
+        clear();
 
         // update Status tip with the name of the currently selected dataset
         setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
