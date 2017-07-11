@@ -576,8 +576,28 @@ void STData::selectSpots(const SelectionEvent &event)
     }
 }
 
+void STData::selectSpots(const QList<Spot::SpotType> &spots)
+{
+   clearSelection();
+   for (auto spot : m_spots) {
+       auto coord = spot->coordinates();
+       if (spots.contains(coord)) {
+           spot->selected(true);
+       }
+   }
+}
+
+void STData::selectSpots(const QList<unsigned> &spots_indexes)
+{
+   clearSelection();
+   for (auto index : spots_indexes) {
+       m_spots.at(index)->selected(true);
+   }
+}
+
 void STData::selectGenes(const QRegExp &regexp, const bool force)
 {
+    clearSelection();
     for (auto gene : m_genes) {
         const bool selected = regexp.exactMatch(gene->name());
         gene->selected(selected);
@@ -587,6 +607,7 @@ void STData::selectGenes(const QRegExp &regexp, const bool force)
 
 void STData::selectGenes(const QList<QString> &genes)
 {
+    clearSelection();
     for (auto gene : m_genes) {
         for (auto gene2 : genes) {
             if (gene->name() == gene2) {

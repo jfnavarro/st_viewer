@@ -32,11 +32,15 @@ public:
     // reset to default
     void clear();
 
+    // the user selected spots if any
+    QList<Spot::SpotType> selectedSpots() const;
+
 public slots:
 
 signals:
 
-    void singalClusteringUpdated();
+    void signalClusteringUpdated();
+    void signalClusteringSpotsSelected();
 
 private slots:
 
@@ -48,8 +52,8 @@ private slots:
     // exports the plot to a file
     void slotExportPlot();
 
-    // when the user clicks a point in the plot
-    void slotClickedPoint(const QPointF point);
+    // when the user makes a lasso selection
+    void slotLassoSelection(const QPainterPath path);
 
 private:
 
@@ -71,8 +75,11 @@ private:
     // the computational thread
     QFutureWatcher<void> m_watcher;
 
-    // store the plotting series to allow interaction with the plot
-    QVector<QScatterSeries *> m_series_vector;
+    // the user selected spots
+    QList<Spot::SpotType> m_selected_spots;
+
+    // the splot serie's
+    QList<QScatterSeries *> m_series_vector;
 
     // The UI object
     QScopedPointer<Ui::analysisClustering> m_ui;

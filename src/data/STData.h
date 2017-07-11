@@ -94,6 +94,8 @@ public:
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
+    void selectSpots(const QList<Spot::SpotType> &spots);
+    void selectSpots(const QList<unsigned> &spots_indexes);
     void selectGenes(const QRegExp &regexp, const bool force = true);
     void selectGenes(const QList<QString> &genes);
 

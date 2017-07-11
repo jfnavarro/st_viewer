@@ -86,6 +86,9 @@ private slots:
     // user has performed spot classification
     void slotLoadSpotColors();
 
+    // user has made a selection in the clustering widget
+    void slotSelectSpotsClustering();
+
     // user wants to create a selection
     void slotCreateSelection();
 

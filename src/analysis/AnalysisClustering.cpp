@@ -24,6 +24,8 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
     connect(&m_watcher, &QFutureWatcher<void>::finished,
             this, &AnalysisClustering::colorsComputed);
+    connect(m_ui->plot, &ChartView::signalLassoSelection,
+            this, &AnalysisClustering::slotLassoSelection);
 }
 
 AnalysisClustering::~AnalysisClustering()
@@ -51,6 +53,7 @@ void AnalysisClustering::clear()
     m_ui->clusters->setValue(5);
     m_ui->plot->chart()->removeAllSeries();
     m_colors.clear();
+    m_selected_spots.clear();
     m_reduced_coordinates.clear();
 }
 
@@ -67,6 +70,11 @@ QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
     return computed_colors;
 }
 
+QList<Spot::SpotType> AnalysisClustering::selectedSpots() const
+{
+    return m_selected_spots;
+}
+
 void AnalysisClustering::loadData(const STData::STDataFrame &data)
 {
     // store the data
@@ -81,6 +89,7 @@ void AnalysisClustering::slotRun()
     // disable controls
     m_ui->runClustering->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
+    m_selected_spots.clear();
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
     m_watcher.setFuture(future);
 }
@@ -211,7 +220,6 @@ void AnalysisClustering::colorsComputed()
         series->setColor(color_list.at(k));
         series->setUseOpenGL(false);
         m_series_vector.push_back(series);
-        connect(series, &QScatterSeries::clicked, this, &AnalysisClustering::slotClickedPoint);
     }
 
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
@@ -237,46 +245,32 @@ void AnalysisClustering::colorsComputed()
     m_ui->exportPlot->setEnabled(true);
 
     // notify the main view
-    emit singalClusteringUpdated();
+    emit signalClusteringUpdated();
 }
 
-void AnalysisClustering::slotClickedPoint(const QPointF point)
+void AnalysisClustering::slotLassoSelection(const QPainterPath path)
 {
-    // Find the closest point from all series
-    const QPointF clickedPoint = point;
-    float closest_x = INT_MAX;
-    float closest_y = INT_MAX;
-    float distance = INT_MAX;
+    QList<QPointF> selected_points;
     for (const auto series : m_series_vector) {
-        for (const auto point : series->points()) {
-            const float currentDistance = qSqrt((point.x() - clickedPoint.x())
-                                                * (point.x() - clickedPoint.x())
-                                                + (point.y() - clickedPoint.y())
-                                                * (point.y() - clickedPoint.y()));
-            if (currentDistance < distance) {
-                distance = currentDistance;
-                closest_x = point.x();
-                closest_y = point.y();
+        for (const QPointF point : series->points()) {
+            const QPointF scene_point = m_ui->plot->chart()->mapToPosition(point, series);
+            const QPoint view_point = m_ui->plot->mapFromScene(scene_point);
+            if (path.contains(view_point)) {
+                selected_points.append(point);
             }
         }
     }
 
-    // Find the spot corresponding to the clicked point
-    int spot_index = -1;
+    m_selected_spots.clear();
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const float x = m_reduced_coordinates.at(i,0);
         const float y = m_reduced_coordinates.at(i,1);
-        if (x == closest_x && y == closest_y) {
-            spot_index = i;
-            break;
+        if (selected_points.contains(QPointF(x,y))) {
+            m_selected_spots.append(m_spots.at(i));
         }
     }
 
-    // Update the fied if valid spot was found
-    if (spot_index != -1) {
-        const auto spot = m_data.spots.at(spot_index);
-        qDebug() << "Selected spot in clustering widget " << spot;
-        //TODO send selection signal to cell view
+    if (!m_selected_spots.empty()) {
+        emit signalClusteringSpotsSelected();
     }
-
 }

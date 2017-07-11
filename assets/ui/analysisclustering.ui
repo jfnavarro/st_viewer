@@ -115,12 +115,18 @@
         <item row="0" column="0">
          <widget class="QRadioButton" name="normalization_raw">
           <property name="text">
-           <string>RAW</string>
+           <string>None</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
          <widget class="QRadioButton" name="normalization_rel">
+          <property name="toolTip">
+           <string>Total spot counts</string>
+          </property>
+          <property name="statusTip">
+           <string>Total spot counts</string>
+          </property>
           <property name="text">
            <string>REL</string>
           </property>
@@ -128,6 +134,12 @@
         </item>
         <item row="0" column="2">
          <widget class="QRadioButton" name="normalization_scran">
+          <property name="toolTip">
+           <string>SCRAN sum-factors</string>
+          </property>
+          <property name="statusTip">
+           <string>SCRAN sum-factors</string>
+          </property>
           <property name="text">
            <string>SCRAN</string>
           </property>
@@ -135,6 +147,12 @@
         </item>
         <item row="1" column="0">
          <widget class="QRadioButton" name="normalization_tpm">
+          <property name="toolTip">
+           <string>Transcripts per million</string>
+          </property>
+          <property name="statusTip">
+           <string>Transcripts per million</string>
+          </property>
           <property name="text">
            <string>TPM</string>
           </property>
@@ -142,6 +160,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QRadioButton" name="normalization_deseq">
+          <property name="toolTip">
+           <string>DESeq2 size factors (geometric means)</string>
+          </property>
+          <property name="statusTip">
+           <string>DESeq2 size factors (geometric means)</string>
+          </property>
           <property name="text">
            <string>DESeq2</string>
           </property>
@@ -149,6 +173,12 @@
         </item>
         <item row="1" column="2">
          <widget class="QCheckBox" name="logScale">
+          <property name="toolTip">
+           <string>Log the counts</string>
+          </property>
+          <property name="statusTip">
+           <string>Log the counts</string>
+          </property>
           <property name="text">
            <string>Log scale</string>
           </property>
@@ -347,7 +377,7 @@
         <attribute name="title">
          <string>PCA</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -446,6 +476,12 @@
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
          <widget class="QRadioButton" name="kmeans">
+          <property name="toolTip">
+           <string>KMeans centroid clustering</string>
+          </property>
+          <property name="statusTip">
+           <string>KMeans centroid clustering</string>
+          </property>
           <property name="text">
            <string>KMeans</string>
           </property>
@@ -453,6 +489,12 @@
         </item>
         <item row="0" column="1">
          <widget class="QRadioButton" name="hclust">
+          <property name="toolTip">
+           <string>Hierarchica clustering </string>
+          </property>
+          <property name="statusTip">
+           <string>Hierarchica clustering</string>
+          </property>
           <property name="text">
            <string>HClust (ward.D2)</string>
           </property>
@@ -525,7 +567,7 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Total Detected Spots (Per gene)</string>
+          <string>Total Detected Spots (Per gene):</string>
          </property>
         </widget>
        </item>
@@ -568,7 +610,7 @@
        <item>
         <widget class="QLabel" name="label_12">
          <property name="text">
-          <string>Total Reads (Per spot)</string>
+          <string>Total Transcripts (Per spot):</string>
          </property>
         </widget>
        </item>
@@ -611,7 +653,7 @@
        <item>
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Individual Reads (Per gene-spot)</string>
+          <string>Trasncripts (Per gene-spot):</string>
          </property>
         </widget>
        </item>
@@ -654,7 +696,7 @@
        <item>
         <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Total Detected Genes (Per spot)</string>
+          <string>Total Detected Genes (Per spot):</string>
          </property>
         </widget>
        </item>
@@ -736,6 +778,12 @@
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
+         <property name="toolTip">
+          <string>Perform the analysis</string>
+         </property>
+         <property name="statusTip">
+          <string>Perform the analysis</string>
+         </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
@@ -781,10 +829,10 @@
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="toolTip">
-          <string>Export the t-SNE plot to a file</string>
+          <string>Export the plot  to a file</string>
          </property>
          <property name="statusTip">
-          <string>Export the t-SNE plot to a file</string>
+          <string>Export the plot to a file</string>
          </property>
          <property name="text">
           <string>Export</string>

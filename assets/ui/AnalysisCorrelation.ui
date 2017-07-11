@@ -79,13 +79,25 @@
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QRadioButton" name="normalization_raw">
+          <property name="toolTip">
+           <string>The default count</string>
+          </property>
+          <property name="statusTip">
+           <string>The default count</string>
+          </property>
           <property name="text">
-           <string>RAW</string>
+           <string>None</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
          <widget class="QRadioButton" name="normalization_rel">
+          <property name="toolTip">
+           <string>Total spots counts</string>
+          </property>
+          <property name="statusTip">
+           <string>Total spots counts</string>
+          </property>
           <property name="text">
            <string>REL</string>
           </property>
@@ -93,6 +105,12 @@
         </item>
         <item row="0" column="2">
          <widget class="QRadioButton" name="normalization_scran">
+          <property name="toolTip">
+           <string>SCRAN sum-factors</string>
+          </property>
+          <property name="statusTip">
+           <string>SCRAN sum-factors</string>
+          </property>
           <property name="text">
            <string>SCRAN</string>
           </property>
@@ -100,6 +118,12 @@
         </item>
         <item row="1" column="0">
          <widget class="QRadioButton" name="normalization_tpm">
+          <property name="toolTip">
+           <string>Transcripts per million</string>
+          </property>
+          <property name="statusTip">
+           <string>Transcripts per million</string>
+          </property>
           <property name="text">
            <string>TPM</string>
           </property>
@@ -107,6 +131,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QRadioButton" name="normalization_deseq">
+          <property name="toolTip">
+           <string>DESeq2 size factors (geometric means)</string>
+          </property>
+          <property name="statusTip">
+           <string>DESeq2 size factors (geometric means)</string>
+          </property>
           <property name="text">
            <string>DESeq2</string>
           </property>
@@ -114,6 +144,12 @@
         </item>
         <item row="1" column="2">
          <widget class="QCheckBox" name="logScale">
+          <property name="toolTip">
+           <string>Use log scale</string>
+          </property>
+          <property name="statusTip">
+           <string>Use log scale</string>
+          </property>
           <property name="text">
            <string>Log scale</string>
           </property>
@@ -262,7 +298,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Selected gene:</string>
+          <string>Selected gene (click):</string>
          </property>
         </widget>
        </item>

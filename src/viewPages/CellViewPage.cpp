@@ -292,8 +292,12 @@ void CellViewPage::createConnections()
     connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenes);
 
     // when the users clusters the spots
-    connect(m_clustering.data(), &AnalysisClustering::singalClusteringUpdated,
+    connect(m_clustering.data(), &AnalysisClustering::signalClusteringUpdated,
             this, &CellViewPage::slotLoadSpotColors);
+
+    // when the users selects spots from the clustering widget
+    connect(m_clustering.data(), &AnalysisClustering::signalClusteringSpotsSelected,
+            this, &CellViewPage::slotSelectSpotsClustering);
 
     // when the image has been loaded
     //connect(&m_watcher, &QFutureWatcher<void>::finished, this, &CellViewPage::slotImageLoaded);
@@ -534,6 +538,13 @@ void CellViewPage::slotLoadSpotColors()
     const auto colors = m_clustering->getComputedClasses();
     m_dataset.data()->loadSpotColors(colors);
     m_spots->update();
+    m_gene_plotter->slotUpdate();
+    m_ui->view->update();
+}
+
+void CellViewPage::slotSelectSpotsClustering()
+{
+    m_dataset.data()->selectSpots(m_clustering->selectedSpots());
     m_gene_plotter->slotUpdate();
     m_ui->view->update();
 }

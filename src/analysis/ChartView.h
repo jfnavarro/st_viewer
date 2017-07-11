@@ -17,6 +17,10 @@ public:
     explicit ChartView(QWidget *parent = 0);
     virtual ~ChartView();
 
+signals:
+
+    void signalLassoSelection(QPainterPath);
+
 protected:
 
     bool viewportEvent(QEvent *event) override;
@@ -25,11 +29,16 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void drawForeground(QPainter *painter, const QRectF &rect) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
 
     bool m_panning;
-    QPointF m_originPanning;
+    bool m_lassoSelection;
+    QPoint m_originPanning;
+    QPoint m_originLasso;
+    QPainterPath m_lasso;
 };
 
 #endif // CHARTVIEW_H

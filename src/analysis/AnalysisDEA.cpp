@@ -46,6 +46,8 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
     m_ui->searchField->setClearButtonEnabled(true);
+    m_ui->conditionA->setText(m_nameA);
+    m_ui->conditionB->setText(m_nameB);
     m_proxy.reset(new QSortFilterProxyModel());
 
     // create connections
