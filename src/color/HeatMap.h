@@ -47,6 +47,10 @@ QColor adjustVisualMode(const QColor merged_color,
                         const float &max_reads,
                         const SettingsWidget::VisualMode mode);
 
+static QStringList color_list = (QStringList() << "red" << "green"
+                                 << "blue" << "cyan" << "magenta"
+                                 << "yellow" << "black" << "grey"
+                                 << "darkBlue" << "darkGreen");
 }
 
 #endif // HEATMAP_H //

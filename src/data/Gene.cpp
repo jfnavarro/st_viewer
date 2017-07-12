@@ -6,6 +6,7 @@ Gene::Gene()
     , m_visible(false)
     , m_selected(false)
     , m_cutoff(0)
+    , m_totalCount(0)
 {
 }
 
@@ -15,6 +16,7 @@ Gene::Gene(const QString &name)
     , m_visible(false)
     , m_selected(false)
     , m_cutoff(0)
+    , m_totalCount(0)
 {
 }
 
@@ -24,6 +26,7 @@ Gene::Gene(const Gene &other)
     , m_visible(other.m_visible)
     , m_selected(other.m_selected)
     , m_cutoff(other.m_cutoff)
+    , m_totalCount(other.m_totalCount)
 {
 }
 
@@ -38,6 +41,7 @@ Gene &Gene::operator=(const Gene &other)
     m_selected = other.m_selected;
     m_color = other.m_color;
     m_cutoff = other.m_cutoff;
+    m_totalCount = other.m_totalCount;
     return (*this);
 }
 
@@ -47,7 +51,8 @@ bool Gene::operator==(const Gene &other) const
             && m_selected == other.m_selected
             && m_name == other.m_name
             && m_color == other.m_color
-            && m_cutoff == other.m_cutoff);
+            && m_cutoff == other.m_cutoff
+            && m_totalCount == other.m_totalCount);
 }
 
 const QString Gene::name() const
@@ -75,6 +80,11 @@ float Gene::cut_off() const
     return m_cutoff;
 }
 
+float Gene::totalCount() const
+{
+    return m_totalCount;
+}
+
 void Gene::name(const QString &name)
 {
     m_name = name;
@@ -98,4 +108,9 @@ void Gene::color(const QColor &color)
 void Gene::cut_off(const float cutoff)
 {
     m_cutoff = cutoff;
+}
+
+void Gene::totalCount(const float totalCount)
+{
+    m_totalCount = totalCount;
 }

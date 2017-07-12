@@ -19,7 +19,7 @@ class SpotItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 public:
 
-    enum Column { Show = 0, Name = 1, Color = 2 };
+    enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
 
     explicit SpotItemModel(QObject *parent = 0);
 

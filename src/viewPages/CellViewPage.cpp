@@ -23,6 +23,7 @@
 #include "analysis/AnalysisClustering.h"
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
+#include "color/HeatMap.h"
 
 #include <algorithm>
 
@@ -417,9 +418,6 @@ void CellViewPage::slotLoadSpotColorsFile()
         return;
     }
 
-    QStringList color_list;
-    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
-               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
     QHash<Spot::SpotType, QColor> spotMap;
     QFile file(filename);
     bool parsed = true;
@@ -436,7 +434,7 @@ void CellViewPage::slotLoadSpotColorsFile()
                 break;
             }
             const QString spot = fields.at(0);
-            const QColor color = color_list.at(fields.at(1).toInt());
+            const QColor color = Color::color_list.at(fields.at(1).toInt());
             fields = spot.split("x");
             if (fields.length() != 2) {
                 parsed = false;
@@ -491,10 +489,10 @@ void CellViewPage::slotLoadGenes()
         return;
     }
 
+    QHash<QString, QColor> geneMap;
     QFile file(filename);
     bool parsed = true;
-    QList<QString> genes;
-    // Parse the spots map = spot -> color
+    // Parse the genes map = gene -> color
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
         QString line;
@@ -502,15 +500,16 @@ void CellViewPage::slotLoadGenes()
         while (!in.atEnd()) {
             line = in.readLine();
             fields = line.split("\t");
-            if (fields.empty()) {
+            if (fields.length() != 2) {
                 parsed = false;
                 break;
             }
             const QString gene = fields.at(0);
-            genes.append(gene);
+            const QColor color = Color::color_list.at(fields.at(1).toInt());
+            geneMap.insert(gene, color);
         }
 
-        if (genes.empty()) {
+        if (geneMap.empty()) {
             QMessageBox::warning(this,
                                   tr("Genes File"),
                                   tr("No valid genes could be found in the file"));
@@ -526,7 +525,7 @@ void CellViewPage::slotLoadGenes()
     file.close();
 
     if (parsed) {
-        m_dataset.data()->selectGenes(genes);
+        m_dataset.data()->loadGeneColors(geneMap);
         m_genes->update();
         m_gene_plotter->slotUpdate();
         m_ui->view->update();

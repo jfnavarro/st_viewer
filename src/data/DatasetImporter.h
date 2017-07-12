@@ -20,7 +20,7 @@ class DatasetImporter : public QDialog
     Q_OBJECT
 
 public:
-    DatasetImporter(QWidget *parent = 0);
+    explicit DatasetImporter(QWidget *parent = 0);
     DatasetImporter(Dataset dataset, QWidget *parent = 0);
     ~DatasetImporter();
 
@@ -45,6 +45,11 @@ public:
     // the metadata is present in a JSON file called info.json
     void slotParseFolder();
 
+    // To import a dataset from a metafile (JSON)
+    // the file contains the path for each file of the datset
+    // indentifiable with the key
+    void slotParseMetaFile();
+
 private slots:
 
     void slotLoadSTDataFile();
@@ -57,6 +62,7 @@ private slots:
 
 private:
     void init();
+    void parseInfoJSON(const QString &filename);
     QScopedPointer<Ui::DatasetImporter> m_ui;
 
 };

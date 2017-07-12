@@ -33,6 +33,8 @@ public:
     bool visible() const;
     // true if the spot is selected
     bool selected() const;
+    // the total number of transcripts for the spot in the dataset
+    float totalCount() const;
 
     // Setters
     void coordinates(const float x, const float y);
@@ -41,6 +43,7 @@ public:
     void visible(const bool visible);
     void selected(const bool selected);
     void name(const QString &name);
+    void totalCount(const float totalCoun);
 
 private:
     void updateName();
@@ -49,6 +52,7 @@ private:
     bool m_selected;
     QColor m_color;
     QString m_name;
+    float m_totalCount;
 };
 
 #endif // SPOT_H

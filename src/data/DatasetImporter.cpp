@@ -57,6 +57,8 @@ void DatasetImporter::init()
             &QDialogButtonBox::accepted, this, &DatasetImporter::slotValidateForm);
     connect(m_ui->loadFolder,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
+    connect(m_ui->loadMetaFile,
+            &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseMetaFile);
 }
 
 DatasetImporter::~DatasetImporter()
@@ -290,27 +292,93 @@ void DatasetImporter::slotParseFolder()
             } else if (file.contains("sizefactors")) {
                 m_ui->sizeFactorsFile->setText(file);
             } else if (file.contains("info.json")) {
-                QFile file_data(file);
-                if (file_data.open(QIODevice::ReadOnly)) {
-                    const QByteArray &data = file_data.readAll();
-                    const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
-                    const QJsonObject &jsonObject = loadDoc.object();
-                    if (jsonObject.contains("name")) {
-                        m_ui->datasetName->setText(jsonObject["name"].toString());
-                    }
-                    if (jsonObject.contains("species")) {
-                        m_ui->species->setText(jsonObject["species"].toString());
-                    }
-                    if (jsonObject.contains("tissue")) {
-                        m_ui->tissue->setText(jsonObject["tissue"].toString());
-                    }
-                    if (jsonObject.contains("comments")) {
-                        m_ui->comments->setText(jsonObject["comments"].toString());
-                    }
-                } else {
-                    qDebug() << "Error parsing info.json for dataset";
-                }
+                parseInfoJSON(file);
             }
         }
+    }
+}
+
+void DatasetImporter::slotParseMetaFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Dataset's meta file"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("JSON Files (*.json)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Dataset's meta file"),
+                              tr("File is incorrect or not readable"));
+        return;
+    }
+
+    QFile file_data(filename);
+    if (file_data.open(QIODevice::ReadOnly)) {
+        const QByteArray &data = file_data.readAll();
+        const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+        const QJsonObject &jsonObject = loadDoc.object();
+        if (jsonObject.contains("name")) {
+            m_ui->datasetName->setText(jsonObject["name"].toString());
+        }
+        if (jsonObject.contains("species")) {
+            m_ui->species->setText(jsonObject["species"].toString());
+        }
+        if (jsonObject.contains("tissue")) {
+            m_ui->tissue->setText(jsonObject["tissue"].toString());
+        }
+        if (jsonObject.contains("comments")) {
+            m_ui->comments->setText(jsonObject["comments"].toString());
+        }
+        if (jsonObject.contains("data")) {
+            m_ui->stDataFile->setText(jsonObject["data"].toString());
+        }
+        if (jsonObject.contains("image")) {
+            m_ui->mainImageFile->setText(jsonObject["image"].toString());
+        }
+        if (jsonObject.contains("aligment")) {
+            m_ui->imageAlignmentFile->setText(jsonObject["aligment"].toString());
+        }
+        if (jsonObject.contains("coordinates")) {
+            m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());
+        }
+        if (jsonObject.contains("spike_ins")) {
+            m_ui->spikeInFile->setText(jsonObject["spike_ins"].toString());
+        }
+        if (jsonObject.contains("size_factors")) {
+            m_ui->sizeFactorsFile->setText(jsonObject["size_factors"].toString());
+        }
+    } else {
+        qDebug() << "Error parsing JSON meta file for dataset";
+    }
+}
+
+
+void DatasetImporter::parseInfoJSON(const QString &filename)
+{
+    QFile file_data(filename);
+    if (file_data.open(QIODevice::ReadOnly)) {
+        const QByteArray &data = file_data.readAll();
+        const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+        const QJsonObject &jsonObject = loadDoc.object();
+        if (jsonObject.contains("name")) {
+            m_ui->datasetName->setText(jsonObject["name"].toString());
+        }
+        if (jsonObject.contains("species")) {
+            m_ui->species->setText(jsonObject["species"].toString());
+        }
+        if (jsonObject.contains("tissue")) {
+            m_ui->tissue->setText(jsonObject["tissue"].toString());
+        }
+        if (jsonObject.contains("comments")) {
+            m_ui->comments->setText(jsonObject["comments"].toString());
+        }
+    } else {
+        qDebug() << "Error parsing info.json for dataset";
     }
 }

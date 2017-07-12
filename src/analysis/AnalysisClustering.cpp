@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QPdfWriter>
 
+#include "color/HeatMap.h"
 #include "math/RInterface.h"
 
 #include "ui_analysisClustering.h"
@@ -59,12 +60,9 @@ void AnalysisClustering::clear()
 
 QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
 {
-    QStringList color_list;
-    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
-               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
     QHash<Spot::SpotType, QColor> computed_colors;
     for (unsigned i = 0; i < m_colors.size(); ++i) {
-        const QColor color(color_list.at(m_colors.at(i)));
+        const QColor color = Color::color_list.at(m_colors.at(i));
         computed_colors.insert(m_spots.at(i), color);
     }
     return computed_colors;
@@ -209,15 +207,12 @@ void AnalysisClustering::colorsComputed()
              && *std::max_element(std::begin(m_colors), std::end(m_colors)) == (num_clusters - 1));
 
     // Create one serie for each different cluster (color)
-    QStringList color_list;
-    color_list << "red" << "green" << "blue" << "cyan" << "magenta"
-               << "yellow" << "black" << "grey" << "darkBlue" << "darkGreen";
     m_series_vector.clear();
     for (int k = 0; k < num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries(this);
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(10.0);
-        series->setColor(color_list.at(k));
+        series->setColor(Color::color_list.at(k));
         series->setUseOpenGL(false);
         m_series_vector.push_back(series);
     }

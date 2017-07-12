@@ -99,8 +99,9 @@ public:
     void selectGenes(const QRegExp &regexp, const bool force = true);
     void selectGenes(const QList<QString> &genes);
 
-    // functions to change spot colors
+    // functions to change spot and gene colors
     void loadSpotColors(const QHash<Spot::SpotType,QColor> &colors);
+    void loadGeneColors(const QHash<QString, QColor> &colors);
 
     // returns the boundaries (min spot and max spot)
     const QRectF getBorder() const;

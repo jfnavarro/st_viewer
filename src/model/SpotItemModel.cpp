@@ -9,7 +9,7 @@
 #include "data/Spot.h"
 #include "data/Dataset.h"
 
-static const int COLUMN_NUMBER = 3;
+static const int COLUMN_NUMBER = 4;
 
 SpotItemModel::SpotItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -24,6 +24,8 @@ QVariant SpotItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Spot");
         case Show:
             return tr("Show");
+        case Count:
+            return tr("#Count");
         case Color:
             return tr("Color");
         default:
@@ -37,6 +39,8 @@ QVariant SpotItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("The coordinates of the spot");
         case Show:
             return tr("Indicates if the spot is visible on the screen");
+        case Count:
+            return tr("The total number of transcritps of the spot");
         case Color:
             return tr("Indicates the spot of the gene on the screen");
         default:
@@ -50,6 +54,8 @@ QVariant SpotItemModel::headerData(int section, Qt::Orientation orientation, int
             return Qt::AlignCenter;
         case Color:
             return Qt::AlignLeft;
+        case Count:
+            return Qt::AlignCenter;
         case Name:
             return Qt::AlignLeft;
         default:
@@ -91,6 +97,10 @@ QVariant SpotItemModel::data(const QModelIndex &index, int role) const
         return item->visible() ? Qt::Checked : Qt::Unchecked;
     }
 
+    if (role == Qt::DisplayRole && index.column() == Count) {
+        return item->totalCount();
+    }
+
     if (role == Qt::DecorationRole && index.column() == Color) {
         return item->color();
     }
@@ -100,6 +110,8 @@ QVariant SpotItemModel::data(const QModelIndex &index, int role) const
         case Show:
             return Qt::AlignCenter;
         case Color:
+            return Qt::AlignCenter;
+        case Count:
             return Qt::AlignCenter;
         case Name:
             return Qt::AlignLeft;
@@ -124,6 +136,8 @@ Qt::ItemFlags SpotItemModel::flags(const QModelIndex &index) const
         return defaultFlags;
     case Show:
         return Qt::ItemIsUserCheckable | defaultFlags;
+    case Count:
+        return defaultFlags;
     case Color:
         return defaultFlags;
     }

@@ -6,7 +6,7 @@
 #include "math/RInterface.h"
 
 static const int ROW = 1;
-//static const int COLUMN = 0;
+static const int COLUMN = 0;
 using namespace Math;
 
 STData::STData()
@@ -97,12 +97,18 @@ void STData::init(const QString &filename) {
     m_genes.clear();
     m_spots.clear();
     m_data = read(filename);
+    colvec row_sum = sum(m_data.counts, ROW);
+    rowvec col_sum = sum(m_data.counts, COLUMN);
     // Create genes/spots lists
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        m_spots.append(SpotObjectType(new Spot(m_data.spots.at(i))));
+        auto spot = SpotObjectType(new Spot(m_data.spots.at(i)));
+        spot->totalCount(row_sum.at(i));
+        m_spots.append(spot);
     }
     for (uword j = 0; j < m_data.counts.n_cols; ++j) {
-        m_genes.append(GeneObjectType(new Gene(m_data.genes.at(j))));
+        auto gene = GeneObjectType(new Gene(m_data.genes.at(j)));
+        gene->totalCount(col_sum.at(j));
+        m_genes.append(gene);
     }
     m_rendering_colors.resize(m_spots.size());
     m_rendering_selected.resize(m_spots.size());
@@ -631,6 +637,23 @@ void STData::loadSpotColors(const QHash<Spot::SpotType, QColor> &colors)
         if (it_spot != m_spots.end()) {
             (*it_spot)->color(color);
             (*it_spot)->visible(true);
+        }
+        ++it;
+    }
+}
+
+void STData::loadGeneColors(const QHash<QString, QColor> &colors)
+{
+    QHash<QString, QColor>::const_iterator it = colors.constBegin();
+    while (it != colors.constEnd()) {
+        const QString oldgene = it.key();
+        const QColor color = it.value();
+        auto it_gene =
+                std::find_if(m_genes.begin(), m_genes.end(),
+                             [&](const auto gene) { return gene->name() == oldgene; });
+        if (it_gene != m_genes.end()) {
+            (*it_gene)->color(color);
+            (*it_gene)->visible(true);
         }
         ++it;
     }

@@ -39,6 +39,8 @@ SpotsTableView::SpotsTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Name, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Color, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(SpotItemModel::Color, 50);
+    horizontalHeader()->setSectionResizeMode(SpotItemModel::Count, QHeaderView::Fixed);
+    horizontalHeader()->resizeSection(SpotItemModel::Show, 100);
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Show, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(SpotItemModel::Show, 50);
     horizontalHeader()->setSortIndicatorShown(true);

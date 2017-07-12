@@ -9,7 +9,7 @@
 #include "data/Gene.h"
 #include "data/Dataset.h"
 
-static const int COLUMN_NUMBER = 4;
+static const int COLUMN_NUMBER = 5;
 
 GeneItemModel::GeneItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -44,6 +44,10 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return item->color();
     }
 
+    if (role == Qt::DisplayRole && index.column() == Count) {
+        return item->totalCount();
+    }
+
     if (role == Qt::DisplayRole && index.column() == CutOff) {
         return item->cut_off();
     }
@@ -56,6 +60,8 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
             return Qt::AlignCenter;
         case Name:
             return Qt::AlignLeft;
+        case Count:
+            return Qt::AlignCenter;
         case CutOff:
             return Qt::AlignCenter;
         default:
@@ -93,6 +99,8 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Show");
         case Color:
             return tr("Color");
+        case Count:
+            return tr("#Count");
         case CutOff:
             return tr("Cut-off");
         default:
@@ -108,6 +116,8 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Indicates if the genes is visible on the screen");
         case Color:
             return tr("Indicates the color of the gene on the screen");
+        case Count:
+            return tr("The total number of transcritps of the gene");
         case CutOff:
             return tr("Numbers of reads from which this gene will be included");
         default:
@@ -123,6 +133,8 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
             return Qt::AlignLeft;
         case Name:
             return Qt::AlignLeft;
+        case Count:
+            return Qt::AlignCenter;
         case CutOff:
             return Qt::AlignCenter;
         default:
@@ -158,6 +170,8 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
     case Show:
         return Qt::ItemIsUserCheckable | defaultFlags;
     case Color:
+        return defaultFlags;
+    case Count:
         return defaultFlags;
     case CutOff:
         return Qt::ItemIsEditable | defaultFlags;

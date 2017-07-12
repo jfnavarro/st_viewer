@@ -32,15 +32,22 @@
       <widget class="QCommandLinkButton" name="loadFolder">
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>130</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>120</width>
+         <width>130</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
@@ -52,7 +59,7 @@
         <string>Load dataset from a folder</string>
        </property>
        <property name="text">
-        <string>Load From Folder</string>
+        <string>Load Folder</string>
        </property>
        <property name="iconSize">
         <size>
@@ -75,6 +82,47 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QCommandLinkButton" name="loadMetaFile">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Loads a dataset using a JSON meta file</string>
+       </property>
+       <property name="statusTip">
+        <string>Loads a dataset using a JSON meta file</string>
+       </property>
+       <property name="text">
+        <string>Load Meta File</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -90,6 +138,66 @@
        </item>
        <item>
         <widget class="QLineEdit" name="datasetName"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>ST Data file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QLineEdit" name="stDataFile"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="loadSTDataFile">
+           <property name="cursor">
+            <cursorShape>SplitHCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Choose file</string>
+           </property>
+           <property name="statusTip">
+            <string>Choose file</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Main image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLineEdit" name="mainImageFile"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="loadMainImageFile">
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Choose file</string>
+           </property>
+           <property name="statusTip">
+            <string>Choose file</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QLabel" name="label_7">
@@ -110,16 +218,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="tissue"/>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Comments (Optional)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="comments"/>
        </item>
        <item>
         <widget class="QLabel" name="label_12">
@@ -199,64 +297,14 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>ST Data file</string>
+          <string>Comments (Optional)</string>
          </property>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <widget class="QLineEdit" name="stDataFile"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="loadSTDataFile">
-           <property name="cursor">
-            <cursorShape>SplitHCursor</cursorShape>
-           </property>
-           <property name="toolTip">
-            <string>Choose file</string>
-           </property>
-           <property name="statusTip">
-            <string>Choose file</string>
-           </property>
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Main image</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QLineEdit" name="mainImageFile"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="loadMainImageFile">
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="toolTip">
-            <string>Choose file</string>
-           </property>
-           <property name="statusTip">
-            <string>Choose file</string>
-           </property>
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QTextEdit" name="comments"/>
        </item>
        <item>
         <widget class="QLabel" name="label_6">
@@ -393,19 +441,11 @@
     </widget>
    </item>
   </layout>
-  <zorder>buttonBox</zorder>
-  <zorder>spotMapFile_2</zorder>
-  <zorder>loadSpotMapFile_2</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>label_5</zorder>
-  <zorder>label_13</zorder>
-  <zorder>layoutWidget_2</zorder>
  </widget>
  <tabstops>
   <tabstop>datasetName</tabstop>
   <tabstop>species</tabstop>
   <tabstop>tissue</tabstop>
-  <tabstop>comments</tabstop>
   <tabstop>loadSTDataFile</tabstop>
   <tabstop>mainImageFile</tabstop>
   <tabstop>loadMainImageFile</tabstop>

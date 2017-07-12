@@ -19,7 +19,7 @@ class GeneItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
-    enum Column { Show = 0, Name = 1, CutOff = 2, Color = 3 };
+    enum Column { Show = 0, Name = 1, Count = 2, CutOff = 3, Color = 4 };
 
     explicit GeneItemModel(QObject *parent = 0);
     virtual ~GeneItemModel();
