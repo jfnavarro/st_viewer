@@ -131,6 +131,7 @@ void UserSelectionsPage::addSelection(const UserSelection& selection)
 
 void UserSelectionsPage::selectionsUpdated()
 {
+    clearControls();
     selectionsModel()->loadUserSelections(m_selections);
     m_ui->selections_tableView->update();
 }

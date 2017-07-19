@@ -335,7 +335,7 @@ void AnalysisDEA::runDEAAsync()
                    [](auto gene) {return gene.toStdString();});
 
     qDebug() << "Computing DEA Asynchronously. Dataset A, rows="
-             << dataA.counts.n_rows << ", columns=" << dataA.counts.n_cols << ". Dataset A, rows="
+             << dataA.counts.n_rows << ", columns=" << dataA.counts.n_cols << ". Dataset B, rows="
              << dataB.counts.n_rows << ", columns=" << dataB.counts.n_cols;
 
     // Make the DEA call

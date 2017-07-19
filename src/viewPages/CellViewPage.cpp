@@ -158,10 +158,10 @@ void CellViewPage::slotImageLoaded(const bool loaded)
         QTransform alignment = m_dataset.imageAlignment();
         if (alignment.isIdentity()) {
             const QRect chip = m_dataset.chip();
-            const int chip_x2 = chip.height();
-            const int chip_y2 = chip.width();
-            const int width_image = m_image->boundingRect().width();
-            const int height_image = m_image->boundingRect().height();
+            const float chip_x2 = static_cast<float>(chip.width());
+            const float chip_y2 = static_cast<float>(chip.height());
+            const float width_image = static_cast<float>(m_image->boundingRect().width());
+            const float height_image = static_cast<float>(m_image->boundingRect().height());
             const float a11 = width_image / (chip_x2 - 1);
             const float a12 = 0.0;
             const float a13 = 0.0;
