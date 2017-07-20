@@ -88,9 +88,7 @@ bool Dataset::operator==(const Dataset &other) const
             && m_spots_file == other.m_spots_file
             && m_chip == other.m_chip
             && m_spikein_file == other.m_spikein_file
-            && m_size_factors_file == other.m_size_factors_file
-            && m_alignment == other.m_alignment
-            && m_data == other.m_data);
+            && m_size_factors_file == other.m_size_factors_file);
 }
 
 const QSharedPointer<STData> Dataset::data() const

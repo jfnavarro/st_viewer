@@ -189,7 +189,7 @@ void DatasetPage::slotRemoveDataset()
 
     for (auto dataset: currentDatasets) {
         Q_ASSERT(m_importedDatasets.removeOne(dataset));
-        if (*(m_open_dataset.data()) == dataset) {
+        if (!m_open_dataset.isNull() && *(m_open_dataset.data()) == dataset) {
             emit signalDatasetRemoved(dataset.name());
             m_open_dataset = nullptr;
         }

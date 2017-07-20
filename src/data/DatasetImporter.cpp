@@ -282,7 +282,7 @@ void DatasetImporter::slotParseFolder()
         while (it.hasNext()) {
             const QString file = it.next();
             qDebug() << "Parsing dataset file from folder " << file;
-            if (file.contains("stdata.tsv")) {
+            if (file.contains(".tsv")) {
                 m_ui->stDataFile->setText(file);
             } else if (file.contains(".jpg")) {
                 m_ui->mainImageFile->setText(file);
@@ -357,7 +357,9 @@ void DatasetImporter::slotParseMetaFile()
             m_ui->sizeFactorsFile->setText(jsonObject["size_factors"].toString());
         }
     } else {
-        qDebug() << "Error parsing JSON meta file for dataset";
+        QMessageBox::critical(this,
+                              tr("Dataset's meta file"),
+                              tr("Error parsing file"));
     }
 }
 
