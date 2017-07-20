@@ -154,7 +154,7 @@ void AnalysisClustering::computeColorsAsync()
         m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
     } else if (m_ui->normalization_scran->isChecked()) {
         normalization = SettingsWidget::SCRAN;
-        m_scran_size_factors = RInterface::computeScranFactors(data.counts);
+        m_scran_size_factors = RInterface::computeScranFactors(data.counts, true);
     }
 
     // Normalize and log matrix of counts

@@ -14,8 +14,8 @@ namespace RInterface {
 
 // Computes correlation betwee two vectors (method can be : pearson, spearman and kendall)
 static double computeCorrelation(const std::vector<double> &A,
-                                const std::vector<double> &B,
-                                const std::string &method)
+                                 const std::vector<double> &B,
+                                 const std::string &method)
 {
     RInside *R = RInside::instancePtr();
     Q_ASSERT(A.size() == B.size());
@@ -190,7 +190,7 @@ static rowvec computeDESeqFactors(const mat &counts)
         }
         if (any(factors <= 0.0)) {
             qDebug() << "Computed DESeq2 factors has elements with zeroes or negative";
-            factors.replace(0.0, 0.01);
+            factors.replace(0.0, 1.0);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
@@ -201,8 +201,9 @@ static rowvec computeDESeqFactors(const mat &counts)
 }
 
 // Computes size factors using the SCRAN method (one factor per spot)
-static rowvec computeScranFactors(const mat &counts)
+static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
 {
+    Q_UNUSED(do_cluster);
     RInside *R = RInside::instancePtr();
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
@@ -232,7 +233,7 @@ static rowvec computeScranFactors(const mat &counts)
         }
         if (any(factors == 0.0)) {
             qDebug() << "Computed SCRAN factors has elements with zeroes";
-            factors.replace(0.0, 0.01);
+            factors.replace(0.0, 1.0);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();

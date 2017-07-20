@@ -104,10 +104,10 @@ void SettingsWidget::reset()
     m_ui->individual_reads_threshold->setValue(0);
     m_ui->individual_reads_threshold->setMaximum(1000);
     m_ui->genes_threshold->setMinimum(0);
-    m_ui->genes_threshold->setValue(0);
+    m_ui->genes_threshold->setValue(5);
     m_ui->genes_threshold->setMaximum(10000);
     m_ui->spots_threshold->setMinimum(0);
-    m_ui->spots_threshold->setValue(0);
+    m_ui->spots_threshold->setValue(5);
     m_ui->spots_threshold->setMaximum(10000);
     m_rendering_settings.intensity = INTENSITY_DEFAULT;
     m_rendering_settings.size = SIZE_DEFAULT;

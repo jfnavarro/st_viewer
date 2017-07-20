@@ -11,6 +11,10 @@ using namespace Math;
 
 STData::STData()
     : m_data()
+    , m_reads_threshold(0)
+    , m_genes_threshold(5)
+    , m_ind_reads_treshold(0)
+    , m_spots_threshold(5)
     , m_spots()
     , m_genes()
 {
@@ -214,11 +218,11 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     if (recompute_size_factors) {
         // recompute size factors then
         m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-        m_scran_size_factors = RInterface::computeScranFactors(data.counts);
+        m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
     }
 
     // set visible to false to all the spots
-    std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), false);
+    std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), true);
 
     // Normalize the counts
     data = normalizeCounts(data, m_deseq_size_factors, m_scran_size_factors,

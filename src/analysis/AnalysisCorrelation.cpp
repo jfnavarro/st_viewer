@@ -56,8 +56,8 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         // Compute and cache size factors
         m_deseq_size_factorsA = RInterface::computeDESeqFactors(m_dataA.counts);
         m_deseq_size_factorsB = RInterface::computeDESeqFactors(m_dataB.counts);
-        m_scran_size_factorsA = RInterface::computeScranFactors(m_dataA.counts);
-        m_scran_size_factorsB = RInterface::computeScranFactors(m_dataB.counts);
+        m_scran_size_factorsA = RInterface::computeScranFactors(m_dataA.counts, false);
+        m_scran_size_factorsB = RInterface::computeScranFactors(m_dataB.counts, false);
 
         // default normalization is RAW
         m_ui->normalization_raw->setChecked(true);
