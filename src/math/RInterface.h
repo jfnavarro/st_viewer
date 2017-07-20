@@ -51,7 +51,7 @@ static void computeDEA(const mat &countsA,
 
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));"
-                                   "suppressMessages(library(plyr));"
+                                   "suppressMessages(library(dplyr));"
                                    "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
 
@@ -61,11 +61,13 @@ static void computeDEA(const mat &countsA,
         (*R)["rowsB"] = rowsB;
         (*R)["colsA"] = colsA;
         (*R)["colsB"] = colsB;
-        std::string call = "A = as.data.frame(A); rownames(A) = rowsA; colnames(A) = colsA;"
-                           "B = as.data.frame(B); rownames(B) = rowsB; colnames(B) = colsB;"
-                           "merged = suppressMessages(join(A, B, by=NULL, type='full', match='all'));"
+        std::string call = "A = as.data.frame(A); rownames(A) = rowsA;"
+                           "colnames(A) = colsA;"
+                           "B = as.data.frame(B); rownames(B) = rowsB;"
+                           "colnames(B) = colsB;"
+                           "merged = suppressMessages(bind_rows(A, B));"
                            "rownames(merged) = c(rownames(A), rownames(B));"
-                           "exp_values = t(merged);"
+                           "exp_values = as.matrix(t(merged));"
                            "exp_values[is.na(exp_values)] = 0;"
                            "exp_values = apply(exp_values, c(1,2), as.numeric);";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {

@@ -276,6 +276,9 @@
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
+         <property name="value">
+          <number>5</number>
+         </property>
         </widget>
        </item>
       </layout>
@@ -404,6 +407,9 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="value">
+          <number>5</number>
          </property>
         </widget>
        </item>
