@@ -34,8 +34,8 @@ CellGLView::CellGLView(QWidget *parent)
     , m_lasso()
     , m_scene_focus_center_point(-1, -1)
     , m_zoom_factor(1.0)
-    , m_rotate_factor(0)
-    , m_flip_factor(0)
+    , m_rotate_factor(0.0)
+    , m_flip_factor(0.0)
 {
     // init projection matrix to identity
     m_projm.setToIdentity();
@@ -72,11 +72,14 @@ void CellGLView::clearData()
     m_rubberBanding = false;
     m_selecting = false;
     m_lassoSelection = false;
-    m_zoom_factor = 1;
-    m_rotate_factor = 0;
-    m_flip_factor = 0;
+    m_zoom_factor = 1.0;
+    m_rotate_factor = 0.0;
+    m_flip_factor = 0.0;
     m_lasso = QPainterPath();
     m_scene_focus_center_point = QPoint(-1, -1);
+    m_projm.setToIdentity();
+    m_scene = QRectF();
+    m_viewport = QRectF();
 }
 
 void CellGLView::initializeGL()

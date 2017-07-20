@@ -53,8 +53,6 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSpikeInFile);
     connect(m_ui->loadSizeFactorsFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSizeFactorsFile);
-    connect(m_ui->buttonBox,
-            &QDialogButtonBox::accepted, this, &DatasetImporter::slotValidateForm);
     connect(m_ui->loadFolder,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
     connect(m_ui->loadMetaFile,
@@ -136,7 +134,7 @@ void DatasetImporter::slotLoadSTDataFile()
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this, tr("ST Data File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->stDataFile->insert(filename);
+        m_ui->stDataFile->setText(filename);
     }
 }
 
@@ -156,7 +154,7 @@ void DatasetImporter::slotLoadMainImageFile()
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->mainImageFile->insert(filename);
+        m_ui->mainImageFile->setText(filename);
     }
 }
 
@@ -176,7 +174,7 @@ void DatasetImporter::slotLoadSpotsMapFile()
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this, tr("Spots Map File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->spotMapFile->insert(filename);
+        m_ui->spotMapFile->setText(filename);
     }
 }
 
@@ -198,7 +196,7 @@ void DatasetImporter::slotLoadAlignmentFile()
                               tr("Alignment File"),
                               tr("File is incorrect or not readable"));
     } else {
-        m_ui->imageAlignmentFile->insert(filename);
+        m_ui->imageAlignmentFile->setText(filename);
     }
 }
 
@@ -220,7 +218,7 @@ void DatasetImporter::slotLoadSpikeInFile()
                               tr("Spike-in File"),
                               tr("File is incorrect or not readable"));
     } else {
-        m_ui->spikeInFile->insert(filename);
+        m_ui->spikeInFile->setText(filename);
     }
 }
 
@@ -242,28 +240,33 @@ void DatasetImporter::slotLoadSizeFactorsFile()
                               tr("Size Factors File"),
                               tr("File is incorrect or not readable"));
     } else {
-        m_ui->sizeFactorsFile->insert(filename);
+        m_ui->sizeFactorsFile->setText(filename);
     }
 }
 
-void DatasetImporter::slotValidateForm()
+void DatasetImporter::done(int result)
 {
-    QString error_msg;
-    bool isValid = true;
-    if (m_ui->mainImageFile->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("Main image is missing!");
-    } else if (m_ui->stDataFile->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("ST Data file is missing!");
-    } else if (m_ui->datasetName->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("Dataset name is missing!");
-    }
-    if (!isValid) {
-        QMessageBox::critical(this, tr("Import dataset"), error_msg);
+    if(QDialog::Accepted == result)  {
+        QString error_msg;
+        bool isValid = true;
+        if (m_ui->mainImageFile->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("Main image is missing!");
+        } else if (m_ui->stDataFile->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("ST Data file is missing!");
+        } else if (m_ui->datasetName->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("Dataset name is missing!");
+        }
+        if (!isValid) {
+            QMessageBox::critical(this, tr("Import dataset"), error_msg);
+        } else {
+            QDialog::done(QDialog::Accepted);
+        }
     } else {
-        QDialog::done(QDialog::Accepted);
+        QDialog::done(result);
+        return;
     }
 }
 

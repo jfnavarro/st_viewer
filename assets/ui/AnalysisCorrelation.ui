@@ -304,18 +304,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="selected_gene">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>21</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>21</height>
-          </size>
-         </property>
          <property name="mouseTracking">
           <bool>false</bool>
          </property>

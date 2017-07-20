@@ -46,7 +46,6 @@ void ImageTextureGL::clearTextures()
         }
         texture = nullptr;
     }
-
     m_textures.clear();
 }
 
@@ -89,7 +88,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     // Load the image file into a byte array
     QFile file(imagefile);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Image loading file error";
+        qDebug() << "Image loading file error " << imagefile;
         QGuiApplication::restoreOverrideCursor();
         return false;
     }
@@ -110,7 +109,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     const bool readOk = imageReader.read(&image);
     imageBuffer.close();
     if (!readOk || image.isNull()) {
-        qDebug() << "Opening image failed";
+        qDebug() << "Opening image failed " << imagefile;
         QGuiApplication::restoreOverrideCursor();
         return false;
     }

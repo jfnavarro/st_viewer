@@ -50,6 +50,10 @@ public:
     // indentifiable with the key
     void slotParseMetaFile();
 
+protected:
+
+    void done(int result) override;
+
 private slots:
 
     void slotLoadSTDataFile();
@@ -58,7 +62,6 @@ private slots:
     void slotLoadAlignmentFile();
     void slotLoadSpikeInFile();
     void slotLoadSizeFactorsFile();
-    void slotValidateForm();
 
 private:
     void init();

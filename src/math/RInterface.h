@@ -30,7 +30,7 @@ static double computeCorrelation(const std::vector<double> &A,
     } catch (const std::exception &e) {
         qDebug() << "Error computing R correlation " << e.what();
     } catch (...) {
-        qDebug() << "Uknown error computing R correlation";
+        qDebug() << "Unknown error computing R correlation";
     }
     return corr;
 }
@@ -101,7 +101,7 @@ static void computeDEA(const mat &countsA,
     } catch (const std::exception &e) {
         qDebug() << "Error computing R DEA with DESEq2" << e.what();
     } catch (...) {
-        qDebug() << "Uknown error computing R DEA with DESeq2";
+        qDebug() << "Unknown error computing R DEA with DESeq2";
     }
 }
 
@@ -162,7 +162,7 @@ static void spotClassification(const mat &counts,
     } catch (const std::exception &e) {
         qDebug() << "Error doing R dimensionality reduction " << e.what();
     } catch (...) {
-        qDebug() << "Uknown error computing R dimensionality reduction";
+        qDebug() << "Unknown error computing R dimensionality reduction";
     }
 }
 
@@ -181,10 +181,19 @@ static rowvec computeDESeqFactors(const mat &counts)
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed DESeq2 size factors " << factors.size();
         Q_ASSERT(factors.size() == counts.n_rows);
+        if (!factors.is_finite()) {
+            qDebug() << "Computed DESeq2 factors has non finite elements";
+            factors.replace(datum::inf, 1.0);
+            factors.replace(datum::nan, 1.0);
+        }
+        if (any(factors <= 0.0)) {
+            qDebug() << "Computed DESeq2 factors has elements with zeroes or negative";
+            factors.replace(0.0, 0.01);
+        }
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
     } catch (...) {
-        qDebug() << "Uknown error computing DESeq2 size factors";
+        qDebug() << "Unknown error computing DESeq2 size factors";
     }
     return factors;
 }
@@ -214,10 +223,19 @@ static rowvec computeScranFactors(const mat &counts)
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed SCRAN size factors " << factors.size();
         Q_ASSERT(factors.size() == counts.n_rows);
+        if (!factors.is_finite()) {
+            qDebug() << "Computed SCRAN factors has non finite elements";
+            factors.replace(datum::inf, 1.0);
+            factors.replace(datum::nan, 1.0);
+        }
+        if (any(factors == 0.0)) {
+            qDebug() << "Computed SCRAN factors has elements with zeroes";
+            factors.replace(0.0, 0.01);
+        }
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();
     } catch (...) {
-        qDebug() << "Uknown error computing SCRAN size factors";
+        qDebug() << "Unknown error computing SCRAN size factors";
     }
     return factors;
 }
