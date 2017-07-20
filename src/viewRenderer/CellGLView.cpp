@@ -78,8 +78,6 @@ void CellGLView::clearData()
     m_lasso = QPainterPath();
     m_scene_focus_center_point = QPoint(-1, -1);
     m_projm.setToIdentity();
-    m_scene = QRectF();
-    m_viewport = QRectF();
 }
 
 void CellGLView::initializeGL()
