@@ -44,10 +44,13 @@ private slots:
     void slotSelectionSelected(QModelIndex index);
     // slots to handle when the user wants to export the selection to a file
     void slotExportSelection();
+    void slotExportSelection(QModelIndex);
     // slot to handle when the user wants to remove a selection
     void slotRemoveSelection();
+    void slotRemoveSelection(QModelIndex);
     // slot to handle when the user wants to edit a selection
     void slotEditSelection();
+    void slotEditSelection(QModelIndex);
     // this slot will init and show the D.E.A. dialog (requires two selected
     // selections)
     void slotPerformDEA();
@@ -64,6 +67,14 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
+
+    // internal functions for basic operations
+    void removeSelections(const QList<UserSelection> &selections);
+    void editSelection(const UserSelection &selection);
+    void exportSelection(const UserSelection &selection);
+
+    // internal function to check if the name exists
+    bool nameExist(const QString &name);
 
     // internal clear focus and default status for the buttons
     void clearControls();

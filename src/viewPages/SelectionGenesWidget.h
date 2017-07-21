@@ -24,7 +24,9 @@ public:
                                   QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionGenesWidget();
 
-public slots:
+private slots:
+
+    void customMenuRequested(const QPoint &pos);
 
 signals:
 

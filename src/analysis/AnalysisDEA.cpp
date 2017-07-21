@@ -10,6 +10,8 @@
 #include <QtConcurrent>
 #include <QFileDialog>
 #include <QPdfWriter>
+#include <QMenu>
+#include <QClipboard>
 
 #include <string>
 
@@ -63,6 +65,10 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
             &AnalysisDEA::slotGeneSelected);
     connect(&m_watcher, &QFutureWatcher<void>::finished, this, &AnalysisDEA::slotDEAComputed);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisDEA::slotExportPlot);
+    // allow to copy the content of the table
+    m_ui->tableview->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_ui->tableview, &QTableView::customContextMenuRequested,
+            this, &AnalysisDEA::customMenuRequested);
 }
 
 AnalysisDEA::~AnalysisDEA()
@@ -409,5 +415,19 @@ void AnalysisDEA::slotExportPlot()
         QMessageBox::critical(this,
                               tr("Save Volcano Plot"),
                               tr("The image could not be creted."));
+    }
+}
+
+void AnalysisDEA::customMenuRequested(const QPoint &pos)
+{
+    const QModelIndex index = m_ui->tableview->indexAt(pos);
+    if (index.isValid()) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(new QAction(tr("Copy"), this));
+        if (menu->exec(m_ui->tableview->viewport()->mapToGlobal(pos))) {
+            const QString text = m_proxy->mapToSource(index).data().toString();
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(text);
+        }
     }
 }

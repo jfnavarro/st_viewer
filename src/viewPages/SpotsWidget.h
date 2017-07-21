@@ -55,10 +55,6 @@ private:
     // TODO better approach would be to have factories somewhere else
     void configureButton(QPushButton *button, const QIcon &icon, const QString &tooltip);
 
-    // internal function to retrieve the model of the table
-    QSortFilterProxyModel *getProxyModel();
-    SpotItemModel *getModel();
-
     // some references needed to UI elements
     QScopedPointer<QLineEdit> m_lineEdit;
     QScopedPointer<SpotsTableView> m_spots_tableview;

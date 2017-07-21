@@ -31,14 +31,14 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     // connect signals
     connect(m_ui->filterLineEdit, &QLineEdit::textChanged,
             selectionsProxyModel(), &QSortFilterProxyModel::setFilterFixedString);
-    connect(m_ui->removeSelection, &QPushButton::clicked,
-            this, &UserSelectionsPage::slotRemoveSelection);
-    connect(m_ui->exportSelection, &QPushButton::clicked,
-            this, &UserSelectionsPage::slotExportSelection);
+    connect(m_ui->removeSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotRemoveSelection()));
+    connect(m_ui->exportSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotExportSelection()));
     connect(m_ui->importSelection, &QPushButton::clicked,
             this, &UserSelectionsPage::slotImportSelection);
-    connect(m_ui->editSelection, &QPushButton::clicked,
-            this, &UserSelectionsPage::slotEditSelection);
+    connect(m_ui->editSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotEditSelection()));
     connect(m_ui->ddaAnalysis, &QPushButton::clicked,
             this, &UserSelectionsPage::slotPerformDEA);
     connect(m_ui->correlationAnalysis, &QPushButton::clicked,
@@ -48,6 +48,13 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
             this, &UserSelectionsPage::slotSelectionSelected);
     connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
     connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
+
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
+            this, SLOT(slotExportSelection(QModelIndex)));
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionEdit(QModelIndex)),
+            this, SLOT(slotEditSelection(QModelIndex)));
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionDelete(QModelIndex)),
+            this, SLOT(slotRemoveSelection(QModelIndex)));
 
     clearControls();
 }
@@ -143,7 +150,23 @@ void UserSelectionsPage::slotRemoveSelection()
     if (currentSelections.empty()) {
         return;
     }
+    removeSelections(currentSelections);
+}
 
+void UserSelectionsPage::slotRemoveSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty()) {
+        return;
+    }
+    removeSelections(currentSelections);
+}
+
+void UserSelectionsPage::removeSelections(const QList<UserSelection> &selections)
+{
     const int answer
             = QMessageBox::warning(this,
                                    tr("Remove Selection"),
@@ -156,7 +179,7 @@ void UserSelectionsPage::slotRemoveSelection()
     }
 
     // Remove the selections
-    for (auto selection : currentSelections) {
+    for (auto selection : selections) {
         m_selections.removeOne(selection);
     }
 
@@ -171,7 +194,27 @@ void UserSelectionsPage::slotExportSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+    // currentSelection should only have one element
+    const auto selection = currentSelection.front();
+    exportSelection(selection);
+}
 
+void UserSelectionsPage::slotExportSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty() || currentSelections.size() > 1) {
+        return;
+    }
+    // currentSelection should only have one element
+    const auto selection = currentSelections.front();
+    exportSelection(selection);
+}
+
+void UserSelectionsPage::exportSelection(const UserSelection &selection)
+{
     QString filename = QFileDialog::getSaveFileName(this,
                                                     tr("Export Selection"),
                                                     QDir::homePath(),
@@ -188,12 +231,9 @@ void UserSelectionsPage::slotExportSelection()
         return;
     }
 
-    // currentSelection should only have one element
-    const auto selectionItem = currentSelection.front();
-
     // export selection
     try {
-        STData::save(filename, selectionItem.data());
+        STData::save(filename, selection.data());
     } catch (const std::exception &e) {
         QMessageBox::critical(this, tr("Export Selection"), tr("Error exporting the selection"));
         qDebug() << "There was an error saving the matrix in the selection page " << e.what();
@@ -204,14 +244,30 @@ void UserSelectionsPage::slotEditSelection()
 {
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
-
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-
     // currentSelection should only have one element
     auto selection = currentSelection.front();
+    editSelection(selection);
+}
 
+void UserSelectionsPage::slotEditSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty() || currentSelections.size() > 1) {
+        return;
+    }
+    // currentSelection should only have one element
+    auto selection = currentSelections.front();
+    editSelection(selection);
+}
+
+void UserSelectionsPage::editSelection(const UserSelection &selection)
+{
     // creates a selection dialog with the current fields
     QScopedPointer<EditSelectionDialog> editSelection(
                 new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
@@ -219,19 +275,17 @@ void UserSelectionsPage::slotEditSelection()
     editSelection->setName(selection.name());
     editSelection->setComment(selection.comment());
     if (editSelection->exec() == EditSelectionDialog::Accepted
+            && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()
             && (editSelection->getName() != selection.name()
                 || editSelection->getComment() != selection.comment())
-            && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()) {
+            && !nameExist(editSelection->getName())) {
 
         const int index = m_selections.indexOf(selection);
         Q_ASSERT(index != -1);
 
-        // update fields
-        selection.name(editSelection->getName());
-        selection.comment(editSelection->getComment());
-
         // update object in the container
-        m_selections[index] = selection;
+        m_selections[index].name(editSelection->getName());
+        m_selections[index].comment(editSelection->getComment());
 
         // update model
         selectionsUpdated();
@@ -251,20 +305,26 @@ void UserSelectionsPage::slotImportSelection()
     }
 
     QFileInfo info(filename);
+
+    // We use the file name as selection name and check that is not present
+    if (nameExist(info.baseName())) {
+        QMessageBox::critical(this, tr("Import sselection"),
+                              tr("There exists a selection with the same name"));
+        return;
+    }
+
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("ST Data File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Import selection"),
+                              tr("File is incorrect or not readable"));
     } else {
         try {
             auto data = STData::read(filename);
             UserSelection new_selection;
             new_selection.data(data);
-            //TODO check that the name does not exist already
             new_selection.name(info.baseName());
-            //TODO the meta data (dataset name) is lost here
-            //use a JSON metadata file to get it
             addSelection(new_selection);
         } catch (const std::exception &e) {
-            QMessageBox::critical(this, tr("ST Data File"), tr("Error parsing file"));
+            QMessageBox::critical(this, tr("Import selection"), tr("Error parsing file"));
             qDebug() << "Error parsing ST data file (Selection) " << e.what();
         }
     }
@@ -345,4 +405,11 @@ void UserSelectionsPage::slotShowSpots()
     SelectionSpotsWidget *spotsWidget(
                 new SelectionSpotsWidget(selectionObject.data(), this, Qt::Window));
     spotsWidget->show();
+}
+
+bool UserSelectionsPage::nameExist(const QString &name)
+{
+    return std::find_if(m_selections.begin(), m_selections.end(),
+                        [&name](const UserSelection& selection)
+    {return selection.name() == name;}) != m_selections.end();
 }

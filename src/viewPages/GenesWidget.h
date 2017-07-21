@@ -8,8 +8,6 @@ class QPushButton;
 class QLineEdit;
 class GenesTableView;
 class Dataset;
-class GeneItemModel;
-class QSortFilterProxyModel;
 class QColorDialog;
 
 // This widget is componsed of the genes table
@@ -53,10 +51,6 @@ private:
     // to avoid code duplication
     // TODO better approach would be to have factories somewhere else
     void configureButton(QPushButton *button, const QIcon &icon, const QString &tooltip);
-
-    // internal function to retrieve the model and the proxy model of the table
-    QSortFilterProxyModel *getProxyModel();
-    GeneItemModel *getModel();
 
     // some references needed to UI elements
     QScopedPointer<QLineEdit> m_lineEdit;

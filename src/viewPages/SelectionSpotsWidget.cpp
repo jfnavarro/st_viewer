@@ -2,6 +2,9 @@
 
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QMenu>
+#include <QClipboard>
+
 #include "SettingsStyle.h"
 
 #include "ui_spotsSelectionWidget.h"
@@ -68,10 +71,28 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
             &QLineEdit::textChanged,
             proxy,
             &QSortFilterProxyModel::setFilterFixedString);
+
+    // allow to copy the content of the table
+    m_ui->tableview->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_ui->tableview, &QTableView::customContextMenuRequested,
+            this, &SelectionSpotsWidget::customMenuRequested);
 }
 
 SelectionSpotsWidget::~SelectionSpotsWidget()
 {
 }
 
+void SelectionSpotsWidget::customMenuRequested(const QPoint &pos)
+{
+    const QModelIndex index = m_ui->tableview->indexAt(pos);
+    if (index.isValid()) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(new QAction(tr("Copy"), this));
+        if (menu->exec(m_ui->tableview->viewport()->mapToGlobal(pos))) {
+            const QString text = index.data().toString();
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(text);
+        }
+    }
+}
 

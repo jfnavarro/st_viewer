@@ -675,7 +675,7 @@ const QRectF STData::getBorder() const
 
     const auto min_x = (*mm_x.first)->coordinates().first;
     const auto min_y = (*mm_y.first)->coordinates().second;
-    const auto max_x = (*mm_x.first)->coordinates().second;
-    const auto max_y = (*mm_y.first)->coordinates().first;
+    const auto max_x = (*mm_x.second)->coordinates().first;
+    const auto max_y = (*mm_y.second)->coordinates().second;
     return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
 }

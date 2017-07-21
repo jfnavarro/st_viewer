@@ -24,7 +24,9 @@ public:
     virtual ~SelectionSpotsWidget();
 signals:
 
-public slots:
+private slots:
+
+    void customMenuRequested(const QPoint &pos);
 
 private:
 

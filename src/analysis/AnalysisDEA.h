@@ -45,6 +45,8 @@ private slots:
     void slotDEAComputed();
     // to export the volcano plot to  a file
     void slotExportPlot();
+    // to handle when the user right clicks
+    void customMenuRequested(const QPoint &pos);
 
 private:
 

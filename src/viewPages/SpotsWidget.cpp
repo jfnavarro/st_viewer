@@ -118,6 +118,10 @@ SpotsWidget::SpotsWidget(QWidget *parent)
             &QLineEdit::textChanged,
             m_spots_tableview.data(),
             &SpotsTableView::setNameFilter);
+    connect(m_spots_tableview.data(),
+            &SpotsTableView::signalSpotsUpdated,
+            this,
+            &SpotsWidget::signalSpotsUpdated);
 }
 
 SpotsWidget::~SpotsWidget()
@@ -130,7 +134,7 @@ void SpotsWidget::clear()
     m_lineEdit->clear();
     m_spots_tableview->clearSelection();
     m_spots_tableview->clearFocus();
-    getModel()->clear();
+    m_spots_tableview->getModel()->clear();
     m_colorList->setCurrentColor(Qt::red);
 }
 
@@ -163,35 +167,20 @@ void SpotsWidget::slotHideAllSelected()
 
 void SpotsWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
-    getModel()->setVisibility(m_spots_tableview->getItemSelection(), visible);
+    m_spots_tableview->getModel()->setVisibility(m_spots_tableview->getItemSelection(), visible);
     m_spots_tableview->update();
     emit signalSpotsUpdated();
 }
 
 void SpotsWidget::slotSetColorAllSelected(const QColor &color)
 {
-    getModel()->setColor(m_spots_tableview->getItemSelection(), color);
+    m_spots_tableview->getModel()->setColor(m_spots_tableview->getItemSelection(), color);
     m_spots_tableview->update();
     emit signalSpotsUpdated();
 }
 
 void SpotsWidget::slotLoadDataset(const Dataset &dataset)
 {
-    getModel()->loadDataset(dataset);
+    m_spots_tableview->getModel()->loadDataset(dataset);
     m_spots_tableview->update();
-}
-
-SpotItemModel *SpotsWidget::getModel()
-{
-    SpotItemModel *spotModel = qobject_cast<SpotItemModel *>(getProxyModel()->sourceModel());
-    Q_ASSERT(spotModel);
-    return spotModel;
-}
-
-QSortFilterProxyModel *SpotsWidget::getProxyModel()
-{
-    QSortFilterProxyModel *proxyModel
-            = qobject_cast<QSortFilterProxyModel *>(m_spots_tableview->model());
-    Q_ASSERT(proxyModel);
-    return proxyModel;
 }

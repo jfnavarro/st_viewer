@@ -222,7 +222,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
            </property>
            <property name="iconSize">
@@ -272,7 +272,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -322,7 +322,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -372,7 +372,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -454,13 +454,13 @@
            </size>
           </property>
           <property name="mouseTracking">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
+           <enum>Qt::CustomContextMenu</enum>
           </property>
           <property name="toolTip">
            <string>Select a Dataset</string>
@@ -577,7 +577,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc"/>
+  <include location="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc"/>
  </resources>
  <connections/>
 </ui>

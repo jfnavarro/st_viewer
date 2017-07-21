@@ -117,8 +117,12 @@ GenesWidget::GenesWidget(QWidget *parent)
             &QLineEdit::textChanged,
             m_genes_tableview.data(),
             &GenesTableView::setNameFilter);
-    connect(getModel(),
+    connect(m_genes_tableview->getModel(),
             &GeneItemModel::signalGeneCutOffChanged,
+            this,
+            &GenesWidget::signalGenesUpdated);
+    connect(m_genes_tableview.data(),
+            &GenesTableView::signalGenesUpdated,
             this,
             &GenesWidget::signalGenesUpdated);
 }
@@ -133,7 +137,7 @@ void GenesWidget::clear()
     m_lineEdit->clear();
     m_genes_tableview->clearSelection();
     m_genes_tableview->clearFocus();
-    getModel()->clear();
+    m_genes_tableview->getModel()->clear();
     m_colorList->setCurrentColor(Qt::red);
 }
 
@@ -161,35 +165,20 @@ void GenesWidget::slotHideAllSelected()
 
 void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
-    getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
+    m_genes_tableview->getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
     emit signalGenesUpdated();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
-    getModel()->setColor(m_genes_tableview->getItemSelection(), color);
+    m_genes_tableview->getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();
     emit signalGenesUpdated();
 }
 
 void GenesWidget::slotLoadDataset(const Dataset &dataset)
 {
-    getModel()->loadDataset(dataset);
+    m_genes_tableview->getModel()->loadDataset(dataset);
     m_genes_tableview->update();
-}
-
-GeneItemModel *GenesWidget::getModel()
-{
-    GeneItemModel *geneModel = qobject_cast<GeneItemModel *>(getProxyModel()->sourceModel());
-    Q_ASSERT(geneModel);
-    return geneModel;
-}
-
-QSortFilterProxyModel *GenesWidget::getProxyModel()
-{
-    QSortFilterProxyModel *proxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_genes_tableview->model());
-    Q_ASSERT(proxyModel);
-    return proxyModel;
 }

@@ -30,6 +30,8 @@ public:
     // clears data containers and reset variables to default
     void clearData();
 
+    // sets the bounding rect
+
 public slots:
 
     // update the rendering data

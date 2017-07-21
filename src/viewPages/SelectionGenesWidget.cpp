@@ -2,6 +2,9 @@
 
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QMenu>
+#include <QClipboard>
+
 #include "SettingsStyle.h"
 
 #include "ui_genesSelectionWidget.h"
@@ -28,8 +31,8 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
     for (uword i = 0; i < data.counts.n_cols; ++i) {
         const QString gene = data.genes.at(i);
         const float count = sum(data.counts.col(i));
-        model->setItem(i,0,new QStandardItem(gene));
-        model->setItem(i,1,new QStandardItem(QString::number(count)));
+        model->setItem(i, 0, new QStandardItem(gene));
+        model->setItem(i, 1, new QStandardItem(QString::number(count)));
     }
     // sorting model
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
@@ -67,8 +70,28 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
             &QLineEdit::textChanged,
             proxy,
             &QSortFilterProxyModel::setFilterFixedString);
+
+    // allow to copy the content of the table
+    m_ui->tableview->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_ui->tableview, &QTableView::customContextMenuRequested,
+            this, &SelectionGenesWidget::customMenuRequested);
+
 }
 
 SelectionGenesWidget::~SelectionGenesWidget()
 {
+}
+
+void SelectionGenesWidget::customMenuRequested(const QPoint &pos)
+{
+    const QModelIndex index = m_ui->tableview->indexAt(pos);
+    if (index.isValid()) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(new QAction(tr("Copy"), this));
+        if (menu->exec(m_ui->tableview->viewport()->mapToGlobal(pos))) {
+            const QString text = index.data().toString();
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(text);
+        }
+    }
 }

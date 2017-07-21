@@ -52,8 +52,11 @@ private slots:
 
     // some slots for the actions of the toolbar
     void slotOpenDataset();
+    void slotOpenDataset(const QModelIndex &index);
     void slotRemoveDataset();
+    void slotRemoveDataset(const QModelIndex &index);
     void slotEditDataset();
+    void slotEditDataset(const QModelIndex &index);
     void slotImportDataset();
 
 signals:
@@ -71,6 +74,11 @@ private:
     void clearControls();
     // check if a dataset with the same name exists
     bool nameExist(const QString &name);
+
+    // Internal function for basic operations
+    void editDataset(const Dataset &dataset);
+    void openDataset(const Dataset &dataset);
+    void removeDatasets(const QList<Dataset> &datasets);
 
     // to get the data model from the table
     QSortFilterProxyModel *datasetsProxyModel();

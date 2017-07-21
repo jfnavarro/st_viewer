@@ -1,6 +1,12 @@
 #include "UserSelectionTableView.h"
+
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
+#include <QDebug>
+#include <QClipboard>
+#include <QApplication>
+#include <QMenu>
+
 #include "model/UserSelectionsItemModel.h"
 
 UserSelectionTableView::UserSelectionTableView(QWidget *parent)
@@ -40,6 +46,11 @@ UserSelectionTableView::UserSelectionTableView(QWidget *parent)
     verticalHeader()->hide();
 
     model()->submit(); // support for caching (speed up)
+
+    // allow to copy the dataset name
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &UserSelectionTableView::customContextMenuRequested,
+            this, &UserSelectionTableView::customMenuRequested);
 }
 
 UserSelectionTableView::~UserSelectionTableView()
@@ -50,4 +61,32 @@ QItemSelection UserSelectionTableView::userSelecionTableItemSelection() const
 {
     const auto &selected = selectionModel()->selection();
     return m_sortSelectionsProxyModel->mapSelectionToSource(selected);
+}
+
+void UserSelectionTableView::customMenuRequested(const QPoint &pos)
+{
+    const QModelIndex index = indexAt(pos);
+    if (index.isValid()) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(new QAction(tr("Copy name"), this));
+        menu->addAction(new QAction(tr("Export"), this));
+        menu->addAction(new QAction(tr("Edit"), this));
+        menu->addAction(new QAction(tr("Delete"), this));
+        QAction *action = menu->exec(viewport()->mapToGlobal(pos));
+        if (action != nullptr) {
+            const QString action_text = action->text();
+            if (action_text == tr("Copy name")) {
+                const QModelIndex new_index = m_sortSelectionsProxyModel->index(index.row(), UserSelectionsItemModel::Name);
+                const QString selection_name = m_sortSelectionsProxyModel->data(new_index, Qt::DisplayRole).toString();
+                QClipboard *clipboard = QApplication::clipboard();
+                clipboard->setText(selection_name);
+            } else if (action_text == tr("Export")) {
+                emit signalSelectionExport(index);
+            } else if (action_text == tr("Edit")) {
+                emit signalSelectionEdit(index);
+            } else if (action_text == tr("Delete")) {
+                emit signalSelectionDelete(index);
+            }
+        }
+    }
 }

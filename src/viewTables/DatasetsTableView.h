@@ -18,6 +18,17 @@ public:
     // returns the current selection mapped to the sorting model
     QItemSelection datasetsTableItemSelection() const;
 
+signals:
+
+    void signalDatasetOpen(QModelIndex index);
+    void signalDatasetEdit(QModelIndex index);
+    void signalDatasetDelete(QModelIndex index);
+
+private slots:
+
+    // when the user right clicks
+    void customMenuRequested(const QPoint &pos);
+
 private:
     // references to proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
