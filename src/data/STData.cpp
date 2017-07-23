@@ -185,19 +185,13 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     if (m_reads_threshold != rendering_settings.ind_reads_threshold) {
         m_reads_threshold = rendering_settings.ind_reads_threshold;
         recompute_size_factors = true;
-    }
-
-    if (m_genes_threshold != rendering_settings.genes_threshold) {
+    } else if (m_genes_threshold != rendering_settings.genes_threshold) {
         m_genes_threshold = rendering_settings.genes_threshold;
         recompute_size_factors = true;
-    }
-
-    if (m_ind_reads_treshold != rendering_settings.ind_reads_threshold) {
+    } else if (m_ind_reads_treshold != rendering_settings.ind_reads_threshold) {
         m_ind_reads_treshold = rendering_settings.ind_reads_threshold;
         recompute_size_factors = true;
-    }
-
-    if (m_spots_threshold != rendering_settings.spots_threshold) {
+    } else if (m_spots_threshold != rendering_settings.spots_threshold) {
         m_spots_threshold = rendering_settings.spots_threshold;
         recompute_size_factors = true;
     }
@@ -221,7 +215,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
     }
 
-    // set visible to false to all the spots
+    // set visible to false for all the spots
     std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), true);
 
     // Normalize the counts
@@ -491,6 +485,63 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
     }
     }
     return norm_counts;
+}
+
+STData::STDataFrame STData::aggregate(const STDataFrame &dataA, const STDataFrame &dataB)
+{
+    QSet<QString> genes_onlyB = dataB.genes.toSet().subtract(dataA.genes.toSet());
+    QList<QString> common_genes;
+    std::vector<uword> commonA;
+    std::vector<uword> commonB;
+
+    for (int i = 0; i < dataA.genes.size(); ++i) {
+        const QString geneA = dataA.genes.at(i);
+        const int j = dataB.genes.indexOf(geneA);
+        commonA.push_back(i);
+        commonB.push_back(j);
+        common_genes.append(geneA);
+    }
+
+    for (auto geneB : genes_onlyB) {
+        const int j = dataB.genes.indexOf(geneB);
+        commonB.push_back(j);
+        commonA.push_back(-1);
+        common_genes.append(geneB);
+    }
+
+    STDataFrame merged;
+    const uword n_rowsA = dataA.counts.n_rows;
+    const uword n_rowsB = dataB.counts.n_rows;
+    const uword new_rows_size = n_rowsA + n_rowsB;
+    const uword new_cols_size = common_genes.size();
+    merged.counts = mat(new_rows_size, new_cols_size);
+
+    for (uword i = 0; i < n_rowsA; ++i) {
+        for (uword j = 0; j < new_cols_size; ++j) {
+            double value = 0;
+            const uword index = commonA.at(j);
+            if (index != -1) {
+                value = dataA.counts(i,index);
+            }
+            merged.counts.at(i,j) = value;
+        }
+    }
+
+    for (uword i = n_rowsA; i < new_rows_size; ++i) {
+        for (uword j = 0; j < new_cols_size; ++j) {
+            double value = 0;
+            const uword index = commonB.at(j);
+            if (index != -1) {
+                value = dataB.counts(i,index);
+            }
+            merged.counts.at(i,j) = value;
+        }
+    }
+
+    merged.genes = common_genes;
+    merged.spots = dataA.spots + dataB.spots;
+
+    return merged;
 }
 
 STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,

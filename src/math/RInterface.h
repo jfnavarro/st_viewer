@@ -51,21 +51,22 @@ static void computeDEA(const mat &countsA,
 
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));"
-                                   "suppressMessages(library(dplyr));"
+                                   "suppressMessages(library(plyr));"
                                    "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
-
         (*R)["A"] = countsA;
         (*R)["B"] = countsB;
         (*R)["rowsA"] = rowsA;
         (*R)["rowsB"] = rowsB;
         (*R)["colsA"] = colsA;
         (*R)["colsB"] = colsB;
-        std::string call = "A = as.data.frame(A); rownames(A) = rowsA;"
+        std::string call = "A = as.data.frame(A);"
+                           "rownames(A) = paste('A', '_', rowsA, sep='');"
                            "colnames(A) = colsA;"
-                           "B = as.data.frame(B); rownames(B) = rowsB;"
+                           "B = as.data.frame(B);"
+                           "rownames(B) = paste('B', '_', rowsB, sep='');"
                            "colnames(B) = colsB;"
-                           "merged = suppressMessages(bind_rows(A, B));"
+                           "merged = suppressMessages(rbind.fill(A, B));"
                            "rownames(merged) = c(rownames(A), rownames(B));"
                            "exp_values = as.matrix(t(merged));"
                            "exp_values[is.na(exp_values)] = 0;"

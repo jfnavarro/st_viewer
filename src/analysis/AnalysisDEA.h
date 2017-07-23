@@ -59,7 +59,7 @@ private:
     // GUI object
     QScopedPointer<Ui::analysisDEA> m_ui;
 
-    // the two datasets
+    // the merged data frame and the selections names
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
     QString m_nameA;

@@ -91,6 +91,9 @@ public:
                                        const rowvec scran_size_factors,
                                        SettingsWidget::NormalizationMode mode);
 
+    // helper function to aggregate two STDataFrame by columns (genes)
+    static STDataFrame aggregate(const STDataFrame &data1, const STDataFrame &data2);
+
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
