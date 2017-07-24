@@ -52,25 +52,10 @@ find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 find_package(R REQUIRED)
-include_directories(${R_INCLUDE_DIR})
-
-find_package(Rcpp REQUIRED)
-include_directories(${RCPP_INCLUDE_DIR})
-
-find_package(RInside REQUIRED)
-include_directories(${RINSIDE_INCLUDE_DIR})
-
-find_package(RcppArmadillo REQUIRED)
-include_directories(${RCPP_ARMADILLO_INCLUDE_DIR})
-
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave CMD config --cppflags OUTPUT_VARIABLE R_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave CMD config --ldflags OUTPUT_VARIABLE R_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave -e "Rcpp:::CxxFlags()" OUTPUT_VARIABLE RCPP_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave -e "RInside:::CxxFlags()" OUTPUT_VARIABLE RINSIDE_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave -e "RInside:::LdFlags()" OUTPUT_VARIABLE RINSIDE_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
-#execute_process(COMMAND ${R_COMMAND} --vanilla --slave -e "RcppArmadillo:::CxxFlags()" OUTPUT_VARIABLE RCPPARMADILLO_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${R_CXXFLAGS} ${RCPP_CXXFLAGS} ${RINSIDE_CXXFLAGS} ${RCPPARMADILLO_CXXFLAGS}")
-set(R_LIBRARIES "${R_LIBRARIES};${RINSIDE_LIBRARY}")
+include_directories(${LIBR_INCLUDE_DIRS})
+include_directories(${LIBRCPP_INCLUDE_DIRS})
+include_directories(${LIBRINSIDE_INCLUDE_DIRS})
+include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -126,7 +111,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-    ${ARMADILLO_LIBRARIES} ${R_LIBRARIES} Threads::Threads)
+    ${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES} Threads::Threads)
 
 ### UNIT TESTS ################################################################
 

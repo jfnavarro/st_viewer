@@ -29,7 +29,7 @@ macro(add_st_client_test subdir name)
   endforeach()
   add_executable(${name} ${srcs})
   target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test
-      ${ARMADILLO_LIBRARIES} ${R_LIBRARIES})
+      ${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES})
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)
 

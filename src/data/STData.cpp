@@ -147,12 +147,12 @@ STData::STDataFrame STData::data() const
     return m_data;
 }
 
-STData::GeneListType STData::genes()
+const STData::GeneListType &STData::genes() const
 {
     return m_genes;
 }
 
-STData::SpotListType STData::spots()
+const STData::SpotListType &STData::spots() const
 {
     return m_spots;
 }

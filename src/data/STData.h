@@ -51,8 +51,8 @@ public:
     STDataFrame data() const;
 
     // Returns the spot/gene objects corresponding to the data frame
-    GeneListType genes();
-    SpotListType spots();
+    const GeneListType &genes() const;
+    const SpotListType &spots() const;
 
     // Rendering functions
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);

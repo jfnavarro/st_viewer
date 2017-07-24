@@ -29,7 +29,7 @@ public:
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
 
-    // reset to default
+    // resets to default
     void clear();
 
     // the user selected spots if any
@@ -57,6 +57,7 @@ private slots:
 
 private:
 
+    // helper function to do the computations and update the widget
     void computeColorsAsync();
     void colorsComputed();
 

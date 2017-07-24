@@ -38,8 +38,8 @@ public:
 
     // To import a dataset from a folder
     // the function assumes that
-    // the image is called image.jpg
-    // the data is called stdata.tsv
+    // the image is called *.jpg
+    // the data is called *.tsv
     // the aligment is called alignment.txt
     // the spots file is called spots.txt
     // the metadata is present in a JSON file called info.json

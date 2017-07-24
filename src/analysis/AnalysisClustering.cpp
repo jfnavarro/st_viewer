@@ -49,8 +49,8 @@ void AnalysisClustering::clear()
     m_ui->kmeans->setChecked(true);
     m_ui->individual_reads_threshold->setValue(0);
     m_ui->reads_threshold->setValue(0);
-    m_ui->genes_threshold->setValue(0);
-    m_ui->spots_threshold->setValue(0);
+    m_ui->genes_threshold->setValue(5);
+    m_ui->spots_threshold->setValue(5);
     m_ui->clusters->setValue(5);
     m_ui->plot->chart()->removeAllSeries();
     m_colors.clear();
@@ -88,6 +88,7 @@ void AnalysisClustering::slotRun()
     m_ui->runClustering->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
     m_selected_spots.clear();
+    // make the call
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
     m_watcher.setFuture(future);
 }
@@ -174,13 +175,10 @@ void AnalysisClustering::computeColorsAsync()
     const double theta = tsne_tab->findChild<QDoubleSpinBox *>("theta")->value();
     const int max_iter = tsne_tab->findChild<QSpinBox *>("max_iter")->value();
     const int init_dim = tsne_tab->findChild<QSpinBox *>("init_dims")->value();
-
     const bool kmeans = m_ui->kmeans->isChecked();
     const int num_clusters = m_ui->clusters->value();
-
     const bool scale = pca_tab->findChild<QCheckBox *>("scale")->isChecked();
     const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
-
     const bool tsne = m_ui->tab->currentIndex() == 0;
 
     // Surprisingly it is much faster to call R's tsne/pca than to use C++ implementation....
