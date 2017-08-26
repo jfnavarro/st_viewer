@@ -13,8 +13,9 @@ class analysisClustering;
 
 QT_CHARTS_USE_NAMESPACE
 
-// A Widget used to classify the spots based on gene expression profiles
-// using dimensionality reduction and clustering
+// A Widget used to classify the spots (a selection) based on gene expression profiles
+// using dimensionality reduction and clustering algorithms
+// It allows users to interact with the scatter plot with selection
 class AnalysisClustering : public QWidget
 {
     Q_OBJECT
