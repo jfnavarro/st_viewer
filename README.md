@@ -109,15 +109,19 @@ No installers/binaries are provided for now.
 
     DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
     location of the Qt5 binaries and the Armadillo library.
+    
     eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
+    
     eg: "/Users/username/qcustomplot"
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
+    
     eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/
 
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
+    
     eg: 10.7, 10.8, 10.9, 10.11, etc ...
 
 *   Compile the application
@@ -158,9 +162,11 @@ No installers/binaries are provided for now.
 
     DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
     location of the Qt5 binaries and the Armadillo library.
+    
     eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
+    
     eg: "/Users/username/qcustomplot"
 
 * Then type the following to build and install
