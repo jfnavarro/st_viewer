@@ -134,23 +134,23 @@ v0.5.2
 	* Show total reads and total genes in selection widget
 
 v0.5.5
-    	* Changed UI interface
-    	* Added option to load datasets locally
-    	* Improved functionality in datasets view
-    	* Improved functionality in selections view
-    	* Selections do not get automatically saved in the cloud
-    	* Added gene based cut-off
-    	* Updated license terms
-    	* Removed deprecated libraries
-    	* General improvements and bug fixes
+    * Changed UI interface
+    * Added option to load datasets locally
+    * Improved functionality in datasets view
+    * Improved functionality in selections view
+    * Selections do not get automatically saved in the cloud
+    * Added gene based cut-off
+    * Updated license terms
+    * Removed deprecated libraries
+    * General improvements and bug fixes
 
 v0.5.6
-    	* Fixed many bugs
-    	* Clean up and refactored the code a bit
-    	* Added no internet configuration trough CMake
-    	* Added option to disable individual reads cut off
-    	* Added option to remove multiple datasets/selections
-    	* Users only see their datasets/selections
+    * Fixed many bugs
+    * Clean up and refactored the code a bit
+    * Added no internet configuration trough CMake
+    * Added option to disable individual reads cut off
+    * Added option to remove multiple datasets/selections
+    * Users only see their datasets/selections
 
 v0.5.7 
 	* Fixed some bugs
@@ -174,3 +174,29 @@ v0.6.2
 v0.6.3
 	* Added back plotting functionalities
 	* Fixed the building and packing for all the platforms
+
+v0.7.0
+    * Removed the online support
+    * Datasets are now loaded manually in different ways
+    * Added support to include a file with spot coordinates in the dataset
+    * Added support to include a file with spike-ins in the dataset
+    * Added support to include a file with normalization factors in the dataset
+    * Added support to adjust the chip size in the dataset
+    * Datasets are now working with the latest matrix TSV format
+    * If no spot coordinates are given the alignment matrix will be computed automatically
+    * Added a view with the spots to allow: select, show, hide, color, etc...
+    * Added the total count for the Genes and Spots view
+    * Added widget to show QC stats
+    * Added option to load gene colors
+    * Added option to load spot colors
+    * Added option to perform clustering on a dataset
+    * Added option to select based on the clustered spots
+    * Added lasso selection
+    * Added option to export/import selections
+    * Selections are now sub-matrices of a dataset
+    * Added widget to compute correlation between 2 selections
+    * Added widget to compute DEA (Differential Expression Analysis) between 2 selections
+    * Bug fixes and improvements
+    * UI optimizations
+    * Speed improvements
+    * Removed deprecated stuff
