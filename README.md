@@ -65,21 +65,28 @@ No installers/binaries are provided for now.
 
 ## Building
 
-* Download and install Qt open source from http://qt-project.org/downloads
+* Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
 
 * Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
-* Download and compile Armadillo from http://arma.sourceforge.net/
+* Download and compile Armadillo from http://arma.sourceforge.net/ (manual on how to install on the web)
 
 * Download and install R from https://cran.r-project.org/
 
 * Open R and install the following packages (DESeq2, Rtsne and SCRAN)
 
-* Install CMake (https://cmake.org/install/)
+        R
+        source("https://bioconductor.org/biocLite.R")
+        biocLite("DESeq2")
+        biocLite("scran")
+        install.packages("Rtsne")
+
+* Install CMake (https://cmake.org/install/) in case you do not have it already
 
 ###### OSX
 
-* Make sure that XCode and XCode Command Line Tools are installed
+* Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode" and "xcode-select on a terminal)
+  If needed you can install them from the Apple store. 
 
 * Clone the repository to a specific folder and build the application
 
