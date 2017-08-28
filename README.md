@@ -71,7 +71,7 @@ No installers/binaries are provided for now.
 
 * Download and compile Armadillo from http://arma.sourceforge.net/ (manual on how to install on the web)
 
-* Download and install R from https://cran.r-project.org/
+* Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
 * Open R and install the following packages (DESeq2, Rtsne and SCRAN)
 
@@ -81,7 +81,7 @@ No installers/binaries are provided for now.
         biocLite("scran")
         install.packages("Rtsne")
 
-* Install CMake (https://cmake.org/install/) in case you do not have it already
+* Download and install CMake (https://cmake.org/download/) (in case you do not have it already)
 
 ###### OSX
 
