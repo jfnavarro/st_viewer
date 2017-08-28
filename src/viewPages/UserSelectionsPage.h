@@ -4,13 +4,10 @@
 #include <QWidget>
 #include <QModelIndex>
 #include <memory>
-#include "data/DataProxy.h"
 
 class UserSelectionsItemModel;
 class QSortFilterProxyModel;
-class AnalysisDEA;
-class SelectionsWidget;
-class WaitingSpinnerWidget;
+class UserSelection;
 
 namespace Ui
 {
@@ -18,37 +15,28 @@ class UserSelections;
 } // namespace Ui //
 
 // UserSelections page contains a table with the selection made by the user.
-// Users can interact here to edit/remove selections and to perform analysis on
-// them
+// Users can interact here to edit/remove selections and to perform analysis
 // like the DEA, PCA, etc..
 
-// TODO factor out the confirmation dialog
-// TODO add option to show right click with mouse in selection (open, copy,
-// edit...)
-// TODO implement clustering options to compute cell types (spot type)
-// TODO add import selections option
-// TODO add posibility to edit and save objects in the table
+// TODO add option to show right click with mouse in selection (open, copy, edit...)
+// TODO implement DEA analysis
 class UserSelectionsPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    UserSelectionsPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    UserSelectionsPage(QWidget *parent = 0);
     virtual ~UserSelectionsPage();
 
     // clear the loaded content
     void clean();
 
+    // to add a new selection to the list
+    void addSelection(const UserSelection& selection);
+
 signals:
 
-    // to notify the cell view when the user wants to show or hide selections
-    void signalClearSelections();
-    void signalShowSelections(const QVector<UserSelection> &selections);
-
 public slots:
-
-    // to notify when the user has made a new selection
-    void slotSelectionsUpdated();
 
 private slots:
 
@@ -56,19 +44,22 @@ private slots:
     void slotSelectionSelected(QModelIndex index);
     // slots to handle when the user wants to export the selection to a file
     void slotExportSelection();
+    void slotExportSelection(QModelIndex);
     // slot to handle when the user wants to remove a selection
     void slotRemoveSelection();
+    void slotRemoveSelection(QModelIndex);
     // slot to handle when the user wants to edit a selection
     void slotEditSelection();
-    // this slot will init and show the DEA dialog (requires two selected
+    void slotEditSelection(QModelIndex);
+    // this slot will init and show the D.E.A. dialog (requires two selected
     // selections)
     void slotPerformDEA();
-    // this slot will get the selection's image and create dialog to show it
-    void slotShowTissue();
-    // to save a selection in the cloud
-    void slotSaveSelection();
-    // to show the aggregated gene counts of the selection in a table
-    void slotShowTable();
+    // slot to perform a correlation analysis between two selections
+    void slotPerformCorrelation();
+    // slot to show the aggregated gene counts of the selection in a table
+    void slotShowGenes();
+    // slot to show the aggregated spot counts of the selection in a table
+    void slotShowSpots();
     // to import a selection from a file
     void slotImportSelection();
 
@@ -76,11 +67,19 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
-    // internal function to invoke the download of genes selections
-    void loadSelections();
+
+    // internal functions for basic operations
+    void removeSelections(const QList<UserSelection> &selections);
+    void editSelection(const UserSelection &selection);
+    void exportSelection(const UserSelection &selection);
+
+    // internal function to check if the name exists
+    bool nameExist(const QString &name);
 
     // internal clear focus and default status for the buttons
     void clearControls();
+    // internal function to update the selections in the model
+    void selectionsUpdated();
 
     // to retrieve the table's model
     QSortFilterProxyModel *selectionsProxyModel();
@@ -88,12 +87,8 @@ private:
 
     // Ui object
     QScopedPointer<Ui::UserSelections> m_ui;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
-    // selections widget where the aggregated genes can be shown in a table
-    QScopedPointer<SelectionsWidget> m_selectionsWidget;
-    // waiting spinner
-    QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
+    // the list of selections objects
+    QList<UserSelection> m_selections;
 
     Q_DISABLE_COPY(UserSelectionsPage)
 };

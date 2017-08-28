@@ -5,8 +5,6 @@
 #include <QDialog>
 #include <QList>
 
-#include "data/DataProxy.h"
-
 namespace Ui
 {
 class SelectionDialog;
@@ -19,18 +17,14 @@ class SelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    typedef DataProxy::GeneList GeneList;
 
-    SelectionDialog(QSharedPointer<DataProxy> dataProxy,
-                    QWidget *parent = 0,
-                    Qt::WindowFlags f = 0);
+    SelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~SelectionDialog();
 
-    // returns the list of genes found in the reg-exp
-    const GeneList &selectedGenes() const;
-
-    // launches the dialog
-    static const GeneList selectGenes(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    QRegExp getRegExp() const;
+    bool isValid() const;
+    bool selectNonVisible() const;
+    bool caseSensitive() const;
 
 signals:
 
@@ -42,8 +36,6 @@ public slots:
     void accept() override;
     // to validate or not the reg-exp
     void slotValidateRegExp(const QString &pattern);
-    // to include or not ambiguos genes in the selection
-    void slotIncludeAmbiguous(bool includeAmbiguous);
     // to enable/disable case sensitivigy in the reg-exp
     void slotCaseSensitive(bool caseSensitive);
     // to enable/disable the inclusion of non visible in the selection
@@ -60,12 +52,6 @@ private:
     bool m_regExpValid;
     bool m_selectNonVisible;
     QRegExp m_regExp;
-
-    // local temp cache
-    GeneList m_selectedGeneList;
-
-    // ref to DataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
 
     Q_DISABLE_COPY(SelectionDialog)
 };

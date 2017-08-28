@@ -2,22 +2,20 @@
 #define CELLVIEWPAGE_H
 
 #include <QWidget>
-#include "data/DataProxy.h"
-#include <memory>
+#include <QFutureWatcher>
 
-class QColorDialog;
+#include "data/Dataset.h"
+#include "data/UserSelection.h"
+#include "viewRenderer/ImageTextureGL.h"
+#include "viewRenderer/HeatMapLegendGL.h"
+#include "viewRenderer/GeneRendererGL.h"
+
 class SelectionDialog;
-class Error;
-class CellGLView;
-class ImageTextureGL;
-class GridRendererGL;
-class HeatMapLegendGL;
-class GeneRendererGL;
-class AnalysisFRD;
-class QSlider;
-class SpinBoxSlider;
-class QComboBox;
-class QRadioButton;
+class SettingsWidget;
+class SpotsWidget;
+class GenesWidget;
+class UserSelectionsPage;
+class AnalysisClustering;
 
 namespace Ui
 {
@@ -25,129 +23,109 @@ class CellView;
 } // namespace Ui
 
 // This is the definition of the cell view page visualization widget
-// which contains a table of genes and an OpenGL based
-// rendering canvas to visualize the cell tissue and the genes.
-// It also contains a toobar like every page. Functionalities in the toolbar are
-// handled by slots.
+// which contains a table of genes/spots and an OpenGL based
+// rendering canvas to visualize the cell tissue and the spots (dataset).
+// It also contains a toobar. Functionalities in the toolbar are handled by slots.
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
+// It contains a widget with different visualization and data settings
 
-// TODO add a cache for the visual settings
-// TODO move visual settings to mainwindow as an independent widget
 // TODO add a ruler visual object
-// TODO add a visual object to show name of dataset
-// TODO add a visual object to hightlight spots with color
-// TODO add a lazo selection option
-// TODO add an option to show normalized reads with DESeq
-// TODO add an option to show the coordinates when the user hovers a spot
-// TODO add an option to show gene expression in a defined color range
-// TODO the thresholds and shared settings should be encapsulated in an object
-// then the rendering objects just need to have a reference and update when anything changes
+// TODO add tissue detection selection (Ludvig's)
+// TODO add a visual object to show the coordinates when the user hovers a spot
 class CellViewPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    CellViewPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    CellViewPage(QSharedPointer<SpotsWidget> spots,
+                 QSharedPointer<GenesWidget> genes,
+                 QSharedPointer<UserSelectionsPage> user_selections,
+                 QWidget *parent = 0);
     virtual ~CellViewPage();
 
-    // clear the loaded content
-    void clean();
+    // clear the loaded dataset and reset settings
+    void clear();
+
+    // the user has opened/edit a dataset
+    void loadDataset(Dataset dataset);
+
+    // the user has cleared the selections
+    void clearSelections();
 
 signals:
 
-    // notify the user has made a selection
-    void signalUserSelection();
-    // notify the user wants to log out
-    void signalLogOut();
-
 public slots:
-
-    // the user has opened/edit/removed  a dataset
-    void slotDatasetOpen(const QString &datasetId);
-    void slotDatasetUpdated(const QString &datasetId);
-    void slotDatasetRemoved(const QString &datasetId);
-    // the user has cleared the selections
-    void slotClearSelections();
-    // the user has selected/deselected genes
-    void slotGenesSelected(const DataProxy::GeneList &genes);
-    // the user has changed the color of genes
-    void slotGenesColor(const DataProxy::GeneList &genes);
-    // the user has changed the cut off of a gene
-    void slotGeneCutOff(const DataProxy::GenePtr gene);
-    // set the user name for the tool bar field
-    void slotSetUserName(const QString &username);
 
 private slots:
 
-    // some slots for gene actions that need adjustment of the value (scale)
-    void slotGeneShape(int geneShape);
-    void slotGeneIntensity(int geneIntensity);
-    void slotGeneSize(int geneSize);
+    // the user has updated the genes
+    void slotGenesUpdate();
 
-    // save current scene
+    // the user has updated the spots
+    void slotSpotsUpdated();
+
+    // save/esport current view
     void slotSaveImage();
     void slotPrintImage();
 
-    // selection of spot using a the reg-exp dialog that takes gene names as input
+    // selection of spots using a the reg-exp dialog that takes gene names as input
     void slotSelectByRegExp();
 
-    // select gene visual mode
-    void slotSetGeneVisualMode(QAction *action);
+    // user wants to show the QC widget
+    void slotShowQC();
 
-    // select legend anchor
-    void slotSetLegendAnchor(QAction *action);
+    // user wants to perform spot clustering
+    void slotClustering();
 
-    // to handle when the user want to store the current selection into a selection object
+    // user wants to load a file with spot colors
+    void slotLoadSpotColorsFile();
+
+    // user wants to load a file with genes to select
+    void slotLoadGenes();
+
+    // user has performed spot classification
+    void slotLoadSpotColors();
+
+    // user has made a selection in the clustering widget
+    void slotSelectSpotsClustering();
+
+    // user wants to create a selection
     void slotCreateSelection();
 
-    // to load the cell tissue figure (tile it into textures)
-    void slotLoadCellFigure();
+    // when the image has been tiled and loaded
+    void slotImageLoaded(const bool loaded);
 
 private:
     // create OpenGL graphical elements and view
-    void initGLView();
+    void initRenderer();
 
-    // create menus, add them to the main bar and create the connections
-    void createMenusAndConnections();
+    // create all the connections
+    void createConnections();
 
-    // reset all the visual variables to default
-    void resetActionStates();
+    // Reference to other views
+    QSharedPointer<SpotsWidget> m_spots;
+    QSharedPointer<GenesWidget> m_genes;
+    QSharedPointer<UserSelectionsPage> m_user_selections;
 
-    // to enable/disable main controls
-    void setEnableButtons(bool enable);
+    // GUI UI object
+    QScopedPointer<Ui::CellView> m_ui;
 
     // OpenGL visualization objects
     QSharedPointer<HeatMapLegendGL> m_legend;
     QSharedPointer<GeneRendererGL> m_gene_plotter;
     QSharedPointer<ImageTextureGL> m_image;
-    QSharedPointer<GridRendererGL> m_grid;
 
-    // color dialog for the grid
-    QScopedPointer<QColorDialog> m_colorDialogGrid;
+    // different control widgets and views
+    QScopedPointer<SettingsWidget> m_settings;
 
-    // User interface
-    QScopedPointer<Ui::CellView> m_ui;
+    // the spot clustering widget
+    QScopedPointer<AnalysisClustering> m_clustering;
 
-    // Features Reads Distribution
-    QScopedPointer<AnalysisFRD> m_FDH;
+    // the currently opened dataset
+    Dataset m_dataset;
 
-    // Elements of the cell view visual settings menu
-    QScopedPointer<QRadioButton> m_colorLinear;
-    QScopedPointer<QRadioButton> m_colorLog;
-    QScopedPointer<QRadioButton> m_colorExp;
-    QScopedPointer<QRadioButton> m_poolingGenes;
-    QScopedPointer<QRadioButton> m_poolingReads;
-    QScopedPointer<QRadioButton> m_poolingTPMs;
-    QScopedPointer<SpinBoxSlider> m_geneHitsThreshold;
-    QScopedPointer<SpinBoxSlider> m_geneGenesThreshold;
-    QScopedPointer<SpinBoxSlider> m_geneTotalReadsThreshold;
-    QScopedPointer<QSlider> m_geneIntensitySlider;
-    QScopedPointer<QSlider> m_geneSizeSlider;
-    QScopedPointer<QComboBox> m_geneShapeComboBox;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
-    // currently opened dataset
-    mutable QString m_openedDatasetId;
+    // watcher for the image loading
+    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(CellViewPage)
 };

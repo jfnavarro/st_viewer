@@ -119,7 +119,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/zoom_in.png</normaloff>:/images/zoom_in.png</iconset>
            </property>
            <property name="iconSize">
@@ -163,8 +163,128 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/zoom_out.png</normaloff>:/images/zoom_out.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rotate_right">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>SplitHCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="statusTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/rotateRight.png</normaloff>:/images/rotateRight.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rotate_left">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Rotate image -45°</string>
+           </property>
+           <property name="statusTip">
+            <string>Rotate image 45°</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/rotateLeft.png</normaloff>:/images/rotateLeft.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="flip">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Flip image vertically</string>
+           </property>
+           <property name="statusTip">
+            <string>Flip image vertically</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/flip.png</normaloff>:/images/flip.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -198,17 +318,58 @@
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000300;&quot;&gt;Shows the Features Distribution Histogram&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Shows the Genes/Transcripts  Histogram</string>
            </property>
            <property name="statusTip">
-            <string>Shows the Features Distribution Histogram</string>
+            <string>Shows the Genes/Transcripts  Histogram</string>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/histogram.png</normaloff>:/images/histogram.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clustering">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>33</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Classify spots by gene expression</string>
+           </property>
+           <property name="statusTip">
+            <string>Classify spots by gene expression</string>
+           </property>
+           <property name="whatsThis">
+            <string>Classify spots by gene expression</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/clusterBW.png</normaloff>:/images/clusterBW.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -251,8 +412,58 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/selection.png</normaloff>:/images/selection.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="lasso_selection">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Activate lasso selection</string>
+           </property>
+           <property name="statusTip">
+            <string>Activate lasso selection</string>
+           </property>
+           <property name="whatsThis">
+            <string>Activate lasso selection</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/lasso.png</normaloff>:/images/lasso.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -295,7 +506,7 @@
             <string>Create a selection object</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/create_selection.png</normaloff>:/images/create_selection.png</iconset>
            </property>
            <property name="iconSize">
@@ -339,7 +550,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/reg_search.png</normaloff>:/images/reg_search.png</iconset>
            </property>
            <property name="iconSize">
@@ -383,7 +594,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
            </property>
            <property name="iconSize">
@@ -427,7 +638,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
            </property>
            <property name="iconSize">
@@ -442,7 +653,89 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="genemenu">
+          <widget class="QPushButton" name="loadSpots">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Load spot colors from file</string>
+           </property>
+           <property name="statusTip">
+            <string>Load spot colors from file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/loadSpots.png</normaloff>:/images/loadSpots.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="loadGenes">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Load and select genes from a file</string>
+           </property>
+           <property name="statusTip">
+            <string>Load and select genes from a file</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/loadGenes.png</normaloff>:/images/loadGenes.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="genemenu">
            <property name="minimumSize">
             <size>
              <width>35</width>
@@ -471,7 +764,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
            </property>
            <property name="iconSize">
@@ -480,66 +773,7 @@
              <height>35</height>
             </size>
            </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextBesideIcon</enum>
-           </property>
-           <property name="autoRaise">
-            <bool>true</bool>
-           </property>
-           <property name="arrowType">
-            <enum>Qt::NoArrow</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="cellmenu">
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-           <property name="statusTip">
-            <string>Configuration of cell tissue</string>
-           </property>
-           <property name="accessibleName">
-            <string>Configuration of cell tissue</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
-             <normaloff>:/images/settings2.png</normaloff>:/images/settings2.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextBesideIcon</enum>
-           </property>
-           <property name="autoRaise">
+           <property name="flat">
             <bool>true</bool>
            </property>
           </widget>
@@ -564,47 +798,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="logout">
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="toolTip">
-            <string>Log out</string>
-           </property>
-           <property name="statusTip">
-            <string>Log out</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
-             <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
@@ -619,178 +812,16 @@
     </widget>
    </item>
   </layout>
-  <action name="actionShow_showGrid">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show Grid</string>
-   </property>
-   <property name="toolTip">
-    <string>Show the grid of the chips</string>
-   </property>
-  </action>
-  <action name="actionShow_showGenes">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show Genes</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide genes</string>
-   </property>
-  </action>
-  <action name="actionShow_cellTissueBlue">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Load main tissue image</string>
-   </property>
-   <property name="toolTip">
-    <string>Load main tissue image</string>
-   </property>
-  </action>
-  <action name="actionShow_cellTissueRed">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Load second tissue image</string>
-   </property>
-   <property name="toolTip">
-    <string>Load second tissue image</string>
-   </property>
-  </action>
-  <action name="actionShow_showCellTissue">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show/Hide tissue image</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide tissue image</string>
-   </property>
-  </action>
-  <action name="actionShow_toggleNormal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Normal Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Color mode where the genes are treated individually per feature</string>
-   </property>
-  </action>
-  <action name="actionShow_toggleDynamicRange">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Dynamic Range Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Color mode where the features transparency is related to the level of expression</string>
-   </property>
-  </action>
-  <action name="actionShow_toggleHeatMap">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Heat Map Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Color mode where the color is computed according to the level of expression</string>
-   </property>
-  </action>
-  <action name="action_toggleLegendTopRight">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Top Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the legend on the top right part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleLegendTopLeft">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Top Left Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the legend on the top left part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleLegendDownRight">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Bottom Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the legend on the bottom right part of the canvas</string>
-   </property>
-  </action>
-  <action name="action_toggleLegendDownLeft">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend Bottom Right Corner</string>
-   </property>
-   <property name="toolTip">
-    <string>Places the legend on the bottom left part of the canvas</string>
-   </property>
-  </action>
-  <action name="actionShow_showLegend">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show Legend</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide the heatmap legend</string>
-   </property>
-  </action>
-  <action name="actionColor_selectColorGrid">
-   <property name="text">
-    <string>Choose Color Grid</string>
-   </property>
-   <property name="toolTip">
-    <string>Shows a color selector to change color of the grid</string>
-   </property>
-  </action>
-  <action name="actionIndividual_gene_cut_off">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Individual gene cut-off</string>
-   </property>
-   <property name="toolTip">
-    <string>Enable or disable the individual gene cut-off</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>CellGLView</class>
    <extends>QOpenGLWidget</extends>
-   <header location="global">viewOpenGL/CellGLView.h</header>
+   <header location="global">viewRenderer/CellGLView.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../stviewer-build/application.qrc"/>
+  <include location="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc"/>
  </resources>
  <connections/>
 </ui>

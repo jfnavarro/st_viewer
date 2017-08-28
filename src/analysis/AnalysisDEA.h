@@ -1,123 +1,90 @@
 #ifndef ANALYSISDEA_H
 #define ANALYSISDEA_H
 
-#include <QDialog>
+#include <QWidget>
 #include <QModelIndex>
+#include <QSortFilterProxyModel>
+#include <QFutureWatcher>
 
-#include "dataModel/UserSelection.h"
-#include <memory>
+#include "data/STData.h"
 
 namespace Ui
 {
-class ddaWidget;
+class analysisDEA;
 }
 
-class QTableWidget;
-class GeneSelectionDEAItemModel;
-class QSortFilterProxyModel;
-
 // AnalysisDEA is a widget that contains methods to compute
-// DEA(Differential Expression Analysis) between two user selections
-// It shows the results in a correlation plot and a table
-// that includes the gene counts for both selections
-// It also computes some basic stats
-// TODO a DESeq2 approach to compute the DEA must be implemented
-class AnalysisDEA : public QDialog
+// DEA(Differential Expression Analysis) between two ST data selections
+// It shows the results in a volcano plot and a table
+// that includes the differently expressed genes at a given FDR
+class AnalysisDEA : public QWidget
 {
     Q_OBJECT
 
 public:
-    // Data container for the computed statistics
-    struct deaStats {
 
-        deaStats()
-            : countA(0)
-            , countB(0)
-            , countAB(0)
-            , pearsonCorrelation(0.0)
-        {
-        }
-        // vector of counts for each selection
-        std::vector<double> valuesSelectionA;
-        std::vector<double> valuesSelectionB;
-        // number of genes only in A
-        int countA;
-        // number of genes only in B
-        int countB;
-        // number of genes in both A and B
-        int countAB;
-        // correlation value
-        double pearsonCorrelation;
-    };
-
-    // Data container the counts in both selection of a gene
-    // the idea is that each record contains the information of
-    // one gene and its expression levels in the two selections
-    struct deaReads {
-        deaReads()
-            : gene()
-            , readsA(0)
-            , readsB(0)
-        {
-        }
-
-        QString gene;
-        int readsA;
-        int readsB;
-    };
-
-    typedef QList<deaReads> combinedSelectionType;
-
-    AnalysisDEA(const UserSelection &selObjectA,
-                const UserSelection &selObjectB,
-                QWidget *parent = 0,
-                Qt::WindowFlags f = 0);
+    AnalysisDEA(const STData::STDataFrame &data1,
+                         const STData::STDataFrame &data2,
+                         const QString &nameA,
+                         const QString &nameB,
+                         QWidget *parent = 0,
+                         Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
-    // Computes the statistics and visualization data points
-    const deaStats computeStatistics();
 
-    // Update UI elements for the statistics and correlation plots
-    void updateStatisticsUI(const deaStats &stats);
 
 signals:
 
 private slots:
 
-    // Threshold slider slots for number of reads (update the UI too)
-    void slotSetLowerThreshold(const int value);
-    void slotSetUpperThreshold(const int value);
-
-    // Save correlation plot to a file
-    void slotSaveToPDF();
-
-    // To be invoked if the user selects a gene in the table
-    // this will trigger a highlight of the gene in the scatter plot
-    void slotSelectionSelected(QModelIndex index);
+    // the user wants to export the DE genes
+    void slotExportTable();
+    // the user has selected a DE gene in the table
+    void slotGeneSelected(QModelIndex index);
+    // when the DE genes have been computed in the worker thread
+    void slotDEAComputed();
+    // to export the volcano plot to  a file
+    void slotExportPlot();
+    // to handle when the user right clicks
+    void customMenuRequested(const QPoint &pos);
 
 private:
-    // Helper functions to get the model from the gene selections table
-    GeneSelectionDEAItemModel *selectionsModel();
-    QSortFilterProxyModel *selectionsProxyModel();
 
-    // Helper function to test whether two selections are outside threshold
-    // returns true if they are outside
-    bool combinedSelectionThreholsd(const deaReads &deaReads) const;
+    // to initialize the data (DE genes and volcano plot)
+    void run();
+    void runDEAAsync();
+    void updateTable();
+    void updatePlot();
 
-    // Fills a list of deaReads objects for each shared gene in
-    // both selections and also unique genes.
-    // The idea is to have a structure that has information for the intersected
-    // set of unique genes in both selections.
-    // The computed vector is stored for convenience so it can be used
-    // to compute statistics with computeStatistics()
-    void computeGeneToReads(const UserSelection &selObjectA, const UserSelection &selObjectB);
+    // GUI object
+    QScopedPointer<Ui::analysisDEA> m_ui;
 
-    // The GUI object
-    QScopedPointer<Ui::ddaWidget> m_ui;
-    // We use these variables to cache the statistics for convenience
-    combinedSelectionType m_combinedSelections;
-    int m_lowerThreshold;
-    int m_upperThreshold;
+    // the merged data frame and the selections names
+    STData::STDataFrame m_dataA;
+    STData::STDataFrame m_dataB;
+    QString m_nameA;
+    QString m_nameB;
+
+    // cache the settings to not recompute always
+    SettingsWidget::NormalizationMode m_normalization;
+    int m_reads_threshold;
+    int m_genes_threshold;
+    int m_ind_reads_treshold;
+    int m_spots_threshold;
+
+    // cache the results to not recompute
+    mat m_results;
+    std::vector<std::string> m_results_cols;
+    std::vector<std::string> m_results_rows;
+
+    // the gene to highlight in the volcano plot
+    QPointF m_gene_highlight;
+
+    // the proxy model
+    QScopedPointer<QSortFilterProxyModel> m_proxy;
+
+    // The computational thread
+    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(AnalysisDEA)
 };

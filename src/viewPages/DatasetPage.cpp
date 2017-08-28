@@ -7,27 +7,20 @@
 #include <QUuid>
 #include <QDateTime>
 
-#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
-
-#include "error/Error.h"
 #include "model/DatasetItemModel.h"
 #include "dialogs/EditDatasetDialog.h"
 #include "data/DatasetImporter.h"
-#include "dataModel/Dataset.h"
-#include "dataModel/Chip.h"
-#include "dataModel/ImageAlignment.h"
-#include "dataModel/Dataset.h"
 #include "SettingsStyle.h"
 
 #include "ui_datasetsPage.h"
 
 using namespace Style;
 
-DatasetPage::DatasetPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+DatasetPage::DatasetPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::DataSets())
-    , m_dataProxy(dataProxy)
-    , m_waiting_spinner(nullptr)
+    , m_importedDatasets()
+    , m_open_dataset()
 {
     m_ui->setupUi(this);
 
@@ -35,37 +28,31 @@ DatasetPage::DatasetPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     m_ui->DatasetPageWidget->setStyleSheet("QWidget#DatasetPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
-    // initialize waiting spinner
-    m_waiting_spinner.reset(new WaitingSpinnerWidget(this, true, true));
-    m_waiting_spinner->setRoundness(70.0);
-    m_waiting_spinner->setMinimumTrailOpacity(15.0);
-    m_waiting_spinner->setTrailFadePercentage(70.0);
-    m_waiting_spinner->setNumberOfLines(12);
-    m_waiting_spinner->setLineLength(20);
-    m_waiting_spinner->setLineWidth(10);
-    m_waiting_spinner->setInnerRadius(20);
-    m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0, 155, 60));
-
     // connect signals
     connect(m_ui->filterLineEdit,
-            SIGNAL(textChanged(QString)),
+            &QLineEdit::textChanged,
             datasetsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
+            &QSortFilterProxyModel::setFilterFixedString);
     connect(m_ui->datasetsTableView,
-            SIGNAL(clicked(QModelIndex)),
+            &DatasetsTableView::clicked,
             this,
-            SLOT(slotDatasetSelected(QModelIndex)));
+            &DatasetPage::slotDatasetSelected);
     connect(m_ui->datasetsTableView,
-            SIGNAL(doubleClicked(QModelIndex)),
+            &DatasetsTableView::doubleClicked,
             this,
-            SLOT(slotSelectAndOpenDataset(QModelIndex)));
-    connect(m_ui->refresh, SIGNAL(clicked(bool)), this, SLOT(slotLoadDatasets()));
+            &DatasetPage::slotSelectAndOpenDataset);
     connect(m_ui->deleteDataset, SIGNAL(clicked(bool)), this, SLOT(slotRemoveDataset()));
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
-    connect(m_ui->importDataset, SIGNAL(clicked(bool)), this, SLOT(slotImportDataset()));
+    connect(m_ui->importDataset, &QPushButton::clicked, this, &DatasetPage::slotImportDataset);
+    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetOpen(QModelIndex)),
+            this, SLOT(slotOpenDataset(QModelIndex)));
+    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetEdit(QModelIndex)),
+            this, SLOT(slotEditDataset(QModelIndex)));
+    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetDelete(QModelIndex)),
+            this, SLOT(slotRemoveDataset(QModelIndex)));
 
+    // reset controls
     clearControls();
 }
 
@@ -75,6 +62,8 @@ DatasetPage::~DatasetPage()
 
 void DatasetPage::clean()
 {
+    m_open_dataset = nullptr;
+    m_importedDatasets.clear();
     datasetsModel()->clear();
     clearControls();
 }
@@ -82,14 +71,15 @@ void DatasetPage::clean()
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_ui->datasetsTableView->model());
+            = qobject_cast<QSortFilterProxyModel *>(m_ui->datasetsTableView->model());
     Q_ASSERT(datasetsProxyModel);
     return datasetsProxyModel;
 }
 
 DatasetItemModel *DatasetPage::datasetsModel()
 {
-    DatasetItemModel *model = qobject_cast<DatasetItemModel *>(datasetsProxyModel()->sourceModel());
+    DatasetItemModel *model =
+            qobject_cast<DatasetItemModel *>(datasetsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -98,7 +88,6 @@ void DatasetPage::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     clearControls();
-    slotLoadDatasets();
 }
 
 void DatasetPage::clearControls()
@@ -133,20 +122,6 @@ void DatasetPage::slotSelectAndOpenDataset(QModelIndex index)
     slotOpenDataset();
 }
 
-void DatasetPage::slotLoadDatasets()
-{
-    if (!m_dataProxy->userLogIn()) {
-        return;
-    }
-
-    // download datasets
-    m_waiting_spinner->start();
-    if (m_dataProxy->loadDatasets()) {
-        slotDatasetsUpdated();
-    }
-    m_waiting_spinner->stop();
-}
-
 void DatasetPage::slotEditDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
@@ -156,39 +131,48 @@ void DatasetPage::slotEditDataset()
         return;
     }
     const auto dataset = currentDatasets.front();
+    editDataset(dataset);
+}
 
-    if (dataset->downloaded()) {
-        QScopedPointer<EditDatasetDialog> editdataset(
-            new EditDatasetDialog(this,
-                                  Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint));
-        editdataset->setWindowIcon(QIcon());
-        editdataset->setName(dataset->name());
-        editdataset->setComment(dataset->statComments());
+void DatasetPage::slotEditDataset(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
+    // Can only open 1 valid dataset
+    if (currentDatasets.size() != 1) {
+        return;
+    }
+    auto dataset = currentDatasets.front();
+    editDataset(dataset);
+}
 
-        if (editdataset->exec() == EditDatasetDialog::Accepted
-            && (editdataset->getName() != dataset->name()
-                || editdataset->getComment() != dataset->statComments())
-            && !editdataset->getName().isEmpty() && !editdataset->getName().isNull()) {
-
-            // TODO maybe check that the name does not exist
-            dataset->name(editdataset->getName());
-            dataset->statComments(editdataset->getComment());
-
-            // update the dataset in the database
-            m_waiting_spinner->start();
-            m_dataProxy->updateDataset(*dataset);
-            m_waiting_spinner->stop();
-            // after we edit a dataset we reload all of them
-            // NOTE do not think this is necessary
-            // slotDatasetsUpdated();
-        }
-    } else {
-        const auto importer = m_importedDatasets.value(dataset->id());
-        Q_ASSERT(importer);
-        const int result = importer->exec();
-        if (result == QDialog::Accepted) {
-            // TODO maybe check that the name does not exist
-            // TODO should reload the dataset automatically if it is the currently opened
+void DatasetPage::editDataset(const Dataset &dataset)
+{
+    DatasetImporter importer(dataset);
+    // Launch the dialog
+    const int result = importer.exec();
+    if (result == QDialog::Accepted) {
+        // Check that the name does not exist
+        const QString datasetName = importer.datasetName();
+        if (nameExist(datasetName) && datasetName != dataset.name()) {
+            QMessageBox::critical(this, tr("Datasert import"),
+                                  tr("There is another dataset with the same name"));
+        } else {
+            const int index = m_importedDatasets.indexOf(dataset);
+            Q_ASSERT(index != -1);
+            Dataset updated_dataset(importer);
+            m_importedDatasets.replace(index, updated_dataset);
+            if (dataset == *(m_open_dataset.data())
+                    && (dataset.dataFile() != updated_dataset.dataFile()
+                        || dataset.imageFile() != updated_dataset.imageFile()
+                        || dataset.imageAlignmentFile() != updated_dataset.imageAlignmentFile()
+                        || dataset.spotsFile() != updated_dataset.spotsFile())) {
+                m_open_dataset = QSharedPointer<Dataset>(new Dataset(updated_dataset));
+                emit signalDatasetUpdated(updated_dataset.name());
+            }
+            slotDatasetsUpdated();
         }
     }
 }
@@ -201,81 +185,30 @@ void DatasetPage::slotOpenDataset()
     if (currentDatasets.size() != 1) {
         return;
     }
-    const auto dataset = currentDatasets.front();
+    auto dataset = currentDatasets.front();
+    openDataset(dataset);
+}
 
-    m_waiting_spinner->start();
-    if (dataset->downloaded()) {
-        if (m_dataProxy->loadDatasetContent(dataset)) {
-            emit signalDatasetOpen(dataset->id());
-        } else {
-            QMessageBox::critical(this, tr("Dataset content"),
-                                  tr("Error loading dataset content"));
-            //TODO clear data in data proxy
-        }
-    } else {
-
-        const auto importer = m_importedDatasets.value(dataset->id());
-        Q_ASSERT(importer);
-        bool parsedOk = true;
-
-        // Create a chip with the dimensions given
-        Chip chip;
-        const QRect chip_rect = importer->chipDimensions();
-        const int x1 = chip_rect.topLeft().x();
-        const int y1 = chip_rect.topLeft().y();
-        const int x2 = chip_rect.bottomRight().x();
-        const int y2 = chip_rect.bottomRight().y();
-        chip.id(QUuid::createUuid().toString());
-        chip.name(chip.id());
-        chip.x1(x1);
-        chip.x1Border(x1 - 1);
-        chip.x1Total(x1 - 2);
-        chip.y1(y1);
-        chip.y1Border(y1 - 1);
-        chip.y1Total(y1 - 2);
-        chip.x2(x2);
-        chip.x2Border(x2 + 1);
-        chip.x2Total(x2 + 2);
-        chip.y2(y2);
-        chip.y2Border(y2 + 1);
-        chip.y2Total(y2 + 2);
-        m_dataProxy->loadChip(chip);
-
-        // add the features
-        const QByteArray &featuresFile = importer->featuresFile();
-        Q_ASSERT(!featuresFile.isNull() && !featuresFile.isEmpty());
-        parsedOk &= m_dataProxy->loadFeatures(featuresFile);
-
-        // creates an image alignment with the previous chip and the images
-        ImageAlignment alignment;
-        alignment.id(QUuid::createUuid().toString());
-        alignment.chipId(chip.id());
-        alignment.name(alignment.id());
-        const QString mainImageName = QUuid::createUuid().toString();
-        const QString secondImageName = QUuid::createUuid().toString();
-        alignment.figureBlue(mainImageName);
-        alignment.figureRed(secondImageName);
-        alignment.alignment(importer->alignmentMatrix());
-        m_dataProxy->loadImageAlignment(alignment);
-
-        // add the images
-        const QByteArray &mainImageFile = importer->mainImageFile();
-        Q_ASSERT(!mainImageFile.isNull() && !mainImageFile.isEmpty());
-        parsedOk &= m_dataProxy->loadCellTissueImage(mainImageFile, mainImageName);
-        const QByteArray &secondImageFile = importer->secondImageFile();
-        if (!secondImageFile.isEmpty() && !secondImageFile.isNull()) {
-            parsedOk &= m_dataProxy->loadCellTissueImage(secondImageFile, secondImageName);
-        }
-
-        if (parsedOk) {
-            emit signalDatasetOpen(dataset->id());
-        } else {
-            QMessageBox::critical(this, tr("Dataset content"), tr("Error loading dataset content"));
-            // TODO clear up the content in dataProxy
-        }
+void DatasetPage::slotOpenDataset(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
     }
+    const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
+    // Can only open 1 valid dataset
+    if (currentDatasets.size() != 1) {
+        return;
+    }
+    auto dataset = currentDatasets.front();
+    openDataset(dataset);
+}
 
-    m_waiting_spinner->stop();
+void DatasetPage::openDataset(const Dataset &dataset)
+{
+    // Set selected dataset
+    m_open_dataset = QSharedPointer<Dataset>(new Dataset(dataset));
+    // Notify that the dataset was open
+    emit signalDatasetOpen(dataset.name());
 }
 
 void DatasetPage::slotRemoveDataset()
@@ -286,55 +219,76 @@ void DatasetPage::slotRemoveDataset()
     if (currentDatasets.empty()) {
         return;
     }
+    removeDatasets(currentDatasets);
+}
 
+void DatasetPage::slotRemoveDataset(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
+    removeDatasets(currentDatasets);
+}
+
+void DatasetPage::removeDatasets(const QList<Dataset> &datasets)
+{
     const int answer
-        = QMessageBox::warning(this,
-                               tr("Remove Dataset"),
-                               tr("Are you really sure you want to remove the dataset/s?"),
-                               QMessageBox::Yes,
-                               QMessageBox::No | QMessageBox::Escape);
+            = QMessageBox::warning(this,
+                                   tr("Remove Dataset"),
+                                   tr("Are you really sure you want to remove the dataset/s?"),
+                                   QMessageBox::Yes,
+                                   QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
     }
 
-    m_waiting_spinner->start();
-    for (const auto &dataset : currentDatasets) {
-        m_dataProxy->removeDataset(dataset->id(), dataset->downloaded());
-        //TODO A signal must be send to notify cell view in case the
-        //dataset removed is currently opened
+    for (auto dataset: datasets) {
+        Q_ASSERT(m_importedDatasets.removeOne(dataset));
+        if (!m_open_dataset.isNull() && *(m_open_dataset.data()) == dataset) {
+            emit signalDatasetRemoved(dataset.name());
+            m_open_dataset = nullptr;
+        }
     }
-    m_waiting_spinner->stop();
-    // after we remove a dataset we refresh the model
+
     slotDatasetsUpdated();
 }
 
 void DatasetPage::slotImportDataset()
 {
-    QPointer<DatasetImporter> importer = new DatasetImporter();
-    const int result = importer->exec();
+    DatasetImporter importer;
+    // Launch the dialog
+    const int result = importer.exec();
     if (result == QDialog::Accepted) {
-        // TODO maybe check that the name does not exist
-        Dataset dataset;
-        dataset.id(QUuid::createUuid().toString());
-        dataset.name(importer->datasetName());
-        dataset.downloaded(false);
-        dataset.created(QDateTime::currentDateTime().toString());
-        dataset.lastModified(QDateTime::currentDateTime().toString());
-        dataset.statComments(importer->comments());
-        dataset.statSpecies(importer->species());
-        dataset.statTissue(importer->tissue());
-        // store locally the imported dataset
-        m_importedDatasets.insert(dataset.id(), importer);
-        // add the dataset to dataProxy and update the model
-        m_dataProxy->addDataset(dataset);
-        slotDatasetsUpdated();
+        // Check that the name does not exist
+        const QString datasetName = importer.datasetName();
+        if (nameExist(datasetName)) {
+            QMessageBox::critical(this, tr("Datasert import"),
+                                  tr("There is another dataset with the same name"));
+        } else {
+            Dataset dataset(importer);
+            m_importedDatasets.append(dataset);
+            slotDatasetsUpdated();
+        }
     }
+}
+
+QSharedPointer<Dataset> DatasetPage::getCurrentDataset() const
+{
+    return m_open_dataset;
 }
 
 void DatasetPage::slotDatasetsUpdated()
 {
-    // update model
-    datasetsModel()->loadDatasets(m_dataProxy->getDatasetList());
+    // update model and clear controls
+    datasetsModel()->loadDatasets(m_importedDatasets);
     clearControls();
+}
+
+bool DatasetPage::nameExist(const QString &name)
+{
+    return std::find_if(m_importedDatasets.begin(), m_importedDatasets.end(),
+                        [&name](const Dataset& dataset)
+    {return dataset.name() == name;}) != m_importedDatasets.end();
 }

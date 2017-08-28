@@ -3,41 +3,39 @@
 
 #include <QWidget>
 #include <QModelIndex>
-#include <memory>
-#include "data/DataProxy.h"
+#include "data/Dataset.h"
 
 class QItemSelectionModel;
 class QItemSelection;
-class Error;
 class DatasetItemModel;
 class QSortFilterProxyModel;
 class WaitingSpinnerWidget;
 class DatasetImporter;
+
 namespace Ui
 {
 class DataSets;
 } // namespace Ui //
 
 // This is the definition of the datasets view which contains
-// a tables with datasets (imported locally and/or downloaded from the database)
-// It gets updated everytime we show the view.
-// It uses the dataProxy object to load the data.
-// It has a toolbar with basic functionalities
+// a table with datasets (imported locally)
+// It has a toolbar with basic functionalities (such as open, edit, export, import, etc..)
 
 // TODO add option to highlight the currently opened dataset
 // TODO add right click support (copy, open, save, delete...)
-// TODO add posibility to edit and save objects in the table
-// TODO add option to get more info (stats) for the dataset
 class DatasetPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    DatasetPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent = 0);
+    DatasetPage(QWidget *parent = 0);
     virtual ~DatasetPage();
 
     // clear the loaded content
     void clean();
+
+    // returns the currently opened dataset
+    QSharedPointer<Dataset> getCurrentDataset() const;
 
 public slots:
 
@@ -53,18 +51,20 @@ private slots:
     void slotDatasetsUpdated();
 
     // some slots for the actions of the toolbar
-    void slotLoadDatasets();
     void slotOpenDataset();
+    void slotOpenDataset(const QModelIndex &index);
     void slotRemoveDataset();
+    void slotRemoveDataset(const QModelIndex &index);
     void slotEditDataset();
+    void slotEditDataset(const QModelIndex &index);
     void slotImportDataset();
 
 signals:
 
     // to notify about dataset/s action/s
-    void signalDatasetOpen(const QString datasetId);
-    void signalDatasetRemoved(const QString datasetId);
-    void signalDatasetUpdated(const QString datasetId);
+    void signalDatasetOpen(const QString dataset);
+    void signalDatasetRemoved(const QString dataset);
+    void signalDatasetUpdated(const QString dataset);
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -72,6 +72,13 @@ protected:
 private:
     // clear focus and resets to default all buttons status
     void clearControls();
+    // check if a dataset with the same name exists
+    bool nameExist(const QString &name);
+
+    // Internal function for basic operations
+    void editDataset(const Dataset &dataset);
+    void openDataset(const Dataset &dataset);
+    void removeDatasets(const QList<Dataset> &datasets);
 
     // to get the data model from the table
     QSortFilterProxyModel *datasetsProxyModel();
@@ -79,12 +86,10 @@ private:
 
     // reference to ui object
     QScopedPointer<Ui::DataSets> m_ui;
-    // reference to dataProxy
-    QSharedPointer<DataProxy> m_dataProxy;
-    // waiting (loading) spinner
-    QScopedPointer<WaitingSpinnerWidget> m_waiting_spinner;
     // List of imported datasets (from files)
-    QHash<QString, QPointer<DatasetImporter>> m_importedDatasets;
+    QList<Dataset> m_importedDatasets;
+    // Currently open dataset
+    QSharedPointer<Dataset> m_open_dataset;
 
     Q_DISABLE_COPY(DatasetPage)
 };

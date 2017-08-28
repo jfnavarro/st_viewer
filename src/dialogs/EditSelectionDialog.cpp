@@ -12,19 +12,6 @@ EditSelectionDialog::EditSelectionDialog(QWidget *parent, Qt::WindowFlags f)
 
     m_ui->setupUi(this);
 
-    // populate type combobox
-    // TODO we should use the metatype of the enum to iterate its types
-    m_ui->type->addItem("Rubberband", 1);
-    m_ui->type->addItem("Lazo", 2);
-    m_ui->type->addItem("Segmented", 3);
-    m_ui->type->addItem("Console", 4);
-    m_ui->type->addItem("Cluster", 5);
-    m_ui->type->addItem("Other", 6);
-
-    // create QColor dialog
-    m_color.reset(new QColorDialog(this));
-
-    connect(m_ui->color, &QPushButton::clicked, [=] { m_color->show(); });
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     move(parent->window()->mapToGlobal(parent->window()->rect().center())
@@ -45,16 +32,6 @@ const QString EditSelectionDialog::getComment() const
     return m_ui->comment->toPlainText();
 }
 
-const QColor EditSelectionDialog::getColor() const
-{
-    return m_color->selectedColor();
-}
-
-const QString EditSelectionDialog::getType() const
-{
-    return m_ui->type->currentText();
-}
-
 void EditSelectionDialog::setName(const QString name)
 {
     return m_ui->name->setText(name);
@@ -65,12 +42,3 @@ void EditSelectionDialog::setComment(const QString comment)
     return m_ui->comment->setText(comment);
 }
 
-void EditSelectionDialog::setColor(const QColor color)
-{
-    m_color->setCurrentColor(color);
-}
-
-void EditSelectionDialog::setType(const QString type)
-{
-    m_ui->type->setCurrentText(type);
-}

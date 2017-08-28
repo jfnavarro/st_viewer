@@ -42,26 +42,28 @@ macro(INITIALISE_PROJECT)
            add_definitions(-D_SCL_SECURE_NO_WARNINGS)
         endif()
     else()
-        # Adding -std=c++11 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        # Adding -std=c++14 flag explicitly
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
-        # Disabled warnings due to QCustomplot and Qt
-        set(DISABLED_WARNINGS "-Wno-c++11-long-long -Wno-old-style-cast -Wno-missing-braces")
+        # Rcpp/RInside needs -Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined
+        set(DISABLED_WARNINGS "-Wno-infinite-recursion -Wno-unused-parameter -Wno-macro-redefined \
+            -Wno-unused-function -Wno-sign-compare -Wno-pessimizing-move -Wno-cast-align")
 
         if (APPLE)
             # This is needed for a compatibility issue with XCode 7
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-inconsistent-missing-override")
         endif()
 
-        set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra -Wformat-nonliteral \
+        #-Wformat-nonliteral (Armadillo complaints about this)
+        set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
                            -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization \
                            -Wredundant-decls -Wpacked -Wuninitialized -Wcast-align -Wcast-qual -Wswitch \
                            -Wsign-compare -pedantic-errors -fuse-cxa-atexit -ffor-scope")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic  -Weffc++ -Wnon-virtual-dtor \
+            set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
         endif()
     endif()

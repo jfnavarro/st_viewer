@@ -1,0 +1,3 @@
+[submodule "src/math/bhtsne"]
+	path = src/math/bhtsne
+	url = https://github.com/lvdmaaten/bhtsne.git

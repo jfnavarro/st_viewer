@@ -1,26 +1,62 @@
 #include "DatasetImporter.h"
-#include "ui_datasetImporter.h"
-#include <QFileDialog>
+
 #include <QMessageBox>
 #include <QTextStream>
 #include <QDebug>
+#include <QCommandLinkButton>
+#include <QFileDialog>
+#include <QDirIterator>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QStandardPaths>
+
+#include "Dataset.h"
+
+#include "ui_datasetImporter.h"
+
+DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
+    : QDialog(parent)
+    , m_ui(new Ui::DatasetImporter)
+{
+    init();
+    m_ui->datasetName->setText(dataset.name());
+    m_ui->species->setText(dataset.statSpecies());
+    m_ui->tissue->setText(dataset.statTissue());
+    m_ui->comments->setText(dataset.statComments());
+    m_ui->stDataFile->setText(dataset.dataFile());
+    m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
+    m_ui->mainImageFile->setText(dataset.imageFile());
+    m_ui->spotMapFile->setText(dataset.spotsFile());
+    m_ui->spikeInFile->setText(dataset.spikeinFile());
+    m_ui->sizeFactorsFile->setText(dataset.sizeFactorsFile());
+}
 
 DatasetImporter::DatasetImporter(QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::DatasetImporter)
 {
+    init();
+}
+
+void DatasetImporter::init()
+{
     m_ui->setupUi(this);
-    connect(m_ui->loadFeaturesFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadFeaturesFile()));
-    connect(m_ui->loadMainImageFile, SIGNAL(clicked(bool)), this, SLOT(slotLoadMainImageFile()));
-    connect(m_ui->loadSecondImageFile,
-            SIGNAL(clicked(bool)),
-            this,
-            SLOT(slotLoadSecondImageFile()));
+    connect(m_ui->loadSTDataFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
+    connect(m_ui->loadSpotMapFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSpotsMapFile);
+    connect(m_ui->loadMainImageFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
     connect(m_ui->loadImageAlignmentFile,
-            SIGNAL(clicked(bool)),
-            this,
-            SLOT(slotLoadAlignmentFile()));
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(slotValidateForm()));
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadAlignmentFile);
+    connect(m_ui->loadSpikeInFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSpikeInFile);
+    connect(m_ui->loadSizeFactorsFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadSizeFactorsFile);
+    connect(m_ui->loadFolder,
+            &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
+    connect(m_ui->loadMetaFile,
+            &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseMetaFile);
 }
 
 DatasetImporter::~DatasetImporter()
@@ -47,83 +83,48 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
-const QByteArray DatasetImporter::featuresFile() const
+const QRect DatasetImporter::chip() const
 {
-    QFile file(m_ui->featuresFile->text());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Error opening ST data file " << file.errorString();
-        return QByteArray();
-    }
-    return file.readAll();
+    return QRect(1,1,m_ui->chip_x->value(), m_ui->chip_y->value());
 }
 
-const QByteArray DatasetImporter::mainImageFile() const
+const QString DatasetImporter::STDataFile() const
 {
-    QFile file(m_ui->mainImageFile->text());
-    if (!file.open(QIODevice::ReadOnly)) {
-        return QByteArray();
-    }
-    return file.readAll();
+    return m_ui->stDataFile->text();
 }
 
-const QByteArray DatasetImporter::secondImageFile() const
+const QString DatasetImporter::mainImageFile() const
 {
-    QFile file(m_ui->secondImageFile->text());
-    if (!file.open(QIODevice::ReadOnly)) {
-        return QByteArray();
-    }
-    return file.readAll();
+    return m_ui->mainImageFile->text();
 }
 
-const QRect DatasetImporter::chipDimensions() const
+const QString DatasetImporter::alignmentMatrix() const
 {
-    //NOTE hardcoded for now..
-    return QRect(QPoint(2, 2),
-                 QPoint(32, 34));
+    return m_ui->imageAlignmentFile->text();
 }
 
-const QTransform DatasetImporter::alignmentMatrix() const
+const QString DatasetImporter::spotsMapFile() const
 {
-    float a11 = 1.0;
-    float a12 = 0.0;
-    float a13 = 0.0;
-    float a21 = 0.0;
-    float a22 = 1.0;
-    float a23 = 0.0;
-    float a31 = 0.0;
-    float a32 = 0.0;
-    float a33 = 1.0;
-
-    QFile file(m_ui->imageAlignmentFile->text());
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream in(&file);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            // TODO check it is only one line and 9 columns
-            QStringList fields = line.split(" ");
-            a11 = fields.at(0).toFloat();
-            a12 = fields.at(1).toFloat();
-            a13 = fields.at(2).toFloat();
-            a21 = fields.at(3).toFloat();
-            a22 = fields.at(4).toFloat();
-            a23 = fields.at(5).toFloat();
-            a31 = fields.at(6).toFloat();
-            a32 = fields.at(7).toFloat();
-            a33 = fields.at(8).toFloat();
-        }
-    }
-    file.close();
-
-    return QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+    return m_ui->spotMapFile->text();
 }
 
-void DatasetImporter::slotLoadFeaturesFile()
+const QString DatasetImporter::spikeinFile() const
+{
+    return m_ui->spikeInFile->text();
+}
+
+const QString DatasetImporter::sizeFactorsFile() const
+{
+    return m_ui->sizeFactorsFile->text();
+}
+
+void DatasetImporter::slotLoadSTDataFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Features File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("JSON Files (*.json)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open ST Data File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -131,19 +132,19 @@ void DatasetImporter::slotLoadFeaturesFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Features File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("ST Data File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->featuresFile->insert(filename);
+        m_ui->stDataFile->setText(filename);
     }
 }
 
 void DatasetImporter::slotLoadMainImageFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Main Image File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Main Image File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("JPEG Files (*.jpg *.jpeg)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -153,17 +154,17 @@ void DatasetImporter::slotLoadMainImageFile()
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->mainImageFile->insert(filename);
+        m_ui->mainImageFile->setText(filename);
     }
 }
 
-void DatasetImporter::slotLoadSecondImageFile()
+void DatasetImporter::slotLoadSpotsMapFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Second Image File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("JPEG Files (*.jpg)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spots Map File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -171,21 +172,19 @@ void DatasetImporter::slotLoadSecondImageFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Second Image File"),
-                              tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Spots Map File"), tr("File is incorrect or not readable"));
     } else {
-        m_ui->secondImageFile->insert(filename);
+        m_ui->spotMapFile->setText(filename);
     }
 }
 
 void DatasetImporter::slotLoadAlignmentFile()
 {
     const QString filename
-        = QFileDialog::getOpenFileName(this,
-                                       tr("Open Alignment File"),
-                                       QDir::homePath(),
-                                       QString("%1").arg(tr("TXT Files (*.txt)")));
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Alignment File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -197,30 +196,194 @@ void DatasetImporter::slotLoadAlignmentFile()
                               tr("Alignment File"),
                               tr("File is incorrect or not readable"));
     } else {
-        m_ui->imageAlignmentFile->insert(filename);
+        m_ui->imageAlignmentFile->setText(filename);
     }
 }
 
-void DatasetImporter::slotValidateForm()
+void DatasetImporter::slotLoadSpikeInFile()
 {
-    QString error_msg;
-    bool isValid = true;
-    if (m_ui->mainImageFile->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("Main image is missing!");
-    } else if (m_ui->featuresFile->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("ST Data file is missing!");
-    } else if (m_ui->datasetName->text().isEmpty()) {
-        isValid = false;
-        error_msg = tr("Dataset name is missing!");
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Spike-in File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
     }
 
-    if (!isValid) {
-        QMessageBox::critical(this, tr("Import dataset"), error_msg);
-        QDialog::done(QDialog::Rejected);
-        // TODO maybe we should not close the dialog
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Spike-in File"),
+                              tr("File is incorrect or not readable"));
     } else {
-        QDialog::done(QDialog::Accepted);
+        m_ui->spikeInFile->setText(filename);
+    }
+}
+
+void DatasetImporter::slotLoadSizeFactorsFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Size Factors File"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Size Factors File"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        m_ui->sizeFactorsFile->setText(filename);
+    }
+}
+
+void DatasetImporter::done(int result)
+{
+    if(QDialog::Accepted == result)  {
+        QString error_msg;
+        bool isValid = true;
+        if (m_ui->mainImageFile->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("Main image is missing!");
+        } else if (m_ui->stDataFile->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("ST Data file is missing!");
+        } else if (m_ui->datasetName->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("Dataset name is missing!");
+        }
+        if (!isValid) {
+            QMessageBox::critical(this, tr("Import dataset"), error_msg);
+        } else {
+            QDialog::done(QDialog::Accepted);
+        }
+    } else {
+        QDialog::done(result);
+        return;
+    }
+}
+
+void DatasetImporter::slotParseFolder()
+{
+    QFileDialog dialog(this, tr("Select folder with the ST Dataset"), QDir::homePath());
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::Detail);
+    if (dialog.exec()) {
+        QDir selectedDir = dialog.directory();
+        selectedDir.setFilter(QDir::Files);
+        QDirIterator it(selectedDir, QDirIterator::NoIteratorFlags);
+        while (it.hasNext()) {
+            const QString file = it.next();
+            qDebug() << "Parsing dataset file from folder " << file;
+            if (file.contains(".tsv")) {
+                m_ui->stDataFile->setText(file);
+            } else if (file.contains(".jpg")) {
+                m_ui->mainImageFile->setText(file);
+            } else if (file.contains("alignment")) {
+                m_ui->imageAlignmentFile->setText(file);
+            } else if (file.contains("spots")) {
+                m_ui->spotMapFile->setText(file);
+            } else if (file.contains("spikein")) {
+                m_ui->spikeInFile->setText(file);
+            } else if (file.contains("sizefactors")) {
+                m_ui->sizeFactorsFile->setText(file);
+            } else if (file.contains("info.json")) {
+                parseInfoJSON(file);
+            }
+        }
+    }
+}
+
+void DatasetImporter::slotParseMetaFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Dataset's meta file"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("JSON Files (*.json)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this,
+                              tr("Dataset's meta file"),
+                              tr("File is incorrect or not readable"));
+        return;
+    }
+
+    QFile file_data(filename);
+    if (file_data.open(QIODevice::ReadOnly)) {
+        const QByteArray &data = file_data.readAll();
+        const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+        const QJsonObject &jsonObject = loadDoc.object();
+        if (jsonObject.contains("name")) {
+            m_ui->datasetName->setText(jsonObject["name"].toString());
+        }
+        if (jsonObject.contains("species")) {
+            m_ui->species->setText(jsonObject["species"].toString());
+        }
+        if (jsonObject.contains("tissue")) {
+            m_ui->tissue->setText(jsonObject["tissue"].toString());
+        }
+        if (jsonObject.contains("comments")) {
+            m_ui->comments->setText(jsonObject["comments"].toString());
+        }
+        if (jsonObject.contains("data")) {
+            m_ui->stDataFile->setText(jsonObject["data"].toString());
+        }
+        if (jsonObject.contains("image")) {
+            m_ui->mainImageFile->setText(jsonObject["image"].toString());
+        }
+        if (jsonObject.contains("aligment")) {
+            m_ui->imageAlignmentFile->setText(jsonObject["aligment"].toString());
+        }
+        if (jsonObject.contains("coordinates")) {
+            m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());
+        }
+        if (jsonObject.contains("spike_ins")) {
+            m_ui->spikeInFile->setText(jsonObject["spike_ins"].toString());
+        }
+        if (jsonObject.contains("size_factors")) {
+            m_ui->sizeFactorsFile->setText(jsonObject["size_factors"].toString());
+        }
+    } else {
+        QMessageBox::critical(this,
+                              tr("Dataset's meta file"),
+                              tr("Error parsing file"));
+    }
+}
+
+
+void DatasetImporter::parseInfoJSON(const QString &filename)
+{
+    QFile file_data(filename);
+    if (file_data.open(QIODevice::ReadOnly)) {
+        const QByteArray &data = file_data.readAll();
+        const QJsonDocument &loadDoc = QJsonDocument::fromJson(data);
+        const QJsonObject &jsonObject = loadDoc.object();
+        if (jsonObject.contains("name")) {
+            m_ui->datasetName->setText(jsonObject["name"].toString());
+        }
+        if (jsonObject.contains("species")) {
+            m_ui->species->setText(jsonObject["species"].toString());
+        }
+        if (jsonObject.contains("tissue")) {
+            m_ui->tissue->setText(jsonObject["tissue"].toString());
+        }
+        if (jsonObject.contains("comments")) {
+            m_ui->comments->setText(jsonObject["comments"].toString());
+        }
+    } else {
+        qDebug() << "Error parsing info.json for dataset";
     }
 }

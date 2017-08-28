@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsWidget</class>
+ <widget class="QWidget" name="SettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>469</width>
+    <height>741</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Visualization Settings</string>
+  </property>
+  <property name="toolTip">
+   <string>Different settings for the visualization of gene/spots </string>
+  </property>
+  <property name="statusTip">
+   <string>Different settings for the visualization of gene/spots </string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label_8">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Normalization</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxNormalization">
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="toolTip">
+      <string>Different normalization methods for the counts</string>
+     </property>
+     <property name="statusTip">
+      <string>Normalization methods</string>
+     </property>
+     <property name="whatsThis">
+      <string>Different normalization methods for the counts</string>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="normalization_raw">
+        <property name="toolTip">
+         <string>Default values</string>
+        </property>
+        <property name="statusTip">
+         <string>Default values</string>
+        </property>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="normalization_tpm">
+        <property name="toolTip">
+         <string>Transcripts per million </string>
+        </property>
+        <property name="statusTip">
+         <string>Transcripts per million</string>
+        </property>
+        <property name="text">
+         <string>TPM</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="normalization_rel">
+        <property name="toolTip">
+         <string>Total count of each spot</string>
+        </property>
+        <property name="statusTip">
+         <string>Total count of each spot</string>
+        </property>
+        <property name="text">
+         <string>REL</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="normalization_deseq">
+        <property name="toolTip">
+         <string>DESeq2 size factors (geometric means)</string>
+        </property>
+        <property name="statusTip">
+         <string>DESeq2 size factors (geometric means)</string>
+        </property>
+        <property name="text">
+         <string>DESeq2</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="normalization_scran">
+        <property name="toolTip">
+         <string>SCRAN Sum-factors</string>
+        </property>
+        <property name="statusTip">
+         <string>SCRAN Sum-factors</string>
+        </property>
+        <property name="text">
+         <string>SCRAN</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QCheckBox" name="spikeIn">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Apply spke-ins to counts matrix if the dataset has valid spike-ins</string>
+       </property>
+       <property name="statusTip">
+        <string>Apply spke-ins to counts matrix if the dataset has valid spike-ins</string>
+       </property>
+       <property name="text">
+        <string> Apply Provided Spike-ins</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="sizeFactors">
+       <property name="toolTip">
+        <string>Apply size factors to counts matrix if the dataset has valid sisze-factors</string>
+       </property>
+       <property name="statusTip">
+        <string>Apply size factors to counts matrix if the dataset has valid sisze-factors</string>
+       </property>
+       <property name="text">
+        <string> Apply Provided Size Factors</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_7">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Thresholds</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Total Detected Genes (Per spot)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="genes_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="value">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Total Transcripts (Per spot)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="reads_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Transcripts (Per gene-spot)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="individual_reads_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Total Detected Spots (Per gene)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spots_threshold">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="value">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="gene_cutoff">
+     <property name="toolTip">
+      <string>Ensable/disable the invidiaual gene cut-offs defined in the Genes widget</string>
+     </property>
+     <property name="statusTip">
+      <string>Ensable/disable the invidiaual gene cut-offs defined in the Genes widget</string>
+     </property>
+     <property name="text">
+      <string>Enable Individual Gene cut off (transcripts)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_9">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Visualization mode</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxVisualMode">
+     <property name="toolTip">
+      <string>Different visualization modes</string>
+     </property>
+     <property name="statusTip">
+      <string>Visualization modes</string>
+     </property>
+     <property name="whatsThis">
+      <string>Different visualization modes</string>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QRadioButton" name="visual_normal">
+        <property name="toolTip">
+         <string>The gene/spots selected colors</string>
+        </property>
+        <property name="statusTip">
+         <string>The gene/spots selected colors</string>
+        </property>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_dynamic_range">
+        <property name="toolTip">
+         <string>The gene/spot selected color with intensity adjusted according to expression level</string>
+        </property>
+        <property name="statusTip">
+         <string>The gene/spot selected color with intensity adjusted according to expression level</string>
+        </property>
+        <property name="text">
+         <string>Dynamic Range</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_heatmap">
+        <property name="toolTip">
+         <string>Heatmap of expression level (rainbow colors)</string>
+        </property>
+        <property name="statusTip">
+         <string>Heatmap of expression level (rainbow colors)</string>
+        </property>
+        <property name="text">
+         <string>Heatmap1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_color_range">
+        <property name="toolTip">
+         <string>Heatmap of expression level (single colors)</string>
+        </property>
+        <property name="statusTip">
+         <string>Heatmap of expression level (single colors)</string>
+        </property>
+        <property name="text">
+         <string>Heatmap2</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_10">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Visualization data</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxVisualType">
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QRadioButton" name="visual_reads">
+        <property name="toolTip">
+         <string>Use the genes transcripts</string>
+        </property>
+        <property name="statusTip">
+         <string>Use the genes transcripts</string>
+        </property>
+        <property name="text">
+         <string>Transcripts</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_reads_log">
+        <property name="toolTip">
+         <string>Use the genes transcripts in log scale</string>
+        </property>
+        <property name="statusTip">
+         <string>Use the genes transcripts in log scale</string>
+        </property>
+        <property name="text">
+         <string>Transcripts (Log)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_genes">
+        <property name="toolTip">
+         <string>Use the number of expressed genes</string>
+        </property>
+        <property name="statusTip">
+         <string>Use the number of expressed genes</string>
+        </property>
+        <property name="text">
+         <string>Genes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="visual_genes_log">
+        <property name="toolTip">
+         <string>Use the number of expressed genes in log scale</string>
+        </property>
+        <property name="statusTip">
+         <string>Use the number of expressed genes in log scale</string>
+        </property>
+        <property name="text">
+         <string>Genes (Log)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_11">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>General settings</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QCheckBox" name="legend">
+       <property name="toolTip">
+        <string>Shows/hide the heatmap legend</string>
+       </property>
+       <property name="statusTip">
+        <string>Shows/hide the heatmap legend</string>
+       </property>
+       <property name="text">
+        <string>Show Legend</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="show_spots">
+       <property name="toolTip">
+        <string>Show/hides the spos in the main view</string>
+       </property>
+       <property name="statusTip">
+        <string>Show/hides the spos in the main view</string>
+       </property>
+       <property name="text">
+        <string>Show Spots</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="show_image">
+       <property name="toolTip">
+        <string>Show/hide the tissue image in the main view</string>
+       </property>
+       <property name="statusTip">
+        <string>Show/hide the tissue image in the main view</string>
+       </property>
+       <property name="text">
+        <string>Show Tissue Image</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Size Spots</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="spots_size">
+     <property name="toolTip">
+      <string>The size of the spots in the view</string>
+     </property>
+     <property name="statusTip">
+      <string>The size of the spots in the view</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Intensity Spots</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="spots_intensity">
+     <property name="toolTip">
+      <string>The intensity of the spots in the view</string>
+     </property>
+     <property name="statusTip">
+      <string>The intensity of the spots in the view</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_10">
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="update">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Updates the visual data</string>
+       </property>
+       <property name="statusTip">
+        <string>Updates the visual data</string>
+       </property>
+       <property name="text">
+        <string>Update View</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,23 @@
+include_directories(${PROJECT_SOURCE_DIR}/ext)
+
+set(LIBRARY_ARG_INCLUDES
+    GeneRendererGL.h
+    CellGLView.h
+    HeatMapLegendGL.h
+    ImageTextureGL.h
+    GraphicItemGL.h
+    SelectionEvent.h
+)
+
+set(LIBRARY_ARG_SOURCES
+    GeneRendererGL.cpp
+    CellGLView.cpp
+    HeatMapLegendGL.cpp
+    ImageTextureGL.cpp
+    GraphicItemGL.cpp
+)
+
+set(LIBRARY_ARG_UI_FILES
+)
+
+ST_LIBRARY()

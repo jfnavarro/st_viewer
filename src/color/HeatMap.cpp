@@ -6,15 +6,9 @@
 namespace Color
 {
 
-void createHeatMapImage(QImage &image,
-                        const float lowerbound,
-                        const float upperbound,
-                        const Visual::GeneColorMode &colorMode)
+void createLegend(QImage &image, const float lowerbound,
+                  const float upperbound, const ColorGradients cmap)
 {
-    // TODO it appears from now that the color mode must be disregarded as the color
-    // spectra for the legend using a linear function should be correct for other color modes
-    // Alternatively, adjusted_Value, lowerbound and upperbound can be transformed using colorMode
-    Q_UNUSED(colorMode);
 
     const int height = image.height();
     const int width = image.width();
@@ -24,14 +18,12 @@ void createHeatMapImage(QImage &image,
         // color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
         const float adjusted_value
-            = Math::linearConversion<float, float>(static_cast<float>(value),
-                                                   0.0,
-                                                   static_cast<float>(height),
-                                                   lowerbound,
-                                                   upperbound);
-        const float normalizedValue
-            = Math::norm<float, float>(adjusted_value, lowerbound, upperbound);
-        const QColor color = Color::createHeatMapWaveLenghtColor(normalizedValue);
+                = Math::linearConversion<float, float>(static_cast<float>(value),
+                                                       0.0,
+                                                       static_cast<float>(height),
+                                                       lowerbound,
+                                                       upperbound);
+        const QColor color = Color::createCMapColor(adjusted_value, lowerbound, upperbound, cmap);
         const QRgb rgb_color = color.rgb();
         for (int x = 0; x < width; ++x) {
             image.setPixel(x, y, rgb_color);
@@ -41,7 +33,7 @@ void createHeatMapImage(QImage &image,
 
 // simple function that computes color from a min-max range
 // using linear Interpolation
-QColor createHeatMapLinearColor(const double value, const double min, const double max)
+QColor createHeatMapLinearColor(const float value, const float min, const float max)
 {
     const double halfmax = (min + max) / 2;
     const double blue = std::max(0.0, 255 * (1 - (value / halfmax)));
@@ -51,12 +43,13 @@ QColor createHeatMapLinearColor(const double value, const double min, const doub
 }
 
 QColor createDynamicRangeColor(const float value, const float min,
-                               const float max, QColor color)
+                               const float max, const QColor color)
 {
     const float adjusted_value
-        = Math::norm<float, float>(value, min, max);
-    color.setAlphaF(adjusted_value);
-    return color;
+            = Math::norm<float, float>(value, min, max);
+    QColor newcolor(color);
+    newcolor.setAlphaF(adjusted_value);
+    return newcolor;
 }
 
 // simple function that computes color from a value
@@ -118,25 +111,52 @@ QColor createHeatMapWaveLenghtColor(const float value)
     return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
-// normalizes a value to wave lenghts range using different modes (to be used
-// with the function above)
-float normalizeValueSpectrumFunction(const float value, const Visual::GeneColorMode &colorMode)
+// Functions to create a color mapped in the color range given
+QColor createRangeColor(const float value, const float min, const float max,
+                        QColor init, QColor end)
 {
-    float transformedValue = value;
+    const float norm_value = Math::norm<float, float>(value, min, max);
+    return Math::lerp(norm_value, init, end);
+}
 
-    switch (colorMode) {
-    case Visual::LogColor:
-        transformedValue = std::log1p(value);
-        break;
-    case Visual::ExpColor:
-        transformedValue = qSqrt(value);
-        break;
-    case Visual::LinearColor:
-    default:
-        // do nothing
-        break;
+QColor createCMapColorGpHot(const float value, const float min, const float max)
+{
+    const QCPRange range(min,max);
+    QCPColorGradient cmap(QCPColorGradient::gpHot);
+    return QColor(cmap.color(value, range));
+}
+
+QColor createCMapColor(const float value, const float min,
+                       const float max, const ColorGradients cmap)
+{
+    const QCPRange range(min, max);
+    QCPColorGradient cmapper(cmap);
+    return QColor(cmapper.color(value, range));
+}
+
+QColor adjustVisualMode(const QColor merged_color,
+                        const float &merged_value,
+                        const float &min_reads,
+                        const float &max_reads,
+                        const SettingsWidget::VisualMode mode)
+{
+    QColor color = merged_color;
+    switch (mode) {
+    case (SettingsWidget::VisualMode::Normal): {
+    } break;
+    case (SettingsWidget::VisualMode::DynamicRange): {
+        color = Color::createDynamicRangeColor(merged_value, min_reads,
+                                               max_reads, merged_color);
+    } break;
+    case (SettingsWidget::VisualMode::HeatMap): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpSpectrum);
+    } break;
+    case (SettingsWidget::VisualMode::ColorRange): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpHot);
     }
-
-    return transformedValue;
+    }
+    return color;
 }
 }

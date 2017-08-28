@@ -4,8 +4,8 @@
 #include <QTableView>
 #include <QPointer>
 
-class GeneFeatureItemModel;
-class SortGenesProxyModel;
+class QSortFilterProxyModel;
+class GeneItemModel;
 
 // An abstraction of QTableView for the genes table
 class GenesTableView : public QTableView
@@ -17,17 +17,31 @@ public:
     virtual ~GenesTableView();
 
     // returns the current selection mapped to the sorting model
-    QItemSelection geneTableItemSelection() const;
+    QItemSelection getItemSelection() const;
+
+    //  Functions to retrieve the model and the proxy model of the table
+    QSortFilterProxyModel *getProxyModel();
+    GeneItemModel *getModel();
+
+signals:
+
+    // signals emitted when the user selects or change colors of genes
+    void signalGenesUpdated();
 
 public slots:
 
-    // slot used to set a search filter for the table
-    void setGeneNameFilter(const QString &str);
+    // slot used to set a search on the table by name
+    void setNameFilter(const QString &str);
+
+private slots:
+
+    // slot to handle when the user right clicks
+    void customMenuRequested(const QPoint &pos);
 
 private:
-    // references to model and proxy model
-    QScopedPointer<GeneFeatureItemModel> m_geneModel;
-    QScopedPointer<SortGenesProxyModel> m_sortGenesProxyModel;
+
+    // references to the proxy model
+    QScopedPointer<QSortFilterProxyModel> m_sortProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };

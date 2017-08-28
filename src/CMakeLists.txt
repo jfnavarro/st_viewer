@@ -25,7 +25,7 @@ set(CMAKE_AUTOMOC ON)
 
 # Find the path to Qt binaries and set the Qt libraries (needed here since /ext contains Qt libraries)
 find_package(Qt5LinguistTools REQUIRED CONFIG)
-set(ST_QT_LIBS Widgets PrintSupport Network Core Gui OpenGL Concurrent)
+set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent Charts)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()
@@ -48,25 +48,26 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
-# Include third party libraries
-add_subdirectory(ext)
+find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
+
+find_package(R REQUIRED)
+include_directories(${LIBR_INCLUDE_DIRS})
+include_directories(${LIBRCPP_INCLUDE_DIRS})
+include_directories(${LIBRINSIDE_INCLUDE_DIRS})
+include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
                    color
-                   concurrent
-                   dataModel
-                   network
-                   auth
                    data
-                   customWidgets
                    viewTables
                    viewPages
-                   viewOpenGL
-                   utils
-                   error
-                   io
+                   viewRenderer
                    model
                    config
                    math
@@ -82,15 +83,11 @@ endforeach()
 foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
-list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:qtwaitingspinner>")
-# 'rapidjson' does not need to be compiled, we just need to include the headers
-include_directories(${PROJECT_SOURCE_DIR}/src/ext/rapidjson)
 
 ###CREATE TARGET BINARY#################################
 
 # Create main target's sources (resources needs to be part of the target)
-set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp
-    SettingsNetwork.h SettingsStyle.h SettingsVisual.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
+set(ST_CLIENT_SOURCES main.cpp mainWindow.cpp SettingsStyle.h ${ST_TARGET_OBJECTS} ${QT_RESOURCES})
 
 # Create executable target
 if(WIN32)
@@ -112,8 +109,9 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
-# Link libraries for hte ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot)
+# Link libraries for the ST Viewer target
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
+    ${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES} Threads::Threads)
 
 ### UNIT TESTS ################################################################
 
@@ -191,9 +189,6 @@ if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/cmake/linux/STViewer.sh DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
-    if(${PUBLICKEY})
-        install(FILES ${PUBLICKEY} DESTINATION .)
-    endif()
     install(TARGETS ${PROJECT_NAME} DESTINATION .
             RUNTIME DESTINATION .
             LIBRARY DESTINATION lib
@@ -238,9 +233,6 @@ if(APPLE)
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
-    if(${PUBLICKEY})
-        add_custom_command(TARGET ${PROJECT_NAME} COMMAND install -m 644 ${PUBLICKEY} ${CMAKE_INSTALL_PREFIX}/Resources/)
-    endif()
     add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
 
     # Build dmg
@@ -339,10 +331,10 @@ if(WIN32)
         set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
     endif()
 
-	# Deploy the qt plugins in the expected location 
+    # Deploy the qt plugins in the expected location
     deploy_qt_plugins()
 
-    # Qt 5.7 does not include ICU libraries
+    # Qt 5.8 does not include ICU libraries
     # windows_deploy_qt_libraries(icudt56 icuin56 icuuc56)
 
     # Install resources
@@ -351,21 +343,10 @@ if(WIN32)
                        COMMAND ${CMAKE_COMMAND} -E copy ${QT_LOCALES} ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/translations/)
     install(TARGETS ${PROJECT_NAME} DESTINATION .)
     install(FILES ${CONFIG_FILE} DESTINATION .)
-    if(${PUBLICKEY})
-        install(FILES ${PUBLICKEY} DESTINATION .)
-    endif()
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
-	# Install shared libraries
-	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(WIN_FOLDER win64)
-	else()
-		set(WIN_FOLDER win)
-	endif()
-	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/libeay32.dll DESTINATION .)
-	install(FILES ${CMAKE_SOURCE_DIR}/cmake/${WIN_FOLDER}/ssleay32.dll DESTINATION .)
-	install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION .)
+    install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION .)
 
 endif(WIN32)
 

@@ -10,19 +10,17 @@
 #include <QColorDialog>
 
 #include "viewTables/GenesTableView.h"
-#include "model/GeneFeatureItemModel.h"
-#include "utils/SetTips.h"
+#include "model/GeneItemModel.h"
+
 #include "SettingsStyle.h"
-#include "SettingsVisual.h"
 
 using namespace Style;
 
-GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+GenesWidget::GenesWidget(QWidget *parent)
     : QWidget(parent)
     , m_lineEdit(nullptr)
     , m_genes_tableview(nullptr)
     , m_colorList(nullptr)
-    , m_dataProxy(dataProxy)
 {
     // one layout for the controls and another for the table
     QVBoxLayout *genesLayout = new QVBoxLayout();
@@ -72,7 +70,7 @@ GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
                     QIcon(QStringLiteral(":/images/select-color.png")),
                     tr("Set color of selected genes"));
     // show color button will open up a color selector
-    m_colorList.reset(new QColorDialog(Visual::DEFAULT_COLOR_GENE, this));
+    m_colorList.reset(new QColorDialog(Qt::red, this));
     m_colorList->setOption(QColorDialog::DontUseNativeDialog, true);
     geneListLayout->addWidget(showColorButton);
     // add separation
@@ -82,7 +80,8 @@ GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     m_lineEdit->setClearButtonEnabled(true);
     m_lineEdit->setFixedSize(CELL_PAGE_SUB_MENU_LINE_EDIT_SIZE);
     m_lineEdit->setStyleSheet(CELL_PAGE_SUB_MENU_LINE_EDIT_STYLE);
-    setToolTipAndStatusTip(tr("Search by gene name"), m_lineEdit.data());
+    m_lineEdit->setToolTip(tr("Search by gene name"));
+    m_lineEdit->setStatusTip(tr("Search by gene name"));
     geneListLayout->addWidget(m_lineEdit.data());
     geneListLayout->setAlignment(m_lineEdit.data(), Qt::AlignRight);
 
@@ -98,13 +97,14 @@ GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
     setLayout(genesLayout);
 
     // connections
-    connect(showSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotShowAllSelected()));
-    connect(hideSelectedButton, SIGNAL(clicked(bool)), this, SLOT(slotHideAllSelected()));
-    connect(selectionAllButton, SIGNAL(clicked(bool)), m_genes_tableview.data(), SLOT(selectAll()));
+    connect(showSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotShowAllSelected);
+    connect(hideSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotHideAllSelected);
+    connect(selectionAllButton, &QPushButton::clicked,
+            m_genes_tableview.data(), &GenesTableView::selectAll);
     connect(selectionClearAllButton,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             m_genes_tableview.data(),
-            SLOT(clearSelection()));
+            &GenesTableView::clearSelection);
     connect(showColorButton, &QPushButton::clicked, [=] {
         m_colorList->show();
         m_colorList->raise();
@@ -114,21 +114,17 @@ GenesWidget::GenesWidget(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
         slotSetColorAllSelected(m_colorList->currentColor());
     });
     connect(m_lineEdit.data(),
-            SIGNAL(textChanged(QString)),
+            &QLineEdit::textChanged,
             m_genes_tableview.data(),
-            SLOT(setGeneNameFilter(QString)));
-    connect(getModel(),
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
+            &GenesTableView::setNameFilter);
+    connect(m_genes_tableview->getModel(),
+            &GeneItemModel::signalGeneCutOffChanged,
             this,
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)));
-    connect(getModel(),
-            SIGNAL(signalColorChanged(DataProxy::GeneList)),
+            &GenesWidget::signalGenesUpdated);
+    connect(m_genes_tableview.data(),
+            &GenesTableView::signalGenesUpdated,
             this,
-            SIGNAL(signalColorChanged(DataProxy::GeneList)));
-    connect(getModel(),
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
-            this,
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)));
+            &GenesWidget::signalGenesUpdated);
 }
 
 GenesWidget::~GenesWidget()
@@ -139,18 +135,10 @@ void GenesWidget::clear()
 {
     m_lineEdit->clearFocus();
     m_lineEdit->clear();
-
     m_genes_tableview->clearSelection();
     m_genes_tableview->clearFocus();
-
-    getModel()->clearGenes();
-
-    m_colorList->setCurrentColor(Visual::DEFAULT_COLOR_GENE);
-}
-
-void GenesWidget::updateModelTable()
-{
-    m_genes_tableview->update();
+    m_genes_tableview->getModel()->clear();
+    m_colorList->setCurrentColor(Qt::red);
 }
 
 void GenesWidget::configureButton(QPushButton *button, const QIcon &icon, const QString &tooltip)
@@ -161,7 +149,8 @@ void GenesWidget::configureButton(QPushButton *button, const QIcon &icon, const 
     button->setFixedSize(CELL_PAGE_SUB_MENU_BUTTON_SIZE);
     button->setStyleSheet(CELL_PAGE_SUB_MENU_BUTTON_STYLE);
     button->setCursor(Qt::PointingHandCursor);
-    setToolTipAndStatusTip(tooltip, button);
+    button->setToolTip(tooltip);
+    button->setStatusTip(tooltip);
 }
 
 void GenesWidget::slotShowAllSelected()
@@ -176,46 +165,20 @@ void GenesWidget::slotHideAllSelected()
 
 void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
 {
-    getModel()->setGeneVisibility(m_genes_tableview->geneTableItemSelection(), visible);
+    m_genes_tableview->getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
+    emit signalGenesUpdated();
 }
 
 void GenesWidget::slotSetColorAllSelected(const QColor &color)
 {
-    getModel()->setGeneColor(m_genes_tableview->geneTableItemSelection(), color);
+    m_genes_tableview->getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();
+    emit signalGenesUpdated();
 }
 
-void GenesWidget::slotDatasetOpen(const QString &datasetId)
+void GenesWidget::slotLoadDataset(const Dataset &dataset)
 {
-    Q_UNUSED(datasetId);
-    const DataProxy::GeneList &geneList = m_dataProxy->getGeneList();
-    getModel()->loadGenes(geneList);
-}
-
-void GenesWidget::slotDatasetUpdated(const QString &datasetId)
-{
-    Q_UNUSED(datasetId);
-}
-
-void GenesWidget::slotDatasetRemoved(const QString &datasetId)
-{
-    Q_UNUSED(datasetId);
-    clear();
-}
-
-GeneFeatureItemModel *GenesWidget::getModel()
-{
-    GeneFeatureItemModel *geneModel
-        = qobject_cast<GeneFeatureItemModel *>(getProxyModel()->sourceModel());
-    Q_ASSERT(geneModel);
-    return geneModel;
-}
-
-QSortFilterProxyModel *GenesWidget::getProxyModel()
-{
-    QSortFilterProxyModel *proxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_genes_tableview->model());
-    Q_ASSERT(proxyModel);
-    return proxyModel;
+    m_genes_tableview->getModel()->loadDataset(dataset);
+    m_genes_tableview->update();
 }

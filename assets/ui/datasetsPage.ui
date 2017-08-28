@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1137</width>
-    <height>613</height>
+    <width>652</width>
+    <height>254</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -222,7 +222,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/import-dataset.png</normaloff>:/images/import-dataset.png</iconset>
            </property>
            <property name="iconSize">
@@ -272,7 +272,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -322,7 +322,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -372,7 +372,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -383,65 +383,6 @@
            </property>
            <property name="flat">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="refresh">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Refresh Datasets</string>
-           </property>
-           <property name="statusTip">
-            <string>Refresh Datasets</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../stviewer-build/application.qrc">
-             <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-           <property name="waitPolicy" stdset="0">
-            <number>3</number>
            </property>
           </widget>
          </item>
@@ -513,13 +454,13 @@
            </size>
           </property>
           <property name="mouseTracking">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
+           <enum>Qt::ClickFocus</enum>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
+           <enum>Qt::CustomContextMenu</enum>
           </property>
           <property name="toolTip">
            <string>Select a Dataset</string>
@@ -636,7 +577,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../stviewer-build/application.qrc"/>
+  <include location="../../../build-st_viewer-Desktop_Qt_5_9_1_clang_64bit-Debug/application.qrc"/>
  </resources>
  <connections/>
 </ui>

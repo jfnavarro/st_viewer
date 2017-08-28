@@ -17,48 +17,22 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QGLFormat>
-#include <QSslSocket>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
 #include <QDir>
+#include <QFileDialog>
 
-#include "error/Error.h"
-#include "error/ApplicationError.h"
-#include "error/ServerError.h"
 #include "dialogs/AboutDialog.h"
-#include "auth/AuthorizationManager.h"
 #include "viewPages/DatasetPage.h"
 #include "viewPages/CellViewPage.h"
 #include "viewPages/UserSelectionsPage.h"
 #include "viewPages/GenesWidget.h"
-#include "dataModel/User.h"
+#include "viewPages/SpotsWidget.h"
+#include "config/Configuration.h"
 #include "SettingsStyle.h"
 
 using namespace Style;
-
-static const std::array<qulonglong, 3> VersionNumbers = {MAJOR, MINOR, PATCH};
-
-namespace
-{
-
-bool versionIsGreaterOrEqual(const std::array<qulonglong, 3> &version1,
-                             const std::array<qulonglong, 3> &version2)
-{
-    int index = 0;
-    for (const auto &num : version1) {
-        if (num > version2[index]) {
-            return true;
-        }
-        if (num < version2[index]) {
-            return false;
-        }
-        ++index;
-    }
-    return true;
-}
-}
-
 static const QString SettingsGeometry = QStringLiteral("Geometry");
 static const QString SettingsState = QStringLiteral("State");
 
@@ -70,28 +44,26 @@ MainWindow::MainWindow(QWidget *parent)
     , m_actionAbout(nullptr)
     , m_actionClear_Cache(nullptr)
     , m_actionDatasets(nullptr)
-    , m_actionLogOut(nullptr)
     , m_actionSelections(nullptr)
-    , m_dataProxy(nullptr)
-    , m_authManager(nullptr)
     , m_datasets(nullptr)
     , m_cellview(nullptr)
     , m_user_selections(nullptr)
     , m_genes(nullptr)
+    , m_spots(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
-    m_dataProxy = QSharedPointer<DataProxy>(new DataProxy());
-    Q_ASSERT(!m_dataProxy.isNull());
-
-    m_authManager = QSharedPointer<AuthorizationManager>(new AuthorizationManager(m_dataProxy));
-    Q_ASSERT(!m_authManager.isNull());
-
-    // We init the views here
-    m_datasets.reset(new DatasetPage(m_dataProxy));
-    m_cellview.reset(new CellViewPage(m_dataProxy));
-    m_user_selections.reset(new UserSelectionsPage(m_dataProxy));
-    m_genes.reset(new GenesWidget(m_dataProxy));
+    // Create the main views
+    m_genes.reset(new GenesWidget());
+    Q_ASSERT(m_genes);
+    m_spots.reset(new SpotsWidget());
+    Q_ASSERT(m_spots);
+    m_datasets.reset(new DatasetPage());
+    Q_ASSERT(m_datasets);
+    m_user_selections.reset(new UserSelectionsPage());
+    Q_ASSERT(m_user_selections);
+    m_cellview.reset(new CellViewPage(m_spots, m_genes, m_user_selections));
+    Q_ASSERT(m_cellview);
 }
 
 MainWindow::~MainWindow()
@@ -109,10 +81,7 @@ void MainWindow::init()
     // create keyboard shortcuts
     createShorcuts();
 
-    // decorate the main window
-    createLayouts();
-
-    // make signal connections
+    // create connections
     createConnections();
 
     // restore settings
@@ -134,14 +103,6 @@ bool MainWindow::checkSystemRequirements() const
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL 2.x Context"),
                               tr("This system does not support OpenGL 2.x Contexts"));
-        return false;
-    }
-
-    // Fail if you do not support SSL secure connection
-    if (!QSslSocket::supportsSsl()) {
-        QMessageBox::critical(this->centralWidget(),
-                              tr("Secure connection"),
-                              tr("This system does not secure SSL connections"));
         return false;
     }
 
@@ -200,7 +161,6 @@ void MainWindow::setupUi()
     m_actionClear_Cache.reset(new QAction(this));
     m_actionDatasets.reset(new QAction(this));
     m_actionDatasets->setCheckable(true);
-    m_actionLogOut.reset(new QAction(this));
     m_actionSelections.reset(new QAction(this));
     m_actionSelections->setCheckable(true);
     m_actionExit->setText(tr("Exit"));
@@ -209,7 +169,6 @@ void MainWindow::setupUi()
     m_actionAbout->setText(tr("About..."));
     m_actionClear_Cache->setText(tr("Clear Cache"));
     m_actionDatasets->setText(tr("Datasets"));
-    m_actionLogOut->setText(tr("Log out"));
     m_actionSelections->setText(tr("Selections"));
 
     // create menus
@@ -223,15 +182,13 @@ void MainWindow::setupUi()
     menuLoad->addAction(m_actionClear_Cache.data());
     menuHelp->addAction(m_actionAbout.data());
     menuViews->addAction(m_actionDatasets.data());
-    menuViews->addAction(m_actionLogOut.data());
     menuViews->addAction(m_actionSelections.data());
-
     // add menus to menu bar
     menubar->addAction(menuLoad->menuAction());
     menubar->addAction(menuHelp->menuAction());
     menubar->addAction(menuViews->menuAction());
 
-    // add gene table as dock widget
+    // add genes table as dock widget
     QDockWidget *dock_genes = new QDockWidget(tr("Genes"), this);
     m_genes->setObjectName("Genes");
     dock_genes->setWidget(m_genes.data());
@@ -239,6 +196,18 @@ void MainWindow::setupUi()
     dock_genes->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     menuViews->addAction(dock_genes->toggleViewAction());
     addDockWidget(Qt::LeftDockWidgetArea, dock_genes);
+
+    // add spots table as dock widget
+    QDockWidget *dock_spots = new QDockWidget(tr("Spots"), this);
+    m_genes->setObjectName("Spots");
+    dock_spots->setWidget(m_spots.data());
+    dock_spots->setObjectName("SpotsDock");
+    dock_spots->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menuViews->addAction(dock_spots->toggleViewAction());
+    addDockWidget(Qt::LeftDockWidgetArea, dock_spots);
+
+    // App's name
+    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
 }
 
 void MainWindow::slotShowAbout()
@@ -271,18 +240,13 @@ void MainWindow::slotClearCache()
                                             QMessageBox::No | QMessageBox::Escape);
 
     if (answer == QMessageBox::Yes) {
-        m_dataProxy->cleanAll();
+        //NOTE nothing for now
     }
 }
 
-void MainWindow::createLayouts()
-{
-    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
-}
-
-// apply stylesheet and configurations
 void MainWindow::initStyle()
 {
+    // apply stylesheet and configurations
     // TODO move to stylesheet.css file
     setStyleSheet(GENERAL_STYLE);
     m_datasets->setStyleSheet(GENERAL_STYLE);
@@ -309,90 +273,32 @@ void MainWindow::createShorcuts()
 void MainWindow::createConnections()
 {
     // exit and print action
-    connect(m_actionExit.data(), SIGNAL(triggered(bool)), this, SLOT(slotExit()));
+    connect(m_actionExit.data(), &QAction::triggered, this, &MainWindow::slotExit);
     // clear cache action
-    connect(m_actionClear_Cache.data(), SIGNAL(triggered(bool)), this, SLOT(slotClearCache()));
+    connect(m_actionClear_Cache.data(), &QAction::triggered, this, &MainWindow::slotClearCache);
     // signal that shows the about dialog
-    connect(m_actionAbout.data(), SIGNAL(triggered()), this, SLOT(slotShowAbout()));
+    connect(m_actionAbout.data(), &QAction::triggered, this, &MainWindow::slotShowAbout);
     // signal that shows the datasets
-    connect(m_actionDatasets.data(), SIGNAL(triggered(bool)), m_datasets.data(), SLOT(show()));
-    // signal that shows the log in widget
-    connect(m_actionLogOut.data(), SIGNAL(triggered()), this, SLOT(slotLogOutButton()));
+    connect(m_actionDatasets.data(), &QAction::triggered, m_datasets.data(), &DatasetPage::show);
     // signal that shows the selections
-    connect(m_actionSelections.data(),
-            SIGNAL(triggered(bool)),
-            m_user_selections.data(),
-            SLOT(show()));
+    connect(m_actionSelections.data(), &QAction::triggered, m_user_selections.data(),
+            &UserSelectionsPage::show);
 
-    // connect authorization signals
-    connect(m_authManager.data(), SIGNAL(signalAuthorize()), this, SLOT(slotAuthorized()));
-    connect(m_authManager.data(),
-            SIGNAL(signalError(QSharedPointer<Error>)),
+    // when the user opens a dataset
+    connect(m_datasets.data(),
+            &DatasetPage::signalDatasetOpen,
             this,
-            SLOT(slotAuthorizationError(QSharedPointer<Error>)));
-
-    // connect the open dataset from datasetview -> cellview
+            &MainWindow::slotDatasetOpen);
+    // when the users edits a dataset
     connect(m_datasets.data(),
-            SIGNAL(signalDatasetOpen(QString)),
-            m_cellview.data(),
-            SLOT(slotDatasetOpen(QString)));
-
-    // connect the updated dataset from the datasetview -> cellview
+            &DatasetPage::signalDatasetUpdated,
+            this,
+            &MainWindow::slotDatasetUpdated);
+    // when the user removes the currently opened dataset
     connect(m_datasets.data(),
-            SIGNAL(signalDatasetUpdated(QString)),
-            m_cellview.data(),
-            SLOT(slotDatasetUpdated(QString)));
-
-    // connect the removed dataset from the datasetview -> cellview
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetRemoved(QString)),
-            m_cellview.data(),
-            SLOT(slotDatasetRemoved(QString)));
-
-    // connect the open dataset from datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetOpen(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetOpen(QString)));
-
-    // connect the updated dataset from the datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetUpdated(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetUpdated(QString)));
-
-    // connect the removed dataset from the datasetview -> genes table
-    connect(m_datasets.data(),
-            SIGNAL(signalDatasetRemoved(QString)),
-            m_genes.data(),
-            SLOT(slotDatasetRemoved(QString)));
-
-    // connect genes table signals to cellview
-    connect(m_genes.data(),
-            SIGNAL(signalSelectionChanged(DataProxy::GeneList)),
-            m_cellview.data(),
-            SLOT(slotGenesSelected(DataProxy::GeneList)));
-    connect(m_genes.data(),
-            SIGNAL(signalColorChanged(DataProxy::GeneList)),
-            m_cellview.data(),
-            SLOT(slotGenesColor(DataProxy::GeneList)));
-    connect(m_genes.data(),
-            SIGNAL(signalCutOffChanged(DataProxy::GenePtr)),
-            m_cellview.data(),
-            SLOT(slotGeneCutOff(DataProxy::GenePtr)));
-
-    // connect gene selection signals from selections view
-    connect(m_user_selections.data(),
-            SIGNAL(signalClearSelections()),
-            m_cellview.data(),
-            SLOT(slotClearSelections()));
-    connect(m_cellview.data(),
-            SIGNAL(signalUserSelection()),
-            m_user_selections.data(),
-            SLOT(slotSelectionsUpdated()));
-
-    // connect log out signal from cell view
-    connect(m_cellview.data(), SIGNAL(signalLogOut()), this, SLOT(slotLogOutButton()));
+            &DatasetPage::signalDatasetRemoved,
+            this,
+            &MainWindow::slotDatasetRemoved);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -421,85 +327,24 @@ void MainWindow::saveSettings() const
     // TODO save global settings (menus and status)
 }
 
-void MainWindow::startAuthorization()
+void MainWindow::slotDatasetOpen(const QString &datasetname)
 {
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clean the cache in the dataproxy
-    m_dataProxy->clean();
-    // start the authorization (quiet if access token exists or interactive otherwise)
-    m_authManager->startAuthorization();
+    const auto dataset = m_datasets->getCurrentDataset();
+    qDebug() << "Dataset opened " << datasetname;
+    m_cellview->loadDataset(*(dataset.data()));
 }
 
-void MainWindow::slotAuthorizationError(QSharedPointer<Error> error)
+void MainWindow::slotDatasetUpdated(const QString &datasetname)
 {
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // force clean access token and authorize again
-    m_authManager->cleanAccesToken();
-    m_authManager->startAuthorization();
-    qDebug() << "Error trying to log in " << error->name() << " " << error->description();
+    const auto dataset = m_datasets->getCurrentDataset();
+    qDebug() << "Dataset updated " << datasetname;
+    m_cellview->loadDataset(*(dataset.data()));
 }
 
-void MainWindow::slotAuthorized()
+void MainWindow::slotDatasetRemoved(const QString &datasetname)
 {
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clean datasets/selections and main view
-    m_datasets->clean();
-    m_cellview->clean();
-    m_user_selections->clean();
+    qDebug() << "Dataset removed " << datasetname;
     m_genes->clear();
-
-    // check for min version if supported and load user (only in online mode)
-    if (m_dataProxy->loadMinVersion()) {
-        const auto minVersion = m_dataProxy->getMinVersion();
-        if (!versionIsGreaterOrEqual(VersionNumbers, minVersion)) {
-            QMessageBox::critical(this->centralWidget(),
-                                  tr("Minimum Version"),
-                                  tr("This version of the software is not supported anymore,"
-                                     "please update!"));
-            QApplication::exit(EXIT_FAILURE);
-        }
-    } else {
-        // TODO exit here?
-        qDebug() << "Min version could not be downloaded..";
-    }
-
-    if (m_dataProxy->loadUser()) {
-        const auto user = m_dataProxy->getUser();
-        Q_ASSERT(user);
-        if (!user->enabled()) {
-            QMessageBox::critical(this,
-                                  tr("Authorization Error"),
-                                  tr("The current user is disabled"));
-        } else {
-            // show user info in label
-            m_cellview->slotSetUserName(user->username());
-        }
-    } else {
-        // TODO exit here?
-        qDebug() << "User information could not be downloaded..";
-    }
-}
-
-void MainWindow::slotLogOutButton()
-{
-    if (!m_config.has_network()) {
-        return;
-    }
-
-    // clear user name in label
-    m_cellview->slotSetUserName("");
-    // clean the cache in the dataproxy
-    m_dataProxy->clean();
-    // clean access token and start authorization
-    m_authManager->cleanAccesToken();
-    m_authManager->startAuthorization();
+    m_spots->clear();
+    m_cellview->clear();
 }

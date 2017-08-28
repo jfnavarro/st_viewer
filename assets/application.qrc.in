@@ -1,7 +1,7 @@
 <RCC>
   <qresource>
-    <file alias="images/selection_dea.png">${PROJECT_SOURCE_DIR}/assets/images/selection_dea.png</file>
-    <file alias="images/logout.png">${PROJECT_SOURCE_DIR}/assets/images/logout.png</file>
+    <file alias="images/DEA.png">${PROJECT_SOURCE_DIR}/assets/images/DEA.png</file>
+    <file alias="images/correlation.png">${PROJECT_SOURCE_DIR}/assets/images/correlation.png</file>
     <file alias="images/select-color.png">${PROJECT_SOURCE_DIR}/assets/images/select-color.png</file>
     <file alias="images/zoom_out.png">${PROJECT_SOURCE_DIR}/assets/images/zoom_out.png</file>
     <file alias="images/zoom_in.png">${PROJECT_SOURCE_DIR}/assets/images/zoom_in.png</file>
@@ -15,7 +15,6 @@
     <file alias="images/unselect-all.png">${PROJECT_SOURCE_DIR}/assets/images/unselect-all.png</file>
     <file alias="images/visible.png">${PROJECT_SOURCE_DIR}/assets/images/visible.png</file>
     <file alias="images/nonvisible.png">${PROJECT_SOURCE_DIR}/assets/images/nonvisible.png</file>
-    <file alias="images/refresh.png">${PROJECT_SOURCE_DIR}/assets/images/refresh.png</file>
     <file alias="images/open.png">${PROJECT_SOURCE_DIR}/assets/images/open.png</file>
     <file alias="images/filesave.png">${PROJECT_SOURCE_DIR}/assets/images/filesave.png</file>
     <file alias="images/delete.png">${PROJECT_SOURCE_DIR}/assets/images/delete.png</file>
@@ -24,17 +23,22 @@
     <file alias="images/selection2.png">${PROJECT_SOURCE_DIR}/assets/images/selection2.png</file>
     <file alias="images/checked-box.png">${PROJECT_SOURCE_DIR}/assets/images/checked-box.png</file>
     <file alias="images/unchecked-box.png">${PROJECT_SOURCE_DIR}/assets/images/unchecked-box.png</file>
-    <file alias="images/tissue_snapshot.png">${PROJECT_SOURCE_DIR}/assets/images/tissue_snapshot.png</file>
-    <file alias="images/cluster.png">${PROJECT_SOURCE_DIR}/assets/images/cluster.png</file>
+    <file alias="images/clusterBW.png">${PROJECT_SOURCE_DIR}/assets/images/clusterBW.png</file>
     <file alias="images/show_genes.png">${PROJECT_SOURCE_DIR}/assets/images/show_genes.png</file>
+    <file alias="images/show_spots.png">${PROJECT_SOURCE_DIR}/assets/images/show_spots.png</file>
     <file alias="images/save_selection.png">${PROJECT_SOURCE_DIR}/assets/images/save_selection.png</file>
     <file alias="images/export.png">${PROJECT_SOURCE_DIR}/assets/images/export.png</file>
     <file alias="images/import.png">${PROJECT_SOURCE_DIR}/assets/images/import.png</file>
+    <file alias="images/rotateLeft.png">${PROJECT_SOURCE_DIR}/assets/images/rotateLeft.png</file>
+    <file alias="images/rotateRight.png">${PROJECT_SOURCE_DIR}/assets/images/rotateRight.png</file>
+    <file alias="images/flip.png">${PROJECT_SOURCE_DIR}/assets/images/flip.png</file>
+    <file alias="images/loadSpots.png">${PROJECT_SOURCE_DIR}/assets/images/loadSpots.png</file>
+    <file alias="images/loadGenes.png">${PROJECT_SOURCE_DIR}/assets/images/loadGenes.png</file>
+    <file alias="images/lasso.png">${PROJECT_SOURCE_DIR}/assets/images/lasso.png</file>
+    <file alias="images/lasso2.png">${PROJECT_SOURCE_DIR}/assets/images/lasso2.png</file>
     <file alias="images/import-dataset.png">${PROJECT_SOURCE_DIR}/assets/images/import-dataset.png</file>
     <file alias="images/export_genes.png">${PROJECT_SOURCE_DIR}/assets/images/export_genes.png</file>
     <file alias="images/create_selection.png">${PROJECT_SOURCE_DIR}/assets/images/create-selection.png</file>
-    <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
-    <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
     <file alias="translations/locale_en_us.qm">${PROJECT_BINARY_DIR}/src/locale_en_us.qm</file>
   </qresource>

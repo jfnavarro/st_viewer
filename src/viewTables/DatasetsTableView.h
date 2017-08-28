@@ -4,10 +4,9 @@
 #include <QTableView>
 #include <QPointer>
 
-class DatasetItemModel;
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the datasets table
+// An abstraction of QTableView for the datasets page's table
 class DatasetsTableView : public QTableView
 {
     Q_OBJECT
@@ -19,9 +18,19 @@ public:
     // returns the current selection mapped to the sorting model
     QItemSelection datasetsTableItemSelection() const;
 
+signals:
+
+    void signalDatasetOpen(QModelIndex index);
+    void signalDatasetEdit(QModelIndex index);
+    void signalDatasetDelete(QModelIndex index);
+
+private slots:
+
+    // when the user right clicks
+    void customMenuRequested(const QPoint &pos);
+
 private:
-    // references to model and proxy model
-    QScopedPointer<DatasetItemModel> m_datasetModel;
+    // references to proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 
     Q_DISABLE_COPY(DatasetsTableView)

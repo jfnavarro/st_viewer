@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>501</width>
+    <width>352</width>
     <height>124</height>
    </rect>
   </property>
@@ -62,7 +62,7 @@
          <item>
           <widget class="QLabel" name="labelRegExp">
            <property name="text">
-            <string>RegExp:</string>
+            <string>Regular Expression:</string>
            </property>
           </widget>
          </item>
@@ -100,13 +100,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QCheckBox" name="checkAmbiguous">
-           <property name="text">
-            <string>Include Ambiguous Genes</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QCheckBox" name="checkSelectNonVisible">
            <property name="text">
@@ -183,22 +176,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkAmbiguous</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>SelectionDialog</receiver>
-   <slot>slotIncludeAmbiguous(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>62</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
     </hint>
    </hints>
   </connection>

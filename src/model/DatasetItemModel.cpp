@@ -6,10 +6,10 @@
 #include <QItemSelection>
 #include <QDateTime>
 
-#include "dataModel/Dataset.h"
+#include "data/Dataset.h"
 #include <set>
 
-static const int COLUMN_NUMBER = 5;
+static const int COLUMN_NUMBER = 3;
 
 DatasetItemModel::DatasetItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -33,36 +33,21 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole) {
-        DataProxy::DatasetPtr item = m_datasets_reference.at(index.row());
-        Q_ASSERT(item);
+        const Dataset &item = m_datasets_reference.at(index.row());
         switch (index.column()) {
         case Name:
-            return item->name();
+            return item.name();
         case Tissue:
-            return item->statTissue();
+            return item.statTissue();
         case Species:
-            return item->statSpecies();
-        case Created:
-            return QDateTime::fromMSecsSinceEpoch(item->created().toLongLong());
-        case LastModified:
-            return QDateTime::fromMSecsSinceEpoch(item->lastModified().toLongLong());
-        default:
+            return item.statSpecies();
+       default:
             return QVariant(QVariant::Invalid);
         }
     }
 
     if (role == Qt::ForegroundRole && index.column() == Name) {
         return QColor(0, 155, 60);
-    }
-
-    if (role == Qt::TextAlignmentRole) {
-        switch (index.column()) {
-        case Created:
-        case LastModified:
-            return Qt::AlignRight;
-        default:
-            return QVariant(QVariant::Invalid);
-        }
     }
 
     return QVariant(QVariant::Invalid);
@@ -78,10 +63,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
             return tr("Tissue name");
         case Species:
             return tr("Species name");
-        case Created:
-            return tr("Created at this date");
-        case LastModified:
-            return tr("Last Modified at this date");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -95,10 +76,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
             return tr("Tissue");
         case Species:
             return tr("Species");
-        case Created:
-            return tr("Created");
-        case LastModified:
-            return tr("Last Modified");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -109,8 +86,6 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
         case Name:
         case Tissue:
         case Species:
-        case Created:
-        case LastModified:
             return Qt::AlignLeft;
         default:
             return QVariant(QVariant::Invalid);
@@ -136,25 +111,25 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void DatasetItemModel::loadDatasets(const DataProxy::DatasetList &datasetList)
+void DatasetItemModel::loadDatasets(const QList<Dataset> &datasetList)
 {
     beginResetModel();
     m_datasets_reference = datasetList;
     endResetModel();
 }
 
-DataProxy::DatasetList DatasetItemModel::getDatasets(const QItemSelection &selection)
+QList<Dataset> DatasetItemModel::getDatasets(const QItemSelection &selection)
 {
-    // get unique indexes from the user selection
+    // get unique row indexes from the user selection
     QSet<int> rows;
     for (const auto &index : selection.indexes()) {
         rows.insert(index.row());
     }
-    // get the datasets and return them
-    DataProxy::DatasetList datasetList;
+    // get the datasets corresponding to the selection and return them
+    QList<Dataset> datasetList;
     for (const auto &row : rows) {
-        auto selection = m_datasets_reference.at(row);
-        datasetList.push_back(selection);
+        const Dataset &item = m_datasets_reference.at(row);
+        datasetList.push_back(item);
     }
     return datasetList;
 }

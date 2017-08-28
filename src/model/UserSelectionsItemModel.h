@@ -1,8 +1,7 @@
-#ifndef EXPERIMENTSITEMMODEL_H
-#define EXPERIMENTSITEMMODEL_H
+#ifndef USERSELECTIONITEMMODEL_H
+#define USERSELECTIONITEMMODEL_H
 
 #include <QtCore/QModelIndex>
-#include "data/DataProxy.h"
 #include <QAbstractTableModel>
 
 class UserSelection;
@@ -18,13 +17,10 @@ class UserSelectionsItemModel : public QAbstractTableModel
 
 public:
     enum Column {
-        Saved = 0,
-        Name = 1,
-        Dataset = 2,
-        NGenes = 3,
-        NReads = 4,
-        Created = 5,
-        LastModified = 6
+        Name = 0,
+        Dataset = 1,
+        NGenes = 2,
+        NSpots = 3,
     };
 
     explicit UserSelectionsItemModel(QObject *parent = 0);
@@ -42,15 +38,15 @@ public:
     void clear();
 
     // loads the data of the model from the given input
-    void loadUserSelections(const DataProxy::UserSelectionList selectionList);
+    void loadUserSelections(const QList<UserSelection> &selectionList);
 
     // returns a list of selections items from the indexes given as input
-    DataProxy::UserSelectionList getSelections(const QItemSelection &selection);
+    QList<UserSelection> getSelections(const QItemSelection &selection);
 
 private:
-    DataProxy::UserSelectionList m_userSelectionList;
+    QList<UserSelection> m_userSelectionList;
 
     Q_DISABLE_COPY(UserSelectionsItemModel)
 };
 
-#endif // EXPERIMENTSITEMMODEL_H
+#endif // USERSELECTIONITEMMODEL_H

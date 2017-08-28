@@ -1,69 +1,60 @@
 #include "UserSelectionsPage.h"
 
 #include <QDebug>
-#include <QSortFilterProxyModel>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QTableWidgetItem>
-#include <QScrollArea>
-#include <QDateTime>
-#include <QLabel>
-#include "ext/QtWaitingSpinner/waitingspinnerwidget.h"
+#include <QSortFilterProxyModel>
 
-#include "dataModel/User.h"
-#include "io/FeatureExporter.h"
+#include "viewPages/SelectionGenesWidget.h"
+#include "viewPages/SelectionSpotsWidget.h"
 #include "model/UserSelectionsItemModel.h"
 #include "dialogs/EditSelectionDialog.h"
 #include "analysis/AnalysisDEA.h"
-#include "viewPages/SelectionsWidget.h"
+#include "analysis/AnalysisCorrelation.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
 
 using namespace Style;
 
-UserSelectionsPage::UserSelectionsPage(QSharedPointer<DataProxy> dataProxy, QWidget *parent)
+UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::UserSelections())
-    , m_dataProxy(dataProxy)
-    , m_selectionsWidget(nullptr)
-    , m_waiting_spinner(nullptr)
 {
     m_ui->setupUi(this);
+
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     m_ui->userSelectionsPageWidget->setStyleSheet("QWidget#userSelectionsPageWidget "
                                                   + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
-    // initialize waiting spinner
-    m_waiting_spinner.reset(new WaitingSpinnerWidget(this, true, true));
-    m_waiting_spinner->setRoundness(70.0);
-    m_waiting_spinner->setMinimumTrailOpacity(15.0);
-    m_waiting_spinner->setTrailFadePercentage(70.0);
-    m_waiting_spinner->setNumberOfLines(12);
-    m_waiting_spinner->setLineLength(20);
-    m_waiting_spinner->setLineWidth(10);
-    m_waiting_spinner->setInnerRadius(20);
-    m_waiting_spinner->setRevolutionsPerSecond(1);
-    m_waiting_spinner->setColor(QColor(0, 155, 60));
-
     // connect signals
-    connect(m_ui->filterLineEdit,
-            SIGNAL(textChanged(QString)),
-            selectionsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(m_ui->removeSelection, SIGNAL(clicked(bool)), this, SLOT(slotRemoveSelection()));
-    connect(m_ui->exportSelection, SIGNAL(clicked(bool)), this, SLOT(slotExportSelection()));
-    connect(m_ui->ddaAnalysis, SIGNAL(clicked(bool)), this, SLOT(slotPerformDEA()));
+    connect(m_ui->filterLineEdit, &QLineEdit::textChanged,
+            selectionsProxyModel(), &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_ui->removeSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotRemoveSelection()));
+    connect(m_ui->exportSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotExportSelection()));
+    connect(m_ui->importSelection, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotImportSelection);
+    connect(m_ui->editSelection, SIGNAL(clicked(bool)),
+            this, SLOT(slotEditSelection()));
+    connect(m_ui->ddaAnalysis, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotPerformDEA);
+    connect(m_ui->correlationAnalysis, &QPushButton::clicked,
+            this, &UserSelectionsPage::slotPerformCorrelation);
     connect(m_ui->selections_tableView,
-            SIGNAL(clicked(QModelIndex)),
-            this,
-            SLOT(slotSelectionSelected(QModelIndex)));
-    connect(m_ui->editSelection, SIGNAL(clicked(bool)), this, SLOT(slotEditSelection()));
-    connect(m_ui->showTissue, SIGNAL(clicked(bool)), this, SLOT(slotShowTissue()));
-    connect(m_ui->showTable, SIGNAL(clicked(bool)), this, SLOT(slotShowTable()));
-    connect(m_ui->saveDB, SIGNAL(clicked(bool)), this, SLOT(slotSaveSelection()));
-    //connect(m_ui->importSelection, SIGNAL(clicked(bool)), this, SLOT(slotImportSelection()));
+            &UserSelectionTableView::clicked,
+            this, &UserSelectionsPage::slotSelectionSelected);
+    connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
+    connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
+
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
+            this, SLOT(slotExportSelection(QModelIndex)));
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionEdit(QModelIndex)),
+            this, SLOT(slotEditSelection(QModelIndex)));
+    connect(m_ui->selections_tableView, SIGNAL(signalSelectionDelete(QModelIndex)),
+            this, SLOT(slotRemoveSelection(QModelIndex)));
 
     clearControls();
 }
@@ -80,7 +71,7 @@ void UserSelectionsPage::clean()
 QSortFilterProxyModel *UserSelectionsPage::selectionsProxyModel()
 {
     QSortFilterProxyModel *selectionsProxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_ui->selections_tableView->model());
+            = qobject_cast<QSortFilterProxyModel *>(m_ui->selections_tableView->model());
     Q_ASSERT(selectionsProxyModel);
     return selectionsProxyModel;
 }
@@ -88,7 +79,7 @@ QSortFilterProxyModel *UserSelectionsPage::selectionsProxyModel()
 UserSelectionsItemModel *UserSelectionsPage::selectionsModel()
 {
     UserSelectionsItemModel *model
-        = qobject_cast<UserSelectionsItemModel *>(selectionsProxyModel()->sourceModel());
+            = qobject_cast<UserSelectionsItemModel *>(selectionsProxyModel()->sourceModel());
     Q_ASSERT(model);
     return model;
 }
@@ -97,8 +88,6 @@ void UserSelectionsPage::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     clearControls();
-    // load selections
-    loadSelections();
 }
 
 void UserSelectionsPage::clearControls()
@@ -112,26 +101,12 @@ void UserSelectionsPage::clearControls()
     m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
-    m_ui->showTissue->setEnabled(false);
-    m_ui->showTable->setEnabled(false);
-    m_ui->saveDB->setEnabled(false);
-    //m_ui->importSelection->setEnabled(true);
-    //m_ui->cluster->setEnabled(false);
+    m_ui->showGenes->setEnabled(false);
+    m_ui->showSpots->setEnabled(false);
+    m_ui->importSelection->setEnabled(true);
+    m_ui->correlationAnalysis->setEnabled(false);
 }
 
-void UserSelectionsPage::loadSelections()
-{
-    if (!m_dataProxy->userLogIn()) {
-        return;
-    }
-
-    // load selections
-    m_waiting_spinner->start();
-    m_dataProxy->loadUserSelections();
-    m_waiting_spinner->stop();
-    // update the model
-    slotSelectionsUpdated();
-}
 
 void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
 {
@@ -140,19 +115,32 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     if (!index.isValid() || currentSelection.empty()) {
         return;
     }
-    const bool enableDDA = currentSelection.size() == 2;
-    const bool enableRest = currentSelection.size() == 1;
-    const auto selection = currentSelection.front();
-    Q_ASSERT(selection);
-    // configure UI controls if we select 1 or 2 selections
-    m_ui->removeSelection->setEnabled(true);
-    m_ui->exportSelection->setEnabled(enableRest);
-    m_ui->ddaAnalysis->setEnabled(enableDDA);
-    m_ui->editSelection->setEnabled(enableRest);
-    m_ui->showTissue->setEnabled(enableRest);
-    m_ui->showTable->setEnabled(enableRest);
-    m_ui->saveDB->setEnabled(enableRest && !selection->saved() && m_dataProxy->userLogIn());
-    //m_ui->cluster->setEnabled(false);
+    const bool enableMultiple = currentSelection.size() > 1;
+    const bool enableSingle = currentSelection.size() == 1;
+    // configure UI controls if we select 1 or more selections
+    m_ui->removeSelection->setEnabled(enableMultiple || enableSingle);
+    m_ui->exportSelection->setEnabled(enableSingle);
+    m_ui->importSelection->setEnabled(enableSingle);
+    m_ui->ddaAnalysis->setEnabled(enableMultiple);
+    m_ui->editSelection->setEnabled(enableSingle);
+    m_ui->showGenes->setEnabled(enableSingle);
+    m_ui->showSpots->setEnabled(enableSingle);
+    m_ui->correlationAnalysis->setEnabled(enableMultiple);
+}
+
+void UserSelectionsPage::addSelection(const UserSelection& selection)
+{
+    if (selection.totalGenes() > 0 && selection.totalSpots() > 0) {
+        m_selections.append(selection);
+        selectionsUpdated();
+    }
+}
+
+void UserSelectionsPage::selectionsUpdated()
+{
+    clearControls();
+    selectionsModel()->loadUserSelections(m_selections);
+    m_ui->selections_tableView->update();
 }
 
 void UserSelectionsPage::slotRemoveSelection()
@@ -162,26 +150,41 @@ void UserSelectionsPage::slotRemoveSelection()
     if (currentSelections.empty()) {
         return;
     }
+    removeSelections(currentSelections);
+}
 
+void UserSelectionsPage::slotRemoveSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty()) {
+        return;
+    }
+    removeSelections(currentSelections);
+}
+
+void UserSelectionsPage::removeSelections(const QList<UserSelection> &selections)
+{
     const int answer
-        = QMessageBox::warning(this,
-                               tr("Remove Selection"),
-                               tr("Are you really sure you want to remove the selection/s?"),
-                               QMessageBox::Yes,
-                               QMessageBox::No | QMessageBox::Escape);
+            = QMessageBox::warning(this,
+                                   tr("Remove Selection"),
+                                   tr("Are you really sure you want to remove the selection/s?"),
+                                   QMessageBox::Yes,
+                                   QMessageBox::No | QMessageBox::Escape);
 
     if (answer != QMessageBox::Yes) {
         return;
     }
 
-    m_waiting_spinner->start();
-    for (const auto &selection : currentSelections) {
-        Q_ASSERT(selection);
-        m_dataProxy->removeSelection(selection->id(), selection->saved());
+    // Remove the selections
+    for (auto selection : selections) {
+        m_selections.removeOne(selection);
     }
-    m_waiting_spinner->stop();
-    // update the selections
-    loadSelections();
+
+    // update the model
+    selectionsUpdated();
 }
 
 void UserSelectionsPage::slotExportSelection()
@@ -191,11 +194,31 @@ void UserSelectionsPage::slotExportSelection()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+    // currentSelection should only have one element
+    const auto selection = currentSelection.front();
+    exportSelection(selection);
+}
 
+void UserSelectionsPage::slotExportSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty() || currentSelections.size() > 1) {
+        return;
+    }
+    // currentSelection should only have one element
+    const auto selection = currentSelections.front();
+    exportSelection(selection);
+}
+
+void UserSelectionsPage::exportSelection(const UserSelection &selection)
+{
     QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
+                                                    tr("Export Selection"),
                                                     QDir::homePath(),
-                                                    QString("%1").arg(tr("Text Files (*.txt)")));
+                                                    QString("%1").arg(tr("Text Files (*.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -208,62 +231,102 @@ void UserSelectionsPage::slotExportSelection()
         return;
     }
 
-    // create file
-    QFile textFile(filename);
-
-    // currentSelection should only have one element
-    const auto selectionItem = currentSelection.front();
-    Q_ASSERT(selectionItem);
-
     // export selection
-    if (textFile.open(QFile::WriteOnly | QFile::Truncate)) {
-        FeatureExporter exporter
-            = FeatureExporter(FeatureExporter::SimpleFull, FeatureExporter::TabDelimited);
-        exporter.exportItem(textFile, selectionItem->selectedFeatures());
+    try {
+        STData::save(filename, selection.data());
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, tr("Export Selection"), tr("Error exporting the selection"));
+        qDebug() << "There was an error saving the matrix in the selection page " << e.what();
     }
-
-    textFile.close();
 }
 
 void UserSelectionsPage::slotEditSelection()
 {
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
-
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
-
     // currentSelection should only have one element
-    const auto selection = currentSelection.front();
-    Q_ASSERT(selection);
+    auto selection = currentSelection.front();
+    editSelection(selection);
+}
 
+void UserSelectionsPage::slotEditSelection(QModelIndex index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    const auto currentSelections = selectionsModel()->getSelections(QItemSelection(index,index));
+    if (currentSelections.empty() || currentSelections.size() > 1) {
+        return;
+    }
+    // currentSelection should only have one element
+    auto selection = currentSelections.front();
+    editSelection(selection);
+}
+
+void UserSelectionsPage::editSelection(const UserSelection &selection)
+{
     // creates a selection dialog with the current fields
     QScopedPointer<EditSelectionDialog> editSelection(
-        new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+                new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
     editSelection->setWindowIcon(QIcon());
-    editSelection->setName(selection->name());
-    editSelection->setComment(selection->comment());
-    editSelection->setType(UserSelection::typeToQString(selection->type()));
+    editSelection->setName(selection.name());
+    editSelection->setComment(selection.comment());
     if (editSelection->exec() == EditSelectionDialog::Accepted
-        && (editSelection->getName() != selection->name()
-            || editSelection->getComment() != selection->comment()
-            || editSelection->getType() != UserSelection::typeToQString(selection->type()))
-        && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()) {
+            && !editSelection->getName().isNull() && !editSelection->getName().isEmpty()
+            && (editSelection->getName() != selection.name()
+                || editSelection->getComment() != selection.comment())
+            && !nameExist(editSelection->getName())) {
 
-        // update fields
-        selection->name(editSelection->getName());
-        selection->comment(editSelection->getComment());
-        selection->type(UserSelection::QStringToType(editSelection->getType()));
+        const int index = m_selections.indexOf(selection);
+        Q_ASSERT(index != -1);
 
-        if (m_dataProxy->userLogIn() && selection->saved()) {
-            // update the selection object in the database
-            m_waiting_spinner->start();
-            m_dataProxy->updateUserSelection(*selection);
-            m_waiting_spinner->stop();
+        // update object in the container
+        m_selections[index].name(editSelection->getName());
+        m_selections[index].comment(editSelection->getComment());
+
+        // update model
+        selectionsUpdated();
+    }
+}
+
+void UserSelectionsPage::slotImportSelection()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open ST Data File (Selection)"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+
+    // We use the file name as selection name and check that is not present
+    if (nameExist(info.baseName())) {
+        QMessageBox::critical(this, tr("Import sselection"),
+                              tr("There exists a selection with the same name"));
+        return;
+    }
+
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Import selection"),
+                              tr("File is incorrect or not readable"));
+    } else {
+        try {
+            auto data = STData::read(filename);
+            UserSelection new_selection;
+            new_selection.data(data);
+            new_selection.name(info.baseName());
+            addSelection(new_selection);
+        } catch (const std::exception &e) {
+            QMessageBox::critical(this, tr("Import selection"), tr("Error parsing file"));
+            qDebug() << "Error parsing ST data file (Selection) " << e.what();
         }
-        // NOTE no need for this
-        // slotSelectionsUpdated();
     }
 }
 
@@ -275,17 +338,46 @@ void UserSelectionsPage::slotPerformDEA()
         return;
     }
 
+
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
-    Q_ASSERT(selectionObject1);
     const auto selectionObject2 = currentSelection.at(1);
-    Q_ASSERT(selectionObject2);
-    // creates the DEA widget and shows it
-    QScopedPointer<AnalysisDEA> analysisDEA(new AnalysisDEA(*selectionObject1, *selectionObject2));
-    analysisDEA->exec();
+
+    // launch the DEA widget
+    AnalysisDEA *deaWidget(
+                new AnalysisDEA(selectionObject1.data(),
+                                selectionObject2.data(),
+                                selectionObject1.name(),
+                                selectionObject2.name(),
+                                this,
+                                Qt::Window));
+    deaWidget->show();
 }
 
-void UserSelectionsPage::slotShowTissue()
+void UserSelectionsPage::slotPerformCorrelation()
+{
+    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+    if (currentSelection.empty() || currentSelection.size() != 2) {
+        return;
+    }
+
+    // get the two selection objects
+    const auto selectionObject1 = currentSelection.at(0);
+    const auto selectionObject2 = currentSelection.at(1);
+
+    // launch the correlation widget
+    AnalysisCorrelation *correlationWidget(
+                new AnalysisCorrelation(selectionObject1.data(),
+                                        selectionObject2.data(),
+                                        selectionObject1.name(),
+                                        selectionObject2.name(),
+                                        this,
+                                        Qt::Window));
+    correlationWidget->show();
+}
+
+void UserSelectionsPage::slotShowGenes()
 {
     // get the selected object (should be only one)
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
@@ -293,42 +385,15 @@ void UserSelectionsPage::slotShowTissue()
     if (currentSelection.empty() || currentSelection.size() > 1) {
         return;
     }
+
     const auto selectionObject = currentSelection.front();
-
-    // if no snapshot returns
-    QByteArray tissue_snapshot = selectionObject->tissueSnapShot();
-    if (tissue_snapshot.isNull() || tissue_snapshot.isEmpty()) {
-        return;
-    }
-
-    // create a widget that shows the tissue snapshot
-    QByteArray image_ba = QByteArray::fromBase64(tissue_snapshot);
-    QImage image;
-    image.loadFromData(image_ba);
-    if (image.isNull()) {
-        return;
-    }
-
-    // create a widget to show the image
-    QWidget *image_widget = new QWidget();
-    image_widget->setAttribute(Qt::WA_DeleteOnClose);
-    image_widget->setMinimumSize(600, 600);
-    QVBoxLayout *layout1 = new QVBoxLayout(image_widget);
-    QScrollArea *image_scroll = new QScrollArea();
-    layout1->addWidget(image_scroll);
-    QVBoxLayout *layout = new QVBoxLayout(image_scroll);
-    QLabel *image_label = new QLabel();
-    image_label->setPixmap(QPixmap::fromImage(image));
-    image_label->setScaledContents(true);
-    layout->addWidget(image_label);
-    image_widget->show();
+    SelectionGenesWidget *genesWidget(
+                new SelectionGenesWidget(selectionObject.data(), this, Qt::Window));
+    genesWidget->show();
 }
 
-void UserSelectionsPage::slotSaveSelection()
+void UserSelectionsPage::slotShowSpots()
 {
-    if (!m_dataProxy->userLogIn()) {
-        return;
-    }
     // get the selected object (should be only one)
     const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
     const auto currentSelection = selectionsModel()->getSelections(selected);
@@ -336,61 +401,15 @@ void UserSelectionsPage::slotSaveSelection()
         return;
     }
 
-    const int answer
-        = QMessageBox::warning(this,
-                               tr("Save Selection"),
-                               tr("Are you really sure you want to save the selection?"),
-                               QMessageBox::Yes,
-                               QMessageBox::No | QMessageBox::Escape);
-
-    if (answer != QMessageBox::Yes) {
-        return;
-    }
-
     const auto selectionObject = currentSelection.front();
-    // add the user to the selection
-    const auto user = m_dataProxy->getUser();
-    Q_ASSERT(user);
-    selectionObject->userId(user->id());
-    // must set Id to null before saving it to avoid a DB error
-    //TODO find a cleaner way to solve this
-    selectionObject->id(QString());
-
-    // save the selection object in the database and remove the old one
-    m_waiting_spinner->start();
-    m_dataProxy->addUserSelection(*selectionObject, true);
-    m_dataProxy->removeSelection(selectionObject->id(), false);
-    m_waiting_spinner->stop();
-    // update the selections
-    loadSelections();
+    SelectionSpotsWidget *spotsWidget(
+                new SelectionSpotsWidget(selectionObject.data(), this, Qt::Window));
+    spotsWidget->show();
 }
 
-void UserSelectionsPage::slotShowTable()
+bool UserSelectionsPage::nameExist(const QString &name)
 {
-    // get the selected object (should be only one)
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.empty() || currentSelection.size() > 1) {
-        return;
-    }
-    const auto selectionObject = currentSelection.front();
-    // lazy init
-    if (m_selectionsWidget.isNull()) {
-        m_selectionsWidget.reset(new SelectionsWidget(nullptr, Qt::Dialog));
-    }
-    // update model
-    m_selectionsWidget->slotLoadModel(selectionObject->getGeneCounts());
-    m_selectionsWidget->show();
-}
-
-void UserSelectionsPage::slotSelectionsUpdated()
-{
-    // update model with downloaded genes selections
-    selectionsModel()->loadUserSelections(m_dataProxy->getUserSelectionList());
-    clearControls();
-}
-
-void UserSelectionsPage::slotImportSelection()
-{
-    // TODO
+    return std::find_if(m_selections.begin(), m_selections.end(),
+                        [&name](const UserSelection& selection)
+    {return selection.name() == name;}) != m_selections.end();
 }

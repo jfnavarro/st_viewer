@@ -3,327 +3,431 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QChartView>
+#include <QScatterSeries>
+#include <QFuture>
+#include <QtConcurrent>
+#include <QFileDialog>
+#include <QPdfWriter>
+#include <QMenu>
+#include <QClipboard>
 
-#include <cmath>
-#include "math/Common.h"
-#include "model/GeneSelectionDEAItemModel.h"
-#include "qcustomplot.h"
+#include <string>
 
-#include "ui_ddaWidget.h"
+#include "math/RInterface.h"
 
-static const QColor BORDER = QColor(238, 122, 0);
+#include "ui_analysisDEA.h"
 
-AnalysisDEA::AnalysisDEA(const UserSelection &selObjectA,
-                         const UserSelection &selObjectB,
+AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
+                         const STData::STDataFrame &data2,
+                         const QString &nameA,
+                         const QString &nameB,
                          QWidget *parent,
                          Qt::WindowFlags f)
-    : QDialog(parent, f)
-    , m_ui(new Ui::ddaWidget)
-    , m_lowerThreshold(0)
-    , m_upperThreshold(1)
+    : QWidget(parent, f)
+    , m_ui(new Ui::analysisDEA)
+    , m_dataA(data1)
+    , m_dataB(data2)
+    , m_nameA(nameA)
+    , m_nameB(nameB)
+    , m_normalization(SettingsWidget::NormalizationMode::DESEQ)
+    , m_reads_threshold(-1)
+    , m_genes_threshold(-1)
+    , m_ind_reads_treshold(-1)
+    , m_spots_threshold(-1)
 {
-    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-    setModal(true);
-
     m_ui->setupUi(this);
-    // We must set the style here again as this dialog does not inherit
-    // style from its parent (TODO might be possible to fix this)
-    m_ui->tableView->setStyleSheet(
-        "QTableView {alternate-background-color: rgb(245,245,245); "
-        "            background-color: transparent; "
-        "            selection-background-color: rgb(215,215,215); "
-        "            selection-color: rgb(238,122,0); "
-        "            gridline-color: rgb(240,240,240);"
-        "            border: 1px solid rgb(240,240,240);} "
-        "QTableView::indicator:unchecked {image: url(:/images/unchecked-box.png);} "
-        "QTableView::indicator:checked {image: url(:/images/checked-box.png);} "
-        "QTableView::indicator {padding-left: 10px; "
-        "                       width: 15px; "
-        "                       height: 15px; "
-        "                       background-color: transparent;} "
-        "QHeaderView::section {height: 35px; "
-        "                      padding-left: 4px; "
-        "                      padding-right: 2px; "
-        "                      spacing: 5px;"
-        "                      background-color: rgb(230,230,230); "
-        "                      border: 1px solid rgb(240,240,240);} "
-        "QTableCornerButton::section {background-color: transparent;} ");
 
+    // default values
+    m_ui->fdr->setValue(0.1);
+    m_ui->foldchange->setValue(1.0);
+    m_ui->normalization_deseq->setChecked(true);
+    m_ui->exportTable->setEnabled(false);
+    m_ui->searchField->setEnabled(false);
+    m_ui->progressBar->setTextVisible(true);
+    m_ui->exportPlot->setEnabled(false);
+    m_ui->searchField->setClearButtonEnabled(true);
+    m_ui->conditionA->setText(m_nameA);
+    m_ui->conditionB->setText(m_nameB);
+    m_proxy.reset(new QSortFilterProxyModel());
 
-    // Set up scatter plot objects
-    m_ui->customPlot->addGraph();
-    m_ui->customPlot->graph(0)
-        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(BORDER), Qt::white, 5));
-    m_ui->customPlot->graph(0)->setAntialiasedScatters(true);
-    m_ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
-    m_ui->customPlot->graph(0)->setName(tr("Correlation Scatter Plot"));
-    m_ui->customPlot->graph(0)->rescaleAxes(true);
-    // add another scatter plot graph to mark selected genes
-    m_ui->customPlot->addGraph();
-    m_ui->customPlot->graph(1)
-        ->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::red), Qt::white, 5));
-    m_ui->customPlot->graph(1)->setAntialiasedScatters(true);
-    m_ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsNone);
-    m_ui->customPlot->graph(1)->rescaleAxes(true);
-    // sets the legend and attributes in the plots
-    m_ui->customPlot->legend->setVisible(false);
-    m_ui->customPlot->xAxis->setScaleType(QCPAxis::stLinear);
-    m_ui->customPlot->yAxis->setScaleType(QCPAxis::stLinear);
-    m_ui->customPlot->xAxis->setTicks(true);
-    m_ui->customPlot->yAxis->setTicks(true);
-    m_ui->customPlot->xAxis->setLabel(tr("Selection A log counts"));
-    m_ui->customPlot->yAxis->setLabel(tr("Selection B log counts"));
-    // make top right axes clones of bottom left axes since it looks prettier
-    m_ui->customPlot->axisRect()->setupFullAxesBox();
-    // add mouse interaction
-    m_ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-
-    // populate the gene to read pairs containers
-    // computeGeneToReads will update the max|min thresholds variables (to initialize slider)
-    computeGeneToReads(selObjectA, selObjectB);
-
-    // initialize threshold sliders (minimum must be zero to allow to discard non-expressed genes)
-    m_ui->readsThreshold->setMinimumValue(0);
-    m_ui->readsThreshold->setMaximumValue(m_upperThreshold);
-    m_ui->readsThreshold->slotSetLowerValue(m_lowerThreshold);
-    m_ui->readsThreshold->slotSetUpperValue(m_upperThreshold);
-    m_ui->readsThreshold->setTickInterval(1);
-
-    // update name fields in the UI
-    m_ui->selectionA->setText(selObjectA.name());
-    m_ui->selectionB->setText(selObjectB.name());
-
-    // compute statistics
-    const deaStats &stats = computeStatistics();
-
-    // visualize statistics
-    updateStatisticsUI(stats);
-
-    // make connections
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(close()));
-    connect(m_ui->buttonBox->button(QDialogButtonBox::Save),
-            SIGNAL(clicked()),
+    // create connections
+    connect(m_ui->searchField,
+            &QLineEdit::textChanged,
+            m_proxy.data(),
+            &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_ui->run, &QPushButton::clicked, this, &AnalysisDEA::run);
+    connect(m_ui->exportTable, &QPushButton::clicked, this, &AnalysisDEA::slotExportTable);
+    connect(m_ui->tableview,
+            &QTableView::clicked,
             this,
-            SLOT(slotSaveToPDF()));
-    connect(m_ui->readsThreshold,
-            SIGNAL(signalLowerValueChanged(int)),
-            this,
-            SLOT(slotSetLowerThreshold(int)));
-    connect(m_ui->readsThreshold,
-            SIGNAL(signalUpperValueChanged(int)),
-            this,
-            SLOT(slotSetUpperThreshold(int)));
-    connect(m_ui->geneSearch,
-            SIGNAL(textChanged(QString)),
-            selectionsProxyModel(),
-            SLOT(setFilterFixedString(QString)));
-    connect(m_ui->tableView,
-            SIGNAL(clicked(QModelIndex)),
-            this,
-            SLOT(slotSelectionSelected(QModelIndex)));
+            &AnalysisDEA::slotGeneSelected);
+    connect(&m_watcher, &QFutureWatcher<void>::finished, this, &AnalysisDEA::slotDEAComputed);
+    connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisDEA::slotExportPlot);
+    // allow to copy the content of the table
+    m_ui->tableview->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_ui->tableview, &QTableView::customContextMenuRequested,
+            this, &AnalysisDEA::customMenuRequested);
 }
 
 AnalysisDEA::~AnalysisDEA()
 {
+
 }
 
-QSortFilterProxyModel *AnalysisDEA::selectionsProxyModel()
+void AnalysisDEA::slotExportTable()
 {
-    QSortFilterProxyModel *selectionsProxyModel
-        = qobject_cast<QSortFilterProxyModel *>(m_ui->tableView->model());
-    Q_ASSERT(selectionsProxyModel);
-    return selectionsProxyModel;
-}
-
-GeneSelectionDEAItemModel *AnalysisDEA::selectionsModel()
-{
-    GeneSelectionDEAItemModel *model
-        = qobject_cast<GeneSelectionDEAItemModel *>(selectionsProxyModel()->sourceModel());
-    Q_ASSERT(model);
-    return model;
-}
-
-void AnalysisDEA::slotSelectionSelected(QModelIndex index)
-{
-    // always clear the selected plot
-    m_ui->customPlot->graph(1)->clearData();
-
-    if (index.isValid()) {
-        const auto selected = m_ui->tableView->geneTableItemSelection();
-        const auto currentSelection = selectionsModel()->getSelections(selected);
-        // obtain the coordinates of the elements of the table selected
-        // so we can then highlight them in the scatter plot
-        QVector<double> x;
-        QVector<double> y;
-        for (const auto &deaRead : currentSelection) {
-            if (combinedSelectionThreholsd(deaRead)) {
-                continue;
-            }
-            x.append(deaRead.readsA);
-            y.append(deaRead.readsB);
-        }
-
-        // the scatter plot needs a vector
-        m_ui->customPlot->graph(1)->setData(x, y);
-    }
-
-    m_ui->customPlot->replot();
-}
-
-void AnalysisDEA::computeGeneToReads(const UserSelection &selObjectA,
-                                     const UserSelection &selObjectB)
-{
-    // reset thresholds
-    m_lowerThreshold = std::numeric_limits<int>::max();
-    m_upperThreshold = std::numeric_limits<int>::min();
-
-    // get the list of aggregated genes from both selections
-    const auto &selA = selObjectA.getGeneCounts();
-    const auto &selB = selObjectB.getGeneCounts();
-
-    // take into account that some genes might be present in only one selection
-    // therefore, we create a hash table (key gene name - value a pair with counts in selection A
-    // and counts in selection B) to later know what genes are present in which set
-    // depending of the value of the hash (0.0 no present)
-    auto it1 = selA.begin();
-    auto it2 = selB.begin();
-    QHash<QString, deaReads> tempMap;
-    while (it1 != selA.end() || it2 != selB.end()) {
-
-        if (it1 != selA.end()) {
-            const auto gene_name = it1->first;
-            const auto gene_counts = it1->second;
-            tempMap[gene_name].gene = gene_name;
-            tempMap[gene_name].readsA = gene_counts;
-            m_upperThreshold = std::max(gene_counts, m_upperThreshold);
-            m_lowerThreshold = std::min(gene_counts, m_lowerThreshold);
-            ++it1;
-        }
-
-        if (it2 != selB.end()) {
-            const auto gene_name = it2->first;
-            const auto gene_counts = it2->second;
-            tempMap[gene_name].gene = gene_name;
-            tempMap[gene_name].readsB = gene_counts;
-            m_upperThreshold = std::max(gene_counts, m_upperThreshold);
-            m_lowerThreshold = std::min(gene_counts, m_lowerThreshold);
-            ++it2;
-        }
-    }
-
-    // clear the container and fill it with the deaReads objects
-    m_combinedSelections = tempMap.values();
-
-    // update table model for genes
-    selectionsModel()->loadCombinedSelectedGenes(m_combinedSelections);
-}
-
-const AnalysisDEA::deaStats AnalysisDEA::computeStatistics()
-{
-    deaStats stats;
-
-    // iterate the list of combined reads to compute the DDA stats and populate the table
-    for (const auto &readsValues : m_combinedSelections) {
-
-        // check if values are outside threshold
-        if (combinedSelectionThreholsd(readsValues)) {
-            continue;
-        }
-
-        // get read values
-        const int readsSelA = readsValues.readsA;
-        const int readsSelB = readsValues.readsB;
-
-        // compute overlapping counting values
-        if (readsSelA == 0) {
-            ++stats.countB;
-        } else if (readsSelB == 0) {
-            ++stats.countA;
-        } else {
-            ++stats.countAB;
-        }
-
-        // update lists of values that will be used in the scatter plot (use log values)
-        stats.valuesSelectionA.push_back(std::log1p(readsSelA));
-        stats.valuesSelectionB.push_back(std::log1p(readsSelB));
-    }
-
-    if (!m_combinedSelections.empty()) {
-        stats.pearsonCorrelation = Math::pearson(stats.valuesSelectionA, stats.valuesSelectionB);
-    }
-
-    return stats;
-}
-
-void AnalysisDEA::updateStatisticsUI(const deaStats &stats)
-{
-    // update scatter plot data
-    m_ui->customPlot->graph(0)->setData(QVector<double>::fromStdVector(stats.valuesSelectionA),
-                                        QVector<double>::fromStdVector(stats.valuesSelectionB));
-    m_ui->customPlot->graph(0)->rescaleAxes();
-
-    // clear selection
-    m_ui->tableView->clearSelection();
-    m_ui->customPlot->graph(1)->clearData();
-
-    // update plot
-    m_ui->customPlot->replot();
-
-    // update UI fields for stats
-    m_ui->numGenesSelectionA->setText(QString::number(stats.countA + stats.countAB));
-    m_ui->numGenesSelectionB->setText(QString::number(stats.countB + stats.countAB));
-    m_ui->correlation->setText(QString::number(stats.pearsonCorrelation));
-    m_ui->overlappingGenes->setText(QString::number(stats.countAB));
-    m_ui->genesOnlyA->setText(QString::number(stats.countA));
-    m_ui->genesOnlyB->setText(QString::number(stats.countB));
-
-    // update view
-    update();
-}
-
-void AnalysisDEA::slotSetLowerThreshold(const int value)
-{
-    if (value != m_lowerThreshold) {
-        m_lowerThreshold = value;
-        updateStatisticsUI(computeStatistics());
-    }
-}
-
-void AnalysisDEA::slotSetUpperThreshold(const int value)
-{
-    if (value != m_upperThreshold) {
-        m_upperThreshold = value;
-        updateStatisticsUI(computeStatistics());
-    }
-}
-
-void AnalysisDEA::slotSaveToPDF()
-{
-    QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Export File"),
-                                                    QDir::homePath(),
-                                                    QString("%1").arg(tr("PNG Files (*.png)")));
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Export DE Genes"),
+                                                          QDir::homePath(),
+                                                          QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
     }
 
-    // TODO add most DEA genes and stats (use QPrinter)
-    // TODO use PDF as output
-    const bool saveOk = m_ui->customPlot->savePng(filename, 800, 800, 1.0, 100);
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        QMessageBox::critical(this, tr("Export DE Genes"), tr("The directory is not writable"));
+        return;
+    }
 
-    if (!saveOk) {
-        QMessageBox::critical(this, tr("Save DEA"), tr("Error saving DEA to a file"));
+    QFile file(filename);
+    if (file.open(QIODevice::ReadWrite)) {
+        QTextStream stream(&file);
+        // write columns (1st row)
+        stream << "Gene" << "\t" << "FDR" << "\t" << "p-value" << "\t" << "log2FoldChange" << endl;
+        // write values
+        for (uword i = 0; i < m_results.n_rows; ++i) {
+            const QString gene = QString::fromStdString(m_results_rows.at(i));
+            const double fdr = m_results.at(i, 5);
+            const double pvalue = m_results.at(i, 4);
+            const double foldchange = m_results.at(i, 1);
+            if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
+                stream << gene << "\t" << fdr << "\t" << pvalue << "\t" << foldchange << endl;
+            }
+        }
     } else {
-        QMessageBox::information(this, tr("Save DEA"), tr("DEA was saved successfully"));
+        QMessageBox::critical(this, tr("Export DE Genes"), tr("Coult not open the file"));
+    }
+    file.close();
+}
+
+void AnalysisDEA::slotGeneSelected(QModelIndex index)
+{
+    // Check if the selection is valid
+    if (!index.isValid() || m_proxy.isNull()) {
+        m_gene_highlight = QPointF();
+        return;
+    }
+
+    const QItemSelection &selected = m_ui->tableview->selectionModel()->selection();
+    const QModelIndexList &selected_indexes = m_proxy->mapSelectionToSource(selected).indexes();
+
+    // Check if only elements are selected
+    if (selected_indexes.empty()) {
+        m_gene_highlight = QPointF();
+        return;
+    }
+
+    // update the highlight coordinate and refresh the plot
+    const int row_index = selected_indexes.first().row();
+    const double pvalue = -log10(m_results.at(row_index, 4) + std::numeric_limits<double>::epsilon());
+    const double foldchange = m_results.at(row_index, 1);
+    m_gene_highlight = QPointF(foldchange, pvalue);
+    updatePlot();
+}
+
+void AnalysisDEA::updatePlot()
+{
+    QScatterSeries *series1 = new QScatterSeries();
+    QScatterSeries *series2 = new QScatterSeries();
+
+    series1->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+    series1->setMarkerSize(5.0);
+    series1->setColor(Qt::gray);
+    series1->setUseOpenGL(false);
+
+    series2->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+    series2->setMarkerSize(5.0);
+    series2->setColor(Qt::red);
+    series2->setUseOpenGL(false);
+
+    // populate
+    for (uword i = 0; i < m_results.n_rows; ++i) {
+        const double fdr = m_results.at(i, 5);
+        const double pvalue = -log10(m_results.at(i, 4) + std::numeric_limits<double>::epsilon());
+        const double foldchange = m_results.at(i, 1);
+        if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
+            series2->append(foldchange, pvalue);
+        } else {
+            series1->append(foldchange, pvalue);
+        }
+    }
+
+    m_ui->plot->setRenderHint(QPainter::Antialiasing);
+    m_ui->plot->chart()->removeAllSeries();
+    m_ui->plot->chart()->addSeries(series1);
+    m_ui->plot->chart()->addSeries(series2);
+
+    if (!m_gene_highlight.isNull()) {
+        QScatterSeries *series3 = new QScatterSeries();
+        series3->setMarkerSize(8.0);
+        series3->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+        series3->setColor(Qt::darkMagenta);
+        series3->setUseOpenGL(false);
+        *series3 << m_gene_highlight;
+        m_ui->plot->chart()->addSeries(series3);
+    }
+
+    m_ui->plot->chart()->setTitle("Volcano plot");
+    m_ui->plot->chart()->setDropShadowEnabled(false);
+    m_ui->plot->chart()->legend()->hide();
+    m_ui->plot->chart()->createDefaultAxes();
+    m_ui->plot->chart()->axisX()->setTitleText("Log2FoldChange");
+    m_ui->plot->chart()->axisY()->setTitleText("-log10(p-value)");
+}
+
+void AnalysisDEA::updateTable()
+{   
+    // data model
+    const int columns = 4;
+    const int rows = m_results_rows.size();
+    QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
+    model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
+    model->setHorizontalHeaderItem(1, new QStandardItem(QString("FDR")));
+    model->setHorizontalHeaderItem(2, new QStandardItem(QString("p-value")));
+    model->setHorizontalHeaderItem(3, new QStandardItem(QString("log2FoldChange")));
+
+    int high_confidence_de = 0;
+    // populate
+    for (uword i = 0; i < m_results.n_rows; ++i) {
+        const QString gene = QString::fromStdString(m_results_rows.at(i));
+        const double fdr = m_results.at(i, 5);
+        const double pvalue = m_results.at(i, 4);
+        const double foldchange = m_results.at(i, 1);
+        QStandardItem *gene_item = new QStandardItem(gene);
+        QStandardItem *fdr_item = new QStandardItem(QString::number(fdr));
+        QStandardItem *pvalue_item = new QStandardItem(QString::number(pvalue));
+        QStandardItem *foldchange_item = new QStandardItem(QString::number(foldchange));
+        if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
+            gene_item->setBackground(Qt::red);
+            fdr_item->setBackground(Qt::red);
+            pvalue_item->setBackground(Qt::red);
+            foldchange_item->setBackground(Qt::red);
+            ++high_confidence_de;
+        }
+        model->setItem(i,0,gene_item);
+        model->setItem(i,1,fdr_item);
+        model->setItem(i,2,pvalue_item);
+        model->setItem(i,3,foldchange_item);
+    }
+
+    // update total number of DE genes
+    m_ui->total_genes->setText(QString::number(high_confidence_de));
+
+    // sorting model
+    m_proxy->setSourceModel(model);
+    m_proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
+    m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_ui->tableview->setModel(m_proxy.data());
+
+    // settings for the table
+    m_ui->tableview->setSortingEnabled(true);
+    m_ui->tableview->setShowGrid(true);
+    m_ui->tableview->setWordWrap(true);
+    m_ui->tableview->setAlternatingRowColors(true);
+    m_ui->tableview->sortByColumn(1, Qt::AscendingOrder);
+
+    m_ui->tableview->setFrameShape(QFrame::StyledPanel);
+    m_ui->tableview->setFrameShadow(QFrame::Sunken);
+    m_ui->tableview->setGridStyle(Qt::SolidLine);
+    m_ui->tableview->setCornerButtonEnabled(false);
+    m_ui->tableview->setLineWidth(1);
+
+    m_ui->tableview->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_ui->tableview->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_ui->tableview->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    m_ui->tableview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_ui->tableview->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_ui->tableview->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    m_ui->tableview->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    m_ui->tableview->horizontalHeader()->setSortIndicatorShown(true);
+    m_ui->tableview->verticalHeader()->hide();
+
+    m_ui->tableview->model()->submit(); // support for caching (speed up)
+}
+
+void AnalysisDEA::run()
+{
+    bool recompute = false;
+
+    if (m_ui->normalization_deseq->isChecked()
+            && m_normalization != SettingsWidget::NormalizationMode::DESEQ) {
+        m_normalization = SettingsWidget::NormalizationMode::DESEQ;
+        recompute = true;
+    }
+
+    if (m_ui->normalization_scran->isChecked() &&
+            m_normalization != SettingsWidget::NormalizationMode::SCRAN) {
+        m_normalization = SettingsWidget::NormalizationMode::SCRAN;
+        recompute = true;
+    }
+
+    if (m_reads_threshold != m_ui->reads_threshold->value()) {
+        m_reads_threshold = m_ui->reads_threshold->value();
+        recompute = true;
+    }
+
+    if (m_genes_threshold != m_ui->genes_threshold->value()) {
+        m_genes_threshold = m_ui->genes_threshold->value();
+        recompute = true;
+    }
+
+    if (m_ind_reads_treshold != m_ui->individual_reads_threshold->value()) {
+        m_ind_reads_treshold = m_ui->individual_reads_threshold->value();
+        recompute = true;
+    }
+
+    if (m_spots_threshold != m_ui->spots_threshold->value()) {
+        m_spots_threshold = m_ui->spots_threshold->value();
+        recompute = true;
+    }
+
+    if (recompute) {
+        // initialize progress bar
+        m_ui->progressBar->setRange(0,0);
+        // disable controls
+        m_ui->run->setEnabled(false);
+        m_ui->exportTable->setEnabled(false);
+        m_ui->searchField->setEnabled(false);
+        // initialize worker
+        QFuture<void> future = QtConcurrent::run(this, &AnalysisDEA::runDEAAsync);
+        m_watcher.setFuture(future);
+    } else {
+        slotDEAComputed();
     }
 }
 
-bool AnalysisDEA::combinedSelectionThreholsd(const AnalysisDEA::deaReads &deaReads) const
+void AnalysisDEA::runDEAAsync()
 {
-    // check if values are outside threshold
-    return (((deaReads.readsA < m_lowerThreshold || deaReads.readsA > m_upperThreshold)
-             && (deaReads.readsB < m_lowerThreshold || deaReads.readsB > m_upperThreshold)
-             && deaReads.readsA > 0 && deaReads.readsB > 0));
+    // filter out dataset A
+    STData::STDataFrame dataA = STData::filterDataFrame(m_dataA,
+                                                        m_ind_reads_treshold,
+                                                        m_reads_threshold,
+                                                        m_genes_threshold,
+                                                        m_spots_threshold);
+    // filter out dataset B
+    STData::STDataFrame dataB = STData::filterDataFrame(m_dataB,
+                                                        m_ind_reads_treshold,
+                                                        m_reads_threshold,
+                                                        m_genes_threshold,
+                                                        m_spots_threshold);
+
+    std::vector<std::string> rowsA;
+    std::vector<std::string> rowsB;
+    std::vector<std::string> colsA;
+    std::vector<std::string> colsB;
+    std::transform(dataA.spots.begin(), dataA.spots.end(), std::back_inserter(rowsA),
+                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
+    std::transform(dataB.spots.begin(), dataB.spots.end(), std::back_inserter(rowsB),
+                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
+    std::transform(dataA.genes.begin(), dataA.genes.end(), std::back_inserter(colsA),
+                   [](auto gene) {return gene.toStdString();});
+    std::transform(dataB.genes.begin(), dataB.genes.end(), std::back_inserter(colsB),
+                   [](auto gene) {return gene.toStdString();});
+
+    qDebug() << "Computing DEA Asynchronously. Dataset A, rows="
+             << dataA.counts.n_rows << ", columns=" << dataA.counts.n_cols << ". Dataset B, rows="
+             << dataB.counts.n_rows << ", columns=" << dataB.counts.n_cols;
+
+    // Make the DEA call
+    RInterface::computeDEA(dataA.counts, dataB.counts, rowsA, rowsB, colsA, colsB,
+                           m_normalization, m_results, m_results_rows, m_results_cols);
+}
+
+void AnalysisDEA::slotDEAComputed()
+{
+    // stop progress bar
+    m_ui->progressBar->setMaximum(10);
+    // enable run button
+    m_ui->run->setEnabled(true);
+
+    // check that the DE genes were computed
+    if (m_results_rows.empty() || m_results_cols.empty() || m_results.empty()) {
+        QMessageBox::critical(this,
+                              tr("DEA Analysis"),
+                              tr("There was an error performing the DEA"));
+        return;
+    }
+
+    // enable controls
+    m_ui->exportTable->setEnabled(true);
+    m_ui->exportPlot->setEnabled(true);
+    m_ui->searchField->setEnabled(true);
+
+    // update table with fdr and foldchange
+    updateTable();
+
+    // update plot with fdr and foldchange
+    updatePlot();
+}
+
+void AnalysisDEA::slotExportPlot()
+{
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          tr("Save Volcano Plot"),
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        QMessageBox::critical(this,
+                              tr("Save Volcano Plot"),
+                              tr("The file is not writable"));
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QImage image = m_ui->plot->grab().toImage();
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              tr("Save Volcano Plot"),
+                              tr("The image could not be creted."));
+    }
+}
+
+void AnalysisDEA::customMenuRequested(const QPoint &pos)
+{
+    const QModelIndex index = m_ui->tableview->indexAt(pos);
+    if (index.isValid()) {
+        QMenu *menu = new QMenu(this);
+        menu->addAction(new QAction(tr("Copy"), this));
+        if (menu->exec(m_ui->tableview->viewport()->mapToGlobal(pos))) {
+            const QString text = m_proxy->mapToSource(index).data().toString();
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(text);
+        }
+    }
 }

@@ -1,21 +1,19 @@
-#ifndef stVi_H
-#define stVi_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "data/DataProxy.h"
 
 class QSettings;
 class QCloseEvent;
 class QAction;
 class QStatusBar;
 class QMenu;
-class Error;
 class QVBoxLayout;
 class QWidget;
-class AuthorizationManager;
 class DatasetPage;
 class CellViewPage;
 class UserSelectionsPage;
+class SpotsWidget;
 class GenesWidget;
 
 // This class represents the main window of the application
@@ -39,9 +37,6 @@ public:
     void loadSettings();
     void saveSettings() const;
 
-    // Tries to find a cached access token otherwise it will show a log in dialog
-    void startAuthorization();
-
 private slots:
 
     // exit the application
@@ -53,17 +48,16 @@ private slots:
     // open pop up static widget to show info about the application
     void slotShowAbout();
 
-    // to handle different authorization call backs (success and error)
-    void slotAuthorizationError(QSharedPointer<Error> error);
-    void slotAuthorized();
-    // when user clicks to log out, shows log in dialog
-    void slotLogOutButton();
+    // a dataset has been opened
+    void slotDatasetOpen(const QString &datasetname);
+    // a dataset has been edited
+    void slotDatasetUpdated(const QString &datasetname);
+    // a dataset has been removed (the current open)
+    void slotDatasetRemoved(const QString &datasetname);
 
 private:
     // create all the widgets
     void setupUi();
-    // initialize and configure layout
-    void createLayouts();
     // load style sheets
     void initStyle();
     // create keyboard shortcuts
@@ -81,21 +75,14 @@ private:
     QScopedPointer<QAction> m_actionAbout;
     QScopedPointer<QAction> m_actionClear_Cache;
     QScopedPointer<QAction> m_actionDatasets;
-    QScopedPointer<QAction> m_actionLogOut;
     QScopedPointer<QAction> m_actionSelections;
-
-    // stVi owns dataProxy and AuthorizationManager
-    QSharedPointer<DataProxy> m_dataProxy;
-    QSharedPointer<AuthorizationManager> m_authManager;
 
     // different views
     QScopedPointer<DatasetPage> m_datasets;
     QScopedPointer<CellViewPage> m_cellview;
-    QScopedPointer<UserSelectionsPage> m_user_selections;
-    QScopedPointer<GenesWidget> m_genes;
-
-    // the configuration settings
-    Configuration m_config;
+    QSharedPointer<UserSelectionsPage> m_user_selections;
+    QSharedPointer<GenesWidget> m_genes;
+    QSharedPointer<SpotsWidget> m_spots;
 };
 
-#endif // stVi_H
+#endif // MAINWINDOW_H
