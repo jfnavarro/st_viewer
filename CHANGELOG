@@ -174,3 +174,29 @@ v0.6.2
 v0.6.3
 	* Added back plotting functionalities
 	* Fixed the building and packing for all the platforms
+
+v0.7.0
+    * Removed the online support
+    * Datasets are now loaded manually in different ways
+    * Added support to include a file with spot coordinates in the dataset
+    * Added support to include a file with spike-ins in the dataset
+    * Added support to include a file with normalization factors in the dataset
+    * Added support to adjust the chip size in the dataset
+    * Datasets are now working with the latest matrix TSV format
+    * If no spot coordinates are given the alignment matrix will be computed automatically
+    * Added a view with the spots to allow: select, show, hide, color, etc...
+    * Added the total count for the Genes and Spots view
+    * Added widget to show QC stats
+    * Added option to load gene colors
+    * Added option to load spot colors
+    * Added option to perform clustering on a dataset
+    * Added option to select based on the clustered spots
+    * Added lasso selection
+    * Added option to export/import selections
+    * Selections are now sub-matrices of a dataset
+    * Added widget to compute correlation between 2 selections
+    * Added widget to compute DEA (Differential Expression Analysis) between 2 selections
+    * Bug fixes and improvements
+    * UI optimizations
+    * Speed improvements
+    * Removed deprecated stuff
