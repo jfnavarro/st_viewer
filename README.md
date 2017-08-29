@@ -96,7 +96,9 @@ No installers/binaries are provided for now.
 	* Download and extract the latest stable release to a folder for example armadillo and then type
 	
 		cd armadillo
+		
 		./configure
+		
 		make
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
