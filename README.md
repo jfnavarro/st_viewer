@@ -139,7 +139,7 @@ No installers/binaries are provided for now.
 
         make dmg
 
-###### Ubuntu
+###### Linux
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
