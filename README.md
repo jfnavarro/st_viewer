@@ -84,25 +84,25 @@ No installers/binaries are provided for now.
         install.packages("Rcpp")
         install.packages("RcppArmadillo")
 
-* Download and install CMake 2.8.9 (https://cmake.org/download/) (in case you do not have it already)
+* Download and install CMake 2.8.9 (https://cmake.org/download/) (Latest versions of CMake 2.9.x have compatiblity issues with Qt so I recommend to download and install the version 2.8.9)
 
 ###### OSX
 
-* Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode" and "xcode-select on a terminal)
+* Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
   If needed you can install them from the Apple store. 
 
-* Clone the repository to a specific folder and build the application
+* Clone the repository to a specific folder and build the application (
 
-        git clone <st_viewer_repo>
-        mkdir /path/to/build
-        cd /path/to/build
+        git clone https://github.com/jfnavarro/st_viewer.git
+        mkdir st_viewer_build
+        cd st_viewer_build
         cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
           [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
           [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
           [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
-          /path/to/st_viewer_repo
+          ../st_viewer
 
     Where : 
 
@@ -148,14 +148,14 @@ No installers/binaries are provided for now.
 
 * Clone the repository to a specific folder and build the application
 
-        git clone <st_viewer_repo>
-        mkdir /path/to/build
-        cd /path/to/build
+        git clone https://github.com/jfnavarro/st_viewer.git
+        mkdir st_viewer_build
+        cd st_viewer_build
         cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
           [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
           [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
           [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
-          /path/to/st_viewer_repo
+          ../st_viewer
 
     Where : 
 
@@ -180,6 +180,8 @@ No installers/binaries are provided for now.
 * To execute type :
       
         /path/to/bin/STViewer
+        
+        or click the ST Viewer icon present in st_viewer_build
   
 * Alternatively for Linux you can build a stand alone .tar package that you can install/distribute
   
