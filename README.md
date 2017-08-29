@@ -159,9 +159,9 @@ No installers/binaries are provided for now.
     
 * Run the application by clicking in the app icon that can be found in
 
-        /path/to/build/
+        /st_viewer_build
         
-* Alternatively for MAC you can build a stand alone DMG bundle that you can install/distribute 
+* Alternatively for MAC you can build a stand alone DMG bundle that you can install 
 
         make dmg
 
