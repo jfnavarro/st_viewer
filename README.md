@@ -33,19 +33,19 @@ If you want to load a dataset you can go to the "Datasets view" and click in the
 image and other files. You can also download a dataset automatically
 if its files are inside a folder with the option "Load folder" and you
 can use a meta-file to load a dataset. The meta-file must describe where
-all the dataset's files are and it should have the following format:
+all the dataset's files are and it should have the following JSON format:
 
 	{
-        "name": "test",
-        "tissue": "test_tissue",
-        "species": "test_species",
-        "comments": "test_comments",
-	"data": "/Users/user/test_dataset/stdata.tsv",
-	"image": "/Users/user/test_dataset/image.jpg",
-	"aligment": "/Users/user/test_dataset/alignment.txt",
-	"coordinates": "/Users/user/test_dataset/spots.txt",
-	"spike_ins": "",
-	"size_factors": ""
+        	"name": "test",
+        	"tissue": "test_tissue",
+        	"species": "test_species",
+        	"comments": "test_comments",
+		"data": "/Users/user/test_dataset/stdata.tsv",
+		"image": "/Users/user/test_dataset/image.jpg",
+		"aligment": "/Users/user/test_dataset/alignment.txt",
+		"coordinates": "/Users/user/test_dataset/spots.txt",
+		"spike_ins": "",
+		"size_factors": ""
 	}
 
 After that you can just double click in the dataset to open it. 
