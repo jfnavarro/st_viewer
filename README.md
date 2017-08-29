@@ -90,9 +90,11 @@ No installers/binaries are provided for now.
 * Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
+	
 	Tips:
-	- Download and extract the latest stable release to a folder for example armadillo and then type
-		
+	
+	* Download and extract the latest stable release to a folder for example armadillo and then type
+	
 		cd armadillo
 		./configure
 		make
