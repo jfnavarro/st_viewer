@@ -7,7 +7,7 @@ expression data on top of HE stained tissue figures with the correct
 location.
 
 The ST Viewer is cross platform which means that it can
-be built and run in OSX, UNIX and WINDOWS. 
+be built and run in OSX, LINUX and WINDOWS. 
 
 The ST viewer allows to interact with the data in real time.
 Users can see where specific genes are expressed and how
@@ -23,6 +23,12 @@ are columns in the form of (1x2) where 1 represents the X coordinate and 2 repre
 The ST viewer also requires a tissue HE image and an optional 3x3 alignment matrix (to convert
 array coordinates to image pixel coordinates in case the coordinates
 in input data are not converted already).
+
+Note that the referred 3x3 aligment matrix file must have the following format:
+
+	a11 a21 a31 a21 a22 a23 a31 a32 a33
+
+If the HE image is cropped to the array boundaries then no alignment matrix is needed.
 
 The ST viewer allows to pass a spot coordinates file to correct the coordinates
 positions or to only show the spots under the tissue. This file is compatible
@@ -51,12 +57,6 @@ all the dataset's files are and it should have the following JSON format:
 After that you can just double click in the dataset to open it. 
 (more detailed information about this in the soon to come manual).
 
-Note that the referred 3x3 aligment matrix file must have the following format:
-
-a11 a21 a31 a21 a22 a23 a31 a32 a33
-
-If your HE image is cropped to the array boundaries then no alignment matrix is needed.
-
 You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
 if you want to try the ST Viewer.
 
@@ -83,17 +83,24 @@ No installers/binaries are provided for now.
 
 ## Building/Installing
 
+* Download and install CMake 2.8.9 (https://cmake.org/download/) (Latest versions of CMake 2.9.x have compatiblity issues with Qt so I recommend to download and install the version 2.8.9 or a previous one)
+
 * Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
 
 * Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
-* Download and compile Armadillo from http://arma.sourceforge.net/ (manual on how to install on the web)
+* Download and compile Armadillo from http://arma.sourceforge.net/download.html
+	Tips:
+	- Download and extract the latest stable release to a folder for example armadillo and then type
+		
+		cd armadillo
+		./configure
+		make
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
-        R
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
         biocLite("scran")
@@ -101,8 +108,6 @@ No installers/binaries are provided for now.
         install.packages("RInside")
         install.packages("Rcpp")
         install.packages("RcppArmadillo")
-
-* Download and install CMake 2.8.9 (https://cmake.org/download/) (Latest versions of CMake 2.9.x have compatiblity issues with Qt so I recommend to download and install the version 2.8.9)
 
 ###### OSX
 
@@ -128,8 +133,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    location of the Qt5 binaries and the Armadillo library.
+    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
     eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
     
@@ -181,10 +185,9 @@ No installers/binaries are provided for now.
 
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    location of the Qt5 binaries and the Armadillo library.
+    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
-    eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.9/gcc;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
     
@@ -197,9 +200,9 @@ No installers/binaries are provided for now.
         
 * To execute type :
       
+        STViewer
+        or
         /path/to/bin/STViewer
-        
-        or click the ST Viewer icon present in st_viewer_build
   
 * Alternatively for Linux you can build a stand alone .tar package that you can install/distribute
   
