@@ -73,15 +73,18 @@ No installers/binaries are provided for now.
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
-* Open R and install the following packages (DESeq2, Rtsne and SCRAN)
+* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
         R
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
         biocLite("scran")
         install.packages("Rtsne")
+        install.packages("RInside")
+        install.packages("Rcpp")
+        install.packages("RcppArmadillo")
 
-* Download and install CMake (https://cmake.org/download/) (in case you do not have it already)
+* Download and install CMake 2.8.9 (https://cmake.org/download/) (in case you do not have it already)
 
 ###### OSX
 
