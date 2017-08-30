@@ -203,10 +203,6 @@ No installers/binaries are provided for now.
         STViewer
         or
         /path/to/bin/STViewer
-  
-* Alternatively for Linux you can build a stand alone .tar package that you can install/distribute
-  
-        make package
 
 ###### Windows
 
