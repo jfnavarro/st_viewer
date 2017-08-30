@@ -93,7 +93,7 @@ No installers/binaries are provided for now.
 	
 	Tips:
 	
-	* Download and extract the latest stable release to a folder for example armadillo and then type
+	* Download and extract the latest stable release to a folder for example armadillo and then type (on a terminal)
 	
 		cd armadillo
 		
@@ -157,13 +157,9 @@ No installers/binaries are provided for now.
 
         make -j4 
     
-* Run the application by clicking in the app icon that can be found in
+* Run the application by clicking on the STViewer.app icon that can be found in
 
         /st_viewer_build
-        
-* Alternatively for MAC you can build a stand alone DMG bundle that you can install 
-
-        make dmg
 
 ###### Linux
 
@@ -214,25 +210,7 @@ No installers/binaries are provided for now.
 
 ###### Windows
 
-There are different ways to build the ST Viewer in Windows.
-We use Cygwin but there are probably easier ways to do it. 
-
-* Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
-
-    During the installation, select these additional packages:
-
-    * git (category: Devel)
-    * wget (category: Web)
-
-* The CMake included in Cygwin unfortunately doesn’t include
-the generator for Nmake (-G "NMake Makefiles" ) so you need to
-install CMake for windows : http://www.cmake.org/cmake/resources/software.html
-
-* Install Microsoft Visual Studio (make sure you install the C++ compilers) : http://www.microsoft.com/visualstudio/eng/visual-studio-2013
-
-* Install NSI installers in Windows : http://nsis.sourceforge.net/Download
-
-* Build from the source:
+COMING SOON
 
     
 
