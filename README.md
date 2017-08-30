@@ -7,7 +7,7 @@ expression data on top of HE stained tissue figures with the correct
 location.
 
 The ST Viewer is cross platform which means that it can
-be built and run in OSX, UNIX and WINDOWS. 
+be built and run in OSX, LINUX and WINDOWS. 
 
 The ST viewer allows to interact with the data in real time.
 Users can see where specific genes are expressed and how
@@ -24,20 +24,38 @@ The ST viewer also requires a tissue HE image and an optional 3x3 alignment matr
 array coordinates to image pixel coordinates in case the coordinates
 in input data are not converted already).
 
+Note that the referred 3x3 aligment matrix file must have the following format:
+
+	a11 a21 a31 a21 a22 a23 a31 a32 a33
+
+If the HE image is cropped to the array boundaries then no alignment matrix is needed.
+
 The ST viewer allows to pass a spot coordinates file to correct the coordinates
 positions or to only show the spots under the tissue. This file is compatible
 with the output format of the ST Aligner https://github.com/SpatialTranscriptomicsResearch/st_aligner
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
 "Import dataset" then a dialog form will be shown where you can load the ST data, the HE
-image and other files. After that you can just double click in the dataset to open it. 
-(more detailed information about this in the manual).
+image and other files. You can also download a dataset automatically
+if its files are inside a folder with the option "Load folder" and you
+can use a meta-file to load a dataset. The meta-file must describe where
+all the dataset's files are and it should have the following JSON format:
 
-Note that the referred 3x3 aligment matrix file must have the following format:
+	{
+        	"name": "test",
+        	"tissue": "test_tissue",
+        	"species": "test_species",
+        	"comments": "test_comments",
+		"data": "/Users/user/test_dataset/stdata.tsv",
+		"image": "/Users/user/test_dataset/image.jpg",
+		"aligment": "/Users/user/test_dataset/alignment.txt",
+		"coordinates": "/Users/user/test_dataset/spots.txt",
+		"spike_ins": "",
+		"size_factors": ""
+	}
 
-a11 a21 a31 a21 a22 a23 a31 a32 a33
-
-If your HE image is cropped to the array boundaries then no alignment matrix is needed.
+After that you can just double click in the dataset to open it. 
+(more detailed information about this in the soon to come manual).
 
 You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
 if you want to try the ST Viewer.
@@ -63,19 +81,30 @@ For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fern
 ## Binaries
 No installers/binaries are provided for now.
 
-## Building
+## Building/Installing
+
+* Download and install CMake 3.8.2 (https://cmake.org/download/) (Latest versions of CMake 3.9.x have compatiblity issues with Qt so I recommend to download and install the version 3.8.2 or a previous one)
 
 * Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
 
 * Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
-* Download and compile Armadillo from http://arma.sourceforge.net/ (manual on how to install on the web)
+* Download and compile Armadillo from http://arma.sourceforge.net/download.html
+	
+	Tips:
+	
+	* Download and extract the latest stable release to a folder for example armadillo and then type (on a terminal)
+	
+		cd armadillo
+		
+		./configure
+		
+		make
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
-        R
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
         biocLite("scran")
@@ -84,25 +113,23 @@ No installers/binaries are provided for now.
         install.packages("Rcpp")
         install.packages("RcppArmadillo")
 
-* Download and install CMake 2.8.9 (https://cmake.org/download/) (in case you do not have it already)
-
 ###### OSX
 
-* Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode" and "xcode-select on a terminal)
+* Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
   If needed you can install them from the Apple store. 
 
-* Clone the repository to a specific folder and build the application
+* Clone the repository to a specific folder and build the application (
 
-        git clone <st_viewer_repo>
-        mkdir /path/to/build
-        cd /path/to/build
+        git clone https://github.com/jfnavarro/st_viewer.git
+        mkdir st_viewer_build
+        cd st_viewer_build
         cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
           [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
           [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
           [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
           [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
           [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
-          /path/to/st_viewer_repo
+          ../st_viewer
 
     Where : 
 
@@ -110,8 +137,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    location of the Qt5 binaries and the Armadillo library.
+    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
     eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
     
@@ -131,15 +157,11 @@ No installers/binaries are provided for now.
 
         make -j4 
     
-* Run the application by clicking in the app icon that can be found in
+* Run the application by clicking on the STViewer.app icon that can be found in
 
-        /path/to/build/
-        
-* Alternatively for MAC you can build a stand alone DMG bundle that you can install/distribute 
+        /st_viewer_build
 
-        make dmg
-
-###### Ubuntu
+###### Linux
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
@@ -148,14 +170,14 @@ No installers/binaries are provided for now.
 
 * Clone the repository to a specific folder and build the application
 
-        git clone <st_viewer_repo>
-        mkdir /path/to/build
-        cd /path/to/build
+        git clone https://github.com/jfnavarro/st_viewer.git
+        mkdir st_viewer_build
+        cd st_viewer_build
         cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
           [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
           [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
           [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
-          /path/to/st_viewer_repo
+          ../st_viewer
 
     Where : 
 
@@ -163,10 +185,9 @@ No installers/binaries are provided for now.
 
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = indicates and extra path to look for packages for example the
-    location of the Qt5 binaries and the Armadillo library.
+    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
-    eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.9/gcc;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
     
@@ -179,33 +200,13 @@ No installers/binaries are provided for now.
         
 * To execute type :
       
+        STViewer
+        or
         /path/to/bin/STViewer
-  
-* Alternatively for Linux you can build a stand alone .tar package that you can install/distribute
-  
-        make package
 
 ###### Windows
 
-There are different ways to build the ST Viewer in Windows.
-We use Cygwin but there are probably easier ways to do it. 
-
-* Install Cygwin, by downloading and executing http://cygwin.com/setup-x86_64.exe
-
-    During the installation, select these additional packages:
-
-    * git (category: Devel)
-    * wget (category: Web)
-
-* The CMake included in Cygwin unfortunately doesn’t include
-the generator for Nmake (-G "NMake Makefiles" ) so you need to
-install CMake for windows : http://www.cmake.org/cmake/resources/software.html
-
-* Install Microsoft Visual Studio (make sure you install the C++ compilers) : http://www.microsoft.com/visualstudio/eng/visual-studio-2013
-
-* Install NSI installers in Windows : http://nsis.sourceforge.net/Download
-
-* Build from the source:
+COMING SOON
 
     
 
