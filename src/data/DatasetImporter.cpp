@@ -14,7 +14,7 @@
 
 #include "ui_datasetImporter.h"
 
-DatasetImporter::DatasetImporter(Dataset dataset, QWidget *parent)
+DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::DatasetImporter)
 {

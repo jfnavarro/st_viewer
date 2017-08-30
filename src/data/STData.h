@@ -73,7 +73,7 @@ public:
 
     // to parse a file with size factors (one per spot)
     // it returns bool if the parsing was okay and the number of factors is the same as rows
-    bool parseSizeFactors(const QString &spikeInFile);
+    bool parseSizeFactors(const QString &sizefactors);
 
     // helper function to filter out a data frame using thresholds
     static STDataFrame filterDataFrame(const STDataFrame &data,
@@ -92,7 +92,7 @@ public:
                                        SettingsWidget::NormalizationMode mode);
 
     // helper function to aggregate two STDataFrame by columns (genes)
-    static STDataFrame aggregate(const STDataFrame &data1, const STDataFrame &data2);
+    static STDataFrame aggregate(const STDataFrame &dataA, const STDataFrame &dataB);
 
     // functions to select spots
     void clearSelection();

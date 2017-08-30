@@ -47,7 +47,7 @@ public:
     void clear();
 
     // the user has opened/edit a dataset
-    void loadDataset(Dataset dataset);
+    void loadDataset(const Dataset &dataset);
 
     // the user has cleared the selections
     void clearSelections();

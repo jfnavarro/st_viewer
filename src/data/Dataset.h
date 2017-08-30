@@ -14,8 +14,8 @@ class Dataset
 
 public:
     Dataset();
-    Dataset(const DatasetImporter &importer);
-    Dataset(const Dataset &other);
+    explicit Dataset(const DatasetImporter &importer);
+    explicit Dataset(const Dataset &other);
     ~Dataset();
 
     Dataset &operator=(const Dataset &other);
@@ -40,8 +40,8 @@ public:
 
     // Setters
     void name(const QString &name);
-    void dataFile(const QString &data);
-    void imageAlignment(const QTransform &alignmentId);
+    void dataFile(const QString &datafile);
+    void imageAlignment(const QTransform &alignment);
     void imageAlignmentFile(const QString &aligment_file);
     void imageFile(const QString &image_file);
     void spotsFile(const QString &spots_file);

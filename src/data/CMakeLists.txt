@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext)
-
 set(LIBRARY_ARG_INCLUDES
     DatasetImporter.h
     Dataset.h
@@ -16,10 +14,6 @@ set(LIBRARY_ARG_SOURCES
     Gene.cpp
     UserSelection.cpp
     STData.cpp
-)
-
-set(LIBRARY_ARG_UI_FILES
-    "${PROJECT_SOURCE_DIR}/assets/ui/datasetImporter.ui"
 )
 
 ST_LIBRARY()

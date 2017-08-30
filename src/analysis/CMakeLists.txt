@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext;${PROJECT_SOURCE_DIR}/ext/qcustomplot)
-
 set(LIBRARY_ARG_INCLUDES
   AnalysisDEA.h
   AnalysisQC.h
@@ -16,10 +14,4 @@ set(LIBRARY_ARG_SOURCES
   ChartView.cpp
 )
 
-set(LIBRARY_ARG_UI_FILES
-    "${PROJECT_SOURCE_DIR}/assets/ui/analysisDEA.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/analysisQC.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/analysisCorrelation.ui"
-    "${PROJECT_SOURCE_DIR}/assets/ui/analysisClustering.ui"
-)
 ST_LIBRARY()

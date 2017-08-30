@@ -28,11 +28,8 @@ class DatasetPage : public QWidget
     Q_OBJECT
 
 public:
-    DatasetPage(QWidget *parent = 0);
+    explicit DatasetPage(QWidget *parent = 0);
     virtual ~DatasetPage();
-
-    // clear the loaded content
-    void clean();
 
     // returns the currently opened dataset
     QSharedPointer<Dataset> getCurrentDataset() const;

@@ -7,7 +7,6 @@
 
 static const int ROW = 1;
 static const int COLUMN = 0;
-using namespace Math;
 
 STData::STData()
     : m_data()

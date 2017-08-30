@@ -104,45 +104,33 @@ void CellViewPage::clear()
     m_dataset = Dataset();
 }
 
-void CellViewPage::loadDataset(Dataset dataset)
-{
-    //NOTE we allow to re-open the same dataset (in case it has been edited)
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    try {
-        // first load the dataset
-        dataset.load_data();
+void CellViewPage::loadDataset(const Dataset &dataset)
+{    
+    // reset to default
+    clear();
 
-        // reset to default
-        clear();
+    // update Status tip with the name of the currently selected dataset
+    setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
 
-        // update Status tip with the name of the currently selected dataset
-        setStatusTip(tr("Dataset loaded %1").arg(dataset.name()));
+    // update genes and spots
+    m_genes->slotLoadDataset(dataset);
+    m_spots->slotLoadDataset(dataset);
 
-        // update genes and spots
-        m_genes->slotLoadDataset(dataset);
-        m_spots->slotLoadDataset(dataset);
+    // update gene plotter rendering object with the dataset
+    m_gene_plotter->clearData();
+    m_gene_plotter->attachData(dataset.data());
 
-        // update gene plotter rendering object with the dataset
-        m_gene_plotter->clearData();
-        m_gene_plotter->attachData(dataset.data());
+    // store the dataset
+    m_dataset = dataset;
 
-        // store the dataset
-        m_dataset = dataset;
-
-        // create tiles textures from the image (async)
-        m_image->clearData();
-        const bool result = m_image->createTiles(dataset.imageFile());
-        slotImageLoaded(result);
-        //TODO can crete OpenGL textures on a different thread (FIX THIS)
-        //QFutureWatcher<void> watcher;
-        //QFuture<void> future = m_image->createTextures(dataset.imageFile());
-        //watcher.setFuture(future);
-    } catch (const std::exception &e) {
-        const QString ex_message = QString::fromStdString(e.what());
-        const QString message = "Error opening ST Dataset " + ex_message;
-        QMessageBox::critical(this, tr("Load Dataset"), message);
-    }
-    QGuiApplication::restoreOverrideCursor();
+    // create tiles textures from the image (async)
+    m_image->clearData();
+    const bool result = m_image->createTiles(dataset.imageFile());
+    slotImageLoaded(result);
+    //TODO can crete OpenGL textures on a different thread (FIX THIS)
+    //QFutureWatcher<void> watcher;
+    //QFuture<void> future = m_image->createTextures(dataset.imageFile());
+    //watcher.setFuture(future);
 }
 
 void CellViewPage::slotImageLoaded(const bool loaded)
@@ -511,8 +499,8 @@ void CellViewPage::slotLoadGenes()
 
         if (geneMap.empty()) {
             QMessageBox::warning(this,
-                                  tr("Genes File"),
-                                  tr("No valid genes could be found in the file"));
+                                 tr("Genes File"),
+                                 tr("No valid genes could be found in the file"));
             parsed = false;
         }
 

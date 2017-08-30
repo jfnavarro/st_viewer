@@ -23,7 +23,7 @@ public:
     const QString getComment() const;
 
     void setName(const QString name);
-    void setComment(const QString name);
+    void setComment(const QString comment);
 
 private:
     QScopedPointer<Ui::editSelectionDialog> m_ui;

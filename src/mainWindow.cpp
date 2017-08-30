@@ -329,16 +329,26 @@ void MainWindow::saveSettings() const
 
 void MainWindow::slotDatasetOpen(const QString &datasetname)
 {
-    const auto dataset = m_datasets->getCurrentDataset();
-    qDebug() << "Dataset opened " << datasetname;
-    m_cellview->loadDataset(*(dataset.data()));
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    auto dataset = m_datasets->getCurrentDataset();
+    try {
+        // first load the dataset
+        dataset->load_data();
+        qDebug() << "Dataset opened " << datasetname;
+        m_cellview->loadDataset(*(dataset.data()));
+    } catch (const std::exception &e) {
+        const QString ex_message = QString::fromStdString(e.what());
+        const QString message = "Error opening ST Dataset " + ex_message;
+        QMessageBox::critical(this, tr("Load Dataset"), message);
+    }
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void MainWindow::slotDatasetUpdated(const QString &datasetname)
 {
-    const auto dataset = m_datasets->getCurrentDataset();
+    //NOTE we re-open the dataset even if it is just being updated
     qDebug() << "Dataset updated " << datasetname;
-    m_cellview->loadDataset(*(dataset.data()));
+    slotDatasetOpen(datasetname);
 }
 
 void MainWindow::slotDatasetRemoved(const QString &datasetname)

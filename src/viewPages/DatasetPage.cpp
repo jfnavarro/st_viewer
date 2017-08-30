@@ -60,14 +60,6 @@ DatasetPage::~DatasetPage()
 {
 }
 
-void DatasetPage::clean()
-{
-    m_open_dataset = nullptr;
-    m_importedDatasets.clear();
-    datasetsModel()->clear();
-    clearControls();
-}
-
 QSortFilterProxyModel *DatasetPage::datasetsProxyModel()
 {
     QSortFilterProxyModel *datasetsProxyModel
@@ -130,8 +122,7 @@ void DatasetPage::slotEditDataset()
     if (currentDatasets.size() != 1) {
         return;
     }
-    const auto dataset = currentDatasets.front();
-    editDataset(dataset);
+    editDataset(currentDatasets.front());
 }
 
 void DatasetPage::slotEditDataset(const QModelIndex &index)
@@ -144,8 +135,7 @@ void DatasetPage::slotEditDataset(const QModelIndex &index)
     if (currentDatasets.size() != 1) {
         return;
     }
-    auto dataset = currentDatasets.front();
-    editDataset(dataset);
+    editDataset(currentDatasets.front());
 }
 
 void DatasetPage::editDataset(const Dataset &dataset)
@@ -185,8 +175,7 @@ void DatasetPage::slotOpenDataset()
     if (currentDatasets.size() != 1) {
         return;
     }
-    auto dataset = currentDatasets.front();
-    openDataset(dataset);
+    openDataset(currentDatasets.front());
 }
 
 void DatasetPage::slotOpenDataset(const QModelIndex &index)
@@ -199,8 +188,7 @@ void DatasetPage::slotOpenDataset(const QModelIndex &index)
     if (currentDatasets.size() != 1) {
         return;
     }
-    auto dataset = currentDatasets.front();
-    openDataset(dataset);
+    openDataset(currentDatasets.front());
 }
 
 void DatasetPage::openDataset(const Dataset &dataset)
@@ -244,7 +232,7 @@ void DatasetPage::removeDatasets(const QList<Dataset> &datasets)
         return;
     }
 
-    for (auto dataset: datasets) {
+    for (const auto &dataset: datasets) {
         Q_ASSERT(m_importedDatasets.removeOne(dataset));
         if (!m_open_dataset.isNull() && *(m_open_dataset.data()) == dataset) {
             emit signalDatasetRemoved(dataset.name());

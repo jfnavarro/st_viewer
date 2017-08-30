@@ -37,7 +37,7 @@ void setApplicationFlags()
     QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
     // allows to create high-dpi pixmaps
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, false);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     // consistent font rendering
     QApplication::setAttribute(Qt::AA_Use96Dpi, false);
     // force usages of desktop opengl
@@ -59,28 +59,37 @@ int main(int argc, char **argv)
 
     qDebug() << "Application started successfully.";
 
-    // Install translation file
-    bool initialized = true;
-    QTranslator trans;
-    initialized &= trans.load(":translations/locale_en_us.qm");
-    initialized &= app.installTranslator(&trans);
-    if (!initialized) {
-        qDebug() << "[Main] Error: Unable to install the translations!";
+    // Initialize RInside object here since it is global...
+    RInside *dummyR = nullptr;
+    try {
+        dummyR = new RInside();
+    } catch (const std::exception &e) {
         QMessageBox::critical(app.desktop()->screen(),
-                              "Error",
-                              app.tr("Unable to install the translations"));
+                              app.tr("Error"),
+                              app.tr("Error initializing R") + "\n" + QString(e.what()));
+        delete dummyR;
+        dummyR = nullptr;
+        return EXIT_FAILURE;
+    } catch (...) {
+        QMessageBox::critical(app.desktop()->screen(),
+                              app.tr("Error"),
+                              app.tr("Unknown error initializing R"));
+        delete dummyR;
+        dummyR = nullptr;
         return EXIT_FAILURE;
     }
 
-    // Initialize RInside object here since it is global...
-    RInside *dummyR = new RInside();
     // Create main window
     MainWindow mainWindow;
     app.setActiveWindow(&mainWindow);
     // Check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
+        QMessageBox::critical(app.desktop()->screen(),
+                              app.tr("Error"),
+                              app.tr("Minimum requirements not satisfied"));
         delete dummyR;
+        dummyR = nullptr;
         return EXIT_FAILURE;
     }
     // Initialize graphic components
@@ -88,7 +97,8 @@ int main(int argc, char **argv)
     // Show main window.
     mainWindow.show();
     // launch the app
-    const int status = app.exec();
+    const int return_code = app.exec();
     delete dummyR;
-    return status;
+    dummyR = nullptr;
+    return return_code;
 }

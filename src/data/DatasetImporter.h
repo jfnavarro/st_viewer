@@ -21,7 +21,7 @@ class DatasetImporter : public QDialog
 
 public:
     explicit DatasetImporter(QWidget *parent = 0);
-    DatasetImporter(Dataset dataset, QWidget *parent = 0);
+    DatasetImporter(const Dataset &dataset, QWidget *parent = 0);
     ~DatasetImporter();
 
     const QString datasetName() const;

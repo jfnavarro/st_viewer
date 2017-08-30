@@ -13,7 +13,7 @@ class Gene
 public:
 
     Gene();
-    Gene(const QString &name);
+    explicit Gene(const QString &name);
     explicit Gene(const Gene &other);
     ~Gene();
 
@@ -40,7 +40,7 @@ public:
     void selected(const bool selected);
     void color(const QColor &color);
     void cut_off(const float cutoff);
-    void totalCount(const float totalCoun);
+    void totalCount(const float totalCount);
 
 private:
     QString m_name;

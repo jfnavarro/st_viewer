@@ -83,7 +83,7 @@ public:
 
     // bounding rect boundaries check
     bool contains(const QPointF &point) const;
-    bool contains(const QRectF &point) const;
+    bool contains(const QRectF &rect) const;
 
 public slots:
     // TODO should prepend "slot"
