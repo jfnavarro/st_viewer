@@ -19,10 +19,14 @@ to later do DEA or spot classification using machine learning.
 The ST viewer uses the data generated with the ST Pipeline 
 https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
 which consist of a matrix of counts in TSV format where genes are rows and spot coordinates 
-are columns in the form of (1x2) where 1 represents the X coordinate and 2 represents the Y coordinate.
+are columns in the fllowing form: 
+
+eg. 1x2 
+
+Where 1 represents the X coordinate and 2 represents the Y coordinate.
+
 The ST viewer also requires a tissue HE image and an optional 3x3 alignment matrix (to convert
-array coordinates to image pixel coordinates in case the coordinates
-in input data are not converted already).
+array coordinates to image pixel coordinates).
 
 Note that the referred 3x3 aligment matrix file must have the following format:
 
@@ -31,7 +35,7 @@ Note that the referred 3x3 aligment matrix file must have the following format:
 If the HE image is cropped to the array boundaries then no alignment matrix is needed.
 
 The ST viewer allows to pass a spot coordinates file to correct the coordinates
-positions or to only show the spots under the tissue. This file is compatible
+positions and/or to only show the spots under the tissue. This file is compatible
 with the output format of the ST Aligner https://github.com/SpatialTranscriptomicsResearch/st_aligner
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
@@ -91,11 +95,13 @@ No installers/binaries are provided for now.
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
-	Tips:
+	Tips (Armadillo only needs to be build in Linux and OSX):
 	
-	* Download and extract the latest stable release to a folder for example armadillo and then type (on a terminal)
+	* Download the latest stable release and then on a terminal type:
 	
-		cd armadillo
+	        tar -xvf armadillo-x.xxx.x.tar.xz 
+		
+		cd armadillo-x.xxx.x
 		
 		./configure
 		
@@ -204,9 +210,55 @@ No installers/binaries are provided for now.
         or
         /path/to/bin/STViewer
 
-###### Windows
+###### Windows (Visual Studio)
 
-COMING SOON
+* Download and install Visual Studio (2013 is recommended) 
+ 
+* Download and install Git for windows from https://git-scm.com/downloads
+ 
+* Open the GIT terminal and clone the repository :
+ 
+	git clone https://github.com/jfnavarro/st_viewer.git
+ 
+* Open the CMake GUI and add the following entries(variables) :
+ 
+ 	- QCUSTOMPLOT_PATH = C:\qcustomplot // or the folder where you extracted it
+	- ARMADILLO_PATH = C:\armadillo     // or the folder where you extracted it
+	- CMAKE_INSTALL_PREFIX = C:\Qt\5.9.1\msvc2013_64 \\ or the Qt version that you installed
+	
+* Add the source diretory where the st_viewer was cloned
+ 
+* Add the build directory for example C:\st_viewer_build
+ 
+* Click on Configure and Generate
+ 
+* Click on Open Project (Visual Studio will open)
+ 
+* Click on BUILD ALL 
+
+* The ST Viewer .exe binary will be present in the build directory
+ 
+###### Windows (CygWin)
+
+* Download and install Cygwin from https://cygwin.com/install.html
+ 
+* Open the CygWin terminal and clone the repository :
+ 
+ 		git clone https://github.com/jfnavarro/st_viewer.git
+	
+* Create a build directory :
+
+		mkdir st_viewer_build
+	
+* Open the build_cygwin.sh script present in st_viewer and update the path of QT, QCUSTOMPLOT_PATH and ARMADILLO_PATH variables
+
+* Run the script (pass the build directory as a parameter)
+
+		sh st_viewer/build_cygwing.sh st_viewer_build
+	
+* The ST Viewer .exe binary will be present in the build directory
+ 	
+
 
     
 
