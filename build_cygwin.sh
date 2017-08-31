@@ -86,13 +86,13 @@ armadillo='/cygdrive/C/armadillo’
 # When running ctest there was a problem with missing dll. The files were on the system but couldn't be found.
 # A good command to diagnose this is "cygcheck".
 # By setting the PATH environment variable, the missing dll files can be found.
-export PATH="$armadillo:$qcustomplot:$qt_bin:$PATH"
+export PATH="$qcustomplot:$qt_bin:$PATH"
 
 windows_msvc_vars_filepath=`cygpath -w "$msvc_vars_filepath"`
 cmd /Q /C call "$windows_msvc_vars_filepath" x86_amd64 "&&" \
   `cygpath -w "$qt_env_filepath"` "&&" \
    cd "$stclient_builddir_windows" "&&" \
-   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type "$stclient_srcdir_windows" "&&" \
+   $cmd "$windows_cmake_filepath" -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$build_type -DARMADILLO_PATH=$armadillo "$stclient_srcdir_windows" "&&" \
    nmake "&&" \
    "$windows_ctest_filepath" "&&" \
    nmake package
