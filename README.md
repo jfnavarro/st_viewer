@@ -244,17 +244,17 @@ No installers/binaries are provided for now.
  
 * Open the CygWin terminal and clone the repository :
  
- 	git clone https://github.com/jfnavarro/st_viewer.git
+ 		git clone https://github.com/jfnavarro/st_viewer.git
 	
 * Create a build directory :
 
-	mkdir st_viewer_build
+		mkdir st_viewer_build
 	
 * Open the build_cygwin.sh script present in st_viewer and update the path of QT, QCUSTOMPLOT_PATH and ARMADILLO_PATH variables
 
 * Run the script (pass the build directory as a parameter)
 
-	sh st_viewer/build_cygwing.sh st_viewer_build
+		sh st_viewer/build_cygwing.sh st_viewer_build
 	
 * The ST Viewer .exe binary will be present in the build directory
  	
