@@ -1,5 +1,3 @@
 /images = contains images used in the application (icons,logos..)
-/fonts = contains fonts used in the application
 /cssclean = contain QSS styles files for the application
-/config = contains a CMake compilation time generated file with the endpoints
 application.qrc.in = CMake compilation time generated resource file of Qt
