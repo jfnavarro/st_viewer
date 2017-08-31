@@ -1,5 +1,7 @@
 project(STViewer CXX)
+
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
 set(APPLICATION_NAME "Spatial Transcriptomics Research Viewer")
 
 # Configuration variables
@@ -31,6 +33,11 @@ message(STATUS
 "-------------------------------------------------------------------------------"
 )
 message(STATUS)
+
+if(WIN32)
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
+endif()
 
 # Restrict possible builds to the selected build type.
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
@@ -65,7 +72,7 @@ if(WIN32)
 endif (WIN32)
 
 # Check the the configuration file is present
-if (NOT EXISTS ${CONFIG_FILE})
+if(NOT EXISTS ${CONFIG_FILE})
     message(FATAL_ERROR "Configuration file not present!")
 endif()
 

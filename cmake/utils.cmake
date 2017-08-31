@@ -12,8 +12,6 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
-    set(CMAKE_CXX_STANDARD 14)
-
     # Defining compiler specific settings
     if(WIN32)
         if(MSVC)
@@ -29,6 +27,9 @@ macro(INITIALISE_PROJECT)
            add_definitions(-D_SCL_SECURE_NO_WARNINGS)
         endif()
     else()
+
+		set(CMAKE_CXX_STANDARD 14)
+
         # Adding -std=c++14 flag explicitly
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -75,13 +76,8 @@ macro(USE_QT5LIB qt5lib)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
 endmacro()
 
-macro(PROJECT_GROUP TARGET_NAME FOLDER_PATH)
-    # Organize projects into folders
-    set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${FOLDER_PATH})
-endmacro()
-
 function(ST_LIBRARY)
     get_filename_component(PARENTDIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-    add_library("${PARENTDIR}" OBJECT ${UI_GENERATED_FILES} ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
+    add_library("${PARENTDIR}" OBJECT ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
     source_group("${PARENTDIR}" FILES ${LIBRARY_ARG_INCLUDES} ${LIBRARY_ARG_SOURCES})
 endfunction()

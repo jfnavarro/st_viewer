@@ -89,7 +89,7 @@ else()
                 )
         endif()
 
-        # Find R executable and paths (Win32)
+    # Find R executable and paths (Win32)
     else()
 
         # find the home path
@@ -186,12 +186,8 @@ if (WIN32)
     string(LENGTH ${LIBRINSIDE_LIBRARIES} lenRInsideFQNameLen)
     math(EXPR lenRInsideFQNameLen ${lenRInsideFQNameLen}-1)
     string(SUBSTRING ${LIBRINSIDE_LIBRARIES} 0 ${lenRInsideFQNameLen} LIBRINSIDE_LIBRARIES)
-    string(LENGTH "libRInside.a" lenRInsideName)
-    string(LENGTH ${LIBRINSIDE_LIBRARIES} lenRInsideFQName)
-    math(EXPR RLibPathLen ${lenRInsideFQName}-${lenRInsideName}-1)
-    string(SUBSTRING ${LIBRINSIDE_LIBRARIES} 0 ${RLibPathLen} LIBRINSIDE_LIBRARIES)
-    math(EXPR RLibPathLen ${RLibPathLen}+1)
-    string(SUBSTRING ${LIBRINSIDE_LIBRARIES} ${RLibPathLen} -1 LIBRINSIDE_LIBRARIES)
+	# Replace .a for .dll
+	string(REGEX REPLACE ".a" ".dll" LIBRINSIDE_LIBRARIES ${LIBRINSIDE_LIBRARIES})
 else()
     if (${LIBRINSIDE_LIBRARIES} MATCHES "[-][L]([^ ;])+")
         string(SUBSTRING ${CMAKE_MATCH_0} ${NUM_TRUNC_CHARS} -1 LIBRINSIDE_LIBRARIES)
@@ -225,11 +221,3 @@ if (LIBRCPPARMADILLO_INCLUDE_DIRS)
 else()
     message(FATAL_ERROR "RcppArmadillo not found!")
 endif()
-
-# mark low-level variables from FIND_* calls as advanced
-mark_as_advanced(
-    LIBR_LIBRARIES
-    LIBR_LAPACK_LIBRARY
-    LIBR_BLAS_LIBRARY
-    LIBRINSIDE_LIBRARIES
-    )

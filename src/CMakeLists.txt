@@ -43,7 +43,18 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
-find_package(Armadillo REQUIRED)
+if(WIN32)
+    if(NOT ${ARMADILLO_PATH})
+	set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
+	set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib" 
+	    "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
+    
+    else()
+	message(FATAL_ERROR "ARMADILLO_PATH is empty")
+    endif()
+else()
+    find_package(Armadillo REQUIRED)
+endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 find_package(R REQUIRED)
@@ -181,7 +192,59 @@ endif(APPLE)
 
 if(WIN32)
 
-##TODO
+    # Add systems libraries
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
+    include(InstallRequiredSystemLibraries)
+
+    # Qt plug-ins needed
+    set(QT_PLUGIN_CATEGORIES imageformats printsupport platforms)
+    set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
+    set(PLUGINS_IN_CATEGORY_printsupport windowsprintersupport)
+    set(PLUGINS_IN_CATEGORY_platforms qwindows)
+
+    # By default, do not warn when built on machines using only VS Express:
+    if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+      set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+    endif()
+
+    # Install system libs
+    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION bin)
+
+	# Install app's icon
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION bin)
+
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
+
+    # Add QT libraries as shared libraries
+    foreach(QT_LIBRARY ${QT_TARGET_LINK_LIBS})
+        if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+            get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION_DEBUG)
+        else()
+            get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION)
+        endif()
+        install(FILES ${ST_QT_LOC} DESTINATION bin)
+    endforeach()
+
+    set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
+    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
+        set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING "d")
+    endif()
+
+    # Deploy the qt plugins in the expected location
+    foreach(PLUGIN_CATEGORY ${QT_PLUGIN_CATEGORIES})
+        foreach(PLUGIN_NAME ${PLUGINS_IN_CATEGORY_${PLUGIN_CATEGORY}})
+			install(FILES "${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}
+			${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}" DESTINATION "bin/${PLUGIN_CATEGORY}")
+        endforeach()
+    endforeach()
+
+    install(TARGETS ${PROJECT_NAME} DESTINATION .)
+    install(FILES ${CONFIG_FILE} DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION .)
+    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.dll DESTINATION .)
+    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.dll DESTINATION .)
 
 endif(WIN32)
 
