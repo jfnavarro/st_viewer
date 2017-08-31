@@ -19,10 +19,14 @@ to later do DEA or spot classification using machine learning.
 The ST viewer uses the data generated with the ST Pipeline 
 https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
 which consist of a matrix of counts in TSV format where genes are rows and spot coordinates 
-are columns in the form of (1x2) where 1 represents the X coordinate and 2 represents the Y coordinate.
+are columns in the fllowing form: 
+
+eg. 1x2 
+
+Where 1 represents the X coordinate and 2 represents the Y coordinate.
+
 The ST viewer also requires a tissue HE image and an optional 3x3 alignment matrix (to convert
-array coordinates to image pixel coordinates in case the coordinates
-in input data are not converted already).
+array coordinates to image pixel coordinates).
 
 Note that the referred 3x3 aligment matrix file must have the following format:
 
@@ -31,7 +35,7 @@ Note that the referred 3x3 aligment matrix file must have the following format:
 If the HE image is cropped to the array boundaries then no alignment matrix is needed.
 
 The ST viewer allows to pass a spot coordinates file to correct the coordinates
-positions or to only show the spots under the tissue. This file is compatible
+positions and/or to only show the spots under the tissue. This file is compatible
 with the output format of the ST Aligner https://github.com/SpatialTranscriptomicsResearch/st_aligner
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
