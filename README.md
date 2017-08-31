@@ -240,7 +240,7 @@ No installers/binaries are provided for now.
  
 ###### Windows (CygWin)
 
-* Download and install Cygwin from https://cygwin.com/install.html
+* Download and install CygWin from https://cygwin.com/install.html
  
 * Open the CygWin terminal and clone the repository :
  
@@ -254,7 +254,7 @@ No installers/binaries are provided for now.
 
 * Run the script (pass the build directory as a parameter)
 
-		sh st_viewer/build_cygwing.sh st_viewer_build
+		sh st_viewer/build_cygwin.sh st_viewer st_viewer_build
 	
 * The ST Viewer .exe binary will be present in the build directory
  	
