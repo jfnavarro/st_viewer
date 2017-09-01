@@ -40,6 +40,5 @@
     <file alias="images/export_genes.png">${PROJECT_SOURCE_DIR}/assets/images/export_genes.png</file>
     <file alias="images/create_selection.png">${PROJECT_SOURCE_DIR}/assets/images/create-selection.png</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
-    <file alias="translations/locale_en_us.qm">${PROJECT_BINARY_DIR}/src/locale_en_us.qm</file>
   </qresource>
 </RCC>

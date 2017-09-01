@@ -45,12 +45,12 @@ include_directories(${QCUSTOMPLOT_PATH})
 
 if(WIN32)
     if(NOT ${ARMADILLO_PATH})
-	set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
-	set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib" 
-	    "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
+        set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
+        set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
+            "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
     
     else()
-	message(FATAL_ERROR "ARMADILLO_PATH is empty")
+        message(FATAL_ERROR "ARMADILLO_PATH is empty")
     endif()
 else()
     find_package(Armadillo REQUIRED)
