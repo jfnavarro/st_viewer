@@ -307,16 +307,18 @@ bool STData::parseSpotsMap(const QString &spots_file)
         bool parsed = true;
         while (!in.atEnd()) {
             line = in.readLine();
-            fields = line.split("\t");
-            if (fields.length() != 4 && fields.length() != 6) {
-                parsed = false;
-                break;
+            if (!line.contains("x")) {
+                fields = line.split("\t");
+                if (fields.length() != 4 && fields.length() != 6) {
+                    parsed = false;
+                    break;
+                }
+                const float orig_x = fields.at(0).toFloat();
+                const float orig_y = fields.at(1).toFloat();
+                const float new_x = fields.at(2).toFloat();
+                const float new_y = fields.at(3).toFloat();
+                spotMap.insert(Spot::SpotType(orig_x, orig_y), Spot::SpotType(new_x, new_y));
             }
-            const float orig_x = fields.at(0).toFloat();
-            const float orig_y = fields.at(1).toFloat();
-            const float new_x = fields.at(2).toFloat();
-            const float new_y = fields.at(3).toFloat();
-            spotMap.insert(Spot::SpotType(orig_x, orig_y), Spot::SpotType(new_x, new_y));
         }
 
         if (spotMap.empty() || !parsed) {
@@ -333,35 +335,40 @@ bool STData::parseSpotsMap(const QString &spots_file)
     file.close();
 
     // Update matrix and containers
-    QVector<uword> remove_indexes;
+    std::vector<uword> to_keep_indexes;
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        auto oldspot = m_spots[i]->coordinates();
+        const auto &oldspot = m_spots[i]->coordinates();
         if (spotMap.contains(oldspot)) {
             m_spots[i]->coordinates(spotMap[oldspot]);
-        } else {
-            remove_indexes.push_back(i);
+            to_keep_indexes.push_back(i);
         }
     }
 
-    if (remove_indexes.size() == m_spots.size()) {
+    if (to_keep_indexes.empty()) {
         qDebug() << "No matching spots were found in the spots file";
         return true;
     }
 
-    if (remove_indexes.size() < m_spots.size() && !remove_indexes.empty()) {
+    if (to_keep_indexes.size() < m_spots.size()) {
         const int answer = QMessageBox::warning(nullptr,
                                                 QObject::tr("Spots coordinates"),
-                                                QObject::tr("Some spots in the data matrix were not found"
-                                                            "in the file\n. Do you want to keep them?"),
+                                                QObject::tr("Some spots in the data matrix were not found "
+                                                            "in the spots coordinates file\n."
+                                                            "Do you want to keep them?"),
                                                 QMessageBox::Yes,
                                                 QMessageBox::No | QMessageBox::Escape);
 
         if (answer == QMessageBox::No) {
             //Remove spots from the matrix and the containers
-            for (const uword index : remove_indexes) {
-                m_spots.removeAt(index);
-                m_data.counts.shed_row(index);
+            SpotListType spots_objects;
+            QList<Spot::SpotType> spots;
+            for (const uword index : to_keep_indexes) {
+                spots_objects.append(m_spots.at(index));
+                spots.append(m_data.spots.at(index));
             }
+            m_spots = spots_objects;
+            m_data.counts = m_data.counts.rows(urowvec(to_keep_indexes));
+            m_data.spots = spots;
         }
     }
 
@@ -638,21 +645,21 @@ void STData::selectSpots(const SelectionEvent &event)
 
 void STData::selectSpots(const QList<Spot::SpotType> &spots)
 {
-   clearSelection();
-   for (auto spot : m_spots) {
-       auto coord = spot->coordinates();
-       if (spots.contains(coord)) {
-           spot->selected(true);
-       }
-   }
+    clearSelection();
+    for (auto spot : m_spots) {
+        auto coord = spot->coordinates();
+        if (spots.contains(coord)) {
+            spot->selected(true);
+        }
+    }
 }
 
 void STData::selectSpots(const QList<unsigned> &spots_indexes)
 {
-   clearSelection();
-   for (auto index : spots_indexes) {
-       m_spots.at(index)->selected(true);
-   }
+    clearSelection();
+    for (auto index : spots_indexes) {
+        m_spots.at(index)->selected(true);
+    }
 }
 
 void STData::selectGenes(const QRegExp &regexp, const bool force)
