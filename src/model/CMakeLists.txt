@@ -12,7 +12,4 @@ set(LIBRARY_ARG_SOURCES
     SpotItemModel.cpp
 )
 
-set(LIBRARY_ARG_UI_FILES
-)
-
 ST_LIBRARY()

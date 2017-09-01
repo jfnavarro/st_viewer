@@ -6,5 +6,5 @@ set(LIBRARY_ARG_SOURCES
     Configuration.cpp
     SettingsFormatXML.cpp 
 )
-set(LIBRARY_ARG_UI_FILES)
+
 ST_LIBRARY()

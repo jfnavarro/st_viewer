@@ -44,7 +44,7 @@ target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupp
 include_directories(${QCUSTOMPLOT_PATH})
 
 if(WIN32)
-    if(NOT ${ARMADILLO_PATH})
+    if(DEFINED ${ARMADILLO_PATH})
         set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
         set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
             "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
@@ -66,8 +66,6 @@ include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# Add the source code as components
-
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
@@ -81,11 +79,9 @@ set(subdir_list
                    math
                    analysis)
 
+# Add the source code as components
 foreach(dir ${subdir_list})
     add_subdirectory("${dir}")
-endforeach()
-
-foreach(dir ${subdir_list})
     list(APPEND ST_TARGET_OBJECTS "$<TARGET_OBJECTS:${dir}>")
 endforeach()
 

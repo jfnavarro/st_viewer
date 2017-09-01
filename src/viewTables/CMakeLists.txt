@@ -13,8 +13,5 @@ set(LIBRARY_ARG_SOURCES
     UserSelectionTableView.cpp
 )
 
-set(LIBRARY_ARG_UI_FILES
-)
-
 ST_LIBRARY()
 

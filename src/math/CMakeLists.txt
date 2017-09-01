@@ -9,10 +9,7 @@ set(LIBRARY_ARG_SOURCES
     QuadTreeAABB.cpp
 )
 
-set(LIBRARY_ARG_UI_FILES
-)
-
-st_library()
+ST_LIBRARY()
 
 
 

@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/ext)
-
 set(LIBRARY_ARG_INCLUDES
     GeneRendererGL.h
     CellGLView.h
@@ -15,9 +13,6 @@ set(LIBRARY_ARG_SOURCES
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp
     GraphicItemGL.cpp
-)
-
-set(LIBRARY_ARG_UI_FILES
 )
 
 ST_LIBRARY()

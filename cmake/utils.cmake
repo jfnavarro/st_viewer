@@ -12,6 +12,8 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
+    set(CMAKE_CXX_STANDARD 14)
+
     # Defining compiler specific settings
     if(WIN32)
         if(MSVC)
@@ -28,8 +30,6 @@ macro(INITIALISE_PROJECT)
         endif()
     else()
 
-		set(CMAKE_CXX_STANDARD 14)
-
         # Adding -std=c++14 flag explicitly
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -42,7 +42,7 @@ macro(INITIALISE_PROJECT)
         if (APPLE)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \
                 -Wno-inconsistent-missing-override -Wno-infinite-recursion \
-                -Wno-c++1z-extensions -Wno-macro-redefined")
+                -Wno-c++1z-extensions -Wno-macro-redefined -Wno-#pragma-messages")
         endif()
 
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
