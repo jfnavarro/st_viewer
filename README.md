@@ -87,7 +87,15 @@ No installers/binaries are provided for now.
 
 ## Building/Installing
 
-* Download and install CMake 3.8.2 (https://cmake.org/download/) (Latest versions of CMake 3.9.x have compatiblity issues with Qt so I recommend to download and install the version 3.8.2 or a previous one)
+* Download and install CMake 3.7.2 (https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+
+	Tips (Linux and OSX):
+	
+		tar -xvzf cmake-3.7.2.tar.gz
+		cd cmake-3.7.2
+		./configure
+		make -j4
+		sudo make install
 
 * Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
 
@@ -124,17 +132,16 @@ No installers/binaries are provided for now.
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
   If needed you can install them from the Apple store. 
 
-* Clone the repository to a specific folder and build the application (
+* Clone the repository to a specific folder and build the application
 
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
-          [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
-          [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
-          [-DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk”] \
-          [-DCMAKE_OSX_DEPLOYMENT_TARGET=version] \
-          [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
+        cmake -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_PREFIX_PATH="/path/to/libraries" \
+          -DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk” \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=version \
+          -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" \
           ../st_viewer
 
     Where : 
@@ -157,7 +164,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
     
-    eg: 10.7, 10.8, 10.9, 10.11, etc ...
+    eg: 10.12
 
 *   Compile the application
 
@@ -179,10 +186,10 @@ No installers/binaries are provided for now.
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake [-DCMAKE_INSTALL_PREFIX="/usr/local/bin"] \
-          [-DCMAKE_BUILD_TYPE="Debug" | "Release"] \
-          [-DCMAKE_PREFIX_PATH="/path/to/libraries"] \
-          [-DQCUSTOMPLOT_PATH="/path/to/qcustomplot"] \
+        cmake -DCMAKE_INSTALL_PREFIX="/usr/local/bin" \
+          -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_PREFIX_PATH="/path/to/libraries" \
+          -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" \
           ../st_viewer
 
     Where : 
