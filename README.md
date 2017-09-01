@@ -87,7 +87,15 @@ No installers/binaries are provided for now.
 
 ## Building/Installing
 
-* Download and install CMake 3.7.2 (https://cmake.org/download/) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+* Download and install CMake 3.7.2 (https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+
+	Tips (Linux and OSX):
+	
+		tar -xvzf cmake-3.7.2.tar.gz
+		cd cmake-3.7.2
+		./configure
+		make -j4
+		sudo make install
 
 * Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
 
