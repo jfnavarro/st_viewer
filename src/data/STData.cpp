@@ -339,7 +339,9 @@ bool STData::parseSpotsMap(const QString &spots_file)
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
         const auto &oldspot = m_spots[i]->coordinates();
         if (spotMap.contains(oldspot)) {
-            m_spots[i]->coordinates(spotMap[oldspot]);
+            const auto &newspot = spotMap[oldspot];
+            m_spots[i]->coordinates(newspot);
+            m_data.spots[i] = newspot;
             to_keep_indexes.push_back(i);
         }
     }

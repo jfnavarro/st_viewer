@@ -159,29 +159,38 @@ if(APPLE)
                     OUTPUT_VARIABLE YEAR
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/mac/Info.plist.in ${InfoPlistFile})
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
     set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${InfoPlistFile})
 
     # MAC OSX sets
-    set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/assets/images/STViewer.icns")
-    set(MACOSX_BUNDLE_INFO_STRING "Spatial Transcriptomics Viewer")
+    set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns")
+    set(MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "name.elemc.${PROJECT_NAME}")
     set(MACOSX_BUNDLE_VERSION "${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}")
+    set(MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
+    set(MACOSX_BUNDLE_COPYRIGHT "${CMAKE_SOURCE_DIR}/LICENSE")
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
+    set(MACOSX_BUNDLE_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources")
+    set(MACOSX_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns")
 
     # Architecture OSX
     set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
     set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
 
-    set_source_files_properties("${CMAKE_SOURCE_DIR}/assets/images/st_icon.icn"
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set_source_files_properties("${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf"
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set_source_files_properties("${CMAKE_SOURCE_DIR}/LICENSE"
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set_source_files_properties("${CMAKE_SOURCE_DIR}/DEPENDENCIES"
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set_source_files_properties("${CONFIG_FILE}"
+    add_custom_target(OSX_BUNDLE
+            COMMENT "Generating Bundle"
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${MACOSX_BUNDLE_RESOURCES}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${MACOSX_BUNDLE_ICON} ${MACOSX_BUNDLE_RESOURCES})
+    add_dependencies(${PROJECT_NAME} OSX_BUNDLE)
+
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns"
+        "${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf"
+        "${CMAKE_SOURCE_DIR}/LICENSE"
+        "${CMAKE_SOURCE_DIR}/DEPENDENCIES"
+        ${CONFIG_FILE}
         PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 endif(APPLE)
