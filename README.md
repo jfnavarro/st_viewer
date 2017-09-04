@@ -36,7 +36,7 @@ If the HE image is cropped to the array boundaries then no alignment matrix is n
 
 The ST viewer allows to pass a spot coordinates file to correct the coordinates
 positions and/or to only show the spots under the tissue. This file is compatible
-with the output format of the ST Aligner https://github.com/SpatialTranscriptomicsResearch/st_aligner
+with the output format of the ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
 "Import dataset" then a dialog form will be shown where you can load the ST data, the HE
@@ -103,9 +103,9 @@ No installers/binaries are provided for now.
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
-	Tips (Armadillo only needs to be build in Linux and OSX):
+	Tips (Armadillo only needs to be built for Linux and OSX):
 	
-	* Download the latest stable release and then on a terminal type:
+	* Download the latest stable release and then open a terminal and type:
 	
 	        tar -xvf armadillo-x.xxx.x.tar.xz
 			
