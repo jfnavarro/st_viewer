@@ -153,6 +153,12 @@ endif()
 
 if(APPLE)
 
+    # Set project name of binary dir for OSX
+    set(OS_X_PROJECT_BINARY_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app")
+    set(CMAKE_INSTALL_PREFIX ${OS_X_PROJECT_BINARY_DIR}/Contents)
+
+    set(MACOSX_BUNDLE_ICON_NAME "st_icon.icns")
+
     # Configure and install Info.plist file
     set(InfoPlistFile ${CMAKE_BINARY_DIR}/Info.plist)
     execute_process(COMMAND date "+%Y"
@@ -164,7 +170,8 @@ if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${InfoPlistFile})
 
     # MAC OSX sets
-    set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns")
+    set(MACOSX_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/assets/images/${MACOSX_BUNDLE_ICON_NAME}")
+    set(MACOSX_BUNDLE_ICON_FILE ${MACOSX_BUNDLE_ICON})
     set(MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "name.elemc.${PROJECT_NAME}")
     set(MACOSX_BUNDLE_VERSION "${PROJECT_VERSION}")
@@ -174,24 +181,24 @@ if(APPLE)
     set(MACOSX_BUNDLE_COPYRIGHT "${CMAKE_SOURCE_DIR}/LICENSE")
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
     set(MACOSX_BUNDLE_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources")
-    set(MACOSX_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns")
+
 
     # Architecture OSX
     set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
     set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
 
-    add_custom_target(OSX_BUNDLE
-            COMMENT "Generating Bundle"
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${MACOSX_BUNDLE_RESOURCES}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${MACOSX_BUNDLE_ICON} ${MACOSX_BUNDLE_RESOURCES})
-    add_dependencies(${PROJECT_NAME} OSX_BUNDLE)
+    # Find macdeoployqt
+    find_program(MACDEPLOYQT NAMES macdeployqt macdeployqt-mac PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
 
-    set_source_files_properties("${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns"
-        "${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf"
-        "${CMAKE_SOURCE_DIR}/LICENSE"
-        "${CMAKE_SOURCE_DIR}/DEPENDENCIES"
-        ${CONFIG_FILE}
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    # Resources
+    add_custom_command(TARGET ${PROJECT_NAME}
+        COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
+        COMMAND install -m 644 ${MACOSX_BUNDLE_ICON} ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/LICENSE ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/DEPENDENCIES ${CMAKE_INSTALL_PREFIX}/Resources/
+        COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
+    add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
 
 endif(APPLE)
 

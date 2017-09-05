@@ -186,12 +186,12 @@ static rowvec computeDESeqFactors(const mat &counts)
         Q_ASSERT(factors.size() == counts.n_rows);
         if (!factors.is_finite()) {
             qDebug() << "Computed DESeq2 factors has non finite elements";
-            factors.replace(datum::inf, 1.0);
-            factors.replace(datum::nan, 1.0);
+            factors.replace(datum::inf, -1e6);
+            factors.replace(datum::nan, -1e6);
         }
         if (any(factors <= 0.0)) {
             qDebug() << "Computed DESeq2 factors has elements with zeroes or negative";
-            factors.replace(0.0, 1.0);
+            factors.replace(0.0, -1e6);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
@@ -229,12 +229,12 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
         Q_ASSERT(factors.size() == counts.n_rows);
         if (!factors.is_finite()) {
             qDebug() << "Computed SCRAN factors has non finite elements";
-            factors.replace(datum::inf, 1.0);
-            factors.replace(datum::nan, 1.0);
+            factors.replace(datum::inf, -1e6);
+            factors.replace(datum::nan, -1e6);
         }
-        if (any(factors == 0.0)) {
-            qDebug() << "Computed SCRAN factors has elements with zeroes";
-            factors.replace(0.0, 1.0);
+        if (any(factors <= 0.0)) {
+            qDebug() << "Computed SCRAN factors has elements with zeroes or negative";
+            factors.replace(0.0, -1e6);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();

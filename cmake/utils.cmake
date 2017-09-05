@@ -1,6 +1,16 @@
 macro(INITIALISE_PROJECT)
     set(CMAKE_VERBOSE_MAKEFILE OFF)
 
+    # Required packages
+    find_package(Qt5Widgets REQUIRED)
+    # Keep track of some information about Qt
+    set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
+    set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
+    set(QT_PLUGINS_DIR ${_qt5Widgets_install_prefix}/plugins)
+    set(QT_VERSION_MAJOR ${Qt5Widgets_VERSION_MAJOR})
+    set(QT_VERSION_MINOR ${Qt5Widgets_VERSION_MINOR})
+    set(QT_VERSION_PATCH ${Qt5Widgets_VERSION_PATCH})
+
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         message(STATUS "Building a debug version...")

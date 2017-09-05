@@ -26,7 +26,7 @@ void setApplicationFlags()
 
 #ifdef Q_OS_MAC
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
-    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, true);
+    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
     // NOTE this is actually pretty important (be false)
     QApplication::setAttribute(Qt::AA_NativeWindows, false);
     // osx does not show icons on menus
@@ -39,7 +39,7 @@ void setApplicationFlags()
     // allows to create high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     // consistent font rendering
-    QApplication::setAttribute(Qt::AA_Use96Dpi, false);
+    QApplication::setAttribute(Qt::AA_Use96Dpi, true);
     // force usages of desktop opengl
     QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
 }

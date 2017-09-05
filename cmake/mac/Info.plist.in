@@ -5,14 +5,16 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
-    <string>False</string> 
+    <string>True</string>
+    <key>CFBundleIconFile</key>
+    <string>${MACOSX_BUNDLE_ICON_NAME}</string> 
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleTypeIconFile</key>
-            <string>st_icon.icns</string>
+            <string>${MACOSX_BUNDLE_ICON_NAME}</string>
         </dict>
     </array>
     <key>NSHumanReadableCopyright</key>
