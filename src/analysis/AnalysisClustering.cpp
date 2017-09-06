@@ -52,6 +52,7 @@ void AnalysisClustering::clear()
     m_ui->genes_threshold->setValue(5);
     m_ui->spots_threshold->setValue(5);
     m_ui->clusters->setValue(5);
+    m_ui->logScale->setChecked(false);
     m_ui->plot->chart()->removeAllSeries();
     m_colors.clear();
     m_selected_spots.clear();

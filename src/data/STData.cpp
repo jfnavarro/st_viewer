@@ -122,7 +122,7 @@ void STData::init(const QString &filename) {
 void STData::save(const QString &filename, const STData::STDataFrame &data)
 {
     QFile file(filename);
-    if (file.open(QIODevice::ReadWrite)) {
+    if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         // write genes (1st row)
         for (const auto gene : data.genes) {

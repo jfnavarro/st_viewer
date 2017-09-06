@@ -44,7 +44,7 @@ target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupp
 include_directories(${QCUSTOMPLOT_PATH})
 
 if(WIN32)
-    if(DEFINED ${ARMADILLO_PATH})
+    if(DEFINED ARMADILLO_PATH)
         set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
         set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
             "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")

@@ -83,7 +83,7 @@ static void computeDEA(const mat &countsA,
                     "sce = newSCESet(countData=exp_values);"
                     "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                     "sce = normalize(sce);"
-                    "size_factors = sce@phenoData$size_factor";
+                    "size_factors = sce@phenoData$size_factor;";
         }
         call +=
                 "condition = c(rep('A', length(rowsA)), rep('B', length(rowsB)));"
