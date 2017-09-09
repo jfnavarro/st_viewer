@@ -41,7 +41,7 @@ public:
     ~STData();
 
     // Parses the matrix and initialize the size-factors and genes/spots containers
-    void init(const QString &filename);
+    void init(const QString &filename, const QString &spots_coordinates = QString());
 
     // Functions to import/export the data
     static STDataFrame read(const QString &filename);
@@ -62,10 +62,9 @@ public:
     const QVector<double> &renderingValues() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
-    // the spots coordinates will be updated and the spots
-    // that are not found will be removed if the user says yes to this
-    // it returns true if the parsing went fine
-    bool parseSpotsMap(const QString &spots_file);
+    // It returns a map of old_spots -> new_spots
+    // It throws exceptions when errors during parsing or empty file
+    QMap<Spot::SpotType, Spot::SpotType> parseSpotsMap(const QString &spots_file);
 
     // to parse a file with spike-in factors (one per spot)
     // it returns bool if the parsing was okay and the number of factors is the same as rows
@@ -140,6 +139,10 @@ private:
     QVector<bool> m_rendering_visible;
     QVector<QColor> m_rendering_colors;
     QVector<double> m_rendering_values;
+
+    // helper functions to speed look-ups of spots and genes
+    QHash<Spot::SpotType, SpotObjectType> m_dict_spots;
+    QHash<QString, GeneObjectType> m_dict_genes;
 
     Q_DISABLE_COPY(STData)
 };

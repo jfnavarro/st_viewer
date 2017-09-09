@@ -218,13 +218,13 @@ void Dataset::sizeFactorsFile(const QString &sizeFactorsFile)
 
 void Dataset::load_data()
 {
-    // Parse ST Data file
+    // Parse ST Data file and spot coordinates (if any)
     m_data = QSharedPointer<STData>(new STData());
     try {
-        m_data->init(m_data_file);
+        m_data->init(m_data_file, m_spots_file);
     } catch (const std::exception &e) {
-        qDebug() << "Error parsing data matrix " << e.what();
-        throw std::runtime_error("Error parsing ST Data file");
+        qDebug() << "Error parsing data matrix or spot coordinates " << e.what();
+        throw e;
     }
 
     // Parse image alignment
@@ -233,15 +233,6 @@ void Dataset::load_data()
         if (!parsed) {
             qDebug() << "Error parsing image aligment file";
             throw std::runtime_error("Error parsing Image alignment file");
-        }
-    }
-
-    // Parse stops coordinates
-    if (!m_spots_file.isEmpty()) {
-        const bool parsed = m_data->parseSpotsMap(m_spots_file);
-        if (!parsed) {
-            qDebug() << "Error parsing Spot coordinates file";
-            throw std::runtime_error("Error parsing Spot coordinates file");
         }
     }
 

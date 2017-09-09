@@ -1,6 +1,7 @@
 #include "STData.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QtConcurrent>
 #include "math/Common.h"
 #include "color/HeatMap.h"
 #include "math/RInterface.h"
@@ -48,6 +49,7 @@ STData::STDataFrame STData::read(const QString &filename)
             if (row_number == 0) {
                 const QString gene = QString::fromStdString(token).trimmed();
                 data.genes.append(gene);
+
             } else if (col_number == 0) {
                 const QString spot_tmp = QString::fromStdString(token).trimmed();
                 const QStringList items = spot_tmp.split("x");
@@ -96,23 +98,69 @@ STData::STDataFrame STData::read(const QString &filename)
     return data;
 }
 
-void STData::init(const QString &filename) {
+void STData::init(const QString &filename, const QString &spots_coordinates) {
+
+    // First parse the matrix with counts
+    try {
+        m_data = read(filename);
+    } catch (const std::exception &e) {
+        qDebug() << "Error parsing data file " << e.what();
+        throw e;
+    }
+
+    // parse the spot coordinates file (if any)
+    QMap<Spot::SpotType, Spot::SpotType> spots_dict;
+    if (!spots_coordinates.isNull() && !spots_coordinates.isEmpty()) {
+        try {
+            spots_dict = parseSpotsMap(spots_coordinates);
+        } catch (const std::exception &e) {
+            qDebug() << "Error parsing spots file " << e.what();
+            throw e;
+        }
+    }
+
     m_genes.clear();
     m_spots.clear();
-    m_data = read(filename);
+
+    // Compute the total sums to add them to the spots objects
     colvec row_sum = sum(m_data.counts, ROW);
-    rowvec col_sum = sum(m_data.counts, COLUMN);
+    std::vector<uword> to_keep_spots;
+    QList<Spot::SpotType> spots;
     // Create genes/spots lists
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        auto spot = SpotObjectType(new Spot(m_data.spots.at(i)));
-        spot->totalCount(row_sum.at(i));
-        m_spots.append(spot);
+        auto spot = m_data.spots.at(i);
+        if (!spots_dict.empty() && spots_dict.contains(spot)) {
+            spot = spots_dict[spot];
+        } else if (!spots_dict.empty()) {
+            continue;
+        }
+        to_keep_spots.push_back(i);
+        auto spot_obj = SpotObjectType(new Spot(spot));
+        spot_obj->totalCount(row_sum.at(i));
+        m_spots.append(spot_obj);
+        m_dict_spots.insert(spot, spot_obj);
+        spots.append(spot);
     }
+
+    if (m_spots.empty()) {
+        qDebug() << "No spots could be found in the spot coordiantes file";
+        throw std::runtime_error("No spots could be found in the spot coordiantes file");
+    }
+
+    // remove spots if applicable
+    m_data.counts = m_data.counts.rows(uvec(to_keep_spots));
+    m_data.spots = spots;
+
+    // Compute the total sums to add them to the gene objects
+    rowvec col_sum = sum(m_data.counts, COLUMN);
     for (uword j = 0; j < m_data.counts.n_cols; ++j) {
-        auto gene = GeneObjectType(new Gene(m_data.genes.at(j)));
-        gene->totalCount(col_sum.at(j));
-        m_genes.append(gene);
+        const auto &gene = m_data.genes.at(j);
+        auto gene_obj = GeneObjectType(new Gene(gene));
+        gene_obj->totalCount(col_sum.at(j));
+        m_genes.append(gene_obj);
+        m_dict_genes.insert(gene, gene_obj);
     }
+
     m_rendering_colors.resize(m_spots.size());
     m_rendering_selected.resize(m_spots.size());
     m_rendering_visible.resize(m_spots.size());
@@ -173,10 +221,10 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     STDataFrame data = m_data;
 
     // Apply spike-ins and size factors if indicated by the user
-    if (rendering_settings.spike_in) {
+    if (rendering_settings.spike_in && m_spike_in.size() == data.counts.n_rows) {
         data.counts.each_col() /= m_spike_in.t();
     }
-    if (rendering_settings.size_factors) {
+    if (rendering_settings.size_factors && m_size_factors.size() == data.counts.n_rows) {
         data.counts.each_col() /= m_size_factors.t();
     }
 
@@ -215,7 +263,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
 
     // set visible to false for all the spots
-    std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), true);
+    std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), false);
 
     // Normalize the counts
     data = normalizeCounts(data, m_deseq_size_factors, m_scran_size_factors,
@@ -294,7 +342,7 @@ const QVector<double> &STData::renderingValues() const
     return m_rendering_values;
 }
 
-bool STData::parseSpotsMap(const QString &spots_file)
+QMap<Spot::SpotType, Spot::SpotType> STData::parseSpotsMap(const QString &spots_file)
 {
     qDebug() << "Parsing spots file " << spots_file;
     QMap<Spot::SpotType, Spot::SpotType> spotMap;
@@ -324,57 +372,17 @@ bool STData::parseSpotsMap(const QString &spots_file)
         if (spotMap.empty() || !parsed) {
             qDebug() << "No valid spots were found in the spots file";
             file.close();
-            return false;
+            throw std::runtime_error("No valid spots found in the spot coordinates file");
         }
 
     } else {
         qDebug() << "Could not open spots file";
         file.close();
-        return false;
+        throw std::runtime_error("Coult not open/parse the spot coordinates file");
     }
     file.close();
 
-    // Update matrix and containers
-    std::vector<uword> to_keep_indexes;
-    for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        const auto &oldspot = m_spots[i]->coordinates();
-        if (spotMap.contains(oldspot)) {
-            const auto &newspot = spotMap[oldspot];
-            m_spots[i]->coordinates(newspot);
-            m_data.spots[i] = newspot;
-            to_keep_indexes.push_back(i);
-        }
-    }
-
-    if (to_keep_indexes.empty()) {
-        qDebug() << "No matching spots were found in the spots file";
-        return true;
-    }
-
-    if (to_keep_indexes.size() < m_spots.size()) {
-        const int answer = QMessageBox::warning(nullptr,
-                                                QObject::tr("Spots coordinates"),
-                                                QObject::tr("Some spots in the data matrix were not found "
-                                                            "in the spots coordinates file\n."
-                                                            "Do you want to keep them?"),
-                                                QMessageBox::Yes,
-                                                QMessageBox::No | QMessageBox::Escape);
-
-        if (answer == QMessageBox::No) {
-            //Remove spots from the matrix and the containers
-            SpotListType spots_objects;
-            QList<Spot::SpotType> spots;
-            for (const uword index : to_keep_indexes) {
-                spots_objects.append(m_spots.at(index));
-                spots.append(m_data.spots.at(index));
-            }
-            m_spots = spots_objects;
-            m_data.counts = m_data.counts.rows(urowvec(to_keep_indexes));
-            m_data.spots = spots;
-        }
-    }
-
-    return true;
+    return spotMap;
 }
 
 bool STData::parseSpikeIn(const QString &spikeInFile)
@@ -617,13 +625,8 @@ colvec STData::computeNonZeroRows(const mat &matrix, const int min_value)
 
 void STData::clearSelection()
 {
-    for (auto spot : m_spots) {
-        spot->selected(false);
-    }
-
-    for (auto gene : m_genes) {
-        gene->selected(false);
-    }
+    QtConcurrent::map(m_spots, [=] (auto spot) { spot->selected(false); });
+    QtConcurrent::map(m_genes, [=] (auto gene) { gene->selected(false); });
 }
 
 void STData::selectSpots(const SelectionEvent &event)
@@ -638,7 +641,7 @@ void STData::selectSpots(const SelectionEvent &event)
     // update selection
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
     for (auto spot : m_spots) {
-        auto coord = spot->coordinates();
+        const auto &coord = spot->coordinates();
         if (path.contains(QPointF(coord.first, coord.second))) {
             spot->selected(!remove);
         }
@@ -648,10 +651,9 @@ void STData::selectSpots(const SelectionEvent &event)
 void STData::selectSpots(const QList<Spot::SpotType> &spots)
 {
     clearSelection();
-    for (auto spot : m_spots) {
-        auto coord = spot->coordinates();
-        if (spots.contains(coord)) {
-            spot->selected(true);
+    for (const auto &spot : spots) {
+        if (m_dict_spots.contains(spot)) {
+            m_dict_spots[spot]->selected(true);
         }
     }
 }
@@ -659,7 +661,7 @@ void STData::selectSpots(const QList<Spot::SpotType> &spots)
 void STData::selectSpots(const QList<unsigned> &spots_indexes)
 {
     clearSelection();
-    for (auto index : spots_indexes) {
+    for (const auto index : spots_indexes) {
         m_spots.at(index)->selected(true);
     }
 }
@@ -677,13 +679,10 @@ void STData::selectGenes(const QRegExp &regexp, const bool force)
 void STData::selectGenes(const QList<QString> &genes)
 {
     clearSelection();
-    for (auto gene : m_genes) {
-        for (auto gene2 : genes) {
-            if (gene->name() == gene2) {
-                gene->visible(true);
-                gene->selected(true);
-                break;
-            }
+    for (const auto &gene : genes) {
+        if (m_dict_genes.contains(gene)) {
+            m_dict_genes[gene]->visible(true);
+            m_dict_genes[gene]->selected(true);
         }
     }
 }
@@ -694,12 +693,9 @@ void STData::loadSpotColors(const QHash<Spot::SpotType, QColor> &colors)
     while (it != colors.constEnd()) {
         const Spot::SpotType oldspot = it.key();
         const QColor color = it.value();
-        auto it_spot =
-                std::find_if(m_spots.begin(), m_spots.end(),
-                             [&](const auto spot) { return spot->coordinates() == oldspot; });
-        if (it_spot != m_spots.end()) {
-            (*it_spot)->color(color);
-            (*it_spot)->visible(true);
+        if (m_dict_spots.contains(oldspot)) {
+            m_dict_spots[oldspot]->color(color);
+            m_dict_spots[oldspot]->visible(true);
         }
         ++it;
     }
@@ -711,12 +707,9 @@ void STData::loadGeneColors(const QHash<QString, QColor> &colors)
     while (it != colors.constEnd()) {
         const QString oldgene = it.key();
         const QColor color = it.value();
-        auto it_gene =
-                std::find_if(m_genes.begin(), m_genes.end(),
-                             [&](const auto gene) { return gene->name() == oldgene; });
-        if (it_gene != m_genes.end()) {
-            (*it_gene)->color(color);
-            (*it_gene)->visible(true);
+        if (m_dict_genes.contains(oldgene)) {
+            m_dict_genes[oldgene]->color(color);
+            m_dict_genes[oldgene]->visible(true);
         }
         ++it;
     }
