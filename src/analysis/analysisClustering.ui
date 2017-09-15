@@ -249,7 +249,7 @@
                 <string>The t-SNE perplexity value</string>
                </property>
                <property name="minimum">
-                <number>10</number>
+                <number>1</number>
                </property>
                <property name="value">
                 <number>30</number>

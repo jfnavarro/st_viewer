@@ -265,7 +265,7 @@ const QImage CellGLView::grabPixmapGL()
 {
     //TODO must fix this, report bug to Qt
     return QImage();
-    //QPixmap res = grab(QRect(0,0,width(),height()));
+    //const QPixmap res = grab(QRect(0,0,width(),height()));
     //return res.toImage();
 }
 

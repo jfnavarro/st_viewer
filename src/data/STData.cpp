@@ -217,6 +217,9 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool do_color =
             rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange ||
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
+    const bool do_factors =
+            rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ ||
+            rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN;
 
     STDataFrame data = m_data;
 
@@ -256,7 +259,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
 
     // check if we need to recompute normalization factors
-    if (recompute_size_factors) {
+    if (recompute_size_factors && do_factors) {
         // recompute size factors then
         m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
         m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
