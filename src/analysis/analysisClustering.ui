@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Cluster spots by gene expression</string>
+   <string>Cluster all spots by gene expression (all genes)</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_5">
    <item>

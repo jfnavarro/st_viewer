@@ -3,6 +3,7 @@ set(LIBRARY_ARG_INCLUDES
     UserSelectionsItemModel.h
     GeneItemModel.h
     SpotItemModel.h
+    SortFilterProxyModel.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -10,6 +11,7 @@ set(LIBRARY_ARG_SOURCES
     UserSelectionsItemModel.cpp
     GeneItemModel.cpp
     SpotItemModel.cpp
+    SortFilterProxyModel.cpp
 )
 
 ST_LIBRARY()

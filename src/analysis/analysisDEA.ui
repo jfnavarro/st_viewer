@@ -551,6 +551,13 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Search Gene:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLineEdit" name="searchField">
          <property name="minimumSize">
           <size>

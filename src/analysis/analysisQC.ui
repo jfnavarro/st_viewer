@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>QC Stats</string>
+   <string>QC Stats (all spots and genes)</string>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -66,6 +66,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -118,6 +121,9 @@
        </property>
        <property name="statusTip">
         <string>The maximum number of transcripts in a spot</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -188,6 +194,9 @@
        <property name="statusTip">
         <string>The total number of spots</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -232,6 +241,9 @@
        </property>
        <property name="statusTip">
         <string>The total number of genes</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -282,6 +294,9 @@
        <property name="toolTip">
         <string>The standard deviation os genes per spot</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -322,6 +337,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -356,6 +374,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -401,6 +422,9 @@
        </property>
        <property name="statusTip">
         <string>The maximum number of genes in a spot</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>

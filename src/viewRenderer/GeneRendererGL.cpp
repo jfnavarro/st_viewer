@@ -60,11 +60,11 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     const bool is_dynamic =
             m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
-    const auto spots = m_geneData->spots();
-    const auto visibles = m_geneData->renderingVisible();
-    const auto colors = m_geneData->renderingColors();
-    const auto selecteds = m_geneData->renderingSelected();
-    const auto values = m_geneData->renderingValues();
+    const auto &spots = m_geneData->spots();
+    const auto &visibles = m_geneData->renderingVisible();
+    const auto &colors = m_geneData->renderingColors();
+    const auto &selecteds = m_geneData->renderingSelected();
+    const auto &values = m_geneData->renderingValues();
     const float size = m_rendering_settings.size / 2;
     const float size_selected = size / 4;
     const float size_non_visible = size / 2;

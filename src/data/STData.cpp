@@ -628,8 +628,8 @@ colvec STData::computeNonZeroRows(const mat &matrix, const int min_value)
 
 void STData::clearSelection()
 {
-    QtConcurrent::map(m_spots, [=] (auto spot) { spot->selected(false); });
-    QtConcurrent::map(m_genes, [=] (auto gene) { gene->selected(false); });
+    QtConcurrent::map(m_spots, [=] (auto spot) { spot->selected(false); }).waitForFinished();
+    QtConcurrent::map(m_genes, [=] (auto gene) { gene->selected(false); }).waitForFinished();
 }
 
 void STData::selectSpots(const SelectionEvent &event)
