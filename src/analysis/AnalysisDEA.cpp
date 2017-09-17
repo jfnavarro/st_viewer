@@ -206,12 +206,23 @@ void AnalysisDEA::updateTable()
     for (uword i = 0; i < m_results.n_rows; ++i) {
         const QString gene = QString::fromStdString(m_results_rows.at(i));
         const double fdr = m_results.at(i, 5);
+        const QString fdr_str = QString::number(fdr);
         const double pvalue = m_results.at(i, 4);
+        const QString pvalue_str = QString::number(pvalue);
         const double foldchange = m_results.at(i, 1);
+        const QString foldhchange_str = QString::number(foldchange);
         QStandardItem *gene_item = new QStandardItem(gene);
-        QStandardItem *fdr_item = new QStandardItem(QString::number(fdr));
-        QStandardItem *pvalue_item = new QStandardItem(QString::number(pvalue));
-        QStandardItem *foldchange_item = new QStandardItem(QString::number(foldchange));
+        gene_item->setData(gene, Qt::DisplayRole);
+        gene_item->setData(gene, Qt::UserRole);
+        QStandardItem *fdr_item = new QStandardItem(fdr_str);
+        fdr_item->setData(fdr_str, Qt::DisplayRole);
+        fdr_item->setData(fdr_str, Qt::UserRole);
+        QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
+        pvalue_item->setData(pvalue_str, Qt::DisplayRole);
+        pvalue_item->setData(pvalue_str, Qt::UserRole);
+        QStandardItem *foldchange_item = new QStandardItem(foldhchange_str);
+        foldchange_item->setData(foldhchange_str, Qt::DisplayRole);
+        foldchange_item->setData(foldhchange_str, Qt::UserRole);
         if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
             gene_item->setBackground(Qt::red);
             fdr_item->setBackground(Qt::red);
@@ -219,10 +230,10 @@ void AnalysisDEA::updateTable()
             foldchange_item->setBackground(Qt::red);
             ++high_confidence_de;
         }
-        model->setItem(i,0,gene_item);
-        model->setItem(i,1,fdr_item);
-        model->setItem(i,2,pvalue_item);
-        model->setItem(i,3,foldchange_item);
+        model->setItem(i, 0, gene_item);
+        model->setItem(i, 1, fdr_item);
+        model->setItem(i, 2, pvalue_item);
+        model->setItem(i, 3, foldchange_item);
     }
 
     // update total number of DE genes
@@ -232,6 +243,7 @@ void AnalysisDEA::updateTable()
     m_proxy->setSourceModel(model);
     m_proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxy->setSortRole(Qt::UserRole);
     m_ui->tableview->setModel(m_proxy.data());
 
     // settings for the table
