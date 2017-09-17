@@ -31,14 +31,22 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
     for (uword i = 0; i < data.counts.n_cols; ++i) {
         const QString gene = data.genes.at(i);
         const float count = sum(data.counts.col(i));
-        model->setItem(i, 0, new QStandardItem(gene));
-        model->setItem(i, 1, new QStandardItem(QString::number(count)));
+        const QString count_str = QString::number(count);
+        QStandardItem *gene_item = new QStandardItem(gene);
+        gene_item->setData(gene, Qt::UserRole);
+        gene_item->setData(gene, Qt::DisplayRole);
+        model->setItem(i, 0, gene_item);
+        QStandardItem *count_item = new QStandardItem(count_str);
+        count_item->setData(count, Qt::UserRole);
+        count_item->setData(count_str, Qt::DisplayRole);
+        model->setItem(i, 1, count_item);
     }
     // sorting model
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);
     proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxy->setSortRole(Qt::UserRole);
     m_ui->tableview->setModel(proxy);
 
     // settings for the table

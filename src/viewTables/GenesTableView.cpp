@@ -7,7 +7,6 @@
 #include <QApplication>
 #include <QColorDialog>
 
-#include "model/SortFilterProxyModel.h"
 #include "model/GeneItemModel.h"
 
 GenesTableView::GenesTableView(QWidget *parent)
@@ -18,12 +17,13 @@ GenesTableView::GenesTableView(QWidget *parent)
     GeneItemModel *data_model = new GeneItemModel(this);
 
     // sorting model
-    m_sortProxyModel.reset(new SortFilterProxyModel(this));
+    m_sortProxyModel.reset(new QSortFilterProxyModel(this));
     m_sortProxyModel->setSourceModel(data_model);
     m_sortProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     // this is important because sort proxy will use the column 0 by default
     m_sortProxyModel->setFilterKeyColumn(GeneItemModel::Name);
+    m_sortProxyModel->setSortRole(Qt::UserRole);
     setModel(m_sortProxyModel.data());
 
     // settings for the table

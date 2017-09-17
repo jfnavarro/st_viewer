@@ -31,15 +31,23 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
     for (uword i = 0; i < data.counts.n_rows; ++i) {
         const auto spot = data.spots.at(i);
         const QString spot_str = QString::number(spot.first) + "x" + QString::number(spot.second);
-        const float count = sum(data.counts.row(i));
-        model->setItem(i,0,new QStandardItem(spot_str));
-        model->setItem(i,1,new QStandardItem(QString::number(count)));
+        const float count = sum(data.counts.col(i));
+        const QString count_str = QString::number(count);
+        QStandardItem *spot_item = new QStandardItem(spot_str);
+        spot_item->setData(spot_str, Qt::UserRole);
+        spot_item->setData(spot_str, Qt::DisplayRole);
+        model->setItem(i, 0, spot_item);
+        QStandardItem *count_item = new QStandardItem(count_str);
+        count_item->setData(count, Qt::UserRole);
+        count_item->setData(count_str, Qt::DisplayRole);
+        model->setItem(i, 1, count_item);
     }
     // sorting model
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);
     proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxy->setSortRole(Qt::UserRole);
     m_ui->tableview->setModel(proxy);
 
     // settings for the table

@@ -22,6 +22,7 @@ SpotsTableView::SpotsTableView(QWidget *parent)
     m_sortProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     // this is important because sort proxy will use the column 0 by default
     m_sortProxyModel->setFilterKeyColumn(SpotItemModel::Name);
+    m_sortProxyModel->setSortRole(Qt::UserRole);
     setModel(m_sortProxyModel.data());
 
     // settings for the table

@@ -28,7 +28,7 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 
     const auto item = m_items_reference.at(index.row());
 
-    if (role == Qt::DisplayRole && index.column() == Name) {
+    if ((role == Qt::DisplayRole || role == Qt::UserRole) && index.column() == Name) {
         return item->name();
     }
 
@@ -36,7 +36,7 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return QColor(0, 155, 60);
     }
 
-    if (role == Qt::CheckStateRole && index.column() == Show) {
+    if ((role == Qt::CheckStateRole || role == Qt::UserRole) && index.column() == Show) {
         return item->visible() ? Qt::Checked : Qt::Unchecked;
     }
 
@@ -44,11 +44,11 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return item->color();
     }
 
-    if (role == Qt::DisplayRole && index.column() == Count) {
+    if ((role == Qt::DisplayRole || role == Qt::UserRole) && index.column() == Count) {
         return item->totalCount();
     }
 
-    if (role == Qt::DisplayRole && index.column() == CutOff) {
+    if ((role == Qt::DisplayRole || role == Qt::UserRole) && index.column() == CutOff) {
         return item->cut_off();
     }
 

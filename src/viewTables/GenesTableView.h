@@ -5,7 +5,6 @@
 #include <QPointer>
 
 class QSortFilterProxyModel;
-class SortFilterProxyModel;
 class GeneItemModel;
 
 // An abstraction of QTableView for the genes table
@@ -42,7 +41,7 @@ private slots:
 private:
 
     // references to the proxy model
-    QScopedPointer<SortFilterProxyModel> m_sortProxyModel;
+    QScopedPointer<QSortFilterProxyModel> m_sortProxyModel;
 
     Q_DISABLE_COPY(GenesTableView)
 };
