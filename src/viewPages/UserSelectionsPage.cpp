@@ -294,38 +294,45 @@ void UserSelectionsPage::editSelection(const UserSelection &selection)
 
 void UserSelectionsPage::slotImportSelection()
 {
-    const QString filename
-            = QFileDialog::getOpenFileName(this,
-                                           tr("Open ST Data File (Selection)"),
-                                           QDir::homePath(),
-                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
+    QFileDialog dialog(this, tr("Import selection (can select multiple)"));
+    dialog.setDirectory(QDir::homePath());
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    dialog.setNameFilter(QString("%1").arg(tr("TSV Files (*.tsv)")));
+    QStringList fileNames;
+    if (dialog.exec()) {
+        // get all the selected files and iterate
+        fileNames = dialog.selectedFiles();
+        for (auto filename : fileNames) {
+            // early out
+            if (filename.isEmpty()) {
+                continue;
+            }
 
-    QFileInfo info(filename);
+            QFileInfo info(filename);
+            // We use the file name as selection name and check that is not present
+            const QString name = info.baseName();
+            if (nameExist(name)) {
+                QMessageBox::critical(this, tr("Import selection"),
+                                      tr("There exists a selection with the same name ") + name);
+                continue;
+            }
 
-    // We use the file name as selection name and check that is not present
-    if (nameExist(info.baseName())) {
-        QMessageBox::critical(this, tr("Import sselection"),
-                              tr("There exists a selection with the same name"));
-        return;
-    }
-
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Import selection"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        try {
-            auto data = STData::read(filename);
-            UserSelection new_selection;
-            new_selection.data(data);
-            new_selection.name(info.baseName());
-            addSelection(new_selection);
-        } catch (const std::exception &e) {
-            QMessageBox::critical(this, tr("Import selection"), tr("Error parsing file"));
-            qDebug() << "Error parsing ST data file (Selection) " << e.what();
+            if (info.isDir() || !info.isFile() || !info.isReadable()) {
+                QMessageBox::critical(this, tr("Import selection"),
+                                      tr("File is incorrect or not readable ") + filename);
+            } else {
+                try {
+                    auto data = STData::read(filename);
+                    UserSelection new_selection;
+                    new_selection.data(data);
+                    new_selection.name(name);
+                    addSelection(new_selection);
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, tr("Import selection"),
+                                          tr("Error parsing file ") + filename);
+                    qDebug() << "Error parsing ST data file (Selection) " << e.what();
+                }
+            }
         }
     }
 }
