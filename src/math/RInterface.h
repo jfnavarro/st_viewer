@@ -68,6 +68,7 @@ static void computeDEA(const mat &countsA,
         (*R)["reads_threshold"] = reads_threshold;
         (*R)["genes_threshold"] = genes_threshold;
         (*R)["spots_threshold"] = spots_threshold;
+        //"exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
         std::string call = "A = as.data.frame(A);"
                            "rownames(A) = paste('A', '_', rowsA, sep='');"
                            "colnames(A) = colsA;"
@@ -80,7 +81,6 @@ static void computeDEA(const mat &countsA,
                            "exp_values[is.na(exp_values)] = 0;"
                            "exp_values = apply(exp_values, c(1,2), as.numeric);"
                            "exp_values = exp_values[,colSums(exp_values != 0) > genes_threshold];"
-                           "exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
                            "exp_values = exp_values[rowSums(exp_values > ind_reads_treshold) > spots_threshold,];";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
             call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
