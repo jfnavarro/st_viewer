@@ -105,7 +105,8 @@ static void computeDEA(const mat &countsA,
                 "dds@colData$sizeFactor = size_factors;"
                 "dds = estimateDispersions(dds, fitType='local');"
                 "dds = nbinomWaldTest(dds);"
-                "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));";
+                "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
+                "res = res[order(res$padj),];";
         const std::string call2 = "values = as.matrix(res);";
         const std::string call3 = "cols = colnames(res);";
         const std::string call4 = "rows = rownames(res);";
