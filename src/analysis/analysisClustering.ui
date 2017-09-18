@@ -656,7 +656,7 @@
        <item>
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Trasncripts (Per gene-spot):</string>
+          <string>Trasncripts (Per gene per spot):</string>
          </property>
         </widget>
        </item>

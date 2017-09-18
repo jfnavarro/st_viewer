@@ -182,6 +182,11 @@ void AnalysisClustering::computeColorsAsync()
     const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
     const bool tsne = m_ui->tab->currentIndex() == 0;
 
+    if (m_spots.size() * 2 < perplexity) {
+        QMessageBox::warning(this, tr("Spot classification"),
+                             tr("Your perplexity is much higher than the number of spots"));
+    }
+
     // Surprisingly it is much faster to call R's tsne/pca than to use C++ implementation....
     RInterface::spotClassification(A, tsne, kmeans, num_clusters, init_dim, no_dims, perplexity,
                                    max_iter, theta, scale, center, m_colors, m_reduced_coordinates);

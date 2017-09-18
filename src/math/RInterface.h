@@ -42,6 +42,10 @@ static void computeDEA(const mat &countsA,
                        const std::vector<std::string> &rowsB,
                        const std::vector<std::string> &colsA,
                        const std::vector<std::string> &colsB,
+                       const int ind_reads_treshold,
+                       const int reads_threshold,
+                       const int genes_threshold,
+                       const int spots_threshold,
                        const SettingsWidget::NormalizationMode &normalization,
                        mat &results,
                        std::vector<std::string> &rows,
@@ -60,6 +64,10 @@ static void computeDEA(const mat &countsA,
         (*R)["rowsB"] = rowsB;
         (*R)["colsA"] = colsA;
         (*R)["colsB"] = colsB;
+        (*R)["ind_reads_treshold"] = ind_reads_treshold;
+        (*R)["reads_threshold"] = reads_threshold;
+        (*R)["genes_threshold"] = genes_threshold;
+        (*R)["spots_threshold"] = spots_threshold;
         std::string call = "A = as.data.frame(A);"
                            "rownames(A) = paste('A', '_', rowsA, sep='');"
                            "colnames(A) = colsA;"
@@ -70,7 +78,10 @@ static void computeDEA(const mat &countsA,
                            "rownames(merged) = c(rownames(A), rownames(B));"
                            "exp_values = as.matrix(t(merged));"
                            "exp_values[is.na(exp_values)] = 0;"
-                           "exp_values = apply(exp_values, c(1,2), as.numeric);";
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
+                           "exp_values = exp_values[,colSums(exp_values != 0) > genes_threshold];"
+                           "exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
+                           "exp_values = exp_values[rowSums(exp_values > ind_reads_treshold) > spots_threshold,];";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
             call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
         } else {
@@ -94,7 +105,7 @@ static void computeDEA(const mat &countsA,
                 "dds@colData$sizeFactor = size_factors;"
                 "dds = estimateDispersions(dds, fitType='local');"
                 "dds = nbinomWaldTest(dds);"
-                "res = results(dds, contrast=c('condition', 'A', 'B'));";
+                "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));";
         const std::string call2 = "values = as.matrix(res);";
         const std::string call3 = "cols = colnames(res);";
         const std::string call4 = "rows = rownames(res);";

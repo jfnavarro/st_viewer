@@ -326,38 +326,27 @@ void AnalysisDEA::run()
 
 void AnalysisDEA::runDEAAsync()
 {
-    // filter out dataset A
-    STData::STDataFrame dataA = STData::filterDataFrame(m_dataA,
-                                                        m_ind_reads_treshold,
-                                                        m_reads_threshold,
-                                                        m_genes_threshold,
-                                                        m_spots_threshold);
-    // filter out dataset B
-    STData::STDataFrame dataB = STData::filterDataFrame(m_dataB,
-                                                        m_ind_reads_treshold,
-                                                        m_reads_threshold,
-                                                        m_genes_threshold,
-                                                        m_spots_threshold);
-
+    // Convert rows and columns to a format that R understands
     std::vector<std::string> rowsA;
     std::vector<std::string> rowsB;
     std::vector<std::string> colsA;
     std::vector<std::string> colsB;
-    std::transform(dataA.spots.begin(), dataA.spots.end(), std::back_inserter(rowsA),
+    std::transform(m_dataA.spots.begin(), m_dataA.spots.end(), std::back_inserter(rowsA),
                    [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
-    std::transform(dataB.spots.begin(), dataB.spots.end(), std::back_inserter(rowsB),
+    std::transform(m_dataB.spots.begin(), m_dataB.spots.end(), std::back_inserter(rowsB),
                    [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
-    std::transform(dataA.genes.begin(), dataA.genes.end(), std::back_inserter(colsA),
+    std::transform(m_dataA.genes.begin(), m_dataA.genes.end(), std::back_inserter(colsA),
                    [](auto gene) {return gene.toStdString();});
-    std::transform(dataB.genes.begin(), dataB.genes.end(), std::back_inserter(colsB),
+    std::transform(m_dataB.genes.begin(), m_dataB.genes.end(), std::back_inserter(colsB),
                    [](auto gene) {return gene.toStdString();});
 
     qDebug() << "Computing DEA Asynchronously. Dataset A, rows="
-             << dataA.counts.n_rows << ", columns=" << dataA.counts.n_cols << ". Dataset B, rows="
-             << dataB.counts.n_rows << ", columns=" << dataB.counts.n_cols;
+             << m_dataA.counts.n_rows << ", columns=" << m_dataA.counts.n_cols << ". Dataset B, rows="
+             << m_dataB.counts.n_rows << ", columns=" << m_dataB.counts.n_cols;
 
     // Make the DEA call
-    RInterface::computeDEA(dataA.counts, dataB.counts, rowsA, rowsB, colsA, colsB,
+    RInterface::computeDEA(m_dataA.counts, m_dataB.counts, rowsA, rowsB, colsA, colsB,
+                           m_ind_reads_treshold, m_reads_threshold, m_genes_threshold, m_spots_threshold,
                            m_normalization, m_results, m_results_rows, m_results_cols);
 }
 
