@@ -23,8 +23,12 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
 
     connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
-    connect(&m_watcher, &QFutureWatcher<void>::finished,
+    connect(m_ui->computeClusters, &QPushButton::clicked,
+            this, &AnalysisClustering::slotComputeClusters);
+    connect(&m_watcher_colors, &QFutureWatcher<void>::finished,
             this, &AnalysisClustering::colorsComputed);
+    connect(&m_watcher_classes, &QFutureWatcher<void>::finished,
+            this, &AnalysisClustering::classesComputed);
     connect(m_ui->plot, &ChartView::signalLassoSelection,
             this, &AnalysisClustering::slotLassoSelection);
 }
@@ -87,11 +91,27 @@ void AnalysisClustering::slotRun()
     m_ui->progressBar->setRange(0,0);
     // disable controls
     m_ui->runClustering->setEnabled(false);
+    m_ui->computeClusters->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
     m_selected_spots.clear();
     // make the call
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
-    m_watcher.setFuture(future);
+    m_watcher_colors.setFuture(future);
+}
+
+void AnalysisClustering::slotComputeClusters()
+{
+    qDebug() << "Estimating the number of clusters";
+    // initialize progress bar
+    m_ui->progressBar->setRange(0,0);
+    // disable controls
+    m_ui->runClustering->setEnabled(false);
+    m_ui->computeClusters->setEnabled(false);
+    m_ui->exportPlot->setEnabled(false);
+    m_selected_spots.clear();
+    // make the call
+    QFuture<unsigned> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
+    m_watcher_classes.setFuture(future);
 }
 
 void AnalysisClustering::slotExportPlot()
@@ -136,7 +156,7 @@ void AnalysisClustering::slotExportPlot()
     }
 }
 
-void AnalysisClustering::computeColorsAsync()
+mat AnalysisClustering::filterMatrix()
 {
     // filter out
     STData::STDataFrame data = STData::filterDataFrame(m_data,
@@ -168,6 +188,18 @@ void AnalysisClustering::computeColorsAsync()
         A = log(A + 1.0);
     }
 
+    return A;
+}
+
+unsigned AnalysisClustering::computeClustersAsync()
+{
+    const mat &A = filterMatrix();
+    return RInterface::computeSpotClasses(A);
+}
+
+void AnalysisClustering::computeColorsAsync()
+{
+
     QWidget *tsne_tab = m_ui->tab->findChild<QWidget *>("tab_tsne");
     QWidget *pca_tab = m_ui->tab->findChild<QWidget *>("tab_pca");
 
@@ -182,7 +214,8 @@ void AnalysisClustering::computeColorsAsync()
     const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
     const bool tsne = m_ui->tab->currentIndex() == 0;
 
-    if (m_spots.size() * 2 < perplexity) {
+    const mat &A = filterMatrix();
+    if (A.n_rows * 2 < perplexity) {
         QMessageBox::warning(this, tr("Spot classification"),
                              tr("Your perplexity is much higher than the number of spots"));
     }
@@ -198,6 +231,8 @@ void AnalysisClustering::colorsComputed()
     m_ui->progressBar->setMaximum(10);
     // enable run button
     m_ui->runClustering->setEnabled(true);
+    // enable the estimate button
+    m_ui->computeClusters->setEnabled(true);
 
     if (m_colors.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
@@ -245,6 +280,25 @@ void AnalysisClustering::colorsComputed()
 
     // notify the main view
     emit signalClusteringUpdated();
+}
+
+void AnalysisClustering::classesComputed()
+{
+    // stop progress bar
+    m_ui->progressBar->setMaximum(10);
+    // enable run button
+    m_ui->runClustering->setEnabled(true);
+    // enable the estimate button
+    m_ui->computeClusters->setEnabled(true);
+
+    const unsigned n_clusters = m_watcher_classes.result();
+    if (n_clusters == 0) {
+        QMessageBox::critical(this,
+                              tr("Spot classification"),
+                              tr("There was an error estimating the number of clusters"));
+    } else {
+        m_ui->clusters->setValue(n_clusters);
+    }
 }
 
 void AnalysisClustering::slotLassoSelection(const QPainterPath path)

@@ -506,6 +506,22 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
+        <widget class="QPushButton" name="computeClusters">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip">
+          <string>Automatically estimates the number of clusters</string>
+         </property>
+         <property name="statusTip">
+          <string>Automatically estimates the number of clusters</string>
+         </property>
+         <property name="text">
+          <string>Estimate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Number of clusters:</string>

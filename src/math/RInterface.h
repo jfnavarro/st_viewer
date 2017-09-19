@@ -183,6 +183,28 @@ static void spotClassification(const mat &counts,
     }
 }
 
+// Estimates an approximate number of spot classes (different spots types based on gene expression)
+static unsigned computeSpotClasses(const mat &counts)
+{
+    RInside *R = RInside::instancePtr();
+    Q_ASSERT(!counts.empty());
+    unsigned clusters = 0;
+    try {
+        const std::string R_libs = "suppressMessages(library(scran))";
+        R->parseEvalQ(R_libs);
+        (*R)["counts"] = counts;
+        const std::string call = "clusters = quickCluster(as.matrix(t(counts)), min.size=dim(counts)[1] / 10);"
+                                 "clusters = length(unique(clusters[clusters != 0]))";
+        clusters = Rcpp::as<double>(R->parseEval(call));
+        qDebug() << "Computed R clusters with quickClust " << clusters;
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing R clusters with quickClust " << e.what();
+    } catch (...) {
+        qDebug() << "Unknown error computing R clusters with quickClust";
+    }
+    return clusters;
+}
+
 // Computes size factors using the DESEq2 method (one factor per spot)
 static rowvec computeDESeqFactors(const mat &counts)
 {
