@@ -497,10 +497,20 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
         norm_counts.counts *= 1e6;
     } break;
     case (SettingsWidget::NormalizationMode::DESEQ): {
-        norm_counts.counts.each_col() /= deseq_size_factors.t();
+        if (norm_counts.counts.n_rows == deseq_size_factors.n_cols) {
+            norm_counts.counts.each_col() /= deseq_size_factors.t();
+        } else {
+            qDebug() << "Trying to normalize with incorrect number of DESEq2 factors "
+                     << deseq_size_factors.n_cols;
+        }
     } break;
     case (SettingsWidget::NormalizationMode::SCRAN): {
-        norm_counts.counts.each_col() /= scran_size_factors.t();
+        if (norm_counts.counts.n_rows == scran_size_factors.n_cols) {
+            norm_counts.counts.each_col() /= scran_size_factors.t();
+        } else {
+            qDebug() << "Trying to normalize with incorrect number of SCRAN factors "
+                     << scran_size_factors.n_cols;
+        }
     }
     }
     return norm_counts;

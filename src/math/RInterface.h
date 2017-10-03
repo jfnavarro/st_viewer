@@ -103,7 +103,7 @@ static void computeDEA(const mat &countsA,
                 "coldata = data.frame(row.names=colnames(exp_values), condition=condition);"
                 "dds = DESeqDataSetFromMatrix(countData=exp_values, colData=coldata, design=~condition);"
                 "dds@colData$sizeFactor = size_factors;"
-                "dds = estimateDispersions(dds, fitType='local');"
+                "dds = estimateDispersions(dds);"
                 "dds = nbinomWaldTest(dds);"
                 "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
                 "res = res[order(res$padj),];";
