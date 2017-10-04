@@ -130,7 +130,7 @@ No installers/binaries are provided for now.
 ###### OSX
 
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
-  If needed you can install them from the Apple store. 
+  If needed you can install them from the Apple store (https://developer.apple.com/xcode/). I recommend to update the latest version of XCode.  
 
 * Clone the repository to a specific folder and build the application
 
