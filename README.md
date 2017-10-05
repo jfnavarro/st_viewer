@@ -146,8 +146,6 @@ No installers/binaries are provided for now.
 
     Where : 
 
-    DCMAKE_INSTALL_PREFIX = indicates where to install STViewer ("/usr/local/bin" by default)
-
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
     DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
