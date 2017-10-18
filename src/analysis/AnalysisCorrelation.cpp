@@ -53,26 +53,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_dataA.counts = m_dataA.counts.cols(uvec(to_keepA));
         m_dataB.counts = m_dataB.counts.cols(uvec(to_keepB));
 
-        // Compute and cache size factors
-        m_deseq_size_factorsA = RInterface::computeDESeqFactors(m_dataA.counts);
-        m_deseq_size_factorsB = RInterface::computeDESeqFactors(m_dataB.counts);
-        m_scran_size_factorsA = RInterface::computeScranFactors(m_dataA.counts, false);
-        m_scran_size_factorsB = RInterface::computeScranFactors(m_dataB.counts, false);
-
-        // default normalization is RAW
-        m_ui->normalization_raw->setChecked(true);
-
         // create the connections
-        connect(m_ui->normalization_raw, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::slotUpdateData);
-        connect(m_ui->normalization_tpm, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::slotUpdateData);
-        connect(m_ui->normalization_rel, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::slotUpdateData);
-        connect(m_ui->normalization_deseq, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::slotUpdateData);
-        connect(m_ui->normalization_scran, &QRadioButton::clicked,
-                this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->logScale, &QCheckBox::clicked,
                 this, &AnalysisCorrelation::slotUpdateData);
         connect(m_ui->exportPlot, &QPushButton::clicked,
@@ -85,7 +66,6 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         QMessageBox::critical(this,
                               tr("Correlation"),
                               tr("There are no common genes between the selections."));
-        m_ui->groupBoxNormalization->setEnabled(false);
         m_ui->logScale->setEnabled(false);
         m_ui->exportPlot->setEnabled(false);
     }
@@ -100,25 +80,9 @@ void AnalysisCorrelation::slotUpdateData()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
-    if (m_ui->normalization_rel->isChecked()) {
-        normalization = SettingsWidget::REL;
-    } else if (m_ui->normalization_tpm->isChecked()) {
-        normalization = SettingsWidget::TPM;
-    } else if (m_ui->normalization_deseq->isChecked()) {
-        normalization = SettingsWidget::DESEQ;
-    } else if (m_ui->normalization_scran->isChecked()) {
-        normalization = SettingsWidget::SCRAN;
-    }
-
-    mat A = STData::normalizeCounts(m_dataA,
-                                    m_deseq_size_factorsA,
-                                    m_scran_size_factorsA, normalization).counts;
-
-    mat B = STData::normalizeCounts(m_dataB,
-                                    m_deseq_size_factorsB,
-                                    m_scran_size_factorsB, normalization).counts;
-
+    // get the matrices of counts and log them if applies
+    mat A = m_dataA.counts;
+    mat B = m_dataB.counts;
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);
         B = log(B + 1.0);

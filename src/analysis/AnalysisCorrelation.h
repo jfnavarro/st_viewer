@@ -56,12 +56,6 @@ private:
     std::vector<double> m_rowsumB;
     QList<QString> m_genes;
 
-    // the size factors (cache them so to not recompute always)
-    rowvec m_deseq_size_factorsA;
-    rowvec m_deseq_size_factorsB;
-    rowvec m_scran_size_factorsA;
-    rowvec m_scran_size_factorsB;
-
     // store the plotting series to allow interaction with the plot
     QScopedPointer<QScatterSeries> m_series;
 

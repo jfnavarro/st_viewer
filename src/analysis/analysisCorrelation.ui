@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>896</width>
+    <width>899</width>
     <height>490</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Correlation Analysis</string>
+   <string>Correlation Analysis (gene counts)</string>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -42,108 +42,16 @@
       <enum>QLayout::SetMinimumSize</enum>
      </property>
      <item>
-      <widget class="QGroupBox" name="groupBoxNormalization">
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
+      <widget class="QCheckBox" name="logScale">
        <property name="toolTip">
-        <string>Different normalization methods for the counts</string>
+        <string>Use log scale</string>
        </property>
        <property name="statusTip">
-        <string>Normalization methods</string>
+        <string>Use log scale</string>
        </property>
-       <property name="whatsThis">
-        <string>Different normalization methods for the counts</string>
+       <property name="text">
+        <string> Use Log scale</string>
        </property>
-       <property name="title">
-        <string>Normalization</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="1">
-         <widget class="QRadioButton" name="normalization_rel">
-          <property name="toolTip">
-           <string>Total spots counts</string>
-          </property>
-          <property name="statusTip">
-           <string>Total spots counts</string>
-          </property>
-          <property name="text">
-           <string>REL</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="normalization_raw">
-          <property name="toolTip">
-           <string>The default count</string>
-          </property>
-          <property name="statusTip">
-           <string>The default count</string>
-          </property>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QCheckBox" name="logScale">
-          <property name="toolTip">
-           <string>Use log scale</string>
-          </property>
-          <property name="statusTip">
-           <string>Use log scale</string>
-          </property>
-          <property name="text">
-           <string>Log scale</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="normalization_tpm">
-          <property name="toolTip">
-           <string>Transcripts per million</string>
-          </property>
-          <property name="statusTip">
-           <string>Transcripts per million</string>
-          </property>
-          <property name="text">
-           <string>TPM</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QRadioButton" name="normalization_scran">
-          <property name="toolTip">
-           <string>SCRAN sum-factors</string>
-          </property>
-          <property name="statusTip">
-           <string>SCRAN sum-factors</string>
-          </property>
-          <property name="text">
-           <string>SCRAN</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="normalization_deseq">
-          <property name="toolTip">
-           <string>DESeq2 size factors (geometric means)</string>
-          </property>
-          <property name="statusTip">
-           <string>DESeq2 size factors (geometric means)</string>
-          </property>
-          <property name="text">
-           <string>DESeq2</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </item>
      <item>
