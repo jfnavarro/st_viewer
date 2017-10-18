@@ -7,6 +7,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPdfWriter>
+#include <QMultiHash>
+#include <QHash>
 
 #include "color/HeatMap.h"
 #include "math/RInterface.h"
@@ -25,6 +27,8 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
     connect(m_ui->computeClusters, &QPushButton::clicked,
             this, &AnalysisClustering::slotComputeClusters);
+    connect(m_ui->createSelections, &QPushButton::clicked,
+            this, &AnalysisClustering::signalClusteringExportSelections);
     connect(&m_watcher_colors, &QFutureWatcher<void>::finished,
             this, &AnalysisClustering::colorsComputed);
     connect(&m_watcher_classes, &QFutureWatcher<void>::finished,
@@ -49,6 +53,7 @@ void AnalysisClustering::clear()
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
     m_ui->runClustering->setEnabled(true);
+    m_ui->createSelections->setEnabled(false);
     m_ui->tab->setCurrentIndex(0);
     m_ui->kmeans->setChecked(true);
     m_ui->individual_reads_threshold->setValue(0);
@@ -63,9 +68,20 @@ void AnalysisClustering::clear()
     m_reduced_coordinates.clear();
 }
 
-QHash<Spot::SpotType, QColor> AnalysisClustering::getComputedClasses() const
+QMultiHash<unsigned, Spot::SpotType> AnalysisClustering::getClustersSpot() const
+{
+    QMultiHash<unsigned, Spot::SpotType> computed_colors;
+    for (unsigned i = 0; i < m_colors.size(); ++i) {
+        computed_colors.insert(m_colors.at(i), m_spots.at(i));
+    }
+    return computed_colors;
+}
+
+QHash<Spot::SpotType, QColor> AnalysisClustering::getSpotClusters() const
 {
     QHash<Spot::SpotType, QColor> computed_colors;
+    Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors))
+             < Color::color_list.size());
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const QColor color = Color::color_list.at(m_colors.at(i));
         computed_colors.insert(m_spots.at(i), color);
@@ -93,6 +109,7 @@ void AnalysisClustering::slotRun()
     m_ui->runClustering->setEnabled(false);
     m_ui->computeClusters->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
+    m_ui->createSelections->setEnabled(false);
     m_selected_spots.clear();
     // make the call
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
@@ -108,6 +125,7 @@ void AnalysisClustering::slotComputeClusters()
     m_ui->runClustering->setEnabled(false);
     m_ui->computeClusters->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
+    m_ui->createSelections->setEnabled(false);
     m_selected_spots.clear();
     // make the call
     QFuture<unsigned> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
@@ -158,14 +176,17 @@ void AnalysisClustering::slotExportPlot()
 
 mat AnalysisClustering::filterMatrix()
 {
-    // filter out
+    // filter the data with the thresholds
     STData::STDataFrame data = STData::filterDataFrame(m_data,
                                                        m_ui->individual_reads_threshold->value(),
                                                        m_ui->reads_threshold->value(),
                                                        m_ui->genes_threshold->value(),
                                                        m_ui->spots_threshold->value());
-    m_spots = data.spots;
 
+    m_spots = data.spots;
+    // compute normalization factors
+    rowvec m_deseq_size_factors;
+    rowvec m_scran_size_factors;
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
         normalization = SettingsWidget::REL;
@@ -215,11 +236,6 @@ void AnalysisClustering::computeColorsAsync()
     const bool tsne = m_ui->tab->currentIndex() == 0;
 
     const mat &A = filterMatrix();
-    if (A.n_rows * 2 < perplexity) {
-        QMessageBox::warning(this, tr("Spot classification"),
-                             tr("Your perplexity is much higher than the number of spots"));
-    }
-
     // Surprisingly it is much faster to call R's tsne/pca than to use C++ implementation....
     RInterface::spotClassification(A, tsne, kmeans, num_clusters, init_dim, no_dims, perplexity,
                                    max_iter, theta, scale, center, m_colors, m_reduced_coordinates);
@@ -233,17 +249,21 @@ void AnalysisClustering::colorsComputed()
     m_ui->runClustering->setEnabled(true);
     // enable the estimate button
     m_ui->computeClusters->setEnabled(true);
+    // enable the save clusters buttton
+    m_ui->createSelections->setEnabled(true);
 
     if (m_colors.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
                               tr("Spot classification"),
-                              tr("There was an error performing the classification"));
+                              tr("There was an error performing the clustering\n."
+                                 "Perhaps too high perplexity?"));
         return;
     }
 
     const int num_clusters = m_ui->clusters->value();
     Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors)) == 0
              && *std::max_element(std::begin(m_colors), std::end(m_colors)) == (num_clusters - 1));
+    Q_ASSERT(m_colors.size() == m_spots.size());
 
     // Create one serie for each different cluster (color)
     m_series_vector.clear();
@@ -301,7 +321,7 @@ void AnalysisClustering::classesComputed()
     }
 }
 
-void AnalysisClustering::slotLassoSelection(const QPainterPath path)
+void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
 {
     QList<QPointF> selected_points;
     for (const auto series : m_series_vector) {

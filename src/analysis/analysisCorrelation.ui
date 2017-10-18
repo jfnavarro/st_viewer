@@ -43,18 +43,6 @@
      </property>
      <item>
       <widget class="QGroupBox" name="groupBoxNormalization">
-       <property name="minimumSize">
-        <size>
-         <width>250</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>250</width>
-         <height>100</height>
-        </size>
-       </property>
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
@@ -77,19 +65,6 @@
         <bool>false</bool>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="normalization_raw">
-          <property name="toolTip">
-           <string>The default count</string>
-          </property>
-          <property name="statusTip">
-           <string>The default count</string>
-          </property>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QRadioButton" name="normalization_rel">
           <property name="toolTip">
@@ -103,16 +78,29 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QRadioButton" name="normalization_scran">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="normalization_raw">
           <property name="toolTip">
-           <string>SCRAN sum-factors</string>
+           <string>The default count</string>
           </property>
           <property name="statusTip">
-           <string>SCRAN sum-factors</string>
+           <string>The default count</string>
           </property>
           <property name="text">
-           <string>SCRAN</string>
+           <string>None</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="logScale">
+          <property name="toolTip">
+           <string>Use log scale</string>
+          </property>
+          <property name="statusTip">
+           <string>Use log scale</string>
+          </property>
+          <property name="text">
+           <string>Log scale</string>
           </property>
          </widget>
         </item>
@@ -129,6 +117,19 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="2">
+         <widget class="QRadioButton" name="normalization_scran">
+          <property name="toolTip">
+           <string>SCRAN sum-factors</string>
+          </property>
+          <property name="statusTip">
+           <string>SCRAN sum-factors</string>
+          </property>
+          <property name="text">
+           <string>SCRAN</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QRadioButton" name="normalization_deseq">
           <property name="toolTip">
@@ -139,19 +140,6 @@
           </property>
           <property name="text">
            <string>DESeq2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QCheckBox" name="logScale">
-          <property name="toolTip">
-           <string>Use log scale</string>
-          </property>
-          <property name="statusTip">
-           <string>Use log scale</string>
-          </property>
-          <property name="text">
-           <string>Log scale</string>
           </property>
          </widget>
         </item>
@@ -169,12 +157,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="sharedGenes">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>21</height>
-          </size>
-         </property>
          <property name="maximumSize">
           <size>
            <width>100</width>
@@ -214,12 +196,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="spearman">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>21</height>
-          </size>
-         </property>
          <property name="maximumSize">
           <size>
            <width>100</width>
@@ -259,12 +235,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="pearson">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>21</height>
-          </size>
-         </property>
          <property name="maximumSize">
           <size>
            <width>100</width>
@@ -341,12 +311,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="exportPlot">
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>0</height>
-        </size>
-       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>

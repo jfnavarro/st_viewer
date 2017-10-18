@@ -89,6 +89,9 @@ private slots:
     // user has made a selection in the clustering widget
     void slotSelectSpotsClustering();
 
+    // user wants to export the computed clusters as selections
+    void slotCreateClusteringSelections();
+
     // user wants to create a selection
     void slotCreateSelection();
 

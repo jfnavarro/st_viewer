@@ -56,7 +56,7 @@ private:
     std::vector<double> m_rowsumB;
     QList<QString> m_genes;
 
-    // the size factors
+    // the size factors (cache them so to not recompute always)
     rowvec m_deseq_size_factorsA;
     rowvec m_deseq_size_factorsB;
     rowvec m_scran_size_factorsA;

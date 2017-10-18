@@ -82,8 +82,12 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         slotUpdateData();
 
     } else {
+        QMessageBox::critical(this,
+                              tr("Correlation"),
+                              tr("There are no common genes between the selections."));
         m_ui->groupBoxNormalization->setEnabled(false);
         m_ui->logScale->setEnabled(false);
+        m_ui->exportPlot->setEnabled(false);
     }
 }
 

@@ -15,7 +15,7 @@ public:
     typedef STData::STDataFrame STDataFrame;
 
     UserSelection();
-    explicit UserSelection(QSharedPointer<STData> data);
+    explicit UserSelection(const STData::STDataFrame &data);
     UserSelection(const UserSelection &other);
     ~UserSelection();
 
@@ -42,7 +42,6 @@ public:
     void data(const STData::STDataFrame &data);
 
 private:
-    void init(QSharedPointer<STData> data);
     QString m_name;
     QString m_dataset;
     STData::STDataFrame m_data;

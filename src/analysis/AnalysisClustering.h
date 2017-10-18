@@ -13,9 +13,10 @@ class analysisClustering;
 
 QT_CHARTS_USE_NAMESPACE
 
-// A Widget used to classify the spots (a selection) based on gene expression profiles
+// A Widget used to classify spots based on gene expression profiles
 // using dimensionality reduction and clustering algorithms
-// It allows users to interact with the scatter plot with selection
+// It allows users to interact with the scatter plot and make selections
+// based on the clustered spots
 class AnalysisClustering : public QWidget
 {
     Q_OBJECT
@@ -24,8 +25,11 @@ public:
     explicit AnalysisClustering(QWidget *parent = 0, Qt::WindowFlags f = 0);
     virtual ~AnalysisClustering();
 
-    // One color for each spot
-    QHash<Spot::SpotType, QColor> getComputedClasses() const;
+    // One color (color representation of cluster number) for each spot
+    QHash<Spot::SpotType, QColor> getSpotClusters() const;
+
+    // List of spots for each cluster
+    QMultiHash<unsigned, Spot::SpotType> getClustersSpot() const;
 
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
@@ -42,6 +46,7 @@ signals:
 
     void signalClusteringUpdated();
     void signalClusteringSpotsSelected();
+    void signalClusteringExportSelections();
 
 private slots:
 
@@ -50,11 +55,11 @@ private slots:
     // for each spot
     void slotRun();
 
-    // exports the plot to a file
+    // exports the scatter plot to a file
     void slotExportPlot();
 
-    // when the user makes a lasso selection
-    void slotLassoSelection(const QPainterPath path);
+    // when the user makes a lasso selection on the scatter plot
+    void slotLassoSelection(const QPainterPath &path);
 
     // when the user wants to estimate the number of clusters from the data
     void slotComputeClusters();
@@ -76,10 +81,6 @@ private:
 
     // the data
     STData::STDataFrame m_data;
-
-    // the size factors
-    rowvec m_deseq_size_factors;
-    rowvec m_scran_size_factors;
 
     // the results
     std::vector<int> m_colors;
