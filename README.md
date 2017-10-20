@@ -89,23 +89,23 @@ No installers/binaries are provided for now.
 
 * Download and install CMake 3.7.2 (https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
 
-	Tips (Linux and OSX):
+	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
 	
-		tar -xvzf cmake-3.7.2.tar.gz
+		tar -xvzf cmake-3.7.2.tar
 		cd cmake-3.7.2
 		./configure
 		make -j4
 		sudo make install
 
-* Download and install Qt open source from http://qt-project.org/downloads (use default settings and location)
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location)
 
-* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
+* Downloan open and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
 	Tips (Armadillo only needs to be built for Linux and OSX):
 	
-	* Download the latest stable release and then open a terminal and type:
+	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
 	        tar -xvf armadillo-x.xxx.x.tar.xz
 			
@@ -122,10 +122,10 @@ No installers/binaries are provided for now.
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
         biocLite("scran")
-        install.packages("Rtsne")
-        install.packages("RInside")
-        install.packages("Rcpp")
-        install.packages("RcppArmadillo")
+        biocLite("Rtsne")
+        biocLite("RInside")
+        biocLite("Rcpp")
+        biocLite("RcppArmadillo")
 
 ###### OSX
 
@@ -137,12 +137,7 @@ No installers/binaries are provided for now.
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake -DCMAKE_BUILD_TYPE="Release" \
-          -DCMAKE_PREFIX_PATH="/path/to/libraries" \
-          -DCMAKE_OSX_SYSROOT=”/path/to/macosx.sdk” \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=version \
-          -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" \
-          ../st_viewer
+        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DCMAKE_OSX_SYSROOT="/path/to/macosx.sdk" -DCMAKE_OSX_DEPLOYMENT_TARGET=version -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" ../st_viewer
 
     Where : 
 
@@ -150,7 +145,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
-    eg: "/Users/username/Qt/5.9/clang_64;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.9.2/clang_64;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
     
@@ -158,7 +153,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
-    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/
+    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
 
     DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
     
@@ -184,11 +179,7 @@ No installers/binaries are provided for now.
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake -DCMAKE_INSTALL_PREFIX="/usr/local/bin" \
-          -DCMAKE_BUILD_TYPE="Release" \
-          -DCMAKE_PREFIX_PATH="/path/to/libraries" \
-          -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" \
-          ../st_viewer
+        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" ../st_viewer
 
     Where : 
 
@@ -198,7 +189,7 @@ No installers/binaries are provided for now.
 
     DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
     
-    eg: "/Users/username/Qt/5.9/gcc;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.9.2/gcc;/Users/username/armadillo"
     
     DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
     
