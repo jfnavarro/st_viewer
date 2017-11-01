@@ -23,8 +23,10 @@ AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
     m_ui->setupUi(this);
     clear();
 
-    connect(m_ui->runClustering, &QPushButton::clicked, this, &AnalysisClustering::slotRun);
-    connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisClustering::slotExportPlot);
+    connect(m_ui->runClustering, &QPushButton::clicked,
+            this, &AnalysisClustering::slotRun);
+    connect(m_ui->exportPlot, &QPushButton::clicked,
+            this, &AnalysisClustering::slotExportPlot);
     connect(m_ui->computeClusters, &QPushButton::clicked,
             this, &AnalysisClustering::slotComputeClusters);
     connect(m_ui->createSelections, &QPushButton::clicked,
@@ -110,6 +112,7 @@ void AnalysisClustering::slotRun()
     m_ui->computeClusters->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
     m_ui->createSelections->setEnabled(false);
+    // clear the selected spots
     m_selected_spots.clear();
     // make the call
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeColorsAsync);
@@ -126,7 +129,6 @@ void AnalysisClustering::slotComputeClusters()
     m_ui->computeClusters->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
     m_ui->createSelections->setEnabled(false);
-    m_selected_spots.clear();
     // make the call
     QFuture<unsigned> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
     m_watcher_classes.setFuture(future);
@@ -183,7 +185,9 @@ mat AnalysisClustering::filterMatrix()
                                                        m_ui->genes_threshold->value(),
                                                        m_ui->spots_threshold->value());
 
+    // store the spots
     m_spots = data.spots;
+
     // compute normalization factors
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
@@ -310,6 +314,8 @@ void AnalysisClustering::classesComputed()
     m_ui->runClustering->setEnabled(true);
     // enable the estimate button
     m_ui->computeClusters->setEnabled(true);
+    // enable the save clusters buttton
+    m_ui->createSelections->setEnabled(true);
 
     const unsigned n_clusters = m_watcher_classes.result();
     if (n_clusters == 0) {

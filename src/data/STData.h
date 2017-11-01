@@ -32,9 +32,10 @@ public:
         mat counts;
         QList<QString> genes;
         QList<Spot::SpotType> spots;
-        // when spots/genes are filtered
-        std::vector<uword> to_keep_genes;
-        std::vector<uword> to_keep_spots;
+        // use hash tables for look-ups (spot and gene to matrix index)
+        // so to not have to search the QLists
+        QHash<Spot::SpotType, uword> spot_index;
+        QHash<QString, uword> gene_index;
     };
 
     STData();
@@ -74,24 +75,30 @@ public:
     // it returns bool if the parsing was okay and the number of factors is the same as rows
     bool parseSizeFactors(const QString &sizefactors);
 
+    // helper slicing functions (assumes the spots and genes lists given are present in the data)
+    static STDataFrame sliceDataFrame(const STDataFrame &data,
+                                      const QList<Spot::SpotType> &spots);
+    static STDataFrame sliceDataFrame(const STDataFrame &data,
+                                      const QList<QString> &genes);
+
     // helper function to filter out a data frame using thresholds
     static STDataFrame filterDataFrame(const STDataFrame &data,
                                        const int min_exp_value,
                                        const int min_reads_spot,
                                        const int min_genes_spot,
                                        const int min_spots_gene);
+
     // helper function to get the sum of non zeroes elements (by column, aka gene)
     static rowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
+
     // helper function to get the sum of non zeroes elements (by row, aka spot)
     static colvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
+
     // helper function that returns the normalized matrix counts using the rendering settings
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        const rowvec deseq_size_factors,
                                        const rowvec scran_size_factors,
                                        SettingsWidget::NormalizationMode mode);
-
-    // helper function to aggregate two STDataFrame by columns (genes)
-    static STDataFrame aggregate(const STDataFrame &dataA, const STDataFrame &dataB);
 
     // functions to select spots
     void clearSelection();
@@ -113,13 +120,7 @@ private:
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
 
-    // cache the thresholds settings to not re-compute always
-    int m_reads_threshold;
-    int m_genes_threshold;
-    int m_ind_reads_treshold;
-    int m_spots_threshold;
-
-    // scran and deseq2 size factors
+    // scran and deseq2 size factors (cached for convenience)
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
 
@@ -139,10 +140,6 @@ private:
     QVector<bool> m_rendering_visible;
     QVector<QColor> m_rendering_colors;
     QVector<double> m_rendering_values;
-
-    // helper functions to speed look-ups of spots and genes
-    QHash<Spot::SpotType, SpotObjectType> m_dict_spots;
-    QHash<QString, GeneObjectType> m_dict_genes;
 
     Q_DISABLE_COPY(STData)
 };

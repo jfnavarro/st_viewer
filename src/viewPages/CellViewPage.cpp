@@ -13,6 +13,7 @@
 #include <QImageWriter>
 #include <QPainter>
 #include <QDateTime>
+#include <QtConcurrent>
 
 #include "viewPages/GenesWidget.h"
 #include "viewPages/SpotsWidget.h"
@@ -544,39 +545,15 @@ void CellViewPage::slotCreateClusteringSelections()
 {
     // get the map of color -> spots
     const QMultiHash<unsigned, Spot::SpotType> colors_spot = m_clustering->getClustersSpot();
+    // get the data frame
+    auto data = m_dataset.data()->data();
     for(const auto &color : colors_spot.uniqueKeys()) {
         // get the spots for the color
         const QList<Spot::SpotType> &color_spots = colors_spot.values(color);
-        // get the data frame
-        auto data = m_dataset.data()->data();
-        const auto spots = data.spots;
-
-        // Keep only selected spots
-        std::vector<uword> to_keep_rows;
-        QList<Spot::SpotType> selected_spots;
-        for (uword i = 0; i < data.counts.n_rows; ++i) {
-            if (color_spots.contains(spots.at(i))) {
-                to_keep_rows.push_back(i);
-                selected_spots.append(data.spots.at(i));
-            }
-        }
-        data.spots = selected_spots;
-        data.counts = data.counts.rows(uvec(to_keep_rows));
-
-        // Remove non present genes
-        std::vector<uword> to_keep_genes;
-        QList<QString> selected_genes;
-        for (uword j = 0; j < data.counts.n_cols; ++j) {
-            if (sum(data.counts.col(j)) > 0) {
-                to_keep_genes.push_back(j);
-                selected_genes.append(data.genes.at(j));
-            }
-        }
-        data.genes = selected_genes;
-        data.counts = data.counts.cols(uvec(to_keep_genes));
-
+        // slice the data frame
+        STData::STDataFrame scliced_data = STData::sliceDataFrame(data, color_spots);
         // create selection object
-        UserSelection new_selection(data);
+        UserSelection new_selection(scliced_data);
         // proposes as selection name as DATASET NAME + color + current timestamp
         new_selection.name(m_dataset.name() + "_" + QString::number(color) + "_"
                            + QDateTime::currentDateTimeUtc().toString());
@@ -588,47 +565,27 @@ void CellViewPage::slotCreateClusteringSelections()
 
 void CellViewPage::slotCreateSelection()
 {
-    const auto selected = m_dataset.data()->renderingSelected();
-    const bool anyValid = std::any_of(selected.begin(), selected.end(), [](bool x) { return x; });
-    if (!anyValid) {
+    // get the selected spots
+    QList<Spot::SpotType> selected_spots =
+            QtConcurrent::blockingFilteredReduced<QList<Spot::SpotType> >(
+                m_dataset.data()->spots(),
+                [] (const auto spot) { return spot->selected(); },
+                [] (auto &list, const auto spot) { list.push_back(spot->coordinates()); });
+    // early out
+    if (selected_spots.empty()) {
         return;
     }
-
     // get the data frame
     auto data = m_dataset.data()->data();
-    const auto spots = m_dataset.data()->spots();
-
-    // Keep only selected spots
-    std::vector<uword> to_keep_rows;
-    QList<Spot::SpotType> selected_spots;
-    for (uword i = 0; i < data.counts.n_rows; ++i) {
-        if (spots.at(i)->selected()) {
-            to_keep_rows.push_back(i);
-            selected_spots.append(data.spots.at(i));
-        }
-    }
-    data.spots = selected_spots;
-    data.counts = data.counts.rows(uvec(to_keep_rows));
-
-    // Remove non present genes
-    std::vector<uword> to_keep_genes;
-    QList<QString> selected_genes;
-    for (uword j = 0; j < data.counts.n_cols; ++j) {
-        if (sum(data.counts.col(j)) > 0) {
-            to_keep_genes.push_back(j);
-            selected_genes.append(data.genes.at(j));
-        }
-    }
-    data.genes = selected_genes;
-    data.counts = data.counts.cols(uvec(to_keep_genes));
-
+    // slice the data frame
+    STData::STDataFrame scliced_data = STData::sliceDataFrame(data, selected_spots);
     // create selection object
-    UserSelection new_selection(data);
+    UserSelection new_selection(scliced_data);
     // proposes as selection name as DATASET NAME plus current timestamp
     new_selection.name(m_dataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
     new_selection.dataset(m_dataset.name());
-    // clear the selection
-    clearSelections();
     qDebug() << "Creating selection " << new_selection.name();
     m_user_selections->addSelection(new_selection);
+    // clear the selection
+    clearSelections();
 }

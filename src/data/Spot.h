@@ -25,6 +25,8 @@ public:
 
     // the spot's coordinates
     SpotType coordinates() const;
+    // the spot's adjusted coordinates
+    SpotType adj_coordinates() const;
     // name returns the X and Y coordiantes as a string
     QString name() const;
     // the spot's color
@@ -39,6 +41,8 @@ public:
     // Setters
     void coordinates(const float x, const float y);
     void coordinates(const SpotType &coordinates);
+    void adj_coordinates(const float x, const float y);
+    void adj_coordinates(const SpotType &coordinates);
     void color(const QColor color);
     void visible(const bool visible);
     void selected(const bool selected);
@@ -48,6 +52,7 @@ public:
 private:
     void updateName();
     SpotType m_coordinates;
+    SpotType m_adj_coordinates;
     bool m_visible;
     bool m_selected;
     QColor m_color;

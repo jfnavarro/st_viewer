@@ -112,8 +112,8 @@ void SettingsWidget::reset()
     m_rendering_settings.intensity = INTENSITY_DEFAULT;
     m_rendering_settings.size = SIZE_DEFAULT;
     m_rendering_settings.gene_cutoff = false;
-    m_rendering_settings.genes_threshold = 0;
-    m_rendering_settings.spots_threshold = 0;
+    m_rendering_settings.genes_threshold = 5;
+    m_rendering_settings.spots_threshold = 5;
     m_rendering_settings.reads_threshold = 0;
     m_rendering_settings.ind_reads_threshold = 0;
     m_rendering_settings.legend_max = 1;

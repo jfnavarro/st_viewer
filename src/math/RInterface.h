@@ -98,7 +98,7 @@ static void computeDEA(const mat &countsA,
         }
         call += "size_factors[is.na(size_factors)] = 0.0;"
                 "size_factors[is.infinite(size_factors)] = 0.0;"
-                "size_factors[size_factors == 0.0] = -1e6;"
+                "size_factors[size_factors == 0.0] = 1e03;"
                 "condition = c(rep('A', length(rowsA)), rep('B', length(rowsB)));"
                 "coldata = data.frame(row.names=colnames(exp_values), condition=condition);"
                 "dds = DESeqDataSetFromMatrix(countData=exp_values, colData=coldata, design=~condition);"
@@ -222,12 +222,12 @@ static rowvec computeDESeqFactors(const mat &counts)
         Q_ASSERT(factors.size() == counts.n_rows);
         if (!factors.is_finite()) {
             qDebug() << "Computed DESeq2 factors has non finite elements";
-            factors.replace(datum::inf, 1e-6);
-            factors.replace(datum::nan, 1e-6);
+            factors.replace(datum::inf, 1e03);
+            factors.replace(datum::nan, 1e03);
         }
-        if (any(factors <= 0.0)) {
+        if (any(factors <= 0)) {
             qDebug() << "Computed DESeq2 factors has elements with zeroes or negative";
-            factors.replace(0.0, 1e-6);
+            factors.replace(0.0, 1e03);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
@@ -265,12 +265,12 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
         Q_ASSERT(factors.size() == counts.n_rows);
         if (!factors.is_finite()) {
             qDebug() << "Computed SCRAN factors has non finite elements";
-            factors.replace(datum::inf, 1e-6);
-            factors.replace(datum::nan, 1e-6);
+            factors.replace(datum::inf, 1e03);
+            factors.replace(datum::nan, 1e03);
         }
-        if (any(factors <= 0.0)) {
+        if (any(factors <= 0)) {
             qDebug() << "Computed SCRAN factors has elements with zeroes or negative";
-            factors.replace(0.0, 1e-6);
+            factors.replace(0.0, 1e03);
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();
