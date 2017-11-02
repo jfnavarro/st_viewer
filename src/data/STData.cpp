@@ -204,7 +204,9 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
         // write spots (1st column and the rest of the rows (counts))
         for (uword i = 0; i < data.counts.n_rows; ++i) {
             const auto spot = data.spots[i];
-            stream << QString::number(spot.first) + "x" + QString::number(spot.second);
+            const QString x = QString::number(spot.first, 'f', 2);
+            const QString y = QString::number(spot.second, 'f', 2);
+            stream <<  x + "x" + y;
             for (uword j = 0; j < data.counts.n_cols; ++j) {
                 stream << "\t" << data.counts(i,j);
             }
@@ -563,14 +565,14 @@ STData::STDataFrame STData::sliceDataFrame(const STDataFrame &data,
         sliced_data.spots.push_back(spot);
         sliced_data.spot_index.insert(spot,i);
     }
-    sliced_data.counts = data.counts.rows(to_keep_rows);
+    sliced_data.counts = sliced_data.counts.rows(to_keep_rows);
 
     // Remove non present genes (total count == 0 after removing spots)
-    colvec sumcol = sum(sliced_data.counts, 1);
+    rowvec gene_counts = sum(sliced_data.counts, COLUMN);
     std::vector<uword> to_keep_cols;
     QList<QString> new_genes;
     for (uword j = 0; j < sliced_data.counts.n_cols; ++j) {
-        if (sumcol.at(j) > 0) {
+        if (gene_counts.at(j) > 0) {
             const auto &gene = sliced_data.genes.at(j);
             to_keep_cols.push_back(j);
             new_genes.push_back(gene);
@@ -605,11 +607,11 @@ STData::STDataFrame STData::sliceDataFrame(const STDataFrame &data,
     sliced_data.counts = data.counts.cols(to_keep_cols);
 
     // Remove non present spots (total count == 0 after removing genes)
-    rowvec sumrow = sum(sliced_data.counts, 0);
+    colvec spot_counts = sum(sliced_data.counts, ROW);
     std::vector<uword> to_keep_rows;
     QList<Spot::SpotType> new_spots;
     for (uword i = 0; i < sliced_data.counts.n_rows; ++i) {
-        if (sumrow.at(i) > 0) {
+        if (spot_counts.at(i) > 0) {
             const auto &spot = sliced_data.spots.at(i);
             to_keep_rows.push_back(i);
             new_spots.push_back(spot);
