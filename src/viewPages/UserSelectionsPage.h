@@ -60,6 +60,8 @@ private slots:
     void slotShowGenes();
     // slot to show the aggregated spot counts of the selection in a table
     void slotShowSpots();
+    // slot to show the QC widget with the selection
+    void slotQC();
     // to import a selection from a file
     void slotImportSelection();
 

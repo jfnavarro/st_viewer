@@ -10,6 +10,8 @@
     <file alias="images/settings.png">${PROJECT_SOURCE_DIR}/assets/images/settings.png</file>
     <file alias="images/settings2.png">${PROJECT_SOURCE_DIR}/assets/images/settings2.png</file>
     <file alias="images/histogram.png">${PROJECT_SOURCE_DIR}/assets/images/histogram.png</file>
+    <file alias="images/histogram2.png">${PROJECT_SOURCE_DIR}/assets/images/histogram2.png</file>
+    <file alias="images/scatter.png">${PROJECT_SOURCE_DIR}/assets/images/scatter.png</file>
     <file alias="images/reg_search.png">${PROJECT_SOURCE_DIR}/assets/images/reg_search.png</file>
     <file alias="images/select-all.png">${PROJECT_SOURCE_DIR}/assets/images/select-all.png</file>
     <file alias="images/unselect-all.png">${PROJECT_SOURCE_DIR}/assets/images/unselect-all.png</file>
