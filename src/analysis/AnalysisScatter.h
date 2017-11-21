@@ -21,13 +21,20 @@ class AnalysisScatter : public QWidget
 public:
 
     AnalysisScatter(const STData::STDataFrame &data,
-                    QWidget *parent = nullptr);
+                    QWidget *parent = nullptr,
+                    Qt::WindowFlags f = 0);
 
     virtual ~AnalysisScatter();
 
 signals:
 
 public slots:
+
+private slots:
+
+     // to export the scatter plots to  a file
+    void slotExportPlotGenes();
+    void slotExportPlotReads();
 
 private:
 

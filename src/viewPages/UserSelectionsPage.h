@@ -62,6 +62,8 @@ private slots:
     void slotShowSpots();
     // slot to show the QC widget with the selection
     void slotQC();
+    // slot to show the Scatter plot of genes and reads
+    void slotScatter();
     // to import a selection from a file
     void slotImportSelection();
 

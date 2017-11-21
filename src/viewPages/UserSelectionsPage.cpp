@@ -12,6 +12,7 @@
 #include "analysis/AnalysisDEA.h"
 #include "analysis/AnalysisCorrelation.h"
 #include "analysis/AnalysisQC.h"
+#include "analysis/AnalysisScatter.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
@@ -50,6 +51,7 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
     connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
     connect(m_ui->qcAnalysis, &QPushButton::clicked, this, &UserSelectionsPage::slotQC);
+    connect(m_ui->scatter, &QPushButton::clicked, this, &UserSelectionsPage::slotScatter);
 
     connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
             this, SLOT(slotExportSelection(QModelIndex)));
@@ -101,6 +103,7 @@ void UserSelectionsPage::clearControls()
     // only import enabled by default
     m_ui->removeSelection->setEnabled(false);
     m_ui->qcAnalysis->setEnabled(false);
+    m_ui->scatter->setEnabled(false);
     m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
@@ -126,6 +129,7 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->importSelection->setEnabled(enableSingle);
     m_ui->ddaAnalysis->setEnabled(enableMultiple);
     m_ui->qcAnalysis->setEnabled(enableSingle);
+    m_ui->scatter->setEnabled(enableSingle);
     m_ui->editSelection->setEnabled(enableSingle);
     m_ui->showGenes->setEnabled(enableSingle);
     m_ui->showSpots->setEnabled(enableSingle);
@@ -430,6 +434,20 @@ void UserSelectionsPage::slotQC()
     const auto selectionObject = currentSelection.front();
     AnalysisQC *qc = new AnalysisQC(selectionObject.data(), this, Qt::Window);
     qc->show();
+}
+
+void UserSelectionsPage::slotScatter()
+{
+    // get the selected object (should be only one)
+    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+    if (currentSelection.empty() || currentSelection.size() > 1) {
+        return;
+    }
+
+    const auto selectionObject = currentSelection.front();
+    AnalysisScatter *scatter = new AnalysisScatter(selectionObject.data(), this, Qt::Window);
+    scatter->show();
 }
 
 bool UserSelectionsPage::nameExist(const QString &name)
