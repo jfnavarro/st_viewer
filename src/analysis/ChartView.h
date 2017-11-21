@@ -14,7 +14,7 @@ class ChartView : public QChartView
 
 public:
 
-    explicit ChartView(QWidget *parent = 0);
+    explicit ChartView(QWidget *parent = nullptr);
     virtual ~ChartView();
 
 signals:

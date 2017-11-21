@@ -22,7 +22,7 @@ class AnalysisClustering : public QWidget
     Q_OBJECT
 
 public:
-    explicit AnalysisClustering(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit AnalysisClustering(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
     virtual ~AnalysisClustering();
 
     // One color (color representation of cluster number) for each spot

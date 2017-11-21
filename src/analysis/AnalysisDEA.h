@@ -24,11 +24,11 @@ class AnalysisDEA : public QWidget
 public:
 
     AnalysisDEA(const STData::STDataFrame &data1,
-                         const STData::STDataFrame &data2,
-                         const QString &nameA,
-                         const QString &nameB,
-                         QWidget *parent = 0,
-                         Qt::WindowFlags f = 0);
+                const STData::STDataFrame &data2,
+                const QString &nameA,
+                const QString &nameB,
+                QWidget *parent = nullptr,
+                Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
 
 

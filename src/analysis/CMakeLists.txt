@@ -3,6 +3,7 @@ set(LIBRARY_ARG_INCLUDES
   AnalysisQC.h
   AnalysisCorrelation.h
   AnalysisClustering.h
+  AnalysisScatter.h
   ChartView.h
 )
 
@@ -11,6 +12,7 @@ set(LIBRARY_ARG_SOURCES
   AnalysisQC.cpp
   AnalysisCorrelation.cpp
   AnalysisClustering.cpp
+  AnalysisScatter.cpp
   ChartView.cpp
 )
 

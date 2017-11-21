@@ -25,7 +25,7 @@ public:
                         const STData::STDataFrame &data2,
                         const QString &nameA,
                         const QString &nameB,
-                        QWidget *parent = 0,
+                        QWidget *parent = nullptr,
                         Qt::WindowFlags f = 0);
     virtual ~AnalysisCorrelation();
 
