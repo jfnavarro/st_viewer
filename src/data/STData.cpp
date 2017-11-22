@@ -11,6 +11,10 @@ static const int COLUMN = 0;
 
 STData::STData()
     : m_data()
+    , m_reads_threshold(-1)
+    , m_genes_threshold(-1)
+    , m_ind_reads_treshold(-1)
+    , m_spots_threshold(-1)
     , m_deseq_size_factors()
     , m_scran_size_factors()
     , m_spike_in()
@@ -245,6 +249,14 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
 
+    bool recompute_size_factors =
+            (rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ
+             || rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN)
+            && (m_reads_threshold != rendering_settings.ind_reads_threshold
+            || m_genes_threshold != rendering_settings.genes_threshold
+            || m_ind_reads_treshold != rendering_settings.ind_reads_threshold
+            || m_spots_threshold != rendering_settings.spots_threshold);
+
     // Create copy of the data frame so to reduce and normalize it
     STDataFrame data = m_data;
 
@@ -283,23 +295,23 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         return;
     }
 
-    // Check if we need to compute normalization factors
-    //TODO we should cache the genes and spots and if they are the same
-    //     then we do not need to re-compute the size factors
-    if (do_values
-            && rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ) {
-        m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);       
-    } else if (do_values
-               && rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN) {
-        m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
+    // Check if we need to compute normalization factors and normalize the data
+    if (do_values) {
+        if (recompute_size_factors) {
+            m_reads_threshold = rendering_settings.ind_reads_threshold;
+            m_genes_threshold = rendering_settings.genes_threshold;
+            m_ind_reads_treshold = rendering_settings.ind_reads_threshold;
+            m_spots_threshold = rendering_settings.spots_threshold;
+            m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
+            m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
+        }
+        // Normalize the data
+        data = normalizeCounts(data, m_deseq_size_factors, m_scran_size_factors,
+                               rendering_settings.normalization_mode);
     }
 
     // Set visible to false for all the spots
     QtConcurrent::blockingMap(m_rendering_visible, [] (auto visible) { visible = false; });
-
-    // Normalize the data
-    data = normalizeCounts(data, m_deseq_size_factors, m_scran_size_factors,
-                           rendering_settings.normalization_mode);
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
     double min_value = 10e6;
@@ -320,7 +332,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             const uword j = data.gene_index.value(gene);
             const auto gene_obj = m_genes.at(gene_index);
             const double value = data.counts.at(i,j);
-            //qDebug() << "Spot " << spot << " Gene " << gene << " Value " << value;
             if (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value) {
                 continue;
             }

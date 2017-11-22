@@ -120,6 +120,12 @@ private:
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
 
+    // cache the thresholds settings to not re-compute always
+    int m_reads_threshold;
+    int m_genes_threshold;
+    int m_ind_reads_treshold;
+    int m_spots_threshold;
+
     // scran and deseq2 size factors (cached for convenience)
     rowvec m_deseq_size_factors;
     rowvec m_scran_size_factors;
