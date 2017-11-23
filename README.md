@@ -153,11 +153,9 @@ No installers/binaries are provided for now.
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
-    eg: Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
+    eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = indicates the target MacOS X version (Only OSX users)
-    
-    eg: 10.12
+    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.12 or 10.11 
 
 *   Compile the application
 
