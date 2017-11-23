@@ -53,6 +53,8 @@ macro(INITIALISE_PROJECT)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \
                 -Wno-inconsistent-missing-override -Wno-infinite-recursion \
                 -Wno-c++1z-extensions -Wno-macro-redefined -Wno-#pragma-messages")
+        elseif (UNIX)
+            set(DISABLE_WARNINGS "${DISABLED_WARNINGS} -Wno-unused-but-set-parameter")
         endif()
 
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \

@@ -248,8 +248,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange ||
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
-
-    bool recompute_size_factors =
+    const bool recompute_size_factors =
             (rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ
              || rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN)
             && (m_reads_threshold != rendering_settings.ind_reads_threshold

@@ -219,7 +219,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/show_spots.png</normaloff>:/images/show_spots.png</iconset>
            </property>
            <property name="iconSize">
@@ -263,7 +263,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/show_genes.png</normaloff>:/images/show_genes.png</iconset>
            </property>
            <property name="iconSize">
@@ -307,7 +307,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/histogram2.png</normaloff>:/images/histogram2.png</iconset>
            </property>
            <property name="iconSize">
@@ -351,7 +351,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/scatter.png</normaloff>:/images/scatter.png</iconset>
            </property>
            <property name="iconSize">
@@ -395,7 +395,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/correlation.png</normaloff>:/images/correlation.png</iconset>
            </property>
            <property name="iconSize">
@@ -436,7 +436,7 @@ selection-background-color: darkgray;</string>
             <string>Perform a Differential Expression analysis</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/DEA.png</normaloff>:/images/DEA.png</iconset>
            </property>
            <property name="iconSize">
@@ -480,7 +480,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -524,7 +524,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
            </property>
            <property name="iconSize">
@@ -568,7 +568,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -612,7 +612,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">

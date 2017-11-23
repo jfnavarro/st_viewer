@@ -85,8 +85,7 @@ QHash<Spot::SpotType, QColor> AnalysisClustering::getSpotClusters() const
     Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors))
              < Color::color_list.size());
     for (unsigned i = 0; i < m_colors.size(); ++i) {
-        const QColor color = Color::color_list.at(m_colors.at(i));
-        computed_colors.insert(m_spots.at(i), color);
+        computed_colors.insert(m_spots.at(i), Color::color_list.at(m_colors.at(i)));
     }
     return computed_colors;
 }
