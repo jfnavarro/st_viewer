@@ -3,12 +3,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-### PROJECT AND SOURCE STRUCTURE ##############################################
-
-# NOTE this is very useful for Visual Studio
-# Organize projects into folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 ##LIBRARIES#####################################################
 
 # Put everything that is generated into the binary dir
@@ -99,15 +93,6 @@ else()
     add_executable(${PROJECT_NAME} ${ST_CLIENT_SOURCES})
 endif()
 
-if(MSVC)
-    # A dependency is linking to the non debug version. This causes an annoying 
-    # warning in Visual Studio debug builds.    
-    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
-    if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt")
-    endif()
-endif()
-
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
@@ -182,7 +167,6 @@ if(APPLE)
     set(CPACK_BUNDLE_PLIST ${InfoPlistFile})
     set(MACOSX_BUNDLE_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources")
 
-
     # Architecture OSX
     set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
     set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
@@ -213,11 +197,6 @@ if(WIN32)
     set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
     set(PLUGINS_IN_CATEGORY_printsupport windowsprintersupport)
     set(PLUGINS_IN_CATEGORY_platforms qwindows)
-
-    # By default, do not warn when built on machines using only VS Express:
-    if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-    endif()
 
     # Install system libs
     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION bin)

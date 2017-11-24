@@ -1,5 +1,5 @@
 macro(INITIALISE_PROJECT)
-    set(CMAKE_VERBOSE_MAKEFILE OFF)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
@@ -26,18 +26,7 @@ macro(INITIALISE_PROJECT)
 
     # Defining compiler specific settings
     if(WIN32)
-        if(MSVC)
-           string(REPLACE "/W3" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-           set(LINK_FLAGS_PROPERTIES "/STACK:10000000 /MACHINE:X86")
-           if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-              set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
-              set(LINK_FLAGS_PROPERTIES "${LINK_FLAGS_PROPERTIES} /DEBUG")
-           else()
-              set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNDEBUG /MD /O2 /Ob2")
-           endif()
-           # Removes Microsoft Visual Studio's well intentioned warnings about 'unsafe' calls.
-           add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-        endif()
+
     else()
 
         # Adding -std=c++14 flag explicitly

@@ -128,13 +128,8 @@ else()
     endif()
 
     # look for the core R library
-    find_library(LIBR_CORE_LIBRARY NAMES R libR
+    find_library(LIBR_LIB_DIR NAMES R libR
         HINTS ${LIBR_LIB_DIR} ${LIBRARY_ARCH_HINT_PATH} ${LIBR_HOME} ${LIBR_HOME}/lib ${LIBR_HOME}/bin)
-    if(LIBR_CORE_LIBRARY)
-        set(LIBR_LIBRARIES ${LIBR_CORE_LIBRARY})
-    else()
-        message(STATUS "Could not find libR shared library.")
-    endif()
 
 endif()
 
@@ -142,6 +137,12 @@ if(LIBR_INCLUDE_DIRS)
     message(STATUS "Found R: ${LIBR_INCLUDE_DIRS}")
 elseif(LIBR_INCLUDE_DIRS)
     message(FATA_ERROR "R could not be found")
+endif()
+
+if(LIBR_LIB_DIR)
+    message(STATUS "Found R libraries: ${LIBR_LIB_DIR}")
+elseif(LIBR_INCLUDE_DIRS)
+    message(FATA_ERROR "R libraries could not be found")
 endif()
 
 # look for lapack
@@ -174,7 +175,6 @@ string(SUBSTRING ${LIBRCPP_INCLUDE_DIRS} ${NUM_TRUNC_CHARS} -1 LIBRCPP_INCLUDE_D
 execute_process(COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "RInside:::CxxFlags()" OUTPUT_VARIABLE LIBRINSIDE_INCLUDE_DIRS)
 string(SUBSTRING ${LIBRINSIDE_INCLUDE_DIRS} ${NUM_TRUNC_CHARS} -1 LIBRINSIDE_INCLUDE_DIRS)
 execute_process(COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "RInside:::LdFlags()" OUTPUT_VARIABLE LIBRINSIDE_LIBRARIES)
-message(STATUS "${LIBRINSIDE_LIBRARIES}")
 
 execute_process(COMMAND ${LIBR_EXECUTABLE} "--slave" "--no-save" "-e" "RcppArmadillo:::CxxFlags()" OUTPUT_VARIABLE LIBRCPPARMADILLO_INCLUDE_DIRS)
 string(LENGTH ${LIBRCPPARMADILLO_INCLUDE_DIRS} INCLLENGTH)
@@ -188,7 +188,7 @@ if (WIN32)
     math(EXPR lenRInsideFQNameLen ${lenRInsideFQNameLen}-1)
     string(SUBSTRING ${LIBRINSIDE_LIBRARIES} 0 ${lenRInsideFQNameLen} LIBRINSIDE_LIBRARIES)
 	# Replace .a for .dll
-	string(REGEX REPLACE ".a" ".dll" LIBRINSIDE_LIBRARIES ${LIBRINSIDE_LIBRARIES})
+	string(REGEX REPLACE "[.][a]" ".dll" LIBRINSIDE_LIBRARIES ${LIBRINSIDE_LIBRARIES})
 elseif (UNIX AND NOT APPLE)
     if (${LIBRINSIDE_LIBRARIES} MATCHES "[-][L]([^ ;])+")
         string(SUBSTRING ${CMAKE_MATCH_0} ${NUM_TRUNC_CHARS} -1 LIBRINSIDE_LIBRARIES_DIR)
