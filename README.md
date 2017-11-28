@@ -103,7 +103,7 @@ No installers/binaries are provided for now.
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
-	Tips (Armadillo only needs to be built for Linux and OSX):
+	NOTE (Armadillo only needs to be built for Linux and OSX):
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
@@ -116,6 +116,8 @@ No installers/binaries are provided for now.
 		make
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
+
+* Download and install Rtools (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
 
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
@@ -137,19 +139,15 @@ No installers/binaries are provided for now.
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DCMAKE_OSX_SYSROOT="/path/to/macosx.sdk" -DCMAKE_OSX_DEPLOYMENT_TARGET=version -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" ../st_viewer
+        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DCMAKE_OSX_SYSROOT="/path/to/macosx.sdk" -DCMAKE_OSX_DEPLOYMENT_TARGET=version ../st_viewer
 
     Where : 
 
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
+    DCMAKE_PREFIX_PATH = the path to where Qt, armadillo and qcustomplot are installed
     
-    eg: "/Users/username/Qt/5.9.2/clang_64;/Users/username/armadillo"
-    
-    DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
-    
-    eg: "/Users/username/qcustomplot"
+    eg: "/Users/username/Qt/5.9.2/clang_64;/path/to/qcustomplot;/Users/username/armadillo"
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
@@ -177,21 +175,15 @@ No installers/binaries are provided for now.
         git clone https://github.com/jfnavarro/st_viewer.git
         mkdir st_viewer_build
         cd st_viewer_build
-        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DQCUSTOMPLOT_PATH="/path/to/qcustomplot" ../st_viewer
+        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" ../st_viewer
 
     Where : 
 
-    DCMAKE_INSTALL_PREFIX = indicates where to install STViewer ("/usr/local/bin" by default)
-
     DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
 
-    DCMAKE_PREFIX_PATH = the path to where Qt and armadillo are installed
+    DCMAKE_PREFIX_PATH = the path to where Qt, armadillo and qcustomplot are installed
     
-    eg: "/Users/username/Qt/5.9.2/gcc;/Users/username/armadillo"
-    
-    DQCUSTOMPLOT_PATH = the path where QCustomplot was extracted
-    
-    eg: "/Users/username/qcustomplot"
+    eg: "/Users/username/Qt/5.9.2/gcc;/Users/username/qcustomplot;/Users/username/armadillo"
 
 * Then type the following to build and install
 
@@ -204,53 +196,48 @@ No installers/binaries are provided for now.
         or
         /path/to/bin/STViewer
 
-###### Windows (Visual Studio)
-
-* Download and install Visual Studio (2013 is recommended) 
+###### Windows 
  
 * Download and install Git for windows from https://git-scm.com/downloads
  
 * Open the GIT terminal and clone the repository :
  
 	git clone https://github.com/jfnavarro/st_viewer.git
- 
-* Open the CMake GUI and add the following entries(variables) :
- 
- 	- QCUSTOMPLOT_PATH = C:\qcustomplot // or the folder where you extracted it
-	- ARMADILLO_PATH = C:\armadillo     // or the folder where you extracted it
-	- CMAKE_INSTALL_PREFIX = C:\Qt\5.9.1\msvc2013_64 \\ or the Qt version that you installed
 	
-* Add the source diretory where the st_viewer was cloned
- 
-* Add the build directory for example C:\st_viewer_build
- 
-* Click on Configure and Generate
- 
-* Click on Open Project (Visual Studio will open)
- 
-* Click on BUILD ALL 
+* Make sure that your PATH environment contains Rtools' bin, Rtools MinGW's bin and R's bin
 
-* The ST Viewer .exe binary will be present in the build directory
- 
-###### Windows (CygWin)
+* Make sure that you do not have another MinGW on the PATH variable
 
-* Download and install CygWin from https://cygwin.com/install.html
+* Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
  
-* Open the CygWin terminal and clone the repository :
- 
- 		git clone https://github.com/jfnavarro/st_viewer.git
+* Open a windows terminal (cmd.exe)
+
+* Create a build directory and cd into it
 	
-* Create a build directory :
-
-		mkdir st_viewer_build
+* Type: 
 	
-* Open the build_cygwin.sh script present in st_viewer and update the path of QT, QCUSTOMPLOT_PATH and ARMADILLO_PATH variables
-
-* Run the script (pass the build directory as a parameter)
-
-		sh st_viewer/build_cygwin.sh st_viewer st_viewer_build
+		cmake -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DARMADILLO_PATH="C:\\armadillo" ../st_viewer
 	
-* The ST Viewer .exe binary will be present in the build directory
+  Where:
+
+  DCMAKE_BUILD_TYPE = indicates the type of building ("Debug" or "Release" which is the default)
+
+  DCMAKE_PREFIX_PATH = the path to where Qt and qcustomplot are installed
+    
+    eg: "C:\Qt\5.9.1\mingw53_32;C:\qcustomplot"
+    
+  DARMADILLO_PATH = indicates where armadillo was extracted
+  
+    eg: "C:\\armadillo"
+		
+* Now build and install the ST Viewer by typing:
+
+		mingw32-make install
+		
+* By default the ST Viewer will be installed in "Program Files" but that can be changed 
+with the CMake variable -DCMAKE_INSTALL_PREFIX
+
+ 
  	
 
 
