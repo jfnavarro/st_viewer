@@ -199,10 +199,10 @@ if(WIN32)
     set(PLUGINS_IN_CATEGORY_platforms qwindows)
 
     # Install system libs
-    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION bin)
+    install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION .)
 
 	# Install app's icon
-    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION bin)
+    install(FILES ${PROJECT_SOURCE_DIR}/assets/images/st_icon.ico DESTINATION .)
 
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
 
@@ -213,7 +213,7 @@ if(WIN32)
         else()
             get_target_property(ST_QT_LOC "${QT_LIBRARY}" LOCATION)
         endif()
-        install(FILES ${ST_QT_LOC} DESTINATION bin)
+        install(FILES ${ST_QT_LOC} DESTINATION .)
     endforeach()
 
     set(WINDOWS_EXTRA_PLUGIN_NAME_ENDING)
@@ -224,19 +224,23 @@ if(WIN32)
     # Deploy the qt plugins in the expected location
     foreach(PLUGIN_CATEGORY ${QT_PLUGIN_CATEGORIES})
         foreach(PLUGIN_NAME ${PLUGINS_IN_CATEGORY_${PLUGIN_CATEGORY}})
-			install(FILES "${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${CMAKE_SHARED_LIBRARY_PREFIX}${PLUGIN_NAME}
-			${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}" DESTINATION "bin/${PLUGIN_CATEGORY}")
+			install(FILES "${QT_PLUGINS_DIR}/${PLUGIN_CATEGORY}/${PLUGIN_NAME}${WINDOWS_EXTRA_PLUGIN_NAME_ENDING}${CMAKE_SHARED_LIBRARY_SUFFIX}" DESTINATION "./${PLUGIN_CATEGORY}")
         endforeach()
     endforeach()
 
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-    install(FILES ${CONFIG_FILE} DESTINATION bin)
-    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION bin)
-    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION bin)
-    install(FILES ${CMAKE_BINARY_DIR}/qcustomplot.dll DESTINATION bin)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.dll DESTINATION bin)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.dll DESTINATION bin)
-
+    install(TARGETS ${PROJECT_NAME} DESTINATION .)
+    install(FILES ${CONFIG_FILE} DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
+    install(FILES ${CMAKE_BINARY_DIR}/libqcustomplot.dll DESTINATION .)
+    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.dll DESTINATION .)
+    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.dll DESTINATION .)
+	install(FILES ${QT_BINARY_DIR}/libstdc++-6.dll DESTINATION .)
+	install(FILES ${QT_BINARY_DIR}/libgcc_s_dw2-1.dll DESTINATION .)
+	install(FILES ${QT_BINARY_DIR}/libwinpthread-1.dll DESTINATION .)
+	install(FILES ${LIBRINSIDE_LIBRARIES} DESTINATION .)
+	install(FILES ${LIBR_LIBRARIES} DESTINATION .)
+	
 endif(WIN32)
 
 include(CPack)
