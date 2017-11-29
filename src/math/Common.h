@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Common provides miscellaneous functionality for maths and statistics
-namespace Math
+namespace STMath
 {
 // clamp size to
 // NOTE: Qt::KeepAspectRatio might be prone to numerical errors

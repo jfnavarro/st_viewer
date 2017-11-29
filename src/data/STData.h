@@ -11,7 +11,6 @@
 #include "data/Gene.h"
 #include "data/Spot.h"
 #include "viewPages/SettingsWidget.h"
-#include "math/QuadTree.h"
 #include "viewRenderer/SelectionEvent.h"
 
 #include <armadillo>

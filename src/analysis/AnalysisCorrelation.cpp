@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QPdfWriter>
 #include <QMessageBox>
+#include <QtMath>
 
 #include "math/RInterface.h"
 

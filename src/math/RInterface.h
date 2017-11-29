@@ -18,6 +18,7 @@ static double computeCorrelation(const std::vector<double> &A,
                                  const std::string &method)
 {
     RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
     Q_ASSERT(A.size() == B.size());
     double corr = -1.0;
     try {
@@ -52,7 +53,7 @@ static void computeDEA(const mat &countsA,
                        std::vector<std::string> &cols)
 {
     RInside *R = RInside::instancePtr();
-
+    Q_ASSERT(R != nullptr);
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));"
                                    "suppressMessages(library(plyr));"
@@ -138,6 +139,7 @@ static void spotClassification(const mat &counts,
                                mat &results)
 {
     RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
     try {
         const std::string R_libs = "suppressMessages(library(Rtsne));";
         R->parseEvalQ(R_libs);
@@ -187,6 +189,7 @@ static void spotClassification(const mat &counts,
 static unsigned computeSpotClasses(const mat &counts)
 {
     RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
     Q_ASSERT(!counts.empty());
     unsigned clusters = 0;
     try {
@@ -209,6 +212,7 @@ static unsigned computeSpotClasses(const mat &counts)
 static rowvec computeDESeqFactors(const mat &counts)
 {
     RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
@@ -242,6 +246,7 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
 {
     Q_UNUSED(do_cluster);
     RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {

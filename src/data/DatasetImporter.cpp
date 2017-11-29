@@ -164,7 +164,7 @@ void DatasetImporter::slotLoadSpotsMapFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Spots Map File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -184,7 +184,7 @@ void DatasetImporter::slotLoadAlignmentFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Alignment File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -206,7 +206,7 @@ void DatasetImporter::slotLoadSpikeInFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Spike-in File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -228,7 +228,7 @@ void DatasetImporter::slotLoadSizeFactorsFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Size Factors File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
