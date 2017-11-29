@@ -263,10 +263,9 @@ float CellGLView::maxZoom() const
 
 const QImage CellGLView::grabPixmapGL()
 {
-    //TODO must fix this, report bug to Qt
-    return QImage();
-    //const QPixmap res = grab(QRect(0,0,width(),height()));
-    //return res.toImage();
+    //TODO this doesn't grab the non OpenGL stuff
+    const QPixmap res = grab(QRect(0,0,width(),height()));
+    return res.toImage();
 }
 
 void CellGLView::setSelectionMode(const bool selectionMode)
