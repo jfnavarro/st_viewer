@@ -28,7 +28,7 @@ void MathExtendedTest::testFloatMod()
     QFETCH(qreal, result);
     QFETCH(bool, expected);
 
-    QCOMPARE(qFuzzyCompare(Math::qMod(dividend, divisor), result), expected);
+    QCOMPARE(qFuzzyCompare(STMath::qMod(dividend, divisor), result), expected);
 }
 void MathExtendedTest::testFloatMod_data()
 {
@@ -62,7 +62,7 @@ void MathExtendedTest::testClamp()
     QFETCH(uint, mode);
     QFETCH(bool, expected);
 
-    QCOMPARE(fuzzyCompare(Math::clamp(size, min, max, static_cast<Qt::AspectRatioMode>(mode)),
+    QCOMPARE(fuzzyCompare(STMath::clamp(size, min, max, static_cast<Qt::AspectRatioMode>(mode)),
                           result),
              expected);
 }

@@ -11,7 +11,7 @@
 #include "mainWindow.h"
 #include "options_cmake.h"
 
-//RcppArmadillo must be included before RInside
+// RcppArmadillo must be included before RInside
 #include "RcppArmadillo.h"
 #include "RInside.h"
 

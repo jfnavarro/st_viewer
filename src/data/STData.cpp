@@ -274,21 +274,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                            rendering_settings.genes_threshold,
                            rendering_settings.spots_threshold);
 
-    // Remove genes that are not visible
-    std::vector<uword> to_keep_genes;
-    QList<QString> genes;
-    for (uword i = 0; i < data.counts.n_cols; ++i) {
-        const QString &gene = data.genes.at(i);
-        const uword gene_index = m_data.gene_index.value(gene);
-        const auto gene_obj = m_genes.at(gene_index);
-        if (gene_obj->visible()) {
-            genes.push_back(gene);
-            to_keep_genes.push_back(i);
-        }
-    }
-    data.genes = genes;
-    data.counts = data.counts.cols(uvec(to_keep_genes));
-
     // Early out
     if (data.spots.empty() || data.genes.empty()) {
         return;
@@ -331,13 +316,14 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             const uword j = data.gene_index.value(gene);
             const auto gene_obj = m_genes.at(gene_index);
             const double value = data.counts.at(i,j);
-            if (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value) {
+            if (!gene_obj->visible() ||
+                    (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value)) {
                 continue;
             }
             ++num_genes;
             merged_value += value;
             if (do_color) {
-                merged_color = lerp(1.0 / num_genes, merged_color, gene_obj->color());
+                merged_color = STMath::lerp(1.0 / num_genes, merged_color, gene_obj->color());
             }
             any_gene_selected |= gene_obj->selected();
         }

@@ -18,7 +18,7 @@ void createLegend(QImage &image, const float lowerbound,
         // color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
         const float adjusted_value
-                = Math::linearConversion<float, float>(static_cast<float>(value),
+                = STMath::linearConversion<float, float>(static_cast<float>(value),
                                                        0.0,
                                                        static_cast<float>(height),
                                                        lowerbound,
@@ -46,7 +46,7 @@ QColor createDynamicRangeColor(const float value, const float min,
                                const float max, const QColor color)
 {
     const float adjusted_value
-            = Math::norm<float, float>(value, min, max);
+            = STMath::norm<float, float>(value, min, max);
     QColor newcolor(color);
     newcolor.setAlphaF(adjusted_value);
     return newcolor;
@@ -59,7 +59,7 @@ QColor createHeatMapWaveLenghtColor(const float value)
     static const float gamma = 0.8f;
 
     // denorm value to range (380-780)
-    const float cwavelength = Math::denorm(value, 380.0, 780.0);
+    const float cwavelength = STMath::denorm(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
     float red = 0.0;
@@ -103,9 +103,9 @@ QColor createHeatMapWaveLenghtColor(const float value)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = Math::clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = Math::clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = Math::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = STMath::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = STMath::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
     return QColor::fromRgbF(red, green, blue, 1.0);
@@ -115,8 +115,8 @@ QColor createHeatMapWaveLenghtColor(const float value)
 QColor createRangeColor(const float value, const float min, const float max,
                         QColor init, QColor end)
 {
-    const float norm_value = Math::norm<float, float>(value, min, max);
-    return Math::lerp(norm_value, init, end);
+    const float norm_value = STMath::norm<float, float>(value, min, max);
+    return STMath::lerp(norm_value, init, end);
 }
 
 QColor createCMapColorGpHot(const float value, const float min, const float max)
