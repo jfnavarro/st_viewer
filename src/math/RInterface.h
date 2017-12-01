@@ -79,7 +79,7 @@ static void computeDEA(const mat &countsA,
                            "rownames(merged) = c(rownames(A), rownames(B));"
                            "exp_values = as.matrix(t(merged));"
                            "exp_values[is.na(exp_values)] = 0;"
-                           "exp_values = apply(exp_values, c(1,2), as.numeric);";
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
                            "exp_values = exp_values[,colSums(exp_values != 0) > genes_threshold];"
                            "exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
                            "exp_values = exp_values[rowSums(exp_values > ind_reads_treshold) > spots_threshold,];";
@@ -100,7 +100,7 @@ static void computeDEA(const mat &countsA,
         call += "size_factors[is.na(size_factors)] = 0.0;"
                 "size_factors[is.infinite(size_factors)] = 0.0;"
                 "size_factors[size_factors <= 0.0] = 1.0;"
-                "condition = c(rep('A', length(rowsA)), rep('B', length(rowsB)));"
+                "condition = c(rep('A', length(grep('A_', colnames(exp_values)))), rep('B', length(grep('B_', colnames(exp_values)))));"
                 "coldata = data.frame(row.names=colnames(exp_values), condition=condition);"
                 "dds = DESeqDataSetFromMatrix(countData=exp_values, colData=coldata, design=~condition);"
                 "dds@colData$sizeFactor = size_factors;"
