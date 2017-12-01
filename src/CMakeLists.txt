@@ -60,6 +60,8 @@ include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+#find_package(OpenMP REQUIRED)
+
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs

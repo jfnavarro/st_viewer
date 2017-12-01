@@ -79,7 +79,7 @@ static void computeDEA(const mat &countsA,
                            "rownames(merged) = c(rownames(A), rownames(B));"
                            "exp_values = as.matrix(t(merged));"
                            "exp_values[is.na(exp_values)] = 0;"
-                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);";
                            "exp_values = exp_values[,colSums(exp_values != 0) > genes_threshold];"
                            "exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
                            "exp_values = exp_values[rowSums(exp_values > ind_reads_treshold) > spots_threshold,];";

@@ -276,7 +276,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                            rendering_settings.reads_threshold,
                            rendering_settings.genes_threshold,
                            rendering_settings.spots_threshold);
-
+/*
     // Remove genes that are not visible
     std::vector<uword> to_keep_genes;
     QList<QString> genes;
@@ -291,7 +291,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
     data.genes = genes;
     data.counts = data.counts.cols(uvec(to_keep_genes));
-
+*/
     // Early out
     if (data.spots.empty() || data.genes.empty()) {
         return;
@@ -331,7 +331,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             const uword j = data.gene_index.value(gene);
             const auto gene_obj = m_genes.at(gene_index);
             const double value = data.counts.at(i,j);
-            if (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value) {
+            if (!gene_obj->visible() ||
+                    (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value)) {
                 continue;
             }
             ++num_genes;
