@@ -59,6 +59,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
 
     const bool is_dynamic =
             m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
+    const bool do_values = m_rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
 
     const auto &spots = m_geneData->spots();
     const auto &visibles = m_geneData->renderingVisible();
@@ -71,6 +72,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     const double min_value = m_rendering_settings.legend_min;
     const double max_value = m_rendering_settings.legend_max;
     const float intensity = m_rendering_settings.intensity;
+
     QPen pen;
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
@@ -81,12 +83,12 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
         if (visible) {
             const bool selected = selecteds.at(i);
             const double value = values.at(i);
-            const bool has_value = value > 0.0;
             QColor color = colors.at(i);
-            if (has_value) {
+            if (do_values) {
                 color = Color::adjustVisualMode(color, value, min_value,
                                                 max_value, m_rendering_settings.visual_mode);
-            } else if (!is_dynamic) {
+            }
+            if (!is_dynamic) {
                 color.setAlphaF(intensity);
             }
             pen.setColor(color);
