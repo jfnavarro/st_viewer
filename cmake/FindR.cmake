@@ -22,12 +22,6 @@
 # LIBRINSIDE_LIBRARIES
 # LIBRCPPARMADILLO_INCLUDE_DIRS
 
-    
-# look for the R executable
-find_program(LIBR_EXECUTABLE R)
-if(LIBR_EXECUTABLE-NOTFOUND)
-	message(FATAL_ERROR "Unable to locate R executable")
-endif()
 	
 # detection for OSX (look for R framework)
 if(APPLE)
@@ -45,6 +39,13 @@ if(APPLE)
 
 # detection for UNIX & Win32
 else()
+
+    # look for the R executable
+    find_program(LIBR_EXECUTABLE R)
+    if(LIBR_EXECUTABLE-NOTFOUND)
+        message(FATAL_ERROR "Unable to locate R executable")
+    endif()
+
     # ask R for the home path
     if(NOT LIBR_HOME)
         execute_process(
@@ -96,7 +97,7 @@ else()
 endif()
 
 if (LIBR_INCLUDE_DIRS)
-    message(STATUS "Found R: ${LIBR_INCLUDE_DIRS}")
+    message(STATUS "Found R include dir: ${LIBR_INCLUDE_DIRS}")
 elseif(LIBR_INCLUDE_DIRS)
     message(FATA_ERROR "R could not be found")
 endif()

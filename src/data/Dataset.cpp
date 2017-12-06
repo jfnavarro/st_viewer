@@ -224,7 +224,7 @@ void Dataset::load_data()
         m_data->init(m_data_file, m_spots_file);
     } catch (const std::exception &e) {
         qDebug() << "Error parsing data matrix or spot coordinates " << e.what();
-        throw e;
+        throw;
     }
 
     // Parse image alignment
