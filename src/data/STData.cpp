@@ -110,8 +110,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     try {
         m_data = read(filename);
     } catch (const std::exception &e) {
-        qDebug() << "Error parsing data file " << e.what();
-        throw e;
+        throw;
     }
 
     // parse the spot coordinates file (if any)
@@ -121,7 +120,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
             spots_dict = parseSpotsMap(spots_coordinates);
         } catch (const std::exception &e) {
             qDebug() << "Error parsing spots file " << e.what();
-            throw e;
+            throw;
         }
     }
 
