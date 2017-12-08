@@ -87,6 +87,9 @@ public:
                                        const int min_genes_spot,
                                        const int min_spots_gene);
 
+    // helper function to merge two data frames by genes
+    static STData::STDataFrame aggregate(const STDataFrame &dataA, const STDataFrame &dataB);
+
     // helper function to get the sum of non zeroes elements (by column, aka gene)
     static rowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
 

@@ -84,7 +84,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
             const bool selected = selecteds.at(i);
             const double value = values.at(i);
             QColor color = colors.at(i);
-            if (do_values) {
+            if (do_values && !spots.at(i)->visible()) {
                 color = Color::adjustVisualMode(color, value, min_value,
                                                 max_value, m_rendering_settings.visual_mode);
             }

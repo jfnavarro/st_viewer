@@ -293,7 +293,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     data.counts = data.counts.cols(uvec(to_keep_genes));
 
     // Early out
-    if (data.spots.empty() || data.genes.empty()) {
+    if (data.spots.empty() && data.genes.empty()) {
         return;
     }
 
@@ -338,7 +338,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             ++num_genes;
             merged_value += value;
             if (do_color) {
-
                 merged_color = STMath::lerp(1.0 / num_genes, merged_color, gene_obj->color());
             }
             any_gene_selected |= gene_obj->selected();
@@ -346,7 +345,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         // Update the color of the spot
         if (spot_obj->visible()) {
             merged_color = spot_obj->color();
-            merged_value = 0.0;
             visible = true;
         } else if (merged_value > 0.0) {
             // Use number of genes or total reads in the spot depending on settings
@@ -680,6 +678,59 @@ STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
 
     // Return the filtered data
     return sliced_data;
+}
+
+STData::STDataFrame STData::aggregate(const STDataFrame &dataA, const STDataFrame &dataB)
+{
+    QList<QString> merged_genes = (dataB.genes.toSet() + dataA.genes.toSet()).toList();
+    std::vector<uword> commonA;
+    std::vector<uword> commonB;
+    STDataFrame merged;
+
+    for (auto gene : merged_genes) {
+        const uword i = dataA.gene_index.value(gene, -1);
+        const uword j = dataB.gene_index.value(gene, -1);
+        commonB.push_back(i);
+        commonA.push_back(j);
+        merged.gene_index.insert(gene, merged.gene_index.size() - 1);
+    }
+
+    merged.genes = merged_genes;
+    const uword n_rowsA = dataA.counts.n_rows;
+    const uword n_rowsB = dataB.counts.n_rows;
+    const uword new_rows_size = n_rowsA + n_rowsB;
+    const uword new_cols_size = merged_genes.size();
+    merged.counts = mat(new_rows_size, new_cols_size);
+
+    for (uword i = 0; i < n_rowsA; ++i) {
+        for (uword j = 0; j < new_cols_size; ++j) {
+            double value = 0;
+            const uword index = commonA.at(j);
+            if (index != -1) {
+                value = dataA.counts(i,index);
+            }
+            merged.counts.at(i,j) = value;
+        }
+        const auto &spot = dataA.spots.at(i);
+        merged.spots.append(spot);
+        merged.spot_index.insert(spot, merged.spots.size() - 1);
+    }
+
+    for (uword i = n_rowsA; i < new_rows_size; ++i) {
+        for (uword j = 0; j < new_cols_size; ++j) {
+            double value = 0;
+            const uword index = commonB.at(j);
+            if (index != -1) {
+                value = dataB.counts(i,index);
+            }
+            merged.counts.at(i,j) = value;
+        }
+        const auto &spot = dataA.spots.at(i);
+        merged.spots.append(spot);
+        merged.spot_index.insert(spot, merged.spots.size() - 1);
+    }
+
+    return merged;
 }
 
 rowvec STData::computeNonZeroColumns(const mat &matrix, const int min_value)
