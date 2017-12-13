@@ -37,16 +37,10 @@ static double computeCorrelation(const std::vector<double> &A,
 }
 
 // Computes a DEA (Differential Expression Analysis with DESeq2) between two selections
-static void computeDEA(const mat &countsA,
-                       const mat &countsB,
-                       const std::vector<std::string> &rowsA,
-                       const std::vector<std::string> &rowsB,
-                       const std::vector<std::string> &colsA,
-                       const std::vector<std::string> &colsB,
-                       const int ind_reads_treshold,
-                       const int reads_threshold,
-                       const int genes_threshold,
-                       const int spots_threshold,
+static void computeDEA(const mat &data,
+                       const std::vector<std::string> &dataRows,
+                       const std::vector<std::string> &dataCols,
+                       const std::vector<std::string> &condition,
                        const SettingsWidget::NormalizationMode &normalization,
                        mat &results,
                        std::vector<std::string> &rows,
@@ -56,61 +50,40 @@ static void computeDEA(const mat &countsA,
     Q_ASSERT(R != nullptr);
     try {
         const std::string R_libs = "suppressMessages(library(DESeq2));"
-                                   "suppressMessages(library(plyr));"
                                    "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
-        (*R)["A"] = countsA;
-        (*R)["B"] = countsB;
-        (*R)["rowsA"] = rowsA;
-        (*R)["rowsB"] = rowsB;
-        (*R)["colsA"] = colsA;
-        (*R)["colsB"] = colsB;
-        (*R)["ind_reads_treshold"] = ind_reads_treshold;
-        (*R)["reads_threshold"] = reads_threshold;
-        (*R)["genes_threshold"] = genes_threshold;
-        (*R)["spots_threshold"] = spots_threshold;
-        std::string call = "A = as.data.frame(A);"
-                           "rownames(A) = paste('A', '_', rowsA, sep='');"
-                           "colnames(A) = colsA;"
-                           "B = as.data.frame(B);"
-                           "rownames(B) = paste('B', '_', rowsB, sep='');"
-                           "colnames(B) = colsB;"
-                           "merged = suppressMessages(rbind.fill(A, B));"
-                           "rownames(merged) = c(rownames(A), rownames(B));"
-                           "exp_values = as.matrix(t(merged));"
+        (*R)["counts"] = data;
+        (*R)["rows"] = dataRows;
+        (*R)["cols"] = dataCols;
+        (*R)["condition"] = condition;
+        std::string call = "exp_values = as.matrix(t(counts));"
                            "exp_values[is.na(exp_values)] = 0;"
+                           "exp_values[exp_values < 0] = 0;"
                            "exp_values = apply(exp_values, c(1,2), as.numeric);"
-                           "exp_values = exp_values[,colSums(exp_values != 0) > genes_threshold];"
-                           "exp_values = exp_values[,colSums(exp_values) > reads_threshold];"
-                           "exp_values = exp_values[rowSums(exp_values > ind_reads_treshold) > spots_threshold,];";
+                           "rownames(exp_values) = cols;";
         if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
-            call += "size_factors = estimateSizeFactorsForMatrix(exp_values);";
+            call += "dds = DESeqDataSetFromMatrix(countData=exp_values, "
+                    "colData=data.frame(condition=condition), design= ~ condition);";
         } else {
             call += "num_spots = dim(exp_values)[2];"
                     "sizes = vector(length=4);"
-                    "sizes[1] = floor((num_spots / 2) * 0.1);"
-                    "sizes[2] = floor((num_spots / 2) * 0.2);"
-                    "sizes[3] = floor((num_spots / 2) * 0.3);"
-                    "sizes[4] = floor((num_spots / 2) * 0.4);"
+                    "sizes[1] = ceiling((num_spots / 2) * 0.1);"
+                    "sizes[2] = ceiling((num_spots / 2) * 0.2);"
+                    "sizes[3] = ceiling((num_spots / 2) * 0.3);"
+                    "sizes[4] = ceiling((num_spots / 2) * 0.4);"
                     "sce = newSCESet(countData=exp_values);"
                     "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                     "sce = normalize(sce);"
-                    "size_factors = sce@phenoData$size_factor;";
+                    "dds = convertTo(sce, type='DESeq2');"
+                    "colData(dds)$condition = as.factor(condition);"
+                    "design(dds) = formula( ~ condition);";
         }
-        call += "size_factors[is.na(size_factors)] = 0.0;"
-                "size_factors[is.infinite(size_factors)] = 0.0;"
-                "size_factors[size_factors <= 0.0] = 1.0;"
-                "condition = c(rep('A', length(grep('A_', colnames(exp_values)))), rep('B', length(grep('B_', colnames(exp_values)))));"
-                "coldata = data.frame(row.names=colnames(exp_values), condition=condition);"
-                "dds = DESeqDataSetFromMatrix(countData=exp_values, colData=coldata, design=~condition);"
-                "dds@colData$sizeFactor = size_factors;"
-                "dds = estimateDispersions(dds, fitType='local');"
-                "dds = nbinomWaldTest(dds);"
+        call += "dds = DESeq(dds, fitType='mean', parallel=F);"
                 "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
                 "res = res[order(res$padj),];";
-        const std::string call2 = "values = as.matrix(res);";
-        const std::string call3 = "cols = colnames(res);";
-        const std::string call4 = "rows = rownames(res);";
+        const std::string call2 = "as.matrix(res);";
+        const std::string call3 = "colnames(res);";
+        const std::string call4 = "rownames(res);";
         R->parseEvalQ(call);
         results = Rcpp::as<mat>(R->parseEval(call2));
         cols = Rcpp::as<std::vector<std::string>>(R->parseEval(call3));
@@ -257,10 +230,10 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
         const std::string call = "counts = t(counts);"
                                  "num_spots = dim(counts)[2];"
                                  "sizes = vector(length=4);"
-                                 "sizes[1] = floor((num_spots / 2) * 0.1);"
-                                 "sizes[2] = floor((num_spots / 2) * 0.2);"
-                                 "sizes[3] = floor((num_spots / 2) * 0.3);"
-                                 "sizes[4] = floor((num_spots / 2) * 0.4);"
+                                 "sizes[1] = ceiling((num_spots / 2) * 0.1);"
+                                 "sizes[2] = ceiling((num_spots / 2) * 0.2);"
+                                 "sizes[3] = ceiling((num_spots / 2) * 0.3);"
+                                 "sizes[4] = ceiling((num_spots / 2) * 0.4);"
                                  "sce = newSCESet(countData=counts);"
                                  "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                                  "sce = normalize(sce);"

@@ -358,10 +358,17 @@ void UserSelectionsPage::slotPerformDEA()
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
 
+    //TODO here we should launch a simple two tables widget to choose
+    //what selections go in each comparison and then launch the DEA widget
+    //with the two lists
+
+    QList<STData::STDataFrame> sels1 { selectionObject1.data() };
+    QList<STData::STDataFrame> sels2 { selectionObject2.data() };
+
     // launch the DEA widget
     AnalysisDEA *deaWidget(
-                new AnalysisDEA(selectionObject1.data(),
-                                selectionObject2.data(),
+                new AnalysisDEA(sels1,
+                                sels2,
                                 selectionObject1.name(),
                                 selectionObject2.name(),
                                 this,

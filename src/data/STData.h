@@ -30,10 +30,10 @@ public:
     struct STDataFrame {
         mat counts;
         QList<QString> genes;
-        QList<Spot::SpotType> spots;
+        QList<QString> spots;
         // use hash tables for look-ups (spot and gene to matrix index)
         // so to not have to search the QLists
-        QHash<Spot::SpotType, uword> spot_index;
+        QHash<QString, uword> spot_index;
         QHash<QString, uword> gene_index;
     };
 
@@ -64,7 +64,7 @@ public:
     // to parse a file with spots coordinates old_spot -> new_spot
     // It returns a map of old_spots -> new_spots
     // It throws exceptions when errors during parsing or empty file
-    QMap<Spot::SpotType, Spot::SpotType> parseSpotsMap(const QString &spots_file);
+    QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
     // to parse a file with spike-in factors (one per spot)
     // it returns bool if the parsing was okay and the number of factors is the same as rows
@@ -75,10 +75,10 @@ public:
     bool parseSizeFactors(const QString &sizefactors);
 
     // helper slicing functions (assumes the spots and genes lists given are present in the data)
-    static STDataFrame sliceDataFrame(const STDataFrame &data,
-                                      const QList<Spot::SpotType> &spots);
-    static STDataFrame sliceDataFrame(const STDataFrame &data,
-                                      const QList<QString> &genes);
+    static STDataFrame sliceDataFrameGenes(const STDataFrame &data,
+                                           const QList<QString> &spots);
+    static STDataFrame sliceDataFrameSpots(const STDataFrame &data,
+                                           const QList<QString> &genes);
 
     // helper function to filter out a data frame using thresholds
     static STDataFrame filterDataFrame(const STDataFrame &data,
@@ -87,8 +87,9 @@ public:
                                        const int min_genes_spot,
                                        const int min_spots_gene);
 
-    // helper function to merge two data frames by genes
-    static STData::STDataFrame aggregate(const STDataFrame &dataA, const STDataFrame &dataB);
+    // helper function to merge a list of data frames into one (by common genes)
+    // the spots (rows) will have the index of the dataset append (1_,2_..)
+    static STData::STDataFrame aggregate(const QList<STDataFrame> &datasets);
 
     // helper function to get the sum of non zeroes elements (by column, aka gene)
     static rowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
@@ -105,13 +106,13 @@ public:
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
-    void selectSpots(const QList<Spot::SpotType> &spots);
+    void selectSpots(const QList<QString> &spots);
     void selectSpots(const QList<unsigned> &spots_indexes);
     void selectGenes(const QRegExp &regexp, const bool force = true);
     void selectGenes(const QList<QString> &genes);
 
     // functions to change spot and gene colors
-    void loadSpotColors(const QHash<Spot::SpotType,QColor> &colors);
+    void loadSpotColors(const QHash<QString, QColor> &colors);
     void loadGeneColors(const QHash<QString, QColor> &colors);
 
     // returns the boundaries (min spot and max spot)

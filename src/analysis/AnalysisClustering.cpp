@@ -70,18 +70,18 @@ void AnalysisClustering::clear()
     m_reduced_coordinates.clear();
 }
 
-QMultiHash<unsigned, Spot::SpotType> AnalysisClustering::getClustersSpot() const
+QMultiHash<unsigned, QString> AnalysisClustering::getClustersSpot() const
 {
-    QMultiHash<unsigned, Spot::SpotType> computed_colors;
+    QMultiHash<unsigned, QString> computed_colors;
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         computed_colors.insert(m_colors.at(i), m_spots.at(i));
     }
     return computed_colors;
 }
 
-QHash<Spot::SpotType, QColor> AnalysisClustering::getSpotClusters() const
+QHash<QString, QColor> AnalysisClustering::getSpotClusters() const
 {
-    QHash<Spot::SpotType, QColor> computed_colors;
+    QHash<QString, QColor> computed_colors;
     Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors))
              < Color::color_list.size());
     for (unsigned i = 0; i < m_colors.size(); ++i) {
@@ -90,7 +90,7 @@ QHash<Spot::SpotType, QColor> AnalysisClustering::getSpotClusters() const
     return computed_colors;
 }
 
-QList<Spot::SpotType> AnalysisClustering::selectedSpots() const
+QList<QString> AnalysisClustering::selectedSpots() const
 {
     return m_selected_spots;
 }
