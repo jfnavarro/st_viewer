@@ -107,15 +107,11 @@ No installers/binaries are provided for now.
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
-	        ```
 		tar -xvf armadillo-x.xxx.x.tar.xz
-			
 		cd armadillo-x.xxx.x
-		
 		./configure
-		
 		make
-		```
+
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
