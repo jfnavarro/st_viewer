@@ -92,13 +92,9 @@ No installers/binaries are provided for now.
 	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
 	
 		tar -xvzf cmake-3.7.2.tar
-		
 		cd cmake-3.7.2
-		
 		./configure
-		
 		make -j4
-		
 		sudo make install
 
 * Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location)
@@ -111,10 +107,10 @@ No installers/binaries are provided for now.
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
-		tar -xvf armadillo-x.xxx.x.tar.xz
-		cd armadillo-x.xxx.x
-		./configure
-		make
+			tar -xvf armadillo-x.xxx.x.tar.xz
+			cd armadillo-x.xxx.x
+			./configure
+			make
 
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
