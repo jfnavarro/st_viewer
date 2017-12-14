@@ -31,10 +31,6 @@ public:
         mat counts;
         QList<QString> genes;
         QList<QString> spots;
-        // use hash tables for look-ups (spot and gene to matrix index)
-        // so to not have to search the QLists
-        QHash<QString, uword> spot_index;
-        QHash<QString, uword> gene_index;
     };
 
     STData();
@@ -107,7 +103,7 @@ public:
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
     void selectSpots(const QList<QString> &spots);
-    void selectSpots(const QList<unsigned> &spots_indexes);
+    void selectSpots(const QList<int> &spots_indexes);
     void selectGenes(const QRegExp &regexp, const bool force = true);
     void selectGenes(const QList<QString> &genes);
 
@@ -143,6 +139,11 @@ private:
     // each index in each vector correspond to a row index or column index in the matrix
     SpotListType m_spots;
     GeneListType m_genes;
+
+    // use hash tables for look-ups (spot and gene to matrix index)
+    // so to not have to search the QLists
+    QHash<QString, int> m_spot_index;
+    QHash<QString, int> m_gene_index;
 
     // rendering data
     QVector<bool> m_rendering_selected;
