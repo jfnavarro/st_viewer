@@ -107,13 +107,15 @@ No installers/binaries are provided for now.
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
-	        ```tar -xvf armadillo-x.xxx.x.tar.xz
+	        ```
+		tar -xvf armadillo-x.xxx.x.tar.xz
 			
 		cd armadillo-x.xxx.x
 		
 		./configure
 		
-		make```
+		make
+		```
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
@@ -230,6 +232,8 @@ No installers/binaries are provided for now.
   DARMADILLO_PATH = indicates where armadillo was extracted
   
     eg: "C:\\armadillo"
+    
+  ../st_viewer = is the path where the ST Viewer was cloned/downloaded
 		
 * Now build and install the ST Viewer by typing:
 
