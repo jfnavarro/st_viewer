@@ -38,7 +38,7 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
         series_genes->setMarkerSize(10.0);
         series_genes->setUseOpenGL(false);
 
-        const auto &spot = data.spots.at(i);
+        const auto &spot = Spot::getCoordinates(data.spots.at(i));
         const float value_reads = spot_reads.at(i);
         const float value_genes = spot_genes.at(i);
         const QColor color_reads = Color::createCMapColor(value_reads, min_reads,

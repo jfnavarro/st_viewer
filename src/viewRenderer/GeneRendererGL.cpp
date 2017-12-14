@@ -77,14 +77,14 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
         const bool visible = visibles.at(i);
-        const auto spot  = spots.at(i)->adj_coordinates();
+        const auto spot  = spots.at(i)->coordinates();
         const double x = spot.first;
         const double y = spot.second;
         if (visible) {
             const bool selected = selecteds.at(i);
             const double value = values.at(i);
             QColor color = colors.at(i);
-            if (do_values) {
+            if (do_values && !spots.at(i)->visible()) {
                 color = Color::adjustVisualMode(color, value, min_value,
                                                 max_value, m_rendering_settings.visual_mode);
             }

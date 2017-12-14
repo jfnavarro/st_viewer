@@ -13,24 +13,24 @@
 #include <QMenu>
 #include <QClipboard>
 
-#include <string>
-
 #include "math/RInterface.h"
 
 #include "ui_analysisDEA.h"
 
-AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
-                         const STData::STDataFrame &data2,
+AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
+                         const QList<STData::STDataFrame> &datasetsB,
                          const QString &nameA,
                          const QString &nameB,
                          QWidget *parent,
                          Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::analysisDEA)
-    , m_dataA(data1)
-    , m_dataB(data2)
+    , m_data()
+    , m_conditions()
     , m_nameA(nameA)
     , m_nameB(nameB)
+    , m_neleA(0)
+    , m_neleB(0)
     , m_normalization(SettingsWidget::NormalizationMode::DESEQ)
     , m_reads_threshold(-1)
     , m_genes_threshold(-1)
@@ -51,6 +51,11 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &data1,
     m_ui->conditionA->setText(m_nameA);
     m_ui->conditionB->setText(m_nameB);
     m_proxy.reset(new QSortFilterProxyModel());
+
+    // merge datasets
+    m_data = STData::aggregate(datasetsA + datasetsB);
+    m_neleA = datasetsA.size();
+    m_neleB = datasetsB.size();
 
     // create connections
     connect(m_ui->searchField,
@@ -275,41 +280,63 @@ void AnalysisDEA::updateTable()
 
 void AnalysisDEA::run()
 {
-    bool recompute = false;
+    bool recomputeFilter = false;
+    bool recomputeNorm = false;
 
     if (m_ui->normalization_deseq->isChecked()
             && m_normalization != SettingsWidget::NormalizationMode::DESEQ) {
         m_normalization = SettingsWidget::NormalizationMode::DESEQ;
-        recompute = true;
+        recomputeNorm = true;
     }
 
     if (m_ui->normalization_scran->isChecked() &&
             m_normalization != SettingsWidget::NormalizationMode::SCRAN) {
         m_normalization = SettingsWidget::NormalizationMode::SCRAN;
-        recompute = true;
+        recomputeNorm = true;
     }
 
     if (m_reads_threshold != m_ui->reads_threshold->value()) {
         m_reads_threshold = m_ui->reads_threshold->value();
-        recompute = true;
+        recomputeFilter = true;
     }
 
     if (m_genes_threshold != m_ui->genes_threshold->value()) {
         m_genes_threshold = m_ui->genes_threshold->value();
-        recompute = true;
+        recomputeFilter = true;
     }
 
     if (m_ind_reads_treshold != m_ui->individual_reads_threshold->value()) {
         m_ind_reads_treshold = m_ui->individual_reads_threshold->value();
-        recompute = true;
+        recomputeFilter = true;
     }
 
     if (m_spots_threshold != m_ui->spots_threshold->value()) {
         m_spots_threshold = m_ui->spots_threshold->value();
-        recompute = true;
+        recomputeFilter = true;
     }
 
-    if (recompute) {
+    STData::STDataFrame data = m_data;
+    if (recomputeFilter || recomputeNorm) {
+        // filter the data
+        data = STData::filterDataFrame(data,
+                                       m_ind_reads_treshold,
+                                       m_reads_threshold,
+                                       m_genes_threshold,
+                                       m_spots_threshold);
+        // recompute conditions
+        m_conditions.clear();
+        for (const auto &spot : data.spots) {
+            if (spot.split("_").first().toInt() < m_neleA) {
+                m_conditions.push_back("A");
+            } else {
+                m_conditions.push_back("B");
+            }
+        }
+        // clear plot and table
+        m_ui->plot->chart()->removeAllSeries();
+        m_proxy->clear();
+        m_ui->tableview->reset();
+        m_ui->tableview->update();
         // initialize progress bar
         m_ui->progressBar->setRange(0,0);
         // disable controls
@@ -317,37 +344,29 @@ void AnalysisDEA::run()
         m_ui->exportTable->setEnabled(false);
         m_ui->searchField->setEnabled(false);
         // initialize worker
-        QFuture<void> future = QtConcurrent::run(this, &AnalysisDEA::runDEAAsync);
+        QFuture<void> future = QtConcurrent::run(this, &AnalysisDEA::runDEAAsync, data);
         m_watcher.setFuture(future);
     } else {
         slotDEAComputed();
     }
 }
 
-void AnalysisDEA::runDEAAsync()
+void AnalysisDEA::runDEAAsync(const STData::STDataFrame &data)
 {
     // Convert rows and columns to a format that R understands
-    std::vector<std::string> rowsA;
-    std::vector<std::string> rowsB;
-    std::vector<std::string> colsA;
-    std::vector<std::string> colsB;
-    std::transform(m_dataA.spots.begin(), m_dataA.spots.end(), std::back_inserter(rowsA),
-                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
-    std::transform(m_dataB.spots.begin(), m_dataB.spots.end(), std::back_inserter(rowsB),
-                   [](auto spot) {return std::to_string(spot.first) + std::to_string(spot.second);});
-    std::transform(m_dataA.genes.begin(), m_dataA.genes.end(), std::back_inserter(colsA),
-                   [](auto gene) {return gene.toStdString();});
-    std::transform(m_dataB.genes.begin(), m_dataB.genes.end(), std::back_inserter(colsB),
+    std::vector<std::string> rows;
+    std::vector<std::string> cols;
+    std::transform(data.spots.begin(), data.spots.end(), std::back_inserter(rows),
+                   [](auto spot) {return spot.toStdString();});
+    std::transform(data.genes.begin(), data.genes.end(), std::back_inserter(cols),
                    [](auto gene) {return gene.toStdString();});
 
-    qDebug() << "Computing DEA Asynchronously. Dataset A, rows="
-             << m_dataA.counts.n_rows << ", columns=" << m_dataA.counts.n_cols << ". Dataset B, rows="
-             << m_dataB.counts.n_rows << ", columns=" << m_dataB.counts.n_cols;
+    qDebug() << "Computing DEA Asynchronously. Rows="
+             << data.counts.n_rows << ", columns=" << data.counts.n_cols;
 
     // Make the DEA call
-    RInterface::computeDEA(m_dataA.counts, m_dataB.counts, rowsA, rowsB, colsA, colsB,
-                           m_ind_reads_treshold, m_reads_threshold, m_genes_threshold, m_spots_threshold,
-                           m_normalization, m_results, m_results_rows, m_results_cols);
+    RInterface::computeDEA(data.counts, rows, cols, m_conditions, m_normalization,
+                           m_results, m_results_rows, m_results_cols);
 }
 
 void AnalysisDEA::slotDEAComputed()

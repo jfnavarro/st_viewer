@@ -411,7 +411,7 @@ void CellViewPage::slotLoadSpotColorsFile()
         return;
     }
 
-    QHash<Spot::SpotType, QColor> spotMap;
+    QHash<QString, QColor> spotMap;
     QFile file(filename);
     bool parsed = true;
     // Parse the spots map = spot -> color
@@ -428,14 +428,7 @@ void CellViewPage::slotLoadSpotColorsFile()
             }
             const QString spot = fields.at(0);
             const QColor color = Color::color_list.at(fields.at(1).toInt());
-            fields = spot.split("x");
-            if (fields.length() != 2) {
-                parsed = false;
-                break;
-            }
-            const float x = fields.at(0).toFloat();
-            const float y = fields.at(1).toFloat();
-            spotMap.insert(Spot::SpotType(x, y), color);
+            spotMap.insert(spot, color);
         }
 
         if (spotMap.empty()) {
@@ -544,14 +537,14 @@ void CellViewPage::slotSelectSpotsClustering()
 void CellViewPage::slotCreateClusteringSelections()
 {
     // get the map of color -> spots
-    const QMultiHash<unsigned, Spot::SpotType> colors_spot = m_clustering->getClustersSpot();
+    const QMultiHash<unsigned, QString> colors_spot = m_clustering->getClustersSpot();
     // get the data frame
     auto data = m_dataset.data()->data();
     for(const auto &color : colors_spot.uniqueKeys()) {
         // get the spots for the color
-        const QList<Spot::SpotType> &color_spots = colors_spot.values(color);
+        const QList<QString> &color_spots = colors_spot.values(color);
         // slice the data frame
-        STData::STDataFrame scliced_data = STData::sliceDataFrame(data, color_spots);
+        STData::STDataFrame scliced_data = STData::sliceDataFrameSpots(data, color_spots);
         // create selection object
         UserSelection new_selection(scliced_data);
         // proposes as selection name as DATASET NAME + color + current timestamp
@@ -566,11 +559,11 @@ void CellViewPage::slotCreateClusteringSelections()
 void CellViewPage::slotCreateSelection()
 {
     // get the selected spots
-    QList<Spot::SpotType> selected_spots =
-            QtConcurrent::blockingFilteredReduced<QList<Spot::SpotType> >(
+    QList<QString> selected_spots =
+            QtConcurrent::blockingFilteredReduced<QList<QString> >(
                 m_dataset.data()->spots(),
                 [] (const auto spot) { return spot->selected(); },
-                [] (auto &list, const auto spot) { list.push_back(spot->coordinates()); });
+                [] (auto &list, const auto spot) { list.push_back(spot->name()); });
     // early out
     if (selected_spots.empty()) {
         return;
@@ -578,7 +571,7 @@ void CellViewPage::slotCreateSelection()
     // get the data frame
     auto data = m_dataset.data()->data();
     // slice the data frame
-    STData::STDataFrame scliced_data = STData::sliceDataFrame(data, selected_spots);
+    STData::STDataFrame scliced_data = STData::sliceDataFrameSpots(data, selected_spots);
     // create selection object
     UserSelection new_selection(scliced_data);
     // proposes as selection name as DATASET NAME plus current timestamp

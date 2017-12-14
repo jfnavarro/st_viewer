@@ -50,7 +50,8 @@ QColor adjustVisualMode(const QColor merged_color,
 static QStringList color_list = (QStringList() << "red" << "green"
                                  << "blue" << "cyan" << "magenta"
                                  << "yellow" << "black" << "grey"
-                                 << "darkBlue" << "darkGreen");
+                                 << "darkBlue" << "darkGreen" << "darkRed"
+                                 << "darkCyan" << "darkYellow" << "darkMagenta");
 }
 
 #endif // HEATMAP_H //

@@ -15,8 +15,7 @@ public:
     typedef QPair<float,float> SpotType;
 
     Spot();
-    Spot(const float x, const float y);
-    Spot(const SpotType coordinates);
+    Spot(const QString name);
     explicit Spot(const Spot &other);
     ~Spot();
 
@@ -25,9 +24,7 @@ public:
 
     // the spot's coordinates
     SpotType coordinates() const;
-    // the spot's adjusted coordinates
-    SpotType adj_coordinates() const;
-    // name returns the X and Y coordiantes as a string
+    // the spot's coordinates as a string
     QString name() const;
     // the spot's color
     QColor color() const;
@@ -39,20 +36,19 @@ public:
     float totalCount() const;
 
     // Setters
-    void coordinates(const float x, const float y);
-    void coordinates(const SpotType &coordinates);
-    void adj_coordinates(const float x, const float y);
-    void adj_coordinates(const SpotType &coordinates);
     void color(const QColor color);
     void visible(const bool visible);
     void selected(const bool selected);
     void name(const QString &name);
     void totalCount(const float totalCoun);
 
+    // helper method to get coordinates (x,y) from a spot
+    static SpotType getCoordinates(const QString &spot);
+    // helper method to string representation (XxY) of a spot
+    static QString getSpot(const SpotType &spot);
+
 private:
-    void updateName();
     SpotType m_coordinates;
-    SpotType m_adj_coordinates;
     bool m_visible;
     bool m_selected;
     QColor m_color;

@@ -6,6 +6,8 @@
 #include <QSortFilterProxyModel>
 #include <QFutureWatcher>
 
+#include <string>
+
 #include "data/STData.h"
 
 namespace Ui
@@ -23,8 +25,8 @@ class AnalysisDEA : public QWidget
 
 public:
 
-    AnalysisDEA(const STData::STDataFrame &data1,
-                const STData::STDataFrame &data2,
+    AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
+                const QList<STData::STDataFrame> &datasetsB,
                 const QString &nameA,
                 const QString &nameB,
                 QWidget *parent = nullptr,
@@ -52,7 +54,7 @@ private:
 
     // to initialize the data (DE genes and volcano plot)
     void run();
-    void runDEAAsync();
+    void runDEAAsync(const STData::STDataFrame &data);
     void updateTable();
     void updatePlot();
 
@@ -60,10 +62,12 @@ private:
     QScopedPointer<Ui::analysisDEA> m_ui;
 
     // the merged data frame and the selections names
-    STData::STDataFrame m_dataA;
-    STData::STDataFrame m_dataB;
+    STData::STDataFrame m_data;
+    std::vector<std::string> m_conditions;
     QString m_nameA;
     QString m_nameB;
+    int m_neleA;
+    int m_neleB;
 
     // cache the settings to not recompute always
     SettingsWidget::NormalizationMode m_normalization;
