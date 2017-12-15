@@ -4,6 +4,7 @@ set(LIBRARY_ARG_INCLUDES
   AnalysisCorrelation.h
   AnalysisClustering.h
   AnalysisScatter.h
+  AnalysisPCA.h
   ChartView.h
 )
 
@@ -13,6 +14,7 @@ set(LIBRARY_ARG_SOURCES
   AnalysisCorrelation.cpp
   AnalysisClustering.cpp
   AnalysisScatter.cpp
+  AnalysisPCA.cpp
   ChartView.cpp
 )
 

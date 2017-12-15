@@ -686,10 +686,17 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &datasets)
     unsigned spot_counter = 0;
     for (unsigned d = 0; d < datasets.size(); ++d) {
         const auto data = datasets.at(d);
+        std::vector<uword> gene_indexes;
         for (uword i = 0; i < data.counts.n_rows; ++i) {
             for (uword j = 0; j < n_cols; ++j) {
                 const auto &gene = merged.genes.at(j);
-                const int index = data.genes.indexOf(gene);
+                int index;
+                if (i == 0) {
+                    index = data.genes.indexOf(gene);
+                    gene_indexes.push_back(index);
+                } else {
+                    index = gene_indexes.at(j);
+                }
                 if (index != -1) {
                     merged.counts.at(spot_counter, j) = data.counts(i, index);
                 }

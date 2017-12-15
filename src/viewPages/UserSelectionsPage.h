@@ -64,6 +64,10 @@ private slots:
     void slotQC();
     // slot to show the Scatter plot of genes and reads
     void slotScatter();
+    // slot to perform a PCA on several selections
+    void slotPCA();
+    // slot to merge several selections into one
+    void slotMerge();
     // to import a selection from a file
     void slotImportSelection();
 

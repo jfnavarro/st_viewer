@@ -96,6 +96,31 @@ static void computeDEA(const mat &data,
     }
 }
 
+// Simply computes a PCA for the given matrix of counts
+static void PCA(const mat &counts,
+                const bool scale,
+                const bool center,
+                mat &results)
+{
+    RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
+    try {
+        (*R)["counts"] = counts;
+        (*R)["scale"] = scale;
+        (*R)["center"] = center;
+        const std::string call = "pcs = prcomp(counts, center=center, scale.=scale);"
+                                 "out = predict(pcs);"
+                                 "out[,1:2];";
+        results = Rcpp::as<mat>(R->parseEval(call));
+        qDebug() << "Computed PCA " << results.n_rows;
+        Q_ASSERT(results.n_rows == counts.n_rows);
+    } catch (const std::exception &e) {
+        qDebug() << "Error doing R PCA " << e.what();
+    } catch (...) {
+        qDebug() << "Unknown error computing R PCA";
+    }
+}
+
 // Classifies spots based on gene expression (tSNE or PCA + KMeans or HClust)
 static void spotClassification(const mat &counts,
                                const bool tsne,
