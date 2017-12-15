@@ -18,8 +18,8 @@ to later do DEA or spot classification using machine learning.
 
 The ST viewer uses the data generated with the ST Pipeline 
 https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
-which consist of a matrix of counts in TSV format where genes are rows and spot coordinates 
-are columns in the fllowing form: 
+which consist of a matrix of counts in TSV format where genes are 
+columns and spot coordinates are rows in the fllowing form: 
 
 eg. 1x2 
 
@@ -39,9 +39,9 @@ positions and/or to only show the spots under the tissue. This file is compatibl
 with the output format of the ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
-"Import dataset" then a dialog form will be shown where you can load the ST data, the HE
+"Import dataset" then a dialog form will be shown where you can load the matrix of counts, the HE
 image and other files. You can also download a dataset automatically
-if its files are inside a folder with the option "Load folder" and you
+if its files are inside a folder with the option "Load folder" or you
 can use a meta-file to load a dataset. The meta-file must describe where
 all the dataset's files are and it should have the following JSON format:
 
@@ -107,13 +107,11 @@ No installers/binaries are provided for now.
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
-	        tar -xvf armadillo-x.xxx.x.tar.xz
-			
-		cd armadillo-x.xxx.x
-		
-		./configure
-		
-		make
+			tar -xvf armadillo-x.xxx.x.tar.xz
+			cd armadillo-x.xxx.x
+			./configure
+			make
+
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 
@@ -132,7 +130,8 @@ No installers/binaries are provided for now.
 ###### OSX
 
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
-  If needed you can install them from the Apple store (https://developer.apple.com/xcode/). I recommend to update the latest version of XCode.  
+  If needed you can install them from the Apple store (https://developer.apple.com/xcode/). 
+  I recommend to update to the latest version of XCode.  
 
 * Clone the repository to a specific folder and build the application
 
@@ -204,18 +203,18 @@ No installers/binaries are provided for now.
  
 	git clone https://github.com/jfnavarro/st_viewer.git
 	
-* Make sure that your PATH environment contains Rtools' bin, Rtools MinGW's bin and R's bin
+* Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
-* Make sure that you do not have another MinGW on the PATH variable
+* Make sure that you do not have another MinGW in your PATH variable
 
 * Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
  
 * Open a windows terminal (cmd.exe)
 
-* Create a build directory and cd into it
-	
-* Type: 
-	
+* Type the following 
+
+		mkdir build
+		cd build
 		cmake -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/path/to/libraries" -DARMADILLO_PATH="C:\\armadillo" ../st_viewer
 	
   Where:
@@ -229,6 +228,8 @@ No installers/binaries are provided for now.
   DARMADILLO_PATH = indicates where armadillo was extracted
   
     eg: "C:\\armadillo"
+    
+  ../st_viewer = is the path where the ST Viewer was cloned/downloaded
 		
 * Now build and install the ST Viewer by typing:
 
