@@ -143,6 +143,7 @@ if(APPLE)
     # Set project name of binary dir for OSX
     set(OS_X_PROJECT_BINARY_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app")
     set(CMAKE_INSTALL_PREFIX ${OS_X_PROJECT_BINARY_DIR}/Contents)
+    set(DMG_DIR ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
     set(MACOSX_BUNDLE_ICON_NAME "st_icon.icns")
 
@@ -186,6 +187,19 @@ if(APPLE)
         COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
     add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
 
+    # Build dmg
+    add_custom_target(dmg
+        COMMAND mkdir -p ${DMG_DIR}
+        COMMAND cp -R ${OS_X_PROJECT_BINARY_DIR} ${DMG_DIR}/
+        COMMAND ln -sf /Applications ${DMG_DIR}
+        COMMAND cp ${CMAKE_SOURCE_DIR}/assets/images/st_icon.icns .VolumeIcon.icns
+        COMMAND cp ${CMAKE_SOURCE_DIR}/LICENSE ${DMG_DIR}
+        COMMAND cp ${CMAKE_SOURCE_DIR}/DEPENDENCIES ${DMG_DIR}
+        COMMAND hdiutil create ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-${CMAKE_BUILD_TYPE}-${PROJECT_VERSION}.dmg -srcfolder ${DMG_DIR}
+        DEPENDS ${PROJECT_NAME}
+        COMMENT "Create DMG image"
+    )
+
 endif(APPLE)
 
 if(WIN32)
@@ -199,6 +213,36 @@ if(WIN32)
     set(PLUGINS_IN_CATEGORY_imageformats qgif qico qjpeg qsvg)
     set(PLUGINS_IN_CATEGORY_printsupport windowsprintersupport)
     set(PLUGINS_IN_CATEGORY_platforms qwindows)
+
+    set(CPACK_GENERATOR "NSIS") # Distribution packaging formats ("make package")
+    #set(CPACK_NSIS_MODIFY_PATH "ON")
+    set(CPACK_NSIS_CONTACT "Jose Fernandez <jose.fernandez.navarro@scilifelab.se>")
+    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME})
+    set(CPACK_NSIS_DISPLAY_NAME "Spatial Transcriptoimcs Viewer")
+    # Right now we are invoking Windows CMake from inside Cygwin.
+    # Maybe that is why we need to replace the "/" with "\\\\"?
+    string(REPLACE "/" "\\\\" source_dir_windows "${CMAKE_SOURCE_DIR}")
+    set(CPACK_NSIS_MUI_UNICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_MUI_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_PACKAGE_ICON "${source_dir_windows}\\\\assets\\\\images\\\\st_icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "\\\\${PROJECT_NAME}.exe")
+    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    set(CPACK_NSIS_PAGE_COMPONENTS "
+        !define MUI_FINISHPAGE_RUN \\\"$INSTDIR\\\\${PROJECT_NAME}.exe\\\"
+        !define MUI_STARTMENUPAGE_NODISABLE")
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+        CreateShortCut \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
+        CreateShortCut \\\"\\\$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"\\\$INSTDIR\\\\${PROJECT_NAME}.exe\\\" \\\"\\\" \\\"\\\$INSTDIR\\\\st_icon.ico\\\"
+    ")
+
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}
+        Delete \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\\${PROJECT_NAME}.lnk\\\"
+        Delete \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\\Uninstall.lnk \\\"
+        RmDir \\\"$SMPROGRAMS\\\\${PROJECT_NAME}\\\"
+        Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
+        Delete \\\"\\\$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_NAME}.lnk\\\"
+    ")
 
     # Install system libs
     install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION .)
