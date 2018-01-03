@@ -59,7 +59,7 @@ all the dataset's files are and it should have the following JSON format:
 	}
 
 After that you can just double click in the dataset to open it. 
-(more detailed information about this in the soon to come manual).
+(more detailed information about this in the wiki).
 
 You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
 if you want to try the ST Viewer.
@@ -71,9 +71,7 @@ Read AUTHORS file
 Read DEPENDENCIES file
 
 ## Manual
-See the document manual_old.pdf for more information on how to use the ST Viewer.
-Currently the manual is a bit outdated and a new updated
-manual is being created and will be shared soon.
+See Wiki
 
 ## License
 See LICENSE for the license terms and DEPENDENCIES for the 3rd party
