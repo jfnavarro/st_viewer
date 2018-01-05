@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>837</width>
+    <width>1113</width>
     <height>320</height>
    </rect>
   </property>
@@ -24,16 +24,7 @@
     <normaloff>:/images/st_icon.png</normaloff>:/images/st_icon.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item>
@@ -42,16 +33,7 @@
       <string notr="true"/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
@@ -171,7 +153,7 @@ border-radius: 5px;
 background-color: rgb(255, 255, 255); 
 selection-background-color: darkgray;</string>
            </property>
-           <property name="clearButtonEnabled">
+           <property name="clearButtonEnabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -219,7 +201,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/show_spots.png</normaloff>:/images/show_spots.png</iconset>
            </property>
            <property name="iconSize">
@@ -263,7 +245,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/show_genes.png</normaloff>:/images/show_genes.png</iconset>
            </property>
            <property name="iconSize">
@@ -307,7 +289,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/histogram2.png</normaloff>:/images/histogram2.png</iconset>
            </property>
            <property name="iconSize">
@@ -351,8 +333,49 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/scatter.png</normaloff>:/images/scatter.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pca">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Perform a PCA analysis </string>
+           </property>
+           <property name="statusTip">
+            <string>Perform a PCA analysis </string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/pca.png</normaloff>:/images/pca.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -395,7 +418,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/correlation.png</normaloff>:/images/correlation.png</iconset>
            </property>
            <property name="iconSize">
@@ -436,8 +459,49 @@ selection-background-color: darkgray;</string>
             <string>Perform a Differential Expression analysis</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/DEA.png</normaloff>:/images/DEA.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="merge">
+           <property name="minimumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>35</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="toolTip">
+            <string>Merge datasets into one</string>
+           </property>
+           <property name="statusTip">
+            <string>Merge datasets into one</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
+             <normaloff>:/images/merge.png</normaloff>:/images/merge.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -480,7 +544,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
            </property>
            <property name="iconSize">
@@ -524,7 +588,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
            </property>
            <property name="iconSize">
@@ -568,7 +632,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
            </property>
            <property name="iconSize">
@@ -612,7 +676,7 @@ selection-background-color: darkgray;</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc">
              <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
            </property>
            <property name="iconSize">
@@ -757,7 +821,7 @@ selection-background-color: darkgray;</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../build-st_viewer-Desktop_Qt_5_9_2_clang_64bit-Debug/application.qrc"/>
+  <include location="../../../build-st_viewer-Desktop_Qt_5_9_3_clang_64bit-Debug/application.qrc"/>
  </resources>
  <connections/>
 </ui>

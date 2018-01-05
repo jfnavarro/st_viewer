@@ -77,7 +77,7 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     painter.setBrush(Qt::NoBrush);
     for (int i = 0; i < spots.size(); ++i) {
         const bool visible = visibles.at(i);
-        const auto spot  = spots.at(i)->coordinates();
+        const auto spot  = spots.at(i)->adj_coordinates();
         const double x = spot.first;
         const double y = spot.second;
         if (visible) {

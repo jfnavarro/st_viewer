@@ -4,9 +4,6 @@
 #include <QValueAxis>
 #include <QFuture>
 #include <QtConcurrent>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QPdfWriter>
 #include <QMultiHash>
 #include <QHash>
 
@@ -135,44 +132,7 @@ void AnalysisClustering::slotComputeClusters()
 
 void AnalysisClustering::slotExportPlot()
 {
-    const QString filename = QFileDialog::getSaveFileName(this,
-                                                          tr("Save Clustering Plot"),
-                                                          QDir::homePath(),
-                                                          QString("%1;;%2;;%3;;%4")
-                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
-                                                          .arg(tr("PNG Image Files (*.png)"))
-                                                          .arg(tr("BMP Image Files (*.bmp)"))
-                                                          .arg(tr("PDF Image Files (*.pdf)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    const QFileInfo fileInfo(filename);
-    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
-    if (!fileInfo.exists() && !dirInfo.isWritable()) {
-        QMessageBox::critical(this,
-                              tr("Save Clustering Plot"),
-                              tr("The file is not writable"));
-        return;
-    }
-
-    const int quality = 100; // quality format (100 max, 0 min, -1 default)
-    const QString format = fileInfo.suffix().toLower();
-    QImage image = m_ui->plot->grab().toImage();
-    if (format.toLower().contains("pdf")) {
-        QPdfWriter writer(filename);
-        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
-        writer.setPageSize(size);
-        writer.setResolution(25);
-        writer.setPageMargins(QMarginsF(0,0,0,0));
-        QPainter painter(&writer);
-        painter.drawImage(0,0, image);
-    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
-        QMessageBox::critical(this,
-                              tr("Save Clustering Plot"),
-                              tr("The image could not be creted."));
-    }
+    m_ui->plot->slotExportPlot(tr("Clustering plot"));
 }
 
 mat AnalysisClustering::filterMatrix()
@@ -293,10 +253,23 @@ void AnalysisClustering::colorsComputed()
     for (auto series : m_series_vector) {
         m_ui->plot->chart()->addSeries(series);
     }
+
+    const int min_x = m_reduced_coordinates.col(0).min();
+    const int max_x = m_reduced_coordinates.col(0).max();
+    const int min_y = m_reduced_coordinates.col(1).min();
+    const int max_y = m_reduced_coordinates.col(1).max();
     m_ui->plot->chart()->setTitle("Spots colored by cluster");
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->show();
     m_ui->plot->chart()->createDefaultAxes();
+    m_ui->plot->chart()->axisX()->setGridLineVisible(false);
+    m_ui->plot->chart()->axisX()->setLabelsVisible(true);
+    m_ui->plot->chart()->axisX()->setRange(min_x - 1, max_x + 1);
+    m_ui->plot->chart()->axisX()->setTitleText(tr("TSNE/PCA 1"));
+    m_ui->plot->chart()->axisY()->setGridLineVisible(false);
+    m_ui->plot->chart()->axisY()->setLabelsVisible(true);
+    m_ui->plot->chart()->axisY()->setRange(min_y - 1, max_y + 1);
+    m_ui->plot->chart()->axisY()->setTitleText(tr("TSNE/PCA 2"));
 
     // enable export controls
     m_ui->exportPlot->setEnabled(true);

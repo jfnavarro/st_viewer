@@ -24,6 +24,8 @@ public:
 
     // the spot's coordinates
     SpotType coordinates() const;
+    // the spot's adjusted coordinates (only useful for plotting)
+    SpotType adj_coordinates() const;
     // the spot's coordinates as a string
     QString name() const;
     // the spot's color
@@ -36,6 +38,8 @@ public:
     float totalCount() const;
 
     // Setters
+    void coordinates(const SpotType &coordinates);
+    void adj_coordinates(const SpotType &adj_coordinates);
     void color(const QColor color);
     void visible(const bool visible);
     void selected(const bool selected);
@@ -44,11 +48,12 @@ public:
 
     // helper method to get coordinates (x,y) from a spot
     static SpotType getCoordinates(const QString &spot);
-    // helper method to string representation (XxY) of a spot
+    // helper method to get a string representation (XxY) of a spot
     static QString getSpot(const SpotType &spot);
 
 private:
     SpotType m_coordinates;
+    SpotType m_adj_coordinates;
     bool m_visible;
     bool m_selected;
     QColor m_color;

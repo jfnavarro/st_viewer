@@ -21,6 +21,11 @@ signals:
 
     void signalLassoSelection(QPainterPath);
 
+
+public slots:
+
+    void slotExportPlot(const QString &title);
+
 protected:
 
     bool viewportEvent(QEvent *event) override;

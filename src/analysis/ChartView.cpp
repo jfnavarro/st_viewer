@@ -2,6 +2,9 @@
 
 #include <QDebug>
 #include <QMouseEvent>
+#include <QFileDialog>
+#include <QPdfWriter>
+#include <QMessageBox>
 
 static const QColor lasso_color = QColor(0,0,255,90);
 
@@ -119,4 +122,46 @@ void ChartView::drawForeground(QPainter *painter, const QRectF &rect)
 void ChartView::paintEvent(QPaintEvent *event)
 {
     QChartView::paintEvent(event);
+}
+
+void ChartView::slotExportPlot(const QString &title)
+{
+    const QString filename = QFileDialog::getSaveFileName(this,
+                                                          title,
+                                                          QDir::homePath(),
+                                                          QString("%1;;%2;;%3;;%4")
+                                                          .arg(tr("JPEG Image Files (*.jpg *.jpeg)"))
+                                                          .arg(tr("PNG Image Files (*.png)"))
+                                                          .arg(tr("BMP Image Files (*.bmp)"))
+                                                          .arg(tr("PDF Image Files (*.pdf)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    const QFileInfo fileInfo(filename);
+    const QFileInfo dirInfo(fileInfo.dir().canonicalPath());
+    if (!fileInfo.exists() && !dirInfo.isWritable()) {
+        QMessageBox::critical(this,
+                              title,
+                              tr("The file is not writable"));
+        return;
+    }
+
+    const int quality = 100; // quality format (100 max, 0 min, -1 default)
+    const QString format = fileInfo.suffix().toLower();
+    QImage image = grab().toImage();
+    if (format.toLower().contains("pdf")) {
+        QPdfWriter writer(filename);
+        const QPageSize size(image.size(), QPageSize::Unit::Millimeter, "custom");
+        writer.setPageSize(size);
+        writer.setResolution(25);
+        writer.setPageMargins(QMarginsF(0,0,0,0));
+        QPainter painter(&writer);
+        painter.drawImage(0,0, image);
+    } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
+        QMessageBox::critical(this,
+                              title,
+                              tr("The image could not be creted."));
+    }
 }

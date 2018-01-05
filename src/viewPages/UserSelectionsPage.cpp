@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QInputDialog>
 
 #include "viewPages/SelectionGenesWidget.h"
 #include "viewPages/SelectionSpotsWidget.h"
@@ -13,6 +14,7 @@
 #include "analysis/AnalysisCorrelation.h"
 #include "analysis/AnalysisQC.h"
 #include "analysis/AnalysisScatter.h"
+#include "analysis/AnalysisPCA.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
@@ -52,6 +54,8 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
     connect(m_ui->qcAnalysis, &QPushButton::clicked, this, &UserSelectionsPage::slotQC);
     connect(m_ui->scatter, &QPushButton::clicked, this, &UserSelectionsPage::slotScatter);
+    connect(m_ui->pca, &QPushButton::clicked, this, &UserSelectionsPage::slotPCA);
+    connect(m_ui->merge, &QPushButton::clicked, this, &UserSelectionsPage::slotMerge);
 
     connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
             this, SLOT(slotExportSelection(QModelIndex)));
@@ -111,6 +115,8 @@ void UserSelectionsPage::clearControls()
     m_ui->showSpots->setEnabled(false);
     m_ui->importSelection->setEnabled(true);
     m_ui->correlationAnalysis->setEnabled(false);
+    m_ui->pca->setEnabled(false);
+    m_ui->merge->setEnabled(false);
 }
 
 
@@ -122,18 +128,21 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
         return;
     }
     const bool enableMultiple = currentSelection.size() > 1;
+    const bool enableDouble = currentSelection.size() == 2;
     const bool enableSingle = currentSelection.size() == 1;
     // configure UI controls if we select 1 or more selections
     m_ui->removeSelection->setEnabled(enableMultiple || enableSingle);
     m_ui->exportSelection->setEnabled(enableSingle);
     m_ui->importSelection->setEnabled(enableSingle);
-    m_ui->ddaAnalysis->setEnabled(enableMultiple);
+    m_ui->ddaAnalysis->setEnabled(enableDouble);
     m_ui->qcAnalysis->setEnabled(enableSingle);
     m_ui->scatter->setEnabled(enableSingle);
     m_ui->editSelection->setEnabled(enableSingle);
     m_ui->showGenes->setEnabled(enableSingle);
     m_ui->showSpots->setEnabled(enableSingle);
-    m_ui->correlationAnalysis->setEnabled(enableMultiple);
+    m_ui->correlationAnalysis->setEnabled(enableDouble);
+    m_ui->pca->setEnabled(enableMultiple);
+    m_ui->merge->setEnabled(enableMultiple);
 }
 
 void UserSelectionsPage::addSelection(const UserSelection& selection)
@@ -455,6 +464,55 @@ void UserSelectionsPage::slotScatter()
     const auto selectionObject = currentSelection.front();
     AnalysisScatter *scatter = new AnalysisScatter(selectionObject.data(), this, Qt::Window);
     scatter->show();
+}
+
+void UserSelectionsPage::slotPCA()
+{
+    // get the selected objects
+    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+    if (currentSelection.size() <= 1) {
+        return;
+    }
+
+    QList<STData::STDataFrame> datasets;
+    QList<QString> names;
+    for (const auto selection : currentSelection) {
+        datasets.append(selection.data());
+        names.append(selection.name());
+    }
+
+    AnalysisPCA *pca = new AnalysisPCA(datasets, names, this, Qt::Window);
+    pca->show();
+}
+
+void UserSelectionsPage::slotMerge()
+{
+    // get the selected objects
+    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
+    const auto currentSelection = selectionsModel()->getSelections(selected);
+    if (currentSelection.size() <= 1) {
+        return;
+    }
+
+    QList<STData::STDataFrame> datasets;
+    for (const auto selection : currentSelection) {
+        datasets.append(selection.data());
+    }
+
+    bool ok = false;
+    const QString name = QInputDialog::getText(this,
+                                               tr("Merge selections"),
+                                               tr("Merged selection name:"),
+                                               QLineEdit::Normal,
+                                               tr("merged"),
+                                               &ok);
+    if (ok && !name.isEmpty() && !nameExist(name)) {
+        const auto merged = STData::aggregate(datasets);
+        UserSelection new_selection(merged);
+        new_selection.name(name);
+        addSelection(new_selection);
+    }
 }
 
 bool UserSelectionsPage::nameExist(const QString &name)
