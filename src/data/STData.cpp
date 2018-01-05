@@ -136,7 +136,8 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
         const double row_sum_value = row_sum.at(i);
         if (row_sum_value > 0) {
             to_keep_spots.push_back(i);
-            auto spot_obj = SpotObjectType(new Spot(adj_spot));
+            auto spot_obj = SpotObjectType(new Spot(spot));
+            spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
             spot_obj->totalCount(row_sum_value);
             m_spots.push_back(spot_obj);
             spots.push_back(spot);
