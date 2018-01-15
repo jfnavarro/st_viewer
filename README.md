@@ -203,7 +203,7 @@ No installers/binaries are provided for now.
  
 * Open the GIT terminal and clone the repository :
  
-	git clone https://github.com/jfnavarro/st_viewer.git
+		git clone https://github.com/jfnavarro/st_viewer.git
 	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
