@@ -115,9 +115,9 @@ No installers/binaries are provided for now.
 			make
 
 
-* Download and install R from https://cran.r-project.org/ (in case you do not have it already)
+* Download and install R from https://cran.r-project.org/ (in case you do not have it already) (For Windows use the 32 bits option)
 
-* Download and install Rtools (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
+* Download and install Rtools 32bits (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
 
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
@@ -233,12 +233,13 @@ No installers/binaries are provided for now.
     
   ../st_viewer = is the path where the ST Viewer was cloned/downloaded
 		
-* Now build and install the ST Viewer by typing:
+* Now build and install the ST Viewer by typing (you must run this as an administrator):
 
 		mingw32-make install
 		
 * By default the ST Viewer will be installed in "Program Files" but that can be changed 
-with the CMake variable -DCMAKE_INSTALL_PREFIX
+with the CMake variable -DCMAKE_INSTALL_PREFIX (it is recommended to run the ST Viewer as an administrator)
+
 
  
  	
