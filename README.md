@@ -99,7 +99,7 @@ No installers/binaries are provided for now.
 	For Windows you can download the installer from https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi (64 bits) or 
 	https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.msi (32 bits). Remember to add CMAKE to the system path when asked.
 
-* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location)
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
 
 * Downloan open and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
