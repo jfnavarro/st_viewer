@@ -85,23 +85,27 @@ No installers/binaries are provided for now.
 
 ## Building/Installing
 
-* Download and install CMake 3.7.2 (https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+* Download and install CMake 3.7.2 (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
 
 	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
-	
+		
+		wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz
 		tar -xvzf cmake-3.7.2.tar
 		cd cmake-3.7.2
 		./configure
 		make -j4
 		sudo make install
+	
+	For Windows you can download the installer from https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi (64 bits) or 
+	https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.msi (32 bits). Remember to add CMAKE to the system path when asked.
 
-* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location)
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
 
 * Downloan open and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
-	NOTE (Armadillo only needs to be built for Linux and OSX):
+	NOTE (Armadillo only needs to be built for Linux and OSX, for Windows you just need to download and extract it to a folder):
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
@@ -111,9 +115,9 @@ No installers/binaries are provided for now.
 			make
 
 
-* Download and install R from https://cran.r-project.org/ (in case you do not have it already)
+* Download and install R from https://cran.r-project.org/ (in case you do not have it already) (For Windows use the 32 bits option)
 
-* Download and install Rtools (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
+* Download and install Rtools 32bits (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
 
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
 
@@ -199,7 +203,7 @@ No installers/binaries are provided for now.
  
 * Open the GIT terminal and clone the repository :
  
-	git clone https://github.com/jfnavarro/st_viewer.git
+		git clone https://github.com/jfnavarro/st_viewer.git
 	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
@@ -229,12 +233,13 @@ No installers/binaries are provided for now.
     
   ../st_viewer = is the path where the ST Viewer was cloned/downloaded
 		
-* Now build and install the ST Viewer by typing:
+* Now build and install the ST Viewer by typing (you must run this as an administrator):
 
 		mingw32-make install
 		
 * By default the ST Viewer will be installed in "Program Files" but that can be changed 
-with the CMake variable -DCMAKE_INSTALL_PREFIX
+with the CMake variable -DCMAKE_INSTALL_PREFIX (it is recommended to run the ST Viewer as an administrator)
+
 
  
  	

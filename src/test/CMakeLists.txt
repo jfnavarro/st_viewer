@@ -42,10 +42,10 @@ macro(add_st_client_test subdir name)
       else()
           get_target_property(ST_QT_LOC "Qt5::Test" LOCATION)
       endif()
-      install(FILES ${ST_QT_LOC} DESTINATION .)
-      add_custom_command(TARGET ${name} POST_BUILD  
-                         COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC}
-                         ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
+      #install(FILES ${ST_QT_LOC} DESTINATION .)
+      #add_custom_command(TARGET ${name} POST_BUILD  
+      #                   COMMAND ${CMAKE_COMMAND} -E copy ${ST_QT_LOC}
+      #                   ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/)
   endif(WIN32)
 endmacro()
 
