@@ -85,15 +85,19 @@ No installers/binaries are provided for now.
 
 ## Building/Installing
 
-* Download and install CMake 3.7.2 (https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz) (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+* Download and install CMake 3.7.2 (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
 
 	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
-	
+		
+		wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz
 		tar -xvzf cmake-3.7.2.tar
 		cd cmake-3.7.2
 		./configure
 		make -j4
 		sudo make install
+	
+	For Windows you can download the installer from https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi (64 bits) or 
+	https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.msi (32 bits)
 
 * Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location)
 
@@ -101,7 +105,7 @@ No installers/binaries are provided for now.
 
 * Download and compile Armadillo from http://arma.sourceforge.net/download.html
 	
-	NOTE (Armadillo only needs to be built for Linux and OSX):
+	NOTE (Armadillo only needs to be built for Linux and OSX, for Windows you just need to download and extract it to a folder):
 	
 	* Download the latest stable release and then open a terminal and type (x.xxx.x refers to the Armadillo version):
 	
