@@ -10,8 +10,8 @@
 #include <QImageReader>
 #include <cmath>
 
-static const int tile_width = 512;
-static const int tile_height = 512;
+static const int tile_width = 1024;
+static const int tile_height = 1024;
 
 ImageTextureGL::ImageTextureGL(QObject *parent)
     : GraphicItemGL(parent)
@@ -85,38 +85,21 @@ QFuture<void> ImageTextureGL::createTextures(const QString &imagefile)
 
 bool ImageTextureGL::createTiles(const QString &imagefile)
 {
-    // Load the image file into a byte array
-    QFile file(imagefile);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Image loading file error " << imagefile;
-        QGuiApplication::restoreOverrideCursor();
-        return false;
-    }
-    QByteArray imageByteArray = file.readAll();
-
-    // extract image from byte array
-    QBuffer imageBuffer(&imageByteArray);
-    if (!imageBuffer.open(QIODevice::ReadOnly)) {
-        qDebug() << "Image decoding buffer error:" << imageBuffer.errorString();
-        QGuiApplication::restoreOverrideCursor();
-        return false;
-    }
-
-    // create image from byte array
-    QImageReader imageReader;
-    imageReader.setDevice(&imageBuffer);
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    // image buffer reader
+    QImageReader imageReader(imagefile);
+    // scale image to half
+    QSize imageSize = imageReader.size() / 2;
+    imageReader.setScaledSize(imageSize);
+    m_bounds = QRectF(1, 1, imageSize.width(), imageSize.height());
+    // parse the image
     QImage image;
-    const bool readOk = imageReader.read(&image);
-    imageBuffer.close();
-    if (!readOk || image.isNull()) {
-        qDebug() << "Opening image failed " << imagefile;
+    const bool read_ok = imageReader.read(&image);
+    if (!read_ok) {
+        qDebug() << "Tissue image cannot be opened/read" << imageReader.errorString();
         QGuiApplication::restoreOverrideCursor();
         return false;
     }
-
-    // get size and bounds
-    const QSize imageSize = image.size();
-    m_bounds = image.rect();
 
     // compute tiles size and numbers
     const int width = imageSize.width();
@@ -142,6 +125,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
         addTexture(image.copy(x, y, texture_width, texture_height), x, y);
     }
 
+    QGuiApplication::restoreOverrideCursor();
     m_isInitialized = true;
     return true;
 }
