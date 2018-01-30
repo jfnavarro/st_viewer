@@ -90,7 +90,7 @@ No installers/binaries are provided for now.
 	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
 		
 		wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz
-		tar -xvzf cmake-3.7.2.tar
+		tar -xvzf cmake-3.7.2.tar.gz
 		cd cmake-3.7.2
 		./configure
 		make -j4
@@ -101,9 +101,9 @@ No installers/binaries are provided for now.
 
 * Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
 
-* Downloan open and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
+* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
-* Download and compile Armadillo from http://arma.sourceforge.net/download.html
+* Download and build Armadillo from http://arma.sourceforge.net/download.html
 	
 	NOTE (Armadillo only needs to be built for Linux and OSX, for Windows you just need to download and extract it to a folder):
 	
@@ -125,14 +125,14 @@ No installers/binaries are provided for now.
         biocLite("DESeq2")
         biocLite("scran")
         biocLite("Rtsne")
-        biocLite("RInside")
-        biocLite("Rcpp")
-        biocLite("RcppArmadillo")
+        install.packages("RInside")
+        install.packages("Rcpp")
+        install.packages("RcppArmadillo")
 
 ###### OSX
 
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
-  If needed you can install them from the Apple store (https://developer.apple.com/xcode/). 
+  If needed to you can install them from the Apple store (https://developer.apple.com/xcode/). 
   I recommend to update to the latest version of XCode.  
 
 * Clone the repository to a specific folder and build the application
@@ -168,7 +168,7 @@ No installers/binaries are provided for now.
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
-        sudo apt-get install cmake git ubuntu-dev-tools
+        sudo apt-get install git ubuntu-dev-tools
         sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
 * Clone the repository to a specific folder and build the application
@@ -196,6 +196,10 @@ No installers/binaries are provided for now.
         STViewer
         or
         /path/to/bin/STViewer
+	
+Note that for Linux you may want to update your LD_LIBRARY_PATH variable to contain the R and QT paths
+
+	eg: LD_LIBRARY_PATH=/usr/lib/R/lib/:/home/username/Qt/5.9.2/gcc_64/lib
 
 ###### Windows 
  

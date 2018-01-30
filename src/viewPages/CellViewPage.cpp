@@ -128,7 +128,7 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_image->clearData();
     const bool result = m_image->createTiles(dataset.imageFile());
     slotImageLoaded(result);
-    //TODO can crete OpenGL textures on a different thread (FIX THIS)
+    //TODO OpenGL cannot create textures on a different thread (FIX THIS)
     //QFutureWatcher<void> watcher;
     //QFuture<void> future = m_image->createTextures(dataset.imageFile());
     //watcher.setFuture(future);
@@ -161,6 +161,8 @@ void CellViewPage::slotImageLoaded(const bool loaded)
             const float a32 = -a22;
             const float a33 = 1.0;
             alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+        } else {
+            alignment *= QTransform::fromScale(0.5, 0.5);
         }
         qDebug() << "Setting alignment matrix to " << alignment;
         m_gene_plotter->setTransform(alignment);
