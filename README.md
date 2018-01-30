@@ -196,6 +196,10 @@ No installers/binaries are provided for now.
         STViewer
         or
         /path/to/bin/STViewer
+	
+Note that for Linux you may want to update your LD_LIBRARY_PATH variable to contain the R and QT paths
+
+	eg: LD_LIBRARY_PATH=/usr/lib/R/lib/:/home/username/Qt/5.9.2/gcc_64/lib
 
 ###### Windows 
  
