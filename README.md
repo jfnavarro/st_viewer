@@ -1,7 +1,5 @@
 # Spatial Transcriptomics Research Viewer
 
-"ADD TRAVIS BUILD STATUS HERE"
-
 The ST viewer is a tool that visualizes spatially resolved gene
 expression data on top of HE stained tissue figures with the correct
 location.
