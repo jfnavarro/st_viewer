@@ -211,7 +211,11 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
+		eg PATH=C:\RBuildTools\3.4\bin\;C:\RBuildTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
+
 * Make sure that you do not have another MinGW in your PATH variable
+
+		eg R_HOME=C:\Program Files\R\R-3.4.3
 
 * Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
  
