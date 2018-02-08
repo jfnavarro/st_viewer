@@ -1,0 +1,40 @@
+STViewer is an open source application that
+uses the open source version of Qt. To comply
+the LGPL v3 requirements, instructions on how
+to replace the Qt libraries for the end-user must
+be given in case you decide to distribute the binaries.
+
+For OSX:
+
+Check what Qt frameworks and plugins are in use :
+- otool -L /Applications/STViewer.app/Contents/MacOs/STViewer
+
+Copy the framewors and plugins from your local Qt installation :
+- cp -R /path/to/Qt/lib/QtCore.framework STViewer.app/Contents/Frameworks
+...
+- cp -R /path/to/Qt/plugin/imageformats/libqjpeg.dylib STViewer.app/Contents/PlugIns
+...
+
+Set the identification names for the frameworks :
+- install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/5.0/QtCore
+STViewer.app/Contents/Frameworks/QtCore.framework/Versions/5.0/QtCore
+...
+
+Ensure STViewer knows where the frameworks are
+- install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/5.0/QtCore
+@executable_path/../Frameworks/QtCore.framework/Versions/5.0/QtCore
+STViewer.app/Contents/MacOs/plugandpaint
+...
+
+For Linux:
+
+The same approach as in OSX (shared libraries are in the folder
+lib in the application rool folder and plugins are in the folder
+plugins in the application root folder).
+
+For Windows:
+
+The QT DDLs present in the ST Viewer installation folder must
+be replaced for the DDLs present in the QT installation folder. 
+Libraries are in the folder lib and plugins are in the folder plugins
+inside the application folder.

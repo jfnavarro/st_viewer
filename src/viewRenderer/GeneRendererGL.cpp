@@ -7,7 +7,17 @@
 #include <QApplication>
 #include <QPainter>
 
+#include "math/RInterface.h"
+
 #include "color/HeatMap.h"
+
+// hash function for QColor for use in QSet / QHash
+QT_BEGIN_NAMESPACE
+uint qHash(const QColor &c)
+{
+    return qHash(c.rgba());
+}
+QT_END_NAMESPACE
 
 GeneRendererGL::GeneRendererGL(SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
@@ -109,7 +119,6 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
         }
     }
 }
-
 
 const QRectF GeneRendererGL::boundingRect() const
 {

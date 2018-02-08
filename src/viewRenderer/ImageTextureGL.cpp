@@ -10,8 +10,8 @@
 #include <QImageReader>
 #include <cmath>
 
-static const int tile_width = 1024;
-static const int tile_height = 1024;
+static const int tile_width = 512;
+static const int tile_height = 512;
 
 ImageTextureGL::ImageTextureGL(QObject *parent)
     : GraphicItemGL(parent)
@@ -83,6 +83,22 @@ QFuture<void> ImageTextureGL::createTextures(const QString &imagefile)
     return QtConcurrent::run(this, &ImageTextureGL::createTiles, imagefile);
 }
 
+void ImageTextureGL::createGrid(const QImage &image, const int offset)
+{
+    const QImage gray_scale = image.convertToFormat(QImage::Format_Grayscale8);
+    const int x_pixels = gray_scale.width();
+    const int y_pixels = gray_scale.height();
+    m_grid_points.clear();
+    for (int x = 0; x < x_pixels; x+=offset) {
+        for (int y = 0; y < y_pixels; y+=offset) {
+            const float value = gray_scale.pixelColor(x,y).valueF();
+            if (value > 0.5) {
+               m_grid_points.append(QPointF(x,y));
+            }
+        }
+    }
+}
+
 bool ImageTextureGL::createTiles(const QString &imagefile)
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -91,7 +107,6 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     // scale image to half
     QSize imageSize = imageReader.size() / 2;
     imageReader.setScaledSize(imageSize);
-    m_bounds = QRectF(1, 1, imageSize.width(), imageSize.height());
     // parse the image
     QImage image;
     const bool read_ok = imageReader.read(&image);
@@ -100,6 +115,8 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
         QGuiApplication::restoreOverrideCursor();
         return false;
     }
+
+    m_bounds = image.rect();
 
     // compute tiles size and numbers
     const int width = imageSize.width();
@@ -151,6 +168,11 @@ void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
     texture->setMagnificationFilter(QOpenGLTexture::Linear);
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
     m_textures.append(texture);
+}
+
+const QList<QPointF>& ImageTextureGL::getGrid() const
+{
+    return m_grid_points;
 }
 
 const QRectF ImageTextureGL::boundingRect() const

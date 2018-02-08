@@ -88,10 +88,10 @@ public:
     static STData::STDataFrame aggregate(const QList<STDataFrame> &datasets);
 
     // helper function to get the sum of non zeroes elements (by column, aka gene)
-    static rowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
+    static urowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
 
     // helper function to get the sum of non zeroes elements (by row, aka spot)
-    static colvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
+    static ucolvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
 
     // helper function that returns the normalized matrix counts using the rendering settings
     static STDataFrame normalizeCounts(const STDataFrame &data,
