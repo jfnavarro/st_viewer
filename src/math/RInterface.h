@@ -36,6 +36,39 @@ static double computeCorrelation(const std::vector<double> &A,
     return corr;
 }
 
+// Performs a grid interpolation betwwo two set of points
+static std::vector<unsigned> computeInterpolation(const std::vector<double> &x1,
+                                                  const std::vector<double> &y1,
+                                                  const std::vector<double> &x2,
+                                                  const std::vector<double> &y2,
+                                                  const std::vector<unsigned> &values)
+{
+    RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
+    Q_ASSERT(x1.size() == y1.size());
+    Q_ASSERT(x1.size() == values.size());
+    Q_ASSERT(x2.size() == y2.size());
+    std::vector<unsigned> results;
+    try {
+        const std::string R_libs = "suppressMessages(library(akima));";
+        R->parseEvalQ(R_libs);
+        (*R)["x1"] = x1;
+        (*R)["y1"] = y1;
+        (*R)["x2"] = x2;
+        (*R)["y2"] = y2;
+        (*R)["z"] = values;
+        const std::string call = "s = interp(x1, y1, z, x2, y2)$z;";
+        results = Rcpp::as<std::vector<unsigned>>(R->parseEval(call));
+        Q_ASSERT(results.size() == x2.size());
+        qDebug() << "Computed R Interpolation. In " << x1.size() << " Out " << x2.size();
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing R Interpolation " << e.what();
+    } catch (...) {
+        qDebug() << "Unknown error computing R Interpolation";
+    }
+    return results;
+}
+
 // Computes a DEA (Differential Expression Analysis with DESeq2) between two selections
 static void computeDEA(const mat &data,
                        const std::vector<std::string> &dataRows,
@@ -49,7 +82,9 @@ static void computeDEA(const mat &data,
     RInside *R = RInside::instancePtr();
     Q_ASSERT(R != nullptr);
     try {
-        const std::string R_libs = "suppressMessages(library(DESeq2));"
+        const std::string R_libs = "suppressMessages(library(BiocParallel));"
+                                   "register(MulticoreParam(4));"
+                                   "suppressMessages(library(DESeq2));"
                                    "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = data;
@@ -191,7 +226,9 @@ static unsigned computeSpotClasses(const mat &counts)
     Q_ASSERT(!counts.empty());
     unsigned clusters = 0;
     try {
-        const std::string R_libs = "suppressMessages(library(scran))";
+        const std::string R_libs = "suppressMessages(library(BiocParallel));"
+                                   "register(MulticoreParam(4));"
+                                   "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         const std::string call = "clusters = quickCluster(as.matrix(t(counts)), min.size=dim(counts)[1] / 10);"
@@ -214,7 +251,9 @@ static rowvec computeDESeqFactors(const mat &counts)
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
-        const std::string R_libs = "suppressMessages(library(DESeq2));";
+        const std::string R_libs = "suppressMessages(library(BiocParallel));"
+                                   "register(MulticoreParam(4));"
+                                   "suppressMessages(library(DESeq2));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         // For DESeq2 genes must be rows so we transpose the matrix

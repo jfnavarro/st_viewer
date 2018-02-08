@@ -257,13 +257,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         data.counts.each_col() /= m_size_factors.t();
     }
 
-    // Slice the data frame with the thresholds
-    data = filterDataFrame(data,
-                           rendering_settings.ind_reads_threshold,
-                           rendering_settings.reads_threshold,
-                           rendering_settings.genes_threshold,
-                           rendering_settings.spots_threshold);
-
     // Remove genes that are not visible
     std::vector<uword> to_keep_genes;
     QList<QString> genes;
@@ -278,6 +271,13 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
     data.genes = genes;
     data.counts = data.counts.cols(uvec(to_keep_genes));
+
+    // Slice the data frame with the thresholds
+    data = filterDataFrame(data,
+                           rendering_settings.ind_reads_threshold,
+                           rendering_settings.reads_threshold,
+                           rendering_settings.genes_threshold,
+                           rendering_settings.spots_threshold);
 
     // Early out
     if (data.spots.empty() && data.genes.empty()) {
@@ -622,7 +622,7 @@ STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
     STDataFrame sliced_data = data;
 
     // Filter out genes
-    rowvec spot_counts = computeNonZeroColumns(sliced_data.counts, min_exp_value);
+    const urowvec spot_counts = computeNonZeroColumns(sliced_data.counts, min_exp_value);
     std::vector<uword> to_keep_genes;
     QList<QString> new_genes;
     for (uword j = 0; j < sliced_data.counts.n_cols; ++j) {
@@ -636,12 +636,13 @@ STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
     sliced_data.counts = sliced_data.counts.cols(uvec(to_keep_genes));
 
     // Filter out spots
-    colvec rowsum = sum(sliced_data.counts.elem(find(sliced_data.counts > min_exp_value)), ROW);
-    colvec gene_counts = computeNonZeroRows(sliced_data.counts, min_exp_value);
+    const ucolvec gene_counts = computeNonZeroRows(sliced_data.counts, min_exp_value);
     std::vector<uword> to_keep_spots;
     QList<QString> new_spots;
     for (uword i = 0; i < sliced_data.counts.n_rows; ++i) {
-        if (rowsum.at(i) > min_reads_spot && gene_counts.at(i) > min_genes_spot) {
+        const rowvec row = sliced_data.counts.row(i);
+        const double row_sum = sum(row.elem(find(row > min_exp_value)));
+        if (row_sum > min_reads_spot && gene_counts.at(i) > min_genes_spot) {
             const auto &spot = sliced_data.spots.at(i);
             to_keep_spots.push_back(i);
             new_spots.push_back(spot);
@@ -709,24 +710,14 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &datasets)
     return merged;
 }
 
-rowvec STData::computeNonZeroColumns(const mat &matrix, const int min_value)
+urowvec STData::computeNonZeroColumns(const mat &matrix, const int min_value)
 {
-    rowvec non_zeros(matrix.n_cols);
-    for (uword i = 0; i < matrix.n_cols; ++i) {
-        const uvec t = find(matrix.col(i) > min_value);
-        non_zeros[i] = t.n_elem;
-    }
-    return non_zeros;
+    return sum(matrix > min_value, COLUMN);
 }
 
-colvec STData::computeNonZeroRows(const mat &matrix, const int min_value)
+ucolvec STData::computeNonZeroRows(const mat &matrix, const int min_value)
 {
-    colvec non_zeros(matrix.n_rows);
-    for (uword i = 0; i < matrix.n_rows; ++i) {
-        const uvec t = find(matrix.row(i) > min_value);
-        non_zeros[i] = t.n_elem;
-    }
-    return non_zeros;
+    return sum(matrix > min_value, ROW);
 }
 
 void STData::clearSelection()

@@ -1,7 +1,5 @@
 # Spatial Transcriptomics Research Viewer
 
-"ADD TRAVIS BUILD STATUS HERE"
-
 The ST viewer is a tool that visualizes spatially resolved gene
 expression data on top of HE stained tissue figures with the correct
 location.
@@ -211,9 +209,13 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
+		eg PATH=C:\RBuildTools\3.4\bin\;C:\RBuildTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
+
 * Make sure that you do not have another MinGW in your PATH variable
 
 * Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
+
+		eg R_HOME=C:\Program Files\R\R-3.4.3
  
 * Open a windows terminal (cmd.exe)
 
@@ -242,7 +244,7 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 		mingw32-make install
 		
 * By default the ST Viewer will be installed in "Program Files" but that can be changed 
-with the CMake variable -DCMAKE_INSTALL_PREFIX (it is recommended to run the ST Viewer as an administrator)
+with the CMake variable -DCMAKE_INSTALL_PREFIX (it is recommended to install the ST Viewer as an administrator)
 
 
  

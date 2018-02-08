@@ -19,7 +19,7 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
 
     const unsigned num_spots = data.spots.size();
     const colvec spot_reads = sum(data.counts, 1);
-    const colvec spot_genes = STData::computeNonZeroRows(data.counts);
+    const ucolvec spot_genes = STData::computeNonZeroRows(data.counts);
     const float min_reads = spot_reads.min();
     const float max_reads = spot_reads.max();
     const float min_genes = spot_genes.min();

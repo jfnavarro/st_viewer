@@ -34,6 +34,9 @@ public:
     // returns true if the parsing and creation of tiles was correct
     bool createTiles(const QString &imagefile);
 
+    // return a grid of points computed from the image (inside the tissue)
+    const QList<QPointF>& getGrid() const;
+
 public slots:
 
 protected:
@@ -42,6 +45,9 @@ protected:
     void setSelectionArea(const SelectionEvent &event);
 
 private:
+
+    // internal function to create a grid of of the image (inside tissue)
+    void createGrid(const QImage &image, const int offset);
 
     // internal functions to create a texture from an image and add it to the
     // rendering list
@@ -56,6 +62,7 @@ private:
     QVector<QVector2D> m_texture_coords;
     QRectF m_bounds;
     bool m_isInitialized;
+    QList<QPointF> m_grid_points;
 
     Q_DISABLE_COPY(ImageTextureGL)
 };
