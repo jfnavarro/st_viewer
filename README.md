@@ -78,10 +78,55 @@ libraries that are used in this software.
 ## Contact
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
-## Binaries
-No installers/binaries are provided for now.
+## Binaries (Install from binaries)
+Binaries(installer) for MAC and Windows are provided under the tab releases. 
+Before you install the ST Viewer trough the binaries you must do the following
+(in case you have not done it already):
 
-## Building/Installing
+###### OSX
+The binary provided for MAC requires R 3.4 and OSX 10.2 or bigger. 
+
+* Download and install R from https://cran.r-project.org/ (in case you do not have it already)
+* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
+
+        source("https://bioconductor.org/biocLite.R")
+        biocLite("DESeq2")
+        biocLite("scran")
+        biocLite("Rtsne")
+        install.packages("RInside")
+        install.packages("Rcpp")
+        install.packages("RcppArmadillo")
+* Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
+the ST Viewer will be installed in your system. 
+
+###### Windows 
+
+* Download and install R from https://cran.r-project.org/ (Use the 32 bits option)
+* Download and install Rtools 32bits from https://cran.r-project.org/bin/windows/Rtools/
+* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
+
+        source("https://bioconductor.org/biocLite.R")
+        biocLite("DESeq2")
+        biocLite("scran")
+        biocLite("Rtsne")
+        install.packages("RInside")
+        install.packages("Rcpp")
+        install.packages("RcppArmadillo")
+* Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
+
+		eg PATH=C:\RBuildTools\3.4\bin\;C:\RBuildTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
+
+* Make sure that you do not have another MinGW in your PATH variable
+
+* Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
+
+		eg R_HOME=C:\Program Files\R\R-3.4.3
+		
+* Download the Windows installer double click on it and follow the instructions, once done the ST Viewer
+will be installed in your system. 
+
+
+## Building from the source 
 
 * Download and install CMake 3.7.2 (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
 
