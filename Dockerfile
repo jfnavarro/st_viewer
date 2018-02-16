@@ -78,10 +78,6 @@ ADD . .
 RUN mkdir st_viewer_build
 WORKDIR /opt/st_viewer/st_viewer_build
 
-
-RUN apt-get install -y apt-file
-RUN apt-file update
-
 #RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" ..
 
 
