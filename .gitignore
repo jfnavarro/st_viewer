@@ -1,2 +1,3 @@
 local_configuration.cmake
 build
+.project
