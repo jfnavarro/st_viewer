@@ -16,9 +16,7 @@
 #	-v /dev/shm:/dev/shm \
 #	--name chrome \
 #	jess/chrome
-#
-# You will want the custom seccomp profile:
-# 	wget https://raw.githubusercontent.com/jfrazelle/dotfiles/master/etc/docker/seccomp/chrome.json -O ~/chrome.json
+
 
 FROM ubuntu:17.10
 
@@ -78,6 +76,9 @@ ADD . .
 RUN mkdir st_viewer_build
 WORKDIR /opt/st_viewer/st_viewer_build
 
-#RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" ..
+# Optimize this in one line when it works.
+RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" ..
+RUN make -j4 
+RUN make install
 
 
