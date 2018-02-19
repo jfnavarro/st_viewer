@@ -109,7 +109,7 @@ elseif(LIBR_LIB)
 endif()
 
 # look for lapack
-find_library(LIBR_LAPACK_LIBRARY NAMES Rlapack
+find_library(LIBR_LAPACK_LIBRARY NAMES Rlapack lapack
 	HINTS ${LIBR_LIB_DIR} ${LIBR_HOME}/bin/i386 ${LIBR_HOME} ${LIBR_HOME}/lib ${LIBR_HOME}/bin)
 
 # look for blas
@@ -156,7 +156,8 @@ elseif (UNIX AND NOT APPLE)
     endif()
     if (${LIBRINSIDE_LIBRARIES} MATCHES "[-][l][R]([^ ;])+")
         string(SUBSTRING ${CMAKE_MATCH_0} ${NUM_TRUNC_CHARS} -1 LIBRINSIDE_LIBRARIES_NAME)
-    endif(LIBRINSIDE_LIBRARIES "${LIBRINSIDE_LIBRARIES_DIR}/lib${LIBRINSIDE_LIBRARIES_NAME}.so")
+        set(LIBRINSIDE_LIBRARIES "${LIBRINSIDE_LIBRARIES_DIR}/lib${LIBRINSIDE_LIBRARIES_NAME}.so")
+    endif()
 endif()
 
 if (LIBRCPP_INCLUDE_DIRS)
