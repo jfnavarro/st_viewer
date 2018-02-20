@@ -39,8 +39,9 @@ RUN apt-get update && apt-get install -y \
 	libqt5charts5-dev \
 	libqt5svg5-dev \
 	libarmadillo-dev \
-	r-base
-#	&& rm -rf /var/lib/apt/lists/*
+	r-base \
+	r-cran-rcpparmadillo \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Install cmake
 RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && \
@@ -66,8 +67,10 @@ RUN wget http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz && \
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
 RUN Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('DESeq2'); biocLite('scran'); biocLite('Rtsne')"
 RUN Rscript -e "install.packages('RInside')"
-RUN Rscript -e "install.packages('Rcpp')"
-RUN Rscript -e "install.packages('RcppArmadillo')"
+
+# Installed via APT for easier compilation.
+#RUN Rscript -e "install.packages('Rcpp')"
+#RUN Rscript -e "install.packages('RcppArmadillo')"
 
 WORKDIR /opt/
 RUN mkdir /opt/st_viewer
@@ -76,9 +79,9 @@ ADD . .
 RUN mkdir st_viewer_build
 WORKDIR /opt/st_viewer/st_viewer_build
 
-# Optimize this in one line when it works.
-RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" ..
-RUN make -j4 
-RUN make install
+# Optimize this in one line.
+RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" .. && \
+    make -j4 && \
+    make install
 
 
