@@ -71,8 +71,8 @@ RUN mkdir st_viewer_build
 WORKDIR /opt/st_viewer/st_viewer_build
 
 # Optimize this in one line.
-RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" .. && \
-    make -j4 && \
-    make install
+RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcustomplot" .. \
+	&& make -j4
+#	&& make install
 
 CMD ["/opt/st_viewer/st_viewer_build/STViewer"]
