@@ -36,7 +36,7 @@ macro(INITIALISE_PROJECT)
         set(WARNING_ERROR "-Werror")
 
         set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function \
-            -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls")
+            -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls -Wno-implicit-fallthrough")
 
         if (APPLE)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \
