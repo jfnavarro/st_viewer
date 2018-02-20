@@ -1,22 +1,13 @@
-# Run Chrome in a container # TBM for the st
+# To run it locally you need
+# 1) Allow local appliaction to use your Xserver
+# 
+#     xhost +local:root
+# 
+# 2) mount the display and the temporary directory 
+# 
+# 
+#     docker run -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw st_viewer
 #
-#  Check: https://blog.jessfraz.com/post/docker-containers-on-the-desktop/
-#
-# docker run -it \
-#	--net host \ # may as well YOLO
-#	--cpuset-cpus 0 \ # control the cpu
-#	--memory 512mb \ # max memory it can use
-#	-v /tmp/.X11-unix:/tmp/.X11-unix \ # mount the X11 socket
-#	-e DISPLAY=unix$DISPLAY \
-#	-v $HOME/Downloads:/home/chrome/Downloads \
-#	-v $HOME/.config/google-chrome/:/data \ # if you want to save state
-#	--security-opt seccomp=$HOME/chrome.json \
-#	--device /dev/snd \ # so we have sound
-#   --device /dev/dri \
-#	-v /dev/shm:/dev/shm \
-#	--name chrome \
-#	jess/chrome
-
 
 FROM ubuntu:17.10
 
@@ -84,4 +75,4 @@ RUN cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH="/opt/QCustomPlot/qcu
     make -j4 && \
     make install
 
-
+CMD ["/opt/st_viewer/st_viewer_build/STViewer"]
