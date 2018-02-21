@@ -224,7 +224,7 @@ in the directory `/STDatasets`
 
 ###### Linux
 
-* If you are on a Ubuntu, you can use the `ubuntu_dep_and_compile.sh` to install the dependencies and
+If you are on a Ubuntu, you can use the `ubuntu_dep_and_compile.sh` to install the dependencies and
   compile the code with:
   
 	sudo ubuntu_dep_and_compile.sh
