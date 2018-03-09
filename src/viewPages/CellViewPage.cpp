@@ -161,7 +161,7 @@ void CellViewPage::slotImageLoaded(const bool loaded)
             const float a32 = -a22;
             const float a33 = 1.0;
             alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-        } else {
+        } else if (m_image->scaled()) {
             alignment *= QTransform::fromScale(0.5, 0.5);
         }
         qDebug() << "Setting alignment matrix to " << alignment;

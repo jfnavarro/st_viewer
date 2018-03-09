@@ -12,7 +12,7 @@
 
 namespace RInterface {
 
-// Computes correlation betwee two vectors (method can be : pearson, spearman and kendall)
+// Computes correlation between two vectors (method can be : pearson, spearman and kendall)
 static double computeCorrelation(const std::vector<double> &A,
                                  const std::vector<double> &B,
                                  const std::string &method)
@@ -36,7 +36,7 @@ static double computeCorrelation(const std::vector<double> &A,
     return corr;
 }
 
-// Performs a grid interpolation betwwo two set of points
+// Performs a grid interpolation between two set of points
 static std::vector<unsigned> computeInterpolation(const std::vector<double> &x1,
                                                   const std::vector<double> &y1,
                                                   const std::vector<double> &x2,

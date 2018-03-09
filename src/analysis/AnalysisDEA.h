@@ -66,8 +66,6 @@ private:
     std::vector<std::string> m_conditions;
     QString m_nameA;
     QString m_nameB;
-    int m_neleA;
-    int m_neleB;
 
     // cache the settings to not recompute always
     SettingsWidget::NormalizationMode m_normalization;

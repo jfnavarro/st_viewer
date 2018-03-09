@@ -16,6 +16,7 @@ static const int tile_height = 512;
 ImageTextureGL::ImageTextureGL(QObject *parent)
     : GraphicItemGL(parent)
     , m_isInitialized(false)
+    , m_iscaled(false)
 {
     setVisualOption(GraphicItemGL::Transformable, true);
     setVisualOption(GraphicItemGL::Visible, true);
@@ -104,9 +105,15 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     // image buffer reader
     QImageReader imageReader(imagefile);
-    // scale image to half
-    QSize imageSize = imageReader.size() / 2;
-    imageReader.setScaledSize(imageSize);
+    // scale image to half for big images
+    QSize imageSize = imageReader.size();
+    if (imageSize.width() >= 10000 || imageSize.height() >= 10000) {
+        imageSize /= 2;
+        imageReader.setScaledSize(imageSize);
+        m_iscaled = true;
+    } else {
+        m_iscaled = false;
+    }
     // parse the image
     QImage image;
     const bool read_ok = imageReader.read(&image);
@@ -183,4 +190,9 @@ const QRectF ImageTextureGL::boundingRect() const
 void ImageTextureGL::setSelectionArea(const SelectionEvent &event)
 {
     Q_UNUSED(event)
+}
+
+bool ImageTextureGL::scaled() const
+{
+    return m_iscaled;
 }
