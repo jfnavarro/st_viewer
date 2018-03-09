@@ -37,6 +37,9 @@ public:
     // return a grid of points computed from the image (inside the tissue)
     const QList<QPointF>& getGrid() const;
 
+    // true if the image has been scaled down
+    bool scaled() const;
+
 public slots:
 
 protected:
@@ -63,6 +66,7 @@ private:
     QRectF m_bounds;
     bool m_isInitialized;
     QList<QPointF> m_grid_points;
+    bool m_iscaled;
 
     Q_DISABLE_COPY(ImageTextureGL)
 };

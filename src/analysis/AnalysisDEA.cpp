@@ -28,8 +28,6 @@ AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
     , m_conditions()
     , m_nameA(nameA)
     , m_nameB(nameB)
-    , m_neleA(0)
-    , m_neleB(0)
     , m_normalization(SettingsWidget::NormalizationMode::DESEQ)
     , m_reads_threshold(-1)
     , m_genes_threshold(-1)
@@ -53,8 +51,6 @@ AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
 
     // merge datasets
     m_data = STData::aggregate(datasetsA + datasetsB);
-    m_neleA = datasetsA.size();
-    m_neleB = datasetsB.size();
 
     // create connections
     connect(m_ui->searchField,
@@ -329,7 +325,7 @@ void AnalysisDEA::run()
         // recompute conditions
         m_conditions.clear();
         for (const auto &spot : data.spots) {
-            if (spot.split("_").first().toInt() < m_neleA) {
+            if (spot.split("_").first().toInt() == 0) {
                 m_conditions.push_back("A");
             } else {
                 m_conditions.push_back("B");

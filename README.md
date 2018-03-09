@@ -126,6 +126,21 @@ the ST Viewer will be installed in your system.
 will be installed in your system. 
 
 
+## Docker container
+
+This has been tested on a Linux Ubuntu 17.04 as host system.
+
+Build the image:
+
+	docker build . -t st_viewer
+	
+Launch the image, mounting also the volume where you have the dataset. For example if your dataset is in `/home/user/STDatasets/`
+you need to launch with the option `-v /home/user/STDatasets:/STDatasets` which you can then find, via the fileBrowser of the Viewer
+in the directory `/STDatasets`
+
+	docker run -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /home/user/STDatasets:/STDatasets st_viewer
+	
+
 ## Building from the source 
 
 * Download and install CMake 3.7.2 (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
@@ -208,6 +223,13 @@ will be installed in your system.
         /st_viewer_build
 
 ###### Linux
+
+If you are on a Ubuntu, you can use the `ubuntu_dep_and_compile.sh` to install the dependencies and
+  compile the code with:
+  
+	sudo ubuntu_dep_and_compile.sh
+
+Or you can follow the process outlined below.
 
 * Issue the following commands (Ubuntu, for Fedora you must use yum)
 
