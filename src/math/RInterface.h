@@ -30,8 +30,10 @@ static double computeCorrelation(const std::vector<double> &A,
         qDebug() << "Computed R " << QString::fromStdString(method) << " correlation " << corr;
     } catch (const std::exception &e) {
         qDebug() << "Error computing R correlation " << e.what();
+        return corr;
     } catch (...) {
         qDebug() << "Unknown error computing R correlation";
+        return corr;
     }
     return corr;
 }
@@ -63,8 +65,10 @@ static std::vector<unsigned> computeInterpolation(const std::vector<double> &x1,
         qDebug() << "Computed R Interpolation. In " << x1.size() << " Out " << x2.size();
     } catch (const std::exception &e) {
         qDebug() << "Error computing R Interpolation " << e.what();
+        return results;
     } catch (...) {
         qDebug() << "Unknown error computing R Interpolation";
+        return results;
     }
     return results;
 }
@@ -237,8 +241,10 @@ static unsigned computeSpotClasses(const mat &counts)
         qDebug() << "Computed R clusters with quickClust " << clusters;
     } catch (const std::exception &e) {
         qDebug() << "Error computing R clusters with quickClust " << e.what();
+        return clusters;
     } catch (...) {
         qDebug() << "Unknown error computing R clusters with quickClust";
+        return clusters;
     }
     return clusters;
 }
@@ -272,8 +278,10 @@ static rowvec computeDESeqFactors(const mat &counts)
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing DESeq2 size factors " << e.what();
+        return factors;
     } catch (...) {
         qDebug() << "Unknown error computing DESeq2 size factors";
+        return factors;
     }
     return factors;
 }
@@ -316,8 +324,10 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
         }
     } catch (const std::exception &e) {
         qDebug() << "Error computing SCRAN size factors " << e.what();
+        return factors;
     } catch (...) {
         qDebug() << "Unknown error computing SCRAN size factors";
+        return factors;
     }
     return factors;
 }
