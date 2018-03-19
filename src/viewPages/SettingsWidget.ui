@@ -665,9 +665,10 @@
       <widget class="QPushButton" name="update">
        <property name="font">
         <font>
+         <family>Helvetica</family>
          <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="cursor">
