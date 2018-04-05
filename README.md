@@ -134,9 +134,14 @@ Build the image:
 
 	docker build . -t st_viewer
 	
-Launch the image, mounting also the volume where you have the dataset. For example if your dataset is in `/home/user/STDatasets/`
-you need to launch with the option `-v /home/user/STDatasets:/STDatasets` which you can then find, via the fileBrowser of the Viewer
-in the directory `/STDatasets`
+Launch the image, mounting also the volume where you have the dataset. For example if your dataset is in 
+`/home/user/STDatasets/` you need to launch with the option `-v /home/user/STDatasets:/STDatasets` which you can then 
+find, via the fileBrowser of the Viewer in the directory `/STDatasets`. 
+Note that you need to allow the root user to use your Display to see the Viewer:
+
+	xhost +local:root
+	
+Then launch the image according to where your file are located.
 
 	docker run -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /home/user/STDatasets:/STDatasets st_viewer
 	
