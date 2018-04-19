@@ -110,7 +110,7 @@ static void computeDEA(const mat &data,
                     "sizes[2] = ceiling((num_spots / 2) * 0.2);"
                     "sizes[3] = ceiling((num_spots / 2) * 0.3);"
                     "sizes[4] = ceiling((num_spots / 2) * 0.4);"
-                    "sce = newSCESet(countData=exp_values);"
+                    "sce = SingleCellExperiment(assays=list(counts=exp_values));"
                     "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
                     "sce = normalize(sce);"
                     "dds = convertTo(sce, type='DESeq2');"
@@ -178,7 +178,9 @@ static void spotClassification(const mat &counts,
     RInside *R = RInside::instancePtr();
     Q_ASSERT(R != nullptr);
     try {
-        const std::string R_libs = "suppressMessages(library(Rtsne));";
+        const std::string R_libs = "suppressMessages(library(BiocParallel));"
+                                   "register(MulticoreParam(4));"
+                                   "suppressMessages(library(Rtsne));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         (*R)["k"] = num_clusters;
@@ -295,7 +297,9 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
-        const std::string R_libs = "suppressMessages(library(scran))";
+        const std::string R_libs = "suppressMessages(library(BiocParallel));"
+                                   "register(MulticoreParam(4));"
+                                   "suppressMessages(library(scran));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         // For Scran genes must be rows so we transpose the matrixs
@@ -306,10 +310,7 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
                                  "sizes[2] = ceiling((num_spots / 2) * 0.2);"
                                  "sizes[3] = ceiling((num_spots / 2) * 0.3);"
                                  "sizes[4] = ceiling((num_spots / 2) * 0.4);"
-                                 "sce = newSCESet(countData=counts);"
-                                 "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
-                                 "sce = normalize(sce);"
-                                 "size_factors = sce@phenoData$size_factor";
+                                 "size_factors = computeSumFactors(counts, positive=T, sizes=unique(sizes));";
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed SCRAN size factors " << factors.size();
         Q_ASSERT(factors.size() == counts.n_rows);
