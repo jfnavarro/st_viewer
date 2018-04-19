@@ -114,7 +114,7 @@ the ST Viewer will be installed in your system.
         install.packages("RcppArmadillo")
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
-		eg PATH=C:\RBuildTools\3.4\bin\;C:\RBuildTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
+		eg PATH=C:\RTools\3.4\bin\;C:\RTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
 
 * Make sure that you do not have another MinGW in your PATH variable
 
@@ -125,6 +125,11 @@ the ST Viewer will be installed in your system.
 * Download the Windows installer double click on it and follow the instructions, once done the ST Viewer
 will be installed in your system. 
 
+If you have problems running the ST Viewer on a windows machine, make sure that R is properly installed/updated, that
+it is accesible by all the users, that the required R packages are installed and functional, that the R_HOME
+and PATH variables are configured correctly and ultimately that the visual studio redistributable
+libraries are installed in your system (although, this should not really cause any problem).
+
 
 ## Docker container
 
@@ -134,9 +139,14 @@ Build the image:
 
 	docker build . -t st_viewer
 	
-Launch the image, mounting also the volume where you have the dataset. For example if your dataset is in `/home/user/STDatasets/`
-you need to launch with the option `-v /home/user/STDatasets:/STDatasets` which you can then find, via the fileBrowser of the Viewer
-in the directory `/STDatasets`
+Launch the image, mounting also the volume where you have the dataset. For example if your dataset is in 
+`/home/user/STDatasets/` you need to launch with the option `-v /home/user/STDatasets:/STDatasets` which you can then 
+find, via the fileBrowser of the Viewer in the directory `/STDatasets`. 
+Note that you need to allow the root user to use your Display to see the Viewer:
+
+	xhost +local:root
+	
+Then launch the image according to where your file are located.
 
 	docker run -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /home/user/STDatasets:/STDatasets st_viewer
 	
