@@ -203,3 +203,8 @@ v0.7.0
     * UI optimizations
     * Speed improvements
     * Removed deprecated stuff
+
+v0.7.1
+
+    * Fixed bugs
+    * Bumped up the SCRAN code to the latest release (new API)
