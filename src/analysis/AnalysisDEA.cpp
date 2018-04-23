@@ -214,19 +214,19 @@ void AnalysisDEA::updateTable()
         const double pvalue = m_results.at(i, 4);
         const QString pvalue_str = QString::number(pvalue);
         const double foldchange = m_results.at(i, 1);
-        const QString foldhchange_str = QString::number(foldchange);
+        const QString foldchange_str = QString::number(foldchange);
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::DisplayRole);
         gene_item->setData(gene, Qt::UserRole);
         QStandardItem *fdr_item = new QStandardItem(fdr_str);
-        fdr_item->setData(fdr_str, Qt::DisplayRole);
-        fdr_item->setData(fdr_str, Qt::UserRole);
+        fdr_item->setData(fdr, Qt::DisplayRole);
+        fdr_item->setData(fdr, Qt::UserRole);
         QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
-        pvalue_item->setData(pvalue_str, Qt::DisplayRole);
-        pvalue_item->setData(pvalue_str, Qt::UserRole);
-        QStandardItem *foldchange_item = new QStandardItem(foldhchange_str);
-        foldchange_item->setData(foldhchange_str, Qt::DisplayRole);
-        foldchange_item->setData(foldhchange_str, Qt::UserRole);
+        pvalue_item->setData(pvalue, Qt::DisplayRole);
+        pvalue_item->setData(pvalue, Qt::UserRole);
+        QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
+        foldchange_item->setData(foldchange, Qt::DisplayRole);
+        foldchange_item->setData(foldchange, Qt::UserRole);
         if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
             gene_item->setBackground(Qt::red);
             fdr_item->setBackground(Qt::red);
