@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Differential Expression Analysis with DESeq2</string>
+   <string>Differential Expression Analysis</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_13">
    <item>
@@ -31,37 +31,22 @@
         </font>
        </property>
        <property name="text">
-        <string>Normalization</string>
+        <string>Method</string>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QGroupBox" name="groupBoxNormalization">
-         <property name="minimumSize">
-          <size>
-           <width>200</width>
-           <height>60</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>60</height>
-          </size>
-         </property>
+        <widget class="QGroupBox" name="groupBoxMethod">
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="toolTip">
-          <string>Different normalization methods for the counts</string>
+          <string>Different methods for the DEA analysis</string>
          </property>
          <property name="statusTip">
-          <string>Normalization methods</string>
-         </property>
-         <property name="whatsThis">
-          <string>Different normalization methods for the counts</string>
+          <string>Different methods for the DEA analysis</string>
          </property>
          <property name="title">
           <string/>
@@ -69,30 +54,27 @@
          <property name="flat">
           <bool>true</bool>
          </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="normalization_scran">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="method_edger">
             <property name="toolTip">
-             <string>SCRAN sum-factors</string>
+             <string>Uses EdgeR for the DEA analysis</string>
             </property>
             <property name="statusTip">
-             <string>SCRAN sum-factors</string>
+             <string>Uses EdgeR for the DEA analysis</string>
             </property>
             <property name="text">
-             <string>SCRAN</string>
+             <string>EdgeR</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="normalization_deseq">
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="method_deseq">
             <property name="toolTip">
-             <string>DESeq2 size factors (geometric means)</string>
+             <string>Uses DESeq2 for the DEA analysis</string>
             </property>
             <property name="statusTip">
-             <string>DESeq2 size factors (geometric means)</string>
+             <string>Uses DESeq2 for the DEA analysis</string>
             </property>
             <property name="text">
              <string>DESeq2</string>

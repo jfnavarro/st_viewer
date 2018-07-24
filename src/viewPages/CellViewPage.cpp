@@ -582,5 +582,5 @@ void CellViewPage::slotCreateSelection()
     qDebug() << "Creating selection " << new_selection.name();
     m_user_selections->addSelection(new_selection);
     // clear the selection
-    clearSelections();
+    //clearSelections();
 }

@@ -28,7 +28,7 @@ AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
     , m_conditions()
     , m_nameA(nameA)
     , m_nameB(nameB)
-    , m_normalization(SettingsWidget::NormalizationMode::DESEQ)
+    , m_method(AnalysisDEA::DESEQ2)
     , m_reads_threshold(-1)
     , m_genes_threshold(-1)
     , m_ind_reads_treshold(-1)
@@ -39,7 +39,7 @@ AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
     // default values
     m_ui->fdr->setValue(0.1);
     m_ui->foldchange->setValue(1.0);
-    m_ui->normalization_deseq->setChecked(true);
+    m_ui->method_deseq->setChecked(true);
     m_ui->exportTable->setEnabled(false);
     m_ui->searchField->setEnabled(false);
     m_ui->progressBar->setTextVisible(true);
@@ -100,11 +100,15 @@ void AnalysisDEA::slotExportTable()
         // write columns (1st row)
         stream << "Gene" << "\t" << "FDR" << "\t" << "p-value" << "\t" << "log2FoldChange" << endl;
         // write values
+        const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
         for (uword i = 0; i < m_results.n_rows; ++i) {
+            const int pvalue_index = DESEQ2 ? 4 : 2;
+            const int fdr_index = DESEQ2 ? 5 : 3;
+            const int fc_index = DESEQ2 ? 1 : 0;
             const QString gene = QString::fromStdString(m_results_rows.at(i));
-            const double fdr = m_results.at(i, 5);
-            const double pvalue = m_results.at(i, 4);
-            const double foldchange = m_results.at(i, 1);
+            const double fdr = m_results.at(i, fdr_index);
+            const double pvalue = m_results.at(i, pvalue_index);
+            const double foldchange = m_results.at(i, fc_index);
             if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
                 stream << gene << "\t" << fdr << "\t" << pvalue << "\t" << foldchange << endl;
             }
@@ -133,9 +137,12 @@ void AnalysisDEA::slotGeneSelected(QModelIndex index)
     }
 
     // update the highlight coordinate and refresh the plot
+    const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
     const int row_index = selected_indexes.first().row();
-    const double pvalue = -log10(m_results.at(row_index, 4) + std::numeric_limits<double>::epsilon());
-    const double foldchange = m_results.at(row_index, 1);
+    const int pvalue_index = DESEQ2 ? 4 : 2;
+    const int fc_index = DESEQ2 ? 1 : 0;
+    const double pvalue = -log10(m_results.at(row_index, pvalue_index) + std::numeric_limits<double>::epsilon());
+    const double foldchange = m_results.at(row_index, fc_index);
     m_gene_highlight = QPointF(foldchange, pvalue);
     updatePlot();
 }
@@ -156,10 +163,14 @@ void AnalysisDEA::updatePlot()
     series2->setUseOpenGL(false);
 
     // populate
+    const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
     for (uword i = 0; i < m_results.n_rows; ++i) {
-        const double fdr = m_results.at(i, 5);
-        const double pvalue = -log10(m_results.at(i, 4) + std::numeric_limits<double>::epsilon());
-        const double foldchange = m_results.at(i, 1);
+        const int pvalue_index = DESEQ2 ? 4 : 2;
+        const int fdr_index = DESEQ2 ? 5 : 3;
+        const int fc_index = DESEQ2 ? 1 : 0;
+        const double fdr = m_results.at(i, fdr_index);
+        const double pvalue = -log10(m_results.at(i, pvalue_index) + std::numeric_limits<double>::epsilon());
+        const double foldchange = m_results.at(i, fc_index);
         if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
             series2->append(foldchange, pvalue);
         } else {
@@ -207,26 +218,30 @@ void AnalysisDEA::updateTable()
 
     int high_confidence_de = 0;
     // populate
+    const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
     for (uword i = 0; i < m_results.n_rows; ++i) {
+        const int pvalue_index = DESEQ2 ? 4 : 2;
+        const int fdr_index = DESEQ2 ? 5 : 3;
+        const int fc_index = DESEQ2 ? 1 : 0;
         const QString gene = QString::fromStdString(m_results_rows.at(i));
-        const double fdr = m_results.at(i, 5);
+        const double fdr = m_results.at(i, fdr_index);
         const QString fdr_str = QString::number(fdr);
-        const double pvalue = m_results.at(i, 4);
+        const double pvalue = m_results.at(i, pvalue_index);
         const QString pvalue_str = QString::number(pvalue);
-        const double foldchange = m_results.at(i, 1);
-        const QString foldhchange_str = QString::number(foldchange);
+        const double foldchange = m_results.at(i, fc_index);
+        const QString foldchange_str = QString::number(foldchange);
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::DisplayRole);
         gene_item->setData(gene, Qt::UserRole);
         QStandardItem *fdr_item = new QStandardItem(fdr_str);
-        fdr_item->setData(fdr_str, Qt::DisplayRole);
-        fdr_item->setData(fdr_str, Qt::UserRole);
+        fdr_item->setData(fdr, Qt::DisplayRole);
+        fdr_item->setData(fdr, Qt::UserRole);
         QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
-        pvalue_item->setData(pvalue_str, Qt::DisplayRole);
-        pvalue_item->setData(pvalue_str, Qt::UserRole);
-        QStandardItem *foldchange_item = new QStandardItem(foldhchange_str);
-        foldchange_item->setData(foldhchange_str, Qt::DisplayRole);
-        foldchange_item->setData(foldhchange_str, Qt::UserRole);
+        pvalue_item->setData(pvalue, Qt::DisplayRole);
+        pvalue_item->setData(pvalue, Qt::UserRole);
+        QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
+        foldchange_item->setData(foldchange, Qt::DisplayRole);
+        foldchange_item->setData(foldchange, Qt::UserRole);
         if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
             gene_item->setBackground(Qt::red);
             fdr_item->setBackground(Qt::red);
@@ -279,43 +294,40 @@ void AnalysisDEA::updateTable()
 
 void AnalysisDEA::run()
 {
-    bool recomputeFilter = false;
-    bool recomputeNorm = false;
+    bool recompute = false;
 
-    if (m_ui->normalization_deseq->isChecked()
-            && m_normalization != SettingsWidget::NormalizationMode::DESEQ) {
-        m_normalization = SettingsWidget::NormalizationMode::DESEQ;
-        recomputeNorm = true;
+    if (m_ui->method_deseq->isChecked() && m_method != AnalysisDEA::DESEQ2) {
+        m_method = AnalysisDEA::DESEQ2;
+        recompute = true;
     }
 
-    if (m_ui->normalization_scran->isChecked() &&
-            m_normalization != SettingsWidget::NormalizationMode::SCRAN) {
-        m_normalization = SettingsWidget::NormalizationMode::SCRAN;
-        recomputeNorm = true;
+    if (!m_ui->method_deseq->isChecked() && m_method != AnalysisDEA::EDGER) {
+        m_method = AnalysisDEA::EDGER;
+        recompute = true;
     }
 
     if (m_reads_threshold != m_ui->reads_threshold->value()) {
         m_reads_threshold = m_ui->reads_threshold->value();
-        recomputeFilter = true;
+        recompute = true;
     }
 
     if (m_genes_threshold != m_ui->genes_threshold->value()) {
         m_genes_threshold = m_ui->genes_threshold->value();
-        recomputeFilter = true;
+        recompute = true;
     }
 
     if (m_ind_reads_treshold != m_ui->individual_reads_threshold->value()) {
         m_ind_reads_treshold = m_ui->individual_reads_threshold->value();
-        recomputeFilter = true;
+        recompute = true;
     }
 
     if (m_spots_threshold != m_ui->spots_threshold->value()) {
         m_spots_threshold = m_ui->spots_threshold->value();
-        recomputeFilter = true;
+        recompute = true;
     }
 
     STData::STDataFrame data = m_data;
-    if (recomputeFilter || recomputeNorm) {
+    if (recompute) {
         // filter the data
         data = STData::filterDataFrame(data,
                                        m_ind_reads_treshold,
@@ -363,9 +375,17 @@ void AnalysisDEA::runDEAAsync(const STData::STDataFrame &data)
     qDebug() << "Computing DEA Asynchronously. Rows="
              << data.counts.n_rows << ", columns=" << data.counts.n_cols;
 
+    m_results.clear();
+    m_results_cols.clear();
+    m_results_rows.clear();
     // Make the DEA call
-    RInterface::computeDEA(data.counts, rows, cols, m_conditions, m_normalization,
-                           m_results, m_results_rows, m_results_cols);
+    if (m_ui->method_deseq->isChecked()) {
+        RInterface::computeDEA_DESeq(data.counts, rows, cols, m_conditions,
+                                     m_results, m_results_rows, m_results_cols);
+    } else {
+        RInterface::computeDEA_EdgeR(data.counts, rows, cols, m_conditions,
+                                     m_results, m_results_rows, m_results_cols);
+    }
 }
 
 void AnalysisDEA::slotDEAComputed()

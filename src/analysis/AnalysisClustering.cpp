@@ -157,17 +157,12 @@ mat AnalysisClustering::filterMatrix()
         normalization = SettingsWidget::TPM;
     } else if (m_ui->normalization_deseq->isChecked()) {
         normalization = SettingsWidget::DESEQ;
-        m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
     } else if (m_ui->normalization_scran->isChecked()) {
         normalization = SettingsWidget::SCRAN;
-        m_scran_size_factors = RInterface::computeScranFactors(data.counts, true);
     }
 
     // Normalize and log matrix of counts
-    mat A = STData::normalizeCounts(data,
-                                    m_deseq_size_factors,
-                                    m_scran_size_factors,
-                                    normalization).counts;
+    mat A = STData::normalizeCounts(data, normalization).counts;
     if (m_ui->logScale->isChecked()) {
         A = log(A + 1.0);
     }

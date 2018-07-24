@@ -27,7 +27,6 @@ DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
     m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
-    m_ui->spikeInFile->setText(dataset.spikeinFile());
     m_ui->sizeFactorsFile->setText(dataset.sizeFactorsFile());
 }
 
@@ -49,8 +48,6 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
     connect(m_ui->loadImageAlignmentFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadAlignmentFile);
-    connect(m_ui->loadSpikeInFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadSpikeInFile);
     connect(m_ui->loadSizeFactorsFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSizeFactorsFile);
     connect(m_ui->loadFolder,
@@ -106,11 +103,6 @@ const QString DatasetImporter::alignmentMatrix() const
 const QString DatasetImporter::spotsMapFile() const
 {
     return m_ui->spotMapFile->text();
-}
-
-const QString DatasetImporter::spikeinFile() const
-{
-    return m_ui->spikeInFile->text();
 }
 
 const QString DatasetImporter::sizeFactorsFile() const
@@ -200,28 +192,6 @@ void DatasetImporter::slotLoadAlignmentFile()
     }
 }
 
-void DatasetImporter::slotLoadSpikeInFile()
-{
-    const QString filename
-            = QFileDialog::getOpenFileName(this,
-                                           tr("Open Spike-in File"),
-                                           QDir::homePath(),
-                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    QFileInfo info(filename);
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Spike-in File"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        m_ui->spikeInFile->setText(filename);
-    }
-}
-
 void DatasetImporter::slotLoadSizeFactorsFile()
 {
     const QString filename
@@ -290,8 +260,6 @@ void DatasetImporter::slotParseFolder()
                 m_ui->imageAlignmentFile->setText(file);
             } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
-            } else if (file.contains("spikein")) {
-                m_ui->spikeInFile->setText(file);
             } else if (file.contains("sizefactors")) {
                 m_ui->sizeFactorsFile->setText(file);
             } else if (file.contains("info.json")) {
@@ -349,9 +317,6 @@ void DatasetImporter::slotParseMetaFile()
         }
         if (jsonObject.contains("coordinates")) {
             m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());
-        }
-        if (jsonObject.contains("spike_ins")) {
-            m_ui->spikeInFile->setText(jsonObject["spike_ins"].toString());
         }
         if (jsonObject.contains("size_factors")) {
             m_ui->sizeFactorsFile->setText(jsonObject["size_factors"].toString());
