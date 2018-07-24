@@ -11,13 +11,6 @@ static const int COLUMN = 0;
 
 STData::STData()
     : m_data()
-    , m_reads_threshold(-1)
-    , m_genes_threshold(-1)
-    , m_ind_reads_treshold(-1)
-    , m_spots_threshold(-1)
-    , m_deseq_size_factors()
-    , m_scran_size_factors()
-    , m_spike_in()
     , m_size_factors()
     , m_spots()
     , m_genes()
@@ -235,13 +228,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange ||
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
-    const bool recompute_size_factors =
-            (rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::DESEQ
-             || rendering_settings.normalization_mode == SettingsWidget::NormalizationMode::SCRAN)
-            && (m_reads_threshold != rendering_settings.ind_reads_threshold
-            || m_genes_threshold != rendering_settings.genes_threshold
-            || m_ind_reads_treshold != rendering_settings.ind_reads_threshold
-            || m_spots_threshold != rendering_settings.spots_threshold);
 
     // Set visible to false for all the spots
     QtConcurrent::blockingMap(m_rendering_visible, [] (auto &visible) { visible = false; });
@@ -249,10 +235,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // Create copy of the data frame so to reduce and normalize it
     STDataFrame data = m_data;
 
-    // Apply spike-ins and size factors if indicated by the user
-    if (rendering_settings.spike_in && m_spike_in.size() == data.counts.n_rows) {
-        data.counts.each_col() /= m_spike_in.t();
-    }
+    // Apply size factors if indicated by the user
     if (rendering_settings.size_factors && m_size_factors.size() == data.counts.n_rows) {
         data.counts.each_col() /= m_size_factors.t();
     }
@@ -286,17 +269,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
     // Check if we need to compute normalization factors and normalize the data
     if (do_values) {
-        if (recompute_size_factors) {
-            m_reads_threshold = rendering_settings.ind_reads_threshold;
-            m_genes_threshold = rendering_settings.genes_threshold;
-            m_ind_reads_treshold = rendering_settings.ind_reads_threshold;
-            m_spots_threshold = rendering_settings.spots_threshold;
-            m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-            m_scran_size_factors = RInterface::computeScranFactors(data.counts, false);
-        }
         // Normalize the data
-        data = normalizeCounts(data, m_deseq_size_factors, m_scran_size_factors,
-                               rendering_settings.normalization_mode);
+        data = normalizeCounts(data, rendering_settings.normalization_mode);
     }
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
@@ -413,52 +387,6 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
     return spotMap;
 }
 
-bool STData::parseSpikeIn(const QString &spikeInFile)
-{
-    qDebug() << "Parsing spike-in file " << spikeInFile;
-    QFile file(spikeInFile);
-    std::vector<double> spike_ins;
-    bool parsed = true;
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream in(&file);
-        QString line;
-        QStringList fields;
-        while (!in.atEnd()) {
-            line = in.readLine();
-            fields = line.split("\t");
-            if (fields.length() != 1) {
-                parsed = false;
-                break;
-            }
-            const double spike_in = fields.at(0).toFloat();
-            spike_ins.push_back(spike_in);
-        }
-
-        if (spike_ins.empty() || !parsed) {
-            qDebug() << "No valid spike-ins were found in the given file";
-            parsed = false;
-        }
-
-    } else {
-        qDebug() << "Could not parse spike-ins file";
-        parsed = false;
-    }
-    file.close();
-
-    if (!parsed) {
-        return parsed;
-    }
-
-    if (spike_ins.size() != m_spots.size()) {
-        qDebug() << "The number of spike-ins found is not the same as the number of rows";
-        parsed = false;
-    } else {
-        m_spike_in = rowvec(spike_ins);
-    }
-
-    return parsed;
-}
-
 bool STData::parseSizeFactors(const QString &sizefactors)
 {
     qDebug() << "Parsing size factors file " << sizefactors;
@@ -506,8 +434,6 @@ bool STData::parseSizeFactors(const QString &sizefactors)
 }
 
 STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
-                                            const rowvec deseq_size_factors,
-                                            const rowvec scran_size_factors,
                                             SettingsWidget::NormalizationMode mode)
 {
     STDataFrame norm_counts = data;
@@ -522,21 +448,13 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
         norm_counts.counts *= 1e6;
     } break;
     case (SettingsWidget::NormalizationMode::DESEQ): {
-        if (norm_counts.counts.n_rows == deseq_size_factors.n_cols) {
-            norm_counts.counts.each_col() /= deseq_size_factors.t();
-        } else {
-            qDebug() << "Trying to normalize with incorrect number of DESEq2 factors "
-                     << deseq_size_factors.n_cols;
-        }
+        const auto m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
+        norm_counts.counts.each_col() /= m_deseq_size_factors.t();
     } break;
     case (SettingsWidget::NormalizationMode::SCRAN): {
-        if (norm_counts.counts.n_rows == scran_size_factors.n_cols) {
-            norm_counts.counts.each_col() /= scran_size_factors.t();
-        } else {
-            qDebug() << "Trying to normalize with incorrect number of SCRAN factors "
-                     << scran_size_factors.n_cols;
-        }
-    }
+        const auto scran_size_factors = RInterface::computeScranFactors(data.counts, true);
+        norm_counts.counts.each_col() /= scran_size_factors.t();
+    } break;
     }
     return norm_counts;
 }
@@ -619,6 +537,10 @@ STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
                                             const int min_genes_spot,
                                             const int min_spots_gene)
 {
+    if (data.counts.n_cols == 0 || data.counts.n_rows == 0) {
+        return data;
+    }
+
     STDataFrame sliced_data = data;
 
     // Filter out genes

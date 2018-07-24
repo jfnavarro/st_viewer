@@ -208,3 +208,13 @@ v0.7.1
 
     * Fixed bugs
     * Bumped up the SCRAN code to the latest release (new API)
+
+v0.7.5
+
+    * Removed Scran and DESeq2 normalisation from the main view
+    * Removed the update bottom in the visualisation settings 
+    * Fixed a bug when viewing spots when there are no genes shown
+    * Added EdgeR to the methods options for the DEA widget
+    * Enforce Scran normalisation in the DEA widget
+    * Optimized the Scran normalisation settings in general
+    * Bumped R to 3.5

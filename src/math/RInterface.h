@@ -74,52 +74,43 @@ static std::vector<unsigned> computeInterpolation(const std::vector<double> &x1,
 }
 
 // Computes a DEA (Differential Expression Analysis with DESeq2) between two selections
-static void computeDEA(const mat &data,
-                       const std::vector<std::string> &dataRows,
-                       const std::vector<std::string> &dataCols,
-                       const std::vector<std::string> &condition,
-                       const SettingsWidget::NormalizationMode &normalization,
-                       mat &results,
-                       std::vector<std::string> &rows,
-                       std::vector<std::string> &cols)
+static void computeDEA_DESeq(const mat &data,
+                             const std::vector<std::string> &dataRows,
+                             const std::vector<std::string> &dataCols,
+                             const std::vector<std::string> &condition,
+                             mat &results,
+                             std::vector<std::string> &rows,
+                             std::vector<std::string> &cols)
 {
     RInside *R = RInside::instancePtr();
     Q_ASSERT(R != nullptr);
     try {
-        const std::string R_libs = "suppressMessages(library(BiocParallel));"
-                                   "register(MulticoreParam(4));"
-                                   "suppressMessages(library(DESeq2));"
+        const std::string R_libs = "suppressMessages(library(DESeq2));"
                                    "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = data;
         (*R)["rows"] = dataRows;
         (*R)["cols"] = dataCols;
         (*R)["condition"] = condition;
-        std::string call = "exp_values = as.matrix(t(counts));"
-                           "exp_values[is.na(exp_values)] = 0;"
-                           "exp_values[exp_values < 0] = 0;"
-                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
-                           "rownames(exp_values) = cols;";
-        if (normalization == SettingsWidget::NormalizationMode::DESEQ) {
-            call += "dds = DESeqDataSetFromMatrix(countData=exp_values, "
-                    "colData=data.frame(condition=condition), design= ~ condition);";
-        } else {
-            call += "num_spots = dim(exp_values)[2];"
-                    "sizes = vector(length=4);"
-                    "sizes[1] = ceiling((num_spots / 2) * 0.1);"
-                    "sizes[2] = ceiling((num_spots / 2) * 0.2);"
-                    "sizes[3] = ceiling((num_spots / 2) * 0.3);"
-                    "sizes[4] = ceiling((num_spots / 2) * 0.4);"
-                    "sce = SingleCellExperiment(assays=list(counts=exp_values));"
-                    "sce = computeSumFactors(sce, positive=T, sizes=unique(sizes));"
-                    "sce = normalize(sce);"
-                    "dds = convertTo(sce, type='DESeq2');"
-                    "colData(dds)$condition = as.factor(condition);"
-                    "design(dds) = formula( ~ condition);";
-        }
-        call += "dds = DESeq(dds, fitType='mean', parallel=F);"
-                "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
-                "res = res[order(res$padj),];";
+        const std::string call = "exp_values = as.matrix(t(counts));"
+                                 "exp_values[is.na(exp_values)] = 0;"
+                                 "exp_values[exp_values < 0] = 0;"
+                                 "exp_values = apply(exp_values, c(1,2), as.numeric);"
+                                 "rownames(exp_values) = cols;"
+                                 "num_spots = dim(exp_values)[2];"
+                                 "sce = SingleCellExperiment(assays=list(counts=exp_values));"
+                                 "clusters = quickCluster(as.matrix(exp_values),"
+                                 "                        min.size=max(num_spots / 10, 50), method='igraph');"
+                                 "min_cluster_size = min(table(clusters));"
+                                 "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
+                                 "size_factors = computeSumFactors(sce, sizes=unique(sizes));"
+                                 "sce = normalize(sce);"
+                                 "dds = convertTo(sce, type='DESeq2');"
+                                 "colData(dds)$condition = as.factor(condition);"
+                                 "design(dds) = formula( ~ condition);"
+                                 "dds = DESeq(dds, fitType='mean', parallel=F);"
+                                 "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
+                                 "res = res[order(res$padj),];";
         const std::string call2 = "as.matrix(res);";
         const std::string call3 = "colnames(res);";
         const std::string call4 = "rownames(res);";
@@ -132,6 +123,60 @@ static void computeDEA(const mat &data,
         qDebug() << "Error computing R DEA with DESEq2" << e.what();
     } catch (...) {
         qDebug() << "Unknown error computing R DEA with DESeq2";
+    }
+}
+
+// Computes a DEA (Differential Expression Analysis with EdgeR) between two selections
+static void computeDEA_EdgeR(const mat &data,
+                             const std::vector<std::string> &dataRows,
+                             const std::vector<std::string> &dataCols,
+                             const std::vector<std::string> &condition,
+                             mat &results,
+                             std::vector<std::string> &rows,
+                             std::vector<std::string> &cols)
+{
+    RInside *R = RInside::instancePtr();
+    Q_ASSERT(R != nullptr);
+    try {
+        const std::string R_libs = "suppressMessages(library(edgeR));"
+                                   "suppressMessages(library(scran))";
+        R->parseEvalQ(R_libs);
+        (*R)["counts"] = data;
+        (*R)["rows"] = dataRows;
+        (*R)["cols"] = dataCols;
+        (*R)["condition"] = condition;
+        std::string call = "exp_values = as.matrix(t(counts));"
+                           "exp_values[is.na(exp_values)] = 0;"
+                           "exp_values[exp_values < 0] = 0;"
+                           "exp_values = apply(exp_values, c(1,2), as.numeric);"
+                           "rownames(exp_values) = cols;"
+                           "num_spots = dim(exp_values)[2];"
+                           "sce = SingleCellExperiment(assays=list(counts=exp_values));"
+                           "clusters = quickCluster(as.matrix(exp_values),"
+                           "                        min.size=max(num_spots / 10, 50), method='igraph');"
+                           "min_cluster_size = min(table(clusters));"
+                           "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
+                           "size_factors = computeSumFactors(sce, sizes=unique(sizes));"
+                           "sce = normalize(sce);"
+                           "dge = convertTo(sce, type='edgeR');"
+                           "dge$samples$group = condition;"
+                           "dge = estimateDisp(dge, trend.method='loess');"
+                           "res = exactTest(dge, pair=c('B', 'A'));"
+                           "res = topTags(res, n=length(rownames(res$table)));"
+                           "res = res[!is.na(res$table$FDR),];"
+                           "res = res[order(res$table$FDR),];";
+        const std::string call2 = "as.matrix(res$table);";
+        const std::string call3 = "colnames(res);";
+        const std::string call4 = "rownames(res);";
+        R->parseEvalQ(call);
+        results = Rcpp::as<mat>(R->parseEval(call2));
+        cols = Rcpp::as<std::vector<std::string>>(R->parseEval(call3));
+        rows = Rcpp::as<std::vector<std::string>>(R->parseEval(call4));
+        qDebug() << "Computed R DEA with EdgeR";
+    } catch (const std::exception &e) {
+        qDebug() << "Error computing R DEA with EdgeR" << e.what();
+    } catch (...) {
+        qDebug() << "Unknown error computing R DEA with EdgeR";
     }
 }
 
@@ -178,9 +223,7 @@ static void spotClassification(const mat &counts,
     RInside *R = RInside::instancePtr();
     Q_ASSERT(R != nullptr);
     try {
-        const std::string R_libs = "suppressMessages(library(BiocParallel));"
-                                   "register(MulticoreParam(4));"
-                                   "suppressMessages(library(Rtsne));";
+        const std::string R_libs = "suppressMessages(library(Rtsne));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         (*R)["k"] = num_clusters;
@@ -232,12 +275,12 @@ static unsigned computeSpotClasses(const mat &counts)
     Q_ASSERT(!counts.empty());
     unsigned clusters = 0;
     try {
-        const std::string R_libs = "suppressMessages(library(BiocParallel));"
-                                   "register(MulticoreParam(4));"
-                                   "suppressMessages(library(scran))";
+        const std::string R_libs = "suppressMessages(library(scran))";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
-        const std::string call = "clusters = quickCluster(as.matrix(t(counts)), min.size=dim(counts)[1] / 10);"
+        const std::string call = "clusters = quickCluster(as.matrix(t(counts)),"
+                                 "                        min.size=max(dim(counts)[1] / 10, 50),"
+                                 "                        method='igraph');"
                                  "clusters = length(unique(clusters[clusters != 0]))";
         clusters = Rcpp::as<double>(R->parseEval(call));
         qDebug() << "Computed R clusters with quickClust " << clusters;
@@ -259,9 +302,7 @@ static rowvec computeDESeqFactors(const mat &counts)
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
-        const std::string R_libs = "suppressMessages(library(BiocParallel));"
-                                   "register(MulticoreParam(4));"
-                                   "suppressMessages(library(DESeq2));";
+        const std::string R_libs = "suppressMessages(library(DESeq2));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         // For DESeq2 genes must be rows so we transpose the matrix
@@ -297,20 +338,23 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
     rowvec factors(counts.n_rows);
     factors.fill(1.0);
     try {
-        const std::string R_libs = "suppressMessages(library(BiocParallel));"
-                                   "register(MulticoreParam(4));"
-                                   "suppressMessages(library(scran));";
+        const std::string R_libs = "suppressMessages(library(scran));";
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         // For Scran genes must be rows so we transpose the matrixs
-        const std::string call = "counts = t(counts);"
-                                 "num_spots = dim(counts)[2];"
-                                 "sizes = vector(length=4);"
-                                 "sizes[1] = ceiling((num_spots / 2) * 0.1);"
-                                 "sizes[2] = ceiling((num_spots / 2) * 0.2);"
-                                 "sizes[3] = ceiling((num_spots / 2) * 0.3);"
-                                 "sizes[4] = ceiling((num_spots / 2) * 0.4);"
-                                 "size_factors = computeSumFactors(counts, positive=T, sizes=unique(sizes));";
+        std::string call = "counts = t(counts);"
+                           "num_spots = dim(counts)[2];";
+        if (do_cluster) {
+            call += "clusters = quickCluster(as.matrix(counts),"
+                    "                        min.size=max(num_spots / 10, 50),"
+                    "                        method='igraph');"
+                    "min_cluster_size = min(table(clusters));"
+                    "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
+                    "size_factors = computeSumFactors(counts, sizes=unique(sizes));";
+        } else {
+            call += "sizes = seq(min(num_spots/4, 10), min(num_spots/2, 50), 10);"
+                    "size_factors = computeSumFactors(counts, sizes=unique(sizes));";
+        }
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed SCRAN size factors " << factors.size();
         Q_ASSERT(factors.size() == counts.n_rows);

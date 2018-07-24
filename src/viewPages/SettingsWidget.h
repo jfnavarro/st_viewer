@@ -48,7 +48,6 @@ public:
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;
         bool gene_cutoff;
-        bool spike_in;
         bool size_factors;
     };
 
@@ -69,7 +68,6 @@ private slots:
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
-    void slotSpikeIn(bool);
     void slotSizeFactors(bool);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);

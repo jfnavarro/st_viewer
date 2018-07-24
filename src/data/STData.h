@@ -62,10 +62,6 @@ public:
     // It throws exceptions when errors during parsing or empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
-    // to parse a file with spike-in factors (one per spot)
-    // it returns bool if the parsing was okay and the number of factors is the same as rows
-    bool parseSpikeIn(const QString &spikeInFile);
-
     // to parse a file with size factors (one per spot)
     // it returns bool if the parsing was okay and the number of factors is the same as rows
     bool parseSizeFactors(const QString &sizefactors);
@@ -95,8 +91,6 @@ public:
 
     // helper function that returns the normalized matrix counts using the rendering settings
     static STDataFrame normalizeCounts(const STDataFrame &data,
-                                       const rowvec deseq_size_factors,
-                                       const rowvec scran_size_factors,
                                        SettingsWidget::NormalizationMode mode);
 
     // functions to select spots
@@ -118,19 +112,6 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
-
-    // cache the thresholds settings to not re-compute always
-    int m_reads_threshold;
-    int m_genes_threshold;
-    int m_ind_reads_treshold;
-    int m_spots_threshold;
-
-    // scran and deseq2 size factors (cached for convenience)
-    rowvec m_deseq_size_factors;
-    rowvec m_scran_size_factors;
-
-    // user loaded spike-in
-    rowvec m_spike_in;
 
     // user loaded size factors
     rowvec m_size_factors;

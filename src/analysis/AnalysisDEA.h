@@ -23,7 +23,13 @@ class AnalysisDEA : public QWidget
 {
     Q_OBJECT
 
+
 public:
+
+    enum Method {
+        DESEQ2 = 1,
+        EDGER = 2,
+    };
 
     AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
                 const QList<STData::STDataFrame> &datasetsB,
@@ -68,7 +74,7 @@ private:
     QString m_nameB;
 
     // cache the settings to not recompute always
-    SettingsWidget::NormalizationMode m_normalization;
+    Method m_method;
     int m_reads_threshold;
     int m_genes_threshold;
     int m_ind_reads_treshold;
