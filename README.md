@@ -93,10 +93,8 @@ The binary provided for MAC requires R 3.4 and OSX 10.2 or bigger.
         biocLite("DESeq2")
         biocLite("scran")
         biocLite("edgeR")
-	install.packages("Rtsne")
-        install.packages("RInside")
-        install.packages("Rcpp")
-        install.packages("RcppArmadillo")
+        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
+	
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
 the ST Viewer will be installed in your system. 
 
@@ -110,10 +108,8 @@ the ST Viewer will be installed in your system.
         biocLite("DESeq2")
         biocLite("scran")
         biocLite("edgeR")
-	install.packages("Rtsne")
-        install.packages("RInside")
-        install.packages("Rcpp")
-        install.packages("RcppArmadillo")
+        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
+	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
 
 		eg PATH=C:\RTools\3.4\bin\;C:\RTools\3.4\mingw_32\bin\;C:\Program Files\R\R-3.4.3\bin\i386
@@ -194,11 +190,8 @@ Then launch the image according to where your file are located.
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
         biocLite("scran")
-        biocLite("edgeR")
-	install.packages("Rtsne")
-        install.packages("RInside")
-        install.packages("Rcpp")
-        install.packages("RcppArmadillo")
+        biocLite("edgeR") 
+        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
 
 ###### OSX
 
