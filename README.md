@@ -1,6 +1,6 @@
 # Spatial Transcriptomics Research Viewer
 
-The ST viewer is a tool that visualizes spatially resolved gene
+The ST viewer is a tool that allows the visualization of spatially resolved gene
 expression data on top of HE stained tissue figures with the correct
 location.
 
@@ -9,7 +9,7 @@ be built and run in OSX, LINUX and WINDOWS.
 
 The ST viewer allows to interact with the data in real time.
 Users can see where specific genes are expressed and how
-expressed they are. It has different threshold, normalization
+expressed they are. It has different thresholding, normalization
 and visualization options. It also allows
 to select areas of the tissue to obtain gene patterns
 to later do DEA or spot classification using machine learning. 
@@ -38,8 +38,8 @@ with the output format of the ST Spot Detector https://github.com/SpatialTranscr
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
 "Import dataset" then a dialog form will be shown where you can load the matrix of counts, the HE
-image and other files. You can also download a dataset automatically
-if its files are inside a folder with the option "Load folder" or you
+image and other files. You can also import a dataset automatically
+if all its files are inside a folder with the option "Load folder" or you
 can use a meta-file to load a dataset. The meta-file must describe where
 all the dataset's files are and it should have the following JSON format:
 
@@ -52,7 +52,6 @@ all the dataset's files are and it should have the following JSON format:
 		"image": "/Users/user/test_dataset/image.jpg",
 		"aligment": "/Users/user/test_dataset/alignment.txt",
 		"coordinates": "/Users/user/test_dataset/spots.txt",
-		"spike_ins": "",
 		"size_factors": ""
 	}
 
@@ -79,15 +78,16 @@ libraries that are used in this software.
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 ## Binaries (Install from binaries)
-Binaries(installer) for MAC and Windows are provided under the tab releases. 
+Binaries(installers) for MAC and Windows are provided under the tab releases. 
 Before you install the ST Viewer trough the binaries you must do the following
 (in case you have not done it already):
+The binary provided for MAC and Windows require that you have installed the same R version as the one
+used to generate the binary (indicated in the releases tab)
 
 ###### OSX
-The binary provided for MAC requires R 3.4 and OSX 10.2 or bigger. 
 
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
-* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
+* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
 
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
@@ -102,7 +102,7 @@ the ST Viewer will be installed in your system.
 
 * Download and install R from https://cran.r-project.org/ (Use the 32 bits option)
 * Download and install Rtools 32bits from https://cran.r-project.org/bin/windows/Rtools/
-* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
+* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
 
         source("https://bioconductor.org/biocLite.R")
         biocLite("DESeq2")
