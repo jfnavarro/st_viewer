@@ -1,7 +1,7 @@
-Qt (5.9) (dynamic linking) with LGPL v3 and v2.1 licenses
+Qt (dynamic linking) with LGPL v3 and v2.1 licenses
 QCustomplot (dynamic linking) with a comercial license
-Armadillo (dynamic linking)  with Apache b2.0 license
-R (DESeq2, Rtsne and SCRAN) with GNU v2.0 license
+Armadillo (dynamic linking)  with Apache 2.0 license
+R (DESeq2, Rtsne, edgeR and SCRAN) with GNU v2.0 license
 RInside with GNU v2.0 license
 Rcpp with GNU v2.0 license
 RcppArmadillo with GNU v2.0 license
