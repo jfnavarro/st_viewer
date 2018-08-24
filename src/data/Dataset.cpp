@@ -14,6 +14,7 @@ Dataset::Dataset()
     , m_spots_file()
     , m_chip()
     , m_size_factors_file()
+    , m_is3D(false)
     , m_alignment()
     , m_data(nullptr)
 {
@@ -31,6 +32,7 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_spots_file = importer.spotsMapFile();
     m_chip = importer.chip();
     m_size_factors_file = importer.sizeFactorsFile();
+    m_is3D = importer.is3D();
     m_alignment = QTransform();
     m_data = nullptr;
 }
@@ -47,6 +49,7 @@ Dataset::Dataset(const Dataset &other)
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
     m_size_factors_file = other.m_size_factors_file;
+    m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
 }
@@ -67,6 +70,7 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
     m_size_factors_file = other.m_size_factors_file;
+    m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
     return (*this);
@@ -83,7 +87,8 @@ bool Dataset::operator==(const Dataset &other) const
             && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
             && m_chip == other.m_chip
-            && m_size_factors_file == other.m_size_factors_file);
+            && m_size_factors_file == other.m_size_factors_file
+            && m_is3D == other.m_is3D);
 }
 
 const QSharedPointer<STData> Dataset::data() const
@@ -207,6 +212,7 @@ void Dataset::load_data()
     m_data = QSharedPointer<STData>(new STData());
     try {
         m_data->init(m_data_file, m_spots_file);
+        m_data->is3D(m_is3D);
     } catch (const std::exception &e) {
         qDebug() << "Error parsing data matrix or spot coordinates " << e.what();
         throw;
@@ -235,30 +241,30 @@ bool Dataset::load_imageAligment()
 {
     qDebug() << "Parsing image alignment file " << m_alignment_file;
     bool parsed = true;
-    float a11 = 1.0;
-    float a12 = 0.0;
-    float a13 = 0.0;
-    float a21 = 0.0;
-    float a22 = 1.0;
-    float a23 = 0.0;
-    float a31 = 0.0;
-    float a32 = 0.0;
-    float a33 = 1.0;
+    double a11 = 1.0;
+    double a12 = 0.0;
+    double a13 = 0.0;
+    double a21 = 0.0;
+    double a22 = 1.0;
+    double a23 = 0.0;
+    double a31 = 0.0;
+    double a32 = 0.0;
+    double a33 = 1.0;
     QFile file(m_alignment_file);
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
         QString line = in.readLine();
         QStringList fields = line.split(" ");
         if (fields.length() == 9) {
-            a11 = fields.at(0).toFloat();
-            a12 = fields.at(1).toFloat();
-            a13 = fields.at(2).toFloat();
-            a21 = fields.at(3).toFloat();
-            a22 = fields.at(4).toFloat();
-            a23 = fields.at(5).toFloat();
-            a31 = fields.at(6).toFloat();
-            a32 = fields.at(7).toFloat();
-            a33 = fields.at(8).toFloat();
+            a11 = fields.at(0).toDouble();
+            a12 = fields.at(1).toDouble();
+            a13 = fields.at(2).toDouble();
+            a21 = fields.at(3).toDouble();
+            a22 = fields.at(4).toDouble();
+            a23 = fields.at(5).toDouble();
+            a31 = fields.at(6).toDouble();
+            a32 = fields.at(7).toDouble();
+            a33 = fields.at(8).toDouble();
         } else {
             qDebug() << "Error parsing alignment matrix (incorrect fields)";
             parsed = false;

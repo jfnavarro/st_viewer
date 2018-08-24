@@ -30,25 +30,25 @@ public:
     const QColor color() const;
     // the threshold (reads)
     // the gene cut-off is used to discard genes whose count is below the cut off
-    float cut_off() const;
+    double cut_off() const;
     // the total number of transcripts for the gene in the dataset
-    float totalCount() const;
+    double totalCount() const;
 
     // Setters
     void name(const QString &name);
     void visible(const bool visible);
     void selected(const bool selected);
     void color(const QColor &color);
-    void cut_off(const float cutoff);
-    void totalCount(const float totalCount);
+    void cut_off(const double cutoff);
+    void totalCount(const double totalCount);
 
 private:
     QString m_name;
     QColor m_color;
     bool m_visible;
     bool m_selected;
-    float m_cutoff;
-    float m_totalCount;
+    double m_cutoff;
+    double m_totalCount;
 };
 
 #endif // GENE_H //

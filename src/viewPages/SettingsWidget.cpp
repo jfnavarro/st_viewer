@@ -5,8 +5,8 @@ static const int INTENSITY_MIN = 1;
 static const int INTENSITY_MAX = 10;
 static const int SIZEMIN = 5;
 static const int SIZEMAX = 30;
-static const float SIZE_DEFAULT = 0.5;
-static const float INTENSITY_DEFAULT = 1.0;
+static const double SIZE_DEFAULT = 0.5;
+static const double INTENSITY_DEFAULT = 1.0;
 
 SettingsWidget::SettingsWidget(QWidget *parent)
     : QWidget(parent)
@@ -155,7 +155,7 @@ void SettingsWidget::slotIndReadsTreshold(int value)
 
 void SettingsWidget::slotIntensity(int value)
 {
-    const float intensity = static_cast<float>(value) / 10;
+    const double intensity = static_cast<double>(value) / 10;
     if (value != m_rendering_settings.intensity) {
         m_rendering_settings.intensity = intensity;
         emit signalSpotRendering();
@@ -164,7 +164,7 @@ void SettingsWidget::slotIntensity(int value)
 
 void SettingsWidget::slotSize(int value)
 {
-    const float size = static_cast<float>(value) / 10;
+    const double size = static_cast<double>(value) / 10;
     if (value != m_rendering_settings.size) {
         m_rendering_settings.size = size;
         emit signalSpotRendering();

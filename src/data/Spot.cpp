@@ -93,7 +93,7 @@ bool Spot::selected() const
     return m_selected;
 }
 
-float Spot::totalCount() const
+double Spot::totalCount() const
 {
     return m_totalCount;
 }
@@ -123,7 +123,7 @@ void Spot::color(const QColor color)
     m_color = color;
 }
 
-void Spot::totalCount(const float totalCount)
+void Spot::totalCount(const double totalCount)
 {
     m_totalCount = totalCount;
 }
@@ -131,14 +131,20 @@ void Spot::totalCount(const float totalCount)
 
 Spot::SpotType Spot::getCoordinates(const QString &spot)
 {
-    const QStringList items  = spot.trimmed().split("x");
-    Q_ASSERT(items.size() == 2);
-    const float x = items.at(0).toFloat();
-    const float y = items.at(1).toFloat();
-    return SpotType(x,y);
+    const QStringList items = spot.trimmed().split("x");
+    Q_ASSERT(items.size() == 2 || items.size() == 3);
+    const double x = items.at(0).toDouble();
+    const double y = items.at(1).toDouble();
+    const double z = items.size() == 3 ? items.at(2).toDouble() : 0;
+    return SpotType(x,y,z);
 }
 
 QString Spot::getSpot(const Spot::SpotType &spot)
+{ 
+    return QString::number(spot.x) + "x" + QString::number(spot.y);
+}
+
+QString Spot::getSpot3D(const Spot::SpotType &spot)
 {
-    return QString::number(spot.first) + "x" + QString::number(spot.second);
+    return QString::number(spot.x) + "x" + QString::number(spot.y) + "x" + QString::number(spot.z);
 }

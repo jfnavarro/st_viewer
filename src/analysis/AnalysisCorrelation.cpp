@@ -133,11 +133,11 @@ void AnalysisCorrelation::slotClickedPoint(const QPointF point)
 {
     // Find the closest point from the series
     const QPointF clickedPoint = point;
-    float closest_x = INT_MAX;
-    float closest_y = INT_MAX;
-    float distance = INT_MAX;
+    double closest_x = INT_MAX;
+    double closest_y = INT_MAX;
+    double distance = INT_MAX;
     for (const auto point : m_series->points()) {
-        const float currentDistance = qSqrt((point.x() - clickedPoint.x())
+        const double currentDistance = qSqrt((point.x() - clickedPoint.x())
                                             * (point.x() - clickedPoint.x())
                                             + (point.y() - clickedPoint.y())
                                             * (point.y() - clickedPoint.y()));
@@ -151,8 +151,8 @@ void AnalysisCorrelation::slotClickedPoint(const QPointF point)
     // Find the spot corresponding to the clicked point
     int spot_index = -1;
     for (unsigned i = 0; i < m_rowsumA.size(); ++i) {
-        const float x = m_rowsumA.at(i);
-        const float y = m_rowsumB.at(i);
+        const double x = m_rowsumA.at(i);
+        const double y = m_rowsumB.at(i);
         if (x == closest_x && y == closest_y) {
             spot_index = i;
             break;

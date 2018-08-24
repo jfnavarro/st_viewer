@@ -42,8 +42,8 @@ public:
         int ind_reads_threshold;
         double legend_min;
         double legend_max;
-        float intensity;
-        float size;
+        double intensity;
+        double size;
         VisualMode visual_mode;
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;
@@ -51,7 +51,7 @@ public:
         bool size_factors;
     };
 
-    explicit SettingsWidget(QWidget *parent = 0);
+    explicit SettingsWidget(QWidget *parent = nullptr);
     ~SettingsWidget();
 
     void reset();

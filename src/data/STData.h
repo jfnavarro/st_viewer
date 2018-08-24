@@ -108,6 +108,10 @@ public:
     // returns the boundaries (min spot and max spot)
     const QRectF getBorder() const;
 
+    // set and get for the 3D flag
+    bool is3D() const;
+    void is3D(bool is3D);
+
 private:
 
     // The matrix with the counts (spots are rows and genes are columns)
@@ -131,6 +135,9 @@ private:
     QVector<bool> m_rendering_visible;
     QVector<QColor> m_rendering_colors;
     QVector<double> m_rendering_values;
+
+    // whether the data is in 3D or not
+    bool m_is3D;
 
     Q_DISABLE_COPY(STData)
 };

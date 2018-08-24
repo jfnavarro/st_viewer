@@ -20,9 +20,9 @@ class DatasetImporter : public QDialog
     Q_OBJECT
 
 public:
-    explicit DatasetImporter(QWidget *parent = 0);
-    DatasetImporter(const Dataset &dataset, QWidget *parent = 0);
-    ~DatasetImporter();
+    explicit DatasetImporter(QWidget *parent = nullptr);
+    DatasetImporter(const Dataset &dataset, QWidget *parent = nullptr);
+    virtual ~DatasetImporter() override;
 
     const QString datasetName() const;
     const QString STDataFile() const;
@@ -34,6 +34,7 @@ public:
     const QString comments() const;
     const QRect chip() const;
     const QString sizeFactorsFile() const;
+    bool is3D() const;
 
     // To import a dataset from a folder
     // the function assumes that

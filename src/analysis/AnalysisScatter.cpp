@@ -20,10 +20,10 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
     const unsigned num_spots = data.spots.size();
     const colvec spot_reads = sum(data.counts, 1);
     const ucolvec spot_genes = STData::computeNonZeroRows(data.counts);
-    const float min_reads = spot_reads.min();
-    const float max_reads = spot_reads.max();
-    const float min_genes = spot_genes.min();
-    const float max_genes = spot_genes.max();
+    const double min_reads = spot_reads.min();
+    const double max_reads = spot_reads.max();
+    const double min_genes = spot_genes.min();
+    const double max_genes = spot_genes.max();
     for (unsigned i = 0; i < num_spots; ++i) {
         QScatterSeries *series_reads = new QScatterSeries(this);
         QScatterSeries *series_genes = new QScatterSeries(this);
@@ -36,18 +36,18 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
         series_genes->setUseOpenGL(false);
 
         const auto &spot = Spot::getCoordinates(data.spots.at(i));
-        const float value_reads = spot_reads.at(i);
-        const float value_genes = spot_genes.at(i);
+        const double value_reads = spot_reads.at(i);
+        const double value_genes = spot_genes.at(i);
         const QColor color_reads = Color::createCMapColor(value_reads, min_reads,
                                                           max_reads, Color::ColorGradients::gpHot);
         const QColor color_genes = Color::createCMapColor(value_genes, min_genes,
                                                           max_genes, Color::ColorGradients::gpHot);
         series_reads->setColor(color_reads);
-        series_reads->append(spot.first, spot.second * -1);
+        series_reads->append(spot.x, spot.y * -1);
         m_ui->plotReads->chart()->addSeries(series_reads);
 
         series_genes->setColor(color_genes);
-        series_genes->append(spot.first, spot.second * -1);
+        series_genes->append(spot.x, spot.y * -1);
         m_ui->plotGenes->chart()->addSeries(series_genes);
     }
 

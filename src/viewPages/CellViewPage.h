@@ -95,9 +95,6 @@ private slots:
     // user wants to create a selection
     void slotCreateSelection();
 
-    // when the image has been tiled and loaded
-    void slotImageLoaded(const bool loaded);
-
 private:
     // create OpenGL graphical elements and view
     void initRenderer();

@@ -97,7 +97,7 @@ inline const T denorm(const R nv, const T t0, const T t1)
 }
 
 // linear interpolation between color c0 and color c1 given a value t
-inline const QColor lerp(const float t, const QColor &c0, const QColor &c1)
+inline const QColor lerp(const double t, const QColor &c0, const QColor &c1)
 {
     // TODO should do the interpolation in HSV space
     return QColor((c0.red() + ((c1.red() - c0.red()) * t)),
@@ -107,10 +107,10 @@ inline const QColor lerp(const float t, const QColor &c0, const QColor &c1)
 }
 
 // inverse linear interpolation between color c0 and color c1 given a value t
-inline const QColor invlerp(const float t, const QColor &c0, const QColor &c1)
+inline const QColor invlerp(const double t, const QColor &c0, const QColor &c1)
 {
     // TODO should do the interpolation in HSV space
-    const float invt = 1.0 / (1.0 - t);
+    const double invt = 1.0 / (1.0 - t);
     return QColor((c0.red() - (t * c1.red())) * invt,
                   (c0.green() - (t * c1.green())) * invt,
                   (c0.blue() - (t * c1.blue())) * invt,
@@ -119,7 +119,7 @@ inline const QColor invlerp(const float t, const QColor &c0, const QColor &c1)
 
 // Euclidean distance between two vectors of type T such that T has binary +,-,*
 template <class T>
-inline float euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
+inline double euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
 {
     Q_ASSERT(v1.size() == v2.size());
     T diff;
@@ -131,7 +131,7 @@ inline float euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
         sum += diff * diff;
     }
 
-    return std::sqrt(static_cast<float>(sum));
+    return std::sqrt(static_cast<double>(sum));
 }
 
 // The statistical mean of a vector of values

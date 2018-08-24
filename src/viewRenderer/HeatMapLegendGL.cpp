@@ -9,11 +9,11 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
-static const float legend_x = 0.0;
-static const float legend_y = 0.0;
-static const float legend_width = 30.0;
-static const float legend_height = 200.0;
-static const float bars_width = 40.0;
+static const double legend_x = 0.0;
+static const double legend_y = 0.0;
+static const double legend_width = 30.0;
+static const double legend_height = 200.0;
+static const double bars_width = 40.0;
 
 HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
     : GraphicItemGL(parent)
@@ -68,8 +68,8 @@ void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter 
 void HeatMapLegendGL::generateLegend()
 {
     // get the min max values
-    const float min = m_rendering_settings.legend_min;
-    const float max = m_rendering_settings.legend_max;
+    const double min = m_rendering_settings.legend_min;
+    const double max = m_rendering_settings.legend_max;
     // generate image texture with the size of the legend and then fill it up with the colors
     // using the min-max values of the threshold and the color mode
     m_image = QImage(legend_width, legend_height, QImage::Format_ARGB32);

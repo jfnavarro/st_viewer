@@ -75,12 +75,12 @@ const QColor Gene::color() const
     return m_color;
 }
 
-float Gene::cut_off() const
+double Gene::cut_off() const
 {
     return m_cutoff;
 }
 
-float Gene::totalCount() const
+double Gene::totalCount() const
 {
     return m_totalCount;
 }
@@ -105,12 +105,12 @@ void Gene::color(const QColor &color)
     m_color = color;
 }
 
-void Gene::cut_off(const float cutoff)
+void Gene::cut_off(const double cutoff)
 {
     m_cutoff = cutoff;
 }
 
-void Gene::totalCount(const float totalCount)
+void Gene::totalCount(const double totalCount)
 {
     m_totalCount = totalCount;
 }

@@ -124,49 +124,45 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     // store the dataset
     m_dataset = dataset;
 
-    // create tiles textures from the image (async)
+    // create tiles textures from the image
     m_image->clearData();
-    const bool result = m_image->createTiles(dataset.imageFile());
-    slotImageLoaded(result);
-    //TODO OpenGL cannot create textures on a different thread (FIX THIS)
-    //QFutureWatcher<void> watcher;
-    //QFuture<void> future = m_image->createTextures(dataset.imageFile());
-    //watcher.setFuture(future);
-}
-
-void CellViewPage::slotImageLoaded(const bool loaded)
-{
-    if (!loaded) {
-        QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
-    } else {
-        m_ui->view->setScene(m_image->boundingRect());
-        // If the user has not given any transformation matrix
-        // we compute a simple transformation matrix using
-        // the image and chip dimensions so the spot's coordinates
-        // can be mapped to the image's coordinates space
-        QTransform alignment = m_dataset.imageAlignment();
-        if (alignment.isIdentity()) {
-            const QRect chip = m_dataset.chip();
-            const float chip_x2 = static_cast<float>(chip.width());
-            const float chip_y2 = static_cast<float>(chip.height());
-            const float width_image = static_cast<float>(m_image->boundingRect().width());
-            const float height_image = static_cast<float>(m_image->boundingRect().height());
-            const float a11 = width_image / (chip_x2 - 1);
-            const float a12 = 0.0;
-            const float a13 = 0.0;
-            const float a21 = 0.0;
-            const float a22 = height_image / (chip_y2 - 1);
-            const float a23 = 0.0;
-            const float a31 = -a11;
-            const float a32 = -a22;
-            const float a33 = 1.0;
-            alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-        } else if (m_image->scaled()) {
-            alignment *= QTransform::fromScale(0.5, 0.5);
+    QTransform alignment = m_dataset.imageAlignment();
+    if (!dataset.imageFile().isNull() && !dataset.imageFile().isEmpty()) {
+        const bool result = m_image->createTiles(dataset.imageFile());
+        if (!result) {
+            QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
+        } else {
+            m_ui->view->setScene(m_image->boundingRect());
+            // If the user has not given any transformation matrix
+            // we compute a simple transformation matrix using
+            // the image and chip dimensions so the spot's coordinates
+            // can be mapped to the image's coordinates space
+            if (alignment.isIdentity()) {
+                const QRect chip = m_dataset.chip();
+                const double chip_x2 = static_cast<double>(chip.width());
+                const double chip_y2 = static_cast<double>(chip.height());
+                const double width_image = static_cast<double>(m_image->boundingRect().width());
+                const double height_image = static_cast<double>(m_image->boundingRect().height());
+                const double a11 = width_image / (chip_x2 - 1);
+                const double a12 = 0.0;
+                const double a13 = 0.0;
+                const double a21 = 0.0;
+                const double a22 = height_image / (chip_y2 - 1);
+                const double a23 = 0.0;
+                const double a31 = -a11;
+                const double a32 = -a22;
+                const double a33 = 1.0;
+                alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+            } else if (m_image->scaled()) {
+                alignment *= QTransform::fromScale(0.5, 0.5);
+            }
         }
-        qDebug() << "Setting alignment matrix to " << alignment;
-        m_gene_plotter->setTransform(alignment);
+    } else {
+        m_ui->view->setScene(m_dataset.data()->getBorder());
     }
+
+    qDebug() << "Setting alignment matrix to " << alignment;
+    m_gene_plotter->setTransform(alignment);
 
     // enable controls
     m_ui->frame->setEnabled(true);

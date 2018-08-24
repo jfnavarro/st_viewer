@@ -174,7 +174,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Main image</string>
+          <string>Main image (optional)</string>
          </property>
         </widget>
        </item>
@@ -307,6 +307,20 @@
        </item>
        <item>
         <widget class="QTextEdit" name="comments"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Check this if your dataset is in 3D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="is3D">
+         <property name="text">
+          <string>3D</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_6">

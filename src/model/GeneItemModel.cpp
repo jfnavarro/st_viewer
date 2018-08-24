@@ -76,7 +76,7 @@ bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int
 {
     if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
         auto item = m_items_reference.at(index.row());
-        const float new_cutoff = value.toFloat();
+        const double new_cutoff = value.toFloat();
         if (item->cut_off() != new_cutoff && new_cutoff >= 0.0) {
             item->cut_off(new_cutoff);
             emit dataChanged(index, index);

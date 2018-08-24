@@ -71,6 +71,7 @@ private:
     QString m_spots_file;
     QRect m_chip;
     QString m_size_factors_file;
+    bool m_is3D;
 
     // generated
     QTransform m_alignment;

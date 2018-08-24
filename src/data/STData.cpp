@@ -14,6 +14,7 @@ STData::STData()
     , m_size_factors()
     , m_spots()
     , m_genes()
+    , m_is3D(false)
 {
 
 }
@@ -26,21 +27,21 @@ STData::~STData()
 STData::STDataFrame STData::read(const QString &filename)
 {
     STDataFrame data;
-    std::vector<std::vector<float>> values;
+    std::vector<std::vector<double>> values;
 
     // Open file
     std::ifstream f(filename.toStdString());
     qDebug() << "Opening ST Data file " << filename;
 
     // Process the rest of the lines (row names and counts)
-    int row_number = 0;
-    int col_number = 0;
+    unsigned row_number = 0;
+    unsigned col_number = 0;
     char sep = '\t';
     bool parsed = true;
     for (std::string line; std::getline(f, line);) {
         std::istringstream iss(line);
         std::string token;
-        std::vector<float> values_row;
+        std::vector<double> values_row;
         col_number = 0;
         while(std::getline(iss, token, sep)) {
             if (row_number == 0) {
@@ -55,7 +56,7 @@ STData::STDataFrame STData::read(const QString &filename)
                 const QString spot = QString::fromStdString(token).trimmed();
                 data.spots.append(spot);
             } else {
-                values_row.push_back(std::stof(token));
+                values_row.push_back(std::stod(token));
             }
             ++col_number;
         }
@@ -73,8 +74,8 @@ STData::STDataFrame STData::read(const QString &filename)
 
     // Create an armadillo matrix
     mat counts_matrix(row_number - 1, col_number - 1);
-    for (int i = 0; i < row_number - 1; ++i) {
-        for (int j = 0; j < col_number - 1; ++j) {
+    for (unsigned i = 0; i < row_number - 1; ++i) {
+        for (unsigned j = 0; j < col_number - 1; ++j) {
             counts_matrix.at(i, j) = values[i][j];
         }
 
@@ -183,7 +184,7 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         // write genes (1st row)
-        for (const auto gene : data.genes) {
+        for (const auto &gene : data.genes) {
             stream << "\t" << gene;
         }
         stream << endl;
@@ -661,7 +662,7 @@ void STData::selectSpots(const SelectionEvent &event)
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
     for (auto spot : m_spots) {
         const auto &coord = spot->coordinates();
-        if (path.contains(QPointF(coord.first, coord.second))) {
+        if (path.contains(QPointF(coord.x, coord.y))) {
             spot->selected(!remove);
         }
     }
@@ -744,15 +745,26 @@ const QRectF STData::getBorder() const
 {
     const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
                                           [] (const auto lhs, const auto rhs) {
-        return lhs->coordinates().first < rhs->coordinates().first;});
+        return lhs->coordinates().x < rhs->coordinates().x;});
 
     const auto mm_y = std::minmax_element(m_spots.begin(), m_spots.end(),
                                           [] (const auto lhs, const auto rhs) {
-        return lhs->coordinates().second < rhs->coordinates().second;});
+        return lhs->coordinates().y < rhs->coordinates().y;});
 
-    const auto min_x = (*mm_x.first)->coordinates().first;
-    const auto min_y = (*mm_y.first)->coordinates().second;
-    const auto max_x = (*mm_x.second)->coordinates().first;
-    const auto max_y = (*mm_y.second)->coordinates().second;
+    const auto min_x = (*mm_x.first)->coordinates().x;
+    const auto min_y = (*mm_y.first)->coordinates().y;
+    const auto max_x = (*mm_x.second)->coordinates().x;
+    const auto max_y = (*mm_y.second)->coordinates().y;
     return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
+}
+
+
+bool STData::is3D() const
+{
+    return m_is3D;
+}
+
+void STData::is3D(bool is3D)
+{
+    m_is3D = is3D;
 }

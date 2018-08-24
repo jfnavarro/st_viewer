@@ -12,11 +12,8 @@
 
 #include "math/Common.h"
 
-static const float DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
+static const double DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT = 10.0;
 static const int KEY_OFFSET = 10;
-static const int MIN_PIXELS_MAX_ZOOM = 100;
-static const int DEFAULT_MIN_ZOOM = 1;
-static const int DEFAULT_MAX_ZOOM = 100;
 static const int OPENGL_VERSION_MAJOR = 2;
 static const int OPENGL_VERSION_MINOR = 0;
 static const QColor lasso_color = QColor(0,0,255,90);
@@ -169,7 +166,6 @@ void CellGLView::resizeGL(int width, int height)
 
     // update local variables for zooming and scene resolution
     if (m_scene.isValid()) {
-        m_zoom_factor = clampZoomFactorToAllowedRange(m_zoom_factor);
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
     }
 }
@@ -177,7 +173,7 @@ void CellGLView::resizeGL(int width, int height)
 void CellGLView::wheelEvent(QWheelEvent *event)
 {
     // computes zoom factor and update zoom
-    const float zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    const double zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactorAndUpdate(zoomFactor * m_zoom_factor);
     event->ignore();
 }
@@ -196,17 +192,10 @@ void CellGLView::removeRenderingNode(QSharedPointer<GraphicItemGL> node)
     disconnect(node.data(), SIGNAL(updated()), this, SLOT(update()));
 }
 
-float CellGLView::clampZoomFactorToAllowedRange(const float zoom) const
+void CellGLView::setZoomFactorAndUpdate(const double zoom)
 {
-    Q_ASSERT(minZoom() < maxZoom());
-    return qMin(qMax(minZoom(), zoom), maxZoom());
-}
-
-void CellGLView::setZoomFactorAndUpdate(const float zoom)
-{
-    const float new_zoom_factor = clampZoomFactorToAllowedRange(zoom);
-    if (m_zoom_factor != new_zoom_factor) {
-        m_zoom_factor = new_zoom_factor;
+    if (m_zoom_factor != zoom) {
+        m_zoom_factor = zoom;
         setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
         update();
     }
@@ -233,32 +222,8 @@ void CellGLView::setScene(const QRectF &scene)
         m_scene = scene;
         qDebug() << "Setting graphic view scene to " << m_scene;
         m_scene_focus_center_point = m_scene.center();
-        m_zoom_factor = minZoom();
+        //m_zoom_factor = minZoom();
     }
-}
-
-float CellGLView::minZoom() const
-{
-    // we want to the min zoom to at least covers the whole image
-    if (!m_viewport.isValid() || !m_scene.isValid()) {
-        return DEFAULT_MIN_ZOOM;
-    }
-
-    const float min_zoom_height = m_viewport.height() / m_scene.height();
-    const float min_zoom_width = m_viewport.width() / m_scene.width();
-    return qMin(min_zoom_height, min_zoom_width);
-}
-
-float CellGLView::maxZoom() const
-{
-    // we want the max zoom to have a min number of pixes visible
-    if (!m_viewport.isValid() || !m_scene.isValid()) {
-        return DEFAULT_MAX_ZOOM;
-    }
-
-    const float max_zoom_x = m_viewport.width() / MIN_PIXELS_MAX_ZOOM;
-    const float max_zoom_y = m_viewport.height() / MIN_PIXELS_MAX_ZOOM;
-    return qMin(max_zoom_x, max_zoom_y);
 }
 
 const QImage CellGLView::grabPixmapGL()
@@ -288,7 +253,7 @@ void CellGLView::zoomOut()
     setZoomFactorAndUpdate(m_zoom_factor * (100.0 - DEFAULT_ZOOM_ADJUSTMENT_IN_PERCENT) / 100.0);
 }
 
-void CellGLView::rotate(const float angle)
+void CellGLView::rotate(const double angle)
 {
     m_rotate_factor += angle;
     if (std::abs(m_rotate_factor) >= 360) {
@@ -296,7 +261,7 @@ void CellGLView::rotate(const float angle)
     }
 }
 
-void CellGLView::flip(const float angle)
+void CellGLView::flip(const double angle)
 {
     m_flip_factor += angle;
     if (std::abs(m_flip_factor) >= 360) {
@@ -406,8 +371,8 @@ void CellGLView::mouseReleaseEvent(QMouseEvent *event)
 
 void CellGLView::keyPressEvent(QKeyEvent *event)
 {
-    const float shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
-    const float delta_panning_key = shortest_side_length / (KEY_OFFSET * m_zoom_factor);
+    const double shortest_side_length = qMin(m_viewport.width(), m_viewport.height());
+    const double delta_panning_key = shortest_side_length / (KEY_OFFSET * m_zoom_factor);
 
     QPointF pan_adjustment(0, 0);
     switch (event->key()) {

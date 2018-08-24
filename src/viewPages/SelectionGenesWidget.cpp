@@ -30,7 +30,7 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
     // populate
     for (uword i = 0; i < data.counts.n_cols; ++i) {
         const QString gene = data.genes.at(i);
-        const float count = sum(data.counts.col(i));
+        const double count = sum(data.counts.col(i));
         const QString count_str = QString::number(count);
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::UserRole);

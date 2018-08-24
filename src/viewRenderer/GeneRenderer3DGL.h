@@ -1,13 +1,13 @@
-#ifndef GENERENDERERGL_H
-#define GENERENDERERGL_H
+#ifndef GENERENDERER3DGL_H
+#define GENERENDERER3DGL_H
 
 #include "data/STData.h"
 #include "viewPages/SettingsWidget.h"
 
 #include "GraphicItemGL.h"
 
-// GeneRendererGL is what renders the data (2D or 3D) onto the CellGLView canvas.
-// It uses QPainter and QOpenGL to paint dots (spots) with colours
+// GeneRenderer3DGL is what renders the data (3D) on the CellGLView canvas.
+// It uses QDataVisualization to paint dots (spots) with colours
 class GeneRendererGL : public GraphicItemGL
 {
     Q_OBJECT
@@ -38,10 +38,6 @@ protected:
 
 private:
 
-    // internal functions to perform the rendering
-    void draw2D(QPainter &painter);
-    void draw3D(QOpenGLFunctionsVersion &qopengl_functions);
-
     // compiles and loads the shaders
     void setupShaders();
 
@@ -60,4 +56,4 @@ private:
     Q_DISABLE_COPY(GeneRendererGL)
 };
 
-#endif // GENERENDERERGL_H
+#endif // GENERENDERER3DGL_H

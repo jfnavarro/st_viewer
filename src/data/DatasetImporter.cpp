@@ -82,7 +82,7 @@ const QString DatasetImporter::comments() const
 
 const QRect DatasetImporter::chip() const
 {
-    return QRect(1,1,m_ui->chip_x->value(), m_ui->chip_y->value());
+    return QRect(1, 1, m_ui->chip_x->value(), m_ui->chip_y->value());
 }
 
 const QString DatasetImporter::STDataFile() const
@@ -108,6 +108,11 @@ const QString DatasetImporter::spotsMapFile() const
 const QString DatasetImporter::sizeFactorsFile() const
 {
     return m_ui->sizeFactorsFile->text();
+}
+
+bool DatasetImporter::is3D() const
+{
+    return m_ui->is3D->isChecked();
 }
 
 void DatasetImporter::slotLoadSTDataFile()
@@ -219,10 +224,7 @@ void DatasetImporter::done(int result)
     if(QDialog::Accepted == result)  {
         QString error_msg;
         bool isValid = true;
-        if (m_ui->mainImageFile->text().isEmpty()) {
-            isValid = false;
-            error_msg = tr("Main image is missing!");
-        } else if (m_ui->stDataFile->text().isEmpty()) {
+        if (m_ui->stDataFile->text().isEmpty()) {
             isValid = false;
             error_msg = tr("ST Data file is missing!");
         } else if (m_ui->datasetName->text().isEmpty()) {

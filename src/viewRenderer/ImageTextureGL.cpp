@@ -92,7 +92,7 @@ void ImageTextureGL::createGrid(const QImage &image, const int offset)
     m_grid_points.clear();
     for (int x = 0; x < x_pixels; x+=offset) {
         for (int y = 0; y < y_pixels; y+=offset) {
-            const float value = gray_scale.pixelColor(x,y).valueF();
+            const double value = gray_scale.pixelColor(x,y).valueF();
             if (value > 0.5) {
                m_grid_points.append(QPointF(x,y));
             }
@@ -128,8 +128,8 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     // compute tiles size and numbers
     const int width = imageSize.width();
     const int height = imageSize.height();
-    const int xCount = std::ceil(width / static_cast<float>(tile_width));
-    const int yCount = std::ceil(height / static_cast<float>(tile_height));
+    const int xCount = std::ceil(width / static_cast<double>(tile_width));
+    const int yCount = std::ceil(height / static_cast<double>(tile_height));
     const int count = xCount * yCount;
 
     // create tiles and their textures
@@ -156,8 +156,8 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
 
 void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
 {
-    const float width = static_cast<float>(image.width());
-    const float height = static_cast<float>(image.height());
+    const double width = static_cast<double>(image.width());
+    const double height = static_cast<double>(image.height());
 
     m_textures_indices.append(QVector2D(x, y));
     m_textures_indices.append(QVector2D(x + width, y));

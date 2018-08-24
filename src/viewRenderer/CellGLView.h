@@ -37,8 +37,8 @@ class CellGLView : public QOpenGLWidget
 
 public:
 
-    explicit CellGLView(QWidget *parent = 0);
-    virtual ~CellGLView();
+    explicit CellGLView(QWidget *parent = nullptr);
+    virtual ~CellGLView() override;
 
     // add/remove nodes from the rendering queue
     void addRenderingNode(QSharedPointer<GraphicItemGL> node);
@@ -60,9 +60,9 @@ public slots:
     // TODO slots should have the prefix "slot"
 
     // rotate the main view by angle (-360, 0 , 360)
-    void rotate(const float angle);
+    void rotate(const double angle);
     // flip the main view by angle
-    void flip(const float angle);
+    void flip(const double angle);
 
     // Zooming the canvas
     void zoomOut();
@@ -92,22 +92,16 @@ private:
     const QTransform nodeTransformations(QSharedPointer<GraphicItemGL> node) const;
 
     // helper function to adjust the zoom level
-    void setZoomFactorAndUpdate(const float zoom);
+    void setZoomFactorAndUpdate(const double zoom);
 
     // set the center point on the scene
     void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
 
     // helper functions used to compute center position/zoom/padding
     QRectF allowedCenterPoints() const;
-    float clampZoomFactorToAllowedRange(const float zoom) const;
-    float minZoom() const;
-    float maxZoom() const;
 
     // returns all the transformations applied to the scene
     const QTransform sceneTransformations() const;
-
-    // this function ensures that the whole image fits to the canvas
-    void setDefaultPanningAndZooming();
 
     // notify rubberbandable nodes with a rubberband/lasso selection event
     void sendSelectionToNodes(const QPainterPath &path, const QMouseEvent *event);
@@ -130,9 +124,9 @@ private:
     QScopedPointer<QRubberBand> m_rubberband;
     QPainterPath m_lasso;
     QPointF m_scene_focus_center_point;
-    float m_zoom_factor;
-    float m_rotate_factor;
-    float m_flip_factor;
+    double m_zoom_factor;
+    double m_rotate_factor;
+    double m_flip_factor;
 
     // scene viewport projection
     QMatrix4x4 m_projm;

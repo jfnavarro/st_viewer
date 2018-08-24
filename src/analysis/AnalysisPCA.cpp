@@ -50,8 +50,8 @@ AnalysisPCA::AnalysisPCA(const QList<STData::STDataFrame> &datasets,
         series->setColor(Color::color_list.at(d));
         series->setUseOpenGL(false);
         series->setName(names.at(d));
-        const float x = results.at(d,0);
-        const float y = results.at(d,1);
+        const double x = results.at(d,0);
+        const double y = results.at(d,1);
         series->append(x, y);
         m_ui->plot->chart()->addSeries(series);
     }

@@ -237,8 +237,8 @@ void AnalysisClustering::colorsComputed()
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
     for (unsigned i = 0; i < m_colors.size(); ++i) {
         const int k = m_colors.at(i);
-        const float x = m_reduced_coordinates.at(i,0);
-        const float y = m_reduced_coordinates.at(i,1);
+        const double x = m_reduced_coordinates.at(i,0);
+        const double y = m_reduced_coordinates.at(i,1);
         m_series_vector[k]->append(x, y);
     }
 
@@ -309,8 +309,8 @@ void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
 
     m_selected_spots.clear();
     for (unsigned i = 0; i < m_colors.size(); ++i) {
-        const float x = m_reduced_coordinates.at(i,0);
-        const float y = m_reduced_coordinates.at(i,1);
+        const double x = m_reduced_coordinates.at(i,0);
+        const double y = m_reduced_coordinates.at(i,1);
         if (selected_points.contains(QPointF(x,y))) {
             m_selected_spots.append(m_spots.at(i));
         }
