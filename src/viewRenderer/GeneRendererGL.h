@@ -38,13 +38,6 @@ protected:
 
 private:
 
-    // internal functions to perform the rendering
-    void draw2D(QPainter &painter);
-    void draw3D(QOpenGLFunctionsVersion &qopengl_functions);
-
-    // compiles and loads the shaders
-    void setupShaders();
-
     // bounding rect area
     QRectF m_border;
 

@@ -7,7 +7,6 @@
 #include <QSurfaceFormat>
 #include <QGuiApplication>
 #include <QRubberBand>
-#include <QOpenGLFramebufferObject>
 #include <QTransform>
 
 #include "math/Common.h"
@@ -155,7 +154,7 @@ void CellGLView::resizeGL(int width, int height)
 
     // reset the OpenGL coordinate system with the projection matrix
     m_qopengl_functions.glMatrixMode(GL_PROJECTION);
-    m_qopengl_functions.glLoadMatrixf(reinterpret_cast<const GLfloat *>(m_projm.constData()));
+    m_qopengl_functions.glLoadMatrixf(m_projm.constData());
 
     // reset the OpenGL model view matrix
     m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
@@ -377,16 +376,16 @@ void CellGLView::keyPressEvent(QKeyEvent *event)
     QPointF pan_adjustment(0, 0);
     switch (event->key()) {
     case Qt::Key_Right:
-        pan_adjustment = QPoint(-delta_panning_key, 0);
+        pan_adjustment = QPointF(-delta_panning_key, 0);
         break;
     case Qt::Key_Left:
-        pan_adjustment = QPoint(delta_panning_key, 0);
+        pan_adjustment = QPointF(delta_panning_key, 0);
         break;
     case Qt::Key_Up:
-        pan_adjustment = QPoint(0, delta_panning_key);
+        pan_adjustment = QPointF(0, delta_panning_key);
         break;
     case Qt::Key_Down:
-        pan_adjustment = QPoint(0, -delta_panning_key);
+        pan_adjustment = QPointF(0, -delta_panning_key);
         break;
     default:
         break;

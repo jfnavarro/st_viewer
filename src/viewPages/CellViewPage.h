@@ -16,6 +16,8 @@ class SpotsWidget;
 class GenesWidget;
 class UserSelectionsPage;
 class AnalysisClustering;
+class CellGLView;
+class CellGLView3D;
 
 namespace Ui
 {
@@ -114,6 +116,8 @@ private:
     QSharedPointer<HeatMapLegendGL> m_legend;
     QSharedPointer<GeneRendererGL> m_gene_plotter;
     QSharedPointer<ImageTextureGL> m_image;
+    QScopedPointer<CellGLView> m_view;
+    QScopedPointer<CellGLView3D> m_view3D;
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
@@ -123,9 +127,6 @@ private:
 
     // the currently opened dataset
     Dataset m_dataset;
-
-    // watcher for the image loading
-    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(CellViewPage)
 };

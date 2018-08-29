@@ -217,7 +217,7 @@ static void spotClassification(const mat &counts,
                                const double theta,
                                const bool scale,
                                const bool center,
-                               std::vector<int> &colors,
+                               std::vector<unsigned> &colors,
                                mat &results)
 {
     RInside *R = RInside::instancePtr();
@@ -257,7 +257,7 @@ static void spotClassification(const mat &counts,
                                   "    fit = fit - 1;\n"
                                   "}";
         results = Rcpp::as<mat>(R->parseEval(call1));
-        colors = Rcpp::as<std::vector<int>>(R->parseEval(call2));
+        colors = Rcpp::as<std::vector<unsigned>>(R->parseEval(call2));
         qDebug() << "Computed Spot colors " << colors.size();
         Q_ASSERT(colors.size() == counts.n_rows);
     } catch (const std::exception &e) {

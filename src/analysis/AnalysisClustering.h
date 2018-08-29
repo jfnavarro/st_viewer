@@ -51,7 +51,7 @@ signals:
 private slots:
 
     // Performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // cluster the reduced coordinates (2D) using KMeans or HClust so to compute classes/colors
+    // clusters the reduced coordinates (2D) using KMeans or HClust so to compute classes/colors
     // for each spot
     void slotRun();
 
@@ -83,7 +83,7 @@ private:
     STData::STDataFrame m_data;
 
     // the results
-    std::vector<int> m_colors;
+    std::vector<unsigned> m_colors;
     mat m_reduced_coordinates;
     QList<QString> m_spots;
 

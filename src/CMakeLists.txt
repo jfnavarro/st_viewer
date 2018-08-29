@@ -21,7 +21,7 @@ set(QT_RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 set(CMAKE_AUTOUIC ON) # UI files
 
 # Qt libraries
-set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent Charts)
+set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent Charts DataVisualization)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()

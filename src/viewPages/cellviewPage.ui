@@ -119,7 +119,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/zoom_in.png</normaloff>:/images/zoom_in.png</iconset>
            </property>
            <property name="iconSize">
@@ -163,7 +163,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/zoom_out.png</normaloff>:/images/zoom_out.png</iconset>
            </property>
            <property name="iconSize">
@@ -201,7 +201,7 @@
             <string>Rotate image 45°</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/rotateRight.png</normaloff>:/images/rotateRight.png</iconset>
            </property>
            <property name="iconSize">
@@ -242,7 +242,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/rotateLeft.png</normaloff>:/images/rotateLeft.png</iconset>
            </property>
            <property name="iconSize">
@@ -283,7 +283,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/flip.png</normaloff>:/images/flip.png</iconset>
            </property>
            <property name="iconSize">
@@ -327,7 +327,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/histogram.png</normaloff>:/images/histogram.png</iconset>
            </property>
            <property name="iconSize">
@@ -368,7 +368,7 @@
             <string>Classify spots by gene expression</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/clusterBW.png</normaloff>:/images/clusterBW.png</iconset>
            </property>
            <property name="iconSize">
@@ -412,7 +412,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/selection.png</normaloff>:/images/selection.png</iconset>
            </property>
            <property name="iconSize">
@@ -462,7 +462,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/lasso.png</normaloff>:/images/lasso.png</iconset>
            </property>
            <property name="iconSize">
@@ -506,7 +506,7 @@
             <string>Create a selection object</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/create_selection.png</normaloff>:/images/create_selection.png</iconset>
            </property>
            <property name="iconSize">
@@ -550,7 +550,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/reg_search.png</normaloff>:/images/reg_search.png</iconset>
            </property>
            <property name="iconSize">
@@ -594,7 +594,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
            </property>
            <property name="iconSize">
@@ -638,7 +638,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
            </property>
            <property name="iconSize">
@@ -679,7 +679,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/loadSpots.png</normaloff>:/images/loadSpots.png</iconset>
            </property>
            <property name="iconSize">
@@ -720,7 +720,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/loadGenes.png</normaloff>:/images/loadGenes.png</iconset>
            </property>
            <property name="iconSize">
@@ -764,7 +764,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc">
+            <iconset>
              <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
            </property>
            <property name="iconSize">
@@ -804,7 +804,7 @@
       <item>
        <layout class="QHBoxLayout" name="mainLayout">
         <item>
-         <widget class="CellGLView" name="view"/>
+         <widget class="QOpenGLWidget" name="view"/>
         </item>
        </layout>
       </item>
@@ -813,15 +813,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CellGLView</class>
-   <extends>QOpenGLWidget</extends>
-   <header location="global">viewRenderer/CellGLView.h</header>
-  </customwidget>
- </customwidgets>
- <resources>
-  <include location="../../../build-st_viewer-Desktop_Qt_5_9_0_clang_64bit-Debug/application.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
