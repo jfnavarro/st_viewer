@@ -4,6 +4,8 @@
 #include <QQuaternion>
 #include <QOpenGLWidget>
 #include <QMatrix4x4>
+#include <QOpenGLShaderProgram>
+
 #include "data/STData.h"
 #include "GraphicItemGL.h"
 
@@ -15,9 +17,7 @@ public:
 
     explicit CellGLView3D(SettingsWidget::Rendering &rendering_settings,
                           QWidget *parent = nullptr);
-    ~CellGLView3D();
-
-    void addData(QSharedPointer<STData> data);
+    virtual ~CellGLView3D() override;
 
     // return a QImage representation of the canvas
     const QImage grabPixmapGL();
@@ -43,13 +43,20 @@ public slots:
 signals:
 
 private:
+
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+
     // rendering settings
     SettingsWidget::Rendering &m_rendering_settings;
 
     QMatrix4x4 m_projection;
-    QQuaternion m_rotation;
-    QPointF m_lastPoint;
+    int m_xRot;
+    int m_yRot;
+    int m_zRot;
     float m_zoom;
+    QPoint m_lastPos;
 
     // a cross platform wrapper around OpenGL functions
     GraphicItemGL::QOpenGLFunctionsVersion m_qopengl_functions;
