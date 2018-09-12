@@ -136,6 +136,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
             m_spots.push_back(spot_obj);
             spots.push_back(spot);
             m_spot_index.insert(spot, m_spots.size() - 1);
+            m_rendering_coords.append(spot_obj->adj_coordinates());
         }
     }
     m_data.spots = spots;
@@ -326,6 +327,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
     rendering_settings.legend_min = min_value;
     rendering_settings.legend_max = max_value;
+
+
 }
 
 const QVector<bool> &STData::renderingVisible() const
@@ -346,6 +349,11 @@ const QVector<bool> &STData::renderingSelected() const
 const QVector<double> &STData::renderingValues() const
 {
     return m_rendering_values;
+}
+
+const QVector<Spot::SpotType> &STData::renderingCoords() const
+{
+    return m_rendering_coords;
 }
 
 QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
@@ -662,7 +670,7 @@ void STData::selectSpots(const SelectionEvent &event)
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
     for (auto spot : m_spots) {
         const auto &coord = spot->coordinates();
-        if (path.contains(QPointF(coord.x, coord.y))) {
+        if (path.contains(QPointF(coord.x(), coord.y()))) {
             spot->selected(!remove);
         }
     }
@@ -745,16 +753,16 @@ const QRectF STData::getBorder() const
 {
     const auto mm_x = std::minmax_element(m_spots.begin(), m_spots.end(),
                                           [] (const auto lhs, const auto rhs) {
-        return lhs->coordinates().x < rhs->coordinates().x;});
+        return lhs->coordinates().x() < rhs->coordinates().x();});
 
     const auto mm_y = std::minmax_element(m_spots.begin(), m_spots.end(),
                                           [] (const auto lhs, const auto rhs) {
-        return lhs->coordinates().y < rhs->coordinates().y;});
+        return lhs->coordinates().y() < rhs->coordinates().y();});
 
-    const auto min_x = (*mm_x.first)->coordinates().x;
-    const auto min_y = (*mm_y.first)->coordinates().y;
-    const auto max_x = (*mm_x.second)->coordinates().x;
-    const auto max_y = (*mm_y.second)->coordinates().y;
+    const auto min_x = (*mm_x.first)->coordinates().x();
+    const auto min_y = (*mm_y.first)->coordinates().y();
+    const auto max_x = (*mm_x.second)->coordinates().x();
+    const auto max_y = (*mm_y.second)->coordinates().y();
     return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
 }
 

@@ -56,6 +56,7 @@ public:
     const QVector<QColor> &renderingColors() const;
     const QVector<bool> &renderingSelected() const;
     const QVector<double> &renderingValues() const;
+    const QVector<Spot::SpotType> &renderingCoords() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
     // It returns a map of old_spots -> new_spots
@@ -135,6 +136,7 @@ private:
     QVector<bool> m_rendering_visible;
     QVector<QColor> m_rendering_colors;
     QVector<double> m_rendering_values;
+    QVector<Spot::SpotType> m_rendering_coords;
 
     // whether the data is in 3D or not
     bool m_is3D;

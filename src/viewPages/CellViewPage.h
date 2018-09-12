@@ -60,12 +60,6 @@ public slots:
 
 private slots:
 
-    // the user has updated the genes
-    void slotGenesUpdate();
-
-    // the user has updated the spots
-    void slotSpotsUpdated();
-
     // save/esport current view
     void slotSaveImage();
     void slotPrintImage();

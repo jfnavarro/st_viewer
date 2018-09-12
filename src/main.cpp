@@ -7,6 +7,7 @@
 #include <QSplashScreen>
 #include <QDesktopWidget>
 #include <QFontDatabase>
+#include <QSurfaceFormat>
 
 #include "mainWindow.h"
 #include "options_cmake.h"
@@ -23,7 +24,7 @@ namespace
 // Application flags must be set before instantiating QApplication
 void setApplicationFlags()
 {
-
+/*
 #ifdef Q_OS_MAC
     QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
     QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
@@ -41,7 +42,7 @@ void setApplicationFlags()
     // consistent font rendering
     QApplication::setAttribute(Qt::AA_Use96Dpi, true);
     // force usages of desktop opengl
-    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
+    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);*/
 }
 }
 
@@ -78,6 +79,12 @@ int main(int argc, char **argv)
         dummyR = nullptr;
         return EXIT_FAILURE;
     }
+
+    QSurfaceFormat format;
+    format.setVersion(3, 3);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    QSurfaceFormat::setDefaultFormat(format);
 
     // Create main window
     MainWindow mainWindow;

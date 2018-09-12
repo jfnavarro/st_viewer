@@ -43,11 +43,11 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
         const QColor color_genes = Color::createCMapColor(value_genes, min_genes,
                                                           max_genes, Color::ColorGradients::gpHot);
         series_reads->setColor(color_reads);
-        series_reads->append(spot.x, spot.y * -1);
+        series_reads->append(spot.x(), spot.y() * -1);
         m_ui->plotReads->chart()->addSeries(series_reads);
 
         series_genes->setColor(color_genes);
-        series_genes->append(spot.x, spot.y * -1);
+        series_genes->append(spot.x(), spot.y() * -1);
         m_ui->plotGenes->chart()->addSeries(series_genes);
     }
 

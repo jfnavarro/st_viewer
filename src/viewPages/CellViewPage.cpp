@@ -26,7 +26,7 @@
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
 #include "color/HeatMap.h"
-
+#include "viewRenderer/Window.h"
 #include <algorithm>
 
 #include "ui_cellviewPage.h"
@@ -121,11 +121,8 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_spots->slotLoadDataset(dataset);
 
     // update gene plotter rendering object with the dataset
-    m_gene_plotter->clearData();
-    m_gene_plotter->attachData(dataset.data());
-
-    m_view3D->clearData();
-    m_view3D->attachData(dataset.data());
+    //m_gene_plotter->clearData();
+    //m_gene_plotter->attachData(dataset.data());
 
     // store the dataset
     m_dataset = dataset;
@@ -180,32 +177,21 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_ui->mainLayout->removeWidget(m_ui->view);
     m_ui->view->close();
     if (m_dataset.data()->is3D()) {
-        m_ui->mainLayout->addWidget(m_view3D.data());
+        QWidget *widget = QWidget::createWindowContainer(m_view3D.data());
+        m_ui->mainLayout->addWidget(widget);
+        m_view3D->clearData();
+        m_view3D->attachData(dataset.data());
+        m_ui->mainLayout->update();
+        widget->show();
     } else {
         m_ui->mainLayout->addWidget(m_view.data());
+        m_view->clearData();
     }
-
-    m_ui->mainLayout->update();
-
-    // call for an update
-    m_view->update();
 }
 
 void CellViewPage::clearSelections()
 {
     m_dataset.data()->clearSelection();
-    m_gene_plotter->slotUpdate();
-    m_view->update();
-}
-
-void CellViewPage::slotGenesUpdate()
-{
-    m_gene_plotter->slotUpdate();
-    m_view->update();
-}
-
-void CellViewPage::slotSpotsUpdated()
-{
     m_gene_plotter->slotUpdate();
     m_view->update();
 }
@@ -232,6 +218,7 @@ void CellViewPage::createConnections()
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
             [=](){
         m_gene_plotter->slotUpdate();
+        m_view3D->slotUpdate();
         m_legend->slotUpdate();
         m_view->update();
     });
@@ -280,15 +267,19 @@ void CellViewPage::createConnections()
 
     // when the user change any gene
     connect(m_genes.data(),
-            &GenesWidget::signalGenesUpdated,
-            this,
-            &CellViewPage::slotGenesUpdate);
+            &GenesWidget::signalGenesUpdated, [=] {
+        m_gene_plotter->slotUpdate();
+        m_view3D->slotUpdate();
+        m_view->update();
+    });
 
     // when the user change any spot
     connect(m_spots.data(),
-            &SpotsWidget::signalSpotsUpdated,
-            this,
-            &CellViewPage::slotSpotsUpdated);
+            &SpotsWidget::signalSpotsUpdated, [=] {
+        m_gene_plotter->slotUpdate();
+        m_view3D->slotUpdate();
+        m_view->update();
+    });
 
     // when the user wants to load a file with spot colors
     connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColorsFile);

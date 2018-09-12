@@ -1,7 +1,7 @@
 #include "data/Spot.h"
 
 Spot::Spot()
-    : m_coordinates(0,0)
+    : m_coordinates()
     , m_visible(false)
     , m_selected(false)
     , m_color(Qt::black)
@@ -12,8 +12,8 @@ Spot::Spot()
 }
 
 Spot::Spot(const QString name)
-    : m_coordinates(0,0)
-    , m_adj_coordinates(0,0)
+    : m_coordinates()
+    , m_adj_coordinates()
     , m_visible(false)
     , m_selected(false)
     , m_color(Qt::white)
@@ -141,10 +141,10 @@ Spot::SpotType Spot::getCoordinates(const QString &spot)
 
 QString Spot::getSpot(const Spot::SpotType &spot)
 { 
-    return QString::number(spot.x) + "x" + QString::number(spot.y);
+    return QString::number(spot.x()) + "x" + QString::number(spot.y());
 }
 
 QString Spot::getSpot3D(const Spot::SpotType &spot)
 {
-    return QString::number(spot.x) + "x" + QString::number(spot.y) + "x" + QString::number(spot.z);
+    return QString::number(spot.x()) + "x" + QString::number(spot.y()) + "x" + QString::number(spot.z());
 }

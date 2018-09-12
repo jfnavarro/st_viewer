@@ -81,8 +81,8 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     for (int i = 0; i < spots.size(); ++i) {
         const bool visible = visibles.at(i);
         const auto spot  = spots.at(i)->adj_coordinates();
-        const double x = spot.x;
-        const double y = spot.y;
+        const double x = spot.x();
+        const double y = spot.y();
         if (visible) {
             const bool selected = selecteds.at(i);
             const double value = values.at(i);

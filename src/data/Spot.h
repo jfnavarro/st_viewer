@@ -3,6 +3,7 @@
 
 #include <QPair>
 #include <QColor>
+#include <QVector3D>
 
 // Data model class to store spot data
 // Each spot correspond to a spot in the the array and it is
@@ -13,22 +14,7 @@ class Spot
 
 public:
 
-    struct SpotType {
-        double x;
-        double y;
-        double z;
-        SpotType(double x, double y, double z = 0) : x(x), y(y), z(z) {}
-        SpotType() : x(0), y(0), z(0) {}
-        SpotType &operator=(const SpotType &other) {
-            x = other.x;
-            y = other.y;
-            z = other.z;
-            return (*this);
-        }
-        bool operator==(const SpotType &other) const {
-            return (x == other.x && y == other.y && z == other.z);
-        }
-    };
+    typedef QVector3D SpotType;
 
     Spot();
     Spot(const QString name);

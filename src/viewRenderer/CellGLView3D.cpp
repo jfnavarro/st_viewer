@@ -1,10 +1,22 @@
 #include "CellGLView3D.h"
 #include "color/HeatMap.h"
-
-static const int OPENGL_VERSION_MAJOR = 3;
-static const int OPENGL_VERSION_MINOR = 2;
-
+#include <QDebug>
+#include <QString>
+#include <QOpenGLShaderProgram>
+#include <QKeyEvent>
+#include <QList>
 #include <random>
+
+static const float transSpeed = 0.5f;
+static const float rotSpeed = 0.5f;
+static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
+static const QVector3D UP(0.0f, 0.1f, 0.0f);
+static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
+
+QVector4D fromQtColor(const QColor &color)
+{
+    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+}
 
 float get_random_float(float min, float max)
 {
@@ -13,103 +25,184 @@ float get_random_float(float min, float max)
     return dis(e);
 }
 
-QVector4D fromQtColor(const QColor &color)
+// Qt Streams
+QDebug operator<<(QDebug dbg, const Vertex &vertex)
 {
-    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+    dbg << "Position: <" << vertex.position() << ", " << "Color:" << vertex.color();
+    return dbg;
 }
 
-CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings, QWidget *parent)
-    : QOpenGLWidget(parent)
-    , m_rendering_settings(rendering_settings)
-    , m_projection()
-    , m_xRot(0)
-    , m_yRot(0)
-    , m_zRot(0)
-    , m_zoom(1.0f)
+CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings)
+    : m_rendering_settings(rendering_settings)
 {
-    // Configure OpenGL format for this view
-    QSurfaceFormat format;
-    format.setVersion(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
-    format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setDepthBufferSize(24);
-    setFormat(format);
+
 }
 
 CellGLView3D::~CellGLView3D()
 {
+
 }
 
-static void qNormalizeAngle(int &angle)
+void CellGLView3D::teardownGL()
 {
-    while (angle < 0)
-        angle += 360 * 16;
-    while (angle > 360 * 16)
-        angle -= 360 * 16;
+    // Actually destroy our OpenGL information
+    m_vao.destroy();
+    m_pos_buffer.destroy();
+    m_color_buffer.destroy();
+    delete m_program;
 }
-
-void CellGLView3D::setXRotation(int angle)
-{
-    qNormalizeAngle(angle);
-    if (angle != m_xRot) {
-        m_xRot = angle;
-        update();
-    }
-}
-
-void CellGLView3D::setYRotation(int angle)
-{
-    qNormalizeAngle(angle);
-    if (angle != m_yRot) {
-        m_yRot = angle;
-        update();
-    }
-}
-
-void CellGLView3D::setZRotation(int angle)
-{
-    qNormalizeAngle(angle);
-    if (angle != m_zRot) {
-        m_zRot = angle;
-        update();
-    }
-}
-
 
 void CellGLView3D::initializeGL()
 {
-    if (!m_qopengl_functions.initializeOpenGLFunctions()) {
-        QMessageBox::critical(this,
-                              tr("STViewer"),
-                              tr("Required OpenGL version not supported.\n"
-                                 "Please update your system to at least OpenGL ")
-                              + QString("%1.%2").arg(OPENGL_VERSION_MAJOR).arg(OPENGL_VERSION_MINOR)
-                              + ".");
-        QApplication::exit();
-        return;
-    }
+    qDebug() << "initializeGL()";
+    // Initialize OpenGL Backend
+    initializeOpenGLFunctions();
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
 
-    m_qopengl_functions.glClearColor(0, 0, 0, 1);
-    m_qopengl_functions.glEnable(GL_ALPHA_TEST);
-    m_qopengl_functions.glAlphaFunc(GL_NOTEQUAL, 0);
-    m_qopengl_functions.glEnable(GL_BLEND);
-    m_qopengl_functions.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_qopengl_functions.glEnable(GL_POINT_SMOOTH);
-    m_qopengl_functions.glEnable(GL_DEPTH_TEST);
-    m_qopengl_functions.glEnable(GL_CULL_FACE);
+    // Set global information
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Create Shader
+    m_program = new QOpenGLShaderProgram();
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/geneShader.vert");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/geneShader.frag");
+    m_program->link();
+    m_program->bind();
+
+    // Cache Uniform Locations
+    u_modelToWorld = m_program->uniformLocation("modelToWorld");
+    u_worldToCamera = m_program->uniformLocation("worldToCamera");
+    u_cameraToView = m_program->uniformLocation("cameraToView");
+    u_size = m_program->uniformLocation("size");
+
+    m_program->release();
 }
 
 void CellGLView3D::resizeGL(int width, int height)
 {
-    const float aspect = float(width) / float(height);
-    const float zNear = 0.1f, zFar = 100.0f, fov = 45.0f;
     m_projection.setToIdentity();
-    m_projection.perspective(fov, aspect, zNear, zFar);
+    m_projection.perspective(60.0f, width / float(height), 0.1f, 1000.0f);
 }
 
 void CellGLView3D::paintGL()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Render using our shader
+    m_program->bind();
+    m_camera.setToIdentity();
+    m_camera.translate(-m_translation);
+    m_program->setUniformValue(u_worldToCamera, m_camera);
+    m_program->setUniformValue(u_cameraToView, m_projection);
+    const int size = m_rendering_settings.size * 10;
+    m_program->setUniformValue(u_size, size);
+    {
+        m_vao.bind();
+        m_transform.setToIdentity();
+        m_transform.translate(0.0f, 0.0f, -5.0f);
+        m_transform.rotate(m_rotation);
+        m_transform.scale(m_zoom, m_zoom, 1.0f);
+        m_program->setUniformValue(u_modelToWorld, m_transform);
+        glDrawArrays(GL_POINTS, 0, m_vertexs.size());
+        m_vao.release();
+    }
+    m_program->release();
+}
+
+void CellGLView3D::keyPressEvent(QKeyEvent *event)
+{
+    if (event->isAutoRepeat())
+    {
+        event->ignore();
+    }
+    else
+    {
+        Qt::KeyboardModifiers modifiers = event->modifiers();
+        if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Up)
+        {
+            m_translation += (transSpeed * -FORWARD);
+        }
+        else if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Down)
+        {
+            m_translation += (transSpeed * FORWARD);
+        }
+        else if (event->key() == Qt::Key_Right)
+        {
+            m_translation += (transSpeed * -RIGHT);
+        }
+        else if (event->key() == Qt::Key_Left)
+        {
+            m_translation += (transSpeed * RIGHT);
+        }
+        else if (event->key() == Qt::Key_Up)
+        {
+            m_translation += (transSpeed * -UP);
+        }
+        else if (event->key() == Qt::Key_Down)
+        {
+            m_translation += (transSpeed * UP);
+        }
+    }
+    update();
+}
+
+void CellGLView3D::wheelEvent(QWheelEvent *event)
+{
+    //TODO have a max/min zoom level
+    const float delta = event->delta();
+    if (delta > 0) {
+        m_zoom -= 0.5f;
+    } else if (delta < 0) {
+        m_zoom += 0.5f;
+    }
+    event->ignore();
+}
+
+void CellGLView3D::mousePressEvent(QMouseEvent *event)
+{
+    m_lastPos = event->pos();
+    event->ignore();
+}
+
+void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
+{
+    const int dx = event->x() - m_lastPos.x();
+    const int dy = event->y() - m_lastPos.y();
+    if (event->buttons() & Qt::LeftButton) {
+        m_rotation *= QQuaternion::fromAxisAndAngle(UP, -rotSpeed * dx);
+        m_rotation *= QQuaternion::fromAxisAndAngle(RIGHT, -rotSpeed * dy);
+    } else if (event->buttons() & Qt::RightButton) {
+        //TODO translate from mouse position
+        m_translation += (transSpeed * dx * -RIGHT);
+        m_translation += (transSpeed * dy * UP);
+    }
+    m_lastPos = event->pos();
+    event->ignore();
+    update();
+}
+
+void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
+{
+    event->ignore();
+}
+
+void CellGLView3D::attachData(QSharedPointer<STData> geneData)
+{
+    m_geneData = geneData;
+}
+
+void CellGLView3D::slotUpdate()
+{
+    qDebug() << "slotUpdate()";
+
+    m_geneData->computeRenderingData(m_rendering_settings);
+
     const bool is_dynamic =
             m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
     const bool do_values = m_rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
@@ -118,36 +211,18 @@ void CellGLView3D::paintGL()
     const auto &visibles = m_geneData->renderingVisible();
     const auto &colors = m_geneData->renderingColors();
     const auto &values = m_geneData->renderingValues();
-    const float size = m_rendering_settings.size;
     const double min_value = m_rendering_settings.legend_min;
     const double max_value = m_rendering_settings.legend_max;
     const double intensity = m_rendering_settings.intensity;
-    m_qopengl_functions.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_qopengl_functions.glMatrixMode(GL_PROJECTION);
-    m_qopengl_functions.glLoadMatrixf(m_projection.constData());
-
-    m_qopengl_functions.glMatrixMode(GL_MODELVIEW);
-    QMatrix4x4 m_world;
-    m_world.translate(0.0, 0.0, -10.0);
-    m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
-    m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-    m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-    m_world.scale(m_zoom, m_zoom, 1.0);
-    m_qopengl_functions.glLoadMatrixf(m_world.constData());
-
-    m_qopengl_functions.glPointSize(size);
-    m_qopengl_functions.glBegin(GL_POINTS);
+    m_vertexs.clear();
     for (int i = 0; i < spots.size(); ++i) {
         const bool visible = visibles.at(i);
-        const auto spot  = spots.at(i)->adj_coordinates();
-        const double x = spot.x;
-        const double y = spot.y;
-        const double z = spot.z;
         if (visible) {
             const double value = values.at(i);
             QColor color = colors.at(i);
-            if (do_values && !spots.at(i)->visible()) {
+            const auto spot = spots.at(i);
+            if (do_values && !spot->visible()) {
                 color = Color::adjustVisualMode(color, value, min_value,
                                                 max_value, m_rendering_settings.visual_mode);
             }
@@ -155,63 +230,65 @@ void CellGLView3D::paintGL()
             if (!is_dynamic) {
                 color.setAlphaF(intensity);
             }
-
-            const QVector4D vcolor = fromQtColor(color);
-            m_qopengl_functions.glColor4fv(reinterpret_cast<const float*>(&vcolor));
-            m_qopengl_functions.glVertex3f(x, y, z);
+            m_vertexs.append(Vertex(spot->adj_coordinates(), fromQtColor(color)));
         }
     }
-    m_qopengl_functions.glEnd();
-    m_qopengl_functions.glFlush();
-}
 
-void CellGLView3D::wheelEvent(QWheelEvent *event)
-{
-    const float delta = event->delta();
-    if (delta > 0) {
-        m_zoom -= 0.5f;
-    } else if (delta < 0) {
-        m_zoom += 0.5f;
+    {
+        makeCurrent();
+
+        m_program->bind();
+
+        // Create VAO
+        m_vao.create();
+        m_vao.bind();
+
+        // Create Buffer (Index)
+        m_pos_buffer.create();
+        m_pos_buffer.bind();
+        m_pos_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_pos_buffer.allocate(m_vertexs.constData(), m_vertexs.size() * sizeof(Vertex));
+        m_program->enableAttributeArray(0);
+        m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(),
+                                      Vertex::PositionTupleSize, Vertex::stride());
+
+        // Create Buffer (Color)
+        m_color_buffer.create();
+        m_color_buffer.bind();
+        m_color_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_color_buffer.allocate(m_vertexs.constData(), m_vertexs.size() * sizeof(Vertex));
+        m_program->enableAttributeArray(1);
+        m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(),
+                                      Vertex::ColorTupleSize, Vertex::stride());
+
+        // Release (unbind) all
+        m_pos_buffer.release();
+        m_color_buffer.release();
+        m_vao.release();
+        m_program->release();
+
+        doneCurrent();
     }
+
     update();
-}
-
-void CellGLView3D::mousePressEvent(QMouseEvent *event)
-{
-    m_lastPos = event->pos();
-}
-
-void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
-{
-    const int dx = event->x() - m_lastPos.x();
-    const int dy = event->y() - m_lastPos.y();
-    if (event->buttons() & Qt::LeftButton) {
-        setXRotation(m_xRot + 8 * dy);
-        setYRotation(m_yRot + 8 * dx);
-    } else if (event->buttons() & Qt::RightButton) {
-        setXRotation(m_xRot + 8 * dy);
-        setZRotation(m_zRot + 8 * dx);
-    }
-    m_lastPos = event->pos();
-}
-
-void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
-{
-    event->accept();
-}
-
-void CellGLView3D::attachData(QSharedPointer<STData> geneData)
-{
-    m_geneData = geneData;
 }
 
 void CellGLView3D::clearData()
 {
-
+    //m_vertex.destroy();
+    //m_object.destroy();
+    //m_geneData.clear();
+    //m_vertexs.clear();
+    m_zoom = 1.0f;
+    m_transform.setToIdentity();
+    m_rotation = QQuaternion();
+    m_translation = QVector3D();
 }
 
 const QImage CellGLView3D::grabPixmapGL()
 {
-    const QPixmap res = grab(QRect(0,0,width(),height()));
-    return res.toImage();
+    return QImage();
+
+    //const QPixmap res = grab(QRect(0,0,width(),height()));
+    //return res.toImage();
 }
