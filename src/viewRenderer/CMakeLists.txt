@@ -6,8 +6,6 @@ set(LIBRARY_ARG_INCLUDES
     ImageTextureGL.h
     GraphicItemGL.h
     SelectionEvent.h
-    Vertex.h
-    Window.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -17,7 +15,6 @@ set(LIBRARY_ARG_SOURCES
     HeatMapLegendGL.cpp
     ImageTextureGL.cpp
     GraphicItemGL.cpp
-    Window.cpp
 )
 
 ST_LIBRARY()

@@ -53,19 +53,14 @@ public:
     // Rendering functions
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
     const QVector<bool> &renderingVisible() const;
-    const QVector<QColor> &renderingColors() const;
+    const QVector<QVector4D> &renderingColors() const;
     const QVector<bool> &renderingSelected() const;
-    const QVector<double> &renderingValues() const;
     const QVector<Spot::SpotType> &renderingCoords() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
     // It returns a map of old_spots -> new_spots
     // It throws exceptions when errors during parsing or empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
-
-    // to parse a file with size factors (one per spot)
-    // it returns bool if the parsing was okay and the number of factors is the same as rows
-    bool parseSizeFactors(const QString &sizefactors);
 
     // helper slicing functions (assumes the spots and genes lists given are present in the data)
     static STDataFrame sliceDataFrameGenes(const STDataFrame &data,
@@ -118,9 +113,6 @@ private:
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
 
-    // user loaded size factors
-    rowvec m_size_factors;
-
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix
     SpotListType m_spots;
@@ -132,11 +124,10 @@ private:
     QHash<QString, int> m_gene_index;
 
     // rendering data
-    QVector<bool> m_rendering_selected;
     QVector<bool> m_rendering_visible;
-    QVector<QColor> m_rendering_colors;
-    QVector<double> m_rendering_values;
+    QVector<QVector4D> m_rendering_colors;
     QVector<Spot::SpotType> m_rendering_coords;
+    QVector<bool> m_rendering_selected;
 
     // whether the data is in 3D or not
     bool m_is3D;

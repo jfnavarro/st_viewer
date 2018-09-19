@@ -7,7 +7,6 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
-#include "Vertex.h"
 #include "data/STData.h"
 
 class QOpenGLShaderProgram;
@@ -24,11 +23,13 @@ public:
     // return a QImage representation of the canvas
     const QImage grabPixmapGL();
 
-    // clear all local variables and data
+    // clear all local variables, buffers and data
     void clearData();
 
+    // attach the ST data object
     void attachData(QSharedPointer<STData> data);
 
+    // OpenGL visualization functions
     void initializeGL() override;
     void resizeGL(int width, int height) override;
     void paintGL() override;
@@ -43,6 +44,7 @@ protected:
 
 public slots:
 
+    // when the view needs to be refreshed
     void slotUpdate();
 
 protected slots:
@@ -59,8 +61,12 @@ private:
     // OpenGL State Information
     QOpenGLBuffer m_pos_buffer;
     QOpenGLBuffer m_color_buffer;
+    QOpenGLBuffer m_visible_buffer;
+    QOpenGLBuffer m_selected_buffer;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLShaderProgram *m_program;
+    int m_num_points;
+    bool m_initialized;
 
     // Shader Information
     int u_modelToWorld;
@@ -79,11 +85,7 @@ private:
     float m_zoom = 1.0f;
     QPoint m_lastPos;
 
-    // Data
-    QVector<Vertex> m_vertexs;
-
     // rendering data
     QSharedPointer<STData> m_geneData;
-
 };
 #endif // CELLGLVIEW3D_H

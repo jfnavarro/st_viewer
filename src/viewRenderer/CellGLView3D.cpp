@@ -13,27 +13,12 @@ static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
 static const QVector3D UP(0.0f, 0.1f, 0.0f);
 static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
 
-QVector4D fromQtColor(const QColor &color)
-{
-    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-}
-
-float get_random_float(float min, float max)
-{
-    static std::default_random_engine e;
-    static std::uniform_real_distribution<> dis(min, max);
-    return dis(e);
-}
-
-// Qt Streams
-QDebug operator<<(QDebug dbg, const Vertex &vertex)
-{
-    dbg << "Position: <" << vertex.position() << ", " << "Color:" << vertex.color();
-    return dbg;
-}
 
 CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings)
     : m_rendering_settings(rendering_settings)
+    , m_num_points(0)
+    , m_initialized(false)
+    , m_zoom(1.0f)
 {
 
 }
@@ -94,6 +79,10 @@ void CellGLView3D::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (!m_initialized) {
+        return;
+    }
+
     // Render using our shader
     m_program->bind();
     m_camera.setToIdentity();
@@ -109,7 +98,7 @@ void CellGLView3D::paintGL()
         m_transform.rotate(m_rotation);
         m_transform.scale(m_zoom, m_zoom, 1.0f);
         m_program->setUniformValue(u_modelToWorld, m_transform);
-        glDrawArrays(GL_POINTS, 0, m_vertexs.size());
+        glDrawArrays(GL_POINTS, 0, m_num_points);
         m_vao.release();
     }
     m_program->release();
@@ -194,45 +183,15 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
 
 void CellGLView3D::attachData(QSharedPointer<STData> geneData)
 {
+    qDebug() << "Attach 3D data";
+
     m_geneData = geneData;
-}
 
-void CellGLView3D::slotUpdate()
-{
-    qDebug() << "slotUpdate()";
-
-    m_geneData->computeRenderingData(m_rendering_settings);
-
-    const bool is_dynamic =
-            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
-    const bool do_values = m_rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
-
-    const auto &spots = m_geneData->spots();
-    const auto &visibles = m_geneData->renderingVisible();
+    const auto &indexes = m_geneData->renderingCoords();
     const auto &colors = m_geneData->renderingColors();
-    const auto &values = m_geneData->renderingValues();
-    const double min_value = m_rendering_settings.legend_min;
-    const double max_value = m_rendering_settings.legend_max;
-    const double intensity = m_rendering_settings.intensity;
-
-    m_vertexs.clear();
-    for (int i = 0; i < spots.size(); ++i) {
-        const bool visible = visibles.at(i);
-        if (visible) {
-            const double value = values.at(i);
-            QColor color = colors.at(i);
-            const auto spot = spots.at(i);
-            if (do_values && !spot->visible()) {
-                color = Color::adjustVisualMode(color, value, min_value,
-                                                max_value, m_rendering_settings.visual_mode);
-            }
-
-            if (!is_dynamic) {
-                color.setAlphaF(intensity);
-            }
-            m_vertexs.append(Vertex(spot->adj_coordinates(), fromQtColor(color)));
-        }
-    }
+    const auto &visibles = m_geneData->renderingVisible();
+    const auto &selecteds = m_geneData->renderingSelected();
+    m_num_points = indexes.size();
 
     {
         makeCurrent();
@@ -247,25 +206,83 @@ void CellGLView3D::slotUpdate()
         m_pos_buffer.create();
         m_pos_buffer.bind();
         m_pos_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_pos_buffer.allocate(m_vertexs.constData(), m_vertexs.size() * sizeof(Vertex));
+        m_pos_buffer.allocate(indexes.constData(), indexes.size() * sizeof(QVector3D));
         m_program->enableAttributeArray(0);
-        m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(),
-                                      Vertex::PositionTupleSize, Vertex::stride());
+        m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
         // Create Buffer (Color)
         m_color_buffer.create();
         m_color_buffer.bind();
         m_color_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_color_buffer.allocate(m_vertexs.constData(), m_vertexs.size() * sizeof(Vertex));
+        m_color_buffer.allocate(colors.constData(), colors.size() * sizeof(QVector4D));
         m_program->enableAttributeArray(1);
-        m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(),
-                                      Vertex::ColorTupleSize, Vertex::stride());
+        m_program->setAttributeBuffer(1, GL_FLOAT, 0, 4, 0);
+
+        // Create Buffer (Selected)
+        m_selected_buffer.create();
+        m_selected_buffer.bind();
+        m_selected_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_selected_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
+        m_program->enableAttributeArray(2);
+        m_program->setAttributeBuffer(2, GL_INT, 0, 1, 0);
+
+        // Create Buffer (Visible)
+        m_visible_buffer.create();
+        m_visible_buffer.bind();
+        m_visible_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_visible_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
+        m_program->enableAttributeArray(3);
+        m_program->setAttributeBuffer(3, GL_INT, 0, 1, 0);
 
         // Release (unbind) all
         m_pos_buffer.release();
         m_color_buffer.release();
+        m_selected_buffer.release();
+        m_visible_buffer.release();
         m_vao.release();
         m_program->release();
+
+        doneCurrent();
+    }
+
+    m_initialized = true;
+    update();
+}
+
+void CellGLView3D::slotUpdate()
+{
+    qDebug() << "Updated 3D data";
+
+    m_geneData->computeRenderingData(m_rendering_settings);
+    const auto &colors = m_geneData->renderingColors();
+    const auto &visibles = m_geneData->renderingVisible();
+    const auto &selecteds = m_geneData->renderingSelected();
+
+    {
+        makeCurrent();
+
+        // Update Buffer (Color)
+        m_color_buffer.bind();
+        void* buffer_data_color = m_color_buffer.mapRange(0, colors.size(), QOpenGLBuffer::RangeWrite);
+        std::memcpy(buffer_data_color, colors.constData(), colors.size() * sizeof(QVector4D));
+        m_color_buffer.unmap();
+
+        // Update Buffer (Selected)
+        m_selected_buffer.bind();
+        void* buffer_data_selected = m_color_buffer.mapRange(0, selecteds.size(), QOpenGLBuffer::RangeWrite);
+        std::memcpy(buffer_data_selected, selecteds.constData(), selecteds.size() * sizeof(int));
+        m_selected_buffer.unmap();
+
+        // Update Buffer (Visible)
+        m_visible_buffer.bind();
+        void* buffer_data_visible = m_color_buffer.mapRange(0, visibles.size(), QOpenGLBuffer::RangeWrite);
+        std::memcpy(buffer_data_visible, visibles.constData(), visibles.size() * sizeof(int));
+        m_visible_buffer.unmap();
+
+        // Release (unbind) all
+        m_color_buffer.release();
+        m_selected_buffer.release();
+        m_visible_buffer.release();
 
         doneCurrent();
     }
@@ -275,11 +292,14 @@ void CellGLView3D::slotUpdate()
 
 void CellGLView3D::clearData()
 {
-    //m_vertex.destroy();
-    //m_object.destroy();
-    //m_geneData.clear();
-    //m_vertexs.clear();
+    m_pos_buffer.destroy();
+    m_color_buffer.destroy();
+    m_visible_buffer.destroy();
+    m_selected_buffer.destroy();
+    m_vao.destroy();
     m_zoom = 1.0f;
+    m_num_points = 0;
+    m_initialized = false;
     m_transform.setToIdentity();
     m_rotation = QQuaternion();
     m_translation = QVector3D();

@@ -10,6 +10,7 @@ class SettingsWidget;
 class SettingsWidget : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SettingsWidget)
 
 public:
 
@@ -48,7 +49,7 @@ public:
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;
         bool gene_cutoff;
-        bool size_factors;
+        bool show_spots;
     };
 
     explicit SettingsWidget(QWidget *parent = nullptr);
@@ -68,7 +69,6 @@ private slots:
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
-    void slotSizeFactors(bool);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);
     void slotVisualMode(VisualTypeMode);

@@ -33,7 +33,6 @@ public:
     const QString tissue() const;
     const QString comments() const;
     const QRect chip() const;
-    const QString sizeFactorsFile() const;
     bool is3D() const;
 
     // To import a dataset from a folder
@@ -60,7 +59,6 @@ private slots:
     void slotLoadMainImageFile();
     void slotLoadSpotsMapFile();
     void slotLoadAlignmentFile();
-    void slotLoadSizeFactorsFile();
 
 private:
     void init();

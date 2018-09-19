@@ -56,49 +56,10 @@ void GeneRendererGL::attachData(QSharedPointer<STData> data)
 void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter)
 {
     Q_UNUSED(qopengl_functions);
+    Q_UNUSED(painter);
 
     if (!m_initialized) {
         return;
-    }
-
-    const bool is_dynamic =
-            m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
-    const bool do_values = m_rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
-
-    const auto &spots = m_geneData->spots();
-    const auto &visibles = m_geneData->renderingVisible();
-    const auto &colors = m_geneData->renderingColors();
-    const auto &selecteds = m_geneData->renderingSelected();
-    const auto &values = m_geneData->renderingValues();
-    const double size = m_rendering_settings.size / 2;
-    const double size_selected = size / 4;
-    const double min_value = m_rendering_settings.legend_min;
-    const double max_value = m_rendering_settings.legend_max;
-    const double intensity = m_rendering_settings.intensity;
-
-    QPen pen;
-    painter.setBrush(Qt::NoBrush);
-    for (int i = 0; i < spots.size(); ++i) {
-        const bool visible = visibles.at(i);
-        const auto spot  = spots.at(i)->adj_coordinates();
-        const double x = spot.x();
-        const double y = spot.y();
-        if (visible) {
-            const bool selected = selecteds.at(i);
-            const double value = values.at(i);
-            QColor color = colors.at(i);
-            if (do_values && !spots.at(i)->visible()) {
-                color = Color::adjustVisualMode(color, value, min_value,
-                                                max_value, m_rendering_settings.visual_mode);
-            }
-            if (!is_dynamic) {
-                color.setAlphaF(intensity);
-            }
-            pen.setColor(selected ? Qt::white : color);
-            pen.setWidthF(selected ? size_selected : size);
-            painter.setPen(pen);
-            painter.drawEllipse(QRectF(x, y, size, size));
-        }
     }
 }
 

@@ -13,7 +13,6 @@ Dataset::Dataset()
     , m_alignment_file()
     , m_spots_file()
     , m_chip()
-    , m_size_factors_file()
     , m_is3D(false)
     , m_alignment()
     , m_data(nullptr)
@@ -31,7 +30,6 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_alignment_file = importer.alignmentMatrix();
     m_spots_file = importer.spotsMapFile();
     m_chip = importer.chip();
-    m_size_factors_file = importer.sizeFactorsFile();
     m_is3D = importer.is3D();
     m_alignment = QTransform();
     m_data = nullptr;
@@ -48,7 +46,6 @@ Dataset::Dataset(const Dataset &other)
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
-    m_size_factors_file = other.m_size_factors_file;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
@@ -69,7 +66,6 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_chip = other.m_chip;
-    m_size_factors_file = other.m_size_factors_file;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
@@ -87,7 +83,6 @@ bool Dataset::operator==(const Dataset &other) const
             && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
             && m_chip == other.m_chip
-            && m_size_factors_file == other.m_size_factors_file
             && m_is3D == other.m_is3D);
 }
 
@@ -146,11 +141,6 @@ const QRect Dataset::chip() const
     return m_chip;
 }
 
-const QString Dataset::sizeFactorsFile() const
-{
-    return m_spots_file;
-}
-
 void Dataset::name(const QString &name)
 {
     m_name = name;
@@ -201,11 +191,6 @@ void Dataset::chip(const QRect &chip)
     m_chip = chip;
 }
 
-void Dataset::sizeFactorsFile(const QString &sizeFactorsFile)
-{
-    m_size_factors_file = sizeFactorsFile;
-}
-
 void Dataset::load_data()
 {
     // Parse ST Data file and spot coordinates (if any)
@@ -224,15 +209,6 @@ void Dataset::load_data()
         if (!parsed) {
             qDebug() << "Error parsing image aligment file";
             throw std::runtime_error("Error parsing Image alignment file");
-        }
-    }
-
-    // Parse size-factors
-    if (!m_size_factors_file.isEmpty()) {
-        const bool parsed = m_data->parseSizeFactors(m_size_factors_file);
-        if (!parsed) {
-            qDebug() << "Error parsing Size Factors file";
-            throw std::runtime_error("Error parsing Size Factors file");
         }
     }
 }

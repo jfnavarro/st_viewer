@@ -26,7 +26,6 @@
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
 #include "color/HeatMap.h"
-#include "viewRenderer/Window.h"
 #include <algorithm>
 
 #include "ui_cellviewPage.h"
@@ -179,10 +178,10 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     if (m_dataset.data()->is3D()) {
         QWidget *widget = QWidget::createWindowContainer(m_view3D.data());
         m_ui->mainLayout->addWidget(widget);
-        m_view3D->clearData();
-        m_view3D->attachData(dataset.data());
         m_ui->mainLayout->update();
         widget->show();
+        m_view3D->clearData();
+        m_view3D->attachData(dataset.data());
     } else {
         m_ui->mainLayout->addWidget(m_view.data());
         m_view->clearData();
