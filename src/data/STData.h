@@ -52,9 +52,9 @@ public:
 
     // Rendering functions
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
-    const QVector<bool> &renderingVisible() const;
+    const QVector<int> &renderingVisible() const;
     const QVector<QVector4D> &renderingColors() const;
-    const QVector<bool> &renderingSelected() const;
+    const QVector<int> &renderingSelected() const;
     const QVector<Spot::SpotType> &renderingCoords() const;
 
     // to parse a file with spots coordinates old_spot -> new_spot
@@ -124,10 +124,10 @@ private:
     QHash<QString, int> m_gene_index;
 
     // rendering data
-    QVector<bool> m_rendering_visible;
+    QVector<int> m_rendering_visible;
     QVector<QVector4D> m_rendering_colors;
     QVector<Spot::SpotType> m_rendering_coords;
-    QVector<bool> m_rendering_selected;
+    QVector<int> m_rendering_selected;
 
     // whether the data is in 3D or not
     bool m_is3D;

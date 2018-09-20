@@ -44,7 +44,7 @@ public:
         double legend_min;
         double legend_max;
         double intensity;
-        double size;
+        int size;
         VisualMode visual_mode;
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;

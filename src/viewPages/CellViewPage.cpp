@@ -176,10 +176,9 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_ui->mainLayout->removeWidget(m_ui->view);
     m_ui->view->close();
     if (m_dataset.data()->is3D()) {
-        QWidget *widget = QWidget::createWindowContainer(m_view3D.data());
-        m_ui->mainLayout->addWidget(widget);
+        m_ui->mainLayout->addWidget(m_view3D.data());
         m_ui->mainLayout->update();
-        widget->show();
+        m_view3D.data()->show();
         m_view3D->clearData();
         m_view3D->attachData(dataset.data());
     } else {

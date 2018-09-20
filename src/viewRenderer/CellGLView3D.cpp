@@ -14,8 +14,9 @@ static const QVector3D UP(0.0f, 0.1f, 0.0f);
 static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
 
 
-CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings)
-    : m_rendering_settings(rendering_settings)
+CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings, QWidget *parent)
+    : QOpenGLWidget(parent)
+    , m_rendering_settings(rendering_settings)
     , m_num_points(0)
     , m_initialized(false)
     , m_zoom(1.0f)
@@ -65,6 +66,7 @@ void CellGLView3D::initializeGL()
     u_worldToCamera = m_program->uniformLocation("worldToCamera");
     u_cameraToView = m_program->uniformLocation("cameraToView");
     u_size = m_program->uniformLocation("size");
+    u_alpha = m_program->uniformLocation("alpha");
 
     m_program->release();
 }
@@ -89,8 +91,11 @@ void CellGLView3D::paintGL()
     m_camera.translate(-m_translation);
     m_program->setUniformValue(u_worldToCamera, m_camera);
     m_program->setUniformValue(u_cameraToView, m_projection);
-    const int size = m_rendering_settings.size * 10;
-    m_program->setUniformValue(u_size, size);
+    m_program->setUniformValue(u_size, m_rendering_settings.size);
+    const double alpha =
+            m_rendering_settings.visual_mode == SettingsWidget::DynamicRange ?
+                1.0 : m_rendering_settings.intensity;
+    m_program->setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     {
         m_vao.bind();
         m_transform.setToIdentity();
@@ -222,7 +227,7 @@ void CellGLView3D::attachData(QSharedPointer<STData> geneData)
         m_selected_buffer.create();
         m_selected_buffer.bind();
         m_selected_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_selected_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
+        m_selected_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
         m_program->enableAttributeArray(2);
         m_program->setAttributeBuffer(2, GL_INT, 0, 1, 0);
 
@@ -230,7 +235,7 @@ void CellGLView3D::attachData(QSharedPointer<STData> geneData)
         m_visible_buffer.create();
         m_visible_buffer.bind();
         m_visible_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_visible_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
+        m_visible_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
         m_program->enableAttributeArray(3);
         m_program->setAttributeBuffer(3, GL_INT, 0, 1, 0);
 
@@ -263,19 +268,25 @@ void CellGLView3D::slotUpdate()
 
         // Update Buffer (Color)
         m_color_buffer.bind();
-        void* buffer_data_color = m_color_buffer.mapRange(0, colors.size(), QOpenGLBuffer::RangeWrite);
+        void* buffer_data_color = m_color_buffer.mapRange(0,
+                                                          colors.size(),
+                                                          QOpenGLBuffer::RangeWrite);
         std::memcpy(buffer_data_color, colors.constData(), colors.size() * sizeof(QVector4D));
         m_color_buffer.unmap();
 
         // Update Buffer (Selected)
         m_selected_buffer.bind();
-        void* buffer_data_selected = m_color_buffer.mapRange(0, selecteds.size(), QOpenGLBuffer::RangeWrite);
+        void* buffer_data_selected = m_selected_buffer.mapRange(0,
+                                                                selecteds.size(),
+                                                                QOpenGLBuffer::RangeWrite);
         std::memcpy(buffer_data_selected, selecteds.constData(), selecteds.size() * sizeof(int));
         m_selected_buffer.unmap();
 
         // Update Buffer (Visible)
         m_visible_buffer.bind();
-        void* buffer_data_visible = m_color_buffer.mapRange(0, visibles.size(), QOpenGLBuffer::RangeWrite);
+        void* buffer_data_visible = m_visible_buffer.mapRange(0,
+                                                              visibles.size(),
+                                                              QOpenGLBuffer::RangeWrite);
         std::memcpy(buffer_data_visible, visibles.constData(), visibles.size() * sizeof(int));
         m_visible_buffer.unmap();
 
@@ -307,8 +318,6 @@ void CellGLView3D::clearData()
 
 const QImage CellGLView3D::grabPixmapGL()
 {
-    return QImage();
-
-    //const QPixmap res = grab(QRect(0,0,width(),height()));
-    //return res.toImage();
+    const QPixmap res = grab(QRect(0,0,width(),height()));
+    return res.toImage();
 }

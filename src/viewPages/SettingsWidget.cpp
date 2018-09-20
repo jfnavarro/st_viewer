@@ -5,7 +5,7 @@ static const int INTENSITY_MIN = 1;
 static const int INTENSITY_MAX = 10;
 static const int SIZEMIN = 5;
 static const int SIZEMAX = 30;
-static const double SIZE_DEFAULT = 0.5;
+static const int SIZE_DEFAULT = 5;
 static const double INTENSITY_DEFAULT = 1.0;
 
 SettingsWidget::SettingsWidget(QWidget *parent)
@@ -84,7 +84,7 @@ void SettingsWidget::reset()
     m_ui->spots_size->setMaximum(SIZEMAX);
     m_ui->spots_size->setValue(SIZEMIN);
     m_ui->show_image->setChecked(true);
-    m_ui->show_spots->setChecked(true);
+    m_ui->show_spots->setChecked(false);
     m_ui->legend->setChecked(false);
     m_ui->gene_cutoff->setChecked(false);
     m_ui->normalization_raw->setChecked(true);
@@ -157,7 +157,7 @@ void SettingsWidget::slotIndReadsTreshold(int value)
 void SettingsWidget::slotIntensity(int value)
 {
     const double intensity = static_cast<double>(value) / 10;
-    if (value != m_rendering_settings.intensity) {
+    if (intensity != m_rendering_settings.intensity) {
         m_rendering_settings.intensity = intensity;
         emit signalSpotRendering();
     }
@@ -165,9 +165,8 @@ void SettingsWidget::slotIntensity(int value)
 
 void SettingsWidget::slotSize(int value)
 {
-    const double size = static_cast<double>(value) / 10;
     if (value != m_rendering_settings.size) {
-        m_rendering_settings.size = size;
+        m_rendering_settings.size = value;
         emit signalSpotRendering();
     }
 }

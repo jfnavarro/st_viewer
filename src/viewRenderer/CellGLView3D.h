@@ -11,13 +11,14 @@
 
 class QOpenGLShaderProgram;
 
-class CellGLView3D : public QOpenGLWindow, protected QOpenGLFunctions
+class CellGLView3D : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
 public:
 
-    explicit CellGLView3D(SettingsWidget::Rendering &rendering_settings);
+    explicit CellGLView3D(SettingsWidget::Rendering &rendering_settings,
+                          QWidget *parent = nullptr);
     virtual ~CellGLView3D() override;
 
     // return a QImage representation of the canvas
@@ -73,6 +74,9 @@ private:
     int u_worldToCamera;
     int u_cameraToView;
     int u_size;
+    int u_alpha;
+    int u_selected;
+    int u_visible;
 
     // camera/projection/view matrices
     QMatrix4x4 m_projection;

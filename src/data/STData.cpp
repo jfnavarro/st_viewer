@@ -333,7 +333,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
 }
 
-const QVector<bool> &STData::renderingVisible() const
+const QVector<int> &STData::renderingVisible() const
 {
     return m_rendering_visible;
 }
@@ -343,7 +343,7 @@ const QVector<QVector4D> &STData::renderingColors() const
     return m_rendering_colors;
 }
 
-const QVector<bool> &STData::renderingSelected() const
+const QVector<int> &STData::renderingSelected() const
 {
     return m_rendering_selected;
 }
