@@ -75,10 +75,10 @@ private slots:
 
 signals:
 
-    void signalShowSpots(bool);
     void signalShowLegend(bool);
     void signalShowImage(bool);
     void signalSpotRendering();
+    void signalRendering();
 
 private:
     QScopedPointer<Ui::SettingsWidget> m_ui;

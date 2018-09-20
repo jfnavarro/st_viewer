@@ -69,14 +69,12 @@ private:
     int m_num_points;
     bool m_initialized;
 
-    // Shader Information
+    // Shader Information (uniforms)
     int u_modelToWorld;
     int u_worldToCamera;
     int u_cameraToView;
     int u_size;
     int u_alpha;
-    int u_selected;
-    int u_visible;
 
     // camera/projection/view matrices
     QMatrix4x4 m_projection;

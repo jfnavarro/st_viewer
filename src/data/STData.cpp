@@ -274,6 +274,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         merged_value = 0.0;
         num_genes = 0.0;
         any_gene_selected = false;
+        merged_color = Qt::white;
         // check first if user wants to show the color of the spot
         if (show_spots && spot_obj->visible()) {
             merged_color = spot_obj->color();

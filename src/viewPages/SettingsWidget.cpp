@@ -40,6 +40,7 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_image, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowImage);
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.show_spots = m_ui->show_spots->isChecked();
+        emit signalSpotRendering();
     });
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
     connect(m_ui->gene_cutoff, &QCheckBox::stateChanged, this, &SettingsWidget::slotGeneCutoff);
@@ -159,7 +160,7 @@ void SettingsWidget::slotIntensity(int value)
     const double intensity = static_cast<double>(value) / 10;
     if (intensity != m_rendering_settings.intensity) {
         m_rendering_settings.intensity = intensity;
-        emit signalSpotRendering();
+        emit signalRendering();
     }
 }
 
@@ -167,7 +168,7 @@ void SettingsWidget::slotSize(int value)
 {
     if (value != m_rendering_settings.size) {
         m_rendering_settings.size = value;
-        emit signalSpotRendering();
+        emit signalRendering();
     }
 }
 

@@ -191,7 +191,7 @@ void CellViewPage::clearSelections()
 {
     m_dataset.data()->clearSelection();
     m_gene_plotter->slotUpdate();
-    m_view->update();
+    m_view3D->slotUpdate();
 }
 
 void CellViewPage::createConnections()
@@ -204,9 +204,9 @@ void CellViewPage::createConnections()
     connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
             [=](bool visible){m_image->setVisible(visible);});
 
-    // show/hide spots
-    connect(m_settings.data(), &SettingsWidget::signalShowSpots, this,
-            [=](bool visible){m_gene_plotter->setVisible(visible);});
+    // Invoke a rendering
+    connect(m_settings.data(), &SettingsWidget::signalRendering, this,
+            [=](){ m_view3D->update(); });
 
     // show/hide legend
     connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
@@ -376,8 +376,7 @@ void CellViewPage::slotSelectByRegExp()
     if (selectGenes.exec() == QDialog::Accepted) {
         if (selectGenes.isValid()) {
             m_dataset.data()->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
-            m_gene_plotter->slotUpdate();
-            m_view->update();
+            m_view3D->slotUpdate();
         }
     }
 }
@@ -453,8 +452,7 @@ void CellViewPage::slotLoadSpotColorsFile()
     if (parsed) {
         m_dataset.data()->loadSpotColors(spotMap);
         m_spots->update();
-        m_gene_plotter->slotUpdate();
-        m_view->update();
+        m_view3D->slotUpdate();
     }
 }
 
@@ -516,8 +514,7 @@ void CellViewPage::slotLoadGenes()
     if (parsed) {
         m_dataset.data()->loadGeneColors(geneMap);
         m_genes->update();
-        m_gene_plotter->slotUpdate();
-        m_view->update();
+        m_view3D->slotUpdate();
     }
 }
 
@@ -526,15 +523,14 @@ void CellViewPage::slotLoadSpotColors()
     const auto spot_colors = m_clustering->getSpotClusters();
     m_dataset.data()->loadSpotColors(spot_colors);
     m_spots->update();
-    m_gene_plotter->slotUpdate();
-    m_view->update();
+    m_view3D->slotUpdate();
 }
 
 void CellViewPage::slotSelectSpotsClustering()
 {
     m_dataset.data()->selectSpots(m_clustering->selectedSpots());
     m_gene_plotter->slotUpdate();
-    m_view->update();
+    m_view3D->slotUpdate();
 }
 
 void CellViewPage::slotCreateClusteringSelections()
@@ -581,7 +577,5 @@ void CellViewPage::slotCreateSelection()
     new_selection.name(m_dataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
     new_selection.dataset(m_dataset.name());
     qDebug() << "Creating selection " << new_selection.name();
-    m_user_selections->addSelection(new_selection);
-    // clear the selection
-    //clearSelections();
+    m_user_selections->addSelection(new_selection);;
 }

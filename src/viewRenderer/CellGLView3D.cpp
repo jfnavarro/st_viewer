@@ -7,8 +7,8 @@
 #include <QList>
 #include <random>
 
-static const float transSpeed = 0.5f;
-static const float rotSpeed = 0.5f;
+static const float transSpeed = 0.1f;
+static const float rotSpeed = 0.1f;
 static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
 static const QVector3D UP(0.0f, 0.1f, 0.0f);
 static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
@@ -50,6 +50,7 @@ void CellGLView3D::initializeGL()
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -156,6 +157,7 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
         m_zoom += 0.5f;
     }
     event->ignore();
+    update();
 }
 
 void CellGLView3D::mousePressEvent(QMouseEvent *event)
@@ -188,8 +190,6 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
 
 void CellGLView3D::attachData(QSharedPointer<STData> geneData)
 {
-    qDebug() << "Attach 3D data";
-
     m_geneData = geneData;
 
     const auto &indexes = m_geneData->renderingCoords();
@@ -256,8 +256,6 @@ void CellGLView3D::attachData(QSharedPointer<STData> geneData)
 
 void CellGLView3D::slotUpdate()
 {
-    qDebug() << "Updated 3D data";
-
     m_geneData->computeRenderingData(m_rendering_settings);
     const auto &colors = m_geneData->renderingColors();
     const auto &visibles = m_geneData->renderingVisible();
