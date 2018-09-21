@@ -42,10 +42,7 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     , m_user_selections(user_selections)
     , m_ui(new Ui::CellView())
     , m_legend(nullptr)
-    , m_gene_plotter(nullptr)
     , m_image(nullptr)
-    , m_view(nullptr)
-    , m_view3D(nullptr)
     , m_settings(nullptr)
     , m_dataset()
 
@@ -75,8 +72,16 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     m_clustering.reset(new AnalysisClustering(this, Qt::Window));
     Q_ASSERT(!m_clustering.isNull());
 
-    // initialize rendering pipeline
-    initRenderer();
+    // attach visual settings
+    m_ui->view->attachSettings(&m_settings->renderingSettings());
+
+    // image texture graphical object
+    m_image = QSharedPointer<ImageTextureGL>(new ImageTextureGL());
+    //m_ui->view->addRenderingNode(m_image);
+
+    // heatmap component
+    m_legend = QSharedPointer<HeatMapLegendGL>(
+                new HeatMapLegendGL(m_settings->renderingSettings()));
 
     // create toolbar and all the connections
     createConnections();
@@ -95,10 +100,9 @@ void CellViewPage::clear()
     m_ui->lasso_selection->setChecked(false);
     m_ui->selection->setChecked(false);
     m_image->clearData();
-    m_gene_plotter->clearData();
     m_legend->clearData();
-    m_view->clearData();
-    m_view->update();
+    m_ui->view->clearData();
+    m_ui->view->update();
     m_settings->reset();
     m_spots->clear();
     m_genes->clear();
@@ -119,10 +123,6 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_genes->slotLoadDataset(dataset);
     m_spots->slotLoadDataset(dataset);
 
-    // update gene plotter rendering object with the dataset
-    //m_gene_plotter->clearData();
-    //m_gene_plotter->attachData(dataset.data());
-
     // store the dataset
     m_dataset = dataset;
 
@@ -134,7 +134,7 @@ void CellViewPage::loadDataset(const Dataset &dataset)
         if (!result) {
             QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
         } else {
-            m_view->setScene(m_image->boundingRect());
+            //m_ui->view->setScene(m_image->boundingRect());
             // If the user has not given any transformation matrix
             // we compute a simple transformation matrix using
             // the image and chip dimensions so the spot's coordinates
@@ -160,11 +160,11 @@ void CellViewPage::loadDataset(const Dataset &dataset)
             }
         }
     } else {
-        m_view->setScene(m_dataset.data()->getBorder());
+        //m_ui->view->setScene(m_dataset.data()->getBorder());
     }
 
     qDebug() << "Setting alignment matrix to " << alignment;
-    m_gene_plotter->setTransform(alignment);
+    //m_gene_plotter->setTransform(alignment);
 
     // enable controls
     m_ui->frame->setEnabled(true);
@@ -172,26 +172,16 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     // show settings widget
     m_settings->show();
 
-    // assigning the view object (2D or 3D)
-    m_ui->mainLayout->removeWidget(m_ui->view);
-    m_ui->view->close();
-    if (m_dataset.data()->is3D()) {
-        m_ui->mainLayout->addWidget(m_view3D.data());
-        m_ui->mainLayout->update();
-        m_view3D.data()->show();
-        m_view3D->clearData();
-        m_view3D->attachData(dataset.data());
-    } else {
-        m_ui->mainLayout->addWidget(m_view.data());
-        m_view->clearData();
-    }
+    // clear view and attach data object
+    m_ui->view->clearData();
+    m_ui->view->attachData(dataset.data());
+    m_ui->view->show();
 }
 
 void CellViewPage::clearSelections()
 {
     m_dataset.data()->clearSelection();
-    m_gene_plotter->slotUpdate();
-    m_view3D->slotUpdate();
+    m_ui->view->slotUpdate();
 }
 
 void CellViewPage::createConnections()
@@ -206,7 +196,7 @@ void CellViewPage::createConnections()
 
     // Invoke a rendering
     connect(m_settings.data(), &SettingsWidget::signalRendering, this,
-            [=](){ m_view3D->update(); });
+            [=](){ m_ui->view->update(); });
 
     // show/hide legend
     connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
@@ -215,47 +205,45 @@ void CellViewPage::createConnections()
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
             [=](){
-        m_gene_plotter->slotUpdate();
-        m_view3D->slotUpdate();
+        m_ui->view->slotUpdate();
         m_legend->slotUpdate();
-        m_view->update();
     });
 
     // graphic view signals
-    connect(m_ui->zoomin, &QPushButton::clicked, m_view.data(), &CellGLView::zoomIn);
-    connect(m_ui->zoomout, &QPushButton::clicked, m_view.data(), &CellGLView::zoomOut);
+    //connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view.data(), &CellGLView::zoomIn);
+    //connect(m_ui->zoomout, &QPushButton::clicked, m_ui->view.data(), &CellGLView::zoomOut);
 
     // print canvas
     connect(m_ui->save, &QPushButton::clicked, this, &CellViewPage::slotSaveImage);
     connect(m_ui->print, &QPushButton::clicked, this, &CellViewPage::slotPrintImage);
 
     // selection mode
-    connect(m_ui->selection, &QPushButton::clicked, [=] {
-        m_view->setSelectionMode(m_ui->selection->isChecked());
-    });
-    connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
-        m_view->setLassoSelectionMode(m_ui->lasso_selection->isChecked());
-    });
+    //connect(m_ui->selection, &QPushButton::clicked, [=] {
+    //    m_ui->view->setSelectionMode(m_ui->selection->isChecked());
+    //});
+    //connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
+    //    m_ui->view->setLassoSelectionMode(m_ui->lasso_selection->isChecked());
+    //});
     connect(m_ui->regexpselection, &QPushButton::clicked,
             this, &CellViewPage::slotSelectByRegExp);
 
     // view rotations
-    connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
-        m_view->rotate(-45);
-        m_view->update();
-    });
-    connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
-        m_view->rotate(45);
-        m_view->update();
-    });
-    connect(m_ui->flip, &QPushButton::clicked, [=] {
-        m_view->flip(180);
-        m_view->update();
-    });
+    //connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
+    //    m_ui->view->rotate(-45);
+    //    m_ui->view->update();
+    //});
+    //connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
+    //    m_ui->view->rotate(45);
+    //    m_ui->view->update();
+    //});
+    //connect(m_ui->flip, &QPushButton::clicked, [=] {
+    //    m_ui->view->flip(180);
+    //    m_ui->view->update();
+    //});
 
     // create selection object from the selections made
-    connect(m_ui->createSelection, &QPushButton::clicked,
-            this, &CellViewPage::slotCreateSelection);
+    //connect(m_ui->createSelection, &QPushButton::clicked,
+    //        this, &CellViewPage::slotCreateSelection);
 
     // show QC widget
     connect(m_ui->histogram, &QPushButton::clicked, this, &CellViewPage::slotShowQC);
@@ -266,17 +254,13 @@ void CellViewPage::createConnections()
     // when the user change any gene
     connect(m_genes.data(),
             &GenesWidget::signalGenesUpdated, [=] {
-        m_gene_plotter->slotUpdate();
-        m_view3D->slotUpdate();
-        m_view->update();
+        m_ui->view->slotUpdate();
     });
 
     // when the user change any spot
     connect(m_spots.data(),
             &SpotsWidget::signalSpotsUpdated, [=] {
-        m_gene_plotter->slotUpdate();
-        m_view3D->slotUpdate();
-        m_view->update();
+        m_ui->view->slotUpdate();
     });
 
     // when the user wants to load a file with spot colors
@@ -298,28 +282,6 @@ void CellViewPage::createConnections()
             this, &CellViewPage::slotCreateClusteringSelections);
 }
 
-
-void CellViewPage::initRenderer()
-{
-    // the OpenGL main view objects
-    m_view.reset(new CellGLView());
-    m_view3D.reset(new CellGLView3D(m_settings->renderingSettings()));
-
-    // image texture graphical object
-    m_image = QSharedPointer<ImageTextureGL>(new ImageTextureGL());
-    m_view->addRenderingNode(m_image);
-
-    // gene plotter component
-    m_gene_plotter = QSharedPointer<GeneRendererGL>(
-                new GeneRendererGL(m_settings->renderingSettings()));
-    m_view->addRenderingNode(m_gene_plotter);
-
-    // heatmap component
-    m_legend = QSharedPointer<HeatMapLegendGL>(
-                new HeatMapLegendGL(m_settings->renderingSettings()));
-    m_view->addRenderingNode(m_legend);
-}
-
 void CellViewPage::slotPrintImage()
 {
     QPrinter printer;
@@ -333,7 +295,7 @@ void CellViewPage::slotPrintImage()
 
     QPainter painter(&printer);
     QRect rect = painter.viewport();
-    QImage image = m_view->grabPixmapGL();
+    QImage image = m_ui->view->grabPixmapGL();
     QSize size = image.size();
     size.scale(rect.size(), Qt::KeepAspectRatio);
     painter.setViewport(QRect(QPoint(0, 0), size));
@@ -364,7 +326,7 @@ void CellViewPage::slotSaveImage()
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
-    QImage image = m_view->grabPixmapGL();
+    QImage image = m_ui->view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         qDebug() << "Saving the image, the image coult not be saved";
     }
@@ -376,7 +338,7 @@ void CellViewPage::slotSelectByRegExp()
     if (selectGenes.exec() == QDialog::Accepted) {
         if (selectGenes.isValid()) {
             m_dataset.data()->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
-            m_view3D->slotUpdate();
+            m_ui->view->slotUpdate();
         }
     }
 }
@@ -452,7 +414,7 @@ void CellViewPage::slotLoadSpotColorsFile()
     if (parsed) {
         m_dataset.data()->loadSpotColors(spotMap);
         m_spots->update();
-        m_view3D->slotUpdate();
+        m_ui->view->slotUpdate();
     }
 }
 
@@ -514,7 +476,7 @@ void CellViewPage::slotLoadGenes()
     if (parsed) {
         m_dataset.data()->loadGeneColors(geneMap);
         m_genes->update();
-        m_view3D->slotUpdate();
+        m_ui->view->slotUpdate();
     }
 }
 
@@ -523,14 +485,13 @@ void CellViewPage::slotLoadSpotColors()
     const auto spot_colors = m_clustering->getSpotClusters();
     m_dataset.data()->loadSpotColors(spot_colors);
     m_spots->update();
-    m_view3D->slotUpdate();
+    m_ui->view->slotUpdate();
 }
 
 void CellViewPage::slotSelectSpotsClustering()
 {
     m_dataset.data()->selectSpots(m_clustering->selectedSpots());
-    m_gene_plotter->slotUpdate();
-    m_view3D->slotUpdate();
+    m_ui->view->slotUpdate();
 }
 
 void CellViewPage::slotCreateClusteringSelections()

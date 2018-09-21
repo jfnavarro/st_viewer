@@ -804,7 +804,7 @@
       <item>
        <layout class="QHBoxLayout" name="mainLayout">
         <item>
-         <widget class="QOpenGLWidget" name="view"/>
+         <widget class="CellGLView3D" name="view"/>
         </item>
        </layout>
       </item>
@@ -813,6 +813,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CellGLView3D</class>
+   <extends>QOpenGLWidget</extends>
+   <header>viewRenderer/CellGLView3D.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

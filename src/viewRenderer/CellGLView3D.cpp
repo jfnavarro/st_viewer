@@ -13,10 +13,9 @@ static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
 static const QVector3D UP(0.0f, 0.1f, 0.0f);
 static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
 
-
-CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings, QWidget *parent)
+CellGLView3D::CellGLView3D(QWidget *parent)
     : QOpenGLWidget(parent)
-    , m_rendering_settings(rendering_settings)
+    , m_rendering_settings(nullptr)
     , m_num_points(0)
     , m_initialized(false)
     , m_zoom(1.0f)
@@ -26,7 +25,7 @@ CellGLView3D::CellGLView3D(SettingsWidget::Rendering &rendering_settings, QWidge
 
 CellGLView3D::~CellGLView3D()
 {
-
+    m_rendering_settings = nullptr;
 }
 
 void CellGLView3D::teardownGL()
@@ -35,12 +34,13 @@ void CellGLView3D::teardownGL()
     m_vao.destroy();
     m_pos_buffer.destroy();
     m_color_buffer.destroy();
+    m_selected_buffer.destroy();
+    m_visible_buffer.destroy();
     delete m_program;
 }
 
 void CellGLView3D::initializeGL()
 {
-    qDebug() << "initializeGL()";
     // Initialize OpenGL Backend
     initializeOpenGLFunctions();
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
@@ -92,10 +92,10 @@ void CellGLView3D::paintGL()
     m_camera.translate(-m_translation);
     m_program->setUniformValue(u_worldToCamera, m_camera);
     m_program->setUniformValue(u_cameraToView, m_projection);
-    m_program->setUniformValue(u_size, m_rendering_settings.size);
+    m_program->setUniformValue(u_size, m_rendering_settings->size);
     const double alpha =
-            m_rendering_settings.visual_mode == SettingsWidget::DynamicRange ?
-                1.0 : m_rendering_settings.intensity;
+            m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
+                1.0 : m_rendering_settings->intensity;
     m_program->setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     {
         m_vao.bind();
@@ -188,6 +188,22 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
     event->ignore();
 }
 
+void CellGLView3D::attachSettings(SettingsWidget::Rendering *rendering_settings)
+{
+    m_rendering_settings = rendering_settings;
+}
+
+
+void CellGLView3D::attachLegend(QSharedPointer<HeatMapLegendGL> legend)
+{
+    m_legend = legend;
+}
+
+void CellGLView3D::attachImage(QSharedPointer<ImageTextureGL> image)
+{
+    m_image = image;
+}
+
 void CellGLView3D::attachData(QSharedPointer<STData> geneData)
 {
     m_geneData = geneData;
@@ -256,7 +272,7 @@ void CellGLView3D::attachData(QSharedPointer<STData> geneData)
 
 void CellGLView3D::slotUpdate()
 {
-    m_geneData->computeRenderingData(m_rendering_settings);
+    m_geneData->computeRenderingData(*m_rendering_settings);
     const auto &colors = m_geneData->renderingColors();
     const auto &visibles = m_geneData->renderingVisible();
     const auto &selecteds = m_geneData->renderingSelected();

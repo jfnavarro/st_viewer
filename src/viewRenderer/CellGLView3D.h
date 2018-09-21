@@ -2,12 +2,14 @@
 #define CELLGLVIEW3D_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLWindow>
 #include <QOpenGLFunctions>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
+
 #include "data/STData.h"
+#include "HeatMapLegendGL.h"
+#include "ImageTextureGL.h"
 
 class QOpenGLShaderProgram;
 
@@ -17,8 +19,7 @@ class CellGLView3D : public QOpenGLWidget, protected QOpenGLFunctions
 
 public:
 
-    explicit CellGLView3D(SettingsWidget::Rendering &rendering_settings,
-                          QWidget *parent = nullptr);
+    explicit CellGLView3D(QWidget *parent = nullptr);
     virtual ~CellGLView3D() override;
 
     // return a QImage representation of the canvas
@@ -29,6 +30,15 @@ public:
 
     // attach the ST data object
     void attachData(QSharedPointer<STData> data);
+
+    // attach the parameters object
+    void attachSettings(SettingsWidget::Rendering *rendering_settings);
+
+    // attach legend object
+    void attachLegend(QSharedPointer<HeatMapLegendGL> legend);
+
+    // attach Image object
+    void attachImage(QSharedPointer<ImageTextureGL> image);
 
     // OpenGL visualization functions
     void initializeGL() override;
@@ -57,7 +67,7 @@ signals:
 private:
 
     // rendering settings
-    SettingsWidget::Rendering &m_rendering_settings;
+    SettingsWidget::Rendering *m_rendering_settings;
 
     // OpenGL State Information
     QOpenGLBuffer m_pos_buffer;
@@ -89,5 +99,9 @@ private:
 
     // rendering data
     QSharedPointer<STData> m_geneData;
+
+    // rendering objects
+    QSharedPointer<ImageTextureGL> m_image;
+    QSharedPointer<HeatMapLegendGL> m_legend;
 };
 #endif // CELLGLVIEW3D_H

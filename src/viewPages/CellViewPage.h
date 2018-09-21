@@ -92,8 +92,6 @@ private slots:
     void slotCreateSelection();
 
 private:
-    // create OpenGL graphical elements and view
-    void initRenderer();
 
     // create all the connections
     void createConnections();
@@ -107,11 +105,9 @@ private:
     QScopedPointer<Ui::CellView> m_ui;
 
     // OpenGL visualization objects
+    //NOTE the OpenGL view renderer is promoted to the UI as m_ui->view
     QSharedPointer<HeatMapLegendGL> m_legend;
-    QSharedPointer<GeneRendererGL> m_gene_plotter;
     QSharedPointer<ImageTextureGL> m_image;
-    QScopedPointer<CellGLView> m_view;
-    QScopedPointer<CellGLView3D> m_view3D;
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
