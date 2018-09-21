@@ -57,10 +57,6 @@ include_directories(${LIBRCPP_INCLUDE_DIRS})
 include_directories(${LIBRINSIDE_INCLUDE_DIRS})
 include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
 
-#set(THREADS_PREFER_PTHREAD_FLAG ON)
-#find_package(Threads REQUIRED)
-#find_package(OpenMP REQUIRED)
-
 # Define what sub folders will be compiled
 set(subdir_list
                    dialogs
@@ -98,7 +94,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES}) #Threads::Threads
+${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES})
 
 ### UNIT TESTS ################################################################
 

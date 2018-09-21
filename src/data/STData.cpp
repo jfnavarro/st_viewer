@@ -250,11 +250,10 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     std::vector<uword> to_keep_genes;
     for (uword j = 0; j < data.counts.n_cols; ++j) {
         const auto gene_obj = m_genes.at(j);
-        if (gene_obj->visible() && spot_counts.at(j) >= rendering_settings.spots_threshold) {
+        if (gene_obj->visible() && spot_counts.at(j) > rendering_settings.spots_threshold) {
             to_keep_genes.push_back(j);
         }
     }
-    data.counts = data.counts.cols(uvec(to_keep_genes));
 
     double min_value = 10e6;
     double max_value = -10e6;
@@ -262,11 +261,9 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     double merged_value;
     double num_genes;
     bool any_gene_selected;
-    const bool show_spots = rendering_settings.show_spots;
     QColor merged_color;
     QVector<double> rendering_values(data.counts.n_rows);
-    const ucolvec gene_counts = computeNonZeroRows(data.counts,
-                                                   rendering_settings.ind_reads_threshold);
+    QVector<QColor> rendering_colors(data.counts.n_rows);
     //TODO make this paralell
     for (uword i = 0; i < data.counts.n_rows; ++i) {
         const auto spot_obj = m_spots.at(i);
@@ -276,27 +273,30 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         any_gene_selected = false;
         merged_color = Qt::white;
         // check first if user wants to show the color of the spot
-        if (show_spots && spot_obj->visible()) {
+        if (rendering_settings.show_spots && spot_obj->visible()) {
             merged_color = spot_obj->color();
             visible = true;
-        } else if (!show_spots) {
+        } else if (!rendering_settings.show_spots) {
             // Iterate the genes in the spot to compute the sum of values and color
-            for (uword j = 0; j < data.counts.n_cols; ++j) {
-                const int gene_index = m_gene_index.value(data.genes.at(j));
-                const auto gene_obj = m_genes.at(gene_index);
+            // TODO make this parallel
+            for (const auto &j : to_keep_genes) {
+                const auto gene_obj = m_genes.at(j);
                 const double value = data.counts.at(i,j);
-                if (rendering_settings.gene_cutoff && gene_obj->cut_off() >= value) {
+                if (rendering_settings.gene_cutoff && value > gene_obj->cut_off()) {
                     continue;
                 }
                 ++num_genes;
                 merged_value += value;
-                if (do_color) {
-                    merged_color = STMath::lerp(1.0 / num_genes, merged_color, gene_obj->color());
+                const QColor gene_color = gene_obj->color();
+                if (do_color && gene_color != merged_color) {
+                    // linearly interpolate gene colors
+                    merged_color = STMath::lerp(1.0 / num_genes, merged_color, gene_color);
                 }
                 any_gene_selected |= gene_obj->selected();
             }
-            if (merged_value >= rendering_settings.reads_threshold
-                    && num_genes >= rendering_settings.genes_threshold) {
+            // if there are genes expressed with counts above threshold
+            if (merged_value > rendering_settings.reads_threshold
+                    && num_genes > rendering_settings.genes_threshold) {
                 // Use number of genes or total reads in the spot depending on settings
                 if (do_values) {
                     merged_value = use_genes ? num_genes : merged_value;
@@ -308,27 +308,35 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             }
         }
         spot_obj->selected(visible && (spot_obj->selected() || any_gene_selected));
-        m_rendering_colors[i] = fromQtColor(merged_color);
+        rendering_colors[i] = merged_color;
         m_rendering_selected[i] = spot_obj->selected();
         rendering_values[i] = merged_value;
         m_rendering_visible[i] = visible;
     }
 
-    if (!show_spots) {
-        rendering_settings.legend_min = min_value;
-        rendering_settings.legend_max = max_value;
-        if (do_values){
-            for (int i = 0; i < rendering_values.size(); ++i) {
-                const double value = rendering_values[i];
-                if (value > 0 && m_rendering_visible[i]) {
-                    m_rendering_colors[i] = fromQtColor(Color::adjustVisualMode(
-                                                            fromOpenGLColor(m_rendering_colors[i]),
-                                                            value,
-                                                            min_value,
-                                                            max_value,
-                                                            rendering_settings.visual_mode));
-                }
+    rendering_settings.legend_min = min_value;
+    rendering_settings.legend_max = max_value;
+
+    // If we are visualizing genes with heatmap mode we need to recompute colors
+    // we the max/min values
+    if (!rendering_settings.show_spots) {
+        // TODO make this parallel
+        for (int i = 0; i < rendering_values.size(); ++i) {
+            if (!m_rendering_visible[i]) {
+                continue;
             }
+            const auto color = rendering_colors[i];
+            if (do_values) {
+                m_rendering_colors[i] = fromQtColor(Color::adjustVisualMode(
+                                                        color,
+                                                        rendering_values[i],
+                                                        min_value,
+                                                        max_value,
+                                                        rendering_settings.visual_mode));
+            } else {
+                m_rendering_colors[i] = fromQtColor(color);
+            }
+
         }
     }
 
