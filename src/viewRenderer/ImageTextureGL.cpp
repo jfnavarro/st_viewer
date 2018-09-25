@@ -8,34 +8,43 @@
 #include <QBuffer>
 #include <QApplication>
 #include <QImageReader>
+#include <QOpenGLFunctions>
+
 #include <cmath>
 
 static const int tile_width = 512;
 static const int tile_height = 512;
 
-ImageTextureGL::ImageTextureGL(QObject *parent)
-    : GraphicItemGL(parent)
-    , m_isInitialized(false)
+ImageTextureGL::ImageTextureGL()
+    : m_isInitialized(false)
     , m_iscaled(false)
 {
-    setVisualOption(GraphicItemGL::Transformable, true);
-    setVisualOption(GraphicItemGL::Visible, true);
-    setVisualOption(GraphicItemGL::Selectable, false);
-    setVisualOption(GraphicItemGL::Yinverted, false);
-    setVisualOption(GraphicItemGL::Xinverted, false);
-    setVisualOption(GraphicItemGL::RubberBandable, false);
+
 }
 
 ImageTextureGL::~ImageTextureGL()
 {
     clearData();
+    m_coordBuf.destroy();
+    m_posBuf.destroy();
+}
+
+void ImageTextureGL::init()
+{
+    initializeOpenGLFunctions();
+    // Compile shaders
+    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/imageShader.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/imageShader.frag");
+    m_program.link();
 }
 
 void ImageTextureGL::clearData()
 {
     clearTextures();
-    m_textures_indices.clear();
+    m_textures_pos.clear();
     m_texture_coords.clear();
+    m_coordBuf.destroy();
+    m_posBuf.destroy();
     m_isInitialized = false;
 }
 
@@ -50,54 +59,39 @@ void ImageTextureGL::clearTextures()
     m_textures.clear();
 }
 
-void ImageTextureGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter)
+void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
 {
-    Q_UNUSED(painter);
-
     if (!m_isInitialized) {
         return;
     }
 
-    qopengl_functions.glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
     {
-        qopengl_functions.glVertexPointer(2, GL_FLOAT, 0, m_textures_indices.constData());
-        qopengl_functions.glTexCoordPointer(2, GL_FLOAT, 0, m_texture_coords.constData());
-        qopengl_functions.glEnableClientState(GL_VERTEX_ARRAY);
-        qopengl_functions.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        m_program.bind();
+
+        m_program.setUniformValue("mvp_matrix", mvp_matrx);
+
+        m_posBuf.bind();
+        m_program.enableAttributeArray(0);
+        m_program.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);
+
+        m_coordBuf.bind();
+        m_program.enableAttributeArray(1);
+        m_program.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
         for (int i = 0; i < m_textures.size(); ++i) {
             QOpenGLTexture *texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
             texture->bind();
-            qopengl_functions.glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+            glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
             texture->release();
         }
 
-        qopengl_functions.glDisableClientState(GL_VERTEX_ARRAY);
-        qopengl_functions.glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        m_posBuf.release();
+        m_coordBuf.release();
+        m_program.release();
     }
-    qopengl_functions.glDisable(GL_TEXTURE_2D);
-}
-
-QFuture<void> ImageTextureGL::createTextures(const QString &imagefile)
-{
-    return QtConcurrent::run(this, &ImageTextureGL::createTiles, imagefile);
-}
-
-void ImageTextureGL::createGrid(const QImage &image, const int offset)
-{
-    const QImage gray_scale = image.convertToFormat(QImage::Format_Grayscale8);
-    const int x_pixels = gray_scale.width();
-    const int y_pixels = gray_scale.height();
-    m_grid_points.clear();
-    for (int x = 0; x < x_pixels; x+=offset) {
-        for (int y = 0; y < y_pixels; y+=offset) {
-            const double value = gray_scale.pixelColor(x,y).valueF();
-            if (value > 0.5) {
-               m_grid_points.append(QPointF(x,y));
-            }
-        }
-    }
+    glDisable(GL_TEXTURE_2D);
 }
 
 bool ImageTextureGL::createTiles(const QString &imagefile)
@@ -149,6 +143,22 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
         addTexture(image.copy(x, y, texture_width, texture_height), x, y);
     }
 
+    m_program.bind();
+
+    // Transfer vertex data to VBO 0
+    m_posBuf.create();
+    m_posBuf.bind();
+    m_posBuf.allocate(m_texture_coords.constData(), m_textures_pos.size() * sizeof(QVector2D));
+
+    // Transfer texture data to VBO 1
+    m_coordBuf.create();
+    m_coordBuf.bind();
+    m_coordBuf.allocate(m_texture_coords.constData(), m_texture_coords.size() * sizeof(QVector2D));
+
+    m_posBuf.release();
+    m_coordBuf.release();
+    m_program.release();
+
     QGuiApplication::restoreOverrideCursor();
     m_isInitialized = true;
     return true;
@@ -159,10 +169,10 @@ void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
     const double width = static_cast<double>(image.width());
     const double height = static_cast<double>(image.height());
 
-    m_textures_indices.append(QVector2D(x, y));
-    m_textures_indices.append(QVector2D(x + width, y));
-    m_textures_indices.append(QVector2D(x + width, y + height));
-    m_textures_indices.append(QVector2D(x, y + height));
+    m_textures_pos.append(QVector2D(x, y));
+    m_textures_pos.append(QVector2D(x + width, y));
+    m_textures_pos.append(QVector2D(x + width, y + height));
+    m_textures_pos.append(QVector2D(x, y + height));
 
     m_texture_coords.append(QVector2D(0.0, 0.0));
     m_texture_coords.append(QVector2D(1.0, 0.0));
@@ -177,19 +187,9 @@ void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
     m_textures.append(texture);
 }
 
-const QList<QPointF>& ImageTextureGL::getGrid() const
-{
-    return m_grid_points;
-}
-
-const QRectF ImageTextureGL::boundingRect() const
+QRectF ImageTextureGL::boundingRect() const
 {
     return m_bounds;
-}
-
-void ImageTextureGL::setSelectionArea(const SelectionEvent &event)
-{
-    Q_UNUSED(event)
 }
 
 bool ImageTextureGL::scaled() const

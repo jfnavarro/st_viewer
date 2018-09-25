@@ -41,8 +41,6 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     , m_genes(genes)
     , m_user_selections(user_selections)
     , m_ui(new Ui::CellView())
-    , m_legend(nullptr)
-    , m_image(nullptr)
     , m_settings(nullptr)
     , m_dataset()
 
@@ -75,14 +73,6 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     // attach visual settings
     m_ui->view->attachSettings(&m_settings->renderingSettings());
 
-    // image texture graphical object
-    m_image = QSharedPointer<ImageTextureGL>(new ImageTextureGL());
-    //m_ui->view->addRenderingNode(m_image);
-
-    // heatmap component
-    m_legend = QSharedPointer<HeatMapLegendGL>(
-                new HeatMapLegendGL(m_settings->renderingSettings()));
-
     // create toolbar and all the connections
     createConnections();
 
@@ -99,10 +89,7 @@ void CellViewPage::clear()
     // reset visualization objects
     m_ui->lasso_selection->setChecked(false);
     m_ui->selection->setChecked(false);
-    m_image->clearData();
-    m_legend->clearData();
     m_ui->view->clearData();
-    m_ui->view->update();
     m_settings->reset();
     m_spots->clear();
     m_genes->clear();
@@ -126,46 +113,6 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     // store the dataset
     m_dataset = dataset;
 
-    // create tiles textures from the image
-    m_image->clearData();
-    QTransform alignment = m_dataset.imageAlignment();
-    if (!dataset.imageFile().isNull() && !dataset.imageFile().isEmpty()) {
-        const bool result = m_image->createTiles(dataset.imageFile());
-        if (!result) {
-            QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
-        } else {
-            //m_ui->view->setScene(m_image->boundingRect());
-            // If the user has not given any transformation matrix
-            // we compute a simple transformation matrix using
-            // the image and chip dimensions so the spot's coordinates
-            // can be mapped to the image's coordinates space
-            if (alignment.isIdentity()) {
-                const QRect chip = m_dataset.chip();
-                const double chip_x2 = static_cast<double>(chip.width());
-                const double chip_y2 = static_cast<double>(chip.height());
-                const double width_image = static_cast<double>(m_image->boundingRect().width());
-                const double height_image = static_cast<double>(m_image->boundingRect().height());
-                const double a11 = width_image / (chip_x2 - 1);
-                const double a12 = 0.0;
-                const double a13 = 0.0;
-                const double a21 = 0.0;
-                const double a22 = height_image / (chip_y2 - 1);
-                const double a23 = 0.0;
-                const double a31 = -a11;
-                const double a32 = -a22;
-                const double a33 = 1.0;
-                alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-            } else if (m_image->scaled()) {
-                alignment *= QTransform::fromScale(0.5, 0.5);
-            }
-        }
-    } else {
-        //m_ui->view->setScene(m_dataset.data()->getBorder());
-    }
-
-    qDebug() << "Setting alignment matrix to " << alignment;
-    //m_gene_plotter->setTransform(alignment);
-
     // enable controls
     m_ui->frame->setEnabled(true);
 
@@ -174,7 +121,7 @@ void CellViewPage::loadDataset(const Dataset &dataset)
 
     // clear view and attach data object
     m_ui->view->clearData();
-    m_ui->view->attachData(dataset.data());
+    m_ui->view->attachDataset(dataset);
     m_ui->view->show();
 }
 
@@ -191,23 +138,20 @@ void CellViewPage::createConnections()
     connect(m_ui->genemenu, &QPushButton::clicked, m_settings.data(), &SettingsWidget::show);
 
     // show/hide cell image
-    connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
-            [=](bool visible){m_image->setVisible(visible);});
+    //connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
+    //        [=](bool visible){m_ui->view->setImageVisible(visible);});
 
     // Invoke a rendering
     connect(m_settings.data(), &SettingsWidget::signalRendering, this,
             [=](){ m_ui->view->update(); });
 
     // show/hide legend
-    connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
-            [=](bool visible){m_legend->setVisible(visible);});
+    //connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
+    //        [=](bool visible){m_ui->view->setLegendVisible(visible);});
 
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
-            [=](){
-        m_ui->view->slotUpdate();
-        m_legend->slotUpdate();
-    });
+            [=](){ m_ui->view->slotUpdate(); });
 
     // graphic view signals
     //connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view.data(), &CellGLView::zoomIn);
@@ -361,7 +305,7 @@ void CellViewPage::slotLoadSpotColorsFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Spot Colors File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT Files (*.txt)")));
+                                           QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -375,9 +319,12 @@ void CellViewPage::slotLoadSpotColorsFile()
         return;
     }
 
-    QHash<QString, QColor> spotMap;
     QFile file(filename);
+    QList<QString> spots;
+    QList<int> colors;
     bool parsed = true;
+    int min = 10e6;
+    int max = -10e6;
     // Parse the spots map = spot -> color
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
@@ -391,11 +338,14 @@ void CellViewPage::slotLoadSpotColorsFile()
                 break;
             }
             const QString spot = fields.at(0);
-            const QColor color = Color::color_list.at(fields.at(1).toInt());
-            spotMap.insert(spot, color);
+            const int color = fields.at(1).toInt();
+            min = std::min(min, color);
+            max = std::max(max, color);
+            spots.append(spot);
+            colors.append(color);
         }
 
-        if (spotMap.empty()) {
+        if (spots.empty() || colors.empty() || spots.size() != colors.size()) {
             QMessageBox::warning(this,
                                  tr("Spot Colors File"),
                                  tr("No valid spots could be found in the file"));
@@ -412,6 +362,12 @@ void CellViewPage::slotLoadSpotColorsFile()
 
     // Update spot colors
     if (parsed) {
+        QHash<QString, QColor> spotMap;
+        for (int i = 0; i < spots.size(); ++i) {
+            const QColor color = Color::createCMapColor(colors.at(i),
+                                                        min, max, QCPColorGradient::gpHues);
+            spotMap.insert(spots.at(i), color);
+        }
         m_dataset.data()->loadSpotColors(spotMap);
         m_spots->update();
         m_ui->view->slotUpdate();
@@ -438,9 +394,12 @@ void CellViewPage::slotLoadGenes()
         return;
     }
 
-    QHash<QString, QColor> geneMap;
     QFile file(filename);
+    QList<QString> genes;
+    QList<int> colors;
     bool parsed = true;
+    int min = 10e6;
+    int max = -10e6;
     // Parse the genes map = gene -> color
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
@@ -454,11 +413,14 @@ void CellViewPage::slotLoadGenes()
                 break;
             }
             const QString gene = fields.at(0);
-            const QColor color = Color::color_list.at(fields.at(1).toInt());
-            geneMap.insert(gene, color);
+            const int color = fields.at(1).toInt();
+            min = std::min(min, color);
+            max = std::max(max, color);
+            genes.append(gene);
+            colors.append(color);
         }
 
-        if (geneMap.empty()) {
+        if (genes.empty() || colors.empty() || genes.size() != colors.size()) {
             QMessageBox::warning(this,
                                  tr("Genes File"),
                                  tr("No valid genes could be found in the file"));
@@ -474,6 +436,12 @@ void CellViewPage::slotLoadGenes()
     file.close();
 
     if (parsed) {
+        QHash<QString, QColor> geneMap;
+        for (int i = 0; i < genes.size(); ++i) {
+            const QColor color = Color::createCMapColor(colors.at(i),
+                                                        min, max, QCPColorGradient::gpHues);
+            geneMap.insert(genes.at(i), color);
+        }
         m_dataset.data()->loadGeneColors(geneMap);
         m_genes->update();
         m_ui->view->slotUpdate();

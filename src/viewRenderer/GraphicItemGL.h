@@ -46,7 +46,7 @@ public:
     };
     Q_DECLARE_FLAGS(VisualOptions, VisualOption)
 
-    explicit GraphicItemGL(QObject *parent = 0);
+    explicit GraphicItemGL(QObject *parent = nullptr);
     virtual ~GraphicItemGL();
 
     // The anchor defines where the object will be placed

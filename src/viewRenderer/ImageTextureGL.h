@@ -1,56 +1,44 @@
 #ifndef IMAGETEXTUREGL_H
 #define IMAGETEXTUREGL_H
 
-#include "GraphicItemGL.h"
 #include <QVector2D>
-#include <QFuture>
+#include <QOpenGLFunctions>
+#include <QRectF>
+#include <QOpenGLTexture>
+#include <QOpenGLBuffer>
+#include <QOpenGLShaderProgram>
 
 class QImage;
-class QOpenGLTexture;
-class QByteArray;
 
 // This class represents a tiled image to be rendered using textures. This class
 // is used to render the cell tissue image which has a high resolution
-// The tiling and creation of the textures is performed concurrently
-class ImageTextureGL : public GraphicItemGL
+class ImageTextureGL : protected QOpenGLFunctions
 {
-    Q_OBJECT
 
 public:
-    explicit ImageTextureGL(QObject *parent = 0);
-    virtual ~ImageTextureGL();
+    ImageTextureGL();
+    ~ImageTextureGL();
 
-    // this function will split the image into small textures of fixed size in an asynchronous way
-    // using createTiles and returning the future object
-    QFuture<void> createTextures(const QString &imagefile);
+    // initialize the OpenGL context and the shaders
+    void init();
 
     // will remove and destroy all textures
     void clearData();
 
     // return the total size of the image as a QRectF
-    const QRectF boundingRect() const override;
+    QRectF boundingRect() const;
 
     // will split the image given as input into small textures of fixed size
     // returns true if the parsing and creation of tiles was correct
     bool createTiles(const QString &imagefile);
 
-    // return a grid of points computed from the image (inside the tissue)
-    const QList<QPointF>& getGrid() const;
-
     // true if the image has been scaled down
     bool scaled() const;
 
-public slots:
-
-protected:
-
-    void draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter) override;
-    void setSelectionArea(const SelectionEvent &event);
+    // draw the image
+    void draw(const QMatrix4x4 &mvp_matrx);
 
 private:
-
-    // internal function to create a grid of of the image (inside tissue)
-    void createGrid(const QImage &image, const int offset);
 
     // internal functions to create a texture from an image and add it to the
     // rendering list
@@ -60,12 +48,16 @@ private:
     void clearTextures();
     void clearNodes();
 
+    // OpenGL rendering data and buffers
     QVector<QOpenGLTexture *> m_textures;
-    QVector<QVector2D> m_textures_indices;
+    QVector<QVector2D> m_textures_pos;
     QVector<QVector2D> m_texture_coords;
+    QOpenGLBuffer m_posBuf;
+    QOpenGLBuffer m_coordBuf;
+    QOpenGLShaderProgram m_program;
+
     QRectF m_bounds;
     bool m_isInitialized;
-    QList<QPointF> m_grid_points;
     bool m_iscaled;
 
     Q_DISABLE_COPY(ImageTextureGL)

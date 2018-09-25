@@ -79,10 +79,14 @@ QMultiHash<unsigned, QString> AnalysisClustering::getClustersSpot() const
 QHash<QString, QColor> AnalysisClustering::getSpotClusters() const
 {
     QHash<QString, QColor> computed_colors;
-    Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors))
-             < Color::color_list.size());
+    auto result = std::minmax_element(m_colors.begin(), m_colors.end());
+    const int min = *(result.first);
+    const int max = *(result.second);
     for (unsigned i = 0; i < m_colors.size(); ++i) {
-        computed_colors.insert(m_spots.at(i), Color::color_list.at(m_colors.at(i)));
+        computed_colors.insert(m_spots.at(i), Color::createCMapColor(m_colors.at(i),
+                                                                     min,
+                                                                     max,
+                                                                     QCPColorGradient::gpHues));
     }
     return computed_colors;
 }
@@ -218,18 +222,23 @@ void AnalysisClustering::colorsComputed()
         return;
     }
 
-    const int num_clusters = m_ui->clusters->value();
-    Q_ASSERT(*std::min_element(std::begin(m_colors), std::end(m_colors)) == 0
-             && *std::max_element(std::begin(m_colors), std::end(m_colors)) == (num_clusters - 1));
     Q_ASSERT(m_colors.size() == m_spots.size());
 
+    auto result = std::minmax_element(m_colors.begin(), m_colors.end());
+    const int min = *(result.first);
+    const int max = *(result.second);
+
     // Create one serie for each different cluster (color)
+    const int num_clusters = m_ui->clusters->value();
     m_series_vector.clear();
     for (int k = 0; k < num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries(this);
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(10.0);
-        series->setColor(Color::color_list.at(k));
+        series->setColor(Color::createCMapColor(m_colors.at(k),
+                                                min,
+                                                max,
+                                                QCPColorGradient::gpHues));
         series->setUseOpenGL(false);
         m_series_vector.push_back(series);
     }

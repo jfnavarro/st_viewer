@@ -46,5 +46,7 @@
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
     <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
+    <file alias="shader/imageShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.vert</file>
+    <file alias="shader/imageShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.frag</file>
   </qresource>
 </RCC>

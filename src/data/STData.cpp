@@ -338,6 +338,11 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             }
 
         }
+    } else {
+        std::function<QVector4D(const QColor& color)> func = [](const QColor &color) {
+            return fromQtColor(color);
+        };
+        m_rendering_colors = QtConcurrent::blockingMapped<QVector<QVector4D>>(rendering_colors, func);
     }
 
 }

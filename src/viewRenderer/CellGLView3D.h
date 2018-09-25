@@ -7,6 +7,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 
+#include "data/Dataset.h"
 #include "data/STData.h"
 #include "HeatMapLegendGL.h"
 #include "ImageTextureGL.h"
@@ -29,16 +30,10 @@ public:
     void clearData();
 
     // attach the ST data object
-    void attachData(QSharedPointer<STData> data);
+    void attachDataset(const Dataset &dataset);
 
     // attach the parameters object
     void attachSettings(SettingsWidget::Rendering *rendering_settings);
-
-    // attach legend object
-    void attachLegend(QSharedPointer<HeatMapLegendGL> legend);
-
-    // attach Image object
-    void attachImage(QSharedPointer<ImageTextureGL> image);
 
     // OpenGL visualization functions
     void initializeGL() override;
@@ -75,7 +70,7 @@ private:
     QOpenGLBuffer m_visible_buffer;
     QOpenGLBuffer m_selected_buffer;
     QOpenGLVertexArrayObject m_vao;
-    QOpenGLShaderProgram *m_program;
+    QOpenGLShaderProgram m_program;
     int m_num_points;
     bool m_initialized;
 
@@ -93,6 +88,9 @@ private:
     QQuaternion m_rotation;
     QVector3D m_translation;
 
+    // alignment data to image (if applicable)
+    QTransform m_aligment;
+
     // helper variables for zooming and panning
     float m_zoom = 1.0f;
     QPoint m_lastPos;
@@ -101,7 +99,7 @@ private:
     QSharedPointer<STData> m_geneData;
 
     // rendering objects
-    QSharedPointer<ImageTextureGL> m_image;
-    QSharedPointer<HeatMapLegendGL> m_legend;
+    QScopedPointer<ImageTextureGL> m_image;
+    QScopedPointer<HeatMapLegendGL> m_legend;
 };
 #endif // CELLGLVIEW3D_H

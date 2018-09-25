@@ -102,12 +102,8 @@ private:
     QSharedPointer<UserSelectionsPage> m_user_selections;
 
     // GUI UI object
-    QScopedPointer<Ui::CellView> m_ui;
-
-    // OpenGL visualization objects
     //NOTE the OpenGL view renderer is promoted to the UI as m_ui->view
-    QSharedPointer<HeatMapLegendGL> m_legend;
-    QSharedPointer<ImageTextureGL> m_image;
+    QScopedPointer<Ui::CellView> m_ui;
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
