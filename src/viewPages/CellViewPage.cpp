@@ -18,7 +18,6 @@
 #include "viewPages/GenesWidget.h"
 #include "viewPages/SpotsWidget.h"
 #include "viewPages/UserSelectionsPage.h"
-#include "viewRenderer/CellGLView.h"
 #include "viewRenderer/CellGLView3D.h"
 #include "dialogs/SelectionDialog.h"
 #include "analysis/AnalysisQC.h"
@@ -26,6 +25,7 @@
 #include "SettingsWidget.h"
 #include "SettingsStyle.h"
 #include "color/HeatMap.h"
+
 #include <algorithm>
 
 #include "ui_cellviewPage.h"

@@ -4,7 +4,6 @@
 #include <QOpenGLWidget>
 #include <QPointer>
 
-#include "GraphicItemGL.h"
 #include "SelectionEvent.h"
 
 #include <functional>

@@ -6,9 +6,6 @@
 
 #include "data/Dataset.h"
 #include "data/UserSelection.h"
-#include "viewRenderer/ImageTextureGL.h"
-#include "viewRenderer/HeatMapLegendGL.h"
-#include "viewRenderer/GeneRendererGL.h"
 
 class SelectionDialog;
 class SettingsWidget;
@@ -16,7 +13,6 @@ class SpotsWidget;
 class GenesWidget;
 class UserSelectionsPage;
 class AnalysisClustering;
-class CellGLView;
 class CellGLView3D;
 
 namespace Ui
@@ -42,7 +38,7 @@ public:
     CellViewPage(QSharedPointer<SpotsWidget> spots,
                  QSharedPointer<GenesWidget> genes,
                  QSharedPointer<UserSelectionsPage> user_selections,
-                 QWidget *parent = 0);
+                 QWidget *parent = nullptr);
     virtual ~CellViewPage();
 
     // clear the loaded dataset and reset settings
