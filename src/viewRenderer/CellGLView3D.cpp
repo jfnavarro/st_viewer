@@ -7,7 +7,7 @@
 #include <QList>
 #include <random>
 
-static const float transSpeed = 0.1f;
+static const float transSpeed = 0.5f;
 static const float rotSpeed = 0.1f;
 static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
 static const QVector3D UP(0.0f, 0.1f, 0.0f);
@@ -50,9 +50,10 @@ void CellGLView3D::initializeGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -81,8 +82,16 @@ void CellGLView3D::initializeGL()
 
 void CellGLView3D::resizeGL(int width, int height)
 {
+    if (!m_initialized) {
+        return;
+    }
+
     m_projection.setToIdentity();
-    m_projection.perspective(60.0f, width / float(height), 0.1f, 1000.0f);
+    if (m_geneData->is3D()) {
+        m_projection.perspective(60.0f, width / float(height), 0.1f, 1000.0f);
+    } else {
+        m_projection.ortho(QRect(0.0, 0.0, width, height));
+    }
 }
 
 void CellGLView3D::paintGL()
@@ -93,64 +102,90 @@ void CellGLView3D::paintGL()
         return;
     }
 
-    // Render using our shader
+    // Compute local transformations
+    m_transform.setToIdentity();
+    if (m_geneData->is3D()) {
+        m_transform.translate(0.0f, 0.0f, -5.0f);
+        m_transform.rotate(m_rotation);
+        m_transform.scale(1.0f, 1.0f, m_zoom);
+    } else {
+        const QRectF image_rect = m_image->boundingRect();
+        //const QRectF image_rect = m_geneData->getBorder();
+        const QPointF image_center = image_rect.center();
+        const double viewport_w = static_cast<double>(width());
+        const double viewport_h = static_cast<double>(height());
+        QTransform image_trans;
+        image_trans.translate(image_center.x(), image_center.y());
+        image_trans.scale(m_zoom, m_zoom);
+        image_trans.translate(-viewport_w / 2, -viewport_h / 2);
+        m_transform = QMatrix4x4(m_aligment * image_trans.inverted());
+        // render image
+        m_image->draw(m_projection * image_trans.inverted());
+    }
+
+    // render legend
+
+    // Render gene data
     m_program.bind();
+
     m_camera.setToIdentity();
     m_camera.translate(-m_translation);
+
     m_program.setUniformValue(u_worldToCamera, m_camera);
     m_program.setUniformValue(u_cameraToView, m_projection);
     m_program.setUniformValue(u_size, m_rendering_settings->size);
+
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 1.0 : m_rendering_settings->intensity;
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
+    m_program.setUniformValue(u_modelToWorld, m_transform);
     {
         m_vao.bind();
-        m_transform.setToIdentity();
-        m_transform.translate(0.0f, 0.0f, -5.0f);
-        m_transform.rotate(m_rotation);
-        m_transform.scale(m_zoom, m_zoom, 1.0f);
-        m_program.setUniformValue(u_modelToWorld, m_transform);
         glDrawArrays(GL_POINTS, 0, m_num_points);
         m_vao.release();
     }
+
     m_program.release();
+}
+
+void CellGLView3D::slotZoomIn()
+{
+
+}
+
+void CellGLView3D::slotZoomOut()
+{
+
+}
+
+void CellGLView3D::slotRotate(const float angle)
+{
+
+}
+
+void CellGLView3D::slotFlip(const float angle)
+{
+
 }
 
 void CellGLView3D::keyPressEvent(QKeyEvent *event)
 {
-    if (event->isAutoRepeat())
-    {
-        event->ignore();
+    Qt::KeyboardModifiers modifiers = event->modifiers();
+    if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Up) {
+        m_translation += (transSpeed * -FORWARD);
+    } else if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Down) {
+        m_translation += (transSpeed * FORWARD);
+    } else if (event->key() == Qt::Key_Right) {
+        m_translation += (transSpeed * -RIGHT);
+    } else if (event->key() == Qt::Key_Left) {
+        m_translation += (transSpeed * RIGHT);
+    } else if (event->key() == Qt::Key_Up) {
+        m_translation += (transSpeed * -UP);
+    } else if (event->key() == Qt::Key_Down) {
+        m_translation += (transSpeed * UP);
     }
-    else
-    {
-        Qt::KeyboardModifiers modifiers = event->modifiers();
-        if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Up)
-        {
-            m_translation += (transSpeed * -FORWARD);
-        }
-        else if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Down)
-        {
-            m_translation += (transSpeed * FORWARD);
-        }
-        else if (event->key() == Qt::Key_Right)
-        {
-            m_translation += (transSpeed * -RIGHT);
-        }
-        else if (event->key() == Qt::Key_Left)
-        {
-            m_translation += (transSpeed * RIGHT);
-        }
-        else if (event->key() == Qt::Key_Up)
-        {
-            m_translation += (transSpeed * -UP);
-        }
-        else if (event->key() == Qt::Key_Down)
-        {
-            m_translation += (transSpeed * UP);
-        }
-    }
+    event->ignore();
     update();
 }
 
@@ -159,9 +194,9 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
     //TODO have a max/min zoom level
     const float delta = event->delta();
     if (delta > 0) {
-        m_zoom -= 0.5f;
+        m_zoom -= 0.1f;
     } else if (delta < 0) {
-        m_zoom += 0.5f;
+        m_zoom += 0.1f;
     }
     event->ignore();
     update();
@@ -203,6 +238,8 @@ void CellGLView3D::attachSettings(SettingsWidget::Rendering *rendering_settings)
 void CellGLView3D::attachDataset(const Dataset &dataset)
 {
     m_geneData = dataset.data();
+
+    makeCurrent();
 
     // If the dataset contains a valid image we load it and we also load the
     // transformation matrix
@@ -248,8 +285,6 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
     m_num_points = indexes.size();
 
     {
-        makeCurrent();
-
         m_program.bind();
 
         // Create VAO
@@ -295,11 +330,11 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         m_visible_buffer.release();
         m_vao.release();
         m_program.release();
-
-        doneCurrent();
     }
 
+    doneCurrent();
     m_initialized = true;
+    resizeGL(width(), height());
     update();
 }
 

@@ -53,6 +53,11 @@ public slots:
     // when the view needs to be refreshed
     void slotUpdate();
 
+    void slotZoomIn();
+    void slotZoomOut();
+    void slotRotate(const float angle);
+    void slotFlip(const float angle);
+
 protected slots:
 
     void teardownGL();
@@ -92,7 +97,7 @@ private:
     QTransform m_aligment;
 
     // helper variables for zooming and panning
-    float m_zoom = 1.0f;
+    float m_zoom;
     QPoint m_lastPos;
 
     // rendering data

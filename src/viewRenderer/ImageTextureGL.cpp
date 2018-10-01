@@ -12,11 +12,12 @@
 
 #include <cmath>
 
-static const int tile_width = 512;
-static const int tile_height = 512;
+static const int tile_width = 256;
+static const int tile_height = 256;
 
 ImageTextureGL::ImageTextureGL()
-    : m_isInitialized(false)
+    : m_program(nullptr)
+    , m_isInitialized(false)
     , m_iscaled(false)
 {
 
@@ -25,27 +26,31 @@ ImageTextureGL::ImageTextureGL()
 ImageTextureGL::~ImageTextureGL()
 {
     clearData();
-    m_coordBuf.destroy();
-    m_posBuf.destroy();
+    delete m_program;
 }
 
 void ImageTextureGL::init()
 {
+    // Initialize OpenGL Backend
     initializeOpenGLFunctions();
+
     // Compile shaders
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/imageShader.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/imageShader.frag");
-    m_program.link();
+    m_program = new QOpenGLShaderProgram();
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/imageShader.vert");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/imageShader.frag");
+    m_program->link();
 }
 
 void ImageTextureGL::clearData()
 {
     clearTextures();
+    m_vao.destroy();
     m_textures_pos.clear();
     m_texture_coords.clear();
     m_coordBuf.destroy();
     m_posBuf.destroy();
     m_isInitialized = false;
+    m_iscaled = false;
 }
 
 void ImageTextureGL::clearTextures()
@@ -65,33 +70,20 @@ void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
         return;
     }
 
-    glEnable(GL_TEXTURE_2D);
+    m_program->bind();
+    m_program->setUniformValue("mvp_matrix", mvp_matrx);
+    m_program->setUniformValue("tex", 0);
     {
-        m_program.bind();
-
-        m_program.setUniformValue("mvp_matrix", mvp_matrx);
-
-        m_posBuf.bind();
-        m_program.enableAttributeArray(0);
-        m_program.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);
-
-        m_coordBuf.bind();
-        m_program.enableAttributeArray(1);
-        m_program.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
-
+        m_vao.bind();
         for (int i = 0; i < m_textures.size(); ++i) {
             QOpenGLTexture *texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
-            texture->bind();
-            glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
-            texture->release();
+            texture->bind(0);
+            glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);
         }
-
-        m_posBuf.release();
-        m_coordBuf.release();
-        m_program.release();
+        m_vao.release();
     }
-    glDisable(GL_TEXTURE_2D);
+    m_program->release();
 }
 
 bool ImageTextureGL::createTiles(const QString &imagefile)
@@ -120,8 +112,8 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     m_bounds = image.rect();
 
     // compute tiles size and numbers
-    const int width = imageSize.width();
-    const int height = imageSize.height();
+    const int width = image.width();
+    const int height = image.height();
     const int xCount = std::ceil(width / static_cast<double>(tile_width));
     const int yCount = std::ceil(height / static_cast<double>(tile_height));
     const int count = xCount * yCount;
@@ -143,21 +135,31 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
         addTexture(image.copy(x, y, texture_width, texture_height), x, y);
     }
 
-    m_program.bind();
+    m_program->bind();
+
+    m_vao.create();
+    m_vao.bind();
 
     // Transfer vertex data to VBO 0
     m_posBuf.create();
     m_posBuf.bind();
-    m_posBuf.allocate(m_texture_coords.constData(), m_textures_pos.size() * sizeof(QVector2D));
+    m_posBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_posBuf.allocate(m_textures_pos.constData(), m_textures_pos.size() * sizeof(QVector3D));
+    m_program->enableAttributeArray(0);
+    m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     // Transfer texture data to VBO 1
     m_coordBuf.create();
     m_coordBuf.bind();
+    m_coordBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
     m_coordBuf.allocate(m_texture_coords.constData(), m_texture_coords.size() * sizeof(QVector2D));
+    m_program->enableAttributeArray(1);
+    m_program->setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     m_posBuf.release();
     m_coordBuf.release();
-    m_program.release();
+    m_vao.release();
+    m_program->release();
 
     QGuiApplication::restoreOverrideCursor();
     m_isInitialized = true;
@@ -166,24 +168,24 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
 
 void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
 {
-    const double width = static_cast<double>(image.width());
-    const double height = static_cast<double>(image.height());
+    const float width = static_cast<float>(image.width());
+    const float height = static_cast<float>(image.height());
 
-    m_textures_pos.append(QVector2D(x, y));
-    m_textures_pos.append(QVector2D(x + width, y));
-    m_textures_pos.append(QVector2D(x + width, y + height));
-    m_textures_pos.append(QVector2D(x, y + height));
+    m_textures_pos.append(QVector3D(x + width, y + height, 0.0));
+    m_textures_pos.append(QVector3D(x + width, y, 0.0));
+    m_textures_pos.append(QVector3D(x, y + height, 0.0));
+    m_textures_pos.append(QVector3D(x, y, 0.0));
 
-    m_texture_coords.append(QVector2D(0.0, 0.0));
-    m_texture_coords.append(QVector2D(1.0, 0.0));
     m_texture_coords.append(QVector2D(1.0, 1.0));
+    m_texture_coords.append(QVector2D(1.0, 0.0));
     m_texture_coords.append(QVector2D(0.0, 1.0));
+    m_texture_coords.append(QVector2D(0.0, 0.0));
 
     QOpenGLTexture *texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    texture->setData(image);
     texture->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
     texture->setMagnificationFilter(QOpenGLTexture::Linear);
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    texture->setData(image);
     m_textures.append(texture);
 }
 

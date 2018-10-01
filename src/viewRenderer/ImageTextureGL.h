@@ -7,12 +7,13 @@
 #include <QOpenGLTexture>
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
 
 class QImage;
 
 // This class represents a tiled image to be rendered using textures. This class
 // is used to render the cell tissue image which has a high resolution
-class ImageTextureGL : protected QOpenGLFunctions
+class ImageTextureGL : public QOpenGLFunctions
 {
 
 public:
@@ -50,11 +51,12 @@ private:
 
     // OpenGL rendering data and buffers
     QVector<QOpenGLTexture *> m_textures;
-    QVector<QVector2D> m_textures_pos;
+    QVector<QVector3D> m_textures_pos;
     QVector<QVector2D> m_texture_coords;
+    QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_posBuf;
     QOpenGLBuffer m_coordBuf;
-    QOpenGLShaderProgram m_program;
+    QOpenGLShaderProgram *m_program;
 
     QRectF m_bounds;
     bool m_isInitialized;
