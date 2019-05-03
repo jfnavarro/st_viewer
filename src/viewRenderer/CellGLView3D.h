@@ -80,9 +80,7 @@ private:
     bool m_initialized;
 
     // Shader Information (uniforms)
-    int u_modelToWorld;
-    int u_worldToCamera;
-    int u_cameraToView;
+    int u_mvp_matrix;
     int u_size;
     int u_alpha;
 
@@ -99,6 +97,10 @@ private:
     // helper variables for zooming and panning
     float m_zoom;
     QPoint m_lastPos;
+    bool m_rubberBanding;
+    bool m_lassoSelection;
+    bool m_selecting;
+    QPainterPath m_lasso;
 
     // rendering data
     QSharedPointer<STData> m_geneData;

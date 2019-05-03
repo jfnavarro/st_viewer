@@ -12,10 +12,6 @@
 #include "mainWindow.h"
 #include "options_cmake.h"
 
-// RcppArmadillo must be included before RInside
-#include "RcppArmadillo.h"
-#include "RInside.h"
-
 #include <iostream>
 
 namespace
@@ -60,26 +56,6 @@ int main(int argc, char **argv)
 
     qDebug() << "Application started successfully.";
 
-    // Initialize RInside object here since it is global...
-    RInside *dummyR = nullptr;
-    try {
-        dummyR = new RInside();
-    } catch (const std::exception &e) {
-        QMessageBox::critical(app.desktop()->screen(),
-                              app.tr("Error"),
-                              app.tr("Error initializing R") + "\n" + QString(e.what()));
-        delete dummyR;
-        dummyR = nullptr;
-        return EXIT_FAILURE;
-    } catch (...) {
-        QMessageBox::critical(app.desktop()->screen(),
-                              app.tr("Error"),
-                              app.tr("Unknown error initializing R"));
-        delete dummyR;
-        dummyR = nullptr;
-        return EXIT_FAILURE;
-    }
-
     QSurfaceFormat format;
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
@@ -95,8 +71,6 @@ int main(int argc, char **argv)
         QMessageBox::critical(app.desktop()->screen(),
                               app.tr("Error"),
                               app.tr("Minimum requirements not satisfied"));
-        delete dummyR;
-        dummyR = nullptr;
         return EXIT_FAILURE;
     }
     // Initialize graphic components
@@ -105,7 +79,5 @@ int main(int argc, char **argv)
     mainWindow.show();
     // launch the app
     const int return_code = app.exec();
-    delete dummyR;
-    dummyR = nullptr;
     return return_code;
 }

@@ -206,7 +206,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Transcripts (Per gene per spot)</string>
+        <string>Min. Transcripts </string>
        </property>
       </widget>
      </item>
@@ -289,19 +289,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="gene_cutoff">
-     <property name="toolTip">
-      <string>Ensable/disable the invidiaual gene cut-offs defined in the Genes widget</string>
-     </property>
-     <property name="statusTip">
-      <string>Ensable/disable the invidiaual gene cut-offs defined in the Genes widget</string>
-     </property>
-     <property name="text">
-      <string>Enable Individual Gene cut off (transcripts)</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_9">

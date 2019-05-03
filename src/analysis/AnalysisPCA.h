@@ -17,7 +17,8 @@ public:
 
     AnalysisPCA(const QList<STData::STDataFrame> &datasets,
                 const QList<QString> &names,
-                QWidget *parent = nullptr, Qt::WindowFlags f = 0);
+                QWidget *parent = nullptr,
+                Qt::WindowFlags f = 0);
     virtual ~AnalysisPCA();
 
 private slots:

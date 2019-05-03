@@ -16,7 +16,7 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
 
     // setup UI
     m_ui->setupUi(this);
-
+/*
     const unsigned num_spots = data.spots.size();
     const colvec spot_reads = sum(data.counts, 1);
     const ucolvec spot_genes = STData::computeNonZeroRows(data.counts);
@@ -72,7 +72,7 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
     m_ui->plotGenes->chart()->axisY()->setGridLineVisible(false);
     m_ui->plotGenes->chart()->axisY()->setLabelsVisible(true);
     m_ui->plotGenes->chart()->axisY()->setTitleText(tr("Spot(Y)"));
-
+*/
     connect(m_ui->exportReads, &QPushButton::clicked, this, &AnalysisScatter::slotExportPlotReads);
     connect(m_ui->exportGenes, &QPushButton::clicked, this, &AnalysisScatter::slotExportPlotGenes);
 }

@@ -4,7 +4,6 @@
 #include <QScatterSeries>
 
 #include "color/HeatMap.h"
-#include "math/RInterface.h"
 
 #include "ui_AnalysisPCA.h"
 
@@ -15,7 +14,7 @@ AnalysisPCA::AnalysisPCA(const QList<STData::STDataFrame> &datasets,
     , m_ui(new Ui::AnalysisPCA)
 {
     m_ui->setupUi(this);
-
+/*
     QSet<QString> merged_genes;
     for (unsigned i = 0; i < datasets.size(); ++i) {
         const auto data = datasets.at(i);
@@ -74,7 +73,7 @@ AnalysisPCA::AnalysisPCA(const QList<STData::STDataFrame> &datasets,
     m_ui->plot->chart()->axisY()->setLabelsVisible(true);
     m_ui->plot->chart()->axisY()->setRange(min_y - 5, max_y + 5);
     m_ui->plot->chart()->axisY()->setTitleText(tr("PCA 2"));
-
+*/
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisPCA::slotExportPlot);
 }
 

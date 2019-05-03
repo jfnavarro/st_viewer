@@ -23,14 +23,15 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
 
     // data model
     const int columns = 2;
-    const int rows = data.spots.size();
+    const int rows = data.dimension_labels().front().size();
     QStandardItemModel *model = new QStandardItemModel(rows,columns,this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Spot")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    for (uword i = 0; i < data.counts.n_rows; ++i) {
-        const auto spot_str = data.spots.at(i);
-        const double count = sum(data.counts.col(i));
+    for (unsigned i = 0; i < data.dimension_labels().front().size(); ++i) {
+        const auto spot = data.dimension_labels().front().at(i);
+        const QString spot_str = QString(QChar::fromLatin1(spot));
+        const double count = 1; //xt::sum(xt::view(data, xt::all(), spot));
         const QString count_str = QString::number(count);
         QStandardItem *spot_item = new QStandardItem(spot_str);
         spot_item->setData(spot_str, Qt::UserRole);

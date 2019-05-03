@@ -23,14 +23,15 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
 
     // data model
     const int columns = 2;
-    const int rows = data.genes.size();
-    QStandardItemModel *model = new QStandardItemModel(rows,columns, this);
+    const size_t rows = data.dimension_labels().back().size();
+    QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    for (uword i = 0; i < data.counts.n_cols; ++i) {
-        const QString gene = data.genes.at(i);
-        const double count = sum(data.counts.col(i));
+    for (unsigned i = 0; i < data.dimension_labels().back().size(); ++i) {
+        const auto gene = data.dimension_labels().back().at(i);
+        const QString gene_str = QString(QChar::fromLatin1(gene));
+        const double count = 1; //xt::sum(xt::view(data, xt::all(), gene));
         const QString count_str = QString::number(count);
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::UserRole);

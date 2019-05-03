@@ -41,10 +41,7 @@ bool UserSelection::operator==(const UserSelection &other) const
 {
     return (m_name == other.m_name
             && m_dataset == other.m_dataset
-            //TODO gotta fix the == for the Matrix type
-            //&& m_data.counts == other.m_data.counts
-            && m_data.genes == other.m_data.genes
-            && m_data.spots == other.m_data.spots
+            && m_data == other.m_data
             && m_comment == other.m_comment);
 }
 
@@ -70,12 +67,12 @@ const QString UserSelection::comment() const
 
 int UserSelection::totalGenes() const
 {
-    return m_data.genes.size();
+    return m_data.dimension_labels().back().size();
 }
 
 int UserSelection::totalSpots() const
 {
-    return m_data.spots.size();
+    return m_data.dimension_labels().front().size();
 }
 
 void UserSelection::name(const QString &name)

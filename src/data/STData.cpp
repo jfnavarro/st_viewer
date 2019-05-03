@@ -4,10 +4,13 @@
 #include <QtConcurrent>
 #include "math/Common.h"
 #include "color/HeatMap.h"
-#include "math/RInterface.h"
 
-static const int ROW = 1;
-static const int COLUMN = 0;
+#include "xtensor/xarray.hpp"
+
+#include <fstream>
+
+//static const int ROW = 1;
+//static const int COLUMN = 0;
 
 static QVector4D fromQtColor(const QColor &color)
 {
@@ -33,14 +36,14 @@ STData::~STData()
 
 STData::STDataFrame STData::read(const QString &filename)
 {
-    STDataFrame data;
-    std::vector<std::vector<double>> values;
-
     // Open file
-    std::ifstream f(filename.toStdString());
+    std::ifstream f(filename.toStdString(), std::ios::in);
     qDebug() << "Opening ST Data file " << filename;
 
-    // Process the rest of the lines (row names and counts)
+    // Parse the file
+    std::vector<std::vector<double>> values;
+    std::vector<xf::fstring> genes;
+    std::vector<xf::fstring> spots;
     unsigned row_number = 0;
     unsigned col_number = 0;
     char sep = '\t';
@@ -50,19 +53,11 @@ STData::STDataFrame STData::read(const QString &filename)
         std::string token;
         std::vector<double> values_row;
         col_number = 0;
-        while(std::getline(iss, token, sep)) {
+        while (std::getline(iss, token, sep)) {
             if (row_number == 0) {
-                const QString gene = QString::fromStdString(token).trimmed();
-                if (data.genes.contains(gene)) {
-                    f.close();
-                    throw std::runtime_error("The matrix contains duplicated genes!");
-                }
-                if (!gene.isEmpty() && !gene.isNull()) {
-                    data.genes.append(gene);
-                }
+                genes.push_back(token.c_str());
             } else if (col_number == 0) {
-                const QString spot = QString::fromStdString(token).trimmed();
-                data.spots.append(spot);
+                spots.push_back(token.c_str());
             } else {
                 values_row.push_back(std::stod(token));
             }
@@ -75,30 +70,39 @@ STData::STDataFrame STData::read(const QString &filename)
     }
     f.close();
 
-    if (!parsed || data.spots.empty() || data.genes.empty()) {
+    if (!parsed || spots.empty() || genes.empty()) {
         throw std::runtime_error("The file does not contain a valid matrix");
     }
 
-    // Create an armadillo matrix
-    mat counts_matrix(row_number - 1, col_number - 1);
-    for (unsigned i = 0; i < row_number - 1; ++i) {
-        for (unsigned j = 0; j < col_number - 1; ++j) {
-            counts_matrix.at(i, j) = values[i][j];
+    qDebug() << "Parsed data file with " << genes.size() << " genes and " << spots.size() << " spots";
+
+    // Convert counts to xtensor
+    shape_type shape = {spots.size(), genes.size()};
+    data_type data(shape);
+    for (unsigned i = 0; i < spots.size(); ++i) {
+        for (unsigned j = 0; j < genes.size(); ++j) {
+            data(i,j) = values[i][j];
         }
-
     }
-    data.counts = counts_matrix;
 
-    qDebug() << "Parsed data file with " << data.genes.size()
-             << " genes and " << data.spots.size() << " spots";
+    // Create data frame
+    auto spot_axis = xf::xaxis<xf::fstring, std::size_t>(spots);
+    auto gene_axis = xf::xaxis<xf::fstring, std::size_t>(genes);
+    auto coord = xf::coordinate({{"spots", spot_axis}, {"genes", gene_axis}});
+    auto dim = xf::dimension({"spots", "genes"});
+    auto dataframe = variable_type(data, coord, dim);
+
+    std::cout << dataframe.dimension_labels().front() << std::endl;
+    std::cout << dataframe.shape().front() << std::endl;
+    std::cout << dataframe.coordinates() << std::endl;
 
     // returns the data frame
-    return data;
+    return dataframe;
 }
 
 void STData::init(const QString &filename, const QString &spots_coordinates) {
 
-    // First parse the matrix with counts
+    // First parse the data frame with the counts
     try {
         m_data = read(filename);
     } catch (const std::exception &e) {
@@ -122,68 +126,54 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     m_rendering_visible.clear();
     m_rendering_colors.clear();
     m_rendering_coords.clear();
-
-    // Create the spot object (if spot coordinates have been given only the spots
-    // there will be added), compute the total sum of the spot to add it to the spot objects
-    // and if the total sum == 0 the spot is discarded
-    colvec row_sum = sum(m_data.counts, ROW);
-    std::vector<uword> to_keep_spots;
-    QList<QString> spots;
     m_spot_index.clear();
-    for (uword i = 0; i < m_data.counts.n_rows; ++i) {
-        const auto &spot = m_data.spots.at(i);
-        auto adj_spot = spot;
-        if (!spots_dict.empty() && spots_dict.contains(spot)) {
-            adj_spot = spots_dict[spot];
-        } else if (!spots_dict.empty()) {
+    m_gene_index.clear();
+
+    for (const auto &spot : m_data.dimension_labels().front()) {
+
+        QString spot_str = QString(QChar::fromLatin1(spot));
+        QString adj_spot = spot_str;
+        if (!spots_dict.empty() && spots_dict.contains(spot_str)) {
+            adj_spot = spots_dict[spot_str];
+        } else if (spots_dict.empty()) {
             continue;
         }
-        // add the spot only if it has any count
-        const double row_sum_value = row_sum.at(i);
-        if (row_sum_value > 0) {
-            to_keep_spots.push_back(i);
-            auto spot_obj = SpotObjectType(new Spot(spot));
-            spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
-            spot_obj->totalCount(row_sum_value);
-            m_spots.push_back(spot_obj);
-            spots.push_back(spot);
-            m_spot_index.insert(spot, m_spots.size() - 1);
 
-            // update the rendering vectors
-            m_rendering_coords.append(spot_obj->adj_coordinates());
-            m_rendering_colors.append(QVector4D(1.0, 1.0, 1.0, 1.0));
-            m_rendering_visible.append(false);
-            m_rendering_selected.append(false);
+        const double row_sum_value = 1;//xt::sum(xt::view(m_data, spot, xt::all()));
+        if (row_sum_value <= 0) {
+            continue;
         }
+
+        auto spot_obj = SpotObjectType(new Spot(spot_str));
+        spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
+        spot_obj->totalCount(row_sum_value);
+        m_spots.push_back(spot_obj);
+        m_spot_index.insert(spot_str, m_spots.size() - 1);
+
+        // update the rendering vectors
+        m_rendering_coords.append(spot_obj->adj_coordinates());
+        m_rendering_colors.append(QVector4D(1.0, 1.0, 1.0, 1.0));
+        m_rendering_visible.append(false);
+        m_rendering_selected.append(false);
+
+        for (const auto &gene : m_data.dimension_labels().back()) {
+
+            const QString gene_str = QString(QChar::fromLatin1(gene));
+            const double col_sum_value = 1; //xt::sum(xt::view(m_data, xt::all(), gene));
+            if (col_sum_value > 0) {
+                auto gene_obj = GeneObjectType(new Gene(gene_str));
+                gene_obj->totalCount(col_sum_value);
+                m_genes.push_back(gene_obj);
+                m_gene_index.insert(gene_str, m_genes.size() - 1);
+            }
+        }
+
     }
-    m_data.spots = spots;
-    m_data.counts = m_data.counts.rows(uvec(to_keep_spots));
 
     if (m_spots.empty()) {
         qDebug() << "No valid spots could be found in the file.";
         throw std::runtime_error("No valid spots could be found in the file.");
     }
-
-    // Create the gene object and compute the total sums to add them to the gene objects
-    // if total sum is == 0 then the gene is discarded
-    rowvec col_sum = sum(m_data.counts, COLUMN);
-    std::vector<uword> to_keep_genes;
-    QList<QString> genes;
-    m_gene_index.clear();
-    for (uword j = 0; j < m_data.counts.n_cols; ++j) {
-        const double col_sum_value = col_sum.at(j);
-        if (col_sum_value > 0) {
-            const auto &gene = m_data.genes.at(j);
-            auto gene_obj = GeneObjectType(new Gene(gene));
-            gene_obj->totalCount(col_sum_value);
-            genes.push_back(gene);
-            to_keep_genes.push_back(j);
-            m_genes.push_back(gene_obj);
-            m_gene_index.insert(gene, m_genes.size() - 1);
-        }
-    }
-    m_data.genes = genes;
-    m_data.counts = m_data.counts.cols(uvec(to_keep_genes));
 
     if (m_genes.empty()) {
         qDebug() << "No valid genes could be found in the file.";
@@ -197,16 +187,15 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         // write genes (1st row)
-        for (const auto &gene : data.genes) {
+        for (const auto &gene : data.dimension_labels().back()) {
             stream << "\t" << gene;
         }
         stream << endl;
         // write spots (1st column and the rest of the rows (counts))
-        for (uword i = 0; i < data.counts.n_rows; ++i) {
-            const auto spot = data.spots.at(i);
+        for (const auto &spot : data.dimension_labels().front()) {
             stream <<  spot;
-            for (uword j = 0; j < data.counts.n_cols; ++j) {
-                stream << "\t" << data.counts(i,j);
+            for (const auto &gene : data.dimension_labels().back()) {
+                stream << "\t" << data.locate(spot, gene).value();
             }
             stream << endl;
         }
@@ -230,8 +219,8 @@ const STData::SpotListType &STData::spots() const
 
 void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 {
-    Q_ASSERT(m_data.counts.size() > 0);
-
+    Q_ASSERT(m_data.size() > 0);
+/*
     const bool use_genes =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::Genes;
     const bool use_log =
@@ -240,111 +229,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange ||
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
-
-    // Create copy of the data frame so to reduce and normalize it
-    STDataFrame data = m_data;
-
-    // Remove genes that are not visible or do not pass threshold
-    const urowvec spot_counts = computeNonZeroColumns(data.counts,
-                                                      rendering_settings.ind_reads_threshold);
-    std::vector<uword> to_keep_genes;
-    for (uword j = 0; j < data.counts.n_cols; ++j) {
-        const auto gene_obj = m_genes.at(j);
-        if (gene_obj->visible() && spot_counts.at(j) > rendering_settings.spots_threshold) {
-            to_keep_genes.push_back(j);
-        }
-    }
-
-    double min_value = 10e6;
-    double max_value = -10e6;
-    bool visible;
-    double merged_value;
-    double num_genes;
-    bool any_gene_selected;
-    QColor merged_color;
-    QVector<double> rendering_values(data.counts.n_rows);
-    QVector<QColor> rendering_colors(data.counts.n_rows);
-    //TODO make this paralell
-    for (uword i = 0; i < data.counts.n_rows; ++i) {
-        const auto spot_obj = m_spots.at(i);
-        visible = false;
-        merged_value = 0.0;
-        num_genes = 0.0;
-        any_gene_selected = false;
-        merged_color = Qt::white;
-        // check first if user wants to show the color of the spot
-        if (rendering_settings.show_spots && spot_obj->visible()) {
-            merged_color = spot_obj->color();
-            visible = true;
-        } else if (!rendering_settings.show_spots) {
-            // Iterate the genes in the spot to compute the sum of values and color
-            // TODO make this parallel
-            for (const auto &j : to_keep_genes) {
-                const auto gene_obj = m_genes.at(j);
-                const double value = data.counts.at(i,j);
-                if (rendering_settings.gene_cutoff && value > gene_obj->cut_off()) {
-                    continue;
-                }
-                ++num_genes;
-                merged_value += value;
-                const QColor gene_color = gene_obj->color();
-                if (do_color && gene_color != merged_color) {
-                    // linearly interpolate gene colors
-                    merged_color = STMath::lerp(1.0 / num_genes, merged_color, gene_color);
-                }
-                any_gene_selected |= gene_obj->selected();
-            }
-            // if there are genes expressed with counts above threshold
-            if (merged_value > rendering_settings.reads_threshold
-                    && num_genes > rendering_settings.genes_threshold) {
-                // Use number of genes or total reads in the spot depending on settings
-                if (do_values) {
-                    merged_value = use_genes ? num_genes : merged_value;
-                    merged_value = use_log ? std::log(merged_value) : merged_value;
-                    min_value = std::min(min_value, merged_value);
-                    max_value = std::max(max_value, merged_value);
-                }
-                visible = true;
-            }
-        }
-        spot_obj->selected(visible && (spot_obj->selected() || any_gene_selected));
-        rendering_colors[i] = merged_color;
-        m_rendering_selected[i] = spot_obj->selected();
-        rendering_values[i] = merged_value;
-        m_rendering_visible[i] = visible;
-    }
-
-    rendering_settings.legend_min = min_value;
-    rendering_settings.legend_max = max_value;
-
-    // If we are visualizing genes with heatmap mode we need to recompute colors
-    // we the max/min values
-    if (!rendering_settings.show_spots) {
-        // TODO make this parallel
-        for (int i = 0; i < rendering_values.size(); ++i) {
-            if (!m_rendering_visible[i]) {
-                continue;
-            }
-            const auto color = rendering_colors[i];
-            if (do_values) {
-                m_rendering_colors[i] = fromQtColor(Color::adjustVisualMode(
-                                                        color,
-                                                        rendering_values[i],
-                                                        min_value,
-                                                        max_value,
-                                                        rendering_settings.visual_mode));
-            } else {
-                m_rendering_colors[i] = fromQtColor(color);
-            }
-
-        }
-    } else {
-        std::function<QVector4D(const QColor& color)> func = [](const QColor &color) {
-            return fromQtColor(color);
-        };
-        m_rendering_colors = QtConcurrent::blockingMapped<QVector<QVector4D>>(rendering_colors, func);
-    }
-
+ */
 }
 
 const QVector<int> &STData::renderingVisible() const
@@ -410,99 +295,12 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
 STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
                                             SettingsWidget::NormalizationMode mode)
 {
-    STDataFrame norm_counts = data;
-    switch (mode) {
-    case (SettingsWidget::NormalizationMode::RAW): {
-    } break;
-    case (SettingsWidget::NormalizationMode::REL): {
-        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
-    } break;
-    case (SettingsWidget::NormalizationMode::TPM): {
-        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
-        norm_counts.counts *= 1e6;
-    } break;
-    case (SettingsWidget::NormalizationMode::DESEQ): {
-        const auto m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
-        norm_counts.counts.each_col() /= m_deseq_size_factors.t();
-    } break;
-    case (SettingsWidget::NormalizationMode::SCRAN): {
-        const auto scran_size_factors = RInterface::computeScranFactors(data.counts, true);
-        norm_counts.counts.each_col() /= scran_size_factors.t();
-    } break;
-    }
-    return norm_counts;
+    return data;
 }
 
-STData::STDataFrame STData::sliceDataFrameSpots(const STDataFrame &data,
-                                                const QList<QString> &spots)
+STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
 {
-    STDataFrame sliced_data = data;
-
-    // Keep only the spots given in the list
-    sliced_data.spots.clear();
-    uvec to_keep_rows(spots.size());
-    for (uword i = 0; i < spots.size(); ++i) {
-        const auto &spot = spots.at(i);
-        const int spot_index = data.spots.indexOf(spot);
-        if (spot_index != -1) {
-            to_keep_rows.at(i) = spot_index;
-            sliced_data.spots.push_back(spot);
-        }
-    }
-    sliced_data.counts = sliced_data.counts.rows(to_keep_rows);
-
-    // Remove non present genes (total count == 0 after removing spots)
-    rowvec gene_counts = sum(sliced_data.counts, COLUMN);
-    std::vector<uword> to_keep_cols;
-    QList<QString> new_genes;
-    for (uword j = 0; j < sliced_data.counts.n_cols; ++j) {
-        if (gene_counts.at(j) > 0) {
-            const auto &gene = sliced_data.genes.at(j);
-            to_keep_cols.push_back(j);
-            new_genes.push_back(gene);
-        }
-    }
-    sliced_data.genes = new_genes;
-    sliced_data.counts = sliced_data.counts.cols(uvec(to_keep_cols));
-
-    // Return the sliced data frame
-    return sliced_data;
-}
-
-STData::STDataFrame STData::sliceDataFrameGenes(const STDataFrame &data,
-                                                const QList<QString> &genes)
-{
-    STDataFrame sliced_data = data;
-
-    // Keep only the genes given in the list
-    sliced_data.genes.clear();
-    uvec to_keep_cols(genes.size());
-    for (uword j = 0; j < genes.size(); ++j) {
-        const auto &gene = genes.at(j);
-        const int gene_index = data.genes.indexOf(gene);
-        if (gene_index != -1) {
-            to_keep_cols.at(j) = gene_index;
-            sliced_data.genes.push_back(gene);
-        }
-    }
-    sliced_data.counts = data.counts.cols(to_keep_cols);
-
-    // Remove non present spots (total count == 0 after removing genes)
-    colvec spot_counts = sum(sliced_data.counts, ROW);
-    std::vector<uword> to_keep_rows;
-    QList<QString> new_spots;
-    for (uword i = 0; i < sliced_data.counts.n_rows; ++i) {
-        if (spot_counts.at(i) > 0) {
-            const auto &spot = sliced_data.spots.at(i);
-            to_keep_rows.push_back(i);
-            new_spots.push_back(spot);
-        }
-    }
-    sliced_data.spots = new_spots;
-    sliced_data.counts = sliced_data.counts.rows(uvec(to_keep_rows));
-
-    // Return the sliced data frame
-    return sliced_data;
+    return STData::STDataFrame();
 }
 
 STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
@@ -511,109 +309,14 @@ STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
                                             const int min_genes_spot,
                                             const int min_spots_gene)
 {
-    if (data.counts.n_cols == 0 || data.counts.n_rows == 0) {
+    if (data.size() == 0) {
         return data;
     }
 
     STDataFrame sliced_data = data;
 
-    // Filter out genes
-    const urowvec spot_counts = computeNonZeroColumns(sliced_data.counts, min_exp_value);
-    std::vector<uword> to_keep_genes;
-    QList<QString> new_genes;
-    for (uword j = 0; j < sliced_data.counts.n_cols; ++j) {
-        if (spot_counts.at(j) > min_spots_gene) {
-            const auto &gene = sliced_data.genes.at(j);
-            to_keep_genes.push_back(j);
-            new_genes.push_back(gene);
-        }
-    }
-    sliced_data.genes = new_genes;
-    sliced_data.counts = sliced_data.counts.cols(uvec(to_keep_genes));
-
-    // Filter out spots
-    const ucolvec gene_counts = computeNonZeroRows(sliced_data.counts, min_exp_value);
-    std::vector<uword> to_keep_spots;
-    QList<QString> new_spots;
-    for (uword i = 0; i < sliced_data.counts.n_rows; ++i) {
-        const rowvec row = sliced_data.counts.row(i);
-        const double row_sum = sum(row.elem(find(row > min_exp_value)));
-        if (row_sum > min_reads_spot && gene_counts.at(i) > min_genes_spot) {
-            const auto &spot = sliced_data.spots.at(i);
-            to_keep_spots.push_back(i);
-            new_spots.push_back(spot);
-        }
-    }
-    sliced_data.spots = new_spots;
-    sliced_data.counts = sliced_data.counts.rows(uvec(to_keep_spots));
-
     // Return the filtered data
     return sliced_data;
-}
-
-STData::STDataFrame STData::aggregate(const QList<STDataFrame> &datasets)
-{
-    if (datasets.empty()) {
-        qDebug() << "Trying to merge a list of empty data frames";
-        return STData::STDataFrame();
-    } else if (datasets.size() == 1) {
-        return datasets.first();
-    }
-
-    QSet<QString> merged_genes;
-    QList<QString> merged_spots;
-    for (unsigned i = 0; i < datasets.size(); ++i) {
-        const auto data = datasets.at(i);
-        merged_genes += data.genes.toSet();
-        QList<QString> adj_spots;
-        std::transform(data.spots.begin(), data.spots.end(), std::back_inserter(adj_spots),
-                       [=](auto spot) { return QString::number(i) + "_" + spot; });
-        merged_spots += adj_spots;
-        //merged_spots += QtConcurrent::blockingMapped<QList<QString> >(
-        //            data.spots, [=] (auto spot) { return QString::number(i) + "_" + spot; });
-    }
-
-    STDataFrame merged;
-    merged.genes = merged_genes.toList();
-    merged.spots = merged_spots;
-    const unsigned n_rows = merged_spots.size();
-    const unsigned n_cols = merged_genes.size();
-    merged.counts = mat(n_rows, n_cols);
-    merged.counts.fill(0.0);
-
-    unsigned spot_counter = 0;
-    for (unsigned d = 0; d < datasets.size(); ++d) {
-        const auto data = datasets.at(d);
-        std::vector<uword> gene_indexes;
-        for (uword i = 0; i < data.counts.n_rows; ++i) {
-            for (uword j = 0; j < n_cols; ++j) {
-                const auto &gene = merged.genes.at(j);
-                int index;
-                if (i == 0) {
-                    index = data.genes.indexOf(gene);
-                    gene_indexes.push_back(index);
-                } else {
-                    index = gene_indexes.at(j);
-                }
-                if (index != -1) {
-                    merged.counts.at(spot_counter, j) = data.counts(i, index);
-                }
-            }
-            ++spot_counter;
-        }
-    }
-
-    return merged;
-}
-
-urowvec STData::computeNonZeroColumns(const mat &matrix, const int min_value)
-{
-    return sum(matrix > min_value, COLUMN);
-}
-
-ucolvec STData::computeNonZeroRows(const mat &matrix, const int min_value)
-{
-    return sum(matrix > min_value, ROW);
 }
 
 void STData::clearSelection()

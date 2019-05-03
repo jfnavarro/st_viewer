@@ -61,35 +61,20 @@ private slots:
     // when the user makes a lasso selection on the scatter plot
     void slotLassoSelection(const QPainterPath &path);
 
-    // when the user wants to estimate the number of clusters from the data
-    void slotComputeClusters();
-
 private:
 
     // helper function to do the heavy computations on a different thread
-    void computeColorsAsync();
-    unsigned computeClustersAsync();
-
-    // function to udpate the widget once the computation of the spot classes is done
-    void colorsComputed();
-
-    // function to update the num clusters field once the estimation of the number of classes is done
-    void classesComputed();
-
-    // helper function to filter the matrix of counts
-    mat filterMatrix();
+    void computeClustersAsync();
+    void clustersComputed();
 
     // the data
     STData::STDataFrame m_data;
 
     // the results
-    std::vector<unsigned> m_colors;
-    mat m_reduced_coordinates;
-    QList<QString> m_spots;
+    QVector<QPair<QString,unsigned>> m_clusters;
 
-    // the computational threads
-    QFutureWatcher<void> m_watcher_colors;
-    QFutureWatcher<unsigned> m_watcher_classes;
+    // the computational thread
+    QFutureWatcher<void> m_watcher_clusters;
 
     // the user selected spots
     QList<QString> m_selected_spots;

@@ -12,8 +12,6 @@
 #include <QMenu>
 #include <QClipboard>
 
-#include "math/RInterface.h"
-
 #include "ui_analysisDEA.h"
 
 AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
@@ -48,9 +46,6 @@ AnalysisDEA::AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
     m_ui->conditionA->setText(m_nameA);
     m_ui->conditionB->setText(m_nameB);
     m_proxy.reset(new QSortFilterProxyModel());
-
-    // merge datasets
-    m_data = STData::aggregate(datasetsA + datasetsB);
 
     // create connections
     connect(m_ui->searchField,
@@ -100,19 +95,7 @@ void AnalysisDEA::slotExportTable()
         // write columns (1st row)
         stream << "Gene" << "\t" << "FDR" << "\t" << "p-value" << "\t" << "log2FoldChange" << endl;
         // write values
-        const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
-        for (uword i = 0; i < m_results.n_rows; ++i) {
-            const int pvalue_index = DESEQ2 ? 4 : 2;
-            const int fdr_index = DESEQ2 ? 5 : 3;
-            const int fc_index = DESEQ2 ? 1 : 0;
-            const QString gene = QString::fromStdString(m_results_rows.at(i));
-            const double fdr = m_results.at(i, fdr_index);
-            const double pvalue = m_results.at(i, pvalue_index);
-            const double foldchange = m_results.at(i, fc_index);
-            if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
-                stream << gene << "\t" << fdr << "\t" << pvalue << "\t" << foldchange << endl;
-            }
-        }
+
     } else {
         QMessageBox::critical(this, tr("Export DE Genes"), tr("Coult not open the file"));
     }
@@ -163,20 +146,7 @@ void AnalysisDEA::updatePlot()
     series2->setUseOpenGL(false);
 
     // populate
-    const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
-    for (uword i = 0; i < m_results.n_rows; ++i) {
-        const int pvalue_index = DESEQ2 ? 4 : 2;
-        const int fdr_index = DESEQ2 ? 5 : 3;
-        const int fc_index = DESEQ2 ? 1 : 0;
-        const double fdr = m_results.at(i, fdr_index);
-        const double pvalue = -log10(m_results.at(i, pvalue_index) + std::numeric_limits<double>::epsilon());
-        const double foldchange = m_results.at(i, fc_index);
-        if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
-            series2->append(foldchange, pvalue);
-        } else {
-            series1->append(foldchange, pvalue);
-        }
-    }
+
 
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
@@ -197,12 +167,12 @@ void AnalysisDEA::updatePlot()
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
     m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axisX()->setTitleText("Log2FoldChange");
-    m_ui->plot->chart()->axisY()->setTitleText("-log10(p-value)");
-    m_ui->plot->chart()->axisX()->setGridLineVisible(false);
-    m_ui->plot->chart()->axisX()->setLabelsVisible(true);
-    m_ui->plot->chart()->axisY()->setGridLineVisible(false);
-    m_ui->plot->chart()->axisY()->setLabelsVisible(true);
+    //m_ui->plot->chart()->axisX()->setTitleText("Log2FoldChange");
+    //m_ui->plot->chart()->axisY()->setTitleText("-log10(p-value)");
+    //m_ui->plot->chart()->axisX()->setGridLineVisible(false);
+    //m_ui->plot->chart()->axisX()->setLabelsVisible(true);
+    //m_ui->plot->chart()->axisY()->setGridLineVisible(false);
+    //m_ui->plot->chart()->axisY()->setLabelsVisible(true);
 }
 
 void AnalysisDEA::updateTable()
@@ -218,42 +188,6 @@ void AnalysisDEA::updateTable()
 
     int high_confidence_de = 0;
     // populate
-    const bool DESEQ2 = m_method == AnalysisDEA::DESEQ2;
-    for (uword i = 0; i < m_results.n_rows; ++i) {
-        const int pvalue_index = DESEQ2 ? 4 : 2;
-        const int fdr_index = DESEQ2 ? 5 : 3;
-        const int fc_index = DESEQ2 ? 1 : 0;
-        const QString gene = QString::fromStdString(m_results_rows.at(i));
-        const double fdr = m_results.at(i, fdr_index);
-        const QString fdr_str = QString::number(fdr);
-        const double pvalue = m_results.at(i, pvalue_index);
-        const QString pvalue_str = QString::number(pvalue);
-        const double foldchange = m_results.at(i, fc_index);
-        const QString foldchange_str = QString::number(foldchange);
-        QStandardItem *gene_item = new QStandardItem(gene);
-        gene_item->setData(gene, Qt::DisplayRole);
-        gene_item->setData(gene, Qt::UserRole);
-        QStandardItem *fdr_item = new QStandardItem(fdr_str);
-        fdr_item->setData(fdr, Qt::DisplayRole);
-        fdr_item->setData(fdr, Qt::UserRole);
-        QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
-        pvalue_item->setData(pvalue, Qt::DisplayRole);
-        pvalue_item->setData(pvalue, Qt::UserRole);
-        QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
-        foldchange_item->setData(foldchange, Qt::DisplayRole);
-        foldchange_item->setData(foldchange, Qt::UserRole);
-        if (fdr <= m_ui->fdr->value() && std::abs(foldchange) >= m_ui->foldchange->value()) {
-            gene_item->setBackground(Qt::red);
-            fdr_item->setBackground(Qt::red);
-            pvalue_item->setBackground(Qt::red);
-            foldchange_item->setBackground(Qt::red);
-            ++high_confidence_de;
-        }
-        model->setItem(i, 0, gene_item);
-        model->setItem(i, 1, fdr_item);
-        model->setItem(i, 2, pvalue_item);
-        model->setItem(i, 3, foldchange_item);
-    }
 
     // update total number of DE genes
     m_ui->total_genes->setText(QString::number(high_confidence_de));
@@ -328,21 +262,8 @@ void AnalysisDEA::run()
 
     STData::STDataFrame data = m_data;
     if (recompute) {
-        // filter the data
-        data = STData::filterDataFrame(data,
-                                       m_ind_reads_treshold,
-                                       m_reads_threshold,
-                                       m_genes_threshold,
-                                       m_spots_threshold);
-        // recompute conditions
-        m_conditions.clear();
-        for (const auto &spot : data.spots) {
-            if (spot.split("_").first().toInt() == 0) {
-                m_conditions.push_back("A");
-            } else {
-                m_conditions.push_back("B");
-            }
-        }
+        // filter the data and conditions
+
         // clear plot and table
         m_ui->plot->chart()->removeAllSeries();
         m_proxy->clear();
@@ -364,28 +285,7 @@ void AnalysisDEA::run()
 
 void AnalysisDEA::runDEAAsync(const STData::STDataFrame &data)
 {
-    // Convert rows and columns to a format that R understands
-    std::vector<std::string> rows;
-    std::vector<std::string> cols;
-    std::transform(data.spots.begin(), data.spots.end(), std::back_inserter(rows),
-                   [](auto spot) {return spot.toStdString();});
-    std::transform(data.genes.begin(), data.genes.end(), std::back_inserter(cols),
-                   [](auto gene) {return gene.toStdString();});
 
-    qDebug() << "Computing DEA Asynchronously. Rows="
-             << data.counts.n_rows << ", columns=" << data.counts.n_cols;
-
-    m_results.clear();
-    m_results_cols.clear();
-    m_results_rows.clear();
-    // Make the DEA call
-    if (m_ui->method_deseq->isChecked()) {
-        RInterface::computeDEA_DESeq(data.counts, rows, cols, m_conditions,
-                                     m_results, m_results_rows, m_results_cols);
-    } else {
-        RInterface::computeDEA_EdgeR(data.counts, rows, cols, m_conditions,
-                                     m_results, m_results_rows, m_results_cols);
-    }
 }
 
 void AnalysisDEA::slotDEAComputed()

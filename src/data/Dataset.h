@@ -24,6 +24,9 @@ public:
     // The reference to the ST Data matrix
     const QSharedPointer<STData> data() const;
 
+    // All image tiles
+    const QVector<QImage> image_tiles() const;
+
     // Getters
     const QString name() const;
     const QString dataFile() const;
@@ -56,8 +59,14 @@ public:
 
 private:
 
-    // Private function to load the image aligment matrix from a file
+    // Function to load the image aligment matrix from a file
     bool load_imageAligment();
+
+    // Function to compute the image aligment from the image size
+    void compute_imageAlignment();
+
+    // Function to load the image from the file and tile it
+    void load_tiles();
 
     QString m_name;
     QString m_statTissue;
@@ -73,6 +82,7 @@ private:
     // generated
     QTransform m_alignment;
     QSharedPointer<STData> m_data;
+    QVector<QImage> m_image_tiles;
 };
 
 #endif // DATASET_H

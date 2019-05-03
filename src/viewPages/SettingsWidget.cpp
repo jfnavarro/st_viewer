@@ -43,7 +43,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
         emit signalSpotRendering();
     });
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
-    connect(m_ui->gene_cutoff, &QCheckBox::stateChanged, this, &SettingsWidget::slotGeneCutoff);
 
     connect(m_ui->normalization_raw, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::RAW);});
@@ -87,7 +86,6 @@ void SettingsWidget::reset()
     m_ui->show_image->setChecked(true);
     m_ui->show_spots->setChecked(false);
     m_ui->legend->setChecked(false);
-    m_ui->gene_cutoff->setChecked(false);
     m_ui->normalization_raw->setChecked(true);
     m_ui->visual_reads->setChecked(true);
     m_ui->visual_normal->setChecked(true);

@@ -12,9 +12,7 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     , m_ui(new Ui::analysisQC)
 {
     m_ui->setupUi(this);
-
-    Q_ASSERT(data.counts.size() > 0);
-
+/*
     // compute the stats
     const colvec rowsums = sum(data.counts, 1);
     const ucolvec nonzero_row = STData::computeNonZeroRows(data.counts);
@@ -69,7 +67,7 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->transcriptsPlot->chart()->createDefaultAxes();
     m_ui->transcriptsPlot->chart()->axisX()->setTitleText("Spots (binned)");
     m_ui->transcriptsPlot->chart()->axisY()->setTitleText("#Transcripts");
-
+*/
     connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
     connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});
 }

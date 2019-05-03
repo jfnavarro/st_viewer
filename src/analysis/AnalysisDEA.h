@@ -9,6 +9,7 @@
 #include <string>
 
 #include "data/STData.h"
+#include "armadillo"
 
 namespace Ui
 {
@@ -81,7 +82,7 @@ private:
     int m_spots_threshold;
 
     // cache the results to not recompute
-    mat m_results;
+    arma::mat m_results;
     std::vector<std::string> m_results_cols;
     std::vector<std::string> m_results_rows;
 

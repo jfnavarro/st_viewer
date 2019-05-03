@@ -470,9 +470,9 @@ void CellViewPage::slotCreateClusteringSelections()
     auto data = m_dataset.data()->data();
     for(const auto &color : colors_spot.uniqueKeys()) {
         // get the spots for the color
-        const QList<QString> &color_spots = colors_spot.values(color);
+        //const QList<QString> &color_spots = colors_spot.values(color);
         // slice the data frame
-        STData::STDataFrame scliced_data = STData::sliceDataFrameSpots(data, color_spots);
+        STData::STDataFrame scliced_data; // = STData::sliceDataFrameSpots(data, color_spots);
         // create selection object
         UserSelection new_selection(scliced_data);
         // proposes as selection name as DATASET NAME + color + current timestamp
@@ -499,7 +499,7 @@ void CellViewPage::slotCreateSelection()
     // get the data frame
     auto data = m_dataset.data()->data();
     // slice the data frame
-    STData::STDataFrame scliced_data = STData::sliceDataFrameSpots(data, selected_spots);
+    STData::STDataFrame scliced_data;// = STData::sliceDataFrameSpots(data, selected_spots);
     // create selection object
     UserSelection new_selection(scliced_data);
     // proposes as selection name as DATASET NAME plus current timestamp

@@ -24,9 +24,7 @@ public:
     enum NormalizationMode {
         RAW = 1,
         TPM = 2,
-        REL = 3,
-        DESEQ = 4,
-        SCRAN = 5
+        REL = 3
     };
 
     enum VisualMode {

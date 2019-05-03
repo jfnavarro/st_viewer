@@ -22,21 +22,22 @@ macro(INITIALISE_PROJECT)
         add_definitions(-DQT_NO_DEBUG)
     endif()
 
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
 
     # Defining compiler specific settings
     if(WIN32)
 
     else()
 
-        # Adding -std=c++14 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+        # Adding -std=c++17 flag explicitly
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
-        set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function \
-            -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls -Wno-implicit-fallthrough")
+        set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function -Wno-undef -Wno-missing-declarations \
+            -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls -Wno-implicit-fallthrough \
+            -Wno-unused-local-typedef")
 
         if (APPLE)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \

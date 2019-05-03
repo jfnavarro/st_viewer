@@ -9,8 +9,6 @@
 #include <QMessageBox>
 #include <QtMath>
 
-#include "math/RInterface.h"
-
 #include "ui_analysisCorrelation.h"
 
 AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
@@ -24,7 +22,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
 {
     m_ui->setupUi(this);
     m_ui->exportPlot->setEnabled(false);
-
+/*
     // Get the shared genes (by name)
     QSet<QString> genesA = QSet<QString>::fromList(data1.genes);
     QSet<QString> genesB = QSet<QString>::fromList(data2.genes);
@@ -68,6 +66,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         m_ui->logScale->setEnabled(false);
         m_ui->exportPlot->setEnabled(false);
     }
+    */
 }
 
 AnalysisCorrelation::~AnalysisCorrelation()
@@ -78,7 +77,7 @@ AnalysisCorrelation::~AnalysisCorrelation()
 void AnalysisCorrelation::slotUpdateData()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
+/*
     // get the matrices of counts and log them if applies
     mat A = m_dataA.counts;
     mat B = m_dataB.counts;
@@ -118,7 +117,7 @@ void AnalysisCorrelation::slotUpdateData()
     m_ui->plot->chart()->createDefaultAxes();
     m_ui->plot->chart()->axisX()->setTitleText("# " + m_nameA);
     m_ui->plot->chart()->axisY()->setTitleText("# " + m_nameB);
-
+*/
     m_ui->exportPlot->setEnabled(true);
 
     QGuiApplication::restoreOverrideCursor();

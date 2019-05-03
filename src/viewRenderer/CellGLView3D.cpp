@@ -12,6 +12,7 @@ static const float rotSpeed = 0.1f;
 static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
 static const QVector3D UP(0.0f, 0.1f, 0.0f);
 static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
+static const QColor lasso_color = QColor(0,0,255,90);
 
 CellGLView3D::CellGLView3D(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -47,14 +48,16 @@ void CellGLView3D::initializeGL()
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
 
     // Set global information
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnable(GL_ALPHA_TEST);
-    //glEnable(GL_DEPTH_TEST);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
@@ -64,9 +67,7 @@ void CellGLView3D::initializeGL()
     m_program.bind();
 
     // Cache Uniform Locations
-    u_modelToWorld = m_program.uniformLocation("modelToWorld");
-    u_worldToCamera = m_program.uniformLocation("worldToCamera");
-    u_cameraToView = m_program.uniformLocation("cameraToView");
+    u_mvp_matrix = m_program.uniformLocation("mvp_matrix");
     u_size = m_program.uniformLocation("size");
     u_alpha = m_program.uniformLocation("alpha");
 
@@ -124,29 +125,38 @@ void CellGLView3D::paintGL()
     }
 
     // render legend
-
-    // Render gene data
-    m_program.bind();
-
-    m_camera.setToIdentity();
-    m_camera.translate(-m_translation);
-
-    m_program.setUniformValue(u_worldToCamera, m_camera);
-    m_program.setUniformValue(u_cameraToView, m_projection);
-    m_program.setUniformValue(u_size, m_rendering_settings->size);
+    QPainter painter(this);
+    painter.setWorldMatrixEnabled(true);
+    painter.setViewTransformEnabled(true);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    //painter.setWorldTransform(local_transform);
+    m_legend->draw(*m_rendering_settings, painter);
+    //painter.resetTransform();
 
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 1.0 : m_rendering_settings->intensity;
+    m_camera.setToIdentity();
+    m_camera.translate(-m_translation);
+
+    // Render gene data
+    m_program.bind();
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 10);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
-    m_program.setUniformValue(u_modelToWorld, m_transform);
+    m_program.setUniformValue(u_mvp_matrix, m_projection * m_camera * m_transform);
     {
         m_vao.bind();
         glDrawArrays(GL_POINTS, 0, m_num_points);
         m_vao.release();
     }
-
     m_program.release();
+
+    // draw selection box/lasso
+    if (m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
+        painter.setBrush(lasso_color);
+        painter.setPen(lasso_color);
+        painter.drawPath(m_lasso.simplified());
+    }
 }
 
 void CellGLView3D::slotZoomIn()
@@ -204,6 +214,29 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
 
 void CellGLView3D::mousePressEvent(QMouseEvent *event)
 {
+    const bool is_left = event->button() == Qt::LeftButton;
+    if (!m_geneData->is3D()) {
+        if (is_left && m_selecting && !m_lassoSelection) {
+            // rubberbanding changes cursor to pointing hand
+            setCursor(Qt::PointingHandCursor);
+            m_rubberBanding = true;
+            //m_originRubberBand = event->pos();
+            //m_rubberband->setGeometry(QRect(m_originRubberBand, QSize()));
+            //m_rubberband->show();
+        } else if (is_left && m_selecting) {
+            m_lasso = QPainterPath();
+            //m_originLasso = event->pos();
+            //m_lasso.moveTo(m_originLasso);
+            update();
+        } else if (is_left) {
+            //m_panning = true;
+            //m_originPanning = event->globalPos(); // panning needs globalPos
+            // panning changes cursor to closed hand
+            setCursor(Qt::ClosedHandCursor);
+        }
+    }
+    event->ignore();
+
     m_lastPos = event->pos();
     event->ignore();
 }

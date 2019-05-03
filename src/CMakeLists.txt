@@ -37,25 +37,14 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
-if(WIN32)
-    if(DEFINED ARMADILLO_PATH)
-        set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
-        set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
-            "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
-    
-    else()
-        message(FATAL_ERROR "ARMADILLO_PATH is empty")
-    endif()
-else()
-    find_package(Armadillo REQUIRED)
-endif()
-include_directories(${ARMADILLO_INCLUDE_DIRS})
+find_package(xtl REQUIRED)
+include_directories(${xtl_INCLUDE_DIRS})
 
-find_package(R REQUIRED)
-include_directories(${LIBR_INCLUDE_DIRS})
-include_directories(${LIBRCPP_INCLUDE_DIRS})
-include_directories(${LIBRINSIDE_INCLUDE_DIRS})
-include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
+find_package(xtensor REQUIRED)
+include_directories(${xtensor_INCLUDE_DIRS})
+
+find_package(xframe REQUIRED)
+include_directories(${xframe_INCLUDE_DIRS})
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -93,8 +82,7 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot xtensor)
 
 ### UNIT TESTS ################################################################
 

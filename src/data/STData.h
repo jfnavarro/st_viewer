@@ -13,9 +13,8 @@
 #include "viewPages/SettingsWidget.h"
 #include "viewRenderer/SelectionEvent.h"
 
-#include <armadillo>
-
-using namespace arma;
+#include "xframe/xio.hpp"
+#include "xframe/xvariable.hpp"
 
 class STData
 {
@@ -27,11 +26,12 @@ public:
     typedef QList<SpotObjectType> SpotListType;
     typedef QList<GeneObjectType> GeneListType;
 
-    struct STDataFrame {
-        mat counts;
-        QList<QString> genes;
-        QList<QString> spots;
-    };
+    using coordinate_type = xf::xcoordinate<xf::fstring>;
+    using variable_type = xf::xvariable<double, coordinate_type>;
+    using data_type = variable_type::data_type;
+    using shape_type = data_type::shape_type;
+
+    typedef variable_type STDataFrame;
 
     STData();
     ~STData();
@@ -62,12 +62,6 @@ public:
     // It throws exceptions when errors during parsing or empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
-    // helper slicing functions (assumes the spots and genes lists given are present in the data)
-    static STDataFrame sliceDataFrameGenes(const STDataFrame &data,
-                                           const QList<QString> &spots);
-    static STDataFrame sliceDataFrameSpots(const STDataFrame &data,
-                                           const QList<QString> &genes);
-
     // helper function to filter out a data frame using thresholds
     static STDataFrame filterDataFrame(const STDataFrame &data,
                                        const int min_exp_value,
@@ -75,19 +69,12 @@ public:
                                        const int min_genes_spot,
                                        const int min_spots_gene);
 
-    // helper function to merge a list of data frames into one (by common genes)
-    // the spots (rows) will have the index of the dataset append (1_,2_..)
-    static STData::STDataFrame aggregate(const QList<STDataFrame> &datasets);
-
-    // helper function to get the sum of non zeroes elements (by column, aka gene)
-    static urowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
-
-    // helper function to get the sum of non zeroes elements (by row, aka spot)
-    static ucolvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
-
     // helper function that returns the normalized matrix counts using the rendering settings
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
+
+    // helper function that merges two dataframes
+    static STDataFrame aggregate(const QList<STDataFrame> &dataframes);
 
     // functions to select spots
     void clearSelection();
@@ -112,6 +99,7 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
+    STDataFrame m_norm_data;
 
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix
