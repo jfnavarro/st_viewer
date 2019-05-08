@@ -6,7 +6,9 @@
 #include "color/HeatMap.h"
 
 #include "xtensor/xarray.hpp"
+#include "xframe/xvariable_view.hpp"
 
+#include <variant>
 #include <fstream>
 
 //static const int ROW = 1;
@@ -86,15 +88,11 @@ STData::STDataFrame STData::read(const QString &filename)
     }
 
     // Create data frame
-    auto spot_axis = xf::xaxis<xf::fstring, std::size_t>(spots);
-    auto gene_axis = xf::xaxis<xf::fstring, std::size_t>(genes);
-    auto coord = xf::coordinate({{"spots", spot_axis}, {"genes", gene_axis}});
-    auto dim = xf::dimension({"spots", "genes"});
+    auto spot_axis = axis_type(spots);
+    auto gene_axis = axis_type(genes);
+    auto coord = coordinate_type({{"spots", spot_axis}, {"genes", gene_axis}});
+    auto dim = dimension_type({"spots", "genes"});
     auto dataframe = variable_type(data, coord, dim);
-
-    std::cout << dataframe.dimension_labels().front() << std::endl;
-    std::cout << dataframe.shape().front() << std::endl;
-    std::cout << dataframe.coordinates() << std::endl;
 
     // returns the data frame
     return dataframe;
@@ -129,45 +127,44 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     m_spot_index.clear();
     m_gene_index.clear();
 
-    for (const auto &spot : m_data.dimension_labels().front()) {
-
-        QString spot_str = QString(QChar::fromLatin1(spot));
+    const auto spot_list = xf::get_labels<xf::fstring>(m_data.coordinates()["spots"]);
+    for (auto const& spot : spot_list) {
+        const QString spot_str = QString::fromUtf8(spot.c_str());
         QString adj_spot = spot_str;
         if (!spots_dict.empty() && spots_dict.contains(spot_str)) {
             adj_spot = spots_dict[spot_str];
-        } else if (spots_dict.empty()) {
+        } else if (!spots_dict.empty()) {
             continue;
         }
 
-        const double row_sum_value = 1;//xt::sum(xt::view(m_data, spot, xt::all()));
-        if (row_sum_value <= 0) {
-            continue;
+        const auto row = xf::locate(m_data, spot, xf::all());
+        const double row_sum_value = xt::sum(row.data())().value();
+        if (row_sum_value > 0) {
+            auto spot_obj = SpotObjectType(new Spot(spot_str));
+            spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
+            spot_obj->totalCount(row_sum_value);
+            m_spots.push_back(spot_obj);
+            m_spot_index.insert(spot_str, m_spots.size() - 1);
+
+            // update the rendering vectors
+            m_rendering_coords.append(spot_obj->adj_coordinates());
+            m_rendering_colors.append(QVector4D(1.0, 1.0, 1.0, 1.0));
+            m_rendering_visible.append(false);
+            m_rendering_selected.append(false);
         }
+    }
 
-        auto spot_obj = SpotObjectType(new Spot(spot_str));
-        spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
-        spot_obj->totalCount(row_sum_value);
-        m_spots.push_back(spot_obj);
-        m_spot_index.insert(spot_str, m_spots.size() - 1);
-
-        // update the rendering vectors
-        m_rendering_coords.append(spot_obj->adj_coordinates());
-        m_rendering_colors.append(QVector4D(1.0, 1.0, 1.0, 1.0));
-        m_rendering_visible.append(false);
-        m_rendering_selected.append(false);
-
-        for (const auto &gene : m_data.dimension_labels().back()) {
-
-            const QString gene_str = QString(QChar::fromLatin1(gene));
-            const double col_sum_value = 1; //xt::sum(xt::view(m_data, xt::all(), gene));
-            if (col_sum_value > 0) {
-                auto gene_obj = GeneObjectType(new Gene(gene_str));
-                gene_obj->totalCount(col_sum_value);
-                m_genes.push_back(gene_obj);
-                m_gene_index.insert(gene_str, m_genes.size() - 1);
-            }
+    const auto gene_list = xf::get_labels<xf::fstring>(m_data.coordinates()["genes"]);
+    for (const auto &gene : gene_list) {
+        const QString gene_str = QString::fromUtf8(gene.c_str());
+        const auto col = xf::locate(m_data, xf::all(), gene);
+        const double col_sum_value = xt::sum(col.data())().value();
+        if (col_sum_value > 0) {
+            auto gene_obj = GeneObjectType(new Gene(gene_str));
+            gene_obj->totalCount(col_sum_value);
+            m_genes.push_back(gene_obj);
+            m_gene_index.insert(gene_str, m_genes.size() - 1);
         }
-
     }
 
     if (m_spots.empty()) {

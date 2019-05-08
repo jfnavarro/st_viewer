@@ -26,7 +26,9 @@ public:
     typedef QList<SpotObjectType> SpotListType;
     typedef QList<GeneObjectType> GeneListType;
 
+    using axis_type = xf::xaxis<xf::fstring>;
     using coordinate_type = xf::xcoordinate<xf::fstring>;
+    using dimension_type = xf::xdimension<xf::fstring>;
     using variable_type = xf::xvariable<double, coordinate_type>;
     using data_type = variable_type::data_type;
     using shape_type = data_type::shape_type;
