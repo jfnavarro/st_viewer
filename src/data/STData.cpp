@@ -7,7 +7,14 @@
 
 #include "xtensor/xarray.hpp"
 #include "xframe/xvariable_view.hpp"
+#include "xframe/xframe_utils.hpp"
+#include "xframe/xvariable.hpp"
+#include "xframe/xvariable_masked_view.hpp"
+#include "xframe/xaxis_index_slice.hpp"
+#include "xtensor/xadapt.hpp"
 
+#include <future>
+#include <thread>
 #include <variant>
 #include <fstream>
 
@@ -73,6 +80,16 @@ STData::STDataFrame STData::read(const QString &filename)
     f.close();
 
     if (!parsed || spots.empty() || genes.empty()) {
+        throw std::runtime_error("The file does not contain a valid matrix");
+    }
+
+    if (values.size() != spots.size()) {
+        throw std::runtime_error("The file does not contain a valid matrix");
+    }
+
+    if (values.front().size() != genes.size() && values.front().size() - 1) {
+        genes.erase(genes.begin());
+    } else if (values.front().size() != genes.size()) {
         throw std::runtime_error("The file does not contain a valid matrix");
     }
 
@@ -184,14 +201,16 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         // write genes (1st row)
-        for (const auto &gene : data.dimension_labels().back()) {
-            stream << "\t" << gene;
+        const auto gene_list = xf::get_labels<xf::fstring>(data.coordinates()["genes"]);
+        for (const auto &gene : gene_list) {
+            stream << "\t" << gene.c_str();
         }
         stream << endl;
         // write spots (1st column and the rest of the rows (counts))
-        for (const auto &spot : data.dimension_labels().front()) {
-            stream <<  spot;
-            for (const auto &gene : data.dimension_labels().back()) {
+        const auto spot_list = xf::get_labels<xf::fstring>(data.coordinates()["spots"]);
+        for (auto const& spot : spot_list) {
+            stream <<  spot.c_str();
+            for (const auto &gene : gene_list) {
                 stream << "\t" << data.locate(spot, gene).value();
             }
             stream << endl;
@@ -217,16 +236,98 @@ const STData::SpotListType &STData::spots() const
 void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 {
     Q_ASSERT(m_data.size() > 0);
-/*
-    const bool use_genes =
+
+    /*const bool use_genes =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::Genes;
     const bool use_log =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::ReadsLog;
     const bool do_color =
             rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange ||
             rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal;
-    const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
- */
+    const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;*/
+
+    // Reset OpenGL arrays
+    // TODO use QFuture to launch them in parallel
+    QtConcurrent::blockingMap(m_rendering_visible, [] (auto visible) { visible = false; });
+    QtConcurrent::blockingMap(m_rendering_selected, [] (auto selected) { selected = false; });
+
+    // Apply filters
+    std::cout << "Filtering" << std::endl;
+    std::cout << m_data.shape().front() << " " << m_data.shape().back() << std::endl;
+    //auto data = filterCounts(m_data,
+    //                         rendering_settings.reads_threshold,
+    //                         rendering_settings.genes_threshold,
+    //                         rendering_settings.spots_threshold);
+
+    const auto data_value = m_data.data().value();
+    std::cout << data_value << std::endl;
+    const auto row_sums = xt::sum(xt::greater(data_value, rendering_settings.reads_threshold), 1);
+    std::cout << row_sums << std::endl;
+    const auto row_indexes = xt::ravel_indices<xt::ravel_vector_tag>(
+                xt::argwhere(xt::equal(row_sums > rendering_settings.spots_threshold, 1)), row_sums.shape());
+    const auto col_sums = xt::sum(xt::greater(data_value, rendering_settings.reads_threshold), 0);
+    std::cout << col_sums << std::endl;
+    const auto col_indexes = xt::ravel_indices<xt::ravel_vector_tag>(
+                xt::argwhere(xt::equal(col_sums > rendering_settings.genes_threshold, 1)), col_sums.shape());
+    if (row_indexes.empty() || col_indexes.empty()) {
+        std::cout << "Filtering returns an empy dataframe" << std::endl;
+        return;
+    }
+    std::cout << "Reducing with " << row_indexes.size() << " " << col_indexes.size() << std::endl;
+    variable_type data = xf::ilocate(m_data, xf::ikeep(row_indexes), xf::ikeep(col_indexes));
+
+    // early out
+    if (data.size() == 0) {
+        return;
+    }
+    std::cout << data.data() << std::endl;
+
+    // Normalize
+    //std::cout << "Normalizing" << std::endl;
+    //data = normalizeCounts(data, rendering_settings.normalization_mode);
+    //std::cout << data.data() << std::endl;
+
+    // Filter out selected genes/spots (async)
+    std::future<std::vector<int> > f1 = std::async(std::launch::async, [=] {
+        std::vector<int> spots_selected_indexes;
+        for (int i = 0; i < m_spots.size(); ++i) {
+            if (m_spots.at(i)->selected()) {
+                spots_selected_indexes.push_back(i);
+            }
+        };
+        return spots_selected_indexes;
+    });
+
+    std::future<std::vector<int> > f2 = std::async(std::launch::async, [=] {
+        std::vector<int> genes_selected_indexes;
+        for (int i = 0; i < m_genes.size(); ++i) {
+            if (m_genes.at(i)->selected()) {
+                genes_selected_indexes.push_back(i);
+            }
+        };
+        return genes_selected_indexes;
+    });
+
+    f1.wait();
+    f2.wait();
+    const auto spot_idx = f1.get();
+    const auto gene_idx = f2.get();
+
+    // early out
+    std::cout << "Keeping selected genes/spots" << std::endl;
+    if (spot_idx.empty() && gene_idx.empty()) {
+        return;
+    } else if (spot_idx.empty()) {
+        data = xf::iselect(data, {{"genes", xf::ikeep(gene_idx)}});
+    } else  if (gene_idx.empty()){
+        data = xf::iselect(data, {{"spots", xf::ikeep(spot_idx)}});
+    } else {
+        data = xf::ilocate(data, xf::ikeep(spot_idx), xf::ikeep(gene_idx));
+    }
+    std::cout << data.data() << std::endl;
+
+    // Compute rendering colors
+
 }
 
 const QVector<int> &STData::renderingVisible() const
@@ -264,7 +365,7 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
             line = in.readLine();
             if (!line.contains("x")) {
                 fields = line.split("\t");
-                if (fields.length() != 4 && fields.length() != 6) {
+                if (fields.length() != 4 || fields.length() != 6) {
                     parsed = false;
                     break;
                 }
@@ -292,28 +393,40 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
 STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
                                             SettingsWidget::NormalizationMode mode)
 {
+    if (mode == SettingsWidget::REL) {
+        const auto row_sums = xt::sum(data.data().value(), {1});
+        const auto normalized = data.data().value() / xt::view(row_sums, xt::all(), xt::newaxis());
+        return variable_type(normalized, data.coordinates(), data.dimension_mapping());
+    } else if (mode == SettingsWidget::CPM) {
+        const auto row_sums = xt::sum(data.data().value(), {1});
+        const auto mean = xt::mean(row_sums);
+        const auto normalized = data.data().value() / xt::view(row_sums * mean, xt::all(), xt::newaxis());
+        return variable_type(normalized, data.coordinates(), data.dimension_mapping());
+    }
     return data;
+}
+
+STData::STDataFrame STData::filterCounts(const STDataFrame &data,
+                                         const int min_reads,
+                                         const int min_genes,
+                                         const int min_spots)
+{
+    const auto row_sums = xt::sum(xt::greater(data.data().value(), min_reads), {1});
+    const auto row_indexes = xt::ravel_indices<xt::ravel_vector_tag>(
+                xt::argwhere(xt::equal(row_sums > min_spots, 1)), row_sums.shape());
+    const auto col_sums = xt::sum(xt::greater(data.data().value(), min_reads), {0});
+    const auto col_indexes = xt::ravel_indices<xt::ravel_vector_tag>(
+                xt::argwhere(xt::equal(col_sums > min_genes, 1)), col_sums.shape());
+    if (row_indexes.empty() || col_indexes.empty()) {
+        std::cout << "Filtering returns an empy dataframe" << std::endl;
+        return variable_type();
+    }
+    return xf::ilocate(data, xf::ikeep(row_indexes), xf::ikeep(col_indexes));
 }
 
 STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
 {
     return STData::STDataFrame();
-}
-
-STData::STDataFrame STData::filterDataFrame(const STDataFrame &data,
-                                            const int min_exp_value,
-                                            const int min_reads_spot,
-                                            const int min_genes_spot,
-                                            const int min_spots_gene)
-{
-    if (data.size() == 0) {
-        return data;
-    }
-
-    STDataFrame sliced_data = data;
-
-    // Return the filtered data
-    return sliced_data;
 }
 
 void STData::clearSelection()
@@ -333,22 +446,25 @@ void STData::selectSpots(const SelectionEvent &event)
 
     // update selection
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
-    for (auto spot : m_spots) {
+    QtConcurrent::blockingMap(m_spots, [&](QSharedPointer<Spot> spot) -> QSharedPointer<Spot> {
         const auto &coord = spot->coordinates();
         if (path.contains(QPointF(coord.x(), coord.y()))) {
             spot->selected(!remove);
         }
-    }
+        return spot;
+    });
 }
 
 void STData::selectSpots(const QList<QString> &spots)
 {
     clearSelection();
     for (const auto &spot : spots) {
-        const int spot_index = m_spot_index.value(spot, -1);
-        if (spot_index != -1) {
-            m_spots.at(spot_index)->selected(true);
-        }
+        QtConcurrent::run([=] {
+            const int spot_index = m_spot_index.value(spot, -1);
+            if (spot_index != -1) {
+                m_spots.at(spot_index)->selected(true);
+            }
+        });
     }
 }
 
@@ -356,9 +472,11 @@ void STData::selectSpots(const QList<int> &spots_indexes)
 {
     clearSelection();
     for (const auto index : spots_indexes) {
-        if (index > 0 and index < m_spots.size()) {
-            m_spots.at(index)->selected(true);
-        }
+        QtConcurrent::run([=] {
+            if (index >= 0 && index < m_spots.size()) {
+                m_spots.at(index)->selected(true);
+            }
+        });
     }
 }
 
@@ -376,11 +494,13 @@ void STData::selectGenes(const QList<QString> &genes)
 {
     clearSelection();
     for (const auto &gene : genes) {
-        const int gene_index = m_gene_index.value(gene, -1);
-        if (gene_index != -1) {
-            m_genes.at(gene_index)->selected(true);
-            m_genes.at(gene_index)->visible(true);
-        }
+        QtConcurrent::run([=] {
+            const int gene_index = m_gene_index.value(gene, -1);
+            if (gene_index != -1) {
+                m_genes.at(gene_index)->selected(true);
+                m_genes.at(gene_index)->visible(true);
+            }
+        });
     }
 }
 

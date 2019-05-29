@@ -23,8 +23,8 @@ public:
 
     typedef QSharedPointer<Spot> SpotObjectType;
     typedef QSharedPointer<Gene> GeneObjectType;
-    typedef QList<SpotObjectType> SpotListType;
-    typedef QList<GeneObjectType> GeneListType;
+    typedef QVector<SpotObjectType> SpotListType;
+    typedef QVector<GeneObjectType> GeneListType;
 
     using axis_type = xf::xaxis<xf::fstring>;
     using coordinate_type = xf::xcoordinate<xf::fstring>;
@@ -64,16 +64,15 @@ public:
     // It throws exceptions when errors during parsing or empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
-    // helper function to filter out a data frame using thresholds
-    static STDataFrame filterDataFrame(const STDataFrame &data,
-                                       const int min_exp_value,
-                                       const int min_reads_spot,
-                                       const int min_genes_spot,
-                                       const int min_spots_gene);
-
-    // helper function that returns the normalized matrix counts using the rendering settings
+    // helper function that returns the normalized data frame
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
+
+    // helper function that returns a filtered data frame
+    static STDataFrame filterCounts(const STDataFrame &data,
+                                    const int min_reads,
+                                    const int min_genes,
+                                    const int min_spots);
 
     // helper function that merges two dataframes
     static STDataFrame aggregate(const QList<STDataFrame> &dataframes);

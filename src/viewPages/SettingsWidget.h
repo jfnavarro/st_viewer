@@ -23,7 +23,7 @@ public:
 
     enum NormalizationMode {
         RAW = 1,
-        TPM = 2,
+        CPM = 2,
         REL = 3
     };
 

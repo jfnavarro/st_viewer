@@ -14,7 +14,7 @@ macro(INITIALISE_PROJECT)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         message(STATUS "Building a debug version...")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG -DDEBUG")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG -DDEBUG")
         add_definitions(-DQT_DEBUG)
     else()
         message(STATUS "Building a release version...")
@@ -31,7 +31,7 @@ macro(INITIALISE_PROJECT)
     else()
 
         # Adding -std=c++17 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -std=c++1z")
 	set(CMAKE_REQUIRED_FLAGS -std=c++17)
 
         # Enable warning errors

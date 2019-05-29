@@ -47,7 +47,7 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->normalization_raw, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::RAW);});
     connect(m_ui->normalization_tpm, &QRadioButton::clicked, this,
-            [=]() {slotNormalization(NormalizationMode::TPM);});
+            [=]() {slotNormalization(NormalizationMode::CPM);});
     connect(m_ui->normalization_rel, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::REL);});
 
