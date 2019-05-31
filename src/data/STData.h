@@ -62,10 +62,6 @@ public:
     // It throws exceptions when errors during parsing or empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
-    // to parse a file with size factors (one per spot)
-    // it returns bool if the parsing was okay and the number of factors is the same as rows
-    bool parseSizeFactors(const QString &sizefactors);
-
     // helper slicing functions (assumes the spots and genes lists given are present in the data)
     static STDataFrame sliceDataFrameGenes(const STDataFrame &data,
                                            const QList<QString> &spots);
@@ -112,9 +108,6 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
-
-    // user loaded size factors
-    rowvec m_size_factors;
 
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix

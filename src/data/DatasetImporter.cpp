@@ -27,7 +27,6 @@ DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
     m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
-    m_ui->sizeFactorsFile->setText(dataset.sizeFactorsFile());
 }
 
 DatasetImporter::DatasetImporter(QWidget *parent)
@@ -48,8 +47,6 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
     connect(m_ui->loadImageAlignmentFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadAlignmentFile);
-    connect(m_ui->loadSizeFactorsFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadSizeFactorsFile);
     connect(m_ui->loadFolder,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
     connect(m_ui->loadMetaFile,
@@ -103,11 +100,6 @@ const QString DatasetImporter::alignmentMatrix() const
 const QString DatasetImporter::spotsMapFile() const
 {
     return m_ui->spotMapFile->text();
-}
-
-const QString DatasetImporter::sizeFactorsFile() const
-{
-    return m_ui->sizeFactorsFile->text();
 }
 
 void DatasetImporter::slotLoadSTDataFile()
@@ -192,27 +184,6 @@ void DatasetImporter::slotLoadAlignmentFile()
     }
 }
 
-void DatasetImporter::slotLoadSizeFactorsFile()
-{
-    const QString filename
-            = QFileDialog::getOpenFileName(this,
-                                           tr("Open Size Factors File"),
-                                           QDir::homePath(),
-                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    QFileInfo info(filename);
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Size Factors File"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        m_ui->sizeFactorsFile->setText(filename);
-    }
-}
 
 void DatasetImporter::done(int result)
 {
@@ -260,8 +231,6 @@ void DatasetImporter::slotParseFolder()
                 m_ui->imageAlignmentFile->setText(file);
             } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
-            } else if (file.contains("sizefactors")) {
-                m_ui->sizeFactorsFile->setText(file);
             } else if (file.contains("info.json")) {
                 parseInfoJSON(file);
             }
@@ -317,9 +286,6 @@ void DatasetImporter::slotParseMetaFile()
         }
         if (jsonObject.contains("coordinates")) {
             m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());
-        }
-        if (jsonObject.contains("size_factors")) {
-            m_ui->sizeFactorsFile->setText(jsonObject["size_factors"].toString());
         }
     } else {
         QMessageBox::critical(this,

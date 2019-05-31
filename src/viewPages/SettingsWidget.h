@@ -32,7 +32,8 @@ public:
         Normal = 1,
         DynamicRange = 2,
         HeatMap = 3,
-        ColorRange = 4
+        ColorRange = 4,
+        ColorRange2 = 5
     };
 
     struct Rendering {
@@ -48,7 +49,6 @@ public:
         NormalizationMode normalization_mode;
         VisualTypeMode visual_type_mode;
         bool gene_cutoff;
-        bool size_factors;
     };
 
     explicit SettingsWidget(QWidget *parent = 0);
@@ -68,7 +68,6 @@ private slots:
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
-    void slotSizeFactors(bool);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);
     void slotVisualMode(VisualTypeMode);

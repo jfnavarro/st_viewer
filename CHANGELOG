@@ -218,3 +218,12 @@ v0.7.5
     * Enforce Scran normalisation in the DEA widget
     * Optimized the Scran normalisation settings in general
     * Bumped R to 3.5
+
+v0.7.6
+
+    * Improved the differentil expression analysis
+    * Added one new heatmap colour
+    * Performing the normalization on all the genes (whether they are selected or not)
+    * Removed white circles for non visible spots
+    * Bumped R to 3.6
+    * Made Scran normalization more robust

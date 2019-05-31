@@ -257,14 +257,14 @@ void AnalysisClustering::colorsComputed()
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->show();
     m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axisX()->setGridLineVisible(false);
-    m_ui->plot->chart()->axisX()->setLabelsVisible(true);
-    m_ui->plot->chart()->axisX()->setRange(min_x - 1, max_x + 1);
-    m_ui->plot->chart()->axisX()->setTitleText(tr("TSNE/PCA 1"));
-    m_ui->plot->chart()->axisY()->setGridLineVisible(false);
-    m_ui->plot->chart()->axisY()->setLabelsVisible(true);
-    m_ui->plot->chart()->axisY()->setRange(min_y - 1, max_y + 1);
-    m_ui->plot->chart()->axisY()->setTitleText(tr("TSNE/PCA 2"));
+    m_ui->plot->chart()->axes(Qt::Horizontal).back()->setGridLineVisible(false);
+    m_ui->plot->chart()->axes(Qt::Horizontal).back()->setLabelsVisible(true);
+    m_ui->plot->chart()->axes(Qt::Horizontal).back()->setRange(min_x - 1, max_x + 1);
+    m_ui->plot->chart()->axes(Qt::Horizontal).back()->setTitleText(tr("TSNE/PCA 1"));
+    m_ui->plot->chart()->axes(Qt::Vertical).back()->setGridLineVisible(false);
+    m_ui->plot->chart()->axes(Qt::Vertical).back()->setLabelsVisible(true);
+    m_ui->plot->chart()->axes(Qt::Vertical).back()->setRange(min_y - 1, max_y + 1);
+    m_ui->plot->chart()->axes(Qt::Vertical).back()->setTitleText(tr("TSNE/PCA 2"));
 
     // enable export controls
     m_ui->exportPlot->setEnabled(true);

@@ -78,7 +78,6 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
     const auto &values = m_geneData->renderingValues();
     const float size = m_rendering_settings.size / 2;
     const float size_selected = size / 4;
-    const float size_non_visible = size / 2;
     const double min_value = m_rendering_settings.legend_min;
     const double max_value = m_rendering_settings.legend_max;
     const float intensity = m_rendering_settings.intensity;
@@ -95,8 +94,11 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
             const double value = values.at(i);
             QColor color = colors.at(i);
             if (do_values && !spots.at(i)->visible()) {
-                color = Color::adjustVisualMode(color, value, min_value,
-                                                max_value, m_rendering_settings.visual_mode);
+                color = Color::adjustVisualMode(color,
+                                                value,
+                                                min_value,
+                                                max_value,
+                                                m_rendering_settings.visual_mode);
             }
             if (!is_dynamic) {
                 color.setAlphaF(intensity);
@@ -111,11 +113,6 @@ void GeneRendererGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &
                 painter.setPen(pen);
                 painter.drawEllipse(QRectF(x, y, size, size));
             }
-        } else {
-            pen.setColor(Qt::white);
-            pen.setWidthF(size_non_visible);
-            painter.setPen(pen);
-            painter.drawEllipse(QRectF(x, y, size, size));
         }
     }
 }
