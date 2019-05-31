@@ -35,7 +35,6 @@ public:
     const QString statSpecies() const;
     const QString statComments() const;
     const QRect chip() const;
-    const QString sizeFactorsFile() const;
 
     // Setters
     void name(const QString &name);
@@ -48,7 +47,6 @@ public:
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
     void chip(const QRect &chip);
-    void sizeFactorsFile(const QString &sizeFactorsFile);
 
     // creates the STData object (parse data)
     // Parses : matrix of counts, image, size factors (if any), alignment (if any),
@@ -70,7 +68,6 @@ private:
     QString m_alignment_file;
     QString m_spots_file;
     QRect m_chip;
-    QString m_size_factors_file;
 
     // generated
     QTransform m_alignment;

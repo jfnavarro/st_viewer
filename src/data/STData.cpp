@@ -11,7 +11,6 @@ static const int COLUMN = 0;
 
 STData::STData()
     : m_data()
-    , m_size_factors()
     , m_spots()
     , m_genes()
 {
@@ -235,26 +234,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // Create copy of the data frame so to reduce and normalize it
     STDataFrame data = m_data;
 
-    // Apply size factors if indicated by the user
-    if (rendering_settings.size_factors && m_size_factors.size() == data.counts.n_rows) {
-        data.counts.each_col() /= m_size_factors.t();
-    }
-
-    // Remove genes that are not visible
-    std::vector<uword> to_keep_genes;
-    QList<QString> genes;
-    for (uword i = 0; i < data.counts.n_cols; ++i) {
-        const QString &gene = data.genes.at(i);
-        const uword gene_index = m_gene_index.value(gene);
-        const auto gene_obj = m_genes.at(gene_index);
-        if (gene_obj->visible()) {
-            genes.push_back(gene);
-            to_keep_genes.push_back(i);
-        }
-    }
-    data.genes = genes;
-    data.counts = data.counts.cols(uvec(to_keep_genes));
-
     // Slice the data frame with the thresholds
     data = filterDataFrame(data,
                            rendering_settings.ind_reads_threshold,
@@ -272,6 +251,21 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         // Normalize the data
         data = normalizeCounts(data, rendering_settings.normalization_mode);
     }
+
+    // Remove genes that are not visible
+    std::vector<uword> to_keep_genes;
+    QList<QString> genes;
+    for (uword i = 0; i < data.counts.n_cols; ++i) {
+        const QString &gene = data.genes.at(i);
+        const uword gene_index = m_gene_index.value(gene);
+        const auto gene_obj = m_genes.at(gene_index);
+        if (gene_obj->visible()) {
+            genes.push_back(gene);
+            to_keep_genes.push_back(i);
+        }
+    }
+    data.genes = genes;
+    data.counts = data.counts.cols(uvec(to_keep_genes));
 
     // Iterate the spots and genes in the matrix to compute the rendering colors
     double min_value = 10e6;
@@ -387,52 +381,6 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
     return spotMap;
 }
 
-bool STData::parseSizeFactors(const QString &sizefactors)
-{
-    qDebug() << "Parsing size factors file " << sizefactors;
-    QFile file(sizefactors);
-    std::vector<double> size_factors;
-    bool parsed = true;
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream in(&file);
-        QString line;
-        QStringList fields;
-        while (!in.atEnd()) {
-            line = in.readLine();
-            fields = line.split("\t");
-            if (fields.length() != 1) {
-                parsed = false;
-                break;
-            }
-            const double size_factor = fields.at(0).toFloat();
-            size_factors.push_back(size_factor);
-        }
-
-        if (size_factors.empty() || !parsed) {
-            qDebug() << "No valid size factors were found in the given file";
-            parsed = false;
-        }
-
-    } else {
-        qDebug() << "Could not parse size factors file";
-        parsed = false;
-    }
-    file.close();
-
-    if (!parsed) {
-        return parsed;
-    }
-
-    if (size_factors.size() != m_spots.size()) {
-        qDebug() << "The number of size factors found is not the same as the number of rows";
-        parsed = false;
-    } else {
-        m_size_factors = rowvec(size_factors);
-    }
-
-    return parsed;
-}
-
 STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
                                             SettingsWidget::NormalizationMode mode)
 {
@@ -444,15 +392,14 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
         norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
     } break;
     case (SettingsWidget::NormalizationMode::TPM): {
-        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
-        norm_counts.counts *= 1e6;
+        norm_counts.counts.each_col() /= (sum(norm_counts.counts, ROW) % mean(norm_counts.counts, ROW));
     } break;
     case (SettingsWidget::NormalizationMode::DESEQ): {
         const auto m_deseq_size_factors = RInterface::computeDESeqFactors(data.counts);
         norm_counts.counts.each_col() /= m_deseq_size_factors.t();
     } break;
     case (SettingsWidget::NormalizationMode::SCRAN): {
-        const auto scran_size_factors = RInterface::computeScranFactors(data.counts, true);
+        const auto scran_size_factors = RInterface::computeScranFactors(data.counts);
         norm_counts.counts.each_col() /= scran_size_factors.t();
     } break;
     }

@@ -116,8 +116,8 @@ void AnalysisCorrelation::slotUpdateData()
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
     m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axisX()->setTitleText("# " + m_nameA);
-    m_ui->plot->chart()->axisY()->setTitleText("# " + m_nameB);
+    m_ui->plot->chart()->axes(Qt::Horizontal).back()->setTitleText("# " + m_nameA);
+    m_ui->plot->chart()->axes(Qt::Vertical).back()->setTitleText("# " + m_nameB);
 
     m_ui->exportPlot->setEnabled(true);
 

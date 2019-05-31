@@ -155,6 +155,10 @@ QColor adjustVisualMode(const QColor merged_color,
     case (SettingsWidget::VisualMode::ColorRange): {
         color = Color::createCMapColor(merged_value, min_reads,
                                        max_reads, Color::ColorGradients::gpHot);
+    } break;
+    case (SettingsWidget::VisualMode::ColorRange2): {
+        color = Color::createCMapColor(merged_value, min_reads,
+                                       max_reads, Color::ColorGradients::gpPolar);
     }
     }
     return color;

@@ -60,15 +60,15 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->genesPlot->chart()->setTitle("Histogram genes");
     m_ui->genesPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->genesPlot->chart()->createDefaultAxes();
-    m_ui->genesPlot->chart()->axisX()->setTitleText("Spots (binned)");
-    m_ui->genesPlot->chart()->axisY()->setTitleText("#Genes");
+    m_ui->genesPlot->chart()->axes(Qt::Horizontal).back()->setTitleText("Spots (binned)");
+    m_ui->genesPlot->chart()->axes(Qt::Vertical).back()->setTitleText("#Genes");
 
     m_ui->transcriptsPlot->chart()->addSeries(series_transcripts);
     m_ui->transcriptsPlot->chart()->setTitle("Histogram transcripts");
     m_ui->transcriptsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->transcriptsPlot->chart()->createDefaultAxes();
-    m_ui->transcriptsPlot->chart()->axisX()->setTitleText("Spots (binned)");
-    m_ui->transcriptsPlot->chart()->axisY()->setTitleText("#Transcripts");
+    m_ui->transcriptsPlot->chart()->axes(Qt::Horizontal).back()->setTitleText("Spots (binned)");
+    m_ui->transcriptsPlot->chart()->axes(Qt::Vertical).back()->setTitleText("#Transcripts");
 
     connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
     connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});

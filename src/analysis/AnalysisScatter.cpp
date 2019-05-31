@@ -55,23 +55,23 @@ AnalysisScatter::AnalysisScatter(const STData::STDataFrame &data,
     m_ui->plotReads->chart()->setDropShadowEnabled(false);
     m_ui->plotReads->chart()->legend()->hide();
     m_ui->plotReads->chart()->createDefaultAxes();
-    m_ui->plotReads->chart()->axisX()->setGridLineVisible(false);
-    m_ui->plotReads->chart()->axisX()->setLabelsVisible(true);
-    m_ui->plotReads->chart()->axisX()->setTitleText(tr("Spot(X)"));
-    m_ui->plotReads->chart()->axisY()->setGridLineVisible(false);
-    m_ui->plotReads->chart()->axisY()->setLabelsVisible(true);
-    m_ui->plotReads->chart()->axisY()->setTitleText(tr("Spot(Y)"));
+    m_ui->plotReads->chart()->axes(Qt::Horizontal).back()->setGridLineVisible(false);
+    m_ui->plotReads->chart()->axes(Qt::Horizontal).back()->setLabelsVisible(true);
+    m_ui->plotReads->chart()->axes(Qt::Horizontal).back()->setTitleText(tr("Spot(X)"));
+    m_ui->plotReads->chart()->axes(Qt::Vertical).back()->setGridLineVisible(false);
+    m_ui->plotReads->chart()->axes(Qt::Vertical).back()->setLabelsVisible(true);
+    m_ui->plotReads->chart()->axes(Qt::Vertical).back()->setTitleText(tr("Spot(Y)"));
 
     m_ui->plotGenes->chart()->setTitle(tr("Spots colored by expression (genes)"));
     m_ui->plotGenes->chart()->setDropShadowEnabled(false);
     m_ui->plotGenes->chart()->legend()->hide();
     m_ui->plotGenes->chart()->createDefaultAxes();
-    m_ui->plotGenes->chart()->axisX()->setGridLineVisible(false);
-    m_ui->plotGenes->chart()->axisX()->setLabelsVisible(true);
-    m_ui->plotGenes->chart()->axisX()->setTitleText(tr("Spot(X)"));
-    m_ui->plotGenes->chart()->axisY()->setGridLineVisible(false);
-    m_ui->plotGenes->chart()->axisY()->setLabelsVisible(true);
-    m_ui->plotGenes->chart()->axisY()->setTitleText(tr("Spot(Y)"));
+    m_ui->plotGenes->chart()->axes(Qt::Horizontal).back()->setGridLineVisible(false);
+    m_ui->plotGenes->chart()->axes(Qt::Horizontal).back()->setLabelsVisible(true);
+    m_ui->plotGenes->chart()->axes(Qt::Horizontal).back()->setTitleText(tr("Spot(X)"));
+    m_ui->plotGenes->chart()->axes(Qt::Vertical).back()->setGridLineVisible(false);
+    m_ui->plotGenes->chart()->axes(Qt::Vertical).back()->setLabelsVisible(true);
+    m_ui->plotGenes->chart()->axes(Qt::Vertical).back()->setTitleText(tr("Spot(Y)"));
 
     connect(m_ui->exportReads, &QPushButton::clicked, this, &AnalysisScatter::slotExportPlotReads);
     connect(m_ui->exportGenes, &QPushButton::clicked, this, &AnalysisScatter::slotExportPlotGenes);

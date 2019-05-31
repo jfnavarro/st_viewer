@@ -7,8 +7,10 @@
 //RcppArmadillo must be included before RInside
 #include "RcppArmadillo.h"
 #include "RInside.h"
-
+#include <armadillo>
 #include "viewPages/SettingsWidget.h"
+
+using namespace arma;
 
 namespace RInterface {
 
@@ -99,16 +101,14 @@ static void computeDEA_DESeq(const mat &data,
                                  "rownames(exp_values) = cols;"
                                  "num_spots = dim(exp_values)[2];"
                                  "sce = SingleCellExperiment(assays=list(counts=exp_values));"
-                                 "clusters = quickCluster(as.matrix(exp_values),"
-                                 "                        min.size=max(num_spots / 10, 50), method='igraph');"
-                                 "min_cluster_size = min(table(clusters));"
-                                 "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
+                                 "sizes = seq(min(num_spots/4, 10), min(num_spots/2, 50), 5);"
                                  "size_factors = computeSumFactors(sce, sizes=unique(sizes));"
                                  "sce = normalize(sce);"
                                  "dds = convertTo(sce, type='DESeq2');"
                                  "colData(dds)$condition = as.factor(condition);"
                                  "design(dds) = formula( ~ condition);"
-                                 "dds = DESeq(dds, fitType='mean', parallel=F);"
+                                 "dds = DESeq(dds, useT=TRUE, minmu=1e-6, sfType='poscounts',"
+                                 "            minReplicatesForReplace=Inf, parallel=F);"
                                  "res = na.omit(results(dds, contrast=c('condition', 'A', 'B')));"
                                  "res = res[order(res$padj),];";
         const std::string call2 = "as.matrix(res);";
@@ -152,15 +152,12 @@ static void computeDEA_EdgeR(const mat &data,
                            "rownames(exp_values) = cols;"
                            "num_spots = dim(exp_values)[2];"
                            "sce = SingleCellExperiment(assays=list(counts=exp_values));"
-                           "clusters = quickCluster(as.matrix(exp_values),"
-                           "                        min.size=max(num_spots / 10, 50), method='igraph');"
-                           "min_cluster_size = min(table(clusters));"
-                           "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
-                           "size_factors = computeSumFactors(sce, sizes=unique(sizes));"
+                           "sizes = seq(min(num_spots/4, 10), min(num_spots/2, 50), 5);"
                            "sce = normalize(sce);"
                            "dge = convertTo(sce, type='edgeR');"
-                           "dge$samples$group = condition;"
-                           "dge = estimateDisp(dge, trend.method='loess');"
+                           "dge$samples$group = as.factor(condition);"
+                           "dge = estimateCommonDisp(dge);"
+                           "dge = estimateTagwiseDisp(dge);"
                            "res = exactTest(dge, pair=c('B', 'A'));"
                            "res = topTags(res, n=length(rownames(res$table)));"
                            "res = res[!is.na(res$table$FDR),];"
@@ -279,7 +276,7 @@ static unsigned computeSpotClasses(const mat &counts)
         R->parseEvalQ(R_libs);
         (*R)["counts"] = counts;
         const std::string call = "clusters = quickCluster(as.matrix(t(counts)),"
-                                 "                        min.size=max(dim(counts)[1] / 10, 50),"
+                                 "                        min.size=min(dim(counts)[1] / 10, 10),"
                                  "                        method='igraph');"
                                  "clusters = length(unique(clusters[clusters != 0]))";
         clusters = Rcpp::as<double>(R->parseEval(call));
@@ -330,9 +327,8 @@ static rowvec computeDESeqFactors(const mat &counts)
 }
 
 // Computes size factors using the SCRAN method (one factor per spot)
-static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
+static rowvec computeScranFactors(const mat &counts)
 {
-    Q_UNUSED(do_cluster);
     RInside *R = RInside::instancePtr();
     Q_ASSERT(R != nullptr);
     rowvec factors(counts.n_rows);
@@ -343,18 +339,9 @@ static rowvec computeScranFactors(const mat &counts, const bool do_cluster)
         (*R)["counts"] = counts;
         // For Scran genes must be rows so we transpose the matrixs
         std::string call = "counts = t(counts);"
-                           "num_spots = dim(counts)[2];";
-        if (do_cluster) {
-            call += "clusters = quickCluster(as.matrix(counts),"
-                    "                        min.size=max(num_spots / 10, 50),"
-                    "                        method='igraph');"
-                    "min_cluster_size = min(table(clusters));"
-                    "sizes = seq(min(min_cluster_size/4, 10), min(min_cluster_size/2, 50), 10);"
-                    "size_factors = computeSumFactors(counts, sizes=unique(sizes));";
-        } else {
-            call += "sizes = seq(min(num_spots/4, 10), min(num_spots/2, 50), 10);"
-                    "size_factors = computeSumFactors(counts, sizes=unique(sizes));";
-        }
+                           "num_spots = dim(counts)[2];"
+                           "sizes = seq(min(num_spots/4, 10), min(num_spots/2, 50), 5);"
+                           "size_factors = computeSumFactors(counts, sizes=unique(sizes));";
         factors = Rcpp::as<rowvec>(R->parseEval(call));
         qDebug() << "Computed SCRAN size factors " << factors.size();
         Q_ASSERT(factors.size() == counts.n_rows);

@@ -41,7 +41,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowSpots);
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
     connect(m_ui->gene_cutoff, &QCheckBox::stateChanged, this, &SettingsWidget::slotGeneCutoff);
-    connect(m_ui->sizeFactors, &QCheckBox::stateChanged, this, &SettingsWidget::slotSizeFactors);
 
     connect(m_ui->normalization_raw, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::RAW);});
@@ -67,6 +66,8 @@ SettingsWidget::SettingsWidget(QWidget *parent)
             [=]() {slotVisualMode(HeatMap);});
     connect(m_ui->visual_color_range, &QRadioButton::clicked, this,
             [=]() {slotVisualMode(ColorRange);});
+    connect(m_ui->visual_color_range2, &QRadioButton::clicked, this,
+            [=]() {slotVisualMode(ColorRange2);});
 }
 
 SettingsWidget::~SettingsWidget()
@@ -113,7 +114,6 @@ void SettingsWidget::reset()
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
-    m_rendering_settings.size_factors = false;
 }
 
 SettingsWidget::Rendering &SettingsWidget::renderingSettings()
@@ -175,14 +175,6 @@ void SettingsWidget::slotGeneCutoff(bool value)
 {
     if (value != m_rendering_settings.gene_cutoff) {
         m_rendering_settings.gene_cutoff = value;
-        emit signalSpotRendering();
-    }
-}
-
-void SettingsWidget::slotSizeFactors(bool value)
-{
-    if (value != m_rendering_settings.size_factors) {
-        m_rendering_settings.size_factors = value;
         emit signalSpotRendering();
     }
 }
