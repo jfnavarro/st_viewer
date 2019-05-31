@@ -52,7 +52,6 @@ all the dataset's files are and it should have the following JSON format:
 		"image": "/Users/user/test_dataset/image.jpg",
 		"aligment": "/Users/user/test_dataset/alignment.txt",
 		"coordinates": "/Users/user/test_dataset/spots.txt",
-		"size_factors": ""
 	}
 
 After that you can just double click in the dataset to open it. 
@@ -151,7 +150,7 @@ Then launch the image according to where your file are located.
 
 ## Building from the source 
 
-* Download and install CMake 3.7.2 (Latest versions of CMake 3.9.x and 3.8.x have compatiblity issues with Qt so I recommend to download and install the version 3.7.2 or a previous one)
+* Download and install CMake 
 
 	Tips (for Linux and OSX; first download the file to a folder then in that folder open a terminal):
 		
@@ -162,12 +161,12 @@ Then launch the image according to where your file are located.
 		make -j4
 		sudo make install
 	
-	For Windows you can download the installer from https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi (64 bits) or 
-	https://cmake.org/files/v3.7/cmake-3.7.2-win32-x86.msi (32 bits). Remember to add CMAKE to the system path when asked.
+	For Windows you can download the msi installer from the downloads section (32 bits). 
+	Remember to add CMAKE to the system path when asked.
 
 * Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
 
-* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
+* Download and extract QCustomplot from http://www.qcustomplot.com/release/2.0.1/QCustomPlot.tar.gz
 
 * Download and build Armadillo from http://arma.sourceforge.net/download.html
 	
