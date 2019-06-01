@@ -88,10 +88,11 @@ used to generate the binary (indicated in the releases tab)
 * Download and install R from https://cran.r-project.org/ (in case you do not have it already)
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
 
-        source("https://bioconductor.org/biocLite.R")
-        biocLite("DESeq2")
-        biocLite("scran")
-        biocLite("edgeR")
+        if (!requireNamespace("BiocManager", quietly = TRUE))
+            install.packages("BiocManager")
+        BiocManager::install("DESeq2")
+        BiocManager::install("scran")
+        BiocManager::install("edgeR")
         install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
 	
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
@@ -103,10 +104,11 @@ the ST Viewer will be installed in your system.
 * Download and install Rtools 32bits from https://cran.r-project.org/bin/windows/Rtools/
 * Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
 
-        source("https://bioconductor.org/biocLite.R")
-        biocLite("DESeq2")
-        biocLite("scran")
-        biocLite("edgeR")
+        if (!requireNamespace("BiocManager", quietly = TRUE))
+            install.packages("BiocManager")
+        BiocManager::install("DESeq2")
+        BiocManager::install("scran")
+        BiocManager::install("edgeR")
         install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
 	
 * Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
