@@ -60,9 +60,6 @@ private slots:
     void slotSaveImage();
     void slotPrintImage();
 
-    // selection of spots using a the reg-exp dialog that takes gene names as input
-    void slotSelectByRegExp();
-
     // user wants to show the QC widget
     void slotShowQC();
 

@@ -168,8 +168,6 @@ void CellViewPage::createConnections()
     //connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
     //    m_ui->view->setLassoSelectionMode(m_ui->lasso_selection->isChecked());
     //});
-    connect(m_ui->regexpselection, &QPushButton::clicked,
-            this, &CellViewPage::slotSelectByRegExp);
 
     // view rotations
     //connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
@@ -273,17 +271,6 @@ void CellViewPage::slotSaveImage()
     QImage image = m_ui->view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         qDebug() << "Saving the image, the image coult not be saved";
-    }
-}
-
-void CellViewPage::slotSelectByRegExp()
-{
-    SelectionDialog selectGenes(this);
-    if (selectGenes.exec() == QDialog::Accepted) {
-        if (selectGenes.isValid()) {
-            m_dataset.data()->selectGenes(selectGenes.getRegExp(), selectGenes.selectNonVisible());
-            m_ui->view->slotUpdate();
-        }
     }
 }
 

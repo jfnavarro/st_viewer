@@ -24,8 +24,6 @@ public:
     const QString name() const;
     // true if gene is visible
     bool visible() const;
-    // true if the gene is selected
-    bool selected() const;
     // the color of the gene
     const QColor color() const;
     // the threshold (reads)
@@ -37,7 +35,6 @@ public:
     // Setters
     void name(const QString &name);
     void visible(const bool visible);
-    void selected(const bool selected);
     void color(const QColor &color);
     void cut_off(const double cutoff);
     void totalCount(const double totalCount);
@@ -46,7 +43,6 @@ private:
     QString m_name;
     QColor m_color;
     bool m_visible;
-    bool m_selected;
     double m_cutoff;
     double m_totalCount;
 };
