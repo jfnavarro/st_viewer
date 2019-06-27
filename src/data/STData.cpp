@@ -87,9 +87,11 @@ STData::STDataFrame STData::read(const QString &filename)
         throw std::runtime_error("The file does not contain a valid matrix");
     }
 
-    if (values.front().size() != genes.size() && values.front().size() - 1) {
+    if (values.front().size() + 1 == genes.size()) {
         genes.erase(genes.begin());
-    } else if (values.front().size() != genes.size()) {
+    }
+
+    if (values.front().size() != genes.size()) {
         throw std::runtime_error("The file does not contain a valid matrix");
     }
 
@@ -166,8 +168,8 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
             // update the rendering vectors
             m_rendering_coords.append(spot_obj->adj_coordinates());
             m_rendering_colors.append(QVector4D(1.0, 1.0, 1.0, 1.0));
-            m_rendering_visible.append(false);
-            m_rendering_selected.append(false);
+            m_rendering_visible.append(0);
+            m_rendering_selected.append(0);
         }
     }
 
@@ -242,43 +244,51 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool use_log =
             rendering_settings.visual_type_mode == SettingsWidget::VisualTypeMode::ReadsLog;
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
+    const bool do_color = rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal
+            || rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
-    // Reset visual arrays
+    // reset visual arrays
     std::fill(m_rendering_selected.begin(), m_rendering_selected.end(), 0);
     std::fill(m_rendering_visible.begin(), m_rendering_visible.end(), 0);
 
-    // Apply filters
+    // apply filters
     auto data = filterCounts(m_data,
                              rendering_settings.reads_threshold,
                              rendering_settings.genes_threshold,
                              rendering_settings.spots_threshold);
 
-    // early out
-    if (data.size() == 0) {
+    // early out if no genes or no spots after filtering
+    if (data.shape().front() == 0 || data.shape().back() == 0) {
         return;
     }
 
-    // Normalize
+    // normalize
     data = normalizeCounts(data, rendering_settings.normalization_mode);
 
-    // Get the list of visible genes/spots (async)
-    std::future<std::vector<int> > f1 = std::async(std::launch::async, [=] {
-        std::vector<int> spots_visible_indexes;
-        for (int i = 0; i < m_spots.size(); ++i) {
-            const auto spot = m_spots.at(i);
-            if (spot->visible()) {
-                spots_visible_indexes.push_back(i);
+    auto spot_list = xf::get_labels<xf::fstring>(data.coordinates()["spots"]);
+    auto gene_list = xf::get_labels<xf::fstring>(data.coordinates()["genes"]);
+
+    // get the list of visible spots (async)
+    std::future<std::vector<xf::fstring> > f1 = std::async(std::launch::async, [=] {
+        std::vector<xf::fstring> spots_visible_indexes;
+        for (auto const& spot : spot_list) {
+            const int spot_idx = m_spot_index[spot.c_str()];
+            const auto spot_obj = m_spots.at(spot_idx);
+            if (spot_obj->visible()) {
+                spots_visible_indexes.push_back(spot);
             }
-            m_rendering_selected[i] = spot->visible() && spot->selected();
         };
         return spots_visible_indexes;
     });
 
-    std::future<std::vector<int> > f2 = std::async(std::launch::async, [=] {
-        std::vector<int> genes_visible_indexes;
-        for (int i = 0; i < m_genes.size(); ++i) {
-            if (m_genes.at(i)->visible()) {
-                genes_visible_indexes.push_back(i);
+    // get the list of visible genes (async)
+    std::future<std::vector<xf::fstring> > f2 = std::async(std::launch::async, [=] {
+        std::vector<xf::fstring> genes_visible_indexes;
+        for (auto const& gene : gene_list) {
+             const int gene_idx = m_gene_index[gene.c_str()];
+             const auto gene_obj = m_genes.at(gene_idx);
+            if (gene_obj->visible()) {
+                genes_visible_indexes.push_back(gene);
             }
         };
         return genes_visible_indexes;
@@ -290,17 +300,28 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const auto gene_idx = f2.get();
 
     // early out
-    if (spot_idx.empty() && gene_idx.empty()) {
+    if ((spot_idx.empty() && gene_idx.empty())
+            || (gene_idx.empty() && !rendering_settings.show_spots)
+            || (spot_idx.empty() && rendering_settings.show_spots)) {
         return;
-    } else if (spot_idx.empty()) {
-        data = xf::ilocate(data, xf::iall(), xf::ikeep(gene_idx));
-    } else  if (gene_idx.empty()){
-        data = xf::ilocate(data, xf::ikeep(spot_idx), xf::iall());
-    } else {
-        data = xf::ilocate(data, xf::ikeep(spot_idx), xf::ikeep(gene_idx));
     }
 
-    // Compute rendering colors
+    // slice
+    if (spot_idx.empty()) {
+        data = xf::locate(data, xf::all(), xf::keep(gene_idx));
+    } else  if (gene_idx.empty()){
+        data = xf::locate(data, xf::keep(spot_idx), xf::all());
+    } else {
+        data = xf::locate(data, xf::keep(spot_idx), xf::keep(gene_idx));
+    }
+
+    // apply filters again
+    data = filterCounts(m_data,
+                        rendering_settings.reads_threshold,
+                        rendering_settings.genes_threshold,
+                        rendering_settings.spots_threshold);
+
+    // compute rendering colors if required
     xt::xarray<double> values(data.shape().front());
     if (do_values && !rendering_settings.show_spots) {
         if (use_genes) {
@@ -318,22 +339,43 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         rendering_settings.legend_min = xt::amin(values)();
     }
 
-    const auto spot_list = xf::get_labels<xf::fstring>(data.coordinates()["spots"]);
-    const auto gene_list = xf::get_labels<xf::fstring>(data.coordinates()["genes"]);
+    spot_list = xf::get_labels<xf::fstring>(data.coordinates()["spots"]);
+    gene_list = xf::get_labels<xf::fstring>(data.coordinates()["genes"]);
     unsigned idx = 0;
     QColor merged_color;
-    bool visible;
+    int visible;
     //TODO make this parallel
     for (auto const& spot : spot_list) {
         //TODO doing a QString conversion here
         const int spot_idx = m_spot_index[spot.c_str()];
         const auto spot_obj = m_spots.at(spot_idx);
-        visible = false;
+        visible = 0;
         merged_color = Qt::white;
-        if (rendering_settings.show_spots && spot_obj->visible()) {
+        if (rendering_settings.show_spots) {
             merged_color = spot_obj->color();
-            visible = true;
-        } else if (!rendering_settings.show_spots && !gene_list.empty()) {
+            visible = 1;
+        } else if (!gene_list.empty()) {
+            if (do_color) {
+                qDebug() << "Computing color for spot " << spot.c_str();
+                const auto row = xf::locate(data, spot, xf::all());
+                std::cout << row << std::endl;
+                const auto exp_genes_idxs = xt::argwhere(xt::greater(row.data().value(),
+                                                                     rendering_settings.reads_threshold)).data();
+                std::cout << exp_genes_idxs << std::endl;
+                //TODO make this parallel
+                //Iterate expressed genes
+                for (auto const& exp_gene_idx : *exp_genes_idxs) {
+                    qDebug() << exp_gene_idx;
+                    const auto gene = gene_list[exp_gene_idx];
+                    qDebug() << gene.c_str();
+                    const int gene_idx = m_gene_index[gene.c_str()];
+                    //TODO better to make the function works with QVector4D instead of QColor
+                    merged_color = STMath::lerp(1.0 / (*exp_genes_idxs).size(),
+                                                merged_color, m_genes.at(gene_idx)->color());
+                }
+            }
+
+            // Convert value to color if required
             if (do_values) {
                 //TODO better to make the function return QVector4D instead of QColor
                  merged_color = Color::adjustVisualMode(
@@ -342,22 +384,11 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                              rendering_settings.legend_min,
                              rendering_settings.legend_max,
                              rendering_settings.visual_mode);
-            } else if (rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange) {
-                const auto row = xf::locate(data, spot, xf::all());
-                const auto exp_genes_idxs = xt::argwhere(row.data().value()).data();
-                //TODO make this parallel
-                for (auto const& exp_gene_idx : *exp_genes_idxs) {
-                    const auto gene = gene_list[exp_gene_idx];
-                    const int gene_idx = m_gene_index[gene.c_str()];
-                    //TODO better to make the function works with QVector4D instead of QColor
-                    merged_color = STMath::lerp(1.0 / (*exp_genes_idxs).size(),
-                                                merged_color, m_genes.at(gene_idx)->color());
-                }
             }
-            visible = true;
+
+            visible = 1;
         }
-        spot_obj->selected(visible && spot_obj->selected());
-        m_rendering_selected[spot_idx] = spot_obj->selected();
+        m_rendering_selected[spot_idx] = visible && spot_obj->selected();
         m_rendering_colors[spot_idx] = fromQtColor(merged_color);
         m_rendering_visible[spot_idx] = visible;
         ++idx;
