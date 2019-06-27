@@ -32,7 +32,7 @@ macro(INITIALISE_PROJECT)
 
         # Adding -std=c++17 flag explicitly
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -std=c++1z")
-	set(CMAKE_REQUIRED_FLAGS -std=c++17)
+	    set(CMAKE_REQUIRED_FLAGS -std=c++17)
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")

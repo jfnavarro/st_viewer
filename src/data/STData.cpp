@@ -306,14 +306,18 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         return;
     }
 
+    std::cout << data << std::endl;
+
     // slice
     if (spot_idx.empty()) {
         data = xf::locate(data, xf::all(), xf::keep(gene_idx));
-    } else  if (gene_idx.empty()){
+    } else if (gene_idx.empty()){
         data = xf::locate(data, xf::keep(spot_idx), xf::all());
     } else {
         data = xf::locate(data, xf::keep(spot_idx), xf::keep(gene_idx));
     }
+
+    std::cout << data << std::endl;
 
     // apply filters again
     data = filterCounts(m_data,
@@ -325,7 +329,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     xt::xarray<double> values(data.shape().front());
     if (do_values && !rendering_settings.show_spots) {
         if (use_genes) {
-            auto values = xt::sum(xt::greater(data.data().value(),
+            values = xt::sum(xt::greater(data.data().value(),
                                               rendering_settings.reads_threshold), {1});
         } else {
             values = xt::sum(data.data().value(), {1});
