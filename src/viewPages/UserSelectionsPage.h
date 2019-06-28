@@ -62,8 +62,6 @@ private slots:
     void slotShowSpots();
     // slot to show the QC widget with the selection
     void slotQC();
-    // slot to show the Scatter plot of genes and reads
-    void slotScatter();
     // slot to perform a PCA on several selections
     void slotPCA();
     // slot to merge several selections into one

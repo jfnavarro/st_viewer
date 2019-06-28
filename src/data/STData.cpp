@@ -111,10 +111,7 @@ STData::STDataFrame STData::read(const QString &filename)
     auto gene_axis = axis_type(genes);
     auto coord = coordinate_type({{"spots", spot_axis}, {"genes", gene_axis}});
     auto dim = dimension_type({"spots", "genes"});
-    auto dataframe = variable_type(data, coord, dim);
-
-    // returns the data frame
-    return dataframe;
+    return variable_type(data, coord, dim);
 }
 
 void STData::init(const QString &filename, const QString &spots_coordinates) {
@@ -147,6 +144,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     m_gene_index.clear();
 
     const auto spot_list = xf::get_labels<xf::fstring>(m_data.coordinates()["spots"]);
+    std::vector<xf::fstring> to_keep_spots;
     for (auto const& spot : spot_list) {
         const QString spot_str = QString::fromUtf8(spot.c_str());
         QString adj_spot = spot_str;
@@ -164,6 +162,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
             spot_obj->totalCount(row_sum_value);
             m_spots.push_back(spot_obj);
             m_spot_index.insert(spot_str, m_spots.size() - 1);
+            to_keep_spots.push_back(spot);
 
             // update the rendering vectors
             m_rendering_coords.append(spot_obj->adj_coordinates());
@@ -174,6 +173,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     }
 
     const auto gene_list = xf::get_labels<xf::fstring>(m_data.coordinates()["genes"]);
+    std::vector<xf::fstring> to_keep_genes;
     for (const auto &gene : gene_list) {
         const QString gene_str = QString::fromUtf8(gene.c_str());
         const auto col = xf::locate(m_data, xf::all(), gene);
@@ -183,6 +183,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
             gene_obj->totalCount(col_sum_value);
             m_genes.push_back(gene_obj);
             m_gene_index.insert(gene_str, m_genes.size() - 1);
+            to_keep_genes.push_back(gene);
         }
     }
 
@@ -194,6 +195,15 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     if (m_genes.empty()) {
         qDebug() << "No valid genes could be found in the file.";
         throw std::runtime_error("No valid genes could be found in the file.");
+    }
+
+    // slice
+    if (to_keep_spots.empty()) {
+        m_data = xf::locate(m_data, xf::all(), xf::keep(to_keep_genes));
+    } else if (to_keep_genes.empty()){
+        m_data = xf::locate(m_data, xf::keep(to_keep_spots), xf::all());
+    } else {
+        m_data = xf::locate(m_data, xf::keep(to_keep_spots), xf::keep(to_keep_genes));
     }
 }
 
@@ -269,26 +279,24 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     auto gene_list = xf::get_labels<xf::fstring>(data.coordinates()["genes"]);
 
     // get the list of visible spots (async)
-    std::future<std::vector<xf::fstring> > f1 = std::async(std::launch::async, [=] {
-        std::vector<xf::fstring> spots_visible_indexes;
-        for (auto const& spot : spot_list) {
-            const int spot_idx = m_spot_index[spot.c_str()];
-            const auto spot_obj = m_spots.at(spot_idx);
+    std::future<std::vector<int>> f1 = std::async(std::launch::async, [=] {
+        std::vector<int> spots_visible_indexes;
+        for (int i = 0; i < m_spots.size(); ++i) {
+            const auto spot_obj = m_spots.at(i);
             if (spot_obj->visible()) {
-                spots_visible_indexes.push_back(spot);
+                spots_visible_indexes.push_back(i);
             }
         };
         return spots_visible_indexes;
     });
 
     // get the list of visible genes (async)
-    std::future<std::vector<xf::fstring> > f2 = std::async(std::launch::async, [=] {
-        std::vector<xf::fstring> genes_visible_indexes;
-        for (auto const& gene : gene_list) {
-             const int gene_idx = m_gene_index[gene.c_str()];
-             const auto gene_obj = m_genes.at(gene_idx);
+    std::future<std::vector<int>> f2 = std::async(std::launch::async, [=] {
+        std::vector<int> genes_visible_indexes;
+        for (int i = 0; i < m_genes.size(); ++i) {
+             const auto gene_obj = m_genes.at(i);
             if (gene_obj->visible()) {
-                genes_visible_indexes.push_back(gene);
+                genes_visible_indexes.push_back(i);
             }
         };
         return genes_visible_indexes;
@@ -306,18 +314,14 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         return;
     }
 
-    std::cout << data << std::endl;
-
     // slice
     if (spot_idx.empty()) {
-        data = xf::locate(data, xf::all(), xf::keep(gene_idx));
+        data = xf::ilocate(data, xf::iall(), xf::ikeep(gene_idx));
     } else if (gene_idx.empty()){
-        data = xf::locate(data, xf::keep(spot_idx), xf::all());
+        data = xf::ilocate(data, xf::ikeep(spot_idx), xf::iall());
     } else {
-        data = xf::locate(data, xf::keep(spot_idx), xf::keep(gene_idx));
+        data = xf::ilocate(data, xf::ikeep(spot_idx), xf::ikeep(gene_idx));
     }
-
-    std::cout << data << std::endl;
 
     // apply filters again
     data = filterCounts(m_data,
