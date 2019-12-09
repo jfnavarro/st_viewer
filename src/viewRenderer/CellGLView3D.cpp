@@ -141,7 +141,7 @@ void CellGLView3D::paintGL()
 
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 10);
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, m_projection * m_camera * m_transform);
     {

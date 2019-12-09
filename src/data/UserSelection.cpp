@@ -41,7 +41,7 @@ bool UserSelection::operator==(const UserSelection &other) const
 {
     return (m_name == other.m_name
             && m_dataset == other.m_dataset
-            && m_data == other.m_data
+            //&& m_data == other.m_data
             && m_comment == other.m_comment);
 }
 
@@ -67,12 +67,12 @@ const QString UserSelection::comment() const
 
 int UserSelection::totalGenes() const
 {
-    return m_data.dimension_labels().back().size();
+    return m_data.counts.n_cols;
 }
 
 int UserSelection::totalSpots() const
 {
-    return m_data.dimension_labels().front().size();
+    return m_data.counts.n_rows;
 }
 
 void UserSelection::name(const QString &name)

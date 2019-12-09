@@ -13,8 +13,9 @@
 #include "viewPages/SettingsWidget.h"
 #include "viewRenderer/SelectionEvent.h"
 
-#include "xframe/xio.hpp"
-#include "xframe/xvariable.hpp"
+#include <armadillo>
+
+using namespace arma;
 
 class STData
 {
@@ -26,55 +27,56 @@ public:
     typedef QVector<SpotObjectType> SpotListType;
     typedef QVector<GeneObjectType> GeneListType;
 
-    using axis_type = xf::xaxis<xf::fstring>;
-    using coordinate_type = xf::xcoordinate<xf::fstring>;
-    using dimension_type = xf::xdimension<xf::fstring>;
-    using variable_type = xf::xvariable<double, coordinate_type>;
-    using data_type = variable_type::data_type;
-    using shape_type = data_type::shape_type;
-
-    typedef variable_type STDataFrame;
+    struct STDataFrame {
+        mat counts;
+        QList<QString> genes;
+        QList<QString> spots;
+    };
 
     STData();
     ~STData();
 
-    // Parses the matrix and initialize the size-factors and genes/spots containers
+    // Parses the data frame and genes/spots containers
     void init(const QString &filename, const QString &spots_coordinates = QString());
 
-    // Functions to import/export the data
+    // Functions to import/export a data frame
     static STDataFrame read(const QString &filename);
     static void save(const QString &filename, const STDataFrame &data);
 
-    // Retrieves the original data frame (without filtering using the tresholds)
+    // Retrieves the original data frame (without filtering)
     STDataFrame data() const;
 
     // Returns the spot/gene objects corresponding to the data frame
     const GeneListType &genes() const;
     const SpotListType &spots() const;
 
-    // Rendering functions
+    // Rendering functions (OpenGL)
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
     const QVector<int> &renderingVisible() const;
     const QVector<QVector4D> &renderingColors() const;
     const QVector<int> &renderingSelected() const;
     const QVector<Spot::SpotType> &renderingCoords() const;
 
-    // to parse a file with spots coordinates old_spot -> new_spot
+    // Parses a file with spots coordinates old_spot -> new_spot
     // It returns a map of old_spots -> new_spots
-    // It throws exceptions when errors during parsing or empty file
+    // It throws exceptions when errors happen during parsing or an empty file
     QMap<QString, QString> parseSpotsMap(const QString &spots_file);
 
-    // helper function that returns the normalized data frame
+    // helper function that normalizes a data frame and returns it
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
 
-    // helper function that returns a filtered data frame
+    // helper function to compute the number of columns/rows with a value >= min_value
+    urowvec computeNonZeroColumns(const mat &matrix, const int min_value);
+    ucolvec computeNonZeroRows(const mat &matrix, const int min_value);
+
+    // helper function filters a data frame and returns it
     static STDataFrame filterCounts(const STDataFrame &data,
                                     const int min_reads,
                                     const int min_genes,
                                     const int min_spots);
 
-    // helper function that merges two dataframes
+    // helper function that merges a list of dataframes
     static STDataFrame aggregate(const QList<STDataFrame> &dataframes);
 
     // functions to select spots
@@ -89,10 +91,10 @@ public:
     void loadSpotColors(const QHash<QString, QColor> &colors);
     void loadGeneColors(const QHash<QString, QColor> &colors);
 
-    // returns the boundaries (min spot and max spot)
+    // returns the boundaries of the spots in the data frame (min spot and max spot coordinates)
     const QRectF getBorder() const;
 
-    // set and get for the 3D flag
+    // a flag telling if the data frame is 3D
     bool is3D() const;
     void is3D(bool is3D);
 
@@ -100,7 +102,6 @@ private:
 
     // The matrix with the counts (spots are rows and genes are columns)
     STDataFrame m_data;
-    STDataFrame m_norm_data;
 
     // store gene/spots objects for the matrix (columns and rows)
     // each index in each vector correspond to a row index or column index in the matrix

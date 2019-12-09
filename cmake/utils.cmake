@@ -1,5 +1,5 @@
 macro(INITIALISE_PROJECT)
-    set(CMAKE_VERBOSE_MAKEFILE OFF)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
@@ -37,22 +37,20 @@ macro(INITIALISE_PROJECT)
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
-        set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function -Wno-undef -Wno-missing-declarations \
+        set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function -Wno-undef -Wno-missing-declarations -Wno-unknown-pragmas \
             -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls -Wno-implicit-fallthrough \
-            -Wno-unused-local-typedef -Wno-unused-lambda-capture")
+            -Wno-unused-local-typedef -Wno-unused-lambda-capture -Wno-pedantic -Wno-deprecated-copy -Wno-parentheses -Wno-unused-but-set-parameter")
 
         if (APPLE)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \
                 -Wno-inconsistent-missing-override -Wno-infinite-recursion \
                 -Wno-c++1z-extensions -Wno-macro-redefined -Wno-#pragma-messages")
-        elseif (UNIX)
-            set(DISABLE_WARNINGS "${DISABLED_WARNINGS} -Wno-unused-but-set-parameter")
         endif()
 
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
                            -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization \
                            -Wredundant-decls -Wpacked -Wuninitialized -Wswitch \
-                           -pedantic-errors -fuse-cxa-atexit -ffor-scope")
+                           -pedantic-errors -fuse-cxa-atexit")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")
