@@ -12,10 +12,10 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     , m_ui(new Ui::analysisQC)
 {
     m_ui->setupUi(this);
-/*
+
     // compute the stats
     const colvec rowsums = sum(data.counts, 1);
-    const ucolvec nonzero_row = STData::computeNonZeroRows(data.counts);
+    const ucolvec nonzero_row = STData::computeNonZeroRows(data.counts, 0);
     const QString max_transcripts_spot = QString::number(rowsums.max());
     const QString max_genes_spot = QString::number(nonzero_row.max());
     const QString num_genes = QString::number(data.counts.n_cols);
@@ -41,6 +41,7 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
 
     // populate the plots
     QBarSet *genes = new QBarSet("Genes");
+    #pragma omp parallel for
     for(const auto &value : hist_genes) {
         *genes << value;
     }
@@ -48,6 +49,7 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     series_genes->append(genes);
 
     QBarSet *transcripts = new QBarSet("Transcripts");
+    #pragma omp parallel for
     for (const auto &value : hist_transcripts) {
         *transcripts << value;
     }
@@ -58,16 +60,16 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->genesPlot->chart()->setTitle("Histogram genes");
     m_ui->genesPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->genesPlot->chart()->createDefaultAxes();
-    m_ui->genesPlot->chart()->axisX()->setTitleText("Spots (binned)");
-    m_ui->genesPlot->chart()->axisY()->setTitleText("#Genes");
+    m_ui->genesPlot->chart()->axes(Qt::Horizontal).first()->setTitleText("Spots (binned)");
+    m_ui->genesPlot->chart()->axes(Qt::Vertical).first()->setTitleText("#Genes");
 
     m_ui->transcriptsPlot->chart()->addSeries(series_transcripts);
     m_ui->transcriptsPlot->chart()->setTitle("Histogram transcripts");
     m_ui->transcriptsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->transcriptsPlot->chart()->createDefaultAxes();
-    m_ui->transcriptsPlot->chart()->axisX()->setTitleText("Spots (binned)");
-    m_ui->transcriptsPlot->chart()->axisY()->setTitleText("#Transcripts");
-*/
+    m_ui->transcriptsPlot->chart()->axes(Qt::Horizontal).first()->setTitleText("Spots (binned)");
+    m_ui->transcriptsPlot->chart()->axes(Qt::Vertical).first()->setTitleText("#Transcripts");
+
     connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
     connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});
 }

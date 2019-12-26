@@ -138,54 +138,54 @@ void CellViewPage::createConnections()
     connect(m_ui->genemenu, &QPushButton::clicked, m_settings.data(), &SettingsWidget::show);
 
     // show/hide cell image
-    //connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
-    //        [=](bool visible){m_ui->view->setImageVisible(visible);});
+    connect(m_settings.data(), &SettingsWidget::signalShowImage, this,
+            [=](bool visible){m_ui->view->slotImageVisible(visible);});
 
     // Invoke a rendering
     connect(m_settings.data(), &SettingsWidget::signalRendering, this,
             [=](){ m_ui->view->update(); });
 
     // show/hide legend
-    //connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
-    //        [=](bool visible){m_ui->view->setLegendVisible(visible);});
+    connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
+            [=](bool visible){m_ui->view->slotLegendVisible(visible);});
 
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,
             [=](){ m_ui->view->slotUpdate(); });
 
     // graphic view signals
-    //connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view.data(), &CellGLView::zoomIn);
-    //connect(m_ui->zoomout, &QPushButton::clicked, m_ui->view.data(), &CellGLView::zoomOut);
+    connect(m_ui->zoomin, &QPushButton::clicked, m_ui->view, &CellGLView3D::slotZoomIn);
+    connect(m_ui->zoomout, &QPushButton::clicked, m_ui->view, &CellGLView3D::slotZoomOut);
 
     // print canvas
     connect(m_ui->save, &QPushButton::clicked, this, &CellViewPage::slotSaveImage);
     connect(m_ui->print, &QPushButton::clicked, this, &CellViewPage::slotPrintImage);
 
     // selection mode
-    //connect(m_ui->selection, &QPushButton::clicked, [=] {
-    //    m_ui->view->setSelectionMode(m_ui->selection->isChecked());
-    //});
-    //connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
-    //    m_ui->view->setLassoSelectionMode(m_ui->lasso_selection->isChecked());
-    //});
+    connect(m_ui->selection, &QPushButton::clicked, [=] {
+        m_ui->view->slotSelectionMode(m_ui->selection->isChecked());
+    });
+    connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
+        m_ui->view->slotLassoSelectionMode(m_ui->lasso_selection->isChecked());
+    });
 
     // view rotations
-    //connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
-    //    m_ui->view->rotate(-45);
-    //    m_ui->view->update();
-    //});
-    //connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
-    //    m_ui->view->rotate(45);
-    //    m_ui->view->update();
-    //});
-    //connect(m_ui->flip, &QPushButton::clicked, [=] {
-    //    m_ui->view->flip(180);
-    //    m_ui->view->update();
-    //});
+    connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
+        m_ui->view->slotRotate(-45);
+        m_ui->view->update();
+    });
+    connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
+        m_ui->view->slotRotate(45);
+        m_ui->view->update();
+    });
+    connect(m_ui->flip, &QPushButton::clicked, [=] {
+        m_ui->view->slotFlip(180);
+        m_ui->view->update();
+    });
 
     // create selection object from the selections made
-    //connect(m_ui->createSelection, &QPushButton::clicked,
-    //        this, &CellViewPage::slotCreateSelection);
+    connect(m_ui->createSelection, &QPushButton::clicked,
+            this, &CellViewPage::slotCreateSelection);
 
     // show QC widget
     connect(m_ui->histogram, &QPushButton::clicked, this, &CellViewPage::slotShowQC);
@@ -286,6 +286,7 @@ void CellViewPage::slotClustering()
     m_clustering->show();
 }
 
+//TODO same code as slotLoadGeneColorsFile()
 void CellViewPage::slotLoadSpotColorsFile()
 {
     const QString filename
@@ -453,16 +454,15 @@ void CellViewPage::slotCreateClusteringSelections()
 {
     // get the map of color -> spots
     const QMultiHash<unsigned, QString> colors_spot = m_clustering->getClustersSpot();
-    // get the data frame
-    auto data = m_dataset.data()->data();
     for(const auto &color : colors_spot.uniqueKeys()) {
         // get the spots for the color
-        //const QList<QString> &color_spots = colors_spot.values(color);
+        const QList<QString> &color_spots = colors_spot.values(color);
         // slice the data frame
-        STData::STDataFrame scliced_data; // = STData::sliceDataFrameSpots(data, color_spots);
+        STData::STDataFrame scliced_data = m_dataset.data()->sliceDataSpots(color_spots);
+        //TODO check the the slice is not empty
         // create selection object
         UserSelection new_selection(scliced_data);
-        // proposes as selection name as DATASET NAME + color + current timestamp
+        // proposes a selection name as DATASET NAME + color + current timestamp
         new_selection.name(m_dataset.name() + "_" + QString::number(color) + "_"
                            + QDateTime::currentDateTimeUtc().toString());
         new_selection.dataset(m_dataset.name());
@@ -483,15 +483,14 @@ void CellViewPage::slotCreateSelection()
     if (selected_spots.empty()) {
         return;
     }
-    // get the data frame
-    auto data = m_dataset.data()->data();
     // slice the data frame
-    STData::STDataFrame scliced_data;// = STData::sliceDataFrameSpots(data, selected_spots);
+    STData::STDataFrame scliced_data = m_dataset.data()->sliceDataSpots(selected_spots);
+    //TODO check the the slice is not empty
     // create selection object
     UserSelection new_selection(scliced_data);
     // proposes as selection name as DATASET NAME plus current timestamp
     new_selection.name(m_dataset.name() + " " + QDateTime::currentDateTimeUtc().toString());
     new_selection.dataset(m_dataset.name());
     qDebug() << "Creating selection " << new_selection.name();
-    m_user_selections->addSelection(new_selection);;
+    m_user_selections->addSelection(new_selection);
 }

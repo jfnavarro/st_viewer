@@ -19,7 +19,7 @@ class GeneItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
-    enum Column { Show = 0, Name = 1, Count = 2, CutOff = 3, Color = 4 };
+    enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
 
     explicit GeneItemModel(QObject *parent = 0);
     virtual ~GeneItemModel();
@@ -28,8 +28,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    // allows the user to modify the cut off on the table
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;

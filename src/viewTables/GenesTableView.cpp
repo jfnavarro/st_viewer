@@ -49,9 +49,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Show, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Count, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneItemModel::Show, 100);
-    horizontalHeader()->setSectionResizeMode(GeneItemModel::CutOff, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
+    horizontalHeader()->resizeSection(GeneItemModel::Count, 100);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 

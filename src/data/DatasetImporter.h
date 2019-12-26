@@ -32,7 +32,9 @@ public:
     const QString species() const;
     const QString tissue() const;
     const QString comments() const;
-    const QRect chip() const;
+    const QPoint xrange() const;
+    const QPoint yrange() const;
+    const QPoint zrange() const;
     bool is3D() const;
 
     // To import a dataset from a folder
@@ -59,6 +61,7 @@ private slots:
     void slotLoadMainImageFile();
     void slotLoadSpotsMapFile();
     void slotLoadAlignmentFile();
+    void slotChange3D(int state);
 
 private:
     void init();

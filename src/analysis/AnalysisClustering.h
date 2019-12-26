@@ -72,6 +72,7 @@ private:
 
     // the results
     QVector<QPair<QString,unsigned>> m_clusters;
+    QList<QPointF> m_reduced_coordinates;
 
     // the computational thread
     QFutureWatcher<void> m_watcher_clusters;

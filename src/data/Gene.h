@@ -26,9 +26,6 @@ public:
     bool visible() const;
     // the color of the gene
     const QColor color() const;
-    // the threshold (reads)
-    // the gene cut-off is used to discard genes whose count is below the cut off
-    double cut_off() const;
     // the total number of transcripts for the gene in the dataset
     double totalCount() const;
 
@@ -36,14 +33,12 @@ public:
     void name(const QString &name);
     void visible(const bool visible);
     void color(const QColor &color);
-    void cut_off(const double cutoff);
     void totalCount(const double totalCount);
 
 private:
     QString m_name;
     QColor m_color;
     bool m_visible;
-    double m_cutoff;
     double m_totalCount;
 };
 

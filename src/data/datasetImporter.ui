@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Import Dataset</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -128,9 +128,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_11">
+    <layout class="QHBoxLayout" name="horizontalLayout_19">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
@@ -224,7 +224,7 @@
        <item>
         <widget class="QLabel" name="label_12">
          <property name="text">
-          <string>Chip size</string>
+          <string>Dimensions</string>
          </property>
         </widget>
        </item>
@@ -233,12 +233,37 @@
          <item>
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>X (bottom right)</string>
+            <string>X </string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="chip_x">
+          <widget class="QSpinBox" name="chip_x1">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>-1000</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="chip_x2">
            <property name="minimumSize">
             <size>
              <width>60</width>
@@ -266,12 +291,37 @@
          <item>
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>Y (bottom right)</string>
+            <string>Y</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="chip_y">
+          <widget class="QSpinBox" name="chip_y1">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>-1000</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="chip_y2">
            <property name="minimumSize">
             <size>
              <width>60</width>
@@ -289,6 +339,64 @@
            </property>
            <property name="maximum">
             <number>10000</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <item>
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Z </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="chip_z1">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>-1000</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="chip_z2">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>-1000</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
            </property>
           </widget>
          </item>

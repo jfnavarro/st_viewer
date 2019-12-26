@@ -39,6 +39,9 @@ DatasetImporter::DatasetImporter(QWidget *parent)
 void DatasetImporter::init()
 {
     m_ui->setupUi(this);
+    m_ui->chip_z1->setEnabled(false);
+    m_ui->chip_z2->setEnabled(false);
+
     connect(m_ui->loadSTDataFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->loadSpotMapFile,
@@ -51,6 +54,9 @@ void DatasetImporter::init()
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
     connect(m_ui->loadMetaFile,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseMetaFile);
+    connect(m_ui->is3D,
+            &QCheckBox::stateChanged, this, &DatasetImporter::slotChange3D);
+
 }
 
 DatasetImporter::~DatasetImporter()
@@ -77,9 +83,19 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
-const QRect DatasetImporter::chip() const
+const QPoint DatasetImporter::xrange() const
 {
-    return QRect(1, 1, m_ui->chip_x->value(), m_ui->chip_y->value());
+    return QPoint(m_ui->chip_x1->value(), m_ui->chip_x2->value());
+}
+
+const QPoint DatasetImporter::yrange() const
+{
+    return QPoint(m_ui->chip_y1->value(), m_ui->chip_y2->value());
+}
+
+const QPoint DatasetImporter::zrange() const
+{
+    return QPoint(m_ui->chip_z1->value(), m_ui->chip_z2->value());
 }
 
 const QString DatasetImporter::STDataFile() const
@@ -105,6 +121,17 @@ const QString DatasetImporter::spotsMapFile() const
 bool DatasetImporter::is3D() const
 {
     return m_ui->is3D->isChecked();
+}
+
+void DatasetImporter::slotChange3D(int state)
+{
+    const bool is3D = state == Qt::Checked;
+    m_ui->chip_z1->setEnabled(is3D);
+    m_ui->chip_z2->setEnabled(is3D);
+    m_ui->mainImageFile->setEnabled(!is3D);
+    m_ui->imageAlignmentFile->setEnabled(!is3D);
+    m_ui->loadMainImageFile->setEnabled(!is3D);
+    m_ui->loadImageAlignmentFile->setEnabled(!is3D);
 }
 
 void DatasetImporter::slotLoadSTDataFile()

@@ -12,7 +12,9 @@ Dataset::Dataset()
     , m_image_file()
     , m_alignment_file()
     , m_spots_file()
-    , m_chip()
+    , m_xrange()
+    , m_yrange()
+    , m_zrange()
     , m_is3D(false)
     , m_alignment()
     , m_data(nullptr)
@@ -29,7 +31,9 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_image_file = importer.mainImageFile();
     m_alignment_file = importer.alignmentMatrix();
     m_spots_file = importer.spotsMapFile();
-    m_chip = importer.chip();
+    m_xrange = importer.xrange();
+    m_yrange = importer.yrange();
+    m_zrange = importer.zrange();
     m_is3D = importer.is3D();
     m_alignment = QTransform();
     m_data = nullptr;
@@ -45,7 +49,9 @@ Dataset::Dataset(const Dataset &other)
     m_image_file = other.m_image_file;
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
-    m_chip = other.m_chip;
+    m_xrange = other.m_xrange;
+    m_yrange = other.m_yrange;
+    m_zrange = other.m_zrange;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
@@ -65,7 +71,9 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_image_file = other.m_image_file;
     m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
-    m_chip = other.m_chip;
+    m_xrange = other.m_xrange;
+    m_yrange = other.m_yrange;
+    m_zrange = other.m_zrange;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_data = other.m_data;
@@ -82,7 +90,9 @@ bool Dataset::operator==(const Dataset &other) const
             && m_image_file == other.m_image_file
             && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
-            && m_chip == other.m_chip
+            && m_xrange == other.m_xrange
+            && m_yrange == other.m_yrange
+            && m_zrange == other.m_zrange
             && m_is3D == other.m_is3D);
 }
 
@@ -136,9 +146,19 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
-const QRect Dataset::chip() const
+const QPoint Dataset::xrange() const
 {
-    return m_chip;
+    return m_xrange;
+}
+
+const QPoint Dataset::yrange() const
+{
+    return m_yrange;
+}
+
+const QPoint Dataset::zrange() const
+{
+    return m_zrange;
 }
 
 void Dataset::name(const QString &name)
@@ -186,9 +206,19 @@ void Dataset::statComments(const QString &statComments)
     m_statComments = statComments;
 }
 
-void Dataset::chip(const QRect &chip)
+void Dataset::xrange(const QPoint &xrange)
 {
-    m_chip = chip;
+    m_xrange = xrange;
+}
+
+void Dataset::yrange(const QPoint &yrange)
+{
+    m_yrange = yrange;
+}
+
+void Dataset::zrange(const QPoint &zrange)
+{
+    m_zrange = zrange;
 }
 
 void Dataset::load_data()

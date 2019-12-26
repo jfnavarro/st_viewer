@@ -50,7 +50,7 @@ macro(INITIALISE_PROJECT)
         set(EXTRA_WARNINGS "-Woverloaded-virtual -Wundef -Wall -Wextra \
                            -Wformat -Wunused-variable -Wreturn-type -Wempty-body -Wdisabled-optimization \
                            -Wredundant-decls -Wpacked -Wuninitialized -Wswitch \
-                           -pedantic-errors -fuse-cxa-atexit")
+                           -pedantic-errors -fuse-cxa-atexit -ffast-math -funroll-loops")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             set(EXTRA_WARNINGS "${EXTRA_WARNINGS} -Wpedantic -Weffc++ -Wnon-virtual-dtor \
                                -Wswitch-default -Wint-to-void-pointer-cast")

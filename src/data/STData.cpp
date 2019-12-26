@@ -266,8 +266,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     std::vector<int> genes_visible_indexes;
     #pragma omp parallel for
     for (int j = 0; j < cols_to_keep.size(); ++j) {
-        const auto gene_obj = m_genes.at(j);
-        if (gene_obj->visible()) {
+        if (m_genes.at(j)->visible()) {
             genes_visible_indexes.push_back(j);
         }
     }
@@ -392,7 +391,7 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
         norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
     } else if (mode == SettingsWidget::CPM) {
         const auto means = mean(norm_counts.counts, ROW);
-        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW) * means;
+        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW) % means;
     }
     return data;
 }
@@ -424,11 +423,9 @@ STData::STDataFrame STData::filterCounts(const STDataFrame &data,
     // get columns (genes) >= min_genes
     const rowvec num_genes = sum(M, COLUMN);
     const uvec cols_to_keep = find(num_genes >= min_genes);
-
     // get rows (spots) >= min_spots
-    const rowvec num_spots = sum(M, ROW);
+    const colvec num_spots = sum(M, ROW);
     const uvec rows_to_keep = find(num_spots >= min_spots);
-
     // create filtered_matrix
     if (rows_to_keep.size() != data.counts.n_rows
             || cols_to_keep.size() != data.counts.n_cols) {
@@ -450,6 +447,47 @@ STData::STDataFrame STData::filterCounts(const STDataFrame &data,
         return data;
     }
 }
+
+const STData::STDataFrame STData::sliceDataSpots(const QList<QString> &spots)
+{
+    STDataFrame sliced_data;
+    std::vector<int> to_keep_rows;
+
+    #pragma omp parallel for
+    for (const auto &spot : spots) {
+        const int index = m_spot_index.value(spot, -1);
+        if (index != -1) {
+            to_keep_rows.push_back(index);
+            sliced_data.spots.append(spot);
+        }
+    }
+    sliced_data.genes = m_data.genes;
+    sliced_data.counts = m_data.counts.rows(conv_to<uvec>::from(to_keep_rows));
+
+    // Return the sliced data frame
+    return sliced_data;
+}
+
+const STData::STDataFrame STData::sliceDataGenes(const QList<QString> &genes)
+{
+    STDataFrame sliced_data;
+    std::vector<int> to_keep_cols;
+
+    #pragma omp parallel for
+    for (const auto &gene : genes) {
+        const int index = m_gene_index.value(gene, -1);
+        if (index != -1) {
+            to_keep_cols.push_back(index);
+            sliced_data.genes.append(gene);
+        }
+    }
+    sliced_data.spots = m_data.spots;
+    sliced_data.counts = m_data.counts.cols(conv_to<uvec>::from(to_keep_cols));
+
+    // Return the sliced data frame
+    return sliced_data;
+}
+
 
 STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
 {
@@ -522,12 +560,11 @@ void STData::selectSpots(const SelectionEvent &event)
 
     // update selection
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
-    QtConcurrent::blockingMap(m_spots, [&](QSharedPointer<Spot> spot) -> QSharedPointer<Spot> {
+    QtConcurrent::blockingMap(m_spots, [&](auto spot) {
         const auto &coord = spot->coordinates();
         if (path.contains(QPointF(coord.x(), coord.y()))) {
             spot->selected(!remove);
         }
-        return spot;
     });
 }
 

@@ -106,20 +106,7 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QRadioButton" name="normalization_scran">
-          <property name="toolTip">
-           <string>SCRAN sum-factors</string>
-          </property>
-          <property name="statusTip">
-           <string>SCRAN sum-factors</string>
-          </property>
-          <property name="text">
-           <string>SCRAN</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="normalization_tpm">
+         <widget class="QRadioButton" name="normalization_cpm">
           <property name="toolTip">
            <string>Transcripts per million</string>
           </property>
@@ -127,24 +114,11 @@
            <string>Transcripts per million</string>
           </property>
           <property name="text">
-           <string>TPM</string>
+           <string>CPM</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="normalization_deseq">
-          <property name="toolTip">
-           <string>DESeq2 size factors (geometric means)</string>
-          </property>
-          <property name="statusTip">
-           <string>DESeq2 size factors (geometric means)</string>
-          </property>
-          <property name="text">
-           <string>DESeq2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
+        <item row="0" column="3">
          <widget class="QCheckBox" name="logScale">
           <property name="toolTip">
            <string>Log the counts</string>
@@ -407,81 +381,12 @@
         </font>
        </property>
        <property name="text">
-        <string>Clustering</string>
+        <string>Clustering (k-means)</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
-       <property name="toolTip">
-        <string>Type of dimensionality reduction algorithm</string>
-       </property>
-       <property name="statusTip">
-        <string>Type of dimensionality reduction algorithm</string>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="kmeans">
-          <property name="toolTip">
-           <string>KMeans centroid clustering</string>
-          </property>
-          <property name="statusTip">
-           <string>KMeans centroid clustering</string>
-          </property>
-          <property name="text">
-           <string>KMeans</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QRadioButton" name="hclust">
-          <property name="toolTip">
-           <string>Hierarchica clustering </string>
-          </property>
-          <property name="statusTip">
-           <string>Hierarchica clustering</string>
-          </property>
-          <property name="text">
-           <string>HClust (ward.D2)</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
-       <item>
-        <widget class="QPushButton" name="computeClusters">
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="toolTip">
-          <string>Automatically estimates the number of clusters</string>
-         </property>
-         <property name="statusTip">
-          <string>Automatically estimates the number of clusters</string>
-         </property>
-         <property name="text">
-          <string>Estimate</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QLabel" name="label_7">
          <property name="text">
@@ -609,49 +514,6 @@
        </item>
        <item>
         <widget class="QSpinBox" name="reads_threshold">
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_9">
-       <item>
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Trasncripts (Per gene per spot):</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="individual_reads_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>

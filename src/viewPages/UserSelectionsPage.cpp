@@ -13,7 +13,6 @@
 #include "analysis/AnalysisDEA.h"
 #include "analysis/AnalysisCorrelation.h"
 #include "analysis/AnalysisQC.h"
-#include "analysis/AnalysisPCA.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
@@ -52,7 +51,6 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
     connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
     connect(m_ui->qcAnalysis, &QPushButton::clicked, this, &UserSelectionsPage::slotQC);
-    connect(m_ui->pca, &QPushButton::clicked, this, &UserSelectionsPage::slotPCA);
     connect(m_ui->merge, &QPushButton::clicked, this, &UserSelectionsPage::slotMerge);
 
     connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
@@ -112,7 +110,6 @@ void UserSelectionsPage::clearControls()
     m_ui->showSpots->setEnabled(false);
     m_ui->importSelection->setEnabled(true);
     m_ui->correlationAnalysis->setEnabled(false);
-    m_ui->pca->setEnabled(false);
     m_ui->merge->setEnabled(false);
 }
 
@@ -137,7 +134,6 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->showGenes->setEnabled(enableSingle);
     m_ui->showSpots->setEnabled(enableSingle);
     m_ui->correlationAnalysis->setEnabled(enableDouble);
-    m_ui->pca->setEnabled(enableMultiple);
     m_ui->merge->setEnabled(enableMultiple);
 }
 
@@ -446,26 +442,6 @@ void UserSelectionsPage::slotQC()
     const auto selectionObject = currentSelection.front();
     AnalysisQC *qc = new AnalysisQC(selectionObject.data(), this, Qt::Window);
     qc->show();
-}
-
-void UserSelectionsPage::slotPCA()
-{
-    // get the selected objects
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.size() <= 1) {
-        return;
-    }
-
-    QList<STData::STDataFrame> datasets;
-    QList<QString> names;
-    for (const auto selection : currentSelection) {
-        datasets.append(selection.data());
-        names.append(selection.name());
-    }
-
-    AnalysisPCA *pca = new AnalysisPCA(datasets, names, this, Qt::Window);
-    pca->show();
 }
 
 void UserSelectionsPage::slotMerge()

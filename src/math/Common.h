@@ -9,6 +9,10 @@
 #include <vector>
 
 #include <cmath>
+#include <armadillo>
+#include "tsne.h"
+
+using namespace arma;
 
 // Common provides miscellaneous functionality for maths and statistics
 namespace STMath
@@ -100,10 +104,10 @@ inline const T denorm(const R nv, const T t0, const T t1)
 inline const QColor lerp(const double t, const QColor &c0, const QColor &c1)
 {
     // TODO should do the interpolation in HSV space
-    return QColor((c0.red() + ((c1.red() - c0.red()) * t)),
-                  (c0.green() + ((c1.green() - c0.green()) * t)),
-                  (c0.blue() + ((c1.blue() - c0.blue()) * t)),
-                  (c0.alpha() + ((c1.alpha() - c0.alpha()) * t)));
+    return QColor::fromRgbF((c0.redF() + ((c1.redF() - c0.redF()) * t)),
+                            (c0.greenF() + ((c1.greenF() - c0.greenF()) * t)),
+                            (c0.blueF() + ((c1.blueF() - c0.blueF()) * t)),
+                            (c0.alphaF() + ((c1.alphaF() - c0.alphaF()) * t)));
 }
 
 // inverse linear interpolation between color c0 and color c1 given a value t
@@ -111,10 +115,10 @@ inline const QColor invlerp(const double t, const QColor &c0, const QColor &c1)
 {
     // TODO should do the interpolation in HSV space
     const double invt = 1.0 / (1.0 - t);
-    return QColor((c0.red() - (t * c1.red())) * invt,
-                  (c0.green() - (t * c1.green())) * invt,
-                  (c0.blue() - (t * c1.blue())) * invt,
-                  (c0.alpha() - (t * c1.alpha())) * invt);
+    return QColor::fromRgbF((c0.redF() - (t * c1.redF())) * invt,
+                            (c0.greenF() - (t * c1.greenF())) * invt,
+                            (c0.blueF() - (t * c1.blueF())) * invt,
+                            (c0.alphaF() - (t * c1.alphaF())) * invt);
 }
 
 // Euclidean distance between two vectors of type T such that T has binary +,-,*
@@ -130,8 +134,15 @@ inline double euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
         diff = v1[i] - v2[i];
         sum += diff * diff;
     }
-
     return std::sqrt(static_cast<double>(sum));
+}
+
+template <class T>
+inline double euclidean(const T x1, const T y1, const T x2, const T y2)
+{
+    const T x = x1 - x2;
+    const T y = y1 - y2;
+    return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 }
 
 // The statistical mean of a vector of values
@@ -157,7 +168,6 @@ inline double std_dev(const std::vector<T> &v)
 template <class T>
 inline double covariance(const std::vector<T> &v1, const std::vector<T> &v2)
 {
-    Q_ASSERT(v1.size() == v2.size());
     const double mean1 = meanVector(v1);
     const double mean2 = meanVector(v2);
     double sum = 0;
@@ -171,12 +181,13 @@ inline double covariance(const std::vector<T> &v1, const std::vector<T> &v2)
 template <class T>
 inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
 {
-    if (std_dev(v1) * std_dev(v2) == 0) {
+    const double std = std_dev(v1) * std_dev(v2);
+    if (std == 0) {
         // a standard deviaton was 0...
         return -1;
     }
 
-    return covariance(v1, v2) / (std_dev(v1) * std_dev(v2));
+    return covariance(v1, v2) / std;
 }
 
 // Return the vector of log + 1 of the given vector
@@ -188,14 +199,74 @@ inline std::vector<T> logVectorValues(const std::vector<T> &input)
     return output;
 }
 
-// A TPM normalization is a standard normalization method used to normalize gene
-// reads count
-template <typename T>
-inline T tpmNormalization(const T reads, const T totalReads)
-{
-    return static_cast<T>((reads * 10e6) / totalReads);
+inline mat PCA(const mat &data,
+               const int no_dims,
+               const bool center = false,
+               const bool scale = false,
+               const bool debug = false) {
+
+    mat X = data;
+    if (center) {
+        const auto means = mean(X,0);
+        X.each_row() -= means;
+    }
+    if (scale) {
+        const auto std = stddev(X,0,0);
+        X.each_row() /= std;
+    }
+
+    mat U;
+    vec s;
+    mat V;
+    svd_econ(U, s, V, X);
+    s = s.head(no_dims);
+    U = U.head_cols(no_dims);
+    // X_new = X * V = U * S * V^T * V = U * S
+    U.each_row() %= s.t();
+    if (debug) {
+        std::cout << "PCA: " << U.n_rows << " - " << U.n_cols << std::endl;
+        s.print();
+    }
+    return U;
 }
 
+inline mat kmeans_clustering(const mat &data,
+                             const int k,
+                             const bool debug = false) {
+    mat centroids;
+    const bool status = kmeans(centroids, data.t(), k, random_subset, 1000, false);
+    if (debug) {
+        std::cout << "k-means: " << status << " : " << centroids.n_rows << " - " << centroids.n_cols << std::endl;
+        centroids.print();
+    }
+    return centroids;
+}
+
+
+inline mat tSNE(const mat &data,
+                const double theta = 0.5,
+                const int perplexity = 30,
+                const int max_iter = 1000,
+                const int no_dims = 2,
+                const int init_dim = 50,
+                const int rand_seed = -1,
+                const bool debug = false) {
+
+    const int N = data.n_rows;
+    mat data_reduced = PCA(data, init_dim, true, false, false);
+    double *Y = new double[N * no_dims];
+    double *X = data_reduced.memptr();
+    TSNE::run(X, N, init_dim, Y, no_dims,
+              perplexity, theta, rand_seed, false, max_iter, 250, 250);
+    mat manifold(N, no_dims);
+    if (debug) {
+        std::cout << "t-SNE: " << manifold.n_rows << " - " << manifold.n_cols << std::endl;
+        manifold.print();
+    }
+    delete[](Y);
+    Y = nullptr;
+    return manifold;
+}
 } // end name space
 
 #endif // COMMON_H //

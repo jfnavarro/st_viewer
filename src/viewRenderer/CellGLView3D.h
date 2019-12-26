@@ -13,6 +13,7 @@
 #include "ImageTextureGL.h"
 
 class QOpenGLShaderProgram;
+class QRubberBand;
 
 class CellGLView3D : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -58,6 +59,12 @@ public slots:
     void slotRotate(const float angle);
     void slotFlip(const float angle);
 
+    void slotSelectionMode(const bool selection);
+    void slotLassoSelectionMode(const bool lasso);
+
+    void slotLegendVisible(const bool visible);
+    void slotImageVisible(const bool visible);
+
 protected slots:
 
     void teardownGL();
@@ -65,6 +72,12 @@ protected slots:
 signals:
 
 private:
+
+    void sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event);
+    const QTransform sceneTransformations() const;
+    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
+    const QRectF allowedCenterPoints() const;
+    void setZoomFactorAndUpdate(const float zoom);
 
     // rendering settings
     SettingsWidget::Rendering *m_rendering_settings;
@@ -94,12 +107,26 @@ private:
     // alignment data to image (if applicable)
     QTransform m_aligment;
 
+    bool m_legend_show;
+    bool m_image_show;
+
     // helper variables for zooming and panning
     float m_zoom;
     QPoint m_lastPos;
+    QPoint m_originPanning;
+    QPointF m_scene_focus_center_point;
+    bool m_panning;
+    QRectF m_boundingRect;
+    double m_rotate_factor;
+    double m_flip_factor;
+
+    // helper variables for selection
+    QPoint m_originRubberBand;
+    QPoint m_originLasso;
     bool m_rubberBanding;
     bool m_lassoSelection;
     bool m_selecting;
+    QScopedPointer<QRubberBand> m_rubberband;
     QPainterPath m_lasso;
 
     // rendering data

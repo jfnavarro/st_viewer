@@ -67,14 +67,16 @@ public:
                                        SettingsWidget::NormalizationMode mode);
 
     // helper function to compute the number of columns/rows with a value >= min_value
-    urowvec computeNonZeroColumns(const mat &matrix, const int min_value);
-    ucolvec computeNonZeroRows(const mat &matrix, const int min_value);
+    static urowvec computeNonZeroColumns(const mat &matrix, const int min_value);
+    static ucolvec computeNonZeroRows(const mat &matrix, const int min_value);
 
     // helper function filters a data frame and returns it
     static STDataFrame filterCounts(const STDataFrame &data,
                                     const int min_reads,
                                     const int min_genes,
                                     const int min_spots);
+    const STDataFrame sliceDataSpots(const QList<QString> &spots);
+    const STDataFrame sliceDataGenes(const QList<QString> &genes);
 
     // helper function that merges a list of dataframes
     static STDataFrame aggregate(const QList<STDataFrame> &dataframes);

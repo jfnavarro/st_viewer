@@ -147,7 +147,6 @@ Qt::ItemFlags SpotItemModel::flags(const QModelIndex &index) const
 
 void SpotItemModel::loadDataset(const Dataset &dataset)
 {
-    Q_UNUSED(dataset)
     beginResetModel();
     m_items_reference = dataset.data()->spots();
     endResetModel();
@@ -173,11 +172,9 @@ void SpotItemModel::setVisibility(const QItemSelection &selection, bool visible)
     }
 
     // update the spots
+    #pragma omp parallel for
     for (const auto &row : rows) {
-        auto spot = m_items_reference.at(row);
-        if (spot->visible() != visible) {
-            spot->visible(visible);
-        }
+        m_items_reference.at(row)->visible(visible);
     }
 }
 
@@ -194,10 +191,8 @@ void SpotItemModel::setColor(const QItemSelection &selection, const QColor &colo
     }
 
     // update the spots
+    #pragma omp parallel for
     for (const auto &row : rows) {
-        auto spot = m_items_reference.at(row);
-        if (color.isValid() && spot->color() != color) {
-            spot->color(color);
-        }
+        m_items_reference.at(row)->color(color);
     }
 }
