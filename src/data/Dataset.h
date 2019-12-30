@@ -48,9 +48,9 @@ public:
     void statTissue(const QString &statTissue);
     void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
-    void xrange(const QPoint &chip);
-    void yrange(const QPoint &chip);
-    void zrange(const QPoint &chip);
+    void xrange(const QPoint &xrange);
+    void yrange(const QPoint &yrange);
+    void zrange(const QPoint &zrange);
 
     // creates the STData object (parse data)
     // Parses : matrix of counts, image, size factors (if any), alignment (if any),
@@ -79,7 +79,6 @@ private:
     // generated
     QTransform m_alignment;
     QSharedPointer<STData> m_data;
-    QVector<QImage> m_image_tiles;
 };
 
 #endif // DATASET_H

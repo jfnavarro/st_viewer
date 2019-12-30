@@ -85,7 +85,7 @@ QHash<QString, QColor> AnalysisClustering::getSpotClusters() const
     return computed_colors;
 }
 
-QList<QString> AnalysisClustering::selectedSpots() const
+const QList<QString>& AnalysisClustering::selectedSpots() const
 {
     return m_selected_spots;
 }

@@ -20,6 +20,6 @@ void main()
         alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
         fColor = vColor * alpha;
     } else {
-        fColor = vColor;
+        fColor = vec4(1.0, 1.0, 1.0, vColor.a);
     }
 }

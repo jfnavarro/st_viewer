@@ -132,6 +132,21 @@ void DatasetImporter::slotChange3D(int state)
     m_ui->imageAlignmentFile->setEnabled(!is3D);
     m_ui->loadMainImageFile->setEnabled(!is3D);
     m_ui->loadImageAlignmentFile->setEnabled(!is3D);
+    if (is3D) {
+        m_ui->chip_x1->setValue(0);
+        m_ui->chip_x2->setValue(5);
+        m_ui->chip_y1->setValue(-6);
+        m_ui->chip_y2->setValue(3);
+        m_ui->chip_z1->setValue(-8);
+        m_ui->chip_z2->setValue(0);
+    } else {
+        m_ui->chip_x1->setValue(0);
+        m_ui->chip_x2->setValue(33);
+        m_ui->chip_y1->setValue(0);
+        m_ui->chip_y2->setValue(35);
+        m_ui->chip_z1->setValue(0);
+        m_ui->chip_z2->setValue(0);
+    }
 }
 
 void DatasetImporter::slotLoadSTDataFile()

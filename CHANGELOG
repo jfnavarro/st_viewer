@@ -218,3 +218,13 @@ v0.7.5
     * Enforce Scran normalisation in the DEA widget
     * Optimized the Scran normalisation settings in general
     * Bumped R to 3.5
+    
+V0.8.0
+
+    * Added support for 3D datasets
+    * Removed R dependencies
+    * Removed some unuseful functionalities
+    * Simplified the DEA
+    * Simplified the normalization and filtering
+    * Increase in speed (multi-threading and optimizations)
+    * More robust and efficient

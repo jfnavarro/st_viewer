@@ -250,11 +250,6 @@ void AnalysisDEA::run()
         recompute = true;
     }
 
-    if (m_ind_reads_treshold != m_ui->individual_reads_threshold->value()) {
-        m_ind_reads_treshold = m_ui->individual_reads_threshold->value();
-        recompute = true;
-    }
-
     if (m_spots_threshold != m_ui->spots_threshold->value()) {
         m_spots_threshold = m_ui->spots_threshold->value();
         recompute = true;

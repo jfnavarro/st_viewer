@@ -39,7 +39,7 @@
       </widget>
      </item>
      <item row="7" column="1">
-      <widget class="QLineEdit" name="medianTranscripts">
+      <widget class="QLineEdit" name="meanTranscripts">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -133,12 +133,12 @@
      <item row="7" column="0">
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Median/spot</string>
+        <string>Mean(spot)</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="medianGenes">
+      <widget class="QLineEdit" name="meanGenes">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -256,14 +256,14 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Std/spot</string>
+        <string>Std(spot)</string>
        </property>
       </widget>
      </item>
      <item row="8" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Std/spot</string>
+        <string>Std(spot)</string>
        </property>
       </widget>
      </item>
@@ -351,7 +351,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Median/spot</string>
+        <string>Mean(spot)</string>
        </property>
       </widget>
      </item>

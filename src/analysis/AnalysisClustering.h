@@ -38,7 +38,7 @@ public:
     void clear();
 
     // the user selected spots if any
-    QList<QString> selectedSpots() const;
+    const QList<QString> &selectedSpots() const;
 
 public slots:
 
@@ -51,7 +51,7 @@ signals:
 private slots:
 
     // Performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // clusters the reduced coordinates (2D) using KMeans or HClust so to compute classes/colors
+    // clusters the reduced coordinates (2D) using KMeans so to compute classes/colors
     // for each spot
     void slotRun();
 

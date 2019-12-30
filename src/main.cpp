@@ -14,6 +14,9 @@
 
 #include <iostream>
 
+#include <omp.h>
+#define NUM_THREADS(N) ((N) >= 0 ? (N) : omp_get_num_procs() + (N) + 1)
+
 namespace
 {
 

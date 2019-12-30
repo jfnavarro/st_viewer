@@ -7,8 +7,8 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
-static const double legend_x = 0.0;
-static const double legend_y = 0.0;
+static const double legend_x = 5.0;
+static const double legend_y = 5.0;
 static const double legend_width = 30.0;
 static const double legend_height = 200.0;
 static const double bars_width = 40.0;

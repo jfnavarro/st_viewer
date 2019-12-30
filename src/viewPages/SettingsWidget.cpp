@@ -22,9 +22,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->genes_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotGenesTreshold);
-    connect(m_ui->reads_threshold,
-            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, &SettingsWidget::slotReadsTreshold);
     connect(m_ui->individual_reads_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotIndReadsTreshold);
@@ -89,9 +86,6 @@ void SettingsWidget::reset()
     m_ui->normalization_raw->setChecked(true);
     m_ui->visual_reads->setChecked(true);
     m_ui->visual_normal->setChecked(true);
-    m_ui->reads_threshold->setMinimum(0);
-    m_ui->reads_threshold->setValue(0);
-    m_ui->reads_threshold->setMaximum(20000);
     m_ui->individual_reads_threshold->setMinimum(0);
     m_ui->individual_reads_threshold->setValue(0);
     m_ui->individual_reads_threshold->setMaximum(1000);

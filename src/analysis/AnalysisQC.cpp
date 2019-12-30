@@ -7,7 +7,8 @@
 #include "ui_analysisQC.h"
 
 AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
-                       QWidget *parent, Qt::WindowFlags f)
+                       QWidget *parent,
+                       Qt::WindowFlags f)
     : QWidget(parent, f)
     , m_ui(new Ui::analysisQC)
 {
@@ -25,8 +26,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     const QString avg_transcritps = QString::number(mean(rowsums));
     const QString std_genes = QString::number(stddev(nonzero_row));
     const QString std_transcripts = QString::number(stddev(rowsums));
-    const uvec hist_genes = hist(nonzero_row, 10);
-    const uvec hist_transcripts = hist(rowsums, 10);
+    const uvec hist_genes = hist(conv_to<colvec>::from(nonzero_row));
+    const uvec hist_transcripts = hist(rowsums);
 
     // populate the line edits
     m_ui->maxTranscripts->setText(max_transcripts_spot);
@@ -34,8 +35,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->totalGenes->setText(num_genes);
     m_ui->totalSpots->setText(num_spots);
     m_ui->totalTranscripts->setText(total_transcripts);
-    m_ui->medianGenes->setText(avg_genes);
-    m_ui->medianTranscripts->setText(avg_transcritps);
+    m_ui->meanGenes->setText(avg_genes);
+    m_ui->meanTranscripts->setText(avg_transcritps);
     m_ui->stdGenes->setText(std_genes);
     m_ui->stdTranscripts->setText(std_transcripts);
 
@@ -43,32 +44,32 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     QBarSet *genes = new QBarSet("Genes");
     #pragma omp parallel for
     for(const auto &value : hist_genes) {
-        *genes << value;
+        *genes << static_cast<int>(value);
     }
     QBarSeries *series_genes = new QBarSeries();
     series_genes->append(genes);
 
-    QBarSet *transcripts = new QBarSet("Transcripts");
+    QBarSet *transcripts = new QBarSet(tr("Transcripts"));
     #pragma omp parallel for
     for (const auto &value : hist_transcripts) {
-        *transcripts << value;
+        *transcripts << static_cast<int>(value);
     }
     QBarSeries *series_transcripts = new QBarSeries();
     series_transcripts->append(transcripts);
 
     m_ui->genesPlot->chart()->addSeries(series_genes);
-    m_ui->genesPlot->chart()->setTitle("Histogram genes");
+    m_ui->genesPlot->chart()->setTitle(tr("Histogram genes"));
     m_ui->genesPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->genesPlot->chart()->createDefaultAxes();
-    m_ui->genesPlot->chart()->axes(Qt::Horizontal).first()->setTitleText("Spots (binned)");
-    m_ui->genesPlot->chart()->axes(Qt::Vertical).first()->setTitleText("#Genes");
+    m_ui->genesPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Spots (binned)"));
+    m_ui->genesPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#Genes"));
 
     m_ui->transcriptsPlot->chart()->addSeries(series_transcripts);
-    m_ui->transcriptsPlot->chart()->setTitle("Histogram transcripts");
+    m_ui->transcriptsPlot->chart()->setTitle(tr("Histogram transcripts"));
     m_ui->transcriptsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->transcriptsPlot->chart()->createDefaultAxes();
-    m_ui->transcriptsPlot->chart()->axes(Qt::Horizontal).first()->setTitleText("Spots (binned)");
-    m_ui->transcriptsPlot->chart()->axes(Qt::Vertical).first()->setTitleText("#Transcripts");
+    m_ui->transcriptsPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Spots (binned)"));
+    m_ui->transcriptsPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#transcripts"));
 
     connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
     connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});
@@ -83,6 +84,6 @@ void AnalysisQC::slotExportPlot(const int type)
     if (type == 1) {
         m_ui->genesPlot->slotExportPlot(tr("QC Histogram (Genes)"));
     } else {
-        m_ui->transcriptsPlot->slotExportPlot(tr("QC Histogram (Reads)"));
+        m_ui->transcriptsPlot->slotExportPlot(tr("QC Histogram (Transcripts)"));
     }
 }

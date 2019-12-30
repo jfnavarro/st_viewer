@@ -146,6 +146,14 @@ void CellGLView3D::paintGL()
         //painter.resetTransform();
     }
 
+    // draw selection box/lasso
+    if (m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
+        QPainter painter(this);
+        painter.setBrush(lasso_color);
+        painter.setPen(lasso_color);
+        painter.drawPath(m_lasso.simplified());
+    }
+
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 1.0 : m_rendering_settings->intensity;
@@ -154,7 +162,7 @@ void CellGLView3D::paintGL()
 
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 5);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, m_projection * m_camera * m_transform);
     {
@@ -163,14 +171,6 @@ void CellGLView3D::paintGL()
         m_vao.release();
     }
     m_program.release();
-
-    // draw selection box/lasso
-    if (m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
-        QPainter painter(this);
-        painter.setBrush(lasso_color);
-        painter.setPen(lasso_color);
-        painter.drawPath(m_lasso.simplified());
-    }
 }
 
 void CellGLView3D::slotZoomIn()
@@ -221,6 +221,9 @@ void CellGLView3D::slotImageVisible(const bool visible)
 
 void CellGLView3D::keyPressEvent(QKeyEvent *event)
 {
+    if (!m_initialized) {
+        return;
+    }
     Qt::KeyboardModifiers modifiers = event->modifiers();
     if (m_geneData->is3D()){
         if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Up) {
@@ -266,6 +269,9 @@ void CellGLView3D::keyPressEvent(QKeyEvent *event)
 
 void CellGLView3D::wheelEvent(QWheelEvent *event)
 {
+    if (!m_initialized) {
+        return;
+    }
     // computes zoom factor and update zoom
     const float zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactorAndUpdate(zoomFactor * m_zoom);
@@ -275,6 +281,9 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
 
 void CellGLView3D::mousePressEvent(QMouseEvent *event)
 {
+    if (!m_initialized) {
+        return;
+    }
     const bool is_left = event->button() == Qt::LeftButton;
     if (!m_geneData->is3D()) {
         if (is_left && m_selecting && !m_lassoSelection) {
@@ -302,6 +311,9 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
 
 void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
 {
+    if (!m_initialized) {
+        return;
+    }
     if (!m_geneData->is3D()) {
         const bool is_left = event->buttons() & Qt::LeftButton;
         // first check if we are in selection mode
@@ -342,6 +354,9 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
 
 void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (!m_initialized) {
+        return;
+    }
     const bool is_left = event->button() == Qt::LeftButton;
     if (!m_geneData->is3D()) {
         if (is_left && m_selecting && m_rubberBanding) {
