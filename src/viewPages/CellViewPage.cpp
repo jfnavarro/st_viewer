@@ -119,6 +119,9 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_ui->clustering->setEnabled(!dataset.data()->is3D());
     m_ui->selection->setEnabled(!dataset.data()->is3D());
     m_ui->lasso_selection->setEnabled(!dataset.data()->is3D());
+    m_ui->rotate_left->setEnabled(!dataset.data()->is3D());
+    m_ui->rotate_right->setEnabled(!dataset.data()->is3D());
+    m_ui->flip->setEnabled(!dataset.data()->is3D());
 
     // show settings widget
     m_settings->show();

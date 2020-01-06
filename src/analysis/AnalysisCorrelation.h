@@ -42,12 +42,14 @@ private slots:
 
 private:
 
-    // GUI object
-    QScopedPointer<Ui::analysisCorrelation> m_ui;
-
     // the two datasets
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
+    QString m_nameA;
+    QString m_nameB;
+
+    // GUI object
+    QScopedPointer<Ui::analysisCorrelation> m_ui;
 
     // store the plotting series to allow interaction with the plot
     QScopedPointer<QScatterSeries> m_series;

@@ -14,6 +14,9 @@
 
 using namespace arma;
 
+constexpr double PI = 3.14159265358979323846;
+constexpr double NUM_E = 2.71828182845904523536;
+
 // Common provides miscellaneous functionality for maths and statistics
 namespace STMath
 {
@@ -147,7 +150,7 @@ inline double euclidean(const T x1, const T y1, const T x2, const T y2)
 
 // The statistical mean of a vector of values
 template <class T>
-inline double meanVector(const std::vector<T> &v)
+inline double mean(const std::vector<T> &v)
 {
     const double sum = std::accumulate(v.begin(), v.end(), 0.0);
     return sum / v.size();
@@ -168,8 +171,8 @@ inline double std_dev(const std::vector<T> &v)
 template <class T>
 inline double covariance(const std::vector<T> &v1, const std::vector<T> &v2)
 {
-    const double mean1 = meanVector(v1);
-    const double mean2 = meanVector(v2);
+    const double mean1 = mean(v1);
+    const double mean2 = mean(v2);
     double sum = 0;
     for (size_t i = 0; i < v1.size(); ++i) {
         sum += ((v1[i] - mean1) * (v2[i] - mean2));
@@ -197,6 +200,17 @@ inline std::vector<T> logVectorValues(const std::vector<T> &input)
     std::vector<T> output(input.size());
     std::transform(input.begin(), input.end(), std::back_inserter(output), std::log1p);
     return output;
+}
+
+// Simple pval correction using the Bonferroni method
+//TODO implement the Benjamini/Hochberg method
+inline std::vector<double> p_adjust(const std::vector<double> &pvals) {
+    const double m = static_cast<double>(pvals.size());
+    std::vector<double> padjust;
+    for (auto pval : pvals) {
+        padjust.push_back(pval / m);
+    }
+    return padjust;
 }
 
 inline mat PCA(const mat &data,
@@ -266,6 +280,68 @@ inline mat tSNE(const mat &data,
     delete[](Y);
     Y = nullptr;
     return manifold;
+}
+
+
+inline double log_normal(const double x, const double m, const double s)
+{
+    if (x > 0) {
+        return (1.0 / (s*x*std::sqrt(PI))) * std::exp(-std::pow(2, std::log(x)-m) / std::pow(2, 2*s));
+    } else {
+        return 0;
+    }
+}
+
+inline double normal(const double x, const double m, const double s)
+{
+    if (x > 0) {
+        return (1.0 / (s*std::sqrt(PI))) * std::exp(-0.5*(std::pow(2, (x-m)/s)));
+    } else {
+        return 0;
+    }
+}
+
+inline double chi_squared(const double x, const double df)
+{
+    if (x > 0) {
+        return (1.0 / (std::pow(2.0, 0.5*df) * std::tgamma(df*0.5))) * std::pow(x, 0.5*df-1) * std::exp(-0.5*x);
+    } else {
+        return 0;
+    }
+}
+
+// Approximation of the lower incomplete gamma function
+// obtained from https://github.com/brianmartens/BetaFunction/blob/master/BetaFunction/bmath.h
+// s is the DF and z is X
+inline double low_incomplete_gamma(const double s, const double z)
+{
+    const int MAXITER = 100;
+    const double epsilon = .0000000001;
+    int i = 1;
+    double initial = (std::pow(z,s) * std::pow(NUM_E,-z)) / s; // z^0 == 1
+    for (;;) {
+        double denom = s;
+        for(int j=1; j<=i; ++j) {
+            denom = denom * (s+j);
+        }
+        double num = std::pow(z,s) * std::pow(NUM_E,-1*z) * std::pow(z,i);
+        double test = num / denom;
+        initial += test;
+        ++i;
+        if (std::abs(test) < epsilon || i >= MAXITER) {
+            break;
+        }
+    }
+    return initial;
+}
+
+inline double chi_squared_cdf(const double x, const double df)
+{
+    if (x > 0) {
+        return low_incomplete_gamma(df/2, x/2) / std::tgamma(df/2);
+    } else {
+        return 0;
+    }
 }
 } // end name space
 

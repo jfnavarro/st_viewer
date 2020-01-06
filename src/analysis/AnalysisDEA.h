@@ -9,7 +9,6 @@
 #include <string>
 
 #include "data/STData.h"
-#include "armadillo"
 
 namespace Ui
 {
@@ -24,16 +23,18 @@ class AnalysisDEA : public QWidget
 {
     Q_OBJECT
 
+    struct DEResult {
+        double pvalue;
+        double log_pvalue;
+        double fdr;
+        double log2fc;
+        QString gene;
+    };
 
 public:
 
-    enum Method {
-        DESEQ2 = 1,
-        EDGER = 2,
-    };
-
-    AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
-                const QList<STData::STDataFrame> &datasetsB,
+    AnalysisDEA(const STData::STDataFrame &datasetsA,
+                const STData::STDataFrame &datasetsB,
                 const QString &nameA,
                 const QString &nameB,
                 QWidget *parent = nullptr,
@@ -56,12 +57,12 @@ private slots:
     void slotExportPlot();
     // to handle when the user right clicks
     void customMenuRequested(const QPoint &pos);
+    // to initialize the data (DE genes and volcano plot)
+    void slotRun();
 
 private:
 
-    // to initialize the data (DE genes and volcano plot)
-    void run();
-    void runDEAAsync(const STData::STDataFrame &data);
+    void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();
 
@@ -69,22 +70,16 @@ private:
     QScopedPointer<Ui::analysisDEA> m_ui;
 
     // the merged data frame and the selections names
-    STData::STDataFrame m_data;
-    std::vector<std::string> m_conditions;
-    QString m_nameA;
-    QString m_nameB;
+    STData::STDataFrame m_dataA;
+    STData::STDataFrame m_dataB;
 
     // cache the settings to not recompute always
-    Method m_method;
     int m_reads_threshold;
     int m_genes_threshold;
-    int m_ind_reads_treshold;
     int m_spots_threshold;
 
     // cache the results to not recompute
-    arma::mat m_results;
-    std::vector<std::string> m_results_cols;
-    std::vector<std::string> m_results_rows;
+    std::vector<DEResult> m_results;
 
     // the gene to highlight in the volcano plot
     QPointF m_gene_highlight;

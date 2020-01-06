@@ -56,7 +56,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="2">
-           <widget class="QRadioButton" name="method_deseq">
+           <widget class="QRadioButton" name="normalization_rel">
             <property name="toolTip">
              <string>Uses DESeq2 for the DEA analysis</string>
             </property>
@@ -69,7 +69,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QRadioButton" name="method_edger">
+           <widget class="QRadioButton" name="normalization_cpm">
             <property name="toolTip">
              <string>Uses EdgeR for the DEA analysis</string>
             </property>
@@ -82,7 +82,7 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QRadioButton" name="radioButton">
+           <widget class="QRadioButton" name="normalization_raw">
             <property name="text">
              <string>None</string>
             </property>

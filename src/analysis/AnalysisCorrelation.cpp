@@ -20,22 +20,14 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
                                          QWidget *parent,
                                          Qt::WindowFlags f)
     : QWidget(parent, f)
+    , m_dataA(data1)
+    , m_dataB(data2)
+    , m_nameA(nameA)
+    , m_nameB(nameB)
     , m_ui(new Ui::analysisCorrelation)
 {
     m_ui->setupUi(this);
     m_ui->exportPlot->setEnabled(false);
-
-    // update legends in plot
-    m_ui->plot->chart()->setTitle(tr("Correlation Plot (Accumulated genes counts)"));
-    m_ui->plot->chart()->setDropShadowEnabled(false);
-    m_ui->plot->chart()->legend()->hide();
-    m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axes(Qt::Horizontal).first()->setTitleText("# " + nameA);
-    m_ui->plot->chart()->axes(Qt::Vertical).first()->setTitleText("# " + nameB);
-
-    // store the data
-    m_dataA = data1;
-    m_dataB = data2;
 
     // Get the shared genes (by name)
     QSet<QString> genesA = QSet<QString>::fromList(data1.genes);
@@ -120,6 +112,14 @@ void AnalysisCorrelation::slotUpdateData()
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
     m_ui->plot->chart()->addSeries(m_series.data());
+    // update legends in plot
+    m_ui->plot->chart()->setTitle(tr("Correlation Plot (Accumulated genes counts)"));
+    m_ui->plot->chart()->setDropShadowEnabled(false);
+    m_ui->plot->chart()->legend()->hide();
+    m_ui->plot->chart()->createDefaultAxes();
+    m_ui->plot->chart()->axes(Qt::Horizontal).first()->setTitleText("# " + m_nameA);
+    m_ui->plot->chart()->axes(Qt::Vertical).first()->setTitleText("# " + m_nameB);
+
     m_ui->exportPlot->setEnabled(true);
 
     QGuiApplication::restoreOverrideCursor();

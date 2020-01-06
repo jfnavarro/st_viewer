@@ -204,8 +204,7 @@ void UserSelectionsPage::slotExportSelection()
         return;
     }
     // currentSelection should only have one element
-    const auto selection = currentSelection.front();
-    exportSelection(selection);
+    exportSelection(currentSelection.front());
 }
 
 void UserSelectionsPage::slotExportSelection(QModelIndex index)
@@ -218,8 +217,7 @@ void UserSelectionsPage::slotExportSelection(QModelIndex index)
         return;
     }
     // currentSelection should only have one element
-    const auto selection = currentSelections.front();
-    exportSelection(selection);
+    exportSelection(currentSelections.front());
 }
 
 void UserSelectionsPage::exportSelection(const UserSelection &selection)
@@ -257,8 +255,7 @@ void UserSelectionsPage::slotEditSelection()
         return;
     }
     // currentSelection should only have one element
-    auto selection = currentSelection.front();
-    editSelection(selection);
+    editSelection(currentSelection.front());
 }
 
 void UserSelectionsPage::slotEditSelection(QModelIndex index)
@@ -271,8 +268,7 @@ void UserSelectionsPage::slotEditSelection(QModelIndex index)
         return;
     }
     // currentSelection should only have one element
-    auto selection = currentSelections.front();
-    editSelection(selection);
+    editSelection(currentSelections.front());
 }
 
 void UserSelectionsPage::editSelection(const UserSelection &selection)
@@ -354,22 +350,15 @@ void UserSelectionsPage::slotPerformDEA()
         return;
     }
 
-
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
 
-    //TODO here we should launch a simple two tables widget to choose
-    //what selections go in each comparison and then launch the DEA widget
-    //with the two lists
-
-    QList<STData::STDataFrame> sels1 { selectionObject1.data() };
-    QList<STData::STDataFrame> sels2 { selectionObject2.data() };
 
     // launch the DEA widget
     AnalysisDEA *deaWidget(
-                new AnalysisDEA(sels1,
-                                sels2,
+                new AnalysisDEA(selectionObject1.data(),
+                                selectionObject2.data(),
                                 selectionObject1.name(),
                                 selectionObject2.name(),
                                 this,
