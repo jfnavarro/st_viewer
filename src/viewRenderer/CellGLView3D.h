@@ -56,8 +56,10 @@ public slots:
 
     void slotZoomIn();
     void slotZoomOut();
-    void slotRotate(const float angle);
-    void slotFlip(const float angle);
+    void slotRotateX(const double angle);
+    void slotRotateY(const double angle);
+    void slotRotateZ(const double angle);
+    void slotFlip(const double angle);
 
     void slotSelectionMode(const bool selection);
     void slotLassoSelectionMode(const bool lasso);
@@ -75,9 +77,8 @@ private:
 
     void sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event);
     const QTransform sceneTransformations() const;
-    void setSceneFocusCenterPointWithClamping(const QPointF &center_point);
-    const QRectF allowedCenterPoints() const;
-    void setZoomFactorAndUpdate(const float zoom);
+    void setSceneFocusCenterPoint(const QPointF &center_point);
+    void setZoomFactor(const double zoom);
 
     // rendering settings
     SettingsWidget::Rendering *m_rendering_settings;
@@ -99,10 +100,7 @@ private:
 
     // camera/projection/view matrices
     QMatrix4x4 m_projection;
-    QMatrix4x4 m_camera;
     QMatrix4x4 m_transform;
-    QQuaternion m_rotation;
-    QVector3D m_translation;
 
     // alignment data to image (if applicable)
     QTransform m_aligment;
@@ -110,14 +108,17 @@ private:
     bool m_legend_show;
     bool m_image_show;
 
-    // helper variables for zooming and panning
-    float m_zoom;
+    // helper variables for zooming, rotation and panning
+    double m_zoom;
     QPoint m_lastPos;
     QPoint m_originPanning;
     QPointF m_scene_focus_center_point;
     bool m_panning;
     QRectF m_boundingRect;
-    double m_rotate_factor;
+    QRectF m_boundingRectImage;
+    double m_rotateX;
+    double m_rotateY;
+    double m_rotateZ;
     double m_flip_factor;
 
     // helper variables for selection

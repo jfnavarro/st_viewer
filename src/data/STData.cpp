@@ -358,14 +358,24 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
         bool parsed = true;
         while (!in.atEnd()) {
             line = in.readLine();
-            if (!line.contains("x")) {
+            if (!line.startsWith("x")) {
                 fields = line.split("\t");
-                if (fields.length() < 4) {
+                QString old_spot;
+                QString new_spot;
+                const int n_fields = fields.length();
+                if (n_fields == 4) {
+                    // 3D format
+                    old_spot = fields.at(0);
+                    new_spot = fields.at(1) + "x" + fields.at(2) + "x" + fields.at(3);
+                } else if (n_fields == 6) {
+                    // 2D format (ST Spot detector)
+                    old_spot = fields.at(0) + "x" + fields.at(1);
+                    new_spot = fields.at(2) + "x" + fields.at(3);
+                } else {
                     parsed = false;
                     break;
                 }
-                spotMap.insert(fields.at(0) + "x" + fields.at(1),
-                               fields.at(2) + "x" + fields.at(3));
+                spotMap.insert(old_spot, new_spot);
             }
         }
         if (spotMap.empty() || !parsed) {

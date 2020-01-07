@@ -12,13 +12,10 @@
 
 #include <cmath>
 
-static const int tile_width = 256;
-static const int tile_height = 256;
 
 ImageTextureGL::ImageTextureGL()
     : m_program(nullptr)
     , m_isInitialized(false)
-    , m_iscaled(false)
 {
 
 }
@@ -50,7 +47,6 @@ void ImageTextureGL::clearData()
     m_coordBuf.destroy();
     m_posBuf.destroy();
     m_isInitialized = false;
-    m_iscaled = false;
 }
 
 void ImageTextureGL::clearTextures()
@@ -86,53 +82,11 @@ void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
     m_program->release();
 }
 
-bool ImageTextureGL::createTiles(const QString &imagefile)
+void ImageTextureGL::createTiles(const QVector<QPair<QImage, QPoint> > &tiles)
 {
-    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    // image buffer reader
-    QImageReader imageReader(imagefile);
-    // scale image to half for big images
-    QSize imageSize = imageReader.size();
-    if (imageSize.width() >= 10000 || imageSize.height() >= 10000) {
-        imageSize /= 2;
-        imageReader.setScaledSize(imageSize);
-        m_iscaled = true;
-    } else {
-        m_iscaled = false;
-    }
-    // parse the image
-    QImage image;
-    const bool read_ok = imageReader.read(&image);
-    if (!read_ok) {
-        qDebug() << "Tissue image cannot be opened/read" << imageReader.errorString();
-        QGuiApplication::restoreOverrideCursor();
-        return false;
-    }
-
-    m_bounds = image.rect();
-
-    // compute tiles size and numbers
-    const int width = image.width();
-    const int height = image.height();
-    const int xCount = std::ceil(width / static_cast<double>(tile_width));
-    const int yCount = std::ceil(height / static_cast<double>(tile_height));
-    const int count = xCount * yCount;
-
-    // create tiles and their textures
-    for (int i = 0; i < count; ++i) {
-
-        // texture sizes
-        const int x = tile_width * (i % xCount);
-        const int y = tile_height * (i / xCount);
-        const int texture_width = std::min(width - x, tile_width);
-        const int texture_height = std::min(height - y, tile_height);
-
-        // create sub image and add texture
-        // TODO an ideal solution would  be to extract the clip rect part of the image
-        // from the imageReader to avoid loading the whole image into memory
-        // but the setClipRect option would only work one time, after calling read()
-        // the buffer is cleaned
-        addTexture(image.copy(x, y, texture_width, texture_height), x, y);
+    for (const auto &tile : tiles) {
+        // create texture from the tile
+        addTexture(tile.first, tile.second.x(), tile.second.y());
     }
 
     m_program->bind();
@@ -161,9 +115,7 @@ bool ImageTextureGL::createTiles(const QString &imagefile)
     m_vao.release();
     m_program->release();
 
-    QGuiApplication::restoreOverrideCursor();
     m_isInitialized = true;
-    return true;
 }
 
 void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
@@ -187,14 +139,4 @@ void ImageTextureGL::addTexture(const QImage &image, const int x, const int y)
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
     texture->setData(image);
     m_textures.append(texture);
-}
-
-QRectF ImageTextureGL::boundingRect() const
-{
-    return m_bounds;
-}
-
-bool ImageTextureGL::scaled() const
-{
-    return m_iscaled;
 }

@@ -242,6 +242,9 @@ void DatasetImporter::done(int result)
         } else if (m_ui->datasetName->text().isEmpty()) {
             isValid = false;
             error_msg = tr("Dataset name is missing!");
+        } else if (m_ui->mainImageFile->text().isEmpty() && !m_ui->is3D->isChecked()) {
+            isValid = false;
+            error_msg = tr("Tissue image is missing!");
         }
         if (!isValid) {
             QMessageBox::critical(this, tr("Import dataset"), error_msg);

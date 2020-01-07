@@ -38,6 +38,9 @@ public:
     const QPoint yrange() const;
     const QPoint zrange() const;
 
+    const QVector<QPair<QImage, QPoint>> &image_tiles() const;
+    const QRectF image_bounds() const;
+
     // Setters
     void name(const QString &name);
     void dataFile(const QString &datafile);
@@ -62,6 +65,8 @@ private:
 
     // Function to load the image aligment matrix from a file
     bool load_imageAligment();
+    // Function to parse the image and tile it
+    bool load_Image();
 
     QString m_name;
     QString m_statTissue;
@@ -78,6 +83,9 @@ private:
 
     // generated
     QTransform m_alignment;
+    QVector<QPair<QImage, QPoint>> m_image_tiles;
+    QRectF m_bounds;
+    bool m_scaled;
     QSharedPointer<STData> m_data;
 };
 

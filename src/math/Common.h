@@ -160,9 +160,9 @@ inline double mean(const std::vector<T> &v)
 template <class T>
 inline double std_dev(const std::vector<T> &v)
 {
-    const double mean = meanVector(v);
+    const double m = mean(v);
     std::vector<double> diff(v.size());
-    std::transform(v.begin(), v.end(), diff.begin(), [mean](double x) { return x - mean; });
+    std::transform(v.begin(), v.end(), diff.begin(), [m](double x) { return x - m; });
     const double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
     return std::sqrt(sq_sum / v.size());
 }
@@ -191,15 +191,6 @@ inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
     }
 
     return covariance(v1, v2) / std;
-}
-
-// Return the vector of log + 1 of the given vector
-template <typename T>
-inline std::vector<T> logVectorValues(const std::vector<T> &input)
-{
-    std::vector<T> output(input.size());
-    std::transform(input.begin(), input.end(), std::back_inserter(output), std::log1p);
-    return output;
 }
 
 // Simple pval correction using the Bonferroni method
@@ -318,17 +309,18 @@ inline double low_incomplete_gamma(const double s, const double z)
     const int MAXITER = 100;
     const double epsilon = .0000000001;
     int i = 1;
-    double initial = (std::pow(z,s) * std::pow(NUM_E,-z)) / s; // z^0 == 1
+    const double c_const = std::pow(z,s) * std::pow(NUM_E,-z);
+    double initial = c_const / s;
     for (;;) {
         double denom = s;
-        for(int j=1; j<=i; ++j) {
+        for (int j=1; j<=i; ++j) {
             denom = denom * (s+j);
         }
-        double num = std::pow(z,s) * std::pow(NUM_E,-1*z) * std::pow(z,i);
-        double test = num / denom;
+        const double num = c_const * std::pow(z,i);
+        const double test = num / denom;
         initial += test;
         ++i;
-        if (std::abs(test) < epsilon || i >= MAXITER) {
+        if (std::fabs(test) < epsilon || i >= MAXITER) {
             break;
         }
     }

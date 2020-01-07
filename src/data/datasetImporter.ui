@@ -174,7 +174,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Main image (optional)</string>
+          <string>Main image</string>
          </property>
         </widget>
        </item>
@@ -277,10 +277,10 @@
             </size>
            </property>
            <property name="minimum">
-            <number>33</number>
+            <number>-1000</number>
            </property>
            <property name="maximum">
-            <number>10000</number>
+            <number>1000</number>
            </property>
           </widget>
          </item>
@@ -335,10 +335,10 @@
             </size>
            </property>
            <property name="minimum">
-            <number>35</number>
+            <number>-1000</number>
            </property>
            <property name="maximum">
-            <number>10000</number>
+            <number>1000</number>
            </property>
           </widget>
          </item>

@@ -178,11 +178,11 @@ void CellViewPage::createConnections()
 
     // view rotations
     connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
-        m_ui->view->slotRotate(-45);
+        m_ui->view->slotRotateZ(-45);
         m_ui->view->update();
     });
     connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
-        m_ui->view->slotRotate(45);
+        m_ui->view->slotRotateZ(45);
         m_ui->view->update();
     });
     connect(m_ui->flip, &QPushButton::clicked, [=] {

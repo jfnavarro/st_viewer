@@ -1,5 +1,6 @@
 #include "Dataset.h"
 #include <QDebug>
+#include <QImageReader>
 #include "STData.h"
 #include "DatasetImporter.h"
 
@@ -161,6 +162,16 @@ const QPoint Dataset::zrange() const
     return m_zrange;
 }
 
+const QVector<QPair<QImage, QPoint>> &Dataset::image_tiles() const
+{
+    return m_image_tiles;
+}
+
+const QRectF Dataset::image_bounds() const
+{
+    return m_bounds;
+}
+
 void Dataset::name(const QString &name)
 {
     m_name = name;
@@ -241,6 +252,38 @@ void Dataset::load_data()
             throw std::runtime_error("Error parsing Image alignment file");
         }
     }
+
+    // Parse image (in 2D only)
+    if (!m_is3D) {
+        const bool parsed = load_Image();
+        if (!parsed) {
+            qDebug() << "Error parsing image file";
+            throw std::runtime_error("Error parsing Image file");
+        }
+        // If the user has not given any transformation matrix
+        // we compute a simple transformation matrix using
+        // the image and chip dimensions so the spot's coordinates
+        // can be mapped to the image's coordinates space
+        if (m_alignment.isIdentity()) {
+            const double chip_x2 = static_cast<double>(m_xrange.y());
+            const double chip_y2 = static_cast<double>(m_yrange.y());
+            const double width_image = static_cast<double>(m_bounds.width());
+            const double height_image = static_cast<double>(m_bounds.height());
+            const double a11 = width_image / (chip_x2 - 1);
+            const double a12 = 0.0;
+            const double a13 = 0.0;
+            const double a21 = 0.0;
+            const double a22 = height_image / (chip_y2 - 1);
+            const double a23 = 0.0;
+            const double a31 = -a11;
+            const double a32 = -a22;
+            const double a33 = 1.0;
+            m_alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+        } else if (m_scaled) {
+            m_alignment *= QTransform::fromScale(0.5, 0.5);
+        }
+        qDebug() << "Setting alignment matrix to " << m_alignment;
+    }
 }
 
 bool Dataset::load_imageAligment()
@@ -284,3 +327,48 @@ bool Dataset::load_imageAligment()
     return parsed;
 }
 
+bool Dataset::load_Image() {
+    // image buffer reader
+    QImageReader imageReader(m_image_file);
+    // scale image to half for big images
+    QSize imageSize = imageReader.size();
+    m_scaled = false;
+    if (imageSize.width() >= 10000 || imageSize.height() >= 10000) {
+        imageSize /= 2;
+        imageReader.setScaledSize(imageSize);
+        m_scaled = true;
+    }
+    // parse the image
+    QImage image;
+    if (!imageReader.read(&image)) {
+        qDebug() << "Tissue image cannot be opened/read" << imageReader.errorString();
+        return false;
+    }
+    // store the image size
+    m_bounds = image.rect();
+    qDebug() << "Setting image of size " << m_bounds;
+    // compute tiles size and numbers
+    const int tile_width = 256;
+    const int tile_height = 256;
+    const int width = image.width();
+    const int height = image.height();
+    const int xCount = width / tile_width;
+    const int yCount = height / tile_height;
+    const int count = xCount * yCount;
+    // create tiles
+    m_image_tiles.clear();
+    #pragma omp parallel for
+    for (int i = 0; i < count; ++i) {
+        // tiles sizes
+        const int x = tile_width * (i % xCount);
+        const int y = tile_height * (i / xCount);
+        const int texture_width = std::min(width - x, tile_width);
+        const int texture_height = std::min(height - y, tile_height);
+        m_image_tiles.push_back(QPair<QImage, QPoint>(image.copy(x,
+                                                                 y,
+                                                                 texture_width,
+                                                                 texture_height),
+                                                      QPoint(x, y)));
+    }
+    return true;
+}

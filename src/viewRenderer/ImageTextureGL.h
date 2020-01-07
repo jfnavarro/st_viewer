@@ -26,15 +26,9 @@ public:
     // will remove and destroy all textures
     void clearData();
 
-    // return the total size of the image as a QRectF
-    QRectF boundingRect() const;
-
     // will split the image given as input into small textures of fixed size
     // returns true if the parsing and creation of tiles was correct
-    bool createTiles(const QString &imagefile);
-
-    // true if the image has been scaled down
-    bool scaled() const;
+    void createTiles(const QVector<QPair<QImage, QPoint>> &tiles);
 
     // draw the image
     void draw(const QMatrix4x4 &mvp_matrx);
@@ -58,9 +52,7 @@ private:
     QOpenGLBuffer m_coordBuf;
     QOpenGLShaderProgram *m_program;
 
-    QRectF m_bounds;
     bool m_isInitialized;
-    bool m_iscaled;
 
     Q_DISABLE_COPY(ImageTextureGL)
 };

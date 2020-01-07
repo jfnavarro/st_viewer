@@ -7,14 +7,9 @@
 #include <QList>
 #include <random>
 
-static const float transSpeed = 0.5f;
-static const float rotSpeed = 0.1f;
-static const QVector3D FORWARD(0.0f, 0.0f, -0.1f);
-static const QVector3D UP(0.0f, 0.1f, 0.0f);
-static const QVector3D RIGHT(0.1f, 0.0f, 0.0f);
 static const QColor lasso_color = QColor(0,0,255,90);
 static const int KEY_OFFSET = 20;
-static const float DEFAULT_ZOOM_ADJUSTMENT = 10.0;
+static const double DEFAULT_ZOOM_ADJUSTMENT = 10.0;
 
 CellGLView3D::CellGLView3D(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -23,8 +18,10 @@ CellGLView3D::CellGLView3D(QWidget *parent)
     , m_initialized(false)
     , m_legend_show(false)
     , m_image_show(true)
-    , m_zoom(1.0f)
-    , m_rotate_factor(0.0)
+    , m_zoom(1.0)
+    , m_rotateX(0.0)
+    , m_rotateY(0.0)
+    , m_rotateZ(0.0)
     , m_flip_factor(0.0)
     , m_rubberBanding(false)
     , m_lassoSelection(false)
@@ -61,10 +58,13 @@ void CellGLView3D::initializeGL()
     // Set global information
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glDisable(GL_ALPHA_TEST);
+    glEnable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -106,7 +106,11 @@ void CellGLView3D::resizeGL(int width, int height)
 
     m_projection.setToIdentity();
     if (m_geneData->is3D()) {
-        m_projection.perspective(60.0f, width / float(height), 0.1f, 1000.0f);
+        const float fovY = 45.0f;
+        const float front = 0.1f;
+        const float back = 128.0f;
+        const float ratio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
+        m_projection.perspective(fovY, ratio, front, back);
     } else {
         m_projection.ortho(QRect(0.0, 0.0, width, height));
     }
@@ -121,50 +125,44 @@ void CellGLView3D::paintGL()
     }
 
     // Compute local transformations
-    m_transform.setToIdentity();
-    if (m_geneData->is3D()) {
-        m_transform.translate(0.0f, 0.0f, -5.0f);
-        m_transform.rotate(m_rotation);
-        m_transform.scale(1.0f, 1.0f, m_zoom);
-    } else {
-        QTransform image_trans = sceneTransformations();
-        m_transform = QMatrix4x4(m_aligment * image_trans);
+    QTransform image_trans = sceneTransformations();
+    m_transform = QMatrix4x4(m_aligment * image_trans);
+    qDebug() << m_transform;
+    if (!m_geneData->is3D() && m_image_show) {
         // render image
-        if (m_image_show) {
-            m_image->draw(m_projection * image_trans);
-        }
+        m_image->draw(m_projection * image_trans);
     }
 
     // render legend
     if (m_legend_show) {
         QPainter painter(this);
+        painter.beginNativePainting();
         painter.setWorldMatrixEnabled(true);
         painter.setViewTransformEnabled(true);
         painter.setRenderHint(QPainter::Antialiasing, true);
-        //painter.setWorldTransform(local_transform);
         m_legend->draw(*m_rendering_settings, painter);
-        //painter.resetTransform();
+        painter.endNativePainting();
     }
 
     // draw selection box/lasso
-    if (m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
+    if (!m_geneData->is3D() && m_selecting && m_lassoSelection && !m_lasso.isEmpty()) {
         QPainter painter(this);
+        painter.beginNativePainting();
         painter.setBrush(lasso_color);
         painter.setPen(lasso_color);
         painter.drawPath(m_lasso.simplified());
+        painter.endNativePainting();
     }
 
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 1.0 : m_rendering_settings->intensity;
-    m_camera.setToIdentity();
-    m_camera.translate(-m_translation);
 
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 5);
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
-    m_program.setUniformValue(u_mvp_matrix, m_projection * m_camera * m_transform);
+    m_program.setUniformValue(u_mvp_matrix, m_projection * m_transform);
     {
         m_vao.bind();
         glDrawArrays(GL_POINTS, 0, m_num_points);
@@ -175,23 +173,39 @@ void CellGLView3D::paintGL()
 
 void CellGLView3D::slotZoomIn()
 {
-    setZoomFactorAndUpdate(m_zoom * (100.0 + DEFAULT_ZOOM_ADJUSTMENT) / 100.0);
+    setZoomFactor(m_zoom * (100.0 + DEFAULT_ZOOM_ADJUSTMENT) / 100.0);
 }
 
 void CellGLView3D::slotZoomOut()
 {
-    setZoomFactorAndUpdate(m_zoom * (100.0 - DEFAULT_ZOOM_ADJUSTMENT) / 100.0);
+    setZoomFactor(m_zoom * (100.0 - DEFAULT_ZOOM_ADJUSTMENT) / 100.0);
 }
 
-void CellGLView3D::slotRotate(const float angle)
+void CellGLView3D::slotRotateX(const double angle)
 {
-    m_rotate_factor += angle;
-    if (std::abs(m_rotate_factor) >= 360) {
-        m_rotate_factor = 0;
+    m_rotateX += angle;
+    if (std::abs(m_rotateX) >= 360) {
+        m_rotateX = 0;
     }
 }
 
-void CellGLView3D::slotFlip(const float angle)
+void CellGLView3D::slotRotateY(const double angle)
+{
+    m_rotateY += angle;
+    if (std::abs(m_rotateY) >= 360) {
+        m_rotateY = 0;
+    }
+}
+
+void CellGLView3D::slotRotateZ(const double angle)
+{
+    m_rotateZ += angle;
+    if (std::abs(m_rotateZ) >= 360) {
+        m_rotateZ = 0;
+    }
+}
+
+void CellGLView3D::slotFlip(const double angle)
 {
     m_flip_factor += angle;
     if (std::abs(m_flip_factor) >= 360) {
@@ -224,45 +238,30 @@ void CellGLView3D::keyPressEvent(QKeyEvent *event)
     if (!m_initialized) {
         return;
     }
-    Qt::KeyboardModifiers modifiers = event->modifiers();
-    if (m_geneData->is3D()){
-        if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Up) {
-            m_translation += (transSpeed * -FORWARD);
-        } else if (modifiers.testFlag(Qt::ShiftModifier) && event->key() == Qt::Key_Down) {
-            m_translation += (transSpeed * FORWARD);
-        } else if (event->key() == Qt::Key_Right) {
-            m_translation += (transSpeed * -RIGHT);
-        } else if (event->key() == Qt::Key_Left) {
-            m_translation += (transSpeed * RIGHT);
-        } else if (event->key() == Qt::Key_Up) {
-            m_translation += (transSpeed * -UP);
-        } else if (event->key() == Qt::Key_Down) {
-            m_translation += (transSpeed * UP);
-        }
-    } else {
-        const float shortest_side_length = qMin(width(), height());
-        const float delta_panning_key = shortest_side_length / (KEY_OFFSET * m_zoom);
 
-        QPointF pan_adjustment(0, 0);
-        switch (event->key()) {
-        case Qt::Key_Right:
-            pan_adjustment = QPoint(-delta_panning_key, 0);
-            break;
-        case Qt::Key_Left:
-            pan_adjustment = QPoint(delta_panning_key, 0);
-            break;
-        case Qt::Key_Up:
-            pan_adjustment = QPoint(0, delta_panning_key);
-            break;
-        case Qt::Key_Down:
-            pan_adjustment = QPoint(0, -delta_panning_key);
-            break;
-        default:
-            break;
-        }
-        // move the view
-        setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
+    const double shortest_side_length = qMin(width(), height());
+    const double delta_panning_key = shortest_side_length / (KEY_OFFSET * m_zoom);
+
+    QPointF pan_adjustment(0, 0);
+    switch (event->key()) {
+    case Qt::Key_Right:
+        pan_adjustment = QPointF(-delta_panning_key, 0);
+        break;
+    case Qt::Key_Left:
+        pan_adjustment = QPointF(delta_panning_key, 0);
+        break;
+    case Qt::Key_Up:
+        pan_adjustment = QPointF(0, delta_panning_key);
+        break;
+    case Qt::Key_Down:
+        pan_adjustment = QPointF(0, -delta_panning_key);
+        break;
+    default:
+        break;
     }
+
+    // move the view
+    setSceneFocusCenterPoint(pan_adjustment + m_scene_focus_center_point);
     event->ignore();
     update();
 }
@@ -273,8 +272,8 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
         return;
     }
     // computes zoom factor and update zoom
-    const float zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
-    setZoomFactorAndUpdate(zoomFactor * m_zoom);
+    const double zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    setZoomFactor(zoomFactor * m_zoom);
     event->ignore();
     update();
 }
@@ -285,25 +284,23 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
         return;
     }
     const bool is_left = event->button() == Qt::LeftButton;
-    if (!m_geneData->is3D()) {
-        if (is_left && m_selecting && !m_lassoSelection) {
-            // rubberbanding changes cursor to pointing hand
-            setCursor(Qt::PointingHandCursor);
-            m_rubberBanding = true;
-            m_originRubberBand = event->pos();
-            m_rubberband->setGeometry(QRect(m_originRubberBand, QSize()));
-            m_rubberband->show();
-        } else if (is_left && m_selecting) {
-            m_lasso = QPainterPath();
-            m_originLasso = event->pos();
-            m_lasso.moveTo(m_originLasso);
-            update();
-        } else if (is_left) {
-            m_panning = true;
-            m_originPanning = event->globalPos(); // panning needs globalPos
-            // panning changes cursor to closed hand
-            setCursor(Qt::ClosedHandCursor);
-        }
+    if (is_left && m_selecting && !m_lassoSelection && !m_geneData->is3D()) {
+        // rubberbanding changes cursor to pointing hand
+        setCursor(Qt::PointingHandCursor);
+        m_rubberBanding = true;
+        m_originRubberBand = event->pos();
+        m_rubberband->setGeometry(QRect(m_originRubberBand, QSize()));
+        m_rubberband->show();
+    } else if (is_left && m_selecting && !m_geneData->is3D()) {
+        m_lasso = QPainterPath();
+        m_originLasso = event->pos();
+        m_lasso.moveTo(m_originLasso);
+        update();
+    } else if (is_left) {
+        m_panning = true;
+        m_originPanning = event->globalPos(); // panning needs globalPos
+        // panning changes cursor to closed hand
+        setCursor(Qt::ClosedHandCursor);
     }
     m_lastPos = event->pos();
     event->ignore();
@@ -314,39 +311,25 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
     if (!m_initialized) {
         return;
     }
-    if (!m_geneData->is3D()) {
-        const bool is_left = event->buttons() & Qt::LeftButton;
-        // first check if we are in selection mode
-        if (is_left && m_selecting && m_rubberBanding) {
-            // update the rubber band
-            m_rubberband->setGeometry(QRect(m_originRubberBand, event->pos()).normalized());
-        } else if (is_left && m_selecting) {
-            const QPoint new_point = event->pos();
-            if ((new_point - m_originLasso).manhattanLength() > 5) {
-                m_lasso.lineTo(new_point);
-                m_originLasso = new_point;
-                update();
-            }
-        } else if (is_left && m_panning) {
-            // user is moving the view (panning)
-            const QPoint point = event->globalPos(); // panning needs global pos
-            const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom;
-            setSceneFocusCenterPointWithClamping(pan_adjustment + m_scene_focus_center_point);
-            m_originPanning = point;
+    const bool is_left = event->buttons() & Qt::LeftButton;
+    // first check if we are in selection mode
+    if (is_left && m_selecting && m_rubberBanding && !m_geneData->is3D()) {
+        // update the rubber band
+        m_rubberband->setGeometry(QRect(m_originRubberBand, event->pos()).normalized());
+    } else if (is_left && m_selecting && !m_geneData->is3D()) {
+        const QPoint new_point = event->pos();
+        if ((new_point - m_originLasso).manhattanLength() > 5) {
+            m_lasso.lineTo(new_point);
+            m_originLasso = new_point;
+            update();
         }
-    } else {
-        const int dx = event->x() - m_lastPos.x();
-        const int dy = event->y() - m_lastPos.y();
-        if (event->buttons() & Qt::LeftButton) {
-            m_rotation *= QQuaternion::fromAxisAndAngle(UP, -rotSpeed * dx);
-            m_rotation *= QQuaternion::fromAxisAndAngle(RIGHT, -rotSpeed * dy);
-        } else if (event->buttons() & Qt::RightButton) {
-            //TODO translate from mouse position
-            m_translation += (transSpeed * dx * -RIGHT);
-            m_translation += (transSpeed * dy * UP);
-        }
+    } else if (is_left && m_panning) {
+        // user is moving the view (panning)
+        const QPoint point = event->globalPos(); // panning needs global pos
+        const QPointF pan_adjustment = QPointF(point - m_originPanning) / m_zoom;
+        setSceneFocusCenterPoint(pan_adjustment + m_scene_focus_center_point);
+        m_originPanning = point;
     }
-
     m_lastPos = event->pos();
     event->ignore();
     update();
@@ -358,57 +341,38 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
     const bool is_left = event->button() == Qt::LeftButton;
-    if (!m_geneData->is3D()) {
-        if (is_left && m_selecting && m_rubberBanding) {
-            unsetCursor();
-            const QRectF rubberBandRect = m_rubberband->geometry();
-            QPainterPath path;
-            path.addRect(rubberBandRect);
-            sendSelectionEvent(path, event);
-            m_rubberband->hide();
-            m_rubberBanding = false;
-        } else if (is_left && m_selecting) {
-            sendSelectionEvent(m_lasso, event);
-            m_lasso = QPainterPath();
-            update();
-        } else if (is_left && m_panning) {
-            unsetCursor();
-            m_panning = false;
-        }
+    if (is_left && m_selecting && m_rubberBanding && !m_geneData->is3D()) {
+        unsetCursor();
+        const QRectF rubberBandRect = m_rubberband->geometry();
+        QPainterPath path;
+        path.addRect(rubberBandRect);
+        sendSelectionEvent(path, event);
+        m_rubberband->hide();
+        m_rubberBanding = false;
+    } else if (is_left && m_selecting && !m_geneData->is3D()) {
+        sendSelectionEvent(m_lasso, event);
+        m_lasso = QPainterPath();
+        update();
+    } else if (is_left && m_panning) {
+        unsetCursor();
+        m_panning = false;
     }
     event->ignore();
 }
 
-const QRectF CellGLView3D::allowedCenterPoints() const
-{
-    const QRectF m_scene = m_image->boundingRect();
-    QRectF allowed_center_points(0,
-                                 0,
-                                 qMax(m_scene.width() - width() / m_zoom, 0.0),
-                                 qMax(m_scene.height() - height() / m_zoom, 0.0));
-    allowed_center_points.moveCenter(m_scene.center());
-    return allowed_center_points;
-}
-
-void CellGLView3D::setZoomFactorAndUpdate(const float zoom)
+void CellGLView3D::setZoomFactor(const double zoom)
 {
     if (m_zoom != zoom) {
         m_zoom = zoom;
-        setSceneFocusCenterPointWithClamping(m_scene_focus_center_point);
+        setSceneFocusCenterPoint(m_scene_focus_center_point);
         update();
     }
 }
 
-void CellGLView3D::setSceneFocusCenterPointWithClamping(const QPointF &center_point)
+void CellGLView3D::setSceneFocusCenterPoint(const QPointF &center_point)
 {
-    const QRectF allowed_center_points_rect = allowedCenterPoints();
-    QPointF clamped_point = center_point;
-    clamped_point.setY(qMax(clamped_point.y(), allowed_center_points_rect.top()));
-    clamped_point.setY(qMin(clamped_point.y(), allowed_center_points_rect.bottom()));
-    clamped_point.setX(qMax(clamped_point.x(), allowed_center_points_rect.left()));
-    clamped_point.setX(qMin(clamped_point.x(), allowed_center_points_rect.right()));
-    if (clamped_point != m_scene_focus_center_point) {
-        m_scene_focus_center_point = clamped_point;
+    if (center_point != m_scene_focus_center_point) {
+        m_scene_focus_center_point = center_point;
         update();
     }
 }
@@ -445,46 +409,21 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
                            dataset.yrange().x(),
                            dataset.xrange().y(),
                            dataset.yrange().y());
+    m_boundingRectImage = dataset.image_bounds();
+    m_aligment = dataset.imageAlignment();
 
     makeCurrent();
 
-    // If the dataset contains a valid image we load it and we also load the
-    // transformation matrix
-    if (!dataset.imageFile().isNull() && !dataset.imageFile().isEmpty() && !m_geneData->is3D()) {
-        QTransform alignment = dataset.imageAlignment();
-        const bool result = m_image->createTiles(dataset.imageFile());
-        if (!result) {
-            QMessageBox::warning(this, tr("Tissue image"), tr("Error loading tissue image"));
-        } else {
-            qDebug() << "Setting image of size " << m_image->boundingRect();
-            // If the user has not given any transformation matrix
-            // we compute a simple transformation matrix using
-            // the image and chip dimensions so the spot's coordinates
-            // can be mapped to the image's coordinates space
-            if (alignment.isIdentity()) {
-                const double chip_x2 = static_cast<double>(dataset.xrange().y());
-                const double chip_y2 = static_cast<double>(dataset.yrange().y());
-                const double width_image = static_cast<double>(m_image->boundingRect().width());
-                const double height_image = static_cast<double>(m_image->boundingRect().height());
-                const double a11 = width_image / (chip_x2 - 1);
-                const double a12 = 0.0;
-                const double a13 = 0.0;
-                const double a21 = 0.0;
-                const double a22 = height_image / (chip_y2 - 1);
-                const double a23 = 0.0;
-                const double a31 = -a11;
-                const double a32 = -a22;
-                const double a33 = 1.0;
-                alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-            } else if (m_image->scaled()) {
-                alignment *= QTransform::fromScale(0.5, 0.5);
-            }
-        }
-        m_aligment = alignment;
-        qDebug() << "Setting alignment matrix to " << alignment;
-        m_scene_focus_center_point = m_image->boundingRect().center();
+    // If the dataset is 3D we create textures from the image tiles
+    // and load the image alignment
+    if (!m_geneData->is3D()) {
+        m_image->createTiles(dataset.image_tiles());
+        m_scene_focus_center_point = m_boundingRectImage.center();
+    } else {
+        m_scene_focus_center_point = m_boundingRect.center();
     }
 
+    // Create buffers
     const auto &indexes = m_geneData->renderingCoords();
     const auto &colors = m_geneData->renderingColors();
     const auto &visibles = m_geneData->renderingVisible();
@@ -597,7 +536,7 @@ void CellGLView3D::clearData()
     m_visible_buffer.destroy();
     m_selected_buffer.destroy();
     m_vao.destroy();
-    m_zoom = 1.0f;
+    m_zoom = 1.0;
     m_num_points = 0;
     m_initialized = false;
     m_rubberBanding = false;
@@ -606,28 +545,31 @@ void CellGLView3D::clearData()
     m_image_show = true;
     m_legend_show = false;
     m_transform.setToIdentity();
-    m_rotation = QQuaternion();
-    m_translation = QVector3D();
     m_image->clearData();
     m_legend->clearData();
     m_aligment.reset();
+    m_projection.setToIdentity();
+    m_transform.setToIdentity();
     m_flip_factor = 0.0;
-    m_rotate_factor = 0.0;
+    m_rotateX = 0.0;
+    m_rotateY = 0.0;
+    m_rotateZ = 0.0;
     update();
 }
 
 const QTransform CellGLView3D::sceneTransformations() const
 {
     // returns all the transformations applied to the scene from the user with respect to the viewport
-
-    const QPointF image_center = m_image->boundingRect().center();
+    const QPointF image_center = m_geneData->is3D() ? m_boundingRect.center() :
+                                                      m_boundingRectImage.center();
     const QPointF point = image_center + (image_center - m_scene_focus_center_point);
     const double viewport_w = static_cast<double>(width());
     const double viewport_h = static_cast<double>(height());
-
     QTransform transform;
     transform.translate(point.x(), point.y());
-    transform.rotate(m_rotate_factor, Qt::ZAxis);
+    transform.rotate(m_rotateX, Qt::XAxis);
+    transform.rotate(m_rotateY, Qt::YAxis);
+    transform.rotate(m_rotateZ, Qt::ZAxis);
     if (m_flip_factor == 180) {
         transform.scale(1.0, -1.0);
     }
