@@ -59,7 +59,7 @@ void CellGLView3D::initializeGL()
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
@@ -68,7 +68,7 @@ void CellGLView3D::initializeGL()
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
+    //glBlendEquation(GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
@@ -127,6 +127,7 @@ void CellGLView3D::paintGL()
     // Compute local transformations
     QTransform image_trans = sceneTransformations();
     m_transform = QMatrix4x4(m_aligment * image_trans);
+    m_transform.translate(0.0, 0.0, -10.0);
     qDebug() << m_transform;
     if (!m_geneData->is3D() && m_image_show) {
         // render image
@@ -184,7 +185,7 @@ void CellGLView3D::slotZoomOut()
 void CellGLView3D::slotRotateX(const double angle)
 {
     m_rotateX += angle;
-    if (std::abs(m_rotateX) >= 360) {
+    if (std::fabs(m_rotateX) >= 360) {
         m_rotateX = 0;
     }
 }
@@ -192,7 +193,7 @@ void CellGLView3D::slotRotateX(const double angle)
 void CellGLView3D::slotRotateY(const double angle)
 {
     m_rotateY += angle;
-    if (std::abs(m_rotateY) >= 360) {
+    if (std::fabs(m_rotateY) >= 360) {
         m_rotateY = 0;
     }
 }
@@ -200,7 +201,7 @@ void CellGLView3D::slotRotateY(const double angle)
 void CellGLView3D::slotRotateZ(const double angle)
 {
     m_rotateZ += angle;
-    if (std::abs(m_rotateZ) >= 360) {
+    if (std::fabs(m_rotateZ) >= 360) {
         m_rotateZ = 0;
     }
 }
@@ -208,7 +209,7 @@ void CellGLView3D::slotRotateZ(const double angle)
 void CellGLView3D::slotFlip(const double angle)
 {
     m_flip_factor += angle;
-    if (std::abs(m_flip_factor) >= 360) {
+    if (std::fabs(m_flip_factor) >= 360) {
         m_flip_factor = 0;
     }
 }
@@ -272,10 +273,9 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
         return;
     }
     // computes zoom factor and update zoom
-    const double zoomFactor = qPow(4.0 / 3.0, (event->delta() / 240.0));
+    const double zoomFactor = std::pow(4.0 / 3.0, (event->delta() / 240.0));
     setZoomFactor(zoomFactor * m_zoom);
     event->ignore();
-    update();
 }
 
 void CellGLView3D::mousePressEvent(QMouseEvent *event)
@@ -364,7 +364,6 @@ void CellGLView3D::setZoomFactor(const double zoom)
 {
     if (m_zoom != zoom) {
         m_zoom = zoom;
-        setSceneFocusCenterPoint(m_scene_focus_center_point);
         update();
     }
 }
@@ -373,7 +372,6 @@ void CellGLView3D::setSceneFocusCenterPoint(const QPointF &center_point)
 {
     if (center_point != m_scene_focus_center_point) {
         m_scene_focus_center_point = center_point;
-        update();
     }
 }
 
@@ -405,12 +403,11 @@ void CellGLView3D::attachSettings(SettingsWidget::Rendering *rendering_settings)
 void CellGLView3D::attachDataset(const Dataset &dataset)
 {
     m_geneData = dataset.data();
+    m_aligment = dataset.imageAlignment();
     m_boundingRect = QRect(dataset.xrange().x(),
                            dataset.yrange().x(),
                            dataset.xrange().y(),
                            dataset.yrange().y());
-    m_boundingRectImage = dataset.image_bounds();
-    m_aligment = dataset.imageAlignment();
 
     makeCurrent();
 
@@ -418,9 +415,8 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
     // and load the image alignment
     if (!m_geneData->is3D()) {
         m_image->createTiles(dataset.image_tiles());
+        m_boundingRectImage = dataset.image_bounds();
         m_scene_focus_center_point = m_boundingRectImage.center();
-    } else {
-        m_scene_focus_center_point = m_boundingRect.center();
     }
 
     // Create buffers
@@ -560,11 +556,12 @@ void CellGLView3D::clearData()
 const QTransform CellGLView3D::sceneTransformations() const
 {
     // returns all the transformations applied to the scene from the user with respect to the viewport
-    const QPointF image_center = m_geneData->is3D() ? m_boundingRect.center() :
-                                                      m_boundingRectImage.center();
-    const QPointF point = image_center + (image_center - m_scene_focus_center_point);
-    const double viewport_w = static_cast<double>(width());
-    const double viewport_h = static_cast<double>(height());
+    const double w = static_cast<double>(width());
+    const double h = static_cast<double>(height());
+    const QPointF center = m_geneData->is3D() ? QRectF(0.0, 0.0, w, h).center() :
+                                                m_boundingRectImage.center();
+    const QPointF point = center + (center - m_scene_focus_center_point);
+    qDebug() << center << " - " << m_scene_focus_center_point;
     QTransform transform;
     transform.translate(point.x(), point.y());
     transform.rotate(m_rotateX, Qt::XAxis);
@@ -574,7 +571,7 @@ const QTransform CellGLView3D::sceneTransformations() const
         transform.scale(1.0, -1.0);
     }
     transform.scale(1 / m_zoom, 1 / m_zoom);
-    transform.translate(-viewport_w / 2.0, -viewport_h / 2.0);
+    transform.translate(-w / 2.0, -h / 2.0);
     return transform.inverted();
 }
 
