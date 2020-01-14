@@ -648,7 +648,6 @@ const QRectF STData::getBorder() const
     return QRectF(QPointF(min_x, min_y), QPointF(max_x, max_y));
 }
 
-
 bool STData::is3D() const
 {
     return m_is3D;

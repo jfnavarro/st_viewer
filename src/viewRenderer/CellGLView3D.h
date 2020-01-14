@@ -56,12 +56,10 @@ public slots:
 
     void slotZoomIn();
     void slotZoomOut();
-    void slotRotateX(const double angle);
-    void slotRotateY(const double angle);
-    void slotRotateZ(const double angle);
+    void slotRotate(const double angle);
     void slotFlip(const double angle);
 
-    void slotSelectionMode(const bool selection);
+    void slotRubberBandSelectionMode(const bool rubberband);
     void slotLassoSelectionMode(const bool lasso);
 
     void slotLegendVisible(const bool visible);
@@ -76,14 +74,18 @@ signals:
 private:
 
     void sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event);
-    const QTransform sceneTransformations() const;
-    void setSceneFocusCenterPoint(const QPointF &center_point);
-    void setZoomFactor(const double zoom);
+    const QMatrix4x4 viewMatrix3D() const;
+    const QMatrix4x4 viewMatrix2D() const;
+    const QMatrix4x4 projectionMatrix3D() const;
+    const QMatrix4x4 projectionMatrix2D() const;
+    const QVector3D cameraPosition();
+    void setPan(const double dx, const double dy, const double dz, const bool view);
+    void setRotation(const double azim, const double elevation);
 
     // rendering settings
     SettingsWidget::Rendering *m_rendering_settings;
 
-    // OpenGL State Information
+    // OpenGL buffers
     QOpenGLBuffer m_pos_buffer;
     QOpenGLBuffer m_color_buffer;
     QOpenGLBuffer m_visible_buffer;
@@ -98,35 +100,33 @@ private:
     int u_size;
     int u_alpha;
 
-    // camera/projection/view matrices
-    QMatrix4x4 m_projection;
-    QMatrix4x4 m_transform;
-
-    // alignment data to image (if applicable)
+    // transformation matrix to apply to data points
     QTransform m_aligment;
 
+    // flags to show or not the legend and the tissue image
     bool m_legend_show;
     bool m_image_show;
 
     // helper variables for zooming, rotation and panning
+    QPoint m_pos;
     double m_zoom;
-    QPoint m_lastPos;
-    QPoint m_originPanning;
-    QPointF m_scene_focus_center_point;
-    bool m_panning;
-    QRectF m_boundingRect;
-    QRectF m_boundingRectImage;
-    double m_rotateX;
-    double m_rotateY;
-    double m_rotateZ;
+    double m_rotate_factor;
     double m_flip_factor;
+    double m_elevation;
+    double m_azimuth;
+    double m_centerX;
+    double m_centerY;
+    double m_centerZ;
+    double m_dist;
+    double m_fov;
+
+    QRectF m_imageRect;
 
     // helper variables for selection
-    QPoint m_originRubberBand;
-    QPoint m_originLasso;
+    QRectF m_boundingRect;
+    QPoint m_originSelection;
     bool m_rubberBanding;
     bool m_lassoSelection;
-    bool m_selecting;
     QScopedPointer<QRubberBand> m_rubberband;
     QPainterPath m_lasso;
 

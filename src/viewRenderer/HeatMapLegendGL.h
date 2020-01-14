@@ -21,8 +21,6 @@ public:
     // clear up all data
     void clearData();
 
-    QRectF boundingRect() const;
-
     void draw(const SettingsWidget::Rendering &rendering_settings, QPainter &painter);
 
     // Update the rendering data

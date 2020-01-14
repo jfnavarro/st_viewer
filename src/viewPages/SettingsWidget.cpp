@@ -115,6 +115,11 @@ SettingsWidget::Rendering &SettingsWidget::renderingSettings()
     return m_rendering_settings;
 }
 
+void SettingsWidget::slotShowImageEnabled(const bool enabled)
+{
+    m_ui->show_image->setEnabled(enabled);
+}
+
 void SettingsWidget::slotGenesTreshold(int value)
 {
     if (value != m_rendering_settings.genes_threshold) {

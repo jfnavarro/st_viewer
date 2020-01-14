@@ -122,7 +122,7 @@ void AnalysisClustering::computeClustersAsync()
     QWidget *tsne_tab = m_ui->tab->findChild<QWidget *>("tab_tsne");
     QWidget *pca_tab = m_ui->tab->findChild<QWidget *>("tab_pca");
 
-    const int no_dims = 2;
+    const int NO_DIMS = 2;
     const int perplexity = tsne_tab->findChild<QSpinBox *>("perplexity")->value();
     const double theta = tsne_tab->findChild<QDoubleSpinBox *>("theta")->value();
     const int max_iter = tsne_tab->findChild<QSpinBox *>("max_iter")->value();
@@ -152,13 +152,13 @@ void AnalysisClustering::computeClustersAsync()
     mat results;
     // Run dimensionality reduction
     if (tsne) {
-        results = STMath::tSNE(A, theta, perplexity, max_iter, no_dims, init_dim, -1, false);
+        results = STMath::tSNE(A, theta, perplexity, max_iter, NO_DIMS, init_dim, -1, true);
     } else {
-        results = STMath::PCA(A, no_dims, center, scale, false);
+        results = STMath::PCA(A, NO_DIMS, center, scale, true);
     }
 
     // Run clustering
-    mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
+    mat results_clustering = STMath::kmeans_clustering(results, num_clusters, true);
     m_clusters.clear();
     m_reduced_coordinates.clear();
     #pragma omp parallel for collapse(2)

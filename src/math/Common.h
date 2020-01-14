@@ -14,12 +14,18 @@
 
 using namespace arma;
 
-constexpr double PI = 3.14159265358979323846;
-constexpr double NUM_E = 2.71828182845904523536;
-
 // Common provides miscellaneous functionality for maths and statistics
 namespace STMath
 {
+
+constexpr double PI = 3.14159265358979323846;
+constexpr double NUM_E = 2.71828182845904523536;
+
+inline double deg3rad(const double degrees)
+{
+    return (degrees * PI) / 180;
+}
+
 // clamp size to
 // NOTE: Qt::KeepAspectRatio might be prone to numerical errors
 //(ie. any skewing introduced due to num error will be kept)
@@ -195,7 +201,8 @@ inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
 
 // Simple pval correction using the Bonferroni method
 //TODO implement the Benjamini/Hochberg method
-inline std::vector<double> p_adjust(const std::vector<double> &pvals) {
+inline std::vector<double> p_adjust(const std::vector<double> &pvals)
+{
     const double m = static_cast<double>(pvals.size());
     std::vector<double> padjust;
     for (auto pval : pvals) {
@@ -208,8 +215,8 @@ inline mat PCA(const mat &data,
                const int no_dims,
                const bool center = false,
                const bool scale = false,
-               const bool debug = false) {
-
+               const bool debug = false)
+{
     mat X = data;
     if (center) {
         const auto means = mean(X,0);
@@ -237,7 +244,8 @@ inline mat PCA(const mat &data,
 
 inline mat kmeans_clustering(const mat &data,
                              const int k,
-                             const bool debug = false) {
+                             const bool debug = false)
+{
     mat centroids;
     const bool status = kmeans(centroids, data.t(), k, random_subset, 1000, false);
     if (debug) {
@@ -255,11 +263,11 @@ inline mat tSNE(const mat &data,
                 const int no_dims = 2,
                 const int init_dim = 50,
                 const int rand_seed = -1,
-                const bool debug = false) {
-
+                const bool debug = false)
+{
     const int N = data.n_rows;
     mat data_reduced = PCA(data, init_dim, true, false, false);
-    double *Y = new double[N * no_dims];
+    double *Y = new double[N * no_dims * sizeof(double)];
     double *X = data_reduced.memptr();
     TSNE::run(X, N, init_dim, Y, no_dims,
               perplexity, theta, rand_seed, false, max_iter, 250, 250);

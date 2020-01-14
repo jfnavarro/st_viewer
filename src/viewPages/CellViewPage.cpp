@@ -122,6 +122,10 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_ui->rotate_left->setEnabled(!dataset.data()->is3D());
     m_ui->rotate_right->setEnabled(!dataset.data()->is3D());
     m_ui->flip->setEnabled(!dataset.data()->is3D());
+    m_ui->createSelection->setEnabled(!dataset.data()->is3D());
+    m_ui->zoomin->setEnabled(!dataset.data()->is3D());
+    m_ui->zoomout->setEnabled(!dataset.data()->is3D());
+    m_settings->slotShowImageEnabled(!dataset.data()->is3D());
 
     // show settings widget
     m_settings->show();
@@ -170,7 +174,7 @@ void CellViewPage::createConnections()
 
     // selection mode
     connect(m_ui->selection, &QPushButton::clicked, [=] {
-        m_ui->view->slotSelectionMode(m_ui->selection->isChecked());
+        m_ui->view->slotRubberBandSelectionMode(m_ui->selection->isChecked());
     });
     connect(m_ui->lasso_selection, &QPushButton::clicked, [=] {
         m_ui->view->slotLassoSelectionMode(m_ui->lasso_selection->isChecked());
@@ -178,11 +182,11 @@ void CellViewPage::createConnections()
 
     // view rotations
     connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
-        m_ui->view->slotRotateZ(-45);
+        m_ui->view->slotRotate(-45);
         m_ui->view->update();
     });
     connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
-        m_ui->view->slotRotateZ(45);
+        m_ui->view->slotRotate(45);
         m_ui->view->update();
     });
     connect(m_ui->flip, &QPushButton::clicked, [=] {

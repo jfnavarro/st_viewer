@@ -9,8 +9,8 @@
 
 static const double legend_x = 5.0;
 static const double legend_y = 5.0;
-static const double legend_width = 30.0;
-static const double legend_height = 200.0;
+static const int legend_width = 30;
+static const int legend_height = 200;
 static const double bars_width = 40.0;
 
 HeatMapLegendGL::HeatMapLegendGL()
@@ -58,9 +58,4 @@ void HeatMapLegendGL::draw(const SettingsWidget::Rendering &rendering_setting, Q
     painter.setBrush(Qt::darkBlue);
     painter.drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
     painter.drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
-}
-
-QRectF HeatMapLegendGL::boundingRect() const
-{
-    return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
 }
