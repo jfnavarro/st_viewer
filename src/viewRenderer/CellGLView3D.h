@@ -100,9 +100,6 @@ private:
     int u_size;
     int u_alpha;
 
-    // transformation matrix to apply to data points
-    QTransform m_aligment;
-
     // flags to show or not the legend and the tissue image
     bool m_legend_show;
     bool m_image_show;
@@ -120,18 +117,15 @@ private:
     double m_dist;
     double m_fov;
 
-    QRectF m_imageRect;
-
     // helper variables for selection
-    QRectF m_boundingRect;
     QPoint m_originSelection;
     bool m_rubberBanding;
     bool m_lassoSelection;
     QScopedPointer<QRubberBand> m_rubberband;
     QPainterPath m_lasso;
 
-    // rendering data
-    QSharedPointer<STData> m_geneData;
+    // dataset (to be rendered)
+    Dataset m_dataset;
 
     // rendering objects
     QScopedPointer<ImageTextureGL> m_image;

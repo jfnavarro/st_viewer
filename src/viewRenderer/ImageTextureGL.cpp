@@ -24,6 +24,7 @@ ImageTextureGL::~ImageTextureGL()
 {
     clearData();
     delete m_program;
+    m_program = nullptr;
 }
 
 void ImageTextureGL::init()

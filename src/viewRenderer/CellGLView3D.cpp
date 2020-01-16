@@ -31,7 +31,7 @@ CellGLView3D::CellGLView3D(QWidget *parent)
     , m_rubberBanding(false)
     , m_lassoSelection(false)
     , m_rubberband(nullptr)
-    , m_geneData(nullptr)
+    , m_dataset()
     , m_image(nullptr)
     , m_legend(nullptr)
 {
@@ -68,7 +68,6 @@ void CellGLView3D::clearData()
     m_legend_show = false;
     m_image->clearData();
     m_legend->clearData();
-    m_aligment.reset();
     m_zoom = 1.0;
     m_rotate_factor = 0.0;
     m_flip_factor = 0.0;
@@ -186,7 +185,8 @@ const QMatrix4x4 CellGLView3D::viewMatrix2D() const
     const double w = static_cast<double>(width()) * dpr;
     const double h = static_cast<double>(height()) * dpr;
     const QPointF focus(m_centerX, m_centerY);
-    const QPointF point = m_imageRect.center() + (m_imageRect.center() - focus);
+    const QRect imageRect = m_dataset.image_bounds();
+    const QPointF point = imageRect.center() + (imageRect.center() - focus);
     tr.translate(point.x(), point.y());
     if (m_rotate_factor != 0) {
         tr.rotate(0, 0, m_rotate_factor);
@@ -249,35 +249,38 @@ void CellGLView3D::paintGL()
         return;
     }
 
+    const bool is3D = m_dataset.is3D();
+
     // model view matrices
-    const QMatrix4x4 view = m_geneData->is3D() ? viewMatrix3D() : viewMatrix2D();
-    const QMatrix4x4 projection = m_geneData->is3D() ? projectionMatrix3D() : projectionMatrix2D();
-    const QMatrix4x4 mvp = m_geneData->is3D() ? projection * view : projection * view * m_aligment;
+    const QTransform aligment = m_dataset.imageAlignment();
+    const QMatrix4x4 view = is3D ? viewMatrix3D() : viewMatrix2D();
+    const QMatrix4x4 projection = is3D ? projectionMatrix3D() : projectionMatrix2D();
+    const QMatrix4x4 mvp = is3D ? projection * view : projection * view * aligment;
+
+    // render axes
+    if (is3D) {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setPen(QPen(Qt::white, 1));
+        painter.setBrush(Qt::white);
+        const double x0 = 50.0;
+        const double y0 = static_cast<double>(height()) - 50.0;
+        const double l = 25.0;
+        QMatrix4x4 tr;
+        tr.translate(x0,y0);
+        tr.rotate(m_elevation - 90, 1, 0, 0);
+        tr.rotate(m_azimuth + 90, 0, 0, -1);
+        tr.translate(-x0,-y0);
+        painter.setTransform(tr.toTransform());
+        painter.drawLine(QLineF(x0, y0, x0 + l, y0));
+        painter.drawLine(QLineF(x0, y0, x0, y0 - l));
+        painter.drawLine(QLineF(x0, y0, x0 - l/2, y0 + l/2));
+        painter.end();
+    }
 
     // render image
-    if (!m_geneData->is3D() && m_image_show) {
+    if (!is3D && m_image_show) {
         m_image->draw(projection * view);
-    }
-
-    // render legend
-    if (m_legend_show) {
-        QPainter painter(this);
-        painter.beginNativePainting();
-        painter.setWorldMatrixEnabled(true);
-        painter.setViewTransformEnabled(true);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        m_legend->draw(*m_rendering_settings, painter);
-        painter.endNativePainting();
-    }
-
-    // render selection box/lasso
-    if (!m_geneData->is3D() && m_lassoSelection && !m_lasso.isEmpty()) {
-        QPainter painter(this);
-        painter.beginNativePainting();
-        painter.setBrush(lasso_color);
-        painter.setPen(lasso_color);
-        painter.drawPath(m_lasso.simplified());
-        painter.endNativePainting();
     }
 
     const double alpha =
@@ -295,6 +298,24 @@ void CellGLView3D::paintGL()
         m_vao.release();
     }
     m_program.release();
+
+    // render legend
+    if (m_legend_show) {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        m_legend->draw(*m_rendering_settings, painter);
+        painter.end();
+    }
+
+    // render selection box/lasso
+    if (!is3D && m_lassoSelection && !m_lasso.isEmpty()) {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setBrush(lasso_color);
+        painter.setPen(lasso_color);
+        painter.drawPath(m_lasso.simplified());
+        painter.end();
+    }
 }
 
 void CellGLView3D::slotZoomIn()
@@ -314,6 +335,7 @@ void CellGLView3D::slotRotate(const double angle)
     m_rotate_factor += angle;
     if (std::fabs(m_rotate_factor) >= 360) {
         m_rotate_factor = 0;
+        update();
     }
 }
 
@@ -322,6 +344,7 @@ void CellGLView3D::slotFlip(const double angle)
     m_flip_factor += angle;
     if (std::fabs(m_flip_factor) >= 360) {
         m_flip_factor = 0;
+        update();
     }
 }
 
@@ -338,11 +361,13 @@ void CellGLView3D::slotLassoSelectionMode(const bool lasso)
 void CellGLView3D::slotLegendVisible(const bool visible)
 {
    m_legend_show = visible;
+   update();
 }
 
 void CellGLView3D::slotImageVisible(const bool visible)
 {
     m_image_show = visible;
+    update();
 }
 
 void CellGLView3D::keyPressEvent(QKeyEvent *event)
@@ -350,7 +375,7 @@ void CellGLView3D::keyPressEvent(QKeyEvent *event)
     if (!m_initialized) {
         return;
     }
-    const bool is3D = m_geneData->is3D();
+    const bool is3D = m_dataset.is3D();
     switch (event->key()) {
     case Qt::Key_Right:
         if (is3D) {
@@ -409,7 +434,7 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
         return;
     }
     const bool is_left = event->button() == Qt::LeftButton;
-    const bool is3D = m_geneData->is3D();
+    const bool is3D = m_dataset.is3D();
     if (is_left && m_rubberBanding && !is3D) {
         // rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
@@ -435,7 +460,7 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
         return;
     }
     const bool is_left = event->buttons() & Qt::LeftButton;
-    const bool is3D = m_geneData->is3D();
+    const bool is3D = m_dataset.is3D();
     const QPoint diff = event->globalPos() - m_pos;
     m_pos = event->globalPos();
     // first check if we are in selection mode
@@ -464,7 +489,7 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
     }
     unsetCursor();
     const bool is_left = event->button() == Qt::LeftButton;
-    const bool is3D = m_geneData->is3D();
+    const bool is3D = m_dataset.is3D();
     if (is_left && m_rubberBanding && !is3D) {
         const QRectF rubberBandRect = m_rubberband->geometry();
         QPainterPath path;
@@ -482,10 +507,11 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView3D::sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event)
 {
     // map selected area to node cordinate system
-    QPainterPath transformed = QTransform(m_aligment * viewMatrix2D().toTransform()).inverted().map(path);
+    const QTransform alignment = m_dataset.imageAlignment();
+    QPainterPath transformed = QTransform(alignment * viewMatrix2D().toTransform()).inverted().map(path);
 
     // if selection area is not inside the bounding rect select empty rect
-    if (!transformed.intersects(m_boundingRect)) {
+    if (!transformed.intersects(m_dataset.data_bounds())) {
         transformed = QPainterPath();
     }
 
@@ -495,7 +521,7 @@ void CellGLView3D::sendSelectionEvent(const QPainterPath &path, const QMouseEven
     const SelectionEvent selectionEvent(transformed, mode);
 
     // send selection event to dataset
-    m_geneData->selectSpots(selectionEvent);
+    m_dataset.data()->selectSpots(selectionEvent);
     slotUpdate();
 }
 
@@ -506,32 +532,23 @@ void CellGLView3D::attachSettings(SettingsWidget::Rendering *rendering_settings)
 
 void CellGLView3D::attachDataset(const Dataset &dataset)
 {
-    m_geneData = dataset.data();
-    m_aligment = dataset.imageAlignment();
-    m_boundingRect = QRect(dataset.xrange().x(),
-                           dataset.yrange().x(),
-                           dataset.xrange().y(),
-                           dataset.yrange().y());
+    m_dataset = dataset;
 
     makeCurrent();
 
     // If the dataset is 3D we create textures from the image tiles
     // and load the image alignment
-    if (!m_geneData->is3D()) {
+    if (!dataset.is3D()) {
         m_image->createTiles(dataset.image_tiles());
-        m_imageRect = dataset.image_bounds();
-        m_centerX = m_imageRect.center().x();
-        m_centerY = m_imageRect.center().y();
-    } else {
-        m_centerX = m_boundingRect.x();
-        m_centerY = m_boundingRect.y();
+        m_centerX = dataset.image_bounds().center().x();
+        m_centerY = dataset.image_bounds().center().y();
     }
 
     // Create buffers
-    const auto &indexes = m_geneData->renderingCoords();
-    const auto &colors = m_geneData->renderingColors();
-    const auto &visibles = m_geneData->renderingVisible();
-    const auto &selecteds = m_geneData->renderingSelected();
+    const auto &indexes = dataset.data()->renderingCoords();
+    const auto &colors = dataset.data()->renderingColors();
+    const auto &visibles = dataset.data()->renderingVisible();
+    const auto &selecteds = dataset.data()->renderingSelected();
     m_num_points = indexes.size();
 
     {
@@ -584,16 +601,15 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
 
     doneCurrent();
     m_initialized = true;
-    resizeGL(width(), height());
     update();
 }
 
 void CellGLView3D::slotUpdate()
 {
-    m_geneData->computeRenderingData(*m_rendering_settings);
-    const auto &colors = m_geneData->renderingColors();
-    const auto &visibles = m_geneData->renderingVisible();
-    const auto &selecteds = m_geneData->renderingSelected();
+    m_dataset.data()->computeRenderingData(*m_rendering_settings);
+    const auto &colors = m_dataset.data()->renderingColors();
+    const auto &visibles = m_dataset.data()->renderingVisible();
+    const auto &selecteds = m_dataset.data()->renderingSelected();
 
     {
         makeCurrent();

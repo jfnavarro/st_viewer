@@ -39,7 +39,9 @@ public:
     const QPoint zrange() const;
 
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
-    const QRectF image_bounds() const;
+    const QRect image_bounds() const;
+    const QRect data_bounds() const;
+    bool is3D() const;
 
     // Setters
     void name(const QString &name);
@@ -84,7 +86,7 @@ private:
     // generated
     QTransform m_alignment;
     QVector<QPair<QImage, QPoint>> m_image_tiles;
-    QRectF m_bounds;
+    QRect m_image_bounds;
     bool m_scaled;
     QSharedPointer<STData> m_data;
 };

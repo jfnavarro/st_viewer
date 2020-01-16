@@ -7,11 +7,10 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
-static const double legend_x = 5.0;
-static const double legend_y = 5.0;
+static const double legend_x = 10.0;
+static const double legend_y = 10.0;
 static const int legend_width = 30;
 static const int legend_height = 200;
-static const double bars_width = 40.0;
 
 HeatMapLegendGL::HeatMapLegendGL()
     : m_image()
@@ -52,10 +51,10 @@ void HeatMapLegendGL::draw(const SettingsWidget::Rendering &rendering_setting, Q
     }
 
     // draw the image
-    painter.drawImage(QPointF(legend_x, legend_y), m_image);
+    painter.drawImage(QPointF(legend_x, legend_y), m_image.mirrored());
 
     // draw text (add 5 pixels offset to the right)
     painter.setBrush(Qt::darkBlue);
-    painter.drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
-    painter.drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
+    painter.drawText(QPointF(legend_x + legend_width + 5, 20.0), QString::number(max));
+    painter.drawText(QPointF(legend_x + legend_width + 5, 20.0 + legend_height), QString::number(min));
 }

@@ -18,6 +18,9 @@ Dataset::Dataset()
     , m_zrange()
     , m_is3D(false)
     , m_alignment()
+    , m_image_tiles()
+    , m_image_bounds()
+    , m_scaled(false)
     , m_data(nullptr)
 {
 }
@@ -55,6 +58,9 @@ Dataset::Dataset(const Dataset &other)
     m_zrange = other.m_zrange;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
+    m_image_tiles = other.m_image_tiles;
+    m_image_bounds = other.m_image_bounds;
+    m_scaled = other.m_scaled;
     m_data = other.m_data;
 }
 
@@ -77,6 +83,9 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_zrange = other.m_zrange;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
+    m_image_tiles = other.m_image_tiles;
+    m_image_bounds = other.m_image_bounds;
+    m_scaled = other.m_scaled;
     m_data = other.m_data;
     return (*this);
 }
@@ -167,9 +176,22 @@ const QVector<QPair<QImage, QPoint>> &Dataset::image_tiles() const
     return m_image_tiles;
 }
 
-const QRectF Dataset::image_bounds() const
+const QRect Dataset::image_bounds() const
 {
-    return m_bounds;
+    return m_image_bounds;
+}
+
+const QRect Dataset::data_bounds() const
+{
+    return QRect(m_xrange.x(),
+                 m_yrange.x(),
+                 m_xrange.y(),
+                 m_yrange.y());
+}
+
+bool Dataset::is3D() const
+{
+    return m_is3D;
 }
 
 void Dataset::name(const QString &name)
@@ -267,8 +289,8 @@ void Dataset::load_data()
         if (m_alignment.isIdentity()) {
             const double chip_x2 = static_cast<double>(m_xrange.y());
             const double chip_y2 = static_cast<double>(m_yrange.y());
-            const double width_image = static_cast<double>(m_bounds.width());
-            const double height_image = static_cast<double>(m_bounds.height());
+            const double width_image = static_cast<double>(m_image_bounds.width());
+            const double height_image = static_cast<double>(m_image_bounds.height());
             const double a11 = width_image / (chip_x2 - 1);
             const double a12 = 0.0;
             const double a13 = 0.0;
@@ -345,8 +367,8 @@ bool Dataset::load_Image() {
         return false;
     }
     // store the image size
-    m_bounds = image.rect();
-    qDebug() << "Setting image of size " << m_bounds;
+    m_image_bounds = image.rect();
+    qDebug() << "Setting image of size " << m_image_bounds;
     // compute tiles size and numbers
     const int tile_width = 256;
     const int tile_height = 256;

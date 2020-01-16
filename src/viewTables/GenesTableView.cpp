@@ -40,7 +40,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     setLineWidth(1);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::MultiSelection);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
     setEditTriggers(QAbstractItemView::DoubleClicked);
 
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Name, QHeaderView::Stretch);

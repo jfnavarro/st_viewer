@@ -183,15 +183,12 @@ void CellViewPage::createConnections()
     // view rotations
     connect(m_ui->rotate_right, &QPushButton::clicked, [=] {
         m_ui->view->slotRotate(-45);
-        m_ui->view->update();
     });
     connect(m_ui->rotate_left, &QPushButton::clicked, [=] {
         m_ui->view->slotRotate(45);
-        m_ui->view->update();
     });
     connect(m_ui->flip, &QPushButton::clicked, [=] {
         m_ui->view->slotFlip(180);
-        m_ui->view->update();
     });
 
     // create selection object from the selections made

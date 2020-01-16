@@ -265,14 +265,24 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     // get genes that are visible
     std::vector<int> genes_visible_indexes;
     #pragma omp parallel for
-    for (int j = 0; j < cols_to_keep.size(); ++j) {
+    for (const auto j : cols_to_keep) {
         if (m_genes.at(j)->visible()) {
             genes_visible_indexes.push_back(j);
         }
     }
 
+    // get spots that are visible
+    std::vector<int> spots_visible_indexes;
+    #pragma omp parallel for
+    for (const auto i : rows_to_keep) {
+        if (m_spots.at(i)->visible()) {
+            spots_visible_indexes.push_back(i);
+        }
+    }
+
     // early out if no genes are visible in show genes mode
-    if (genes_visible_indexes.empty() && !rendering_settings.show_spots) {
+    if (spots_visible_indexes.empty() ||
+            (genes_visible_indexes.empty() && !rendering_settings.show_spots)) {
         return;
     }
 
@@ -289,7 +299,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         rendering_settings.legend_max = values.max();
     }
     #pragma omp parallel for collapse(2)
-    for (const auto i : rows_to_keep) {
+    for (const auto i : spots_visible_indexes) {
         const auto spot_obj = m_spots.at(i);
         visible = 0;
         num_genes = 0;
