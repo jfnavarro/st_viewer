@@ -9,6 +9,9 @@
 #include <vector>
 
 #include <cmath>
+#include <algorithm>
+#include <functional>
+#include <queue>
 #include <armadillo>
 #include "tsne.h"
 
@@ -195,13 +198,21 @@ inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
         // a standard deviaton was 0...
         return -1;
     }
-
     return covariance(v1, v2) / std;
 }
 
+template <typename T>
+inline std::vector<size_t> sort_indexes(const std::vector<T> &v)
+{
+  std::vector<size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+  std::stable_sort(idx.begin(), idx.end(),
+       [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+  return idx;
+}
+
 // Simple pval correction using the Bonferroni method
-//TODO implement the Benjamini/Hochberg method
-inline std::vector<double> p_adjust(const std::vector<double> &pvals)
+inline std::vector<double> p_adjustB(const std::vector<double> &pvals)
 {
     const double m = static_cast<double>(pvals.size());
     std::vector<double> padjust;
@@ -209,6 +220,50 @@ inline std::vector<double> p_adjust(const std::vector<double> &pvals)
         padjust.push_back(pval / m);
     }
     return padjust;
+}
+
+// Simple pval correction using the Bonferroni-Holm method
+inline std::vector<double> p_adjustBH(const std::vector<double> &pvals)
+{
+    const size_t n = pvals.size();
+    const std::vector<size_t> idx = sort_indexes(pvals);
+    std::vector<double> pvals_copy(pvals);
+    std::sort(pvals_copy.begin(), pvals_copy.end());
+    std::vector<double> adj_pvals(n);
+    for (size_t rank = 0; rank != pvals_copy.size(); ++rank) {
+        const double pvalue = pvals_copy.at(rank);
+        const size_t i = idx.at(rank);
+        adj_pvals.at(i) = static_cast<double>(n - rank) * pvalue;
+    }
+    return adj_pvals;
+}
+
+// Simple pval correction using the Benjamini-Hochberg method
+inline std::vector<double> p_adjustBenH(const std::vector<double> &pvals)
+{
+    const size_t n = pvals.size();
+    std::vector<size_t> idx = sort_indexes(pvals);
+    std::reverse(idx.begin(), idx.end());
+    std::vector<double> pvals_copy(pvals);
+    std::sort(pvals_copy.begin(), pvals_copy.end());
+    std::reverse(pvals_copy.begin(), pvals_copy.end());
+    std::vector<double> new_values;
+    std::vector<double> adj_pvals(n);
+    for (size_t i = 0; i != pvals_copy.size(); ++i) {
+        const size_t rank = n - i;
+        const double pvalue = pvals_copy.at(i);
+        new_values.push_back((n/rank) * pvalue);
+    }
+    for (size_t i = 0; i != n-1; ++i) {
+        if (new_values.at(i) < new_values.at(i+1)) {
+            new_values.at(i+1) = new_values.at(i);
+        }
+    }
+    for (size_t i = 0; i != pvals_copy.size(); ++i) {
+        const size_t ix = idx.at(i);
+        adj_pvals.at(ix) = new_values.at(i);
+    }
+    return adj_pvals;
 }
 
 inline mat PCA(const mat &data,
@@ -300,49 +355,39 @@ inline double normal(const double x, const double m, const double s)
     }
 }
 
-inline double chi_squared(const double x, const double df)
+inline double normal_cdf(const double x)
 {
-    if (x > 0) {
-        return (1.0 / (std::pow(2.0, 0.5*df) * std::tgamma(df*0.5))) * std::pow(x, 0.5*df-1) * std::exp(-0.5*x);
-    } else {
-        return 0;
-    }
+    const double A1 = 0.31938153;
+    const double A2 = -0.356563782;
+    const double A3 = 1.781477937;
+    const double A4 = -1.821255978;
+    const double A5 = 1.330274429;
+    const double RSQRT2PI = 0.39894228040143267793994605993438;
+
+    const double K = 1.0 / (1.0 + 0.2316419 * std::fabs(x));
+
+    double cnd = RSQRT2PI * std::exp(- 0.5 * x * x) *
+          (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
+
+    return x > 0 ? 1-cnd : cnd;
 }
 
-// Approximation of the lower incomplete gamma function
-// obtained from https://github.com/brianmartens/BetaFunction/blob/master/BetaFunction/bmath.h
-// s is the DF and z is X
-inline double low_incomplete_gamma(const double s, const double z)
+// Wilcoxon rigned rank test (as implemented in Scipy.stats)
+inline double wilcoxon_rank_test(const uvec &a, const uvec &b)
 {
-    const int MAXITER = 100;
-    const double epsilon = .0000000001;
-    int i = 1;
-    const double c_const = std::pow(z,s) * std::pow(NUM_E,-z);
-    double initial = c_const / s;
-    for (;;) {
-        double denom = s;
-        for (int j=1; j<=i; ++j) {
-            denom = denom * (s+j);
-        }
-        const double num = c_const * std::pow(z,i);
-        const double test = num / denom;
-        initial += test;
-        ++i;
-        if (std::fabs(test) < epsilon || i >= MAXITER) {
-            break;
-        }
-    }
-    return initial;
+    const size_t n1 = a.size();
+    const size_t n2 = b.size();
+    const uvec all = join_cols(a,b);
+    const uvec ranked = arma::sort_index(arma::sort_index(all)) + 1;
+    const uvec x = ranked.head(n1);
+    const double s = sum(x);
+    const double expected = n1 * (n1 + n2 +1) / 2.0;
+    const double z = (s - expected) / std::sqrt(n1 * n2 * (n1+ n2 + 1) / 12.0);
+    // survival function = 1 - cdf
+    const double prob = 2 * (1 - normal_cdf(std::fabs(z)));
+    return prob;
 }
 
-inline double chi_squared_cdf(const double x, const double df)
-{
-    if (x > 0) {
-        return low_incomplete_gamma(df/2, x/2) / std::tgamma(df/2);
-    } else {
-        return 0;
-    }
-}
 } // end name space
 
 #endif // COMMON_H //

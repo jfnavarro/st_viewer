@@ -17,63 +17,6 @@
 
 #include <random>
 
-constexpr int pvalue_index =  1;
-constexpr int fdr_index =  2;
-constexpr int fc_index = 3;
-
-namespace {
-
-double bimodLikData(const vec &x, const double xmin = 0) {
-  // x1 and x2 are 2 vectors representing 2 models
-  // x1 for 0 values -> on/off distribution model
-  // x2 for positive values -> normal, continuous distribution
-  const std::vector<double> x1 = conv_to<std::vector<double>>::from(x.elem(find(x <= xmin)));
-  const std::vector<double> x2 = conv_to<std::vector<double>>::from(x.elem(find(x > xmin)));
-  const size_t x1_ele = x1.size();
-  const size_t x2_ele = x2.size();
-  // estimate proportion of positive spots (count > xmin)
-  // use 1e-5 as min and 1-1e-5 as max
-  double xal = 1.0;
-  if (x2_ele > 0 && x1_ele > 0) {
-      xal = x2_ele / x1_ele;
-  }
-  const double min = 1e-5;
-  const double max = 1 - min;
-  if (xal < min) {
-      xal = min;
-  } else if (xal > max) {
-      xal = max;
-  }
-  // likelihood for observing x1, 1-xal is expected ratio of 0 values
-  const double likA = x1_ele * std::log(1 - xal);
-  // calculate variance for x2, to be used in dnorm to calculate prob distr
-  const double sd = x2_ele < 2 ? 1 : STMath::std_dev(x2);
-  // likelihood for observing x2
-  const double mean = STMath::mean(x2);
-  // pdf for x2 (normal distribution)
-  double sum_dnorm = 0;
-  for (const double &x : x2) {
-      sum_dnorm += std::log(STMath::normal(x, mean, sd));
-  }
-  const double likB = x2_ele * std::log(xal) + sum_dnorm;
-  return likA + likB;
-}
-
-//This method was adapted from the method published by [McDavid
-//et al. 2013](https://doi.org/10.1093/bioinformatics/bts714).
-double differentialLRT(const vec &x, const vec &y, const double xmin = 0) {
-  const double lrtX = bimodLikData(x, xmin);
-  const double lrtY = bimodLikData(y, xmin);
-  const double lrtZ = bimodLikData(arma::join_cols(x,y), xmin);
-  const double lrt_diff = 2 * (lrtX + lrtY - lrtZ);
-  if (std::isfinite(lrtX) && std::isfinite(lrtY) && std::isfinite(lrtZ) && lrt_diff > 0) {
-      const double pvalue = STMath::chi_squared_cdf(lrt_diff, 3.0);
-      return std::isfinite(pvalue) ? pvalue : 1.0;
-  }
-  return 1.0;
-}
-}
-
 AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
                          const STData::STDataFrame &datasetsB,
                          const QString &nameA,
@@ -415,13 +358,14 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     std::vector<double> pvals(A.n_cols);
     #pragma omp parallel for
     for (uword j = 0; j < A.n_cols; ++j) {
-        const vec Avec = A.col(j);
-        const vec Bvec = B.col(j);
-        const double pval = differentialLRT(Avec, Bvec);
+        const uvec Avec = conv_to<uvec>::from(A.col(j));
+        const uvec Bvec = conv_to<uvec>::from(B.col(j));
+        const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
         pvals.at(j) = pval;
     }
 
-    std::vector<double> fdrs = STMath::p_adjust(pvals);
+    std::vector<double> fdrs = STMath::p_adjustBenH(pvals);
+
     const vec rowmeansA = conv_to<vec>::from(mean(A,0));
     const vec rowmeansB = conv_to<vec>::from(mean(B,0));
     const vec log2fcs = log2(rowmeansA / rowmeansB);
