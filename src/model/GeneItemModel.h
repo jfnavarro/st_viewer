@@ -22,11 +22,9 @@ public:
     enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
 
     explicit GeneItemModel(QObject *parent = 0);
-    virtual ~GeneItemModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section,
                         Qt::Orientation orientation,
@@ -35,11 +33,9 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     // this function will set to visible the genes included in the selection
-    // and emit a signal with the modified genes
     void setVisibility(const QItemSelection &selection, bool visible);
 
     // this function will modify the color of the genes included in the selection
-    // and emit a signal with the modified genes
     void setColor(const QItemSelection &selection, const QColor &color);
 
     // reload the model's data from the dataset (genes)
@@ -51,8 +47,6 @@ public:
 public slots:
 
 signals:
-    // to notify that the user has changed a gene's cut-off
-    void signalGeneCutOffChanged();
 
 private:
     STData::GeneListType m_items_reference;

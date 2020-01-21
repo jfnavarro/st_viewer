@@ -26,10 +26,10 @@ public:
     virtual ~AnalysisClustering();
 
     // One color (color representation of cluster number) for each spot
-    QHash<QString, QColor> getSpotClusters() const;
+    QHash<QString, int> getSpotClusters() const;
 
     // List of spots for each cluster
-    QMultiHash<unsigned, QString> getClustersSpot() const;
+    QMultiHash<int, QString> getClustersSpot() const;
 
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
@@ -71,7 +71,7 @@ private:
     STData::STDataFrame m_data;
 
     // the results
-    QVector<QPair<QString,unsigned>> m_clusters;
+    QVector<QPair<QString,int>> m_clusters;
     QList<QPointF> m_reduced_coordinates;
 
     // the computational thread

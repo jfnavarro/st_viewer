@@ -36,16 +36,19 @@ public:
     bool visible() const;
     // true if the spot is selected
     bool selected() const;
+    // meta info of the spot
+    QString info() const;
     // the total number of transcripts for the spot in the dataset
     double totalCount() const;
 
     // Setters
     void coordinates(const SpotType &coordinates);
     void adj_coordinates(const SpotType &adj_coordinates);
+    void name(const QString &name);
     void color(const QColor color);
     void visible(const bool visible);
     void selected(const bool selected);
-    void name(const QString &name);
+    void info(const QString &info);
     void totalCount(const double totalCoun);
 
     // helper method to get coordinates (x,y) from a spot
@@ -62,6 +65,7 @@ private:
     bool m_selected;
     QColor m_color;
     QString m_name;
+    QString m_info;
     double m_totalCount;
 };
 

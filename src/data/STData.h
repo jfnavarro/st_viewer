@@ -86,12 +86,10 @@ public:
     void selectSpots(const SelectionEvent &event);
     void selectSpots(const QList<QString> &spots);
     void selectSpots(const QList<int> &spots_indexes);
-    void selectGenes(const QRegExp &regexp, const bool force = true);
-    void selectGenes(const QList<QString> &genes);
 
     // functions to change spot and gene colors
-    void loadSpotColors(const QHash<QString, QColor> &colors);
-    void loadGeneColors(const QHash<QString, QColor> &colors);
+    void loadSpotColors(const QHash<QString, int> &colors);
+    void loadGeneColors(const QHash<QString, int> &colors);
 
     // returns the boundaries of the spots in the data frame (min spot and max spot coordinates)
     const QRectF getBorder() const;

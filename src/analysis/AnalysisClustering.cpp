@@ -59,9 +59,9 @@ void AnalysisClustering::clear()
     m_clusters.clear();
 }
 
-QMultiHash<unsigned, QString> AnalysisClustering::getClustersSpot() const
+QMultiHash<int, QString> AnalysisClustering::getClustersSpot() const
 {
-    QMultiHash<unsigned, QString> computed_colors;
+    QMultiHash<int, QString> computed_colors;
     #pragma omp parallel for
     for (const auto &item : m_clusters) {
         computed_colors.insert(item.second, item.first);
@@ -69,18 +69,12 @@ QMultiHash<unsigned, QString> AnalysisClustering::getClustersSpot() const
     return computed_colors;
 }
 
-QHash<QString, QColor> AnalysisClustering::getSpotClusters() const
+QHash<QString, int> AnalysisClustering::getSpotClusters() const
 {
-    QHash<QString, QColor> computed_colors;
-    const int min = 0;
-    const int max = m_ui->clusters->value();
+    QHash<QString, int> computed_colors;
     #pragma omp parallel for
     for (const auto &item : m_clusters) {
-        const QColor color = Color::createCMapColor(item.second + 1,
-                                                    min,
-                                                    max,
-                                                    QCPColorGradient::gpSpectrum);
-        computed_colors.insert(item.first, color);
+        computed_colors.insert(item.first, item.second);
     }
     return computed_colors;
 }
@@ -149,22 +143,24 @@ void AnalysisClustering::computeClustersAsync()
         A = log1p(A);
     }
 
-    mat results;
     // Run dimensionality reduction
-    if (tsne) {
-        results = STMath::tSNE(A, theta, perplexity, max_iter, NO_DIMS, init_dim, -1, true);
-    } else {
-        results = STMath::PCA(A, NO_DIMS, center, scale, true);
-    }
+    const mat results = tsne ? STMath::tSNE(A, theta, perplexity, max_iter, NO_DIMS, init_dim, -1, false) :
+                               STMath::PCA(A, NO_DIMS, center, scale, false);
 
     // Run clustering
-    mat results_clustering = STMath::kmeans_clustering(results, num_clusters, true);
+    mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
+
+    Q_ASSERT((results.n_rows == A.n_rows) &&
+             (results.n_cols == results_clustering.n_rows) &&
+             (results_clustering.n_cols == num_clusters));
+
+    // Compile result
     m_clusters.clear();
     m_reduced_coordinates.clear();
     #pragma omp parallel for collapse(2)
     for (uword i = 0; i < results.n_rows; ++i) {
         double min_dist = std::numeric_limits<double>::max();
-        unsigned min_index = 0;
+        int min_index = -1;
         const double x1 = results.at(i,0);
         const double y1 = results.at(i,1);
         for (uword j = 0; j < results_clustering.n_cols; ++j) {
@@ -176,8 +172,10 @@ void AnalysisClustering::computeClustersAsync()
                 min_index = j;
             }
         }
-        m_clusters.push_back(QPair<QString, unsigned>(data.spots.at(i), min_index));
-        m_reduced_coordinates.append(QPointF(x1,y1));
+        if (min_index != -1) {
+            m_clusters.push_back(QPair<QString, int>(data.spots.at(i), min_index + 1));
+            m_reduced_coordinates.append(QPointF(x1,y1));
+        }
     }
 }
 
@@ -199,19 +197,19 @@ void AnalysisClustering::clustersComputed()
         return;
     }
 
-    const int min = 0;
+    const int min = 1;
     const int num_clusters = m_ui->clusters->value();
 
     // Create one serie for each different cluster (color)
     m_series_vector.clear();
-    for (int k = 0; k < num_clusters; ++k) {
+    for (int k = 1; k <= num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries(this);
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
         series->setMarkerSize(10.0);
-        const QColor color = Color::createCMapColor(k + 1,
+        const QColor color = Color::createCMapColor(k,
                                                     min,
                                                     num_clusters,
-                                                    QCPColorGradient::gpSpectrum);
+                                                    QCPColorGradient::gpJet);
         series->setColor(color);
         series->setUseOpenGL(false);
         m_series_vector.push_back(series);
@@ -219,9 +217,9 @@ void AnalysisClustering::clustersComputed()
 
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
     #pragma omp parallel for
-    for (unsigned i = 0; i < m_clusters.size(); ++i) {
-        const unsigned k = m_clusters.at(i).second;
-        m_series_vector[k]->append(m_reduced_coordinates.at(i));
+    for (int i = 0; i < m_clusters.size(); ++i) {
+        const int k = m_clusters.at(i).second;
+        m_series_vector[k-1]->append(m_reduced_coordinates.at(i));
     }
 
     // update the scatter plot

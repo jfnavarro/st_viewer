@@ -29,56 +29,6 @@ inline double deg3rad(const double degrees)
     return (degrees * PI) / 180;
 }
 
-// clamp size to
-// NOTE: Qt::KeepAspectRatio might be prone to numerical errors
-//(ie. any skewing introduced due to num error will be kept)
-inline const QSizeF clamp(const QSizeF &size,
-                          const QSizeF &min,
-                          const QSizeF &max,
-                          Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio)
-{
-    QSizeF clampSize = size;
-
-    if (clampSize.width() < min.width() || clampSize.height() < min.height()) {
-        if (mode == Qt::IgnoreAspectRatio) {
-            clampSize = clampSize.expandedTo(min);
-        } else {
-            clampSize = clampSize.scaled(min, Qt::KeepAspectRatioByExpanding);
-        }
-    }
-
-    if (clampSize.width() > max.width() || clampSize.height() > max.height()) {
-        if (mode == Qt::IgnoreAspectRatio) {
-            clampSize = clampSize.boundedTo(max);
-        } else {
-            clampSize = clampSize.scaled(max, Qt::KeepAspectRatio);
-        }
-    }
-
-    return clampSize;
-}
-
-template <typename T>
-inline T qMod(T x, T y)
-{
-    return x - y * static_cast<T>(qFloor(x / y));
-}
-
-inline const QPointF min(const QPointF &a, const QPointF &b)
-{
-    return QPointF(std::min(a.x(), b.x()), std::min(a.y(), b.y()));
-}
-
-inline const QPointF max(const QPointF &a, const QPointF &b)
-{
-    return QPointF(std::max(a.x(), b.x()), std::max(a.y(), b.y()));
-}
-
-inline bool qFuzzyEqual(const QPointF &p0, const QPointF &p1)
-{
-    return qFuzzyCompare(p0.x(), p1.x()) && qFuzzyCompare(p0.y(), p1.y());
-}
-
 template <typename T>
 inline T clamp(T in, T low, T high)
 {
@@ -282,19 +232,16 @@ inline mat PCA(const mat &data,
         X.each_row() /= std;
     }
 
-    mat U;
-    vec s;
-    mat V;
-    svd_econ(U, s, V, X);
-    s = s.head(no_dims);
-    U = U.head_cols(no_dims);
-    // X_new = X * V = U * S * V^T * V = U * S
-    U.each_row() %= s.t();
+    mat coeff;
+    mat score;
+    vec latent;
+    vec tsquared;
+    princomp(coeff, score, latent, tsquared, X);
     if (debug) {
-        std::cout << "PCA: " << U.n_rows << " - " << U.n_cols << std::endl;
-        s.print();
+        std::cout << "PCA: " << score.n_rows << " - " << score.n_cols << std::endl;
+        latent.print();
     }
-    return U;
+    return score.head_cols(no_dims);
 }
 
 inline mat kmeans_clustering(const mat &data,
@@ -366,8 +313,8 @@ inline double normal_cdf(const double x)
 
     const double K = 1.0 / (1.0 + 0.2316419 * std::fabs(x));
 
-    double cnd = RSQRT2PI * std::exp(- 0.5 * x * x) *
-          (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
+    const double cnd = RSQRT2PI * std::exp(- 0.5 * x * x) *
+            (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
     return x > 0 ? 1-cnd : cnd;
 }

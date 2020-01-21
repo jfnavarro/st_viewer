@@ -136,14 +136,6 @@ void SettingsWidget::slotSpotsTreshold(int value)
     }
 }
 
-void SettingsWidget::slotReadsTreshold(int value)
-{
-    if (value != m_rendering_settings.reads_threshold) {
-        m_rendering_settings.reads_threshold = value;
-        emit signalSpotRendering();
-    }
-}
-
 void SettingsWidget::slotIndReadsTreshold(int value)
 {
     if (value != m_rendering_settings.ind_reads_threshold) {

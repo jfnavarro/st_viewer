@@ -611,27 +611,44 @@ void STData::selectSpots(const QList<int> &spots_indexes)
     }
 }
 
-void STData::loadSpotColors(const QHash<QString, QColor> &colors)
+void STData::loadSpotColors(const QHash<QString, int> &colors)
 {
-    QHash<QString, QColor>::const_iterator it = colors.constBegin();
+    const auto values = colors.values();
+    const auto min_max = std::minmax_element(values.begin(), values.end());
+    const int min = *min_max.first;
+    const int max = *min_max.second;
+    QHash<QString, int>::const_iterator it = colors.constBegin();
     while (it != colors.constEnd()) {
         const auto &spot = it.key();
-        const QColor color = it.value();
+        const int color_value = it.value();
+        const QColor color = Color::createCMapColor(color_value,
+                                                    min,
+                                                    max,
+                                                    QCPColorGradient::gpJet);
         const int spot_index = m_spot_index.value(spot, -1);
         if (spot_index != -1) {
             m_spots.at(spot_index)->color(color);
             m_spots.at(spot_index)->visible(true);
+            m_spots.at(spot_index)->info(QString::number(color_value));
         }
         ++it;
     }
 }
 
-void STData::loadGeneColors(const QHash<QString, QColor> &colors)
+void STData::loadGeneColors(const QHash<QString, int> &colors)
 {
-    QHash<QString, QColor>::const_iterator it = colors.constBegin();
+    const auto values = colors.values();
+    const auto min_max = std::minmax_element(values.begin(), values.end());
+    const int min = *min_max.first;
+    const int max = *min_max.second;
+    QHash<QString, int>::const_iterator it = colors.constBegin();
     while (it != colors.constEnd()) {
         const auto &gene = it.key();
-        const QColor color = it.value();
+        const int color_value = it.value();
+        const QColor color = Color::createCMapColor(color_value,
+                                                    min,
+                                                    max,
+                                                    QCPColorGradient::gpJet);
         const int gene_index = m_gene_index.value(gene);
         if (gene_index != -1) {
             m_genes.at(gene_index)->color(color);

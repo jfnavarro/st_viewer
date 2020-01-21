@@ -82,7 +82,7 @@ void GenesTableView::customMenuRequested(const QPoint &pos)
     if (index.isValid()) {
         QMenu *menu = new QMenu(this);
         menu->addAction(new QAction(tr("Copy gene"), this));
-        menu->addAction(new QAction(tr("Select/Unselect"), this));
+        menu->addAction(new QAction(tr("Show/Hide"), this));
         menu->addAction(new QAction(tr("Change color"), this));
         QAction *selection = menu->exec(viewport()->mapToGlobal(pos));
         if (selection != nullptr) {

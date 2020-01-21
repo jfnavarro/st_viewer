@@ -64,7 +64,6 @@ private slots:
 
     void slotGenesTreshold(int);
     void slotSpotsTreshold(int);
-    void slotReadsTreshold(int);
     void slotIndReadsTreshold(int);
     void slotIntensity(int);
     void slotSize(int);

@@ -23,7 +23,7 @@ class SpotsWidget : public QWidget
     Q_OBJECT
 public:
     explicit SpotsWidget(QWidget *parent = 0);
-    virtual ~SpotsWidget();
+    virtual ~SpotsWidget() override;
 
     // clear focus/status and selections
     void clear();
@@ -43,11 +43,10 @@ public slots:
 
 private slots:
 
-    // slots triggered by the show/color controls in the gene table
-    void slotSetColorAllSelected(const QColor &color);
-    void slotSetVisibilityForSelectedRows(bool visible);
-    void slotHideAllSelected();
-    void slotShowAllSelected();
+    // slots triggered by the show/color/selected controls in the gene table
+    void slotSetColor(const QColor &color);
+    void slotSetVisible(bool visible);
+    void slotSetSelected(const bool selected);
 
 private:
     // internal function to configure created buttons

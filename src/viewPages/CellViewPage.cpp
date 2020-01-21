@@ -316,11 +316,8 @@ void CellViewPage::slotLoadSpotColorsFile()
     }
 
     QFile file(filename);
-    QList<QString> spots;
-    QList<int> colors;
+    QHash<QString, int> spotMap;
     bool parsed = true;
-    int min = 10e6;
-    int max = -10e6;
     // Parse the spots map = spot -> color
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
@@ -329,19 +326,16 @@ void CellViewPage::slotLoadSpotColorsFile()
         while (!in.atEnd()) {
             line = in.readLine();
             fields = line.split("\t");
-            if (fields.length() != 2) {
+            if (fields.length() < 2) {
                 parsed = false;
                 break;
             }
             const QString spot = fields.at(0);
             const int color = fields.at(1).toInt();
-            min = std::min(min, color);
-            max = std::max(max, color);
-            spots.append(spot);
-            colors.append(color);
+            spotMap.insert(spot, color);
         }
 
-        if (spots.empty() || colors.empty() || spots.size() != colors.size()) {
+        if (spotMap.empty()) {
             QMessageBox::warning(this,
                                  tr("Spot Colors File"),
                                  tr("No valid spots could be found in the file"));
@@ -358,12 +352,6 @@ void CellViewPage::slotLoadSpotColorsFile()
 
     // Update spot colors
     if (parsed) {
-        QHash<QString, QColor> spotMap;
-        for (int i = 0; i < spots.size(); ++i) {
-            const QColor color = Color::createCMapColor(colors.at(i),
-                                                        min, max, QCPColorGradient::gpHues);
-            spotMap.insert(spots.at(i), color);
-        }
         m_dataset.data()->loadSpotColors(spotMap);
         m_spots->update();
         m_ui->view->slotUpdate();
@@ -391,11 +379,8 @@ void CellViewPage::slotLoadGenes()
     }
 
     QFile file(filename);
-    QList<QString> genes;
-    QList<int> colors;
+    QHash<QString, int> geneMap;
     bool parsed = true;
-    int min = 10e6;
-    int max = -10e6;
     // Parse the genes map = gene -> color
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
@@ -410,13 +395,10 @@ void CellViewPage::slotLoadGenes()
             }
             const QString gene = fields.at(0);
             const int color = fields.at(1).toInt();
-            min = std::min(min, color);
-            max = std::max(max, color);
-            genes.append(gene);
-            colors.append(color);
+            geneMap.insert(gene, color);
         }
 
-        if (genes.empty() || colors.empty() || genes.size() != colors.size()) {
+        if (geneMap.empty()) {
             QMessageBox::warning(this,
                                  tr("Genes File"),
                                  tr("No valid genes could be found in the file"));
@@ -431,13 +413,8 @@ void CellViewPage::slotLoadGenes()
     }
     file.close();
 
+    // Update gene colors
     if (parsed) {
-        QHash<QString, QColor> geneMap;
-        for (int i = 0; i < genes.size(); ++i) {
-            const QColor color = Color::createCMapColor(colors.at(i),
-                                                        min, max, QCPColorGradient::gpHues);
-            geneMap.insert(genes.at(i), color);
-        }
         m_dataset.data()->loadGeneColors(geneMap);
         m_genes->update();
         m_ui->view->slotUpdate();
@@ -461,7 +438,7 @@ void CellViewPage::slotSelectSpotsClustering()
 void CellViewPage::slotCreateClusteringSelections()
 {
     // get the map of color -> spots
-    const QMultiHash<unsigned, QString> colors_spot = m_clustering->getClustersSpot();
+    const QMultiHash<int, QString> colors_spot = m_clustering->getClustersSpot();
     for(const auto &color : colors_spot.uniqueKeys()) {
         // get the spots for the color
         const QList<QString> &color_spots = colors_spot.values(color);
