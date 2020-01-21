@@ -68,7 +68,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
 
     QPushButton *selectSpotsButton = new QPushButton(this);
     configureButton(selectSpotsButton,
-                    QIcon(QStringLiteral(":/images/unselect-all.png")),
+                    QIcon(QStringLiteral(":/images/select_spots.png")),
                     tr("Select selected spots"));
     spotListLayout->addWidget(selectSpotsButton);
     // add separation
@@ -76,7 +76,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
 
     QPushButton *deselectSpotsButton = new QPushButton(this);
     configureButton(deselectSpotsButton,
-                    QIcon(QStringLiteral(":/images/unselect-all.png")),
+                    QIcon(QStringLiteral(":/images/deselect_spots.png")),
                     tr("Unselect selected spots"));
     spotListLayout->addWidget(deselectSpotsButton);
     // add separation
