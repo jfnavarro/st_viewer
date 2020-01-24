@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <cmath>
+#include <math.h>
 #include <algorithm>
 #include <functional>
 #include <queue>
@@ -306,32 +307,20 @@ inline double normal(const double x, const double m, const double s)
 
 inline double normal_cdf(const double x)
 {
-    const double A1 = 0.31938153;
-    const double A2 = -0.356563782;
-    const double A3 = 1.781477937;
-    const double A4 = -1.821255978;
-    const double A5 = 1.330274429;
-    const double RSQRT2PI = 0.39894228040143267793994605993438;
-
-    const double K = 1.0 / (1.0 + 0.2316419 * std::fabs(x));
-
-    const double cnd = RSQRT2PI * std::exp(- 0.5 * x * x) *
-            (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
-
-    return x > 0 ? 1-cnd : cnd;
+    return erfc(-x / std::sqrt(2)) / 2.0;
 }
 
 // Wilcoxon rigned rank test (as implemented in Scipy.stats)
-inline double wilcoxon_rank_test(const uvec &a, const uvec &b)
+inline double wilcoxon_rank_test(const vec &a, const vec &b)
 {
     const size_t n1 = a.size();
     const size_t n2 = b.size();
-    const uvec all = join_cols(a,b);
+    const vec all = join_cols(a,b);
     const uvec ranked = arma::sort_index(arma::sort_index(all)) + 1;
     const uvec x = ranked.head(n1);
     const double s = sum(x);
-    const double expected = n1 * (n1 + n2 +1) / 2.0;
-    const double z = (s - expected) / std::sqrt(n1 * n2 * (n1+ n2 + 1) / 12.0);
+    const double expected = n1 * (n1 + n2 + 1) / 2.0;
+    const double z = (s - expected) / std::sqrt(n1 * n2 * (n1 + n2 + 1) / 12.0);
     // survival function = 1 - cdf
     const double prob = 2 * (1 - normal_cdf(std::fabs(z)));
     return prob;

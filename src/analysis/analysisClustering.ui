@@ -445,16 +445,16 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_12">
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
        <item>
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Total Detected Spots (Per gene):</string>
+          <string>Total Detected Genes (Per spot):</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_5">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -467,7 +467,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="spots_threshold">
+        <widget class="QSpinBox" name="genes_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>
@@ -534,16 +534,16 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <layout class="QHBoxLayout" name="horizontalLayout_12">
        <item>
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Total Detected Genes (Per spot):</string>
+          <string>Total Detected Spots (Per gene):</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -556,7 +556,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="genes_threshold">
+        <widget class="QSpinBox" name="spots_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>

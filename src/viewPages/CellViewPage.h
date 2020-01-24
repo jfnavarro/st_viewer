@@ -67,13 +67,13 @@ private slots:
     void slotClustering();
 
     // user wants to load a file with spot colors
-    void slotLoadSpotColorsFile();
+    void slotLoadSpotClustersFile();
 
     // user wants to load a file with genes to select
-    void slotLoadGenes();
+    void slotLoadGenesColors();
 
     // user has performed spot classification
-    void slotLoadSpotColors();
+    void slotLoadSpotClusters();
 
     // user has made a selection in the clustering widget
     void slotSelectSpotsClustering();

@@ -215,25 +215,25 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
     // reset visible/selecteed to false
     #pragma omp parallel for
-    for (int i = 0; i < m_rendering_selected.size(); ++i) {
+    for (int i = 0; i < m_spots.size(); ++i) {
         m_rendering_visible[i] = false;
         m_rendering_selected[i] = false;
     }
 
     STDataFrame data = m_data;
-    uvec rows_to_keep = linspace<uvec>(0, data.counts.n_rows - 1, data.counts.n_rows);
-    uvec cols_to_keep = linspace<uvec>(0, data.counts.n_cols - 1, data.counts.n_cols);
     std::vector<uword> genes_visible_indexes;
     std::vector<uword> spots_visible_indexes;
-
-    // apply min reads filters
-    if (rendering_settings.reads_threshold > 0) {
-        // clean uses absolute values
-        // may be better clamp(A, 0.2, A.max());
-        data.counts.clean(rendering_settings.reads_threshold);
-    }
+    uvec cols_to_keep = linspace<uvec>(0, data.counts.n_cols - 1, data.counts.n_cols);
+    uvec rows_to_keep = linspace<uvec>(0, data.counts.n_rows - 1, data.counts.n_rows);
 
     if (!rendering_settings.show_spots) {
+        // apply min reads filters
+        if (rendering_settings.reads_threshold > 0) {
+            // clean uses absolute values
+            // may be better clamp(A, 0.2, A.max());
+            data.counts.clean(rendering_settings.reads_threshold);
+        }
+
         // get columns (genes) >= min_spots
         if (rendering_settings.spots_threshold > 0) {
             const urowvec num_spots = sum(data.counts > 0, COLUMN);
@@ -243,22 +243,20 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         if (cols_to_keep.empty()) {
             return;
         }
-    }
 
-    // get rows (spots) >= min_genes
-    if (rendering_settings.genes_threshold > 0) {
-        const ucolvec num_genes = sum(data.counts > 0, ROW);
-        rows_to_keep = find(num_genes >= rendering_settings.genes_threshold);
-    }
-    // early out if no no spots after filtering
-    if (rows_to_keep.empty()) {
-        return;
-    }
+        // get rows (spots) >= min_genes
+        if (rendering_settings.genes_threshold > 0) {
+            const ucolvec num_genes = sum(data.counts > 0, ROW);
+            rows_to_keep = find(num_genes >= rendering_settings.genes_threshold);
+        }
+        // early out if no no spots after filtering
+        if (rows_to_keep.empty()) {
+            return;
+        }
 
-    // slice
-    data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
+        // slice
+        data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
 
-    if (!rendering_settings.show_spots) {
         // normalize
         data = normalizeCounts(data, rendering_settings.normalization_mode);
 
@@ -276,26 +274,29 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         if (genes_visible_indexes.empty()) {
             return;
         }
-        // slice
-        data.counts = data.counts.cols(uvec(genes_visible_matrix_indexes));
-    }
 
-    // get spots that are visible
-    std::vector<uword> spots_visible_matrix_indexes;
-    #pragma omp parallel for
-    for (int i = 0; i < rows_to_keep.size(); ++i) {
-        const auto spot_index = rows_to_keep.at(i);
-        if (m_spots.at(spot_index)->visible()) {
-            spots_visible_indexes.push_back(spot_index);
-            spots_visible_matrix_indexes.push_back(i);
+        // get spots that are visible
+        std::vector<uword> spots_visible_matrix_indexes;
+        #pragma omp parallel for
+        for (int i = 0; i < rows_to_keep.size(); ++i) {
+            const auto spot_index = rows_to_keep.at(i);
+            if (m_spots.at(spot_index)->visible()) {
+                spots_visible_indexes.push_back(spot_index);
+                spots_visible_matrix_indexes.push_back(i);
+            }
         }
+        // early out if no spots are visible
+        if (spots_visible_indexes.empty()) {
+            return;
+        }
+
+        // slice
+        data.counts = data.counts.submat(uvec(spots_visible_matrix_indexes),
+                                         uvec(genes_visible_matrix_indexes));
+    } else {
+        genes_visible_indexes = conv_to<std::vector<uword>>::from(cols_to_keep);
+        spots_visible_indexes = conv_to<std::vector<uword>>::from(rows_to_keep);
     }
-    // early out if no spots are visible
-    if (spots_visible_indexes.empty()) {
-        return;
-    }
-    // slice
-    data.counts = data.counts.rows(uvec(spots_visible_matrix_indexes));
 
     // Compute total sum if in color mode (heatmap)
     vec values;
@@ -310,7 +311,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
     #pragma omp parallel for collapse(2)
     for (uword i = 0; i < spots_visible_indexes.size(); ++i) {
-        const auto spot_obj = m_spots.at(spots_visible_indexes.at(i));
+        const auto spot_index = spots_visible_indexes.at(i);
+        const auto spot_obj = m_spots.at(spot_index);
         int visible = false;
         QColor merged_color = Qt::white;
         if (rendering_settings.show_spots) {
@@ -342,9 +344,9 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                 }
             }
         }
-        m_rendering_selected[i] = visible && spot_obj->selected();
-        m_rendering_colors[i] = fromQtColor(merged_color);
-        m_rendering_visible[i] = visible;
+        m_rendering_selected[spot_index] = visible && spot_obj->selected();
+        m_rendering_colors[spot_index] = fromQtColor(merged_color);
+        m_rendering_visible[spot_index] = visible;
     }
 }
 
@@ -441,10 +443,10 @@ STData::STDataFrame STData::filterCounts(const STDataFrame &data,
 
     // get columns (genes) >= min_genes
     const urowvec num_genes = sum(data.counts >= min_reads, COLUMN);
-    const uvec cols_to_keep = find(num_genes >= min_genes);
+    const uvec cols_to_keep = find(num_genes >= min_spots);
     // get rows (spots) >= min_spots
     const ucolvec num_spots = sum(data.counts >= min_reads, ROW);
-    const uvec rows_to_keep = find(num_spots >= min_spots);
+    const uvec rows_to_keep = find(num_spots >= min_genes);
     // create filtered_matrix
     if (rows_to_keep.size() != data.counts.n_rows
             || cols_to_keep.size() != data.counts.n_cols) {
@@ -610,17 +612,20 @@ void STData::selectSpots(const QList<int> &spots_indexes)
     }
 }
 
-void STData::loadSpotColors(const QHash<QString, int> &colors)
+void STData::loadSpotColors(const QList<QString> &spots,
+                            const QList<int> &clusters,
+                            const QList<QString> &infos)
 {
-    const auto values = colors.values();
-    const auto min_max = std::minmax_element(values.begin(), values.end());
+    Q_ASSERT(spots.size() == clusters.size() && spots.size() == infos.size());
+    const auto min_max = std::minmax_element(clusters.begin(), clusters.end());
     const int min = *min_max.first;
     const int max = *min_max.second;
-    QHash<QString, int>::const_iterator it = colors.constBegin();
-    while (it != colors.constEnd()) {
-        const auto &spot = it.key();
-        const int color_value = it.value();
-        const QColor color = Color::createCMapColor(color_value,
+    #pragma omp parallel for
+    for (int i = 0; i < spots.size(); ++i) {
+        const QString &spot = spots.at(i);
+        const int cluster = clusters.at(i);
+        const QString &info = infos.at(i);
+        const QColor color = Color::createCMapColor(cluster,
                                                     min,
                                                     max,
                                                     QCPColorGradient::gpJet);
@@ -628,22 +633,21 @@ void STData::loadSpotColors(const QHash<QString, int> &colors)
         if (spot_index != -1) {
             m_spots.at(spot_index)->color(color);
             m_spots.at(spot_index)->visible(true);
-            m_spots.at(spot_index)->info(QString::number(color_value));
+            m_spots.at(spot_index)->info(info);
         }
-        ++it;
     }
 }
 
-void STData::loadGeneColors(const QHash<QString, int> &colors)
+void STData::loadGeneColors(const QList<QString> &genes, const QList<int> &colors)
 {
-    const auto values = colors.values();
-    const auto min_max = std::minmax_element(values.begin(), values.end());
+    Q_ASSERT(genes.size() == colors.size());
+    const auto min_max = std::minmax_element(colors.begin(), colors.end());
     const int min = *min_max.first;
     const int max = *min_max.second;
-    QHash<QString, int>::const_iterator it = colors.constBegin();
-    while (it != colors.constEnd()) {
-        const auto &gene = it.key();
-        const int color_value = it.value();
+    #pragma omp parallel for
+    for (int i = 0; i < genes.size(); ++i) {
+        const QString &gene = genes.at(i);
+        const int color_value = colors.at(i);
         const QColor color = Color::createCMapColor(color_value,
                                                     min,
                                                     max,
@@ -653,7 +657,6 @@ void STData::loadGeneColors(const QHash<QString, int> &colors)
             m_genes.at(gene_index)->color(color);
             m_genes.at(gene_index)->visible(true);
         }
-        ++it;
     }
 }
 

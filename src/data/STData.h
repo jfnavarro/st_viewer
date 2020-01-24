@@ -83,9 +83,13 @@ public:
     void selectSpots(const QList<QString> &spots);
     void selectSpots(const QList<int> &spots_indexes);
 
-    // functions to change spot and gene colors
-    void loadSpotColors(const QHash<QString, int> &colors);
-    void loadGeneColors(const QHash<QString, int> &colors);
+    // Load spot clusters with meta info
+    void loadSpotColors(const QList<QString> &spots,
+                        const QList<int> &clusters,
+                        const QList<QString> &infos);
+    // Load gene colours
+    void loadGeneColors(const QList<QString> &genes,
+                        const QList<int> &colors);
 
     // returns the boundaries of the spots in the data frame (min spot and max spot coordinates)
     const QRectF getBorder() const;

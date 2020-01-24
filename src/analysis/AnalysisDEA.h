@@ -77,6 +77,7 @@ private:
     int m_reads_threshold;
     int m_genes_threshold;
     int m_spots_threshold;
+    SettingsWidget::NormalizationMode m_normalization;
 
     // cache the results to not recompute
     std::vector<DEResult> m_results;

@@ -41,6 +41,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
     m_ui->searchField->setEnabled(false);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
+    m_ui->log_scale->setChecked(false);
     m_ui->searchField->setClearButtonEnabled(true);
     m_ui->conditionA->setText(nameA);
     m_ui->conditionB->setText(nameB);
@@ -188,7 +189,7 @@ void AnalysisDEA::updateTable()
 {   
     // data model
     const int columns = 4;
-    const int rows = m_results.size();
+    const size_t rows = m_results.size();
     QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("FDR")));
@@ -198,7 +199,7 @@ void AnalysisDEA::updateTable()
     int high_confidence_de = 0;
     // populate
     #pragma omp parallel for
-    for (int i = 0; i < rows; ++i) {
+    for (size_t i = 0; i < rows; ++i) {
         const auto res = m_results.at(i);
         const QString gene = res.gene;
         const QString fdr_str = QString::number(res.fdr);
@@ -268,6 +269,7 @@ void AnalysisDEA::updateTable()
 void AnalysisDEA::slotRun()
 {
     bool recompute = false;
+
     if (m_reads_threshold != m_ui->reads_threshold->value()) {
         m_reads_threshold = m_ui->reads_threshold->value();
         recompute = true;
@@ -281,29 +283,41 @@ void AnalysisDEA::slotRun()
         recompute = true;
     }
 
+    SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
+    if (m_ui->normalization_rel->isChecked()) {
+        normalization = SettingsWidget::REL;
+    } else if (m_ui->normalization_cpm->isChecked()) {
+        normalization = SettingsWidget::CPM;
+    }
+
+    if (m_normalization != normalization) {
+        m_normalization = normalization;
+        recompute = true;
+    }
+
     if (recompute) {
         // Filter data
         STData::STDataFrame dataA = m_dataA;
         STData::STDataFrame dataB = m_dataB;
         dataA = STData::filterCounts(dataA,
-                                 m_ui->reads_threshold->value(),
-                                 m_ui->genes_threshold->value(),
-                                 m_ui->spots_threshold->value());
+                                 m_reads_threshold,
+                                 m_genes_threshold,
+                                 m_spots_threshold);
         dataB = STData::filterCounts(dataB,
-                                 m_ui->reads_threshold->value(),
-                                 m_ui->genes_threshold->value(),
-                                 m_ui->spots_threshold->value());
+                                     m_reads_threshold,
+                                     m_genes_threshold,
+                                     m_spots_threshold);
         // Intersect genes
         QSet<QString> genesA = QSet<QString>::fromList(dataA.genes);
         QSet<QString> genesB = QSet<QString>::fromList(dataB.genes);
         const QList<QString> shared_genes = genesA.intersect(genesB).toList();
-        const unsigned num_shared_genes = shared_genes.size();
+        const int num_shared_genes = shared_genes.size();
         if (num_shared_genes > 0) {
             // keep only the shared genes in the data matrix (same order)
             uvec to_keepA(num_shared_genes);
             uvec to_keepB(num_shared_genes);
             #pragma omp parallel for
-            for (unsigned i = 0; i < num_shared_genes; ++i) {
+            for (int i = 0; i < num_shared_genes; ++i) {
                 const QString &shared_gene = shared_genes.at(i);
                 to_keepA.at(i) = dataA.genes.indexOf(shared_gene);
                 to_keepB.at(i) = dataB.genes.indexOf(shared_gene);
@@ -319,14 +333,15 @@ void AnalysisDEA::slotRun()
             return;
         }
         // Normalize and log matrix of counts
-        SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
-        if (m_ui->normalization_rel->isChecked()) {
-            normalization = SettingsWidget::REL;
-        } else if (m_ui->normalization_cpm->isChecked()) {
-            normalization = SettingsWidget::CPM;
+
+        mat A = STData::normalizeCounts(dataA, m_normalization).counts;
+        mat B = STData::normalizeCounts(dataB, m_normalization).counts;
+
+        if (m_ui->log_scale) {
+            A = log1p(A);
+            B = log1p(B);
         }
-        mat A = STData::normalizeCounts(dataA, normalization).counts;
-        mat B = STData::normalizeCounts(dataB, normalization).counts;
+
         // clear plot and table
         m_ui->plot->chart()->removeAllSeries();
         m_proxy->clear();
@@ -355,20 +370,24 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     qDebug() << "Computing DEA for " << A.n_cols << " genes and " << A.n_rows
              << " spots in A and " << B.n_rows << " spots in B";
 
+    // Compute p-values
     std::vector<double> pvals(A.n_cols);
     #pragma omp parallel for
     for (uword j = 0; j < A.n_cols; ++j) {
-        const uvec Avec = conv_to<uvec>::from(A.col(j));
-        const uvec Bvec = conv_to<uvec>::from(B.col(j));
+        const vec Avec = conv_to<vec>::from(A.col(j));
+        const vec Bvec = conv_to<vec>::from(B.col(j));
         const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
         pvals.at(j) = pval;
     }
 
-    std::vector<double> fdrs = STMath::p_adjustBenH(pvals);
+    // compute adjusted p-values
+    std::vector<double> fdrs = STMath::p_adjustBH(pvals);
 
-    const vec rowmeansA = conv_to<vec>::from(mean(A,0));
-    const vec rowmeansB = conv_to<vec>::from(mean(B,0));
-    const vec log2fcs = log2(rowmeansA / rowmeansB);
+    // compute log2 foldchanges
+    const vec rowmeansA = conv_to<vec>::from(mean(expm1(A),0));
+    const vec rowmeansB = conv_to<vec>::from(mean(expm1(B),0));
+    const double pseudocount = std::numeric_limits<double>::epsilon();
+    const vec log2fcs = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
 
     m_results.clear();
     #pragma omp parallel for
@@ -378,7 +397,7 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
         res.fdr = fdrs.at(i);
         res.gene = genes.at(i);
         res.log2fc = log2fcs.at(i);
-        res.log_pvalue = -std::log10(res.pvalue + std::numeric_limits<double>::epsilon());
+        res.log_pvalue = -std::log10(res.pvalue + pseudocount);
         m_results.push_back(res);
     }
 }

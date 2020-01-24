@@ -69,14 +69,9 @@ QMultiHash<int, QString> AnalysisClustering::getClustersSpot() const
     return computed_colors;
 }
 
-QHash<QString, int> AnalysisClustering::getSpotClusters() const
+const QList<QPair<QString,int>> &AnalysisClustering::getSpotClusters() const
 {
-    QHash<QString, int> computed_colors;
-    #pragma omp parallel for
-    for (const auto &item : m_clusters) {
-        computed_colors.insert(item.first, item.second);
-    }
-    return computed_colors;
+    return m_clusters;
 }
 
 const QList<QString>& AnalysisClustering::selectedSpots() const

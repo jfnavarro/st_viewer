@@ -55,16 +55,10 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="2">
-           <widget class="QRadioButton" name="normalization_rel">
-            <property name="toolTip">
-             <string>Uses DESeq2 for the DEA analysis</string>
-            </property>
-            <property name="statusTip">
-             <string>Uses DESeq2 for the DEA analysis</string>
-            </property>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="normalization_raw">
             <property name="text">
-             <string>REL</string>
+             <string>None</string>
             </property>
            </widget>
           </item>
@@ -81,10 +75,23 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="normalization_raw">
+          <item row="0" column="2">
+           <widget class="QRadioButton" name="normalization_rel">
+            <property name="toolTip">
+             <string>Uses DESeq2 for the DEA analysis</string>
+            </property>
+            <property name="statusTip">
+             <string>Uses DESeq2 for the DEA analysis</string>
+            </property>
             <property name="text">
-             <string>None</string>
+             <string>REL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="log_scale">
+            <property name="text">
+             <string>Log scale</string>
             </property>
            </widget>
           </item>
@@ -227,16 +234,16 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_12">
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
        <item>
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Total Detected Spots (Per gene)</string>
+          <string>Total Detected Genes (Per spot)</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_5">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -249,7 +256,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="spots_threshold">
+        <widget class="QSpinBox" name="genes_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>
@@ -316,16 +323,16 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <layout class="QHBoxLayout" name="horizontalLayout_12">
        <item>
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Total Detected Genes (Per spot)</string>
+          <string>Total Detected Spots (Per gene)</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -338,7 +345,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="genes_threshold">
+        <widget class="QSpinBox" name="spots_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>

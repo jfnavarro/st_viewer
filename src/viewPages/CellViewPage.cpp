@@ -214,14 +214,14 @@ void CellViewPage::createConnections()
     });
 
     // when the user wants to load a file with spot colors
-    connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotColorsFile);
+    connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotClustersFile);
 
     // when the user wants to load a file with genes to select
-    connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenes);
+    connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenesColors);
 
     // when the user clusters the spots
     connect(m_clustering.data(), &AnalysisClustering::signalClusteringUpdated,
-            this, &CellViewPage::slotLoadSpotColors);
+            this, &CellViewPage::slotLoadSpotClusters);
 
     // when the user selects spots from the clustering widget
     connect(m_clustering.data(), &AnalysisClustering::signalClusteringSpotsSelected,
@@ -294,12 +294,12 @@ void CellViewPage::slotClustering()
     m_clustering->show();
 }
 
-//TODO same code as slotLoadGeneColorsFile()
-void CellViewPage::slotLoadSpotColorsFile()
+//TODO same code as slotLoadGenesColors()
+void CellViewPage::slotLoadSpotClustersFile()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
-                                           tr("Open Spot Colors File"),
+                                           tr("Open Spot Clusters File"),
                                            QDir::homePath(),
                                            QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
     // early out
@@ -310,13 +310,15 @@ void CellViewPage::slotLoadSpotColorsFile()
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this,
-                              tr("Spot Colors File"),
+                              tr("Spot Clusters File"),
                               tr("File is incorrect or not readable"));
         return;
     }
 
     QFile file(filename);
-    QHash<QString, int> spotMap;
+    QList<QString> spots;
+    QList<int> clusters;
+    QList<QString> infos;
     bool parsed = true;
     // Parse the spots map = spot -> color
     if (file.open(QIODevice::ReadOnly)) {
@@ -331,20 +333,23 @@ void CellViewPage::slotLoadSpotColorsFile()
                 break;
             }
             const QString spot = fields.at(0);
-            const int color = fields.at(1).toInt();
-            spotMap.insert(spot, color);
+            const int cluster = fields.at(1).toInt();
+            const QString info = fields.size() > 2 ? fields.at(2) : QString::number(cluster);
+            spots.append(spot);
+            clusters.append(cluster);
+            infos.append(info);
         }
 
-        if (spotMap.empty()) {
+        if (spots.empty()) {
             QMessageBox::warning(this,
-                                 tr("Spot Colors File"),
+                                 tr("Spot Clusters File"),
                                  tr("No valid spots could be found in the file"));
             parsed = false;
         }
 
     } else {
         QMessageBox::critical(this,
-                              tr("Spot Colors File"),
+                              tr("Spot Clusters File"),
                               tr("File could not be parsed"));
         parsed = false;
     }
@@ -352,17 +357,17 @@ void CellViewPage::slotLoadSpotColorsFile()
 
     // Update spot colors
     if (parsed) {
-        m_dataset.data()->loadSpotColors(spotMap);
+        m_dataset.data()->loadSpotColors(spots, clusters, infos);
         m_spots->update();
         m_ui->view->slotUpdate();
     }
 }
 
-void CellViewPage::slotLoadGenes()
+void CellViewPage::slotLoadGenesColors()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
-                                           tr("Open Genes File"),
+                                           tr("Open Genes Colors"),
                                            QDir::homePath(),
                                            QString("%1").arg(tr("TXT Files (*.txt *.tsv)")));
     // early out
@@ -373,13 +378,14 @@ void CellViewPage::slotLoadGenes()
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this,
-                              tr("Genes File"),
+                              tr("Genes File Colors"),
                               tr("File is incorrect or not readable"));
         return;
     }
 
     QFile file(filename);
-    QHash<QString, int> geneMap;
+    QList<QString> genes;
+    QList<int> colors;
     bool parsed = true;
     // Parse the genes map = gene -> color
     if (file.open(QIODevice::ReadOnly)) {
@@ -395,19 +401,20 @@ void CellViewPage::slotLoadGenes()
             }
             const QString gene = fields.at(0);
             const int color = fields.at(1).toInt();
-            geneMap.insert(gene, color);
+            genes.append(gene);
+            colors.append(color);
         }
 
-        if (geneMap.empty()) {
+        if (genes.empty()) {
             QMessageBox::warning(this,
-                                 tr("Genes File"),
+                                 tr("Genes File Colors"),
                                  tr("No valid genes could be found in the file"));
             parsed = false;
         }
 
     } else {
         QMessageBox::critical(this,
-                              tr("Genes File"),
+                              tr("Genes File Colors"),
                               tr("Error parsing the file"));
         parsed = false;
     }
@@ -415,16 +422,25 @@ void CellViewPage::slotLoadGenes()
 
     // Update gene colors
     if (parsed) {
-        m_dataset.data()->loadGeneColors(geneMap);
+        m_dataset.data()->loadGeneColors(genes, colors);
         m_genes->update();
         m_ui->view->slotUpdate();
     }
 }
 
-void CellViewPage::slotLoadSpotColors()
+void CellViewPage::slotLoadSpotClusters()
 {
-    const auto spot_colors = m_clustering->getSpotClusters();
-    m_dataset.data()->loadSpotColors(spot_colors);
+    QList<QString> spots;
+    QList<int> clusters;
+    QList<QString> infos;
+    for (const auto &cluster : m_clustering->getSpotClusters()) {
+        spots.append(cluster.first);
+        clusters.append(cluster.second);
+        infos.append(QString::number(cluster.second));
+    }
+    m_dataset.data()->loadSpotColors(spots,
+                                     clusters,
+                                     infos);
     m_spots->update();
     m_ui->view->slotUpdate();
 }
@@ -478,4 +494,6 @@ void CellViewPage::slotCreateSelection()
     new_selection.dataset(m_dataset.name());
     qDebug() << "Creating selection " << new_selection.name();
     m_user_selections->addSelection(new_selection);
+    m_dataset.data()->clearSelection();
+    m_ui->view->slotUpdate();
 }
