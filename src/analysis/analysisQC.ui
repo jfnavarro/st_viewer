@@ -463,7 +463,7 @@
       </widget>
      </item>
      <item row="15" column="0">
-      <widget class="QPushButton" name="exportTranscripts">
+      <widget class="QPushButton" name="exportSpots">
        <property name="minimumSize">
         <size>
          <width>140</width>
@@ -486,7 +486,7 @@
         <string>Eport the transcritps' histogram to a file</string>
        </property>
        <property name="text">
-        <string>Export Transcripts</string>
+        <string>Export Spots</string>
        </property>
       </widget>
      </item>
@@ -535,7 +535,7 @@
       </widget>
      </item>
      <item>
-      <widget class="ChartView" name="transcriptsPlot">
+      <widget class="ChartView" name="spotsPlot">
        <property name="minimumSize">
         <size>
          <width>400</width>

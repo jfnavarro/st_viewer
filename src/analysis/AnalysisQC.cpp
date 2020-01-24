@@ -15,8 +15,9 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     m_ui->setupUi(this);
 
     // compute the stats
+    const vec nonzero_col = conv_to<vec>::from(sum(data.counts != 0, 0));
+    const vec nonzero_row = conv_to<vec>::from(sum(data.counts != 0, 1));
     const colvec rowsums = sum(data.counts, 1);
-    const ucolvec nonzero_row = sum(data.counts > 0, 1);
     const QString max_transcripts_spot = QString::number(rowsums.max());
     const QString max_genes_spot = QString::number(nonzero_row.max());
     const QString num_genes = QString::number(data.counts.n_cols);
@@ -26,8 +27,8 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     const QString avg_transcritps = QString::number(mean(rowsums));
     const QString std_genes = QString::number(stddev(nonzero_row));
     const QString std_transcripts = QString::number(stddev(rowsums));
-    const uvec hist_genes = hist(conv_to<colvec>::from(nonzero_row));
-    const uvec hist_transcripts = hist(rowsums);
+    const uvec hist_genes = hist(nonzero_row, 20);
+    const uvec hist_spots = hist(nonzero_col, 20);
 
     // populate the line edits
     m_ui->maxTranscripts->setText(max_transcripts_spot);
@@ -49,30 +50,30 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     QBarSeries *series_genes = new QBarSeries();
     series_genes->append(genes);
 
-    QBarSet *transcripts = new QBarSet(tr("Transcripts"));
+    QBarSet *spots = new QBarSet(tr("Spots"));
     #pragma omp parallel for
-    for (const auto &value : hist_transcripts) {
-        *transcripts << static_cast<int>(value);
+    for (const auto &value : hist_spots) {
+        *spots << static_cast<int>(value);
     }
-    QBarSeries *series_transcripts = new QBarSeries();
-    series_transcripts->append(transcripts);
+    QBarSeries *series_spots = new QBarSeries();
+    series_spots->append(spots);
 
     m_ui->genesPlot->chart()->addSeries(series_genes);
     m_ui->genesPlot->chart()->setTitle(tr("Histogram genes"));
     m_ui->genesPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_ui->genesPlot->chart()->createDefaultAxes();
-    m_ui->genesPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Spots (binned)"));
-    m_ui->genesPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#Genes"));
+    m_ui->genesPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Genes detected"));
+    m_ui->genesPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#Spots"));
 
-    m_ui->transcriptsPlot->chart()->addSeries(series_transcripts);
-    m_ui->transcriptsPlot->chart()->setTitle(tr("Histogram transcripts"));
-    m_ui->transcriptsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
-    m_ui->transcriptsPlot->chart()->createDefaultAxes();
-    m_ui->transcriptsPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Spots (binned)"));
-    m_ui->transcriptsPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#transcripts"));
+    m_ui->spotsPlot->chart()->addSeries(series_spots);
+    m_ui->spotsPlot->chart()->setTitle(tr("Histogram spots"));
+    m_ui->spotsPlot->chart()->setAnimationOptions(QChart::SeriesAnimations);
+    m_ui->spotsPlot->chart()->createDefaultAxes();
+    m_ui->spotsPlot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Spots detected"));
+    m_ui->spotsPlot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("#Genes"));
 
     connect(m_ui->exportGenes, &QPushButton::clicked, [=]() {slotExportPlot(1);});
-    connect(m_ui->exportTranscripts, &QPushButton::clicked, [=]() {slotExportPlot(2);});
+    connect(m_ui->exportSpots, &QPushButton::clicked, [=]() {slotExportPlot(2);});
 }
 
 AnalysisQC::~AnalysisQC()
@@ -84,6 +85,6 @@ void AnalysisQC::slotExportPlot(const int type)
     if (type == 1) {
         m_ui->genesPlot->slotExportPlot(tr("QC Histogram (Genes)"));
     } else {
-        m_ui->transcriptsPlot->slotExportPlot(tr("QC Histogram (Transcripts)"));
+        m_ui->spotsPlot->slotExportPlot(tr("QC Histogram (Spots)"));
     }
 }
