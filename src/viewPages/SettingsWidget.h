@@ -14,13 +14,6 @@ class SettingsWidget : public QWidget
 
 public:
 
-    enum VisualTypeMode {
-        Reads = 1,
-        ReadsLog = 2,
-        Genes = 3,
-        GenesLog = 4
-    };
-
     enum NormalizationMode {
         RAW = 1,
         CPM = 2,
@@ -38,16 +31,15 @@ public:
         int reads_threshold;
         int genes_threshold;
         int spots_threshold;
-        int ind_reads_threshold;
         double legend_min;
         double legend_max;
         double intensity;
         int size;
         VisualMode visual_mode;
         NormalizationMode normalization_mode;
-        VisualTypeMode visual_type_mode;
         bool gene_cutoff;
         bool show_spots;
+        bool log_scale;
     };
 
     explicit SettingsWidget(QWidget *parent = nullptr);
@@ -64,13 +56,12 @@ private slots:
 
     void slotGenesTreshold(int);
     void slotSpotsTreshold(int);
-    void slotIndReadsTreshold(int);
+    void slotReadsTreshold(int);
     void slotIntensity(int);
     void slotSize(int);
     void slotGeneCutoff(bool);
     void slotNormalization(NormalizationMode);
     void slotVisualMode(VisualMode);
-    void slotVisualMode(VisualTypeMode);
 
 signals:
 

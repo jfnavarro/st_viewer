@@ -22,9 +22,9 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->genes_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotGenesTreshold);
-    connect(m_ui->individual_reads_threshold,
+    connect(m_ui->reads_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, &SettingsWidget::slotIndReadsTreshold);
+            this, &SettingsWidget::slotReadsTreshold);
     connect(m_ui->spots_threshold,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsWidget::slotSpotsTreshold);
@@ -47,15 +47,10 @@ SettingsWidget::SettingsWidget(QWidget *parent)
             [=]() {slotNormalization(NormalizationMode::CPM);});
     connect(m_ui->normalization_rel, &QRadioButton::clicked, this,
             [=]() {slotNormalization(NormalizationMode::REL);});
-
-    connect(m_ui->visual_reads, &QRadioButton::clicked, this,
-            [=]() {slotVisualMode(Reads);});
-    connect(m_ui->visual_reads_log, &QRadioButton::clicked, this,
-            [=]() {slotVisualMode(ReadsLog);});
-    connect(m_ui->visual_genes, &QRadioButton::clicked, this,
-            [=]() {slotVisualMode(Genes);});
-    connect(m_ui->visual_genes_log, &QRadioButton::clicked, this,
-            [=]() {slotVisualMode(GenesLog);});
+    connect(m_ui->log_scale, &QCheckBox::stateChanged, this, [=] {
+        m_rendering_settings.log_scale = m_ui->log_scale->isChecked();
+        emit signalSpotRendering();
+    });
 
     connect(m_ui->visual_normal, &QRadioButton::clicked, this,
             [=]() {slotVisualMode(Normal);});
@@ -84,30 +79,28 @@ void SettingsWidget::reset()
     m_ui->show_spots->setChecked(false);
     m_ui->legend->setChecked(false);
     m_ui->normalization_raw->setChecked(true);
-    m_ui->visual_reads->setChecked(true);
     m_ui->visual_normal->setChecked(true);
-    m_ui->individual_reads_threshold->setMinimum(0);
-    m_ui->individual_reads_threshold->setValue(0);
-    m_ui->individual_reads_threshold->setMaximum(1000);
+    m_ui->reads_threshold->setMinimum(0);
+    m_ui->reads_threshold->setValue(0);
+    m_ui->reads_threshold->setMaximum(1000);
     m_ui->genes_threshold->setMinimum(0);
     m_ui->genes_threshold->setValue(0);
-    m_ui->genes_threshold->setMaximum(10000);
+    m_ui->genes_threshold->setMaximum(20000);
     m_ui->spots_threshold->setMinimum(0);
     m_ui->spots_threshold->setValue(0);
-    m_ui->spots_threshold->setMaximum(10000);
+    m_ui->spots_threshold->setMaximum(20000);
     m_rendering_settings.intensity = INTENSITY_DEFAULT;
     m_rendering_settings.size = SIZE_DEFAULT;
     m_rendering_settings.gene_cutoff = false;
     m_rendering_settings.genes_threshold = 0;
     m_rendering_settings.spots_threshold = 0;
     m_rendering_settings.reads_threshold = 0;
-    m_rendering_settings.ind_reads_threshold = 0;
     m_rendering_settings.legend_max = 1;
     m_rendering_settings.legend_min = 0;
     m_rendering_settings.normalization_mode = SettingsWidget::RAW;
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
-    m_rendering_settings.visual_type_mode = SettingsWidget::Reads;
     m_rendering_settings.show_spots = false;
+    m_rendering_settings.log_scale = false;
 }
 
 SettingsWidget::Rendering &SettingsWidget::renderingSettings()
@@ -136,10 +129,10 @@ void SettingsWidget::slotSpotsTreshold(int value)
     }
 }
 
-void SettingsWidget::slotIndReadsTreshold(int value)
+void SettingsWidget::slotReadsTreshold(int value)
 {
-    if (value != m_rendering_settings.ind_reads_threshold) {
-        m_rendering_settings.ind_reads_threshold = value;
+    if (value != m_rendering_settings.reads_threshold) {
+        m_rendering_settings.reads_threshold = value;
         emit signalSpotRendering();
     }
 }
@@ -181,14 +174,6 @@ void SettingsWidget::slotVisualMode(VisualMode mode)
 {
     if (mode != m_rendering_settings.visual_mode) {
         m_rendering_settings.visual_mode = mode;
-        emit signalSpotRendering();
-    }
-}
-
-void SettingsWidget::slotVisualMode(VisualTypeMode mode)
-{
-    if (mode != m_rendering_settings.visual_type_mode) {
-        m_rendering_settings.visual_type_mode = mode;
         emit signalSpotRendering();
     }
 }

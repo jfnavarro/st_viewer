@@ -93,7 +93,7 @@ void GenesTableView::customMenuRequested(const QPoint &pos)
                 const QString gene_name = getModel()->data(new_index, Qt::DisplayRole).toString();
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(gene_name);
-            } else if (action_text == tr("Select/Unselect")) {
+            } else if (action_text == tr("Show/Hide")) {
                 const QModelIndex new_index = getModel()->index(correct_index.row(), GeneItemModel::Show);
                 const bool selected = getModel()->data(new_index, Qt::CheckStateRole).toBool();
                 getModel()->setVisibility(QItemSelection(correct_index, correct_index), !selected);

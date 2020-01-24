@@ -50,6 +50,7 @@ else()
     find_package(Armadillo REQUIRED)
 endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
+message(STATUS ${ARMADILLO_LIBRARIES})
 
 find_package(ZLIB REQUIRED)
 

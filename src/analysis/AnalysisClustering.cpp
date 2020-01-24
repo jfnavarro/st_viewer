@@ -148,7 +148,7 @@ void AnalysisClustering::computeClustersAsync()
                                STMath::PCA(A, NO_DIMS, center, scale, false);
 
     // Run clustering
-    mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
+    const mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
 
     Q_ASSERT((results.n_rows == A.n_rows) &&
              (results.n_cols == results_clustering.n_rows) &&

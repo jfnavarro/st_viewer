@@ -1,5 +1,5 @@
 macro(INITIALISE_PROJECT)
-    set(CMAKE_VERBOSE_MAKEFILE OFF)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)

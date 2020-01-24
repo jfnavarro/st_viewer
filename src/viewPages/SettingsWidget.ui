@@ -96,6 +96,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="log_scale">
+        <property name="text">
+         <string>Log scale</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -151,8 +158,11 @@
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
+       <property name="maximum">
+        <number>20000</number>
+       </property>
        <property name="value">
-        <number>5</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -181,7 +191,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QSpinBox" name="individual_reads_threshold">
+      <widget class="QSpinBox" name="reads_threshold">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -240,8 +250,11 @@
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
+       <property name="maximum">
+        <number>20000</number>
+       </property>
        <property name="value">
-        <number>5</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -327,83 +340,6 @@
         </property>
         <property name="text">
          <string>Heatmap2</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_10">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Visualization data</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBoxVisualType">
-     <property name="title">
-      <string/>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QRadioButton" name="visual_reads">
-        <property name="toolTip">
-         <string>Use the genes transcripts</string>
-        </property>
-        <property name="statusTip">
-         <string>Use the genes transcripts</string>
-        </property>
-        <property name="text">
-         <string>Transcripts</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="visual_reads_log">
-        <property name="toolTip">
-         <string>Use the genes transcripts in log scale</string>
-        </property>
-        <property name="statusTip">
-         <string>Use the genes transcripts in log scale</string>
-        </property>
-        <property name="text">
-         <string>Transcripts (Log)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="visual_genes">
-        <property name="toolTip">
-         <string>Use the number of expressed genes</string>
-        </property>
-        <property name="statusTip">
-         <string>Use the number of expressed genes</string>
-        </property>
-        <property name="text">
-         <string>Genes</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="visual_genes_log">
-        <property name="toolTip">
-         <string>Use the number of expressed genes in log scale</string>
-        </property>
-        <property name="statusTip">
-         <string>Use the number of expressed genes in log scale</string>
-        </property>
-        <property name="text">
-         <string>Genes (Log)</string>
         </property>
        </widget>
       </item>

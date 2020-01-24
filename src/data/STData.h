@@ -66,10 +66,6 @@ public:
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
 
-    // helper function to compute the number of columns/rows with a value >= min_value
-    static urowvec computeNonZeroColumns(const mat &matrix, const int min_value);
-    static ucolvec computeNonZeroRows(const mat &matrix, const int min_value);
-
     // helper function filters a data frame and returns it
     static STDataFrame filterCounts(const STDataFrame &data,
                                     const int min_reads,

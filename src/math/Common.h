@@ -224,11 +224,11 @@ inline mat PCA(const mat &data,
 {
     mat X = data;
     if (center) {
-        const auto means = mean(X,0);
+        const auto means = mean(data,0);
         X.each_row() -= means;
     }
     if (scale) {
-        const auto std = stddev(X,0,0);
+        const auto std = stddev(data,0,0);
         X.each_row() /= std;
     }
 
@@ -257,7 +257,6 @@ inline mat kmeans_clustering(const mat &data,
     return centroids;
 }
 
-
 inline mat tSNE(const mat &data,
                 const double theta = 0.5,
                 const int perplexity = 30,
@@ -268,12 +267,15 @@ inline mat tSNE(const mat &data,
                 const bool debug = false)
 {
     const int N = data.n_rows;
-    mat data_reduced = PCA(data, init_dim, true, false, false);
-    double *Y = new double[N * no_dims * sizeof(double)];
+    // Armadillo matrix is a column vector so we transpose it
+    mat data_reduced = PCA(data, init_dim, true, false, false).t();
+    double *Y = new double[N * no_dims];
     double *X = data_reduced.memptr();
     TSNE::run(X, N, init_dim, Y, no_dims,
               perplexity, theta, rand_seed, false, max_iter, 250, 250);
-    mat manifold(N, no_dims);
+    // Armadillo matrix is a column vector so we transpose it
+    mat manifold(Y, no_dims, N);
+    manifold = manifold.t();
     if (debug) {
         std::cout << "t-SNE: " << manifold.n_rows << " - " << manifold.n_cols << std::endl;
         manifold.print();

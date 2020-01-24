@@ -91,8 +91,9 @@ void CellGLView3D::initializeGL()
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_POINT_SPRITE);
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
@@ -289,7 +290,7 @@ void CellGLView3D::paintGL()
 
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 5);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
     {

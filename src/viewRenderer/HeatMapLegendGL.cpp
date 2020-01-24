@@ -51,7 +51,7 @@ void HeatMapLegendGL::draw(const SettingsWidget::Rendering &rendering_setting, Q
     }
 
     // draw the image
-    painter.drawImage(QPointF(legend_x, legend_y), m_image.mirrored());
+    painter.drawImage(QPointF(legend_x, legend_y), m_image);
 
     // draw text (add 5 pixels offset to the right)
     painter.setBrush(Qt::darkBlue);
