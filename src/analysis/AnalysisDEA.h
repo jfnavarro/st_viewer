@@ -26,8 +26,8 @@ class AnalysisDEA : public QWidget
     struct DEResult {
         double pvalue;
         double log_pvalue;
-        double fdr;
-        double log2fc;
+        double adj_pvalue;
+        double logfc;
         QString gene;
     };
 
@@ -62,6 +62,7 @@ private slots:
 
 private:
 
+    // Internal functions to compute the DE genes and update table/plot
     void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();

@@ -49,9 +49,9 @@ void AnalysisClustering::clear()
     m_ui->runClustering->setEnabled(true);
     m_ui->createSelections->setEnabled(false);
     m_ui->tab->setCurrentIndex(0);
-    m_ui->reads_threshold->setValue(0);
-    m_ui->genes_threshold->setValue(5);
-    m_ui->spots_threshold->setValue(5);
+    m_ui->reads_threshold->setValue(1);
+    m_ui->genes_threshold->setValue(10);
+    m_ui->spots_threshold->setValue(10);
     m_ui->clusters->setValue(5);
     m_ui->logScale->setChecked(false);
     m_ui->plot->chart()->removeAllSeries();
@@ -187,8 +187,7 @@ void AnalysisClustering::clustersComputed()
     if (m_clusters.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
                               tr("Spot classification"),
-                              tr("There was an error performing the clustering\n."
-                                 "Perhaps too high perplexity?"));
+                              tr("There was an error performing the unsupervied clustering"));
         return;
     }
 

@@ -35,7 +35,7 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
     m_ui->setupUi(this);
 
     // default values
-    m_ui->fdr->setValue(0.1);
+    m_ui->adj_pvalue->setValue(0.1);
     m_ui->foldchange->setValue(1.0);
     m_ui->exportTable->setEnabled(false);
     m_ui->searchField->setEnabled(false);
@@ -46,6 +46,9 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
     m_ui->conditionA->setText(nameA);
     m_ui->conditionB->setText(nameB);
     m_ui->normalization_raw->setChecked(true);
+    m_ui->reads_threshold->setValue(1);
+    m_ui->genes_threshold->setValue(10);
+    m_ui->spots_threshold->setValue(10);
     m_proxy.reset(new QSortFilterProxyModel());
 
     // create connections
@@ -94,11 +97,12 @@ void AnalysisDEA::slotExportTable()
     if (file.open(QIODevice::ReadWrite)) {
         QTextStream stream(&file);
         // write columns (1st row)
-        stream << "Gene" << "\t" << "FDR" << "\t" << "p-value" << "\t" << "log2FoldChange" << endl;
+        stream << "Gene" << "\t" << "adj_p_value" << "\t" << "p_value" << "\t" << "logFoldChange" << endl;
         // write values
         for (const auto &res : m_results) {
-            if (res.fdr <= m_ui->fdr->value() && std::abs(res.log2fc) >= m_ui->foldchange->value()) {
-                stream << res.gene << "\t" << res.fdr << "\t" << res.pvalue << "\t" << res.log2fc << endl;
+            if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                    && std::abs(res.logfc) >= m_ui->foldchange->value()) {
+                stream << res.gene << "\t" << res.adj_pvalue << "\t" << res.pvalue << "\t" << res.logfc << endl;
             }
         }
     } else {
@@ -127,7 +131,7 @@ void AnalysisDEA::slotGeneSelected(QModelIndex index)
     // update the highlight coordinate and refresh the plot
     const int row_index = selected_indexes.first().row();
     const double pvalue = m_results.at(row_index).log_pvalue;
-    const double foldchange = m_results.at(row_index).log2fc;
+    const double foldchange = m_results.at(row_index).logfc;
     m_gene_highlight = QPointF(foldchange, pvalue);
     updatePlot();
 }
@@ -150,10 +154,11 @@ void AnalysisDEA::updatePlot()
     // populate
     #pragma omp parallel for
     for (const auto &res : m_results) {
-        if (res.fdr <= m_ui->fdr->value() && std::abs(res.log2fc) >= m_ui->foldchange->value()) {
-            series2->append(res.log2fc, res.log_pvalue);
+        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                && std::abs(res.logfc) >= m_ui->foldchange->value()) {
+            series2->append(res.logfc, res.log_pvalue);
         } else {
-            series1->append(res.log2fc, res.log_pvalue);
+            series1->append(res.logfc, res.log_pvalue);
         }
     }
 
@@ -176,7 +181,7 @@ void AnalysisDEA::updatePlot()
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
     m_ui->plot->chart()->createDefaultAxes();
-    m_ui->plot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("Log2FoldChange"));
+    m_ui->plot->chart()->axes(Qt::Horizontal).first()->setTitleText(tr("LogFoldChange"));
     m_ui->plot->chart()->axes(Qt::Horizontal).first()->setGridLineVisible(false);
     m_ui->plot->chart()->axes(Qt::Horizontal).first()->setLabelsVisible(true);
     m_ui->plot->chart()->axes(Qt::Vertical).first()->setTitleText(tr("-log10(p-value)"));
@@ -192,9 +197,9 @@ void AnalysisDEA::updateTable()
     const size_t rows = m_results.size();
     QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
-    model->setHorizontalHeaderItem(1, new QStandardItem(QString("FDR")));
+    model->setHorizontalHeaderItem(1, new QStandardItem(QString("Adj. p-value")));
     model->setHorizontalHeaderItem(2, new QStandardItem(QString("p-value")));
-    model->setHorizontalHeaderItem(3, new QStandardItem(QString("log2FoldChange")));
+    model->setHorizontalHeaderItem(3, new QStandardItem(QString("logFoldChange")));
 
     int high_confidence_de = 0;
     // populate
@@ -202,30 +207,31 @@ void AnalysisDEA::updateTable()
     for (size_t i = 0; i < rows; ++i) {
         const auto res = m_results.at(i);
         const QString gene = res.gene;
-        const QString fdr_str = QString::number(res.fdr);
+        const QString adj_pvalue_str = QString::number(res.adj_pvalue);
         const QString pvalue_str = QString::number(res.pvalue);
-        const QString foldchange_str = QString::number(res.log2fc);
+        const QString foldchange_str = QString::number(res.logfc);
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::DisplayRole);
         gene_item->setData(gene, Qt::UserRole);
-        QStandardItem *fdr_item = new QStandardItem(fdr_str);
-        fdr_item->setData(res.fdr, Qt::DisplayRole);
-        fdr_item->setData(res.fdr, Qt::UserRole);
+        QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
+        adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
+        adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
         QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
         pvalue_item->setData(res.pvalue, Qt::DisplayRole);
         pvalue_item->setData(res.pvalue, Qt::UserRole);
         QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
-        foldchange_item->setData(res.log2fc, Qt::DisplayRole);
-        foldchange_item->setData(res.log2fc, Qt::UserRole);
-        if (res.fdr <= m_ui->fdr->value() && std::abs(res.log2fc) >= m_ui->foldchange->value()) {
+        foldchange_item->setData(res.logfc, Qt::DisplayRole);
+        foldchange_item->setData(res.logfc, Qt::UserRole);
+        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                && std::abs(res.logfc) >= m_ui->foldchange->value()) {
             gene_item->setBackground(Qt::red);
-            fdr_item->setBackground(Qt::red);
+            adj_pvalue_item->setBackground(Qt::red);
             pvalue_item->setBackground(Qt::red);
             foldchange_item->setBackground(Qt::red);
             ++high_confidence_de;
         }
         model->setItem(i, 0, gene_item);
-        model->setItem(i, 1, fdr_item);
+        model->setItem(i, 1, adj_pvalue_item);
         model->setItem(i, 2, pvalue_item);
         model->setItem(i, 3, foldchange_item);
     }
@@ -329,11 +335,11 @@ void AnalysisDEA::slotRun()
         } else {
             QMessageBox::critical(this,
                                   tr("DEA Analysis"),
-                                  tr("There are no common genes between the selections."));
+                                  tr("There are no shared genes between the selections."));
             return;
         }
-        // Normalize and log matrix of counts
 
+        // Normalize and log matrix of counts
         mat A = STData::normalizeCounts(dataA, m_normalization).counts;
         mat B = STData::normalizeCounts(dataB, m_normalization).counts;
 
@@ -381,22 +387,22 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     }
 
     // compute adjusted p-values
-    std::vector<double> fdrs = STMath::p_adjustBH(pvals);
+    const std::vector<double> adj_pvalues = STMath::p_adjustBH(pvals);
 
-    // compute log2 foldchanges
+    // compute log foldchanges
     const vec rowmeansA = conv_to<vec>::from(mean(expm1(A),0));
     const vec rowmeansB = conv_to<vec>::from(mean(expm1(B),0));
     const double pseudocount = std::numeric_limits<double>::epsilon();
-    const vec log2fcs = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
+    const vec logfc = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
 
     m_results.clear();
     #pragma omp parallel for
     for (size_t i = 0; i < pvals.size(); ++i) {
         DEResult res;
         res.pvalue = pvals.at(i);
-        res.fdr = fdrs.at(i);
+        res.adj_pvalue = std::clamp(adj_pvalues.at(i), 0.0, 1.0);
         res.gene = genes.at(i);
-        res.log2fc = log2fcs.at(i);
+        res.logfc = logfc.at(i);
         res.log_pvalue = -std::log10(res.pvalue + pseudocount);
         m_results.push_back(res);
     }
@@ -422,10 +428,10 @@ void AnalysisDEA::slotDEAComputed()
     m_ui->exportPlot->setEnabled(true);
     m_ui->searchField->setEnabled(true);
 
-    // update table with fdr and foldchange
+    // update table
     updateTable();
 
-    // update plot with fdr and foldchange
+    // update plot
     updatePlot();
 }
 
@@ -436,6 +442,7 @@ void AnalysisDEA::slotExportPlot()
 
 void AnalysisDEA::customMenuRequested(const QPoint &pos)
 {
+    // to allow to copy the gene name from the table
     const QModelIndex index = m_ui->tableview->indexAt(pos);
     if (index.isValid()) {
         QMenu *menu = new QMenu(this);

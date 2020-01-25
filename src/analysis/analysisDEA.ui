@@ -133,12 +133,12 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>FDR</string>
+            <string>Adjusted p-val</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="fdr">
+          <widget class="QDoubleSpinBox" name="adj_pvalue">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -178,7 +178,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Log2FoldChange</string>
+            <string>FoldChange(log)</string>
            </property>
           </widget>
          </item>
