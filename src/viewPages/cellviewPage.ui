@@ -192,7 +192,7 @@
             </size>
            </property>
            <property name="cursor">
-            <cursorShape>SplitHCursor</cursorShape>
+            <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="toolTip">
             <string>Rotate image 45°</string>

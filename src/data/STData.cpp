@@ -91,14 +91,12 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
         throw;
     }
 
-    // parse the spot coordinates file (if any)
-    QMap<QString, QString> spots_dict;
-    if (!spots_coordinates.isNull() && !spots_coordinates.isEmpty()) {
-        try {
-            spots_dict = parseSpotsMap(spots_coordinates);
-        } catch (const std::exception &e) {
-            throw;
-        }
+    // parse the spot coordinates file
+    QMap<QString, Spot::SpotType> spots_dict;
+    try {
+        spots_dict = parseSpotsMap(spots_coordinates);
+    } catch (const std::exception &e) {
+        throw;
     }
 
     // The containers for the gene/spot objects
@@ -114,17 +112,15 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
     m_spot_index.clear();
     for (uword i = 0; i < m_data.counts.n_rows; ++i) {
         const auto &spot = m_data.spots.at(i);
-        auto adj_spot = spot;
-        if (!spots_dict.empty() && spots_dict.contains(spot)) {
-            adj_spot = spots_dict[spot];
-        } else if (!spots_dict.empty()) {
+        if (!spots_dict.contains(spot)) {
             continue;
         }
+        const auto adj_spot = spots_dict[spot];
         const double row_sum_value = row_sum.at(i);
         if (row_sum_value > 0) {
             to_keep_spots.push_back(i);
             auto spot_obj = SpotObjectType(new Spot(spot));
-            spot_obj->adj_coordinates(Spot::getCoordinates(adj_spot));
+            spot_obj->adj_coordinates(adj_spot);
             spot_obj->totalCount(row_sum_value);
             m_spots.push_back(spot_obj);
             spots.push_back(spot);
@@ -212,6 +208,7 @@ const STData::SpotListType &STData::spots() const
 void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 {
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
+    const bool drange = rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
     // reset visible/selecteed to false
     #pragma omp parallel for
@@ -319,20 +316,9 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             merged_color = spot_obj->color();
             visible = spot_obj->visible();
         } else {
-            if (do_values) {
-                const double value = values.at(i);
-                if (value > 0) {
-                    merged_color = Color::adjustVisualMode(
-                                merged_color,
-                                value,
-                                rendering_settings.legend_min,
-                                rendering_settings.legend_max,
-                                rendering_settings.visual_mode);
-                    visible = true;
-                }
-            } else {
-                const rowvec row_vec = data.counts.row(i);
-                if (any(row_vec)) {
+            const rowvec row_vec = data.counts.row(i);
+            if (any(row_vec)) {
+                if (!do_values || drange) {
                     int num_genes = 0;
                     for (uword j = 0; j < genes_visible_indexes.size(); ++j) {
                         const auto gene_obj = m_genes.at(genes_visible_indexes.at(j));
@@ -340,8 +326,16 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                             merged_color = STMath::lerp(1.0 / ++num_genes, merged_color, gene_obj->color());
                         }
                     }
-                    visible = true;
                 }
+                if (do_values) {
+                    merged_color = Color::adjustVisualMode(
+                                merged_color,
+                                values.at(i),
+                                rendering_settings.legend_min,
+                                rendering_settings.legend_max,
+                                rendering_settings.visual_mode);
+                }
+                visible = true;
             }
         }
         m_rendering_selected[spot_index] = visible && spot_obj->selected();
@@ -370,12 +364,12 @@ const QVector<Spot::SpotType> &STData::renderingCoords() const
     return m_rendering_coords;
 }
 
-QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
+QMap<QString, Spot::SpotType> STData::parseSpotsMap(const QString &spots_file) const
 {
     qDebug() << "Parsing spots file " << spots_file;
-    QMap<QString, QString> spotMap;
+    QMap<QString, Spot::SpotType> spotMap;
     QFile file(spots_file);
-    // Parse the spots map = old_spot -> new_spot
+    // Parse the spots map = old_spot -> pixel coordinates
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
         QString line;
@@ -386,16 +380,20 @@ QMap<QString, QString> STData::parseSpotsMap(const QString &spots_file)
             if (!line.startsWith("x")) {
                 fields = line.split("\t");
                 QString old_spot;
-                QString new_spot;
+                Spot::SpotType new_spot;
                 const int n_fields = fields.length();
                 if (n_fields == 4) {
                     // 3D format
                     old_spot = fields.at(0);
-                    new_spot = fields.at(1) + "x" + fields.at(2) + "x" + fields.at(3);
+                    new_spot = Spot::SpotType(fields.at(1).toDouble(),
+                                              fields.at(2).toDouble(),
+                                              fields.at(3).toDouble());
                 } else if (n_fields == 6) {
                     // 2D format (ST Spot detector)
                     old_spot = fields.at(0) + "x" + fields.at(1);
-                    new_spot = fields.at(2) + "x" + fields.at(3);
+                    new_spot = Spot::SpotType(fields.at(4).toDouble(),
+                                              fields.at(5).toDouble(),
+                                              0);
                 } else {
                     parsed = false;
                     break;
@@ -582,7 +580,7 @@ void STData::selectSpots(const SelectionEvent &event)
     // update selection
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
     QtConcurrent::blockingMap(m_spots, [&](auto spot) {
-        const auto &coord = spot->coordinates();
+        const auto &coord = spot->adj_coordinates();
         if (path.contains(QPointF(coord.x(), coord.y()))) {
             spot->selected(!remove);
         }

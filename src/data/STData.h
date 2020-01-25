@@ -36,17 +36,17 @@ public:
     STData();
     ~STData();
 
-    // Parses the data frame and genes/spots containers
-    void init(const QString &filename, const QString &spots_coordinates = QString());
+    // Parses the data (counts matrix and spot coordinates)
+    void init(const QString &filename, const QString &spots_coordinates);
 
-    // Functions to import/export a data frame
+    // Functions to import/export a counts matrix
     static STDataFrame read(const QString &filename);
     static void save(const QString &filename, const STDataFrame &data);
 
-    // Retrieves the original data frame (without filtering)
+    // Retrieves the original data matrix (without filtering)
     STDataFrame data() const;
 
-    // Returns the spot/gene objects corresponding to the data frame
+    // Returns the spot/gene objects corresponding to the data matrix
     const GeneListType &genes() const;
     const SpotListType &spots() const;
 
@@ -57,16 +57,16 @@ public:
     const QVector<int> &renderingSelected() const;
     const QVector<Spot::SpotType> &renderingCoords() const;
 
-    // Parses a file with spots coordinates old_spot -> new_spot
-    // It returns a map of old_spots -> new_spots
+    // Parses a file with spots coordinates
+    // It returns a map of spot -> pixel coordinates
     // It throws exceptions when errors happen during parsing or an empty file
-    QMap<QString, QString> parseSpotsMap(const QString &spots_file);
+    QMap<QString, Spot::SpotType> parseSpotsMap(const QString &spots_file) const;
 
-    // helper function that normalizes a data frame and returns it
+    // helper function that normalizes a data matrix and returns it
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
 
-    // helper function filters a data frame and returns it
+    // helper function filters a data matrix and returns it
     static STDataFrame filterCounts(const STDataFrame &data,
                                     const int min_reads,
                                     const int min_genes,
@@ -74,7 +74,7 @@ public:
     const STDataFrame sliceDataSpots(const QList<QString> &spots);
     const STDataFrame sliceDataGenes(const QList<QString> &genes);
 
-    // helper function that merges a list of dataframes
+    // helper function that merges a list of data matrices
     static STDataFrame aggregate(const QList<STDataFrame> &dataframes);
 
     // functions to select spots
@@ -91,7 +91,7 @@ public:
     void loadGeneColors(const QList<QString> &genes,
                         const QList<int> &colors);
 
-    // returns the boundaries of the spots in the data frame (min spot and max spot coordinates)
+    // returns the boundaries of the spots in the data matrix (min spot and max spot coordinates)
     const QRectF getBorder() const;
 
     // a flag telling if the data frame is 3D

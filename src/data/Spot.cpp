@@ -128,7 +128,6 @@ void Spot::color(const QColor color)
     m_color = color;
 }
 
-
 void Spot::visible(const bool visible)
 {
     m_visible = visible;
@@ -157,14 +156,4 @@ Spot::SpotType Spot::getCoordinates(const QString &spot)
     const float y = items.at(1).toFloat();
     const float z = items.size() == 3 ? items.at(2).toFloat() : 0;
     return SpotType(x,y,z);
-}
-
-QString Spot::getSpot(const Spot::SpotType &spot)
-{ 
-    return QString::number(spot.x()) + "x" + QString::number(spot.y());
-}
-
-QString Spot::getSpot3D(const Spot::SpotType &spot)
-{
-    return QString::number(spot.x()) + "x" + QString::number(spot.y()) + "x" + QString::number(spot.z());
 }

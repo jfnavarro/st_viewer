@@ -6,12 +6,9 @@
 
 Dataset::Dataset()
     : m_name()
-    , m_statTissue()
-    , m_statSpecies()
     , m_statComments()
     , m_data_file()
     , m_image_file()
-    , m_alignment_file()
     , m_spots_file()
     , m_xrange()
     , m_yrange()
@@ -28,12 +25,9 @@ Dataset::Dataset()
 Dataset::Dataset(const DatasetImporter &importer)
 {
     m_name = importer.datasetName();
-    m_statTissue = importer.tissue();
-    m_statSpecies = importer.species();
     m_statComments = importer.comments();
     m_data_file = importer.STDataFile();
     m_image_file = importer.mainImageFile();
-    m_alignment_file = importer.alignmentMatrix();
     m_spots_file = importer.spotsMapFile();
     m_xrange = importer.xrange();
     m_yrange = importer.yrange();
@@ -46,12 +40,9 @@ Dataset::Dataset(const DatasetImporter &importer)
 Dataset::Dataset(const Dataset &other)
 {
     m_name = other.m_name;
-    m_statTissue = other.m_statTissue;
-    m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
-    m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_xrange = other.m_xrange;
     m_yrange = other.m_yrange;
@@ -71,12 +62,9 @@ Dataset::~Dataset()
 Dataset &Dataset::operator=(const Dataset &other)
 {
     m_name = other.m_name;
-    m_statTissue = other.m_statTissue;
-    m_statSpecies = other.m_statSpecies;
     m_statComments = other.m_statComments;
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
-    m_alignment_file = other.m_alignment_file;
     m_spots_file = other.m_spots_file;
     m_xrange = other.m_xrange;
     m_yrange = other.m_yrange;
@@ -93,13 +81,11 @@ Dataset &Dataset::operator=(const Dataset &other)
 bool Dataset::operator==(const Dataset &other) const
 {
     return (m_name == other.m_name
-            && m_statTissue == other.m_statTissue
-            && m_statSpecies == other.m_statSpecies
             && m_statComments == other.m_statComments
             && m_data_file == other.m_data_file
             && m_image_file == other.m_image_file
-            && m_alignment_file == other.m_alignment_file
             && m_spots_file == other.m_spots_file
+            && m_alignment == other.m_alignment
             && m_xrange == other.m_xrange
             && m_yrange == other.m_yrange
             && m_zrange == other.m_zrange
@@ -121,14 +107,9 @@ const QString Dataset::dataFile() const
     return m_data_file;
 }
 
-const QTransform Dataset::imageAlignment() const
+const QTransform Dataset::alignmentMatrix() const
 {
     return m_alignment;
-}
-
-const QString Dataset::imageAlignmentFile() const
-{
-    return m_alignment_file;
 }
 
 const QString Dataset::imageFile() const
@@ -139,16 +120,6 @@ const QString Dataset::imageFile() const
 const QString Dataset::spotsFile() const
 {
     return m_spots_file;
-}
-
-const QString Dataset::statTissue() const
-{
-    return m_statTissue;
-}
-
-const QString Dataset::statSpecies() const
-{
-    return m_statSpecies;
 }
 
 const QString Dataset::statComments() const
@@ -204,16 +175,6 @@ void Dataset::dataFile(const QString &datafile)
     m_data_file = datafile;
 }
 
-void Dataset::imageAlignment(const QTransform &alignment)
-{
-    m_alignment = alignment;
-}
-
-void Dataset::imageAlignmentFile(const QString &aligment_file)
-{
-    m_alignment_file = aligment_file;
-}
-
 void Dataset::imageFile(const QString &image_file)
 {
     m_image_file = image_file;
@@ -222,16 +183,6 @@ void Dataset::imageFile(const QString &image_file)
 void Dataset::spotsFile(const QString &spots_file)
 {
     m_spots_file = spots_file;
-}
-
-void Dataset::statTissue(const QString &statTissue)
-{
-    m_statTissue = statTissue;
-}
-
-void Dataset::statSpecies(const QString &statSpecies)
-{
-    m_statSpecies = statSpecies;
 }
 
 void Dataset::statComments(const QString &statComments)
@@ -266,15 +217,6 @@ void Dataset::load_data()
         throw;
     }
 
-    // Parse image alignment
-    if (!m_alignment_file.isEmpty()) {
-        const bool parsed = load_imageAligment();
-        if (!parsed) {
-            qDebug() << "Error parsing image aligment file";
-            throw std::runtime_error("Error parsing Image alignment file");
-        }
-    }
-
     // Parse image (in 2D only)
     if (!m_is3D) {
         const bool parsed = load_Image();
@@ -282,71 +224,12 @@ void Dataset::load_data()
             qDebug() << "Error parsing image file";
             throw std::runtime_error("Error parsing Image file");
         }
-        // If the user has not given any transformation matrix
-        // we compute a simple transformation matrix using
-        // the image and chip dimensions so the spot's coordinates
-        // can be mapped to the image's coordinates space
-        if (m_alignment.isIdentity()) {
-            const double chip_x2 = static_cast<double>(m_xrange.y());
-            const double chip_y2 = static_cast<double>(m_yrange.y());
-            const double width_image = static_cast<double>(m_image_bounds.width());
-            const double height_image = static_cast<double>(m_image_bounds.height());
-            const double a11 = width_image / (chip_x2 - 1);
-            const double a12 = 0.0;
-            const double a13 = 0.0;
-            const double a21 = 0.0;
-            const double a22 = height_image / (chip_y2 - 1);
-            const double a23 = 0.0;
-            const double a31 = -a11;
-            const double a32 = -a22;
-            const double a33 = 1.0;
-            m_alignment.setMatrix(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-        } else if (m_scaled) {
+
+        if (m_scaled) {
             m_alignment *= QTransform::fromScale(0.5, 0.5);
         }
         qDebug() << "Setting alignment matrix to " << m_alignment;
     }
-}
-
-bool Dataset::load_imageAligment()
-{
-    qDebug() << "Parsing image alignment file " << m_alignment_file;
-    bool parsed = true;
-    double a11 = 1.0;
-    double a12 = 0.0;
-    double a13 = 0.0;
-    double a21 = 0.0;
-    double a22 = 1.0;
-    double a23 = 0.0;
-    double a31 = 0.0;
-    double a32 = 0.0;
-    double a33 = 1.0;
-    QFile file(m_alignment_file);
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream in(&file);
-        QString line = in.readLine();
-        QStringList fields = line.split(" ");
-        if (fields.length() == 9) {
-            a11 = fields.at(0).toDouble();
-            a12 = fields.at(1).toDouble();
-            a13 = fields.at(2).toDouble();
-            a21 = fields.at(3).toDouble();
-            a22 = fields.at(4).toDouble();
-            a23 = fields.at(5).toDouble();
-            a31 = fields.at(6).toDouble();
-            a32 = fields.at(7).toDouble();
-            a33 = fields.at(8).toDouble();
-        } else {
-            qDebug() << "Error parsing alignment matrix (incorrect fields)";
-            parsed = false;
-        }
-    } else {
-        qDebug() << "Image alignment file coult not be opened";
-        parsed = false;
-    }
-    file.close();
-    m_alignment = QTransform(a11, a12, a13, a21, a22, a23, a31, a32, a33);
-    return parsed;
 }
 
 bool Dataset::load_Image() {

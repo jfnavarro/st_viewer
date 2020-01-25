@@ -91,16 +91,16 @@ void CellGLView3D::initializeGL()
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
-    //glEnable(GL_MULTISAMPLE);
+    glDisable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
-    glEnable(GL_POINT_SPRITE);
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendEquation(GL_FUNC_ADD);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
@@ -181,7 +181,7 @@ const QMatrix4x4 CellGLView3D::viewMatrix3D() const
 
 const QMatrix4x4 CellGLView3D::viewMatrix2D() const
 {
-    QMatrix4x4 tr;
+    QTransform tr;
     const double dpr = devicePixelRatioF();
     const double w = static_cast<double>(width()) * dpr;
     const double h = static_cast<double>(height()) * dpr;
@@ -190,14 +190,14 @@ const QMatrix4x4 CellGLView3D::viewMatrix2D() const
     const QPointF point = imageRect.center() + (imageRect.center() - focus);
     tr.translate(point.x(), point.y());
     if (m_rotate_factor != 0) {
-        tr.rotate(0, 0, m_rotate_factor);
+        tr.rotate(m_rotate_factor);
     }
     if (m_flip_factor == 180) {
         tr.scale(1.0, -1.0);
     }
     tr.scale(1 / m_zoom, 1 / m_zoom);
     tr.translate(-w / 2.0, -h / 2.0);
-    return tr.inverted();
+    return QMatrix4x4(tr.inverted());
 }
 
 const QVector3D CellGLView3D::cameraPosition()
@@ -205,10 +205,10 @@ const QVector3D CellGLView3D::cameraPosition()
     const double elev = m_elevation * STMath::PI/180;
     const double azim = m_azimuth * STMath::PI/180;
     return QVector3D(
-        m_centerX + m_dist * std::cos(elev) * std::cos(azim),
-        m_centerY + m_dist * std::cos(elev) * std::sin(azim),
-        m_centerZ + m_dist * std::sin(elev)
-    );
+                m_centerX + m_dist * std::cos(elev) * std::cos(azim),
+                m_centerY + m_dist * std::cos(elev) * std::sin(azim),
+                m_centerZ + m_dist * std::sin(elev)
+                );
 }
 
 void CellGLView3D::setPan(const double dx, const double dy, const double dz, const bool view = false)
@@ -244,6 +244,9 @@ void CellGLView3D::setRotation(const double azim, const double elevation)
 
 void CellGLView3D::paintGL()
 {
+    QPainter painter(this);
+    painter.beginNativePainting();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!m_initialized) {
@@ -253,31 +256,10 @@ void CellGLView3D::paintGL()
     const bool is3D = m_dataset.is3D();
 
     // model view matrices
-    const QTransform aligment = m_dataset.imageAlignment();
+    const QTransform aligment = m_dataset.alignmentMatrix();
     const QMatrix4x4 view = is3D ? viewMatrix3D() : viewMatrix2D();
     const QMatrix4x4 projection = is3D ? projectionMatrix3D() : projectionMatrix2D();
     const QMatrix4x4 mvp = is3D ? projection * view : projection * view * aligment;
-
-    // render axes
-    if (is3D) {
-        QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setPen(QPen(Qt::white, 1));
-        painter.setBrush(Qt::white);
-        const double x0 = 50.0;
-        const double y0 = static_cast<double>(height()) - 50.0;
-        const double l = 25.0;
-        QMatrix4x4 tr;
-        tr.translate(x0,y0);
-        tr.rotate(m_elevation - 90, 1, 0, 0);
-        tr.rotate(m_azimuth + 90, 0, 0, -1);
-        tr.translate(-x0,-y0);
-        painter.setTransform(tr.toTransform());
-        painter.drawLine(QLineF(x0, y0, x0 + l, y0));
-        painter.drawLine(QLineF(x0, y0, x0, y0 - l));
-        painter.drawLine(QLineF(x0, y0, x0 - l/2, y0 + l/2));
-        painter.end();
-    }
 
     // render image
     if (!is3D && m_image_show) {
@@ -286,11 +268,11 @@ void CellGLView3D::paintGL()
 
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
-                1.0 : m_rendering_settings->intensity;
+                -1.0 : m_rendering_settings->intensity;
 
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 5);
+    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
     {
@@ -300,22 +282,22 @@ void CellGLView3D::paintGL()
     }
     m_program.release();
 
+    painter.endNativePainting();
+
     // render legend
     if (m_legend_show) {
-        QPainter painter(this);
+        //TODO no need to always update the legend if the color mode is not changed
+        m_legend->update();
         painter.setRenderHint(QPainter::Antialiasing, true);
         m_legend->draw(*m_rendering_settings, painter);
-        painter.end();
     }
 
     // render selection box/lasso
     if (!is3D && m_lassoSelection && !m_lasso.isEmpty()) {
-        QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setBrush(lasso_color);
         painter.setPen(lasso_color);
         painter.drawPath(m_lasso.simplified());
-        painter.end();
     }
 }
 
@@ -336,8 +318,8 @@ void CellGLView3D::slotRotate(const double angle)
     m_rotate_factor += angle;
     if (std::fabs(m_rotate_factor) >= 360) {
         m_rotate_factor = 0;
-        update();
     }
+    update();
 }
 
 void CellGLView3D::slotFlip(const double angle)
@@ -345,8 +327,8 @@ void CellGLView3D::slotFlip(const double angle)
     m_flip_factor += angle;
     if (std::fabs(m_flip_factor) >= 360) {
         m_flip_factor = 0;
-        update();
     }
+    update();
 }
 
 void CellGLView3D::slotRubberBandSelectionMode(const bool rubberband)
@@ -361,8 +343,8 @@ void CellGLView3D::slotLassoSelectionMode(const bool lasso)
 
 void CellGLView3D::slotLegendVisible(const bool visible)
 {
-   m_legend_show = visible;
-   update();
+    m_legend_show = visible;
+    update();
 }
 
 void CellGLView3D::slotImageVisible(const bool visible)
@@ -508,11 +490,11 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
 void CellGLView3D::sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event)
 {
     // map selected area to node cordinate system
-    const QTransform alignment = m_dataset.imageAlignment();
+    const QTransform alignment = m_dataset.alignmentMatrix();
     QPainterPath transformed = QTransform(alignment * viewMatrix2D().toTransform()).inverted().map(path);
 
     // if selection area is not inside the bounding rect select empty rect
-    if (!transformed.intersects(m_dataset.data_bounds())) {
+    if (!transformed.intersects(m_dataset.image_bounds())) {
         transformed = QPainterPath();
     }
 

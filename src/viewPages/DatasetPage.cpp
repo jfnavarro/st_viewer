@@ -157,7 +157,6 @@ void DatasetPage::editDataset(const Dataset &dataset)
             if (dataset == *(m_open_dataset.data())
                     && (dataset.dataFile() != updated_dataset.dataFile()
                         || dataset.imageFile() != updated_dataset.imageFile()
-                        || dataset.imageAlignmentFile() != updated_dataset.imageAlignmentFile()
                         || dataset.spotsFile() != updated_dataset.spotsFile())) {
                 m_open_dataset = QSharedPointer<Dataset>(new Dataset(updated_dataset));
                 emit signalDatasetUpdated(updated_dataset.name());

@@ -51,12 +51,8 @@ public:
     void info(const QString &info);
     void totalCount(const double totalCoun);
 
-    // helper method to get coordinates (x,y) from a spot
+    // helper method to get coordinates (x,y,x) from a spot in string format
     static SpotType getCoordinates(const QString &spot);
-    // helper method to get a string representation (XxY) of a spot
-    static QString getSpot(const SpotType &spot);
-    // helper method to get a string representation (XxYxZ) of a spot
-    static QString getSpot3D(const Spot::SpotType &spot);
 
 private:
     SpotType m_coordinates;

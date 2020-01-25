@@ -20,13 +20,23 @@ DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
 {
     init();
     m_ui->datasetName->setText(dataset.name());
-    m_ui->species->setText(dataset.statSpecies());
-    m_ui->tissue->setText(dataset.statTissue());
     m_ui->comments->setText(dataset.statComments());
     m_ui->stDataFile->setText(dataset.dataFile());
-    m_ui->imageAlignmentFile->setText(dataset.imageAlignmentFile());
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
+    m_ui->is3D->setChecked(dataset.is3D());
+    m_ui->chip_x1->setValue(dataset.xrange().x());
+    m_ui->chip_x2->setValue(dataset.xrange().y());
+    m_ui->chip_y1->setValue(dataset.xrange().x());
+    m_ui->chip_y2->setValue(dataset.xrange().y());
+    m_ui->chip_z1->setValue(dataset.xrange().x());
+    m_ui->chip_z2->setValue(dataset.xrange().y());
+    m_ui->chip_x1->setEnabled(dataset.is3D());
+    m_ui->chip_x2->setEnabled(dataset.is3D());
+    m_ui->chip_y1->setEnabled(dataset.is3D());
+    m_ui->chip_y2->setEnabled(dataset.is3D());
+    m_ui->chip_z1->setEnabled(dataset.is3D());
+    m_ui->chip_z2->setEnabled(dataset.is3D());
 }
 
 DatasetImporter::DatasetImporter(QWidget *parent)
@@ -39,8 +49,18 @@ DatasetImporter::DatasetImporter(QWidget *parent)
 void DatasetImporter::init()
 {
     m_ui->setupUi(this);
+    m_ui->chip_x1->setEnabled(false);
+    m_ui->chip_x2->setEnabled(false);
+    m_ui->chip_y1->setEnabled(false);
+    m_ui->chip_y2->setEnabled(false);
     m_ui->chip_z1->setEnabled(false);
     m_ui->chip_z2->setEnabled(false);
+    m_ui->chip_x1->setValue(0);
+    m_ui->chip_x2->setValue(5);
+    m_ui->chip_y1->setValue(-6);
+    m_ui->chip_y2->setValue(3);
+    m_ui->chip_z1->setValue(-8);
+    m_ui->chip_z2->setValue(0);
 
     connect(m_ui->loadSTDataFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
@@ -48,8 +68,6 @@ void DatasetImporter::init()
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSpotsMapFile);
     connect(m_ui->loadMainImageFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
-    connect(m_ui->loadImageAlignmentFile,
-            &QToolButton::clicked, this, &DatasetImporter::slotLoadAlignmentFile);
     connect(m_ui->loadFolder,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
     connect(m_ui->loadMetaFile,
@@ -66,16 +84,6 @@ DatasetImporter::~DatasetImporter()
 const QString DatasetImporter::datasetName() const
 {
     return m_ui->datasetName->text();
-}
-
-const QString DatasetImporter::species() const
-{
-    return m_ui->species->text();
-}
-
-const QString DatasetImporter::tissue() const
-{
-    return m_ui->tissue->text();
 }
 
 const QString DatasetImporter::comments() const
@@ -108,11 +116,6 @@ const QString DatasetImporter::mainImageFile() const
     return m_ui->mainImageFile->text();
 }
 
-const QString DatasetImporter::alignmentMatrix() const
-{
-    return m_ui->imageAlignmentFile->text();
-}
-
 const QString DatasetImporter::spotsMapFile() const
 {
     return m_ui->spotMapFile->text();
@@ -126,27 +129,14 @@ bool DatasetImporter::is3D() const
 void DatasetImporter::slotChange3D(int state)
 {
     const bool is3D = state == Qt::Checked;
+    m_ui->chip_x1->setEnabled(is3D);
+    m_ui->chip_x2->setEnabled(is3D);
+    m_ui->chip_y1->setEnabled(is3D);
+    m_ui->chip_y2->setEnabled(is3D);
     m_ui->chip_z1->setEnabled(is3D);
     m_ui->chip_z2->setEnabled(is3D);
     m_ui->mainImageFile->setEnabled(!is3D);
-    m_ui->imageAlignmentFile->setEnabled(!is3D);
     m_ui->loadMainImageFile->setEnabled(!is3D);
-    m_ui->loadImageAlignmentFile->setEnabled(!is3D);
-    if (is3D) {
-        m_ui->chip_x1->setValue(0);
-        m_ui->chip_x2->setValue(5);
-        m_ui->chip_y1->setValue(-6);
-        m_ui->chip_y2->setValue(3);
-        m_ui->chip_z1->setValue(-8);
-        m_ui->chip_z2->setValue(0);
-    } else {
-        m_ui->chip_x1->setValue(0);
-        m_ui->chip_x2->setValue(33);
-        m_ui->chip_y1->setValue(0);
-        m_ui->chip_y2->setValue(35);
-        m_ui->chip_z1->setValue(0);
-        m_ui->chip_z2->setValue(0);
-    }
 }
 
 void DatasetImporter::slotLoadSTDataFile()
@@ -173,7 +163,7 @@ void DatasetImporter::slotLoadMainImageFile()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
-                                           tr("Open Main Image File"),
+                                           tr("Open Tissue Image File"),
                                            QDir::homePath(),
                                            QString("%1").arg(tr("JPEG Files (*.jpg *.jpeg)")));
     // early out
@@ -183,7 +173,7 @@ void DatasetImporter::slotLoadMainImageFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Main Image File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Main Tissue Image File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->mainImageFile->setText(filename);
     }
@@ -193,7 +183,7 @@ void DatasetImporter::slotLoadSpotsMapFile()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
-                                           tr("Open Spots Map File"),
+                                           tr("Open Coordinates File"),
                                            QDir::homePath(),
                                            QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
     // early out
@@ -203,31 +193,9 @@ void DatasetImporter::slotLoadSpotsMapFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Spots Map File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Spots Coordinates File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->spotMapFile->setText(filename);
-    }
-}
-
-void DatasetImporter::slotLoadAlignmentFile()
-{
-    const QString filename
-            = QFileDialog::getOpenFileName(this,
-                                           tr("Open Alignment File"),
-                                           QDir::homePath(),
-                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
-    // early out
-    if (filename.isEmpty()) {
-        return;
-    }
-
-    QFileInfo info(filename);
-    if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this,
-                              tr("Alignment File"),
-                              tr("File is incorrect or not readable"));
-    } else {
-        m_ui->imageAlignmentFile->setText(filename);
     }
 }
 
@@ -245,6 +213,9 @@ void DatasetImporter::done(int result)
         } else if (m_ui->mainImageFile->text().isEmpty() && !m_ui->is3D->isChecked()) {
             isValid = false;
             error_msg = tr("Tissue image is missing!");
+        } else if (m_ui->spotMapFile->text().isEmpty()) {
+            isValid = false;
+            error_msg = tr("Spot coordinates file is missing!");
         }
         if (!isValid) {
             QMessageBox::critical(this, tr("Import dataset"), error_msg);
@@ -273,8 +244,6 @@ void DatasetImporter::slotParseFolder()
                 m_ui->stDataFile->setText(file);
             } else if (file.contains(".jpg")) {
                 m_ui->mainImageFile->setText(file);
-            } else if (file.contains("alignment")) {
-                m_ui->imageAlignmentFile->setText(file);
             } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
             } else if (file.contains("info.json")) {
@@ -312,12 +281,6 @@ void DatasetImporter::slotParseMetaFile()
         if (jsonObject.contains("name")) {
             m_ui->datasetName->setText(jsonObject["name"].toString());
         }
-        if (jsonObject.contains("species")) {
-            m_ui->species->setText(jsonObject["species"].toString());
-        }
-        if (jsonObject.contains("tissue")) {
-            m_ui->tissue->setText(jsonObject["tissue"].toString());
-        }
         if (jsonObject.contains("comments")) {
             m_ui->comments->setText(jsonObject["comments"].toString());
         }
@@ -326,9 +289,6 @@ void DatasetImporter::slotParseMetaFile()
         }
         if (jsonObject.contains("image")) {
             m_ui->mainImageFile->setText(jsonObject["image"].toString());
-        }
-        if (jsonObject.contains("aligment")) {
-            m_ui->imageAlignmentFile->setText(jsonObject["aligment"].toString());
         }
         if (jsonObject.contains("coordinates")) {
             m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());
@@ -350,12 +310,6 @@ void DatasetImporter::parseInfoJSON(const QString &filename)
         const QJsonObject &jsonObject = loadDoc.object();
         if (jsonObject.contains("name")) {
             m_ui->datasetName->setText(jsonObject["name"].toString());
-        }
-        if (jsonObject.contains("species")) {
-            m_ui->species->setText(jsonObject["species"].toString());
-        }
-        if (jsonObject.contains("tissue")) {
-            m_ui->tissue->setText(jsonObject["tissue"].toString());
         }
         if (jsonObject.contains("comments")) {
             m_ui->comments->setText(jsonObject["comments"].toString());

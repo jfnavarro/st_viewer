@@ -1,5 +1,6 @@
 #include "SettingsWidget.h"
 #include "ui_SettingsWidget.h"
+#include <QDebug>
 
 static const int INTENSITY_MIN = 1;
 static const int INTENSITY_MAX = 10;

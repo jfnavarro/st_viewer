@@ -27,12 +27,9 @@ public:
     // Getters
     const QString name() const;
     const QString dataFile() const;
-    const QTransform imageAlignment() const;
-    const QString imageAlignmentFile() const;
+    const QTransform alignmentMatrix() const;
     const QString imageFile() const;
     const QString spotsFile() const;
-    const QString statTissue() const;
-    const QString statSpecies() const;
     const QString statComments() const;
     const QPoint xrange() const;
     const QPoint yrange() const;
@@ -46,37 +43,27 @@ public:
     // Setters
     void name(const QString &name);
     void dataFile(const QString &datafile);
-    void imageAlignment(const QTransform &alignment);
-    void imageAlignmentFile(const QString &aligment_file);
     void imageFile(const QString &image_file);
     void spotsFile(const QString &spots_file);
-    void statTissue(const QString &statTissue);
-    void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
     void xrange(const QPoint &xrange);
     void yrange(const QPoint &yrange);
     void zrange(const QPoint &zrange);
 
     // creates the STData object (parse data)
-    // Parses : matrix of counts, image, size factors (if any), alignment (if any),
-    //          spots-file (if any)
+    // Parses : matrix of counts, image and spots-file
     // throws exception if parsing is something went wrong
     void load_data();
 
 private:
 
-    // Function to load the image aligment matrix from a file
-    bool load_imageAligment();
     // Function to parse the image and tile it
     bool load_Image();
 
     QString m_name;
-    QString m_statTissue;
-    QString m_statSpecies;
     QString m_statComments;
     QString m_data_file;
     QString m_image_file;
-    QString m_alignment_file;
     QString m_spots_file;
     QPoint m_xrange;
     QPoint m_yrange;

@@ -158,7 +158,9 @@ void CellViewPage::createConnections()
 
     // show/hide legend
     connect(m_settings.data(), &SettingsWidget::signalShowLegend, this,
-            [=](bool visible){m_ui->view->slotLegendVisible(visible);});
+            [=](bool visible) {
+        m_ui->view->slotLegendVisible(visible);
+    });
 
     // rendering settings changed
     connect(m_settings.data(), &SettingsWidget::signalSpotRendering, this,

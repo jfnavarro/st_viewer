@@ -17,8 +17,7 @@ void main()
 {
     gl_Position = mvp_matrix * vec4(position, 1.0);
     gl_PointSize = size;
-    vColor = color;
-    vColor.a = alpha;
+    vColor = alpha != -1 ? vec4(color.rgb, alpha) : color;
     vVisible = float(visible);
     vSelected = float(selected);
 }
