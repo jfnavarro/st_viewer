@@ -8,24 +8,21 @@
 #include <QDesktopWidget>
 #include <QFontDatabase>
 #include <QSurfaceFormat>
+#include <QScreen>
 
 #include "mainWindow.h"
 #include "options_cmake.h"
 
 #include <iostream>
-
 #include <omp.h>
-#define NUM_THREADS(N) ((N) >= 0 ? (N) : omp_get_num_procs() + (N) + 1)
 
-namespace
-{
 
 // Application flags must be set before instantiating QApplication
 void setApplicationFlags()
 {
-/*
+
 #ifdef Q_OS_MAC
-    QApplication::setAttribute(Qt::AA_MacPluginApplication, false);
+    QApplication::setAttribute(Qt::AA_PluginApplication, false);
     QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
     // NOTE this is actually pretty important (be false)
     QApplication::setAttribute(Qt::AA_NativeWindows, false);
@@ -41,8 +38,7 @@ void setApplicationFlags()
     // consistent font rendering
     QApplication::setAttribute(Qt::AA_Use96Dpi, true);
     // force usages of desktop opengl
-    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);*/
-}
+    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
 }
 
 int main(int argc, char **argv)
@@ -59,11 +55,15 @@ int main(int argc, char **argv)
 
     qDebug() << "Application started successfully.";
 
+    // Create OpenGL context
     QSurfaceFormat format;
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     QSurfaceFormat::setDefaultFormat(format);
+
+    // Set number of threads to the maximum possible
+    omp_set_num_threads(omp_get_max_threads());
 
     // Create main window
     MainWindow mainWindow;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     // Check for min requirements
     if (!mainWindow.checkSystemRequirements()) {
         qDebug() << "[Main] Error: Minimum requirements test failed!";
-        QMessageBox::critical(app.desktop()->screen(),
+        QMessageBox::critical(nullptr,
                               app.tr("Error"),
                               app.tr("Minimum requirements not satisfied"));
         return EXIT_FAILURE;

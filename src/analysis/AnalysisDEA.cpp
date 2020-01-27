@@ -97,11 +97,11 @@ void AnalysisDEA::slotExportTable()
     if (file.open(QIODevice::ReadWrite)) {
         QTextStream stream(&file);
         // write columns (1st row)
-        stream << "Gene" << "\t" << "adj_p_value" << "\t" << "p_value" << "\t" << "logFoldChange" << endl;
+        stream << "Gene" << "\t" << "adj_pvalue" << "\t" << "pvalue" << "\t" << "logFoldChange" << endl;
         // write values
         for (const auto &res : m_results) {
             if (res.adj_pvalue <= m_ui->adj_pvalue->value()
-                    && std::abs(res.logfc) >= m_ui->foldchange->value()) {
+                    && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
                 stream << res.gene << "\t" << res.adj_pvalue << "\t" << res.pvalue << "\t" << res.logfc << endl;
             }
         }
@@ -122,7 +122,7 @@ void AnalysisDEA::slotGeneSelected(QModelIndex index)
     const QItemSelection &selected = m_ui->tableview->selectionModel()->selection();
     const QModelIndexList &selected_indexes = m_proxy->mapSelectionToSource(selected).indexes();
 
-    // Check if only elements are selected
+    // Check if any elements are selected
     if (selected_indexes.empty()) {
         m_gene_highlight = QPointF();
         return;
@@ -152,21 +152,24 @@ void AnalysisDEA::updatePlot()
     series2->setUseOpenGL(false);
 
     // populate
-    #pragma omp parallel for
-    for (const auto &res : m_results) {
-        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
-                && std::abs(res.logfc) >= m_ui->foldchange->value()) {
-            series2->append(res.logfc, res.log_pvalue);
-        } else {
-            series1->append(res.logfc, res.log_pvalue);
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (const auto &res : m_results) {
+            if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                    && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
+                series2->append(res.logfc, res.log_pvalue);
+            } else {
+                series1->append(res.logfc, res.log_pvalue);
+            }
         }
     }
-
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
     m_ui->plot->chart()->addSeries(series1);
     m_ui->plot->chart()->addSeries(series2);
 
+    // If any gene must be highlighted
     if (!m_gene_highlight.isNull()) {
         QScatterSeries *series3 = new QScatterSeries();
         series3->setMarkerSize(8.0);
@@ -194,46 +197,49 @@ void AnalysisDEA::updateTable()
 {   
     // data model
     const int columns = 4;
-    const size_t rows = m_results.size();
+    const int rows = m_results.size();
     QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Adj. p-value")));
     model->setHorizontalHeaderItem(2, new QStandardItem(QString("p-value")));
     model->setHorizontalHeaderItem(3, new QStandardItem(QString("logFoldChange")));
 
-    int high_confidence_de = 0;
     // populate
-    #pragma omp parallel for
-    for (size_t i = 0; i < rows; ++i) {
-        const auto res = m_results.at(i);
-        const QString gene = res.gene;
-        const QString adj_pvalue_str = QString::number(res.adj_pvalue);
-        const QString pvalue_str = QString::number(res.pvalue);
-        const QString foldchange_str = QString::number(res.logfc);
-        QStandardItem *gene_item = new QStandardItem(gene);
-        gene_item->setData(gene, Qt::DisplayRole);
-        gene_item->setData(gene, Qt::UserRole);
-        QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
-        adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
-        adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
-        QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
-        pvalue_item->setData(res.pvalue, Qt::DisplayRole);
-        pvalue_item->setData(res.pvalue, Qt::UserRole);
-        QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
-        foldchange_item->setData(res.logfc, Qt::DisplayRole);
-        foldchange_item->setData(res.logfc, Qt::UserRole);
-        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
-                && std::abs(res.logfc) >= m_ui->foldchange->value()) {
-            gene_item->setBackground(Qt::red);
-            adj_pvalue_item->setBackground(Qt::red);
-            pvalue_item->setBackground(Qt::red);
-            foldchange_item->setBackground(Qt::red);
-            ++high_confidence_de;
+    int high_confidence_de = 0;
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < rows; ++i) {
+            const auto res = m_results.at(i);
+            const QString gene = res.gene;
+            const QString adj_pvalue_str = QString::number(res.adj_pvalue);
+            const QString pvalue_str = QString::number(res.pvalue);
+            const QString foldchange_str = QString::number(res.logfc);
+            QStandardItem *gene_item = new QStandardItem(gene);
+            gene_item->setData(gene, Qt::DisplayRole);
+            gene_item->setData(gene, Qt::UserRole);
+            QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
+            adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
+            adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
+            QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
+            pvalue_item->setData(res.pvalue, Qt::DisplayRole);
+            pvalue_item->setData(res.pvalue, Qt::UserRole);
+            QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
+            foldchange_item->setData(res.logfc, Qt::DisplayRole);
+            foldchange_item->setData(res.logfc, Qt::UserRole);
+            if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                    && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
+                gene_item->setBackground(Qt::red);
+                adj_pvalue_item->setBackground(Qt::red);
+                pvalue_item->setBackground(Qt::red);
+                foldchange_item->setBackground(Qt::red);
+                ++high_confidence_de;
+            }
+            model->setItem(i, 0, gene_item);
+            model->setItem(i, 1, adj_pvalue_item);
+            model->setItem(i, 2, pvalue_item);
+            model->setItem(i, 3, foldchange_item);
         }
-        model->setItem(i, 0, gene_item);
-        model->setItem(i, 1, adj_pvalue_item);
-        model->setItem(i, 2, pvalue_item);
-        model->setItem(i, 3, foldchange_item);
     }
     // update total number of DE genes
     m_ui->total_genes->setText(QString::number(high_confidence_de));
@@ -251,24 +257,20 @@ void AnalysisDEA::updateTable()
     m_ui->tableview->setWordWrap(true);
     m_ui->tableview->setAlternatingRowColors(true);
     m_ui->tableview->sortByColumn(1, Qt::AscendingOrder);
-
     m_ui->tableview->setFrameShape(QFrame::StyledPanel);
     m_ui->tableview->setFrameShadow(QFrame::Sunken);
     m_ui->tableview->setGridStyle(Qt::SolidLine);
     m_ui->tableview->setCornerButtonEnabled(false);
     m_ui->tableview->setLineWidth(1);
-
     m_ui->tableview->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_ui->tableview->setSelectionMode(QAbstractItemView::SingleSelection);
     m_ui->tableview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
     m_ui->tableview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_ui->tableview->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_ui->tableview->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     m_ui->tableview->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
     m_ui->tableview->horizontalHeader()->setSortIndicatorShown(true);
     m_ui->tableview->verticalHeader()->hide();
-
     m_ui->tableview->model()->submit(); // support for caching (speed up)
 }
 
@@ -314,19 +316,22 @@ void AnalysisDEA::slotRun()
                                      m_genes_threshold,
                                      m_spots_threshold);
         // Intersect genes
-        QSet<QString> genesA = QSet<QString>::fromList(dataA.genes);
-        QSet<QString> genesB = QSet<QString>::fromList(dataB.genes);
-        const QList<QString> shared_genes = genesA.intersect(genesB).toList();
+        QSet<QString> genesA = QSet<QString>(dataA.genes.begin(), dataA.genes.end());
+        QSet<QString> genesB = QSet<QString>(dataB.genes.begin(), dataB.genes.end());
+        const QList<QString> shared_genes = genesA.intersect(genesB).values();
         const int num_shared_genes = shared_genes.size();
-        if (num_shared_genes > 0) {
+        if (num_shared_genes > 10) {
             // keep only the shared genes in the data matrix (same order)
             uvec to_keepA(num_shared_genes);
             uvec to_keepB(num_shared_genes);
-            #pragma omp parallel for
-            for (int i = 0; i < num_shared_genes; ++i) {
-                const QString &shared_gene = shared_genes.at(i);
-                to_keepA.at(i) = dataA.genes.indexOf(shared_gene);
-                to_keepB.at(i) = dataB.genes.indexOf(shared_gene);
+            #pragma omp parallel
+            {
+                #pragma omp parallel for
+                for (int i = 0; i < num_shared_genes; ++i) {
+                    const QString &shared_gene = shared_genes.at(i);
+                    to_keepA.at(i) = dataA.genes.indexOf(shared_gene);
+                    to_keepB.at(i) = dataB.genes.indexOf(shared_gene);
+                }
             }
             dataA.counts = dataA.counts.cols(to_keepA);
             dataA.genes = shared_genes;
@@ -335,14 +340,13 @@ void AnalysisDEA::slotRun()
         } else {
             QMessageBox::critical(this,
                                   tr("DEA Analysis"),
-                                  tr("There are no shared genes between the selections."));
+                                  tr("There are not enough shared genes between the selections."));
             return;
         }
 
         // Normalize and log matrix of counts
         mat A = STData::normalizeCounts(dataA, m_normalization).counts;
         mat B = STData::normalizeCounts(dataB, m_normalization).counts;
-
         if (m_ui->log_scale) {
             A = log1p(A);
             B = log1p(B);
@@ -350,7 +354,7 @@ void AnalysisDEA::slotRun()
 
         // clear plot and table
         m_ui->plot->chart()->removeAllSeries();
-        m_proxy->clear();
+        m_proxy->invalidate();
         m_ui->tableview->reset();
         m_ui->tableview->update();
         // initialize progress bar
@@ -378,33 +382,42 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
 
     // Compute p-values
     std::vector<double> pvals(A.n_cols);
-    #pragma omp parallel for
-    for (uword j = 0; j < A.n_cols; ++j) {
-        const vec Avec = conv_to<vec>::from(A.col(j));
-        const vec Bvec = conv_to<vec>::from(B.col(j));
-        const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
-        pvals.at(j) = pval;
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (uword j = 0; j < A.n_cols; ++j) {
+            const vec Avec = conv_to<vec>::from(A.col(j));
+            const vec Bvec = conv_to<vec>::from(B.col(j));
+            const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
+            pvals.at(j) = pval;
+        }
     }
 
     // compute adjusted p-values
     const std::vector<double> adj_pvalues = STMath::p_adjustBH(pvals);
 
-    // compute log foldchanges
+    // compute log fold-changes
     const vec rowmeansA = conv_to<vec>::from(mean(expm1(A),0));
     const vec rowmeansB = conv_to<vec>::from(mean(expm1(B),0));
     const double pseudocount = std::numeric_limits<double>::epsilon();
     const vec logfc = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
 
     m_results.clear();
-    #pragma omp parallel for
-    for (size_t i = 0; i < pvals.size(); ++i) {
-        DEResult res;
-        res.pvalue = pvals.at(i);
-        res.adj_pvalue = std::clamp(adj_pvalues.at(i), 0.0, 1.0);
-        res.gene = genes.at(i);
-        res.logfc = logfc.at(i);
-        res.log_pvalue = -std::log10(res.pvalue + pseudocount);
-        m_results.push_back(res);
+    // populate results
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (size_t i = 0; i < pvals.size(); ++i) {
+            DEResult res;
+            res.pvalue = pvals.at(i);
+            if (std::isfinite(res.pvalue)) {
+                res.adj_pvalue = std::clamp(adj_pvalues.at(i), 0.0, 1.0);
+                res.gene = genes.at(i);
+                res.logfc = logfc.at(i);
+                res.log_pvalue = -std::log10(res.pvalue + pseudocount);
+                m_results.push_back(res);
+            }
+        }
     }
 }
 

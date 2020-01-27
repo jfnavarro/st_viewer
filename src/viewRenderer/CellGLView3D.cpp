@@ -521,7 +521,7 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
 
     // If the dataset is 3D we create textures from the image tiles
     // and load the image alignment
-    if (!dataset.is3D()) {
+    if (!dataset.is3D() && !dataset.imageFile().isNull() && !dataset.imageFile().isEmpty()) {
         m_image->createTiles(dataset.image_tiles());
         m_centerX = dataset.image_bounds().center().x();
         m_centerY = dataset.image_bounds().center().y();

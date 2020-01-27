@@ -218,7 +218,7 @@ void Dataset::load_data()
     }
 
     // Parse image (in 2D only)
-    if (!m_is3D) {
+    if (!m_is3D && !m_image_file.isNull() && !m_image_file.isEmpty()) {
         const bool parsed = load_Image();
         if (!parsed) {
             qDebug() << "Error parsing image file";
@@ -262,18 +262,21 @@ bool Dataset::load_Image() {
     const int count = xCount * yCount;
     // create tiles
     m_image_tiles.clear();
-    #pragma omp parallel for
-    for (int i = 0; i < count; ++i) {
-        // tiles sizes
-        const int x = tile_width * (i % xCount);
-        const int y = tile_height * (i / xCount);
-        const int texture_width = std::min(width - x, tile_width);
-        const int texture_height = std::min(height - y, tile_height);
-        m_image_tiles.push_back(QPair<QImage, QPoint>(image.copy(x,
-                                                                 y,
-                                                                 texture_width,
-                                                                 texture_height),
-                                                      QPoint(x, y)));
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < count; ++i) {
+            // tiles sizes
+            const int x = tile_width * (i % xCount);
+            const int y = tile_height * (i / xCount);
+            const int texture_width = std::min(width - x, tile_width);
+            const int texture_height = std::min(height - y, tile_height);
+            m_image_tiles.push_back(QPair<QImage, QPoint>(image.copy(x,
+                                                                     y,
+                                                                     texture_width,
+                                                                     texture_height),
+                                                          QPoint(x, y)));
+        }
     }
     return true;
 }

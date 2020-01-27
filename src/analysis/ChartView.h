@@ -15,12 +15,11 @@ class ChartView : public QChartView
 public:
 
     explicit ChartView(QWidget *parent = nullptr);
-    virtual ~ChartView();
+    virtual ~ChartView() override;
 
 signals:
 
     void signalLassoSelection(QPainterPath);
-
 
 public slots:
 

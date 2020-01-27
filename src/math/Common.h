@@ -30,17 +30,11 @@ inline double deg3rad(const double degrees)
     return (degrees * PI) / 180;
 }
 
-template <typename T>
-inline T clamp(T in, T low, T high)
-{
-    return std::min(std::max(in, low), high);
-}
-
 // normalize v with min t0 and max t1 to lay in between [0-1]
 template <typename T, typename R>
 inline const R norm(const T v, const T t0, const T t1)
 {
-    const T vh = clamp(v, t0, t1);
+    const T vh = std::clamp(v, t0, t1);
     return R(vh - t0) / R(t1 - t0);
 }
 
@@ -59,7 +53,7 @@ template <typename T, typename R>
 inline const T denorm(const R nv, const T t0, const T t1)
 {
     // should not be necessary to clamp to 0-1
-    const R vh = clamp(nv, R(0.0), R(1.0));
+    const R vh = std::clamp(nv, R(0.0), R(1.0));
     return T(vh * (t1 - t0)) + t0;
 }
 

@@ -30,9 +30,9 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     m_ui->exportPlot->setEnabled(false);
 
     // Get the shared genes (by name)
-    QSet<QString> genesA = QSet<QString>::fromList(data1.genes);
-    QSet<QString> genesB = QSet<QString>::fromList(data2.genes);
-    const QList<QString> shared_genes = genesA.intersect(genesB).toList();
+    QSet<QString> genesA = QSet<QString>(data1.genes.begin(), data1.genes.end());
+    QSet<QString> genesB = QSet<QString>(data2.genes.begin(), data2.genes.end());
+    const QList<QString> shared_genes = genesA.intersect(genesB).values();
     const int num_shared_genes = shared_genes.size();
 
     // update the shared genes field
@@ -42,11 +42,14 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         // keep only the shared genes in the data matrix (same order)
         uvec to_keepA(num_shared_genes);
         uvec to_keepB(num_shared_genes);
-        #pragma omp parallel for
-        for (int i = 0; i < num_shared_genes; ++i) {
-            const QString &shared_gene = shared_genes.at(i);
-            to_keepA.at(i) = data1.genes.indexOf(shared_gene);
-            to_keepB.at(i) = data2.genes.indexOf(shared_gene);
+        #pragma omp parallel
+        {
+            #pragma omp parallel for
+            for (int i = 0; i < num_shared_genes; ++i) {
+                const QString &shared_gene = shared_genes.at(i);
+                to_keepA.at(i) = data1.genes.indexOf(shared_gene);
+                to_keepB.at(i) = data2.genes.indexOf(shared_gene);
+            }
         }
         m_dataA.counts = m_dataA.counts.cols(to_keepA);
         m_dataA.genes = shared_genes;
@@ -102,9 +105,12 @@ void AnalysisCorrelation::slotUpdateData()
     m_series->setMarkerSize(5.0);
     m_series->setColor(Qt::blue);
     m_series->setUseOpenGL(false);
-    #pragma omp parallel for
-    for (unsigned i = 0; i < rowsumA.size(); ++i) {
-        m_series->append(rowsumA.at(i), rowsumB.at(i));
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (unsigned i = 0; i < rowsumA.size(); ++i) {
+            m_series->append(rowsumA.at(i), rowsumB.at(i));
+        }
     }
     connect(m_series.data(), &QScatterSeries::clicked,
             this, &AnalysisCorrelation::slotClickedPoint);
@@ -137,15 +143,18 @@ void AnalysisCorrelation::slotClickedPoint(const QPointF point)
     const double y1 = point.y();
     const auto &points = m_series->points();
     int gene_index = -1;
-    #pragma omp parallel for
-    for (int i = 0; i < points.size(); ++i) {
-        const QPointF &clicked = points.at(i);
-        const double x2 = clicked.x();
-        const double y2 = clicked.y();
-        const double dist = STMath::euclidean(x1, y1, x2, y2);
-        if (dist < 0.01) {
-            gene_index = i;
-            break;
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < points.size(); ++i) {
+            const QPointF &clicked = points.at(i);
+            const double x2 = clicked.x();
+            const double y2 = clicked.y();
+            const double dist = STMath::euclidean(x1, y1, x2, y2);
+            if (dist < 0.01) {
+                gene_index = i;
+                break;
+            }
         }
     }
 

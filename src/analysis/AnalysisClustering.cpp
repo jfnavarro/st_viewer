@@ -62,9 +62,12 @@ void AnalysisClustering::clear()
 QMultiHash<int, QString> AnalysisClustering::getClustersSpot() const
 {
     QMultiHash<int, QString> computed_colors;
-    #pragma omp parallel for
-    for (const auto &item : m_clusters) {
-        computed_colors.insert(item.second, item.first);
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (const auto &item : m_clusters) {
+            computed_colors.insert(item.second, item.first);
+        }
     }
     return computed_colors;
 }
@@ -126,6 +129,15 @@ void AnalysisClustering::computeClustersAsync()
                                                     m_ui->reads_threshold->value(),
                                                     m_ui->genes_threshold->value(),
                                                     m_ui->spots_threshold->value());
+
+    // Quick sanity check
+    if (data.counts.n_rows < 10 || data.counts.n_cols < 10) {
+        QMessageBox::critical(this,
+                              tr("Spot classification"),
+                              tr("The number of spots or genes is too little"));
+        return;
+    }
+
     // Normalize and log matrix of counts
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
@@ -152,24 +164,27 @@ void AnalysisClustering::computeClustersAsync()
     // Compile result
     m_clusters.clear();
     m_reduced_coordinates.clear();
-    #pragma omp parallel for collapse(2)
-    for (uword i = 0; i < results.n_rows; ++i) {
-        double min_dist = std::numeric_limits<double>::max();
-        int min_index = -1;
-        const double x1 = results.at(i,0);
-        const double y1 = results.at(i,1);
-        for (uword j = 0; j < results_clustering.n_cols; ++j) {
-            const double x2 = results_clustering.at(0,j);
-            const double y2 = results_clustering.at(1,j);
-            const double dist = STMath::euclidean(x1, y1, x2, y2);
-            if (dist < min_dist) {
-                min_dist = dist;
-                min_index = j;
+    #pragma omp parallel
+    {
+        #pragma omp parallel for collapse(2)
+        for (uword i = 0; i < results.n_rows; ++i) {
+            double min_dist = std::numeric_limits<double>::max();
+            int min_index = -1;
+            const double x1 = results.at(i,0);
+            const double y1 = results.at(i,1);
+            for (uword j = 0; j < results_clustering.n_cols; ++j) {
+                const double x2 = results_clustering.at(0,j);
+                const double y2 = results_clustering.at(1,j);
+                const double dist = STMath::euclidean(x1, y1, x2, y2);
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    min_index = j;
+                }
             }
-        }
-        if (min_index != -1) {
-            m_clusters.push_back(QPair<QString, int>(data.spots.at(i), min_index + 1));
-            m_reduced_coordinates.append(QPointF(x1,y1));
+            if (min_index != -1) {
+                m_clusters.push_back(QPair<QString, int>(data.spots.at(i), min_index + 1));
+                m_reduced_coordinates.append(QPointF(x1,y1));
+            }
         }
     }
 }
@@ -183,7 +198,7 @@ void AnalysisClustering::clustersComputed()
     // enable the save clusters buttton
     m_ui->createSelections->setEnabled(true);
 
-    // Quick saniry check
+    // Quick sanity check
     if (m_clusters.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
                               tr("Spot classification"),
@@ -210,10 +225,13 @@ void AnalysisClustering::clustersComputed()
     }
 
     // add the respective spot (t-SNE coordinates) to the serie it belongs to
-    #pragma omp parallel for
-    for (int i = 0; i < m_clusters.size(); ++i) {
-        const int k = m_clusters.at(i).second;
-        m_series_vector[k-1]->append(m_reduced_coordinates.at(i));
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < m_clusters.size(); ++i) {
+            const int k = m_clusters.at(i).second;
+            m_series_vector[k-1]->append(m_reduced_coordinates.at(i));
+        }
     }
 
     // update the scatter plot
@@ -227,11 +245,15 @@ void AnalysisClustering::clustersComputed()
     double xMax = std::numeric_limits<double>::min();
     double yMin = std::numeric_limits<double>::max();
     double yMax = std::numeric_limits<double>::min();
-    for (const auto &p : m_reduced_coordinates) {
-        xMin = qMin(xMin, p.x());
-        xMax = qMax(xMax, p.x());
-        yMin = qMin(yMin, p.y());
-        yMax = qMax(yMax, p.y());
+    #pragma omp parallel
+    {
+        #pragma omp parallel for
+        for (const auto &p : m_reduced_coordinates) {
+            xMin = qMin(xMin, p.x());
+            xMax = qMax(xMax, p.x());
+            yMin = qMin(yMin, p.y());
+            yMax = qMax(yMax, p.y());
+        }
     }
     m_ui->plot->chart()->setTitle("Spots colored by cluster");
     m_ui->plot->chart()->setDropShadowEnabled(false);
@@ -255,16 +277,20 @@ void AnalysisClustering::clustersComputed()
 
 void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
 {
+    // Obtain the spots (in dim. reduced space) that intersects with the selection area
     m_selected_spots.clear();
-    #pragma omp parallel for collapse(2)
-    for (const auto series : m_series_vector) {
-        for (const QPointF &point : series->points()) {
-            const QPointF scene_point = m_ui->plot->chart()->mapToPosition(point, series);
-            const QPoint view_point = m_ui->plot->mapFromScene(scene_point);
-            if (path.contains(view_point)) {
-                const int index = m_reduced_coordinates.indexOf(point);
-                if (index != -1) {
-                    m_selected_spots.push_back(m_clusters.at(index).first);
+    #pragma omp parallel
+    {
+        #pragma omp parallel for collapse(2)
+        for (const auto series : m_series_vector) {
+            for (const QPointF &point : series->points()) {
+                const QPointF scene_point = m_ui->plot->chart()->mapToPosition(point, series);
+                const QPoint view_point = m_ui->plot->mapFromScene(scene_point);
+                if (path.contains(view_point)) {
+                    const int index = m_reduced_coordinates.indexOf(point);
+                    if (index != -1) {
+                        m_selected_spots.push_back(m_clusters.at(index).first);
+                    }
                 }
             }
         }

@@ -93,7 +93,7 @@ QColor createHeatMapWaveLenghtColor(const double value)
     }
 
     // Let the intensity fall off near the vision limits
-    double factor = 0.3f;
+    double factor = 0.3;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {
@@ -103,9 +103,9 @@ QColor createHeatMapWaveLenghtColor(const double value)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = STMath::clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = STMath::clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = std::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = std::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = std::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
     return QColor::fromRgbF(red, green, blue, 1.0);

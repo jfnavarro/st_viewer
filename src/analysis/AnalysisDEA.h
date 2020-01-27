@@ -18,7 +18,7 @@ class analysisDEA;
 // AnalysisDEA is a widget that contains methods to compute
 // DEA(Differential Expression Analysis) between two ST data selections
 // It shows the results in a volcano plot and a table
-// that includes the differently expressed genes at a given FDR
+// that highlights the differently expressed genes at a given threshold
 class AnalysisDEA : public QWidget
 {
     Q_OBJECT
@@ -40,8 +40,6 @@ public:
                 QWidget *parent = nullptr,
                 Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
-
-
 
 signals:
 
@@ -81,7 +79,7 @@ private:
     SettingsWidget::NormalizationMode m_normalization;
 
     // cache the results to not recompute
-    std::vector<DEResult> m_results;
+    QVector<DEResult> m_results;
 
     // the gene to highlight in the volcano plot
     QPointF m_gene_highlight;

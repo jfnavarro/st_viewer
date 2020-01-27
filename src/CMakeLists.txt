@@ -50,9 +50,8 @@ else()
     find_package(Armadillo REQUIRED)
 endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
-message(STATUS ${ARMADILLO_LIBRARIES})
 
-find_package(ZLIB REQUIRED)
+#find_package(ZLIB REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(OpenMP REQUIRED)
@@ -94,7 +93,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
 target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-                      ZLIB::ZLIB OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES} "-framework Accelerate")
+                      OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES} "-framework Accelerate") #ZLIB::ZLIB
 
 ### UNIT TESTS ################################################################
 
