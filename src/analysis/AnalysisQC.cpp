@@ -43,24 +43,18 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
 
     // populate the plots
     QBarSet *genes = new QBarSet("Genes");
-    QBarSet *spots = new QBarSet(tr("Spots"));
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for(const auto &value : hist_genes) {
-            *genes << static_cast<int>(value);
-        }
-
-        #pragma omp parallel for
-        for (const auto &value : hist_spots) {
-            *spots << static_cast<int>(value);
-        }
+    QBarSeries *series_genes = new QBarSeries();
+    for(const auto &value : hist_genes) {
+        *genes << static_cast<int>(value);
     }
 
-    QBarSeries *series_genes = new QBarSeries();
-    series_genes->append(genes);
-
+    QBarSet *spots = new QBarSet(tr("Spots"));
     QBarSeries *series_spots = new QBarSeries();
+    for (const auto &value : hist_spots) {
+        *spots << static_cast<int>(value);
+    }
+
+    series_genes->append(genes);
     series_spots->append(spots);
 
     // populate histogram genes

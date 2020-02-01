@@ -261,22 +261,19 @@ bool Dataset::load_Image() {
     const int yCount = height / tile_height;
     const int count = xCount * yCount;
     // create tiles
-    m_image_tiles.clear();
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for (int i = 0; i < count; ++i) {
-            // tiles sizes
-            const int x = tile_width * (i % xCount);
-            const int y = tile_height * (i / xCount);
-            const int texture_width = std::min(width - x, tile_width);
-            const int texture_height = std::min(height - y, tile_height);
-            m_image_tiles.push_back(QPair<QImage, QPoint>(image.copy(x,
-                                                                     y,
-                                                                     texture_width,
-                                                                     texture_height),
-                                                          QPoint(x, y)));
-        }
+    m_image_tiles.resize(count);
+    #pragma omp parallel for
+    for (int i = 0; i < count; ++i) {
+        // tiles sizes
+        const int x = tile_width * (i % xCount);
+        const int y = tile_height * (i / xCount);
+        const int texture_width = std::min(width - x, tile_width);
+        const int texture_height = std::min(height - y, tile_height);
+        //QImage should be thread-safe
+        m_image_tiles[i] = (QPair<QImage, QPoint>(image.copy(x, y,
+                                                             texture_width,
+                                                             texture_height),
+                                                      QPoint(x, y)));
     }
     return true;
 }

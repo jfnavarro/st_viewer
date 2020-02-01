@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <math.h>
+#include <cstdint>
 #include <algorithm>
 #include <functional>
 #include <queue>

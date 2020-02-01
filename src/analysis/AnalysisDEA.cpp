@@ -152,16 +152,12 @@ void AnalysisDEA::updatePlot()
     series2->setUseOpenGL(false);
 
     // populate
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for (const auto &res : m_results) {
-            if (res.adj_pvalue <= m_ui->adj_pvalue->value()
-                    && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
-                series2->append(res.logfc, res.log_pvalue);
-            } else {
-                series1->append(res.logfc, res.log_pvalue);
-            }
+    for (const auto &res : m_results) {
+        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
+            series2->append(res.logfc, res.log_pvalue);
+        } else {
+            series1->append(res.logfc, res.log_pvalue);
         }
     }
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
@@ -206,40 +202,37 @@ void AnalysisDEA::updateTable()
 
     // populate
     int high_confidence_de = 0;
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for (int i = 0; i < rows; ++i) {
-            const auto res = m_results.at(i);
-            const QString gene = res.gene;
-            const QString adj_pvalue_str = QString::number(res.adj_pvalue);
-            const QString pvalue_str = QString::number(res.pvalue);
-            const QString foldchange_str = QString::number(res.logfc);
-            QStandardItem *gene_item = new QStandardItem(gene);
-            gene_item->setData(gene, Qt::DisplayRole);
-            gene_item->setData(gene, Qt::UserRole);
-            QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
-            adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
-            adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
-            QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
-            pvalue_item->setData(res.pvalue, Qt::DisplayRole);
-            pvalue_item->setData(res.pvalue, Qt::UserRole);
-            QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
-            foldchange_item->setData(res.logfc, Qt::DisplayRole);
-            foldchange_item->setData(res.logfc, Qt::UserRole);
-            if (res.adj_pvalue <= m_ui->adj_pvalue->value()
-                    && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
-                gene_item->setBackground(Qt::red);
-                adj_pvalue_item->setBackground(Qt::red);
-                pvalue_item->setBackground(Qt::red);
-                foldchange_item->setBackground(Qt::red);
-                ++high_confidence_de;
-            }
-            model->setItem(i, 0, gene_item);
-            model->setItem(i, 1, adj_pvalue_item);
-            model->setItem(i, 2, pvalue_item);
-            model->setItem(i, 3, foldchange_item);
+    #pragma omp parallel for reduction(+ : high_confidence_de)
+    for (int i = 0; i < rows; ++i) {
+        const auto res = m_results.at(i);
+        const QString gene = res.gene;
+        const QString adj_pvalue_str = QString::number(res.adj_pvalue);
+        const QString pvalue_str = QString::number(res.pvalue);
+        const QString foldchange_str = QString::number(res.logfc);
+        QStandardItem *gene_item = new QStandardItem(gene);
+        gene_item->setData(gene, Qt::DisplayRole);
+        gene_item->setData(gene, Qt::UserRole);
+        QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
+        adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
+        adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
+        QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
+        pvalue_item->setData(res.pvalue, Qt::DisplayRole);
+        pvalue_item->setData(res.pvalue, Qt::UserRole);
+        QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
+        foldchange_item->setData(res.logfc, Qt::DisplayRole);
+        foldchange_item->setData(res.logfc, Qt::UserRole);
+        if (res.adj_pvalue <= m_ui->adj_pvalue->value()
+                && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
+            gene_item->setBackground(Qt::red);
+            adj_pvalue_item->setBackground(Qt::red);
+            pvalue_item->setBackground(Qt::red);
+            foldchange_item->setBackground(Qt::red);
+            ++high_confidence_de;
         }
+        model->setItem(i, 0, gene_item);
+        model->setItem(i, 1, adj_pvalue_item);
+        model->setItem(i, 2, pvalue_item);
+        model->setItem(i, 3, foldchange_item);
     }
     // update total number of DE genes
     m_ui->total_genes->setText(QString::number(high_confidence_de));
@@ -324,14 +317,11 @@ void AnalysisDEA::slotRun()
             // keep only the shared genes in the data matrix (same order)
             uvec to_keepA(num_shared_genes);
             uvec to_keepB(num_shared_genes);
-            #pragma omp parallel
-            {
-                #pragma omp parallel for
-                for (int i = 0; i < num_shared_genes; ++i) {
-                    const QString &shared_gene = shared_genes.at(i);
-                    to_keepA.at(i) = dataA.genes.indexOf(shared_gene);
-                    to_keepB.at(i) = dataB.genes.indexOf(shared_gene);
-                }
+            #pragma omp parallel for
+            for (int i = 0; i < num_shared_genes; ++i) {
+                const QString &shared_gene = shared_genes.at(i);
+                to_keepA.at(i) = dataA.genes.indexOf(shared_gene);
+                to_keepB.at(i) = dataB.genes.indexOf(shared_gene);
             }
             dataA.counts = dataA.counts.cols(to_keepA);
             dataA.genes = shared_genes;
@@ -382,15 +372,12 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
 
     // Compute p-values
     std::vector<double> pvals(A.n_cols);
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for (uword j = 0; j < A.n_cols; ++j) {
-            const vec Avec = conv_to<vec>::from(A.col(j));
-            const vec Bvec = conv_to<vec>::from(B.col(j));
-            const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
-            pvals.at(j) = pval;
-        }
+    #pragma omp parallel for
+    for (uword j = 0; j < A.n_cols; ++j) {
+        const vec Avec = conv_to<vec>::from(A.col(j));
+        const vec Bvec = conv_to<vec>::from(B.col(j));
+        const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
+        pvals.at(j) = pval;
     }
 
     // compute adjusted p-values
@@ -402,21 +389,18 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     const double pseudocount = std::numeric_limits<double>::epsilon();
     const vec logfc = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
 
-    m_results.clear();
+    m_results.resize(pvals.size());
     // populate results
-    #pragma omp parallel
-    {
-        #pragma omp parallel for
-        for (size_t i = 0; i < pvals.size(); ++i) {
-            DEResult res;
-            res.pvalue = pvals.at(i);
-            if (std::isfinite(res.pvalue)) {
-                res.adj_pvalue = std::clamp(adj_pvalues.at(i), 0.0, 1.0);
-                res.gene = genes.at(i);
-                res.logfc = logfc.at(i);
-                res.log_pvalue = -std::log10(res.pvalue + pseudocount);
-                m_results.push_back(res);
-            }
+    #pragma omp parallel for
+    for (size_t i = 0; i < pvals.size(); ++i) {
+        DEResult res;
+        res.pvalue = pvals.at(i);
+        if (std::isfinite(res.pvalue)) {
+            res.adj_pvalue = std::clamp(adj_pvalues.at(i), 0.0, 1.0);
+            res.gene = genes.at(i);
+            res.logfc = logfc.at(i);
+            res.log_pvalue = -std::log10(res.pvalue + pseudocount);
+            m_results[i] = res;
         }
     }
 }

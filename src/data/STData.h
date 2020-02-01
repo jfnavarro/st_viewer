@@ -80,16 +80,16 @@ public:
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
-    void selectSpots(const QList<QString> &spots);
-    void selectSpots(const QList<int> &spots_indexes);
+    void selectSpots(const QVector<QString> &spots);
+    void selectSpots(const QVector<int> &spots_indexes);
 
     // Load spot clusters with meta info
-    void loadSpotColors(const QList<QString> &spots,
-                        const QList<int> &clusters,
-                        const QList<QString> &infos);
+    void loadSpotColors(const QVector<QString> &spots,
+                        const QVector<int> &clusters,
+                        const QVector<QString> &infos);
     // Load gene colours
-    void loadGeneColors(const QList<QString> &genes,
-                        const QList<int> &colors);
+    void loadGeneColors(const QVector<QString> &genes,
+                        const QVector<int> &colors);
 
     // returns the boundaries of the spots in the data matrix (min spot and max spot coordinates)
     const QRectF getBorder() const;

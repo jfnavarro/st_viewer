@@ -51,10 +51,21 @@ else()
 endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
-#find_package(ZLIB REQUIRED)
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(OpenMP REQUIRED)
+if (APPLE)
+    find_library(OpenMP_LIBRARY NAMES omp)
+    find_path(OpenMP_INCLUDE_DIR omp.h)
+    set(OpenMP_LIBRARIES ${OpenMP_LIBRARY})
+    set(OpenMP_INCLUDE_DIRS ${OpenMP_INCLUDE_DIR})
+    set(OpenMP_COMPILE_OPTIONS -Xpreprocessor -fopenmp)
+    add_library(OpenMP::OpenMP SHARED IMPORTED)
+    set_target_properties(OpenMP::OpenMP PROPERTIES
+            IMPORTED_LOCATION ${OpenMP_LIBRARIES}
+            INTERFACE_INCLUDE_DIRECTORIES "${OpenMP_INCLUDE_DIRS}"
+            INTERFACE_COMPILE_OPTIONS "${OpenMP_COMPILE_OPTIONS}")
+else()
+    find_package(OpenMP REQUIRED)
+endif()
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -92,8 +103,8 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-                      OpenMP::OpenMP_CXX ${ARMADILLO_LIBRARIES} "-framework Accelerate") #ZLIB::ZLIB
+target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+                      ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
 
 ### UNIT TESTS ################################################################
 

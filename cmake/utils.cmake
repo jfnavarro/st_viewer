@@ -1,5 +1,5 @@
 macro(INITIALISE_PROJECT)
-    set(CMAKE_VERBOSE_MAKEFILE OFF)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
@@ -31,15 +31,15 @@ macro(INITIALISE_PROJECT)
     else()
 
         # Adding -std=c++17 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -std=c++1z")
-	    set(CMAKE_REQUIRED_FLAGS -std=c++17)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+        set(CMAKE_CXX_REQUIRED_FLAGS -std=c++17)
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
 
         set(DISABLED_WARNINGS "-Wno-unused-parameter -Wno-unused-function -Wno-undef -Wno-missing-declarations -Wno-unknown-pragmas \
             -Wno-sign-compare -Wno-cast-qual -Wno-cast-align -Wno-redundant-decls -Wno-implicit-fallthrough \
-            -Wno-unused-local-typedef -Wno-unused-lambda-capture -Wno-pedantic -Wno-deprecated-copy -Wno-parentheses -Wno-unused-but-set-parameter")
+            -Wno-unused-local-typedef -Wno-unused-lambda-capture -Wno-pedantic -Wno-deprecated -Wno-parentheses")
 
         if (APPLE)
             set(DISABLED_WARNINGS "${DISABLED_WARNINGS} -Wno-pessimizing-move \

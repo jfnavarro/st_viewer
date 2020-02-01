@@ -26,9 +26,9 @@
 #include "SettingsStyle.h"
 #include "color/HeatMap.h"
 
-#include <algorithm>
-
 #include "ui_cellviewPage.h"
+
+#include <algorithm>
 
 using namespace Style;
 
@@ -49,6 +49,7 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
 
     // setting style to main UI Widget (frame and widget must be set specific to avoid propagation)
     setWindowFlags(Qt::FramelessWindowHint);
+
     m_ui->cellViewPageWidget->setStyleSheet("QWidget#cellViewPageWidget " + PAGE_WIDGETS_STYLE);
     m_ui->frame->setStyleSheet("QFrame#frame " + PAGE_FRAME_STYLE);
 
@@ -82,6 +83,7 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
 
 CellViewPage::~CellViewPage()
 {
+
 }
 
 void CellViewPage::clear()
@@ -318,9 +320,9 @@ void CellViewPage::slotLoadSpotClustersFile()
     }
 
     QFile file(filename);
-    QList<QString> spots;
-    QList<int> clusters;
-    QList<QString> infos;
+    QVector<QString> spots;
+    QVector<int> clusters;
+    QVector<QString> infos;
     bool parsed = true;
     // Parse the spots map = spot -> color
     if (file.open(QIODevice::ReadOnly)) {
@@ -345,14 +347,16 @@ void CellViewPage::slotLoadSpotClustersFile()
         if (spots.empty()) {
             QMessageBox::warning(this,
                                  tr("Spot Clusters File"),
-                                 tr("No valid spots could be found in the file"));
+                                 tr("No valid spots could be found in the file"),
+                                 tr("Close"));
             parsed = false;
         }
 
     } else {
         QMessageBox::critical(this,
                               tr("Spot Clusters File"),
-                              tr("File could not be parsed"));
+                              tr("File could not be parsed"),
+                              tr("Close"));
         parsed = false;
     }
     file.close();
@@ -381,13 +385,14 @@ void CellViewPage::slotLoadGenesColors()
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
         QMessageBox::critical(this,
                               tr("Genes File Colors"),
-                              tr("File is incorrect or not readable"));
+                              tr("File is incorrect or not readable"),
+                              tr("Close"));
         return;
     }
 
     QFile file(filename);
-    QList<QString> genes;
-    QList<int> colors;
+    QVector<QString> genes;
+    QVector<int> colors;
     bool parsed = true;
     // Parse the genes map = gene -> color
     if (file.open(QIODevice::ReadOnly)) {
@@ -410,14 +415,16 @@ void CellViewPage::slotLoadGenesColors()
         if (genes.empty()) {
             QMessageBox::warning(this,
                                  tr("Genes File Colors"),
-                                 tr("No valid genes could be found in the file"));
+                                 tr("No valid genes could be found in the file"),
+                                 tr("Close"));
             parsed = false;
         }
 
     } else {
         QMessageBox::critical(this,
                               tr("Genes File Colors"),
-                              tr("Error parsing the file"));
+                              tr("Error parsing the file"),
+                              tr("Close"));
         parsed = false;
     }
     file.close();
@@ -432,9 +439,9 @@ void CellViewPage::slotLoadGenesColors()
 
 void CellViewPage::slotLoadSpotClusters()
 {
-    QList<QString> spots;
-    QList<int> clusters;
-    QList<QString> infos;
+    QVector<QString> spots;
+    QVector<int> clusters;
+    QVector<QString> infos;
     for (const auto &cluster : m_clustering->getSpotClusters()) {
         spots.append(cluster.first);
         clusters.append(cluster.second);
@@ -481,7 +488,7 @@ void CellViewPage::slotCreateSelection()
             QtConcurrent::blockingFilteredReduced<QList<QString> >(
                 m_dataset.data()->spots(),
                 [] (const auto spot) { return spot->selected(); },
-                [] (auto &list, const auto spot) { list.push_back(spot->name()); });
+                [] (auto &list, const auto spot) { list.append(spot->name()); });
     // early out
     if (selected_spots.empty()) {
         return;

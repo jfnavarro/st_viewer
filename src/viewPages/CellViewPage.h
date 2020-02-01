@@ -39,7 +39,7 @@ public:
                  QSharedPointer<GenesWidget> genes,
                  QSharedPointer<UserSelectionsPage> user_selections,
                  QWidget *parent = nullptr);
-    virtual ~CellViewPage();
+    virtual ~CellViewPage() override;
 
     // clear the loaded dataset and reset settings
     void clear();

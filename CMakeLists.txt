@@ -43,18 +43,6 @@ endif()
 # Restrict possible builds to the selected build type.
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
 
-# Some CMake standard settings
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-  if(WIN32)
-    cmake_policy(SET CMP0020 NEW)
-    cmake_policy(SET CMP0054 NEW)
-  endif(WIN32)
-  if(APPLE)
-    cmake_policy(SET CMP0025 NEW)
-  endif()
-endif(COMMAND cmake_policy)
-
 # We just need to pass the app the name of the config file so it can be used
 get_filename_component(CONFIG_FILE_NAME ${CONFIG_FILE} NAME)
 

@@ -26,7 +26,7 @@ public:
     virtual ~AnalysisClustering();
 
     // One color (color representation of cluster number) for each spot
-    const QList<QPair<QString,int>> &getSpotClusters() const;
+    const QVector<QPair<QString,int>> &getSpotClusters() const;
 
     // List of spots for each cluster
     QMultiHash<int, QString> getClustersSpot() const;
@@ -38,7 +38,7 @@ public:
     void clear();
 
     // the user selected spots if any
-    const QList<QString> &selectedSpots() const;
+    const QVector<QString> &selectedSpots() const;
 
 public slots:
 
@@ -71,17 +71,17 @@ private:
     STData::STDataFrame m_data;
 
     // the results
-    QList<QPair<QString,int>> m_clusters;
-    QList<QPointF> m_reduced_coordinates;
+    QVector<QPair<QString,int>> m_clusters;
+    QVector<QPointF> m_reduced_coordinates;
 
     // the computational thread
     QFutureWatcher<void> m_watcher_clusters;
 
     // the user selected spots
-    QList<QString> m_selected_spots;
+    QVector<QString> m_selected_spots;
 
     // the splot serie's
-    QList<QScatterSeries *> m_series_vector;
+    QVector<QScatterSeries *> m_series_vector;
 
     // The UI object
     QScopedPointer<Ui::analysisClustering> m_ui;

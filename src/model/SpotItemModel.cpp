@@ -200,7 +200,6 @@ void SpotItemModel::setVisibility(const QItemSelection &selection, bool visible)
     }
 
     // update the spots
-    #pragma omp parallel for
     for (const auto &row : rows) {
         m_items_reference.at(row)->visible(visible);
     }
@@ -219,7 +218,6 @@ void SpotItemModel::setSelected(const QItemSelection &selection, bool selected)
     }
 
     // update the spots
-    #pragma omp parallel for
     for (const auto &row : rows) {
         m_items_reference.at(row)->selected(selected);
     }
@@ -238,7 +236,6 @@ void SpotItemModel::setColor(const QItemSelection &selection, const QColor &colo
     }
 
     // update the spots
-    #pragma omp parallel for
     for (const auto &row : rows) {
         m_items_reference.at(row)->color(color);
     }
