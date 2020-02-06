@@ -28,9 +28,7 @@ public:
     const QString spotsMapFile() const;
     const QString mainImageFile() const;
     const QString comments() const;
-    const QPoint xrange() const;
-    const QPoint yrange() const;
-    const QPoint zrange() const;
+    const QPair<double, double> scalingFactors() const;
     bool is3D() const;
 
     // To import a dataset from a folder

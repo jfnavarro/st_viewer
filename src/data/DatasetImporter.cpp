@@ -25,18 +25,11 @@ DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
     m_ui->is3D->setChecked(dataset.is3D());
-    m_ui->chip_x1->setValue(dataset.xrange().x());
-    m_ui->chip_x2->setValue(dataset.xrange().y());
-    m_ui->chip_y1->setValue(dataset.xrange().x());
-    m_ui->chip_y2->setValue(dataset.xrange().y());
-    m_ui->chip_z1->setValue(dataset.xrange().x());
-    m_ui->chip_z2->setValue(dataset.xrange().y());
-    m_ui->chip_x1->setEnabled(dataset.is3D());
-    m_ui->chip_x2->setEnabled(dataset.is3D());
-    m_ui->chip_y1->setEnabled(dataset.is3D());
-    m_ui->chip_y2->setEnabled(dataset.is3D());
-    m_ui->chip_z1->setEnabled(dataset.is3D());
-    m_ui->chip_z2->setEnabled(dataset.is3D());
+    const auto scaling_factors = dataset.scalingFactors();
+    m_ui->scaling_w->setValue(scaling_factors.first);
+    m_ui->scaling_h->setValue(scaling_factors.second);
+    m_ui->scaling_w->setEnabled(!dataset.is3D());
+    m_ui->scaling_h->setEnabled(!dataset.is3D());
 }
 
 DatasetImporter::DatasetImporter(QWidget *parent)
@@ -49,18 +42,6 @@ DatasetImporter::DatasetImporter(QWidget *parent)
 void DatasetImporter::init()
 {
     m_ui->setupUi(this);
-    m_ui->chip_x1->setEnabled(false);
-    m_ui->chip_x2->setEnabled(false);
-    m_ui->chip_y1->setEnabled(false);
-    m_ui->chip_y2->setEnabled(false);
-    m_ui->chip_z1->setEnabled(false);
-    m_ui->chip_z2->setEnabled(false);
-    m_ui->chip_x1->setValue(0);
-    m_ui->chip_x2->setValue(5);
-    m_ui->chip_y1->setValue(-6);
-    m_ui->chip_y2->setValue(3);
-    m_ui->chip_z1->setValue(-8);
-    m_ui->chip_z2->setValue(0);
 
     connect(m_ui->loadSTDataFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
@@ -91,21 +72,6 @@ const QString DatasetImporter::comments() const
     return m_ui->comments->toPlainText();
 }
 
-const QPoint DatasetImporter::xrange() const
-{
-    return QPoint(m_ui->chip_x1->value(), m_ui->chip_x2->value());
-}
-
-const QPoint DatasetImporter::yrange() const
-{
-    return QPoint(m_ui->chip_y1->value(), m_ui->chip_y2->value());
-}
-
-const QPoint DatasetImporter::zrange() const
-{
-    return QPoint(m_ui->chip_z1->value(), m_ui->chip_z2->value());
-}
-
 const QString DatasetImporter::STDataFile() const
 {
     return m_ui->stDataFile->text();
@@ -121,6 +87,13 @@ const QString DatasetImporter::spotsMapFile() const
     return m_ui->spotMapFile->text();
 }
 
+const QPair<double,double> DatasetImporter::scalingFactors() const
+{
+    return QPair<double,double>(m_ui->scaling_w->value(),
+                                m_ui->scaling_h->value());
+}
+
+
 bool DatasetImporter::is3D() const
 {
     return m_ui->is3D->isChecked();
@@ -129,12 +102,8 @@ bool DatasetImporter::is3D() const
 void DatasetImporter::slotChange3D(int state)
 {
     const bool is3D = state == Qt::Checked;
-    m_ui->chip_x1->setEnabled(is3D);
-    m_ui->chip_x2->setEnabled(is3D);
-    m_ui->chip_y1->setEnabled(is3D);
-    m_ui->chip_y2->setEnabled(is3D);
-    m_ui->chip_z1->setEnabled(is3D);
-    m_ui->chip_z2->setEnabled(is3D);
+    m_ui->scaling_w->setEnabled(!is3D);
+    m_ui->scaling_h->setEnabled(!is3D);
     m_ui->mainImageFile->setEnabled(!is3D);
     m_ui->loadMainImageFile->setEnabled(!is3D);
 }

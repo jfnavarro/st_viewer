@@ -10,14 +10,11 @@ Dataset::Dataset()
     , m_data_file()
     , m_image_file()
     , m_spots_file()
-    , m_xrange()
-    , m_yrange()
-    , m_zrange()
+    , m_scaling_factors(QPair<double,double>(0.5,0.5))
     , m_is3D(false)
     , m_alignment()
     , m_image_tiles()
     , m_image_bounds()
-    , m_scaled(false)
     , m_data(nullptr)
 {
 }
@@ -29,9 +26,7 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_data_file = importer.STDataFile();
     m_image_file = importer.mainImageFile();
     m_spots_file = importer.spotsMapFile();
-    m_xrange = importer.xrange();
-    m_yrange = importer.yrange();
-    m_zrange = importer.zrange();
+    m_scaling_factors = importer.scalingFactors();
     m_is3D = importer.is3D();
     m_alignment = QTransform();
     m_data = nullptr;
@@ -44,14 +39,11 @@ Dataset::Dataset(const Dataset &other)
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
     m_spots_file = other.m_spots_file;
-    m_xrange = other.m_xrange;
-    m_yrange = other.m_yrange;
-    m_zrange = other.m_zrange;
+    m_scaling_factors = other.m_scaling_factors;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_image_tiles = other.m_image_tiles;
     m_image_bounds = other.m_image_bounds;
-    m_scaled = other.m_scaled;
     m_data = other.m_data;
 }
 
@@ -66,14 +58,11 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
     m_spots_file = other.m_spots_file;
-    m_xrange = other.m_xrange;
-    m_yrange = other.m_yrange;
-    m_zrange = other.m_zrange;
+    m_scaling_factors = other.m_scaling_factors;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_image_tiles = other.m_image_tiles;
     m_image_bounds = other.m_image_bounds;
-    m_scaled = other.m_scaled;
     m_data = other.m_data;
     return (*this);
 }
@@ -86,9 +75,7 @@ bool Dataset::operator==(const Dataset &other) const
             && m_image_file == other.m_image_file
             && m_spots_file == other.m_spots_file
             && m_alignment == other.m_alignment
-            && m_xrange == other.m_xrange
-            && m_yrange == other.m_yrange
-            && m_zrange == other.m_zrange
+            && m_scaling_factors == other.m_scaling_factors
             && m_is3D == other.m_is3D);
 }
 
@@ -127,19 +114,9 @@ const QString Dataset::statComments() const
     return m_statComments;
 }
 
-const QPoint Dataset::xrange() const
+const QPair<double,double> &Dataset::scalingFactors() const
 {
-    return m_xrange;
-}
-
-const QPoint Dataset::yrange() const
-{
-    return m_yrange;
-}
-
-const QPoint Dataset::zrange() const
-{
-    return m_zrange;
+    return m_scaling_factors;
 }
 
 const QVector<QPair<QImage, QPoint>> &Dataset::image_tiles() const
@@ -150,14 +127,6 @@ const QVector<QPair<QImage, QPoint>> &Dataset::image_tiles() const
 const QRect Dataset::image_bounds() const
 {
     return m_image_bounds;
-}
-
-const QRect Dataset::data_bounds() const
-{
-    return QRect(m_xrange.x(),
-                 m_yrange.x(),
-                 m_xrange.y(),
-                 m_yrange.y());
 }
 
 bool Dataset::is3D() const
@@ -190,19 +159,9 @@ void Dataset::statComments(const QString &statComments)
     m_statComments = statComments;
 }
 
-void Dataset::xrange(const QPoint &xrange)
+void Dataset::scalingFactors(const QPair<double,double> &scaling_factors)
 {
-    m_xrange = xrange;
-}
-
-void Dataset::yrange(const QPoint &yrange)
-{
-    m_yrange = yrange;
-}
-
-void Dataset::zrange(const QPoint &zrange)
-{
-    m_zrange = zrange;
+    m_scaling_factors = scaling_factors;
 }
 
 void Dataset::load_data()
@@ -225,9 +184,8 @@ void Dataset::load_data()
             throw std::runtime_error("Error parsing Image file");
         }
 
-        if (m_scaled) {
-            m_alignment *= QTransform::fromScale(0.5, 0.5);
-        }
+        m_alignment = QTransform::fromScale(m_scaling_factors.first,
+                                            m_scaling_factors.second);
         qDebug() << "Setting alignment matrix to " << m_alignment;
     }
 }
@@ -235,14 +193,12 @@ void Dataset::load_data()
 bool Dataset::load_Image() {
     // image buffer reader
     QImageReader imageReader(m_image_file);
-    // scale image to half for big images
+    // scale image with the scaling factors
     QSize imageSize = imageReader.size();
-    m_scaled = false;
-    if (imageSize.width() >= 10000 || imageSize.height() >= 10000) {
-        imageSize /= 2;
-        imageReader.setScaledSize(imageSize);
-        m_scaled = true;
-    }
+    imageSize = imageSize.scaled(imageSize.width() * m_scaling_factors.first,
+                                 imageSize.height() * m_scaling_factors.second,
+                                 Qt::KeepAspectRatio);
+    imageReader.setScaledSize(imageSize);
     // parse the image
     QImage image;
     if (!imageReader.read(&image)) {

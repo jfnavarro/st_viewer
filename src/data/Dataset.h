@@ -31,9 +31,7 @@ public:
     const QString imageFile() const;
     const QString spotsFile() const;
     const QString statComments() const;
-    const QPoint xrange() const;
-    const QPoint yrange() const;
-    const QPoint zrange() const;
+    const QPair<double,double> &scalingFactors() const;
 
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
     const QRect image_bounds() const;
@@ -46,9 +44,7 @@ public:
     void imageFile(const QString &image_file);
     void spotsFile(const QString &spots_file);
     void statComments(const QString &statComments);
-    void xrange(const QPoint &xrange);
-    void yrange(const QPoint &yrange);
-    void zrange(const QPoint &zrange);
+    void scalingFactors(const QPair<double,double> &factors);
 
     // creates the STData object (parse data)
     // Parses : matrix of counts, image and spots-file
@@ -65,16 +61,13 @@ private:
     QString m_data_file;
     QString m_image_file;
     QString m_spots_file;
-    QPoint m_xrange;
-    QPoint m_yrange;
-    QPoint m_zrange;
+    QPair<double,double> m_scaling_factors;
     bool m_is3D;
 
     // generated
     QTransform m_alignment;
     QVector<QPair<QImage, QPoint>> m_image_tiles;
     QRect m_image_bounds;
-    bool m_scaled;
     QSharedPointer<STData> m_data;
 };
 
