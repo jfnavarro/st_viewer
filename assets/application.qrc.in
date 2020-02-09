@@ -50,5 +50,7 @@
     <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
     <file alias="shader/imageShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.vert</file>
     <file alias="shader/imageShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.frag</file>
+    <file alias="shader/meshShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/meshShader.vert</file>
+    <file alias="shader/meshShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/meshShader.frag</file>
   </qresource>
 </RCC>

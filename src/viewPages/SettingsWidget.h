@@ -50,8 +50,6 @@ public:
 
 public slots:
 
-    void slotShowImageEnabled(const bool enabled);
-
 private slots:
 
     void slotGenesTreshold(int);

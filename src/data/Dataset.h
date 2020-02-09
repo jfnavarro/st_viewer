@@ -25,13 +25,14 @@ public:
     const QSharedPointer<STData> data() const;
 
     // Getters
-    const QString name() const;
-    const QString dataFile() const;
-    const QTransform alignmentMatrix() const;
-    const QString imageFile() const;
-    const QString spotsFile() const;
-    const QString statComments() const;
-    const QPair<double,double> &scalingFactors() const;
+    const QString &name() const;
+    const QString &dataFile() const;
+    const QTransform &alignmentMatrix() const;
+    const QString &imageFile() const;
+    const QString &meshFile() const;
+    const QString &spotsFile() const;
+    const QString &statComments() const;
+    double scalingFactor() const;
 
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
     const QRect image_bounds() const;
@@ -42,9 +43,10 @@ public:
     void name(const QString &name);
     void dataFile(const QString &datafile);
     void imageFile(const QString &image_file);
+    void meshFile(const QString &mesh_file);
     void spotsFile(const QString &spots_file);
     void statComments(const QString &statComments);
-    void scalingFactors(const QPair<double,double> &factors);
+    void scalingFactor(const double scaling_factor);
 
     // creates the STData object (parse data)
     // Parses : matrix of counts, image and spots-file
@@ -60,8 +62,9 @@ private:
     QString m_statComments;
     QString m_data_file;
     QString m_image_file;
+    QString m_mesh_file;
     QString m_spots_file;
-    QPair<double,double> m_scaling_factors;
+    double m_scaling_factor;
     bool m_is3D;
 
     // generated

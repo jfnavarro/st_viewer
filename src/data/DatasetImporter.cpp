@@ -25,11 +25,9 @@ DatasetImporter::DatasetImporter(const Dataset &dataset, QWidget *parent)
     m_ui->mainImageFile->setText(dataset.imageFile());
     m_ui->spotMapFile->setText(dataset.spotsFile());
     m_ui->is3D->setChecked(dataset.is3D());
-    const auto scaling_factors = dataset.scalingFactors();
-    m_ui->scaling_w->setValue(scaling_factors.first);
-    m_ui->scaling_h->setValue(scaling_factors.second);
-    m_ui->scaling_w->setEnabled(!dataset.is3D());
-    m_ui->scaling_h->setEnabled(!dataset.is3D());
+    m_ui->meshFile->setText(dataset.meshFile());
+    m_ui->scaling->setValue(dataset.scalingFactor());
+    m_ui->scaling->setEnabled(!dataset.is3D());
 }
 
 DatasetImporter::DatasetImporter(QWidget *parent)
@@ -43,12 +41,21 @@ void DatasetImporter::init()
 {
     m_ui->setupUi(this);
 
+    m_ui->is3D->setChecked(Qt::Unchecked);
+    m_ui->loadMeshFile->setEnabled(false);
+    m_ui->meshFile->setEnabled(false);
+    m_ui->scaling->setEnabled(true);
+    m_ui->mainImageFile->setEnabled(true);
+    m_ui->loadMainImageFile->setEnabled(true);
+
     connect(m_ui->loadSTDataFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSTDataFile);
     connect(m_ui->loadSpotMapFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadSpotsMapFile);
     connect(m_ui->loadMainImageFile,
             &QToolButton::clicked, this, &DatasetImporter::slotLoadMainImageFile);
+    connect(m_ui->loadMeshFile,
+            &QToolButton::clicked, this, &DatasetImporter::slotLoadMeshFile);
     connect(m_ui->loadFolder,
             &QCommandLinkButton::clicked, this, &DatasetImporter::slotParseFolder);
     connect(m_ui->loadMetaFile,
@@ -82,17 +89,20 @@ const QString DatasetImporter::mainImageFile() const
     return m_ui->mainImageFile->text();
 }
 
+const QString DatasetImporter::meshFile() const
+{
+    return m_ui->meshFile->text();
+}
+
 const QString DatasetImporter::spotsMapFile() const
 {
     return m_ui->spotMapFile->text();
 }
 
-const QPair<double,double> DatasetImporter::scalingFactors() const
+double DatasetImporter::scalingFactor() const
 {
-    return QPair<double,double>(m_ui->scaling_w->value(),
-                                m_ui->scaling_h->value());
+    return m_ui->scaling->value();
 }
-
 
 bool DatasetImporter::is3D() const
 {
@@ -102,10 +112,11 @@ bool DatasetImporter::is3D() const
 void DatasetImporter::slotChange3D(int state)
 {
     const bool is3D = state == Qt::Checked;
-    m_ui->scaling_w->setEnabled(!is3D);
-    m_ui->scaling_h->setEnabled(!is3D);
+    m_ui->scaling->setEnabled(!is3D);
     m_ui->mainImageFile->setEnabled(!is3D);
     m_ui->loadMainImageFile->setEnabled(!is3D);
+    m_ui->loadMeshFile->setEnabled(is3D);
+    m_ui->meshFile->setEnabled(is3D);
 }
 
 void DatasetImporter::slotLoadSTDataFile()
@@ -142,9 +153,29 @@ void DatasetImporter::slotLoadMainImageFile()
 
     QFileInfo info(filename);
     if (info.isDir() || !info.isFile() || !info.isReadable()) {
-        QMessageBox::critical(this, tr("Main Tissue Image File"), tr("File is incorrect or not readable"));
+        QMessageBox::critical(this, tr("Tissue Image File"), tr("File is incorrect or not readable"));
     } else {
         m_ui->mainImageFile->setText(filename);
+    }
+}
+
+void DatasetImporter::slotLoadMeshFile()
+{
+    const QString filename
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open Mesh File (3D)"),
+                                           QDir::homePath(),
+                                           QString("%1").arg(tr("OBJ Files (*.obj)")));
+    // early out
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(filename);
+    if (info.isDir() || !info.isFile() || !info.isReadable()) {
+        QMessageBox::critical(this, tr("Mesh File (3D)"), tr("File is incorrect or not readable"));
+    } else {
+        m_ui->meshFile->setText(filename);
     }
 }
 
@@ -208,8 +239,10 @@ void DatasetImporter::slotParseFolder()
             qDebug() << "Parsing dataset file from folder " << file;
             if (file.contains(".tsv")) {
                 m_ui->stDataFile->setText(file);
-            } else if (file.contains(".jpg")) {
+            } else if (file.contains(".jpg") || file.contains(".jpeg")) {
                 m_ui->mainImageFile->setText(file);
+            } else if (file.contains(".obj")) {
+                m_ui->meshFile->setText(file);
             } else if (file.contains("spots")) {
                 m_ui->spotMapFile->setText(file);
             } else if (file.contains("info.json")) {
@@ -255,6 +288,9 @@ void DatasetImporter::slotParseMetaFile()
         }
         if (jsonObject.contains("image")) {
             m_ui->mainImageFile->setText(jsonObject["image"].toString());
+        }
+        if (jsonObject.contains("mesh")) {
+            m_ui->meshFile->setText(jsonObject["mesh"].toString());
         }
         if (jsonObject.contains("coordinates")) {
             m_ui->spotMapFile->setText(jsonObject["coordinates"].toString());

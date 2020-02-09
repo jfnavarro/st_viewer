@@ -127,7 +127,6 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     m_ui->createSelection->setEnabled(!dataset.data()->is3D());
     m_ui->zoomin->setEnabled(!dataset.data()->is3D());
     m_ui->zoomout->setEnabled(!dataset.data()->is3D());
-    m_settings->slotShowImageEnabled(!dataset.data()->is3D());
 
     // show settings widget
     m_settings->show();

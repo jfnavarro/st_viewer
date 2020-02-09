@@ -76,7 +76,7 @@ void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
             QOpenGLTexture *texture = m_textures[i];
             Q_ASSERT(texture != nullptr);
             texture->bind(0);
-            glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         }
         m_vao.release();
     }

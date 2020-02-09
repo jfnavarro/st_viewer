@@ -9,8 +9,9 @@ Dataset::Dataset()
     , m_statComments()
     , m_data_file()
     , m_image_file()
+    , m_mesh_file()
     , m_spots_file()
-    , m_scaling_factors(QPair<double,double>(0.5,0.5))
+    , m_scaling_factor(0.5)
     , m_is3D(false)
     , m_alignment()
     , m_image_tiles()
@@ -25,8 +26,9 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_statComments = importer.comments();
     m_data_file = importer.STDataFile();
     m_image_file = importer.mainImageFile();
+    m_mesh_file = importer.meshFile();
     m_spots_file = importer.spotsMapFile();
-    m_scaling_factors = importer.scalingFactors();
+    m_scaling_factor = importer.scalingFactor();
     m_is3D = importer.is3D();
     m_alignment = QTransform();
     m_data = nullptr;
@@ -38,8 +40,9 @@ Dataset::Dataset(const Dataset &other)
     m_statComments = other.m_statComments;
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
+    m_mesh_file = other.m_mesh_file;
     m_spots_file = other.m_spots_file;
-    m_scaling_factors = other.m_scaling_factors;
+    m_scaling_factor = other.m_scaling_factor;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_image_tiles = other.m_image_tiles;
@@ -57,8 +60,9 @@ Dataset &Dataset::operator=(const Dataset &other)
     m_statComments = other.m_statComments;
     m_data_file = other.m_data_file;
     m_image_file = other.m_image_file;
+    m_mesh_file = other.m_mesh_file;
     m_spots_file = other.m_spots_file;
-    m_scaling_factors = other.m_scaling_factors;
+    m_scaling_factor = other.m_scaling_factor;
     m_is3D = other.m_is3D;
     m_alignment = other.m_alignment;
     m_image_tiles = other.m_image_tiles;
@@ -73,9 +77,10 @@ bool Dataset::operator==(const Dataset &other) const
             && m_statComments == other.m_statComments
             && m_data_file == other.m_data_file
             && m_image_file == other.m_image_file
+            && m_mesh_file == other.m_mesh_file
             && m_spots_file == other.m_spots_file
             && m_alignment == other.m_alignment
-            && m_scaling_factors == other.m_scaling_factors
+            && m_scaling_factor == other.m_scaling_factor
             && m_is3D == other.m_is3D);
 }
 
@@ -84,39 +89,44 @@ const QSharedPointer<STData> Dataset::data() const
     return m_data;
 }
 
-const QString Dataset::name() const
+const QString &Dataset::name() const
 {
     return m_name;
 }
 
-const QString Dataset::dataFile() const
+const QString &Dataset::dataFile() const
 {
     return m_data_file;
 }
 
-const QTransform Dataset::alignmentMatrix() const
+const QTransform &Dataset::alignmentMatrix() const
 {
     return m_alignment;
 }
 
-const QString Dataset::imageFile() const
+const QString &Dataset::meshFile() const
+{
+    return m_mesh_file;
+}
+
+const QString &Dataset::imageFile() const
 {
     return m_image_file;
 }
 
-const QString Dataset::spotsFile() const
+const QString &Dataset::spotsFile() const
 {
     return m_spots_file;
 }
 
-const QString Dataset::statComments() const
+const QString &Dataset::statComments() const
 {
     return m_statComments;
 }
 
-const QPair<double,double> &Dataset::scalingFactors() const
+double Dataset::scalingFactor() const
 {
-    return m_scaling_factors;
+    return m_scaling_factor;
 }
 
 const QVector<QPair<QImage, QPoint>> &Dataset::image_tiles() const
@@ -149,6 +159,11 @@ void Dataset::imageFile(const QString &image_file)
     m_image_file = image_file;
 }
 
+void Dataset::meshFile(const QString &mesh_file)
+{
+    m_mesh_file = mesh_file;
+}
+
 void Dataset::spotsFile(const QString &spots_file)
 {
     m_spots_file = spots_file;
@@ -159,9 +174,9 @@ void Dataset::statComments(const QString &statComments)
     m_statComments = statComments;
 }
 
-void Dataset::scalingFactors(const QPair<double,double> &scaling_factors)
+void Dataset::scalingFactor(const double scaling_factor)
 {
-    m_scaling_factors = scaling_factors;
+    m_scaling_factor = scaling_factor;
 }
 
 void Dataset::load_data()
@@ -183,9 +198,7 @@ void Dataset::load_data()
             qDebug() << "Error parsing image file";
             throw std::runtime_error("Error parsing Image file");
         }
-
-        m_alignment = QTransform::fromScale(m_scaling_factors.first,
-                                            m_scaling_factors.second);
+        m_alignment = QTransform::fromScale(m_scaling_factor, m_scaling_factor);
         qDebug() << "Setting alignment matrix to " << m_alignment;
     }
 }
@@ -195,9 +208,7 @@ bool Dataset::load_Image() {
     QImageReader imageReader(m_image_file);
     // scale image with the scaling factors
     QSize imageSize = imageReader.size();
-    imageSize = imageSize.scaled(imageSize.width() * m_scaling_factors.first,
-                                 imageSize.height() * m_scaling_factors.second,
-                                 Qt::KeepAspectRatio);
+    imageSize *= m_scaling_factor;
     imageReader.setScaledSize(imageSize);
     // parse the image
     QImage image;
@@ -229,7 +240,7 @@ bool Dataset::load_Image() {
         m_image_tiles[i] = (QPair<QImage, QPoint>(image.copy(x, y,
                                                              texture_width,
                                                              texture_height),
-                                                      QPoint(x, y)));
+                                                  QPoint(x, y)));
     }
     return true;
 }

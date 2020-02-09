@@ -27,8 +27,9 @@ public:
     const QString STDataFile() const;
     const QString spotsMapFile() const;
     const QString mainImageFile() const;
+    const QString meshFile() const;
     const QString comments() const;
-    const QPair<double, double> scalingFactors() const;
+    double scalingFactor() const;
     bool is3D() const;
 
     // To import a dataset from a folder
@@ -53,6 +54,7 @@ private slots:
 
     void slotLoadSTDataFile();
     void slotLoadMainImageFile();
+    void slotLoadMeshFile();
     void slotLoadSpotsMapFile();
     void slotChange3D(int state);
 

@@ -396,7 +396,7 @@
         <string>Show/hide the tissue image in the main view</string>
        </property>
        <property name="text">
-        <string>Show Tissue Image</string>
+        <string>Show Image</string>
        </property>
       </widget>
      </item>

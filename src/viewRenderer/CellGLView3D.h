@@ -11,6 +11,7 @@
 #include "data/STData.h"
 #include "HeatMapLegendGL.h"
 #include "ImageTextureGL.h"
+#include "ImageMeshGL.h"
 
 class QOpenGLShaderProgram;
 class QRubberBand;
@@ -129,6 +130,7 @@ private:
 
     // rendering objects
     QScopedPointer<ImageTextureGL> m_image;
+    QScopedPointer<ImageMeshGL> m_mesh;
     QScopedPointer<HeatMapLegendGL> m_legend;
 };
 #endif // CELLGLVIEW3D_H

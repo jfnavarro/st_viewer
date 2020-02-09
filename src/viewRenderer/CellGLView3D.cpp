@@ -34,6 +34,7 @@ CellGLView3D::CellGLView3D(QWidget *parent)
     , m_rubberband(nullptr)
     , m_dataset()
     , m_image(nullptr)
+    , m_mesh(nullptr)
     , m_legend(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -69,6 +70,7 @@ void CellGLView3D::clearData()
     m_legend_show = false;
     m_image->clearData();
     m_legend->clearData();
+    m_mesh->clearData();
     m_zoom = 1.0;
     m_rotate_factor = 0.0;
     m_flip_factor = 0.0;
@@ -127,15 +129,17 @@ void CellGLView3D::initializeGL()
     m_image.reset(new ImageTextureGL());
     m_image->init();
 
-    // heatmap component
+    // mesh
+    m_mesh.reset(new ImageMeshGL());
+    m_mesh->init();
+
+    // legend
     m_legend.reset(new HeatMapLegendGL());
 }
 
 void CellGLView3D::resizeGL(int width, int height)
 {
-    if (!m_initialized) {
-        return;
-    }
+
 }
 
 const QMatrix4x4 CellGLView3D::projectionMatrix3D() const
@@ -265,6 +269,11 @@ void CellGLView3D::paintGL()
     // render image
     if (!is3D && m_image_show) {
         m_image->draw(projection * view);
+    }
+
+    // render mesh
+    if (is3D && m_image_show) {
+        m_mesh->draw(projection * view);
     }
 
     const double alpha =
@@ -526,6 +535,10 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         m_image->createTiles(dataset.image_tiles());
         m_centerX = dataset.image_bounds().center().x();
         m_centerY = dataset.image_bounds().center().y();
+    }
+
+    if (dataset.is3D() && !dataset.meshFile().isNull() && !dataset.meshFile().isEmpty()) {
+        m_mesh->loadMesh(dataset.meshFile());
     }
 
     // Create buffers

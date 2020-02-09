@@ -17,36 +17,9 @@
 #include <omp.h>
 
 
-// Application flags must be set before instantiating QApplication
-void setApplicationFlags()
-{
-
-#ifdef Q_OS_MAC
-    QApplication::setAttribute(Qt::AA_PluginApplication, false);
-    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
-    // NOTE this is actually pretty important (be false)
-    QApplication::setAttribute(Qt::AA_NativeWindows, false);
-    // osx does not show icons on menus
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
-#endif
-
-    // unhandled mouse events will not be translated
-    QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
-    QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
-    // allows to create high-dpi pixmaps
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-    // consistent font rendering
-    QApplication::setAttribute(Qt::AA_Use96Dpi, true);
-    // force usages of desktop opengl
-    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
-}
-
 int main(int argc, char **argv)
 {
     const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
-
-    // Define some configuration flags
-    setApplicationFlags();
 
     // Creates the application object
     QApplication app(argc, argv);
