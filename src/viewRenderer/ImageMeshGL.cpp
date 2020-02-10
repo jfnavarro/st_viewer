@@ -8,8 +8,8 @@
 #include <QFileInfo>
 
 ImageMeshGL::ImageMeshGL()
-    : m_posBuf(QOpenGLBuffer::VertexBuffer)
-    , m_indexBuf(QOpenGLBuffer::IndexBuffer)
+    : m_indexBuf(QOpenGLBuffer::IndexBuffer)
+    , m_posBuf(QOpenGLBuffer::VertexBuffer)
     , m_normBuf(QOpenGLBuffer::VertexBuffer)
     , m_program(nullptr)
     , m_num_triangles(0)
@@ -43,8 +43,8 @@ void ImageMeshGL::clearData()
     m_posBuf.destroy();
     m_indexBuf.destroy();
     m_normBuf.destroy();
-    m_num_triangles = 0;
     m_isInitialized = false;
+    m_num_triangles = 0;
 }
 
 void ImageMeshGL::draw(const QMatrix4x4 &mvp_matrx)
@@ -55,11 +55,11 @@ void ImageMeshGL::draw(const QMatrix4x4 &mvp_matrx)
 
     m_program->bind();
     m_program->setUniformValue("mvp_matrix", mvp_matrx);
-    m_program->setUniformValue("triangleColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));
+    m_program->setUniformValue("color", QVector4D(0.9f, 0.9f, 0.9f, 0.5f));
     {
         m_vao.bind();
         //draw
-        glDrawArrays(GL_TRIANGLES, 0, m_num_triangles);
+        glDrawElements(GL_TRIANGLES, m_num_triangles, GL_UNSIGNED_INT, 0);
         m_vao.release();
     }
     m_program->release();
@@ -70,7 +70,7 @@ void ImageMeshGL::loadMesh(const QString &meshFile)
     qDebug() << "Loading mesh " << meshFile;
     QVector<QVector3D> vertices;
     QVector<QVector3D> normal;
-    QVector<unsigned int> indices;
+    QVector<GLuint> indices;
     QFile file(meshFile);
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
@@ -90,25 +90,28 @@ void ImageMeshGL::loadMesh(const QString &meshFile)
                                             fields.at(3).toFloat()));
 
                 } else if (fields.at(0) == "f") {
-                    indices.append(fields.at(1).split("//").at(0).toInt() - 1);
-                    indices.append(fields.at(2).split("//").at(0).toInt() - 1);
-                    indices.append(fields.at(3).split("//").at(0).toInt() - 1);
+                    indices.append(fields.at(1).split("//").at(0).toInt());
+                    indices.append(fields.at(2).split("//").at(0).toInt());
+                    indices.append(fields.at(3).split("//").at(0).toInt());
                 } else {
                     //Ignoring other types
                 }
             }
         }
     }
-    m_num_triangles = vertices.count() / 3;
-
-
-    qDebug() << "Loaded mesh with  " << m_num_triangles
-             << " triangles and " << vertices.count() << " vertices";
+    m_num_triangles = indices.size();
+    qDebug() << "Loaded mesh with  " << vertices.size() / 3
+             << " triangles and " << m_num_triangles << " faces";
 
     m_program->bind();
 
     m_vao.create();
     m_vao.bind();
+
+    m_indexBuf.create();
+    m_indexBuf.bind();
+    m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_indexBuf.allocate(indices.data(), indices.size() *sizeof(GLuint));
 
     // Transfer vertex data to VBO 0
     m_posBuf.create();

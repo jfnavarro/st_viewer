@@ -36,7 +36,6 @@ public:
 
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
     const QRect image_bounds() const;
-    const QRect data_bounds() const;
     bool is3D() const;
 
     // Setters

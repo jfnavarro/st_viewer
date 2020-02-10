@@ -31,8 +31,8 @@ private:
 
     // OpenGL rendering data and buffers
     QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_posBuf;
     QOpenGLBuffer m_indexBuf;
+    QOpenGLBuffer m_posBuf;
     QOpenGLBuffer m_normBuf;
     QOpenGLShaderProgram *m_program;
     int m_num_triangles;
