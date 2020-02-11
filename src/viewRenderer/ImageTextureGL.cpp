@@ -67,6 +67,7 @@ void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
         return;
     }
 
+    glEnable(GL_TEXTURE_2D);
     m_program->bind();
     m_program->setUniformValue("mvp_matrix", mvp_matrx);
     m_program->setUniformValue("tex", 0);
@@ -80,6 +81,7 @@ void ImageTextureGL::draw(const QMatrix4x4 &mvp_matrx)
         m_vao.release();
     }
     m_program->release();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void ImageTextureGL::createTiles(const QVector<QPair<QImage, QPoint> > &tiles)

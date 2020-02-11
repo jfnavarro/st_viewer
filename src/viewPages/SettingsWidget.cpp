@@ -61,6 +61,9 @@ SettingsWidget::SettingsWidget(QWidget *parent)
             [=]() {slotVisualMode(HeatMap);});
     connect(m_ui->visual_color_range, &QRadioButton::clicked, this,
             [=]() {slotVisualMode(ColorRange);});
+
+
+    connect(m_ui->update, &QPushButton::clicked, this, &SettingsWidget::signalSpotRendering);
 }
 
 SettingsWidget::~SettingsWidget()
@@ -113,7 +116,6 @@ void SettingsWidget::slotGenesTreshold(int value)
 {
     if (value != m_rendering_settings.genes_threshold) {
         m_rendering_settings.genes_threshold = value;
-        emit signalSpotRendering();
     }
 }
 
@@ -121,7 +123,6 @@ void SettingsWidget::slotSpotsTreshold(int value)
 {
     if (value != m_rendering_settings.spots_threshold) {
         m_rendering_settings.spots_threshold = value;
-        emit signalSpotRendering();
     }
 }
 
@@ -129,7 +130,6 @@ void SettingsWidget::slotReadsTreshold(int value)
 {
     if (value != m_rendering_settings.reads_threshold) {
         m_rendering_settings.reads_threshold = value;
-        emit signalSpotRendering();
     }
 }
 
@@ -154,7 +154,6 @@ void SettingsWidget::slotGeneCutoff(bool value)
 {
     if (value != m_rendering_settings.gene_cutoff) {
         m_rendering_settings.gene_cutoff = value;
-        emit signalSpotRendering();
     }
 }
 

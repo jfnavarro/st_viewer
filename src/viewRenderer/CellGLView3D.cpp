@@ -90,7 +90,7 @@ void CellGLView3D::initializeGL()
     connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
 
     // Set global information
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
@@ -100,7 +100,6 @@ void CellGLView3D::initializeGL()
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -273,7 +272,10 @@ void CellGLView3D::paintGL()
 
     // render mesh
     if (is3D && m_image_show) {
-        m_mesh->draw(projection * view);
+        // model should be identity
+        const QMatrix4x4 model;
+        const QVector3D &eye = cameraPosition();
+        m_mesh->draw(projection, view, model, eye);
     }
 
     const double alpha =

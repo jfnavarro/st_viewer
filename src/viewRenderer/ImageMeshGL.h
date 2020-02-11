@@ -25,7 +25,10 @@ public:
     void loadMesh(const QString &meshFile);
 
     // draw the mesh
-    void draw(const QMatrix4x4 &mvp_matrx);
+    void draw(const QMatrix4x4 &projection,
+              const QMatrix4x4 &view,
+              const QMatrix4x4 &model,
+              const QVector3D &eye);
 
 private:
 

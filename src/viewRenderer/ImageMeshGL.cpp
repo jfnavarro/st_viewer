@@ -47,15 +47,30 @@ void ImageMeshGL::clearData()
     m_num_triangles = 0;
 }
 
-void ImageMeshGL::draw(const QMatrix4x4 &mvp_matrx)
+void ImageMeshGL::draw(const QMatrix4x4 &projection,
+                       const QMatrix4x4 &view,
+                       const QMatrix4x4 &model,
+                       const QVector3D &eye)
 {
     if (!m_isInitialized) {
         return;
     }
 
     m_program->bind();
-    m_program->setUniformValue("mvp_matrix", mvp_matrx);
-    m_program->setUniformValue("color", QVector4D(0.9f, 0.9f, 0.9f, 0.5f));
+    //m_program->setUniformValue("mvp_matrix", mvp_matrx);
+    m_program->setUniformValue("projection", projection);
+    m_program->setUniformValue("view", view);
+    m_program->setUniformValue("model", model);
+    m_program->setUniformValue("color", 0.8f, 0.8f, 0.8f);
+    m_program->setUniformValue("light.position", 0.5f, 1.0f, 1.0f);
+    m_program->setUniformValue("light.ambient", 0.2f, 0.2f, 0.2f);
+    m_program->setUniformValue("light.diffuse", 0.5f, 0.5f, 0.5f);
+    m_program->setUniformValue("light.specular", 1.0f, 1.0f, 1.0f);
+    m_program->setUniformValue("material.ambient", 1.0f, 0.5f, 0.31f);
+    m_program->setUniformValue("material.diffuse", 1.0f, 0.5f, 0.31f);
+    m_program->setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);
+    m_program->setUniformValue("material.shininess", 32.0f);
+    m_program->setUniformValue("viewPos", eye);
     {
         m_vao.bind();
         //draw
@@ -90,9 +105,9 @@ void ImageMeshGL::loadMesh(const QString &meshFile)
                                             fields.at(3).toFloat()));
 
                 } else if (fields.at(0) == "f") {
-                    indices.append(fields.at(1).split("//").at(0).toInt());
-                    indices.append(fields.at(2).split("//").at(0).toInt());
-                    indices.append(fields.at(3).split("//").at(0).toInt());
+                    indices.append(fields.at(1).split("//").at(0).toInt() - 1);
+                    indices.append(fields.at(2).split("//").at(0).toInt() - 1);
+                    indices.append(fields.at(3).split("//").at(0).toInt() - 1);
                 } else {
                     //Ignoring other types
                 }
@@ -100,8 +115,8 @@ void ImageMeshGL::loadMesh(const QString &meshFile)
         }
     }
     m_num_triangles = indices.size();
-    qDebug() << "Loaded mesh with  " << vertices.size() / 3
-             << " triangles and " << m_num_triangles << " faces";
+    qDebug() << "Loaded mesh with " << vertices.size() / 3
+             << " triangles and " << m_num_triangles / 3 << " faces";
 
     m_program->bind();
 

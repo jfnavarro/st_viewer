@@ -289,7 +289,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
 
         // early out if no genes are visible
         if (genes_visible_indexes.empty() || spots_visible_indexes.empty()) {
-            qDebug() << "No genes nor spots visible";
             return;    
         }
 
