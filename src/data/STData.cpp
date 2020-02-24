@@ -331,16 +331,19 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                             merged_color = STMath::lerp(1.0 / ++num_genes, merged_color, gene_obj->color());
                         }
                     }
+					visible = num_genes > 0;
                 }
                 if (do_values) {
+					const auto value = values.at(i);
                     merged_color = Color::adjustVisualMode(
                                 merged_color,
-                                values.at(i),
+                                value,
                                 rendering_settings.legend_min,
                                 rendering_settings.legend_max,
                                 rendering_settings.visual_mode);
+					visible = value > 0;
                 }
-                visible = true;
+                
             }
         }
         m_rendering_selected[spot_index] = visible && spot_obj->selected();

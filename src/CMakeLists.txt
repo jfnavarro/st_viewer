@@ -37,18 +37,7 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
-if(WIN32)
-    if(DEFINED ARMADILLO_PATH)
-        set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
-        set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
-            "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
-
-    else()
-        message(FATAL_ERROR "ARMADILLO_PATH is empty")
-    endif()
-else()
-    find_package(Armadillo REQUIRED)
-endif()
+find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -65,6 +54,7 @@ if (APPLE)
             INTERFACE_COMPILE_OPTIONS "${OpenMP_COMPILE_OPTIONS}")
 else()
     find_package(OpenMP REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 # Define what sub folders will be compiled
@@ -103,8 +93,13 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
-target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
-                      ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
+if (OSX)
+	target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+						  ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
+else()
+	target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+                          ${ARMADILLO_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
+endif()
 
 ### UNIT TESTS ################################################################
 
@@ -286,8 +281,8 @@ if(WIN32)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_BINARY_DIR}/libqcustomplot.dll DESTINATION .)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.dll DESTINATION .)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.dll DESTINATION .)
+    #install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/lapack/bin/lapack.dll DESTINATION .)
+    #install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/lapack/bin/blas.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libstdc++-6.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libgcc_s_dw2-1.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libwinpthread-1.dll DESTINATION .)

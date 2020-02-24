@@ -144,7 +144,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Data file (.tsv or .h5)</string>
+          <string>Data file (.tsv)</string>
          </property>
         </widget>
        </item>

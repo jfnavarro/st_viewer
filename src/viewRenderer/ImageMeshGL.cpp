@@ -61,7 +61,7 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     m_program->setUniformValue("projection", projection);
     m_program->setUniformValue("view", view);
     m_program->setUniformValue("model", model);
-    m_program->setUniformValue("color", 0.8f, 0.8f, 0.8f);
+    m_program->setUniformValue("color", 0.3f, 0.3f, 0.3f);
     m_program->setUniformValue("light.position", 0.5f, 1.0f, 1.0f);
     m_program->setUniformValue("light.ambient", 0.2f, 0.2f, 0.2f);
     m_program->setUniformValue("light.diffuse", 0.5f, 0.5f, 0.5f);
@@ -69,7 +69,7 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     m_program->setUniformValue("material.ambient", 1.0f, 0.5f, 0.31f);
     m_program->setUniformValue("material.diffuse", 1.0f, 0.5f, 0.31f);
     m_program->setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);
-    m_program->setUniformValue("material.shininess", 32.0f);
+    m_program->setUniformValue("material.shininess", 128.0f);
     m_program->setUniformValue("viewPos", eye);
     {
         m_vao.bind();

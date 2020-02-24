@@ -38,7 +38,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_image, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowImage);
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.show_spots = m_ui->show_spots->isChecked();
-        emit signalSpotRendering();
     });
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
 
@@ -50,7 +49,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
             [=]() {slotNormalization(NormalizationMode::REL);});
     connect(m_ui->log_scale, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.log_scale = m_ui->log_scale->isChecked();
-        emit signalSpotRendering();
     });
 
     connect(m_ui->visual_normal, &QRadioButton::clicked, this,
@@ -161,7 +159,6 @@ void SettingsWidget::slotNormalization(NormalizationMode mode)
 {
     if (mode != m_rendering_settings.normalization_mode) {
         m_rendering_settings.normalization_mode = mode;
-        emit signalSpotRendering();
     }
 }
 

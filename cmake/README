@@ -1,7 +1,5 @@
 options_cmake.h.in = CMake compilation time header were variables can be added
 utils.cmake = common CMake functions used in the program, mostly compilation flags
-/linux = some files needed to create Linux packages
 /mac = some files needed to create MAC packages
 /win = some files needed to create Win32 packages 
-/win64 = some files needed to create Win64 packages
 
