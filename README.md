@@ -1,4 +1,4 @@
-# Spatial Transcriptomics Research Viewer
+# Spatial Transcriptomics Viewer
 
 The ST viewer is a tool that visualizes spatially resolved gene
 expression data on top of HE stained tissue figures with the correct
@@ -41,9 +41,9 @@ all the dataset's files are and it should have the following JSON format:
 	{
         	"name": "test",
         	"comments": "test_comments",
-		    "data": "/Users/user/test_dataset/stdata.tsv",
-		    "image": "/Users/user/test_dataset/image.jpg",
-		    "coordinates": "/Users/user/test_dataset/spots.txt",
+		"data": "/Users/user/test_dataset/stdata.tsv",
+		"image": "/Users/user/test_dataset/image.jpg",
+		"coordinates": "/Users/user/test_dataset/spots.txt",
 	}
 
 After that you can just double click in the dataset to open it. 
@@ -74,7 +74,7 @@ Before you install the ST Viewer trough the binaries you must do the following
 (in case you have not done it already):
 
 ###### OSX
-The binary provided for MAC requires OSX 10.2 or bigger. 
+The binary provided for MAC requires OSX 10.3 or bigger. 
 
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
 the ST Viewer will be installed in your system. 
@@ -148,7 +148,7 @@ Then launch the image according to where your file are located.
     
     eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.12 or 10.11 
+    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.13 or 10.14 
 
 *   Compile the application
 
@@ -185,7 +185,7 @@ Or you can follow the process outlined below.
 
     DCMAKE_PREFIX_PATH = the path to where Qt, armadillo and qcustomplot are installed
     
-    eg: "/Users/username/Qt/5.9.2/gcc;/Users/username/qcustomplot;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.14.1/gcc;/Users/username/qcustomplot;/Users/username/armadillo"
 
 * Then type the following to build and install
 
