@@ -127,7 +127,9 @@ Then launch the image according to where your file are located.
 
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
   If needed to you can install them from the Apple store (https://developer.apple.com/xcode/). 
-  I recommend to update to the latest version of XCode.  
+  I recommend to update to the latest version of XCode.
+  
+* Make sure to have installed OpenMP, for example with "brew install libomp"
 
 * Clone the repository to a specific folder and build the application
 
