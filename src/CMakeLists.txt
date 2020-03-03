@@ -93,12 +93,12 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
-if (OSX)
-	target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
-						  ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+        ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
 else()
-	target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
-                          ${ARMADILLO_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+        ${ARMADILLO_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
 endif()
 
 ### UNIT TESTS ################################################################

@@ -228,3 +228,5 @@ V0.8.0
     * Simplified the normalization and filtering
     * Increase in speed (multi-threading and optimizations)
     * More robust and efficient
+    * Added cluster info to spots panel
+    * Enabled to select spots from spots panel
