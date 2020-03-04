@@ -690,4 +690,3 @@ void STData::is3D(bool is3D)
 {
     m_is3D = is3D;
 }
->>>>>>> 3D
