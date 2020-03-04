@@ -7,7 +7,7 @@ All rights reserved.
 * Karolisnka Institute (KI)
 
 This software uses the following third party libraries: 
-Armadillo, R, t-SNE and Qt.
+Armadillo, t-SNE and Qt.
 Their licenses are listed in the file DEPENDENCIES. 
 
 Permission is hereby granted, free of charge, to any person obtaining a 
