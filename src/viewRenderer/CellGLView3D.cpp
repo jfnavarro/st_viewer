@@ -15,6 +15,10 @@ constexpr double DEFAULT_ZOOM_ADJUSTMENT = 10.0;
 CellGLView3D::CellGLView3D(QWidget *parent)
     : QOpenGLWidget(parent)
     , m_rendering_settings(nullptr)
+    , m_pos_buffer(QOpenGLBuffer::VertexBuffer)
+    , m_color_buffer(QOpenGLBuffer::VertexBuffer)
+    , m_visible_buffer(QOpenGLBuffer::VertexBuffer)
+    , m_selected_buffer(QOpenGLBuffer::VertexBuffer)
     , m_num_points(0)
     , m_initialized(false)
     , m_legend_show(false)
@@ -568,7 +572,7 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         // Create Buffer (Color)
         m_color_buffer.create();
         m_color_buffer.bind();
-        m_color_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_color_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
         m_color_buffer.allocate(colors.constData(), colors.size() * sizeof(QVector4D));
         m_program.enableAttributeArray(1);
         m_program.setAttributeBuffer(1, GL_FLOAT, 0, 4, 0);
@@ -576,7 +580,7 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         // Create Buffer (Selected)
         m_selected_buffer.create();
         m_selected_buffer.bind();
-        m_selected_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_selected_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
         m_selected_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
         m_program.enableAttributeArray(2);
         m_program.setAttributeBuffer(2, GL_INT, 0, 1, 0);
@@ -584,7 +588,7 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         // Create Buffer (Visible)
         m_visible_buffer.create();
         m_visible_buffer.bind();
-        m_visible_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_visible_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
         m_visible_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
         m_program.enableAttributeArray(3);
         m_program.setAttributeBuffer(3, GL_INT, 0, 1, 0);
@@ -615,31 +619,16 @@ void CellGLView3D::slotUpdate()
 
         // Update Buffer (Color)
         m_color_buffer.bind();
-        void* buffer_data_color = m_color_buffer.mapRange(0,
-                                                          colors.size(),
-                                                          QOpenGLBuffer::RangeWrite);
-        std::memcpy(buffer_data_color, colors.constData(), colors.size() * sizeof(QVector4D));
-        m_color_buffer.unmap();
+        m_color_buffer.write(0, colors.constData(), colors.size());
+        m_color_buffer.release();
 
         // Update Buffer (Selected)
         m_selected_buffer.bind();
-        void* buffer_data_selected = m_selected_buffer.mapRange(0,
-                                                                selecteds.size(),
-                                                                QOpenGLBuffer::RangeWrite);
-        std::memcpy(buffer_data_selected, selecteds.constData(), selecteds.size() * sizeof(int));
-        m_selected_buffer.unmap();
+        m_selected_buffer.write(0, selecteds.constData(), selecteds.size());
 
         // Update Buffer (Visible)
         m_visible_buffer.bind();
-        void* buffer_data_visible = m_visible_buffer.mapRange(0,
-                                                              visibles.size(),
-                                                              QOpenGLBuffer::RangeWrite);
-        std::memcpy(buffer_data_visible, visibles.constData(), visibles.size() * sizeof(int));
-        m_visible_buffer.unmap();
-
-        // Release (unbind) all
-        m_color_buffer.release();
-        m_selected_buffer.release();
+        m_visible_buffer.write(0, visibles.constData(), visibles.size());
         m_visible_buffer.release();
 
         doneCurrent();
