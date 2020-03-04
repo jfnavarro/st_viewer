@@ -6,9 +6,6 @@
 
 #include "data/Dataset.h"
 #include "data/UserSelection.h"
-#include "viewRenderer/ImageTextureGL.h"
-#include "viewRenderer/HeatMapLegendGL.h"
-#include "viewRenderer/GeneRendererGL.h"
 
 class SelectionDialog;
 class SettingsWidget;
@@ -16,6 +13,7 @@ class SpotsWidget;
 class GenesWidget;
 class UserSelectionsPage;
 class AnalysisClustering;
+class CellGLView3D;
 
 namespace Ui
 {
@@ -40,8 +38,8 @@ public:
     CellViewPage(QSharedPointer<SpotsWidget> spots,
                  QSharedPointer<GenesWidget> genes,
                  QSharedPointer<UserSelectionsPage> user_selections,
-                 QWidget *parent = 0);
-    virtual ~CellViewPage();
+                 QWidget *parent = nullptr);
+    virtual ~CellViewPage() override;
 
     // clear the loaded dataset and reset settings
     void clear();
@@ -58,18 +56,9 @@ public slots:
 
 private slots:
 
-    // the user has updated the genes
-    void slotGenesUpdate();
-
-    // the user has updated the spots
-    void slotSpotsUpdated();
-
     // save/esport current view
     void slotSaveImage();
     void slotPrintImage();
-
-    // selection of spots using a the reg-exp dialog that takes gene names as input
-    void slotSelectByRegExp();
 
     // user wants to show the QC widget
     void slotShowQC();
@@ -78,13 +67,13 @@ private slots:
     void slotClustering();
 
     // user wants to load a file with spot colors
-    void slotLoadSpotColorsFile();
+    void slotLoadSpotClustersFile();
 
     // user wants to load a file with genes to select
-    void slotLoadGenes();
+    void slotLoadGenesColors();
 
     // user has performed spot classification
-    void slotLoadSpotColors();
+    void slotLoadSpotClusters();
 
     // user has made a selection in the clustering widget
     void slotSelectSpotsClustering();
@@ -95,12 +84,7 @@ private slots:
     // user wants to create a selection
     void slotCreateSelection();
 
-    // when the image has been tiled and loaded
-    void slotImageLoaded(const bool loaded);
-
 private:
-    // create OpenGL graphical elements and view
-    void initRenderer();
 
     // create all the connections
     void createConnections();
@@ -111,12 +95,8 @@ private:
     QSharedPointer<UserSelectionsPage> m_user_selections;
 
     // GUI UI object
+    //NOTE the OpenGL view renderer is promoted to the UI as m_ui->view
     QScopedPointer<Ui::CellView> m_ui;
-
-    // OpenGL visualization objects
-    QSharedPointer<HeatMapLegendGL> m_legend;
-    QSharedPointer<GeneRendererGL> m_gene_plotter;
-    QSharedPointer<ImageTextureGL> m_image;
 
     // different control widgets and views
     QScopedPointer<SettingsWidget> m_settings;
@@ -126,9 +106,6 @@ private:
 
     // the currently opened dataset
     Dataset m_dataset;
-
-    // watcher for the image loading
-    QFutureWatcher<void> m_watcher;
 
     Q_DISABLE_COPY(CellViewPage)
 };

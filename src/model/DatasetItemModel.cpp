@@ -9,7 +9,7 @@
 #include "data/Dataset.h"
 #include <set>
 
-static const int COLUMN_NUMBER = 3;
+static const int COLUMN_NUMBER = 2;
 
 DatasetItemModel::DatasetItemModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -37,10 +37,8 @@ QVariant DatasetItemModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case Name:
             return item.name();
-        case Tissue:
-            return item.statTissue();
-        case Species:
-            return item.statSpecies();
+        case Comments:
+            return item.statComments();
        default:
             return QVariant(QVariant::Invalid);
         }
@@ -59,10 +57,8 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
         switch (section) {
         case Name:
             return tr("Dataset name");
-        case Tissue:
-            return tr("Tissue name");
-        case Species:
-            return tr("Species name");
+        case Comments:
+            return tr("Comments");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -72,10 +68,8 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
         switch (section) {
         case Name:
             return tr("Name");
-        case Tissue:
-            return tr("Tissue");
-        case Species:
-            return tr("Species");
+        case Comments:
+            return tr("Comments");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -84,8 +78,7 @@ QVariant DatasetItemModel::headerData(int section, Qt::Orientation orientation, 
     if (role == Qt::TextAlignmentRole) {
         switch (section) {
         case Name:
-        case Tissue:
-        case Species:
+        case Comments:
             return Qt::AlignLeft;
         default:
             return QVariant(QVariant::Invalid);

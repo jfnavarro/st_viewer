@@ -41,10 +41,8 @@ public slots:
 private slots:
 
     // slots triggered by the show/color controls in the gene table
-    void slotSetColorAllSelected(const QColor &color);
-    void slotSetVisibilityForSelectedRows(bool visible);
-    void slotHideAllSelected();
-    void slotShowAllSelected();
+    void slotSetColor(const QColor &color);
+    void slotSetVisible(bool visible);
 
 private:
     // internal function to configure created buttons

@@ -19,7 +19,7 @@ class SpotItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 public:
 
-    enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
+    enum Column { Show = 0, Selected = 1, Name = 2, Count = 3, Color = 4, Info = 5};
 
     explicit SpotItemModel(QObject *parent = 0);
 
@@ -33,11 +33,12 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // this function will set to visible the spots included in the selection
-    // and emit a signal with the modified spots
     void setVisibility(const QItemSelection &selection, bool visible);
 
+    // this function will set to selected the spots inluded in the selection
+    void setSelected(const QItemSelection &selection, bool selected);
+
     // this function will modify the color of the spots included in the selection
-    // and emit a signal with the modified spots
     void setColor(const QItemSelection &selection, const QColor &color);
 
     // reload the model's data from the dataset (spots)

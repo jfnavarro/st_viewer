@@ -40,7 +40,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     setLineWidth(1);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::MultiSelection);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
     setEditTriggers(QAbstractItemView::DoubleClicked);
 
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Name, QHeaderView::Stretch);
@@ -49,9 +49,7 @@ GenesTableView::GenesTableView(QWidget *parent)
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Show, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
     horizontalHeader()->setSectionResizeMode(GeneItemModel::Count, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneItemModel::Show, 100);
-    horizontalHeader()->setSectionResizeMode(GeneItemModel::CutOff, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(GeneItemModel::Show, 50);
+    horizontalHeader()->resizeSection(GeneItemModel::Count, 100);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
@@ -84,7 +82,7 @@ void GenesTableView::customMenuRequested(const QPoint &pos)
     if (index.isValid()) {
         QMenu *menu = new QMenu(this);
         menu->addAction(new QAction(tr("Copy gene"), this));
-        menu->addAction(new QAction(tr("Select/Unselect"), this));
+        menu->addAction(new QAction(tr("Show/Hide"), this));
         menu->addAction(new QAction(tr("Change color"), this));
         QAction *selection = menu->exec(viewport()->mapToGlobal(pos));
         if (selection != nullptr) {
@@ -95,7 +93,7 @@ void GenesTableView::customMenuRequested(const QPoint &pos)
                 const QString gene_name = getModel()->data(new_index, Qt::DisplayRole).toString();
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(gene_name);
-            } else if (action_text == tr("Select/Unselect")) {
+            } else if (action_text == tr("Show/Hide")) {
                 const QModelIndex new_index = getModel()->index(correct_index.row(), GeneItemModel::Show);
                 const bool selected = getModel()->data(new_index, Qt::CheckStateRole).toBool();
                 getModel()->setVisibility(QItemSelection(correct_index, correct_index), !selected);

@@ -9,14 +9,10 @@
 #include "data/Gene.h"
 #include "data/Dataset.h"
 
-static const int COLUMN_NUMBER = 5;
+static const int COLUMN_NUMBER = 4;
 
 GeneItemModel::GeneItemModel(QObject *parent)
     : QAbstractTableModel(parent)
-{
-}
-
-GeneItemModel::~GeneItemModel()
 {
 }
 
@@ -48,10 +44,6 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
         return item->totalCount();
     }
 
-    if ((role == Qt::DisplayRole || role == Qt::UserRole) && index.column() == CutOff) {
-        return item->cut_off();
-    }
-
     if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Show:
@@ -62,31 +54,12 @@ QVariant GeneItemModel::data(const QModelIndex &index, int role) const
             return Qt::AlignLeft;
         case Count:
             return Qt::AlignCenter;
-        case CutOff:
-            return Qt::AlignCenter;
         default:
             return QVariant(QVariant::Invalid);
         }
     }
 
     return QVariant(QVariant::Invalid);
-}
-
-bool GeneItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (index.isValid() && role == Qt::EditRole && index.column() == CutOff) {
-        auto item = m_items_reference.at(index.row());
-        const float new_cutoff = value.toFloat();
-        if (item->cut_off() != new_cutoff && new_cutoff >= 0.0) {
-            item->cut_off(new_cutoff);
-            emit dataChanged(index, index);
-            emit signalGeneCutOffChanged();
-            return true;
-        }
-        return false;
-    }
-
-    return false;
 }
 
 QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -101,8 +74,6 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Color");
         case Count:
             return tr("#Count");
-        case CutOff:
-            return tr("Cut-off");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -118,8 +89,6 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Indicates the color of the gene on the screen");
         case Count:
             return tr("The total number of transcritps of the gene");
-        case CutOff:
-            return tr("Numbers of reads from which this gene will be included");
         default:
             return QVariant(QVariant::Invalid);
         }
@@ -134,8 +103,6 @@ QVariant GeneItemModel::headerData(int section, Qt::Orientation orientation, int
         case Name:
             return Qt::AlignLeft;
         case Count:
-            return Qt::AlignCenter;
-        case CutOff:
             return Qt::AlignCenter;
         default:
             return QVariant(QVariant::Invalid);
@@ -173,8 +140,6 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
         return defaultFlags;
     case Count:
         return defaultFlags;
-    case CutOff:
-        return Qt::ItemIsEditable | defaultFlags;
     }
 
     return defaultFlags;
@@ -182,7 +147,6 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
 
 void GeneItemModel::loadDataset(const Dataset &dataset)
 {
-    Q_UNUSED(dataset)
     beginResetModel();
     m_items_reference = dataset.data()->genes();
     endResetModel();
@@ -209,10 +173,7 @@ void GeneItemModel::setVisibility(const QItemSelection &selection, bool visible)
 
     // update the genes
     for (const auto &row : rows) {
-        auto gene = m_items_reference.at(row);
-        if (gene->visible() != visible) {
-            gene->visible(visible);
-        }
+        m_items_reference.at(row)->visible(visible);
     }
 }
 
@@ -230,9 +191,6 @@ void GeneItemModel::setColor(const QItemSelection &selection, const QColor &colo
 
     // update the genes
     for (const auto &row : rows) {
-        auto gene = m_items_reference.at(row);
-        if (color.isValid() && gene->color() != color) {
-            gene->color(color);
-        }
+        m_items_reference.at(row)->color(color);
     }
 }

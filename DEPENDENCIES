@@ -1,16 +1,10 @@
-Qt (dynamic linking) with LGPL v3 and v2.1 licenses
-QCustomplot (dynamic linking) with a comercial license
-Armadillo (dynamic linking)  with Apache 2.0 license
-R (DESeq2, Rtsne, edgeR and SCRAN) with GNU v2.0 license
-RInside with GNU v2.0 license
-Rcpp with GNU v2.0 license
-RcppArmadillo with GNU v2.0 license
+Qt (5.14) (dynamic linking) with LGPL v3 and v2.1 licenses
+QCustomplot (dynamic linking) with a commercial license
+Armadillo (dynamic linking) with Apache b2.0 license
+t-SNE (static linking) Copyright (c) 2014, Laurens van der Maaten (Delft University of Technology)
 
 Links:
 http://qcustomplot.com/
 http://arma.sourceforge.net/
 https://www.qt.io/
-https://cran.r-project.org/
-https://cran.r-project.org/web/packages/Rcpp/index.html
-https://cran.r-project.org/web/packages/RInside/index.html
-https://cran.r-project.org/web/packages/RcppArmadillo/index.html
+https://lvdmaaten.github.io/tsne/

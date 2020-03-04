@@ -28,9 +28,9 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Spot")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
     // populate
-    for (uword i = 0; i < data.counts.n_rows; ++i) {
-        const auto spot_str = data.spots.at(i);
-        const float count = sum(data.counts.col(i));
+    for (int i = 0; i < data.counts.n_rows; ++i) {
+        const QString spot_str = data.spots.at(i);
+        const double count = sum(data.counts.col(i));
         const QString count_str = QString::number(count);
         QStandardItem *spot_item = new QStandardItem(spot_str);
         spot_item->setData(spot_str, Qt::UserRole);

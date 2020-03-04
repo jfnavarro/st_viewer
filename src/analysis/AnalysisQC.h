@@ -11,7 +11,7 @@ class analysisQC;
 }
 
 // AnalysisQC is a Widget that is used to show to the users
-// the counts/genes distributions of a dataset
+// the spots/genes distributions of a dataset
 class AnalysisQC : public QWidget
 {
     Q_OBJECT
@@ -28,7 +28,7 @@ public slots:
 
 private slots:
 
-    // to save the histogram to a file (type 1 genes, type 2 transcripts)
+    // to save the histogram to a file (type 1 genes, type 2 spots)
     void slotExportPlot(const int type);
 
 private:

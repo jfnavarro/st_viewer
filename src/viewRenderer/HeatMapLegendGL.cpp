@@ -2,32 +2,20 @@
 
 #include <QPainter>
 #include <QImage>
-#include <QApplication>
-#include <QVector2D>
 #include <QLabel>
 
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
-static const float legend_x = 0.0;
-static const float legend_y = 0.0;
-static const float legend_width = 30.0;
-static const float legend_height = 200.0;
-static const float bars_width = 40.0;
+static const double legend_x = 10.0;
+static const double legend_y = 10.0;
+static const int legend_width = 30;
+static const int legend_height = 200;
 
-HeatMapLegendGL::HeatMapLegendGL(const SettingsWidget::Rendering &rendering_settings, QObject *parent)
-    : GraphicItemGL(parent)
-    , m_image()
-    , m_rendering_settings(rendering_settings)
-    , m_initialized(false)
+HeatMapLegendGL::HeatMapLegendGL()
+    : m_image()
+    , m_dirty(true)
 {
-    setVisualOption(GraphicItemGL::Transformable, false);
-    setVisualOption(GraphicItemGL::Visible, false);
-    setVisualOption(GraphicItemGL::Selectable, false);
-    setVisualOption(GraphicItemGL::Yinverted, false);
-    setVisualOption(GraphicItemGL::Xinverted, false);
-    setVisualOption(GraphicItemGL::RubberBandable, false);
-    setAnchor(Anchor::NorthEast);
 }
 
 HeatMapLegendGL::~HeatMapLegendGL()
@@ -37,58 +25,36 @@ HeatMapLegendGL::~HeatMapLegendGL()
 void HeatMapLegendGL::clearData()
 {
     m_image = QImage();
-    m_initialized = false;
+    m_dirty = true;
 }
 
-void HeatMapLegendGL::slotUpdate()
+void HeatMapLegendGL::update()
 {
-    generateLegend();
+    m_dirty = true;
 }
 
-void HeatMapLegendGL::draw(QOpenGLFunctionsVersion &qopengl_functions, QPainter &painter)
+void HeatMapLegendGL::draw(const SettingsWidget::Rendering &rendering_setting, QPainter &painter)
 {
-    Q_UNUSED(qopengl_functions)
+    // get the min max values
+    const double min = rendering_setting.legend_min;
+    const double max = rendering_setting.legend_max;
 
-    if (!m_initialized || m_rendering_settings.visual_mode == SettingsWidget::VisualMode::Normal
-            || m_rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange) {
-        return;
+    if (m_dirty) {
+        // generate image texture with the size of the legend and then fill it up with the colors
+        // using the min-max values of the threshold and the color mode
+        m_image = QImage(legend_width, legend_height, QImage::Format_ARGB32);
+        Color::ColorGradients cmap =
+                rendering_setting.visual_mode == SettingsWidget::VisualMode::ColorRange?
+                    Color::ColorGradients::gpHot : Color::ColorGradients::gpSpectrum;
+        Color::createLegend(m_image, min, max, cmap);
+        m_dirty = false;
     }
 
     // draw the image
     painter.drawImage(QPointF(legend_x, legend_y), m_image);
-    // get the min max values
-    const double min = m_rendering_settings.legend_min;
-    const double max = m_rendering_settings.legend_max;
+
     // draw text (add 5 pixels offset to the right)
     painter.setBrush(Qt::darkBlue);
-    painter.drawText(QPointF(legend_x + legend_width + 5, 0), QString::number(max));
-    painter.drawText(QPointF(legend_x + legend_width + 5, legend_height), QString::number(min));
-}
-
-void HeatMapLegendGL::generateLegend()
-{
-    // get the min max values
-    const float min = m_rendering_settings.legend_min;
-    const float max = m_rendering_settings.legend_max;
-    // generate image texture with the size of the legend and then fill it up with the colors
-    // using the min-max values of the threshold and the color mode
-    m_image = QImage(legend_width, legend_height, QImage::Format_ARGB32);
-    Color::ColorGradients cmap = Color::ColorGradients::gpSpectrum;
-    if (m_rendering_settings.visual_mode == SettingsWidget::VisualMode::ColorRange) {
-        cmap = Color::ColorGradients::gpHot;
-    } else if (m_rendering_settings.visual_mode == SettingsWidget::VisualMode::ColorRange2) {
-        cmap = Color::ColorGradients::gpPolar;
-    }
-    Color::createLegend(m_image, min, max, cmap);
-    m_initialized = true;
-}
-
-const QRectF HeatMapLegendGL::boundingRect() const
-{
-    return QRectF(legend_x, legend_y, legend_width + bars_width, legend_height);
-}
-
-void HeatMapLegendGL::setSelectionArea(const SelectionEvent &event)
-{
-    Q_UNUSED(event)
+    painter.drawText(QPointF(legend_x + legend_width + 5, 20.0), QString::number(max));
+    painter.drawText(QPointF(legend_x + legend_width + 5, 20.0 + legend_height), QString::number(min));
 }

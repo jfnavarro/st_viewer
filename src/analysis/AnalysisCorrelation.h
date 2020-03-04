@@ -14,8 +14,8 @@ QT_CHARTS_USE_NAMESPACE
 
 // This Widget takes two datasets (selections)
 // and computes correlation value for the common genes
-// it allows to chose normalization method and log scale and also to click and
-// see the clicked gene
+// it allows to normalize using the log scale and also to click and
+// show the clicked gene
 class AnalysisCorrelation : public QWidget
 {
     Q_OBJECT
@@ -42,19 +42,14 @@ private slots:
 
 private:
 
-    // GUI object
-    QScopedPointer<Ui::analysisCorrelation> m_ui;
-
     // the two datasets
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
     QString m_nameA;
     QString m_nameB;
 
-    // cache these to know what gene was clicked
-    std::vector<double> m_rowsumA;
-    std::vector<double> m_rowsumB;
-    QList<QString> m_genes;
+    // GUI object
+    QScopedPointer<Ui::analysisCorrelation> m_ui;
 
     // store the plotting series to allow interaction with the plot
     QScopedPointer<QScatterSeries> m_series;

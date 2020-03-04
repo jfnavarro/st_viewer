@@ -15,8 +15,8 @@ QT_CHARTS_USE_NAMESPACE
 
 // A Widget that is used to classify spots based on gene expression profiles
 // using dimensionality reduction and clustering algorithms
-// It allows users to interact with the scatter plot and make selections
-// based on the clustered spots
+// It allows users to interact with the scatter plot and make and export selections
+// based on the clustered spots in the manifold space
 class AnalysisClustering : public QWidget
 {
     Q_OBJECT
@@ -26,10 +26,10 @@ public:
     virtual ~AnalysisClustering();
 
     // One color (color representation of cluster number) for each spot
-    QHash<QString, QColor> getSpotClusters() const;
+    const QVector<QPair<QString,int>> &getSpotClusters() const;
 
     // List of spots for each cluster
-    QMultiHash<unsigned, QString> getClustersSpot() const;
+    QMultiHash<int, QString> getClustersSpot() const;
 
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
@@ -38,7 +38,7 @@ public:
     void clear();
 
     // the user selected spots if any
-    QList<QString> selectedSpots() const;
+    const QVector<QString> &selectedSpots() const;
 
 public slots:
 
@@ -51,7 +51,7 @@ signals:
 private slots:
 
     // Performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // cluster the reduced coordinates (2D) using KMeans or HClust so to compute classes/colors
+    // clusters the reduced coordinates (2D) using KMeans so to compute classes/colors
     // for each spot
     void slotRun();
 
@@ -61,41 +61,27 @@ private slots:
     // when the user makes a lasso selection on the scatter plot
     void slotLassoSelection(const QPainterPath &path);
 
-    // when the user wants to estimate the number of clusters from the data
-    void slotComputeClusters();
-
 private:
 
     // helper function to do the heavy computations on a different thread
-    void computeColorsAsync();
-    unsigned computeClustersAsync();
-
-    // function to udpate the widget once the computation of the spot classes is done
-    void colorsComputed();
-
-    // function to update the num clusters field once the estimation of the number of classes is done
-    void classesComputed();
-
-    // helper function to filter the matrix of counts
-    mat filterMatrix();
+    void computeClustersAsync();
+    void clustersComputed();
 
     // the data
     STData::STDataFrame m_data;
 
     // the results
-    std::vector<int> m_colors;
-    mat m_reduced_coordinates;
-    QList<QString> m_spots;
+    QVector<QPair<QString,int>> m_clusters;
+    QVector<QPointF> m_reduced_coordinates;
 
-    // the computational threads
-    QFutureWatcher<void> m_watcher_colors;
-    QFutureWatcher<unsigned> m_watcher_classes;
+    // the computational thread
+    QFutureWatcher<void> m_watcher_clusters;
 
     // the user selected spots
-    QList<QString> m_selected_spots;
+    QVector<QString> m_selected_spots;
 
     // the splot serie's
-    QList<QScatterSeries *> m_series_vector;
+    QVector<QScatterSeries *> m_series_vector;
 
     // The UI object
     QScopedPointer<Ui::analysisClustering> m_ui;

@@ -19,8 +19,7 @@ class DatasetItemModel : public QAbstractTableModel
 public:
     enum Column {
         Name = 0,
-        Tissue = 1,
-        Species = 2,
+        Comments = 1,
     };
 
     explicit DatasetItemModel(QObject *parent = 0);

@@ -66,6 +66,22 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     // add separation
     spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
+    QPushButton *selectSpotsButton = new QPushButton(this);
+    configureButton(selectSpotsButton,
+                    QIcon(QStringLiteral(":/images/select_spots.png")),
+                    tr("Select selected spots"));
+    spotListLayout->addWidget(selectSpotsButton);
+    // add separation
+    spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
+
+    QPushButton *deselectSpotsButton = new QPushButton(this);
+    configureButton(deselectSpotsButton,
+                    QIcon(QStringLiteral(":/images/deselect_spots.png")),
+                    tr("Unselect selected spots"));
+    spotListLayout->addWidget(deselectSpotsButton);
+    // add separation
+    spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
+
     QPushButton *showColorButton = new QPushButton(this);
     configureButton(showColorButton,
                     QIcon(QStringLiteral(":/images/select-color.png")),
@@ -98,8 +114,10 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     setLayout(spotsLayout);
 
     // connections
-    connect(showSelectedButton, &QPushButton::clicked, this, &SpotsWidget::slotShowAllSelected);
-    connect(hideSelectedButton, &QPushButton::clicked, this, &SpotsWidget::slotHideAllSelected);
+    connect(showSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(true); });
+    connect(hideSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(false); });
+    connect(selectSpotsButton, &QPushButton::clicked, [=]() { slotSetSelected(true); });
+    connect(deselectSpotsButton, &QPushButton::clicked, [=]() { slotSetSelected(false); });
     connect(selectionAllButton, &QPushButton::clicked,
             m_spots_tableview.data(), &SpotsTableView::selectAll);
     connect(selectionClearAllButton,
@@ -112,7 +130,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
         m_colorList->activateWindow();
     });
     connect(m_colorList.data(), &QColorDialog::colorSelected, [=]() {
-        slotSetColorAllSelected(m_colorList->currentColor());
+        slotSetColor(m_colorList->currentColor());
     });
     connect(m_lineEdit.data(),
             &QLineEdit::textChanged,
@@ -126,6 +144,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
 
 SpotsWidget::~SpotsWidget()
 {
+
 }
 
 void SpotsWidget::clear()
@@ -155,26 +174,23 @@ void SpotsWidget::configureButton(QPushButton *button, const QIcon &icon, const 
     button->setStatusTip(tooltip);
 }
 
-void SpotsWidget::slotShowAllSelected()
-{
-    slotSetVisibilityForSelectedRows(true);
-}
-
-void SpotsWidget::slotHideAllSelected()
-{
-    slotSetVisibilityForSelectedRows(false);
-}
-
-void SpotsWidget::slotSetVisibilityForSelectedRows(bool visible)
+void SpotsWidget::slotSetVisible(bool visible)
 {
     m_spots_tableview->getModel()->setVisibility(m_spots_tableview->getItemSelection(), visible);
     m_spots_tableview->update();
     emit signalSpotsUpdated();
 }
 
-void SpotsWidget::slotSetColorAllSelected(const QColor &color)
+void SpotsWidget::slotSetColor(const QColor &color)
 {
     m_spots_tableview->getModel()->setColor(m_spots_tableview->getItemSelection(), color);
+    m_spots_tableview->update();
+    emit signalSpotsUpdated();
+}
+
+void SpotsWidget::slotSetSelected(const bool selected)
+{
+    m_spots_tableview->getModel()->setSelected(m_spots_tableview->getItemSelection(), selected);
     m_spots_tableview->update();
     emit signalSpotsUpdated();
 }

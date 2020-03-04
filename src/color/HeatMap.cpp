@@ -6,8 +6,8 @@
 namespace Color
 {
 
-void createLegend(QImage &image, const float lowerbound,
-                  const float upperbound, const ColorGradients cmap)
+void createLegend(QImage &image, const double lowerbound,
+                  const double upperbound, const ColorGradients cmap)
 {
 
     const int height = image.height();
@@ -17,10 +17,10 @@ void createLegend(QImage &image, const float lowerbound,
         // get the color of each line of the image as the heatmap
         // color normalized to the lower and upper bound of the image
         const int value = height - y - 1;
-        const float adjusted_value
-                = STMath::linearConversion<float, float>(static_cast<float>(value),
+        const double adjusted_value
+                = STMath::linearConversion<double, double>(static_cast<double>(value),
                                                        0.0,
-                                                       static_cast<float>(height),
+                                                       static_cast<double>(height),
                                                        lowerbound,
                                                        upperbound);
         const QColor color = Color::createCMapColor(adjusted_value, lowerbound, upperbound, cmap);
@@ -33,7 +33,7 @@ void createLegend(QImage &image, const float lowerbound,
 
 // simple function that computes color from a min-max range
 // using linear Interpolation
-QColor createHeatMapLinearColor(const float value, const float min, const float max)
+QColor createHeatMapLinearColor(const double value, const double min, const double max)
 {
     const double halfmax = (min + max) / 2;
     const double blue = std::max(0.0, 255 * (1 - (value / halfmax)));
@@ -42,11 +42,11 @@ QColor createHeatMapLinearColor(const float value, const float min, const float 
     return QColor::fromRgb(red, green, blue);
 }
 
-QColor createDynamicRangeColor(const float value, const float min,
-                               const float max, const QColor color)
+QColor createDynamicRangeColor(const double value, const double min,
+                               const double max, const QColor color)
 {
-    const float adjusted_value
-            = STMath::norm<float, float>(value, min, max);
+    const double adjusted_value
+            = STMath::norm<double, double>(value, min, max);
     QColor newcolor(color);
     newcolor.setAlphaF(adjusted_value);
     return newcolor;
@@ -54,17 +54,17 @@ QColor createDynamicRangeColor(const float value, const float min,
 
 // simple function that computes color from a value
 // using the human wave lenght spectra
-QColor createHeatMapWaveLenghtColor(const float value)
+QColor createHeatMapWaveLenghtColor(const double value)
 {
-    static const float gamma = 0.8f;
+    static const double gamma = 0.8f;
 
     // denorm value to range (380-780)
-    const float cwavelength = STMath::denorm(value, 380.0, 780.0);
+    const double cwavelength = STMath::denorm(value, 380.0, 780.0);
 
     // define colors according to wave lenght spectra
-    float red = 0.0;
-    float green = 0.0;
-    float blue = 0.0;
+    double red = 0.0;
+    double green = 0.0;
+    double blue = 0.0;
 
     if (380.0 <= cwavelength && cwavelength < 440.0) {
         red = -(cwavelength - 440.0) / (440.0 - 380.0);
@@ -93,7 +93,7 @@ QColor createHeatMapWaveLenghtColor(const float value)
     }
 
     // Let the intensity fall off near the vision limits
-    float factor = 0.3f;
+    double factor = 0.3;
     if (380.0 <= cwavelength && cwavelength < 420.0) {
         factor = 0.3 + 0.7 * (cwavelength - 380.0) / (420.0 - 380.0);
     } else if (420.0 <= cwavelength && cwavelength < 700.0) {
@@ -103,31 +103,31 @@ QColor createHeatMapWaveLenghtColor(const float value)
     }
 
     // Gamma adjustments (clamp to [0.0, 1.0])
-    red = STMath::clamp(qPow(red * factor, gamma), 0.0, 1.0);
-    green = STMath::clamp(qPow(green * factor, gamma), 0.0, 1.0);
-    blue = STMath::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
+    red = std::clamp(qPow(red * factor, gamma), 0.0, 1.0);
+    green = std::clamp(qPow(green * factor, gamma), 0.0, 1.0);
+    blue = std::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
     // return color
     return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
 // Functions to create a color mapped in the color range given
-QColor createRangeColor(const float value, const float min, const float max,
+QColor createRangeColor(const double value, const double min, const double max,
                         QColor init, QColor end)
 {
-    const float norm_value = STMath::norm<float, float>(value, min, max);
+    const double norm_value = STMath::norm<double, double>(value, min, max);
     return STMath::lerp(norm_value, init, end);
 }
 
-QColor createCMapColorGpHot(const float value, const float min, const float max)
+QColor createCMapColorGpHot(const double value, const double min, const double max)
 {
     const QCPRange range(min,max);
     QCPColorGradient cmap(QCPColorGradient::gpHot);
     return QColor(cmap.color(value, range));
 }
 
-QColor createCMapColor(const float value, const float min,
-                       const float max, const ColorGradients cmap)
+QColor createCMapColor(const double value, const double min,
+                       const double max, const ColorGradients cmap)
 {
     const QCPRange range(min, max);
     QCPColorGradient cmapper(cmap);
@@ -135,9 +135,9 @@ QColor createCMapColor(const float value, const float min,
 }
 
 QColor adjustVisualMode(const QColor merged_color,
-                        const float &merged_value,
-                        const float &min_reads,
-                        const float &max_reads,
+                        const double &merged_value,
+                        const double &min_reads,
+                        const double &max_reads,
                         const SettingsWidget::VisualMode mode)
 {
     QColor color = merged_color;
@@ -155,10 +155,6 @@ QColor adjustVisualMode(const QColor merged_color,
     case (SettingsWidget::VisualMode::ColorRange): {
         color = Color::createCMapColor(merged_value, min_reads,
                                        max_reads, Color::ColorGradients::gpHot);
-    } break;
-    case (SettingsWidget::VisualMode::ColorRange2): {
-        color = Color::createCMapColor(merged_value, min_reads,
-                                       max_reads, Color::ColorGradients::gpPolar);
     }
     }
     return color;

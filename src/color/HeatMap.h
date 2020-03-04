@@ -19,32 +19,32 @@ typedef QCPColorGradient::GradientPreset ColorGradients;
 // using the wave lenght spectra or a linear interpolation spectra between two
 // colors
 // the input image will be transformed with the new colors
-void createLegend(QImage &image, const float lowerbound,
-                  const float upperbound, const ColorGradients cmap);
+void createLegend(QImage &image, const double lowerbound,
+                  const double upperbound, const ColorGradients cmap);
 
 // Convenience function to generate a QColor color from a real value
-QColor createHeatMapWaveLenghtColor(const float value);
+QColor createHeatMapWaveLenghtColor(const double value);
 
 // Convenience function to generate a QColor color from a real value given a
 // range
-QColor createHeatMapLinearColor(const float value, const float min, const float max);
+QColor createHeatMapLinearColor(const double value, const double min, const double max);
 
 // Function that creates a dynamic color (alpha adjusted to the value given and min-max)
-QColor createDynamicRangeColor(const float value, const float min, const float max, const QColor color);
+QColor createDynamicRangeColor(const double value, const double min, const double max, const QColor color);
 
 // Functions to create a color mapped in the color range given
-QColor createRangeColor(const float value, const float min, const float max,
+QColor createRangeColor(const double value, const double min, const double max,
                         const QColor init, const QColor end);
 
 // Functions to create a color from a pre-set color map
-QColor createCMapColor(const float value, const float min, const float max,
+QColor createCMapColor(const double value, const double min, const double max,
                        const ColorGradients cmap);
 
 // helper fuctions to adjust a spot's color according to the rendering settings
 QColor adjustVisualMode(const QColor merged_color,
-                        const float &merged_value,
-                        const float &min_reads,
-                        const float &max_reads,
+                        const double &merged_value,
+                        const double &min_reads,
+                        const double &max_reads,
                         const SettingsWidget::VisualMode mode);
 
 static QStringList color_list = (QStringList() << "red" << "green"

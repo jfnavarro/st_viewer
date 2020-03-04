@@ -1,6 +1,6 @@
-# Spatial Transcriptomics Research Viewer
+# Spatial Transcriptomics Viewer
 
-The ST viewer is a tool that allows the visualization of spatially resolved gene
+The ST viewer is a tool that visualizes spatially resolved gene
 expression data on top of HE stained tissue figures with the correct
 location.
 
@@ -9,48 +9,40 @@ be built and run in OSX, LINUX and WINDOWS.
 
 The ST viewer allows to interact with the data in real time.
 Users can see where specific genes are expressed and how
-expressed they are. It has different thresholding, normalization
+expressed they are. It has different threshold, normalization
 and visualization options. It also allows
 to select areas of the tissue to obtain gene patterns
 to later do DEA or spot classification using machine learning. 
 
-The ST viewer uses the data generated with the ST Pipeline 
+The ST viewer is designed to use the data generated with the ST Pipeline 
 https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
 which consist of a matrix of counts in TSV format where genes are 
-columns and spot coordinates are rows in the fllowing form: 
+columns and spot coordinates are rows but it is compatible with other pipelines
+as long as the input format is the same. 
 
-eg. 1x2 
+The ST viewer also requires a tissue HE image and an file with spot coordinates
+with the following formart which is compatible with the 
+ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
 
-Where 1 represents the X coordinate and 2 represents the Y coordinate.
 
-The ST viewer also requires a tissue HE image and an optional 3x3 alignment matrix (to convert
-array coordinates to image pixel coordinates).
+	SPOT chip_x chip_y pixel_x pixel_y
 
-Note that the referred 3x3 aligment matrix file must have the following format:
 
-	a11 a21 a31 a21 a22 a23 a31 a32 a33
-
-If the HE image is cropped to the array boundaries then no alignment matrix is needed.
-
-The ST viewer allows to pass a spot coordinates file to correct the coordinates
-positions and/or to only show the spots under the tissue. This file is compatible
-with the output format of the ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
+The ST viewer can visualize 3D datasets as long as the input format is the same.
+For 3D datasets a 3D Mesh object can be provided and the HE image is not required. 
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
 "Import dataset" then a dialog form will be shown where you can load the matrix of counts, the HE
-image and other files. You can also import a dataset automatically
-if all its files are inside a folder with the option "Load folder" or you
+image and other files. You can also download a dataset automatically
+if its files are inside a folder with the option "Load folder" or you
 can use a meta-file to load a dataset. The meta-file must describe where
 all the dataset's files are and it should have the following JSON format:
 
 	{
         	"name": "test",
-        	"tissue": "test_tissue",
-        	"species": "test_species",
         	"comments": "test_comments",
 		"data": "/Users/user/test_dataset/stdata.tsv",
 		"image": "/Users/user/test_dataset/image.jpg",
-		"aligment": "/Users/user/test_dataset/alignment.txt",
 		"coordinates": "/Users/user/test_dataset/spots.txt",
 	}
 
@@ -77,58 +69,20 @@ libraries that are used in this software.
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
 
 ## Binaries (Install from binaries)
-Binaries(installers) for MAC and Windows are provided under the tab releases. 
+Binaries(installer) for MAC and Windows are provided under the tab releases. 
 Before you install the ST Viewer trough the binaries you must do the following
 (in case you have not done it already):
-The binary provided for MAC and Windows require that you have installed the same R version as the one
-used to generate the binary (indicated in the releases tab)
 
 ###### OSX
+The binary provided for MAC requires OSX 10.3 or bigger. 
 
-* Download and install R from https://cran.r-project.org/ (in case you do not have it already)
-* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
-
-        if (!requireNamespace("BiocManager", quietly = TRUE))
-            install.packages("BiocManager")
-        BiocManager::install("DESeq2")
-        BiocManager::install("scran")
-        BiocManager::install("edgeR")
-        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
-	
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
 the ST Viewer will be installed in your system. 
 
 ###### Windows 
-
-* Download and install R from https://cran.r-project.org/ (Use the 32 bits option)
-* Download and install Rtools 32bits from https://cran.r-project.org/bin/windows/Rtools/
-* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, edgeR, Rtsne and SCRAN)
-
-        if (!requireNamespace("BiocManager", quietly = TRUE))
-            install.packages("BiocManager")
-        BiocManager::install("DESeq2")
-        BiocManager::install("scran")
-        BiocManager::install("edgeR")
-        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
-	
-* Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
-
-		eg PATH=C:\RTools\bin\;C:\RTools\mingw_32\bin\;C:\Program Files\R\R-3.6.0\bin\i386
-
-* Make sure that you do not have another MinGW in your PATH variable
-
-* Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
-
-		eg R_HOME=C:\Program Files\R\R-3.6.0
 		
 * Download the Windows installer double click on it and follow the instructions, once done the ST Viewer
 will be installed in your system. 
-
-If you have problems running the ST Viewer on a windows machine, make sure that R is properly installed/updated, that
-it is accesible by all the users, that the required R packages are installed and functional, that the R_HOME
-and PATH variables are configured correctly and ultimately that the visual studio redistributable
-libraries are installed in your system (although, this should not really cause any problem).
-
 
 ## Docker container
 
@@ -152,11 +106,11 @@ Then launch the image according to where your file are located.
 
 ## Building from the source 
 
-* Download and install CMake from https://cmake.org/download
+* Download and install CMake
 
 * Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
 
-* Download and extract QCustomplot from http://www.qcustomplot.com/release/2.0.1/QCustomPlot.tar.gz
+* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
 * Download and build Armadillo from http://arma.sourceforge.net/download.html
 	
@@ -169,25 +123,13 @@ Then launch the image according to where your file are located.
 			./configure
 			make
 
-
-* Download and install R from https://cran.r-project.org/ (in case you do not have it already) (For Windows use the 32 bits option)
-
-* Download and install Rtools 32bits (Only for Windows) from https://cran.r-project.org/bin/windows/Rtools/
-
-* Open R and install the following packages (Rcpp, RInside, RcppArmadillo, DESeq2, Rtsne and SCRAN)
-
-        if (!requireNamespace("BiocManager", quietly = TRUE))
-            install.packages("BiocManager")
-        BiocManager::install("DESeq2")
-        BiocManager::install("scran")
-        BiocManager::install("edgeR")
-        install.packages(c("RcppArmadillo", "Rcpp", "RInside", "Rtsne"))
-
 ###### OSX
 
 * Make sure that XCode and XCode Command Line Tools are installed (check by typing "xcode-select" on a terminal)
   If needed to you can install them from the Apple store (https://developer.apple.com/xcode/). 
-  I recommend to update to the latest version of XCode.  
+  I recommend to update to the latest version of XCode.
+  
+* Make sure to have installed OpenMP, for example with "brew install libomp"
 
 * Clone the repository to a specific folder and build the application
 
@@ -202,13 +144,13 @@ Then launch the image according to where your file are located.
 
     DCMAKE_PREFIX_PATH = the path to where Qt, armadillo and qcustomplot are installed
     
-    eg: "/Users/username/Qt/5.12.1/clang_64;/path/to/qcustomplot;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.14.1/clang_64;/path/to/qcustomplot;/Users/username/armadillo"
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
     eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.12 or 10.11 
+    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.13 or 10.14 
 
 *   Compile the application
 
@@ -245,7 +187,7 @@ Or you can follow the process outlined below.
 
     DCMAKE_PREFIX_PATH = the path to where Qt, armadillo and qcustomplot are installed
     
-    eg: "/Users/username/Qt/5.12.1/gcc;/Users/username/qcustomplot;/Users/username/armadillo"
+    eg: "/Users/username/Qt/5.14.1/gcc;/Users/username/qcustomplot;/Users/username/armadillo"
 
 * Then type the following to build and install
 
@@ -260,7 +202,7 @@ Or you can follow the process outlined below.
 	
 Note that for Linux you may want to update your LD_LIBRARY_PATH variable to contain the R and QT paths
 
-	eg: LD_LIBRARY_PATH=/usr/lib/R/lib/:/home/username/Qt/5.9.2/gcc_64/lib
+	eg: LD_LIBRARY_PATH=/usr/lib/R/lib/:/home/username/Qt/5.14.1/gcc_64/lib
 
 ###### Windows 
  
@@ -270,15 +212,13 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
  
 		git clone https://github.com/jfnavarro/st_viewer.git
 	
-* Make sure that your PATH environment variable contains Rtools' bin, Rtools MinGW's bin and R's bin paths
+* Install MinGW64 with multi-threading (OpenMP and threads) support (http://mingw-w64.org/doku.php)
 
-		eg PATH=C:\RTools\bin\;C:\RTools\mingw_32\bin\;C:\Program Files\R\R-3.6.0\bin\i386
+* Make sure that your PATH environment variable contains MinGW's bin and R's bin paths
+
+		eg PATH=C:\MinGW;C:\MinGW\bin;C:\MinGW\lib
 
 * Make sure that you do not have another MinGW in your PATH variable
-
-* Make sure to have a environment variable called R_HOME pointing to where R is installed (its root folder)
-
-		eg R_HOME=C:\Program Files\R\R-3.6.0
  
 * Open a windows terminal (cmd.exe)
 
@@ -294,7 +234,7 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 
   DCMAKE_PREFIX_PATH = the path to where Qt and qcustomplot are installed
     
-    eg: "C:\Qt\5.12.1\mingw53_32;C:\qcustomplot"
+    eg: "C:\Qt\5.14.1\mingw53_32;C:\qcustomplot"
     
   DARMADILLO_PATH = indicates where armadillo was extracted
   
@@ -308,11 +248,3 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 		
 * By default the ST Viewer will be installed in "Program Files" but that can be changed 
 with the CMake variable -DCMAKE_INSTALL_PREFIX (it is recommended to install the ST Viewer as an administrator)
-
-
- 
- 	
-
-
-    
-

@@ -43,6 +43,14 @@
     <file alias="images/import-dataset.png">${PROJECT_SOURCE_DIR}/assets/images/import-dataset.png</file>
     <file alias="images/export_genes.png">${PROJECT_SOURCE_DIR}/assets/images/export_genes.png</file>
     <file alias="images/create_selection.png">${PROJECT_SOURCE_DIR}/assets/images/create-selection.png</file>
+    <file alias="images/select_spots.png">${PROJECT_SOURCE_DIR}/assets/images/select_spots.png</file>
+    <file alias="images/deselect_spots.png">${PROJECT_SOURCE_DIR}/assets/images/deselect_spots.png</file>
     <file alias="cssclean/stylesheets.qss">${PROJECT_SOURCE_DIR}/assets/cssclean/stylesheets.qss</file>
+    <file alias="shader/geneShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.vert</file>
+    <file alias="shader/geneShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/geneShader.frag</file>
+    <file alias="shader/imageShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.vert</file>
+    <file alias="shader/imageShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/imageShader.frag</file>
+    <file alias="shader/meshShader.vert">${PROJECT_SOURCE_DIR}/assets/shader/meshShader.vert</file>
+    <file alias="shader/meshShader.frag">${PROJECT_SOURCE_DIR}/assets/shader/meshShader.frag</file>
   </qresource>
 </RCC>

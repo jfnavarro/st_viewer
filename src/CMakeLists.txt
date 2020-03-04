@@ -37,29 +37,25 @@ target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
 target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
-if(WIN32)
-    if(DEFINED ARMADILLO_PATH)
-        set(ARMADILLO_INCLUDE_DIRS "${ARMADILLO_PATH}/include")
-        set(ARMADILLO_LIBRARIES "${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.lib"
-            "${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.lib")
-    
-    else()
-        message(FATAL_ERROR "ARMADILLO_PATH is empty")
-    endif()
-else()
-    find_package(Armadillo REQUIRED)
-endif()
+find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
-find_package(R REQUIRED)
-include_directories(${LIBR_INCLUDE_DIRS})
-include_directories(${LIBRCPP_INCLUDE_DIRS})
-include_directories(${LIBRINSIDE_INCLUDE_DIRS})
-include_directories(${LIBRCPPARMADILLO_INCLUDE_DIRS})
-
-#set(THREADS_PREFER_PTHREAD_FLAG ON)
-#find_package(Threads REQUIRED)
-#find_package(OpenMP REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+if (APPLE)
+    find_library(OpenMP_LIBRARY NAMES omp)
+    find_path(OpenMP_INCLUDE_DIR omp.h)
+    set(OpenMP_LIBRARIES ${OpenMP_LIBRARY})
+    set(OpenMP_INCLUDE_DIRS ${OpenMP_INCLUDE_DIR})
+    set(OpenMP_COMPILE_OPTIONS -Xpreprocessor -fopenmp)
+    add_library(OpenMP::OpenMP SHARED IMPORTED)
+    set_target_properties(OpenMP::OpenMP PROPERTIES
+            IMPORTED_LOCATION ${OpenMP_LIBRARIES}
+            INTERFACE_INCLUDE_DIRECTORIES "${OpenMP_INCLUDE_DIRS}"
+            INTERFACE_COMPILE_OPTIONS "${OpenMP_COMPILE_OPTIONS}")
+else()
+    find_package(OpenMP REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -97,8 +93,13 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 
 # Link libraries for the ST Viewer target
-target_link_libraries(${PROJECT_NAME} ${QT_TARGET_LINK_LIBS} qcustomplot
-${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES}) #Threads::Threads
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+        ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
+else()
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
+        ${ARMADILLO_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
+endif()
 
 ### UNIT TESTS ################################################################
 
@@ -280,8 +281,8 @@ if(WIN32)
     install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/DEPENDENCIES DESTINATION .)
     install(FILES ${CMAKE_BINARY_DIR}/libqcustomplot.dll DESTINATION .)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/lapack_win64_MT.dll DESTINATION .)
-    install(FILES ${ARMADILLO_PATH}/examples/lib_win64/blas_win64_MT.dll DESTINATION .)
+    #install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/lapack/bin/lapack.dll DESTINATION .)
+    #install(FILES ${CMAKE_SOURCE_DIR}/cmake/win/lapack/bin/blas.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libstdc++-6.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libgcc_s_dw2-1.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libwinpthread-1.dll DESTINATION .)

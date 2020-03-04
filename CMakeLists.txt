@@ -1,13 +1,13 @@
 project(STViewer CXX)
 
-cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12.0 FATAL_ERROR)
 
 set(APPLICATION_NAME "Spatial Transcriptomics Research Viewer")
 
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "7")
-set(PROJECT_VERSION_PATCH "6")
+set(PROJECT_VERSION_MINOR "8")
+set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
 set(PROJECT_COPYRIGHT "Copyright (C) 2019 Jose Fernandez Navarro, KTH, KI.")
@@ -42,18 +42,6 @@ endif()
 
 # Restrict possible builds to the selected build type.
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}")
-
-# Some CMake standard settings
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-  if(WIN32)
-    cmake_policy(SET CMP0020 NEW)
-    cmake_policy(SET CMP0054 NEW)
-  endif(WIN32)
-  if(APPLE)
-    cmake_policy(SET CMP0025 NEW)
-  endif()
-endif(COMMAND cmake_policy)
 
 # We just need to pass the app the name of the config file so it can be used
 get_filename_component(CONFIG_FILE_NAME ${CONFIG_FILE} NAME)

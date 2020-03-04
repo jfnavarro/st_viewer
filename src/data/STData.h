@@ -24,8 +24,8 @@ public:
 
     typedef QSharedPointer<Spot> SpotObjectType;
     typedef QSharedPointer<Gene> GeneObjectType;
-    typedef QList<SpotObjectType> SpotListType;
-    typedef QList<GeneObjectType> GeneListType;
+    typedef QVector<SpotObjectType> SpotListType;
+    typedef QVector<GeneObjectType> GeneListType;
 
     struct STDataFrame {
         mat counts;
@@ -36,73 +36,67 @@ public:
     STData();
     ~STData();
 
-    // Parses the matrix and initialize the size-factors and genes/spots containers
-    void init(const QString &filename, const QString &spots_coordinates = QString());
+    // Parses the data (counts matrix and spot coordinates)
+    void init(const QString &filename, const QString &spots_coordinates);
 
-    // Functions to import/export the data
+    // Functions to import/export a counts matrix
     static STDataFrame read(const QString &filename);
     static void save(const QString &filename, const STDataFrame &data);
 
-    // Retrieves the original data frame (without filtering using the tresholds)
+    // Retrieves the original data matrix (without filtering)
     STDataFrame data() const;
 
-    // Returns the spot/gene objects corresponding to the data frame
+    // Returns the spot/gene objects corresponding to the data matrix
     const GeneListType &genes() const;
     const SpotListType &spots() const;
 
-    // Rendering functions
+    // Rendering functions (OpenGL)
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
-    const QVector<bool> &renderingVisible() const;
-    const QVector<QColor> &renderingColors() const;
-    const QVector<bool> &renderingSelected() const;
-    const QVector<double> &renderingValues() const;
+    const QVector<int> &renderingVisible() const;
+    const QVector<QVector4D> &renderingColors() const;
+    const QVector<int> &renderingSelected() const;
+    const QVector<Spot::SpotType> &renderingCoords() const;
 
-    // to parse a file with spots coordinates old_spot -> new_spot
-    // It returns a map of old_spots -> new_spots
-    // It throws exceptions when errors during parsing or empty file
-    QMap<QString, QString> parseSpotsMap(const QString &spots_file);
+    // Parses a file with spots coordinates
+    // It returns a map of spot -> pixel coordinates
+    // It throws exceptions when errors happen during parsing or an empty file
+    QMap<QString, Spot::SpotType> parseSpotsMap(const QString &spots_file) const;
 
-    // helper slicing functions (assumes the spots and genes lists given are present in the data)
-    static STDataFrame sliceDataFrameGenes(const STDataFrame &data,
-                                           const QList<QString> &spots);
-    static STDataFrame sliceDataFrameSpots(const STDataFrame &data,
-                                           const QList<QString> &genes);
-
-    // helper function to filter out a data frame using thresholds
-    static STDataFrame filterDataFrame(const STDataFrame &data,
-                                       const int min_exp_value,
-                                       const int min_reads_spot,
-                                       const int min_genes_spot,
-                                       const int min_spots_gene);
-
-    // helper function to merge a list of data frames into one (by common genes)
-    // the spots (rows) will have the index of the dataset append (1_,2_..)
-    static STData::STDataFrame aggregate(const QList<STDataFrame> &datasets);
-
-    // helper function to get the sum of non zeroes elements (by column, aka gene)
-    static urowvec computeNonZeroColumns(const mat &matrix, const int min_value = 0);
-
-    // helper function to get the sum of non zeroes elements (by row, aka spot)
-    static ucolvec computeNonZeroRows(const mat &matrix, const int min_value = 0);
-
-    // helper function that returns the normalized matrix counts using the rendering settings
+    // helper function that normalizes a data matrix and returns it
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
+
+    // helper function filters a data matrix and returns it
+    static STDataFrame filterCounts(const STDataFrame &data,
+                                    const int min_reads,
+                                    const int min_genes,
+                                    const int min_spots);
+    const STDataFrame sliceDataSpots(const QList<QString> &spots);
+    const STDataFrame sliceDataGenes(const QList<QString> &genes);
+
+    // helper function that merges a list of data matrices
+    static STDataFrame aggregate(const QList<STDataFrame> &dataframes);
 
     // functions to select spots
     void clearSelection();
     void selectSpots(const SelectionEvent &event);
-    void selectSpots(const QList<QString> &spots);
-    void selectSpots(const QList<int> &spots_indexes);
-    void selectGenes(const QRegExp &regexp, const bool force = true);
-    void selectGenes(const QList<QString> &genes);
+    void selectSpots(const QVector<QString> &spots);
+    void selectSpots(const QVector<int> &spots_indexes);
 
-    // functions to change spot and gene colors
-    void loadSpotColors(const QHash<QString, QColor> &colors);
-    void loadGeneColors(const QHash<QString, QColor> &colors);
+    // Load spot clusters with meta info
+    void loadSpotColors(const QVector<QString> &spots,
+                        const QVector<int> &clusters,
+                        const QVector<QString> &infos);
+    // Load gene colours
+    void loadGeneColors(const QVector<QString> &genes,
+                        const QVector<int> &colors);
 
-    // returns the boundaries (min spot and max spot)
+    // returns the boundaries of the spots in the data matrix (min spot and max spot coordinates)
     const QRectF getBorder() const;
+
+    // a flag telling if the data frame is 3D
+    bool is3D() const;
+    void is3D(bool is3D);
 
 private:
 
@@ -120,10 +114,13 @@ private:
     QHash<QString, int> m_gene_index;
 
     // rendering data
-    QVector<bool> m_rendering_selected;
-    QVector<bool> m_rendering_visible;
-    QVector<QColor> m_rendering_colors;
-    QVector<double> m_rendering_values;
+    QVector<int> m_rendering_visible;
+    QVector<QVector4D> m_rendering_colors;
+    QVector<Spot::SpotType> m_rendering_coords;
+    QVector<int> m_rendering_selected;
+
+    // whether the data is in 3D or not
+    bool m_is3D;
 
     Q_DISABLE_COPY(STData)
 };

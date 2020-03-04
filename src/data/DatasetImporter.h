@@ -13,26 +13,24 @@ class Dataset;
 
 // This widget allows the user to import a dataset.
 // The widget asks the user to introduce the STData (matrix),
-// the tissue image and optionally a 3x3 alignment matrix and
-// a file mapping coordiantes to new coordinates
+// the tissue image and a file with spot coordinates
 class DatasetImporter : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DatasetImporter(QWidget *parent = 0);
-    DatasetImporter(const Dataset &dataset, QWidget *parent = 0);
-    ~DatasetImporter();
+    explicit DatasetImporter(QWidget *parent = nullptr);
+    DatasetImporter(const Dataset &dataset, QWidget *parent = nullptr);
+    virtual ~DatasetImporter() override;
 
     const QString datasetName() const;
     const QString STDataFile() const;
-    const QString alignmentMatrix() const;
     const QString spotsMapFile() const;
     const QString mainImageFile() const;
-    const QString species() const;
-    const QString tissue() const;
+    const QString meshFile() const;
     const QString comments() const;
-    const QRect chip() const;
+    double scalingFactor() const;
+    bool is3D() const;
 
     // To import a dataset from a folder
     // the function assumes that
@@ -56,8 +54,9 @@ private slots:
 
     void slotLoadSTDataFile();
     void slotLoadMainImageFile();
+    void slotLoadMeshFile();
     void slotLoadSpotsMapFile();
-    void slotLoadAlignmentFile();
+    void slotChange3D(int state);
 
 private:
     void init();

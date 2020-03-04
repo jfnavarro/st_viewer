@@ -3,16 +3,18 @@
 
 #include <QPair>
 #include <QColor>
+#include <QVector3D>
 
 // Data model class to store spot data
 // Each spot correspond to a spot in the the array and it is
-// defined by two int/float coordinates.
+// defined by two int/double coordinates.
 // Extra attributes for the spots are added in this data model
 class Spot
 {
 
 public:
-    typedef QPair<float,float> SpotType;
+
+    typedef QVector3D SpotType;
 
     Spot();
     Spot(const QString name);
@@ -34,22 +36,23 @@ public:
     bool visible() const;
     // true if the spot is selected
     bool selected() const;
+    // meta info of the spot
+    QString info() const;
     // the total number of transcripts for the spot in the dataset
-    float totalCount() const;
+    double totalCount() const;
 
     // Setters
     void coordinates(const SpotType &coordinates);
     void adj_coordinates(const SpotType &adj_coordinates);
+    void name(const QString &name);
     void color(const QColor color);
     void visible(const bool visible);
     void selected(const bool selected);
-    void name(const QString &name);
-    void totalCount(const float totalCoun);
+    void info(const QString &info);
+    void totalCount(const double totalCoun);
 
-    // helper method to get coordinates (x,y) from a spot
+    // helper method to get coordinates (x,y,x) from a spot in string format
     static SpotType getCoordinates(const QString &spot);
-    // helper method to get a string representation (XxY) of a spot
-    static QString getSpot(const SpotType &spot);
 
 private:
     SpotType m_coordinates;
@@ -58,7 +61,8 @@ private:
     bool m_selected;
     QColor m_color;
     QString m_name;
-    float m_totalCount;
+    QString m_info;
+    double m_totalCount;
 };
 
 #endif // SPOT_H

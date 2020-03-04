@@ -18,28 +18,28 @@ class analysisDEA;
 // AnalysisDEA is a widget that contains methods to compute
 // DEA(Differential Expression Analysis) between two ST data selections
 // It shows the results in a volcano plot and a table
-// that includes the differently expressed genes at a given FDR
+// that highlights the differently expressed genes at a given threshold
 class AnalysisDEA : public QWidget
 {
     Q_OBJECT
 
+    struct DEResult {
+        double pvalue;
+        double log_pvalue;
+        double adj_pvalue;
+        double logfc;
+        QString gene;
+    };
 
 public:
 
-    enum Method {
-        DESEQ2 = 1,
-        EDGER = 2,
-    };
-
-    AnalysisDEA(const QList<STData::STDataFrame> &datasetsA,
-                const QList<STData::STDataFrame> &datasetsB,
+    AnalysisDEA(const STData::STDataFrame &datasetsA,
+                const STData::STDataFrame &datasetsB,
                 const QString &nameA,
                 const QString &nameB,
                 QWidget *parent = nullptr,
                 Qt::WindowFlags f = 0);
     virtual ~AnalysisDEA();
-
-
 
 signals:
 
@@ -55,12 +55,13 @@ private slots:
     void slotExportPlot();
     // to handle when the user right clicks
     void customMenuRequested(const QPoint &pos);
+    // to initialize the data (DE genes and volcano plot)
+    void slotRun();
 
 private:
 
-    // to initialize the data (DE genes and volcano plot)
-    void run();
-    void runDEAAsync(const STData::STDataFrame &data);
+    // Internal functions to compute the DE genes and update table/plot
+    void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();
 
@@ -68,22 +69,17 @@ private:
     QScopedPointer<Ui::analysisDEA> m_ui;
 
     // the merged data frame and the selections names
-    STData::STDataFrame m_data;
-    std::vector<std::string> m_conditions;
-    QString m_nameA;
-    QString m_nameB;
+    STData::STDataFrame m_dataA;
+    STData::STDataFrame m_dataB;
 
     // cache the settings to not recompute always
-    Method m_method;
     int m_reads_threshold;
     int m_genes_threshold;
-    int m_ind_reads_treshold;
     int m_spots_threshold;
+    SettingsWidget::NormalizationMode m_normalization;
 
     // cache the results to not recompute
-    mat m_results;
-    std::vector<std::string> m_results_cols;
-    std::vector<std::string> m_results_rows;
+    QVector<DEResult> m_results;
 
     // the gene to highlight in the volcano plot
     QPointF m_gene_highlight;

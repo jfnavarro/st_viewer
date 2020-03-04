@@ -21,56 +21,55 @@ public:
     Dataset &operator=(const Dataset &other);
     bool operator==(const Dataset &other) const;
 
-    // The reference to the ST Data matrix
+    // The reference to the ST Data
     const QSharedPointer<STData> data() const;
 
     // Getters
-    const QString name() const;
-    const QString dataFile() const;
-    const QTransform imageAlignment() const;
-    const QString imageAlignmentFile() const;
-    const QString imageFile() const;
-    const QString spotsFile() const;
-    const QString statTissue() const;
-    const QString statSpecies() const;
-    const QString statComments() const;
-    const QRect chip() const;
+    const QString &name() const;
+    const QString &dataFile() const;
+    const QTransform &alignmentMatrix() const;
+    const QString &imageFile() const;
+    const QString &meshFile() const;
+    const QString &spotsFile() const;
+    const QString &statComments() const;
+    double scalingFactor() const;
+
+    const QVector<QPair<QImage, QPoint>> &image_tiles() const;
+    const QRect image_bounds() const;
+    bool is3D() const;
 
     // Setters
     void name(const QString &name);
     void dataFile(const QString &datafile);
-    void imageAlignment(const QTransform &alignment);
-    void imageAlignmentFile(const QString &aligment_file);
     void imageFile(const QString &image_file);
+    void meshFile(const QString &mesh_file);
     void spotsFile(const QString &spots_file);
-    void statTissue(const QString &statTissue);
-    void statSpecies(const QString &statSpecies);
     void statComments(const QString &statComments);
-    void chip(const QRect &chip);
+    void scalingFactor(const double scaling_factor);
 
     // creates the STData object (parse data)
-    // Parses : matrix of counts, image, size factors (if any), alignment (if any),
-    //          spots-file (if any) and spike-in (if any)
+    // Parses : matrix of counts, image and spots-file
     // throws exception if parsing is something went wrong
     void load_data();
 
 private:
 
-    // Private function to load the image aligment matrix from a file
-    bool load_imageAligment();
+    // Function to parse the image and tile it
+    bool load_Image();
 
     QString m_name;
-    QString m_statTissue;
-    QString m_statSpecies;
     QString m_statComments;
     QString m_data_file;
     QString m_image_file;
-    QString m_alignment_file;
+    QString m_mesh_file;
     QString m_spots_file;
-    QRect m_chip;
+    double m_scaling_factor;
+    bool m_is3D;
 
     // generated
     QTransform m_alignment;
+    QVector<QPair<QImage, QPoint>> m_image_tiles;
+    QRect m_image_bounds;
     QSharedPointer<STData> m_data;
 };
 

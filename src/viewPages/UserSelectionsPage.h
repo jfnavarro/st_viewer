@@ -17,9 +17,6 @@ class UserSelections;
 // UserSelections page contains a table with the selection made by the user.
 // Users can interact here to edit/remove selections and to perform analysis
 // like the DEA, PCA, etc..
-
-// TODO add option to show right click with mouse in selection (open, copy, edit...)
-// TODO implement DEA analysis
 class UserSelectionsPage : public QWidget
 {
     Q_OBJECT
@@ -62,10 +59,6 @@ private slots:
     void slotShowSpots();
     // slot to show the QC widget with the selection
     void slotQC();
-    // slot to show the Scatter plot of genes and reads
-    void slotScatter();
-    // slot to perform a PCA on several selections
-    void slotPCA();
     // slot to merge several selections into one
     void slotMerge();
     // to import a selection from a file

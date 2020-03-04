@@ -13,8 +13,6 @@
 #include "analysis/AnalysisDEA.h"
 #include "analysis/AnalysisCorrelation.h"
 #include "analysis/AnalysisQC.h"
-#include "analysis/AnalysisScatter.h"
-#include "analysis/AnalysisPCA.h"
 #include "SettingsStyle.h"
 
 #include "ui_selectionsPage.h"
@@ -53,8 +51,6 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     connect(m_ui->showGenes, &QPushButton::clicked, this, &UserSelectionsPage::slotShowGenes);
     connect(m_ui->showSpots, &QPushButton::clicked, this, &UserSelectionsPage::slotShowSpots);
     connect(m_ui->qcAnalysis, &QPushButton::clicked, this, &UserSelectionsPage::slotQC);
-    connect(m_ui->scatter, &QPushButton::clicked, this, &UserSelectionsPage::slotScatter);
-    connect(m_ui->pca, &QPushButton::clicked, this, &UserSelectionsPage::slotPCA);
     connect(m_ui->merge, &QPushButton::clicked, this, &UserSelectionsPage::slotMerge);
 
     connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
@@ -107,7 +103,6 @@ void UserSelectionsPage::clearControls()
     // only import enabled by default
     m_ui->removeSelection->setEnabled(false);
     m_ui->qcAnalysis->setEnabled(false);
-    m_ui->scatter->setEnabled(false);
     m_ui->exportSelection->setEnabled(false);
     m_ui->ddaAnalysis->setEnabled(false);
     m_ui->editSelection->setEnabled(false);
@@ -115,7 +110,6 @@ void UserSelectionsPage::clearControls()
     m_ui->showSpots->setEnabled(false);
     m_ui->importSelection->setEnabled(true);
     m_ui->correlationAnalysis->setEnabled(false);
-    m_ui->pca->setEnabled(false);
     m_ui->merge->setEnabled(false);
 }
 
@@ -136,12 +130,10 @@ void UserSelectionsPage::slotSelectionSelected(QModelIndex index)
     m_ui->importSelection->setEnabled(enableSingle);
     m_ui->ddaAnalysis->setEnabled(enableDouble);
     m_ui->qcAnalysis->setEnabled(enableSingle);
-    m_ui->scatter->setEnabled(enableSingle);
     m_ui->editSelection->setEnabled(enableSingle);
     m_ui->showGenes->setEnabled(enableSingle);
     m_ui->showSpots->setEnabled(enableSingle);
     m_ui->correlationAnalysis->setEnabled(enableDouble);
-    m_ui->pca->setEnabled(enableMultiple);
     m_ui->merge->setEnabled(enableMultiple);
 }
 
@@ -212,8 +204,7 @@ void UserSelectionsPage::slotExportSelection()
         return;
     }
     // currentSelection should only have one element
-    const auto selection = currentSelection.front();
-    exportSelection(selection);
+    exportSelection(currentSelection.front());
 }
 
 void UserSelectionsPage::slotExportSelection(QModelIndex index)
@@ -226,8 +217,7 @@ void UserSelectionsPage::slotExportSelection(QModelIndex index)
         return;
     }
     // currentSelection should only have one element
-    const auto selection = currentSelections.front();
-    exportSelection(selection);
+    exportSelection(currentSelections.front());
 }
 
 void UserSelectionsPage::exportSelection(const UserSelection &selection)
@@ -265,8 +255,7 @@ void UserSelectionsPage::slotEditSelection()
         return;
     }
     // currentSelection should only have one element
-    auto selection = currentSelection.front();
-    editSelection(selection);
+    editSelection(currentSelection.front());
 }
 
 void UserSelectionsPage::slotEditSelection(QModelIndex index)
@@ -279,8 +268,7 @@ void UserSelectionsPage::slotEditSelection(QModelIndex index)
         return;
     }
     // currentSelection should only have one element
-    auto selection = currentSelections.front();
-    editSelection(selection);
+    editSelection(currentSelections.front());
 }
 
 void UserSelectionsPage::editSelection(const UserSelection &selection)
@@ -362,22 +350,15 @@ void UserSelectionsPage::slotPerformDEA()
         return;
     }
 
-
     // get the two selection objects
     const auto selectionObject1 = currentSelection.at(0);
     const auto selectionObject2 = currentSelection.at(1);
 
-    //TODO here we should launch a simple two tables widget to choose
-    //what selections go in each comparison and then launch the DEA widget
-    //with the two lists
-
-    QList<STData::STDataFrame> sels1 { selectionObject1.data() };
-    QList<STData::STDataFrame> sels2 { selectionObject2.data() };
 
     // launch the DEA widget
     AnalysisDEA *deaWidget(
-                new AnalysisDEA(sels1,
-                                sels2,
+                new AnalysisDEA(selectionObject1.data(),
+                                selectionObject2.data(),
                                 selectionObject1.name(),
                                 selectionObject2.name(),
                                 this,
@@ -450,40 +431,6 @@ void UserSelectionsPage::slotQC()
     const auto selectionObject = currentSelection.front();
     AnalysisQC *qc = new AnalysisQC(selectionObject.data(), this, Qt::Window);
     qc->show();
-}
-
-void UserSelectionsPage::slotScatter()
-{
-    // get the selected object (should be only one)
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.empty() || currentSelection.size() > 1) {
-        return;
-    }
-
-    const auto selectionObject = currentSelection.front();
-    AnalysisScatter *scatter = new AnalysisScatter(selectionObject.data(), this, Qt::Window);
-    scatter->show();
-}
-
-void UserSelectionsPage::slotPCA()
-{
-    // get the selected objects
-    const auto selected = m_ui->selections_tableView->userSelecionTableItemSelection();
-    const auto currentSelection = selectionsModel()->getSelections(selected);
-    if (currentSelection.size() <= 1) {
-        return;
-    }
-
-    QList<STData::STDataFrame> datasets;
-    QList<QString> names;
-    for (const auto selection : currentSelection) {
-        datasets.append(selection.data());
-        names.append(selection.name());
-    }
-
-    AnalysisPCA *pca = new AnalysisPCA(datasets, names, this, Qt::Window);
-    pca->show();
 }
 
 void UserSelectionsPage::slotMerge()

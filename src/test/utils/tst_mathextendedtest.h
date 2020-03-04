@@ -16,12 +16,6 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-
-    void testFloatMod();
-    void testFloatMod_data();
-
-    void testClamp();
-    void testClamp_data();
 };
 
 } // namespace unit //

@@ -97,8 +97,8 @@ GenesWidget::GenesWidget(QWidget *parent)
     setLayout(genesLayout);
 
     // connections
-    connect(showSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotShowAllSelected);
-    connect(hideSelectedButton, &QPushButton::clicked, this, &GenesWidget::slotHideAllSelected);
+    connect(showSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(true); });
+    connect(hideSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(false); });
     connect(selectionAllButton, &QPushButton::clicked,
             m_genes_tableview.data(), &GenesTableView::selectAll);
     connect(selectionClearAllButton,
@@ -111,16 +111,12 @@ GenesWidget::GenesWidget(QWidget *parent)
         m_colorList->activateWindow();
     });
     connect(m_colorList.data(), &QColorDialog::colorSelected, [=]() {
-        slotSetColorAllSelected(m_colorList->currentColor());
+        slotSetColor(m_colorList->currentColor());
     });
     connect(m_lineEdit.data(),
             &QLineEdit::textChanged,
             m_genes_tableview.data(),
             &GenesTableView::setNameFilter);
-    connect(m_genes_tableview->getModel(),
-            &GeneItemModel::signalGeneCutOffChanged,
-            this,
-            &GenesWidget::signalGenesUpdated);
     connect(m_genes_tableview.data(),
             &GenesTableView::signalGenesUpdated,
             this,
@@ -153,24 +149,14 @@ void GenesWidget::configureButton(QPushButton *button, const QIcon &icon, const 
     button->setStatusTip(tooltip);
 }
 
-void GenesWidget::slotShowAllSelected()
-{
-    slotSetVisibilityForSelectedRows(true);
-}
-
-void GenesWidget::slotHideAllSelected()
-{
-    slotSetVisibilityForSelectedRows(false);
-}
-
-void GenesWidget::slotSetVisibilityForSelectedRows(bool visible)
+void GenesWidget::slotSetVisible(bool visible)
 {
     m_genes_tableview->getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
     emit signalGenesUpdated();
 }
 
-void GenesWidget::slotSetColorAllSelected(const QColor &color)
+void GenesWidget::slotSetColor(const QColor &color)
 {
     m_genes_tableview->getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();

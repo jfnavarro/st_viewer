@@ -76,8 +76,10 @@ void UserSelectionTableView::customMenuRequested(const QPoint &pos)
         if (action != nullptr) {
             const QString action_text = action->text();
             if (action_text == tr("Copy name")) {
-                const QModelIndex new_index = m_sortSelectionsProxyModel->index(index.row(), UserSelectionsItemModel::Name);
-                const QString selection_name = m_sortSelectionsProxyModel->data(new_index, Qt::DisplayRole).toString();
+                const QModelIndex new_index = m_sortSelectionsProxyModel->index(index.row(),
+                                                                                UserSelectionsItemModel::Name);
+                const QString selection_name = m_sortSelectionsProxyModel->data(new_index,
+                                                                                Qt::DisplayRole).toString();
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(selection_name);
             } else if (action_text == tr("Export")) {

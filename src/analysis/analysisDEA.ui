@@ -31,7 +31,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Method</string>
+        <string>Normalization</string>
        </property>
       </widget>
      </item>
@@ -56,20 +56,27 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QRadioButton" name="method_edger">
-            <property name="toolTip">
-             <string>Uses EdgeR for the DEA analysis</string>
-            </property>
-            <property name="statusTip">
-             <string>Uses EdgeR for the DEA analysis</string>
-            </property>
+           <widget class="QRadioButton" name="normalization_raw">
             <property name="text">
-             <string>EdgeR</string>
+             <string>None</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QRadioButton" name="method_deseq">
+           <widget class="QRadioButton" name="normalization_cpm">
+            <property name="toolTip">
+             <string>Uses EdgeR for the DEA analysis</string>
+            </property>
+            <property name="statusTip">
+             <string>Uses EdgeR for the DEA analysis</string>
+            </property>
+            <property name="text">
+             <string>CPM</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QRadioButton" name="normalization_rel">
             <property name="toolTip">
              <string>Uses DESeq2 for the DEA analysis</string>
             </property>
@@ -77,7 +84,14 @@
              <string>Uses DESeq2 for the DEA analysis</string>
             </property>
             <property name="text">
-             <string>DESeq2</string>
+             <string>REL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="log_scale">
+            <property name="text">
+             <string>Log scale</string>
             </property>
            </widget>
           </item>
@@ -119,12 +133,12 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>FDR</string>
+            <string>Adjusted p-val</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="fdr">
+          <widget class="QDoubleSpinBox" name="adj_pvalue">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -164,7 +178,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Log2FoldChange</string>
+            <string>FoldChange(log)</string>
            </property>
           </widget>
          </item>
@@ -220,16 +234,16 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_12">
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
        <item>
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Total Detected Spots (Per gene)</string>
+          <string>Total Detected Genes (Per spot)</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_5">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -242,7 +256,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="spots_threshold">
+        <widget class="QSpinBox" name="genes_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>
@@ -270,7 +284,7 @@
        <item>
         <widget class="QLabel" name="label_12">
          <property name="text">
-          <string>Total Transcripts (Per spot)</string>
+          <string>Minimum Transcripts</string>
          </property>
         </widget>
        </item>
@@ -309,16 +323,16 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <layout class="QHBoxLayout" name="horizontalLayout_12">
        <item>
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Transcripts (Per gene per spot)</string>
+          <string>Total Detected Spots (Per gene)</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -331,50 +345,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="individual_reads_threshold">
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
-       <item>
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Total Detected Genes (Per spot)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="genes_threshold">
+        <widget class="QSpinBox" name="spots_threshold">
          <property name="minimumSize">
           <size>
            <width>75</width>
