@@ -230,3 +230,7 @@ V0.8.0
     * More robust and efficient
     * Added cluster info to spots panel
     * Enabled to select spots from spots panel
+
+v0.8.1
+
+    * Added support for more formats for the spot coordinates file

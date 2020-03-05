@@ -387,12 +387,24 @@ QMap<QString, Spot::SpotType> STData::parseSpotsMap(const QString &spots_file) c
                 QString old_spot;
                 Spot::SpotType new_spot;
                 const int n_fields = fields.length();
-                if (n_fields == 4) {
+                if (n_fields == 3) {
+                    // 2D format
+                    old_spot = fields.at(0);
+                    new_spot = Spot::SpotType(fields.at(1).toFloat(),
+                                              fields.at(2).toFloat(),
+                                              0);
+                } else if (n_fields == 4) {
                     // 3D format
                     old_spot = fields.at(0);
                     new_spot = Spot::SpotType(fields.at(1).toFloat(),
                                               fields.at(2).toFloat(),
                                               fields.at(3).toFloat());
+                } else if (n_fields == 5) {
+                    // 2D format
+                    old_spot = fields.at(0);
+                    new_spot = Spot::SpotType(fields.at(3).toFloat(),
+                                              fields.at(4).toFloat(),
+                                              0);
                 } else if (n_fields == 6) {
                     // 2D format (ST Spot detector)
                     old_spot = fields.at(0) + "x" + fields.at(1);
