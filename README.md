@@ -1,8 +1,8 @@
 # Spatial Transcriptomics Viewer
 
 The ST viewer is a tool that visualizes spatially resolved gene
-expression data on top of HE stained tissue figures with the correct
-location.
+expression data in 3D (consecutive sections) or in 2D with 
+the HE stained tissue image.
 
 The ST Viewer is cross platform which means that it can
 be built and run in OSX, LINUX and WINDOWS. 
@@ -20,15 +20,27 @@ which consist of a matrix of counts in TSV format where genes are
 columns and spot coordinates are rows but it is compatible with other pipelines
 as long as the input format is the same. 
 
-The ST viewer also requires a tissue HE image and an file with spot coordinates
-with the following formart which is compatible with the 
-ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
+The ST viewer requieres a file with spot coordinates
+with the following formarts which is compatible with the 
 
+	SPOT_X SPOT_Y chip_x chip_y pixel_x pixel_Y
+
+or
 
 	SPOT chip_x chip_y pixel_x pixel_y
 
+or
 
-The ST viewer can visualize 3D datasets as long as the input format is the same.
+	SPOT pixel_x pixel_y
+	
+or
+
+	SPOT X Y Z 
+
+The first formar is compatible with the 
+ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
+and the last format is compatible with 3D datasets. 
+
 For 3D datasets a 3D Mesh object can be provided and the HE image is not required. 
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
