@@ -30,18 +30,8 @@ RUN apt-get update && apt-get install -y \
 	libqt5charts5-dev \
 	libqt5svg5-dev \
 	libarmadillo-dev \
-	r-base \
-	r-cran-rcpparmadillo \
+	cmake \
 	&& rm -rf /var/lib/apt/lists/*
-
-# Install cmake
-RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && \
-    tar -xvzf cmake-3.7.2.tar.gz && \
-    cd cmake-3.7.2 && \
-    ./configure && \
-    make -j4 && \
-    make install
-
 
 # Install Qt (Faking display)
 # Installed via Apt
@@ -49,19 +39,6 @@ RUN wget https://cmake.org/files/v3.7/cmake-3.7.2.tar.gz && \
 # DONWLOAD the QCustomplot
 RUN wget http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz && \
     mkdir /opt/QCustomPlot && tar xf QCustomPlot.tar.gz -C /opt/QCustomPlot
-
-
-# Downlaod Armadillo debs and install
-# Installed via apt
-
-# Install R deps
-RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('DESeq2'); biocLite('scran'); biocLite('Rtsne')"
-RUN Rscript -e "install.packages('RInside')"
-
-# Installed via APT for easier compilation.
-#RUN Rscript -e "install.packages('Rcpp')"
-#RUN Rscript -e "install.packages('RcppArmadillo')"
 
 WORKDIR /opt/
 RUN mkdir /opt/st_viewer
