@@ -234,3 +234,7 @@ V0.8.0
 v0.8.1
 
     * Added support for more formats for the spot coordinates file
+    
+v0.8.3
+
+    * Fixed a bug related to missing spots in MAC OS Catalina
