@@ -1,10 +1,8 @@
 The MIT License (MIT)
-Copyright (c) 2017 Jose Fernandez Navarro, KTH, KI.
+Copyright (c) 2020 Jose Fernandez Navarro.
 All rights reserved.
 
-* Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
-* Royal Institute of Technology (KTH)
-* Karolisnka Institute (KI)
+Jose Fernandez Navarro <jc.fernandez.navarro@gmail.com>
 
 This software uses the following third party libraries: 
 Armadillo, t-SNE and Qt.

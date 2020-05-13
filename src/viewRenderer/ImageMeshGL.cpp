@@ -57,7 +57,6 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     }
 
     m_program->bind();
-    //m_program->setUniformValue("mvp_matrix", mvp_matrx);
     m_program->setUniformValue("projection", projection);
     m_program->setUniformValue("view", view);
     m_program->setUniformValue("model", model);
@@ -71,12 +70,9 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     m_program->setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);
     m_program->setUniformValue("material.shininess", 128.0f);
     m_program->setUniformValue("viewPos", eye);
-    {
-        m_vao.bind();
-        //draw
-        glDrawElements(GL_TRIANGLES, m_num_triangles, GL_UNSIGNED_INT, 0);
-        m_vao.release();
-    }
+    m_vao.bind();
+    glDrawElements(GL_TRIANGLES, m_num_triangles, GL_UNSIGNED_INT, 0);
+    m_vao.release();
     m_program->release();
 }
 
@@ -126,7 +122,7 @@ void ImageMeshGL::loadMesh(const QString &meshFile)
     m_indexBuf.create();
     m_indexBuf.bind();
     m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_indexBuf.allocate(indices.data(), indices.size() *sizeof(GLuint));
+    m_indexBuf.allocate(indices.data(), indices.size() * sizeof(GLuint));
 
     // Transfer vertex data to VBO 0
     m_posBuf.create();

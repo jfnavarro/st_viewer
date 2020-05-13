@@ -38,6 +38,7 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_image, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowImage);
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.show_spots = m_ui->show_spots->isChecked();
+        emit signalRendering();
     });
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
 
@@ -79,6 +80,7 @@ void SettingsWidget::reset()
     m_ui->spots_size->setValue(SIZEMIN);
     m_ui->show_image->setChecked(true);
     m_ui->show_spots->setChecked(false);
+    m_ui->log_scale->setChecked(false);
     m_ui->legend->setChecked(false);
     m_ui->normalization_raw->setChecked(true);
     m_ui->visual_normal->setChecked(true);

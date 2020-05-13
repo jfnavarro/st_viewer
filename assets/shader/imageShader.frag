@@ -10,5 +10,4 @@ void main()
 {
     // Set fragment color from texture
     fColor = texture(tex, v_texcoord);
-    //fColor = vec4(0.5, 0.5, 0.5, 1.0);
 }

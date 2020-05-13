@@ -97,29 +97,27 @@ void CellGLView3D::initializeGL()
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    glDisable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POINT_SPRITE);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/geneShader.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/geneShader.frag");
-    m_program.link();
-    m_program.bind();
 
     // Cache Uniform Locations
+    m_program.bind();
     u_mvp_matrix = m_program.uniformLocation("mvp_matrix");
     u_size = m_program.uniformLocation("size");
     u_alpha = m_program.uniformLocation("alpha");
-
+    m_program.link();
     m_program.release();
 
     // init rubber band object
@@ -142,7 +140,8 @@ void CellGLView3D::initializeGL()
 
 void CellGLView3D::resizeGL(int width, int height)
 {
-
+    Q_UNUSED(width);
+    Q_UNUSED(height);
 }
 
 const QMatrix4x4 CellGLView3D::projectionMatrix3D() const
@@ -291,11 +290,9 @@ void CellGLView3D::paintGL()
     m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
-    {
-        m_vao.bind();
-        glDrawArrays(GL_POINTS, 0, m_num_points);
-        m_vao.release();
-    }
+    m_vao.bind();
+    glDrawArrays(GL_POINTS, 0, m_num_points);
+    m_vao.release();
     m_program.release();
 
     painter.endNativePainting();
@@ -554,53 +551,51 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
     const auto &selecteds = dataset.data()->renderingSelected();
     m_num_points = indexes.size();
 
-    {
-        m_program.bind();
+    // Create VAO
+    m_vao.create();
+    m_vao.bind();
+    m_program.bind();
 
-        // Create VAO
-        m_vao.create();
-        m_vao.bind();
+    // Create Buffer (Index)
+    m_pos_buffer.create();
+    m_pos_buffer.bind();
+    m_pos_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_pos_buffer.allocate(indexes.constData(), indexes.size() * sizeof(QVector3D));
+    m_program.enableAttributeArray(0);
+    m_program.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
-        // Create Buffer (Index)
-        m_pos_buffer.create();
-        m_pos_buffer.bind();
-        m_pos_buffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_pos_buffer.allocate(indexes.constData(), indexes.size() * sizeof(QVector3D));
-        m_program.enableAttributeArray(0);
-        m_program.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    // Create Buffer (Color)
+    m_color_buffer.create();
+    m_color_buffer.bind();
+    m_color_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    m_color_buffer.allocate(colors.constData(), colors.size() * sizeof(QVector4D));
+    m_program.enableAttributeArray(1);
+    m_program.setAttributeBuffer(1, GL_FLOAT, 0, 4, 0);
 
-        // Create Buffer (Color)
-        m_color_buffer.create();
-        m_color_buffer.bind();
-        m_color_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        m_color_buffer.allocate(colors.constData(), colors.size() * sizeof(QVector4D));
-        m_program.enableAttributeArray(1);
-        m_program.setAttributeBuffer(1, GL_FLOAT, 0, 4, 0);
+    // Create Buffer (Selected)
+    m_selected_buffer.create();
+    m_selected_buffer.bind();
+    m_selected_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    m_selected_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
+    m_program.enableAttributeArray(2);
+    m_program.setAttributeBuffer(2, GL_INT, 0, 1, 0);
 
-        // Create Buffer (Selected)
-        m_selected_buffer.create();
-        m_selected_buffer.bind();
-        m_selected_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        m_selected_buffer.allocate(selecteds.constData(), selecteds.size() * sizeof(int));
-        m_program.enableAttributeArray(2);
-        m_program.setAttributeBuffer(2, GL_INT, 0, 1, 0);
+    // Create Buffer (Visible)
+    m_visible_buffer.create();
+    m_visible_buffer.bind();
+    m_visible_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    m_visible_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
+    m_program.enableAttributeArray(3);
+    m_program.setAttributeBuffer(3, GL_INT, 0, 1, 0);
 
-        // Create Buffer (Visible)
-        m_visible_buffer.create();
-        m_visible_buffer.bind();
-        m_visible_buffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        m_visible_buffer.allocate(visibles.constData(), visibles.size() * sizeof(int));
-        m_program.enableAttributeArray(3);
-        m_program.setAttributeBuffer(3, GL_INT, 0, 1, 0);
+    // Release (unbind) all
+    m_pos_buffer.release();
+    m_color_buffer.release();
+    m_selected_buffer.release();
+    m_visible_buffer.release();
+    m_program.release();
+    m_vao.release();
 
-        // Release (unbind) all
-        m_pos_buffer.release();
-        m_color_buffer.release();
-        m_selected_buffer.release();
-        m_visible_buffer.release();
-        m_vao.release();
-        m_program.release();
-    }
 
     doneCurrent();
     m_initialized = true;
@@ -616,21 +611,23 @@ void CellGLView3D::slotUpdate()
 
     {
         makeCurrent();
+        m_vao.bind();
 
         // Update Buffer (Color)
         m_color_buffer.bind();
-        m_color_buffer.write(0, colors.constData(), colors.size());
+        m_color_buffer.write(0, colors.constData(), colors.size() * sizeof(QVector4D));
         m_color_buffer.release();
 
         // Update Buffer (Selected)
         m_selected_buffer.bind();
-        m_selected_buffer.write(0, selecteds.constData(), selecteds.size());
+        m_selected_buffer.write(0, selecteds.constData(), selecteds.size() * sizeof(int));
 
         // Update Buffer (Visible)
         m_visible_buffer.bind();
-        m_visible_buffer.write(0, visibles.constData(), visibles.size());
+        m_visible_buffer.write(0, visibles.constData(), visibles.size() * sizeof(int));
         m_visible_buffer.release();
 
+        m_vao.release();
         doneCurrent();
     }
 
