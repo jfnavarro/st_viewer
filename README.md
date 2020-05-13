@@ -1,8 +1,8 @@
 # Spatial Transcriptomics Viewer
 
-The ST viewer is a tool that visualizes spatially resolved gene
-expression data in 3D (consecutive sections) or in 2D with 
-the HE stained tissue image.
+The ST viewer is a tool that can be used to visualize and analize 
+spatially resolved gene expression data in 3D (consecutive sections) 
+or in 2D (with the HE stained tissue image).
 
 The ST Viewer is cross platform which means that it can
 be built and run in OSX, LINUX and WINDOWS. 
@@ -14,14 +14,11 @@ and visualization options. It also allows
 to select areas of the tissue to obtain gene patterns
 to later do DEA or spot classification using machine learning. 
 
-The ST viewer is designed to use the data generated with the ST Pipeline 
-https://github.com/SpatialTranscriptomicsResearch/st_pipeline, 
-which consist of a matrix of counts in TSV format where genes are 
-columns and spot coordinates are rows but it is compatible with other pipelines
-as long as the input format is the same. 
+The ST viewer requires as input a matrix of counts in TSV format where genes are 
+columns and spot ids are rows.
 
-The ST viewer requieres a file with spot coordinates
-with the following formarts which is compatible with the 
+The ST viewer requieres also a TSV file with spot coordinates
+with one of the following formats:
 
 	SPOT_X SPOT_Y chip_x chip_y pixel_x pixel_Y
 
@@ -37,15 +34,19 @@ or
 
 	SPOT X Y Z 
 
-The first formar is compatible with the 
+The first listed format is compatible with the 
 ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
-and the last format is compatible with 3D datasets. 
+and the last format is designed for 3D datasets. 
 
-For 3D datasets a 3D Mesh object can be provided and the HE image is not required. 
+For 2D datasets the HE stained image of the tissue section is required. 
+
+For 3D datasets a 3D Mesh object can be provided. 
+
+## Loading a dataset
 
 If you want to load a dataset you can go to the "Datasets view" and click in the button
 "Import dataset" then a dialog form will be shown where you can load the matrix of counts, the HE
-image and other files. You can also download a dataset automatically
+image and other files. You can also upload a dataset automatically
 if its files are inside a folder with the option "Load folder" or you
 can use a meta-file to load a dataset. The meta-file must describe where
 all the dataset's files are and it should have the following JSON format:
@@ -61,8 +62,8 @@ all the dataset's files are and it should have the following JSON format:
 After that you can just double click in the dataset to open it. 
 (more detailed information about this in the wiki).
 
-You can use our public datasets hosted in http://www.spatialtranscriptomicsresearch.org/
-if you want to try the ST Viewer.
+You can use our public datasets in this repository (folder test) if you
+want to try the ST Viewer. 
 
 ## Authors
 Read AUTHORS file
@@ -78,7 +79,7 @@ See LICENSE for the license terms and DEPENDENCIES for the 3rd party
 libraries that are used in this software.
 
 ## Contact
-For any question/bugs/feedback you can contact Jose Fernandez Navarro <jose.fernandez.navarro@scilifelab.se>
+For any question/bugs/feedback you can contact Jose Fernandez Navarro <jc.fernandez.navarro@gmail.com>
 
 ## Binaries (Install from binaries)
 Binaries(installer) for MAC and Windows are provided under the tab releases. 
