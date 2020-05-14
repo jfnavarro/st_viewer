@@ -7,7 +7,7 @@ or in 2D (with the HE stained tissue image).
 The ST Viewer is cross platform which means that it can
 be built and run in OSX, LINUX and WINDOWS. 
 
-The ST viewer allows to interact with the data in real time.
+The ST viewer allows interaction with the data in real time.
 Users can see where specific genes are expressed and how
 expressed they are. It has different threshold, normalization
 and visualization options. It also allows
