@@ -121,7 +121,7 @@ Then launch the image according to where your file are located.
 
 * Download and install CMake
 
-* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw32 option and include QT Charts. 
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw64 option and include QT Charts for every platform. 
 
 * Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
 
@@ -247,7 +247,7 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 
   DCMAKE_PREFIX_PATH = the path to where Qt and qcustomplot are installed
     
-    eg: "C:\Qt\5.14.1\mingw53_32;C:\qcustomplot"
+    eg: "C:\Qt\5.14.1\mingw53_64;C:\qcustomplot"
     
   DARMADILLO_PATH = indicates where armadillo was extracted
   
