@@ -227,7 +227,7 @@ Note that for Linux you may want to update your LD_LIBRARY_PATH variable to cont
 	
 * Install MinGW64 with multi-threading (OpenMP and threads) support (http://mingw-w64.org/doku.php)
 
-* Make sure that your PATH environment variable contains MinGW's bin and R's bin paths
+* Make sure that your PATH environment variable contains MinGW's paths
 
 		eg PATH=C:\MinGW;C:\MinGW\bin;C:\MinGW\lib
 
