@@ -24,15 +24,15 @@ macro(INITIALISE_PROJECT)
 
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+    # Adding -std=c++17 flag explicitly
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    set(CMAKE_CXX_REQUIRED_FLAGS -std=c++17)
+		
     # Defining compiler specific settings
     if(WIN32)
-
+	
     else()
 
-        # Adding -std=c++17 flag explicitly
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-        set(CMAKE_CXX_REQUIRED_FLAGS -std=c++17)
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")
