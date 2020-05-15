@@ -216,6 +216,9 @@ if(APPLE)
 endif(APPLE)
 
 if(WIN32)
+	# Add omp ddl manually since it is not on the QT bin dir
+    get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} ${MINGW_PATH}/libgomp-1.dll)
 
     # Add systems libraries
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
@@ -297,9 +300,6 @@ if(WIN32)
 	install(FILES ${QT_BINARY_DIR}/libstdc++-6.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libgcc_s_seh-1.dll DESTINATION .)
 	install(FILES ${QT_BINARY_DIR}/libwinpthread-1.dll DESTINATION .)
-	install(FILES ${QT_BINARY_DIR}/libgomp-1.dll DESTINATION .)
-	install(FILES ${LIBRINSIDE_LIBRARIES} DESTINATION .)
-	install(FILES ${LIBR_LIBRARIES} DESTINATION .)
     install(FILES ${CMAKE_SOURCE_DIR}/REPLACE_QT_LIBRARIES DESTINATION .)
 	
 endif(WIN32)
