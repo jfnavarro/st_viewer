@@ -238,3 +238,7 @@ v0.8.1
 v0.8.3
 
     * Fixed a bug related to missing spots in MAC OS Catalina
+
+v0.8.4
+
+    * Windows versions working
