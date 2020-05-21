@@ -212,47 +212,60 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
     const bool drange = rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
-    // reset visible/selecteed to false
-    #pragma omp parallel for
-    for (int i = 0; i < m_spots.size(); ++i) {
-        m_rendering_visible[i] = false;
-        m_rendering_selected[i] = false;
-    }
-
     STDataFrame data = m_data;
     std::vector<uword> genes_visible_indexes;
     std::vector<uword> spots_visible_indexes;
-    uvec cols_to_keep = linspace<uvec>(0, data.counts.n_cols - 1, data.counts.n_cols);
-    uvec rows_to_keep = linspace<uvec>(0, data.counts.n_rows - 1, data.counts.n_rows);
+    uvec cols_to_keep;
+    uvec rows_to_keep;
     if (!rendering_settings.show_spots) {
-        // apply min reads filters
-        if (rendering_settings.reads_threshold > 0) {
-            // clean uses absolute values
-            // may be better clamp(A, 0.2, A.max());
-            data.counts.clean(rendering_settings.reads_threshold);
-        }
+        cols_to_keep = zeros<uvec>(data.counts.n_cols - 1);
+        rows_to_keep = zeros<uvec>(data.counts.n_rows - 1);
 
-        // get columns (genes) >= min_spots
-        if (rendering_settings.spots_threshold > 0) {
-            const urowvec num_spots = sum(data.counts > 0, COLUMN);
-            cols_to_keep = find(num_spots >= rendering_settings.spots_threshold);
-        }
-
-        // early out if no genes after filtering
-        if (cols_to_keep.empty()) {
-            return;
-        }
-
-        // get rows (spots) >= min_genes
-        if (rendering_settings.genes_threshold > 0) {
-            const ucolvec num_genes = sum(data.counts > 0, ROW);
-            rows_to_keep = find(num_genes >= rendering_settings.genes_threshold);
+        // reset visible/selecteed to false
+        #pragma omp parallel for
+        for (uword i = 0; i < data.counts.n_rows; ++i) {
+            m_rendering_visible[i] = false;
+            m_rendering_selected[i] = false;
+            if (m_spots.at(i)->visible()) {
+                // get rows (spots) >= min_genes
+                if (rendering_settings.genes_threshold > 0) {
+                    const auto num_genes = sum(data.counts.row(i) >= rendering_settings.reads_threshold);
+                    rows_to_keep.at(i) = num_genes >= rendering_settings.genes_threshold ? 1 : 0;
+                } else {
+                    rows_to_keep.at(i) = 1;
+                }
+            }
         }
 
         // early out if no no spots after filtering
-        if (rows_to_keep.empty()) {
+        // rows_to_keep.is_zero() this fails
+        if (!any(rows_to_keep)) {
             return;
         }
+
+        // reset visible/selecteed to false
+        #pragma omp parallel for
+        for (uword j = 0; j < data.counts.n_cols; ++j) {
+            if (m_genes.at(j)->visible()) {
+                // get columns (genes) >= min_spots
+                if (rendering_settings.spots_threshold > 0) {
+                    const auto num_spots = sum(data.counts.col(j) > rendering_settings.reads_threshold);
+                    cols_to_keep.at(j) = num_spots >= rendering_settings.spots_threshold ? 1 : 0;
+                } else {
+                    cols_to_keep.at(j) = 1;
+                }
+            }
+        }
+
+        // early out if no genes after filtering
+        // cols_to_keep.is_zero() this fails
+        if (!any(cols_to_keep)) {
+            return;
+        }
+
+        // get indeces of visible rows/gens
+        rows_to_keep = find(rows_to_keep);
+        cols_to_keep = find(cols_to_keep);
 
         // slice
         data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
@@ -260,44 +273,9 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         // normalize
         data = normalizeCounts(data, rendering_settings.normalization_mode);
 
-        // Get genes that are visible
-        std::vector<uword> genes_visible_matrix_indexes;
-        QFuture<void> future1 = QtConcurrent::run([&]() {
-            for (int j = 0; j < cols_to_keep.size(); ++j) {
-                const auto gene_index = cols_to_keep.at(j);
-                if (m_genes.at(gene_index)->visible()) {
-                    genes_visible_indexes.push_back(gene_index);
-                    genes_visible_matrix_indexes.push_back(j);
-                }
-            }
-        });
-
-        // Get spots that are visible
-        std::vector<uword> spots_visible_matrix_indexes;
-        QFuture<void> future2 = QtConcurrent::run([&]() {
-            for (int i = 0; i < rows_to_keep.size(); ++i) {
-                const auto spot_index = rows_to_keep.at(i);
-                if (m_spots.at(spot_index)->visible()) {
-                    spots_visible_indexes.push_back(spot_index);
-                    spots_visible_matrix_indexes.push_back(i);
-                }
-            }
-        });
-
-        future1.waitForFinished();
-        future2.waitForFinished();
-
-        // early out if no genes are visible
-        if (genes_visible_indexes.empty() || spots_visible_indexes.empty()) {
-            return;    
-        }
-
-        // slice
-        data.counts = data.counts.submat(uvec(spots_visible_matrix_indexes),
-                                         uvec(genes_visible_matrix_indexes));
     } else {
-        genes_visible_indexes = conv_to<std::vector<uword>>::from(cols_to_keep);
-        spots_visible_indexes = conv_to<std::vector<uword>>::from(rows_to_keep);
+        cols_to_keep = linspace<uvec>(0, data.counts.n_cols - 1, data.counts.n_cols);
+        rows_to_keep = linspace<uvec>(0, data.counts.n_rows - 1, data.counts.n_rows);
     }
 
     // Compute total sum if in color mode (heatmap)
@@ -312,36 +290,36 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     }
 
     #pragma omp parallel for
-    for (uword i = 0; i < spots_visible_indexes.size(); ++i) {
-        const auto spot_index = spots_visible_indexes.at(i);
+    for (uword i = 0; i < data.counts.n_rows; ++i) {
+        const auto spot_index = rows_to_keep.at(i);
         const auto spot_obj = m_spots.at(spot_index);
         int visible = false;
+        int num_genes = 0;
+        double value = 0;
         QColor merged_color = Qt::white;
         if (rendering_settings.show_spots) {
             merged_color = spot_obj->color();
             visible = spot_obj->visible();
         } else {
-            const rowvec row_vec = data.counts.row(i);
-            if (any(row_vec)) {
-                if (!do_values || drange) {
-                    int num_genes = 0;
-                    for (uword j = 0; j < genes_visible_indexes.size(); ++j) {
-                        const auto gene_obj = m_genes.at(genes_visible_indexes.at(j));
-                        if (row_vec.at(j) > 0 && gene_obj->color() != merged_color) {
-                            merged_color = STMath::lerp(1.0 / ++num_genes, merged_color, gene_obj->color());
-                        }
+            if (!do_values || drange) {
+                const rowvec row_vec = data.counts.row(i);
+                const uvec detected_genes = find(row_vec);
+                for (const auto &j : detected_genes) {
+                    const auto gene_obj = m_genes.at(cols_to_keep.at(j));
+                    if (row_vec.at(j) > 0 && gene_obj->color() != merged_color) {
+                        merged_color = STMath::lerp(1.0 / ++num_genes, merged_color, gene_obj->color());
                     }
-                } else if (do_values) {
-					const auto value = values.at(i);
-                    merged_color = Color::adjustVisualMode(
-                                merged_color,
-                                value,
-                                rendering_settings.legend_min,
-                                rendering_settings.legend_max,
-                                rendering_settings.visual_mode);
                 }
-                visible = true;
+            } else if (do_values) {
+                value = values.at(i);
+                merged_color = Color::adjustVisualMode(
+                            merged_color,
+                            value,
+                            rendering_settings.legend_min,
+                            rendering_settings.legend_max,
+                            rendering_settings.visual_mode);
             }
+            visible = value > 0 || num_genes > 0;
         }
         m_rendering_selected[spot_index] = visible && spot_obj->selected();
         m_rendering_colors[spot_index] = fromQtColor(merged_color);

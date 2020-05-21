@@ -38,7 +38,6 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->show_image, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowImage);
     connect(m_ui->show_spots, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.show_spots = m_ui->show_spots->isChecked();
-        emit signalRendering();
     });
     connect(m_ui->legend, &QCheckBox::stateChanged, this, &SettingsWidget::signalShowLegend);
 
@@ -168,6 +167,5 @@ void SettingsWidget::slotVisualMode(VisualMode mode)
 {
     if (mode != m_rendering_settings.visual_mode) {
         m_rendering_settings.visual_mode = mode;
-        emit signalSpotRendering();
     }
 }

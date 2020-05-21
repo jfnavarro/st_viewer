@@ -3,7 +3,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
-
+#include <QDebug>
 #include "ui_analysisQC.h"
 
 AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
@@ -27,8 +27,14 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     const QString avg_transcritps = QString::number(mean(rowsums));
     const QString std_genes = QString::number(stddev(nonzero_row));
     const QString std_transcripts = QString::number(stddev(rowsums));
-    const uvec hist_genes = hist(nonzero_row, 20);
-    const uvec hist_spots = hist(nonzero_col, 20);
+    uvec hist_genes;
+    uvec hist_spots;
+    try {
+        hist_genes = hist(nonzero_row);
+        hist_spots = hist(nonzero_col);
+    } catch (const std::logic_error &e) {
+        qDebug() << "Error computing histograms " << e.what();
+    }
 
     // populate the line edits
     m_ui->maxTranscripts->setText(max_transcripts_spot);
@@ -44,7 +50,7 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
     // populate the plots
     QBarSet *genes = new QBarSet("Genes");
     QBarSeries *series_genes = new QBarSeries();
-    for(const auto &value : hist_genes) {
+    for (const auto &value : hist_genes) {
         *genes << static_cast<int>(value);
     }
 

@@ -242,3 +242,9 @@ v0.8.3
 v0.8.4
 
     * Windows versions working
+
+V0.8.5
+
+    * Big speed improvements 
+    * Fixed bug when computing histograms
+    * Made spots smaller when they are selected
