@@ -12,8 +12,8 @@ class analysisCorrelation;
 
 QT_CHARTS_USE_NAMESPACE
 
-// This Widget takes two datasets (selections)
-// and computes correlation value for the common genes
+// This Widget takes two datasets
+// and computes a correlation value for the common genes
 // it allows to normalize using the log scale and also to click and
 // show the clicked gene
 class AnalysisCorrelation : public QWidget

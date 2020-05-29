@@ -16,7 +16,7 @@ class analysisDEA;
 }
 
 // AnalysisDEA is a widget that contains methods to compute
-// DEA(Differential Expression Analysis) between two ST data selections
+// DEA(Differential Expression Analysis) between two ST datasets
 // It shows the results in a volcano plot and a table
 // that highlights the differently expressed genes at a given threshold
 class AnalysisDEA : public QWidget

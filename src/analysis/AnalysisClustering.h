@@ -25,10 +25,10 @@ public:
     explicit AnalysisClustering(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
     virtual ~AnalysisClustering();
 
-    // One color (color representation of cluster number) for each spot
+    // One color (integer value) for each spot
     const QVector<QPair<QString,int>> &getSpotClusters() const;
 
-    // List of spots for each cluster
+    // List of spots for each cluster (integer value)
     QMultiHash<int, QString> getClustersSpot() const;
 
     // assigns the dataset
@@ -51,7 +51,7 @@ signals:
 private slots:
 
     // Performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // clusters the reduced coordinates (2D) using KMeans so to compute classes/colors
+    // cluster the reduced coordinates (2D) using KMeans so to compute classes/colors
     // for each spot
     void slotRun();
 
