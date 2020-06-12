@@ -125,7 +125,7 @@ void DatasetImporter::slotLoadSTDataFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open ST Data File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TSV Files (*.tsv)")));
+                                           QString("%1").arg(tr("TSV|TXT Files (*.tsv *.txt)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -145,7 +145,7 @@ void DatasetImporter::slotLoadMainImageFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Tissue Image File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("JPEG Files (*.jpg *.jpeg)")));
+                                           QString("%1").arg(tr("JPEG|PNG Files (*.jpg *.jpeg *.png)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -185,7 +185,7 @@ void DatasetImporter::slotLoadSpotsMapFile()
             = QFileDialog::getOpenFileName(this,
                                            tr("Open Coordinates File"),
                                            QDir::homePath(),
-                                           QString("%1").arg(tr("TXT|TSV Files (*.txt *.tsv)")));
+                                           QString("%1").arg(tr("TSV|TXT Files (*.txt *.tsv)")));
     // early out
     if (filename.isEmpty()) {
         return;
@@ -237,9 +237,9 @@ void DatasetImporter::slotParseFolder()
         while (it.hasNext()) {
             const QString file = it.next();
             qDebug() << "Parsing dataset file from folder " << file;
-            if (file.contains(".tsv")) {
+            if (file.contains(".tsv") || file.contains(".txt")) {
                 m_ui->stDataFile->setText(file);
-            } else if (file.contains(".jpg") || file.contains(".jpeg")) {
+            } else if (file.contains(".jpg") || file.contains(".jpeg") || file.contains(".png")) {
                 m_ui->mainImageFile->setText(file);
             } else if (file.contains(".obj")) {
                 m_ui->meshFile->setText(file);

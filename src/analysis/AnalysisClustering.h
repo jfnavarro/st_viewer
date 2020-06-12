@@ -15,7 +15,7 @@ QT_CHARTS_USE_NAMESPACE
 
 // A Widget that is used to classify spots based on gene expression profiles
 // using dimensionality reduction and clustering algorithms
-// It allows users to interact with the scatter plot and make and export selections
+// It allows users to interact with the scatter plot and to make and export selections
 // based on the clustered spots in the manifold space
 class AnalysisClustering : public QWidget
 {

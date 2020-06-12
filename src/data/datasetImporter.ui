@@ -174,7 +174,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Main image (.jpeg or .jpg) </string>
+          <string>Main image (.jpeg;.jpg;.png) </string>
          </property>
         </widget>
        </item>
