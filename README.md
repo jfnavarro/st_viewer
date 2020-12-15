@@ -35,7 +35,7 @@ or
 	SPOT X Y Z 
 
 The first listed format is compatible with the 
-ST Spot Detector https://github.com/SpatialTranscriptomicsResearch/st_spot_detector
+[ST Spot Detector](https://github.com/SpatialTranscriptomicsResearch/st_spot_detector)
 and the last format is designed for 3D datasets. 
 
 For 2D datasets the HE stained image of the tissue section is required. 
