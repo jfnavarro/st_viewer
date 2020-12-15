@@ -98,8 +98,27 @@
       </item>
       <item>
        <widget class="QCheckBox" name="log_scale">
+        <property name="toolTip">
+         <string>Plot data in log scale</string>
+        </property>
+        <property name="statusTip">
+         <string>Plot data in log scale</string>
+        </property>
         <property name="text">
          <string>Log scale</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="zcore">
+        <property name="toolTip">
+         <string>Apply the standard transformation to genes</string>
+        </property>
+        <property name="statusTip">
+         <string>Apply the standard transformation to genes</string>
+        </property>
+        <property name="text">
+         <string>ztransform</string>
         </property>
        </widget>
       </item>

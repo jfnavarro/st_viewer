@@ -40,6 +40,7 @@ public:
         bool gene_cutoff;
         bool show_spots;
         bool log_scale;
+        bool zscore;
     };
 
     explicit SettingsWidget(QWidget *parent = nullptr);

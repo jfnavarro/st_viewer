@@ -443,7 +443,7 @@ void UserSelectionsPage::slotMerge()
     }
 
     QList<STData::STDataFrame> datasets;
-    for (const auto selection : currentSelection) {
+    for (const auto &selection : currentSelection) {
         datasets.append(selection.data());
     }
 

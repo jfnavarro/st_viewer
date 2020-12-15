@@ -62,11 +62,15 @@ public:
     // It throws exceptions when errors happen during parsing or an empty file
     QMap<QString, Spot::SpotType> parseSpotsMap(const QString &spots_file) const;
 
-    // helper function that normalizes a data matrix and returns it
+    // helper function that normalizes a data frame and returns it
     static STDataFrame normalizeCounts(const STDataFrame &data,
                                        SettingsWidget::NormalizationMode mode);
-
-    // helper function filters a data matrix and returns it
+    
+    // helper function that applies the standard transformation (by columns) to a data frame
+    // and returns it
+    static STDataFrame ztransform(const STDataFrame &data);
+    
+    // helper functions to filter (slice) a data frame and returns it
     static STDataFrame filterCounts(const STDataFrame &data,
                                     const int min_reads,
                                     const int min_genes,

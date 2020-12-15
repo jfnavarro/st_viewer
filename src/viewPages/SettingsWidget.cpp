@@ -50,6 +50,9 @@ SettingsWidget::SettingsWidget(QWidget *parent)
     connect(m_ui->log_scale, &QCheckBox::stateChanged, this, [=] {
         m_rendering_settings.log_scale = m_ui->log_scale->isChecked();
     });
+    connect(m_ui->zcore, &QCheckBox::stateChanged, this, [=] {
+        m_rendering_settings.zscore = m_ui->zcore->isChecked();
+    });
 
     connect(m_ui->visual_normal, &QRadioButton::clicked, this,
             [=]() {slotVisualMode(Normal);});
@@ -104,6 +107,7 @@ void SettingsWidget::reset()
     m_rendering_settings.visual_mode = SettingsWidget::Normal;
     m_rendering_settings.show_spots = false;
     m_rendering_settings.log_scale = false;
+    m_rendering_settings.zscore = false;
 }
 
 SettingsWidget::Rendering &SettingsWidget::renderingSettings()

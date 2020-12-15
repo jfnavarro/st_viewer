@@ -221,7 +221,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         cols_to_keep = zeros<uvec>(data.counts.n_cols - 1);
         rows_to_keep = zeros<uvec>(data.counts.n_rows - 1);
 
-        // reset visible/selecteed to false
+        // reset visible/selected to false
         #pragma omp parallel for
         for (uword i = 0; i < data.counts.n_rows; ++i) {
             m_rendering_visible[i] = false;
@@ -243,7 +243,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             return;
         }
 
-        // reset visible/selecteed to false
+        // reset visible/selected to false
         #pragma omp parallel for
         for (uword j = 0; j < data.counts.n_cols; ++j) {
             if (m_genes.at(j)->visible()) {
@@ -267,11 +267,17 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         rows_to_keep = find(rows_to_keep);
         cols_to_keep = find(cols_to_keep);
 
+        // normalize
+        // TODO this could be cached
+        data = normalizeCounts(data, rendering_settings.normalization_mode);
+
         // slice
         data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
 
-        // normalize
-        data = normalizeCounts(data, rendering_settings.normalization_mode);
+        // apply standard transformation if requested (by genes)
+        if (rendering_settings.zscore) {
+            data = ztransform(data);
+        }
 
     } else {
         cols_to_keep = linspace<uvec>(0, data.counts.n_cols - 1, data.counts.n_cols);
@@ -319,7 +325,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                             rendering_settings.legend_max,
                             rendering_settings.visual_mode);
             }
-            visible = value > 0 || num_genes > 0;
+            visible = !qFuzzyCompare(value, 0.0) || num_genes > 0;
         }
         m_rendering_selected[spot_index] = visible && spot_obj->selected();
         m_rendering_colors[spot_index] = fromQtColor(merged_color);
@@ -418,9 +424,19 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
     if (mode == SettingsWidget::REL) {
         norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
     } else if (mode == SettingsWidget::CPM) {
-        const auto means = mean(norm_counts.counts, ROW);
-        norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW) % means;
+        const auto sums = sum(norm_counts.counts, ROW);
+        const auto means = mean(sums);
+        norm_counts.counts = (norm_counts.counts.each_col() / sums) * means;
     }
+    return norm_counts;
+}
+
+STData::STDataFrame STData::ztransform(const STDataFrame &data)
+{
+    STDataFrame norm_counts = data;
+    const auto means = mean(norm_counts.counts, COLUMN);
+    const auto sdev = stddev(norm_counts.counts, COLUMN);
+    norm_counts.counts = (norm_counts.counts.each_row() - means).each_row() / sdev;
     return norm_counts;
 }
 
