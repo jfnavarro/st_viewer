@@ -80,13 +80,12 @@ const QVector<QString>& AnalysisClustering::selectedSpots() const
 
 void AnalysisClustering::loadData(const STData::STDataFrame &data)
 {
-    // store the data
     m_data = data;
 }
 
 void AnalysisClustering::slotRun()
 {
-    qDebug() << "Computing spot colors asynchronously";
+    qDebug() << "Computing spot clusters asynchronously";
     // initialize progress bar
     m_ui->progressBar->setRange(0,0);
     // disable controls
@@ -187,6 +186,7 @@ void AnalysisClustering::computeClustersAsync()
 
 void AnalysisClustering::clustersComputed()
 {
+    qDebug() << "Spot clusters computed";
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
     // enable run button
@@ -212,7 +212,7 @@ void AnalysisClustering::clustersComputed()
     for (int k = 1; k <= num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries();
         series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-        series->setMarkerSize(10.0);
+        series->setMarkerSize(5.0);
         const QColor color = Color::createCMapColor(k,
                                                     min,
                                                     num_clusters,

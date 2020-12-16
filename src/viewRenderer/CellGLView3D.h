@@ -16,6 +16,8 @@
 class QOpenGLShaderProgram;
 class QRubberBand;
 
+// An OpenGL widget designed to plot ST data (2D and 3D) and allow the user
+// to interact with it
 class CellGLView3D : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT

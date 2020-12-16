@@ -212,8 +212,7 @@ void MainWindow::setupUi()
 
 void MainWindow::slotShowAbout()
 {
-    QScopedPointer<AboutDialog> about(
-        new AboutDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    QScopedPointer<AboutDialog> about(new AboutDialog(this));
     about->exec();
 }
 

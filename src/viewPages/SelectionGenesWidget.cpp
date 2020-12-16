@@ -11,9 +11,8 @@
 
 using namespace Style;
 
-SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &data,
-                                           QWidget *parent, Qt::WindowFlags f)
-    : QWidget(parent, f)
+SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &data, QWidget *parent)
+    : QWidget(parent, Qt::Window)
     , m_ui(new Ui::genesSelectionWidget())
 {
     m_ui->setupUi(this);

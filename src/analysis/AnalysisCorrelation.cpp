@@ -17,9 +17,8 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
                                          const STData::STDataFrame &data2,
                                          const QString &nameA,
                                          const QString &nameB,
-                                         QWidget *parent,
-                                         Qt::WindowFlags f)
-    : QWidget(parent, f)
+                                         QWidget *parent)
+    : QWidget(parent, Qt::Window)
     , m_dataA(data1)
     , m_dataB(data2)
     , m_nameA(nameA)

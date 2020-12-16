@@ -19,8 +19,7 @@ class SelectionSpotsWidget : public QWidget
 
 public:
 
-    explicit SelectionSpotsWidget(const UserSelection::STDataFrame &data,
-                                  QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit SelectionSpotsWidget(const UserSelection::STDataFrame &data, QWidget *parent = nullptr);
     virtual ~SelectionSpotsWidget();
 signals:
 

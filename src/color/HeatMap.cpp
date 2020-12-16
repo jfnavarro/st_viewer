@@ -6,12 +6,14 @@
 namespace Color
 {
 
-void createLegend(QImage &image, const double lowerbound,
-                  const double upperbound, const ColorGradients cmap)
+QImage createLegend(const int height,
+                    const int width,
+                    const double lowerbound,
+                    const double upperbound,
+                    const ColorGradients cmap)
 {
 
-    const int height = image.height();
-    const int width = image.width();
+    QImage image(width, height, QImage::Format_ARGB32);
 
     for (int y = 0; y < height; ++y) {
         // get the color of each line of the image as the heatmap
@@ -29,10 +31,10 @@ void createLegend(QImage &image, const double lowerbound,
             image.setPixel(x, y, rgb_color);
         }
     }
+
+    return image;
 }
 
-// simple function that computes color from a min-max range
-// using linear Interpolation
 QColor createHeatMapLinearColor(const double value, const double min, const double max)
 {
     const double halfmax = (min + max) / 2;
@@ -52,11 +54,9 @@ QColor createDynamicRangeColor(const double value, const double min,
     return newcolor;
 }
 
-// simple function that computes color from a value
-// using the human wave lenght spectra
 QColor createHeatMapWaveLenghtColor(const double value)
 {
-    static const double gamma = 0.8f;
+    constexpr double gamma = 0.8f;
 
     // denorm value to range (380-780)
     const double cwavelength = STMath::denorm(value, 380.0, 780.0);
@@ -107,11 +107,10 @@ QColor createHeatMapWaveLenghtColor(const double value)
     green = std::clamp(qPow(green * factor, gamma), 0.0, 1.0);
     blue = std::clamp(qPow(blue * factor, gamma), 0.0, 1.0);
 
-    // return color
+    // return QColor from rgb
     return QColor::fromRgbF(red, green, blue, 1.0);
 }
 
-// Functions to create a color mapped in the color range given
 QColor createRangeColor(const double value, const double min, const double max,
                         QColor init, QColor end)
 {
@@ -121,7 +120,7 @@ QColor createRangeColor(const double value, const double min, const double max,
 
 QColor createCMapColorGpHot(const double value, const double min, const double max)
 {
-    const QCPRange range(min,max);
+    const QCPRange range(min, max);
     QCPColorGradient cmap(QCPColorGradient::gpHot);
     return QColor(cmap.color(value, range));
 }
@@ -134,29 +133,26 @@ QColor createCMapColor(const double value, const double min,
     return QColor(cmapper.color(value, range));
 }
 
-QColor adjustVisualMode(const QColor merged_color,
-                        const double &merged_value,
-                        const double &min_reads,
-                        const double &max_reads,
+QColor adjustVisualMode(const QColor color,
+                        const double value,
+                        const double min,
+                        const double max,
                         const SettingsWidget::VisualMode mode)
 {
-    QColor color = merged_color;
+    QColor new_color = color;
     switch (mode) {
     case (SettingsWidget::VisualMode::Normal): {
     } break;
     case (SettingsWidget::VisualMode::DynamicRange): {
-        color = Color::createDynamicRangeColor(merged_value, min_reads,
-                                               max_reads, merged_color);
+        new_color = Color::createDynamicRangeColor(value, min, max, color);
     } break;
     case (SettingsWidget::VisualMode::HeatMap): {
-        color = Color::createCMapColor(merged_value, min_reads,
-                                       max_reads, Color::ColorGradients::gpSpectrum);
+        new_color = Color::createCMapColor(value, min, max, Color::ColorGradients::gpSpectrum);
     } break;
     case (SettingsWidget::VisualMode::ColorRange): {
-        color = Color::createCMapColor(merged_value, min_reads,
-                                       max_reads, Color::ColorGradients::gpHot);
+        new_color = Color::createCMapColor(value, min, max, Color::ColorGradients::gpHot);
     }
     }
-    return color;
+    return new_color;
 }
 }

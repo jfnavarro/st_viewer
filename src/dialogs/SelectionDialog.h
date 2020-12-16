@@ -18,7 +18,7 @@ class SelectionDialog : public QDialog
 
 public:
 
-    SelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    SelectionDialog(QWidget *parent = nullptr);
     virtual ~SelectionDialog();
 
     QRegExp getRegExp() const;

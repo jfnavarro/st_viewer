@@ -22,13 +22,12 @@ class DataSets;
 // It has a toolbar with basic functionalities (such as open, edit, export, import, etc..)
 
 // TODO add option to highlight the currently opened dataset
-// TODO add right click support (copy, open, save, delete...)
 class DatasetPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DatasetPage(QWidget *parent = 0);
+    explicit DatasetPage(QWidget *parent = nullptr);
     virtual ~DatasetPage();
 
     // returns the currently opened dataset

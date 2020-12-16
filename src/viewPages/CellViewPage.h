@@ -23,12 +23,11 @@ class CellView;
 // This is the definition of the cell view page visualization widget
 // which contains a table of genes/spots and an OpenGL based
 // rendering canvas to visualize the cell tissue and the spots (dataset).
-// It also contains a toobar. Functionalities in the toolbar are handled by slots.
+// It also contains a toolbar. Functionalities in the toolbar are handled by slots.
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 // It contains a widget with different visualization and data settings
 
 // TODO add a ruler visual object
-// TODO add tissue detection selection (Ludvig's)
 // TODO add a visual object to show the coordinates when the user hovers a spot
 class CellViewPage : public QWidget
 {

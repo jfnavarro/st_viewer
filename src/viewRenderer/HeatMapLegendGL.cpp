@@ -42,11 +42,10 @@ void HeatMapLegendGL::draw(const SettingsWidget::Rendering &rendering_setting, Q
     if (m_dirty) {
         // generate image texture with the size of the legend and then fill it up with the colors
         // using the min-max values of the threshold and the color mode
-        m_image = QImage(legend_width, legend_height, QImage::Format_ARGB32);
         Color::ColorGradients cmap =
                 rendering_setting.visual_mode == SettingsWidget::VisualMode::ColorRange?
                     Color::ColorGradients::gpHot : Color::ColorGradients::gpSpectrum;
-        Color::createLegend(m_image, min, max, cmap);
+        m_image = Color::createLegend(legend_width, legend_height, min, max, cmap);
         m_dirty = false;
     }
 

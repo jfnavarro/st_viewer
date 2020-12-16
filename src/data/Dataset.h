@@ -27,13 +27,13 @@ public:
     // Getters
     const QString &name() const;
     const QString &dataFile() const;
-    const QTransform &alignmentMatrix() const;
     const QString &imageFile() const;
     const QString &meshFile() const;
     const QString &spotsFile() const;
     const QString &statComments() const;
     double scalingFactor() const;
 
+    const QTransform &alignmentMatrix() const;
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
     const QRect image_bounds() const;
     bool is3D() const;
@@ -70,6 +70,8 @@ private:
     QTransform m_alignment;
     QVector<QPair<QImage, QPoint>> m_image_tiles;
     QRect m_image_bounds;
+
+    // ST data
     QSharedPointer<STData> m_data;
 };
 

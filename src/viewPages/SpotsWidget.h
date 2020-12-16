@@ -22,7 +22,7 @@ class SpotsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SpotsWidget(QWidget *parent = 0);
+    explicit SpotsWidget(QWidget *parent = nullptr);
     virtual ~SpotsWidget() override;
 
     // clear focus/status and selections

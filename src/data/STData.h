@@ -104,26 +104,25 @@ public:
 
 private:
 
-    // The matrix with the counts (spots are rows and genes are columns)
+    // The ST data frame (matrix of counts, genes and spots)
     STDataFrame m_data;
 
-    // store gene/spots objects for the matrix (columns and rows)
-    // each index in each vector correspond to a row index or column index in the matrix
+    // Gene and Spot objects contaning all the info for each spot/gene
+    // Each index in each list correspond to a row index (spot) or column index (gene) in m_data
     SpotListType m_spots;
     GeneListType m_genes;
 
-    // use hash tables for look-ups (spot and gene to matrix index)
-    // so to not have to search the QLists
+    // Convenience hash tables (gene name -> indez) and (spot name -> indez)
     QHash<QString, int> m_spot_index;
     QHash<QString, int> m_gene_index;
 
-    // rendering data
+    // Rendering data
     QVector<int> m_rendering_visible;
     QVector<QVector4D> m_rendering_colors;
     QVector<Spot::SpotType> m_rendering_coords;
     QVector<int> m_rendering_selected;
 
-    // whether the data is in 3D or not
+    // Whether the data is in 3D or not
     bool m_is3D;
 
     Q_DISABLE_COPY(STData)

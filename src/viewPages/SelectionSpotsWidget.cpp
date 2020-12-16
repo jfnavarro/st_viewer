@@ -11,9 +11,8 @@
 
 using namespace Style;
 
-SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &data,
-                                           QWidget *parent, Qt::WindowFlags f)
-    : QWidget(parent, f)
+SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &data, QWidget *parent)
+    : QWidget(parent, Qt::Window)
     , m_ui(new Ui::spotsSelectionWidget())
 {
     m_ui->setupUi(this);

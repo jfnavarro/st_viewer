@@ -12,10 +12,9 @@ class analysisCorrelation;
 
 QT_CHARTS_USE_NAMESPACE
 
-// This Widget takes two datasets
-// and computes a correlation value for the common genes
-// it allows to normalize using the log scale and also to click and
-// show the clicked gene
+// This Widget takes two datasets and computes a correlation value for the common genes.
+// A correlation plot is generated where users can click a dot to see which gene is it.
+// It allows to normalize using the log scale
 class AnalysisCorrelation : public QWidget
 {
     Q_OBJECT
@@ -25,8 +24,7 @@ public:
                         const STData::STDataFrame &data2,
                         const QString &nameA,
                         const QString &nameB,
-                        QWidget *parent = nullptr,
-                        Qt::WindowFlags f = 0);
+                        QWidget *parent = nullptr);
     virtual ~AnalysisCorrelation();
 
 private slots:

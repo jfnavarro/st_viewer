@@ -274,8 +274,7 @@ void UserSelectionsPage::slotEditSelection(QModelIndex index)
 void UserSelectionsPage::editSelection(const UserSelection &selection)
 {
     // creates a selection dialog with the current fields
-    QScopedPointer<EditSelectionDialog> editSelection(
-                new EditSelectionDialog(this, Qt::CustomizeWindowHint | Qt::WindowTitleHint));
+    QScopedPointer<EditSelectionDialog> editSelection(new EditSelectionDialog(this));
     editSelection->setWindowIcon(QIcon());
     editSelection->setName(selection.name());
     editSelection->setComment(selection.comment());
@@ -361,8 +360,7 @@ void UserSelectionsPage::slotPerformDEA()
                                 selectionObject2.data(),
                                 selectionObject1.name(),
                                 selectionObject2.name(),
-                                this,
-                                Qt::Window));
+                                this));
     deaWidget->show();
 }
 
@@ -384,8 +382,7 @@ void UserSelectionsPage::slotPerformCorrelation()
                                         selectionObject2.data(),
                                         selectionObject1.name(),
                                         selectionObject2.name(),
-                                        this,
-                                        Qt::Window));
+                                        this));
     correlationWidget->show();
 }
 
@@ -399,8 +396,7 @@ void UserSelectionsPage::slotShowGenes()
     }
 
     const auto selectionObject = currentSelection.front();
-    SelectionGenesWidget *genesWidget(
-                new SelectionGenesWidget(selectionObject.data(), this, Qt::Window));
+    SelectionGenesWidget *genesWidget(new SelectionGenesWidget(selectionObject.data(), this));
     genesWidget->show();
 }
 
@@ -414,8 +410,7 @@ void UserSelectionsPage::slotShowSpots()
     }
 
     const auto selectionObject = currentSelection.front();
-    SelectionSpotsWidget *spotsWidget(
-                new SelectionSpotsWidget(selectionObject.data(), this, Qt::Window));
+    SelectionSpotsWidget *spotsWidget(new SelectionSpotsWidget(selectionObject.data(), this));
     spotsWidget->show();
 }
 

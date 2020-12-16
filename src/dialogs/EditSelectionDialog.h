@@ -16,7 +16,7 @@ class EditSelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditSelectionDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit EditSelectionDialog(QWidget *parent = nullptr);
     virtual ~EditSelectionDialog();
 
     const QString getName() const;

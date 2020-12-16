@@ -22,7 +22,7 @@ class UserSelectionsPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit UserSelectionsPage(QWidget *parent = 0);
+    explicit UserSelectionsPage(QWidget *parent = nullptr);
     virtual ~UserSelectionsPage();
 
     // clear the loaded content

@@ -2,8 +2,8 @@
 
 #include "ui_editDatasetDialog.h"
 
-EditDatasetDialog::EditDatasetDialog(QWidget *parent, Qt::WindowFlags f)
-    : QDialog(parent, f)
+EditDatasetDialog::EditDatasetDialog(QWidget *parent)
+    : QDialog(parent)
     , m_ui(new Ui::editDatasetDialog)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);

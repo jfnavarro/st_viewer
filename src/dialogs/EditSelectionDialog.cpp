@@ -4,11 +4,11 @@
 #include <QPushButton>
 #include "ui_editSelectionDialog.h"
 
-EditSelectionDialog::EditSelectionDialog(QWidget *parent, Qt::WindowFlags f)
-    : QDialog(parent, f)
+EditSelectionDialog::EditSelectionDialog(QWidget *parent)
+    : QDialog(parent)
     , m_ui(new Ui::editSelectionDialog)
 {
-    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    setWindowFlags(windowFlags() | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowStaysOnTopHint);
 
     m_ui->setupUi(this);
 

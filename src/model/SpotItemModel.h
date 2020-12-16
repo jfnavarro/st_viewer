@@ -21,7 +21,7 @@ public:
 
     enum Column { Show = 0, Selected = 1, Name = 2, Count = 3, Color = 4, Info = 5};
 
-    explicit SpotItemModel(QObject *parent = 0);
+    explicit SpotItemModel(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation,

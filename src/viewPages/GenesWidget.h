@@ -21,7 +21,7 @@ class GenesWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit GenesWidget(QWidget *parent = 0);
+    explicit GenesWidget(QWidget *parent = nullptr);
     virtual ~GenesWidget();
 
     // clear focus/status and selections

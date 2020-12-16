@@ -1,9 +1,8 @@
 #include "SelectionDialog.h"
 #include "ui_selectionConsole.h"
 
-SelectionDialog::SelectionDialog(QWidget *parent,
-                                 Qt::WindowFlags f)
-    : QDialog(parent, f)
+SelectionDialog::SelectionDialog(QWidget *parent)
+    : QDialog(parent)
     , m_ui(new Ui::SelectionDialog())
     , m_includeAmbiguous(false)
     , m_caseSensitive(false)

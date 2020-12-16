@@ -15,7 +15,7 @@ class EditDatasetDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditDatasetDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit EditDatasetDialog(QWidget *parent = nullptr);
     virtual ~EditDatasetDialog();
 
     const QString getName() const;

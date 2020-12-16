@@ -30,7 +30,6 @@ Dataset::Dataset(const DatasetImporter &importer)
     m_spots_file = importer.spotsMapFile();
     m_scaling_factor = importer.scalingFactor();
     m_is3D = importer.is3D();
-    m_alignment = QTransform();
     m_data = nullptr;
 }
 
@@ -213,15 +212,15 @@ bool Dataset::load_Image() {
     // parse the image
     QImage image;
     if (!imageReader.read(&image)) {
-        qDebug() << "Tissue image cannot be opened/read" << imageReader.errorString();
+        qDebug() << "Tissue image cannot be parsed " << imageReader.errorString();
         return false;
     }
     // store the image size
     m_image_bounds = image.rect();
     qDebug() << "Setting image of size " << m_image_bounds;
     // compute tiles size and numbers
-    const int tile_width = 256;
-    const int tile_height = 256;
+    constexpr int tile_width = 256;
+    constexpr int tile_height = 256;
     const int width = image.width();
     const int height = image.height();
     const int xCount = width / tile_width;

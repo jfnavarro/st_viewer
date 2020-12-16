@@ -147,6 +147,7 @@ inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
     return covariance(v1, v2) / std;
 }
 
+// Returns a list of indexes sorted by their values in the input vector
 template <typename T>
 inline std::vector<size_t> sort_indexes(const std::vector<T> &v)
 {
@@ -281,7 +282,7 @@ inline mat tSNE(const mat &data,
     return manifold;
 }
 
-
+// Returns the value x from the log normal distribution with parameters m and s
 inline double log_normal(const double x, const double m, const double s)
 {
     if (x > 0) {
@@ -291,6 +292,7 @@ inline double log_normal(const double x, const double m, const double s)
     }
 }
 
+// Returns the value x from the normal distribution with parameters m and s
 inline double normal(const double x, const double m, const double s)
 {
     if (x > 0) {
@@ -300,6 +302,7 @@ inline double normal(const double x, const double m, const double s)
     }
 }
 
+// Returns the value x from the log normal cumulative density function
 inline double normal_cdf(const double x)
 {
     return erfc(-x / std::sqrt(2)) / 2.0;

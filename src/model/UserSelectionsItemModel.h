@@ -23,7 +23,7 @@ public:
         NSpots = 3,
     };
 
-    explicit UserSelectionsItemModel(QObject *parent = 0);
+    explicit UserSelectionsItemModel(QObject *parent = nullptr);
     virtual ~UserSelectionsItemModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

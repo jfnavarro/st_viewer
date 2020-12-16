@@ -14,37 +14,42 @@ namespace Color
 
 typedef QCPColorGradient::GradientPreset ColorGradients;
 
-// Convenience function to generate a heatmap spectrum image given specific
-// mapping function
-// using the wave lenght spectra or a linear interpolation spectra between two
-// colors
-// the input image will be transformed with the new colors
-void createLegend(QImage &image, const double lowerbound,
-                  const double upperbound, const ColorGradients cmap);
+// Convenience function to generate a heatmap spectrum image
+// using a linear interpolation spectra in the gradient given as input
+// using the upper and lower bounds given as parameters
+QImage createLegend(const int height,
+                    const int width,
+                    const double lowerbound,
+                    const double upperbound,
+                    const ColorGradients cmap);
 
 // Convenience function to generate a QColor color from a real value
+// using a wavelength function
 QColor createHeatMapWaveLenghtColor(const double value);
 
-// Convenience function to generate a QColor color from a real value given a
-// range
+// Convenience function to generate a QColor from a real value given a range using linear
+// interpolation
 QColor createHeatMapLinearColor(const double value, const double min, const double max);
 
-// Function that creates a dynamic color (alpha adjusted to the value given and min-max)
+// Convenience function to adjust a QColor (alpha adjusted to the value given and min-max)
 QColor createDynamicRangeColor(const double value, const double min, const double max, const QColor color);
 
-// Functions to create a color mapped in the color range given
+// Convenience function to generate a QColor using linear interpolation and color range
 QColor createRangeColor(const double value, const double min, const double max,
                         const QColor init, const QColor end);
 
-// Functions to create a color from a pre-set color map
+// Convenience function to generate a QColor using linear interpolation and gpHot color gradient
+QColor createCMapColorGpHot(const double value, const double min, const double max);
+
+// Convenience function to generate a QColor using linear interpolation and color gradient
 QColor createCMapColor(const double value, const double min, const double max,
                        const ColorGradients cmap);
 
-// helper fuctions to adjust a spot's color according to the rendering settings
-QColor adjustVisualMode(const QColor merged_color,
-                        const double &merged_value,
-                        const double &min_reads,
-                        const double &max_reads,
+// Convenience function to adjust a QColor given a range and a visualization mode
+QColor adjustVisualMode(const QColor color,
+                        const double value,
+                        const double mix,
+                        const double max,
                         const SettingsWidget::VisualMode mode);
 
 static QStringList color_list = (QStringList() << "red" << "green"

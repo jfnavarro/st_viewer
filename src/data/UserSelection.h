@@ -26,7 +26,7 @@ public:
     const QString name() const;
     // the name of the dataset where the selection has been made
     const QString dataset() const;
-    // the data matrix of counts
+    // the ST data object
     const STData::STDataFrame &data() const;
     // some meta-data
     const QString comment() const;

@@ -21,9 +21,8 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
                          const STData::STDataFrame &datasetsB,
                          const QString &nameA,
                          const QString &nameB,
-                         QWidget *parent,
-                         Qt::WindowFlags f)
-    : QWidget(parent, f)
+                         QWidget *parent)
+    : QWidget(parent, Qt::Window)
     , m_ui(new Ui::analysisDEA)
     , m_dataA(datasetsA)
     , m_dataB(datasetsB)
@@ -407,6 +406,8 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
 
 void AnalysisDEA::slotDEAComputed()
 {
+    qDebug() << "DEA computed";
+
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
     // enable run button

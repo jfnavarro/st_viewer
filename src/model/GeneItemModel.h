@@ -21,7 +21,7 @@ class GeneItemModel : public QAbstractTableModel
 public:
     enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
 
-    explicit GeneItemModel(QObject *parent = 0);
+    explicit GeneItemModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

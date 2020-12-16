@@ -268,7 +268,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         cols_to_keep = find(cols_to_keep);
 
         // normalize
-        // TODO this could be cached
+        // TODO this could be cached to save computation time
         data = normalizeCounts(data, rendering_settings.normalization_mode);
 
         // slice
