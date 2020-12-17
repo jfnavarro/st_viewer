@@ -325,7 +325,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                             rendering_settings.legend_max,
                             rendering_settings.visual_mode);
             }
-            visible = !qFuzzyCompare(value, 0.0) || num_genes > 0;
+            visible = do_values || num_genes > 0;
         }
         m_rendering_selected[spot_index] = visible && spot_obj->selected();
         m_rendering_colors[spot_index] = fromQtColor(merged_color);

@@ -17,8 +17,8 @@ typedef QCPColorGradient::GradientPreset ColorGradients;
 // Convenience function to generate a heatmap spectrum image
 // using a linear interpolation spectra in the gradient given as input
 // using the upper and lower bounds given as parameters
-QImage createLegend(const int height,
-                    const int width,
+QImage createLegend(const int width,
+                    const int height,
                     const double lowerbound,
                     const double upperbound,
                     const ColorGradients cmap);

@@ -11,8 +11,8 @@
 
 #include "ui_analysisClustering.h"
 
-AnalysisClustering::AnalysisClustering(QWidget *parent, Qt::WindowFlags f)
-    : QWidget(parent, f)
+AnalysisClustering::AnalysisClustering(QWidget *parent)
+    : QWidget(parent)
     , m_ui(new Ui::analysisClustering)
 {
     // setup UI
@@ -85,7 +85,7 @@ void AnalysisClustering::loadData(const STData::STDataFrame &data)
 
 void AnalysisClustering::slotRun()
 {
-    qDebug() << "Computing spot clusters asynchronously";
+    qDebug() << "Computing spot clusters";
     // initialize progress bar
     m_ui->progressBar->setRange(0,0);
     // disable controls
@@ -153,12 +153,11 @@ void AnalysisClustering::computeClustersAsync()
 
     // Run clustering
     const mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
-
     Q_ASSERT((results.n_rows == A.n_rows) &&
              (results.n_cols == results_clustering.n_rows) &&
              (results_clustering.n_cols == num_clusters));
 
-    // Compile result
+    // Compile result by obtaining the closest spots to each centroid
     const int n_ele = results.n_rows;
     m_clusters.resize(n_ele);
     m_reduced_coordinates.resize(n_ele);
@@ -187,6 +186,7 @@ void AnalysisClustering::computeClustersAsync()
 void AnalysisClustering::clustersComputed()
 {
     qDebug() << "Spot clusters computed";
+
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
     // enable run button
@@ -207,7 +207,7 @@ void AnalysisClustering::clustersComputed()
     const int min = 1;
     const int num_clusters = m_ui->clusters->value();
 
-    // Create one serie for each different cluster (color)
+    // Create one QScatterSeries for each different cluster (color)
     m_series_vector.clear();
     for (int k = 1; k <= num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries();
@@ -222,7 +222,8 @@ void AnalysisClustering::clustersComputed()
         m_series_vector.push_back(series);
     }
 
-    // add the respective spot (t-SNE coordinates) to the serie it belongs to
+    // Add the respective spot (manifold 2D coordinates) to the series it belongs to
+    // Also obtain the min-max values of each axes
     double xMin = std::numeric_limits<double>::max();
     double xMax = std::numeric_limits<double>::min();
     double yMin = std::numeric_limits<double>::max();
@@ -237,14 +238,13 @@ void AnalysisClustering::clustersComputed()
         yMax = qMax(yMax, p.y());
     }
 
-    // update the scatter plot
+    // Update the scatter plot
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
     for (auto series : m_series_vector) {
         m_ui->plot->chart()->addSeries(series);
     }
-
-    m_ui->plot->chart()->setTitle("Spots colored by cluster");
+    m_ui->plot->chart()->setTitle(tr("Spots colored by cluster"));
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->show();
     m_ui->plot->chart()->createDefaultAxes();

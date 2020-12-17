@@ -23,13 +23,13 @@ class AnalysisClustering : public QWidget
     Q_OBJECT
 
 public:
-    explicit AnalysisClustering(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
+    explicit AnalysisClustering(QWidget *parent = nullptr);
     virtual ~AnalysisClustering();
 
-    // One cluster (integer value) for each spot
+    // one cluster (integer value) for each spot
     const QVector<QPair<QString,int>> &getSpotClusters() const;
 
-    // List of spots for each cluster (integer value)
+    // list of spots for each cluster (integer value)
     QMultiHash<int, QString> getClustersSpot() const;
 
     // assigns the dataset
@@ -51,7 +51,7 @@ signals:
 
 private slots:
 
-    // Performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
+    // performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
     // cluster the reduced coordinates (2D) using KMeans so to compute classes/colors
     // for each spot
     void slotRun();

@@ -6,15 +6,14 @@
 namespace Color
 {
 
-QImage createLegend(const int height,
-                    const int width,
+QImage createLegend(const int width,
+                    const int height,
                     const double lowerbound,
                     const double upperbound,
                     const ColorGradients cmap)
 {
 
     QImage image(width, height, QImage::Format_ARGB32);
-
     for (int y = 0; y < height; ++y) {
         // get the color of each line of the image as the heatmap
         // color normalized to the lower and upper bound of the image

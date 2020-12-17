@@ -64,7 +64,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     } else {
         QMessageBox::critical(this,
                               tr("Correlation"),
-                              tr("There are no common genes between the selections."));
+                              tr("There are no common genes between the selections"));
         m_ui->logScale->setEnabled(false);
         m_ui->exportPlot->setEnabled(false);
     }
@@ -110,6 +110,7 @@ void AnalysisCorrelation::slotUpdateData()
     m_ui->plot->setRenderHint(QPainter::Antialiasing);
     m_ui->plot->chart()->removeAllSeries();
     m_ui->plot->chart()->addSeries(m_series.data());
+
     // update legends in plot
     m_ui->plot->chart()->setTitle(tr("Correlation Plot (Accumulated genes counts)"));
     m_ui->plot->chart()->setDropShadowEnabled(false);

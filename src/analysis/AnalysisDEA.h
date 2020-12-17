@@ -59,7 +59,7 @@ private slots:
 
 private:
 
-    // Internal functions to compute the DE genes and update table/plot
+    // Internal functions to compute the DE genes and update the table and volcano plot
     void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();

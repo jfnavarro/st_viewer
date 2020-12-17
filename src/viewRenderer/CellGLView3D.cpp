@@ -540,6 +540,7 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
         m_centerY = dataset.image_bounds().center().y();
     }
 
+    // Load the 3D mesh if applies
     if (dataset.is3D() && !dataset.meshFile().isNull() && !dataset.meshFile().isEmpty()) {
         m_mesh->loadMesh(dataset.meshFile());
     }
