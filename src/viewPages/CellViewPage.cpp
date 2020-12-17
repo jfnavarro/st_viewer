@@ -68,7 +68,7 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     Q_ASSERT(!m_settings.isNull());
 
     // instance of clustering widget
-    m_clustering.reset(new AnalysisClustering(this, Qt::Window));
+    m_clustering.reset(new AnalysisClustering(this));
     Q_ASSERT(!m_clustering.isNull());
 
     // attach visual settings

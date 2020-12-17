@@ -1,10 +1,11 @@
 #version 330
 
+uniform sampler2D vTexture;
 in highp vec4 vColor;
 in highp float vVisible;
 in highp float vSelected;
 
-out highp vec4 fColor;
+#out highp vec4 fColor;
 
 void main()
 {
@@ -17,5 +18,6 @@ void main()
         discard;
     }
     
-    fColor = vColor;
+    #fColor = vColor;
+    gl_FragColor = texture2D(vTexture, gl_PointCoord) * vColor;
 }

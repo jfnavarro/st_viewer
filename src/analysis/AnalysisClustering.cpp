@@ -12,7 +12,7 @@
 #include "ui_analysisClustering.h"
 
 AnalysisClustering::AnalysisClustering(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent, Qt::Window)
     , m_ui(new Ui::analysisClustering)
 {
     // setup UI
