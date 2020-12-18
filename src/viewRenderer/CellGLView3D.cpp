@@ -286,7 +286,7 @@ void CellGLView3D::paintGL()
                 -1.0 : m_rendering_settings->intensity;
 
     // make size proportional to the zoom
-    const int size = std::max(10.0, static_cast<float>(m_rendering_settings->size * 2) * m_zoom);
+    const int size = std::max(10.0, static_cast<float>(m_rendering_settings->size * 5) * m_zoom);
 
     // Render gene data
     m_program.bind();

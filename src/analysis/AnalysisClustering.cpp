@@ -115,6 +115,7 @@ void AnalysisClustering::computeClustersAsync()
     const int max_iter = tsne_tab->findChild<QSpinBox *>("max_iter")->value();
     const int init_dim = tsne_tab->findChild<QSpinBox *>("init_dims")->value();
     const int num_clusters = m_ui->clusters->value();
+    const int num_genes_keep = m_ui->genes_keep->value();
     const bool scale = pca_tab->findChild<QCheckBox *>("scale")->isChecked();
     const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
     const bool tsne = m_ui->tab->currentIndex() == 0;
@@ -135,6 +136,7 @@ void AnalysisClustering::computeClustersAsync()
         return;
     }
 
+
     // Normalize and log matrix of counts
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
@@ -145,6 +147,15 @@ void AnalysisClustering::computeClustersAsync()
     mat A = STData::normalizeCounts(data, normalization).counts;
     if (m_ui->logScale->isChecked()) {
         A = log1p(A);
+    }
+
+    // Keep top variance genes
+    if (num_genes_keep < data.counts.n_cols) {
+        const auto var_genes = var(data.counts, 1);
+        const auto idx = conv_to<uvec>::from(sort_index(var_genes, "descend"));
+        const auto idx2 = conv_to<ucolvec>::from(idx.head(num_genes_keep));
+        data.counts = data.counts.cols(idx2);
+        qDebug() << "Keeping " << data.counts.n_cols << " genes";
     }
 
     // Run dimensionality reduction
