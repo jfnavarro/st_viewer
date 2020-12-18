@@ -285,9 +285,12 @@ void CellGLView3D::paintGL()
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 -1.0 : m_rendering_settings->intensity;
 
+    // make size proportional to the zoom
+    const int size = std::max(10.0, static_cast<float>(m_rendering_settings->size * 2) * m_zoom);
+
     // Render gene data
     m_program.bind();
-    m_program.setUniformValue(u_size, m_rendering_settings->size * 2);
+    m_program.setUniformValue(u_size, size);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
     m_vao.bind();

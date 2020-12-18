@@ -1,6 +1,5 @@
 #version 330
 
-uniform sampler2D vTexture;
 in highp vec4 vColor;
 in highp float vVisible;
 in highp float vSelected;

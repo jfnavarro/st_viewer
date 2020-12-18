@@ -88,7 +88,7 @@ private:
     // rendering settings
     SettingsWidget::Rendering *m_rendering_settings;
 
-    // OpenGL buffers
+    // OpenGL sutff buffers/shaders/texture
     QOpenGLBuffer m_pos_buffer;
     QOpenGLBuffer m_color_buffer;
     QOpenGLBuffer m_visible_buffer;
