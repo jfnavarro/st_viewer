@@ -237,13 +237,13 @@ void DatasetImporter::slotParseFolder()
         while (it.hasNext()) {
             const QString file = it.next();
             qDebug() << "Parsing dataset file from folder " << file;
-            if (file.contains(".tsv") || file.contains(".txt")) {
+            if (file.contains(".tsv")) {
                 m_ui->stDataFile->setText(file);
             } else if (file.contains(".jpg") || file.contains(".jpeg") || file.contains(".png")) {
                 m_ui->mainImageFile->setText(file);
             } else if (file.contains(".obj")) {
                 m_ui->meshFile->setText(file);
-            } else if (file.contains("spots")) {
+            } else if (file.contains(".txt")) {
                 m_ui->spotMapFile->setText(file);
             } else if (file.contains("info.json")) {
                 parseInfoJSON(file);

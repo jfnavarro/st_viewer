@@ -97,7 +97,7 @@ void CellGLView3D::initializeGL()
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POINT_SPRITE);
@@ -155,10 +155,10 @@ const QMatrix4x4 CellGLView3D::projectionMatrix3D() const
     const double farClip = m_dist * 1000;
     const double r = nearClip * std::tan(m_fov * 0.5 * STMath::PI / 180);
     const double t = r * h / w;
-    const double left  = r * ((x0-x0) * (2.0/w) - 1);
-    const double right = r * ((x0+w-x0) * (2.0/w) - 1);
-    const double bottom = t * ((y0-y0) * (2.0/h) - 1);
-    const double top = t * ((y0+h-y0) * (2.0/h) - 1);
+    const double left  = r * ((x0 - x0) * (2.0 / w) - 1);
+    const double right = r * ((x0 + w - x0) * (2.0 / w) - 1);
+    const double bottom = t * ((y0 - y0) * (2.0 / h) - 1);
+    const double top = t * ((y0 + h - y0) * (2.0 / h) - 1);
     QMatrix4x4 tr;
     tr.frustum(left, right, bottom, top, nearClip, farClip);
     return tr;
@@ -209,8 +209,8 @@ const QMatrix4x4 CellGLView3D::viewMatrix2D() const
 
 const QVector3D CellGLView3D::cameraPosition()
 {
-    const double elev = m_elevation * STMath::PI/180;
-    const double azim = m_azimuth * STMath::PI/180;
+    const double elev = m_elevation * STMath::PI / 180;
+    const double azim = m_azimuth * STMath::PI / 180;
     return QVector3D(
                 m_centerX + m_dist * std::cos(elev) * std::cos(azim),
                 m_centerY + m_dist * std::cos(elev) * std::sin(azim),

@@ -34,10 +34,9 @@ public:
 
     // To import a dataset from a folder
     // the function assumes that
-    // the image is called *.jpg
+    // the image is called *.jpg or *.jpeg or *.png
     // the data is called *.tsv
-    // the aligment is called alignment.txt
-    // the spots file is called spots.txt
+    // the spots file is called *.txt
     // the metadata is present in a JSON file called info.json
     void slotParseFolder();
 
