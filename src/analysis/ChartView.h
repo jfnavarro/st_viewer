@@ -7,7 +7,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-// A simple wrapper around QChartView to allow zooming and mouse events
+// A simple wrapper around QChartView to allow zooming, panning and selections
 class ChartView : public QChartView
 {
     Q_OBJECT
@@ -18,15 +18,15 @@ public:
     virtual ~ChartView() override;
 
 signals:
-
+    // when the user has made a lasso selection
     void signalLassoSelection(QPainterPath);
 
 public slots:
-
+    // when the user wants to export the plot to a file
     void slotExportPlot(const QString &title);
 
 protected:
-
+    // overloaded methods to allow interaction with the view
     bool viewportEvent(QEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -37,7 +37,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-
+    // variables used for the selection and panning
     bool m_panning;
     bool m_lassoSelection;
     QPoint m_originPanning;

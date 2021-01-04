@@ -112,22 +112,23 @@ void AnalysisDEA::slotExportTable()
 
 void AnalysisDEA::slotGeneSelected(QModelIndex index)
 {
-    // Check if the selection is valid
+    // check if the selection is valid
     if (!index.isValid() || m_proxy.isNull()) {
         m_gene_highlight = QPointF();
         return;
     }
 
+    // get selection from the tableview
     const QItemSelection &selected = m_ui->tableview->selectionModel()->selection();
     const QModelIndexList &selected_indexes = m_proxy->mapSelectionToSource(selected).indexes();
 
-    // Check if any elements are selected
+    // check if any elements are selected
     if (selected_indexes.empty()) {
         m_gene_highlight = QPointF();
         return;
     }
 
-    // update the highlight coordinate and refresh the plot
+    // update the highlight coordinate and refresh the volcano plot so the gene gets highlighted
     const int row_index = selected_indexes.first().row();
     const double pvalue = m_results.at(row_index).log_pvalue;
     const double foldchange = m_results.at(row_index).logfc;
@@ -137,20 +138,24 @@ void AnalysisDEA::slotGeneSelected(QModelIndex index)
 
 void AnalysisDEA::updatePlot()
 {
+    qDebug() << "DEA updating volcano plot";
+
     QScatterSeries *series1 = new QScatterSeries();
     QScatterSeries *series2 = new QScatterSeries();
 
+    // one series for the normal genes
     series1->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series1->setMarkerSize(5.0);
     series1->setColor(Qt::gray);
     series1->setUseOpenGL(false);
 
+    // one series for the genes inside the threshold
     series2->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     series2->setMarkerSize(5.0);
     series2->setColor(Qt::red);
     series2->setUseOpenGL(false);
 
-    // populate
+    // populate the series
     for (const auto &res : m_results) {
         if (res.adj_pvalue <= m_ui->adj_pvalue->value()
                 && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
@@ -164,7 +169,7 @@ void AnalysisDEA::updatePlot()
     m_ui->plot->chart()->addSeries(series1);
     m_ui->plot->chart()->addSeries(series2);
 
-    // If any gene must be highlighted
+    // check if any gene must be highlighted so we create a third series
     if (!m_gene_highlight.isNull()) {
         QScatterSeries *series3 = new QScatterSeries();
         series3->setMarkerSize(8.0);
@@ -190,6 +195,8 @@ void AnalysisDEA::updatePlot()
 //TODO create a model for the table so we only need to update the reference
 void AnalysisDEA::updateTable()
 {   
+    qDebug() << "DEA updating table";
+
     // data model
     const int columns = 4;
     const int rows = m_results.size();
@@ -199,7 +206,7 @@ void AnalysisDEA::updateTable()
     model->setHorizontalHeaderItem(2, new QStandardItem(QString("p-value")));
     model->setHorizontalHeaderItem(3, new QStandardItem(QString("logFoldChange")));
 
-    // populate
+    // populate the table with the DE genes
     int high_confidence_de = 0;
     #pragma omp parallel for reduction(+ : high_confidence_de)
     for (int i = 0; i < rows; ++i) {
@@ -220,6 +227,7 @@ void AnalysisDEA::updateTable()
         QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
         foldchange_item->setData(res.logfc, Qt::DisplayRole);
         foldchange_item->setData(res.logfc, Qt::UserRole);
+        // check if DE genes inside threshold
         if (res.adj_pvalue <= m_ui->adj_pvalue->value()
                 && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
             gene_item->setBackground(Qt::red);
@@ -296,6 +304,7 @@ void AnalysisDEA::slotRun()
     }
 
     if (recompute) {
+        qDebug() << "Starting DEA analysis";
         // Filter data
         STData::STDataFrame dataA = m_dataA;
         STData::STDataFrame dataB = m_dataB;
@@ -333,7 +342,7 @@ void AnalysisDEA::slotRun()
             return;
         }
 
-        // Normalize and log matrix of counts
+        // Normalize and log
         mat A = STData::normalizeCounts(dataA, m_normalization).counts;
         mat B = STData::normalizeCounts(dataB, m_normalization).counts;
         if (m_ui->log_scale) {
@@ -369,7 +378,7 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     qDebug() << "Computing DEA for " << A.n_cols << " genes and " << A.n_rows
              << " spots in A and " << B.n_rows << " spots in B";
 
-    // Compute p-values
+    // compute p-values
     std::vector<double> pvals(A.n_cols);
     #pragma omp parallel for
     for (uword j = 0; j < A.n_cols; ++j) {
@@ -387,6 +396,8 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     const vec rowmeansB = conv_to<vec>::from(mean(expm1(B),0));
     const double pseudocount = std::numeric_limits<double>::epsilon();
     const vec logfc = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
+
+    qDebug() << "DEA p-values and fold-changes computed";
 
     m_results.resize(pvals.size());
     // populate results
@@ -406,7 +417,7 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
 
 void AnalysisDEA::slotDEAComputed()
 {
-    qDebug() << "DEA computed";
+    qDebug() << "DEA completed";
 
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
@@ -435,7 +446,7 @@ void AnalysisDEA::slotDEAComputed()
 
 void AnalysisDEA::slotExportPlot()
 {
-    m_ui->plot->slotExportPlot(tr("Save Volcano Plot"));
+    m_ui->plot->slotExportPlot(tr("Export Volcano Plot"));
 }
 
 void AnalysisDEA::customMenuRequested(const QPoint &pos)

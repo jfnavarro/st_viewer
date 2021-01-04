@@ -24,7 +24,7 @@ AnalysisClustering::AnalysisClustering(QWidget *parent)
     connect(m_ui->exportPlot, &QPushButton::clicked,
             this, &AnalysisClustering::slotExportPlot);
     connect(m_ui->createSelections, &QPushButton::clicked,
-            this, &AnalysisClustering::signalClusteringExportSelections);
+            this, &AnalysisClustering::signalExportSelections);
     connect(&m_watcher_clusters, &QFutureWatcher<void>::finished,
             this, &AnalysisClustering::clustersComputed);
     connect(m_ui->plot, &ChartView::signalLassoSelection,
@@ -42,7 +42,7 @@ void AnalysisClustering::clear()
     m_ui->center->setChecked(false);
     m_ui->scale->setChecked(false);
     m_ui->perplexity->setValue(30);
-    m_ui->max_iter->setValue(500);
+    m_ui->max_iter->setValue(5000);
     m_ui->init_dims->setValue(50);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
@@ -59,7 +59,7 @@ void AnalysisClustering::clear()
     m_clusters.clear();
 }
 
-QMultiHash<int, QString> AnalysisClustering::getClustersSpot() const
+QMultiHash<int, QString> AnalysisClustering::getClustersHash() const
 {
     QMultiHash<int, QString> computed_colors;
     for (const auto &item : m_clusters) {
@@ -68,7 +68,7 @@ QMultiHash<int, QString> AnalysisClustering::getClustersSpot() const
     return computed_colors;
 }
 
-const QVector<QPair<QString,int>> &AnalysisClustering::getSpotClusters() const
+const QVector<QPair<QString,int>> &AnalysisClustering::getClusters() const
 {
     return m_clusters;
 }
@@ -85,7 +85,7 @@ void AnalysisClustering::loadData(const STData::STDataFrame &data)
 
 void AnalysisClustering::slotRun()
 {
-    qDebug() << "Computing spot clusters";
+    qDebug() << "Initializing the computation of spot clusters";
     // initialize progress bar
     m_ui->progressBar->setRange(0,0);
     // disable controls
@@ -94,14 +94,14 @@ void AnalysisClustering::slotRun()
     m_ui->createSelections->setEnabled(false);
     // clear the selected spots
     m_selected_spots.clear();
-    // make the call
+    // make the call on another thread
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
     m_watcher_clusters.setFuture(future);
 }
 
 void AnalysisClustering::slotExportPlot()
 {
-    m_ui->plot->slotExportPlot(tr("Clustering plot"));
+    m_ui->plot->slotExportPlot(tr("Spots clustering"));
 }
 
 void AnalysisClustering::computeClustersAsync()
@@ -129,7 +129,7 @@ void AnalysisClustering::computeClustersAsync()
     // Quick sanity check
     if (data.counts.n_rows < 10 || data.counts.n_cols < 10) {
         QMessageBox::critical(this,
-                              tr("Spot classification"),
+                              tr("Spots clustering"),
                               tr("The number of spots or genes is too little"),
                               QMessageBox::Ok,
                               QMessageBox::NoButton);
@@ -159,16 +159,18 @@ void AnalysisClustering::computeClustersAsync()
     }
 
     // Run dimensionality reduction
+    qDebug() << "Performing dimensionality reduction";
     const mat results = tsne ? STMath::tSNE(A, theta, perplexity, max_iter, NO_DIMS, init_dim, -1, false) :
                                STMath::PCA(A, NO_DIMS, center, scale, false);
 
     // Run clustering
+    qDebug() << "Performing k-means clustering";
     const mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
     Q_ASSERT((results.n_rows == A.n_rows) &&
              (results.n_cols == results_clustering.n_rows) &&
              (results_clustering.n_cols == num_clusters));
 
-    // Compile result by obtaining the closest spots to each centroid
+    // Compile results by obtaining the closest spots to each centroid
     const int n_ele = results.n_rows;
     m_clusters.resize(n_ele);
     m_reduced_coordinates.resize(n_ele);
@@ -196,7 +198,7 @@ void AnalysisClustering::computeClustersAsync()
 
 void AnalysisClustering::clustersComputed()
 {
-    qDebug() << "Spot clusters computed";
+    qDebug() << "Spots clustering completed";
 
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
@@ -208,7 +210,7 @@ void AnalysisClustering::clustersComputed()
     // Quick sanity check
     if (m_clusters.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
-                              tr("Spot classification"),
+                              tr("Spots clustering"),
                               tr("There was an error performing the unsupervied clustering"),
                               QMessageBox::Ok,
                               QMessageBox::NoButton);
@@ -233,7 +235,7 @@ void AnalysisClustering::clustersComputed()
         m_series_vector.push_back(series);
     }
 
-    // Add the respective spot (manifold 2D coordinates) to the series it belongs to
+    // Add the respective spot (manifold 2D coordinates) to the series it belongs
     // Also obtain the min-max values of each axes
     double xMin = std::numeric_limits<double>::max();
     double xMax = std::numeric_limits<double>::min();
@@ -272,7 +274,7 @@ void AnalysisClustering::clustersComputed()
     m_ui->exportPlot->setEnabled(true);
 
     // notify the main view
-    emit signalClusteringUpdated();
+    emit signalUpdated();
 }
 
 void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
@@ -301,6 +303,7 @@ void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
         }
     }
     if (!m_selected_spots.empty()) {
-        emit signalClusteringSpotsSelected();
+        // send a signal if the list is not empty
+        emit signalSpotsSelected();
     }
 }

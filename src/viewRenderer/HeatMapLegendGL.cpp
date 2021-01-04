@@ -7,10 +7,10 @@
 #include "math/Common.h"
 #include "color/HeatMap.h"
 
-static const double legend_x = 10.0;
-static const double legend_y = 10.0;
-static const int legend_width = 30;
-static const int legend_height = 200;
+constexpr double legend_x = 10.0;
+constexpr double legend_y = 10.0;
+constexpr int legend_width = 30;
+constexpr int legend_height = 200;
 
 HeatMapLegendGL::HeatMapLegendGL()
     : m_image()

@@ -7,6 +7,7 @@ set(LIBRARY_ARG_INCLUDES
     SelectionGenesWidget.h
     SelectionSpotsWidget.h
     SettingsWidget.h
+    ClustersWidget.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -18,6 +19,7 @@ set(LIBRARY_ARG_SOURCES
     SelectionGenesWidget.cpp
     SelectionSpotsWidget.cpp
     SettingsWidget.cpp
+    ClustersWidget.cpp
 )
 
 ST_LIBRARY()

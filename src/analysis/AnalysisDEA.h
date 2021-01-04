@@ -15,14 +15,16 @@ namespace Ui
 class analysisDEA;
 }
 
-// AnalysisDEA is a widget that contains methods to compute
+// Widget that contains methods to compute a
 // DEA (Differential Expression Analysis) between two datasets
 // It shows the results in a volcano plot and a table
 // that highlights the differently expressed genes at a given threshold
+// Users can interact with the plot and table and export both
 class AnalysisDEA : public QWidget
 {
     Q_OBJECT
 
+    // easy structure to store the DEA results
     struct DEResult {
         double pvalue;
         double log_pvalue;
@@ -44,22 +46,22 @@ signals:
 
 private slots:
 
-    // the user wants to export the DE genes
+    // when the user wants to export the DE genes
     void slotExportTable();
-    // the user has selected a DE gene in the table
+    // when the user has selected a DE gene in the table so it can be highlighted in the plot
     void slotGeneSelected(QModelIndex index);
-    // when the DE genes have been computed in the worker thread
+    // when the DE analysis has been completed so the volcano plot and the table can be updated
     void slotDEAComputed();
-    // to export the volcano plot to  a file
+    // when user wants to export the volcano plot to a file
     void slotExportPlot();
-    // to handle when the user right clicks
+    // to handle when the user right clicks in the table
     void customMenuRequested(const QPoint &pos);
-    // to initialize the data (DE genes and volcano plot)
+    // to initialize the DE analysis
     void slotRun();
 
 private:
 
-    // Internal functions to compute the DE genes and update the table and volcano plot
+    // internal functions to compute the DE genes and update the table and volcano plot
     void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();
@@ -67,7 +69,7 @@ private:
     // GUI object
     QScopedPointer<Ui::analysisDEA> m_ui;
 
-    // the merged data frame and the selections names
+    // the two datasets (selections)
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
 

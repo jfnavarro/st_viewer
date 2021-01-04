@@ -78,11 +78,11 @@ void DatasetsTableView::customMenuRequested(const QPoint &pos)
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(dataset_name);
             } else if (action_text == tr("Open")) {
-                emit signalDatasetOpen(index);
+                emit signalOpen(index);
             } else if (action_text == tr("Edit")) {
-                emit signalDatasetEdit(index);
+                emit signalEdit(index);
             } else if (action_text == tr("Delete")) {
-                emit signalDatasetDelete(index);
+                emit signalDelete(index);
             }
         }
     }

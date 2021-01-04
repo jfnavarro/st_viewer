@@ -29,18 +29,18 @@ public:
 
 private slots:
 
-    // computes and updates the plot and correlation data
+    // computes the correlation, updates the plot and the fields
     void slotUpdateData();
 
     // when the user wants to export the plot to a file
     void slotExportPlot();
 
-    // when the user clicks a point in the plot
+    // when the user clicks a point in the plot so the gene of the point (if any) is shown
     void slotClickedPoint(const QPointF point);
 
 private:
 
-    // the two datasets
+    // the two datasets and their names
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
     QString m_nameA;

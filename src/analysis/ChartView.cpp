@@ -112,6 +112,8 @@ void ChartView::keyPressEvent(QKeyEvent *event)
 
 void ChartView::drawForeground(QPainter *painter, const QRectF &rect)
 {
+    Q_UNUSED(rect);
+
     if (!m_lasso.isEmpty()) {
         painter->setBrush(lasso_color);
         painter->setPen(lasso_color);

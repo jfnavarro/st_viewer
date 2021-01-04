@@ -5,8 +5,8 @@
 #include "STData.h"
 
 // UserSelection represents a selection of spots made by the user trough the UI.
-// Users can select spots manually (lazo, rubberband ..) or by using the selection search
-// box with specific gene names (reg-exp).
+// Users can select spots manually (lazo, rubberband ..) or trough the AnalysisClustering
+// Widget that allows to export clusters as selections
 class UserSelection
 {
 

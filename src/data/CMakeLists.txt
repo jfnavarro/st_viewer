@@ -5,6 +5,7 @@ set(LIBRARY_ARG_INCLUDES
     Gene.h
     UserSelection.h
     STData.h
+    Cluster.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -14,6 +15,7 @@ set(LIBRARY_ARG_SOURCES
     Gene.cpp
     UserSelection.cpp
     STData.cpp
+    Cluster.cpp
 )
 
 ST_LIBRARY()

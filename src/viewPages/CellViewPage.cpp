@@ -17,6 +17,7 @@
 
 #include "viewPages/GenesWidget.h"
 #include "viewPages/SpotsWidget.h"
+#include "viewPages/ClustersWidget.h"
 #include "viewPages/UserSelectionsPage.h"
 #include "viewRenderer/CellGLView3D.h"
 #include "dialogs/SelectionDialog.h"
@@ -34,11 +35,13 @@ using namespace Style;
 
 CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
                            QSharedPointer<GenesWidget> genes,
+                           QSharedPointer<ClustersWidget> clusters,
                            QSharedPointer<UserSelectionsPage> user_selections,
                            QWidget *parent)
     : QWidget(parent)
     , m_spots(spots)
     , m_genes(genes)
+    , m_clusters(clusters)
     , m_user_selections(user_selections)
     , m_ui(new Ui::CellView())
     , m_settings(nullptr)
@@ -95,6 +98,7 @@ void CellViewPage::clear()
     m_settings->reset();
     m_spots->clear();
     m_genes->clear();
+    m_clusters->clear();
     m_clustering->clear();
     m_clustering->close();
     m_dataset = Dataset();
@@ -205,13 +209,20 @@ void CellViewPage::createConnections()
 
     // when the user change any gene
     connect(m_genes.data(),
-            &GenesWidget::signalGenesUpdated, [=] {
+            &GenesWidget::signalUpdated, [=] {
         m_ui->view->slotUpdate();
     });
 
     // when the user change any spot
     connect(m_spots.data(),
-            &SpotsWidget::signalSpotsUpdated, [=] {
+            &SpotsWidget::signalUpdated, [=] {
+        m_ui->view->slotUpdate();
+    });
+
+    // when the user change any cluster
+    connect(m_clusters.data(),
+            &ClustersWidget::signalUpdated, [=] {
+        m_dataset.data()->updateClusters();
         m_ui->view->slotUpdate();
     });
 
@@ -219,18 +230,18 @@ void CellViewPage::createConnections()
     connect(m_ui->loadSpots, &QPushButton::clicked, this, &CellViewPage::slotLoadSpotClustersFile);
 
     // when the user wants to load a file with genes to select
-    connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenesColors);
+    connect(m_ui->loadGenes, &QPushButton::clicked, this, &CellViewPage::slotLoadGenesColorsFile);
 
     // when the user clusters the spots
-    connect(m_clustering.data(), &AnalysisClustering::signalClusteringUpdated,
+    connect(m_clustering.data(), &AnalysisClustering::signalUpdated,
             this, &CellViewPage::slotLoadSpotClusters);
 
     // when the user selects spots from the clustering widget
-    connect(m_clustering.data(), &AnalysisClustering::signalClusteringSpotsSelected,
+    connect(m_clustering.data(), &AnalysisClustering::signalSpotsSelected,
             this, &CellViewPage::slotSelectSpotsClustering);
 
     // when the user wants to create selections from the clusters
-    connect(m_clustering.data(), &AnalysisClustering::signalClusteringExportSelections,
+    connect(m_clustering.data(), &AnalysisClustering::signalExportSelections,
             this, &CellViewPage::slotCreateClusteringSelections);
 }
 
@@ -238,7 +249,7 @@ void CellViewPage::slotPrintImage()
 {
     QPrinter printer;
     printer.setColorMode(QPrinter::Color);
-    printer.setOrientation(QPrinter::Landscape);
+    printer.setPageOrientation(QPageLayout::Landscape);
 
     QScopedPointer<QPrintDialog> dialog(new QPrintDialog(&printer, this));
     if (dialog->exec() != QDialog::Accepted) {
@@ -286,7 +297,7 @@ void CellViewPage::slotSaveImage()
 
 void CellViewPage::slotShowQC()
 {
-    AnalysisQC *qc = new AnalysisQC(m_dataset.data()->data(), this, Qt::Window);
+    AnalysisQC *qc = new AnalysisQC(m_dataset.data()->data(), this);
     qc->show();
 }
 
@@ -296,7 +307,7 @@ void CellViewPage::slotClustering()
     m_clustering->show();
 }
 
-//TODO same code as slotLoadGenesColors()
+//TODO same code as slotLoadGenesColorsFile()
 void CellViewPage::slotLoadSpotClustersFile()
 {
     const QString filename
@@ -318,9 +329,7 @@ void CellViewPage::slotLoadSpotClustersFile()
     }
 
     QFile file(filename);
-    QVector<QString> spots;
-    QVector<int> clusters;
-    QVector<QString> infos;
+    QMultiHash<int, QString> clusters;
     bool parsed = true;
     // Parse the spots map = spot -> color
     if (file.open(QIODevice::ReadOnly)) {
@@ -336,13 +345,10 @@ void CellViewPage::slotLoadSpotClustersFile()
             }
             const QString spot = fields.at(0);
             const int cluster = fields.at(1).toInt();
-            const QString info = fields.size() > 2 ? fields.at(2) : QString::number(cluster);
-            spots.append(spot);
-            clusters.append(cluster);
-            infos.append(info);
+            clusters.insert(cluster, spot);
         }
 
-        if (spots.empty()) {
+        if (clusters.empty()) {
             QMessageBox::warning(this,
                                  tr("Spot Clusters File"),
                                  tr("No valid spots could be found in the file"),
@@ -359,15 +365,14 @@ void CellViewPage::slotLoadSpotClustersFile()
     }
     file.close();
 
-    // Update spot colors
+    // Update clusters and spots
     if (parsed) {
-        m_dataset.data()->loadSpotColors(spots, clusters, infos);
-        m_spots->update();
-        m_ui->view->slotUpdate();
+        createClusters(clusters);
     }
 }
 
-void CellViewPage::slotLoadGenesColors()
+//TODO same code as slotLoadSpotClustersFile()
+void CellViewPage::slotLoadGenesColorsFile()
 {
     const QString filename
             = QFileDialog::getOpenFileName(this,
@@ -437,17 +442,36 @@ void CellViewPage::slotLoadGenesColors()
 
 void CellViewPage::slotLoadSpotClusters()
 {
-    QVector<QString> spots;
-    QVector<int> clusters;
-    QVector<QString> infos;
-    for (const auto &cluster : m_clustering->getSpotClusters()) {
-        spots.append(cluster.first);
-        clusters.append(cluster.second);
-        infos.append(QString::number(cluster.second));
+    // get the map of cluster -> spots
+    const QMultiHash<int, QString> clusters = m_clustering->getClustersHash();
+    createClusters(clusters);
+}
+
+void CellViewPage::createClusters(const QMultiHash<int, QString> &clusters)
+{
+    const auto keys = clusters.uniqueKeys();
+    const auto min_max = std::minmax_element(keys.begin(), keys.end());
+    const int min = *min_max.first;
+    const int max = *min_max.second;
+    STData::ClusterListType cluster_objects;
+    //TODO make this parallel
+    for (const auto &cluster : keys) {
+        // get the spots for the cluster
+        const QList<QString> &cluster_spots = clusters.values(cluster);
+        auto cluster_obj = STData::ClusterObjectType(new Cluster);
+        //TODO duplicated code, this is being done in the AnalysisClustering
+        const QColor color = Color::createCMapColor(cluster,
+                                                    min,
+                                                    max,
+                                                    QCPColorGradient::gpJet);
+        cluster_obj->color(color);
+        cluster_obj->name(QString::number(cluster));
+        cluster_obj->spots(cluster_spots);
+        cluster_obj->visible(true);
+        cluster_objects.append(cluster_obj);
     }
-    m_dataset.data()->loadSpotColors(spots,
-                                     clusters,
-                                     infos);
+    m_dataset.data()->loadClusters(cluster_objects);
+    m_clusters->slotLoadClusters(cluster_objects);
     m_spots->update();
     m_ui->view->slotUpdate();
 }
@@ -460,18 +484,19 @@ void CellViewPage::slotSelectSpotsClustering()
 
 void CellViewPage::slotCreateClusteringSelections()
 {
-    // get the map of color -> spots
-    const QMultiHash<int, QString> colors_spot = m_clustering->getClustersSpot();
-    for(const auto &color : colors_spot.uniqueKeys()) {
-        // get the spots for the color
-        const QList<QString> &color_spots = colors_spot.values(color);
+    // get the map of cluster -> spots
+    const QMultiHash<int, QString> clusters = m_clustering->getClustersHash();
+    //TODO make this parallel
+    for (const auto &cluster : clusters.uniqueKeys()) {
+        // get the spots for the cluster
+        const QList<QString> &cluster_spots = clusters.values(cluster);
         // slice the data frame
-        STData::STDataFrame scliced_data = m_dataset.data()->sliceDataSpots(color_spots);
+        STData::STDataFrame scliced_data = m_dataset.data()->sliceDataSpots(cluster_spots);
         //TODO check the the slice is not empty
         // create selection object
         UserSelection new_selection(scliced_data);
-        // proposes a selection name as DATASET NAME + color + current timestamp
-        new_selection.name(m_dataset.name() + "_" + QString::number(color) + "_"
+        // proposes a selection name as DATASET NAME + cluster + current timestamp
+        new_selection.name(m_dataset.name() + "_" + QString::number(cluster) + "_"
                            + QDateTime::currentDateTimeUtc().toString());
         new_selection.dataset(m_dataset.name());
         qDebug() << "Creating selection " << new_selection.name();

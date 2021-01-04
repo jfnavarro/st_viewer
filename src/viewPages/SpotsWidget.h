@@ -21,11 +21,13 @@ class QColorDialog;
 class SpotsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
+
     explicit SpotsWidget(QWidget *parent = nullptr);
     virtual ~SpotsWidget() override;
 
-    // clear focus/status and selections
+    // clear variables
     void clear();
 
     // forces an update of the table
@@ -33,8 +35,8 @@ public:
 
 signals:
 
-    // signals emitted when the user selects or change colors of spots
-    void signalSpotsUpdated();
+    // signals emitted when the user selects or change colors
+    void signalUpdated();
 
 public slots:
     // the user has opened a dataset and the spots must be updated
@@ -43,10 +45,9 @@ public slots:
 
 private slots:
 
-    // slots triggered by the show/color/selected controls in the gene table
+    // slots triggered by the show/color controls in the spots table
     void slotSetColor(const QColor &color);
     void slotSetVisible(bool visible);
-    void slotSetSelected(const bool selected);
 
 private:
     // internal function to configure created buttons

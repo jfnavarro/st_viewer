@@ -83,11 +83,11 @@ void UserSelectionTableView::customMenuRequested(const QPoint &pos)
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(selection_name);
             } else if (action_text == tr("Export")) {
-                emit signalSelectionExport(index);
+                emit signalExport(index);
             } else if (action_text == tr("Edit")) {
-                emit signalSelectionEdit(index);
+                emit signalEdit(index);
             } else if (action_text == tr("Delete")) {
-                emit signalSelectionDelete(index);
+                emit signalDelete(index);
             }
         }
     }

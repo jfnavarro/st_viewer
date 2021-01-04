@@ -8,7 +8,7 @@
 class QImage;
 
 // Heatmap is a convenience namespace containing functions to generate
-// heatmap related images and data.
+// heatmap related images and data as well as colors.
 namespace Color
 {
 
@@ -52,6 +52,7 @@ QColor adjustVisualMode(const QColor color,
                         const double max,
                         const SettingsWidget::VisualMode mode);
 
+//TODO increase the number of colors
 static QStringList color_list = (QStringList() << "red" << "green"
                                  << "blue" << "cyan" << "magenta"
                                  << "yellow" << "black" << "grey"

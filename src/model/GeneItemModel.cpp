@@ -16,6 +16,10 @@ GeneItemModel::GeneItemModel(QObject *parent)
 {
 }
 
+GeneItemModel::~GeneItemModel()
+{
+}
+
 QVariant GeneItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || m_items_reference.empty()) {
@@ -145,10 +149,10 @@ Qt::ItemFlags GeneItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void GeneItemModel::loadDataset(const Dataset &dataset)
+void GeneItemModel::loadData(const STData::GeneListType &genes)
 {
     beginResetModel();
-    m_items_reference = dataset.data()->genes();
+    m_items_reference = genes;
     endResetModel();
 }
 

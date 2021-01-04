@@ -4,6 +4,7 @@ set(LIBRARY_ARG_INCLUDES
     GenesTableView.h
     SpotsTableView.h
     UserSelectionTableView.h
+    ClusterTableView.h
 )
 
 set(LIBRARY_ARG_SOURCES
@@ -11,6 +12,7 @@ set(LIBRARY_ARG_SOURCES
     GenesTableView.cpp
     SpotsTableView.cpp
     UserSelectionTableView.cpp
+    ClusterTableView.cpp
 )
 
 ST_LIBRARY()

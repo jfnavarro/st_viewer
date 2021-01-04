@@ -29,6 +29,7 @@
 #include "viewPages/UserSelectionsPage.h"
 #include "viewPages/GenesWidget.h"
 #include "viewPages/SpotsWidget.h"
+#include "viewPages/ClustersWidget.h"
 #include "config/Configuration.h"
 #include "SettingsStyle.h"
 
@@ -50,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_user_selections(nullptr)
     , m_genes(nullptr)
     , m_spots(nullptr)
+    , m_clusters(nullptr)
 {
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -58,11 +60,13 @@ MainWindow::MainWindow(QWidget *parent)
     Q_ASSERT(m_genes);
     m_spots.reset(new SpotsWidget());
     Q_ASSERT(m_spots);
+    m_clusters.reset(new ClustersWidget());
+    Q_ASSERT(m_clusters);
     m_datasets.reset(new DatasetPage());
     Q_ASSERT(m_datasets);
     m_user_selections.reset(new UserSelectionsPage());
     Q_ASSERT(m_user_selections);
-    m_cellview.reset(new CellViewPage(m_spots, m_genes, m_user_selections));
+    m_cellview.reset(new CellViewPage(m_spots, m_genes, m_clusters, m_user_selections));
     Q_ASSERT(m_cellview);
 }
 
@@ -199,15 +203,24 @@ void MainWindow::setupUi()
 
     // add spots table as dock widget
     QDockWidget *dock_spots = new QDockWidget(tr("Spots"), this);
-    m_genes->setObjectName("Spots");
+    m_spots->setObjectName("Spots");
     dock_spots->setWidget(m_spots.data());
     dock_spots->setObjectName("SpotsDock");
     dock_spots->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     menuViews->addAction(dock_spots->toggleViewAction());
     addDockWidget(Qt::LeftDockWidgetArea, dock_spots);
 
+    // add clusters table as dock widget
+    QDockWidget *dock_clusters = new QDockWidget(tr("Clusters"), this);
+    dock_clusters->setObjectName("Clusters");
+    dock_clusters->setWidget(m_clusters.data());
+    dock_clusters->setObjectName("ClustersDock");
+    dock_clusters->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menuViews->addAction(dock_clusters->toggleViewAction());
+    addDockWidget(Qt::LeftDockWidgetArea, dock_clusters);
+
     // App's name
-    statusBar()->showMessage(tr("Spatial Transcriptomics Research Viewer"));
+    statusBar()->showMessage(tr("Spatial Transcriptomics Viewer"));
 }
 
 void MainWindow::slotShowAbout()

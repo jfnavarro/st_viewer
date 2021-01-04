@@ -104,7 +104,7 @@ Qt::ItemFlags DatasetItemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
-void DatasetItemModel::loadDatasets(const QList<Dataset> &datasetList)
+void DatasetItemModel::loadData(const QList<Dataset> &datasetList)
 {
     beginResetModel();
     m_datasets_reference = datasetList;

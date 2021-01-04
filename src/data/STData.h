@@ -10,6 +10,7 @@
 
 #include "data/Gene.h"
 #include "data/Spot.h"
+#include "data/Cluster.h"
 #include "viewPages/SettingsWidget.h"
 #include "viewRenderer/SelectionEvent.h"
 
@@ -24,8 +25,10 @@ public:
 
     typedef QSharedPointer<Spot> SpotObjectType;
     typedef QSharedPointer<Gene> GeneObjectType;
+    typedef QSharedPointer<Cluster> ClusterObjectType;
     typedef QVector<SpotObjectType> SpotListType;
     typedef QVector<GeneObjectType> GeneListType;
+    typedef QVector<ClusterObjectType> ClusterListType;
 
     struct STDataFrame {
         mat counts;
@@ -49,6 +52,9 @@ public:
     // Returns the spot/gene objects corresponding to the data matrix
     const GeneListType &genes() const;
     const SpotListType &spots() const;
+
+    // Returns the clusters if any
+    const ClusterListType &clusters() const;
 
     // Rendering functions (OpenGL)
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
@@ -87,10 +93,12 @@ public:
     void selectSpots(const QVector<QString> &spots);
     void selectSpots(const QVector<int> &spots_indexes);
 
-    // Load spot clusters with meta info
-    void loadSpotColors(const QVector<QString> &spots,
-                        const QVector<int> &clusters,
-                        const QVector<QString> &infos);
+    // load spot clusters with meta info
+    void loadClusters(const ClusterListType &clusters);
+
+    // to notify that the clusters have been updated
+    void updateClusters();
+
     // Load gene colours
     void loadGeneColors(const QVector<QString> &genes,
                         const QVector<int> &colors);
@@ -112,7 +120,12 @@ private:
     SpotListType m_spots;
     GeneListType m_genes;
 
-    // Convenience hash tables (gene name -> indez) and (spot name -> indez)
+    // Clusters can be loaded from a file or from AnalysisClustering
+    // users can interact with clusters so to make change the visible/color
+    // of the spots belonging to the clusters
+    ClusterListType m_clusters;
+
+    // Convenience hash tables (gene name -> index) and (spot name -> index)
     QHash<QString, int> m_spot_index;
     QHash<QString, int> m_gene_index;
 

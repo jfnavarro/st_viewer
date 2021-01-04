@@ -9,7 +9,7 @@ class QModelIndex;
 class QStringList;
 class QItemSelection;
 
-// Wrapper model for the user selections
+// Data model for the user selections in the selections table
 class UserSelectionsItemModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -20,7 +20,7 @@ public:
         Name = 0,
         Dataset = 1,
         NGenes = 2,
-        NSpots = 3,
+        NSpots = 3
     };
 
     explicit UserSelectionsItemModel(QObject *parent = nullptr);
@@ -34,14 +34,14 @@ public:
                         int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    // reset current model
-    void clear();
-
-    // loads the data of the model from the given input
-    void loadUserSelections(const QList<UserSelection> &selectionList);
-
     // returns a list of selections items from the indexes given as input
     QList<UserSelection> getSelections(const QItemSelection &selection);
+
+    // loads the data of the model from the given input
+    void loadData(const QList<UserSelection> &selectionList);
+
+    // reset current model
+    void clear();
 
 private:
     QList<UserSelection> m_userSelectionList;

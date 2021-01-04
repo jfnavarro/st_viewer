@@ -11,6 +11,7 @@
 
 #include "viewTables/GenesTableView.h"
 #include "model/GeneItemModel.h"
+#include "data/Dataset.h"
 
 #include "SettingsStyle.h"
 
@@ -118,9 +119,9 @@ GenesWidget::GenesWidget(QWidget *parent)
             m_genes_tableview.data(),
             &GenesTableView::setNameFilter);
     connect(m_genes_tableview.data(),
-            &GenesTableView::signalGenesUpdated,
+            &GenesTableView::signalUpdated,
             this,
-            &GenesWidget::signalGenesUpdated);
+            &GenesWidget::signalUpdated);
 }
 
 GenesWidget::~GenesWidget()
@@ -153,18 +154,18 @@ void GenesWidget::slotSetVisible(bool visible)
 {
     m_genes_tableview->getModel()->setVisibility(m_genes_tableview->getItemSelection(), visible);
     m_genes_tableview->update();
-    emit signalGenesUpdated();
+    emit signalUpdated();
 }
 
 void GenesWidget::slotSetColor(const QColor &color)
 {
     m_genes_tableview->getModel()->setColor(m_genes_tableview->getItemSelection(), color);
     m_genes_tableview->update();
-    emit signalGenesUpdated();
+    emit signalUpdated();
 }
 
 void GenesWidget::slotLoadDataset(const Dataset &dataset)
 {
-    m_genes_tableview->getModel()->loadDataset(dataset);
+    m_genes_tableview->getModel()->loadData(dataset.data()->genes());
     m_genes_tableview->update();
 }

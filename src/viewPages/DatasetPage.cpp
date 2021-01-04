@@ -45,11 +45,11 @@ DatasetPage::DatasetPage(QWidget *parent)
     connect(m_ui->editDataset, SIGNAL(clicked(bool)), this, SLOT(slotEditDataset()));
     connect(m_ui->openDataset, SIGNAL(clicked(bool)), this, SLOT(slotOpenDataset()));
     connect(m_ui->importDataset, &QPushButton::clicked, this, &DatasetPage::slotImportDataset);
-    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetOpen(QModelIndex)),
+    connect(m_ui->datasetsTableView, SIGNAL(signalOpen(QModelIndex)),
             this, SLOT(slotOpenDataset(QModelIndex)));
-    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetEdit(QModelIndex)),
+    connect(m_ui->datasetsTableView, SIGNAL(signalEdit(QModelIndex)),
             this, SLOT(slotEditDataset(QModelIndex)));
-    connect(m_ui->datasetsTableView, SIGNAL(signalDatasetDelete(QModelIndex)),
+    connect(m_ui->datasetsTableView, SIGNAL(signalDelete(QModelIndex)),
             this, SLOT(slotRemoveDataset(QModelIndex)));
 
     // reset controls
@@ -269,7 +269,7 @@ QSharedPointer<Dataset> DatasetPage::getCurrentDataset() const
 void DatasetPage::slotDatasetsUpdated()
 {
     // update model and clear controls
-    datasetsModel()->loadDatasets(m_importedDatasets);
+    datasetsModel()->loadData(m_importedDatasets);
     clearControls();
 }
 

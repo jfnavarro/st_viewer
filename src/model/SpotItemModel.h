@@ -10,21 +10,28 @@ class QMimeData;
 class QItemSelection;
 class Dataset;
 
-// Wrapper model class for the spot data (specific to a dataset).
-// Primarily used to enumerate the spots in the cell view (spots table)
+// Data model class for the spot data (specific to a dataset).
+// Primarily used to enumerate the spots in the cell spots table
 // and allow the user to interact with individual spots.
 class SpotItemModel : public QAbstractTableModel
 {
     Q_OBJECT
     Q_ENUMS(Column)
-public:
 
-    enum Column { Show = 0, Selected = 1, Name = 2, Count = 3, Color = 4, Info = 5};
+public:
+    enum Column {
+        Show = 0,
+        Name = 1,
+        Count = 2,
+        Color = 3
+    };
 
     explicit SpotItemModel(QObject *parent = nullptr);
+    virtual ~SpotItemModel();
 
     // Header:
-    QVariant headerData(int section, Qt::Orientation orientation,
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -33,16 +40,13 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // this function will set to visible the spots included in the selection
-    void setVisibility(const QItemSelection &selection, bool visible);
-
-    // this function will set to selected the spots inluded in the selection
-    void setSelected(const QItemSelection &selection, bool selected);
+    void setVisible(const QItemSelection &selection, bool visible);
 
     // this function will modify the color of the spots included in the selection
     void setColor(const QItemSelection &selection, const QColor &color);
 
     // reload the model's data from the dataset (spots)
-    void loadDataset(const Dataset &dataset);
+    void loadData(const STData::SpotListType &spots);
 
     // clear and reset the model
     void clear();

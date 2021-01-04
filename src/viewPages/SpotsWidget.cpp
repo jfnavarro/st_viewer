@@ -12,6 +12,7 @@
 
 #include "viewTables/SpotsTableView.h"
 #include "model/SpotItemModel.h"
+#include "data/Dataset.h"
 
 #include "SettingsStyle.h"
 
@@ -66,21 +67,6 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     // add separation
     spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
-    QPushButton *selectSpotsButton = new QPushButton(this);
-    configureButton(selectSpotsButton,
-                    QIcon(QStringLiteral(":/images/select_spots.png")),
-                    tr("Select selected spots"));
-    spotListLayout->addWidget(selectSpotsButton);
-    // add separation
-    spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
-
-    QPushButton *deselectSpotsButton = new QPushButton(this);
-    configureButton(deselectSpotsButton,
-                    QIcon(QStringLiteral(":/images/deselect_spots.png")),
-                    tr("Unselect selected spots"));
-    spotListLayout->addWidget(deselectSpotsButton);
-    // add separation
-    spotListLayout->addSpacing(CELL_PAGE_SUB_MENU_BUTTON_SPACE);
 
     QPushButton *showColorButton = new QPushButton(this);
     configureButton(showColorButton,
@@ -105,7 +91,7 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     // add actions menu to main layout
     spotsLayout->addLayout(spotListLayout);
 
-    // create genes table
+    // create spots table
     m_spots_tableview.reset(new SpotsTableView(this));
     // add table to main layout
     spotsLayout->addWidget(m_spots_tableview.data());
@@ -116,8 +102,6 @@ SpotsWidget::SpotsWidget(QWidget *parent)
     // connections
     connect(showSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(true); });
     connect(hideSelectedButton, &QPushButton::clicked, [=]() { slotSetVisible(false); });
-    connect(selectSpotsButton, &QPushButton::clicked, [=]() { slotSetSelected(true); });
-    connect(deselectSpotsButton, &QPushButton::clicked, [=]() { slotSetSelected(false); });
     connect(selectionAllButton, &QPushButton::clicked,
             m_spots_tableview.data(), &SpotsTableView::selectAll);
     connect(selectionClearAllButton,
@@ -137,9 +121,9 @@ SpotsWidget::SpotsWidget(QWidget *parent)
             m_spots_tableview.data(),
             &SpotsTableView::setNameFilter);
     connect(m_spots_tableview.data(),
-            &SpotsTableView::signalSpotsUpdated,
+            &SpotsTableView::signalUpdated,
             this,
-            &SpotsWidget::signalSpotsUpdated);
+            &SpotsWidget::signalUpdated);
 }
 
 SpotsWidget::~SpotsWidget()
@@ -176,27 +160,20 @@ void SpotsWidget::configureButton(QPushButton *button, const QIcon &icon, const 
 
 void SpotsWidget::slotSetVisible(bool visible)
 {
-    m_spots_tableview->getModel()->setVisibility(m_spots_tableview->getItemSelection(), visible);
+    m_spots_tableview->getModel()->setVisible(m_spots_tableview->getItemSelection(), visible);
     m_spots_tableview->update();
-    emit signalSpotsUpdated();
+    emit signalUpdated();
 }
 
 void SpotsWidget::slotSetColor(const QColor &color)
 {
     m_spots_tableview->getModel()->setColor(m_spots_tableview->getItemSelection(), color);
     m_spots_tableview->update();
-    emit signalSpotsUpdated();
-}
-
-void SpotsWidget::slotSetSelected(const bool selected)
-{
-    m_spots_tableview->getModel()->setSelected(m_spots_tableview->getItemSelection(), selected);
-    m_spots_tableview->update();
-    emit signalSpotsUpdated();
+    emit signalUpdated();
 }
 
 void SpotsWidget::slotLoadDataset(const Dataset &dataset)
 {
-    m_spots_tableview->getModel()->loadDataset(dataset);
+    m_spots_tableview->getModel()->loadData(dataset.data()->spots());
     m_spots_tableview->update();
 }

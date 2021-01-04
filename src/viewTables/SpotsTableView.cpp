@@ -43,15 +43,12 @@ SpotsTableView::SpotsTableView(QWidget *parent)
     setEditTriggers(QAbstractItemView::DoubleClicked);
 
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Name, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(SpotItemModel::Info, QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Color, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(SpotItemModel::Color, 50);
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Count, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(SpotItemModel::Count, 100);
     horizontalHeader()->setSectionResizeMode(SpotItemModel::Show, QHeaderView::Fixed);
     horizontalHeader()->resizeSection(SpotItemModel::Show, 50);
-    horizontalHeader()->setSectionResizeMode(SpotItemModel::Selected, QHeaderView::Fixed);
-    horizontalHeader()->resizeSection(SpotItemModel::Selected, 60);
     horizontalHeader()->setSortIndicatorShown(true);
     verticalHeader()->hide();
 
@@ -83,15 +80,14 @@ void SpotsTableView::customMenuRequested(const QPoint &pos)
     const QModelIndex index = indexAt(pos);
     if (index.isValid()) {
         QMenu *menu = new QMenu(this);
-        menu->addAction(new QAction(tr("Copy spot"), this));
+        menu->addAction(new QAction(tr("Copy name"), this));
         menu->addAction(new QAction(tr("Show/Hide"), this));
-        menu->addAction(new QAction(tr("Select/Unselect"), this));
         menu->addAction(new QAction(tr("Change color"), this));
         QAction *selection = menu->exec(viewport()->mapToGlobal(pos));
         if (selection != nullptr) {
             const QModelIndex correct_index = m_sortProxyModel->mapToSource(index);
             const QString action_text = selection->text();
-            if (action_text == tr("Copy spot")) {
+            if (action_text == tr("Copy name")) {
                 const QModelIndex new_index = getModel()->index(correct_index.row(), SpotItemModel::Name);
                 const QString spot_name = getModel()->data(new_index, Qt::DisplayRole).toString();
                 QClipboard *clipboard = QApplication::clipboard();
@@ -99,21 +95,15 @@ void SpotsTableView::customMenuRequested(const QPoint &pos)
             } else if (action_text == tr("Show/Hide")) {
                 const QModelIndex new_index = getModel()->index(correct_index.row(), SpotItemModel::Show);
                 const bool selected = getModel()->data(new_index, Qt::CheckStateRole).toBool();
-                getModel()->setVisibility(QItemSelection(correct_index, correct_index), !selected);
+                getModel()->setVisible(QItemSelection(correct_index, correct_index), !selected);
                 update();
-                emit signalSpotsUpdated();
-            } else if (action_text == tr("Select/Unselect")) {
-                const QModelIndex new_index = getModel()->index(correct_index.row(), SpotItemModel::Selected);
-                const bool selected = getModel()->data(new_index, Qt::CheckStateRole).toBool();
-                getModel()->setSelected(QItemSelection(correct_index, correct_index), !selected);
-                update();
-                emit signalSpotsUpdated();
+                emit signalUpdated();
             } else if (action_text == tr("Change color")) {
                 // launch color selector
-                const QColor color = QColorDialog::getColor(Qt::red, this, tr("Gene color"));
+                const QColor color = QColorDialog::getColor(Qt::red, this, tr("Spot color"));
                 getModel()->setColor(QItemSelection(correct_index, correct_index), color);
                 update();
-                emit signalSpotsUpdated();
+                emit signalUpdated();
             }
         }
     }

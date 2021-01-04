@@ -98,13 +98,13 @@ void GenesTableView::customMenuRequested(const QPoint &pos)
                 const bool selected = getModel()->data(new_index, Qt::CheckStateRole).toBool();
                 getModel()->setVisibility(QItemSelection(correct_index, correct_index), !selected);
                 update();
-                emit signalGenesUpdated();
+                emit signalUpdated();
             } else if (action_text == tr("Change color")) {
                 // launch color selector
                 const QColor color = QColorDialog::getColor(Qt::red, this, tr("Gene color"));
                 getModel()->setColor(QItemSelection(correct_index, correct_index), color);
                 update();
-                emit signalGenesUpdated();
+                emit signalUpdated();
             }
         }
     }

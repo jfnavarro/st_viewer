@@ -12,7 +12,7 @@ QImage createLegend(const int width,
                     const double upperbound,
                     const ColorGradients cmap)
 {
-
+    // create an empty image
     QImage image(width, height, QImage::Format_ARGB32);
     for (int y = 0; y < height; ++y) {
         // get the color of each line of the image as the heatmap
@@ -30,7 +30,6 @@ QImage createLegend(const int width,
             image.setPixel(x, y, rgb_color);
         }
     }
-
     return image;
 }
 

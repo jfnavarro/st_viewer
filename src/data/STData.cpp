@@ -618,28 +618,40 @@ void STData::selectSpots(const QVector<int> &spots_indexes)
     }
 }
 
-void STData::loadSpotColors(const QVector<QString> &spots,
-                            const QVector<int> &clusters,
-                            const QVector<QString> &infos)
+void STData::loadClusters(const ClusterListType &clusters)
 {
-    Q_ASSERT(spots.size() == clusters.size() && spots.size() == infos.size());
-    const auto min_max = std::minmax_element(clusters.begin(), clusters.end());
-    const int min = *min_max.first;
-    const int max = *min_max.second;
     #pragma omp parallel for
-    for (int i = 0; i < spots.size(); ++i) {
-        const QString &spot = spots.at(i);
-        const int cluster = clusters.at(i);
-        const QString &info = infos.at(i);
-        const QColor color = Color::createCMapColor(cluster,
-                                                    min,
-                                                    max,
-                                                    QCPColorGradient::gpJet);
-        const int spot_index = m_spot_index.value(spot, -1);
-        if (spot_index != -1) {
-            m_spots.at(spot_index)->color(color);
-            m_spots.at(spot_index)->visible(true);
-            m_spots.at(spot_index)->info(info);
+    for (int i = 0; i < clusters.size(); ++i) {
+        const auto cluster_obj = clusters.at(i);
+        const auto &spots = cluster_obj->spots();
+        const QColor &color = cluster_obj->color();
+        for (int j = 0; j < spots.size(); ++j) {
+            const int spot_index = m_spot_index.value(spots.at(j), -1);
+            if (spot_index != -1) {
+                m_spots.at(spot_index)->color(color);
+                m_spots.at(spot_index)->visible(true);
+            }
+        }
+    }
+    m_clusters = clusters;
+}
+
+//TODO this updates all the spots but we should only update the spots of the cluster that
+// is changing
+void STData::updateClusters()
+{
+    #pragma omp parallel for
+    for (int i = 0; i < m_clusters.size(); ++i) {
+        const auto cluster_obj = m_clusters.at(i);
+        const auto &spots = cluster_obj->spots();
+        const QColor &color = cluster_obj->color();
+        const bool &visible = cluster_obj->visible();
+        for (int j = 0; j < spots.size(); ++j) {
+            const int spot_index = m_spot_index.value(spots.at(j), -1);
+            if (spot_index != -1) {
+                m_spots.at(spot_index)->color(color);
+                m_spots.at(spot_index)->visible(visible);
+            }
         }
     }
 }

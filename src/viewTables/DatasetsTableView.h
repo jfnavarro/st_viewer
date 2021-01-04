@@ -6,31 +6,30 @@
 
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the datasets page's table
+// An abstraction of QTableView for the datasets
 class DatasetsTableView : public QTableView
 {
     Q_OBJECT
 
 public:
-    explicit DatasetsTableView(QWidget *parent = 0);
+    explicit DatasetsTableView(QWidget *parent = nullptr);
     virtual ~DatasetsTableView();
 
     // returns the current selection mapped to the sorting model
     QItemSelection datasetsTableItemSelection() const;
 
 signals:
-
-    void signalDatasetOpen(QModelIndex index);
-    void signalDatasetEdit(QModelIndex index);
-    void signalDatasetDelete(QModelIndex index);
+    // signals emitted when the user open/edit/delete a dataset
+    void signalOpen(QModelIndex index);
+    void signalEdit(QModelIndex index);
+    void signalDelete(QModelIndex index);
 
 private slots:
-
     // when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
-    // references to proxy model
+    // reference to proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 
     Q_DISABLE_COPY(DatasetsTableView)

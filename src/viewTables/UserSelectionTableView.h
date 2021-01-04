@@ -6,32 +6,30 @@
 
 class QSortFilterProxyModel;
 
-// An abstraction of QTableView for the user selections page's table
+// An abstraction of QTableView for the user selections
 class UserSelectionTableView : public QTableView
 {
     Q_OBJECT
 
 public:
-
-    explicit UserSelectionTableView(QWidget *parent = 0);
+    explicit UserSelectionTableView(QWidget *parent = nullptr);
     virtual ~UserSelectionTableView();
 
     // returns the current selection mapped to the sorting model
     QItemSelection userSelecionTableItemSelection() const;
 
 signals:
-
-    void signalSelectionExport(QModelIndex);
-    void signalSelectionEdit(QModelIndex);
-    void signalSelectionDelete(QModelIndex);
+    // signals emitted when the user eport/edit/delete a selection
+    void signalExport(QModelIndex);
+    void signalEdit(QModelIndex);
+    void signalDelete(QModelIndex);
 
 private slots:
-
     // when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
-    // references to the proxy model
+    // reference to the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
 
     Q_DISABLE_COPY(UserSelectionTableView)

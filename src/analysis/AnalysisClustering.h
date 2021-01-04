@@ -26,11 +26,11 @@ public:
     explicit AnalysisClustering(QWidget *parent = nullptr);
     virtual ~AnalysisClustering();
 
-    // one cluster (integer value) for each spot
-    const QVector<QPair<QString,int>> &getSpotClusters() const;
-
     // list of spots for each cluster (integer value)
-    QMultiHash<int, QString> getClustersSpot() const;
+    QMultiHash<int, QString> getClustersHash() const;
+
+    // list of clusters (pair(int,spot))
+    const QVector<QPair<QString,int>> &getClusters() const;
 
     // assigns the dataset
     void loadData(const STData::STDataFrame &data);
@@ -45,21 +45,22 @@ public slots:
 
 signals:
 
-    void signalClusteringUpdated();
-    void signalClusteringSpotsSelected();
-    void signalClusteringExportSelections();
+    void signalUpdated();
+    void signalSpotsSelected();
+    void signalExportSelections();
 
 private slots:
 
     // performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // cluster the reduced coordinates (2D) using KMeans so to compute classes/colors
+    // clusters the reduced coordinates (2D) using k-means so to compute classes/colors
     // for each spot
     void slotRun();
 
     // exports the scatter plot to a file
     void slotExportPlot();
 
-    // when the user makes a lasso selection on the scatter plot
+    // when the user makes a lasso selection on the scatter plot so the spots inside
+    // the selection are added to a list and a signal is emitted
     void slotLassoSelection(const QPainterPath &path);
 
 private:

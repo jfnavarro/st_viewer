@@ -33,6 +33,7 @@ public:
     const QString &statComments() const;
     double scalingFactor() const;
 
+    // generated
     const QTransform &alignmentMatrix() const;
     const QVector<QPair<QImage, QPoint>> &image_tiles() const;
     const QRect image_bounds() const;
@@ -54,7 +55,7 @@ public:
 
 private:
 
-    // Function to parse the image and tile it
+    // Function to parse the image and break into tiles
     bool load_Image();
 
     QString m_name;

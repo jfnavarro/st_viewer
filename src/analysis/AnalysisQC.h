@@ -10,16 +10,15 @@ namespace Ui
 class analysisQC;
 }
 
-// AnalysisQC is a Widget that is used to show to the users
-// the spots/genes distributions of a dataset
+// Widget that is used to compute and show
+// the spots/genes distributions of a dataset and useful stats
 class AnalysisQC : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit AnalysisQC(const STData::STDataFrame &data,
-                        QWidget *parent = nullptr,
-                        Qt::WindowFlags f = 0);
+                        QWidget *parent = nullptr);
     virtual ~AnalysisQC();
 
 signals:

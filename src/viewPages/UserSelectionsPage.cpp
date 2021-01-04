@@ -53,11 +53,11 @@ UserSelectionsPage::UserSelectionsPage(QWidget *parent)
     connect(m_ui->qcAnalysis, &QPushButton::clicked, this, &UserSelectionsPage::slotQC);
     connect(m_ui->merge, &QPushButton::clicked, this, &UserSelectionsPage::slotMerge);
 
-    connect(m_ui->selections_tableView, SIGNAL(signalSelectionExport(QModelIndex)),
+    connect(m_ui->selections_tableView, SIGNAL(signalExport(QModelIndex)),
             this, SLOT(slotExportSelection(QModelIndex)));
-    connect(m_ui->selections_tableView, SIGNAL(signalSelectionEdit(QModelIndex)),
+    connect(m_ui->selections_tableView, SIGNAL(signalEdit(QModelIndex)),
             this, SLOT(slotEditSelection(QModelIndex)));
-    connect(m_ui->selections_tableView, SIGNAL(signalSelectionDelete(QModelIndex)),
+    connect(m_ui->selections_tableView, SIGNAL(signalDelete(QModelIndex)),
             this, SLOT(slotRemoveSelection(QModelIndex)));
 
     clearControls();
@@ -148,7 +148,7 @@ void UserSelectionsPage::addSelection(const UserSelection& selection)
 void UserSelectionsPage::selectionsUpdated()
 {
     clearControls();
-    selectionsModel()->loadUserSelections(m_selections);
+    selectionsModel()->loadData(m_selections);
     m_ui->selections_tableView->update();
 }
 
@@ -424,7 +424,7 @@ void UserSelectionsPage::slotQC()
     }
 
     const auto selectionObject = currentSelection.front();
-    AnalysisQC *qc = new AnalysisQC(selectionObject.data(), this, Qt::Window);
+    AnalysisQC *qc = new AnalysisQC(selectionObject.data(), this);
     qc->show();
 }
 

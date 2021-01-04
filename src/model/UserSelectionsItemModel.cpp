@@ -129,7 +129,7 @@ void UserSelectionsItemModel::clear()
     endResetModel();
 }
 
-void UserSelectionsItemModel::loadUserSelections(const QList<UserSelection> &selectionList)
+void UserSelectionsItemModel::loadData(const QList<UserSelection> &selectionList)
 {
     beginResetModel();
     m_userSelectionList = selectionList;

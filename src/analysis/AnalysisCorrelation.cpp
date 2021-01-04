@@ -37,6 +37,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     // update the shared genes field
     m_ui->sharedGenes->setText(QString::number(num_shared_genes));
 
+    // if there are shared genes compute correlations and update
     if (num_shared_genes > 0) {
         // keep only the shared genes in the data matrix (same order)
         uvec to_keepA(num_shared_genes);
@@ -58,7 +59,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         connect(m_ui->exportPlot, &QPushButton::clicked,
                 this, &AnalysisCorrelation::slotExportPlot);
 
-        // Update the plots and data fields
+        // Compute correlation and update the plots and data fields
         slotUpdateData();
 
     } else {
@@ -104,6 +105,7 @@ void AnalysisCorrelation::slotUpdateData()
     for (size_t i = 0; i < rowsumA.size(); ++i) {
         m_series->append(rowsumA.at(i), rowsumB.at(i));
     }
+    // so users can interact with the plot
     connect(m_series.data(), &QScatterSeries::clicked,
             this, &AnalysisCorrelation::slotClickedPoint);
 
@@ -112,7 +114,7 @@ void AnalysisCorrelation::slotUpdateData()
     m_ui->plot->chart()->addSeries(m_series.data());
 
     // update legends in plot
-    m_ui->plot->chart()->setTitle(tr("Correlation Plot (Accumulated genes counts)"));
+    m_ui->plot->chart()->setTitle(tr("Correlation (Accumulated genes counts)"));
     m_ui->plot->chart()->setDropShadowEnabled(false);
     m_ui->plot->chart()->legend()->hide();
     m_ui->plot->chart()->createDefaultAxes();
@@ -126,7 +128,7 @@ void AnalysisCorrelation::slotUpdateData()
 
 void AnalysisCorrelation::slotExportPlot()
 {
-    m_ui->plot->slotExportPlot(tr("Correlation Plot"));
+    m_ui->plot->slotExportPlot(tr("Correlation"));
 }
 
 void AnalysisCorrelation::slotClickedPoint(const QPointF point)

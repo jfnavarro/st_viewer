@@ -15,17 +15,18 @@ class CellViewPage;
 class UserSelectionsPage;
 class SpotsWidget;
 class GenesWidget;
+class ClustersWidget;
 
 // This class represents the main window of the application
-// it is composed of a tool bar, the cell main view and the gene tables
+// it is composed of a tool bar, the main view and the gene/spot/clusters tables
 // it allows the user to show the datasets and the selections windows as well
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    virtual ~MainWindow();
 
     // Initialize main visual components
     void init();
@@ -83,6 +84,7 @@ private:
     QSharedPointer<UserSelectionsPage> m_user_selections;
     QSharedPointer<GenesWidget> m_genes;
     QSharedPointer<SpotsWidget> m_spots;
+    QSharedPointer<ClustersWidget> m_clusters;
 };
 
 #endif // MAINWINDOW_H

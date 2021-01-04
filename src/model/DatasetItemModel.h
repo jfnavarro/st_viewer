@@ -8,8 +8,7 @@ class QStandardItemModel;
 class QItemSelection;
 class Dataset;
 
-// Wrapper model class for datasets in the Datasets table. Provides easy
-// means of enumerating all the data sets connected to a single user.
+// Data model class for datasets in the Datasets table
 // TODO highlight openned dataset
 class DatasetItemModel : public QAbstractTableModel
 {
@@ -19,10 +18,10 @@ class DatasetItemModel : public QAbstractTableModel
 public:
     enum Column {
         Name = 0,
-        Comments = 1,
+        Comments = 1
     };
 
-    explicit DatasetItemModel(QObject *parent = 0);
+    explicit DatasetItemModel(QObject *parent = nullptr);
     virtual ~DatasetItemModel();
 
     // Necessary to override
@@ -33,11 +32,11 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    // Updates the data model with the data given as input
-    void loadDatasets(const QList<Dataset> &datasetList);
-
     // Returns a list of datasets for the given items selection
     QList<Dataset> getDatasets(const QItemSelection &selection);
+
+    // Updates the data model with the data given as input
+    void loadData(const QList<Dataset> &datasetList);
 
     // Clear the current model
     void clear();

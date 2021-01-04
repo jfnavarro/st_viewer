@@ -10,8 +10,8 @@ class QMimeData;
 class QItemSelection;
 class Dataset;
 
-// Wrapper model class for the gene data (specific to a dataset).
-// Primarily used to enumerate the genes in the cell view (genes table)
+// Data model class for the gene data (specific to a dataset).
+// Primarily used to enumerate the genes in the genes table
 // and allow the user to interact with individual genes.
 class GeneItemModel : public QAbstractTableModel
 {
@@ -19,9 +19,15 @@ class GeneItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
-    enum Column { Show = 0, Name = 1, Count = 2, Color = 3 };
+    enum Column {
+        Show = 0,
+        Name = 1,
+        Count = 2,
+        Color = 3
+    };
 
     explicit GeneItemModel(QObject *parent = nullptr);
+    virtual ~GeneItemModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -39,7 +45,7 @@ public:
     void setColor(const QItemSelection &selection, const QColor &color);
 
     // reload the model's data from the dataset (genes)
-    void loadDataset(const Dataset &dataset);
+    void loadData(const STData::GeneListType &genes);
 
     // clear and reset the model
     void clear();

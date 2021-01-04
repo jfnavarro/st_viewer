@@ -7,12 +7,13 @@
 #include "ui_analysisQC.h"
 
 AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
-                       QWidget *parent,
-                       Qt::WindowFlags f)
-    : QWidget(parent, f)
+                       QWidget *parent)
+    : QWidget(parent, Qt::Window)
     , m_ui(new Ui::analysisQC)
 {
     m_ui->setupUi(this);
+
+    qDebug() << "QC computing data";
 
     // compute the stats
     const vec nonzero_col = conv_to<vec>::from(sum(data.counts != 0, 0));
@@ -33,8 +34,10 @@ AnalysisQC::AnalysisQC(const STData::STDataFrame &data,
         hist_genes = hist(nonzero_row);
         hist_spots = hist(nonzero_col);
     } catch (const std::logic_error &e) {
-        qDebug() << "Error computing histograms " << e.what();
+        qDebug() << "Error computing QC histograms " << e.what();
     }
+
+    qDebug() << "QC data generated";
 
     // populate the line edits
     m_ui->maxTranscripts->setText(max_transcripts_spot);
