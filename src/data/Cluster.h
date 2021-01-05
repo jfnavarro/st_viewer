@@ -24,12 +24,16 @@ public:
 
     // the spot ids contained in the cluster
     const ClusterType &spots() const;
+
     // the cluster name/info
     const QString name() const;
+
     // the cluster's color
     const QColor color() const;
+
     // true if the spot is visible
     bool visible() const;
+
     // the number of elements in the cluster
     int size() const;
 

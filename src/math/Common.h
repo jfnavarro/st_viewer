@@ -79,7 +79,7 @@ inline const QColor invlerp(const double t, const QColor &c0, const QColor &c1)
                             (c0.alphaF() - (t * c1.alphaF())) * invt);
 }
 
-// Euclidean distance between two vectors of type T such that T has binary +,-,*
+// euclidean distance between two vectors of type T such that T has binary +,-,*
 template <class T>
 inline double euclidean(const std::vector<T> &v1, const std::vector<T> &v2)
 {
@@ -103,7 +103,7 @@ inline double euclidean(const T x1, const T y1, const T x2, const T y2)
     return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 }
 
-// The statistical mean of a vector of values
+// statistical mean of a vector of values
 template <class T>
 inline double mean(const std::vector<T> &v)
 {
@@ -111,7 +111,7 @@ inline double mean(const std::vector<T> &v)
     return sum / v.size();
 }
 
-// The statistical standard deviation of a vector of values
+// statistical standard deviation of a vector of values
 template <class T>
 inline double std_dev(const std::vector<T> &v)
 {
@@ -122,7 +122,7 @@ inline double std_dev(const std::vector<T> &v)
     return std::sqrt(sq_sum / v.size());
 }
 
-// The statistical standard deviation of two vectors of values
+// statistical standard deviation of two vectors of values
 template <class T>
 inline double covariance(const std::vector<T> &v1, const std::vector<T> &v2)
 {
@@ -135,7 +135,7 @@ inline double covariance(const std::vector<T> &v1, const std::vector<T> &v2)
     return sum / (v1.size() - 1);
 }
 
-// Pearson Correlation
+// pearson Correlation
 template <class T>
 inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
 {
@@ -147,7 +147,7 @@ inline double pearson(const std::vector<T> &v1, const std::vector<T> &v2)
     return covariance(v1, v2) / std;
 }
 
-// Returns a list of indexes sorted by their values in the input vector
+// returns a list of indexes sorted by their values in the input vector
 template <typename T>
 inline std::vector<size_t> sort_indexes(const std::vector<T> &v)
 {
@@ -158,7 +158,7 @@ inline std::vector<size_t> sort_indexes(const std::vector<T> &v)
   return idx;
 }
 
-// Simple pval correction using the Bonferroni method
+// simple pval correction using the Bonferroni method
 inline std::vector<double> p_adjustB(const std::vector<double> &pvals)
 {
     const double m = static_cast<double>(pvals.size());
@@ -169,7 +169,7 @@ inline std::vector<double> p_adjustB(const std::vector<double> &pvals)
     return padjust;
 }
 
-// Simple pval correction using the Bonferroni-Holm method
+// simple pval correction using the Bonferroni-Holm method
 inline std::vector<double> p_adjustBH(const std::vector<double> &pvals)
 {
     const size_t n = pvals.size();
@@ -185,7 +185,7 @@ inline std::vector<double> p_adjustBH(const std::vector<double> &pvals)
     return adj_pvals;
 }
 
-// Simple pval correction using the Benjamini-Hochberg method
+// simple pval correction using the Benjamini-Hochberg method
 inline std::vector<double> p_adjustBenH(const std::vector<double> &pvals)
 {
     const size_t n = pvals.size();
@@ -282,7 +282,7 @@ inline mat tSNE(const mat &data,
     return manifold;
 }
 
-// Returns the value x from the log normal distribution with parameters m and s
+// returns the value x from the log normal distribution with parameters m and s
 inline double log_normal(const double x, const double m, const double s)
 {
     if (x > 0) {
@@ -292,7 +292,7 @@ inline double log_normal(const double x, const double m, const double s)
     }
 }
 
-// Returns the value x from the normal distribution with parameters m and s
+// returns the value x from the normal distribution with parameters m and s
 inline double normal(const double x, const double m, const double s)
 {
     if (x > 0) {
@@ -302,13 +302,13 @@ inline double normal(const double x, const double m, const double s)
     }
 }
 
-// Returns the value x from the log normal cumulative density function
+// returns the value x from the log normal cumulative density function
 inline double normal_cdf(const double x)
 {
     return erfc(-x / std::sqrt(2)) / 2.0;
 }
 
-// Wilcoxon rigned rank test (as implemented in Scipy.stats)
+// wilcoxon rigned rank test (as implemented in Scipy.stats)
 inline double wilcoxon_rank_test(const vec &a, const vec &b)
 {
     const size_t n1 = a.size();

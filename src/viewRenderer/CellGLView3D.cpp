@@ -281,21 +281,26 @@ void CellGLView3D::paintGL()
         m_mesh->draw(projection, view, model, eye);
     }
 
+    // TODO alpha is currently not working
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 -1.0 : m_rendering_settings->intensity;
 
     // make size proportional to the zoom
-    const int size = std::max(10.0, static_cast<float>(m_rendering_settings->size * 5) * m_zoom);
+    const int size = is3D ? static_cast<float>(m_rendering_settings->size * 2) :
+                            std::max(15.0, static_cast<float>(m_rendering_settings->size * 5) * m_zoom);
 
     // Render gene data
     m_program.bind();
+
     m_program.setUniformValue(u_size, size);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
+
     m_vao.bind();
     glDrawArrays(GL_POINTS, 0, m_num_points);
     m_vao.release();
+
     m_program.release();
 
     painter.endNativePainting();
@@ -416,13 +421,16 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
     if (!m_initialized) {
         return;
     }
+
     const double zoomFactor = std::pow(4.0 / 3.0, (event->delta() / 240.0));
     m_zoom *= zoomFactor;
+
     if (event->modifiers() & Qt::ControlModifier) {
         m_fov *= zoomFactor;
     } else {
         m_dist *= zoomFactor;
     }
+
     event->ignore();
     update();
 }
@@ -432,8 +440,10 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
     if (!m_initialized) {
         return;
     }
+
     const bool is_left = event->button() == Qt::LeftButton;
     const bool is3D = m_dataset.is3D();
+
     if (is_left && m_rubberBanding && !is3D) {
         // rubberbanding changes cursor to pointing hand
         setCursor(Qt::PointingHandCursor);
@@ -449,6 +459,7 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
     }
+
     event->ignore();
     update();
 }
@@ -458,10 +469,12 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
     if (!m_initialized) {
         return;
     }
+
     const bool is_left = event->buttons() & Qt::LeftButton;
     const bool is3D = m_dataset.is3D();
     const QPoint diff = event->globalPos() - m_pos;
     m_pos = event->globalPos();
+
     // first check if we are in selection mode
     if (is_left && m_rubberBanding && !is3D) {
         // update the rubber band
@@ -477,6 +490,7 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
     } else {
         setRotation(-diff.x(), diff.y());
     }
+
     event->ignore();
     update();
 }
@@ -486,9 +500,12 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
     if (!m_initialized) {
         return;
     }
+
     unsetCursor();
+
     const bool is_left = event->button() == Qt::LeftButton;
     const bool is3D = m_dataset.is3D();
+
     if (is_left && m_rubberBanding && !is3D) {
         const QRectF rubberBandRect = m_rubberband->geometry();
         QPainterPath path;
@@ -499,6 +516,7 @@ void CellGLView3D::mouseReleaseEvent(QMouseEvent *event)
         sendSelectionEvent(m_lasso, event);
         m_lasso = QPainterPath();
     }
+
     event->ignore();
     update();
 }
@@ -507,12 +525,13 @@ void CellGLView3D::sendSelectionEvent(const QPainterPath &path, const QMouseEven
 {
     // map selected area to node cordinate system
     const QTransform alignment = m_dataset.alignmentMatrix();
-    QPainterPath transformed = QTransform(alignment * viewMatrix2D().toTransform()).inverted().map(path);
+    QPainterPath transformed = QTransform(viewMatrix2D().toTransform() * alignment).inverted().map(path);
 
     // if selection area is not inside the bounding rect select empty rect
-    if (!transformed.intersects(m_dataset.image_bounds())) {
-        transformed = QPainterPath();
-    }
+    // TODO this is not working well when the image is scaled
+    //if (!transformed.intersects(m_dataset.image_bounds())) {
+    //    transformed = QPainterPath();
+    //}
 
     // Set the new selection area
     const SelectionEvent::SelectionMode mode

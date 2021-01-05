@@ -16,7 +16,7 @@ class HeatMapLegendGL
 public:
 
     HeatMapLegendGL();
-    ~HeatMapLegendGL();
+    virtual ~HeatMapLegendGL();
 
     // clear up all data
     void clearData();

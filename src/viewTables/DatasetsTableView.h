@@ -12,6 +12,7 @@ class DatasetsTableView : public QTableView
     Q_OBJECT
 
 public:
+
     explicit DatasetsTableView(QWidget *parent = nullptr);
     virtual ~DatasetsTableView();
 
@@ -19,16 +20,19 @@ public:
     QItemSelection datasetsTableItemSelection() const;
 
 signals:
+
     // signals emitted when the user open/edit/delete a dataset
     void signalOpen(QModelIndex index);
     void signalEdit(QModelIndex index);
     void signalDelete(QModelIndex index);
 
 private slots:
+
     // when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
+
     // reference to proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortDatasetsProxyModel;
 

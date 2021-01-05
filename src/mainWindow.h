@@ -28,13 +28,13 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
 
-    // Initialize main visual components
+    // initialize main visual components
     void init();
 
-    // Check that the host has all the required hardware (true yes : false no )
+    // check that the host has all the required hardware (true yes : false no )
     bool checkSystemRequirements() const;
 
-    // System settings
+    // system settings
     void loadSettings();
     void saveSettings() const;
 
@@ -51,19 +51,25 @@ private slots:
 
     // a dataset has been opened
     void slotDatasetOpen(const QString &datasetname);
+
     // a dataset has been edited
     void slotDatasetUpdated(const QString &datasetname);
+
     // a dataset has been removed (the current open)
     void slotDatasetRemoved(const QString &datasetname);
 
 private:
+
     // create all the widgets
     void setupUi();
+
     // load style sheets
     void initStyle();
+
     // create keyboard shortcuts
     void createShorcuts();
-    // create some connections
+
+    // create connections
     void createConnections();
 
     // overloaded close Event function to handle the exit

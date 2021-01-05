@@ -19,6 +19,7 @@ class GeneItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
+
     enum Column {
         Show = 0,
         Name = 1,
@@ -29,13 +30,15 @@ public:
     explicit GeneItemModel(QObject *parent = nullptr);
     virtual ~GeneItemModel();
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    // header
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
+    // basic functionality
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     // this function will set to visible the genes included in the selection
@@ -55,6 +58,7 @@ public slots:
 signals:
 
 private:
+
     STData::GeneListType m_items_reference;
 
     Q_DISABLE_COPY(GeneItemModel)

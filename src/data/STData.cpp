@@ -36,11 +36,11 @@ STData::~STData()
 
 STData::STDataFrame STData::read(const QString &filename)
 {
-    // Open file
+    // open file
     std::ifstream f(filename.toStdString(), std::ios::in);
     qDebug() << "Opening ST Data file " << filename;
 
-    // Parse the file
+    // parse the file and extra spots/genes and values
     STDataFrame data;
     std::vector<double> values;
     unsigned row_number = 0;
@@ -78,13 +78,14 @@ STData::STDataFrame STData::read(const QString &filename)
     const uword n_spots = data.spots.size();
     const uword n_genes = data.genes.size();
     qDebug() << "Parsed data file with " << n_genes << " genes and " << n_spots << " spots";
+    // TODO add a try-catch here
     data.counts = mat(values.data(), n_genes, n_spots).t();
     return data;
 }
 
 void STData::init(const QString &filename, const QString &spots_coordinates) {
 
-    // First parse the matrix with counts
+    // first parse the matrix with counts
     try {
         m_data = read(filename);
     } catch (const std::exception &e) {
@@ -101,9 +102,10 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
         throw;
     }
 
-    // Create the spot object (only spots in the spots coordiantes file will be included)
-    // Compute the total sum of the spot to add it to the spot objects
+    // create the spot objects (only spots in the spots coordiantes file will be included)
+    // compute the total sum of the spot to add it to the spot objects
     // and if the total sum == 0 the spot is discarded
+    // also initialize the rendering data
     std::vector<uword> to_keep_spots;
     m_spots.clear();
     m_spot_index.clear();
@@ -134,6 +136,9 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
         }
     });
 
+    // create the gene objects
+    // compute the total sum of the gene to add it to the gene objects
+    // and if the total sum == 0 the gene is discarded
     std::vector<uword> to_keep_genes;
     m_gene_index.clear();
     m_genes.clear();
@@ -164,6 +169,7 @@ void STData::init(const QString &filename, const QString &spots_coordinates) {
         throw std::runtime_error("No valid spots or genes could be found in the file.");
     }
 
+    // slice data
     m_data.counts = m_data.counts.submat(uvec(to_keep_spots),
                                          uvec(to_keep_genes));
 
@@ -267,7 +273,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         rows_to_keep = find(rows_to_keep);
         cols_to_keep = find(cols_to_keep);
 
-        // normalize
+        // normalize before slicing with the filters
         // TODO this could be cached to save computation time
         data = normalizeCounts(data, rendering_settings.normalization_mode);
 
@@ -313,6 +319,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
                 for (const auto &j : detected_genes) {
                     const auto gene_obj = m_genes.at(cols_to_keep.at(j));
                     if (row_vec.at(j) > 0 && gene_obj->color() != merged_color) {
+                        // merge colors (genes) in the same spot using linear interpolation
                         merged_color = STMath::lerp(1.0 / ++num_genes, merged_color, gene_obj->color());
                     }
                 }
@@ -356,6 +363,7 @@ const QVector<Spot::SpotType> &STData::renderingCoords() const
 QMap<QString, Spot::SpotType> STData::parseSpotsMap(const QString &spots_file) const
 {
     qDebug() << "Parsing spots file " << spots_file;
+
     QMap<QString, Spot::SpotType> spotMap;
     QFile file(spots_file);
     // Parse the spots map = old_spot -> pixel coordinates
@@ -402,11 +410,13 @@ QMap<QString, Spot::SpotType> STData::parseSpotsMap(const QString &spots_file) c
                 spotMap.insert(old_spot, new_spot);
             }
         }
+
         if (spotMap.empty() || !parsed) {
             qDebug() << "No valid spots were found in the spots file";
             file.close();
             throw std::runtime_error("No valid spots found in the spot coordinates file");
         }
+
     } else {
         qDebug() << "Could not open spots file";
         file.close();
@@ -453,12 +463,15 @@ STData::STDataFrame STData::filterCounts(const STDataFrame &data,
     // get columns (genes) >= min_genes
     const urowvec num_genes = sum(data.counts >= min_reads, COLUMN);
     const uvec cols_to_keep = find(num_genes >= min_spots);
+
     // get rows (spots) >= min_spots
     const ucolvec num_spots = sum(data.counts >= min_reads, ROW);
     const uvec rows_to_keep = find(num_spots >= min_genes);
+
     // create filtered_matrix
     if (rows_to_keep.size() != data.counts.n_rows
             || cols_to_keep.size() != data.counts.n_cols) {
+
         STDataFrame sliced_data;
         sliced_data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
         QFuture<void> future1 = QtConcurrent::run([&] {
@@ -466,13 +479,16 @@ STData::STDataFrame STData::filterCounts(const STDataFrame &data,
                 sliced_data.genes.append(data.genes.at(i));
             }
         });
+
         QFuture<void> future2 = QtConcurrent::run([&]() {
             for (const auto &j : rows_to_keep) {
                 sliced_data.spots.append(data.spots.at(j));
             }
         });
+
         future1.waitForFinished();
         future2.waitForFinished();
+
         return sliced_data;
     } else {
         return data;
@@ -491,8 +507,10 @@ const STData::STDataFrame STData::sliceDataSpots(const QList<QString> &spots)
             sliced_data.spots.append(spot);
         }
     }
+
     sliced_data.genes = m_data.genes;
     sliced_data.counts = m_data.counts.rows(conv_to<uvec>::from(to_keep_rows));
+
     // Return the sliced data frame
     return sliced_data;
 }
@@ -509,8 +527,10 @@ const STData::STDataFrame STData::sliceDataGenes(const QList<QString> &genes)
             sliced_data.genes.append(gene);
         }
     }
+
     sliced_data.spots = m_data.spots;
     sliced_data.counts = m_data.counts.cols(conv_to<uvec>::from(to_keep_cols));
+
     // Return the sliced data frame
     return sliced_data;
 }
@@ -524,7 +544,7 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
         return dataframes.first();
     }
 
-    // First merge genes and add index to spots (dataset)
+    // first merge genes and add index to spots (dataset)
     QSet<QString> merged_genes;
     QList<QString> merged_spots;
     for (int i = 0; i < dataframes.size(); ++i) {
@@ -538,7 +558,7 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
         merged_spots += adj_spots;
     }
 
-    // Create merged data frame
+    // create merged data frame
     STDataFrame merged;
     merged.genes = merged_genes.values();
     merged.spots = merged_spots;
@@ -547,7 +567,7 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
     merged.counts = mat(n_rows, n_cols);
     merged.counts.fill(0.0);
 
-    // Populate it with the counts
+    // populate it with the counts
     for (const auto &data : dataframes) {
         std::vector<uword> gene_indexes;
         for (uword i = 0; i < data.counts.n_rows; ++i) {
@@ -566,6 +586,7 @@ STData::STDataFrame STData::aggregate(const QList<STDataFrame> &dataframes)
             }
         }
     }
+
     return merged;
 }
 
@@ -583,7 +604,7 @@ void STData::selectSpots(const SelectionEvent &event)
         clearSelection();
     }
 
-    // update selection
+    // update selection if spot inside the selection event
     const bool remove = (mode == SelectionEvent::SelectionMode::ExcludeSelection);
     QtConcurrent::blockingMap(m_spots, [&](auto spot) {
         const auto &coord = spot->adj_coordinates();
@@ -628,6 +649,7 @@ void STData::loadClusters(const ClusterListType &clusters)
         for (int j = 0; j < spots.size(); ++j) {
             const int spot_index = m_spot_index.value(spots.at(j), -1);
             if (spot_index != -1) {
+                // Reading should be thread-safe
                 m_spots.at(spot_index)->color(color);
                 m_spots.at(spot_index)->visible(true);
             }
@@ -636,8 +658,6 @@ void STData::loadClusters(const ClusterListType &clusters)
     m_clusters = clusters;
 }
 
-//TODO this updates all the spots but we should only update the spots of the cluster that
-// is changing
 void STData::updateClusters()
 {
     #pragma omp parallel for
@@ -649,6 +669,7 @@ void STData::updateClusters()
         for (int j = 0; j < spots.size(); ++j) {
             const int spot_index = m_spot_index.value(spots.at(j), -1);
             if (spot_index != -1) {
+                // Reading should be thread-safe
                 m_spots.at(spot_index)->color(color);
                 m_spots.at(spot_index)->visible(visible);
             }

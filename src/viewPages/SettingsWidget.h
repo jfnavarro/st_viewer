@@ -7,6 +7,7 @@ namespace Ui {
 class SettingsWidget;
 }
 
+// A simple class that stores all the rendering settings present in the SettingsWidget
 class SettingsWidget : public QWidget
 {
     Q_OBJECT
@@ -70,6 +71,7 @@ signals:
     void signalRendering();
 
 private:
+
     QScopedPointer<Ui::SettingsWidget> m_ui;
     Rendering m_rendering_settings;
 };

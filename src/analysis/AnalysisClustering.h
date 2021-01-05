@@ -45,8 +45,13 @@ public slots:
 
 signals:
 
+    // when the clustering has been performed
     void signalUpdated();
+
+    // when the user has selected spots trough the scatter plot
     void signalSpotsSelected();
+
+    // when the user wants to export clusters as selections
     void signalExportSelections();
 
 private slots:

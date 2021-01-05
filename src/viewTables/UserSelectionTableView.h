@@ -12,6 +12,7 @@ class UserSelectionTableView : public QTableView
     Q_OBJECT
 
 public:
+
     explicit UserSelectionTableView(QWidget *parent = nullptr);
     virtual ~UserSelectionTableView();
 
@@ -19,16 +20,19 @@ public:
     QItemSelection userSelecionTableItemSelection() const;
 
 signals:
+
     // signals emitted when the user eport/edit/delete a selection
     void signalExport(QModelIndex);
     void signalEdit(QModelIndex);
     void signalDelete(QModelIndex);
 
 private slots:
+
     // when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
+
     // reference to the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortSelectionsProxyModel;
 

@@ -13,6 +13,7 @@ class ClusterTableView : public QTableView
     Q_OBJECT
 
 public:
+
     explicit ClusterTableView(QWidget *parent = nullptr);
     virtual ~ClusterTableView();
 
@@ -24,18 +25,22 @@ public:
     ClusterItemModel *getModel();
 
 signals:
+
     // signal emitted when the user selects or change colors of clusters
     void signalUpdated();
 
 public slots:
+
     // slot used to set a search on the table by name
     void setNameFilter(const QString &str);
 
 private slots:
+
     // slot to handle when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
+
     // reference to  the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortProxyModel;
 

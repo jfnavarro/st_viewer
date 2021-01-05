@@ -39,6 +39,7 @@ signals:
     void signalUpdated();
 
 public slots:
+
     // the user has opened a dataset and the spots must be updated
     // spots is a reference to the spots of the dataset
     void slotLoadDataset(const Dataset &dataset);

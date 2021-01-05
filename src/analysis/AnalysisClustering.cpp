@@ -17,6 +17,8 @@ AnalysisClustering::AnalysisClustering(QWidget *parent)
 {
     // setup UI
     m_ui->setupUi(this);
+
+    // resent to default
     clear();
 
     connect(m_ui->runClustering, &QPushButton::clicked,
@@ -42,7 +44,8 @@ void AnalysisClustering::clear()
     m_ui->center->setChecked(false);
     m_ui->scale->setChecked(false);
     m_ui->perplexity->setValue(30);
-    m_ui->max_iter->setValue(5000);
+    m_ui->max_iter->setValue(100);
+    m_ui->genes_keep->setValue(5000);
     m_ui->init_dims->setValue(50);
     m_ui->progressBar->setTextVisible(true);
     m_ui->exportPlot->setEnabled(false);
@@ -87,13 +90,17 @@ void AnalysisClustering::slotRun()
 {
     qDebug() << "Initializing the computation of spot clusters";
     // initialize progress bar
+
     m_ui->progressBar->setRange(0,0);
+
     // disable controls
     m_ui->runClustering->setEnabled(false);
     m_ui->exportPlot->setEnabled(false);
     m_ui->createSelections->setEnabled(false);
+
     // clear the selected spots
     m_selected_spots.clear();
+
     // make the call on another thread
     QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
     m_watcher_clusters.setFuture(future);
@@ -120,13 +127,13 @@ void AnalysisClustering::computeClustersAsync()
     const bool center = pca_tab->findChild<QCheckBox *>("center")->isChecked();
     const bool tsne = m_ui->tab->currentIndex() == 0;
 
-    // Filter data
+    // filter data
     STData::STDataFrame data = STData::filterCounts(m_data,
                                                     m_ui->reads_threshold->value(),
                                                     m_ui->genes_threshold->value(),
                                                     m_ui->spots_threshold->value());
 
-    // Quick sanity check
+    // quick sanity check
     if (data.counts.n_rows < 10 || data.counts.n_cols < 10) {
         QMessageBox::critical(this,
                               tr("Spots clustering"),
@@ -137,7 +144,7 @@ void AnalysisClustering::computeClustersAsync()
     }
 
 
-    // Normalize and log matrix of counts
+    // normalize and log matrix of counts
     SettingsWidget::NormalizationMode normalization = SettingsWidget::RAW;
     if (m_ui->normalization_rel->isChecked()) {
         normalization = SettingsWidget::REL;
@@ -149,7 +156,7 @@ void AnalysisClustering::computeClustersAsync()
         A = log1p(A);
     }
 
-    // Keep top variance genes
+    // keep top variance genes
     if (num_genes_keep < data.counts.n_cols) {
         const auto var_genes = var(data.counts, 1);
         const auto idx = conv_to<uvec>::from(sort_index(var_genes, "descend"));
@@ -158,19 +165,21 @@ void AnalysisClustering::computeClustersAsync()
         qDebug() << "Keeping " << data.counts.n_cols << " genes";
     }
 
-    // Run dimensionality reduction
+    // run dimensionality reduction
     qDebug() << "Performing dimensionality reduction";
+    //TODO add a try-catch here
     const mat results = tsne ? STMath::tSNE(A, theta, perplexity, max_iter, NO_DIMS, init_dim, -1, false) :
                                STMath::PCA(A, NO_DIMS, center, scale, false);
 
-    // Run clustering
+    // run clustering
     qDebug() << "Performing k-means clustering";
+    //TODO add a try-catch here
     const mat results_clustering = STMath::kmeans_clustering(results, num_clusters, false);
     Q_ASSERT((results.n_rows == A.n_rows) &&
              (results.n_cols == results_clustering.n_rows) &&
              (results_clustering.n_cols == num_clusters));
 
-    // Compile results by obtaining the closest spots to each centroid
+    // compile results by obtaining the closest spots to each centroid
     const int n_ele = results.n_rows;
     m_clusters.resize(n_ele);
     m_reduced_coordinates.resize(n_ele);
@@ -189,6 +198,7 @@ void AnalysisClustering::computeClustersAsync()
                 min_index = j;
             }
         }
+        // store the spots for each centroid/cluster (i)
         if (min_index != -1) {
             m_clusters[i] = QPair<QString, int>(data.spots.at(i), min_index + 1);
             m_reduced_coordinates[i] = QPointF(x1,y1);
@@ -202,12 +212,14 @@ void AnalysisClustering::clustersComputed()
 
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
+
     // enable run button
     m_ui->runClustering->setEnabled(true);
+
     // enable the save clusters buttton
     m_ui->createSelections->setEnabled(true);
 
-    // Quick sanity check
+    // quick sanity check
     if (m_clusters.empty() || m_reduced_coordinates.empty()) {
         QMessageBox::critical(this,
                               tr("Spots clustering"),
@@ -220,7 +232,7 @@ void AnalysisClustering::clustersComputed()
     const int min = 1;
     const int num_clusters = m_ui->clusters->value();
 
-    // Create one QScatterSeries for each different cluster (color)
+    // create one QScatterSeries for each different cluster (one color per cluster too)
     m_series_vector.clear();
     for (int k = 1; k <= num_clusters; ++k) {
         QScatterSeries *series = new QScatterSeries();
@@ -235,8 +247,8 @@ void AnalysisClustering::clustersComputed()
         m_series_vector.push_back(series);
     }
 
-    // Add the respective spot (manifold 2D coordinates) to the series it belongs
-    // Also obtain the min-max values of each axes
+    // add the respective spot (manifold 2D coordinates) to the series it belongs
+    // also obtain the min-max values of each axes
     double xMin = std::numeric_limits<double>::max();
     double xMax = std::numeric_limits<double>::min();
     double yMin = std::numeric_limits<double>::max();
@@ -273,13 +285,13 @@ void AnalysisClustering::clustersComputed()
     // enable export controls
     m_ui->exportPlot->setEnabled(true);
 
-    // notify the main view
+    // notify that clustering has been completed
     emit signalUpdated();
 }
 
 void AnalysisClustering::slotLassoSelection(const QPainterPath &path)
 {
-    // Obtain the spots (in dim. reduced space) that intersects with the selection area
+    // obtain the spots (in dim. reduced space) that intersects with the selection area
     m_selected_spots.clear();
     for (const auto &series : m_series_vector) {
         const auto &points = series->points();

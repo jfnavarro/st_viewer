@@ -39,34 +39,31 @@ public:
     STData();
     ~STData();
 
-    // Parses the data (counts matrix and spot coordinates)
+    // parses the dataset (counts matrix and spot coordinates)
     void init(const QString &filename, const QString &spots_coordinates);
 
-    // Functions to import/export a counts matrix
+    // functions to import/export a counts matrix
     static STDataFrame read(const QString &filename);
     static void save(const QString &filename, const STDataFrame &data);
 
-    // Retrieves the original data matrix (without filtering)
+    // retrieves the original data matrix (without filtering)
     STDataFrame data() const;
 
-    // Returns the spot/gene objects corresponding to the data matrix
+    // returns the spot/gene objects corresponding to the data matrix
     const GeneListType &genes() const;
     const SpotListType &spots() const;
 
-    // Returns the clusters if any
+    // returns the clusters if any
     const ClusterListType &clusters() const;
 
-    // Rendering functions (OpenGL)
+    // updates the rendering (OpenGL) data
     void computeRenderingData(SettingsWidget::Rendering &rendering_settings);
+
+    // returns the rendering (OpenGL) data vectors
     const QVector<int> &renderingVisible() const;
     const QVector<QVector4D> &renderingColors() const;
     const QVector<int> &renderingSelected() const;
     const QVector<Spot::SpotType> &renderingCoords() const;
-
-    // Parses a file with spots coordinates
-    // It returns a map of spot -> pixel coordinates
-    // It throws exceptions when errors happen during parsing or an empty file
-    QMap<QString, Spot::SpotType> parseSpotsMap(const QString &spots_file) const;
 
     // helper function that normalizes a data frame and returns it
     static STDataFrame normalizeCounts(const STDataFrame &data,
@@ -112,30 +109,35 @@ public:
 
 private:
 
-    // The ST data frame (matrix of counts, genes and spots)
+    // parses a file with spots coordinates
+    // it returns a map of spot -> pixel coordinates
+    // it throws exceptions when errors happen during parsing or an empty file
+    QMap<QString, Spot::SpotType> parseSpotsMap(const QString &spots_file) const;
+
+    // the ST data frame (matrix of counts, genes and spots)
     STDataFrame m_data;
 
-    // Gene and Spot objects contaning all the info for each spot/gene
-    // Each index in each list correspond to a row index (spot) or column index (gene) in m_data
+    // gene and Spot objects contaning all the info for each spot/gene
+    // each index in each list correspond to a row index (spot) or column index (gene) in m_data
     SpotListType m_spots;
     GeneListType m_genes;
 
-    // Clusters can be loaded from a file or from AnalysisClustering
+    // clusters can be loaded from a file or from AnalysisClustering
     // users can interact with clusters so to make change the visible/color
     // of the spots belonging to the clusters
     ClusterListType m_clusters;
 
-    // Convenience hash tables (gene name -> index) and (spot name -> index)
+    // convenience hash tables (gene name -> index) and (spot name -> index)
     QHash<QString, int> m_spot_index;
     QHash<QString, int> m_gene_index;
 
-    // Rendering data
+    // rendering data
     QVector<int> m_rendering_visible;
     QVector<QVector4D> m_rendering_colors;
     QVector<Spot::SpotType> m_rendering_coords;
     QVector<int> m_rendering_selected;
 
-    // Whether the data is in 3D or not
+    // whether the data is in 3D or not
     bool m_is3D;
 
     Q_DISABLE_COPY(STData)

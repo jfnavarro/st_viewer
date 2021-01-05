@@ -34,6 +34,7 @@
 #include "SettingsStyle.h"
 
 using namespace Style;
+
 static const QString SettingsGeometry = QStringLiteral("Geometry");
 static const QString SettingsState = QStringLiteral("State");
 
@@ -58,14 +59,19 @@ MainWindow::MainWindow(QWidget *parent)
     // Create the main views
     m_genes.reset(new GenesWidget());
     Q_ASSERT(m_genes);
+
     m_spots.reset(new SpotsWidget());
     Q_ASSERT(m_spots);
+
     m_clusters.reset(new ClustersWidget());
     Q_ASSERT(m_clusters);
+
     m_datasets.reset(new DatasetPage());
     Q_ASSERT(m_datasets);
+
     m_user_selections.reset(new UserSelectionsPage());
     Q_ASSERT(m_user_selections);
+
     m_cellview.reset(new CellViewPage(m_spots, m_genes, m_clusters, m_user_selections));
     Q_ASSERT(m_cellview);
 }
@@ -94,7 +100,7 @@ void MainWindow::init()
 
 bool MainWindow::checkSystemRequirements() const
 {
-    // Test for Basic OpenGL Support
+    // test for Basic OpenGL Support
     if (!QGLFormat::hasOpenGL()) {
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL Support"),
@@ -102,7 +108,7 @@ bool MainWindow::checkSystemRequirements() const
         return false;
     }
 
-    // Fail if you do not have OpenGL 2.0 or higher driver
+    // fail if you do not have OpenGL 2.0 or higher driver
     if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL 2.x Context"),
@@ -110,7 +116,7 @@ bool MainWindow::checkSystemRequirements() const
         return false;
     }
 
-    // Fail if there is not configuration file
+    // fail if there is not configuration file
     Configuration config;
     if (!config.is_valid()) {
         QMessageBox::critical(this->centralWidget(),
@@ -133,7 +139,7 @@ void MainWindow::setupUi()
 
     // create main widget
     QWidget *centralwidget = new QWidget(this);
-    // important to set the style to this widget only to avoid propagation
+    // NOTE important to set the style to this widget only to avoid propagation
     centralwidget->setObjectName("centralWidget");
     centralwidget->setStyleSheet("QWidget#centralWidget {background-color: rgb(45, 45, 45);}");
     centralwidget->setWindowFlags(Qt::FramelessWindowHint);
@@ -286,12 +292,16 @@ void MainWindow::createConnections()
 {
     // exit and print action
     connect(m_actionExit.data(), &QAction::triggered, this, &MainWindow::slotExit);
+
     // clear cache action
     connect(m_actionClear_Cache.data(), &QAction::triggered, this, &MainWindow::slotClearCache);
+
     // signal that shows the about dialog
     connect(m_actionAbout.data(), &QAction::triggered, this, &MainWindow::slotShowAbout);
+
     // signal that shows the datasets
     connect(m_actionDatasets.data(), &QAction::triggered, m_datasets.data(), &DatasetPage::show);
+
     // signal that shows the selections
     connect(m_actionSelections.data(), &QAction::triggered, m_user_selections.data(),
             &UserSelectionsPage::show);
@@ -331,11 +341,14 @@ void MainWindow::loadSettings()
 void MainWindow::saveSettings() const
 {
     QSettings settings;
+
     // save the geometry and state of the main window
     QByteArray geometry = saveGeometry();
     settings.setValue(SettingsGeometry, geometry);
+
     QByteArray state = saveState();
     settings.setValue(SettingsState, state);
+
     // TODO save global settings (menus and status)
 }
 

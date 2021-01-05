@@ -203,21 +203,27 @@ void Dataset::load_data()
 }
 
 bool Dataset::load_Image() {
+
     // image buffer reader
     QImageReader imageReader(m_image_file);
+
     // scale image with the scaling factors
     QSize imageSize = imageReader.size();
+    qDebug() << "Parsed image of size " << imageSize;
     imageSize *= m_scaling_factor;
     imageReader.setScaledSize(imageSize);
-    // parse the image
+
+    // load the image
     QImage image;
     if (!imageReader.read(&image)) {
         qDebug() << "Tissue image cannot be parsed " << imageReader.errorString();
         return false;
     }
-    // store the image size
+
+    // store the scaled image size
     m_image_bounds = image.rect();
     qDebug() << "Setting image of size " << m_image_bounds;
+
     // compute tiles size and numbers
     constexpr int tile_width = 256;
     constexpr int tile_height = 256;
@@ -226,6 +232,7 @@ bool Dataset::load_Image() {
     const int xCount = width / tile_width;
     const int yCount = height / tile_height;
     const int count = xCount * yCount;
+
     // create tiles
     m_image_tiles.resize(count);
     #pragma omp parallel for
@@ -235,11 +242,12 @@ bool Dataset::load_Image() {
         const int y = tile_height * (i / xCount);
         const int texture_width = std::min(width - x, tile_width);
         const int texture_height = std::min(height - y, tile_height);
-        //QImage should be thread-safe
+        // QImage should be thread-safe
         m_image_tiles[i] = (QPair<QImage, QPoint>(image.copy(x, y,
                                                              texture_width,
                                                              texture_height),
                                                   QPoint(x, y)));
     }
+
     return true;
 }

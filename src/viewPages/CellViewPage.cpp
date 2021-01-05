@@ -74,7 +74,7 @@ CellViewPage::CellViewPage(QSharedPointer<SpotsWidget> spots,
     m_clustering.reset(new AnalysisClustering(this));
     Q_ASSERT(!m_clustering.isNull());
 
-    // attach visual settings
+    // attach visual settings object to the view
     m_ui->view->attachSettings(&m_settings->renderingSettings());
 
     // create toolbar and all the connections
@@ -101,6 +101,7 @@ void CellViewPage::clear()
     m_clusters->clear();
     m_clustering->clear();
     m_clustering->close();
+    // TODO find a better way to do this
     m_dataset = Dataset();
 }
 
@@ -134,7 +135,7 @@ void CellViewPage::loadDataset(const Dataset &dataset)
     // show settings widget
     m_settings->show();
 
-    // clear view and attach data object
+    // clear view and attach dataset to the view
     m_ui->view->clearData();
     m_ui->view->attachDataset(dataset);
     m_ui->view->show();
@@ -256,6 +257,7 @@ void CellViewPage::slotPrintImage()
         return;
     }
 
+    // simply obtain an image from the view and send it to the printer
     QPainter painter(&printer);
     QRect rect = painter.viewport();
     QImage image = m_ui->view->grabPixmapGL();
@@ -289,6 +291,7 @@ void CellViewPage::slotSaveImage()
 
     const int quality = 100; // quality format (100 max, 0 min, -1 default)
     const QString format = fileInfo.suffix().toLower();
+    // simply obtain an image from the view and export it to a file
     QImage image = m_ui->view->grabPixmapGL();
     if (!image.save(filename, format.toStdString().c_str(), quality)) {
         qDebug() << "Saving the image, the image coult not be saved";
@@ -442,7 +445,7 @@ void CellViewPage::slotLoadGenesColorsFile()
 
 void CellViewPage::slotLoadSpotClusters()
 {
-    // get the map of cluster -> spots
+    // get the map of cluster -> spots and create the cluster objects
     const QMultiHash<int, QString> clusters = m_clustering->getClustersHash();
     createClusters(clusters);
 }
@@ -453,6 +456,7 @@ void CellViewPage::createClusters(const QMultiHash<int, QString> &clusters)
     const auto min_max = std::minmax_element(keys.begin(), keys.end());
     const int min = *min_max.first;
     const int max = *min_max.second;
+
     STData::ClusterListType cluster_objects;
     //TODO make this parallel
     for (const auto &cluster : keys) {
@@ -470,7 +474,11 @@ void CellViewPage::createClusters(const QMultiHash<int, QString> &clusters)
         cluster_obj->visible(true);
         cluster_objects.append(cluster_obj);
     }
+
+    // load clusters in the dataset
     m_dataset.data()->loadClusters(cluster_objects);
+
+    // update the models and the view
     m_clusters->slotLoadClusters(cluster_objects);
     m_spots->update();
     m_ui->view->slotUpdate();
@@ -490,8 +498,10 @@ void CellViewPage::slotCreateClusteringSelections()
     for (const auto &cluster : clusters.uniqueKeys()) {
         // get the spots for the cluster
         const QList<QString> &cluster_spots = clusters.values(cluster);
+
         // slice the data frame
         STData::STDataFrame scliced_data = m_dataset.data()->sliceDataSpots(cluster_spots);
+
         //TODO check the the slice is not empty
         // create selection object
         UserSelection new_selection(scliced_data);
@@ -499,6 +509,7 @@ void CellViewPage::slotCreateClusteringSelections()
         new_selection.name(m_dataset.name() + "_" + QString::number(cluster) + "_"
                            + QDateTime::currentDateTimeUtc().toString());
         new_selection.dataset(m_dataset.name());
+
         qDebug() << "Creating selection " << new_selection.name();
         m_user_selections->addSelection(new_selection);
     }

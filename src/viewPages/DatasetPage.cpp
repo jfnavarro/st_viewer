@@ -97,11 +97,13 @@ void DatasetPage::slotDatasetSelected(QModelIndex index)
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
-    // Check if the selection is valid
+
+    // check if the selection is valid
     if (!index.isValid() || currentDatasets.empty()) {
         return;
     }
-    // Enable only remove if more than one selected
+
+    // enable only remove if more than one selected
     const bool more_than_one = currentDatasets.size() > 1;
     m_ui->deleteDataset->setEnabled(true);
     m_ui->editDataset->setEnabled(!more_than_one);
@@ -118,10 +120,12 @@ void DatasetPage::slotEditDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
+
     // Can only edit 1 valid dataset
     if (currentDatasets.size() != 1) {
         return;
     }
+
     editDataset(currentDatasets.front());
 }
 
@@ -130,11 +134,14 @@ void DatasetPage::slotEditDataset(const QModelIndex &index)
     if (!index.isValid()) {
         return;
     }
+
     const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
+
     // Can only open 1 valid dataset
     if (currentDatasets.size() != 1) {
         return;
     }
+
     editDataset(currentDatasets.front());
 }
 
@@ -170,10 +177,12 @@ void DatasetPage::slotOpenDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
+
     // Can only open 1 valid dataset
     if (currentDatasets.size() != 1) {
         return;
     }
+
     openDataset(currentDatasets.front());
 }
 
@@ -182,11 +191,14 @@ void DatasetPage::slotOpenDataset(const QModelIndex &index)
     if (!index.isValid()) {
         return;
     }
+
     const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
+
     // Can only open 1 valid dataset
     if (currentDatasets.size() != 1) {
         return;
     }
+
     openDataset(currentDatasets.front());
 }
 
@@ -194,6 +206,7 @@ void DatasetPage::openDataset(const Dataset &dataset)
 {
     // Set selected dataset
     m_open_dataset = QSharedPointer<Dataset>(new Dataset(dataset));
+
     // Notify that the dataset was open
     emit signalDatasetOpen(dataset.name());
 }
@@ -202,10 +215,12 @@ void DatasetPage::slotRemoveDataset()
 {
     const auto selected = m_ui->datasetsTableView->datasetsTableItemSelection();
     const auto currentDatasets = datasetsModel()->getDatasets(selected);
+
     // Can remove multiple datasets
     if (currentDatasets.empty()) {
         return;
     }
+
     removeDatasets(currentDatasets);
 }
 
@@ -214,6 +229,7 @@ void DatasetPage::slotRemoveDataset(const QModelIndex &index)
     if (!index.isValid()) {
         return;
     }
+
     const auto currentDatasets = datasetsModel()->getDatasets(QItemSelection(index, index));
     removeDatasets(currentDatasets);
 }
@@ -245,6 +261,7 @@ void DatasetPage::removeDatasets(const QList<Dataset> &datasets)
 void DatasetPage::slotImportDataset()
 {
     DatasetImporter importer;
+
     // Launch the dialog
     const int result = importer.exec();
     if (result == QDialog::Accepted) {

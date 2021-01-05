@@ -17,6 +17,7 @@ class AnalysisQC : public QWidget
     Q_OBJECT
 
 public:
+
     explicit AnalysisQC(const STData::STDataFrame &data,
                         QWidget *parent = nullptr);
     virtual ~AnalysisQC();

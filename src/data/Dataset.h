@@ -13,6 +13,7 @@ class Dataset
 {
 
 public:
+
     Dataset();
     explicit Dataset(const DatasetImporter &importer);
     explicit Dataset(const Dataset &other);
@@ -21,10 +22,10 @@ public:
     Dataset &operator=(const Dataset &other);
     bool operator==(const Dataset &other) const;
 
-    // The reference to the ST Data
+    // the reference to the ST Data
     const QSharedPointer<STData> data() const;
 
-    // Getters
+    // getters
     const QString &name() const;
     const QString &dataFile() const;
     const QString &imageFile() const;
@@ -39,7 +40,7 @@ public:
     const QRect image_bounds() const;
     bool is3D() const;
 
-    // Setters
+    // setters
     void name(const QString &name);
     void dataFile(const QString &datafile);
     void imageFile(const QString &image_file);

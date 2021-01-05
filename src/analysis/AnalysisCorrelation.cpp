@@ -59,7 +59,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
         connect(m_ui->exportPlot, &QPushButton::clicked,
                 this, &AnalysisCorrelation::slotExportPlot);
 
-        // Compute correlation and update the plots and data fields
+        // compute correlation and update the plots and data fields
         slotUpdateData();
 
     } else {
@@ -105,6 +105,7 @@ void AnalysisCorrelation::slotUpdateData()
     for (size_t i = 0; i < rowsumA.size(); ++i) {
         m_series->append(rowsumA.at(i), rowsumB.at(i));
     }
+
     // so users can interact with the plot
     connect(m_series.data(), &QScatterSeries::clicked,
             this, &AnalysisCorrelation::slotClickedPoint);
@@ -133,7 +134,7 @@ void AnalysisCorrelation::slotExportPlot()
 
 void AnalysisCorrelation::slotClickedPoint(const QPointF point)
 {
-    // Find the closest point from the series
+    // find the closest point in the series to the clicked point
     const double x1 = point.x();
     const double y1 = point.y();
     const auto &points = m_series->points();

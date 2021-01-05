@@ -57,6 +57,8 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     }
 
     m_program->bind();
+
+    // TODO optimize the light settings
     m_program->setUniformValue("projection", projection);
     m_program->setUniformValue("view", view);
     m_program->setUniformValue("model", model);
@@ -70,9 +72,11 @@ void ImageMeshGL::draw(const QMatrix4x4 &projection,
     m_program->setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);
     m_program->setUniformValue("material.shininess", 128.0f);
     m_program->setUniformValue("viewPos", eye);
+
     m_vao.bind();
     glDrawElements(GL_TRIANGLES, m_num_triangles, GL_UNSIGNED_INT, 0);
     m_vao.release();
+
     m_program->release();
 }
 

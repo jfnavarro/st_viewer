@@ -26,6 +26,7 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
     QStandardItemModel *model = new QStandardItemModel(rows, columns, this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Gene")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
+
     // populate
     for (int i = 0; i < data.counts.n_cols; ++i) {
         const QString gene = data.genes.at(i);
@@ -40,6 +41,7 @@ SelectionGenesWidget::SelectionGenesWidget(const UserSelection::STDataFrame &dat
         count_item->setData(count_str, Qt::DisplayRole);
         model->setItem(i, 1, count_item);
     }
+
     // sorting model
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);

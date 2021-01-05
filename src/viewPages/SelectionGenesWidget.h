@@ -20,7 +20,8 @@ class SelectionGenesWidget : public QWidget
 
 public:
 
-    explicit SelectionGenesWidget(const UserSelection::STDataFrame &data, QWidget *parent = nullptr);
+    explicit SelectionGenesWidget(const UserSelection::STDataFrame &data,
+                                  QWidget *parent = nullptr);
     virtual ~SelectionGenesWidget();
 
 private slots:

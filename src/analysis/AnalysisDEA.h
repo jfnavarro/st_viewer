@@ -40,6 +40,7 @@ public:
                 const QString &nameA,
                 const QString &nameB,
                 QWidget *parent = nullptr);
+
     virtual ~AnalysisDEA();
 
 signals:
@@ -48,14 +49,19 @@ private slots:
 
     // when the user wants to export the DE genes
     void slotExportTable();
+
     // when the user has selected a DE gene in the table so it can be highlighted in the plot
     void slotGeneSelected(QModelIndex index);
+
     // when the DE analysis has been completed so the volcano plot and the table can be updated
     void slotDEAComputed();
+
     // when user wants to export the volcano plot to a file
     void slotExportPlot();
+
     // to handle when the user right clicks in the table
     void customMenuRequested(const QPoint &pos);
+
     // to initialize the DE analysis
     void slotRun();
 

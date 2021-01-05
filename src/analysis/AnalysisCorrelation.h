@@ -20,6 +20,7 @@ class AnalysisCorrelation : public QWidget
     Q_OBJECT
 
 public:
+
     AnalysisCorrelation(const STData::STDataFrame &data1,
                         const STData::STDataFrame &data2,
                         const QString &nameA,

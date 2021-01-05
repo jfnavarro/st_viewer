@@ -17,8 +17,9 @@ class ImageTextureGL : public QOpenGLFunctions
 {
 
 public:
+
     ImageTextureGL();
-    ~ImageTextureGL();
+    virtual ~ImageTextureGL();
 
     // initialize the OpenGL context and the shaders
     void init();
@@ -36,7 +37,7 @@ public:
 private:
 
     // internal functions to create a texture from an image and add it to the
-    // rendering list
+    // rendering list (one texture for each image tile)
     void addTexture(const QImage &image, const int x = 0, const int y = 0);
 
     // internal function to remove and clean textures

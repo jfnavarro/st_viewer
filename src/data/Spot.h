@@ -26,22 +26,29 @@ public:
 
     // the spot's coordinates
     SpotType coordinates() const;
+
     // the spot's adjusted coordinates (only useful for plotting)
     SpotType adj_coordinates() const;
+
     // the spot's coordinates as a string
     QString name() const;
+
     // the spot's color
     QColor color() const;
+
     // true if the spot is visible
     bool visible() const;
+
     // true if the spot is selected
     bool selected() const;
+
     // meta info of the spot
     QString info() const;
+
     // the total number of transcripts for the spot in the dataset
     double totalCount() const;
 
-    // Setters
+    // setters
     void coordinates(const SpotType &coordinates);
     void adj_coordinates(const SpotType &adj_coordinates);
     void name(const QString &name);

@@ -21,6 +21,7 @@ class GenesWidget : public QWidget
     Q_OBJECT
 
 public:
+
     explicit GenesWidget(QWidget *parent = nullptr);
     virtual ~GenesWidget();
 
@@ -45,6 +46,7 @@ private slots:
     void slotSetVisible(bool visible);
 
 private:
+
     // internal function to configure created buttons
     // to avoid code duplication
     // TODO better approach would be to have factories somewhere else

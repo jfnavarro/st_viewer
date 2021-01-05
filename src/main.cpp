@@ -16,7 +16,6 @@
 #include <iostream>
 #include <omp.h>
 
-
 int main(int argc, char **argv)
 {
     const QString VERSION = QString("%1.%2.%3").arg(MAJOR).arg(MINOR).arg(PATCH);
@@ -49,10 +48,13 @@ int main(int argc, char **argv)
                               app.tr("Minimum requirements not satisfied"));
         return EXIT_FAILURE;
     }
+
     // Initialize graphic components
     mainWindow.init();
+
     // Show main window.
     mainWindow.show();
+
     // launch the app
     const int return_code = app.exec();
     return return_code;

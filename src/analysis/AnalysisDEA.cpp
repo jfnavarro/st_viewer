@@ -63,7 +63,8 @@ AnalysisDEA::AnalysisDEA(const STData::STDataFrame &datasetsA,
             &AnalysisDEA::slotGeneSelected);
     connect(&m_watcher, &QFutureWatcher<void>::finished, this, &AnalysisDEA::slotDEAComputed);
     connect(m_ui->exportPlot, &QPushButton::clicked, this, &AnalysisDEA::slotExportPlot);
-    // allow to copy the content of the table
+
+    // enables to copy the content of the table to the clipboard
     m_ui->tableview->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_ui->tableview, &QTableView::customContextMenuRequested,
             this, &AnalysisDEA::customMenuRequested);
@@ -155,7 +156,7 @@ void AnalysisDEA::updatePlot()
     series2->setColor(Qt::red);
     series2->setUseOpenGL(false);
 
-    // populate the series
+    // populate the series (one series for inside threshold and the other for outside threshold)
     for (const auto &res : m_results) {
         if (res.adj_pvalue <= m_ui->adj_pvalue->value()
                 && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
@@ -215,18 +216,23 @@ void AnalysisDEA::updateTable()
         const QString adj_pvalue_str = QString::number(res.adj_pvalue);
         const QString pvalue_str = QString::number(res.pvalue);
         const QString foldchange_str = QString::number(res.logfc);
+
         QStandardItem *gene_item = new QStandardItem(gene);
         gene_item->setData(gene, Qt::DisplayRole);
         gene_item->setData(gene, Qt::UserRole);
+
         QStandardItem *adj_pvalue_item = new QStandardItem(adj_pvalue_str);
         adj_pvalue_item->setData(res.adj_pvalue, Qt::DisplayRole);
         adj_pvalue_item->setData(res.adj_pvalue, Qt::UserRole);
+
         QStandardItem *pvalue_item = new QStandardItem(pvalue_str);
         pvalue_item->setData(res.pvalue, Qt::DisplayRole);
         pvalue_item->setData(res.pvalue, Qt::UserRole);
+
         QStandardItem *foldchange_item = new QStandardItem(foldchange_str);
         foldchange_item->setData(res.logfc, Qt::DisplayRole);
         foldchange_item->setData(res.logfc, Qt::UserRole);
+
         // check if DE genes inside threshold
         if (res.adj_pvalue <= m_ui->adj_pvalue->value()
                 && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
@@ -236,11 +242,13 @@ void AnalysisDEA::updateTable()
             foldchange_item->setBackground(Qt::red);
             ++high_confidence_de;
         }
+
         model->setItem(i, 0, gene_item);
         model->setItem(i, 1, adj_pvalue_item);
         model->setItem(i, 2, pvalue_item);
         model->setItem(i, 3, foldchange_item);
     }
+
     // update total number of DE genes
     m_ui->total_genes->setText(QString::number(high_confidence_de));
 
@@ -305,7 +313,8 @@ void AnalysisDEA::slotRun()
 
     if (recompute) {
         qDebug() << "Starting DEA analysis";
-        // Filter data
+
+        // filter data using the thresholds
         STData::STDataFrame dataA = m_dataA;
         STData::STDataFrame dataB = m_dataB;
         dataA = STData::filterCounts(dataA,
@@ -316,7 +325,8 @@ void AnalysisDEA::slotRun()
                                      m_reads_threshold,
                                      m_genes_threshold,
                                      m_spots_threshold);
-        // Intersect genes
+
+        // intersect genes
         QSet<QString> genesA = QSet<QString>(dataA.genes.begin(), dataA.genes.end());
         QSet<QString> genesB = QSet<QString>(dataB.genes.begin(), dataB.genes.end());
         const QList<QString> shared_genes = genesA.intersect(genesB).values();
@@ -342,7 +352,7 @@ void AnalysisDEA::slotRun()
             return;
         }
 
-        // Normalize and log
+        // normalize and log
         mat A = STData::normalizeCounts(dataA, m_normalization).counts;
         mat B = STData::normalizeCounts(dataB, m_normalization).counts;
         if (m_ui->log_scale) {
@@ -350,17 +360,20 @@ void AnalysisDEA::slotRun()
             B = log1p(B);
         }
 
-        // clear plot and table
+        // clear volano plot and table
         m_ui->plot->chart()->removeAllSeries();
         m_proxy->invalidate();
         m_ui->tableview->reset();
         m_ui->tableview->update();
+
         // initialize progress bar
         m_ui->progressBar->setRange(0,0);
+
         // disable controls
         m_ui->run->setEnabled(false);
         m_ui->exportTable->setEnabled(false);
         m_ui->searchField->setEnabled(false);
+
         // initialize worker
         QFuture<void> future = QtConcurrent::run(this,
                                                  &AnalysisDEA::runDEA,
@@ -384,23 +397,26 @@ void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
     for (uword j = 0; j < A.n_cols; ++j) {
         const vec Avec = conv_to<vec>::from(A.col(j));
         const vec Bvec = conv_to<vec>::from(B.col(j));
+        //TODO add a try-catch here
         const double pval = STMath::wilcoxon_rank_test(Avec, Bvec);
         pvals.at(j) = pval;
     }
 
     // compute adjusted p-values
+    //TODO add a try-catch here
     const std::vector<double> adj_pvalues = STMath::p_adjustBH(pvals);
 
     // compute log fold-changes
     const vec rowmeansA = conv_to<vec>::from(mean(expm1(A),0));
     const vec rowmeansB = conv_to<vec>::from(mean(expm1(B),0));
     const double pseudocount = std::numeric_limits<double>::epsilon();
+    //TODO add a try-catch here
     const vec logfc = log(rowmeansA + pseudocount) -  log(rowmeansB + pseudocount);
 
     qDebug() << "DEA p-values and fold-changes computed";
 
-    m_results.resize(pvals.size());
     // populate results
+    m_results.resize(pvals.size());
     #pragma omp parallel for
     for (size_t i = 0; i < pvals.size(); ++i) {
         DEResult res;
@@ -421,6 +437,7 @@ void AnalysisDEA::slotDEAComputed()
 
     // stop progress bar
     m_ui->progressBar->setMaximum(10);
+
     // enable run button
     m_ui->run->setEnabled(true);
 

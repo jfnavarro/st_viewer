@@ -9,11 +9,15 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 
+// This rendering object renders a 3D mesh if the
+// user is using 3D mode and has added the mesh file (.obj format)
 class ImageMeshGL : public QOpenGLFunctions
 {
+
 public:
+
     ImageMeshGL();
-    ~ImageMeshGL();
+    virtual~ImageMeshGL();
 
     // initialize the OpenGL context and the shaders
     void init();
@@ -38,6 +42,7 @@ private:
     QOpenGLBuffer m_posBuf;
     QOpenGLBuffer m_normBuf;
     QOpenGLShaderProgram *m_program;
+
     int m_num_triangles;
     bool m_isInitialized;
 

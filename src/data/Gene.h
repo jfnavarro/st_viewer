@@ -22,20 +22,24 @@ public:
 
     // the name of the gene
     const QString name() const;
+
     // true if gene is visible
     bool visible() const;
+
     // the color of the gene
     const QColor color() const;
+
     // the total number of transcripts for the gene in the dataset
     double totalCount() const;
 
-    // Setters
+    // setters
     void name(const QString &name);
     void visible(const bool visible);
     void color(const QColor &color);
     void totalCount(const double totalCount);
 
 private:
+
     QString m_name;
     QColor m_color;
     bool m_visible;

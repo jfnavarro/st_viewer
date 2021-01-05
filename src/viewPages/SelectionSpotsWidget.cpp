@@ -26,6 +26,7 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
     QStandardItemModel *model = new QStandardItemModel(rows,columns,this);
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Spot")));
     model->setHorizontalHeaderItem(1, new QStandardItem(QString("Count")));
+
     // populate
     for (int i = 0; i < data.counts.n_rows; ++i) {
         const QString spot_str = data.spots.at(i);
@@ -40,6 +41,7 @@ SelectionSpotsWidget::SelectionSpotsWidget(const UserSelection::STDataFrame &dat
         count_item->setData(count_str, Qt::DisplayRole);
         model->setItem(i, 1, count_item);
     }
+
     // sorting model
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);

@@ -18,6 +18,7 @@ class QRubberBand;
 
 // An OpenGL widget designed to plot ST data (2D and 3D) and allow the user
 // to interact with it
+// it also renders all the rendering objects (image, mesh, legend, etc...)
 class CellGLView3D : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -76,12 +77,17 @@ signals:
 
 private:
 
+    // to handler selection events
     void sendSelectionEvent(const QPainterPath &path, const QMouseEvent *event);
+
+    // OpenGL matrices
     const QMatrix4x4 viewMatrix3D() const;
     const QMatrix4x4 viewMatrix2D() const;
     const QMatrix4x4 projectionMatrix3D() const;
     const QMatrix4x4 projectionMatrix2D() const;
     const QVector3D cameraPosition();
+
+    // to handler panning and rotation
     void setPan(const double dx, const double dy, const double dz, const bool view);
     void setRotation(const double azim, const double elevation);
 

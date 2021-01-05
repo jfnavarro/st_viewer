@@ -19,6 +19,7 @@ class DatasetImporter : public QDialog
     Q_OBJECT
 
 public:
+
     explicit DatasetImporter(QWidget *parent = nullptr);
     DatasetImporter(const Dataset &dataset, QWidget *parent = nullptr);
     virtual ~DatasetImporter() override;
@@ -58,8 +59,10 @@ private slots:
     void slotChange3D(int state);
 
 private:
+
     void init();
     void parseInfoJSON(const QString &filename);
+
     QScopedPointer<Ui::DatasetImporter> m_ui;
 
 };

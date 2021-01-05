@@ -19,6 +19,7 @@ class ClusterItemModel : public QAbstractTableModel
     Q_ENUMS(Column)
 
 public:
+
     enum Column {
         Show = 0,
         Name = 1,
@@ -29,12 +30,12 @@ public:
     explicit ClusterItemModel(QObject *parent = nullptr);
     virtual ~ClusterItemModel();
 
-    // Header
+    // header
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    // Basic functionality
+    // basic functionality
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -57,6 +58,7 @@ public slots:
 signals:
 
 private:
+
     STData::ClusterListType m_items_reference;
 
     Q_DISABLE_COPY(ClusterItemModel)

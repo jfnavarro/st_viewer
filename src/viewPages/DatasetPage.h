@@ -27,6 +27,7 @@ class DatasetPage : public QWidget
     Q_OBJECT
 
 public:
+
     explicit DatasetPage(QWidget *parent = nullptr);
     virtual ~DatasetPage();
 
@@ -66,8 +67,10 @@ protected:
     void showEvent(QShowEvent *event) override;
 
 private:
+
     // clear focus and resets to default all buttons status
     void clearControls();
+
     // check if a dataset with the same name exists
     bool nameExist(const QString &name);
 
@@ -81,9 +84,12 @@ private:
     DatasetItemModel *datasetsModel();
 
     // reference to ui object
+
     QScopedPointer<Ui::DataSets> m_ui;
     // List of imported datasets (from files)
+
     QList<Dataset> m_importedDatasets;
+
     // Currently open dataset
     QSharedPointer<Dataset> m_open_dataset;
 

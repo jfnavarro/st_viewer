@@ -13,6 +13,7 @@ class SpotsTableView : public QTableView
     Q_OBJECT
 
 public:
+
     explicit SpotsTableView(QWidget *parent = nullptr);
     virtual ~SpotsTableView();
 
@@ -24,18 +25,22 @@ public:
     SpotItemModel *getModel();
 
 signals:
+
     // signal emitted when the user selects or change colors of spots
     void signalUpdated();
 
 public slots:
+
     // slot used to set a search on the table by name
     void setNameFilter(const QString &str);
 
 private slots:
+
     // slot to handle when the user right clicks
     void customMenuRequested(const QPoint &pos);
 
 private:
+
     // reference to  the proxy model
     QScopedPointer<QSortFilterProxyModel> m_sortProxyModel;
 
