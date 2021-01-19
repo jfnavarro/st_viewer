@@ -89,8 +89,8 @@ void AnalysisClustering::loadData(const STData::STDataFrame &data)
 void AnalysisClustering::slotRun()
 {
     qDebug() << "Initializing the computation of spot clusters";
-    // initialize progress bar
 
+    // initialize progress bar
     m_ui->progressBar->setRange(0,0);
 
     // disable controls

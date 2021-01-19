@@ -15,6 +15,7 @@ class EditDatasetDialog : public QDialog
     Q_OBJECT
 
 public:
+
     explicit EditDatasetDialog(QWidget *parent = nullptr);
     virtual ~EditDatasetDialog();
 
@@ -25,6 +26,7 @@ public:
     void setComment(const QString name);
 
 private:
+
     QScopedPointer<Ui::editDatasetDialog> m_ui;
 
     Q_DISABLE_COPY(EditDatasetDialog)

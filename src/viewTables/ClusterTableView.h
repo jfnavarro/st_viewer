@@ -20,7 +20,7 @@ public:
     // returns the current selection mapped to the sorting model
     QItemSelection getItemSelection() const;
 
-    //  Functions to retrieve the model and the proxy model of the table
+    // functions to retrieve the model and the proxy model of the table
     QSortFilterProxyModel *getProxyModel();
     ClusterItemModel *getModel();
 

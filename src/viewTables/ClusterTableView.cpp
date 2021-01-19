@@ -31,13 +31,11 @@ ClusterTableView::ClusterTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
     sortByColumn(ClusterItemModel::Name, Qt::AscendingOrder);
-
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
     setGridStyle(Qt::SolidLine);
     setCornerButtonEnabled(false);
     setLineWidth(1);
-
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setEditTriggers(QAbstractItemView::DoubleClicked);

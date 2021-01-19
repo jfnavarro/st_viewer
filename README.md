@@ -62,9 +62,6 @@ all the dataset's files are and it should have the following JSON format:
 After that you can just double click in the dataset to open it. 
 (more detailed information about this in the wiki).
 
-You can use our public datasets in this repository (folder test) if you
-want to try the ST Viewer. 
-
 ## Authors
 Read AUTHORS file
 

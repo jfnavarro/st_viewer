@@ -20,7 +20,6 @@
 #include "viewPages/ClustersWidget.h"
 #include "viewPages/UserSelectionsPage.h"
 #include "viewRenderer/CellGLView3D.h"
-#include "dialogs/SelectionDialog.h"
 #include "analysis/AnalysisQC.h"
 #include "analysis/AnalysisClustering.h"
 #include "SettingsWidget.h"

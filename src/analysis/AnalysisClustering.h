@@ -13,7 +13,7 @@ class analysisClustering;
 
 QT_CHARTS_USE_NAMESPACE
 
-// A Widget that is used to clusters spots in a dataset based on their gene expression profiles
+// A Widget that is used to cluster spots in a dataset based on their gene expression profiles
 // using dimensionality reduction and clustering algorithms.
 // The clustered spots are projected onto a 2D manifold and plotted in a scatter plot.
 // It allows users to interact with the scatter plot in real time and to create and export selections
@@ -23,13 +23,14 @@ class AnalysisClustering : public QWidget
     Q_OBJECT
 
 public:
+
     explicit AnalysisClustering(QWidget *parent = nullptr);
     virtual ~AnalysisClustering();
 
-    // list of spots for each cluster (integer value)
+    // hash table of spots for each cluster (integer value)
     QMultiHash<int, QString> getClustersHash() const;
 
-    // list of clusters (pair(int,spot))
+    // list of spots with their cluster (pair(spot,cluster))
     const QVector<QPair<QString,int>> &getClusters() const;
 
     // assigns the dataset

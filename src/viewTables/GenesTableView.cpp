@@ -32,7 +32,6 @@ GenesTableView::GenesTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
     sortByColumn(GeneItemModel::Name, Qt::AscendingOrder);
-
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
     setGridStyle(Qt::SolidLine);

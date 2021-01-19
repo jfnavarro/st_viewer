@@ -31,7 +31,6 @@ SpotsTableView::SpotsTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
     sortByColumn(SpotItemModel::Name, Qt::AscendingOrder);
-
     setFrameShape(QFrame::StyledPanel);
     setFrameShadow(QFrame::Sunken);
     setGridStyle(Qt::SolidLine);

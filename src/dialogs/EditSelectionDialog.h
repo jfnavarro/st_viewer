@@ -16,6 +16,7 @@ class EditSelectionDialog : public QDialog
     Q_OBJECT
 
 public:
+
     explicit EditSelectionDialog(QWidget *parent = nullptr);
     virtual ~EditSelectionDialog();
 
@@ -26,6 +27,7 @@ public:
     void setComment(const QString comment);
 
 private:
+
     QScopedPointer<Ui::editSelectionDialog> m_ui;
 
     Q_DISABLE_COPY(EditSelectionDialog)

@@ -29,11 +29,11 @@ UserSelectionTableView::UserSelectionTableView(QWidget *parent)
     setWordWrap(true);
     setAlternatingRowColors(true);
     sortByColumn(UserSelectionsItemModel::Name, Qt::AscendingOrder);
-    // Selection behavior
+
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setSelectionMode(QAbstractItemView::MultiSelection);
-    // Columns settings
+
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Name,
                                              QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(UserSelectionsItemModel::Dataset,
