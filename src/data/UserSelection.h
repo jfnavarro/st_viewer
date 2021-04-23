@@ -6,7 +6,8 @@
 
 // UserSelection represents a selection of spots made by the user trough the UI.
 // Users can select spots manually (lazo, rubberband ..) or trough the AnalysisClustering
-// Widget that allows to export clusters as selections
+// Widget that allows to export clusters as selections. Selections can be exported/imported
+// A selection is basically a wrapper around a dataset with metainfo and now image
 class UserSelection
 {
 

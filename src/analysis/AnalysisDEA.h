@@ -15,11 +15,12 @@ namespace Ui
 class analysisDEA;
 }
 
-// Widget that contains methods to compute a
+// A Widget that contains methods to perform a
 // DEA (Differential Expression Analysis) between two datasets
 // It shows the results in a volcano plot and a table
-// that highlights the differently expressed genes at a given threshold
-// Users can interact with the plot and table and export both
+// that highlights the differentially expressed genes at a given threshold
+// Users can interact with the plot and table and export both to files
+// Different filtering and threshold options are provided
 class AnalysisDEA : public QWidget
 {
     Q_OBJECT
@@ -50,7 +51,7 @@ private slots:
     // when the user wants to export the DE genes
     void slotExportTable();
 
-    // when the user has selected a DE gene in the table so it can be highlighted in the plot
+    // when the user has selected a DE gene in the table so it can be highlighted in the volcano plot
     void slotGeneSelected(QModelIndex index);
 
     // when the DE analysis has been completed so the volcano plot and the table can be updated
@@ -67,7 +68,8 @@ private slots:
 
 private:
 
-    // internal functions to compute the DE genes and update the table and volcano plot
+    // internal functions to compute the DE genes and update the table and volcano plot when finished
+    // the computation in run on a different thread
     void runDEA(const mat &A, const mat &B, const QList<QString> genes);
     void updateTable();
     void updatePlot();
@@ -75,7 +77,7 @@ private:
     // GUI object
     QScopedPointer<Ui::analysisDEA> m_ui;
 
-    // the two datasets (selections)
+    // the two datasets
     STData::STDataFrame m_dataA;
     STData::STDataFrame m_dataB;
 
@@ -85,7 +87,7 @@ private:
     int m_spots_threshold;
     SettingsWidget::NormalizationMode m_normalization;
 
-    // cache the results to not recompute
+    // cache the results to not recompute always
     QVector<DEResult> m_results;
 
     // the gene to highlight in the volcano plot

@@ -7,8 +7,8 @@
 
 class QImage;
 
-// Heatmap is a convenience namespace containing functions to generate
-// heatmap related images and data as well as colors.
+// Heatmap is a convenience namespace which contains functions to generate
+// heatmap images and colors (linear interpolation, wavelength, etc..).
 namespace Color
 {
 

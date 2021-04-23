@@ -11,8 +11,8 @@ class QMimeData;
 class QItemSelection;
 class Cluster;
 
-// Data model for the clusters. clusters are lists of spots with color/visible/name properties
-// Allows users to interact with teh clusters
+// Data model for the clusters. Clusters are lists of spots with color/visible/name properties
+// Allows users to interact with the clusters (visible or not visible for instance)
 class ClusterItemModel : public QAbstractTableModel
 {
     Q_OBJECT

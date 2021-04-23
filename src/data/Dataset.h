@@ -9,6 +9,12 @@ class STData;
 class DatasetImporter;
 
 // Data model class to store datasets.
+// A dataset is composed of a data frame (matrix of counts
+// with spots and genes), an image of the tissue and a coordinates
+// to pixel mapping file. Optionally users may load a 3D Mesh too.
+// Datasets can be 2D or 3D.
+// The alignment matrix to map spot coordiantes to pixel coordinates
+// and the tiles of the HE image are generated when the dataset is loaded.
 class Dataset
 {
 

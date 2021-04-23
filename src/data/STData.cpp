@@ -219,17 +219,20 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool drange = rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
     STDataFrame data = m_data;
-    std::vector<uword> genes_visible_indexes;
-    std::vector<uword> spots_visible_indexes;
     uvec cols_to_keep;
     uvec rows_to_keep;
+    vec values;
     if (!rendering_settings.show_spots) {
-        cols_to_keep = zeros<uvec>(data.counts.n_cols - 1);
+        // to store the genes that pass the filters
+        cols_to_keep = ones<uvec>(data.counts.n_cols - 1);
+        // to store the spots that are visible and pass the filters
         rows_to_keep = zeros<uvec>(data.counts.n_rows - 1);
+        // to store the visible genes
+        uvec cols_to_keep_tmp = zeros<uvec>(data.counts.n_cols - 1);
 
-        // reset visible/selected to false
         #pragma omp parallel for
         for (uword i = 0; i < data.counts.n_rows; ++i) {
+            // reset visible/selected arrays to false
             m_rendering_visible[i] = false;
             m_rendering_selected[i] = false;
             if (m_spots.at(i)->visible()) {
@@ -252,37 +255,54 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         // reset visible/selected to false
         #pragma omp parallel for
         for (uword j = 0; j < data.counts.n_cols; ++j) {
-            if (m_genes.at(j)->visible()) {
-                // get columns (genes) >= min_spots
-                if (rendering_settings.spots_threshold > 0) {
-                    const auto num_spots = sum(data.counts.col(j) > rendering_settings.reads_threshold);
-                    cols_to_keep.at(j) = num_spots >= rendering_settings.spots_threshold ? 1 : 0;
-                } else {
-                    cols_to_keep.at(j) = 1;
-                }
+            // get columns (genes) >= min_spots
+            if (rendering_settings.spots_threshold > 0) {
+                const auto num_spots = sum(data.counts.col(j) > rendering_settings.reads_threshold);
+                cols_to_keep.at(j) = num_spots >= rendering_settings.spots_threshold ? 1 : 0;
             }
+            cols_to_keep_tmp.at(j) = m_genes.at(j)->visible();
         }
 
         // early out if no genes after filtering
         // cols_to_keep.is_zero() this fails
-        if (!any(cols_to_keep)) {
+        if (!any(cols_to_keep) || !any(cols_to_keep_tmp)) {
             return;
         }
+
+        // update genes to be kept with the genes filtered (element wise multiplcation)
+        cols_to_keep_tmp = cols_to_keep_tmp % cols_to_keep;
 
         // get indeces of visible rows/gens
         rows_to_keep = find(rows_to_keep);
         cols_to_keep = find(cols_to_keep);
 
-        // normalize before slicing with the filters
-        // TODO this could be cached to save computation time
-        data = normalizeCounts(data, rendering_settings.normalization_mode);
-
         // slice
         data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
 
-        // apply standard transformation if requested (by genes)
-        if (rendering_settings.zscore) {
-            data = ztransform(data);
+        if (do_values) {
+            // normalize
+            data = normalizeCounts(data, rendering_settings.normalization_mode);
+        }
+
+        // keep only visible genes
+        cols_to_keep = find(cols_to_keep_tmp);
+        data.counts = data.counts.cols(cols_to_keep);
+
+        if (do_values) {
+            // log scale
+            if (rendering_settings.log_scale) {
+                data.counts = log1p(data.counts);
+            }
+
+            // apply standard transformation if requested (by genes)
+            if (rendering_settings.zscore) {
+                data = ztransform(data);
+            }
+
+            // compute total sum (per spot)
+            values = sum(data.counts, ROW);
+            rendering_settings.legend_min = values.min();
+            rendering_settings.legend_max = values.max();
         }
 
     } else {
@@ -290,17 +310,8 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         rows_to_keep = linspace<uvec>(0, data.counts.n_rows - 1, data.counts.n_rows);
     }
 
-    // Compute total sum if in color mode (heatmap)
-    vec values;
-    if (do_values && !rendering_settings.show_spots) {
-        values = sum(data.counts, ROW);
-        if (rendering_settings.log_scale) {
-            values = log1p(values);
-        }
-        rendering_settings.legend_min = values.min();
-        rendering_settings.legend_max = values.max();
-    }
-
+    // iterate spots to assign color, selected and visible status to each of them
+    // and also update the rendering vectors so the data can be visualized
     #pragma omp parallel for
     for (uword i = 0; i < data.counts.n_rows; ++i) {
         const auto spot_index = rows_to_keep.at(i);
@@ -314,6 +325,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             visible = spot_obj->visible();
         } else {
             if (!do_values || drange) {
+                // iterate only genes with expression in the spot
                 const rowvec row_vec = data.counts.row(i);
                 const uvec detected_genes = find(row_vec);
                 for (const auto &j : detected_genes) {

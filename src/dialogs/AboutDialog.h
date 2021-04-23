@@ -6,8 +6,7 @@ namespace Ui
 class AboutDialog;
 } // namespace Ui //
 
-// Simple about dialog. Contains the application logo as well as some about
-// text (so... simple).
+// Simple about dialog. Contains the application logo as well as some text
 class AboutDialog : public QDialog
 {
     Q_OBJECT

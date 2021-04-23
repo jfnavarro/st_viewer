@@ -65,7 +65,7 @@ AnalysisCorrelation::AnalysisCorrelation(const STData::STDataFrame &data1,
     } else {
         QMessageBox::critical(this,
                               tr("Correlation"),
-                              tr("There are no common genes between the selections"));
+                              tr("There are no common genes between the two datasets"));
         m_ui->logScale->setEnabled(false);
         m_ui->exportPlot->setEnabled(false);
     }

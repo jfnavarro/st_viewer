@@ -13,8 +13,8 @@ class analysisCorrelation;
 QT_CHARTS_USE_NAMESPACE
 
 // This Widget takes two datasets and computes a correlation value for the common genes.
-// A correlation plot is generated where users can click a dot to see which gene is it.
-// It allows to normalize using the log scale
+// A correlation scatter plot is generated where users can click a dot (spot) to see which gene is it.
+// It allows to normalize using the log scale and the correlation value is also shown.
 class AnalysisCorrelation : public QWidget
 {
     Q_OBJECT
@@ -30,7 +30,7 @@ public:
 
 private slots:
 
-    // computes the correlation, updates the plot and the fields
+    // computes the correlation, updates the scatter plot and the fields
     void slotUpdateData();
 
     // when the user wants to export the plot to a file

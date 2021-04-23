@@ -21,10 +21,11 @@ namespace Ui
 class CellView;
 } // namespace Ui
 
-// This is the definition of the cell view page visualization widget
-// which contains a table of genes/spots and an OpenGL based
-// rendering canvas to visualize the cell tissue and the spots (dataset).
-// It also contains a toolbar. Functionalities in the toolbar are handled by slots.
+// This is the Widget the represents the main visualization object of the tool.
+// The image of the tissue and the data are visualized here.
+// It contains references to the widget of genes, spots and clusters.
+// The visualization (2D and 3D) is done using OpenGL and shaders.
+// It contains a toolbar. Functionalities in the toolbar are handled by slots.
 // We do lazy inizialization of the visual stuff, specially OpenGL based stuff
 // It contains a widget with different visualization and data settings
 

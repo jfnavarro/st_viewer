@@ -11,7 +11,8 @@ class analysisQC;
 }
 
 // Widget that is used to compute and show
-// the spots/genes distributions of a dataset and useful stats
+// the spots/genes distributions (histograms) of a dataset and other
+// useful general stats
 class AnalysisQC : public QWidget
 {
     Q_OBJECT

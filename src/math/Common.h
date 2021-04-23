@@ -19,7 +19,7 @@
 
 using namespace arma;
 
-// Common provides miscellaneous functionality for maths and statistics
+// This namespace provides miscellaneous functionality for maths and statistics
 namespace STMath
 {
 
@@ -213,6 +213,7 @@ inline std::vector<double> p_adjustBenH(const std::vector<double> &pvals)
     return adj_pvals;
 }
 
+// PCA dimensionality reduction to a given number of dimentions
 inline mat PCA(const mat &data,
                const int no_dims,
                const bool center = false,
@@ -241,6 +242,7 @@ inline mat PCA(const mat &data,
     return score.head_cols(no_dims);
 }
 
+// K-means clustering to k given clusters, returns centroids of each cluster
 inline mat kmeans_clustering(const mat &data,
                              const int k,
                              const bool debug = false)
@@ -254,6 +256,9 @@ inline mat kmeans_clustering(const mat &data,
     return centroids;
 }
 
+// t-SNE dimensionality reduction to a given number of dimensions
+// using the given settings. Th  original implementation from the author
+// is used https://github.com/lvdmaaten/bhtsne/
 inline mat tSNE(const mat &data,
                 const double theta = 0.5,
                 const int perplexity = 30,

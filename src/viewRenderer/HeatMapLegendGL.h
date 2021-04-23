@@ -6,10 +6,8 @@
 class QImage;
 
 // HeatMapLegend is an visual item that is used to represent the heat map
-// spectrum
-// in order to give a reference point about the color-value relationship for the
-// gene data
-// when the user selects heat map mode
+// spectrum in order to give a reference point about the color-value relationship
+// for the gene data when the user selects heat map mode
 class HeatMapLegendGL
 {
 

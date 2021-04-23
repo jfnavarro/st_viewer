@@ -17,7 +17,7 @@ QT_CHARTS_USE_NAMESPACE
 // using dimensionality reduction and clustering algorithms.
 // The clustered spots are projected onto a 2D manifold and plotted in a scatter plot.
 // It allows users to interact with the scatter plot in real time and to create and export selections
-// based on the clustered spots in the manifold space
+// based on the clustered spots in the manifold space.
 class AnalysisClustering : public QWidget
 {
     Q_OBJECT
@@ -58,14 +58,14 @@ signals:
 private slots:
 
     // performs a dimensionality reduction (t-SNE or PCA) on the data matrix and then
-    // clusters the reduced coordinates (2D) using k-means so to compute classes/colors
-    // for each spot
+    // clusters the reduced coordinates (2D) using k-means to assign a class/cluster
+    // to each spot. UI elements are updated when finished. This is run on a different thread.
     void slotRun();
 
     // exports the scatter plot to a file
     void slotExportPlot();
 
-    // when the user makes a lasso selection on the scatter plot so the spots inside
+    // when the user makes a lasso selection on the scatter plot the spots inside
     // the selection are added to a list and a signal is emitted
     void slotLassoSelection(const QPainterPath &path);
 
@@ -75,7 +75,7 @@ private:
     void computeClustersAsync();
     void clustersComputed();
 
-    // the data
+    // the dataset
     STData::STDataFrame m_data;
 
     // the results
@@ -88,7 +88,7 @@ private:
     // the user selected spots
     QVector<QString> m_selected_spots;
 
-    // the splot serie's
+    // the scatter plot serie's (UI elements)
     QVector<QScatterSeries *> m_series_vector;
 
     // The UI object

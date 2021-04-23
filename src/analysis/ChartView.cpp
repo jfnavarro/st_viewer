@@ -164,6 +164,6 @@ void ChartView::slotExportPlot(const QString &title)
     } else if (!image.save(filename, format.toStdString().c_str(), quality)) {
         QMessageBox::critical(this,
                               title,
-                              tr("The image could not be creted."));
+                              tr("The image could not be creted"));
     }
 }

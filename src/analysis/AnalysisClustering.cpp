@@ -21,6 +21,7 @@ AnalysisClustering::AnalysisClustering(QWidget *parent)
     // resent to default
     clear();
 
+    // create connections for UI elements
     connect(m_ui->runClustering, &QPushButton::clicked,
             this, &AnalysisClustering::slotRun);
     connect(m_ui->exportPlot, &QPushButton::clicked,
@@ -137,7 +138,7 @@ void AnalysisClustering::computeClustersAsync()
     if (data.counts.n_rows < 10 || data.counts.n_cols < 10) {
         QMessageBox::critical(this,
                               tr("Spots clustering"),
-                              tr("The number of spots or genes is too little"),
+                              tr("The number of spots or genes is too small"),
                               QMessageBox::Ok,
                               QMessageBox::NoButton);
         return;
@@ -179,7 +180,7 @@ void AnalysisClustering::computeClustersAsync()
              (results.n_cols == results_clustering.n_rows) &&
              (results_clustering.n_cols == num_clusters));
 
-    // compile results by obtaining the closest spots to each centroid
+    // compile results by obtaining the closest spots to each k-means centroid
     const int n_ele = results.n_rows;
     m_clusters.resize(n_ele);
     m_reduced_coordinates.resize(n_ele);

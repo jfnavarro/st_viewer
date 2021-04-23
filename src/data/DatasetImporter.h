@@ -14,6 +14,7 @@ class Dataset;
 // Widget that allows the user to import a dataset.
 // The widget asks the user to introduce the STData (matrix),
 // the tissue image and a file with spot coordinates
+//TODO add the option load zipped datasets
 class DatasetImporter : public QDialog
 {
     Q_OBJECT
