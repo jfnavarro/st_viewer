@@ -79,12 +79,11 @@ libraries that are used in this software.
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jc.fernandez.navarro@gmail.com>
 
 ## Binaries (Install from binaries)
-Binaries(installer) for MAC and Windows are provided under the tab releases. 
-Before you install the ST Viewer trough the binaries you must do the following
-(in case you have not done it already):
+Binaries (installers) for MAC and Windows are provided in the "Releases" tab. 
+To install the ST Viewer using the installers follow these intructions: 
 
 ###### OSX
-The binary provided for MAC requires OSX 10.3 or bigger. 
+The binary provided for MAC requires OSX 10.5 or bigger. 
 
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
 the ST Viewer will be installed in your system. 
