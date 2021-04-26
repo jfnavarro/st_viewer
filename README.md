@@ -117,9 +117,9 @@ Then launch the image according to where your file are located.
 
 * Download and install CMake
 
-* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw64 option and include QT Charts for every platform. 
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the default settings and location). For Windows you must choose the mingw64 option and include QT Charts for every platform. 
 
-* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
+* Download and extract QCustomplot from http://www.qcustomplot.com
 
 * Download and build Armadillo from http://arma.sourceforge.net/download.html
 	
@@ -157,9 +157,9 @@ Then launch the image according to where your file are located.
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
-    eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
+    eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.13 or 10.14 
+    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.15 for example 
 
 *   Compile the application
 
