@@ -79,12 +79,11 @@ libraries that are used in this software.
 For any question/bugs/feedback you can contact Jose Fernandez Navarro <jc.fernandez.navarro@gmail.com>
 
 ## Binaries (Install from binaries)
-Binaries(installer) for MAC and Windows are provided under the tab releases. 
-Before you install the ST Viewer trough the binaries you must do the following
-(in case you have not done it already):
+Binaries (installers) for MAC and Windows are provided in the "Releases" tab. 
+To install the ST Viewer using the installers follow these intructions: 
 
 ###### OSX
-The binary provided for MAC requires OSX 10.3 or bigger. 
+The binary provided for MAC requires OSX 10.5 or bigger. 
 
 * Download the installer (DMG) open it and drag the ST Viewer icon to Applications and then 
 the ST Viewer will be installed in your system. 
@@ -118,9 +117,9 @@ Then launch the image according to where your file are located.
 
 * Download and install CMake
 
-* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the defaultsettings and location). For Windows you must choose the mingw64 option and include QT Charts for every platform. 
+* Download and install Qt open source from http://qt-project.org/downloads (Choose Desktop application and Open Source and then use the default settings and location). For Windows you must choose the mingw64 option and include QT Charts for every platform. 
 
-* Download and extract QCustomplot from http://www.qcustomplot.com/release/1.3.2/QCustomPlot.tar.gz
+* Download and extract QCustomplot from http://www.qcustomplot.com
 
 * Download and build Armadillo from http://arma.sourceforge.net/download.html
 	
@@ -158,9 +157,9 @@ Then launch the image according to where your file are located.
 
     DCMAKE_OSX_SYSROOT = provides the path to the MacOS X SDK that is to be used (Only OSX users)
     
-    eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/
+    eg: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/
 
-    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.13 or 10.14 
+    DCMAKE_OSX_DEPLOYMENT_TARGET = use 10.15 for example 
 
 *   Compile the application
 
