@@ -225,14 +225,15 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     if (!rendering_settings.show_spots) {
         // to store the genes that pass the filters
         cols_to_keep = ones<uvec>(data.counts.n_cols - 1);
+        // to store the genes that are visible
+        uvec cols_to_keep_tmp = zeros<uvec>(data.counts.n_cols - 1);
         // to store the spots that are visible and pass the filters
         rows_to_keep = zeros<uvec>(data.counts.n_rows - 1);
-        // to store the visible genes
-        uvec cols_to_keep_tmp = zeros<uvec>(data.counts.n_cols - 1);
 
+        // obtain the spots that pass the filters and that are visible
         #pragma omp parallel for
         for (uword i = 0; i < data.counts.n_rows; ++i) {
-            // reset visible/selected arrays to false
+            // reset visible/selected rendering arrays to false
             m_rendering_visible[i] = false;
             m_rendering_selected[i] = false;
             if (m_spots.at(i)->visible()) {
@@ -246,13 +247,13 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             }
         }
 
-        // early out if no no spots after filtering
-        // rows_to_keep.is_zero() this fails
+        // early out if no visible spots after filtering
+        // NOTE rows_to_keep.is_zero() fails
         if (!any(rows_to_keep)) {
             return;
         }
 
-        // reset visible/selected to false
+        // obtain the genes that pass the filters and that are visible
         #pragma omp parallel for
         for (uword j = 0; j < data.counts.n_cols; ++j) {
             // get columns (genes) >= min_spots
@@ -263,20 +264,21 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             cols_to_keep_tmp.at(j) = m_genes.at(j)->visible();
         }
 
-        // early out if no genes after filtering
-        // cols_to_keep.is_zero() this fails
+        // early out if no visible genes after filtering
+        // NOTE cols_to_keep.is_zero() fails
         if (!any(cols_to_keep) || !any(cols_to_keep_tmp)) {
             return;
         }
 
         // update genes to be kept with the genes filtered (element wise multiplcation)
+        // so in short words a gene must be visible and pass the filters
         cols_to_keep_tmp = cols_to_keep_tmp % cols_to_keep;
 
-        // get indeces of visible rows/gens
+        // get indexes of visible spots/genes (rows/columns)
         rows_to_keep = find(rows_to_keep);
         cols_to_keep = find(cols_to_keep);
 
-        // slice
+        // slice the dataset
         data.counts = data.counts.submat(rows_to_keep, cols_to_keep);
 
         if (do_values) {
@@ -444,8 +446,10 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
 {
     STDataFrame norm_counts = data;
     if (mode == SettingsWidget::REL) {
+        //TODO add a try catch
         norm_counts.counts.each_col() /= sum(norm_counts.counts, ROW);
     } else if (mode == SettingsWidget::CPM) {
+        //TODO add a try catch
         const auto sums = sum(norm_counts.counts, ROW);
         const auto means = mean(sums);
         norm_counts.counts = (norm_counts.counts.each_col() / sums) * means;
@@ -456,6 +460,7 @@ STData::STDataFrame STData::normalizeCounts(const STDataFrame &data,
 STData::STDataFrame STData::ztransform(const STDataFrame &data)
 {
     STDataFrame norm_counts = data;
+    //TODO add a try catch
     const auto means = mean(norm_counts.counts, COLUMN);
     const auto sdev = stddev(norm_counts.counts, COLUMN);
     norm_counts.counts = (norm_counts.counts.each_row() - means).each_row() / sdev;

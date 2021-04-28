@@ -248,3 +248,9 @@ V0.8.5
     * Big speed improvements 
     * Fixed bug when computing histograms
     * Made spots smaller when they are selected
+    
+v0.8.9
+    * Added clusters widget to interact with clusters
+    * Improvements in the computation of the rendering data
+    * Improvements in the visualization 2D/3D
+    * General bug fixes and improvements

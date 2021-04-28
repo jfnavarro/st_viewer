@@ -1,7 +1,8 @@
 #version 330
 
-in highp vec4 vColor;
-in highp float vVisible;
+flat in highp vec4 vColor;
+flat in highp float vVisible;
+flat
 in highp float vSelected;
 
 out highp vec4 fColor;

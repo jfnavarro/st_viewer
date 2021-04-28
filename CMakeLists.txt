@@ -7,10 +7,10 @@ set(APPLICATION_NAME "Spatial Transcriptomics Viewer")
 # Configuration variables
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "8")
-set(PROJECT_VERSION_PATCH "7")
+set(PROJECT_VERSION_PATCH "9")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 set(PROJECT_DESCRIPTION "Visualization tool for Spatial Transcriptomics data")
-set(PROJECT_COPYRIGHT "Copyright (C) 2012-2020 Jose Fernandez Navarro")
+set(PROJECT_COPYRIGHT "Copyright (C) 2012-2021 Jose Fernandez Navarro")
 set(PROJECT_CONTACT "jc.fernandez.navarro@gmail.com")
 set(PROJECT_VENDOR "Jose Fernandez Navarro")
 set(CONFIG_FILE "${PROJECT_SOURCE_DIR}/assets/stviewer.conf" CACHE STRING

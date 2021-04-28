@@ -5,9 +5,9 @@ layout(location = 1) in vec4 color;
 layout(location = 2) in int selected;
 layout(location = 3) in int visible;
 
-out vec4 vColor;
-out float vVisible;
-out float vSelected;
+flat out vec4 vColor;
+flat out float vVisible;
+flat out float vSelected;
 
 uniform mat4 mvp_matrix;
 uniform int size;

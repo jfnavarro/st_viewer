@@ -8,7 +8,7 @@
 #include <random>
 
 //TODO replace by Qt weak color
-static const QColor lasso_color = QColor(0,0,255,90);
+constexpr QColor lasso_color = QColor(0,0,255,90);
 constexpr int KEY_OFFSET = 2;
 constexpr double DEFAULT_ZOOM_ADJUSTMENT = 10.0;
 
