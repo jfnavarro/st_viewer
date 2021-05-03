@@ -2,12 +2,12 @@
 #include "ui_SettingsWidget.h"
 #include <QDebug>
 
-static const int INTENSITY_MIN = 1;
-static const int INTENSITY_MAX = 10;
-static const int SIZEMIN = 5;
-static const int SIZEMAX = 30;
-static const int SIZE_DEFAULT = 5;
-static const double INTENSITY_DEFAULT = 1.0;
+constexpr int INTENSITY_MIN = 1;
+constexpr int INTENSITY_MAX = 10;
+constexpr int SIZEMIN = 1;
+constexpr int SIZEMAX = 25;
+constexpr int SIZE_DEFAULT = 10;
+constexpr double INTENSITY_DEFAULT = 1.0;
 
 SettingsWidget::SettingsWidget(QWidget *parent)
     : QWidget(parent)
@@ -79,7 +79,7 @@ void SettingsWidget::reset()
     m_ui->spots_intensity->setValue(INTENSITY_MAX);
     m_ui->spots_size->setMinimum(SIZEMIN);
     m_ui->spots_size->setMaximum(SIZEMAX);
-    m_ui->spots_size->setValue(SIZEMIN);
+    m_ui->spots_size->setValue(SIZE_DEFAULT);
     m_ui->show_image->setChecked(true);
     m_ui->show_spots->setChecked(false);
     m_ui->log_scale->setChecked(false);

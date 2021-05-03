@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QList>
 #include <random>
+#include <algorithm>
 
 //TODO replace by Qt weak color
 constexpr QColor lasso_color = QColor(0,0,255,90);
@@ -96,8 +97,9 @@ void CellGLView3D::initializeGL()
     // Set global information
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnable(GL_ALPHA_TEST);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_ALPHA_TEST);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POINT_SPRITE);
@@ -105,7 +107,8 @@ void CellGLView3D::initializeGL()
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
+    //glBlendEquation(GL_FUNC_ADD);
+    glEnable(GL_LIGHTING);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
@@ -281,41 +284,37 @@ void CellGLView3D::paintGL()
         m_mesh->draw(projection, view, model, eye);
     }
 
-    // TODO alpha is currently not working
+    // alpha value
     const double alpha =
             m_rendering_settings->visual_mode == SettingsWidget::DynamicRange ?
                 -1.0 : m_rendering_settings->intensity;
 
     // make size proportional to the zoom
-    const int size = is3D ? static_cast<float>(m_rendering_settings->size * 2) :
-                            std::max(15.0, static_cast<float>(m_rendering_settings->size * 5) * m_zoom);
+    const int size = is3D ? m_rendering_settings->size * 2:
+                            std::clamp(static_cast<int>(m_rendering_settings->size * 5 * m_zoom), 5, 25);
 
     // Render gene data
     m_program.bind();
-
     m_program.setUniformValue(u_size, size);
     m_program.setUniformValue(u_alpha, static_cast<GLfloat>(alpha));
     m_program.setUniformValue(u_mvp_matrix, mvp);
-
     m_vao.bind();
     glDrawArrays(GL_POINTS, 0, m_num_points);
     m_vao.release();
-
     m_program.release();
 
     painter.endNativePainting();
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     // render legend
     if (m_legend_show) {
         //TODO no need to always update the legend if the color mode is not changed
         m_legend->update();
-        painter.setRenderHint(QPainter::Antialiasing, true);
         m_legend->draw(*m_rendering_settings, painter);
     }
 
     // render selection box/lasso
     if (!is3D && m_lassoSelection && !m_lasso.isEmpty()) {
-        painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setBrush(lasso_color);
         painter.setPen(lasso_color);
         painter.drawPath(m_lasso.simplified());
@@ -618,7 +617,6 @@ void CellGLView3D::attachDataset(const Dataset &dataset)
     m_visible_buffer.release();
     m_program.release();
     m_vao.release();
-
 
     doneCurrent();
     m_initialized = true;
