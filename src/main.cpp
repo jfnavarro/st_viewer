@@ -30,6 +30,7 @@ int main(int argc, char **argv)
     // Create OpenGL context
     QSurfaceFormat format;
     format.setVersion(3, 3);
+    format.setDepthBufferSize(24);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     QSurfaceFormat::setDefaultFormat(format);

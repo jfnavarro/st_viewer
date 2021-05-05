@@ -97,9 +97,9 @@ void CellGLView3D::initializeGL()
     // Set global information
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    //glEnable(GL_ALPHA_TEST);
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_MULTISAMPLE);
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POINT_SPRITE);
@@ -254,8 +254,6 @@ void CellGLView3D::setRotation(const double azim, const double elevation)
 
 void CellGLView3D::paintGL()
 {
-    QPainter painter(this);
-    painter.beginNativePainting();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -303,7 +301,7 @@ void CellGLView3D::paintGL()
     m_vao.release();
     m_program.release();
 
-    painter.endNativePainting();
+    QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     // render legend
@@ -657,6 +655,7 @@ void CellGLView3D::slotUpdate()
 
 const QImage CellGLView3D::grabPixmapGL()
 {
-    const QPixmap res = grab(QRect(0,0,width(),height()));
-    return res.toImage();
+    //const QPixmap res = grab(QRect(0,0,width(),height()));
+    //return res.toImage();
+    return grabFramebuffer();
 }

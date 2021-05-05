@@ -759,9 +759,6 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="mainLayout">
-        <item>
-         <widget class="CellGLView3D" name="view"/>
-        </item>
        </layout>
       </item>
      </layout>
@@ -769,13 +766,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CellGLView3D</class>
-   <extends>QOpenGLWidget</extends>
-   <header>viewRenderer/CellGLView3D.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

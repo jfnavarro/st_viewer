@@ -96,7 +96,7 @@ void ImageTextureGL::createTiles(const QVector<QPair<QImage, QPoint> > &tiles)
     m_vao.create();
     m_vao.bind();
 
-    // Transfer vertex data to VBO 0
+    // transfer vertex data to VBO 0
     m_posBuf.create();
     m_posBuf.bind();
     m_posBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -104,7 +104,7 @@ void ImageTextureGL::createTiles(const QVector<QPair<QImage, QPoint> > &tiles)
     m_program->enableAttributeArray(0);
     m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
-    // Transfer texture data to VBO 1
+    // transfer texture data to VBO 1
     m_coordBuf.create();
     m_coordBuf.bind();
     m_coordBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
