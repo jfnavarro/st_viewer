@@ -47,36 +47,17 @@ void ImageMeshGL::clearData()
     m_num_triangles = 0;
 }
 
-void ImageMeshGL::draw(const QMatrix4x4 &projection,
-                       const QMatrix4x4 &view,
-                       const QMatrix4x4 &model,
-                       const QVector3D &eye)
+void ImageMeshGL::draw(const QMatrix4x4 &mvp_matrx)
 {
     if (!m_isInitialized) {
         return;
     }
 
     m_program->bind();
-
-    // TODO optimize the light settings
-    m_program->setUniformValue("projection", projection);
-    m_program->setUniformValue("view", view);
-    m_program->setUniformValue("model", model);
-    m_program->setUniformValue("color", 0.3f, 0.3f, 0.3f);
-    m_program->setUniformValue("light.position", 0.5f, 1.0f, 1.0f);
-    m_program->setUniformValue("light.ambient", 0.2f, 0.2f, 0.2f);
-    m_program->setUniformValue("light.diffuse", 0.5f, 0.5f, 0.5f);
-    m_program->setUniformValue("light.specular", 1.0f, 1.0f, 1.0f);
-    m_program->setUniformValue("material.ambient", 1.0f, 0.5f, 0.31f);
-    m_program->setUniformValue("material.diffuse", 1.0f, 0.5f, 0.31f);
-    m_program->setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);
-    m_program->setUniformValue("material.shininess", 128.0f);
-    m_program->setUniformValue("viewPos", eye);
-
+    m_program->setUniformValue("mvp_matrix", mvp_matrx);
     m_vao.bind();
     glDrawElements(GL_TRIANGLES, m_num_triangles, GL_UNSIGNED_INT, 0);
     m_vao.release();
-
     m_program->release();
 }
 

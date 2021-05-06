@@ -98,8 +98,8 @@ void CellGLView3D::initializeGL()
     glDisable(GL_CULL_FACE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_ALPHA_TEST);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_MULTISAMPLE);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POINT_SPRITE);
@@ -108,7 +108,6 @@ void CellGLView3D::initializeGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendEquation(GL_FUNC_ADD);
-    glEnable(GL_LIGHTING);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Compile Shaders
@@ -254,7 +253,6 @@ void CellGLView3D::setRotation(const double azim, const double elevation)
 
 void CellGLView3D::paintGL()
 {
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!m_initialized) {
@@ -276,10 +274,7 @@ void CellGLView3D::paintGL()
 
     // render mesh
     if (is3D && m_image_show) {
-        // model should be identity
-        const QMatrix4x4 model;
-        const QVector3D &eye = cameraPosition();
-        m_mesh->draw(projection, view, model, eye);
+        m_mesh->draw(projection * view);
     }
 
     // alpha value
@@ -302,6 +297,8 @@ void CellGLView3D::paintGL()
     m_program.release();
 
     QPainter painter(this);
+    //painter.setBackgroundMode(Qt::TransparentMode);
+    //painter.setBackground(Qt::transparent);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     // render legend
