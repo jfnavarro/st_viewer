@@ -257,7 +257,7 @@ inline mat kmeans_clustering(const mat &data,
 }
 
 // t-SNE dimensionality reduction to a given number of dimensions
-// using the given settings. Th  original implementation from the author
+// using the given parameters. The original implementation from the author
 // is used https://github.com/lvdmaaten/bhtsne/
 inline mat tSNE(const mat &data,
                 const double theta = 0.5,

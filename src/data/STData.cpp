@@ -218,63 +218,57 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
     const bool do_values = rendering_settings.visual_mode != SettingsWidget::VisualMode::Normal;
     const bool drange = rendering_settings.visual_mode == SettingsWidget::VisualMode::DynamicRange;
 
+    // make a local copy of the data to apply filters, normalize and so
     STDataFrame data = m_data;
+
+    // to keep the indices and the row values for visualization
     uvec cols_to_keep;
     uvec rows_to_keep;
     vec values;
-    if (!rendering_settings.show_spots) {
-        // to store the genes that pass the filters
-        cols_to_keep = ones<uvec>(data.counts.n_cols - 1);
-        // to store the genes that are visible
-        uvec cols_to_keep_tmp = zeros<uvec>(data.counts.n_cols - 1);
-        // to store the spots that are visible and pass the filters
-        rows_to_keep = zeros<uvec>(data.counts.n_rows - 1);
 
-        // obtain the spots that pass the filters and that are visible
+    if (!rendering_settings.show_spots) {
+
+        // get the spots that pass the filters
+        rows_to_keep = ones<uvec>(data.counts.n_rows);
+        uvec rows_to_keep_tmp = ones<uvec>(data.counts.n_rows - 1);
+        if (rendering_settings.genes_threshold > 0) {
+            rows_to_keep = sum(data.counts > rendering_settings.reads_threshold, ROW)
+                    >= rendering_settings.genes_threshold;
+        }
+
+        // early out if no visible spots after filtering
+        if (!any(rows_to_keep)) {
+            return;
+        }
+
+        // obtain the spots that are visible
         #pragma omp parallel for
         for (uword i = 0; i < data.counts.n_rows; ++i) {
             // reset visible/selected rendering arrays to false
             m_rendering_visible[i] = false;
             m_rendering_selected[i] = false;
-            if (m_spots.at(i)->visible()) {
-                // get rows (spots) >= min_genes
-                if (rendering_settings.genes_threshold > 0) {
-                    const auto num_genes = sum(data.counts.row(i) >= rendering_settings.reads_threshold);
-                    rows_to_keep.at(i) = num_genes >= rendering_settings.genes_threshold ? 1 : 0;
-                } else {
-                    rows_to_keep.at(i) = 1;
-                }
-            }
+            rows_to_keep.at(i) = m_spots.at(i)->visible() && rows_to_keep.at(i);
         }
 
-        // early out if no visible spots after filtering
-        // NOTE rows_to_keep.is_zero() fails
+        // early out if no visible spots
         if (!any(rows_to_keep)) {
             return;
         }
 
-        // obtain the genes that pass the filters and that are visible
-        #pragma omp parallel for
-        for (uword j = 0; j < data.counts.n_cols; ++j) {
-            // get columns (genes) >= min_spots
-            if (rendering_settings.spots_threshold > 0) {
-                const auto num_spots = sum(data.counts.col(j) > rendering_settings.reads_threshold);
-                cols_to_keep.at(j) = num_spots >= rendering_settings.spots_threshold ? 1 : 0;
-            }
-            cols_to_keep_tmp.at(j) = m_genes.at(j)->visible();
+        // get the genes that pass the filters
+        cols_to_keep = ones<uvec>(data.counts.n_cols);
+        if (rendering_settings.spots_threshold > 0) {
+            cols_to_keep = conv_to<uvec>::from(sum(data.counts > rendering_settings.reads_threshold, COLUMN)
+                                               >= rendering_settings.spots_threshold);
+            qDebug() << cols_to_keep.size();
         }
 
-        // early out if no visible genes after filtering
-        // NOTE cols_to_keep.is_zero() fails
-        if (!any(cols_to_keep) || !any(cols_to_keep_tmp)) {
+        // early out if no genes after filtering
+        if (!any(cols_to_keep)) {
             return;
         }
 
-        // update genes to be kept with the genes filtered (element wise multiplcation)
-        // so in short words a gene must be visible and pass the filters
-        cols_to_keep_tmp = cols_to_keep_tmp % cols_to_keep;
-
-        // get indexes of visible spots/genes (rows/columns)
+        // get indexes of spots/genes (rows/columns)
         rows_to_keep = find(rows_to_keep);
         cols_to_keep = find(cols_to_keep);
 
@@ -286,8 +280,19 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             data = normalizeCounts(data, rendering_settings.normalization_mode);
         }
 
+        // obtain the genes that are visible
+        #pragma omp parallel for
+        for (const auto j : cols_to_keep) {
+            cols_to_keep.at(j) = m_genes.at(j)->visible();
+        }
+
+        // early out if no genes after visible
+        if (!any(cols_to_keep)) {
+            return;
+        }
+
         // keep only visible genes
-        cols_to_keep = find(cols_to_keep_tmp);
+        cols_to_keep = find(cols_to_keep);
         data.counts = data.counts.cols(cols_to_keep);
 
         if (do_values) {
