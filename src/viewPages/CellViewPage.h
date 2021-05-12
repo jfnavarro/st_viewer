@@ -110,9 +110,6 @@ private:
     // the spot clustering widget
     QScopedPointer<AnalysisClustering> m_clustering;
 
-    // the main view where data is rendered
-    QScopedPointer<CellGLView3D> m_view;
-
     // the currently opened dataset
     Dataset m_dataset;
 

@@ -260,7 +260,6 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
         if (rendering_settings.spots_threshold > 0) {
             cols_to_keep = conv_to<uvec>::from(sum(data.counts > rendering_settings.reads_threshold, COLUMN)
                                                >= rendering_settings.spots_threshold);
-            qDebug() << cols_to_keep.size();
         }
 
         // early out if no genes after filtering
@@ -280,7 +279,7 @@ void STData::computeRenderingData(SettingsWidget::Rendering &rendering_settings)
             data = normalizeCounts(data, rendering_settings.normalization_mode);
         }
 
-        // obtain the genes that are visible
+        // get the genes that are visible
         #pragma omp parallel for
         for (const auto j : cols_to_keep) {
             cols_to_keep.at(j) = m_genes.at(j)->visible();

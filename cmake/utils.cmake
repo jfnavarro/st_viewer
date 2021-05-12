@@ -1,8 +1,9 @@
 macro(INITIALISE_PROJECT)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
+    set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
 
     # Required packages
     find_package(Qt5Widgets REQUIRED)
+
     # Keep track of some information about Qt
     set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
     set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
@@ -14,7 +15,6 @@ macro(INITIALISE_PROJECT)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         message(STATUS "Building a debug version...")
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG -DDEBUG")
         add_definitions(-DQT_DEBUG)
     else()
         message(STATUS "Building a release version...")
@@ -24,6 +24,7 @@ macro(INITIALISE_PROJECT)
 
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
     # Adding -std=c++17 flag explicitly
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     set(CMAKE_CXX_REQUIRED_FLAGS -std=c++17)
@@ -32,7 +33,6 @@ macro(INITIALISE_PROJECT)
     if(WIN32)
 	
     else()
-
 
         # Enable warning errors
         set(WARNING_ERROR "-Werror")

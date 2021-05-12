@@ -52,7 +52,7 @@ endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-if (APPLE)
+if(APPLE)
     find_library(OpenMP_LIBRARY NAMES omp)
     find_path(OpenMP_INCLUDE_DIR omp.h)
     set(OpenMP_LIBRARIES ${OpenMP_LIBRARY})
@@ -119,7 +119,10 @@ add_subdirectory(test)
 
 ############################INSTALLATION#########################################
 
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# Add systems libraries
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
+include(InstallRequiredSystemLibraries)
 
 # PACKAGING OPTIONS: GENERAL
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
@@ -219,10 +222,6 @@ if(WIN32)
 	# Add omp ddl manually since it is not on the QT bin dir
     get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} ${MINGW_PATH}/libgomp-1.dll)
-
-    # Add systems libraries
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
-    include(InstallRequiredSystemLibraries)
 
     # Qt plug-ins needed
     set(QT_PLUGIN_CATEGORIES imageformats printsupport platforms)
