@@ -10,7 +10,7 @@ namespace Ui {
 class analysisCorrelation;
 }
 
-QT_CHARTS_USE_NAMESPACE
+//QT_CHARTS_USE_NAMESPACE
 
 // This Widget takes two datasets and computes a correlation value for the common genes.
 // A correlation scatter plot is generated where users can click a dot (spot) to see which gene is it.

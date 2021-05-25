@@ -114,7 +114,7 @@ private:
     bool m_image_show;
 
     // helper variables for zooming, rotation and panning
-    QPoint m_pos;
+    QPointF m_pos;
     double m_zoom;
     double m_rotate_factor;
     double m_flip_factor;

@@ -97,12 +97,12 @@ void AnalysisDEA::slotExportTable()
     if (file.open(QIODevice::ReadWrite)) {
         QTextStream stream(&file);
         // write columns (1st row)
-        stream << "Gene" << "\t" << "adj_pvalue" << "\t" << "pvalue" << "\t" << "logFoldChange" << endl;
+        stream << "Gene" << "\t" << "adj_pvalue" << "\t" << "pvalue" << "\t" << "logFoldChange" << Qt::endl;
         // write values
         for (const auto &res : m_results) {
             if (res.adj_pvalue <= m_ui->adj_pvalue->value()
                     && std::fabs(res.logfc) >= m_ui->foldchange->value()) {
-                stream << res.gene << "\t" << res.adj_pvalue << "\t" << res.pvalue << "\t" << res.logfc << endl;
+                stream << res.gene << "\t" << res.adj_pvalue << "\t" << res.pvalue << "\t" << res.logfc << Qt::endl;
             }
         }
     } else {
@@ -375,19 +375,18 @@ void AnalysisDEA::slotRun()
         m_ui->searchField->setEnabled(false);
 
         // initialize worker
-        QFuture<void> future = QtConcurrent::run(this,
-                                                 &AnalysisDEA::runDEA,
-                                                 A,
-                                                 B,
-                                                 shared_genes);
+        QPromise<void> promise;
+        QFuture<void> future = QtConcurrent::run(&AnalysisDEA::runDEA, &promise, &A, &B, &shared_genes);
         m_watcher.setFuture(future);
     } else {
         slotDEAComputed();
     }
 }
 
-void AnalysisDEA::runDEA(const mat &A, const mat &B, const QList<QString> genes)
+void AnalysisDEA::runDEA(QPromise<void> &promise, mat A, mat B, QList<QString> genes)
 {
+    Q_UNUSED(promise);
+
     qDebug() << "Computing DEA for " << A.n_cols << " genes and " << A.n_rows
              << " spots in A and " << B.n_rows << " spots in B";
 

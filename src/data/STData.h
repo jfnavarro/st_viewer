@@ -7,6 +7,7 @@
 #include <QVector3D>
 #include <QVector4D>
 #include <QColor>
+#include <QHash>
 
 #include "data/Gene.h"
 #include "data/Spot.h"

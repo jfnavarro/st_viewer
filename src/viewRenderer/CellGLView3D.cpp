@@ -416,7 +416,8 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
         return;
     }
 
-    const double zoomFactor = std::pow(4.0 / 3.0, (event->delta() / 240.0));
+    //TODO we may want to also use the delta Y
+    const double zoomFactor = std::pow(4.0 / 3.0, (event->angleDelta().x() / 240.0));
     m_zoom *= zoomFactor;
 
     if (event->modifiers() & Qt::ControlModifier) {
@@ -449,7 +450,7 @@ void CellGLView3D::mousePressEvent(QMouseEvent *event)
         m_originSelection = event->pos();
         m_lasso.moveTo(m_originSelection);
     } else {
-        m_pos = event->globalPos(); // panning needs globalPos
+        m_pos = event->globalPosition(); // panning needs globalPos
         // panning changes cursor to closed hand
         setCursor(Qt::ClosedHandCursor);
     }
@@ -466,8 +467,8 @@ void CellGLView3D::mouseMoveEvent(QMouseEvent *event)
 
     const bool is_left = event->buttons() & Qt::LeftButton;
     const bool is3D = m_dataset.is3D();
-    const QPoint diff = event->globalPos() - m_pos;
-    m_pos = event->globalPos();
+    const QPointF diff = event->globalPosition() - m_pos;
+    m_pos = event->globalPosition();
 
     // first check if we are in selection mode
     if (is_left && m_rubberBanding && !is3D) {

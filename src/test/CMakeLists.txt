@@ -2,7 +2,7 @@
 # Unit Test CMake                                                             #
 ###############################################################################
 
-use_qt5lib(Qt5Test)
+find_package(Qt6 COMPONENTS Test REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/src
                     ${PROJECT_SOURCE_DIR}
@@ -15,8 +15,6 @@ set(ST_UNITTEST_SOURCES
     ${ST_TARGET_OBJECTS}
 )
 
-find_package(Qt5Test REQUIRED)
-
 ### TEST CREATION MACRO #######################################################
 # This macro accepts an optional argument 'otherfiles'. This forms an optional list of non test 
 # files to be added to test executable. It assumes that each entry 'foo' in the list has a 
@@ -28,7 +26,7 @@ macro(add_st_client_test subdir name)
     set(srcs ${srcs} ${subdir}/${file}.h ${subdir}/${file}.cpp )
   endforeach()
   add_executable(${name} ${srcs})
-  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test
+  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt6::Test
       ${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES})
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)

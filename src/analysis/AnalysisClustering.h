@@ -11,7 +11,7 @@ namespace Ui {
 class analysisClustering;
 }
 
-QT_CHARTS_USE_NAMESPACE
+//QT_CHARTS_USE_NAMESPACE
 
 // A Widget that is used to cluster spots in a dataset based on their gene expression profiles
 // using dimensionality reduction and clustering algorithms.
@@ -72,7 +72,7 @@ private slots:
 private:
 
     // helper function to do the heavy computations on a different thread
-    void computeClustersAsync();
+    void computeClustersAsync(QPromise<void> &promise);
     void clustersComputed();
 
     // the dataset

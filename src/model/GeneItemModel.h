@@ -5,7 +5,6 @@
 #include "data/STData.h"
 
 class QModelIndex;
-class QStringList;
 class QMimeData;
 class QItemSelection;
 class Dataset;

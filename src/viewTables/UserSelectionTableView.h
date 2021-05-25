@@ -4,6 +4,8 @@
 #include <QTableView>
 #include <QPointer>
 
+#include <QDialog>
+
 class QSortFilterProxyModel;
 
 // An abstraction of QTableView for the user selections

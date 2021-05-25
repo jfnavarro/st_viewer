@@ -1,17 +1,6 @@
 macro(INITIALISE_PROJECT)
     set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
 
-    # Required packages
-    find_package(Qt5Widgets REQUIRED)
-
-    # Keep track of some information about Qt
-    set(QT_BINARY_DIR ${_qt5Widgets_install_prefix}/bin)
-    set(QT_LIBRARY_DIR ${_qt5Widgets_install_prefix}/lib)
-    set(QT_PLUGINS_DIR ${_qt5Widgets_install_prefix}/plugins)
-    set(QT_VERSION_MAJOR ${Qt5Widgets_VERSION_MAJOR})
-    set(QT_VERSION_MINOR ${Qt5Widgets_VERSION_MINOR})
-    set(QT_VERSION_PATCH ${Qt5Widgets_VERSION_PATCH})
-
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
     if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
         message(STATUS "Building a debug version...")
@@ -25,10 +14,6 @@ macro(INITIALISE_PROJECT)
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-    # Adding -std=c++17 flag explicitly
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-    set(CMAKE_CXX_REQUIRED_FLAGS -std=c++17)
-		
     # Defining compiler specific settings
     if(WIN32)
 	
@@ -69,13 +54,6 @@ macro(INITIALISE_PROJECT)
     # Qt 5.X does not include private headers by default
     add_definitions(-DNO_QT_PRIVATE_HEADERS)
     
-endmacro()
-
-macro(USE_QT5LIB qt5lib)
-    find_package(${qt5lib} REQUIRED)
-    include_directories(${${qt5lib}_INCLUDE_DIRS})
-    add_definitions(${${qt5lib}_DEFINITIONS})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${qt5lib}_EXECUTABLE_COMPILE_FLAGS}")
 endmacro()
 
 function(ST_LIBRARY)

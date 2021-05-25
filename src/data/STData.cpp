@@ -185,7 +185,7 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
         for (const auto &gene : data.genes) {
             stream << "\t" << gene;
         }
-        stream << endl;
+        stream << Qt::endl;
         // write spots (1st column and the rest of the rows (counts))
         for (uword i = 0; i < data.counts.n_rows; ++i) {
             const auto spot = data.spots.at(i);
@@ -193,7 +193,7 @@ void STData::save(const QString &filename, const STData::STDataFrame &data)
             for (uword j = 0; j < data.counts.n_cols; ++j) {
                 stream << "\t" << data.counts(i,j);
             }
-            stream << endl;
+            stream << Qt::endl;
         }
     }
 }

@@ -26,15 +26,23 @@ if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()
 foreach(i ${ST_QT_LIBS})
-  USE_QT5LIB("Qt5${i}")
-  list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
+  #message(STATUS ${i})
+  find_package(Qt6 COMPONENTS ${i} REQUIRED)
+  #message(STATUS ${Qt6${i}_INCLUDE_DIRS})
+  include_directories(${Qt6${i}_INCLUDE_DIRS})
+  #message(STATUS ${Qt6${i}_DEFINITIONS})
+  #add_definitions(${Qt6${i}_DEFINITIONS})
+  #message(STATUS "${Qt6${i}_EXECUTABLE_COMPILE_FLAGS}")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6${i}_EXECUTABLE_COMPILE_FLAGS}")
+  list(APPEND QT_TARGET_LINK_LIBS "Qt6::${i}")
 endforeach()
 
 # External libraries
 find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
 add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
 target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
-target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
+target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
+target_link_libraries(qcustomplot Qt6::Widgets Qt6::Core Qt6::Gui Qt6::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
 if(WIN32)
@@ -121,8 +129,6 @@ add_subdirectory(test)
 
 # Add systems libraries
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
-include(InstallRequiredSystemLibraries)
 
 # PACKAGING OPTIONS: GENERAL
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
@@ -219,7 +225,11 @@ if(APPLE)
 endif(APPLE)
 
 if(WIN32)
-	# Add omp ddl manually since it is not on the QT bin dir
+
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP false)
+    include(InstallRequiredSystemLibraries)
+
+    # Add omp ddl manually since it is not on the QT bin dir
     get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} ${MINGW_PATH}/libgomp-1.dll)
 

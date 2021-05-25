@@ -70,7 +70,7 @@ private:
 
     // internal functions to compute the DE genes and update the table and volcano plot when finished
     // the computation in run on a different thread
-    void runDEA(const mat &A, const mat &B, const QList<QString> genes);
+    void runDEA(QPromise<void> &promise, mat A, mat B, QList<QString> genes);
     void updateTable();
     void updatePlot();
 

@@ -103,7 +103,7 @@ void AnalysisClustering::slotRun()
     m_selected_spots.clear();
 
     // make the call on another thread
-    QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
+    QFuture<void> future = QtConcurrent::run(&AnalysisClustering::computeClustersAsync);
     m_watcher_clusters.setFuture(future);
 }
 
@@ -112,8 +112,10 @@ void AnalysisClustering::slotExportPlot()
     m_ui->plot->slotExportPlot(tr("Spots clustering"));
 }
 
-void AnalysisClustering::computeClustersAsync()
+void AnalysisClustering::computeClustersAsync(QPromise<void> &promise)
 {
+    Q_UNUSED(promise);
+
     QWidget *tsne_tab = m_ui->tab->findChild<QWidget *>("tab_tsne");
     QWidget *pca_tab = m_ui->tab->findChild<QWidget *>("tab_pca");
 

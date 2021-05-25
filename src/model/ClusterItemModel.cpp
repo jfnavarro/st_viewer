@@ -1,4 +1,5 @@
 #include "ClusterItemModel.h"
+
 #include <set>
 #include <QDebug>
 #include <QModelIndex>

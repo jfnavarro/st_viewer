@@ -1,12 +1,11 @@
 #ifndef USERSELECTIONITEMMODEL_H
 #define USERSELECTIONITEMMODEL_H
 
-#include <QtCore/QModelIndex>
+#include <QModelIndex>
 #include <QAbstractTableModel>
 
 class UserSelection;
 class QModelIndex;
-class QStringList;
 class QItemSelection;
 
 // Data model for the user selections in the selections table
