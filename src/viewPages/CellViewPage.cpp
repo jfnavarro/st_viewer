@@ -518,11 +518,12 @@ void CellViewPage::slotCreateClusteringSelections()
 void CellViewPage::slotCreateSelection()
 {
     // get the selected spots
-    QList<QString> selected_spots =
-            QtConcurrent::blockingFilteredReduced<QList<QString> >(
-                m_dataset.data()->spots(),
-                [] (const auto spot) { return spot->selected(); },
-                [] (auto &list, const auto spot) { list.append(spot->name()); });
+	QList<QString> selected_spots = QtConcurrent::blockingFilteredReduced<QList<QString>>(
+		m_dataset.data()->spots(),
+		[](const auto &spot) -> bool { return spot->selected(); },  // Filter function
+		[](QList<QString> &list, const auto &spot) { list.append(spot->name()); },  // Reduce function
+		QtConcurrent::UnorderedReduce  // Ensures proper reduction ordering
+	);
     // early out
     if (selected_spots.empty()) {
         return;

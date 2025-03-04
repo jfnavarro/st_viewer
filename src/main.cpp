@@ -5,7 +5,6 @@
 #include <QTranslator>
 #include <QPixmap>
 #include <QSplashScreen>
-#include <QDesktopWidget>
 #include <QFontDatabase>
 #include <QSurfaceFormat>
 #include <QScreen>

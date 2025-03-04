@@ -20,21 +20,42 @@ set(CMAKE_AUTORCC ON) # Resource files
 set(QT_RESOURCES "${PROJECT_BINARY_DIR}/application.qrc")
 set(CMAKE_AUTOUIC ON) # UI files
 
+# Find Qt6
+find_package(Qt6 REQUIRED COMPONENTS Widgets PrintSupport Core Gui OpenGL OpenGLWidgets Concurrent Charts)
+
 # Qt libraries
-set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL Concurrent Charts)
+set(ST_QT_LIBS Widgets PrintSupport Core Gui OpenGL OpenGLWidgets Concurrent Charts)
 if(UNIX AND NOT APPLE)
   list(APPEND ST_QT_LIBS DBus Svg)
 endif()
+
+# Collect Qt6 include directories
+set(QT_INCLUDE_DIRS "")
 foreach(i ${ST_QT_LIBS})
-  USE_QT5LIB("Qt5${i}")
-  list(APPEND QT_TARGET_LINK_LIBS "Qt5::${i}")
+  list(APPEND QT_TARGET_LINK_LIBS "Qt6::${i}")
+
+  # Ensure Qt6 headers are included correctly
+  get_target_property(Qt6_${i}_INCLUDE_DIR Qt6::${i} INTERFACE_INCLUDE_DIRECTORIES)
+  if(Qt6_${i}_INCLUDE_DIR)
+    list(APPEND QT_INCLUDE_DIRS ${Qt6_${i}_INCLUDE_DIR})
+  endif()
+endforeach()
+
+include_directories(${QT_INCLUDE_DIRS})
+
+# Link Qt6 libraries
+foreach(i ${ST_QT_LIBS})
+  list(APPEND QT_TARGET_LINK_LIBS "Qt6::${i}")
 endforeach()
 
 # External libraries
 find_path(QCUSTOMPLOT_PATH NAMES qcustomplot.h)
+if(NOT QCUSTOMPLOT_PATH)
+    message(FATAL_ERROR "qcustomplot.h not found. Please specify QCUSTOMPLOT_PATH.")
+endif()
 add_library(qcustomplot SHARED "${QCUSTOMPLOT_PATH}/qcustomplot.cpp")
 target_compile_definitions(qcustomplot PUBLIC -DQCUSTOMPLOT_COMPILE_LIBRARY)
-target_link_libraries(qcustomplot Qt5::Widgets Qt5::Core Qt5::Gui Qt5::PrintSupport)
+target_link_libraries(qcustomplot Qt6::Widgets Qt6::Core Qt6::Gui Qt6::PrintSupport)
 include_directories(${QCUSTOMPLOT_PATH})
 
 if(WIN32)
@@ -52,21 +73,8 @@ endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-if(APPLE)
-    find_library(OpenMP_LIBRARY NAMES omp)
-    find_path(OpenMP_INCLUDE_DIR omp.h)
-    set(OpenMP_LIBRARIES ${OpenMP_LIBRARY})
-    set(OpenMP_INCLUDE_DIRS ${OpenMP_INCLUDE_DIR})
-    set(OpenMP_COMPILE_OPTIONS -Xpreprocessor -fopenmp)
-    add_library(OpenMP::OpenMP SHARED IMPORTED)
-    set_target_properties(OpenMP::OpenMP PROPERTIES
-            IMPORTED_LOCATION ${OpenMP_LIBRARIES}
-            INTERFACE_INCLUDE_DIRECTORIES "${OpenMP_INCLUDE_DIRS}"
-            INTERFACE_COMPILE_OPTIONS "${OpenMP_COMPILE_OPTIONS}")
-else()
-    find_package(OpenMP REQUIRED)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+find_package(OpenMP REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # Define what sub folders will be compiled
 set(subdir_list
@@ -106,7 +114,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DQCUSTOMPLOT_USE_LIBRARY)
 # Link libraries for the ST Viewer target
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
-        ${ARMADILLO_LIBRARIES} "-framework Accelerate" OpenMP::OpenMP)
+        ${ARMADILLO_LIBRARIES} "-framework Accelerate" ${OpenMP_CXX_LIBRARIES})
 else()
     target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_TARGET_LINK_LIBS} qcustomplot
         ${ARMADILLO_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
@@ -186,21 +194,24 @@ if(APPLE)
     set(MACOSX_BUNDLE_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.app/Contents/Resources")
 
     # Architecture OSX
-    set(CMAKE_OSX_ARCHITECTURES "ppc;i386")
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
     set(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
 
     # Find macdeoployqt
-    find_program(MACDEPLOYQT NAMES macdeployqt macdeployqt-mac PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
+    find_program(MACDEPLOYQT NAMES macdeployqt PATHS ${QT_BINARY_DIR} NO_DEFAULT_PATH)
+    if(NOT MACDEPLOYQT)
+        message(FATAL_ERROR "macdeployqt not found. Please install Qt6 tools or specify the correct path.")
+    endif()
 
     # Resources
-    add_custom_command(TARGET ${PROJECT_NAME}
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/Resources
         COMMAND install -m 644 ${MACOSX_BUNDLE_ICON} ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/cmake/mac/qt.conf ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/LICENSE ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CMAKE_SOURCE_DIR}/DEPENDENCIES ${CMAKE_INSTALL_PREFIX}/Resources/
         COMMAND install -m 644 ${CONFIG_FILE} ${CMAKE_INSTALL_PREFIX}/Resources/)
-    add_custom_command(TARGET ${PROJECT_NAME} COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${MACDEPLOYQT} ${OS_X_PROJECT_BINARY_DIR} -dmg)
 
     # Build dmg
     add_custom_target(dmg

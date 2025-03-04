@@ -2,8 +2,6 @@
 # Unit Test CMake                                                             #
 ###############################################################################
 
-use_qt5lib(Qt5Test)
-
 include_directories(${PROJECT_SOURCE_DIR}/src
                     ${PROJECT_SOURCE_DIR}
                     ${CMAKE_BINARY_DIR}/src
@@ -15,7 +13,7 @@ set(ST_UNITTEST_SOURCES
     ${ST_TARGET_OBJECTS}
 )
 
-find_package(Qt5Test REQUIRED)
+find_package(Qt6Test REQUIRED)
 
 ### TEST CREATION MACRO #######################################################
 # This macro accepts an optional argument 'otherfiles'. This forms an optional list of non test 
@@ -28,7 +26,7 @@ macro(add_st_client_test subdir name)
     set(srcs ${srcs} ${subdir}/${file}.h ${subdir}/${file}.cpp )
   endforeach()
   add_executable(${name} ${srcs})
-  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt5::Test
+  target_link_libraries(${name} ${QT_TARGET_LINK_LIBS} qcustomplot Qt6::Test
       ${ARMADILLO_LIBRARIES} ${LIBR_LIBRARIES} ${LIBRINSIDE_LIBRARIES})
   add_test(NAME ${name}
            COMMAND $<TARGET_FILE:${name}>)
@@ -38,9 +36,9 @@ macro(add_st_client_test subdir name)
   if(WIN32)
       string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWERCASE)
       if(BUILD_TYPE_LOWERCASE STREQUAL "debug")
-          get_target_property(ST_QT_LOC "Qt5::Test" LOCATION_DEBUG)
+          get_target_property(ST_QT_LOC "Qt6::Test" LOCATION_DEBUG)
       else()
-          get_target_property(ST_QT_LOC "Qt5::Test" LOCATION)
+          get_target_property(ST_QT_LOC "Qt6::Test" LOCATION)
       endif()
       #install(FILES ${ST_QT_LOC} DESTINATION .)
       #add_custom_command(TARGET ${name} POST_BUILD  

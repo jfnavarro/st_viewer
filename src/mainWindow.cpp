@@ -16,7 +16,7 @@
 #include <QStatusBar>
 #include <QVBoxLayout>
 #include <QApplication>
-#include <QGLFormat>
+#include <QSurfaceFormat>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QFont>
@@ -100,23 +100,28 @@ void MainWindow::init()
 
 bool MainWindow::checkSystemRequirements() const
 {
-    // test for Basic OpenGL Support
-    if (!QGLFormat::hasOpenGL()) {
+    // Test for Basic OpenGL Support
+    if (!QSurfaceFormat::defaultFormat().renderableType()) {
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL Support"),
                               tr("This system does not support OpenGL"));
         return false;
     }
 
-    // fail if you do not have OpenGL 2.0 or higher driver
-    if (QGLFormat::openGLVersionFlags() < QGLFormat::OpenGL_Version_2_1) {
+    // Get the OpenGL version
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    int major = format.majorVersion();
+    int minor = format.minorVersion();
+
+    // Fail if OpenGL version is below 2.1
+    if (major < 2 || (major == 2 && minor < 1)) {
         QMessageBox::critical(this->centralWidget(),
                               tr("OpenGL 2.x Context"),
                               tr("This system does not support OpenGL 2.x Contexts"));
         return false;
     }
 
-    // fail if there is not configuration file
+    // Fail if there is no configuration file
     Configuration config;
     if (!config.is_valid()) {
         QMessageBox::critical(this->centralWidget(),

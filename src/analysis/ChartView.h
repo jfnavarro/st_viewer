@@ -5,8 +5,6 @@
 #include <QChart>
 #include <QRubberBand>
 
-QT_CHARTS_USE_NAMESPACE
-
 // A simple wrapper around QChartView to allow zooming, panning and selections
 class ChartView : public QChartView
 {

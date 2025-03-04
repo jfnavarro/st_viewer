@@ -103,7 +103,9 @@ void AnalysisClustering::slotRun()
     m_selected_spots.clear();
 
     // make the call on another thread
-    QFuture<void> future = QtConcurrent::run(this, &AnalysisClustering::computeClustersAsync);
+	QFuture<void> future = QtConcurrent::run([this]() {
+		this->computeClustersAsync();
+	});
     m_watcher_clusters.setFuture(future);
 }
 

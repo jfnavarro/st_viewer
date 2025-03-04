@@ -6,7 +6,6 @@
 
 class UserSelection;
 class QModelIndex;
-class QStringList;
 class QItemSelection;
 
 // Data model for the user selections in the selections table

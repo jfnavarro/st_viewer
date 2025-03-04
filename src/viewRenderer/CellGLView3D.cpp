@@ -416,7 +416,7 @@ void CellGLView3D::wheelEvent(QWheelEvent *event)
         return;
     }
 
-    const double zoomFactor = std::pow(4.0 / 3.0, (event->delta() / 240.0));
+    const double zoomFactor = std::pow(4.0 / 3.0, (event->angleDelta().y() / 240.0));
     m_zoom *= zoomFactor;
 
     if (event->modifiers() & Qt::ControlModifier) {

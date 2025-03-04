@@ -11,8 +11,6 @@ namespace Ui {
 class analysisClustering;
 }
 
-QT_CHARTS_USE_NAMESPACE
-
 // A Widget that is used to cluster spots in a dataset based on their gene expression profiles
 // using dimensionality reduction and clustering algorithms.
 // The clustered spots are projected onto a 2D manifold and plotted in a scatter plot.
